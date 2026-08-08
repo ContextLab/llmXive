@@ -26,7 +26,7 @@
 
 **Purpose**: Project initialization, governance, and spec alignment. **MUST complete before any data processing.**
 
-- [ ] T001a Create project directory structure: `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/data/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/tests/`. **Verification**: Create `data/setup_log.json` with status "SUCCESS" if directories exist. **Output**: `data/setup_log.json`. **Schema**: `{"status": "SUCCESS"|"FAILED", "timestamp": "ISO8601", "paths_verified": ["path1", "path2"]}`. **Implementation**: Use `os.makedirs(..., exist_ok=True)` then `json.dump` with `indent=2`.
+- [X] T001a Create project directory structure: `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/data/`, `projects/PROJ-175-statistical-analysis-of-publicly-availab/tests/`. **Verification**: Create `data/setup_log.json` with status "SUCCESS" if directories exist. **Output**: `data/setup_log.json`. **Schema**: `{"status": "SUCCESS"|"FAILED", "timestamp": "ISO8601", "paths_verified": ["path1", "path2"]}`. **Implementation**: Use `os.makedirs(..., exist_ok=True)` then `json.dump` with `indent=2`.
 - [X] T001b Create empty `code/__init__.py`, `tests/__init__.py`, and `code/data/__init__.py`
 - [X] T001c Create `code/requirements.txt` placeholder and `tests/conftest.py` placeholder
 - [ ] T012a_recipe1m [P] Download Recipe1M: Stream the Recipe1M dataset from verified HuggingFace URL. **Action**: Use `datasets.load_dataset(..., streaming=True)`. **Constraint**: If download fails, raise error (no proxy for Recipe1M). **Output**: `data/raw/recipe1m_raw.parquet`. **DEPENDS ON**: T001a.

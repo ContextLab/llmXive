@@ -1,80 +1,50 @@
-# Dataset Schema for Statistical Analysis of Recipe Data
-# Defines the structure of processed ingredient and pairwise data
 version: "1.0.0"
-description: "Schema for ingredient pairs and derived features used in modeling"
-
+description: "Schema for the primary ingredient analysis dataset used in statistical modeling."
 fields:
   - name: ingredient_id
     type: string
-    description: "Unique identifier for the ingredient (normalized name)"
-    required: true
-    example: "onion"
-    
+    description: "Unique identifier for the ingredient (normalized canonical name)."
+    nullable: false
+    unique: true
   - name: log_co_occurrence
     type: float
-    description: "Log-transformed co-occurrence frequency with partner ingredient"
-    required: true
-    example: 4.52
-    
+    description: "Log-transformed co-occurrence count with other ingredients, smoothed with epsilon."
+    nullable: false
+    min_value: -inf
   - name: flavor_similarity
     type: float
-    description: "Cosine similarity between ingredient embeddings (FlavorDB or Recipe1M)"
-    required: true
-    example: 0.78
-    
+    description: "Cosine similarity between ingredient embeddings (FlavorDB chemical vectors or Recipe1M visual/text embeddings)."
+    nullable: false
+    min_value: -1.0
+    max_value: 1.0
   - name: functional_role
     type: string
-    description: "Functional role of the ingredient in the recipe"
-    required: true
+    description: "Derived functional role of the ingredient."
+    nullable: false
     enum:
       - primary
       - secondary
       - garnish
-    example: "primary"
-    
   - name: compatibility_label
     type: integer
-    description: "Binary label indicating compatibility (1=compatible, 0=not compatible)"
-    required: true
+    description: "Binary compatibility label (1 if rating >= median, 0 otherwise)."
+    nullable: false
     enum:
       - 0
       - 1
-    example: 1
-    
-  - name: partner_ingredient_id
-    type: string
-    description: "Unique identifier for the partner ingredient in the pair"
-    required: true
-    example: "garlic"
-    
-  - name: recipe_count
+  - name: frequency
     type: integer
-    description: "Number of recipes containing this ingredient pair"
-    required: false
-    example: 1523
-    
+    description: "Marginal frequency of the ingredient in the corpus."
+    nullable: false
+    min_value: 1
   - name: source_methodology
     type: string
-    description: "Source of the data (Causal Independence or Correlational Analysis)"
-    required: false
-    example: "Correlational Analysis"
-    
-validation_rules:
-  - rule: "ingredient_id must not be empty"
-    type: string_length
-    min: 1
-  - rule: "log_co_occurrence must be non-negative"
-    type: range
-    min: 0.0
-  - rule: "flavor_similarity must be between -1 and 1"
-    type: range
-    min: -1.0
-    max: 1.0
-  - rule: "compatibility_label must be binary"
-    type: set
-    values: [0, 1]
-    
-notes:
-  - "This schema supports both original Spec requirements and the Ratified Amendment path (Recipe1M proxy)"
-  - "When using Recipe1M proxy, flavor_similarity is computed from Recipe1M embeddings"
-  - "When using Causal Independence path, flavor_similarity is computed from FlavorDB chemical vectors"
+    description: "Indicates the data source methodology used for this record."
+    nullable: false
+    enum:
+      - Causal Independence
+      - Correlational Analysis
+constraints:
+  - "No null values allowed in primary key (ingredient_id)."
+  - "flavor_similarity must be within [-1, 1]."
+  - "functional_role must be one of the enumerated values."

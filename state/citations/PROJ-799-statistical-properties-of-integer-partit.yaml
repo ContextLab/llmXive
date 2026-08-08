@@ -1,4 +1,4 @@
-- artifact_hash: 0f00e76be216abdbca2a897d2e723e1db211afbae23b61dc72661496c0bde084
+- artifact_hash: a149b4b9740ad519f0572f314ff7c9d8f496d3a31de9165ab4748bd089dbe59d
   artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://en.wikipedia.org/wiki/Cross-validation_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Cross-validation
-  verified_at: '2026-08-04T16:15:47.604677Z'
-- artifact_hash: 0f00e76be216abdbca2a897d2e723e1db211afbae23b61dc72661496c0bde084
+  verified_at: '2026-08-08T04:18:04.809087Z'
+- artifact_hash: a149b4b9740ad519f0572f314ff7c9d8f496d3a31de9165ab4748bd089dbe59d
   artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://oeis.org/A000041
   verification_status: pending
   verified_against_url: https://oeis.org/A000041
-  verified_at: '2026-08-04T16:15:47.604677Z'
+  verified_at: '2026-08-08T04:18:04.809087Z'

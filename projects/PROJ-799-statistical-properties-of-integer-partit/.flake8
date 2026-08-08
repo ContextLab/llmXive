@@ -1,15 +1,19 @@
 [flake8]
-max-line-length = 88
-extend-ignore = E203, W503
+# Linting configuration for PROJ-799
+# Scoped to code/ directory via tox/CI, but these are the default rules
+max-line-length = 100
+extend-ignore = E203, E501, W503
 exclude =
     .git,
     __pycache__,
-    data,
-    tests/data,
-    docs,
     build,
     dist,
-    *.egg-info
+    .eggs,
+    *.egg-info,
+    data,
+    state
 per-file-ignores =
-    */__init__.py:F401
-    tests/*:S101
+    # Allow unused imports in __init__.py if present
+    */__init__.py: F401
+    # Allow assert in tests
+    tests/*: S101

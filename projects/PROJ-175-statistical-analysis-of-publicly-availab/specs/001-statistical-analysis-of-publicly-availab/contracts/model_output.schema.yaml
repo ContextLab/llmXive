@@ -1,131 +1,63 @@
-# Model Output Schema for Statistical Analysis of Recipe Data
-# Defines the structure of model fitting results and evaluation metrics
 version: "1.0.0"
-description: "Schema for logistic regression and Bayesian model outputs"
-
+description: "Schema for model output artifacts including logistic and Bayesian results."
 fields:
   - name: model_type
     type: string
-    description: "Type of model (logistic_regression or hierarchical_bayesian)"
-    required: true
+    description: "Type of model fitted (e.g., logistic_regression, bayesian_hierarchical)."
+    nullable: false
     enum:
       - logistic_regression
-      - hierarchical_bayesian
-    example: "logistic_regression"
-    
+      - bayesian_hierarchical
   - name: coefficients
     type: object
-    description: "Model coefficients for each predictor"
-    required: true
-    properties:
-      log_co_occurrence:
-        type: float
-      flavor_similarity:
-        type: float
-      functional_role_primary:
-        type: float
-      functional_role_secondary:
-        type: float
-      functional_role_garnish:
-        type: float
-        
-  - name: standard_errors
-    type: object
-    description: "Standard errors for each coefficient"
-    required: true
-    properties:
-      log_co_occurrence:
-        type: float
-      flavor_similarity:
-        type: float
-      functional_role_primary:
-        type: float
-      functional_role_secondary:
-        type: float
-      functional_role_garnish:
-        type: float
-        
-  - name: p_values
-    type: object
-    description: "P-values for each coefficient"
-    required: true
-    properties:
-      log_co_occurrence:
-        type: float
-      flavor_similarity:
-        type: float
-      functional_role_primary:
-        type: float
-      functional_role_secondary:
-        type: float
-      functional_role_garnish:
-        type: float
-        
+    description: "Dictionary of feature names to coefficient values."
+    nullable: false
+  - name: intercept
+    type: float
+    description: "Model intercept term."
+    nullable: false
   - name: vif_scores
     type: object
-    description: "Variance Inflation Factors for each predictor"
-    required: true
-    properties:
-      log_co_occurrence:
-        type: float
-      flavor_similarity:
-        type: float
-      functional_role:
-        type: float
-        
-  - name: model_metrics
-    type: object
-    description: "Overall model performance metrics"
-    required: true
-    properties:
-      auc:
-        type: float
-      precision:
-        type: float
-      recall:
-        type: float
-      f1_score:
-        type: float
-      log_loss:
-        type: float
-        
-  - name: convergence_info
-    type: object
-    description: "Convergence information for Bayesian models"
-    required: false
-    properties:
-      r_hat:
-        type: float
-      effective_sample_size:
-        type: integer
-      divergences:
-        type: integer
-        
-  - name: methodology
+    description: "Dictionary of feature names to Variance Inflation Factor scores."
+    nullable: true
+  - name: auc
+    type: float
+    description: "Area Under the Curve metric for model performance."
+    nullable: true
+    min_value: 0.0
+    max_value: 1.0
+  - name: precision
+    type: float
+    description: "Precision metric for model performance."
+    nullable: true
+    min_value: 0.0
+    max_value: 1.0
+  - name: recall
+    type: float
+    description: "Recall metric for model performance."
+    nullable: true
+    min_value: 0.0
+    max_value: 1.0
+  - name: convergence_status
     type: string
-    description: "Methodology used (Causal Independence or Correlational Analysis)"
-    required: true
-    example: "Correlational Analysis"
-    
-  - name: timestamp
+    description: "Status of model convergence (for Bayesian models)."
+    nullable: true
+    enum:
+      - converged
+      - failed
+      - timeout
+  - name: posterior_samples
+    type: integer
+    description: "Number of posterior samples drawn (for Bayesian models)."
+    nullable: true
+    min_value: 0
+  - name: methodology_flag
     type: string
-    description: "ISO8601 timestamp of model fitting"
-    required: true
-    example: "2024-01-15T14:30:00Z"
-    
-validation_rules:
-  - rule: "coefficients must have at least 3 predictors"
-    type: object_length
-    min: 3
-  - rule: "auc must be between 0.5 and 1.0"
-    type: range
-    min: 0.5
-    max: 1.0
-  - rule: "vif_scores must be positive"
-    type: range
-    min: 0.0
-    
-notes:
-  - "This schema supports both logistic regression and hierarchical Bayesian model outputs"
-  - "For Bayesian models, convergence_info is required"
-  - "VIF scores are computed for all predictors to check multicollinearity"
+    description: "The methodology used (Causal Independence or Correlational Analysis)."
+    nullable: false
+    enum:
+      - Causal Independence
+      - Correlational Analysis
+constraints:
+  - "If model_type is 'bayesian_hierarchical', convergence_status and posterior_samples must be present."
+  - "If model_type is 'logistic_regression', vif_scores must be present."

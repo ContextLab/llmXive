@@ -1003,3 +1003,180 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T18:51:28Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Recipe1M dataset downloaded using streaming mode
+  claim_id: c_ef3ae743
+  context: 'T012a_recipe1m [P] Download Recipe1M: Stream the Recipe1M dataset from
+    verified HuggingFace URL. **Action**: Use `datasets.load_dataset(..., streaming=True)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Recipe1M_dataset_downloaded_using_streaming_mode
+  kind: entity_fact
+  raw_text: Use `datasets.load_dataset(..., streaming=True)` to download the Recipe1M
+    dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:41:05Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: FlavorDB chemical matrix downloaded from verified URL
+  claim_id: c_561ca8c8
+  context: 'T012a_flavordb [P] Download FlavorDB: Download FlavorDB chemical matrix
+    from verified URL. **Action**: Use `requests` or `datasets.load_dataset`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FlavorDB_chemical_matrix_downloaded_from_verified_URL
+  kind: entity_fact
+  raw_text: The FlavorDB chemical matrix is downloaded from a verified URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:41:43Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Counterfactual Recipe Generation dataset downloaded from verified URL
+  claim_id: c_51373019
+  context: 'T012a_counterfactual [P] Download Counterfactual: Download Counterfactual
+    Recipe Generation dataset from verified URL.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Counterfactual_Recipe_Generation_dataset_downloaded_from_ver
+  kind: entity_fact
+  raw_text: The Counterfactual Recipe Generation dataset is downloaded from a verified
+    URL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:42:12Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters alpha 0.05 beta 0.2 effect size 0.1
+  claim_id: c_0a4c8e4f
+  context: 'T013b Pilot Download & Power Analysis: ... Calculate required sample size
+    for power analysis using parameters: alpha=0.05, beta=0.2 (power=0.8), effect_size=0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis parameters are set to alpha=0.05, beta=0.2, and effect_size=0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:43:03Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Ingredient normalization Levenshtein distance threshold 2
+  claim_id: c_7a6d3171
+  context: "T014 Normalization: ... Normalize using Levenshtein distance \u2264 2.\
+    \ ... If `proxy_source` is null: Use FlavorDB canonical list with Levenshtein\
+    \ distance \u2264 2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ingredient normalization uses a Levenshtein distance threshold of 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:43:35Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sentence transformer model for recipe embeddings attributed to Reimers
+    and Gurevych 2019
+  claim_id: c_a29162b5
+  context: 'T016 Semantic Similarity: ... If `proxy_source` is "Recipe1M": Use a pre-trained
+    sentence transformer model for Recipe dataset visual/text embeddings (Reimers
+    & Gurevych, 2019)..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A pre-trained sentence transformer model for Recipe dataset visual/text
+    embeddings is attributed to Reimers & Gurevych (2019).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:44:05Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Functional role independence flag triggered if Pearson correlation exceeds
+    0.1
+  claim_id: c_0a29e7f2
+  context: 'T017_validate_role_independence [P] Role Independence Audit: ... If $r
+    > 0.1$, log warning and flag for manual review.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Functional role independence is flagged if Pearson correlation with log_co_occurrence
+    exceeds 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:44:41Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Binary compatibility label 1 if rating greater than or equal to median
+  claim_id: c_fe27ce80
+  context: 'T019 Compatibility Labels: ... Binary label = 1 if rating >= median, else
+    0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Binary_compatibility_label_1_if_rating_greater_than_or_equal
+  kind: magnitude
+  raw_text: Binary compatibility labels are assigned as 1 if the rating is greater
+    than or equal to the median.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:45:46Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Hypothesis test AUC delta threshold 0.05
+  claim_id: c_086506db
+  context: "T030b_hypothesis_test [P] Hypothesis Test: ... Perform statistical test\
+    \ ... for AUC delta \u2265 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hypothesis testing for AUC delta uses a threshold of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:46:36Z'
+- artifact_path: projects/PROJ-175-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory profiling RAM limit 7168 MB
+  claim_id: c_c1115242
+  context: 'T006 [P] Setup memory profiling utility ... **Deliverable**: Create `check_limit(limit_mb=7168)`
+    function ... **Schema**: ... `limit_mb`: 7168 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory profiling utility enforces a predefined RAM limit of 7168 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:47:22Z'

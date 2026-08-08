@@ -3,64 +3,76 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-def ensure_directories(base_path: str) -> None:
+def ensure_directories():
     """Create the required project directory structure."""
-    paths = [
-        os.path.join(base_path, "code"),
-        os.path.join(base_path, "data"),
-        os.path.join(base_path, "data", "raw"),
-        os.path.join(base_path, "data", "processed"),
-        os.path.join(base_path, "data", "final"),
-        os.path.join(base_path, "data", "logs"),
-        os.path.join(base_path, "tests"),
-        os.path.join(base_path, "docs"),
+    project_root = Path(__file__).parent.parent
+    base_dirs = [
+        project_root / "code",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "final",
+        project_root / "data" / "logs",
+        project_root / "tests",
+        project_root / "docs",
+        project_root / "specs" / "001-statistical-analysis-of-recipe-data" / "contracts",
     ]
-    for path in paths:
-        os.makedirs(path, exist_ok=True)
+    created = []
+    for d in base_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        created.append(str(d.relative_to(project_root)))
+    return created
 
-def verify_directories(base_path: str) -> list:
-    """Verify that the required directories exist and return their paths."""
-    required_paths = [
-        "code",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/final",
-        "data/logs",
-        "tests",
-        "docs",
-    ]
+def verify_directories(paths):
+    """Verify that the specified directories exist."""
+    project_root = Path(__file__).parent.parent
     verified = []
-    for rel_path in required_paths:
-        full_path = os.path.join(base_path, rel_path)
-        if os.path.isdir(full_path):
-            verified.append(rel_path)
-    return verified
+    for p in paths:
+        full_path = project_root / p
+        if full_path.exists() and full_path.is_dir():
+            verified.append(p)
+        else:
+            verified.append(None)
+    return all(v is not None for v in verified), [v for v in verified if v is not None]
 
-def log_setup_status(base_path: str, status: str, verified_paths: list) -> dict:
-    """Create the setup log JSON file."""
+def log_setup_status(output_path, status, paths_verified):
+    """Write the setup log to a JSON file."""
     log_entry = {
         "status": status,
         "timestamp": datetime.utcnow().isoformat() + "Z",
-        "paths_verified": verified_paths,
+        "paths_verified": paths_verified
     }
-    log_path = os.path.join(base_path, "data", "setup_log.json")
-    with open(log_path, "w", encoding="utf-8") as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(log_entry, f, indent=2)
-    return log_entry
 
 def main():
-    """Main entry point for the setup task."""
-    base_path = Path(__file__).resolve().parent.parent
-    ensure_directories(str(base_path))
-    verified = verify_directories(str(base_path))
+    """Main entry point for directory setup and verification."""
+    project_root = Path(__file__).parent.parent
+    output_file = project_root / "data" / "setup_log.json"
     
-    if len(verified) == 8:
-        log_setup_status(str(base_path), "SUCCESS", verified)
-        print("Setup completed successfully. Directories verified.")
-    else:
-        log_setup_status(str(base_path), "FAILED", verified)
-        raise RuntimeError(f"Directory verification failed. Only {len(verified)} paths verified.")
+    try:
+        created_dirs = ensure_directories()
+        # Verify the core paths required by T001a
+        core_paths = [
+            "code",
+            "data",
+            "tests"
+        ]
+        success, verified = verify_directories(core_paths)
+        
+        if success:
+            log_setup_status(output_file, "SUCCESS", verified)
+            print(f"Setup successful. Log written to {output_file}")
+        else:
+            log_setup_status(output_file, "FAILED", verified)
+            print(f"Setup failed. Missing directories.")
+            return 1
+    except Exception as e:
+        log_setup_status(output_file, "FAILED", [])
+        print(f"Setup failed with error: {e}")
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

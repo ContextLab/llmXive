@@ -1,11 +1,11 @@
 T007a:
   c: false
-  h: 43872997feb6205faee63c7eb54fa12df7bf31524af2b9478986a6dc2666e7d7
-  r: The required schema files `dataset.schema.yaml` and `model_output.schema.yaml`
-    are absent from `specs/001-statistical-analysis-of-recipe-data/contracts/` (the
-    only schema file listed is missing). Additionally, the provided `validate_schema.py`
-    script is truncated and does not demonstrate validation against the missing schemas.
-    The deliverables are therefore not present.
+  h: a324a2cd6a69ea95f579f6575215e009dfb1e2dd83437a9036088a0d86fcc3f1
+  r: "The validator script `code/utils/validate_schema.py` is present, but the required\
+    \ schema files `specs/001-statistical-analysis-of-recipe-data/contracts/dataset.schema.yaml`\
+    \ and `specs/001-statistical-analysis-of-recipe-data/contracts/model_output.schema.yaml`\
+    \ are missing (no such files on disk). Without these YAML schema definitions,\
+    \ the task\u2019s deliverables are not fulfilled."
 T012b:
   c: false
   h: 880704efb8efdda90e24c66879d847dc67abbcf27a5519a6ef56d9a0a2bb1872

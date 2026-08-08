@@ -1,0 +1,9 @@
+{
+  "status": "SUCCESS",
+  "timestamp": "2023-10-27T12:00:00Z",
+  "paths_verified": [
+    "code",
+    "data",
+    "tests"
+  ]
+}

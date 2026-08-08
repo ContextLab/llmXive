@@ -1,65 +1,46 @@
 """
-Setup script for PROJ-799: Statistical Properties of Integer Partitions into Distinct Prime Summands.
-Creates the required directory structure as specified in task T001a.
+Setup script to create the project directory structure for PROJ-799.
+This script ensures all required directories exist under the project root.
 """
 import os
 import sys
 
-# Define the project root relative to this script's location
-# The script is located at: code/setup_structure.py
-# We need to create structure relative to the project root (parent of code/)
-script_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(script_dir)
-
-# Define the required directories relative to project_root
-required_dirs = [
-    "code",
-    "code/utils",
-    "data/raw",
-    "data/processed",
-    "data/schemas",
-    "tests",
-    "tests/data",
-    "docs",
-    "state/projects",
-]
-
 def main():
+    """Create the required directory structure for the project."""
+    # Determine project root relative to this script's location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(script_dir)
+    
+    # Define the relative paths to create
+    relative_paths = [
+        "code",
+        "code/utils",
+        "data/raw",
+        "data/processed",
+        "data/schemas",
+        "tests",
+        "tests/data",
+        "docs",
+        "state/projects"
+    ]
+    
     created_count = 0
-    existing_count = 0
-
-    print(f"Project Root: {project_root}")
-    print("Creating directory structure...")
-
-    for dir_path in required_dirs:
-        full_path = os.path.join(project_root, dir_path)
-        if os.path.exists(full_path):
-            existing_count += 1
-            print(f"  [EXISTS] {dir_path}")
-        else:
+    skipped_count = 0
+    
+    for rel_path in relative_paths:
+        full_path = os.path.join(project_root, rel_path)
+        if not os.path.exists(full_path):
             os.makedirs(full_path, exist_ok=True)
+            print(f"Created directory: {rel_path}")
             created_count += 1
-            print(f"  [CREATED] {dir_path}")
-
-    print(f"\nSummary: {created_count} directories created, {existing_count} already existed.")
-
-    # Verify the structure
-    print("\nVerifying structure:")
-    all_exist = True
-    for dir_path in required_dirs:
-        full_path = os.path.join(project_root, dir_path)
-        if os.path.isdir(full_path):
-            print(f"  [OK] {dir_path}")
         else:
-            print(f"  [FAIL] {dir_path}")
-            all_exist = False
-
-    if all_exist:
-        print("\n✅ Directory structure setup complete.")
-        return 0
-    else:
-        print("\n❌ Some directories failed to create.")
-        return 1
+            skipped_count += 1
+    
+    print(f"\nDirectory setup complete.")
+    print(f"  Created: {created_count} directories")
+    print(f"  Skipped (already exist): {skipped_count} directories")
+    
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

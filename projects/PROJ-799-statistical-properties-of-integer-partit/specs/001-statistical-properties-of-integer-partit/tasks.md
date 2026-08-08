@@ -35,7 +35,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes [UNRESOLVED-CLAIM: c_f1e5a89e — status=not_enough_info] (memory optimized)
+- [X] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes [UNRESOLVED-CLAIM: c_1f077500 — status=not_enough_info] (memory optimized)
 - [ ] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based strictly on the **distinct-partition variant** of Meinardus' theorem (verified Roth & Szekeres 1954 expansion), using **leading-order term only**. Generating function: $\prod (1+q^p)$. Explicitly document the leading-order formula used.
 - [ ] T006 [P] Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`
 - [ ] T007 [P] Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`)
@@ -239,7 +239,7 @@ Due to strict data dependencies (US1 -> US2 -> US3), the project follows a seque
 - Stop at any checkpoint to validate story independently
 - **Critical Constraint**: Ensure `generate_partitions.py` uses 1D array and iterates only primes to respect the "distinct prime" constraint and memory limits.
 - **Critical Constraint**: The asymptotic baseline $Q_{as}(n)$ MUST use the {{claim:c_b3d1e4d3}} (OEIS A000041, https://oeis.org/A000041) as per the spec, not the unrestricted partition formula.
-- **Critical Constraint**: The entire pipeline must complete within 6 hours [UNRESOLVED-CLAIM: c_6f2512de — status=not_enough_info] (SC-004). Monitor time budgets in T010b and T023b.
+- **Critical Constraint**: The entire pipeline must complete within 6 hours (SC-004). Monitor time budgets in T010b and T023b.
 - **Critical Constraint**: P-value correction (Benjamini-Hochberg, alpha=0.05) is mandatory (SC-005).
 - **Critical Constraint**: US2 and US3 must be executed sequentially after US1 due to strict data dependencies.
 - **Revision Constraint**: Tasks referencing non-existent reviews (T013b, T013c, T017d, T026b) have been removed to ensure all work is grounded in verified spec requirements.

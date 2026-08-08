@@ -1150,22 +1150,6 @@
   updated_at: '2026-07-24T21:41:48Z'
 - artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
   attempts: 1
-  canonical: generate primes up to 50000
-  claim_id: c_1f077500
-  context: 'T004 [P] Implement code/utils/prime_sieve.py: Generate primes up to 50,000
-    using Sieve of Eratosthenes (memory optimized)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate primes up to 50,000 using Sieve of Eratosthenes
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-24T21:42:19Z'
-- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
-  attempts: 1
   canonical: Q_as(n) based on distinct-partition variant of Meinardus theorem Roth
     Szekeres 1954
   claim_id: c_2ce510bb
@@ -1285,22 +1269,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-24T21:49:16Z'
-- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
-  attempts: 1
-  canonical: Benjamini-Hochberg correction alpha 0.05
-  claim_id: c_3f891c43
-  context: Apply **Benjamini-Hochberg correction (alpha=0.05)** to p-values (FR-005,
-    SC-005).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Apply Benjamini-Hochberg correction (alpha=0.05) to p-values
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-24T21:49:38Z'
 - artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
   attempts: 1
   canonical: Q_as(n) uses OEIS A000041
@@ -1581,22 +1549,6 @@
   status: not_enough_info
   updated_at: '2026-08-04T16:08:51Z'
 - artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
-  attempts: 2
-  canonical: generate_partitions.py completes within 2 hours
-  claim_id: c_939b18e2
-  context: 'T010a [P] [US1] Integration test: Verify generate_partitions.py completes
-    within 2 hours and memory < 6.5 GB in tests/test_pipeline.py'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify generate_partitions.py completes within 2 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-04T16:08:59Z'
-- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
   attempts: 1
   canonical: Q_as(n) clamped to minimum 1e-10
   claim_id: c_3712a685
@@ -1728,3 +1680,532 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T16:15:47Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: generating function distinct prime partitions product (1+q^p)
+  claim_id: c_c0a4eca6
+  context: 'Implement $Q_{as}(n)$ based strictly on the distinct-partition variant
+    of Meinardus'' theorem (verified Roth & Szekeres 1954 expansion), using leading-order
+    term only. Generating function: $\prod (1+q^p)$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generating function for distinct prime partitions is $\prod (1+q^p)$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:53:15Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: leading-order formula Q_as(n) distinct primes
+  claim_id: c_5947d5ee
+  context: 'Calculate $Q_{as}(n)$ using the verified Roth & Szekeres formula (distinct
+    parts, leading order). **Explicit Formula**: $Q_{as}(n) \\approx \\frac{1}{2\\sqrt{3}
+    n^{3/4}} \\exp\\left(\\pi \\sqrt{\\frac{2n}{3} \\sum_{p} \\frac{1}{p^2}}\\right)$
+    (leading order for distinct primes).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The leading-order formula for the asymptotic baseline Q_as(n) is approximately
+    1/(2*sqrt(3)*n^(3/4)) * exp(pi * sqrt((2*n/3) * sum(1/p^2))).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T03:53:16Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Q_as(n) clamped to 1e-10
+  claim_id: c_c9011269
+  context: Clamp $Q_{as}(n)$ to min $10^{-10}$ to prevent log(0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The asymptotic baseline Q_as(n) is clamped to a minimum value of 10^-10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:54:22Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: reference values p_P(n) range 1 to 100
+  claim_id: c_d93f5a21
+  context: 'Generate reference data: Create `tests/data/reference_values.csv` containing
+    exact $p_{\\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1, 100]** to
+    serve as ground truth for T009 and T011.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reference values for p_P(n) are generated for the range n in [1, 100].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:55:22Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: pipeline completion time 6 hours
+  claim_id: c_410c3b76
+  context: Verify total pipeline (DP + Model + Plot) completes within 6 hours (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:56:16Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 2
+  canonical: Benjamini-Hochberg correction alpha 0.05
+  claim_id: c_3f891c43
+  context: Apply **Benjamini-Hochberg correction (alpha=0.05)** to p-values (FR-005,
+    SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Benjamini-Hochberg correction (alpha=0.05) to p-values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:56:32Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: asymptotic baseline uses distinct-partition variant not OEIS A000041
+  claim_id: c_a3475acf
+  context: The asymptotic baseline $Q_{as}(n)$ MUST use the {{claim:c_b3d1e4d3}} (OEIS
+    A000041, https://oeis.org/A000041) as per the spec, not the unrestricted partition
+    formula.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Asymptotic_baseline_uses_distinct-partition_variant_not_OEIS
+  kind: entity_fact
+  raw_text: The asymptotic baseline must use the distinct-partition variant of the
+    partition function, not the unrestricted partition formula (OEIS A000041).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:57:11Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 2
+  canonical: generate primes up to 50000
+  claim_id: c_1f077500
+  context: 'T004 [P] Implement code/utils/prime_sieve.py: Generate primes up to 50,000
+    using Sieve of Eratosthenes (memory optimized)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate primes up to 50,000 using Sieve of Eratosthenes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T03:58:58Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: compute exact partition values for n from 1 to 50000
+  claim_id: c_ee6cee98
+  context: 'Goal: Compute exact p_P(n) for n in [1, 50000] and generate Q_as(n) baseline,
+    ensuring memory < 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute exact p_P(n) for n in the range [1, 50000]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:00:01Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: memory usage less than 6.5 GB
+  claim_id: c_46cee407
+  context: 'Goal: Compute exact p_P(n) for n in [1, 50000] and generate Q_as(n) baseline,
+    ensuring memory < 6.5 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6.5_GB
+  kind: magnitude
+  raw_text: Ensure memory usage is less than 6.5 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:00:38Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: verify output matches reference values for n up to 100
+  claim_id: c_c432b391
+  context: 'Independent Test: Verify output CSV has correct columns, non-negative
+    integers for counts, and matches reference values for n <= 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output CSV matches reference values for n <= 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:01:36Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 3
+  canonical: generate_partitions.py completes within 2 hours
+  claim_id: c_939b18e2
+  context: 'T010a [P] [US1] Integration test: Verify generate_partitions.py completes
+    within 2 hours and memory < 6.5 GB in tests/test_pipeline.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify generate_partitions.py completes within 2 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:01:59Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: regression model R squared greater than 0.05
+  claim_id: c_13d45638
+  context: 'Independent Test: Verify regression outputs coefficients, p-values, and
+    R^2 > 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_model_R_squared_greater_than_0.05
+  kind: magnitude
+  raw_text: Verify regression model outputs R^2 > 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:02:40Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg correction alpha 0.05
+  claim_id: c_905a77e6
+  context: 'T017c [US2] Implement code/regression_model.py P-value Correction: Apply
+    Benjamini-Hochberg correction (alpha=0.05) to p-values (FR-005, SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Benjamini-Hochberg correction with alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:02:57Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: k-fold cross-validation returns k MSE values and a mean
+  claim_id: c_baeae364
+  context: 'T022 [P] [US3] Contract test: Verify that k-fold cross-validation returns
+    k MSE values and a mean, as described in standard validation frameworks (Bishop;
+    Arlot & Celisse).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-fold_cross-validation_returns_k_MSE_values_and_a_mean
+  kind: entity_fact
+  raw_text: Verify k-fold cross-validation returns k MSE values and a mean
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:03:39Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: total pipeline completes within 6 hours
+  claim_id: c_3853fcf5
+  context: 'T023b [P] [US3] Time-budget test: Verify total Verify total pipeline (DP
+    + Model + Plot) completes within 6 hours (SC-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total pipeline completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:04:20Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: n_max limit 50000
+  claim_id: c_3ebfff1e
+  context: 'T027b [P] Documentation: Update docs/methodology.md with detailed justification
+    for the Roth & Szekeres distinct-partition generating function and the n_max=50,000
+    limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use n_max = 50,000 limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:04:41Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: use distinct-partition variant of Meinardus theorem verified by Roth
+    and Szekeres 1954
+  claim_id: c_16160af1
+  context: 'T005 [P] Implement code/utils/asymptotic_baseline.py: Implement Q_as(n)
+    based strictly on the distinct-partition variant of Meinardus'' theorem (verified
+    Roth & Szekeres 1954 expansion), using leading-order term only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use distinct-partition variant of Meinardus' theorem verified by Roth
+    & Szekeres 1954
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:06:33Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: use OEIS A000041 as unrestricted partition reference
+  claim_id: c_7e62014d
+  context: 'Critical Constraint: The asymptotic baseline Q_as(n) MUST use the {{claim:c_b3d1e4d3}}
+    (OEIS A000041, https://oeis.org/A000041) as per the spec, not the unrestricted
+    partition formula.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_OEIS_A000041_as_unrestricted_partition_reference
+  kind: entity_fact
+  raw_text: Use OEIS A000041 as the unrestricted partition formula reference
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:07:11Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: asymptotic formula Q_as(n) leading order distinct primes
+  claim_id: c_6bf9f202
+  context: 'Calculate Q_as(n) using the verified Roth & Szekeres formula (distinct
+    parts, leading order). Explicit Formula: Q_as(n) approx 1/(2*sqrt(3)*n^(3/4))
+    * exp(pi * sqrt((2n/3) * sum(1/p^2))) (leading order for distinct primes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Q_as(n) formula: Q_as(n) approx 1/(2*sqrt(3)*n^(3/4)) * exp(pi
+    * sqrt((2n/3) * sum(1/p^2)))'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:08:14Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: clamp Q_as(n) minimum 1e-10
+  claim_id: c_b7d9a0ef
+  context: Clamp Q_as(n) to min 10^-10 to prevent log(0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clamp Q_as(n) to a minimum value of 10^-10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:08:47Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: generate reference data for n from 1 to 100
+  claim_id: c_848ef571
+  context: 'T008 [P] Generate reference data: Create tests/data/reference_values.csv
+    containing exact p_P(n) for all n in the range n in [1, 100] to serve as ground
+    truth for T009 and T011.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate reference data for n in range [1, 100]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:09:39Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: verify partition values match reference for n from 1 to 100
+  claim_id: c_fe97fd54
+  context: 'T009 [P] [US1] Contract test: Verify p_P(n) matches tests/data/reference_values.csv
+    for all n in [1, 100] in tests/test_partition_logic.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify p_P(n) matches reference values for all n in [1, 100]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:10:54Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: assert exact integer match for n from 1 to 100
+  claim_id: c_45578f64
+  context: Load tests/data/reference_values.csv and assert exact integer match for
+    all n in [1, 100] (SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert exact integer match for all n in [1, 100]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:12:08Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: handle edge cases n less than 5 set count to 0
+  claim_id: c_362370cc
+  context: Handle edge cases (n < 5 where p_P(n)=0) by setting count to 0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_edge_cases_n_less_than_5_set_count_to_0
+  kind: magnitude
+  raw_text: Handle edge cases where n < 5 by setting count to 0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:14:15Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: use Python 3.11
+  claim_id: c_c8b7d4ce
+  context: T002 Initialize Python 3.11 project with requirements.txt (numpy, scipy,
+    scikit-learn, statsmodels, matplotlib, pandas, pygam)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:14:52Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: use 1D int64 array for dynamic programming
+  claim_id: c_d97e5bbf
+  context: Use 1D int64 array for DP to count partitions into distinct primes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_1D_int64_array_for_dynamic_programming
+  kind: entity_fact
+  raw_text: Use 1D int64 array for DP
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:15:20Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: include oscillatory terms sin(log(n)) and cos(log(n))
+  claim_id: c_b7306d9c
+  context: 'Explicitly include oscillatory terms: sin(log(n)), cos(log(n)) in the
+    model formula as required by FR-005.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_oscillatory_terms_sin(log(n))_and_cos(log(n))
+  kind: entity_fact
+  raw_text: Include oscillatory terms sin(log(n)) and cos(log(n)) in the model formula
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:16:27Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: generate SHA-256 checksum for data
+  claim_id: c_e98bbf61
+  context: 'Generate SHA-256 checksum and update state/projects/PROJ-799.yaml at key
+    artifact_hashes.generate_partitions_raw (format: hex string).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate SHA-256 checksum for generated data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:16:51Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: allocate 4 hours for modeling and plotting
+  claim_id: c_5a517a63
+  context: Verify that the DP generation phase completes within a reasonable time
+    frame, leaving 4 hours for modeling/plotting to meet SC-004 (6h total).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 4 hours for modeling and plotting after DP generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:17:21Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: total pipeline time budget 6 hours
+  claim_id: c_dc4b8681
+  context: 'Critical Constraint: The entire pipeline must complete within 6 hours
+    (SC-004). Monitor time budgets in T010b and T023b.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total pipeline time budget is 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:18:04Z'
