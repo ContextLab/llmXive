@@ -1,9 +1,8 @@
 """
-Utility modules for the llmXive research pipeline.
-Exports logging, error handling, stability checks, and collinearity utilities.
+Utilities package for the llmXive pipeline.
 """
-from code.utils.logger import setup_logger, get_pipeline_logger
-from code.utils.error_handling import (
+from .logger import setup_logger, get_pipeline_logger
+from .error_handling import (
     PipelineError,
     DataFetchError,
     DataProcessingError,
@@ -11,11 +10,13 @@ from code.utils.error_handling import (
     ConfigError,
     handle_error,
     validate_not_null,
-    validate_positive,
-    pipeline_error_handler
+    validate_positive
 )
-from code.utils.stability_checks import check_nan_inf, check_memory_usage, validate_dataframe
-from code.utils.collinearity_utils import calculate_vif, identify_high_collinearity
+from .create_data_dirs import create_data_directories
+from .collinearity_utils import calculate_vif, identify_high_collinearity
+from .stability_checks import check_nan_inf, get_memory_stats, check_memory_usage, validate_dataframe, validate_features
+from .generate_dataset_schema import load_target_decision, generate_schema, validate_schema, save_schema
+from .setup_data_dirs import create_data_dirs as setup_data_dirs_utils
 
 __all__ = [
     "setup_logger",
@@ -28,10 +29,17 @@ __all__ = [
     "handle_error",
     "validate_not_null",
     "validate_positive",
-    "pipeline_error_handler",
+    "create_data_directories",
+    "calculate_vif",
+    "identify_high_collinearity",
     "check_nan_inf",
+    "get_memory_stats",
     "check_memory_usage",
     "validate_dataframe",
-    "calculate_vif",
-    "identify_high_collinearity"
+    "validate_features",
+    "load_target_decision",
+    "generate_schema",
+    "validate_schema",
+    "save_schema",
+    "setup_data_dirs_utils"
 ]

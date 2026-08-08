@@ -2,4 +2,12 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T001a** — No evidence was provided that the required directories (`data/raw`, `data/processed`, `data/results`, `data/external`) actually exist; the artifact list is empty, so the task’s core deliverable is missing.
+- **T001b** — No evidence of the required directories (`code/data`, `code/models`, `code/utils`) is provided; the artifact list is empty, so the claim that the code directories were created cannot be verified.
+- **T001c** — No evidence was provided that the directories `tests/unit`, `tests/integration`, or `tests/contract` actually exist in the repository; the claim is unsupported and the required folder structure is missing.
+- **T002** — No evidence of a Python 3.11 project setup is provided—there is no `pyproject.toml`, `requirements.txt`, `environment.yml`, or any source files showing the listed dependencies installed. Consequently the task of initializing the project with the specified packages is not satisfied.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.flake8`, `.isort.cfg`) or scripts are provided; the evidence only contains a high‑level project specification unrelated to setting up Black, Flake8, or isort. Consequently the task of configuring those tools is not satisfied.
+- **T005** — No files or code were presented in `code/utils/` showing a logging setup or error‑handling implementation; the only evidence supplied relates to the broader ML feature specifications, not to the required logging infrastructure. Consequently the task’s deliverable is missing.
+- **T006** — No evidence of the required `data/raw`, `data/processed`, or `data/results` directories was provided; the implementer did not supply any artifact showing that the directory structure exists. The task remains undone.
+- **T007** — The required `contracts/dataset.schema.yaml` file does not exist, so no YAML output was generated or validated. Consequently the task of dynamically setting the `target_value` field from `data/results/target_decision.json` cannot have been fulfilled. The implementer must create the missing schema file with the appropriate content and ensure it is non‑empty and valid.
+- **T013** — declared artifact(s) missing/empty/invalid: data/external/literature_pcms.csv

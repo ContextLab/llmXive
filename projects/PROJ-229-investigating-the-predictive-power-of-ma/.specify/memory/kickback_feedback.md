@@ -4,7 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T001a` (rejected 1x): No evidence was provided that the required directories (`data/raw`, `data/processed`, `data/results`, `data/external`) actually exist; the artifact list is empty, so the task’s core deliverable is missing.
+- `T001b` (rejected 1x): No evidence of the required directories (`code/data`, `code/models`, `code/utils`) is provided; the artifact list is empty, so the claim that the code directories were created cannot be verified.
+- `T001c` (rejected 1x): No evidence was provided that the directories `tests/unit`, `tests/integration`, or `tests/contract` actually exist in the repository; the claim is unsupported and the required folder structure is missing.
+- `T002` (rejected 1x): No evidence of a Python 3.11 project setup is provided—there is no `pyproject.toml`, `requirements.txt`, `environment.yml`, or any source files showing the listed dependencies installed. Consequently the task of initializing the project with the specified packages is not satisfied.
 
 ## Required change
 

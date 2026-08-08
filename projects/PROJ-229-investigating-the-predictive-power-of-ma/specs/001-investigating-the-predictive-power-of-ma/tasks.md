@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: Create directories `code/data`, `code/models`, `code/utils`, `tests/unit`, `tests/integration`, `data/raw`, `data/processed`, `data/results`, and `specs/001-phase-change-predictive-power/contracts`.
-- [X] T002 Initialize Python 3.11 project with `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml` dependencies
-- [X] T003 [P] Configure linting and formatting tools (black, flake8, isort)
+- [ ] T001a [P] Create data directories: `data/raw`, `data/processed`, `data/results`, `data/external`.
+- [ ] T001b [P] Create code directories: `code/data`, `code/models`, `code/utils`.
+- [ ] T001c [P] Create test directories: `tests/unit`, `tests/integration`, `tests/contract`.
+- [ ] T002 Initialize Python 3.11 project with `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml` dependencies
+- [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort)
 
 ---
 
@@ -56,12 +58,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup `config.yaml` for API keys, random seeds, and time/memory constraints
-- [X] T005 [P] Implement basic logging infrastructure and error handling in `code/utils/`
-- [X] T006 [P] Create data directory structure (`data/raw`, `data/processed`, `data/results`)
-- [ ] T007 Create base schema definitions in `specs/001-phase-change-predictive-power/contracts/` (dataset.schema.yaml, model_output.schema.yaml)
+- [ ] T005 [P] Implement basic logging infrastructure and error handling in `code/utils/`
+- [ ] T006 [P] Create data directory structure (`data/raw`, `data/processed`, `data/results`)
+- [X] T006a [US1] Implement `code/data/target_consistency_check.py` to execute the Phase 0 Target Consistency Check: calculate Pearson correlation between `melting_point` and `latent_heat` on a sample, write the decision (`target: latent_heat` or `target: melting_point`) and the coefficient to `data/results/target_decision.json`. **Must run after T004 and T005**.
+- [ ] T007 [US1] Create `contracts/dataset.schema.yaml` in YAML format. Must read `data/results/target_decision.json` to dynamically set the `target_value` field name. Must validate that the generated YAML is non-empty and valid before marking complete. If validation fails, regenerate or fail the task. **Must run before T009 and T015**.
 - [X] T008 Implement `code/utils/stability_checks.py` for NaN/Inf validation and memory monitoring
-- [X] T013 [P] [US1] Implement `code/data/load_external_validation.py` to fetch or load the 50 literature PCMs (DOI: 10.1016/j.matt.2024.01.001) for later validation [UNRESOLVED-CLAIM: c_c20d11dc — status=not_enough_info] for later validation for later validation for later validation for later validation for later validation. Must handle mapping to Materials Project IDs. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T013b [US1] Implement fallback logic in `code/data/load_external_validation.py` (or separate module) to handle failure case: if the NIST overlap (training data proxy validation) is < 500 compounds [UNRESOLVED-CLAIM: c_906f553d — status=not_enough_info], switch target to `melting_point` and flag the limitation as per Spec US-1 Acceptance Scenario 3. This task must execute AFTER T011/T012 produce the training data proxy validation stats.
+- [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`. **Must run after T007**.
+- [ ] T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001 [UNRESOLVED-CLAIM: c_e62cdc04 — status=not_enough_info], map them to Materials Project IDs (using `pymatgen` or manual lookup), and save to `data/external/literature_pcms.csv` with a `mapping_log.json` recording any unmapped IDs. **If unmapped count > 25, raise a critical error and halt pipeline **. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,20 +74,17 @@
 
 **Goal**: Retrieve a curated subset of Materials Project data, compute elemental/structural descriptors, and prepare a clean dataset for modeling within 7GB RAM.
 
-**Independent Test**: Execute the data retrieval script and verify that the output CSV contains at least 5,000 compounds [UNRESOLVED-CLAIM: c_a1e94920 — status=not_enough_info] (where available), and computed feature columns, fitting within 7 GB RAM [UNRESOLVED-CLAIM: c_2aaf8401 — status=not_enough_info].
+**Independent Test**: Execute the data retrieval script and verify that the verify that the output CSV contains at least 5,000 compounds [UNRESOLVED-CLAIM: c_4ed50bc2 — status=not_enough_info] with non-null values for melting point, latent heat (where available), and the computed feature columns, fitting within 7 GB RAM [UNRESOLVED-CLAIM: c_a309d5ac — status=not_enough_info].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
-- [X] T010 [US1] Integration test for data pipeline in `tests/integration/test_pipeline.py`. **Must run after T015** to ensure full pipeline implementation is complete.
+- [X] T010 [US1] Integration test for data pipeline in `tests/integration/test_pipeline.py`. **Must run after T015** to ensure full pipeline implementation is complete. <!-- FAILED: unspecified -->
 
-### Implementation for User Story1
+### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/data/fetch_materials_project.py` to query Materials Project API for compounds with melting points and heat capacity, handling rate limits and fallback strategies. {{claim:c_597d5715}} (Wikidata Q37499364, https://www.wikidata.org/wiki/Q37499364) <!-- FAILED: unspecified -->
-- [X] T012 [US1] Implement `code/data/compute_descriptors.py` to generate:
- - Elemental descriptors (atomic number, electronegativity, radius)
- - Crystal graph representations using `pymatgen`'s `StructureGraph` module
- - Ensure output fits within 7GB RAM and handles missing structures via imputation or exclusion
+- [ ] T011a [US1] Implement `code/data/fetch_materials_project.py` (Part 1): Query Materials Project API for compounds with melting points and heat capacity, handling rate limits. Save raw JSON to `data/raw/materials_project_raw.json`.
+- [ ] T011b [US1] Implement `code/data/fetch_materials_project.py` (Part 2): Compute the overlap count between the fetched dataset and the NIST subset (if available). Save `nist_overlap_count.json`.
+- [ ] T012 [US1] Implement `code/data/compute_descriptors.py` to: (1) Generate elemental descriptors (atomic number, electronegativity, radius), (2) Generate crystal graph representations using `pymatgen`'s `StructureGraph`, (3) Handle missing structures, NaN/Inf values, and memory constraints, and (4) Apply fallback logic based on `nist_overlap_count.json` and `data/results/target_decision.json`. **Must run after T011a and T011b**.
 - [ ] T014 [US1] Implement `code/utils/collinearity_utils.py` for Variance Inflation Factor (VIF) analysis to detect definitional dependencies (e.g., atomic radius vs ionic radius). **Must run after T012**.
 - [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (fetch -> feature engineering -> VIF check -> save processed CSV).
 
@@ -94,9 +94,9 @@
 
 ## Phase 4: User Story 2 - Train Baseline and Interpretable Models (Priority: P2)
 
-**Goal**: Train Random Forest, Gradient Boosting, SHAP-analyzed trees, and PySR symbolic regression models on CPU within the 6-hour window, ensuring R² > 0.0.
+**Goal**: Train Random Forest, Gradient Boosting, SHAP-analyzed trees, and PySR symbolic regression models on CPU within a constrained time window., ensuring R² > 0.0.
 
-**Independent Test**: Run the training pipeline and verify that models achieve R² > 0.0 on the validation set and that symbolic regression terminates within 4 hours [UNRESOLVED-CLAIM: c_37f5fe3f — status=not_enough_info].
+**Independent Test**: Run the training pipeline and verify that models achieve R² > 0.0 on the validation set and that symbolic regression terminates within 4 hours [UNRESOLVED-CLAIM: c_8e6705e4 — status=not_enough_info].
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -104,14 +104,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `code/models/train_baselines.py` to train Random Forest and Gradient Boosting models with fixed random seeds and memory constraints
-- [ ] T018 [US2] Implement SHAP analysis in `code/models/train_baselines.py` (or separate module) to generate ranked feature importances without GPU
-- [ ] T019 [US2] Implement `code/models/train_symbolic.py` using PySR with:
- - Strict time budget (hours)
- - Regularized feature set (post-VIF)
- - Logic to output at least one explicit mathematical formula
-- [ ] T020 [US2] Implement `code/models/evaluate.py` to compute R² scores, perform paired t-tests between baselines and interpretable models (SC-002), and log performance metrics
-- [ ] T021 [US2] Add logic to `code/models/evaluate.py` to flag limitations if PySR fails to converge (r < 0.0) and default to SHAP results
+- [ ] T017a [US2] Implement `code/models/train_random_forest.py`: Train Random Forest model with fixed random seeds and memory constraints.
+- [ ] T017b [US2] Implement `code/models/train_gradient_boosting.py`: Train Gradient Boosting model with fixed random seeds and memory constraints.
+- [ ] T017c [US2] Implement `code/models/train_shap_analysis.py`: Perform SHAP analysis on the trained tree ensemble to generate ranked feature importances without GPU.
+- [ ] T019 [US2] Implement `code/models/train_symbolic.py` using PySR with: Strict time budget of a few hours, Regularized feature set (post-VIF from T014), Logic to output at least one explicit mathematical formula. **Must run after T014**.
+- [ ] T020 [US2] Implement `code/models/evaluate.py` to compute R² scores, perform paired t-tests between baselines and interpretable models (SC-002), and log performance metrics. **Ensure the exact same test split indices are used for both model types**.
+- [ ] T021 [US2] Add logic to `code/models/evaluate.py` to flag limitations if PySR fails to converge (r < 0.0) and default to SHAP results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -121,7 +119,7 @@
 
 **Goal**: Validate derived rules against external literature PCMs, perform sensitivity analysis on thresholds, and finalize associational framing.
 
-**Independent Test**: Apply derived rules to an external set of literature PCMs and performance drop ≤ 10% compared to test set [UNRESOLVED-CLAIM: c_a83de2c6 — status=not_enough_info]; generate sensitivity analysis report.
+**Independent Test**: Apply derived rules to an external set of literature PCMs and performance drop ≤ 10% compared to test set [UNRESOLVED-CLAIM: c_98964d0e — status=not_enough_info]; generate sensitivity analysis report.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -129,23 +127,25 @@
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement external validation logic in `code/models/evaluate.py`:
- - Load literature PCMs (from T013/T013b)
- - Apply derived symbolic rules or feature rankings
- - **Determine N dynamically** via Phase 0 research findings (do not hard-code 10) for the top-N highest-value PCMs.
- - Calculate ranking accuracy on the **top N** PCMs (resolving SC-003)
- - Adjust target metric based on Phase 0 feasibility (latent heat vs melting point)
- - Verify success criterion: ≥ 60% accuracy on top N [UNRESOLVED-CLAIM: c_a3bb096d — status=not_enough_info] (SC-003)
-- [ ] T024 [US3] Implement sensitivity analysis in `code/utils/stability_checks.py` to {{claim:c_6682aa93}} and report false-positive/negative rates (FR-004, SC-004).
-- [ ] T025 [US3] Add final collinearity diagnostic in `code/utils/collinearity_utils.py` to flag any remaining definitional dependencies and adjust interpretation to descriptive/associational (FR-006)
-- [ ] T026a [US3] Generate correlation analysis report section in `research.md` summarizing SC-001 (Pearson correlation between structural features and phase-change suitability). **Explicitly calculate and publish the measured Pearson coefficient and the specific threshold value derived from the research phase**, replacing any '[deferred]' placeholders.
-- [ ] T026b [US3] Generate model comparison report section in `research.md` summarizing SC-002 (R² comparison results and t-test). **Insert measured values from previous steps**.
+- [ ] T023 [US3] Implement external validation logic in `code/models/validate_external.py`:
+ - Load literature PCMs (from T013).
+ - Read `data/results/target_decision.json` to determine the target variable (`latent_heat` or `melting_point`).
+ - Apply derived symbolic rules or feature rankings (from T019).
+ - Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase 2 Step 1 [UNRESOLVED-CLAIM: c_ae1f9cc8 — status=not_enough_info]).
+ - Calculate ranking accuracy on the Top 10.
+ - Verify success criterion: ≥ 60% accuracy on Top 10 [UNRESOLVED-CLAIM: c_1fce2755 — status=not_enough_info] (SC-003).
+ - **Must run after T019**.
+- [ ] T024 [US3] Implement sensitivity analysis in `code/utils/stability_checks.py`: Sweep feature importance thresholds across a range from zero to a moderate upper bound in incremental steps.. using the external validation set (T013) as ground truth. Report false-positive/false-negative rates (FR-004, SC-004). **Must run after T013 and T019**.
+- [ ] T025 [US3] Add final collinearity diagnostic in `code/utils/collinearity_utils.py` to flag any remaining definitional dependencies and adjust interpretation to descriptive/associational (FR-006).
+- [ ] T026a [US3] Generate correlation analysis report section in `research.md` summarizing SC-001. **Report the outcome of the Phase 0 gate (which target was selected) and the Pearson coefficient that justified it**, replacing any '[deferred]' placeholders with measured values. **Use Top 10 as defined in Plan Phase 2 Step 1**.
+- [ ] T026b [US3] Generate model comparison report section in `research.md` summarizing SC-002 (R² comparison results and t-test). **Insert measured values from T020**.
 - [ ] T026c [US3] Generate final report in `research.md` and `paper/` drafts that explicitly includes:
  - Generalization accuracy on literature set (SC-003)
  - Sensitivity analysis results (SC-004)
  - **Explicit associational framing** (FR-007) stating findings are correlational, not causal. **Must include the exact text of the 'Critical Methodological Note' from the Plan** to ensure strict framing.
  - **Insert measured values from previous steps**, replacing any '[deferred]' placeholders.
-- [ ] T027 [US3] Run reproducibility check: Execute full pipeline end-to-end on a fresh runner to verify checksums and artifact hashes (Phase 3, Step 1)
+ - **Use Top 10 as defined in Plan Phase 2 Step 1**.
+- [ ] T027 [US3] Run reproducibility check: Execute full pipeline end-to-end on a fresh runner to verify checksums and artifact hashes (Phase 3, Step 1).
 
 **Checkpoint**: All user stories should now be independently functional
 

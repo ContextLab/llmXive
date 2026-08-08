@@ -1690,25 +1690,6 @@
   updated_at: '2026-07-14T06:46:36Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
-  canonical: performance drop less than or equal to 10% compared to test set
-  claim_id: c_98964d0e
-  context: "Independent Test: Apply derived rules to an external set of literature\
-    \ PCMs and performance drop \u2264 10% compared to test set; generate sensitivity\
-    \ analysis report."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10%25_compared_to_test
-  kind: magnitude
-  raw_text: "performance drop \u2264 10% compared to test set"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:46:38Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 1
   canonical: output CSV contains at least 5000 compounds fitting within 7 GB RAM
   claim_id: c_1ef1c75b
   context: The independent test for User Story 1 requires the data retrieval script
@@ -2072,42 +2053,6 @@
   status: not_enough_info
   updated_at: '2026-07-31T01:35:26Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 5
-  canonical: symbolic regression terminates within 4 hours
-  claim_id: c_8e6705e4
-  context: "Independent Test: Run the training pipeline and verify that models achieve\
-    \ R\xB2 > 0.0 on the validation set and that symbolic regression terminates within\
-    \ 4 hours."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: symbolic regression terminates within 4 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T01:35:26Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 5
-  canonical: performance drop less than or equal to 10 percent compared to test set
-  claim_id: c_22232466
-  context: "Independent Test: Apply derived rules to an external set of literature\
-    \ PCMs and performance drop \u2264 10% compared to test set; generate sensitivity\
-    \ analysis report."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
-  kind: magnitude
-  raw_text: "performance drop \u2264 10% compared to test set"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-31T01:35:29Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
   canonical: 60 percent accuracy on top N PCMs
   claim_id: c_c12f8f3b
@@ -2190,21 +2135,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T00:57:20Z'
-- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
-  attempts: 1
-  canonical: symbolic regression terminates within 4 hours
-  claim_id: c_f3465136
-  context: '...and that symbolic regression terminates within 4 hours.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: symbolic regression terminates within 4 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-06T00:58:12Z'
 - artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
   attempts: 1
   canonical: validation performance drop less than or equal to 10 percent
@@ -2381,3 +2311,2103 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T01:07:24Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds with non-null melting point
+    and latent heat values
+  claim_id: c_fd91a058
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat (where available)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds_with_non-null_me
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds with non-null values for
+    melting point, latent heat
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:34:17Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: greater than or equal to 60 percent accuracy on top 10
+  claim_id: c_af98699b
+  context: "- Verify success criterion: \u2265 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Greater_than_or_equal_to_60_percent_accuracy_on_top_10
+  kind: magnitude
+  raw_text: "\u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:36:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_9bb78430
+  context: 'T013 [US3] Implement load_external_validation.py to fetch the 50 literature
+    PCMs from DOI: 10.1016/j.matt.2024.01.001...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:36:53Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_6d542eb8
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:37:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_60fad987
+  context: 'Independent Test: ...and the computed feature columns, fitting within
+    7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:37:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop less than or equal to 10 percent on external validation
+  claim_id: c_588ec931
+  context: "Independent Test: Apply derived rules to an external set of literature\
+    \ PCMs and performance drop \u2264 10% compared to test set..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_on_externa
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:37:35Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: rank top 10 highest-value phase-change materials
+  claim_id: c_48dbce6d
+  context: '- Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase 2 Step 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_phase-change_materials
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:37:37Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: accuracy on top 10 is greater than or equal to 60 percent
+  claim_id: c_c4a62e9a
+  context: "- Verify success criterion: \u2265 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accuracy_on_top_10_is_greater_than_or_equal_to_60_percent
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:38:14Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_1b82641f
+  context: Task T013 requires fetching 50 literature PCMs from a specific DOI and
+    mapping them to Materials Project IDs.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:42:55Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_b5101c7b
+  context: Independent test for User Story 1 requires the data retrieval script output
+    to contain at least 5,000 compounds with non-null values.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:42:57Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_3cf39d35
+  context: Independent test for User Story 1 requires the output dataset to fit within
+    7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:42:57Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_9f7d546d
+  context: Independent test for User Story 3 requires applying derived rules to external
+    literature PCMs with a performance drop of no more than 10%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:42:59Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: at least 60 percent accuracy on Top 10 PCMs
+  claim_id: c_14a521fa
+  context: Task T023 requires verifying a success criterion of at least 60% accuracy
+    on the Top 10 highest-value PCMs.
+  evidence:
+    candidates:
+    - - Donate Create account Log in At least
+      - 60.0
+    - - At least 60 percent accuracy on Top
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/At_least_60_percent_accuracy_on_Top_10_PCMs
+  kind: magnitude
+  raw_text: "\u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T12:43:01Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest-value PCMs
+  claim_id: c_04740ec9
+  context: Task T023 specifies ranking the top 10 highest-value PCMs as defined in
+    Plan Phase 2 Step 1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:43:03Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds with non-null melting point
+    and latent heat
+  claim_id: c_f6ee1769
+  context: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds with non-null values for melting point, latent heat
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds_with_non-null_me
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds with non-null values for
+    melting point, latent heat
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:43:29Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: external validation performance drop less than or equal to 10 percent
+    compared to test set
+  claim_id: c_373de8e2
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_validation_performance_drop_less_than_or_equal_to_1
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:43:31Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest-value PCMs
+  claim_id: c_dc40023f
+  context: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1). Calculate
+    ranking accuracy on the Top 10.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:43:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify success criterion of at least 60 percent accuracy on top 10 PCMs
+  claim_id: c_9827976a
+  context: "Verify success criterion: \u2265 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_success_criterion_of_at_least_60_percent_accuracy_on
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:43:35Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 literature PCMs fetched from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_c8fe8c5d
+  context: 'T013 [US3] Implement code/data/load_external_validation.py to fetch the
+    50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001, map them to Materials
+    Project IDs...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:44:54Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_555fb747
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:44:56Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest-value PCMs
+  claim_id: c_393964f5
+  context: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:45:00Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify success criterion greater than or equal to 60 percent accuracy
+    on top 10
+  claim_id: c_278fe921
+  context: "Calculate ranking accuracy on the Top 10. Verify success criterion: \u2265\
+    \ 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_success_criterion_greater_than_or_equal_to_60_percent
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:45:02Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_13b03c4c
+  context: 'T013 [US3] Implement `code/data/load_external_validation.py` to fetch
+    the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001, map them to Materials
+    Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Implement `code/data/load_external_validation.py` to fetch the 50 literature
+    PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:45:30Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: raise critical error if unmapped PCM count exceeds 25
+  claim_id: c_f2f1deff
+  context: T013 [US3] ...save to `data/external/literature_pcms.csv` with a `mapping_log.json`
+    recording any unmapped IDs. **If unmapped count > 25, raise a critical error and
+    halt pipeline**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If unmapped count > 25, raise a critical error and halt pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:45:30Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_b2733336
+  context: 'Independent Test: ...and that symbolic regression terminates within 4
+    hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:46:16Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest value PCMs
+  claim_id: c_61ba1f1c
+  context: T023 [US3] ...Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase
+    2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest_value_PCMs
+  kind: magnitude
+  raw_text: Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:46:20Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_76f09f63
+  context: 'Implement code/data/load_external_validation.py to fetch the 50 literature
+    PCMs from DOI: 10.1016/j.matt.2024.01.001, map them to Materials Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:46:55Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_fe2e0b84
+  context: verify that the output CSV contains at least 5,000 compounds with non-null
+    values for melting point, latent heat
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:46:58Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fitting within 7 GB RAM
+  claim_id: c_00a6216b
+  context: prepare a clean dataset for modeling within 7GB RAM
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:46:58Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_0d433542
+  context: "verify that models achieve R\xB2 > 0.0 on the validation set and that\
+    \ symbolic regression terminates within 4 hours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:46:59Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_8f146b03
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:47:01Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Rank top 10 highest-value PCMs
+  claim_id: c_691d0a27
+  context: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:47:02Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: greater than or equal to 60 percent accuracy on top 10
+  claim_id: c_4d43daba
+  context: "Verify success criterion: \u2265 60% accuracy on Top 10 (SC-003)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Greater_than_or_equal_to_60_percent_accuracy_on_top_10
+  kind: magnitude
+  raw_text: "\u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:47:04Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_ae286e79
+  context: Initialize Python 3.11 project with pymatgen, scikit-learn, pysr, shap,
+    pandas, numpy, matplotlib, requests, pyyaml dependencies
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:47:20Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds with non-null values
+  claim_id: c_b04e0cd8
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds_with_non-null_va
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:48:02Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop less than or equal to 10 percent on external set
+  claim_id: c_3a27894d
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_on_externa
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:48:05Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_acac2888
+  context: 'Implement load_external_validation.py to fetch the 50 literature PCMs
+    from DOI: 10.1016/j.matt.2024.01.001, map them to Materials Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:48:38Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_f0f8c9dd
+  context: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds with non-null values for melting point
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: verify that the output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:48:40Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: success criterion is 60% accuracy on Top 10
+  claim_id: c_23ad4675
+  context: "Rank the Top 10 highest-value PCMs and calculate ranking accuracy on the\
+    \ Top 10. Verify success criterion: \u2265 60% accuracy on Top 10"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:48:40Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop is less than or equal to 10% compared to test set
+  claim_id: c_4f814e74
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_is_less_than_or_equal_to_10%25_compared_to_te
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:48:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature phase-change materials from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_4a0a5567
+  context: 'Implement load_external_validation.py to fetch the 50 literature PCMs
+    from DOI: 10.1016/j.matt.2024.01.001, map them to Materials Project IDs, and save
+    to data/external/literature_pcms.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:49:46Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: data retrieval output contains at least 5000 compounds
+  claim_id: c_eff2e744
+  context: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds with non-null values for melting point, latent heat.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_retrieval_output_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:49:48Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: data pipeline fits within 7 GB RAM
+  claim_id: c_4c42cf6e
+  context: Prepare a clean dataset for modeling within 7GB RAM. Verify that the output
+    CSV... fits within 7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:49:48Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: external validation performance drop less than or equal to 10 percent
+    compared to test set
+  claim_id: c_3f550bdf
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set; generate sensitivity analysis report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_validation_performance_drop_less_than_or_equal_to_1
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:49:50Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest value phase-change materials
+  claim_id: c_3fb01682
+  context: Apply derived symbolic rules or feature rankings. Rank the Top 10 highest-value
+    PCMs (N=10 per Plan Phase 2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest_value_phase-change_materials
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:49:52Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_01781b6d
+  context: 'T013 [US3] Implement load_external_validation.py to fetch the 50 literature
+    PCMs from DOI: 10.1016/j.matt.2024.01.001, map them to Materials Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:51:02Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_29634cf0
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:51:04Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: data pipeline fits within 7 GB RAM
+  claim_id: c_52a14335
+  context: 'Goal: Retrieve a curated subset of Materials Project data, compute elemental/structural
+    descriptors, and prepare a clean dataset for modeling within 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:51:04Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest value PCMs
+  claim_id: c_684cba6a
+  context: 'T023 [US3] Implement external validation logic: Rank the Top 10 highest-value
+    PCMs (N=10 per Plan Phase 2 Step 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest_value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:51:09Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify success criterion of greater than or equal to 60 percent accuracy
+    on top 10
+  claim_id: c_aa998dc7
+  context: "T023 [US3] Calculate ranking accuracy on the Top 10. Verify success criterion:\
+    \ \u2265 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_success_criterion_of_greater_than_or_equal_to_60_perc
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:51:12Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature phase-change materials from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_353cb0c8
+  context: 'T013 [US3] Implement code/data/load_external_validation.py to fetch the
+    50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001, map them to Materials
+    Project IDs...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:51:30Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify output CSV contains at least 5000 compounds with non-null values
+  claim_id: c_02d52043
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_contains_at_least_5000_compounds_with_non-
+  kind: magnitude
+  raw_text: verify that the output CSV contains at least 5,000 compounds with non-null
+    values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:52:15Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_96de37fd
+  context: 'T013 [US3] Implement code/data/load_external_validation.py to fetch the
+    50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:52:59Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds with non-null values
+  claim_id: c_0686290e
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds_with_non-null_va
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:53:01Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 4
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_633b5b01
+  context: '...and the computed feature columns, fitting within 7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:53:02Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest value PCMs
+  claim_id: c_15de8ee3
+  context: Apply derived symbolic rules or feature rankings (from T019). Rank the
+    Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest_value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:53:06Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_b71e045f
+  context: 'T013 [US3] Implement code/data/load_external_validation.py to fetch the
+    50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001, map them to Materials
+    Project IDs...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:54:27Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_5189208d
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:54:28Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fitting within 7 GB RAM
+  claim_id: c_5ba7a93c
+  context: '...and the computed feature columns, fitting within 7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:54:29Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 3
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_de2e533a
+  context: "Independent Test: Apply derived rules to an external set of literature\
+    \ PCMs and performance drop \u2264 10% compared to test set..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:54:31Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Rank top 10 highest value PCMs
+  claim_id: c_92c0bc93
+  context: Apply derived symbolic rules or feature rankings (from T019). Rank the
+    Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest_value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:54:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: fetch 50 literature phase-change materials from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_f4484b7d
+  context: 'T013 [US3] Implement `code/data/load_external_validation.py` to fetch
+    the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001, map them to Materials
+    Project IDs...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:55:07Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds with non-null values
+  claim_id: c_0c3ebdce
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds_with_non-null_va
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds with non-null values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:56:18Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: data pipeline fits within 7 GB RAM
+  claim_id: c_553a0494
+  context: 'prepare a clean dataset for modeling within 7GB RAM. Independent Test:
+    ... fitting within 7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:56:19Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_7ca66148
+  context: 'Independent Test: ... symbolic regression terminates within 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:56:19Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest-value phase-change materials
+  claim_id: c_664848cd
+  context: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_phase-change_materials
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:56:23Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify success criterion of at least 60 percent accuracy on top 10
+  claim_id: c_d284d8de
+  context: "Calculate ranking accuracy on the Top 10. Verify success criterion: \u2265\
+    \ 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_success_criterion_of_at_least_60_percent_accuracy_on
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:56:25Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature phase-change materials from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_c4beac4c
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs (using `pymatgen` or manual lookup), and save
+    to `data/external/literature_pcms.csv` with a `mapping_log.json` recording any
+    unmapped IDs.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:56:57Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: halt pipeline if unmapped ID count exceeds 25
+  claim_id: c_f780335d
+  context: T013 [US3] ... If unmapped count > 25, raise a critical error and halt
+    pipeline .
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If unmapped count > 25, raise a critical error and halt pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:56:58Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: data pipeline output contains at least 5000 compounds fitting within
+    7 GB RAM
+  claim_id: c_a1f911d6
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat (where available), and the computed feature columns, fitting
+    within 7 GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_output_contains_at_least_5000_compounds_fittin
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds with non-null values for
+    melting point, latent heat (where available), and the computed feature columns,
+    fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:57:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_c5e5a6b4
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat (where available), and the computed feature columns, fitting
+    within 7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:57:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest value phase-change materials
+  claim_id: c_9dae4c09
+  context: T023 [US3] ... Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase
+    2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest_value_phase-change_materials
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:57:47Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: sweep feature importance thresholds from zero to moderate upper bound
+  claim_id: c_248e92a0
+  context: 'T024 [US3] Implement sensitivity analysis in `code/utils/stability_checks.py`:
+    Sweep feature importance thresholds across a range from zero to a moderate upper
+    bound in incremental steps.. using the external validation set (T013) as ground
+    truth.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sweep_feature_importance_thresholds_from_zero_to_moderate_up
+  kind: entity_fact
+  raw_text: Sweep feature importance thresholds across a range from zero to a moderate
+    upper bound in incremental steps
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:58:01Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_db1cdd54
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:58:36Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_0773f452
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:58:38Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 6
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_f3465136
+  context: '...and that symbolic regression terminates within 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:58:38Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: Rank top 10 highest-value PCMs
+  claim_id: c_10ea4428
+  context: '- Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase 2 Step 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:58:41Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Verify success criterion 60 percent accuracy on Top 10
+  claim_id: c_5191242b
+  context: "- Verify success criterion: \u2265 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:58:41Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_a499af1a
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:58:43Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature phase-change materials from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_caff331f
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:59:15Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify checksums and artifact hashes via full pipeline execution on fresh
+    runner
+  claim_id: c_d1986bbf
+  context: 'T027 [US3] Run reproducibility check: Execute full pipeline end-to-end
+    on a fresh runner to verify checksums and artifact hashes (Phase 3, Step 1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_checksums_and_artifact_hashes_via_full_pipeline_execu
+  kind: entity_fact
+  raw_text: execute the full pipeline end-to-end on a fresh runner to verify checksums
+    and artifact hashes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:59:30Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: rank top 10 highest-value phase-change materials
+  claim_id: c_c1c9ff31
+  context: T023 [US3] ... Rank the Top 10 highest-value PCMs (N=10 per Plan Phase
+    2 Step 1). Calculate ranking accuracy on the Top 10.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_phase-change_materials
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:59:32Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify 60% accuracy on top 10 phase-change materials
+  claim_id: c_9af24649
+  context: "T023 [US3] ... Verify success criterion: \u2265 60% accuracy on Top 10\
+    \ (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:59:33Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 literature phase-change materials retrieved from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_60e80e46
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:00:00Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: dataset contains at least 5000 compounds with non-null values
+  claim_id: c_65c9c398
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_5000_compounds_with_non-null_value
+  kind: magnitude
+  raw_text: verify that the output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:00:02Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature phase change materials from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_d85f1a4e
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:00:35Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: halt pipeline if unmapped ID count exceeds 25
+  claim_id: c_be02d8a4
+  context: T013 [US3] ... with a mapping_log.json recording any unmapped IDs. If unmapped
+    count > 25, raise a critical error and halt pipeline .
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If unmapped count > 25, raise a critical error and halt pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:00:35Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_27a155db
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: verify that the output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:00:37Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_092478b2
+  context: 'Goal: Retrieve a curated subset of Materials Project data... and prepare
+    a clean dataset for modeling within 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:00:38Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest-value phase change materials
+  claim_id: c_8af7588f
+  context: T023 [US3] ... Rank the Top 10 highest-value PCMs (N=10 per Plan Phase
+    2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_phase_change_materials
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:00:40Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_1dcf1a56
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:01:35Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_9d976860
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    verify that the output CSV contains at least 5,000 compounds with non-null values'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: verify that the output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:01:38Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Rank Top 10 highest-value PCMs
+  claim_id: c_6dcb0967
+  context: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_Top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:01:40Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Verify success criterion of at least 60% accuracy on Top 10
+  claim_id: c_0c232818
+  context: "Verify success criterion: \u2265 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates:
+    - - Verify success criterion of at least
+      - 60.0
+    - - Top
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_success_criterion_of_at_least_60%25_accuracy_on_Top_10
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T13:01:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: performance drop no more than 10% compared to test set
+  claim_id: c_e84a2fbc
+  context: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_no_more_than_10%25_compared_to_test_set
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:01:43Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fitting within 7 GB RAM
+  claim_id: c_8dfada8d
+  context: prepare a clean dataset for modeling within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:01:44Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_a8888a28
+  context: "verify that models achieve R\xB2 > 0.0 on the validation set and that\
+    \ symbolic regression terminates within 4 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:01:45Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_c164c9e9
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs, and save to data/external/literature_pcms.csv'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:02:23Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds with non-null melting point
+    and latent heat
+  claim_id: c_fdfaff65
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds_with_non-null_me
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds with non-null values for
+    melting point, latent heat
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:02:25Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_2870aff4
+  context: 'Goal: Retrieve a curated subset of Materials Project data, compute elemental/structural
+    descriptors, and prepare a clean dataset for modeling within 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:02:25Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 3
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_ce094171
+  context: "Independent Test: Apply derived rules to an external set of literature\
+    \ PCMs and performance drop \u2264 10% compared to test set"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:02:28Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Rank top 10 highest-value PCMs
+  claim_id: c_a545a17d
+  context: Apply derived symbolic rules or feature rankings (from T019). Rank the
+    Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:02:30Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Verify success criterion of at least 60 percent accuracy on Top 10
+  claim_id: c_934b471d
+  context: "Calculate ranking accuracy on the Top 10. Verify success criterion: \u2265\
+    \ 60% accuracy on Top 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_success_criterion_of_at_least_60_percent_accuracy_on
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:02:32Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: fetch 50 literature phase-change materials from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_a42c013a
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:03:11Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: data pipeline output contains at least 5000 compounds with non-null melting
+    point, latent heat, and feature columns
+  claim_id: c_ac079815
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    verify that the output CSV contains at least 5,000 compounds with non-null values
+    for melting point, latent heat (where available), and the computed feature columns'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_output_contains_at_least_5000_compounds_with_n
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds with non-null values for
+    melting point, latent heat (where available), and the computed feature columns
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:03:40Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 9
+  canonical: performance drop less than or equal to 10 percent compared to test set
+  claim_id: c_22232466
+  context: "Independent Test: Apply derived rules to an external set of literature\
+    \ PCMs and performance drop \u2264 10% compared to test set; generate sensitivity\
+    \ analysis report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10_percent_compared_t
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:03:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest-value phase-change materials
+  claim_id: c_fe6b3279
+  context: 'T023 [US3] Implement external validation logic: ... Rank the Top 10 highest-value
+    PCMs (N=10 per Plan Phase 2 Step 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_phase-change_materials
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs (N=10 per Plan Phase 2 Step 1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:03:44Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: verify success criterion of at least 60 percent accuracy on top 10 phase-change
+    materials
+  claim_id: c_df811c8c
+  context: "T023 [US3] Implement external validation logic: ... Calculate ranking\
+    \ accuracy on the Top 10. Verify success criterion: \u2265 60% accuracy on Top\
+    \ 10 (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_success_criterion_of_at_least_60_percent_accuracy_on
+  kind: magnitude
+  raw_text: "Verify success criterion: \u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:03:46Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: full pipeline executed end-to-end on fresh runner to verify checksums
+    and artifact hashes
+  claim_id: c_58dff854
+  context: 'T027 [US3] Run reproducibility check: Execute full pipeline end-to-end
+    on a fresh runner to verify checksums and artifact hashes (Phase 3, Step 1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_executed_end-to-end_on_fresh_runner_to_verify
+  kind: entity_fact
+  raw_text: Execute full pipeline end-to-end on a fresh runner to verify checksums
+    and artifact hashes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:03:47Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 literature PCMs from DOI 10.1016/j.matt.2024.01.001
+  claim_id: c_e62cdc04
+  context: 'T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001,
+    map them to Materials Project IDs (using `pymatgen` or manual lookup), and save
+    to `data/external/literature_pcms.csv` with a `mapping_log.json` recording any
+    unmapped IDs.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:04:12Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: output CSV contains at least 5000 compounds
+  claim_id: c_4ed50bc2
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    verify that the output CSV contains at least 5,000 compounds with non-null values
+    for melting point, latent heat (where available), and the computed feature columns,
+    fitting within 7 GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds
+  kind: magnitude
+  raw_text: output CSV contains at least 5,000 compounds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:04:14Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: dataset fits within 7 GB RAM
+  claim_id: c_a309d5ac
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    verify that the output CSV contains at least 5,000 compounds with non-null values
+    for melting point, latent heat (where available), and the computed feature columns,
+    fitting within 7 GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fitting within 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:04:15Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 12
+  canonical: symbolic regression terminates within 4 hours
+  claim_id: c_8e6705e4
+  context: "Independent Test: Run the training pipeline and verify that models achieve\
+    \ R\xB2 > 0.0 on the validation set and that symbolic regression terminates within\
+    \ 4 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: symbolic regression terminates within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:04:15Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 2
+  canonical: performance drop less than or equal to 10% compared to test set
+  claim_id: c_98964d0e
+  context: "Independent Test: Apply derived rules to an external set of literature\
+    \ PCMs and performance drop \u2264 10% compared to test set; generate sensitivity\
+    \ analysis report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_less_than_or_equal_to_10%25_compared_to_test
+  kind: magnitude
+  raw_text: "performance drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:04:17Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: rank top 10 highest-value PCMs
+  claim_id: c_8f13ad7e
+  context: 'T023 [US3] Implement external validation logic in `code/models/validate_external.py`:
+    ... Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase 2 Step 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rank_top_10_highest-value_PCMs
+  kind: magnitude
+  raw_text: Rank the Top 10 highest-value PCMs
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:04:19Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: greater than or equal to 60% accuracy on top 10
+  claim_id: c_1fce2755
+  context: "T023 [US3] ... Verify success criterion: \u2265 60% accuracy on Top 10\
+    \ (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Greater_than_or_equal_to_60%25_accuracy_on_top_10
+  kind: magnitude
+  raw_text: "\u2265 60% accuracy on Top 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:04:21Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: N equals 10 per Plan Phase 2 Step 1
+  claim_id: c_ae1f9cc8
+  context: T023 [US3] ... Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase
+    2 Step 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=10 per Plan Phase 2 Step 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:05:04Z'

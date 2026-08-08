@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Phase-Change Materials Dataset Schema"
+description: "Schema for the processed PCM dataset used in predictive modeling. Target field dynamically set based on target_decision.json."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Schema version"
+      generated_at:
+        type: string
+        format: date-time
+        description: "Timestamp of schema generation"
+      target_variable:
+        type: string
+        description: "The target variable selected by the consistency check"
+        enum:
+          - "melting_point"
+          - "latent_heat"
+      source:
+        type: string
+        description: "Data source identifier"
+    required:
+      - version
+      - target_variable
+      - source
+  fields:
+    type: array
+    description: "List of field definitions in the dataset"
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - "integer"
+            - "number"
+            - "string"
+            - "boolean"
+        description:
+          type: string
+        required:
+          type: boolean
+          default: false
+      required:
+        - name
+        - type
+  examples:
+    type: array
+    description: "Example records conforming to the schema"
+    items:
+      type: object
+required:
+  - metadata
+  - fields
+additionalProperties: false

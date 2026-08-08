@@ -1,132 +1,98 @@
 import logging
 import traceback
 from functools import wraps
-from typing import Callable, Optional, Any
+from typing import Callable, Optional, Any, Type
 from code.utils.logger import get_pipeline_logger
 
 class PipelineError(Exception):
-    """Base exception for pipeline-related errors."""
-    def __init__(self, message: str, details: Optional[dict] = None):
-        super().__init__(message)
-        self.message = message
-        self.details = details or {}
+    """Base exception for all pipeline errors."""
+    pass
 
 class DataFetchError(PipelineError):
-    """Error occurred while fetching data from external sources."""
+    """Raised when data retrieval fails."""
     pass
 
 class DataProcessingError(PipelineError):
-    """Error occurred during data processing or transformation."""
+    """Raised when data processing (descriptors, cleaning) fails."""
     pass
 
 class ModelTrainingError(PipelineError):
-    """Error occurred during model training or evaluation."""
+    """Raised when model training or evaluation fails."""
     pass
 
 class ConfigError(PipelineError):
-    """Error related to configuration loading or validation."""
+    """Raised when configuration validation fails."""
     pass
 
 def handle_error(
-    error: Exception,
-    context: str = "",
-    raise_on_error: bool = True,
+    exception: Exception,
+    context: str = "Unknown",
     log_level: int = logging.ERROR
-) -> Optional[Exception]:
+) -> None:
     """
-    Centralized error handling utility.
+    Centralized error handling function.
     
     Args:
-        error: The exception instance to handle
-        context: Additional context about where the error occurred
-        raise_on_error: If True, re-raise the exception after logging
-        log_level: Logging level for the error message
-        
-    Returns:
-        The exception instance if raise_on_error is False, None otherwise
+        exception: The exception instance to handle.
+        context: A string describing the context where the error occurred.
+        log_level: The logging level to use for the error message.
+    
+    Raises:
+        The original exception after logging, allowing the caller to catch it.
     """
     logger = get_pipeline_logger()
-    full_context = f"{context}: " if context else ""
-    error_trace = traceback.format_exc()
     
-    error_msg = f"{full_context}{type(error).__name__}: {str(error)}"
+    error_msg = f"Error in {context}: {str(exception)}"
+    exc_traceback = traceback.format_exc()
+    
     logger.log(log_level, error_msg)
-    logger.debug(f"Traceback:\n{error_trace}")
+    logger.log(log_level, f"Traceback:\n{exc_traceback}")
     
-    if raise_on_error:
-        raise error
-    return error
+    # Re-raise to allow upstream handling or termination
+    raise exception
 
-def validate_not_null(
-    value: Any,
-    field_name: str,
-    context: str = ""
-) -> None:
+def validate_not_null(value: Any, field_name: str) -> None:
     """
-    Validate that a value is not None.
+    Validates that a value is not None.
     
     Args:
-        value: The value to check
-        field_name: Name of the field for error reporting
-        context: Optional context for the error
-        
+        value: The value to check.
+        field_name: The name of the field for error messaging.
+    
     Raises:
-        DataProcessingError: If value is None
+        DataProcessingError: If the value is None.
     """
     if value is None:
-        error_msg = f"Validation failed: {field_name} cannot be None"
-        if context:
-            error_msg = f"{context}: {error_msg}"
-        raise DataProcessingError(error_msg, {"field": field_name})
+        raise DataProcessingError(f"Validation failed: '{field_name}' cannot be null.")
 
-def validate_positive(
-    value: float,
-    field_name: str,
-    context: str = ""
-) -> None:
+def validate_positive(value: float, field_name: str) -> None:
     """
-    Validate that a numeric value is positive.
+    Validates that a numeric value is strictly positive.
     
     Args:
-        value: The value to check
-        field_name: Name of the field for error reporting
-        context: Optional context for the error
-        
+        value: The value to check.
+        field_name: The name of the field for error messaging.
+    
     Raises:
-        DataProcessingError: If value is not positive
+        DataProcessingError: If the value is not positive.
     """
-    if not isinstance(value, (int, float)):
-        error_msg = f"Validation failed: {field_name} must be numeric"
-        if context:
-            error_msg = f"{context}: {error_msg}"
-        raise DataProcessingError(error_msg, {"field": field_name, "value": value})
-    
-    if value <= 0:
-        error_msg = f"Validation failed: {field_name} must be positive"
-        if context:
-            error_msg = f"{context}: {error_msg}"
-        raise DataProcessingError(error_msg, {"field": field_name, "value": value})
+    if value is None or value <= 0:
+        raise DataProcessingError(f"Validation failed: '{field_name}' must be a positive number.")
 
-def pipeline_error_handler(
-    func: Callable
-) -> Callable:
+def pipeline_error_handler(func: Callable) -> Callable:
     """
-    Decorator to automatically handle errors in pipeline functions.
+    Decorator to wrap a function with centralized error handling.
     
     Args:
-        func: The function to wrap
-        
+        func: The function to wrap.
+    
     Returns:
-        Wrapped function with error handling
+        The wrapped function.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            handle_error(
-                e,
-                context=f"Error in function '{func.__name__}'",
-                raise_on_error=True
-            )
+            handle_error(e, context=f"Function {func.__name__}")
     return wrapper

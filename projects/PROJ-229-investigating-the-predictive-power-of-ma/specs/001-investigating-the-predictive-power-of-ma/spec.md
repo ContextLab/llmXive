@@ -65,7 +65,7 @@ A researcher needs to validate the derived symbolic rules against a held-out set
 
 - **FR-001**: System MUST retrieve and parse Materials Project data for compounds with documented melting points and heat capacity, ensuring the dataset fits within 7 GB RAM (See US-1).
 - **FR-002**: System MUST compute two distinct feature sets: (1) elemental descriptors (atomic number, electronegativity, radius) and (2) crystal graph representations using pymatgen's StructureGraph module (See US-1).
-- **FR-003**: System MUST train baseline black-box models (Random Forest, Gradient Boosting) and interpretable models (SHAP-analyzed trees, PySR symbolic regression) within a 6-hour CPU-only execution window (See US-2).
+- **FR-003**: System MUST train baseline black-box models (Random Forest, Gradient Boosting) and interpretable models (SHAP-analyzed trees, PySR symbolic regression) within a feasible execution window. (See US-2).
 - **FR-004**: System MUST perform a sensitivity analysis on any decision thresholds (e.g., feature importance cutoffs) by sweeping values over a range of small magnitudes and reporting the variation in consistency rates (See US-3).
 - **FR-005**: System MUST validate derived symbolic rules against an independent set of known PCMs from literature to ensure generalization beyond the training distribution (See US-3).
 - **FR-006**: System MUST flag and adjust interpretation for any predictor collinearity where one variable is definitionally derived from another (e.g., atomic radius vs. ionic radius, coordination number vs. bond density), framing joint relationships descriptively (See US-3).
@@ -95,7 +95,7 @@ A researcher needs to validate the derived symbolic rules against a held-out set
 - The NIST PCM dataset contains latent heat values for a significant overlap with the Materials Project compounds; if not, the project will proceed with a proxy metric or a reduced dataset.
 - The PySR library can be installed and run efficiently on the GitHub Actions free-tier environment without requiring proprietary dependencies or GPU acceleration.
 - The "governing factors" identified are primarily structural and compositional; kinetic factors or synthesis conditions are assumed to be secondary or out of scope for this specific analysis.
-- The 50 known PCMs from literature can be mapped to the Materials Project database IDs or have equivalent structural data available for validation.
+- A set of known PCMs from literature can be mapped to the Materials Project database IDs or have equivalent structural data available for validation.
 - The observational nature of the dataset precludes causal claims; all findings will be framed as associational relationships.
 - Latent heat of fusion is not a deterministic function of melting point alone; any imputation strategy introduces noise, and the identified 'governing factors' may be confounded by the imputation model. This bias will be assessed via the sensitivity analysis (FR-004).
 - The validation of the imputation model uses a disjoint set (NIST) from the training set (Materials Project) to ensure independence and avoid circular validation.
