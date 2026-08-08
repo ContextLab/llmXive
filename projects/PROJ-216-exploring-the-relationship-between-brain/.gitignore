@@ -3,88 +3,31 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.python-coverage
-*.cover
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
 
 # IDE
 .idea/
 .vscode/
-*.swp
-*.swo
-*~
 
-# OS
-.DS_Store
-.DS_Store?
-Thumbs.db
+# Data
+data/raw/
+data/interim/
+# Keep processed data for CI, but ignore large binaries if needed
+# data/processed/*.nii
+# data/processed/*.dcm
 
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-reports/*
-!reports/.gitkeep
-figures/*
-!figures/.gitkeep
+# Reports
+reports/*.pdf
+reports/*.png
+reports/*.jpg
 
 # Logs
 *.log
-data/processed/resource_profile.json
-data/processed/preprocessing_stats.json
-data/processed/graph_metrics.csv
-data/processed/analysis_resource_profile.json
-data/processed/graph_metric_validation.log
+
+# OS
+.DS_Store
+Thumbs.db

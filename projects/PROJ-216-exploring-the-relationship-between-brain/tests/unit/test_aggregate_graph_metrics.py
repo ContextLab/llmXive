@@ -1,87 +1,95 @@
 import os
 import sys
 import csv
-import tempfile
-from pathlib import Path
+import json
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from aggregate_graph_metrics import aggregate_metrics_to_csv
+from code.aggregate_graph_metrics import (
+    load_preprocessed_subjects,
+    aggregate_metrics_to_csv,
+    main,
+)
 
-class TestAggregateGraphMetrics:
-    
-    def test_csv_structure_and_headers(self, tmp_path):
-        """
-        Test that the aggregate function creates a CSV with the correct headers
-        and structure.
-        """
-        # Mock data
-        mock_subjects = [
-            {"subject_id": "sub-001", "path": "/fake/path.nii.gz"},
-            {"subject_id": "sub-002", "path": "/fake/path2.nii.gz"}
+
+class TestLoadPreprocessedSubjects:
+    def test_load_preprocessed_subjects_found(self, tmp_path):
+        # Create mock directory structure
+        sub_dir = tmp_path / "sub-01"
+        sub_dir.mkdir()
+        nifti = sub_dir / "preprocessed.nii.gz"
+        nifti.touch()
+
+        subjects = load_preprocessed_subjects(tmp_path, ["sub-01"])
+        assert len(subjects) == 1
+        assert subjects[0]["subject_id"] == "sub-01"
+        assert subjects[0]["nifti_path"] == str(nifti)
+
+    def test_load_preprocessed_subjects_missing(self, tmp_path, capsys):
+        # Create directory but no file
+        sub_dir = tmp_path / "sub-02"
+        sub_dir.mkdir()
+
+        subjects = load_preprocessed_subjects(tmp_path, ["sub-02"])
+        captured = capsys.readouterr()
+        assert "Warning" in captured.out
+        assert len(subjects) == 0
+
+
+class TestAggregateMetricsToCsv:
+    def test_aggregate_metrics_to_csv(self, tmp_path):
+        # Mock subjects
+        subjects = [
+            {"subject_id": "sub-01", "nifti_path": str(tmp_path / "fake.nii.gz")}
         ]
-        
-        # We need to mock the compute_graph_metrics function to avoid real processing
-        # Since we can't easily mock inside the function without import hacking,
-        # we will test the file writing logic assuming the function returns data.
-        # However, the function aggregate_metrics_to_csv calls compute_graph_metrics.
-        # To test this unit, we need to patch compute_graph_metrics.
-        
-        # Alternative: Test the file I/O logic by creating a version that accepts metrics
-        # But the task requires implementing the script that calls compute_graph_metrics.
-        # Let's test the file format generation by mocking the dependency.
-        
-        from unittest.mock import patch, MagicMock
-        
-        output_file = tmp_path / "test_metrics.csv"
-        
-        mock_metrics_1 = {
-            "global_efficiency": 0.45,
-            "clustering_coefficient": 0.32,
-            "modularity": 0.65
-        }
-        mock_metrics_2 = {
-            "global_efficiency": 0.48,
-            "clustering_coefficient": 0.35,
-            "modularity": 0.68
-        }
-        
-        with patch("aggregate_graph_metrics.compute_graph_metrics") as mock_compute:
-            mock_compute.side_effect = [mock_metrics_1, mock_metrics_2]
-            
-            aggregate_metrics_to_csv(mock_subjects, str(output_file))
-            
-            assert output_file.exists()
-            
-            with open(output_file, 'r') as f:
+
+        # Mock compute_graph_metrics
+        with patch("code.aggregate_graph_metrics.compute_graph_metrics") as mock_compute:
+            mock_compute.return_value = {
+                "global_efficiency": 0.5,
+                "clustering_coefficient": 0.3,
+                "modularity": 0.4,
+            }
+
+            output_path = tmp_path / "output.csv"
+            aggregate_metrics_to_csv(subjects, output_path)
+
+            assert output_path.exists()
+
+            with open(output_path, "r") as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
-                
-            assert len(rows) == 6 # 2 subjects * 3 metrics
-            
-            # Check headers
-            assert "subject_id" in reader.fieldnames
-            assert "metric_name" in reader.fieldnames
-            assert "value" in reader.fieldnames
-            
-            # Check content for first subject
-            sub1_rows = [r for r in rows if r["subject_id"] == "sub-001"]
-            assert len(sub1_rows) == 3
-            assert sub1_rows[0]["metric_name"] in mock_metrics_1
-            assert float(sub1_rows[0]["value"]) > 0
 
-    def test_empty_subject_list(self, tmp_path):
-        """Test that an empty subject list produces a valid CSV with headers only."""
-        output_file = tmp_path / "empty_metrics.csv"
-        
-        aggregate_metrics_to_csv([], str(output_file))
-        
-        assert output_file.exists()
-        with open(output_file, 'r') as f:
-            reader = csv.reader(f)
-            headers = next(reader)
-            assert headers == ["subject_id", "metric_name", "value"]
-            # Should be no more rows
-            assert len(list(reader)) == 0
+            assert len(rows) == 3
+            assert rows[0]["subject_id"] == "sub-01"
+            assert rows[0]["metric_name"] == "global_efficiency"
+            assert rows[0]["value"] == "0.5"
+
+
+class TestMain:
+    @patch("code.aggregate_graph_metrics.load_preprocessed_subjects")
+    @patch("code.aggregate_graph_metrics.aggregate_metrics_to_csv")
+    @patch("code.aggregate_graph_metrics.get_sample_limit")
+    def test_main_success(
+        self, mock_get_limit, mock_agg, mock_load, tmp_path, monkeypatch
+    ):
+        # Setup mocks
+        mock_get_limit.return_value = {"n": 10}
+        mock_load.return_value = [{"subject_id": "sub-01", "nifti_path": "fake.nii"}]
+
+        # Change to tmp_dir for file writing
+        monkeypatch.chdir(tmp_path)
+
+        # Create necessary dirs
+        (tmp_path / "data" / "processed").mkdir(parents=True)
+
+        # Run main
+        main()
+
+        mock_load.assert_called_once()
+        mock_agg.assert_called_once()

@@ -5,7 +5,7 @@
 
 ## Summary
 This feature implements a reproducible neuroimaging analysis pipeline to investigate the correlation between functional brain network dynamics (graph metrics) and **Fluid Intelligence (g-factor)** proxies. 
-**Critical Pivot**: The original spec targeted "Musical Creativity" (TTCT/AUT) using OpenNeuro datasets ds000224 and ds000230. However, these datasets (HCP 1200 Subjects and similar) **do not contain** TTCT/AUT or musical improvisation scores. 
+**Critical Pivot**: The original spec targeted "Musical Creativity" (TTCT/AUT) using OpenNeuro datasets ds000224 and ds000230. However, these datasets (HCP Subjects and similar) **do not contain** TTCT/AUT or musical improvisation scores. 
 **Revised Strategy**: The pipeline now targets **Fluid Intelligence** scores, which are present in the HCP datasets (ds000224). The pipeline will **not** halt if TTCT/AUT are missing; instead, it will validate for and use Fluid Intelligence scores. 
 The system downloads resting-state fMRI data from OpenNeuro (ds000224) via the OpenNeuro API/BIDS downloader, preprocesses it using FSL/AFNI tools, computes graph theoretical metrics (global efficiency, modularity, clustering coefficient) via NetworkX, and performs statistical correlation analysis with Fluid Intelligence scores including **Bonferroni** correction (per Constitution). The pipeline is constrained to run on a CPU-only GitHub Actions runner with limited computational resources, with strict adherence to the project constitution regarding reproducibility, data hygiene, and statistical transparency. 
 **Feasibility Constraint**: To meet the 6-hour CI limit, the pipeline will process **N=10 subjects** (down from the spec's N=50 target). This is an exploratory feasibility study. The spec requires amendment to reflect the N=10 CI run and the pivot to Fluid Intelligence.
@@ -103,7 +103,7 @@ projects/PROJ-216-exploring-the-relationship-between-brain/
 - **SC-003 (Effect Size)**: The `stats.py` script will calculate and report Cohen's d and 95% CI for all significant correlations.
 
 ## Compute Feasibility Analysis
-- **Environment**: GitHub Actions Free Tier (2 CPU, ~7GB RAM).
+- **Environment**: GitHub Actions Free Tier (multiple CPU cores, ~7GB RAM).
 - **Strategy**:
   - **Sample Limit**: Process **N=10** subjects (down from N=50) to ensure <6h runtime.
   - **Sequential Processing**: Preprocess one subject at a time to avoid RAM spikes.

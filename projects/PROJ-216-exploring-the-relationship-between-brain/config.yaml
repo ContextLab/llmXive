@@ -1,0 +1,22 @@
+# Configuration for PROJ-216: Exploring the Relationship Between Brain Network Dynamics and Musical Creativity
+# Updated per T008b and T008a
+
+datasets:
+  # Primary dataset: ds000224 (Fluid Intelligence scores available)
+  primary: "ds000224"
+  # Fallback dataset: ds000230 (used only if primary fails or lacks data)
+  fallback_only: "ds000230"
+
+# Sample limit as per T008a (N=10 limit for CI/execution)
+sample_limit: 10
+
+# Fallback behavior
+allow_fallback: true
+
+# Execution limits
+max_runtime_hours: 6
+max_ram_gb: 7
+
+# Statistical parameters
+bonferroni_correction: true
+alpha: 0.05

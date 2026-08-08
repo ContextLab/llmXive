@@ -7,114 +7,109 @@ from typing import List, Dict, Any
 
 # Add project root to path if running as script
 if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent))
+    project_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(project_root))
 
+from config import get_sample_limit
 from graph_metrics import compute_graph_metrics
-from config import get_sample_limit, get_dataset_ids
+from utils import ResourceMonitor
 
-def load_preprocessed_subjects() -> List[Dict[str, Any]]:
+def load_preprocessed_subjects(
+    data_dir: Path, subject_ids: List[str]
+) -> List[Dict[str, Any]]:
     """
-    Scans data/processed/ for preprocessed subject directories.
-    Returns a list of dicts containing subject_id and the path to the preprocessed NIfTI file.
-    Assumes the directory structure established by T015/T017.
+    Load preprocessed NIfTI file paths for a list of subject IDs.
+    Assumes T015 has placed preprocessed files in data/processed/<subject_id>/preprocessed.nii.gz
     """
-    processed_dir = Path("data/processed")
-    if not processed_dir.exists():
-        raise FileNotFoundError(f"Preprocessed data directory not found: {processed_dir}")
-    
     subjects = []
-    # Expected pattern: data/processed/sub-<id>/sub-<id>_preprocessed_bold.nii.gz
-    # or similar structure based on T015 output
-    for item in processed_dir.iterdir():
-        if item.is_dir() and item.name.startswith("sub-"):
-            subject_id = item.name
-            # Look for the preprocessed file inside
-            nifti_files = list(item.glob("*preprocessed*.nii.gz"))
-            if not nifti_files:
-                nifti_files = list(item.glob("*.nii.gz"))
-            
-            if nifti_files:
-                subjects.append({
-                    "subject_id": subject_id,
-                    "path": str(nifti_files[0])
-                })
-            else:
-                print(f"Warning: No preprocessed NIfTI found for {subject_id}, skipping.")
-    
+    for sub_id in subject_ids:
+        sub_dir = data_dir / sub_id
+        nifti_path = sub_dir / "preprocessed.nii.gz"
+        if nifti_path.exists():
+            subjects.append(
+                {"subject_id": sub_id, "nifti_path": str(nifti_path)}
+            )
+        else:
+            # Log missing file but continue to allow partial aggregation
+            print(f"Warning: Preprocessed file not found for {sub_id}: {nifti_path}")
     return subjects
 
-def aggregate_metrics_to_csv(subjects: List[Dict[str, Any]], output_path: str) -> None:
+def aggregate_metrics_to_csv(
+    subjects: List[Dict[str, Any]], output_path: Path
+) -> None:
     """
-    Computes graph metrics for each subject and aggregates them into a CSV file.
+    Compute graph metrics for each subject and aggregate into a CSV file.
     Columns: subject_id, metric_name, value
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    resource_monitor = ResourceMonitor()
 
-    results = []
-    
-    # Header
-    fieldnames = ["subject_id", "metric_name", "value"]
+    for sub_data in subjects:
+        sub_id = sub_data["subject_id"]
+        nifti_path = Path(sub_data["nifti_path"])
 
-    with open(output_file, mode='w', newline='') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        writer.writeheader()
+        print(f"Processing subject: {sub_id}")
+        resource_monitor.start_subject(sub_id)
 
-        for subject in subjects:
-            sub_id = subject["subject_id"]
-            nifti_path = subject["path"]
-            
-            print(f"Processing {sub_id} from {nifti_path}...")
-            
-            try:
-                # Compute metrics using the existing graph_metrics module
-                # compute_graph_metrics returns a dict of {metric_name: value}
-                metrics = compute_graph_metrics(nifti_path)
-                
-                if not metrics:
-                    print(f"Warning: No metrics computed for {sub_id}")
-                    continue
+        try:
+            # Compute metrics using existing graph_metrics functions
+            # compute_graph_metrics returns a dict of metric_name -> value
+            metrics = compute_graph_metrics(nifti_path)
 
-                for metric_name, value in metrics.items():
-                    writer.writerow({
+            for metric_name, value in metrics.items():
+                rows.append(
+                    {
                         "subject_id": sub_id,
                         "metric_name": metric_name,
-                        "value": f"{value:.6f}"
-                    })
-                    results.append((sub_id, metric_name, value))
-                    
-            except Exception as e:
-                print(f"Error processing {sub_id}: {e}")
-                # Continue to next subject, but log error
-                continue
+                        "value": value,
+                    }
+                )
+        except Exception as e:
+            print(f"Error processing {sub_id}: {e}")
+            # Optionally log error to a file, but do not halt the whole pipeline
+        finally:
+            resource_monitor.end_subject(sub_id)
 
-    print(f"Aggregation complete. Wrote {len(results)} rows to {output_path}")
+    # Write to CSV
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["subject_id", "metric_name", "value"])
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"Aggregated metrics written to {output_path}")
 
 def main():
     """
-    Main entry point for T025: Aggregate graph metrics to CSV.
+    Main entry point for aggregating graph metrics into CSV.
+    Reads subject list from config, loads preprocessed data, computes metrics,
+    and writes to data/processed/graph_metrics.csv.
     """
-    print("Starting T025: Aggregating graph metrics...")
-    
-    # Load subjects (respects sample limit from config if needed, though loading is file-system based)
-    # Note: The config limit usually applies to downloading. Here we just process what exists.
-    # If we need to enforce the N=10 limit strictly here:
-    limit = get_sample_limit()
-    subjects = load_preprocessed_subjects()
-    
-    if not subjects:
-        print("ERROR: No preprocessed subjects found in data/processed/.")
-        print("Ensure T015 (preprocessing) has been run successfully.")
+    config = get_sample_limit()
+    sample_limit = config.get("n", 10)
+
+    # Define paths
+    project_root = Path(__file__).resolve().parent.parent
+    data_dir = project_root / "data" / "processed"
+    output_path = project_root / "data" / "processed" / "graph_metrics.csv"
+
+    # Get subject IDs (assuming they are subdirectories in data/processed)
+    # In a real scenario, this might come from a manifest or config
+    # For now, we infer from directory names that look like subject IDs
+    all_sub_dirs = [d for d in data_dir.iterdir() if d.is_dir() and d.name.startswith("sub-")]
+    subject_ids = sorted([d.name for d in all_sub_dirs])[:sample_limit]
+
+    if not subject_ids:
+        print("No preprocessed subject data found. Exiting.")
         sys.exit(1)
 
-    if limit and len(subjects) > limit:
-        print(f"Limiting processing to first {limit} subjects (Config N={limit}).")
-        subjects = subjects[:limit]
+    subjects = load_preprocessed_subjects(data_dir, subject_ids)
 
-    output_path = "data/processed/graph_metrics.csv"
+    if not subjects:
+        print("No valid subject data with preprocessed files found. Exiting.")
+        sys.exit(1)
+
     aggregate_metrics_to_csv(subjects, output_path)
-    
-    print("T025 completed successfully.")
 
 if __name__ == "__main__":
     main()

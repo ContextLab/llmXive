@@ -5,16 +5,16 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-def run_command(command: List[str], timeout: int = 30) -> Tuple[bool, Optional[str], Optional[str]]:
+def run_command(command: List[str], timeout: int = 30) -> Tuple[bool, str]:
     """
-    Execute a system command and return success status, stdout, and stderr.
+    Executes a shell command and returns success status and output.
     
     Args:
         command: List of command arguments.
-        timeout: Maximum time in seconds to wait for the command to complete.
+        timeout: Maximum time to wait for command execution.
         
     Returns:
-        Tuple of (success: bool, stdout: str | None, stderr: str | None)
+        Tuple of (success: bool, output: str)
     """
     try:
         result = subprocess.run(
@@ -23,130 +23,107 @@ def run_command(command: List[str], timeout: int = 30) -> Tuple[bool, Optional[s
             text=True,
             timeout=timeout
         )
-        success = result.returncode == 0
-        return success, result.stdout, result.stderr
+        output = result.stdout if result.returncode == 0 else result.stderr
+        return result.returncode == 0, output.strip()
     except subprocess.TimeoutExpired:
-        return False, None, f"Command timed out after {timeout} seconds"
+        return False, f"Command timed out after {timeout} seconds"
     except FileNotFoundError:
-        return False, None, f"Command not found: {command[0]}"
+        return False, f"Command not found: {command[0]}"
     except Exception as e:
-        return False, None, str(e)
+        return False, str(e)
 
-def check_tool_availability(tool_name: str, version_command: List[str]) -> Dict[str, Any]:
+def check_tool_availability(tool_name: str, version_args: List[str]) -> Dict[str, Any]:
     """
-    Check if a specific tool is available and retrieve its version.
+    Checks if a specific tool is available and retrieves its version.
     
     Args:
         tool_name: Name of the tool (e.g., 'fsl', 'afni').
-        version_command: Command list to get the version (e.g., ['fslversion']).
+        version_args: Arguments to get version info (e.g., ['--version']).
         
     Returns:
-        Dictionary with keys: 'available' (bool), 'version' (str | None), 'error' (str | None)
+        Dictionary with availability status and version info.
     """
-    success, stdout, stderr = run_command(version_command)
+    available, output = run_command([tool_name] + version_args)
     
-    if success:
-        # Clean up version string (remove newlines)
-        version = stdout.strip() if stdout else "Unknown version"
-        return {
-            "available": True,
-            "version": version,
-            "error": None
-        }
-    else:
-        return {
-            "available": False,
-            "version": None,
-            "error": stderr or "Command failed or not found"
-        }
+    return {
+        "tool": tool_name,
+        "available": available,
+        "version_output": output if available else None,
+        "error": output if not available else None
+    }
 
-def check_all_tools() -> Dict[str, Dict[str, Any]]:
+def check_all_tools() -> Dict[str, Any]:
     """
-    Check availability of all required system dependencies (FSL, AFNI).
+    Checks availability of all required neuroimaging tools (FSL, AFNI).
     
     Returns:
-        Dictionary mapping tool names to their availability status.
+        Dictionary containing status for each tool and overall summary.
     """
     results = {}
     
     # Check FSL
-    # FSL typically provides 'fslversion' command. If not, we check for 'fsl' executable.
-    fsl_check = check_tool_availability("fsl", ["fslversion"])
-    if not fsl_check["available"]:
-        # Fallback: check if 'fsl' command exists (some installations)
-        fsl_check = check_tool_availability("fsl", ["which", "fsl"])
-        if fsl_check["available"]:
-            fsl_check["version"] = "Installed (version check via fslversion failed)"
-        else:
-            fsl_check["available"] = False
-            fsl_check["error"] = "FSL not found. Please ensure FSL is installed and in PATH."
-    results["FSL"] = fsl_check
+    # FSL typically uses 'fslnum' or 'fslversion' to get version
+    fsl_result = check_tool_availability("fsl", ["--version"])
+    if not fsl_result["available"]:
+        # Try alternative FSL version command
+        fsl_result = check_tool_availability("fslnum", [])
+    results["FSL"] = fsl_result
     
     # Check AFNI
-    # AFNI typically provides 'afni_version' or '3dinfo' command.
-    afni_check = check_tool_availability("afni", ["afni_version"])
-    if not afni_check["available"]:
-        # Fallback: check for '3dinfo' which is a core AFNI tool
-        afni_check = check_tool_availability("afni", ["3dinfo", "-version"])
-        if afni_check["available"]:
-            afni_check["version"] = "Installed (version check via afni_version failed)"
-        else:
-            afni_check["available"] = False
-            afni_check["error"] = "AFNI not found. Please ensure AFNI is installed and in PATH."
-    results["AFNI"] = afni_check
+    # AFNI uses 'afni -version'
+    afni_result = check_tool_availability("afni", ["-version"])
+    results["AFNI"] = afni_result
     
-    return results
+    # Overall summary
+    all_available = all(r["available"] for r in results.values())
+    
+    return {
+        "tools": results,
+        "all_available": all_available,
+        "missing_tools": [name for name, res in results.items() if not res["available"]]
+    }
 
 def main():
     """
     Main entry point for the dependency check script.
-    
-    Checks for FSL and AFNI availability, prints results to stdout,
-    and writes a JSON report to data/processed/dependency_check.json.
-    
-    Exits with code 1 if any required tool is missing, 0 otherwise.
+    Checks for FSL and AFNI availability and writes results to data/processed/dependency_check.json.
     """
-    print("Checking system dependencies for FSL and AFNI...")
-    print("-" * 50)
+    print("Starting dependency check for FSL and AFNI...")
     
-    results = check_all_tools()
+    # Run checks
+    check_results = check_all_tools()
     
-    all_available = True
-    for tool, status in results.items():
-        status_str = "✓ Available" if status["available"] else "✗ Missing"
-        print(f"{tool}: {status_str}")
-        
-        if status["available"]:
-            print(f"  Version: {status['version']}")
-        else:
-            print(f"  Error: {status['error']}")
-            all_available = False
-        
-        print()
-    
-    # Ensure output directory exists
+    # Prepare output directory
     output_dir = Path("data/processed")
     output_dir.mkdir(parents=True, exist_ok=True)
     
+    # Write results to JSON
     output_file = output_dir / "dependency_check.json"
-    
-    report = {
-        "check_timestamp": None,  # Will be set by execution environment if needed, or left as null
-        "dependencies": results,
-        "all_available": all_available
-    }
-    
     with open(output_file, "w") as f:
-        json.dump(report, f, indent=2)
+        json.dump(check_results, f, indent=2)
     
-    print(f"Report written to: {output_file}")
+    # Print summary to console
+    print(f"\nDependency Check Results:")
+    print(f"  FSL: {'Available' if check_results['tools']['FSL']['available'] else 'Not Found'}")
+    if check_results['tools']['FSL']['available']:
+        print(f"    Version: {check_results['tools']['FSL']['version_output']}")
+    else:
+        print(f"    Error: {check_results['tools']['FSL']['error']}")
+        
+    print(f"  AFNI: {'Available' if check_results['tools']['AFNI']['available'] else 'Not Found'}")
+    if check_results['tools']['AFNI']['available']:
+        print(f"    Version: {check_results['tools']['AFNI']['version_output']}")
+    else:
+        print(f"    Error: {check_results['tools']['AFNI']['error']}")
+        
+    print(f"\nOverall Status: {'All tools available' if check_results['all_available'] else 'Some tools missing'}")
     
-    if not all_available:
-        print("\nERROR: One or more required dependencies are missing.")
-        print("Please install the missing tools and ensure they are in your PATH.")
+    if not check_results['all_available']:
+        print(f"Missing tools: {', '.join(check_results['missing_tools'])}")
+        print(f"Results written to: {output_file}")
         sys.exit(1)
     else:
-        print("\nAll required dependencies are available.")
+        print(f"Results written to: {output_file}")
         sys.exit(0)
 
 if __name__ == "__main__":

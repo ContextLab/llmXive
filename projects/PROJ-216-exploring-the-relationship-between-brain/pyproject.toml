@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "brain-music-creativity"
+name = "llmxive-brain-creativity"
 version = "0.1.0"
 description = "Exploring the Relationship Between Brain Network Dynamics and Musical Creativity"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "nibabel",
     "nilearn",
@@ -16,18 +16,23 @@ dependencies = [
     "numpy",
     "openneuro-py",
     "dipy",
+    "pyyaml",
+    "pytest",
+    "matplotlib",
+    "seaborn",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.6.0",
-    "black>=24.0.0",
-    "pytest>=8.0.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest-cov",
+    "mypy",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ["py39", "py310", "py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -45,27 +50,30 @@ exclude = '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
-src = ["code", "tests"]
+target-version = "py39"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+    "C901", # too complex
 ]
 
 [tool.ruff.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"tests/*" = ["S101"] # assert statements allowed in tests
+"__init__.py" = ["F401"]
+"tests/*" = ["S101"]
+
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
+python_files = ["test_*.py"]
 addopts = "-v --tb=short"

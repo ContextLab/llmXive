@@ -1,1 +1,3 @@
-"""Integration tests for the brain network dynamics and musical creativity project."""
+"""
+Integration Tests Module
+"""

@@ -1,44 +1,90 @@
+"""
+Unit tests to verify the project directory structure and __init__.py files.
+Satisfies the verification requirement for Task T001.
+"""
 import os
 import sys
 from pathlib import Path
 import pytest
 
+# Add parent directory to path to import setup_directories if needed, 
+# though we are testing the file system state directly.
+# The script code/setup_directories.py is expected to have run or be runnable.
+
 class TestDirectoryStructure:
-    """
-    Unit tests to verify that the project directory structure is correctly set up.
-    Specifically tests for the existence of the 'reports' directory as per T001e.
-    """
+    """Tests for verifying the initialized project directory structure."""
 
-    @pytest.fixture
-    def project_root(self):
-        """Get the project root directory (parent of the tests directory)."""
-        return Path(__file__).resolve().parent.parent.parent
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """
+        Determine the project root path for tests.
+        Assumes this file is at tests/unit/test_directory_structure.py
+        """
+        current_file = Path(__file__).resolve()
+        self.project_root = current_file.parent.parent.parent
 
-    def test_reports_directory_exists(self, project_root):
-        """Verify that the 'reports' directory exists."""
-        reports_dir = project_root / "reports"
-        assert reports_dir.exists(), f"Directory 'reports' does not exist at {reports_dir}"
-        assert reports_dir.is_dir(), f"'reports' is not a directory at {reports_dir}"
+    def test_data_raw_exists(self):
+        """Verify data/raw directory exists."""
+        path = self.project_root / "data" / "raw"
+        assert path.exists(), f"Directory {path} does not exist"
+        assert path.is_dir(), f"{path} is not a directory"
 
-    def test_reports_is_writable(self, project_root):
-        """Verify that the 'reports' directory is writable."""
-        reports_dir = project_root / "reports"
-        assert os.access(reports_dir, os.W_OK), f"Directory 'reports' is not writable at {reports_dir}"
+    def test_data_interim_exists(self):
+        """Verify data/interim directory exists."""
+        path = self.project_root / "data" / "interim"
+        assert path.exists(), f"Directory {path} does not exist"
+        assert path.is_dir(), f"{path} is not a directory"
 
-    def test_reports_init_exists(self, project_root):
-        """Verify that reports/__init__.py exists if it's intended to be a package."""
-        reports_dir = project_root / "reports"
-        init_file = reports_dir / "__init__.py"
-        # While not strictly required for a folder, it's good practice for Python packages
-        # We assert existence if the setup script created it
-        # If the setup script didn't create it, this test might fail, indicating a need to fix setup
-        # For T001e, we expect the directory to exist. The init file is a bonus.
-        # Let's make this a soft check or assert if the setup script guarantees it.
-        # Given T001e creates the dir, and setup_directories.py creates the init, we expect it.
-        if init_file.exists():
-            assert init_file.is_file()
-        else:
-            # If the init file doesn't exist, it's not a fatal error for the directory task,
-            # but indicates the setup script might need adjustment if package status is required.
-            # For now, we just ensure the directory exists as per the strict task requirement.
-            pass
+    def test_data_processed_exists(self):
+        """Verify data/processed directory exists."""
+        path = self.project_root / "data" / "processed"
+        assert path.exists(), f"Directory {path} does not exist"
+        assert path.is_dir(), f"{path} is not a directory"
+
+    def test_code_dir_exists(self):
+        """Verify code directory exists."""
+        path = self.project_root / "code"
+        assert path.exists(), f"Directory {path} does not exist"
+        assert path.is_dir(), f"{path} is not a directory"
+
+    def test_tests_unit_exists(self):
+        """Verify tests/unit directory exists."""
+        path = self.project_root / "tests" / "unit"
+        assert path.exists(), f"Directory {path} does not exist"
+        assert path.is_dir(), f"{path} is not a directory"
+
+    def test_tests_integration_exists(self):
+        """Verify tests/integration directory exists."""
+        path = self.project_root / "tests" / "integration"
+        assert path.exists(), f"Directory {path} does not exist"
+        assert path.is_dir(), f"{path} is not a directory"
+
+    def test_reports_exists(self):
+        """Verify reports directory exists."""
+        path = self.project_root / "reports"
+        assert path.exists(), f"Directory {path} does not exist"
+        assert path.is_dir(), f"{path} is not a directory"
+
+    def test_code_init_exists(self):
+        """Verify code/__init__.py exists."""
+        path = self.project_root / "code" / "__init__.py"
+        assert path.exists(), f"File {path} does not exist"
+        assert path.is_file(), f"{path} is not a file"
+
+    def test_tests_init_exists(self):
+        """Verify tests/__init__.py exists."""
+        path = self.project_root / "tests" / "__init__.py"
+        assert path.exists(), f"File {path} does not exist"
+        assert path.is_file(), f"{path} is not a file"
+
+    def test_tests_unit_init_exists(self):
+        """Verify tests/unit/__init__.py exists."""
+        path = self.project_root / "tests" / "unit" / "__init__.py"
+        assert path.exists(), f"File {path} does not exist"
+        assert path.is_file(), f"{path} is not a file"
+
+    def test_tests_integration_init_exists(self):
+        """Verify tests/integration/__init__.py exists."""
+        path = self.project_root / "tests" / "integration" / "__init__.py"
+        assert path.exists(), f"File {path} does not exist"
+        assert path.is_file(), f"{path} is not a file"

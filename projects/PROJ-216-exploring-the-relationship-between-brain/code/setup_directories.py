@@ -1,50 +1,87 @@
+"""
+Script to initialize the project directory structure and create __init__.py files.
+This satisfies Task T001.
+"""
 import os
 import sys
 from pathlib import Path
 from typing import List
 
-def create_directories(base_path: Path, directories: List[str]) -> None:
+def create_directories(root_dir: Path) -> None:
     """
-    Create a list of directories under the given base path.
-    Creates parent directories as needed.
+    Creates the required directory structure for the project.
+    
+    Args:
+        root_dir: The root path of the project.
     """
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    directories = [
+        "data/raw",
+        "data/interim",
+        "data/processed",
+        "code",
+        "tests/unit",
+        "tests/integration",
+        "reports"
+    ]
+    
+    for dir_path in directories:
+        full_path = root_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
 
-def create_init_files(base_path: Path, directories: List[str]) -> None:
+def create_init_files(root_dir: Path) -> None:
     """
-    Create __init__.py files in the specified directories to make them Python packages.
+    Creates __init__.py files in all directory paths to make them Python packages.
+    
+    Args:
+        root_dir: The root path of the project.
     """
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        init_file = dir_path / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created __init__.py in: {dir_path}")
+    init_paths = [
+        "code",
+        "tests",
+        "tests/unit",
+        "tests/integration"
+    ]
+    
+    for rel_path in init_paths:
+        file_path = root_dir / rel_path / "__init__.py"
+        # Ensure parent exists
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write a docstring-only __init__.py
+        content = f'"""\n{rel_path} Module\n"""\n'
+        
+        # Only write if file doesn't exist or is empty (optional, but good practice)
+        if not file_path.exists() or file_path.stat().st_size == 0:
+            with open(file_path, 'w') as f:
+                f.write(content)
+            print(f"Created __init__.py: {file_path}")
+        else:
+            print(f"Skipped existing __init__.py: {file_path}")
 
-def main() -> None:
+def main() -> int:
     """
-    Main entry point to set up the project directory structure.
-    Creates reports/ directory and initializes it as a package.
+    Main entry point for the directory setup script.
+    
+    Returns:
+        Exit code (0 for success, 1 for failure).
     """
-    # Define the project root (current working directory or explicit path)
-    project_root = Path.cwd()
-
-    # Directories to create
-    # Based on T001e: Create 'reports/' directory for final outputs
-    directories_to_create = ["reports"]
-
-    print(f"Setting up directories in: {project_root}")
-
-    # Create directories
-    create_directories(project_root, directories_to_create)
-
-    # Create __init__.py for reports to make it a package (optional but good practice)
-    create_init_files(project_root, directories_to_create)
-
-    print("Directory setup complete.")
+    # Determine project root (parent of 'code' directory)
+    current_file = Path(__file__).resolve()
+    # Assuming this script is in code/setup_directories.py
+    # Project root is two levels up
+    project_root = current_file.parent.parent
+    
+    print(f"Initializing project structure at: {project_root}")
+    
+    try:
+        create_directories(project_root)
+        create_init_files(project_root)
+        print("Project structure initialization complete.")
+        return 0
+    except Exception as e:
+        print(f"Error during initialization: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

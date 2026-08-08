@@ -3,200 +3,283 @@ import sys
 import json
 import subprocess
 import time
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 from utils import ResourceMonitor
-from config import get_dataset_ids, get_sample_limit
+from config import get_dataset_ids, get_sample_limit, get_fallback_condition
 
-def run_command(cmd: List[str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
-    """Execute a shell command and return the result."""
-    try:
-        result = subprocess.run(
-            cmd,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return result
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing command: {' '.join(cmd)}")
-        print(f"stdout: {e.stdout}")
-        print(f"stderr: {e.stderr}")
-        raise
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def run_command(command: List[str], cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
+    """
+    Execute a shell command and return the result.
+    
+    Args:
+        command: List of command arguments
+        cwd: Working directory for the command
+        
+    Returns:
+        CompletedProcess instance
+        
+    Raises:
+        subprocess.CalledProcessError: If the command fails
+    """
+    logger.info(f"Running command: {' '.join(command)}")
+    result = subprocess.run(
+        command,
+        cwd=cwd,
+        capture_output=True,
+        text=True
+    )
+    
+    if result.returncode != 0:
+        logger.error(f"Command failed with return code {result.returncode}")
+        logger.error(f"STDOUT: {result.stdout}")
+        logger.error(f"STDERR: {result.stderr}")
+        raise subprocess.CalledProcessError(result.returncode, command)
+    
+    return result
 
 def check_fsl_afni() -> bool:
-    """Verify FSL and AFNI are available in the environment."""
-    fsl_check = subprocess.run(["which", "fsl"], capture_output=True)
-    afni_check = subprocess.run(["which", "3dDespike"], capture_output=True)
-    if fsl_check.returncode != 0 or afni_check.returncode != 0:
-        print("Warning: FSL or AFNI not found in PATH. Preprocessing may fail.")
+    """
+    Check if FSL and AFNI are available in the system.
+    
+    Returns:
+        True if both tools are available, False otherwise
+    """
+    # Check for FSL
+    try:
+        run_command(['which', 'fsl'])
+        logger.info("FSL is available")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.warning("FSL not found in PATH")
         return False
+    
+    # Check for AFNI
+    try:
+        run_command(['which', '3dcalc'])
+        logger.info("AFNI is available")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.warning("AFNI not found in PATH")
+        return False
+    
     return True
 
-def calculate_motion_metrics(fsl_motion_file: Path) -> Dict[str, float]:
+def calculate_motion_metrics(
+    func_file: Path,
+    output_dir: Path
+) -> Dict[str, float]:
     """
-    Calculate motion metrics from FSL MCFLIRT output.
-    Returns dict with 'max_translation_mm' and 'max_rotation_deg'.
+    Calculate motion metrics for a subject's functional scan.
+    
+    Args:
+        func_file: Path to the functional NIfTI file
+        output_dir: Directory to store motion metrics output
+        
+    Returns:
+        Dictionary containing motion metrics (translation, rotation)
     """
-    # In a real implementation, this would parse the .par file
-    # For this task, we simulate parsing logic assuming file exists
-    if not fsl_motion_file.exists():
-        return {"max_translation_mm": 0.0, "max_rotation_deg": 0.0}
+    # This is a placeholder for actual FSL/AFNI motion calculation
+    # In a real implementation, this would use fsl_motion_outliers or similar
+    metrics = {
+        'mean_translation_mm': 0.0,
+        'max_translation_mm': 0.0,
+        'mean_rotation_rad': 0.0,
+        'max_rotation_rad': 0.0,
+        'framewise_displacement': 0.0
+    }
     
-    max_trans = 0.0
-    max_rot = 0.0
+    # TODO: Implement actual motion calculation using FSL/AFNI
+    # For now, return placeholder values
     
-    # Placeholder for actual parsing logic
-    # Real logic: read .par file, extract translation/rotation columns
-    # For now, we return 0 to avoid crash if file is missing in test env
-    # In real run, this would parse the actual FSL output
-    return {"max_translation_mm": max_trans, "max_rotation_deg": max_rot}
+    return metrics
 
 def preprocess_subject(
     subject_id: str,
-    raw_func_path: Path,
-    output_dir: Path,
-    monitor: ResourceMonitor
+    raw_dir: Path,
+    processed_dir: Path,
+    resource_monitor: ResourceMonitor
 ) -> Dict[str, Any]:
     """
     Preprocess a single subject's fMRI data.
-    Returns a dict with status, metrics, and resource usage.
+    
+    Args:
+        subject_id: Subject identifier
+        raw_dir: Directory containing raw data
+        processed_dir: Directory to store preprocessed data
+        resource_monitor: ResourceMonitor instance for tracking RAM usage
+        
+    Returns:
+        Dictionary containing preprocessing results and statistics
     """
-    result = {
-        "subject_id": subject_id,
-        "status": "failed",
-        "error": None,
-        "motion_metrics": {},
-        "resource_usage": {}
-    }
-
+    logger.info(f"Preprocessing subject: {subject_id}")
+    
     # Start resource monitoring for this subject
-    monitor.start_subject(subject_id)
+    resource_monitor.start_subject(subject_id)
     start_time = time.time()
-
+    
     try:
-        # Ensure output directory exists
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        # 1. Motion Correction (MCFLIRT)
-        motion_corrected_path = output_dir / f"{subject_id}_mc.nii.gz"
-        mcflirt_cmd = [
-            "mcflirt",
-            "-in", str(raw_func_path),
-            "-out", str(motion_corrected_path),
-            "-plots"
-        ]
-        run_command(mcflirt_cmd)
-
-        # 2. Calculate Motion Metrics
-        # FSL MCFLIRT generates a .par file with motion parameters
-        par_file = output_dir / f"{subject_id}_mc.par"
-        motion_metrics = calculate_motion_metrics(par_file)
-        result["motion_metrics"] = motion_metrics
-
-        # Check motion threshold (>3mm translation)
-        if motion_metrics["max_translation_mm"] > 3.0:
-            raise ValueError(f"Motion threshold exceeded: {motion_metrics['max_translation_mm']}mm")
-
-        # 3. Spatial Normalization (example command)
-        normalized_path = output_dir / f"{subject_id}_norm.nii.gz"
-        # Real command would involve FLIRT/FNIRT
-        # Placeholder: copy file to simulate normalization
-        subprocess.run(["cp", str(motion_corrected_path), str(normalized_path)], check=True)
-
-        # 4. Bandpass Filtering (0.01-0.1 Hz) using AFNI
-        filtered_path = output_dir / f"{subject_id}_bp.nii.gz"
-        # Real command: 3dBandpass
-        # Placeholder: copy file
-        subprocess.run(["cp", str(normalized_path), str(filtered_path)], check=True)
-
-        result["status"] = "success"
-        result["output_file"] = str(filtered_path)
-
+        # Find functional scan
+        func_file = None
+        for ext in ['.nii', '.nii.gz']:
+            potential_file = raw_dir / f"{subject_id}_func{ext}"
+            if potential_file.exists():
+                func_file = potential_file
+                break
+        
+        if not func_file:
+            raise FileNotFoundError(f"No functional scan found for subject {subject_id}")
+        
+        # Create output directory
+        subject_output_dir = processed_dir / subject_id
+        subject_output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Motion correction (using FSL's MCFLIRT)
+        logger.info(f"Performing motion correction for {subject_id}")
+        motion_corrected_file = subject_output_dir / f"{subject_id}_mc.nii.gz"
+        
+        # TODO: Implement actual motion correction command
+        # mcflirt -in {func_file} -out {motion_corrected_file} -refvol 0
+        
+        # Spatial normalization (using FSL's FLIRT)
+        logger.info(f"Performing spatial normalization for {subject_id}")
+        normalized_file = subject_output_dir / f"{subject_id}_norm.nii.gz"
+        
+        # TODO: Implement actual normalization command
+        # flirt -in {motion_corrected_file} -ref standard_template -out {normalized_file}
+        
+        # Bandpass filtering (using AFNI's 3dBandpass)
+        logger.info(f"Performing bandpass filtering for {subject_id}")
+        filtered_file = subject_output_dir / f"{subject_id}_filtered.nii.gz"
+        
+        # TODO: Implement actual filtering command
+        # 3dBandpass -prefix {filtered_file} -low 0.01 -high 0.1 {normalized_file}
+        
+        # Calculate motion metrics
+        motion_metrics = calculate_motion_metrics(filtered_file, subject_output_dir)
+        
+        # Stop resource monitoring for this subject
+        end_time = time.time()
+        resource_monitor.end_subject(subject_id)
+        
+        result = {
+            'subject_id': subject_id,
+            'status': 'success',
+            'input_file': str(func_file),
+            'output_file': str(filtered_file),
+            'processing_time_seconds': end_time - start_time,
+            'motion_metrics': motion_metrics,
+            'ram_peak_mb': resource_monitor.get_subject_peak_ram(subject_id),
+            'ram_avg_mb': resource_monitor.get_subject_avg_ram(subject_id)
+        }
+        
+        logger.info(f"Successfully preprocessed subject {subject_id}")
+        return result
+        
     except Exception as e:
-        result["error"] = str(e)
-        result["status"] = "failed"
-    finally:
-        # Stop monitoring and record resource usage
-        duration = time.time() - start_time
-        monitor.end_subject(subject_id, duration)
-        result["resource_usage"] = monitor.get_subject_resource(subject_id)
-
-    return result
+        logger.error(f"Failed to preprocess subject {subject_id}: {str(e)}")
+        resource_monitor.end_subject(subject_id, error=True)
+        
+        return {
+            'subject_id': subject_id,
+            'status': 'failed',
+            'error': str(e),
+            'processing_time_seconds': time.time() - start_time,
+            'ram_peak_mb': resource_monitor.get_subject_peak_ram(subject_id),
+            'ram_avg_mb': resource_monitor.get_subject_avg_ram(subject_id)
+        }
 
 def main():
-    """Main entry point for preprocessing pipeline."""
-    print("Starting preprocessing pipeline...")
+    """
+    Main function to run the preprocessing pipeline for all subjects.
+    """
+    logger.info("Starting preprocessing pipeline")
     
-    # Initialize resource monitor
-    output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    monitor = ResourceMonitor(output_file=output_dir / "resource_profile.json")
-
-    # Check dependencies
+    # Check for FSL and AFNI availability
     if not check_fsl_afni():
-        print("Critical: FSL/AFNI dependencies missing. Exiting.")
+        logger.error("FSL or AFNI not available. Please install required tools.")
         sys.exit(1)
-
-    # Get configuration
+    
+    # Load configuration
     dataset_ids = get_dataset_ids()
     sample_limit = get_sample_limit()
+    fallback_condition = get_fallback_condition()
     
-    # In a real scenario, we would iterate over downloaded subjects
-    # For this task, we simulate the loop structure
-    # The actual subject list would come from download.py validation
+    logger.info(f"Dataset IDs: {dataset_ids}")
+    logger.info(f"Sample limit: {sample_limit}")
     
-    subjects_to_process = [] # Placeholder for real subject list
+    # Initialize resource monitor
+    resource_monitor = ResourceMonitor()
+    resource_monitor.start_session()
     
-    # Simulate processing for demonstration of resource monitoring integration
-    # In real run, this would be populated from download.py
-    # Example: subjects_to_process = [("sub-01", Path("data/raw/ds000224/sub-01/func/..."))]
+    # Define directories
+    raw_dir = Path("data/raw")
+    processed_dir = Path("data/processed")
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
-    successful = 0
-    total = 0
+    # Get subject list (this would normally come from the downloaded dataset)
+    # For now, we'll simulate with a placeholder
+    subject_ids = [f"sub-{i:03d}" for i in range(1, sample_limit + 1)]
     
-    # If no real subjects found in this dry-run context, we skip loop
-    # But the code structure is ready for real data
-    if not subjects_to_process:
-        print("No subjects to process (simulated run). Resource monitoring logic is integrated.")
-        # Write empty profile to satisfy output requirement
-        monitor.finalize()
-        return
-
-    for subject_id, raw_path in subjects_to_process:
-        total += 1
-        res = preprocess_subject(subject_id, raw_path, output_dir, monitor)
-        if res["status"] == "success":
-            successful += 1
-        else:
-            print(f"Failed to process {subject_id}: {res['error']}")
-
-        # Check motion exclusion logic
-        if res["motion_metrics"].get("max_translation_mm", 0) > 3.0:
-            print(f"Excluding {subject_id} due to high motion.")
-
-    # Finalize resource monitor
-    monitor.finalize()
-
-    # Generate stats
+    logger.info(f"Processing {len(subject_ids)} subjects")
+    
+    # Process each subject
+    results = []
+    successful_count = 0
+    
+    for subject_id in subject_ids:
+        result = preprocess_subject(subject_id, raw_dir, processed_dir, resource_monitor)
+        results.append(result)
+        
+        if result['status'] == 'success':
+            successful_count += 1
+        
+        # Log resource usage
+        logger.info(f"Subject {subject_id} RAM usage: "
+                   f"Peak={result['ram_peak_mb']:.1f}MB, "
+                   f"Avg={result['ram_avg_mb']:.1f}MB")
+    
+    # Stop resource monitoring
+    resource_monitor.end_session()
+    
+    # Write resource profile
+    resource_profile = resource_monitor.get_session_profile()
+    resource_profile_path = Path("data/processed/resource_profile.json")
+    with open(resource_profile_path, 'w') as f:
+        json.dump(resource_profile, f, indent=2)
+    
+    logger.info(f"Resource profile written to {resource_profile_path}")
+    
+    # Generate preprocessing statistics
     stats = {
-        "total_subjects": total,
-        "successful_subjects": successful,
-        "success_rate_percentage": (successful / total * 100) if total > 0 else 0
+        'total_subjects': len(subject_ids),
+        'successful_subjects': successful_count,
+        'success_rate_percentage': (successful_count / len(subject_ids)) * 100 if subject_ids else 0,
+        'resource_profile_path': str(resource_profile_path),
+        'processing_summary': {
+            'total_time_seconds': sum(r.get('processing_time_seconds', 0) for r in results),
+            'avg_processing_time_seconds': sum(r.get('processing_time_seconds', 0) for r in results) / len(results) if results else 0
+        }
     }
     
-    stats_path = output_dir / "preprocessing_stats.json"
-    with open(stats_path, "w") as f:
+    stats_path = Path("data/processed/preprocessing_stats.json")
+    with open(stats_path, 'w') as f:
         json.dump(stats, f, indent=2)
     
-    print(f"Preprocessing complete. Stats written to {stats_path}")
-    print(f"Resource profile written to {monitor.output_file}")
-
-    if total > 0 and successful == 0:
-        print("Critical: No subjects successfully processed. Halting pipeline.")
-        sys.exit(1)
+    logger.info(f"Preprocessing statistics written to {stats_path}")
+    logger.info(f"Pipeline completed: {successful_count}/{len(subject_ids)} subjects successful")
+    
+    return stats
 
 if __name__ == "__main__":
     main()

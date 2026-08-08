@@ -1,139 +1,131 @@
-"""
-Unit tests for the dependency check script.
-
-Tests verify the functionality of run_command, check_tool_availability,
-and check_all_tools functions.
-"""
+import os
+import sys
 import json
 import subprocess
 from unittest.mock import patch, MagicMock
-import pytest
-import sys
 from pathlib import Path
+import pytest
 
-# Add the code directory to the path for imports
+# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from dependency_check import run_command, check_tool_availability, check_all_tools, REQUIRED_TOOLS
-
+from dependency_check import run_command, check_tool_availability, check_all_tools
 
 class TestRunCommand:
-    """Tests for the run_command function."""
-
     def test_successful_command(self):
-        """Test running a command that succeeds."""
-        success, stdout, stderr = run_command(["echo", "hello"])
+        """Test run_command with a successful command."""
+        success, output = run_command(["echo", "hello"])
         assert success is True
-        assert stdout == "hello"
-        assert stderr == ""
+        assert output == "hello"
+
+    def test_failed_command(self):
+        """Test run_command with a failing command."""
+        success, output = run_command(["false"])
+        assert success is False
 
     def test_command_not_found(self):
-        """Test running a command that doesn't exist."""
-        success, stdout, stderr = run_command(["nonexistent_command_xyz"])
+        """Test run_command with a non-existent command."""
+        success, output = run_command(["nonexistent_command_xyz"])
         assert success is False
-        assert "not found" in stderr.lower() or "No such file" in stderr
+        assert "not found" in output.lower() or "No such file" in output
 
-    def test_command_timeout(self):
-        """Test that timeout is handled correctly."""
-        # Use a very short timeout to trigger timeout
-        success, stdout, stderr = run_command(["sleep", "10"], timeout=1)
+    def test_timeout(self):
+        """Test run_command with a timeout."""
+        # Use sleep to create a timeout scenario
+        success, output = run_command(["sleep", "10"], timeout=1)
         assert success is False
-        assert "timed out" in stderr.lower()
-
-    def test_command_with_error(self):
-        """Test running a command that exits with error."""
-        success, stdout, stderr = run_command(["sh", "-c", "exit 1"])
-        assert success is False
-        assert stderr == "" or "exit" in stderr.lower()
-
+        assert "timed out" in output.lower()
 
 class TestCheckToolAvailability:
-    """Tests for the check_tool_availability function."""
+    @patch('dependency_check.run_command')
+    def test_available_tool(self, mock_run):
+        """Test check_tool_availability with an available tool."""
+        mock_run.return_value = (True, "1.0.0")
+        result = check_tool_availability("test_tool", ["--version"])
+        
+        assert result["tool"] == "test_tool"
+        assert result["available"] is True
+        assert result["version_output"] == "1.0.0"
+        assert result["error"] is None
 
-    def test_unknown_tool(self):
-        """Test checking for an unknown tool."""
-        result = check_tool_availability("unknown_tool_xyz")
+    @patch('dependency_check.run_command')
+    def test_unavailable_tool(self, mock_run):
+        """Test check_tool_availability with an unavailable tool."""
+        mock_run.return_value = (False, "command not found")
+        result = check_tool_availability("missing_tool", ["--version"])
+        
+        assert result["tool"] == "missing_tool"
         assert result["available"] is False
-        assert "Unknown tool" in result["error"]
-
-    def test_existing_command(self):
-        """Test checking for a command that exists in the system."""
-        # Test with 'echo' which should always exist
-        # We'll mock the REQUIRED_TOOLS to include 'echo'
-        with patch('dependency_check.REQUIRED_TOOLS', {
-            'echo': {
-                'command': 'echo',
-                'version_flag': '--version',
-                'min_version': None,
-                'description': 'Echo command'
-            }
-        }):
-            result = check_tool_availability("echo")
-            assert result["tool"] == "echo"
-            assert result["description"] == "Echo command"
-            # echo --version might not work on all systems, so we just check structure
-            assert "available" in result
-            assert "version" in result or "error" in result
-
-    def test_fsl_check_structure(self):
-        """Test that FSL check returns expected structure."""
-        result = check_tool_availability("fsl")
-        assert result["tool"] == "fsl"
-        assert "description" in result
-        assert "available" in result
-        assert "command_used" in result
-
-    def test_afni_check_structure(self):
-        """Test that AFNI check returns expected structure."""
-        result = check_tool_availability("afni")
-        assert result["tool"] == "afni"
-        assert "description" in result
-        assert "available" in result
-        assert "command_used" in result
-
+        assert result["version_output"] is None
+        assert result["error"] == "command not found"
 
 class TestCheckAllTools:
-    """Tests for the check_all_tools function."""
+    @patch('dependency_check.check_tool_availability')
+    def test_all_tools_available(self, mock_check):
+        """Test check_all_tools when all tools are available."""
+        # Mock FSL check
+        mock_check.side_effect = [
+            {"tool": "fsl", "available": True, "version_output": "6.0.0", "error": None},
+            {"tool": "afni", "available": True, "version_output": "20.0.0", "error": None}
+        ]
+        
+        # We need to patch specifically for FSL and AFNI calls
+        def side_effect(tool, args):
+            if tool == "fsl":
+                return {"tool": "fsl", "available": True, "version_output": "6.0.0", "error": None}
+            elif tool == "afni":
+                return {"tool": "afni", "available": True, "version_output": "20.0.0", "error": None}
+            return {"tool": tool, "available": False, "version_output": None, "error": "not found"}
+        
+        mock_check.side_effect = side_effect
+        
+        result = check_all_tools()
+        
+        assert result["all_available"] is True
+        assert "FSL" in result["tools"]
+        assert "AFNI" in result["tools"]
+        assert len(result["missing_tools"]) == 0
 
-    def test_returns_dict(self):
-        """Test that check_all_tools returns a dictionary."""
-        results = check_all_tools()
-        assert isinstance(results, dict)
-        assert "all_available" in results
-        assert "tools" in results
+    @patch('dependency_check.check_tool_availability')
+    def test_some_tools_missing(self, mock_check):
+        """Test check_all_tools when some tools are missing."""
+        def side_effect(tool, args):
+            if tool == "fsl":
+                return {"tool": "fsl", "available": True, "version_output": "6.0.0", "error": None}
+            elif tool == "afni":
+                return {"tool": "afni", "available": False, "version_output": None, "error": "not found"}
+            return {"tool": tool, "available": False, "version_output": None, "error": "not found"}
+        
+        mock_check.side_effect = side_effect
+        
+        result = check_all_tools()
+        
+        assert result["all_available"] is False
+        assert "AFNI" in result["missing_tools"]
 
-    def test_all_tools_checked(self):
-        """Test that all required tools are checked."""
-        results = check_all_tools()
-        for tool_name in REQUIRED_TOOLS:
-            assert tool_name in results["tools"]
-
-    def test_all_available_flag(self):
-        """Test that all_available flag is set correctly."""
-        results = check_all_tools()
-        # We can't guarantee FSL/AFNI are installed, but we can check the flag exists
-        assert isinstance(results["all_available"], bool)
-
-    def test_timestamp_added(self):
-        """Test that timestamp is added when called from main (simulated)."""
-        # This is more of an integration test, but we can verify structure
-        results = check_all_tools()
-        # Timestamp is added in main(), not here, so we just verify structure
-        assert "tools" in results
-        assert "all_available" in results
-
-
-class TestRequiredToolsConfig:
-    """Tests for the REQUIRED_TOOLS configuration."""
-
-    def test_fsl_config(self):
-        """Test FSL configuration structure."""
-        assert "fsl" in REQUIRED_TOOLS
-        assert REQUIRED_TOOLS["fsl"]["command"] == "fsl"
-        assert REQUIRED_TOOLS["fsl"]["version_flag"] == "--version"
-
-    def test_afni_config(self):
-        """Test AFNI configuration structure."""
-        assert "afni" in REQUIRED_TOOLS
-        assert REQUIRED_TOOLS["afni"]["command"] == "afni"
-        assert REQUIRED_TOOLS["afni"]["version_flag"] == "-ver"
+class TestDependencyCheckIntegration:
+    def test_dependency_check_output_file(self):
+        """Test that dependency_check.py creates the expected output file."""
+        # Run the main function
+        from dependency_check import main
+        
+        # Capture exit code
+        try:
+            main()
+        except SystemExit as e:
+            # Expected exit
+            pass
+        
+        # Check if file was created
+        output_file = Path("data/processed/dependency_check.json")
+        assert output_file.exists(), "dependency_check.json should be created"
+        
+        # Verify JSON structure
+        with open(output_file) as f:
+            data = json.load(f)
+        
+        assert "tools" in data
+        assert "all_available" in data
+        assert "missing_tools" in data
+        assert "FSL" in data["tools"]
+        assert "AFNI" in data["tools"]

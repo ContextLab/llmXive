@@ -1,3 +1,3 @@
-# This file exists to ensure ruff works in editors that look for .ruff.toml
-# The actual configuration is in pyproject.toml
+# Explicit ruff configuration file for the project
+# This file mirrors settings in pyproject.toml for IDE compatibility
 extend = "pyproject.toml"
