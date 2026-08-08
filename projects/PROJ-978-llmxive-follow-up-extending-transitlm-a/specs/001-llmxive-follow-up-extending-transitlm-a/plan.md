@@ -11,7 +11,7 @@ A **deterministic, fixed-lookup lightweight model** (retrieving top-N neighbors 
 
 The analysis employs a **dual-method statistical approach**:
 1.  **Survival Analysis (Kaplan-Meier & Cox PH)**: To model the cumulative probability of route validity decay (answering "when do routes fail?") and the hazard of failure at each hop.
-2.  **Point-wise Chi-Squared Scan**: To identify the specific "inflection point" where the validity gap between models exceeds the 15% threshold (answering "at what length does the gap emerge?"). This involves testing validity proportions at *every* individual route length (L=1 to L=max), not just broad strata. This satisfies Constitution Principle VI.
+2.  **Point-wise Chi-Squared Scan**: To identify the specific "inflection point" where the validity gap between models exceeds a significant threshold (answering "at what length does the gap emerge?"). This involves testing validity proportions at *every* individual route length (L=1 to L=max), not just broad strata. This satisfies Constitution Principle VI.
 
 The implementation must run entirely on CPU (GitHub Actions free-tier). The baseline LLM feasibility is a hypothesis to be tested; if it exceeds the 6-hour runtime or 7GB RAM limit, the result is recorded as "timeout/infeasible" rather than offloaded, ensuring reproducibility. If the baseline fails, the divergence claim is marked as "inconclusive" for that subset.
 

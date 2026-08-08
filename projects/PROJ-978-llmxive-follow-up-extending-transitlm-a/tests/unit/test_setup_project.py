@@ -1,81 +1,95 @@
 """
 Unit tests for the project setup script.
-
-These tests verify that the required directory structure is created correctly.
+Verifies that the required directory structure is created correctly.
 """
 import os
-import shutil
-import tempfile
-import unittest
+import pytest
 from pathlib import Path
+import tempfile
+import shutil
 import sys
 
-# Add the project root to the path so we can import setup_project
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the code directory to the path for imports
+code_dir = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
-from code.setup_project import main
+from setup_project import main
 
+class TestProjectSetup:
+    """Tests for the project setup functionality."""
 
-class TestProjectSetup(unittest.TestCase):
-    """Test cases for project setup functionality."""
-
-    def setUp(self):
-        """Create a temporary directory for testing."""
-        self.test_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        os.chdir(self.test_dir)
-
-    def tearDown(self):
-        """Clean up the temporary directory."""
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_dir)
-
-    def test_main_creates_all_directories(self):
-        """Test that main() creates all required directories."""
-        # Run the setup
-        result = main()
+    def test_directories_created(self, tmp_path):
+        """Test that all required directories are created."""
+        # Change to a temporary directory to avoid polluting the actual project
+        original_cwd = os.getcwd()
+        os.chdir(tmp_path)
         
-        # Check return code
-        self.assertEqual(result, 0, "main() should return 0 on success")
-        
-        # Verify each required directory exists
-        required_dirs = [
-            "code",
-            "data/raw",
-            "data/processed",
-            "data/analysis",
-            "models",
-            "analysis",
-            "tests",
-            "docs"
-        ]
-        
-        for dir_name in required_dirs:
-            dir_path = Path(self.test_dir) / dir_name
-            self.assertTrue(
-                dir_path.exists() and dir_path.is_dir(),
-                f"Directory {dir_name} should exist after setup"
-            )
+        try:
+            # Run the setup
+            result = main()
+            
+            # Check return code
+            assert result == 0, "Setup script should return 0 on success"
+            
+            # Verify each required directory exists
+            required_dirs = [
+                "code",
+                "data/raw",
+                "data/processed",
+                "data/analysis",
+                "models",
+                "analysis",
+                "tests",
+                "docs"
+            ]
+            
+            for dir_name in required_dirs:
+                dir_path = tmp_path / dir_name
+                assert dir_path.exists(), f"Directory {dir_name} was not created"
+                assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
+        finally:
+            # Restore original working directory
+            os.chdir(original_cwd)
 
-    def test_nested_directories_created(self):
+    def test_nested_directories_created(self, tmp_path):
         """Test that nested directories (e.g., data/raw) are created correctly."""
-        result = main()
-        self.assertEqual(result, 0)
+        original_cwd = os.getcwd()
+        os.chdir(tmp_path)
         
-        # Test specific nested paths
-        nested_paths = [
-            "data/raw",
-            "data/processed",
-            "data/analysis"
-        ]
+        try:
+            result = main()
+            assert result == 0
+            
+            # Check specific nested paths
+            nested_dirs = [
+                "data/raw",
+                "data/processed",
+                "data/analysis"
+            ]
+            
+            for dir_name in nested_dirs:
+                dir_path = tmp_path / dir_name
+                assert dir_path.exists(), f"Nested directory {dir_name} was not created"
+        finally:
+            os.chdir(original_cwd)
+
+    def test_setup_idempotent(self, tmp_path):
+        """Test that running setup twice doesn't cause errors."""
+        original_cwd = os.getcwd()
+        os.chdir(tmp_path)
         
-        for path in nested_paths:
-            full_path = Path(self.test_dir) / path
-            self.assertTrue(
-                full_path.exists() and full_path.is_dir(),
-                f"Nested directory {path} should exist"
-            )
-
-
-if __name__ == "__main__":
-    unittest.main()
+        try:
+            # Run setup first time
+            result1 = main()
+            assert result1 == 0
+            
+            # Run setup second time
+            result2 = main()
+            assert result2 == 0
+            
+            # Verify directories still exist
+            required_dirs = ["code", "models", "analysis", "tests", "docs"]
+            for dir_name in required_dirs:
+                assert (tmp_path / dir_name).exists()
+        finally:
+            os.chdir(original_cwd)

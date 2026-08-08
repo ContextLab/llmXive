@@ -1,1 +1,22 @@
-[]
+- artifact_hash: bbe3e956d415ebd74520abb3474334fa84e8b6ca4e1043475a486ad4013282f9
+  artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bonferroni correction - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q385989
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q385989
+  verified_at: '2026-08-08T16:01:00.499716Z'
+- artifact_hash: bbe3e956d415ebd74520abb3474334fa84e8b6ca4e1043475a486ad4013282f9
+  artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Binomial proportion confidence interval - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+  verified_at: '2026-08-08T16:01:00.499716Z'

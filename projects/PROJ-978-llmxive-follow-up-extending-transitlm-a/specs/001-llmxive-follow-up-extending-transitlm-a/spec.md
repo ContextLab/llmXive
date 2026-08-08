@@ -90,7 +90,7 @@
 - **SC-002**: The difference in route survival probability between models is measured against the null hypothesis of equal survival curves using a log-rank test (See FR-004).
 - **SC-003**: Inference latency and peak memory usage are measured against the 60-second and 7 GB RAM constraints of the GitHub Actions free-tier runner (See FR-005).
 - **SC-004**: The rate of `<UNKNOWN>` token predictions is measured against the total number of predictions to assess the impact of vocabulary restriction on model performance (See FR-006).
-- **SC-005**: The adjusted p-values resulting from the multiple-comparison correction must be reported and compared to the nominal alpha level (0.05) to determine significance (See FR-007).
+- **SC-005**: The adjusted p-values resulting from the multiple-comparison correction must be reported and compared to the nominal alpha level to determine significance. (See FR-007).
 - **SC-006**: The completeness of the local adjacency graph is measured against the TransitLM ground truth as 'edge overlap percentage' (target ≥95%) to validate the ground truth (See FR-008).
 
 ## Assumptions

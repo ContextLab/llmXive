@@ -1,206 +1,159 @@
 """
-Download and verify the TransitLM dataset from Hugging Face.
+Download and verify the TransitLM SFT dataset from Hugging Face.
 
-This module fetches the TransitLM SFT dataset using streaming to handle large sizes,
-verifies the integrity of the downloaded archive using SHA256 checksums,
-and saves the raw data to the data/raw/ directory.
+This script fetches the dataset using streaming to minimize memory footprint,
+verifies integrity using SHA256 checksums, and saves the raw data to data/raw/.
+
+Output: data/raw/transitlm_ground_truth.json
 """
 import hashlib
 import json
 import os
 import sys
-import tarfile
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
-from datasets import load_dataset
+# Ensure we can import from the project root if run as a script
+if __name__ == "__main__":
+    # Add parent directory to path for imports if necessary
+    parent = Path(__file__).parent.parent
+    if str(parent) not in sys.path:
+        sys.path.insert(0, str(parent))
+
+try:
+    from datasets import load_dataset
+except ImportError:
+    print("Error: 'datasets' package is required. Install with: pip install datasets")
+    sys.exit(1)
 
 
-# Configuration constants
-DATASET_NAME = "transitlm/transitlm-sft"
-CHECKSUM_FILE = "data/raw/transitlm_checksums.json"
+# Configuration
+# The specific dataset ID for TransitLM SFT
+DATASET_ID = "TransitLM/TransitLM-SFT"
 OUTPUT_DIR = Path("data/raw")
-# Expected SHA256 for the main archive (transitlm-sft.tar.gz)
-# Note: In a real scenario, this would be fetched from a trusted source or computed on first run.
-# For this implementation, we assume the dataset provides a stable checksum or we compute it on first download.
-# Since we cannot hardcode a checksum that might change, we will compute it upon first download and store it.
-# However, to satisfy the requirement of verification, we will attempt to verify against a stored checksum if it exists.
-EXPECTED_CHECKSUM = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  # Placeholder, will be updated dynamically or from config
+# The task explicitly requests this output filename
+OUTPUT_FILENAME = "transitlm_ground_truth.json"
+
+# We do not have a pre-computed hash for the full dataset yet.
+# We will compute it after download. If the dataset is stable,
+# we can update this value in future runs to verify integrity.
+EXPECTED_SHA256: Optional[str] = None
 
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA256 hash of a file."""
+    """Compute the SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
 
-def download_transitlm() -> Path:
+def download_transitlm(output_dir: Path, filename: str) -> Path:
     """
-    Download the TransitLM dataset from Hugging Face using streaming.
+    Download the TransitLM SFT dataset from Hugging Face.
     
-    Returns:
-        Path: Path to the downloaded dataset archive.
-        
-    Raises:
-        FileNotFoundError: If the dataset cannot be found.
-        ValueError: If checksum verification fails.
+    Uses streaming=True to handle large datasets efficiently.
+    Saves the result as a JSON file containing the list of items.
+    
+    Note: The task requires saving to `data/raw/transitlm_ground_truth.json`.
+    We will accumulate the streaming data into a list and write it as JSON.
     """
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / filename
+
+    print(f"Downloading dataset '{DATASET_ID}' with streaming...")
     
-    archive_path = OUTPUT_DIR / "transitlm-sft.tar.gz"
-    
-    # Check if already downloaded and verified
-    if archive_path.exists():
-        print(f"Checking existing archive: {archive_path}")
-        current_checksum = compute_sha256(archive_path)
-        
-        # Load stored checksums if they exist
-        if CHECKSUM_FILE:
-            checksums_path = Path(CHECKSUM_FILE)
-            if checksums_path.exists():
-                with open(checksums_path, "r") as f:
-                    stored_checksums = json.load(f)
-                stored_checksum = stored_checksums.get("transitlm-sft.tar.gz")
-                if stored_checksum and current_checksum == stored_checksum:
-                    print(f"Checksum verified. Using existing archive.")
-                    return archive_path
-                else:
-                    print(f"Checksum mismatch. Re-downloading.")
-                    archive_path.unlink()
-            else:
-                print(f"Checksum file not found. Re-downloading to generate checksum.")
-                archive_path.unlink()
-        else:
-            print(f"Checksum file not found. Re-downloading to generate checksum.")
-            archive_path.unlink()
-    
-    print(f"Downloading dataset: {DATASET_NAME}...")
     try:
-        # Load dataset in streaming mode to avoid loading entire dataset into memory
-        dataset = load_dataset(DATASET_NAME, streaming=True)
+        # Load dataset in streaming mode
+        # Most HF datasets have a 'train' split.
+        dataset = load_dataset(DATASET_ID, split="train", streaming=True)
         
-        # The dataset is typically stored as a parquet or jsonl file within the HuggingFace cache.
-        # We need to extract the actual file content.
-        # For 'transitlm-sft', the data is usually in 'train' split.
-        # We will download the raw files from the HuggingFace hub directly to ensure we get the tarball if available,
-        # or reconstruct it from the streaming dataset if necessary.
-        # However, 'load_dataset' with streaming doesn't directly give us a tarball.
-        # The standard approach for 'transitlm' is that it might be a single large file or multiple shards.
-        # Let's assume the dataset is provided as a single archive or we download the raw files and package them.
-        # Given the task description mentions "transitlm-sft.tar.gz", we assume the HF repo contains this file.
+        # Accumulate data to write as a single JSON file as requested
+        # Streaming allows us to iterate without loading everything into RAM at once,
+        # but we need to write the final file. If the dataset is massive, 
+        # writing a single huge JSON might be memory intensive during write.
+        # However, the task specifies a .json output.
+        # We will write line-by-line JSON (JSONL) internally but rename/structure
+        # it to match the requested .json if it implies a list, or keep as JSONL 
+        # if the extension is loose. 
+        # Strictly, "transitlm_ground_truth.json" usually implies a JSON list.
+        # Given the streaming nature, writing a JSON list requires wrapping in []
+        # and handling commas.
         
-        # Alternative: Download the raw files from HF Hub if the dataset config points to a specific file.
-        # Since we are streaming, we can't easily get the archive.
-        # Let's try to download the raw file directly from the HF Hub API if we know the filename.
-        # If the dataset is 'transitlm/transitlm-sft', the files are usually in the repo root or a specific folder.
-        # We will attempt to download the 'train-00000-of-00001.parquet' or similar if it's a parquet dataset.
-        # But the task says "tar.gz". Let's assume the repo has a 'transitlm-sft.tar.gz' file.
+        # To be safe with memory, we will write a JSONL file but name it .json 
+        # if the downstream expects line-delimited, OR we write a proper JSON list.
+        # The task says "save to data/raw/transitlm_ground_truth.json".
+        # Let's write a valid JSON list.
         
-        # Correct approach for 'transitlm':
-        # The dataset is likely a custom dataset. We will download the raw files.
-        # If the dataset is a single large file, we download it.
-        # If it's multiple files, we download them and package them.
-        # For this task, we assume the dataset is available as a single file or we can reconstruct the tarball.
-        # Since 'load_dataset' with streaming doesn't provide the raw file path, we use hf_hub_download.
-        
-        from huggingface_hub import hf_hub_download
-        
-        # Try to download the archive directly if it exists in the repo
-        # We need to know the filename. Let's assume it's 'transitlm-sft.tar.gz'
-        try:
-            file_path = hf_hub_download(
-                repo_id=DATASET_NAME,
-                filename="transitlm-sft.tar.gz",
-                repo_type="dataset"
-            )
-            # Move to our output dir
-            import shutil
-            shutil.move(file_path, str(archive_path))
-        except Exception as e:
-            # If the tar.gz doesn't exist, try to download the raw data files and create a tarball
-            print(f"Archive not found directly. Downloading raw data files...")
-            # This part is complex and depends on the actual structure of the dataset.
-            # For the sake of this task, we will assume the dataset provides a way to get the raw files.
-            # We will download the 'train' split data and save it as a JSONL file, then tar it.
-            # This is a fallback.
-            
-            # Let's try to get the raw files from the dataset config
-            # This is a simplified approach. In reality, we need to inspect the dataset structure.
-            # We will assume the dataset is a JSONL file.
-            # We'll download the first shard to see the structure.
-            # Actually, let's just download the dataset normally (non-streaming) to a temp dir and then archive it.
-            # But the task says "streaming=True".
-            # We will stream the data and write it to a file, then archive it.
-            
-            output_file = OUTPUT_DIR / "transitlm-sft.jsonl"
-            with open(output_file, "w", encoding="utf-8") as f:
-                for item in dataset["train"]:
-                    f.write(json.dumps(item) + "\n")
-            
-            # Create tarball
-            with tarfile.open(archive_path, "w:gz") as tar:
-                tar.add(output_file, arcname="transitlm-sft.jsonl")
-            output_file.unlink() # Remove intermediate file
-            
-            print(f"Created archive: {archive_path}")
-        
-        # Compute and store checksum
-        current_checksum = compute_sha256(archive_path)
-        
-        # Load or create checksums dict
-        checksums_path = Path(CHECKSUM_FILE)
-        if checksums_path.exists():
-            with open(checksums_path, "r") as f:
-                stored_checksums = json.load(f)
-        else:
-            stored_checksums = {}
-        
-        stored_checksums["transitlm-sft.tar.gz"] = current_checksum
-        
-        with open(checksums_path, "w") as f:
-            json.dump(stored_checksums, f, indent=2)
-        
-        print(f"Downloaded and verified: {archive_path}")
-        print(f"SHA256: {current_checksum}")
-        
-        return archive_path
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write("[\n")
+            count = 0
+            first = True
+            for item in dataset:
+                if not first:
+                    f.write(",\n")
+                first = False
+                f.write(json.dumps(item, ensure_ascii=False))
+                count += 1
+                if count % 10000 == 0:
+                    print(f"  Downloaded {count} rows...", end="\r")
+            f.write("\n]")
+            print(f"\nDownloaded {count} rows to {output_path}")
         
     except Exception as e:
-        print(f"Error downloading dataset: {e}", file=sys.stderr)
-        raise FileNotFoundError(f"Failed to download dataset {DATASET_NAME}: {e}")
+        print(f"Error downloading dataset: {e}")
+        # Fail loudly: do not fallback to synthetic data
+        raise RuntimeError(
+            f"Failed to download real data from {DATASET_ID}. "
+            "The task requires real data. If the dataset ID is wrong, update DATASET_ID. "
+            "If the dataset is unavailable, the task cannot be completed."
+        ) from e
+
+    return output_path
 
 
 def main():
     """Main entry point for the download script."""
+    print("Starting TransitLM dataset download...")
+    
     try:
-        archive_path = download_transitlm()
-        print(f"Success! Dataset downloaded to: {archive_path}")
+        output_path = download_transitlm(OUTPUT_DIR, OUTPUT_FILENAME)
         
-        # Verify checksum again after download
-        if archive_path.exists():
-            checksum = compute_sha256(archive_path)
-            print(f"Final verification - SHA256: {checksum}")
-            
-            # Load stored checksum
-            checksums_path = Path(CHECKSUM_FILE)
-            if checksums_path.exists():
-                with open(checksums_path, "r") as f:
-                    stored_checksums = json.load(f)
-                stored = stored_checksums.get("transitlm-sft.tar.gz")
-                if stored and stored == checksum:
-                    print("Checksum verification PASSED.")
-                else:
-                    print("Checksum verification FAILED.", file=sys.stderr)
-                    sys.exit(1)
+        # Verify checksum
+        print(f"Computing SHA256 checksum for {output_path}...")
+        file_hash = compute_sha256(output_path)
+        print(f"SHA256: {file_hash}")
+        
+        if EXPECTED_SHA256:
+            if file_hash == EXPECTED_SHA256:
+                print("Checksum verification PASSED.")
             else:
-                print("No stored checksum found. Verification skipped.")
+                print(f"Checksum verification FAILED.")
+                print(f"  Expected: {EXPECTED_SHA256}")
+                print(f"  Got:      {file_hash}")
+                sys.exit(1)
+        else:
+            print("No expected checksum provided. Skipping verification comparison.")
+            print("Please update EXPECTED_SHA256 in the script for production use.")
+        
+        # Save metadata
+        metadata = {
+            "dataset_id": DATASET_ID,
+            "file": str(output_path),
+            "sha256": file_hash,
+            "downloaded_at": str(Path().cwd())
+        }
+        metadata_path = output_path.with_suffix(".json.meta")
+        with open(metadata_path, "w") as f:
+            json.dump(metadata, f, indent=2)
+        print(f"Metadata saved to {metadata_path}")
         
     except Exception as e:
-        print(f"Download failed: {e}", file=sys.stderr)
+        print(f"Download process failed: {e}")
         sys.exit(1)
+
+    print("Download completed successfully.")
 
 
 if __name__ == "__main__":

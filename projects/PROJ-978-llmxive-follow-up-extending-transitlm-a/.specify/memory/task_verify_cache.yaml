@@ -1,9 +1,22 @@
-T008:
-  c: true
-  h: ffc0b4701650ac9d6063c008ea0a97ee26afad0345faf5920595c7155de1377b
-  r: "Both required files `data/contracts/dataset.schema.yaml` and `data/contracts/output.schema.yaml`\
-    \ are present, non\u2011empty, and contain full JSON\u2011Schema definitions appropriate\
-    \ for validating the dataset and analysis output, fulfilling the task\u2019s requirement."
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory tree (`code/`, `data/raw/`, `data/processed/`,
+    `data/analysis/`, `models/`, `analysis/`, `tests/`, `docs/`) is provided; the
+    artifacts are missing, so the task is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` or `.ruff.toml`\
+    \ for ruff, and black settings or a pre\u2011commit hook) are present in the provided\
+    \ artifacts, and the evidence only describes a research feature spec unrelated\
+    \ to configuring ruff/black. The required linting/formatting setup is missing."
+T004:
+  c: false
+  h: 62216d1d1045e452afc017253fdf91fab99d18745efee4e6772b56c8101c0a21
+  r: The provided `data/download.py` is truncated, never invokes the SHA256 check,
+    and writes to `transitlm_sft_raw.jsonl` instead of the required `transitlm_ground_truth.json`.
+    Moreover, the expected output file `data/raw/transitlm_ground_truth.json` is missing.
 T010:
   c: true
   h: 21f09e3da1a022150ea77e9a8d7e8568f98605c97b92ee7c99ca50f73526e948

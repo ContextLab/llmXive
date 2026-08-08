@@ -1,0 +1,343 @@
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: "edge overlap \u226595% using Jaccard Index algorithm"
+  claim_id: c_dcf0f498
+  context: "Implement 'data/graph_utils.py' to build the local adjacency graph from\
+    \ T004 output and validate it against 'data/raw/transitlm_ground_truth.json' for\
+    \ edge overlap \u226595% using the 'Jaccard Index' algorithm."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate it against 'data/raw/transitlm_ground_truth.json' for edge overlap\
+    \ \u226595% using the 'Jaccard Index' algorithm"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:51:32Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: stratify routes into short <15, medium 15-30, and long >30 categories
+  claim_id: c_ff336c82
+  context: Implement 'data/preprocess.py' function 'stratify_routes' to stratify routes
+    into short (<15), medium (15-30), and long (>30) categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratify routes into short (<15), medium (15-30), and long (>30) categories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:52:12Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for multiple comparisons
+  claim_id: c_374b068d
+  context: Implement 'analysis/statistics.py' to consume 'data/analysis/raw_inflection_data.json'
+    from T014 and apply 'Bonferroni correction' for multiple comparisons.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: statistical technique to correct for multiple comparisons
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: multiple comparisons
+    filled: true
+  kind: entity_fact
+  raw_text: apply 'Bonferroni correction' for multiple comparisons
+  resolved_value: multiple comparisons
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T15:52:26Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: nominal alpha level 0.05
+  claim_id: c_f4def496
+  context: Implement 'analysis/statistics.py' to report the adjusted p-values and
+    compare them to the nominal alpha level (0.05).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Binomial proportion confidence interval
+      url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: nominal alpha level (0.05)
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T15:52:37Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: "reduce latency to \u226460 seconds per batch"
+  claim_id: c_f0f1011a
+  context: "Profile and optimize the top-N neighbor retrieval in 'data/graph_utils.py'\
+    \ to reduce latency to \u226460 seconds per batch."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "reduce latency to \u226460 seconds per batch"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:52:37Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: train DistilBERT-base encoder CPU-only
+  claim_id: c_44384eb2
+  context: Implement 'models/lightweight.py' function 'train_encoder' to train a 'DistilBERT-base
+    encoder' (CPU-only) on the stratified routes to predict the next station using
+    the adjacency index as input.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_DistilBERT-base_encoder_CPU-only
+  kind: entity_fact
+  raw_text: train a 'DistilBERT-base encoder' (CPU-only)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:53:00Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project
+  claim_id: c_d3badc1c
+  context: Initialize Python 3.11 project with 'requirements.txt' (datasets, pandas,
+    networkx, scikit-learn, lifelines, transformers, pytest, torch)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:53:19Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: stratify routes into short (<15), medium (15-30), and long (>30) categories
+  claim_id: c_8ba59650
+  context: Implement `data/preprocess.py` function `stratify_routes` to stratify routes
+    into short (<15), medium (15-30), and long (>30) categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratify routes into short (<15), medium (15-30), and long (>30) categories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:54:17Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: validate local adjacency graph against ground truth for edge overlap
+    >= 95% using Jaccard Index
+  claim_id: c_150d8c95
+  context: "Implement `data/graph_utils.py` to build the local adjacency graph from\
+    \ T004 output and validate it against `data/raw/transitlm_ground_truth.json` for\
+    \ edge overlap \u226595% using the Jaccard Index algorithm."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate it against `data/raw/transitlm_ground_truth.json` for edge overlap\
+    \ \u226595% using the Jaccard Index algorithm"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:54:17Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: abort Phase 3 if Jaccard Index is less than 0.95
+  claim_id: c_9f41fc5a
+  context: 'CRITICAL: If Jaccard Index < 0.95, this task MUST fail, abort Phase 3,
+    and log the error.'
+  evidence:
+    candidates:
+    - - Abort Phase
+      - 3.0
+    - - Jaccard Index is less than
+      - 0.95
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Abort_Phase_3_if_Jaccard_Index_is_less_than_0.95
+  kind: magnitude
+  raw_text: If Jaccard Index < 0.95, this task MUST fail, abort Phase 3, and log the
+    error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T15:54:37Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: identify inflection point where lightweight model validity drops >= 15%
+    absolute
+  claim_id: c_e4d6077a
+  context: "Perform point-wise Chi-squared scans on connectivity to identify the inflection\
+    \ point where the lightweight model's validity drops \u226515% (absolute drop)\
+    \ AND the difference is statistically significant (p < 0.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "lightweight model's validity drops \u226515% (absolute drop)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:54:37Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for multiple comparisons
+  claim_id: c_52032ec8
+  context: Implement `analysis/statistics.py` to consume `data/analysis/raw_inflection_data.json`
+    from T014 and apply Bonferroni correction for multiple comparisons (Wikidata Q385989,
+    https://www.wikidata.org/wiki/Q385989).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_multiple_comparisons
+  kind: entity_fact
+  raw_text: Bonferroni correction for multiple comparisons
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:55:02Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: identify final inflection point where validity gap >= 15% and adjusted
+    p-value < 0.05
+  claim_id: c_5feab122
+  context: "Requirement: Must identify the final inflection point where validity gap\
+    \ \u226515% AND adjusted p-value < 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "identify the final inflection point where validity gap \u226515% AND\
+    \ adjusted p-value < 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:55:02Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: optimize top-N neighbor retrieval to reduce latency to <= 60 seconds
+    per batch
+  claim_id: c_4dd6758c
+  context: "Performance optimization: Profile and optimize the top-N neighbor retrieval\
+    \ in `data/graph_utils.py` to reduce latency to \u226460 seconds per batch."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "reduce latency to \u226460 seconds per batch"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:55:02Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: edge overlap at least 95% using Jaccard Index algorithm
+  claim_id: c_112f067e
+  context: "Implement data/graph_utils.py to build the local adjacency graph from\
+    \ T004 output and validate it against data/raw/transitlm_ground_truth.json for\
+    \ edge overlap \u226595% using the Jaccard Index algorithm."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Edge_overlap_at_least_95%25_using_Jaccard_Index_algorithm
+  kind: magnitude
+  raw_text: "validate it against data/raw/transitlm_ground_truth.json for edge overlap\
+    \ \u226595% using the Jaccard Index algorithm"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:59:43Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: routes stratified into short less than 15 medium 15 to 30 and long greater
+    than 30 categories
+  claim_id: c_b322e894
+  context: Implement data/preprocess.py function stratify_routes to stratify routes
+    into short (<15), medium (15-30), and long (>30) categories.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Routes_stratified_into_short_less_than_15_medium_15_to_30_an
+  kind: magnitude
+  raw_text: stratify routes into short (<15), medium (15-30), and long (>30) categories
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:59:46Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: final inflection point where validity gap at least 15% and adjusted p-value
+    less than 0.05
+  claim_id: c_82cc32c0
+  context: "Must identify the final inflection point where validity gap \u226515%\
+    \ AND adjusted p-value < 0.05."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 15.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Final_inflection_point_where_validity_gap_at_least_15%25_and_a
+  kind: magnitude
+  raw_text: "identify the final inflection point where validity gap \u226515% AND\
+    \ adjusted p-value < 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T16:00:40Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: top-N neighbor retrieval latency reduced to at most 60 seconds per batch
+  claim_id: c_4c6298de
+  context: "Profile and optimize the top-N neighbor retrieval in data/graph_utils.py\
+    \ to reduce latency to \u226460 seconds per batch."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Top-N_neighbor_retrieval_latency_reduced_to_at_most_60_secon
+  kind: magnitude
+  raw_text: "optimize the top-N neighbor retrieval in data/graph_utils.py to reduce\
+    \ latency to \u226460 seconds per batch"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T16:01:00Z'

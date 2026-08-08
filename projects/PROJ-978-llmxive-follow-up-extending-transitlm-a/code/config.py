@@ -4,125 +4,90 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Set, Optional, Any
 
-# Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Data Paths
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_ANALYSIS_DIR = PROJECT_ROOT / "data" / "analysis"
-MODELS_DIR = PROJECT_ROOT / "models"
-ANALYSIS_DIR = PROJECT_ROOT / "analysis"
-TESTS_DIR = PROJECT_ROOT / "tests"
-DOCS_DIR = PROJECT_ROOT / "docs"
-
-# City Mapping Constants (Target Chinese Cities for T006 filtering)
-# These match the filter criteria in data/preprocess.py
-TARGET_CITIES: Set[str] = {
-    "Beijing",
-    "Shanghai",
-    "Guangzhou",
-    "Shenzhen"
-}
-
-# Route Length Categories (Stratification thresholds)
-# Short: < 15 stops
-# Medium: 15 - 30 stops
-# Long: > 30 stops
-SHORT_ROUTE_THRESHOLD: int = 15
-MEDIUM_ROUTE_THRESHOLD: int = 30
-
-# Model Hyperparameters
-TOP_N_NEIGHBORS: int = 5
-VOCAB_TOP_K: int = 5000
-UNKNOWN_TOKEN: str = "<UNKNOWN>"
-
-# Statistical Analysis Thresholds
-VALIDITY_DROP_THRESHOLD: float = 0.15  # 15% drop
-CHI_SQUARED_P_VALUE_THRESHOLD: float = 0.05
-
-# Resource Constraints (Simulation)
-MAX_MEMORY_MB: int = 4096  # 4GB
-MAX_INFERENCE_TIME_SECONDS: float = 60.0
-
 class Config:
-    """
-    Central configuration class for environment variables, seeds, and constants.
-    """
+    """Configuration class for the llmXive project."""
     
-    def __init__(self, seed: int = 42):
-        self.seed = seed
-        self.set_seed(seed)
+    def __init__(self):
+        # Base paths
+        self.project_root = Path(__file__).parent.parent
+        self.code_dir = self.project_root / "code"
+        self.data_dir = self.project_root / "data"
+        self.models_dir = self.project_root / "models"
+        self.analysis_dir = self.project_root / "analysis"
+        self.tests_dir = self.project_root / "tests"
+        self.docs_dir = self.project_root / "docs"
+        self.logs_dir = self.project_root / "logs"
         
-        # Environment overrides
-        self.debug_mode = os.getenv("LLMXIVE_DEBUG", "false").lower() == "true"
-        self.cache_dir = os.getenv("HF_HOME", str(PROJECT_ROOT / ".cache" / "huggingface"))
+        # Data paths
+        self.raw_data_path = self.data_dir / "raw"
+        self.processed_data_path = self.data_dir / "processed"
+        self.analysis_data_path = self.data_dir / "analysis"
         
-        # Ensure directories exist
-        self._ensure_directories()
+        # Target cities for filtering (Chinese cities from TransitLM)
+        self.target_cities = ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"]
+        
+        # Model configuration
+        self.max_sequence_length = 128
+        self.batch_size = 32
+        self.learning_rate = 1e-4
+        self.num_epochs = 10
+        
+        # Random seed for reproducibility
+        self.random_seed = 42
+        
+        # Vocabulary settings
+        self.top_n_vocabulary = 5000
+        self.unknown_token = "<UNKNOWN>"
+        
+        # Stratification thresholds
+        self.short_route_threshold = 15
+        self.medium_route_threshold = 30
+        
+        # Graph validation
+        self.min_jaccard_index = 0.95
+        
+        # Performance thresholds
+        self.validity_drop_threshold = 0.15  # 15% absolute drop
+        self.significance_level = 0.05
+        
+        # Resource constraints
+        self.memory_limit_gb = 14
+        self.time_limit_seconds = 300
 
-    def set_seed(self, seed: int) -> None:
-        """Set random seeds for reproducibility."""
-        self.seed = seed
-        random.seed(seed)
-        np.random.seed(seed)
-        # If torch is available, set its seed too (optional, guarded)
-        try:
-            import torch
-            torch.manual_seed(seed)
-            if torch.cuda.is_available():
-                torch.cuda.manual_seed_all(seed)
-        except ImportError:
-            pass
+def get_env_config() -> Config:
+    """Get configuration from environment or defaults."""
+    config = Config()
+    
+    # Override with environment variables if present
+    if os.getenv("TARGET_CITIES"):
+        config.target_cities = os.getenv("TARGET_CITIES").split(",")
+    
+    if os.getenv("RANDOM_SEED"):
+        config.random_seed = int(os.getenv("RANDOM_SEED"))
+    
+    if os.getenv("TOP_N_VOCABULARY"):
+        config.top_n_vocabulary = int(os.getenv("TOP_N_VOCABULARY"))
+    
+    return config
 
-    def _ensure_directories(self) -> None:
-        """Create project directories if they don't exist."""
-        dirs = [
-            DATA_RAW_DIR,
-            DATA_PROCESSED_DIR,
-            DATA_ANALYSIS_DIR,
-            MODELS_DIR,
-            ANALYSIS_DIR,
-            TESTS_DIR,
-            DOCS_DIR
-        ]
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
-
-    def get_city_filter(self) -> Set[str]:
-        """Return the set of target cities for filtering."""
-        return TARGET_CITIES.copy()
-
-    def get_stratification_bounds(self) -> tuple:
-        """Return the (short_max, medium_max) bounds for route length."""
-        return (SHORT_ROUTE_THRESHOLD, MEDIUM_ROUTE_THRESHOLD)
-
-def get_env_config() -> Dict[str, Any]:
-    """
-    Fetches configuration from environment variables with defaults.
-    Useful for CI/CD or containerized runs.
-    """
-    return {
-        "debug": os.getenv("LLMXIVE_DEBUG", "false").lower() == "true",
-        "seed": int(os.getenv("LLMXIVE_SEED", "42")),
-        "data_root": str(PROJECT_ROOT),
-        "raw_data_path": str(DATA_RAW_DIR),
-        "processed_data_path": str(DATA_PROCESSED_DIR),
-        "analysis_output_path": str(DATA_ANALYSIS_DIR),
-        "target_cities": list(TARGET_CITIES),
-    }
-
-def set_global_seed(seed: int) -> None:
-    """Convenience function to set the global random seed."""
+def set_global_seed(seed: Optional[int] = None) -> None:
+    """Set global random seeds for reproducibility."""
+    if seed is None:
+        config = get_env_config()
+        seed = config.random_seed
+    
     random.seed(seed)
     np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    
+    # Set torch seed if available
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
     except ImportError:
         pass
-
-# Instantiate default config if imported directly
-config = Config()

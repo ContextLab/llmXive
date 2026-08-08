@@ -1,8 +1,6 @@
 """
-Project Setup Script for llmXive follow-up: extending TransitLM.
-
-This script creates the required directory structure for the project
-as specified in the implementation plan.
+Project structure initialization script for llmXive.
+Creates the required directory hierarchy as per the implementation plan.
 """
 import os
 import sys
@@ -10,11 +8,12 @@ from pathlib import Path
 
 def main():
     """Create the project directory structure."""
-    # Define the project root (current directory)
-    project_root = Path(".")
+    # Define the root directory (current working directory or project root)
+    root = Path(".")
     
-    # Define required directories relative to project root
-    required_dirs = [
+    # Define the required directories relative to the root
+    # Based on tasks.md T001 requirements
+    directories = [
         "code",
         "data/raw",
         "data/processed",
@@ -28,36 +27,38 @@ def main():
     created_count = 0
     existing_count = 0
     
-    print("Setting up llmXive project structure...")
-    print(f"Project root: {project_root.absolute()}")
-    print("-" * 50)
+    print("Initializing llmXive project structure...")
     
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        
-        if full_path.exists():
-            print(f"[SKIP] Directory already exists: {dir_path}")
-            existing_count += 1
-        else:
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"[CREATE] {dir_path}")
+            print(f"Created directory: {full_path}")
             created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
+            existing_count += 1
     
-    print("-" * 50)
-    print(f"Setup complete. Created: {created_count}, Existing: {existing_count}")
+    print(f"\nProject structure initialization complete.")
+    print(f"Created: {created_count} directories")
+    print(f"Existing: {existing_count} directories")
     
-    # Verify all directories exist
-    all_exist = all((project_root / d).exists() for d in required_dirs)
+    # Verify structure
+    print("\nVerifying directory structure:")
+    all_exist = True
+    for dir_path in directories:
+        full_path = root / dir_path
+        if full_path.exists():
+            print(f"  [OK] {full_path}")
+        else:
+            print(f"  [FAIL] {full_path}")
+            all_exist = False
     
     if all_exist:
         print("\n✓ All required directories are present.")
-        print("\nDirectory structure:")
-        for dir_path in sorted(required_dirs):
-            full_path = project_root / dir_path
-            print(f"  {full_path}/")
         return 0
     else:
-        print("\n✗ Some directories failed to create.")
+        print("\n✗ Some directories are missing. Initialization failed.")
         return 1
 
 if __name__ == "__main__":

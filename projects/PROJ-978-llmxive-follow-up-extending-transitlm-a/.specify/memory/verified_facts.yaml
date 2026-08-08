@@ -1,0 +1,5 @@
+'|alpha level nominal':
+  quote: '0.05'
+  source_id: Binomial proportion confidence interval
+  url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
+  value: '0.05'
