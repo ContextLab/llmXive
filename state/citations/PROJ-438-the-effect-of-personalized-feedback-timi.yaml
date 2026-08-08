@@ -1,14 +1,3 @@
-- artifact_hash: 05f19d6f138629c391beac16fb251833781224484d7584c9cd75384169b20a1e
-  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: run_0000.json
-  kind: url
-  value: https://huggingface.co/datasets/predact/predact-bench-oulad/resolve/main/hugging_face/claude_haiku_4_5/oulad_40/run_0000.json`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/predact/predact-bench-oulad/19be6ecbcf0bb83ced372e9fb78f1ba3afba8ba1/hugging_face%2Fclaude_haiku_4_5%2Foulad_40%2Frun_0000.json?%2Fdatasets%2Fpredact%2Fpredact-bench-oulad%2Fresolve%2Fmain%2Fhugging_face%2Fclaude_haiku_4_5%2Foulad_40%2Frun_0000.json=&etag=%227eb4faeedcadb6b631def688b3b2879be764dfb5%22
-  verified_at: '2026-07-04T11:56:53.649009Z'
 - artifact_hash: c5ca9311065d6d1a6c9d3b1337592f39083f99d108c2c733c2da5323a900a924
   artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/spec.md
   cite_id: c-001
@@ -31,14 +20,47 @@
   verification_status: verified
   verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
   verified_at: '2026-07-04T14:41:02.413902Z'
-- artifact_hash: eb920abe7e24adbf10ac577ea2e122f37dff2b5fe31d9c6e9ad17933c1e08c1e
-  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+- artifact_hash: 9aa28b3e40ac578a9bc51979ab8a6e372835ec991b301a7518efe2c08fb4f72e
+  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: OU Analyse
   kind: url
-  value: https://analyse.kmi.open.ac.uk/open_dataset
+  value: https://analyse.kmi.open.ac.uk/open_dataset`
   verification_status: pending
   verified_against_url: https://research.stem.open.ac.uk/ouanalyse/
-  verified_at: '2026-08-06T01:18:54.884914Z'
+  verified_at: '2026-08-08T14:39:45.633086Z'
+- artifact_hash: 71e89a92c1b3bf5d186fa2e7f6170c3b317ebc760ac4acefff4bbd1c6bee3cfa
+  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: students_data.csv
+  kind: url
+  value: https://huggingface.co/datasets/predact/predact-bench-oulad/resolve/main/students_data.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69fc54554649fa1234563309/965b11c8c0449330e07c6af59f094433b84ee263fa56b9564f87aba411b04b08?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27students_data.csv%3B+filename%3D%22students_data.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&Expires=1786203601&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjlmYzU0NTU0NjQ5ZmExMjM0NTYzMzA5Lzk2NWIxMWM4YzA0NDkzMzBlMDdjNmFmNTlmMDk0NDMzYjg0ZWUyNjNmYTU2Yjk1NjRmODdhYmE0MTFiMDRiMDhcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c3R1ZGVudHNfZGF0YS5jc3YlM0IrZmlsZW5hbWUlM0QlMjJzdHVkZW50c19kYXRhLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg2MjAzNjAxfX19XX0_&Signature=MEUCIQDd9ss4O8ITSs%7EDFMmUj8KXEo1sKqWdg0%7EKPiw1LfGt4wIgCQqWBGj1r8raGTw5%7EHpxmA5cjqBAIrYENqB0DX9wh4o_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-08T14:40:01.694696Z'
+- artifact_hash: 71e89a92c1b3bf5d186fa2e7f6170c3b317ebc760ac4acefff4bbd1c6bee3cfa
+  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00004.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Wissam287747/student-attrition-cleaned-oulad/resolve/main/data/train-00000-of-00004.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a722edff513c64ae2bf6833/d84a765afcdecf90486f4c16700219ca877761f1738090477a9beec38e90970a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00004.parquet%3B+filename%3D%22train-00000-of-00004.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1786203603&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE3MjJlZGZmNTEzYzY0YWUyYmY2ODMzL2Q4NGE3NjVhZmNkZWNmOTA0ODZmNGMxNjcwMDIxOWNhODc3NzYxZjE3MzgwOTA0NzdhOWJlZWMzOGU5MDk3MGFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDA0LnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjIwMzYwM319fV19&Signature=MEUCICSHxkDXmQzMKXWI3y66xC9IwP3yZAD7hmzu2n0Uin2kAiEA7QeW48U-MwPqNItqwrked8vSYBr%7E2D9V7LwNgua026M_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-08T14:40:01.694696Z'
+- artifact_hash: 71e89a92c1b3bf5d186fa2e7f6170c3b317ebc760ac4acefff4bbd1c6bee3cfa
+  artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Wissam287747/student-attrition-engineered-oulad/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a726010a9a84f2e8dc6abff/abfd2b01950eedaeb14b1464cb83e03b70f69a83ad3b23cb328d90910a8b6995?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1786203604&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE3MjYwMTBhOWE4NGYyZThkYzZhYmZmL2FiZmQyYjAxOTUwZWVkYWViMTRiMTQ2NGNiODNlMDNiNzBmNjlhODNhZDNiMjNjYjMyOGQ5MDkxMGE4YjY5OTVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjIwMzYwNH19fV19&Signature=MEYCIQCDQre4%7ELIBI9R8YdDyUzRIb4zOabCb%7E6SIWnkRYxiFOAIhAKWu4q3RU-p6aSZh9NXa4ikyTfr94jmfOvtT-7r%7Exjlw&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-08T14:40:01.694696Z'

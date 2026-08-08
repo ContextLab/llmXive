@@ -3,44 +3,37 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-438-feedback-timing"
+name = "oulad-feedback-timing-analysis"
 version = "0.1.0"
-description = "Analysis of the effect of personalized feedback timing on skill acquisition"
+description = "Analysis of the effect of personalized feedback timing on skill acquisition using OULAD data"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas",
-    "numpy",
-    "statsmodels",
-    "pyyaml",
-    "requests",
-    "tqdm",
-    "scipy",
-    "pytest",
-    "flake8",
-    "black",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "statsmodels>=0.14.0",
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+    "tqdm>=4.65.0",
+    "scipy>=1.11.0",
+    "pytest>=7.4.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["projects/PROJ-438-the-effect-of-personalized-feedback-timi/code"]
+include = ["*"]
+
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | \.eggs
-)/
-'''
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"

@@ -1,2 +1,2 @@
-# This file ensures the directory is tracked by git
-# Directory: projects/PROJ-438-the-effect-of-personalized-feedback-timi/data/processed
+# This directory stores processed, analysis-ready datasets (e.g., learners_raw.csv, learners_binned.csv).
+# Do not commit large CSV files; .gitkeep ensures directory creation.

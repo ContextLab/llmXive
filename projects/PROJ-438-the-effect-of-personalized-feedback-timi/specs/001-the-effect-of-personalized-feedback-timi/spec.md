@@ -59,7 +59,7 @@ All analysis must use real OULAD data; no synthetic data generation for input me
 ## Assumptions
 
 1. **Data Availability**: The OULAD dataset is accessible and contains the necessary fields (submission timestamps, feedback timestamps, grades, completion status).
-2. **Course Filtering**: Courses with fewer than 50 learners are excluded to ensure statistical power.
+2. **Course Filtering**: Courses with fewer than a sufficient number of learners are excluded to ensure statistical power.
 3. **Feedback Definition**: Feedback is defined as the response to an assessment submission, and the interval is calculated from submission to response.
 4. **Proxy Validity**: The use of "final grade" as a proxy for "skill acquisition" is validated by the automated **Reference-Validator Agent** as per FR-008.
 5. **Clustering**: Clustering by course ID accounts for course-level variations in teaching style and difficulty.

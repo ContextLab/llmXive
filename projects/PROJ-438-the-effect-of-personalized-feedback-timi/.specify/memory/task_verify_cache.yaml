@@ -1,3 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the directory `projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/`\
+    \ actually exists or contains any files; the claim cannot be verified. The required\
+    \ directory must be present and non\u2011empty to satisfy the task."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or .gitkeep files were provided as evidence, so we cannot\
+    \ verify that the required `projects/PROJ-438-the-effect-of-personalized-feedback-timi/data/raw/`,\
+    \ `data/processed/`, `data/cache/`, and `data/checksums/` directories actually\
+    \ exist and contain the placeholder `.gitkeep` files. The implementer must supply\
+    \ a file\u2011system snapshot or `ls` output showing these directories and the\
+    \ `.gitkeep` files inside them."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the directory `projects/PROJ-438-the-effect-of-personalized-feedback-timi/tests/`\
+    \ actually exists in the repository, nor that it contains any files. The implementer\u2019\
+    s claim cannot be confirmed without a tangible artifact."
+T006:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt shows FR\u2011005 and User Story\u202F3 both\
+    \ now require a \u201CCluster\u2011Robust OLS\u201D model (instead of an LMM),\
+    \ matching the task\u2019s update requirement. The content is present, non\u2011\
+    empty, and aligns exactly with what was asked."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No spec.md file or updated Assumptions section is provided; there is no evidence
+    that the statement about the automated Reference-Validator Agent has been added.
+    The required artifact is missing.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, nor any excerpt showing that FR\u2011\
+    007 has been modified to explicitly require the calculation of \u201Csignificance\
+    \ flip rate\u201D alongside \u201Csignificance stability\u201D. Without the actual\
+    \ specification document reflecting this change, the task requirement is not satisfied."
 T021:
   c: false
   h: 4d59ba2d8b04186f85731a584fb03d05db7e708bba130b69780cbd7030afa7f2

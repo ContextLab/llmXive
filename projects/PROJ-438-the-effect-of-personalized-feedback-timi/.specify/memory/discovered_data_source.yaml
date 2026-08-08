@@ -1,0 +1,13 @@
+status: none
+intent: download OULAD Open University Learning Analytics Dataset python package dataset
+required_fields:
+- response_timestamp
+- student_id
+- course_id
+- submission_timestamp
+- proxy_response_timestamp
+- final_grade
+- is_complete
+cache_key: 550b5f11cf0fb351c3718280b89091004975e83c677169c59b0392fb4f42c57c
+searched_at: '2026-08-08T14:33:31.619895+00:00'
+retry_count: 1

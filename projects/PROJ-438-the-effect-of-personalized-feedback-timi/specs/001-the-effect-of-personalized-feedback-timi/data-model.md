@@ -1,51 +1,50 @@
 # Data Model: The Effect of Personalized Feedback Timing on Skill Acquisition
 
 ## Overview
-This document defines the schema for the data pipeline, including the raw input, intermediate processed data, and final analysis output. All data is stored in CSV format (for interoperability) or JSON (for raw input) within the `data/` directory.
+This document defines the data structures used throughout the analysis pipeline, from raw ingestion to final results. All timestamps are stored in UTC.
 
-## Entity Definitions
+**Critical Note on Variables**: The `response_timestamp` field is defined as the timestamp of the **next student event** (forum post or assessment result) following submission, as OULAD lacks instructor feedback timestamps. This is a proxy for "feedback engagement," not "instructor feedback timing."
 
-### 1. Learner (Core Entity)
-Represents an individual student's participation in a course.
-- **student_id**: Unique identifier for the learner.
-- **course_id**: Unique identifier for the course.
-- **submission_timestamp**: UTC timestamp of learner submission.
-- **response_proxy_timestamp**: UTC timestamp of system/instructor response (or forum reply proxy).
-- **interval_hours**: Calculated time difference (response - submission) in hours.
-- **feedback_group**: Categorical assignment (Immediate, Delayed, Variable).
-- **final_grade**: Numeric score (0-100).
-- **is_complete**: Boolean (1=completed, 0=incomplete).
-- **missing_response_flag**: Boolean (1 if `response_proxy_timestamp` was null).
-- **engagement_count**: Total number of submissions/forum posts (covariate).
+## Entity: Learner Record
+The core unit of analysis is a single learner's aggregated performance in a specific course.
 
-### 2. Course (Context Entity)
-Represents a course offering.
-- **course_id**: Unique identifier.
-- **has_assessment**: Boolean.
-- **has_forum**: Boolean.
-- **learner_count**: Number of learners in the course.
-- **exclusion_reason**: String (e.g., "insufficient_learners", "missing_events").
+| Field | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `student_id` | string | Unique student identifier. | `students_data.csv` |
+| `course_id` | string | Unique course identifier. | `students_data.csv` |
+| `final_grade` | float | Final course grade (0-100 or 0-1). | `students_data.csv` |
+| `is_complete` | boolean | Whether the student completed the course. | `students_data.csv` |
+| `submission_timestamp` | datetime | Timestamp of assessment submission. | Events Parquet |
+| `response_timestamp` | datetime | Timestamp of the **next student event** (proxy for feedback). | Derived (Events Parquet) |
+| `proxy_source` | string | "next_forum" or "next_assessment" indicating the event type used. | Derived |
+| `feedback_interval` | float | Time delta (hours) between submission and response. | Derived |
+| `feedback_group` | string | Binned category: "Immediate", "Delayed", "Variable". | Derived (based on median interval) |
+| `num_past_attempts` | int | Number of past attempts (if available). | Events Parquet |
+| `total_forum_posts` | int | Total forum posts by student (engagement control). | Events Parquet |
+| `total_clicks` | int | Total clicks by student (engagement control). | Events Parquet |
 
-### 3. Analysis Result (Output Entity)
-Aggregated statistical findings.
-- **comparison_pair**: String (e.g., "Immediate vs Delayed").
-- **mean_diff**: Difference in means.
-- **cohen_d**: Effect size.
-- **p_value**: Raw p-value.
-- **p_adjusted**: Tukey-adjusted p-value.
-- **significant**: Boolean.
-- **model_type**: String (e.g., "Clustered OLS").
+## Entity: Sensitivity Result
+Intermediate results from the bin boundary sweep.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `boundary_1` | float | Lower bound of "Immediate" (in hours). |
+| `boundary_2` | float | Upper bound of "Delayed" (in hours). |
+| `p_value` | float | P-value from OLS for the primary comparison. |
+| `effect_size` | float | Cohen's d for the primary comparison. |
+| `significant` | boolean | Whether p < 0.05. |
 
 ## Data Flow
 
-1.  **Raw Input**: `data/raw/oulad.json` (Downloaded from verified URL).
-2.  **Intermediate 1**: `data/processed/courses_filtered.csv` (Courses with assessment/forum events).
-3.  **Intermediate 2**: `data/processed/learner_intervals.csv` (Calculated intervals, binned groups, engagement counts).
-4.  **Output**: `data/processed/ols_results.csv` (Model estimates, p-values).
-5.  **Output**: `data/processed/sensitivity_results.csv` (Boundary sweep results).
+1. **Raw**: `data/raw/students_data.csv`, `data/raw/events_train.parquet`
+2. **Processed (Raw)**: `data/processed/learners_raw.csv` (Joined, filtered, cleaned; logs exclusions)
+3. **Processed (Binned)**: `data/processed/learners_binned.csv` (Includes `feedback_group`, `proxy_source`)
+4. **Results**: `data/processed/results_metrics.csv` (Model outputs, effect sizes)
+5. **Sensitivity**: `data/processed/significance_stability_report.csv` (Sweep results)
 
-## Data Hygiene Rules
-- **Checksums**: All files in `data/` must have a corresponding SHA256 hash in `data/checksums.txt`.
-- **Immutability**: `data/raw/` files are never modified. `data/processed/` files are overwritten only if the source changes.
-- **PII**: No personal identifiers (names, emails) are stored. `student_id` is an anonymized hash.
-- **Timezone**: All timestamps stored in UTC.
+## Constraints
+
+- **Missing Data**: Records with missing `final_grade` or missing timestamp pairs are excluded. The count of excluded records is logged.
+- **Timezone**: All timestamps converted to UTC before interval calculation.
+- **Precision**: `feedback_interval` calculated to 0.1h precision.
+- **Proxy**: `response_timestamp` is optional in the schema (nullable) but populated for all valid records in the pipeline. `proxy_source` documents the derivation.

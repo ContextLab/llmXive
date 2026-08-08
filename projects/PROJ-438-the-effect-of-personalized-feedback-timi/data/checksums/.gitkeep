@@ -1,2 +1,2 @@
-# This file ensures the directory is tracked by git
-# Directory: projects/PROJ-438-the-effect-of-personalized-feedback-timi/data/checksums
+# This directory stores SHA-256 checksums for raw data integrity verification.
+# Do not commit checksum files; .gitkeep ensures directory creation.

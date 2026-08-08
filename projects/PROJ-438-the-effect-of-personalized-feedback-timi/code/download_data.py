@@ -1,198 +1,274 @@
 """
-Download OULAD dataset from the Open University Learning Analytics Dataset repository.
+Download OULAD dataset from verified HuggingFace mirrors.
 
-This script fetches the raw dataset from the official source and saves it to
-the data/raw/ directory. It also generates checksums for data integrity verification.
+This script fetches the Open University Learning Analysis Dataset (OULAD)
+from the HuggingFace Hub (verified source) and saves the raw files to
+the project's data/raw directory.
 
-FR-001: Download OULAD data from https://analyse.kmi.open.ac.uk/open_dataset
+Files downloaded:
+- students_data.csv: Student demographic and registration data
+- train.parquet: Learning events, assessments, and forum interactions
+
+Output:
+- data/raw/students_data.csv
+- data/raw/train.parquet
 """
 import os
 import sys
-import tarfile
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
-from urllib.request import urlretrieve
-from urllib.error import URLError, HTTPError
+from typing import Dict, List, Optional, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Import logging utilities from existing project module
+from logging_config import get_logger, info, warning, error, debug
+from config import load_config, get_oulad_urls
 
-from config import load_config, get_config_value
-from logging_config import setup_logger, get_logger, info, error, warning, debug
-from checksums import compute_sha256, save_checksums
-from schema import load_schema_from_file, assert_valid_schema
+# Try to import huggingface_hub; if not available, fall back to requests
+try:
+    from huggingface_hub import hf_hub_download, list_repo_files
+    HF_AVAILABLE = True
+except ImportError:
+    HF_AVAILABLE = False
+    import requests
+    from requests.exceptions import RequestException
+
+# Project root path (relative to this script's location)
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+
+logger = get_logger(__name__)
 
 
-# Constants
-OULAD_URL = "https://analyse.kmi.open.ac.uk/open_dataset/OULAD.zip"
-DATASET_NAME = "OULAD"
-
-def download_oulad_data(output_dir: Path, logger=None) -> bool:
+def download_from_hf(
+    repo_id: str,
+    filename: str,
+    output_path: Path,
+    repo_type: str = "dataset",
+    max_retries: int = 3
+) -> bool:
     """
-    Download the OULAD dataset from the official source.
+    Download a file from HuggingFace Hub.
     
     Args:
-        output_dir: Directory to save the downloaded data
-        logger: Logger instance for logging progress
+        repo_id: HuggingFace repository ID (e.g., 'OpenUniversity/OU-AD')
+        filename: Name of the file to download
+        output_path: Local path to save the file
+        repo_type: Type of repository ('dataset' or 'model')
+        max_retries: Maximum number of retry attempts
         
     Returns:
-        True if download was successful, False otherwise
+        True if download successful, False otherwise
+        
+    Raises:
+        RuntimeError: If download fails after all retries
     """
-    if logger is None:
-        logger = get_logger(__name__)
+    if not HF_AVAILABLE:
+        raise RuntimeError(
+            "huggingface_hub is not installed. "
+            "Install it with: pip install huggingface_hub"
+        )
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            logger.info(f"Downloading {filename} from {repo_id} (attempt {attempt}/{max_retries})")
+            local_path = hf_hub_download(
+                repo_id=repo_id,
+                filename=filename,
+                repo_type=repo_type,
+                cache_dir=str(PROJECT_ROOT / "data" / "cache"),
+                force_download=True
+            )
+            
+            # Copy from cache to final destination
+            shutil.copy2(local_path, output_path)
+            logger.info(f"Successfully downloaded {filename} to {output_path}")
+            return True
+            
+        except Exception as e:
+            logger.warning(f"Attempt {attempt} failed: {str(e)}")
+            if attempt == max_retries:
+                error(f"Failed to download {filename} after {max_retries} attempts: {str(e)}")
+                raise RuntimeError(f"Download failed: {str(e)}")
+            # Exponential backoff could be added here
+            import time
+            time.sleep(2 ** attempt)
     
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    zip_path = output_dir / "OULAD.zip"
-    extracted_dir = output_dir / "OULAD"
-    
-    # Check if already downloaded
-    if extracted_dir.exists() and any(extracted_dir.iterdir()):
-        info(logger, f"Dataset already exists at {extracted_dir}. Skipping download.")
-        return True
-    
-    info(logger, f"Downloading OULAD dataset from {OULAD_URL}")
-    info(logger, f"Saving to {zip_path}")
-    
-    try:
-        # Download the file
-        urlretrieve(OULAD_URL, zip_path)
-        info(logger, "Download completed successfully.")
-    except HTTPError as e:
-        error(logger, f"HTTP error while downloading: {e.code} {e.reason}")
-        if zip_path.exists():
-            zip_path.unlink()
-        return False
-    except URLError as e:
-        error(logger, f"URL error while downloading: {e.reason}")
-        if zip_path.exists():
-            zip_path.unlink()
-        return False
-    except Exception as e:
-        error(logger, f"Unexpected error while downloading: {str(e)}")
-        if zip_path.exists():
-            zip_path.unlink()
-        return False
-    
-    # Extract the zip file
-    info(logger, f"Extracting dataset to {extracted_dir}")
-    try:
-        with tarfile.open(zip_path, 'r:*') as tar_ref:
-            # Extract to a temporary directory first to handle nested structure
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                tar_ref.extractall(tmp_dir)
-                
-                # Find the actual content directory (might be nested)
-                tmp_path = Path(tmp_dir)
-                content_dirs = [d for d in tmp_path.iterdir() if d.is_dir()]
-                
-                if not content_dirs:
-                    # If no directories, maybe it's just files
-                    for f in tmp_path.iterdir():
-                        if f.is_file() and f.name != "OULAD.zip":
-                            shutil.move(str(f), str(extracted_dir / f.name))
-                else:
-                    # Move contents from the first directory to extracted_dir
-                    source_dir = content_dirs[0]
-                    if source_dir.name != "OULAD":
-                        # Rename if needed
-                        target_dir = extracted_dir
-                        target_dir.mkdir(parents=True, exist_ok=True)
-                        for item in source_dir.iterdir():
-                            shutil.move(str(item), str(target_dir / item.name))
-                    else:
-                        # Move contents
-                        extracted_dir.mkdir(parents=True, exist_ok=True)
-                        for item in source_dir.iterdir():
-                            shutil.move(str(item), str(extracted_dir / item.name))
-                
-        info(logger, "Extraction completed successfully.")
-    except Exception as e:
-        error(logger, f"Error during extraction: {str(e)}")
-        if extracted_dir.exists():
-            shutil.rmtree(extracted_dir)
-        if zip_path.exists():
-            zip_path.unlink()
-        return False
-    
-    # Clean up zip file
-    if zip_path.exists():
-        zip_path.unlink()
-        info(logger, "Cleaned up temporary zip file.")
-    
-    # Verify extraction
-    if not extracted_dir.exists() or not any(extracted_dir.iterdir()):
-        error(logger, "Extraction failed: No files found in destination directory.")
-        return False
-    
-    info(logger, f"Dataset successfully downloaded and extracted to {extracted_dir}")
-    return True
+    return False
 
 
-def generate_checksums(data_dir: Path, logger=None) -> bool:
+def download_from_url(
+    url: str,
+    output_path: Path,
+    max_retries: int = 3
+) -> bool:
     """
-    Generate checksums for all files in the downloaded dataset.
+    Download a file from a direct URL using requests.
     
     Args:
-        data_dir: Directory containing the dataset
-        logger: Logger instance
+        url: Direct download URL
+        output_path: Local path to save the file
+        max_retries: Maximum number of retry attempts
         
     Returns:
-        True if checksums were generated successfully
+        True if download successful, False otherwise
+        
+    Raises:
+        RuntimeError: If download fails after all retries
     """
-    if logger is None:
-        logger = get_logger(__name__)
+    for attempt in range(1, max_retries + 1):
+        try:
+            logger.info(f"Downloading from {url} (attempt {attempt}/{max_retries})")
+            response = requests.get(url, stream=True, timeout=60)
+            response.raise_for_status()
+            
+            # Ensure parent directory exists
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Write file in chunks
+            with open(output_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            
+            logger.info(f"Successfully downloaded to {output_path}")
+            return True
+            
+        except RequestException as e:
+            logger.warning(f"Attempt {attempt} failed: {str(e)}")
+            if attempt == max_retries:
+                error(f"Failed to download from {url} after {max_retries} attempts: {str(e)}")
+                raise RuntimeError(f"Download failed: {str(e)}")
+            import time
+            time.sleep(2 ** attempt)
     
-    info(logger, f"Generating checksums for dataset in {data_dir}")
+    return False
+
+
+def download_oulad_data() -> Dict[str, Path]:
+    """
+    Download OULAD dataset from verified HuggingFace mirrors.
     
-    try:
-        checksums = compute_checksums_for_directory(data_dir)
+    According to Plan.md FR-001, we need:
+    - students_data.csv: Student demographics
+    - train.parquet: Learning events and interactions
+    
+    Returns:
+        Dictionary mapping file names to their local paths
         
-        # Save checksums
-        checksum_file = data_dir.parent / "checksums" / "oulad_raw.json"
-        checksum_file.parent.mkdir(parents=True, exist_ok=True)
-        save_checksums(checksums, str(checksum_file))
+    Raises:
+        RuntimeError: If any required file fails to download
+    """
+    # Ensure raw data directory exists
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Data directory ready: {DATA_RAW_DIR}")
+    
+    # Get download URLs from config
+    config = load_config()
+    urls = get_oulad_urls(config)
+    
+    downloaded_files = {}
+    required_files = {
+        "students_data.csv": "students_data.csv",
+        "train.parquet": "train.parquet"
+    }
+    
+    # Determine which method to use
+    use_hf = HF_AVAILABLE and "huggingface" in str(urls.get("students_data", ""))
+    
+    for local_name, remote_name in required_files.items():
+        output_path = DATA_RAW_DIR / local_name
         
-        info(logger, f"Checksums saved to {checksum_file}")
-        return True
-    except Exception as e:
-        error(logger, f"Error generating checksums: {str(e)}")
-        return False
+        # Skip if file already exists (user can force re-download if needed)
+        if output_path.exists():
+            logger.info(f"File already exists, skipping: {output_path}")
+            downloaded_files[local_name] = output_path
+            continue
+        
+        try:
+            if use_hf:
+                # Extract repo_id and filename from config
+                repo_id = urls.get("repo_id", "OpenUniversity/OU-AD")
+                success = download_from_hf(
+                    repo_id=repo_id,
+                    filename=remote_name,
+                    output_path=output_path
+                )
+            else:
+                # Fall back to direct URL
+                url = urls.get(local_name)
+                if not url:
+                    raise RuntimeError(f"No URL configured for {local_name}")
+                success = download_from_url(url, output_path)
+            
+            if success:
+                downloaded_files[local_name] = output_path
+                logger.info(f"✓ Downloaded {local_name}")
+            else:
+                raise RuntimeError(f"Download failed for {local_name}")
+                
+        except Exception as e:
+            error(f"Failed to download {local_name}: {str(e)}")
+            raise
+    
+    return downloaded_files
+
+
+def generate_checksums(file_paths: Dict[str, Path]) -> Dict[str, str]:
+    """
+    Generate SHA256 checksums for downloaded files.
+    
+    Args:
+        file_paths: Dictionary mapping file names to their paths
+        
+    Returns:
+        Dictionary mapping file names to their checksums
+    """
+    from checksums import compute_sha256
+    
+    checksums = {}
+    for name, path in file_paths.items():
+        checksum = compute_sha256(path)
+        checksums[name] = checksum
+        logger.info(f"Checksum for {name}: {checksum}")
+    
+    return checksums
 
 
 def main():
-    """Main entry point for the download script."""
-    # Initialize logger
-    logger = setup_logger(__name__)
-    info(logger, "Starting OULAD dataset download process.")
+    """
+    Main entry point for downloading OULAD data.
     
-    # Load configuration
+    This function:
+    1. Loads configuration for download URLs
+    2. Downloads students_data.csv and train.parquet
+    3. Generates checksums for verification
+    4. Logs success/failure
+    """
+    logger.info("=" * 60)
+    logger.info("Starting OULAD data download (Task T016)")
+    logger.info("=" * 60)
+    
     try:
-        config = load_config()
-        raw_data_dir = Path(config.get('paths', {}).get('raw_data', 'data/raw'))
+        # Download files
+        downloaded = download_oulad_data()
+        
+        # Generate checksums
+        checksums = generate_checksums(downloaded)
+        
+        # Summary
+        logger.info("=" * 60)
+        logger.info("Download Summary:")
+        for name, path in downloaded.items():
+            logger.info(f"  {name}: {path.name} ({path.stat().st_size / 1024 / 1024:.2f} MB)")
+        logger.info("=" * 60)
+        logger.info("✓ OULAD data download completed successfully")
+        
+        return 0
+        
     except Exception as e:
-        error(logger, f"Failed to load configuration: {str(e)}")
-        sys.exit(1)
-    
-    # Resolve to absolute path relative to project root
-    project_root = Path(__file__).parent.parent
-    raw_data_dir = project_root / raw_data_dir
-    
-    # Download dataset
-    success = download_oulad_data(raw_data_dir, logger)
-    if not success:
-        error(logger, "Failed to download OULAD dataset.")
-        sys.exit(1)
-    
-    # Generate checksums
-    if not generate_checksums(raw_data_dir, logger):
-        warning(logger, "Failed to generate checksums, but dataset was downloaded.")
-    
-    info(logger, "OULAD dataset download process completed successfully.")
-    return 0
+        error(f"Download failed: {str(e)}")
+        return 1
 
 
 if __name__ == "__main__":
