@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Analysis Dataset Schema"
+description: "Schema for the unified_analysis.csv containing topology and confinement metrics."
+type: "object"
+properties:
+  discharge_id:
+    type: "integer"
+    description: "Unique DIII-D discharge identifier."
+  island_width:
+    type: "number"
+    description: "Magnetic island width in meters. Calculated or retrieved."
+  resonant_surface_density:
+    type: "number"
+    description: "Count of rational surfaces (q=m/n) per unit minor radius (1/m)."
+  tau_e:
+    type: "number"
+    description: "Energy confinement time in seconds."
+  mode:
+    type: "string"
+    enum:
+      - "L-mode"
+      - "H-mode"
+      - "Other"
+    description: "Plasma operating mode."
+  valid:
+    type: "boolean"
+    description: "True if all required fields are present."
+  confinement_deviation:
+    type: "number"
+    description: "Normalized energy confinement time (IPB98(y,2))."
+required:
+  - discharge_id
+  - island_width
+  - resonant_surface_density
+  - tau_e
+  - mode
+  - valid
+  - confinement_deviation
+additionalProperties: false

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for the final statistical output including bootstrap CIs and effect sizes."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the topological metric (e.g., 'island_width')."
+  correlation_coefficient:
+    type: "number"
+    description: "Spearman rank correlation coefficient (rho)."
+  p_value:
+    type: "number"
+    description: "P-value for the correlation test."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bootstrap confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bootstrap confidence interval."
+  effect_size_magnitude:
+    type: "number"
+    description: "Absolute value of the correlation coefficient |r|."
+  hypothesis_supported:
+    type: "boolean"
+    description: "True if p < 0.05 AND r < -0.5."
+  sample_size:
+    type: "integer"
+    description: "Number of discharges used in this specific test."
+required:
+  - metric_name
+  - correlation_coefficient
+  - p_value
+  - ci_lower
+  - ci_upper
+  - effect_size_magnitude
+  - hypothesis_supported
+  - sample_size
+additionalProperties: false
