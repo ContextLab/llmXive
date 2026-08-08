@@ -68,11 +68,18 @@ def calculate_vdw_volume_from_smiles(smiles: str) -> Tuple[float, int]:
     if mol is None:
         raise ValueError(f"Invalid SMILES: {smiles}")
 
-    # Generate a 3D conformer to ensure we have coordinates if needed,
-    # though for volume sum we mostly need atom types.
-    # However, RDKit's AddHs is important for accurate volume if hydrogens are implicit.
+    # Add hydrogens to ensure we count all atoms contributing to volume
     mol_h = Chem.AddHs(mol)
-    AllChem.EmbedMolecule(mol_h, randomSeed=42)
+    
+    # Generate a 3D conformer to ensure valid geometry (required for some RDKit operations)
+    # Even though volume sum is atom-type based, we need a valid mol object with Hs.
+    # EmbedMolecule might fail for some complex structures, but AddHs is sufficient for volume.
+    # We attempt embedding to be safe, but catch errors if geometry is impossible.
+    try:
+        AllChem.EmbedMolecule(mol_h, randomSeed=42)
+    except Exception:
+        # If embedding fails, we still have the atoms and types, which is what we need for volume.
+        pass
 
     total_volume = 0.0
     atom_count = 0
@@ -124,10 +131,7 @@ def compute_metrics_for_cif(row: pd.Series) -> Dict[str, Any]:
     raw_pc = unit_cell_volume / v_vdw
 
     # CAPE = PC_raw / (Sum(V_vdW) / N_atoms)
-    # Note: Using n_atoms_calc from the SMILES analysis for consistency,
-    # or n_atoms_recorded if the task implies using the CIF count.
-    # The task says "N_atoms", likely referring to the molecule count.
-    # We use the calculated count from the SMILES for accuracy.
+    # Using n_atoms_calc from the SMILES analysis for consistency with the volume calculation.
     if n_atoms_calc == 0:
         cape = np.nan
     else:
@@ -168,7 +172,6 @@ def main():
     results_df = pd.DataFrame(results)
 
     # Merge results back to original dataframe
-    # Only keep the relevant metric columns
     final_df = pd.concat([df, results_df], axis=1)
 
     # Drop the 'error' column if all are None, or keep it for debugging

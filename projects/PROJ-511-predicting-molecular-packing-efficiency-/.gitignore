@@ -3,9 +3,8 @@ data/raw_cif/
 data/*.csv
 data/*.npy
 data/*.json
-data/*.parquet
 
-# Model checkpoints
+# Model checkpoints and binaries
 models/*.pt
 models/*.pth
 models/*.bin
@@ -14,28 +13,26 @@ models/*.bin
 __pycache__/
 *.py[cod]
 *$py.class
-.eggs/
-*.egg-info/
-dist/
-build/
+.pytest_cache/
+.mypy_cache/
 
 # Environment and secrets
 .env
-.venv/
-venv/
-ENV/
-*.pem
-*.key
+.env.local
+.env.*.local
 
-# IDE and OS
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# OS generated files
 .DS_Store
 Thumbs.db
 
 # Logs and temporary files
 *.log
-results/*.log
+logs/
 tmp/
+*.tmp

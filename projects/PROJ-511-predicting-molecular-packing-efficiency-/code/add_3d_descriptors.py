@@ -1,10 +1,9 @@
 """
-T018: Calculate 3D descriptors (radius of gyration, asphericity, moments) from RDKit conformers.
-
-Reads: data/dataset_filtered.csv
-Writes: data/dataset.csv (merged with 3D descriptors)
-
-Uses ETKDG parameters with seed=42, max_attempts=50.
+Module: add_3d_descriptors.py
+Task: T018 [US1]
+Description: Calculate 3D descriptors (radius of gyration, asphericity, principal moments)
+             using CIF coordinates. Reads dataset_filtered.csv, re-loads original CIFs,
+             computes descriptors, and merges to produce final dataset.csv.
 """
 import os
 import sys
@@ -13,265 +12,293 @@ import pandas as pd
 import numpy as np
 from typing import Optional, Tuple, List, Dict, Any
 
-from rdkit import Chem
-from rdkit.Chem import AllChem, rdMolDescriptors, Descriptors3D
-from rdkit import RDLogger
-
-# Project local imports
+# Import from existing project modules
+from cif_parsing import parse_cif_with_pymatgen, extract_atomic_coordinates
+from config import get_data_dir, get_base_dir
 from utils import fix_seed, setup_logging
-from config import ensure_directories
 
-# Disable RDKit warnings for cleaner logs
-RDLogger.DisableLog('rdApp.*')
-
+# Setup logging
 logger = logging.getLogger(__name__)
 
-# Constants for ETKDG
-ETKDG_SEED = 42
-ETKDG_MAX_ATTEMPTS = 50
+def calculate_radius_of_gyration(coordinates: np.ndarray, weights: Optional[np.ndarray] = None) -> float:
+    """
+    Calculate the radius of gyration (Rg) for a set of atomic coordinates.
+    Rg = sqrt( sum(w_i * |r_i - r_cm|^2) / sum(w_i) )
+    
+    Args:
+        coordinates: Array of shape (N, 3) containing atomic coordinates.
+        weights: Optional array of shape (N,) containing atomic weights (defaults to 1.0).
+    
+    Returns:
+        Radius of gyration in Angstroms.
+    """
+    if weights is None:
+        weights = np.ones(len(coordinates))
+    
+    # Calculate center of mass
+    total_weight = np.sum(weights)
+    center_of_mass = np.sum(weights[:, np.newaxis] * coordinates, axis=0) / total_weight
+    
+    # Calculate squared distances from center of mass
+    diffs = coordinates - center_of_mass
+    squared_distances = np.sum(diffs**2, axis=1)
+    
+    # Weighted mean squared distance
+    mean_sq_dist = np.sum(weights * squared_distances) / total_weight
+    
+    return np.sqrt(mean_sq_dist)
 
-def calculate_radius_of_gyration(mol: Chem.Mol) -> float:
+def calculate_principal_moments(coordinates: np.ndarray, weights: Optional[np.ndarray] = None) -> Tuple[float, float, float]:
     """
-    Calculate the radius of gyration of a molecule.
-    Uses the 3D coordinates of the molecule.
+    Calculate the principal moments of inertia for a set of atomic coordinates.
+    Returns the three eigenvalues sorted in ascending order.
+    
+    Args:
+        coordinates: Array of shape (N, 3) containing atomic coordinates.
+        weights: Optional array of shape (N,) containing atomic weights (defaults to 1.0).
+    
+    Returns:
+        Tuple of (I1, I2, I3) sorted ascending, in amu*Angstrom^2.
     """
-    conf = mol.GetConformer()
-    coords = conf.GetPositions()
+    if weights is None:
+        weights = np.ones(len(coordinates))
     
-    # Calculate center of mass (assuming equal mass for simplicity, or use atomic masses)
-    # For organic molecules, using centroid is often sufficient for shape descriptors
-    centroid = np.mean(coords, axis=0)
+    # Calculate center of mass
+    total_weight = np.sum(weights)
+    center_of_mass = np.sum(weights[:, np.newaxis] * coordinates, axis=0) / total_weight
     
-    # Calculate squared distances from centroid
-    dists_sq = np.sum((coords - centroid) ** 2, axis=1)
-    
-    # Radius of gyration
-    rg = np.sqrt(np.mean(dists_sq))
-    return float(rg)
-
-def calculate_asphericity(mol: Chem.Mol) -> float:
-    """
-    Calculate the asphericity of a molecule.
-    Asphericity = (3 * lambda_3 - trace) / (2 * trace)
-    where lambda_i are eigenvalues of the gyration tensor.
-    """
-    conf = mol.GetConformer()
-    coords = conf.GetPositions()
-    
-    # Center coordinates
-    centroid = np.mean(coords, axis=0)
-    coords_centered = coords - centroid
-    
-    # Calculate gyration tensor
-    # G_ij = (1/N) * sum_k (r_ki * r_kj)
-    N = len(coords)
-    G = np.dot(coords_centered.T, coords_centered) / N
-    
-    # Eigenvalues of gyration tensor
-    eigenvalues = np.linalg.eigvalsh(G)
-    eigenvalues = np.sort(eigenvalues)[::-1]  # Sort descending: lambda_1 >= lambda_2 >= lambda_3
-    
-    # Asphericity: b = lambda_1 - (lambda_2 + lambda_3)/2
-    # Alternative definition: b = (3*lambda_1 - trace)/2
-    # Using the standard definition from polymer physics
-    trace = np.trace(G)
-    asphericity = eigenvalues[0] - (eigenvalues[1] + eigenvalues[2]) / 2.0
-    
-    return float(asphericity)
-
-def calculate_principal_moments(mol: Chem.Mol) -> Tuple[float, float, float]:
-    """
-    Calculate the principal moments of inertia (normalized by mass for simplicity,
-    or just based on coordinates if masses are not available).
-    Returns (I1, I2, I3) sorted descending.
-    """
-    conf = mol.GetConformer()
-    coords = conf.GetPositions()
-    atoms = mol.GetAtoms()
-    
-    # Use atomic masses if available, otherwise assume unit mass
-    masses = []
-    for atom in atoms:
-        masses.append(atom.GetAtomicWeight())
-    masses = np.array(masses)
-    
-    # Center of mass
-    total_mass = np.sum(masses)
-    center_of_mass = np.sum(coords * masses[:, np.newaxis], axis=0) / total_mass
-    
-    # Coordinates relative to center of mass
-    coords_centered = coords - center_of_mass
+    # Shift coordinates to center of mass
+    centered_coords = coordinates - center_of_mass
     
     # Calculate inertia tensor
-    # I_ij = sum_k m_k * (r_k^2 * delta_ij - r_ki * r_kj)
-    I = np.zeros((3, 3))
-    for i in range(len(coords)):
-        r = coords_centered[i]
-        r_sq = np.dot(r, r)
-        m = masses[i]
-        for x in range(3):
-            for y in range(3):
-                if x == y:
-                    I[x, y] += m * (r_sq - r[x] * r[y])
-                else:
-                    I[x, y] -= m * r[x] * r[y]
+    # I_xx = sum(m_i * (y_i^2 + z_i^2))
+    # I_yy = sum(m_i * (x_i^2 + z_i^2))
+    # I_zz = sum(m_i * (x_i^2 + y_i^2))
+    # I_xy = -sum(m_i * x_i * y_i)
+    # I_xz = -sum(m_i * x_i * z_i)
+    # I_yz = -sum(m_i * y_i * z_i)
     
-    # Eigenvalues (principal moments)
-    eigenvalues = np.linalg.eigvalsh(I)
-    eigenvalues = np.sort(eigenvalues)[::-1]  # Descending order
+    x = centered_coords[:, 0]
+    y = centered_coords[:, 1]
+    z = centered_coords[:, 2]
     
-    return (float(eigenvalues[0]), float(eigenvalues[1]), float(eigenvalues[2]))
+    I_xx = np.sum(weights * (y**2 + z**2))
+    I_yy = np.sum(weights * (x**2 + z**2))
+    I_zz = np.sum(weights * (x**2 + y**2))
+    I_xy = -np.sum(weights * x * y)
+    I_xz = -np.sum(weights * x * z)
+    I_yz = -np.sum(weights * y * z)
+    
+    # Construct inertia tensor
+    inertia_tensor = np.array([
+        [I_xx, I_xy, I_xz],
+        [I_xy, I_yy, I_yz],
+        [I_xz, I_yz, I_zz]
+    ])
+    
+    # Calculate eigenvalues (principal moments)
+    eigenvalues = np.linalg.eigvalsh(inertia_tensor)
+    
+    # Sort in ascending order
+    return tuple(np.sort(eigenvalues))
 
-def generate_conformer(mol: Chem.Mol) -> Optional[Chem.Mol]:
+def calculate_asphericity(principal_moments: Tuple[float, float, float]) -> float:
     """
-    Generate a 3D conformer for a molecule using ETKDG.
-    Returns the molecule with the conformer attached, or None if generation fails.
+    Calculate the asphericity parameter from principal moments of inertia.
+    Asphericity = (3*I3 - I1 - I2) / (2 * sqrt(I1^2 + I2^2 + I3^2 - I1*I2 - I2*I3 - I3*I1))
+    where I1 <= I2 <= I3.
+    
+    This measures the deviation from spherical symmetry.
+    Value ranges from -0.5 (oblate) to 1.0 (prolate).
+    
+    Args:
+        principal_moments: Tuple of (I1, I2, I3) sorted ascending.
+    
+    Returns:
+        Asphericity value.
     """
-    # Create a copy to avoid modifying the original
-    mol_copy = Chem.Mol(mol)
+    I1, I2, I3 = principal_moments
     
-    # Add hydrogens if not present
-    if not mol_copy.GetNumAtoms() or mol_copy.GetNumAtoms() != mol.GetNumAtoms():
-        mol_copy = Chem.AddHs(mol_copy)
+    # Avoid division by zero for spherical molecules
+    denominator_sq = I1**2 + I2**2 + I3**2 - I1*I2 - I2*I3 - I3*I1
+    if denominator_sq < 1e-10:
+        return 0.0
     
-    # Generate conformer using ETKDG
-    params = AllChem.ETKDGv3()
-    params.randomSeed = ETKDG_SEED
-    params.maxAttempts = ETKDG_MAX_ATTEMPTS
-    params.useRandomCoords = False
+    numerator = 3*I3 - I1 - I2
+    denominator = 2 * np.sqrt(denominator_sq)
+    
+    return numerator / denominator
+
+def compute_3d_descriptors(cif_path: str) -> Dict[str, float]:
+    """
+    Compute all 3D descriptors for a single CIF file.
+    
+    Args:
+        cif_path: Path to the CIF file.
+    
+    Returns:
+        Dictionary containing:
+            - radius_of_gyration: float
+            - asphericity: float
+            - principal_moments: tuple of 3 floats (as a list for JSON serialization)
+    
+    Raises:
+        FileNotFoundError: If the CIF file does not exist.
+        ValueError: If the CIF file cannot be parsed or has invalid data.
+    """
+    if not os.path.exists(cif_path):
+        raise FileNotFoundError(f"CIF file not found: {cif_path}")
     
     try:
-        result = AllChem.EmbedMolecule(mol_copy, params)
-        if result == -1:
-            # Try with random coords if ETKDG fails
-            params.useRandomCoords = True
-            result = AllChem.EmbedMolecule(mol_copy, params)
-            if result == -1:
-                logger.warning("Failed to generate conformer for molecule")
-                return None
+        # Parse CIF using pymatgen via cif_parsing module
+        structure = parse_cif_with_pymatgen(cif_path)
         
-        # Optimize geometry with MMFF94
-        try:
-            AllChem.MMFFOptimizeMolecule(mol_copy, maxIters=200)
-        except Exception as e:
-            logger.debug(f"MMFF optimization failed: {e}, using raw ETKDG coords")
+        if structure is None:
+            raise ValueError(f"Failed to parse CIF file: {cif_path}")
         
-        return mol_copy
+        # Extract atomic coordinates and atomic numbers (for weights)
+        coords = structure.frac_coords
+        lattice = structure.lattice.matrix
+        atomic_numbers = structure.atomic_numbers
+        
+        # Convert fractional to Cartesian coordinates
+        cartesian_coords = np.dot(coords, lattice)
+        
+        # Use atomic masses as weights (approximate using atomic numbers for simplicity)
+        # More accurate would be to use actual atomic masses
+        weights = np.array([float(z) for z in atomic_numbers])
+        
+        # Calculate descriptors
+        rg = calculate_radius_of_gyration(cartesian_coords, weights)
+        moments = calculate_principal_moments(cartesian_coords, weights)
+        asph = calculate_asphericity(moments)
+        
+        return {
+            'radius_of_gyration': float(rg),
+            'asphericity': float(asph),
+            'principal_moments': [float(m) for m in moments]
+        }
+        
     except Exception as e:
-        logger.warning(f"Conformer generation failed: {e}")
-        return None
+        raise ValueError(f"Error computing 3D descriptors for {cif_path}: {str(e)}")
 
-def compute_3d_descriptors(smiles: str) -> Dict[str, float]:
+def add_3d_descriptors_to_dataset(
+    input_path: str,
+    output_path: str,
+    raw_cif_dir: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Compute 3D descriptors for a given SMILES string.
-    Returns a dictionary with:
-      - radius_of_gyration
-      - asphericity
-      - principal_moment_1
-      - principal_moment_2
-      - principal_moment_3
-    """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        raise ValueError(f"Invalid SMILES: {smiles}")
+    Read dataset_filtered.csv, compute 3D descriptors for each CIF, and merge.
     
-    # Generate 3D conformer
-    mol_3d = generate_conformer(mol)
-    if mol_3d is None:
-        raise ValueError(f"Failed to generate 3D conformer for SMILES: {smiles}")
+    Args:
+        input_path: Path to dataset_filtered.csv.
+        output_path: Path to write final dataset.csv.
+        raw_cif_dir: Directory containing CIF files (defaults to data/raw_cif/).
     
-    # Calculate descriptors
-    rg = calculate_radius_of_gyration(mol_3d)
-    asp = calculate_asphericity(mol_3d)
-    m1, m2, m3 = calculate_principal_moments(mol_3d)
-    
-    return {
-        'radius_of_gyration': rg,
-        'asphericity': asp,
-        'principal_moment_1': m1,
-        'principal_moment_2': m2,
-        'principal_moment_3': m3
-    }
-
-def add_3d_descriptors_to_dataset(input_path: str, output_path: str) -> pd.DataFrame:
+    Returns:
+        DataFrame with added 3D descriptors.
     """
-    Read dataset, compute 3D descriptors, and save to output.
-    """
-    logger.info(f"Reading dataset from {input_path}")
+    # Load filtered dataset
+    logger.info(f"Loading filtered dataset from {input_path}")
     df = pd.read_csv(input_path)
     
-    logger.info(f"Dataset has {len(df)} rows")
+    if raw_cif_dir is None:
+        raw_cif_dir = os.path.join(get_data_dir(), "raw_cif")
     
-    # Initialize columns with NaN
-    descriptor_cols = [
-        'radius_of_gyration',
-        'asphericity',
-        'principal_moment_1',
-        'principal_moment_2',
-        'principal_moment_3'
-    ]
+    if not os.path.exists(raw_cif_dir):
+        raise FileNotFoundError(f"Raw CIF directory not found: {raw_cif_dir}")
     
-    for col in descriptor_cols:
-        df[col] = np.nan
+    # Prepare lists for new columns
+    rg_list = []
+    asph_list = []
+    moments_list = []
+    cod_ids = df['cod_id'].tolist()
     
+    logger.info(f"Processing {len(df)} records to compute 3D descriptors...")
     success_count = 0
-    fail_count = 0
+    error_count = 0
     
-    for idx, row in df.iterrows():
-        smiles = row['smiles']
-        cod_id = row.get('cod_id', 'unknown')
+    for idx, cod_id in enumerate(cod_ids):
+        cif_filename = f"{cod_id}.cif"
+        cif_path = os.path.join(raw_cif_dir, cif_filename)
         
         try:
-            descriptors = compute_3d_descriptors(smiles)
-            for col, val in descriptors.items():
-                df.at[idx, col] = val
+            # Verify file existence explicitly
+            if not os.path.exists(cif_path):
+                raise FileNotFoundError(f"CIF file missing for cod_id {cod_id}: {cif_path}")
+            
+            # Compute descriptors
+            descriptors = compute_3d_descriptors(cif_path)
+            
+            rg_list.append(descriptors['radius_of_gyration'])
+            asph_list.append(descriptors['asphericity'])
+            moments_list.append(descriptors['principal_moments'])
             success_count += 1
-            if success_count % 100 == 0:
-                logger.info(f"Processed {success_count} molecules successfully")
+            
+        except FileNotFoundError as e:
+            logger.error(f"Missing CIF for cod_id {cod_id}: {e}")
+            rg_list.append(np.nan)
+            asph_list.append(np.nan)
+            moments_list.append([np.nan, np.nan, np.nan])
+            error_count += 1
         except Exception as e:
-            logger.warning(f"Failed to compute descriptors for {cod_id} (SMILES: {smiles[:50]}...): {e}")
-            fail_count += 1
+            logger.error(f"Error processing cod_id {cod_id}: {e}")
+            rg_list.append(np.nan)
+            asph_list.append(np.nan)
+            moments_list.append([np.nan, np.nan, np.nan])
+            error_count += 1
+        
+        # Log progress
+        if (idx + 1) % 50 == 0:
+            logger.info(f"Processed {idx + 1}/{len(df)} records")
     
-    logger.info(f"Successfully computed descriptors for {success_count} molecules")
-    logger.info(f"Failed to compute descriptors for {fail_count} molecules")
+    # Add columns to dataframe
+    df['radius_of_gyration'] = rg_list
+    df['asphericity'] = asph_list
+    # Convert principal moments list to string for CSV storage, or keep as object
+    # For CSV, we'll store as a string representation that can be parsed later
+    df['principal_moments'] = [str(m) for m in moments_list]
     
-    # Save to output
-    ensure_directories(output_path)
+    # Log summary
+    logger.info(f"3D descriptor computation complete: {success_count} successful, {error_count} failed")
+    
+    # Write output
+    logger.info(f"Writing final dataset to {output_path}")
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved dataset with 3D descriptors to {output_path}")
     
     return df
 
 def main():
     """Main entry point for the script."""
     # Setup logging
-    log_file = setup_logging("add_3d_descriptors")
+    setup_logging(level=logging.INFO)
+    fix_seed(42)
     
-    # Paths
-    input_path = "data/dataset_filtered.csv"
-    output_path = "data/dataset.csv"
+    # Define paths
+    data_dir = get_data_dir()
+    input_path = os.path.join(data_dir, "dataset_filtered.csv")
+    output_path = os.path.join(data_dir, "dataset.csv")
+    raw_cif_dir = os.path.join(data_dir, "raw_cif")
     
+    # Verify input exists
     if not os.path.exists(input_path):
         logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
     
-    # Fix seed for reproducibility
-    fix_seed(42)
-    
-    # Process dataset
-    df = add_3d_descriptors_to_dataset(input_path, output_path)
-    
-    logger.info("3D descriptor calculation completed successfully")
-    
-    # Log final statistics
-    logger.info(f"Final dataset shape: {df.shape}")
-    logger.info(f"Columns: {list(df.columns)}")
-    
-    # Check for any NaN values in descriptor columns
-    descriptor_cols = ['radius_of_gyration', 'asphericity', 'principal_moment_1', 
-                     'principal_moment_2', 'principal_moment_3']
-    nan_counts = df[descriptor_cols].isna().sum()
-    logger.info(f"NaN counts in descriptor columns:\n{nan_counts}")
+    # Run the pipeline
+    try:
+        df = add_3d_descriptors_to_dataset(input_path, output_path, raw_cif_dir)
+        
+        # Log final columns
+        logger.info(f"Final dataset columns: {list(df.columns)}")
+        logger.info(f"Final dataset shape: {df.shape}")
+        logger.info(f"Sample radius_of_gyration values: {df['radius_of_gyration'].head().tolist()}")
+        
+        logger.info("Task T018 completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Task T018 failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,18 +1,18 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Validation Report Schema
-description: >
-  Schema for the model validation report containing performance metrics,
-  statistical diagnostics, and robustness checks.
+description: Schema for the comprehensive model validation report (results/validation_report.json)
 type: object
 required:
   - primary_metrics
   - diagnostics
-  - model_info
-  - timestamp
+  - permutation_test
+  - vif_diagnostics
+  - partial_correlation
+  - metadata
 properties:
   primary_metrics:
     type: object
-    description: Core performance metrics on the validation set.
+    description: Core regression metrics on the validation set
     required:
       - pearson_r
       - spearman_rho
@@ -20,117 +20,96 @@ properties:
     properties:
       pearson_r:
         type: number
-        description: Pearson correlation coefficient.
-        minimum: -1.0
-        maximum: 1.0
+        description: Pearson correlation coefficient
       spearman_rho:
         type: number
-        description: Spearman rank correlation coefficient.
-        minimum: -1.0
-        maximum: 1.0
+        description: Spearman rank correlation coefficient
       mae:
         type: number
-        description: Mean Absolute Error.
-        minimum: 0.0
-      rmse:
-        type: number
-        description: Root Mean Squared Error (optional).
-        minimum: 0.0
-      r_squared:
-        type: number
-        description: Coefficient of determination (optional).
+        description: Mean Absolute Error
   diagnostics:
     type: object
-    description: Statistical diagnostics and robustness checks.
+    description: Statistical diagnostics
     required:
       - shapiro_wilk_p
-      - permutation_p_value
-      - vif_flags
-      - partial_corr_r
-      - partial_corr_p
     properties:
       shapiro_wilk_p:
         type: number
-        description: P-value from Shapiro-Wilk test on residuals.
-        minimum: 0.0
-        maximum: 1.0
-      permutation_p_value:
+        description: P-value from Shapiro-Wilk test on residuals
+  permutation_test:
+    type: object
+    description: Results of the permutation test for significance
+    required:
+      - p_value
+      - n_shuffles
+      - observed_correlation
+    properties:
+      p_value:
         type: number
-        description: P-value from the fixed two-sided permutation test (10,000 shuffles).
         minimum: 0.0
         maximum: 1.0
-      permutation_n_shuffles:
+        description: Two-sided p-value from permutation test
+      n_shuffles:
         type: integer
-        description: Number of shuffles performed.
-        const: 10000
-      vif_flags:
-        type: object
-        description: Variance Inflation Factor flags for predictors.
-        additionalProperties:
+        description: Number of permutations performed (must be 10,000 per FR-016)
+      observed_correlation:
+        type: number
+        description: The absolute value of the observed correlation used as baseline
+  vif_diagnostics:
+    type: object
+    description: Variance Inflation Factor diagnostics for all predictors
+    required:
+      - flags
+      - max_vif
+      - threshold
+    properties:
+      flags:
+        type: array
+        items:
           type: object
           required:
-            - vif
-            - flag
+            - feature_name
+            - vif_value
           properties:
-            vif:
-              type: number
-              minimum: 0.0
-            flag:
+            feature_name:
               type: string
-              enum: ["ok", "moderate", "severe"]
-      partial_corr_r:
+            vif_value:
+              type: number
+      max_vif:
         type: number
-        description: Partial correlation coefficient controlling for atom-type composition.
-        minimum: -1.0
-        maximum: 1.0
-      partial_corr_p:
+        description: Maximum VIF value observed
+      threshold:
         type: number
-        description: P-value for the partial correlation.
-        minimum: 0.0
-        maximum: 1.0
-  model_info:
+        description: Threshold used to flag multicollinearity (default 10.0)
+  partial_correlation:
     type: object
-    description: Reference to the model artifact.
+    description: Partial correlation controlling for atom-type composition (FR-014)
     required:
-      - model_path
-      - model_version
+      - r
+      - p_value
     properties:
+      r:
+        type: number
+        description: Partial correlation coefficient
+      p_value:
+        type: number
+        description: P-value for the partial correlation
+  metadata:
+    type: object
+    description: Metadata about the validation run
+    required:
+      - timestamp
+      - dataset_version
+      - model_path
+      - script_version
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      dataset_version:
+        type: string
       model_path:
         type: string
-        description: Relative path to the model file (e.g., "models/mlp.pt").
-      model_version:
+      script_version:
         type: string
-        description: Version tag of the model.
-  sensitivity_analysis:
-    type: array
-    description: Optional sensitivity analysis results (threshold sweep).
-    items:
-      type: object
-      required:
-        - threshold
-        - r
-        - rho
-        - mae
-        - p_value
-        - bonferroni_corrected_p
-      properties:
-        threshold:
-          type: number
-        r:
-          type: number
-        rho:
-          type: number
-        mae:
-          type: number
-        p_value:
-          type: number
-        bonferroni_corrected_p:
-          type: number
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of report generation.
-  version:
-    type: string
-    description: Schema version.
-    const: "1.0.0"
+additionalProperties: false

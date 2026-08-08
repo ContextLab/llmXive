@@ -1,11 +1,18 @@
-T016:
+T003:
   c: false
-  h: 76681da9d6dc1a46c35c23f694cbb2c3a7881699cef71e04b607ad3614b57b36
-  r: "The repository contains a non\u2011trivial `code/filter_dataset.py`, but the\
-    \ required input file `data/dataset_with_metrics.csv` is missing, so the script\
-    \ cannot be executed or verified, and the expected output `data/dataset_filtered.csv`\
-    \ is also absent. Provide the source CSV (or a minimal test version) and ensure\
-    \ the script writes the filtered CSV as specified."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content or path was provided in the evidence, so we cannot
+    confirm that a file exists and contains the required exclusions (`data/raw_cif/`,
+    `*.pt`, `*.csv`, `__pycache__`, `.env`). The implementer must supply the actual
+    `.gitignore` artifact with those entries.
+T015:
+  c: false
+  h: e5ef0a4858f6ca4411793feda896943b9a9593714b7dca9fce8e47528c6b750e
+  r: "The `code/compute_RAW_metrics.py` file is present but truncated (ends mid\u2011\
+    function) and does not contain a complete implementation. Moreover, the required\
+    \ input file `data/dataset_intermediate.csv` and the expected output `data/dataset_with_metrics.csv`\
+    \ are missing from the repository. Without a full script and the necessary data\
+    \ files, the task\u2019s requirements are not satisfied."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,12 +22,13 @@ T017:
     \ output) is missing, so the task\u2019s requirement is not satisfied."
 T018:
   c: false
-  h: d1b068680e348db4c51491666ae25701853c26f7e9681b188d469bec2a0a045c
-  r: "The provided `code/add_3d_descriptors.py` is incomplete (truncated mid\u2011\
-    function) and does not show the full implementation for generating conformers\
-    \ with ETKDG, reading `data/dataset_filtered.csv`, or writing the merged `data/dataset.csv`.\
-    \ Moreover, both `data/dataset_filtered.csv` and the expected output `data/dataset.csv`\
-    \ are missing from the repository."
+  h: e11a81d9a72c41681bb90e218f75cf564d84b0bfa4835be7fc056df91f4b14a9
+  r: The required input file `data/dataset_filtered.csv` and the output file `data/dataset.csv`
+    are absent, so the script cannot read COD IDs or produce the merged dataset with
+    the specified columns. Additionally, the provided `add_3d_descriptors.py` is truncated
+    and does not show the full logic for loading CIFs, handling missing files, or
+    writing the final CSV. These essential artifacts are missing, so the task is not
+    genuinely completed.
 T019:
   c: false
   h: bc1729ab97825fb7c9d090cfb9f10b509836dd3fe900e90e7b42f6b7b284edce

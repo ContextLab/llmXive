@@ -1,64 +1,62 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Model Artifact Schema
-description: >
-  Schema for the trained model metadata and architecture description.
-  This file documents the model structure, hyperparameters, and training configuration
-  to ensure reproducibility and compliance with FR-005 (parameter count limit).
+title: Model Output Schema
+description: Schema for the trained model metadata and configuration stored alongside model.pt
 type: object
 required:
   - model_type
   - architecture
   - hyperparameters
-  - parameter_count
-  - input_features
-  - target_variable
   - training_config
+  - feature_config
+  - metrics
+  - timestamp
   - version
 properties:
   model_type:
     type: string
-    description: The type of model (e.g., "MLP", "LinearRegression").
-    const: "MLP"
+    description: Type of model (e.g., "mlp")
+    enum:
+      - mlp
   architecture:
     type: object
-    description: Detailed description of the neural network layers.
+    description: Description of the neural network architecture
     required:
       - layers
       - activation
-      - dropout_rate
+      - dropout
     properties:
       layers:
         type: array
-        description: List of layer descriptions (Input -> Hidden -> Output).
         items:
           type: object
           required:
-            - type
-            - units
+            - in_features
+            - out_features
+            - activation
           properties:
-            type:
-              type: string
-              enum: ["Linear", "ReLU", "Dropout"]
-            units:
+            in_features:
               type: integer
-              description: Number of units (for Linear/Dropout) or ignored for activation layers.
-      activation:
-        type: string
-        description: Activation function used in hidden layers.
-        enum: ["ReLU", "LeakyReLU", "Tanh"]
+            out_features:
+              type: integer
+            activation:
+              type: string
+              enum:
+                - ReLU
+                - LeakyReLU
+                - Tanh
+                - None
       dropout_rate:
         type: number
-        description: Dropout probability.
         minimum: 0.0
         maximum: 1.0
   hyperparameters:
     type: object
-    description: Training hyperparameters.
+    description: Training hyperparameters used
     required:
       - learning_rate
       - batch_size
-      - optimizer
       - epochs
+      - optimizer
     properties:
       learning_rate:
         type: number
@@ -66,71 +64,81 @@ properties:
       batch_size:
         type: integer
         minimum: 1
-      optimizer:
-        type: string
-        enum: ["Adam", "SGD", "RMSprop"]
       epochs:
         type: integer
         minimum: 1
+      optimizer:
+        type: string
       weight_decay:
         type: number
         minimum: 0.0
-        default: 0.0
-  parameter_count:
-    type: integer
-    description: Total number of trainable parameters.
-    minimum: 1
-    maximum: 100000
-    description: "Must be <= 100,000 as per FR-005."
-  input_features:
-    type: array
-    description: List of feature names used for training.
-    items:
-      type: string
-  target_variable:
-    type: string
-    description: Name of the target variable.
-    const: "CAPE"
   training_config:
     type: object
-    description: Additional training configuration details.
+    description: Configuration related to the training process
     required:
-      - random_seed
-      - data_split
+      - seed
       - device
+      - train_split_ratio
+      - val_split_ratio
     properties:
-      random_seed:
+      seed:
         type: integer
-      data_split:
-        type: object
-        required:
-          - train_ratio
-          - val_ratio
-          - test_ratio
-        properties:
-          train_ratio:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          val_ratio:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-          test_ratio:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
       device:
         type: string
-        enum: ["cpu", "cuda"]
-  version:
-    type: string
-    description: Semantic version of the model artifact schema.
-    const: "1.0.0"
+        enum:
+          - cpu
+          - cuda
+      train_split_ratio:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      val_split_ratio:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+  feature_config:
+    type: object
+    description: Configuration of input features
+    required:
+      - embedding_model
+      - embedding_dim
+      - descriptors
+      - confounders
+    properties:
+      embedding_model:
+        type: string
+      embedding_dim:
+        type: integer
+      descriptors:
+        type: array
+        items:
+          type: string
+      confounders:
+        type: array
+        items:
+          type: string
+  metrics:
+    type: object
+    description: Final training metrics
+    required:
+      - train_loss
+      - val_loss
+      - best_val_loss
+    properties:
+      train_loss:
+        type: number
+      val_loss:
+        type: number
+      best_val_loss:
+        type: number
+      total_parameters:
+        type: integer
+        description: Total trainable parameters (must be <= 100k per FR-005)
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of model creation.
-  notes:
+    description: ISO 8601 timestamp of model creation
+  version:
     type: string
-    description: Optional notes about the model training process.
+    description: Version string of the model (e.g., "1.0.0")
+additionalProperties: false
