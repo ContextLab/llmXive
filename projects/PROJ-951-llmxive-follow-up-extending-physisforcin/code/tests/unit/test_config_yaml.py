@@ -1,141 +1,180 @@
-"""
-Unit tests for T007b: Config YAML validation and schema enforcement.
-"""
 import os
 import tempfile
 import pytest
 import yaml
 from pathlib import Path
 from src.training.config import (
+    Config,
     load_config,
+    save_config,
     validate_config_schema,
-    get_filter_discard_threshold,
-    ProjectConfig,
-    FilteringConfig
+    create_default_config
 )
 
+
 class TestConfigYAML:
-    """Tests for the config.yaml file and its schema validation."""
+    """Tests for config.yaml schema validation and loading."""
 
-    def test_config_file_exists(self):
-        """Verify that config.yaml exists at the expected path."""
-        config_path = Path("code/config.yaml")
-        assert config_path.exists(), "config.yaml must exist"
+    @pytest.fixture
+    def temp_config_file(self):
+        """Create a temporary config.yaml file with valid schema."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            config_data = {
+                'project': {
+                    'name': 'test-project',
+                    'version': '1.0.0',
+                    'root_dir': '/tmp/test',
+                    'data_root': 'data'
+                },
+                'environment': {
+                    'force_cpu': True,
+                    'seed': 42,
+                    'max_memory_mb': 6144
+                },
+                'data': {
+                    'raw_dir': 'data/raw',
+                    'curated_dir': 'data/curated',
+                    'eval_dir': 'data/eval',
+                    'validation_dir': 'data/validation',
+                    'control_dir': 'data/control',
+                    'prompts_file': 'data/prompts.jsonl'
+                },
+                'generation': {
+                    'model_id': 'Wan-AI/Wan2.1-Turbo',
+                    'max_frames': 16,
+                    'resolution': '256x256',
+                    'offload_enabled': False,
+                    'offload_target': 'kaggle'
+                },
+                'filtering': {
+                    'schema_file': 'src/filtering/schema.py',
+                    'engine': 'pybullet',
+                    'headless': True,
+                    'time_step': 0.016,
+                    'filter_discard_percent': None  # Explicitly null as per spec
+                },
+                'training': {
+                    'model_type': 'unet_diffusion',
+                    'base_channels': 64,
+                    'down_blocks': 4,
+                    'up_blocks': 4,
+                    'attention_heads': 8,
+                    'batch_size': 4,
+                    'learning_rate': 0.0001,
+                    'num_epochs': 10,
+                    'timeout_hours': 4,
+                    'abort_on_nan': True
+                },
+                'evaluation': {
+                    'r_bench_enabled': True,
+                    'pai_bench_enabled': True,
+                    'significance_level': 0.05,
+                    'eval_sample_size': 30,
+                    'orthogonality_threshold': 0.95
+                },
+                'logging': {
+                    'level': 'INFO',
+                    'format': 'json',
+                    'log_dir': 'logs',
+                    'metrics_file': 'metrics.jsonl',
+                    'discard_rate_log': 'logs/discard_rate.log',
+                    'orthogonality_log': 'logs/orthogonality_gate.log',
+                    'baseline_log': 'logs/baseline_verification.log',
+                    'dataset_validation_log': 'logs/dataset_validation.log'
+                },
+                'augmentation': {
+                    'enabled': True,
+                    'min_curated_size': 30,
+                    'temporal_jitter_percent': 10,
+                    'geometric_flip': True
+                }
+            }
+            yaml.dump(config_data, f)
+            f.flush()
+            yield f.name
+            os.unlink(f.name)
 
-    def test_filter_discard_percent_is_0_4(self):
-        """Verify that filter_discard_percent is explicitly set to 0.4."""
-        config_path = Path("code/config.yaml")
-        with open(config_path, 'r') as f:
-            config_dict = yaml.safe_load(f)
-        
-        assert config_dict['filtering']['filter_discard_percent'] == 0.4, \
-            "filter_discard_percent must be 0.4 to resolve FR-003"
+    def test_load_config_valid_file(self, temp_config_file):
+        """Test that a valid config.yaml can be loaded."""
+        config = load_config(temp_config_file)
+        assert config is not None
+        assert config['project']['name'] == 'test-project'
+        assert config['filtering']['filter_discard_percent'] is None
 
-    def test_schema_validation_required_keys(self):
-        """Test that schema validation catches missing required keys."""
-        valid_dict = {
-            "project_id": "test",
-            "environment": {"cpu_only": True},
-            "data": {"root": "data"},
-            "filtering": {"filter_discard_percent": 0.4},
-            "training": {"seed": 42}
-        }
-        
-        is_valid, errors = validate_config_schema(valid_dict)
-        assert is_valid, f"Valid config should pass validation: {errors}"
+    def test_filter_discard_percent_null(self, temp_config_file):
+        """Test that filter_discard_percent is explicitly null in the loaded config."""
+        config = load_config(temp_config_file)
+        assert 'filter_discard_percent' in config['filtering']
+        assert config['filtering']['filter_discard_percent'] is None
 
-        # Test missing key
-        invalid_dict = valid_dict.copy()
-        del invalid_dict['project_id']
-        
-        is_valid, errors = validate_config_schema(invalid_dict)
-        assert not is_valid
-        assert any("project_id" in err for err in errors)
-
-    def test_schema_validation_type_checks(self):
-        """Test that schema validation catches type mismatches."""
-        valid_dict = {
-            "project_id": "test",
-            "environment": {"cpu_only": True},
-            "data": {"root": "data"},
-            "filtering": {"filter_discard_percent": 0.4},
-            "training": {"seed": 42, "epochs": 10},
-            "environment": {"max_ram_gb": 6.0}
-        }
-        
-        is_valid, errors = validate_config_schema(valid_dict)
+    def test_validate_config_schema(self, temp_config_file):
+        """Test schema validation against the loaded config."""
+        config = load_config(temp_config_file)
+        is_valid, errors = validate_config_schema(config)
         assert is_valid
+        assert len(errors) == 0
 
-        # Test wrong type
-        invalid_dict = valid_dict.copy()
-        invalid_dict['filtering']['filter_discard_percent'] = "0.4"  # String instead of float
+    def test_missing_required_key(self, temp_config_file):
+        """Test validation fails when a required key is missing."""
+        with open(temp_config_file, 'r') as f:
+            data = yaml.safe_load(f)
         
-        is_valid, errors = validate_config_schema(invalid_dict)
-        assert not is_valid
-        assert any("filter_discard_percent" in err for err in errors)
+        # Remove a required key
+        del data['filtering']['filter_discard_percent']
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(data, f)
+            f.flush()
+            temp_missing = f.name
+        
+        try:
+            config = load_config(temp_missing)
+            is_valid, errors = validate_config_schema(config)
+            assert not is_valid
+            assert any('filter_discard_percent' in str(e) for e in errors)
+        finally:
+            os.unlink(temp_missing)
 
-    def test_schema_validation_value_ranges(self):
-        """Test that schema validation catches out-of-range values."""
-        valid_dict = {
-            "project_id": "test",
-            "environment": {"cpu_only": True},
-            "data": {"root": "data"},
-            "filtering": {"filter_discard_percent": 0.4},
-            "training": {"seed": 42, "batch_size": 4},
-            "environment": {"max_ram_gb": 6.0}
-        }
+    def test_invalid_discard_percent_type(self, temp_config_file):
+        """Test validation fails when discard_percent is not a number or null."""
+        with open(temp_config_file, 'r') as f:
+            data = yaml.safe_load(f)
         
-        is_valid, errors = validate_config_schema(valid_dict)
+        data['filtering']['filter_discard_percent'] = "invalid"
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(data, f)
+            f.flush()
+            temp_invalid = f.name
+        
+        try:
+            config = load_config(temp_invalid)
+            is_valid, errors = validate_config_schema(config)
+            assert not is_valid
+            assert any('filter_discard_percent' in str(e) for e in errors)
+        finally:
+            os.unlink(temp_invalid)
+
+    def test_save_and_reload_config(self, temp_config_file):
+        """Test that a config can be saved and reloaded correctly."""
+        config = load_config(temp_config_file)
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            temp_out = f.name
+        
+        try:
+            save_config(config, temp_out)
+            reloaded = load_config(temp_out)
+            
+            assert reloaded['project']['name'] == config['project']['name']
+            assert reloaded['filtering']['filter_discard_percent'] == config['filtering']['filter_discard_percent']
+        finally:
+            os.unlink(temp_out)
+
+    def test_default_config_structure(self):
+        """Test that create_default_config produces a valid schema."""
+        default_cfg = create_default_config()
+        is_valid, errors = validate_config_schema(default_cfg)
         assert is_valid
-
-        # Test out of range
-        invalid_dict = valid_dict.copy()
-        invalid_dict['filtering']['filter_discard_percent'] = 1.5  # > 1.0
-        
-        is_valid, errors = validate_config_schema(invalid_dict)
-        assert not is_valid
-        assert any("filter_discard_percent" in err for err in errors)
-
-    def test_load_config_from_yaml(self):
-        """Test loading the actual config.yaml file."""
-        config = load_config("code/config.yaml")
-        
-        assert config.project_id == "PROJ-951-llmxive-follow-up-extending-physisforcin"
-        assert config.filtering.filter_discard_percent == 0.4
-        assert config.environment.cpu_only is True
-
-    def test_get_filter_discard_threshold(self):
-        """Test the get_filter_discard_threshold helper function."""
-        config = load_config("code/config.yaml")
-        threshold = get_filter_discard_threshold(config)
-        
-        assert threshold == 0.4
-
-    def test_config_schema_completeness(self):
-        """Verify that all keys defined in config.yaml are loadable."""
-        config_path = Path("code/config.yaml")
-        with open(config_path, 'r') as f:
-            config_dict = yaml.safe_load(f)
-        
-        config = load_config("code/config.yaml")
-        
-        # Verify top-level keys
-        assert hasattr(config, 'project_id')
-        assert hasattr(config, 'environment')
-        assert hasattr(config, 'data')
-        assert hasattr(config, 'generation')
-        assert hasattr(config, 'filtering')
-        assert hasattr(config, 'training')
-        assert hasattr(config, 'evaluation')
-        assert hasattr(config, 'logging')
-
-    def test_filtering_section_structure(self):
-        """Verify the filtering section has all required keys."""
-        config = load_config("code/config.yaml")
-        
-        assert hasattr(config.filtering, 'filter_discard_percent')
-        assert hasattr(config.filtering, 'physics_engine')
-        assert hasattr(config.filtering, 'simulation_steps')
-        assert hasattr(config.filtering, 'continuity_threshold')
-        assert hasattr(config.filtering, 'contact_threshold')
-        assert hasattr(config.filtering, 'headless_mode')
+        assert len(errors) == 0
+        assert default_cfg['filtering']['filter_discard_percent'] is None

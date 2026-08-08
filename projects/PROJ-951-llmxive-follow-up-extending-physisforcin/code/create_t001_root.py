@@ -1,38 +1,45 @@
-"""
-Task T001: Create project root directories under projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/.
-
-This script creates the root directory structure for the project.
-It ensures the base path exists and prepares for subdirectory creation (T001b).
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Main entry point for T001 directory creation."""
-    # Define the project root path relative to the current working directory
-    # The task specifies: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
-    project_root = Path("projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code")
+    """
+    Creates the root project directory structure for PROJ-951-llmxive-follow-up-extending-physisforcin.
+    This implements Task T001: Create project root directories.
     
-    print(f"Creating project root directory: {project_root.absolute()}")
+    Target Path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
+    """
+    # Define the project root relative to the current working directory
+    # Assuming the script is run from the project root or code directory
+    current_dir = Path.cwd()
     
-    try:
-        # Create the directory and all parent directories if they don't exist
-        project_root.mkdir(parents=True, exist_ok=True)
+    # Determine the base path for the project
+    # If run from code/, go up one level
+    if current_dir.name == 'code':
+        base_path = current_dir.parent
+    else:
+        base_path = current_dir
         
-        if project_root.exists() and project_root.is_dir():
-            print(f"SUCCESS: Root directory created at {project_root.absolute()}")
-            print(f"Directory contents: {list(project_root.iterdir())}")
-            return 0
-        else:
-            print(f"ERROR: Failed to create directory {project_root}")
-            return 1
-            
-    except PermissionError as e:
-        print(f"ERROR: Permission denied creating directory {project_root}: {e}")
-        return 1
-    except OSError as e:
-        print(f"ERROR: OS error creating directory {project_root}: {e}")
+    project_root = base_path / 'projects' / 'PROJ-951-llmxive-follow-up-extending-physisforcin'
+    code_root = project_root / 'code'
+    
+    print(f"Creating project root at: {project_root}")
+    print(f"Creating code directory at: {code_root}")
+    
+    # Create directories
+    project_root.mkdir(parents=True, exist_ok=True)
+    code_root.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Successfully created directories.")
+    print(f"Project Root: {project_root}")
+    print(f"Code Root: {code_root}")
+    
+    # Verify creation
+    if project_root.exists() and code_root.exists():
+        print("Verification: Directories exist.")
+        return 0
+    else:
+        print("Verification: FAILED - Directories missing.")
         return 1
 
 if __name__ == "__main__":

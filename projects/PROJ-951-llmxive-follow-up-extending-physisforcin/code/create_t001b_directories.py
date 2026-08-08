@@ -2,42 +2,64 @@ import os
 import sys
 from pathlib import Path
 
-def create_t001b_directories(project_root: Path) -> None:
+def create_t001b_directories(base_path: Path) -> bool:
     """
-    Creates the primary subdirectories for the project:
-    - src/
-    - tests/
-    - data/
-
-    These directories are the foundational structure required for the rest of the project.
+    Creates the src/, tests/, and data/ subdirectories under the project code root.
+    
+    Args:
+        base_path: The project root directory (projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/)
+        
+    Returns:
+        True if all directories were created successfully, False otherwise.
     """
-    dirs_to_create = [
+    directories = [
         "src",
         "tests",
         "data"
     ]
-
-    created_count = 0
-    for dir_name in dirs_to_create:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
+    
+    success = True
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        try:
             dir_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
             print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
+        except OSError as e:
+            print(f"Error creating directory {dir_path}: {e}")
+            success = False
+            
+    return success
 
-    print(f"T001b Directory Creation Summary: {created_count} new directories created.")
-    return created_count
+def main():
+    """Main entry point for T001b directory creation."""
+    # Determine the base path for the project
+    # Assuming the script is run from the project root or code directory
+    current_dir = Path.cwd()
+    
+    # Look for the specific project directory
+    project_code_root = current_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
+    
+    if not project_code_root.exists():
+        # If not found in current structure, try relative to script location
+        script_dir = Path(__file__).parent
+        project_code_root = script_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
+        
+        if not project_code_root.exists():
+            # Fallback: assume current dir is the code root if it contains 'projects'
+            if (script_dir / "projects").exists():
+                project_code_root = script_dir
+            else:
+                print(f"Could not locate project code root. Expected: {script_dir / 'projects' / 'PROJ-951-llmxive-follow-up-extending-physisforcin' / 'code'}")
+                sys.exit(1)
+    
+    print(f"Creating T001b directories in: {project_code_root}")
+    
+    if create_t001b_directories(project_code_root):
+        print("T001b task completed successfully.")
+        sys.exit(0)
+    else:
+        print("T001b task failed due to directory creation errors.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    # Default to current directory if no argument provided, or use provided path
-    if len(sys.argv) > 1:
-        root = Path(sys.argv[1])
-    else:
-        root = Path.cwd()
-
-    # Ensure we are operating within the expected project context
-    # The task specifies: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
-    # We assume this script is run from 'code' or passed the 'code' path.
-    create_t001b_directories(root)
+    main()

@@ -1,119 +1,99 @@
+"""
+Unit tests for linting and formatting configuration.
+These tests verify that the configuration files exist and are valid.
+"""
 import os
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
 import subprocess
+import yaml
+import sys
 
-from tests.unit.test_linting_config import TestLintingConfig
+# Add the code directory to the path for imports if needed
+# Though this test mostly checks file existence and format
+code_root = Path(__file__).parent.parent.parent
+pyproject_path = code_root / "pyproject.toml"
+ruff_config_path = code_root / ".ruff.toml"
+pre_commit_path = code_root / ".pre-commit-config.yaml"
 
 class TestLintingConfig:
-    """Test that linting and formatting tools are correctly configured."""
+    """Tests for the linting configuration setup."""
 
-    @pytest.fixture
-    def temp_project_root(self):
-        """Create a temporary project root with config files."""
-        temp_dir = tempfile.mkdtemp()
-        project_root = Path(temp_dir) / "test_project"
-        project_root.mkdir()
+    def test_pyproject_toml_exists(self):
+        """Verify that pyproject.toml exists in the project root."""
+        assert pyproject_path.exists(), "pyproject.toml must exist in the project root"
 
-        # Copy config files
-        ruff_config = project_root / ".ruff.toml"
-        pyproject_config = project_root / "pyproject.toml"
+    def test_pyproject_toml_valid(self):
+        """Verify that pyproject.toml contains valid TOML and required sections."""
+        # Basic validation: try to parse as YAML (since toml is subset compatible for simple cases)
+        # or just check existence of key strings.
+        # For a robust check, we'd use a toml parser, but simple string check is often enough for CI.
+        content = pyproject_path.read_text()
+        
+        # Check for ruff and black sections
+        assert "[tool.ruff]" in content, "pyproject.toml must contain [tool.ruff] section"
+        assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
+        assert "ruff" in content, "pyproject.toml must mention ruff"
+        assert "black" in content, "pyproject.toml must mention black"
 
-        # Create minimal config files for testing
-        ruff_config.write_text(
-            """
-            [lint]
-            select = ["E", "W", "F", "I", "C", "B"]
-            ignore = ["E501", "B008", "C901"]
+    def test_ruff_config_exists(self):
+        """Verify that .ruff.toml exists."""
+        assert ruff_config_path.exists(), ".ruff.toml must exist"
 
-            [format]
-            quote-style = "double"
-            indent-style = "space"
-            """
-        )
+    def test_pre_commit_config_exists(self):
+        """Verify that .pre-commit-config.yaml exists."""
+        assert pre_commit_path.exists(), ".pre-commit-config.yaml must exist"
 
-        pyproject_config.write_text(
-            """
-            [tool.black]
-            line-length = 88
-            target-version = ["py310"]
+    def test_pre_commit_config_valid_yaml(self):
+        """Verify that .pre-commit-config.yaml is valid YAML."""
+        with open(pre_commit_path, 'r') as f:
+            try:
+                config = yaml.safe_load(f)
+                assert "repos" in config, "pre-commit config must have 'repos' key"
+                # Check for ruff and black repos
+                repos = config["repos"]
+                has_ruff = any("ruff" in str(repo.get("repo", "")) for repo in repos)
+                has_black = any("black" in str(repo.get("repo", "")) for repo in repos)
+                
+                assert has_ruff, "pre-commit config must include ruff"
+                assert has_black, "pre-commit config must include black"
+            except yaml.YAMLError as e:
+                pytest.fail(f"pre-commit config is not valid YAML: {e}")
 
-            [tool.ruff]
-            line-length = 88
-            target-version = "py310"
-            select = ["E", "W", "F", "I", "C", "B"]
-            """
-        )
-
-        yield project_root
-
-        shutil.rmtree(temp_dir)
-
-    def test_ruff_config_exists(self, temp_project_root):
-        """Test that .ruff.toml or ruff configuration in pyproject.toml exists."""
-        ruff_toml = temp_project_root / ".ruff.toml"
-        pyproject_toml = temp_project_root / "pyproject.toml"
-
-        assert ruff_toml.exists() or (
-            pyproject_toml.exists()
-            and "tool.ruff" in pyproject_toml.read_text()
-        ), "Ruff configuration file not found"
-
-    def test_black_config_exists(self, temp_project_root):
-        """Test that black configuration in pyproject.toml exists."""
-        pyproject_toml = temp_project_root / "pyproject.toml"
-
-        assert pyproject_toml.exists(), "pyproject.toml not found"
-        content = pyproject_toml.read_text()
-        assert "[tool.black]" in content, "Black configuration not found in pyproject.toml"
-
-    def test_ruff_can_run(self, temp_project_root):
-        """Test that ruff can be invoked on the project."""
+    def test_ruff_version_command(self):
+        """Verify that ruff can be invoked."""
         try:
             result = subprocess.run(
-                ["ruff", "check", "--version"],
-                cwd=temp_project_root,
-                capture_output=True,
-                text=True,
-                timeout=10,
+                ["ruff", "--version"],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=10
             )
-            assert result.returncode == 0, f"Ruff check failed: {result.stderr}"
+            assert b"ruff" in result.stdout.lower()
         except FileNotFoundError:
-            pytest.skip("Ruff not installed in environment")
+            pytest.skip("ruff not installed in environment")
         except subprocess.TimeoutExpired:
-            pytest.skip("Ruff check timed out")
+            pytest.fail("ruff version command timed out")
+        except subprocess.CalledProcessError as e:
+            pytest.fail(f"ruff version command failed: {e}")
 
-    def test_black_can_run(self, temp_project_root):
-        """Test that black can be invoked on the project."""
+    def test_black_version_command(self):
+        """Verify that black can be invoked."""
         try:
             result = subprocess.run(
                 ["black", "--version"],
-                cwd=temp_project_root,
-                capture_output=True,
-                text=True,
-                timeout=10,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=10
             )
-            assert result.returncode == 0, f"Black check failed: {result.stderr}"
+            assert b"black" in result.stdout.lower()
         except FileNotFoundError:
-            pytest.skip("Black not installed in environment")
+            pytest.skip("black not installed in environment")
         except subprocess.TimeoutExpired:
-            pytest.skip("Black check timed out")
-
-    def test_config_files_in_project(self):
-        """Test that config files exist in the actual project root."""
-        project_root = Path(__file__).parent.parent.parent
-        ruff_config = project_root / ".ruff.toml"
-        pyproject_config = project_root / "pyproject.toml"
-
-        assert ruff_config.exists(), ".ruff.toml not found in project root"
-        assert pyproject_config.exists(), "pyproject.toml not found in project root"
-
-        ruff_content = ruff_config.read_text()
-        assert "tool.ruff" in ruff_content or "select" in ruff_content, \
-            "Ruff configuration not properly set in .ruff.toml"
-
-        pyproject_content = pyproject_config.read_text()
-        assert "[tool.black]" in pyproject_content, \
-            "Black configuration not found in pyproject.toml"
+            pytest.fail("black version command timed out")
+        except subprocess.CalledProcessError as e:
+            pytest.fail(f"black version command failed: {e}")

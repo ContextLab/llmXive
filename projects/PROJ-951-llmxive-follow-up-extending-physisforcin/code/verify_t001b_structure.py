@@ -1,58 +1,70 @@
 import os
+import sys
 from pathlib import Path
 
-def print_tree(root: Path, prefix: str = ""):
-    """Recursively prints the directory tree."""
-    contents = sorted(root.iterdir())
-    pointers = [None] * len(contents)
-    for i, c in enumerate(contents):
-        if i == len(contents) - 1:
-            pointers[i] = "└── "
-            extension = "    "
-        else:
-            pointers[i] = "├── "
-            extension = "│   "
+def verify_t001b_structure(base_path: Path) -> bool:
+    """
+    Verifies that the required T001b subdirectories exist.
+    
+    Args:
+        base_path: The project root directory (projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/)
         
-        print(f"{prefix}{pointers[i]}{c.name}")
-        if c.is_dir():
-            print_tree(c, prefix + extension)
-
-def verify_t001b_structure(project_root: Path) -> bool:
+    Returns:
+        True if all required directories exist, False otherwise.
     """
-    Verifies that the required T001b directories exist:
-    - src/
-    - tests/
-    - data/
+    required_dirs = [
+        "src",
+        "tests",
+        "data"
+    ]
     
-    Returns True if all exist, False otherwise.
-    """
-    required_dirs = ["src", "tests", "data"]
     all_exist = True
-    
-    print(f"Verifying T001b structure at: {project_root}")
-    print("-" * 40)
+    missing = []
     
     for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        if dir_path.exists() and dir_path.is_dir():
-            print(f"[OK] {dir_path} exists")
-        else:
-            print(f"[MISSING] {dir_path} does not exist")
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            print(f"MISSING: {dir_path}")
             all_exist = False
+            missing.append(dir_name)
+        elif not dir_path.is_dir():
+            print(f"NOT A DIRECTORY: {dir_path}")
+            all_exist = False
+            missing.append(dir_name)
+        else:
+            print(f"OK: {dir_path}")
     
-    print("-" * 40)
-    if all_exist:
-        print("T001b Verification: PASSED")
+    if missing:
+        print(f"Verification failed. Missing directories: {missing}")
+        return False
+        
+    print("Verification passed. All T001b directories exist.")
+    return True
+
+def main():
+    """Main entry point for T001b verification."""
+    current_dir = Path.cwd()
+    script_dir = Path(__file__).parent
+    
+    # Attempt to locate the project code root
+    project_code_root = current_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
+    
+    if not project_code_root.exists():
+        project_code_root = script_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
+        
+        if not project_code_root.exists():
+            if (script_dir / "projects").exists():
+                project_code_root = script_dir
+            else:
+                print(f"Could not locate project code root for verification.")
+                sys.exit(1)
+    
+    print(f"Verifying T001b structure in: {project_code_root}")
+    
+    if verify_t001b_structure(project_code_root):
+        sys.exit(0)
     else:
-        print("T001b Verification: FAILED")
-    
-    return all_exist
+        sys.exit(1)
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1:
-        root = Path(sys.argv[1])
-    else:
-        root = Path.cwd()
-    
-    verify_t001b_structure(root)
+    main()

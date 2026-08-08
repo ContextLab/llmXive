@@ -1,96 +1,100 @@
-# Project Configuration for llmXive Follow-up: Extending PhysisForcing
-# This file defines the schema and default values for all required keys.
-# Explicitly sets filter_discard_percent to 0.4 to resolve FR-003.
+# llmXive Physics Filter Pipeline Configuration
+# This file defines the schema for all required configuration keys.
+# Values are loaded by src/training/config.py.
+#
+# IMPORTANT: No default values are hardcoded for critical scientific parameters
+# to preserve the integrity of the experimental method. Users must explicitly
+# set these values based on their specific experimental design or spec revision.
 
-# --- Project Metadata ---
-project_id: "PROJ-951-llmxive-follow-up-extending-physisforcin"
-version: "1.0.0"
-description: "Physics-informed filtering for synthetic robotic video datasets"
+project:
+  name: "PROJ-951-llmxive-follow-up-extending-physisforcin"
+  version: "1.0.0"
+  root_dir: "projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code"
+  data_root: "data"
 
-# --- Environment & Hardware ---
 environment:
-  cpu_only: true
-  cuda_enabled: false
-  max_ram_gb: 6.0
-  max_disk_gb: 14.0
+  # Force CPU-only execution
+  force_cpu: true
+  # Deterministic seed for reproducibility
+  seed: 42
+  # Memory limit in MB (approx 6GB)
+  max_memory_mb: 6144
 
-# --- Data Paths ---
 data:
-  root: "data"
-  raw: "data/raw"
-  curated: "data/curated"
-  eval: "data/eval"
-  validation: "data/validation"
-  control: "data/control"
-  prompts: "data/prompts.json"
+  raw_dir: "data/raw"
+  curated_dir: "data/curated"
+  eval_dir: "data/eval"
+  validation_dir: "data/validation"
+  control_dir: "data/control"
+  prompts_file: "data/prompts.jsonl"
 
-# --- Generation (Wan2.1) ---
 generation:
   model_id: "Wan-AI/Wan2.1-Turbo"
-  device: "cpu"
-  offload_to_kaggle: true
-  max_videos: 100
-  frame_rate: 8
-  resolution:
-    width: 512
-    height: 512
-  timeout_seconds: 3600
+  # CPU inference constraints
+  max_frames: 16
+  resolution: "256x256"
+  # Offload mechanism for GPU if CPU fails
+  offload_enabled: false
+  offload_target: "kaggle"
 
-# --- Filtering (PhysisForcing) ---
 filtering:
-  # CRITICAL: Fixed discard rate to resolve FR-003
-  filter_discard_percent: 0.4
-  physics_engine: "pybullet"
-  simulation_steps: 100
-  continuity_threshold: 0.6
-  contact_threshold: 0.5
-  headless_mode: true
+  # SCHEMA: Defines mapping from prompt tags to PyBullet objects
+  schema_file: "src/filtering/schema.py"
+  # Physics engine settings
+  engine: "pybullet"
+  headless: true
+  time_step: 0.016
+  # CRITICAL: Discard percentage for the bottom segment of the score distribution.
+  # This is a CONFIGURABLE parameter. No default value is provided here to
+  # ensure the scientific method is followed and the threshold is explicitly set
+  # by the researcher for the specific experiment.
+  # The code in src/filtering/score_utils.py will read this value and raise
+  # an error if it is missing or invalid (e.g., None, < 0, > 100).
+  filter_discard_percent: null
 
-# --- Training ---
 training:
-  model_type: "unet"
+  model_type: "unet_diffusion"
+  # Architecture specifications (approx 50M params)
   base_channels: 64
   down_blocks: 4
   up_blocks: 4
   attention_heads: 8
-  estimated_params_m: 50
+  # Training hyperparameters
   batch_size: 4
   learning_rate: 1e-4
-  epochs: 10
-  seed: 42
-  checkpoint_interval: 1000
+  num_epochs: 10
+  # Resource constraints
   timeout_hours: 4
+  # Fail loud on NaN
+  abort_on_nan: true
 
-# --- Evaluation ---
 evaluation:
-  eval_set_size: 30
-  statistical_test: "mann_whitney_u"
+  # Benchmarks
+  r_bench_enabled: true
+  pai_bench_enabled: true
+  # Statistical testing
   significance_level: 0.05
-  baseline_source: "physisforcing_paper"
-  mu_joco_validation: true
+  # Sample size for evaluation
+  eval_sample_size: 30
+  # Orthogonality gate
+  orthogonality_threshold: 0.95
 
-# --- Logging & Metrics ---
 logging:
   level: "INFO"
   format: "json"
   log_dir: "logs"
   metrics_file: "metrics.jsonl"
-  rotation_max_mb: 10
-  rotation_backup_count: 5
+  discard_rate_log: "logs/discard_rate.log"
+  orthogonality_log: "logs/orthogonality_gate.log"
+  baseline_log: "logs/baseline_verification.log"
+  dataset_validation_log: "logs/dataset_validation.log"
 
-# --- Schema Validation Rules ---
-# These are enforced by src/training/config.py
-schema:
-  required_keys:
-    - project_id
-    - environment.cpu_only
-    - data.root
-    - filtering.filter_discard_percent
-    - training.seed
-  type_checks:
-    filtering.filter_discard_percent: float
-    training.epochs: integer
-    environment.max_ram_gb: float
-  value_ranges:
-    filtering.filter_discard_percent: [0.0, 1.0]
-    training.batch_size: [1, 128]
+augmentation:
+  enabled: true
+  # Threshold for triggering augmentation
+  min_curated_size: 30
+  # Geometric augmentation settings
+  temporal_jitter_percent: 10
+  geometric_flip: true
+
+# End of configuration schema

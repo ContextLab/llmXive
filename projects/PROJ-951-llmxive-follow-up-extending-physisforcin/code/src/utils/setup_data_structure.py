@@ -1,14 +1,13 @@
 """
-Script to set up the data directory structure for the PhysisForcing project.
-This script creates the required directories and initializes checksum tracking.
+Setup script for T005: Data directory structure and checksumming utilities.
+
+This script creates the required data directory structure and initializes
+the checksumming infrastructure.
 """
 import os
 import sys
 import logging
 from pathlib import Path
-
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.utils.io_utils import ensure_dirs, validate_project_structure, get_data_stats, update_checksums
 
@@ -20,48 +19,57 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def main():
-    """Main function to set up the data structure."""
-    logger.info("Starting data directory setup...")
-    
-    # Get the project root (parent of code/)
-    code_dir = Path(__file__).parent.parent
+    """
+    Main function to set up the data directory structure.
+    """
+    # Determine project root
+    # Assuming this script is run from code/ directory
+    code_dir = Path(__file__).resolve().parent.parent
     project_root = code_dir.parent
-    os.chdir(project_root)
+    
     logger.info(f"Project root: {project_root}")
     
-    # Ensure data directories exist
+    # Define required data directories
+    data_dirs = [
+        "data/raw",
+        "data/curated",
+        "data/eval",
+        "data/validation",
+        "data/control",
+        "data/prompts"
+    ]
+    
+    # Create directories
     logger.info("Creating data directory structure...")
-    ensure_dirs()
+    ensure_dirs([project_root / d for d in data_dirs])
     
-    # Validate the structure
-    logger.info("Validating project structure...")
-    is_valid, missing = validate_project_structure(project_root)
+    # Validate structure
+    logger.info("Validating data directory structure...")
+    is_valid, missing = validate_project_structure(project_root, data_dirs)
     
-    if is_valid:
-        logger.info("✓ All required directories created successfully.")
-    else:
-        logger.error(f"✗ Missing directories: {missing}")
+    if not is_valid:
+        logger.error(f"Missing directories: {missing}")
         sys.exit(1)
     
-    # Initialize checksums for the data directory
-    data_path = project_root / "data"
-    checksums_path = data_path / ".checksums.json"
+    logger.info("Data directory structure validated successfully.")
     
-    logger.info(f"Initializing checksums at {checksums_path}...")
-    update_checksums(data_path, checksums_path)
-    logger.info("✓ Checksums initialized.")
+    # Initialize checksums for each data directory
+    for data_dir in data_dirs:
+        dir_path = project_root / data_dir
+        checksums_path = dir_path / ".checksums.json"
+        
+        # Only create checksums file if directory is empty or doesn't exist
+        if not checksums_path.exists():
+            update_checksums(dir_path, checksums_path)
+            logger.info(f"Initialized checksums for {data_dir}")
     
-    # Display statistics
+    # Print statistics
     logger.info("Data directory statistics:")
-    stats = get_data_stats(project_root)
-    logger.info(f"  Total size: {stats['total_size_bytes']:,} bytes")
-    logger.info(f"  Total files: {stats['file_count']}")
-    logger.info(f"  Total directories: {stats['directory_count']}")
+    for data_dir in data_dirs:
+        stats = get_data_stats(project_root / data_dir)
+        logger.info(f"  {data_dir}: {stats['file_count']} files, {stats['total_size_mb']:.2f} MB")
     
-    for subdir, subdir_stats in stats["by_subdirectory"].items():
-        logger.info(f"  {subdir}: {subdir_stats['file_count']} files, {subdir_stats['size_bytes']:,} bytes")
-    
-    logger.info("Data directory setup completed successfully.")
+    logger.info("Setup completed successfully.")
 
 if __name__ == "__main__":
     main()

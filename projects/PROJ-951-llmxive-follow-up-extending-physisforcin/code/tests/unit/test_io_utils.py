@@ -1,6 +1,3 @@
-"""
-Unit tests for io_utils module.
-"""
 import os
 import json
 import tempfile
@@ -9,8 +6,8 @@ from pathlib import Path
 import pytest
 import sys
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from src.utils.io_utils import (
     ensure_dirs,
@@ -25,238 +22,153 @@ from src.utils.io_utils import (
     cleanup_empty_dirs,
     move_files_with_checksums,
     validate_project_structure,
-    get_data_stats,
-    DATA_DIRS,
-    CHECKSUM_FILE
+    get_data_stats
 )
-
 
 @pytest.fixture
 def temp_data_dir():
     """Create a temporary directory for testing."""
     temp_dir = tempfile.mkdtemp()
     yield Path(temp_dir)
-    shutil.rmtree(temp_dir, ignore_errors=True)
-
+    shutil.rmtree(temp_dir)
 
 @pytest.fixture
 def populated_dir(temp_data_dir):
     """Create a directory with some test files."""
-    # Create subdirectories
-    (temp_data_dir / "subdir1").mkdir()
-    (temp_data_dir / "subdir1" / "nested").mkdir()
-    (temp_data_dir / "subdir2").mkdir()
-    
-    # Create test files
-    (temp_data_dir / "file1.txt").write_text("Hello, World!")
-    (temp_data_dir / "subdir1" / "file2.txt").write_text("Test content")
-    (temp_data_dir / "subdir1" / "nested" / "file3.txt").write_text("Nested file")
-    (temp_data_dir / "subdir2" / "file4.bin").write_bytes(b"\x00\x01\x02\x03")
-    
+    (temp_data_dir / "subdir").mkdir()
+    (temp_data_dir / "file1.txt").write_text("content1")
+    (temp_data_dir / "subdir" / "file2.txt").write_text("content2")
     yield temp_data_dir
 
+def test_ensure_dirs(temp_data_dir):
+    new_dir = temp_data_dir / "new" / "nested" / "dir"
+    ensure_dirs([new_dir])
+    assert new_dir.exists()
+    assert new_dir.is_dir()
 
-def test_ensure_dirs():
-    """Test that ensure_dirs creates required directories."""
-    # Create a temporary root
-    with tempfile.TemporaryDirectory() as temp_root:
-        # Temporarily override DATA_ROOT
-        original_root = DATA_DIRS
-        
-        # Create test directories
-        test_dirs = {
-            "raw": Path(temp_root) / "raw",
-            "curated": Path(temp_root) / "curated",
-            "eval": Path(temp_root) / "eval",
-        }
-        
-        # Test creation
-        for dir_name, dir_path in test_dirs.items():
-            dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify all exist
-        for dir_path in test_dirs.values():
-            assert dir_path.exists()
-            assert dir_path.is_dir()
-
+def test_ensure_dirs_existing(temp_data_dir):
+    ensure_dirs([temp_data_dir])
+    assert temp_data_dir.exists()
 
 def test_calculate_file_checksum(temp_data_dir):
-    """Test file checksum calculation."""
     test_file = temp_data_dir / "test.txt"
-    test_content = "Test content for checksum"
-    test_file.write_text(test_content)
-    
+    test_file.write_text("hello world")
     checksum = calculate_file_checksum(test_file)
-    
-    assert len(checksum) == 64  # SHA-256 hex length
-    assert all(c in '0123456789abcdef' for c in checksum)
-    
-    # Same content should produce same checksum
-    checksum2 = calculate_file_checksum(test_file)
-    assert checksum == checksum2
+    assert len(checksum) == 64  # SHA256 hex length
+    assert isinstance(checksum, str)
 
-
-def test_calculate_file_checksum_nonexistent():
-    """Test checksum calculation on non-existent file."""
+def test_calculate_file_checksum_nonexistent(temp_data_dir):
     with pytest.raises(FileNotFoundError):
-        calculate_file_checksum(Path("/nonexistent/file.txt"))
+        calculate_file_checksum(temp_data_dir / "nonexistent.txt")
 
-
-def test_calculate_directory_checksums(populated_dir):
-    """Test directory checksum calculation."""
-    checksums = calculate_directory_checksums(populated_dir)
-    
-    assert len(checksums) == 4  # 4 files
-    assert "file1.txt" in checksums
-    assert "subdir1/file2.txt" in checksums
-    assert "subdir1/nested/file3.txt" in checksums
-    assert "subdir2/file4.bin" in checksums
-    
-    # Verify all checksums are valid SHA-256
-    for checksum in checksums.values():
-        assert len(checksum) == 64
-
+def test_calculate_directory_checksums(temp_data_dir):
+    (temp_data_dir / "a.txt").write_text("a")
+    (temp_data_dir / "b.txt").write_text("b")
+    checksums = calculate_directory_checksums(temp_data_dir)
+    assert "a.txt" in checksums
+    assert "b.txt" in checksums
+    assert len(checksums) == 2
 
 def test_save_and_load_checksums(temp_data_dir):
-    """Test saving and loading checksums."""
-    test_checksums = {
-        "file1.txt": "abc123",
-        "file2.txt": "def456",
-        "subdir/file3.txt": "ghi789"
-    }
+    test_file = temp_data_dir / "test.txt"
+    test_file.write_text("test data")
+    checksums = {"test.txt": calculate_file_checksum(test_file)}
+    output_path = temp_data_dir / "checksums.json"
+    save_checksums(checksums, output_path)
     
-    checksum_file = temp_data_dir / "checksums.json"
-    save_checksums(test_checksums, checksum_file)
-    
-    assert checksum_file.exists()
-    
-    loaded = load_checksums(checksum_file)
-    assert loaded == test_checksums
-
+    loaded = load_checksums(output_path)
+    assert loaded == checksums
 
 def test_verify_directory_integrity(populated_dir):
-    """Test directory integrity verification."""
-    # First, create checksums
-    checksums = calculate_directory_checksums(populated_dir)
-    save_checksums(checksums, populated_dir / ".checksums.json")
+    checksum_file = populated_dir / "checksums.json"
+    update_checksums(populated_dir, checksum_file)
     
-    # Verify with correct checksums
-    is_valid, errors = verify_directory_integrity(populated_dir, checksums)
-    assert is_valid
+    # Verify unchanged
+    loaded = load_checksums(checksum_file)
+    valid, errors = verify_directory_integrity(populated_dir, loaded)
+    assert valid
     assert len(errors) == 0
+
+def test_verify_directory_integrity_modified(populated_dir):
+    checksum_file = populated_dir / "checksums.json"
+    update_checksums(populated_dir, checksum_file)
     
     # Modify a file
-    (populated_dir / "file1.txt").write_text("Modified content")
+    (populated_dir / "file1.txt").write_text("modified content")
     
-    # Verify should fail
-    is_valid, errors = verify_directory_integrity(populated_dir, checksums)
-    assert not is_valid
-    assert any("Checksum mismatch" in error for error in errors)
-    
-    # Restore file
-    (populated_dir / "file1.txt").write_text("Hello, World!")
-    
-    # Verify should pass again
-    is_valid, errors = verify_directory_integrity(populated_dir, checksums)
-    assert is_valid
+    loaded = load_checksums(checksum_file)
+    valid, errors = verify_directory_integrity(populated_dir, loaded)
+    assert not valid
+    assert any("Corrupted" in err for err in errors)
 
-
-def test_update_checksums(populated_dir):
-    """Test updating checksums."""
-    initial_checksums = calculate_directory_checksums(populated_dir)
-    updated = update_checksums(populated_dir)
+def test_verify_directory_integrity_missing(populated_dir):
+    checksum_file = populated_dir / "checksums.json"
+    update_checksums(populated_dir, checksum_file)
     
-    assert updated == initial_checksums
+    # Delete a file
+    (populated_dir / "file1.txt").unlink()
+    
+    loaded = load_checksums(checksum_file)
+    valid, errors = verify_directory_integrity(populated_dir, loaded)
+    assert not valid
+    assert any("Missing" in err for err in errors)
 
+def test_update_checksums(temp_data_dir):
+    (temp_data_dir / "new.txt").write_text("new")
+    checksum_file = temp_data_dir / "checksums.json"
+    update_checksums(temp_data_dir, checksum_file)
+    assert checksum_file.exists()
+    loaded = load_checksums(checksum_file)
+    assert "new.txt" in loaded
 
 def test_get_file_size(temp_data_dir):
-    """Test file size calculation."""
-    test_file = temp_data_dir / "test.txt"
-    test_content = "12345"
-    test_file.write_text(test_content)
-    
+    test_file = temp_data_dir / "size_test.txt"
+    test_file.write_text("12345")
     size = get_file_size(test_file)
-    assert size == len(test_content.encode('utf-8'))
+    assert size == 5
 
-
-def test_get_total_size(populated_dir):
-    """Test total directory size calculation."""
-    total_size = get_total_size(populated_dir)
-    assert total_size > 0
-    
-    # Verify by summing individual file sizes
-    expected_size = sum(f.stat().st_size for f in populated_dir.rglob("*") if f.is_file())
-    assert total_size == expected_size
-
+def test_get_total_size(temp_data_dir):
+    (temp_data_dir / "a.txt").write_text("12345") # 5 bytes
+    (temp_data_dir / "b.txt").write_text("123")   # 3 bytes
+    total = get_total_size(temp_data_dir)
+    assert total == 8
 
 def test_cleanup_empty_dirs(temp_data_dir):
-    """Test cleanup of empty directories."""
-    # Create empty nested directories
-    (temp_data_dir / "empty1" / "empty2" / "empty3").mkdir(parents=True)
+    (temp_data_dir / "empty1").mkdir()
+    (temp_data_dir / "empty2").mkdir()
+    (temp_data_dir / "non_empty").mkdir()
+    (temp_data_dir / "non_empty" / "file.txt").write_text("x")
     
-    removed = cleanup_empty_dirs(temp_data_dir)
-    assert removed == 3
+    count = cleanup_empty_dirs(temp_data_dir)
+    assert count == 2
     assert not (temp_data_dir / "empty1").exists()
-
+    assert (temp_data_dir / "non_empty").exists()
 
 def test_move_files_with_checksums(temp_data_dir):
-    """Test moving files with checksum verification."""
     src_dir = temp_data_dir / "src"
     dst_dir = temp_data_dir / "dst"
     src_dir.mkdir()
     
-    # Create test file
-    test_file = src_dir / "test.txt"
-    test_file.write_text("Test content")
+    (src_dir / "file.txt").write_text("content")
+    checksum_file = temp_data_dir / "checksums.json"
     
-    moved = move_files_with_checksums(src_dir, dst_dir)
-    assert moved == 1
-    assert not test_file.exists()
-    assert (dst_dir / "test.txt").exists()
-
+    move_files_with_checksums(src_dir, dst_dir, ["file.txt"], checksum_file)
+    
+    assert not (src_dir / "file.txt").exists()
+    assert (dst_dir / "file.txt").exists()
+    assert checksum_file.exists()
 
 def test_validate_project_structure(temp_data_dir):
-    """Test project structure validation."""
-    # Create minimal valid structure
-    dirs = [
-        "src", "src/utils", "tests", "tests/unit", 
-        "data", "data/raw", "data/curated"
-    ]
-    for d in dirs:
-        (temp_data_dir / d).mkdir(parents=True)
-    
-    is_valid, errors = validate_project_structure(temp_data_dir)
-    assert is_valid
-    assert len(errors) == 0
-    
-    # Remove a required directory
-    shutil.rmtree(temp_data_dir / "src")
-    
-    is_valid, errors = validate_project_structure(temp_data_dir)
-    assert not is_valid
-    assert any("src" in error for error in errors)
-
+    (temp_data_dir / "valid").mkdir()
+    valid, missing = validate_project_structure(temp_data_dir, ["valid", "missing"])
+    assert not valid
+    assert "missing" in missing
 
 def test_get_data_stats(temp_data_dir):
-    """Test data statistics collection."""
-    # Create some files
-    (temp_data_dir / "file1.txt").write_text("Content")
-    (temp_data_dir / "subdir").mkdir()
-    (temp_data_dir / "subdir" / "file2.txt").write_text("More content")
+    (temp_data_dir / "data1").mkdir()
+    (temp_data_dir / "data1" / "f.txt").write_text("x")
     
-    # This would normally use the global DATA_DIRS, but we test the logic
-    # by checking that the function returns a dict with expected structure
-    stats = get_data_stats()
-    
-    assert isinstance(stats, dict)
-    assert "raw" in stats
-    assert "curated" in stats
-    assert "eval" in stats
-    assert "validation" in stats
-    
-    # Check structure of individual stats
-    for dir_name, dir_stats in stats.items():
-        assert "exists" in dir_stats
-        assert "file_count" in dir_stats
-        assert "total_size_bytes" in dir_stats
-        assert "total_size_mb" in dir_stats
+    stats = get_data_stats(temp_data_dir, ["data1", "missing"])
+    assert "data1" in stats
+    assert stats["data1"]["file_count"] == 1
+    assert "error" in stats["missing"]

@@ -1,245 +1,259 @@
+"""
+Memory profiling script for measuring peak RAM usage.
+Provides utilities to profile memory consumption of functions and the main process.
+"""
 import os
 import sys
 import time
 import json
 import logging
 import threading
-import resource
+from dataclasses import dataclass, asdict, field
+from typing import Optional, Callable, Any, Dict
 from pathlib import Path
-from typing import Callable, Optional, Dict, Any, List, Union
-from dataclasses import dataclass, asdict
-import psutil
 
-from src.utils.logging import get_logger, setup_default_loggers
+# Try to import psutil for accurate memory profiling
+# If not available, we fall back to a basic implementation using resource module (Unix only)
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
+    try:
+        import resource
+        HAS_RESOURCE = True
+    except ImportError:
+        HAS_RESOURCE = False
+        logging.warning("Neither psutil nor resource module available for memory profiling.")
 
-# Initialize logger for this module
-logger = get_logger(__name__)
 
 @dataclass
 class MemoryProfileResult:
-    """Data class to hold memory profiling results."""
+    """Data class to store memory profiling results."""
     function_name: str
-    start_time: float
-    end_time: float
-    duration_seconds: float
+    start_memory_mb: float
     peak_memory_mb: float
-    current_memory_mb: float
-    memory_increase_mb: float
-    return_value: Optional[Any] = None
-    error: Optional[str] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert result to dictionary for JSON serialization."""
-        return asdict(self)
+    end_memory_mb: float
+    duration_seconds: float
+    timestamp: str
+    pid: int
+    memory_limit_mb: Optional[float] = None
+    exceeded_limit: bool = False
+    details: Dict[str, Any] = field(default_factory=dict)
 
 class MemoryProfiler:
     """
     Context manager and utility class for profiling memory usage.
-    Uses psutil for cross-platform memory monitoring.
+    Uses psutil if available, otherwise falls back to resource module (Unix).
     """
-    def __init__(self, func_name: str = "unknown", logger: Optional[logging.Logger] = None):
-        self.func_name = func_name
-        self.logger = logger or get_logger(__name__)
-        self.start_time: float = 0.0
-        self.end_time: float = 0.0
-        self.peak_memory_mb: float = 0.0
-        self.current_memory_mb: float = 0.0
-        self.memory_increase_mb: float = 0.0
+    
+    def __init__(self, limit_mb: Optional[float] = None, logger: Optional[logging.Logger] = None):
+        self.limit_mb = limit_mb
+        self.logger = logger or logging.getLogger(__name__)
         self._thread: Optional[threading.Thread] = None
-        self._stop_monitoring = threading.Event()
-        self._monitor_interval = 0.1  # 100ms
+        self._stop_event = threading.Event()
+        self._peak_memory_mb = 0.0
+        self._start_memory_mb = 0.0
+        self._samples: list = []
 
-    def _monitor_loop(self):
-        """Background thread to monitor peak memory usage."""
-        process = psutil.Process(os.getpid())
-        max_mem = 0.0
-        while not self._stop_monitoring.is_set():
-            try:
-                mem_info = process.memory_info()
-                current_mb = mem_info.rss / (1024 * 1024)
-                if current_mb > max_mem:
-                    max_mem = current_mb
-                time.sleep(self._monitor_interval)
-            except Exception as e:
-                self.logger.warning(f"Memory monitoring error: {e}")
-                break
-        self.peak_memory_mb = max_mem
+    def _get_memory_mb(self) -> float:
+        """Get current memory usage in MB."""
+        if HAS_PSUTIL:
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss / (1024 * 1024)
+        elif HAS_RESOURCE:
+            # resource module only works on Unix and measures the max RSS of the process
+            # We can only get the current limit or max usage, not instantaneous
+            return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
+        else:
+            self.logger.warning("No memory profiling backend available. Returning 0.0.")
+            return 0.0
+
+    def _monitor_memory(self):
+        """Background thread to monitor memory usage at intervals."""
+        while not self._stop_event.is_set():
+            current = self._get_memory_mb()
+            self._samples.append(current)
+            if current > self._peak_memory_mb:
+                self._peak_memory_mb = current
+            time.sleep(0.05)  # Sample every 50ms
+
+    def start(self):
+        """Start memory monitoring."""
+        self._start_memory_mb = self._get_memory_mb()
+        self._peak_memory_mb = self._start_memory_mb
+        self._samples = [self._start_memory_mb]
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._monitor_memory, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> float:
+        """Stop memory monitoring and return peak memory."""
+        self._stop_event.set()
+        if self._thread:
+            self._thread.join(timeout=1.0)
+        # Final sample to ensure we capture end state
+        final_memory = self._get_memory_mb()
+        self._samples.append(final_memory)
+        if final_memory > self._peak_memory_mb:
+            self._peak_memory_mb = final_memory
+        return self._peak_memory_mb
+
+    def profile(self, func: Callable, *args, **kwargs) -> MemoryProfileResult:
+        """Profile a function's memory usage."""
+        start_time = time.time()
+        self.start()
+        
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            end_time = time.time()
+            peak = self.stop()
+            duration = end_time - start_time
+            end_memory = self._get_memory_mb()
+
+        exceeded = False
+        if self.limit_mb is not None and peak > self.limit_mb:
+            exceeded = True
+            self.logger.error(f"Memory limit exceeded: {peak:.2f} MB > {self.limit_mb} MB")
+
+        return MemoryProfileResult(
+            function_name=func.__name__,
+            start_memory_mb=self._start_memory_mb,
+            peak_memory_mb=peak,
+            end_memory_mb=end_memory,
+            duration_seconds=duration,
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
+            pid=os.getpid(),
+            memory_limit_mb=self.limit_mb,
+            exceeded_limit=exceeded,
+            details={
+                "samples_count": len(self._samples),
+                "avg_memory_mb": sum(self._samples) / len(self._samples) if self._samples else 0
+            }
+        )
 
     def __enter__(self):
-        self.start_time = time.time()
-        process = psutil.Process(os.getpid())
-        self.current_memory_mb = process.memory_info().rss / (1024 * 1024)
-        self._stop_monitoring.clear()
-        self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
-        self._thread.start()
+        self.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._stop_monitoring.set()
-        if self._thread:
-            self._thread.join(timeout=1.0)
-        self.end_time = time.time()
-        process = psutil.Process(os.getpid())
-        final_mem = process.memory_info().rss / (1024 * 1024)
-        self.current_memory_mb = final_mem
-        self.memory_increase_mb = final_mem - self.current_memory_mb
-        
-        if exc_type is None:
-            self.logger.info(
-                f"Memory profile for '{self.func_name}': "
-                f"Duration={self.end_time - self.start_time:.3f}s, "
-                f"Peak={self.peak_memory_mb:.2f}MB, "
-                f"Final={self.current_memory_mb:.2f}MB"
-            )
-        return False
-
-    def get_result(self, return_value: Optional[Any] = None, error: Optional[str] = None) -> MemoryProfileResult:
-        """Create a MemoryProfileResult object from the current state."""
-        return MemoryProfileResult(
-            function_name=self.func_name,
-            start_time=self.start_time,
-            end_time=self.end_time,
-            duration_seconds=self.end_time - self.start_time,
-            peak_memory_mb=self.peak_memory_mb,
-            current_memory_mb=self.current_memory_mb,
-            memory_increase_mb=self.memory_increase_mb,
-            return_value=return_value,
-            error=error
-        )
+        self.stop()
 
 def get_current_memory_mb() -> float:
-    """
-    Get the current memory usage of the current process in MB.
-    
-    Returns:
-        Current RSS memory usage in Megabytes.
-    """
-    process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)
+    """Get the current memory usage of the process in MB."""
+    if HAS_PSUTIL:
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / (1024 * 1024)
+    elif HAS_RESOURCE:
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
+    else:
+        return 0.0
 
 def check_memory_limit(limit_mb: float) -> bool:
     """
     Check if current memory usage is within the specified limit.
-    
-    Args:
-        limit_mb: Maximum allowed memory usage in MB.
-        
-    Returns:
-        True if current usage is below limit, False otherwise.
+    Returns True if within limit, False otherwise.
     """
     current = get_current_memory_mb()
     if current > limit_mb:
-        logger.warning(f"Memory limit exceeded: {current:.2f}MB > {limit_mb}MB")
+        logging.error(f"Memory usage {current:.2f} MB exceeds limit {limit_mb} MB")
         return False
     return True
 
-def profile_memory(func: Callable) -> Callable:
+def profile_memory(func: Callable, limit_mb: Optional[float] = None, 
+                   output_path: Optional[str] = None) -> MemoryProfileResult:
     """
     Decorator to profile memory usage of a function.
     
     Args:
-        func: The function to profile.
+        func: The function to profile
+        limit_mb: Optional memory limit in MB
+        output_path: Optional path to save results as JSON
         
     Returns:
-        Wrapped function that profiles memory usage.
+        MemoryProfileResult containing profiling data
     """
-    def wrapper(*args, **kwargs):
-        profiler = MemoryProfiler(func.__name__)
-        try:
-            with profiler:
-                result = func(*args, **kwargs)
-                profile_result = profiler.get_result(return_value=result)
-                logger.info(f"Profiled {func.__name__}: Peak={profile_result.peak_memory_mb:.2f}MB")
-                return result, profile_result
-        except Exception as e:
-            profile_result = profiler.get_result(error=str(e))
-            logger.error(f"Profiled {func.__name__} failed: {e}")
-            raise
-    return wrapper
+    profiler = MemoryProfiler(limit_mb=limit_mb)
+    result = profiler.profile(func)
+    
+    if output_path:
+        save_profile_result(result, output_path)
+        
+    return result
 
-def profile_function(func: Callable, *args, **kwargs) -> MemoryProfileResult:
+def profile_function(func: Callable, *args, limit_mb: Optional[float] = None, 
+                     output_path: Optional[str] = None, **kwargs) -> MemoryProfileResult:
     """
-    Profile a function call and return the memory profile result.
+    Profile a function call with given arguments.
     
     Args:
-        func: The function to profile.
-        *args: Positional arguments for the function.
-        **kwargs: Keyword arguments for the function.
+        func: Function to profile
+        *args: Positional arguments for the function
+        limit_mb: Optional memory limit in MB
+        output_path: Optional path to save results as JSON
+        **kwargs: Keyword arguments for the function
         
     Returns:
-        MemoryProfileResult containing timing and memory statistics.
+        MemoryProfileResult containing profiling data
     """
-    profiler = MemoryProfiler(func.__name__)
-    result = None
-    error = None
-    try:
-        with profiler:
-            result = func(*args, **kwargs)
-            return profiler.get_result(return_value=result)
-    except Exception as e:
-        error = str(e)
-        return profiler.get_result(error=error)
-
-def save_profile_result(result: MemoryProfileResult, output_path: Union[str, Path]) -> None:
-    """
-    Save a memory profile result to a JSON file.
+    profiler = MemoryProfiler(limit_mb=limit_mb)
+    result = profiler.profile(func, *args, **kwargs)
     
-    Args:
-        result: The MemoryProfileResult to save.
-        output_path: Path to the output JSON file.
-    """
-    output_path = Path(output_path)
+    if output_path:
+        save_profile_result(result, output_path)
+        
+    return result
+
+def save_profile_result(result: MemoryProfileResult, path: str) -> None:
+    """Save memory profiling result to a JSON file."""
+    output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    data = result.to_dict()
-    # Remove non-serializable fields if any
-    if 'return_value' in data and not isinstance(data['return_value'], (str, int, float, bool, type(None), list, dict)):
-        data['return_value'] = str(data['return_value'])
-        
     with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Saved memory profile to {output_path}")
+        json.dump(asdict(result), f, indent=2)
+    
+    logging.info(f"Memory profile result saved to {path}")
 
 def main():
-    """
-    Main entry point for memory profiling demonstration.
-    Profiles a sample memory-intensive operation and saves results.
-    """
-    setup_default_loggers()
+    """Main function to demonstrate memory profiling."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    output_dir = Path("data/eval")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "memory_profile_sample.json"
-    
-    logger.info("Starting memory profiling demonstration...")
-    
-    def memory_intensive_operation():
+    # Example function to profile
+    def heavy_memory_function():
         """Simulate a memory-intensive operation."""
-        # Allocate a list of integers to simulate memory usage
+        logging.info("Starting memory-intensive operation...")
         data = []
         for i in range(1000000):
-            data.append(i * 2)
-        time.sleep(0.5)  # Simulate processing time
-        return len(data)
-    
+            data.append([i] * 100)
+        time.sleep(1)
+        logging.info(f"Created list with {len(data)} elements")
+        return data
+
     # Profile the function
-    result = profile_function(memory_intensive_operation)
+    logging.info("Profiling memory usage...")
+    result = profile_function(
+        heavy_memory_function,
+        limit_mb=5000,  # 5 GB limit
+        output_path="data/validation/memory_profile_result.json"
+    )
     
-    if result.error:
-        logger.error(f"Profiling failed: {result.error}")
+    # Print results
+    print(f"\nMemory Profile Results for '{result.function_name}':")
+    print(f"  Start Memory: {result.start_memory_mb:.2f} MB")
+    print(f"  Peak Memory:  {result.peak_memory_mb:.2f} MB")
+    print(f"  End Memory:   {result.end_memory_mb:.2f} MB")
+    print(f"  Duration:     {result.duration_seconds:.2f} seconds")
+    print(f"  Timestamp:    {result.timestamp}")
+    print(f"  PID:          {result.pid}")
+    print(f"  Limit:        {result.memory_limit_mb} MB")
+    print(f"  Exceeded:     {result.exceeded_limit}")
+    
+    if result.exceeded_limit:
+        logging.error("Memory limit exceeded!")
         sys.exit(1)
-    
-    # Save the result
-    save_profile_result(result, output_file)
-    
-    # Verify the file was created
-    if output_file.exists():
-        logger.info(f"Memory profile saved successfully to {output_file}")
-        logger.info(f"Peak memory: {result.peak_memory_mb:.2f} MB")
-        logger.info(f"Duration: {result.duration_seconds:.3f} seconds")
     else:
-        logger.error("Failed to create output file")
-        sys.exit(1)
+        logging.info("Memory usage within limits.")
 
 if __name__ == "__main__":
     main()

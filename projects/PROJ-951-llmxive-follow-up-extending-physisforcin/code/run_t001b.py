@@ -8,29 +8,38 @@ def main():
     """
     Orchestrates the creation and verification of T001b directories.
     """
-    # Determine project root (code directory)
-    if len(sys.argv) > 1:
-        code_root = Path(sys.argv[1])
-    else:
-        code_root = Path.cwd()
-
-    print(f"Running T001b Task on: {code_root}")
-    print("=" * 50)
-
-    # Step 1: Create Directories
-    print("Step 1: Creating directories...")
-    create_t001b_directories(code_root)
-
-    # Step 2: Verify Directories
-    print("\nStep 2: Verifying structure...")
-    success = verify_t001b_structure(code_root)
-
-    if success:
-        print("\nT001b Task Completed Successfully.")
-        return 0
-    else:
-        print("\nT001b Task Failed Verification.")
-        return 1
+    current_dir = Path.cwd()
+    script_dir = Path(__file__).parent
+    
+    # Attempt to locate the project code root
+    project_code_root = current_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
+    
+    if not project_code_root.exists():
+        project_code_root = script_dir / "projects" / "PROJ-951-llmxive-follow-up-extending-physisforcin" / "code"
+        
+        if not project_code_root.exists():
+            if (script_dir / "projects").exists():
+                project_code_root = script_dir
+            else:
+                print("Error: Could not locate project code root.")
+                sys.exit(1)
+    
+    print(f"Executing T001b in: {project_code_root}")
+    
+    # Step 1: Create directories
+    print("--- Creating directories ---")
+    if not create_t001b_directories(project_code_root):
+        print("Error: Directory creation failed.")
+        sys.exit(1)
+        
+    # Step 2: Verify structure
+    print("--- Verifying structure ---")
+    if not verify_t001b_structure(project_code_root):
+        print("Error: Structure verification failed.")
+        sys.exit(1)
+        
+    print("T001b execution completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

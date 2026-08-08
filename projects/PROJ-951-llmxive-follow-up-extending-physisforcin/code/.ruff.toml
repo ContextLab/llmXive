@@ -1,23 +1,14 @@
+# Ruff configuration for llmXive Physics Filter
+# This file extends settings from pyproject.toml if needed,
+# but currently we rely on pyproject.toml for full configuration.
+# Included for tooling compatibility.
+
+line-length = 88
+target-version = "py39"
+
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
-]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+"code/tests/*" = ["S101", "T201"]
