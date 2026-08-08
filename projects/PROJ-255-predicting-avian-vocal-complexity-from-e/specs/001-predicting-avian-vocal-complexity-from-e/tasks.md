@@ -1,6 +1,6 @@
 # Tasks: Predicting Avian Vocal Complexity from Environmental Noise Levels
 
-**Input**: Design documents from `/specs/001-predict-avian-vocal-complexity/`
+**Input**: Design documents from `/specs/001-predicting-avian-vocal-complexity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories)
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -27,9 +27,9 @@
 - [X] T001a [P] Create `src/` directory
 - [X] T001b [P] Create `src/data`, `src/analysis`, `src/utils` subdirectories
 - [X] T001c [P] Create `data/raw`, `data/interim`, `data/processed`, `data/figures` directories
-- [ ] T002a [P] Create `requirements.txt` with pinned versions: `librosa==0.10.1`, `statsmodels==0.14.0`, `osmnx==1.8.0`, `pandas==2.1.0`, `scikit-learn==1.3.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `requests==2.31.0`, `geopy==2.4.0`, `pytest==7.4.0`. **Note**: While this task combines file creation and version pinning, it is kept monolithic to ensure the dependency lock is atomic with the file creation, satisfying executability without unnecessary task splitting. **Dependencies**: `osmnx` and `geopy` are now explicitly listed in requirements.txt (T002a). The Plan's dependency list does not currently include these; this is flagged for kickback to align tasks and plan.
-- [ ] T002b [P] Verify `requirements.txt` content matches the exact list in T002a and ensure `pip install -r requirements.txt` succeeds without errors. **Deliverable**: `requirements.txt` exists with correct content and `pip list` shows installed packages.
-- [ ] T002c [P] Setup virtual environment and install dependencies from `requirements.txt`. **Verification**: Run `pip check` to ensure no conflicts.
+- [X] T002a [P] Create `requirements.txt` with pinned versions: `librosa==0.10.1`, `statsmodels==0.14.0`, `osmnx==1.8.0`, `geopy==2.4.0`, `pandas==2.1.0`, `scikit-learn==1.3.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `requests==2.31.0`, `datasets==2.14.0`, `pytest==7.4.0`, `pyyaml==6.0.1`. **Plan Kickback**: `osmnx` and `geopy` are required by Spec FR-009 (Interpolation) but missing from Plan.md. **Note**: This task creates the file and pins versions. The implementer must treat 'create file' and 'verify versions' as distinct logical steps if the file state is unknown.
+- [X] T002b [P] Verify `requirements.txt` content matches the exact list in T002a and ensure `pip install -r requirements.txt` succeeds without errors. **Deliverable**: `requirements.txt` exists with correct content and `pip list` shows installed packages.
+- [X] T002c [P] Setup virtual environment and install dependencies from `requirements.txt`. **Verification**: Run `pip check` to ensure no conflicts.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools. **Deliverable**: Create `.ruff.toml` and `pyproject.toml` with specific config sections for this project. **Verification**: Run `ruff check src/` and `black --check src/` successfully.
 
 ---
@@ -88,7 +88,7 @@
  ci_lower: { type: number }
  ci_upper: { type: number }
  ```
-- [ ] T009 [P] Implement unit tests for config and logging utilities
+- [ ] T009 [D] Implement unit tests for config and logging utilities in `tests/unit/test_config_logging.py`. **Note**: Development can be parallel with T004/T005, but execution is serial and depends on T004/T005 completion. **Deliverable**: `tests/unit/test_config_logging.py` with passing tests.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -112,10 +112,10 @@
 ### Implementation for User Story 1
 
 - [ ] T015d [US1] **Interpolation Fallback**: Implement `src/data/acquisition.py` function to perform nearest-neighbor search (using `geopy`) for missing Global Soundscapes coordinates within 50km. Interpolate noise levels from nearest valid neighbors. Output: `data/interim/interpolated_records.csv` with source coordinates and interpolated values. **Note**: This logic must be implemented first to support T015.
-- [ ] T015 [US1] **Primary Source**: Implement `src/data/acquisition.py` to fetch noise levels from the **Global Soundscapes dataset** (URL: ` or local `data/raw/globalsoundscapes.csv`). **Constraint**: This is the ONLY primary source. If the dataset is entirely unavailable (fetch fails), the task MUST FAIL LOUDLY (raise error). If a specific coordinate is missing from the dataset, **execute T015d logic** for interpolation. If interpolation fails (no neighbors within 50km), **raise an error and drop the record** (log to `dropped_records.csv`). **Deliverable**: `data/interim/noise_mapped.csv` containing all successfully mapped records. **Note**: T015 depends on T015d logic for missing coordinates; it is NOT marked [P] as it requires T015d's implementation.
-- [ ] T015c [US1] **Validation**: Implement logic to validate the **combined** `noise_mapped.csv` (OSM + Interpolated) against the Global Soundscapes dataset. **Constraint**: If Global Soundscapes is entirely unavailable, the pipeline must FAIL. It cannot silently degrade to OSM-only. **Deliverable**: Generate `data/interim/validation_log.csv` for ALL records, logging status as `PASS` (if deviation ≤2 dB(A)) or `WARN` (if deviation >2 dB(A)). **Prerequisites**: Must run after T015 and T015d are complete.
+- [ ] T015 [US1] **Primary Source**: Implement `src/data/acquisition.py` to fetch noise levels from the **Global Soundscapes dataset** using `datasets.load_dataset('noise-map/global-soundscapes')`. **Fallback**: If the package fails, fetch from ` (verified mirror). **Constraint**: If BOTH fail, raise an error and FAIL LOUDLY. If a specific coordinate is missing, **read `data/interim/interpolated_records.csv` (from T015d)** and merge into the primary dataset. **Deliverable**: `data/interim/noise_mapped.csv` containing all successfully mapped records (primary + interpolated). **Prerequisites**: T015d (artifact dependency).
+- [ ] T015c [US1] **Validation**: Implement logic to validate the **combined** `noise_mapped.csv` against the Global Soundscapes dataset. **Constraint**: For records with primary source values, check deviation ≤2 dB(A). For records with interpolated values, **skip deviation check** and log status as 'INTERPOLATED'. **Deliverable**: Generate `data/interim/validation_log.csv` for ALL records, logging status as `PASS` (if deviation ≤2 dB(A)), `WARN` (if deviation >2 dB(A)), or `INTERPOLATED` (if no primary value). **Prerequisites**: Must run after T015 and T015d are complete.
 - [ ] T015e [US1] **Interpolation Validation**: Verify that all missing noise values within 50km are successfully interpolated and logged. If >10% of records fail interpolation, log a warning but **DO NOT HALT** the pipeline. Satisfies SC-006.
-- [ ] T017a [US1] **Filtering Engine**: Implement the core parameterized filtering logic in `src/data/preprocessing.py` that accepts an SNR threshold argument and returns filtered records and exclusion logs. Output: `data/interim/filtered_snr.csv`. **Prerequisites**: T015d must be complete (logic dependency). **Note**: This task is NOT [P] due to dependency on T015d.
+- [ ] T017a [US1] **Filtering Engine**: Implement the core parameterized filtering logic in `src/data/preprocessing.py` that accepts an SNR threshold argument and returns filtered records and exclusion logs. Output: `data/interim/filtered_snr.csv`. **Prerequisites**: T015 (artifact dependency). **Note**: This task depends on the merged dataset from T015.
 - [X] T017b [US1] **Default Execution**: Execute the filtering engine from T017a with the default dB threshold to generate the primary `data/interim/filtered_snr.csv`.
 - [ ] T018 [US1] Implement `src/data/preprocessing.py` to filter species with <5 valid recordings per location and log exclusions.
 - [ ] T018b [US1] **Audit Trail**: Generate `data/interim/species_filtered.csv` containing all species excluded by T018. **Input**: `data/interim/filtered_snr.csv`. **Schema**: Columns `species_id` (string), `reason_for_exclusion` (string, e.g., "count < 5"), `count` (integer: count of valid recordings for this species at this location).
@@ -143,18 +143,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T029b [US2] **Species Count Verification**: Count valid species in `data/processed/final_dataset.csv` and verify count ≥ 50 (SC-004). Block modeling if count < 50. **Output**: Log count to `data/interim/species_count_check.txt` with format: "Species Count: <N>".
+- [ ] T029b [US2] **Species Count Verification**: Count valid species in `data/processed/final_dataset.csv` and verify count ≥ 50 (SC-004). **Action**: If count < 50, **exit with code 1** and write `data/interim/species_count_block.txt` with the count and reason. **Output**: Log count to `data/interim/species_count_check.txt` with format: "Species Count: <N>". **Plan Compliance Note**: This is a hard pipeline gate per SC-004, which may contradict the 'research' nature of the Plan. Plan.md must be updated to reflect this hard constraint. **Prerequisites**: T020.
 - [ ] T029 [US2] **Power Analysis**: Implement `src/analysis/modeling.py` to run Power Analysis for N=50 species and report minimum detectable effect size (References FR-005). **Input**: `data/interim/species_count_check.txt`. **Output**: `data/interim/power_analysis_report.md`. **Verification**: Ensure report contains N=50 and effect_size > 0.2.
 - [ ] T024 [US2] Implement `src/analysis/modeling.py` to fit Linear Mixed-Effects model: `complexity ~ noise_level + (1|species) + (1|location)` using `statsmodels`. **Prerequisites**: T029b must pass.
 - [ ] T025 [US2] Implement `src/analysis/modeling.py` to calculate Pearson correlation (r) and confidence interval for noise vs. complexity (SC-001).
 - [ ] T026 [US2] Implement `src/analysis/modeling.py` to apply FDR correction to p-values for multiple metrics (FR-006, SC-002).
 - [ ] T027 [US2] Implement `src/analysis/modeling.py` to perform Leave-One-Species-Out (LOSO) cross-validation (US-2, FR-004).
 - [ ] T028 [US2] Implement `src/analysis/modeling.py` to generate residual diagnostics (Q-Q plot, residual vs. fitted) and save to `data/figures/`.
-- [ ] T030a [US2] **Sensitivity Execution**: Execute the filtering engine on `data/interim/noise_mapped.csv` (pre-final filtering) with SNR thresholds (low, medium, high). **Iterate** through thresholds to generate distinct files `data/processed/sensitivity_5db.csv`, `data/processed/sensitivity_10db.csv`, `data/processed/sensitivity_15db.csv`. **MUST Log sample size counts for each threshold to `data/interim/sensitivity_counts.csv`** to satisfy FR-007. **MUST Generate distinct `filtered_records_<threshold>.csv` files** for each threshold with schema: `recording_id` (string), `threshold_applied` (float), `snr_db` (float), `reason` (string). **Prerequisites**: T017a must be complete.
+- [ ] T030a [US2] **Sensitivity Execution**: Execute the filtering engine (implementation from T017a) on `data/interim/noise_mapped.csv` with SNR thresholds (low, medium, high). **Iterate** through thresholds to generate distinct files `data/processed/sensitivity_5db.csv`, `data/processed/sensitivity_10db.csv`, `data/processed/sensitivity_15db.csv`. **MUST Log sample size counts for each threshold to `data/interim/sensitivity_counts.csv`** to satisfy FR-007. **MUST Generate distinct `filtered_records_<threshold>.csv` files** for each threshold with schema: `recording_id` (string), `threshold_applied` (float), `snr_db` (float), `reason` (string). **Prerequisites**: T017a (implementation dependency).
 - [ ] T030b [US2] **Correlation Calculation**: Compute correlation (r) for each threshold dataset generated in T030a.
-- [ ] T031 [US2] **Stability Metric**: Calculate variation in **correlation estimates (r-values)** and **sample size** across thresholds. **MUST ALSO calculate False Positive Rate (FPR) for EACH threshold** (5, 10, 15 dB) using permutation testing (permutations, seed=42). Output `data/processed/sensitivity_summary.csv` with columns: `threshold`, `sample_size`, `correlation_r`, `sample_size_variation_percent`, `correlation_variation_percent`, `fpr`, `fpr_variation_percent`. Verify variation ≤ 15% (FR-007).
-- [ ] T031c [US2] **Variation Verification**: Explicitly verify that the variation in correlation estimates (r-values) and FPR across thresholds is ≤ 15%. If not, flag in report.
-- [ ] T031b [US2] **False Positive Analysis**: (Integrated into T031) Implement logic to estimate false-positive rate variation across the SNR sweep against a representative baseline (10 dB threshold) using permutation testing (1000 permutations, seed=42). Output: `data/processed/false_positive_analysis.json` with schema: `threshold` (float), `baseline_fpr` (float), `variation_fpr` (float), `passed` (boolean). Satisfies SC-005.
+- [ ] T031 [US2] **Stability Metric & FPR**: Calculate variation in **correlation estimates (r-values)** and **sample size** across thresholds. **MUST ALSO estimate False Positive Rate (FPR) for EACH threshold** using a **Null-Data Simulation** (shuffle noise variable relative to vocal metric, 1000 permutations, seed=42) to satisfy SC-005. Output `data/processed/sensitivity_summary.csv` with columns: `threshold`, `sample_size`, `correlation_r`, `sample_size_variation_percent`, `correlation_variation_percent`, `fpr`, `fpr_variation_percent`. Verify variation ≤ 15% (FR-007) and FPR variation ≤ 10% (SC-005).
+- [ ] T031c [US2] **Variation Verification**: Explicitly verify that the variation in correlation estimates (r-values) and FPR across thresholds is ≤ 15% and ≤ 10% respectively. If not, flag in report.
 
 **Checkpoint**: User Story 2 should be fully functional and testable independently
 
@@ -280,6 +279,7 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [D] tasks = develop-parallel, execute-serial (e.g., T009)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -288,8 +288,9 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All audio processing must be CPU-only (no GPU, no deep learning).
 - **Plan Compliance**: The Spec's FR-009 (Interpolation) is now implemented via T015d/T015e. The Plan's "NO interpolation" stance is overridden by the Spec requirement. **Note**: The Plan document itself still contains contradictory text regarding "NO interpolation" and requires a separate update to align with the Spec and these tasks.
-- **Sensitivity Analysis**: Tasks T030/T031 explicitly mandate logging sample size counts and distinct `filtered_records_<threshold>.csv` outputs for each threshold to satisfy FR-007.
+- **Sensitivity Analysis**: Tasks T030/T031 explicitly mandate logging sample size counts and distinct `filtered_records_<threshold>.csv` outputs for each threshold to satisfy FR-007. T031 also includes FPR estimation via Null-Data Simulation to satisfy SC-005.
 - **Schema Definitions**: T006 and T007 now include full YAML schema content to ensure executability.
 - **Interpolation Logic**: T015d implements nearest-neighbor search; T015e validates success. T042 confirms all missing values are either interpolated or dropped.
 - **Primary Source Enforcement**: T015 and T015c enforce Global Soundscapes as the primary source, failing loudly if unavailable.
 - **Dependencies**: `osmnx` and `geopy` are now explicitly listed in requirements.txt (T002a). This is flagged for kickback to align tasks and plan.
+- **Hard Gate**: T029b enforces a hard pipeline gate (exit 1) if species count < 50, per SC-004.

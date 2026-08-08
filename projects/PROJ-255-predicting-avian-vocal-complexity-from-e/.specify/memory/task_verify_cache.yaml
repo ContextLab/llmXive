@@ -1,3 +1,10 @@
+T003:
+  c: false
+  h: 79b5316c2a0a4734a963ed62221c87683be2d591835145b32346be4ae582a3fc
+  r: The repository contains a `pyproject.toml` with Ruff and Black configuration,
+    but the required `.ruff.toml` file is missing, and there is no evidence that `ruff
+    check src/` and `black --check src/` were run successfully. The deliverable is
+    therefore not fully satisfied.
 T017a:
   c: false
   h: 4ba9b64cb5ad3b1316966afed5dc79044c6d5bbb5c9826dd2494c34c4bf42fa8
@@ -15,13 +22,6 @@ T020:
     for combining filtered data, extracting metrics, saving the final CSV, or invoking
     validation against the specified schema. These essential artifacts and functionality
     are absent.
-T021:
-  c: false
-  h: 72d8e33168345de4cb8483256a346d203f4ce5756cfa1f6aa0206337934bc9ab
-  r: "The required artifact `data/interim/dropped_records.csv` does not exist on disk,\
-    \ so the logging of excluded records cannot be verified. The implementer must\
-    \ create the CSV file with the appropriate records to satisfy US\u20111 Acceptance\
-    \ Scenario\u202F3."
 T022:
   c: false
   h: 3dc4bdc86c2eca8d8341d93ba3cfadd46288a3555f6c0eaa64fe5e75692e4454
