@@ -1,66 +1,49 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Code Testability Metrics Schema"
-description: "Schema for the metrics.json file containing code analysis results. This is the canonical contract for the project."
-type: "array"
-items:
-  type: "object"
-  required:
-    - "task_id"
-    - "model_id"
-    - "source_type"
-    - "cyclomatic_complexity"
-    - "halstead_volume"
-    - "branch_coverage_pct"
-    - "pass_rate"
-    - "checksum"
-    - "status"
-  properties:
-    task_id:
-      type: "string"
-      description: "Unique identifier from HumanEval (e.g., 'HumanEval/0')"
-    model_id:
-      type: "string"
-      description: "Identifier of the model used (e.g., 'human', 'codegen-350m', 'codellama-7b')"
-    source_type:
-      type: "string"
-      enum:
-        - "human"
-        - "generated"
-      description: "Origin of the code sample"
-    cyclomatic_complexity:
-      type: "number"
-      description: "Cyclomatic complexity calculated via radon"
-    halstead_volume:
-      type: "number"
-      description: "Halstead volume calculated via radon.halstead"
-    branch_coverage_pct:
-      type: "number"
-      minimum: 0
-      maximum: 100
-      nullable: true
-      description: "Dynamic branch coverage percentage (only if executable). Null if code failed to execute."
-    static_branch_count:
-      type: "integer"
-      minimum: 0
-      nullable: true
-      description: "Static branch count from AST (used if dynamic coverage is null)."
-    pass_rate:
-      type: "number"
-      minimum: 0
-      maximum: 1
-      description: "Proportion of unit tests passed (0.0 to 1.0)"
-    checksum:
-      type: "string"
-      description: "SHA256 hash of the source code string"
-    generation_timestamp:
-      type: "string"
-      format: "date-time"
-      description: "ISO 8601 timestamp of generation"
-    status:
-      type: "string"
-      enum:
-        - "success"
-        - "failed_execution"
-        - "failed_generation"
-      description: "Status of the analysis."
-  additionalProperties: false
+$schema: http://json-schema.org/draft-07/schema#
+title: "Metrics Schema"
+description: "Schema for data/analysis/metrics.json"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the HumanEval task"
+  model_name:
+    type: "string"
+    description: "Name of the model used for generation"
+  human_complexity:
+    type: "number"
+    description: "Cyclomatic complexity of the human reference solution"
+  model_complexity:
+    type: "number"
+    description: "Cyclomatic complexity of the generated code"
+  human_halstead:
+    type: "number"
+    description: "Halstead volume of the human reference solution"
+  model_halstead:
+    type: "number"
+    description: "Halstead volume of the generated code"
+  mutation_score:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Mutation score (testability proxy) - percentage of mutants killed."
+  pass_rate:
+    type: "number"
+    description: "Pass rate of the generated code on the test suite (0.0 or 1.0)"
+  execution_error:
+    type: "string"
+    nullable: true
+    description: "Error message if execution failed, null if successful"
+  checksum:
+    type: "string"
+    description: "SHA256 hash of the generated code snippet"
+required:
+  - task_id
+  - model_name
+  - human_complexity
+  - model_complexity
+  - human_halstead
+  - model_halstead
+  - mutation_score
+  - pass_rate
+  - checksum
+additionalProperties: false

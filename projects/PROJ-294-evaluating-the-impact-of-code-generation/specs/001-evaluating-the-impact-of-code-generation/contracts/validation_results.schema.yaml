@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Validation Results Schema"
+description: "Schema for state/validation_results.yaml"
+type: "object"
+properties:
+  wilcoxon_test:
+    type: "object"
+    properties:
+      statistic:
+        type: "number"
+      p_value:
+        type: "number"
+      significant:
+        type: "boolean"
+      corrected_p_value:
+        type: "number"
+        description: "P-value after Bonferroni correction"
+    required:
+      - statistic
+      - p_value
+      - significant
+      - corrected_p_value
+  mcnemar_test:
+    type: "object"
+    properties:
+      statistic:
+        type: "number"
+      p_value:
+        type: "number"
+      significant:
+        type: "boolean"
+    required:
+      - statistic
+      - p_value
+      - significant
+  power_analysis:
+    type: "object"
+    properties:
+      achieved_power:
+        type: "number"
+        description: "Post-hoc power achieved with N=164"
+      effect_size:
+        type: "number"
+        description: "Observed effect size (Cohen's d)"
+    required:
+      - achieved_power
+      - effect_size
+  citations_valid:
+    type: "boolean"
+    description: "True if all citations passed validation"
+  validation_errors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of validation errors if any"
+required:
+  - wilcoxon_test
+  - mcnemar_test
+  - power_analysis
+  - citations_valid

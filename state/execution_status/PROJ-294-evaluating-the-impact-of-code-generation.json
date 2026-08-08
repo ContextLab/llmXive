@@ -1,21 +1,21 @@
 {
   "project_id": "PROJ-294-evaluating-the-impact-of-code-generation",
   "ok": false,
-  "reason": "6 command(s) failed: python code/run_pipeline.py (rc=1); python code/download_data.py (rc=1); python code/generate_code.py --model codegen-350M (rc=1); 1 declared deliverable(s) absent: data/analysis/metrics.json",
+  "reason": "6 command(s) failed: python code/download_data.py (rc=1); python code/generate_code.py --model salesforce/codegen-mono-350M (rc=1); python code/analyze_metrics.py (rc=1); 1 declared deliverable(s) absent: data/analysis/metrics.json",
   "artifacts": [],
   "failures": [
-    "python code/run_pipeline.py -> rc=1\n    N] [INFO] - Created directory: /home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/data/generated\n2026-07-23 14:50:52 [PIPELINE-MAIN] [INFO] - Created directory: /home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/data/analysis\n2026-07-23 14:50:52 [PIPELINE-MAIN] [INFO] - Created directory: /home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/results/figures\n2026-07-23 14:50:52 [PIPELINE-MAIN] [INFO] - Executing Pipeline Gate: Citatio",
-    "python code/download_data.py -> rc=1\n    ",
-    "python code/generate_code.py --model codegen-350M -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/generate_code.py\", line 279, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/generate_code.py\", line 237, in main\n    setup_logging(task_id=task_id)\nTypeError: setup_logging() got an unexpected keyword argument 'task_id'",
-    "python code/analyze_metrics.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/analyze_metrics.py\", line 9, in <module>\n    from radon.halstead import halstead_visit\nModuleNotFoundError: No module named 'radon.halstead'",
-    "python code/statistical_tests.py -> rc=1\n    2026-07-23 14:50:55,476 - statistical_tests - INFO - Starting Statistical Analysis (T023)\n2026-07-23 14:50:55,476 - statistical_tests - ERROR - Metrics file not found: data/analysis/metrics.json\n2026-07-23 14:50:55,476 - statistical_tests - CRITICAL - Data file missing: Metrics file not found: data/analysis/metrics.json",
-    "python code/report_generator.py -> rc=1\n    Error during report generation: Metrics file not found: data/analysis/metrics.json\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/report_generator.py\", line 278, in main\n    metrics_data = load_metrics_data()\n                   ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/code/report_generator.py\", line 32, in load_metrics_data\n    raise FileNotFoundError(f\"Metrics file not found: {m"
+    "python code/download_data.py -> rc=1\n    JT7X5E0fdyiuRQIgNQYODFAlmZxxax6q8J4XeJadMZ2xj28rJv-drucatkw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F \"HTTP/1.1 206 Partial Content\"\n2026-08-08 05:57:28,832 [INFO] Downloaded 164 records to /home/runner/work/llmXive/llmXive/projects/PROJ-294-evaluating-the-impact-of-code-generation/data/raw/humaneval_test.jsonl\n2026-08-08 05:57:28,832 [INFO] Loading downloaded data for sampling...\n\nWarning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\nTraceback (most recent call last):\n  F",
+    "python code/generate_code.py --model salesforce/codegen-mono-350M -> rc=1\n    2026-08-08 05:57:29,105 - GEN-CODE - INFO - Starting T028: Sensitivity Generation (7B)\n2026-08-08 05:57:29,106 - GEN-CODE - ERROR - Raw HumanEval data not found. Run T010 first.",
+    "python code/analyze_metrics.py -> rc=1\n    2026-08-08 05:57:29 [T017] [INFO] - Starting Metric Aggregation (T017)\n2026-08-08 05:57:29 [T017] [ERROR] - Intermediate metrics file not found: data/analysis/intermediate_metrics.json\n2026-08-08 05:57:29 [T017] [ERROR] - Cannot proceed without intermediate metrics.",
+    "python code/statistical_tests.py -> rc=1\n    2026-08-08 05:57:29,225 [T046] - INFO - Starting Success Criteria Validation (T046)\n2026-08-08 05:57:29,225 [T046] - ERROR - Metrics file not found: data/analysis/metrics.json\n2026-08-08 05:57:29,225 [T046] - ERROR - T046 failed: Metrics file not found: data/analysis/metrics.json",
+    "python code/validate_citations.py -> rc=1\n    2026-08-08 05:57:29 [INFO] Validating citations from: state/citations.yaml\n2026-08-08 05:57:29 [INFO] Detected nested 'citations' key in YAML.\n2026-08-08 05:57:29 [ERROR] Item 0 missing required keys: {'id'}\n2026-08-08 05:57:29 [CRITICAL] Citation validation failed. Pipeline must abort.",
+    "python code/report_generator.py -> rc=1\n    2026-08-08 05:57:30 [T030] [INFO] - Starting Report Generation (T030)\n2026-08-08 05:57:30 [T030] [INFO] - Loading metrics from data/analysis/metrics.json\n2026-08-08 05:57:30 [T030] [ERROR] - Metrics file not found: data/analysis/metrics.json"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-23T14:50:59Z"
+  "updated_at": "2026-08-08T05:57:31Z"
 }

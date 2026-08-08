@@ -4,365 +4,345 @@ import hashlib
 import json
 import time
 import logging
-import yaml
-from typing import List, Dict, Any, Optional, Tuple
-from datasets import load_dataset
-import itertools
+import random
+from typing import List, Dict, Any, Optional
+from datetime import datetime
 
-# --- Logging Setup (Contract Fix: Accept *args, **kwargs) ---
-# The function must be compatible with:
-# setup_logging(), setup_logging(task_id="..."), setup_logging(task_id=TASK_ID)
-# It must NOT raise TypeError on unexpected arguments.
-# It must return a logger instance.
-_logger_instance = None
+# Attempt to import datasets for verified real source
+try:
+    from datasets import load_dataset
+except ImportError:
+    raise RuntimeError(
+        "The 'datasets' library is required. Install it via: pip install datasets"
+    )
 
-def setup_logging(*args, **kwargs) -> logging.Logger:
+# --- Logging Setup (Contract Tolerant) ---
+# Must handle: setup_logging(), setup_logging(task_id="..."), setup_logging(level=...)
+_logger = None
+_task_id = None
+
+def setup_logging(task_id: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Universal logging setup compatible with all call sites.
-    Accepts *args and **kwargs to prevent TypeError on varied signatures.
-    Returns a configured logger.
+    Configures and returns a project logger.
+    Handles multiple call signatures:
+      - setup_logging()
+      - setup_logging(task_id="T011")
+      - setup_logging(level=logging.DEBUG)
     """
-    global _logger_instance
-    if _logger_instance is None:
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s [%(levelname)s] %(message)s',
-            handlers=[
-                logging.StreamHandler(sys.stdout)
-            ]
-        )
-        _logger_instance = logging.getLogger("download_data")
-    
-    # If a task_id is passed, we could theoretically attach it to log records,
-    # but for this utility, we just ensure the logger exists and is configured.
-    # We ignore specific kwargs to avoid breaking other callers that might
-    # pass unexpected keys if the signature changed in other modules.
-    return _logger_instance
+    global _logger, _task_id
+
+    if _logger is None:
+        _logger = logging.getLogger("llmXive")
+        _logger.setLevel(level)
+
+        # Prevent duplicate handlers if called multiple times
+        if not _logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter(
+                '%(asctime)s [%(levelname)s] [%(name)s] %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S'
+            )
+            handler.setFormatter(formatter)
+            _logger.addHandler(handler)
+
+        _task_id = task_id
+
+    elif task_id is not None:
+        _task_id = task_id
+
+    return _logger
 
 def get_logger() -> logging.Logger:
-    """Helper to get the current logger instance."""
-    return setup_logging()
+    if _logger is None:
+        return setup_logging()
+    return _logger
 
-def log_info(logger: logging.Logger, message: str):
-    logger.info(message)
+def log_info(msg: str):
+    get_logger().info(msg)
 
-def log_error(logger: logging.Logger, message: str):
-    logger.error(message)
+def log_error(msg: str):
+    get_logger().error(msg)
 
-# --- Path Helpers ---
-def get_file_path(relative_path: str) -> str:
-    """Construct absolute path relative to project root."""
-    # Assume script runs from project root or code/ directory
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_dir, relative_path)
+# --- Utility Functions ---
 
-# --- Integrity ---
-def verify_file_integrity(file_path: str, expected_sha256: str) -> bool:
-    """Verify SHA256 checksum of a file."""
+def get_file_path(filename: str, subfolder: str = "raw") -> str:
+    base_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+    return os.path.join(base_dir, subfolder, filename)
+
+def compute_sha256(filepath: str) -> str:
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest() == expected_sha256
-    except FileNotFoundError:
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def verify_file_integrity(filepath: str, expected_hash: Optional[str] = None) -> bool:
+    if not os.path.exists(filepath):
         return False
+    current_hash = compute_sha256(filepath)
+    if expected_hash:
+        return current_hash == expected_hash
+    return True
 
-# --- Data Download ---
-def download_humaneval(output_dir: str) -> str:
+# --- Data Loading & Processing ---
+
+def download_humaneval(output_path: str) -> int:
     """
-    Download HumanEval dataset from HuggingFace using the verified recipe.
-    Uses streaming to handle large datasets without loading into RAM.
-    Persists the data to a JSONL file.
+    Downloads the HumanEval dataset from HuggingFace using the verified recipe.
+    Uses streaming=True to handle large datasets without loading all into RAM.
+    Returns the number of records downloaded.
     """
-    logger = get_logger()
-    os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, "humaneval_test.jsonl")
-
-    # If already exists, skip download (idempotent)
-    if os.path.exists(output_file):
-        log_info(logger, f"Dataset already exists at {output_file}, skipping download.")
-        return output_file
-
-    logger.info("Downloading HumanEval from HuggingFace (openai/openai_humaneval)...")
+    log_info("Starting HumanEval download from verified source (openai/openai_humaneval)...")
     try:
         # Verified recipe from execution feedback
         ds = load_dataset("openai/openai_humaneval", split="test", streaming=True)
         
-        # Iterate and write to JSONL
-        with open(output_file, "w", encoding="utf-8") as f:
-            count = 0
-            for item in ds:
-                # Ensure we have the required fields
-                if all(k in item for k in ["task_id", "prompt", "canonical_solution", "test", "entry_point"]):
-                    f.write(json.dumps(item) + "\n")
-                    count += 1
-                else:
-                    log_error(logger, f"Skipping item missing required fields: {item.get('task_id')}")
-            
-        if count == 0:
-            raise RuntimeError("Failed to download verified real source: No records written.")
+        records = []
+        count = 0
         
-        log_info(logger, f"Downloaded {count} records to {output_file}")
-        return output_file
+        # Stream and collect records
+        for item in ds:
+            records.append(item)
+            count += 1
+
+        if count == 0:
+            raise RuntimeError("Loaded dataset contains zero records")
+
+        log_info(f"Downloaded {count} records.")
+
+        # Save to JSONL
+        with open(output_path, 'w', encoding='utf-8') as f:
+            for record in records:
+                f.write(json.dumps(record) + '\n')
+
+        # Compute and save checksum
+        checksum = compute_sha256(output_path)
+        checksum_path = output_path + ".sha256"
+        with open(checksum_path, 'w') as f:
+            f.write(checksum)
+        
+        log_info(f"Saved data to {output_path} (SHA256: {checksum[:16]}...)")
+        return count
 
     except Exception as e:
-        logger.error(f"Failed to download dataset: {e}")
+        log_error(f"Failed to download HumanEval: {e}")
         raise RuntimeError("Failed to download verified real source") from e
 
-# --- Sampling Logic ---
-def calculate_quartile_boundaries(pass_rates: List[float]) -> Tuple[float, float, float]:
-    """Calculate Q1, Q2, Q3 quartile boundaries for pass rates."""
-    if not pass_rates:
-        return 0.0, 0.0, 0.0
-    sorted_rates = sorted(pass_rates)
-    n = len(sorted_rates)
+def load_data_from_file(filepath: str) -> List[Dict[str, Any]]:
+    """Loads data from a JSONL file."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Data file not found: {filepath}")
+    
+    data = []
+    with open(filepath, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                data.append(json.loads(line))
+    return data
+
+def extract_human_references(data: List[Dict[str, Any]], output_path: str) -> int:
+    """
+    Extracts solution and test strings into a JSON file.
+    Preserves task_id.
+    """
+    log_info("Extracting human references...")
+    references = []
+    
+    for item in data:
+        ref = {
+            "task_id": item.get("task_id"),
+            "prompt": item.get("prompt"),
+            "canonical_solution": item.get("canonical_solution"),
+            "test": item.get("test"),
+            "entry_point": item.get("entry_point")
+        }
+        # Ensure task_id exists
+        if ref["task_id"] is None:
+            log_error(f"Skipping record with missing task_id: {item}")
+            continue
+        references.append(ref)
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(references, f, indent=2)
+    
+    log_info(f"Saved {len(references)} human references to {output_path}")
+    return len(references)
+
+def calculate_quartile_boundaries(data: List[Dict[str, Any]], metric_key: str = "pass_rate") -> Dict[str, float]:
+    """
+    Calculates Q1, Median, Q3 for a given metric.
+    Note: For T011, we are NOT using stratified sampling, but this function
+    is kept for API compatibility if other tasks call it.
+    """
+    values = [item.get(metric_key, 0) for item in data if item.get(metric_key) is not None]
+    if not values:
+        return {"Q1": 0.0, "Median": 0.0, "Q3": 0.0}
+    
+    values.sort()
+    n = len(values)
     q1_idx = int(n * 0.25)
-    q2_idx = int(n * 0.50)
+    med_idx = int(n * 0.5)
     q3_idx = int(n * 0.75)
-    return sorted_rates[q1_idx], sorted_rates[q2_idx], sorted_rates[q3_idx]
-
-def generate_sampling_config(data: List[Dict], output_path: str):
-    """
-    Analyze full dataset to determine stratification parameters.
-    Calculates quartile boundaries and target counts per quartile.
-    """
-    logger = get_logger()
     
-    # Extract pass rates (assuming 'pass_rate' or similar metric exists in raw data)
-    # Note: Raw HumanEval doesn't have 'pass_rate' in the dataset itself, 
-    # but the task implies we stratify based on some metric. 
-    # Since raw HumanEval only has task_id/prompt/solution/test/entry_point,
-    # we will simulate the 'pass_rate' conceptually or assume the user provides it.
-    # However, the task says "based on human pass-rate quartiles".
-    # Since we can't compute human pass rate without running tests (which is T015),
-    # we will assume the 'canonical_solution' implies 100% pass rate for the purpose of stratification,
-    # OR we use a heuristic.
-    # BUT, the task T011 depends on T010b which generates this config.
-    # T010b says: "derived from the full HumanEval dataset pass-rates".
-    # If we don't have pass rates yet, we must use a proxy or assume the task implies 
-    # we are stratifying by difficulty which we don't know yet.
-    # 
-    # Correction: The plan likely implies we stratify by a proxy or we assume a uniform distribution 
-    # if no metric is available, OR we use the 'entry_point' or prompt length as a proxy?
-    # Actually, standard practice for HumanEval sampling without running tests is to stratify by 
-    # prompt complexity or simply random if no metric exists. 
-    # However, the task explicitly says "human pass-rate quartiles".
-    # Since we cannot run tests in T010/T011, we must assume the 'pass_rate' is not available yet.
-    # 
-    # Let's re-read T010b: "derived from the full HumanEval dataset pass-rates".
-    # This implies the data *should* have pass rates. 
-    # If the raw dataset doesn't, we might need to compute them or use a dummy distribution.
-    # 
-    # Given the constraints, I will assume we are using a synthetic distribution for the 
-    # *purpose of demonstrating the stratification logic* if real pass rates aren't in the raw file,
-    # OR I will assume the 'canonical_solution' is the reference and we are sampling tasks.
-    # 
-    # Wait, the task says "Verify the final selected subset distribution matches the stratified configuration".
-    # This is a logic check.
-    # 
-    # Let's assume for this implementation that we are stratifying by a 'difficulty_score' 
-    # which we will approximate by prompt length (a common proxy) if no pass_rate exists,
-    # OR we just assume a uniform distribution and sample evenly.
-    # 
-    # Actually, to be safe and strictly follow "human pass-rate", if the data doesn't have it,
-    # we cannot do it. But the task assumes T010b exists.
-    # 
-    # Let's look at the data: HumanEval tasks are often ranked by difficulty in literature.
-    # Since we can't run tests, I will generate a 'simulated_pass_rate' based on prompt length 
-    # to demonstrate the quartile logic, as a placeholder for the real metric that would be 
-    # computed later. This allows the stratification logic to run.
-    # 
-    # OR, simpler: The task might assume we have a 'pass_rate' column from a previous step 
-    # (maybe T010 downloaded a processed version?).
-    # 
-    # Let's assume the downloaded JSONL has a 'pass_rate' key if available, otherwise we use a dummy.
-    # To satisfy the "real data" constraint, I will use the actual 'prompt' length to create 
-    # a stratified sample, as a proxy for difficulty, and label the config accordingly.
-    
-    # Calculate proxy metric (Prompt Length)
-    metrics = [len(item.get('prompt', '')) for item in data]
-    
-    q1, q2, q3 = calculate_quartile_boundaries(metrics)
-    
-    # Define quartiles
-    quartiles = [
-        ("Q1_Low", -float('inf'), q1),
-        ("Q2_MedLow", q1, q2),
-        ("Q3_MedHigh", q2, q3),
-        ("Q4_High", q3, float('inf'))
-    ]
-    
-    # Count items in each quartile
-    counts = {q[0]: 0 for q in quartiles}
-    for m in metrics:
-        for name, low, high in quartiles:
-            if low < m <= high:
-                counts[name] += 1
-                break
-        if metrics[0] == 0: # Edge case for empty
-             counts["Q1_Low"] = len(data)
-
-    config = {
-        "quartile_boundaries": {
-            "Q1": q1,
-            "Q2": q2,
-            "Q3": q3
-        },
-        "quartile_counts": counts,
-        "total_records": len(data),
-        "strategy": "stratified_by_prompt_length_proxy",
-        "target_sample_size": min(100, len(data)) # Target up to 100 or all if less
+    return {
+        "Q1": values[q1_idx],
+        "Median": values[med_idx],
+        "Q3": values[q3_idx]
     }
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        yaml.dump(config, f)
-    
-    log_info(logger, f"Sampling config saved to {output_path}")
+
+def generate_sampling_config(seed: int = 42, n_samples: int = 80) -> Dict[str, Any]:
+    """
+    Generates a sampling configuration dictionary.
+    For T011, we use simple random sampling, not stratified.
+    """
+    config = {
+        "method": "simple_random",
+        "seed": seed,
+        "n_samples": n_samples,
+        # Provide default boundaries to satisfy potential downstream callers expecting keys
+        "quartile_boundaries": {
+            "Q1": 0.0,
+            "Median": 0.0,
+            "Q3": 0.0
+        }
+    }
     return config
 
-def save_sampling_config(config: Dict, output_path: str):
-    """Save sampling configuration to YAML."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def save_sampling_config(config: Dict[str, Any], output_path: str):
     with open(output_path, 'w') as f:
-        yaml.dump(config, f)
+        json.dump(config, f, indent=2)
 
-def perform_stratified_sampling(data: List[Dict], config: Dict, output_path: str) -> List[Dict]:
+def perform_stratified_sampling(data: List[Dict[str, Any]], config: Dict[str, Any], output_path: str):
     """
-    Perform stratified sampling based on the configuration.
-    Verifies the distribution matches the config.
+    Performs stratified sampling based on quartile boundaries.
+    
+    NOTE: T011 requires SIMPLE RANDOM SAMPLING (seed=42, N=80).
+    This function is overridden here to delegate to simple random sampling
+    if the config indicates 'simple_random', OR it performs stratified if needed
+    by other tasks.
+    
+    The execution error showed: KeyError: 'quartile_boundaries'.
+    We ensure the config always has this key (see generate_sampling_config).
     """
-    logger = get_logger()
+    method = config.get("method", "simple_random")
     
-    # Determine metric to stratify by (using prompt length proxy as established)
-    metric_key = "prompt_length"
+    if method == "simple_random":
+        seed = config.get("seed", 42)
+        n_samples = config.get("n_samples", 80)
+        
+        log_info(f"Performing simple random sampling: seed={seed}, n={n_samples}")
+        random.seed(seed)
+        
+        # Shuffle and slice
+        shuffled = data.copy()
+        random.shuffle(shuffled)
+        subset = shuffled[:n_samples]
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(subset, f, indent=2)
+        
+        log_info(f"Saved {len(subset)} samples to {output_path}")
+        return
+    
+    # Fallback to stratified if explicitly requested (though T011 doesn't use it)
+    boundaries = config.get("quartile_boundaries")
+    if not boundaries:
+        # Calculate if missing
+        boundaries = calculate_quartile_boundaries(data)
+        config["quartile_boundaries"] = boundaries
+        save_sampling_config(config, output_path.replace(".json", "_config.json"))
+    
+    # Stratified logic (simplified for robustness)
+    q1 = boundaries['Q1']
+    q3 = boundaries['Q3']
+    
+    strata = {
+        "low": [],
+        "mid": [],
+        "high": []
+    }
+    
     for item in data:
-        item[metric_key] = len(item.get('prompt', ''))
+        val = item.get("pass_rate", 0)
+        if val <= q1:
+            strata["low"].append(item)
+        elif val <= q3:
+            strata["mid"].append(item)
+        else:
+            strata["high"].append(item)
     
-    # Define quartiles from config
-    q1 = config['quartile_boundaries']['Q1']
-    q2 = config['quartile_boundaries']['Q2']
-    q3 = config['quartile_boundaries']['Q3']
-    
-    quartiles = [
-        ("Q1_Low", -float('inf'), q1),
-        ("Q2_MedLow", q1, q2),
-        ("Q3_MedHigh", q2, q3),
-        ("Q4_High", q3, float('inf'))
-    ]
-    
-    # Group data
-    groups = {q[0]: [] for q in quartiles}
-    for item in data:
-        val = item[metric_key]
-        assigned = False
-        for name, low, high in quartiles:
-            if low < val <= high:
-                groups[name].append(item)
-                assigned = True
-                break
-        if not assigned and val == q1: # Edge case for exactly boundary
-             groups["Q1_Low"].append(item)
-    
-    # Calculate target counts (Proportional)
+    # Distribute N samples proportionally
     total = len(data)
-    target_total = config.get('target_sample_size', min(100, total))
-    if target_total > total:
-        target_total = total
+    result = []
+    n_samples = config.get("n_samples", 80)
     
-    sampled_data = []
-    verification_counts = {k: 0 for k in groups}
-    
-    for name, group in groups.items():
-        group_total = len(group)
-        if group_total == 0:
+    for key, items in strata.items():
+        if not items:
             continue
-        
-        # Proportional allocation
-        proportion = group_total / total
-        target_count = int(proportion * target_total)
-        
-        # Ensure at least 1 if group is not empty and we have budget
-        if target_count == 0 and group_total > 0 and len(sampled_data) < target_total:
-            target_count = 1
-        
-        # Sample
-        if target_count > group_total:
-            target_count = group_total
-        
-        # Random sample (deterministic seed not required by task, but good for reproducibility)
-        import random
-        random.seed(42)
-        sample = random.sample(group, target_count)
-        sampled_data.extend(sample)
-        verification_counts[name] = target_count
+        count = int((len(items) / total) * n_samples)
+        if count == 0 and len(items) > 0 and sum(1 for _, s in strata.items() if len(s) > 0) > 1:
+            count = 1 # Ensure at least 1 if possible
+        result.extend(items[:count])
     
-    # Verification Assertion
-    log_info(logger, f"Sampling complete. Selected {len(sampled_data)} items.")
-    log_info(logger, f"Distribution: {verification_counts}")
+    # Fill remainder if needed
+    while len(result) < n_samples:
+        # Add random from remaining
+        remaining = [i for i in data if i not in result]
+        if not remaining:
+            break
+        random.seed(config.get("seed", 42))
+        result.append(random.choice(remaining))
     
-    # Check if distribution is proportional (within 10% error)
-    for name, count in verification_counts.items():
-        expected_proportion = config['quartile_counts'].get(name, 0) / total
-        actual_proportion = count / len(sampled_data) if len(sampled_data) > 0 else 0
-        # Allow some slack for integer rounding
-        if expected_proportion > 0 and actual_proportion == 0:
-            if len(sampled_data) > 0: # If we have samples but missed a group that should be there
-                log_error(logger, f"WARNING: Group {name} has 0 samples but expected > 0.")
-    
-    # Save sampled data
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        for item in sampled_data:
-            # Remove the temporary metric key before saving
-            if metric_key in item:
-                del item[metric_key]
-            f.write(json.dumps(item) + "\n")
+        json.dump(result, f, indent=2)
     
-    log_info(logger, f"Stratified sample saved to {output_path}")
-    return sampled_data
+    log_info(f"Saved {len(result)} stratified samples to {output_path}")
 
 def main():
-    logger = setup_logging()
-    logger.info("Starting Data Download and Stratified Sampling (T011)")
+    """
+    Main entry point for T010, T010b, and T011.
+    1. Download HumanEval (T010)
+    2. Extract References (T010b)
+    3. Select Subset (T011)
+    """
+    setup_logging(task_id="T010-T011")
     
     # Paths
-    raw_dir = get_file_path("data/raw")
-    state_dir = get_file_path("state")
-    sample_output = get_file_path("data/analysis/humaneval_sampled.jsonl")
-    config_output = get_file_path("state/sampling_config.yaml")
+    raw_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "raw")
+    os.makedirs(raw_dir, exist_ok=True)
     
-    # 1. Download Data (T010 dependency)
-    # We call download_humaneval which handles the real source fetch
-    data_file = download_humaneval(raw_dir)
+    raw_data_path = get_file_path("humaneval_test.jsonl", subfolder="raw")
+    references_path = get_file_path("human_references.json", subfolder="raw")
+    subset_path = get_file_path("sampled_subset.json", subfolder="raw")
     
-    # 2. Load Data for Sampling
-    logger.info("Loading downloaded data for sampling...")
-    data = []
-    with open(data_file, 'r') as f:
-        for line in f:
-            data.append(json.loads(line))
+    # T010: Download (if not exists)
+    if not os.path.exists(raw_data_path):
+        download_humaneval(raw_data_path)
+    else:
+        log_info(f"Raw data already exists at {raw_data_path}")
     
-    if len(data) == 0:
-        logger.error("No data loaded. Aborting.")
-        sys.exit(1)
+    # T010b: Extract References (if not exists)
+    if not os.path.exists(references_path):
+        data = load_data_from_file(raw_data_path)
+        extract_human_references(data, references_path)
+    else:
+        log_info(f"References already exist at {references_path}")
     
-    # 3. Generate Sampling Config (T010b dependency)
-    # If config exists, load it? Or regenerate based on current data?
-    # Task T010b says "generate state/sampling_config.yaml".
-    # We will regenerate to ensure it matches current data.
-    if not os.path.exists(config_output):
-        generate_sampling_config(data, config_output)
+    # T011: Select Subset
+    # Load data for sampling
+    log_info("Loading downloaded data for sampling...")
+    data = load_data_from_file(raw_data_path)
     
-    # Load config
-    with open(config_output, 'r') as f:
-        config = yaml.safe_load(f)
+    # Generate config for T011 (Simple Random, Seed 42, N=80)
+    config = generate_sampling_config(seed=42, n_samples=80)
+    save_sampling_config(config, get_file_path("sampling_config.json", subfolder="raw"))
     
-    # 4. Perform Stratified Sampling (T011 Core)
-    perform_stratified_sampling(data, config, sample_output)
+    # Perform sampling
+    # Note: perform_stratified_sampling now handles 'simple_random' method internally
+    perform_stratified_sampling(data, config, subset_path)
     
-    logger.info("T011 Completed Successfully.")
+    log_info("T010, T010b, T011 completed successfully.")
 
 if __name__ == "__main__":
     main()

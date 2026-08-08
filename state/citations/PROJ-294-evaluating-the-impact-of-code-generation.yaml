@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://semver.org/spec/v2.0.0.html
   verified_at: '2026-07-17T16:05:01.444552Z'
-- artifact_hash: 9671a3ad7fc1b168d95873e69e3e81b82c05af6de377534a93f1a6bdb8f872a8
+- artifact_hash: 7918785a0a12ef47d0dedf874e5f6a6d25dc29537a45d07ce3743db378ebc276
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,27 @@
   value: https://huggingface.co/datasets/openai/openai_humaneval`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/openai/openai_humaneval
-  verified_at: '2026-08-01T04:34:27.400451Z'
+  verified_at: '2026-08-08T05:34:32.248437Z'
+- artifact_hash: 7918785a0a12ef47d0dedf874e5f6a6d25dc29537a45d07ce3743db378ebc276
+  artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "SupraLabs/LLM-self-identification \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/SupraLabs/LLM-self-identification/...`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/SupraLabs/LLM-self-identification
+  verified_at: '2026-08-08T05:34:32.248437Z'
+- artifact_hash: 7918785a0a12ef47d0dedf874e5f6a6d25dc29537a45d07ce3743db378ebc276
+  artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "bshepp/round-reduced-sha256-learnability \xB7 Datasets at Hugging\
+    \ Face"
+  kind: url
+  value: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/...`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability
+  verified_at: '2026-08-08T05:34:32.248437Z'

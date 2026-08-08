@@ -1,69 +1,79 @@
 # Quickstart: Evaluating the Impact of Code Generation Models on Code Testability
 
 ## Prerequisites
+
 - Python 3.11+
-- Git
-- (Optional) Kaggle CLI for GPU offload (handled automatically by CI)
+- `pip`
+- Access to HuggingFace (for dataset download)
+- (Optional) API Key for Salesforce/Codegen (if not using local model)
+- (Optional) Kaggle Credentials for GPU Escape Hatch
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-294-evaluating-impact-of-code-generation
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    cd projects/PROJ-294-evaluating-impact-code-generation
+    python -m venv venv
+    source venv/bin/activate
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
 ## Running the Pipeline
 
-The pipeline is executed in three sequential stages. Run them in order to ensure data availability.
+The pipeline is orchestrated via `code/main.py`.
 
-### Step 1: Download & Verify Data
-Downloads HumanEval and verifies the SHA256 checksum.
+### Step 1: Download Data
 ```bash
-python code/download.py
+python code/download_data.py
+# Verifies SHA256 and saves to data/raw/humaneval.parquet
 ```
-*Output*: `data/raw/humaneval.parquet`, `state/artifact_hashes.yaml` (updated).
 
-### Step 2: Generate Code Samples
-Generates code using specified models.
+### Step 2: Generate Code
 ```bash
-# CPU-only (slow for large models)
-python code/generate.py --model codegen-350m
+# Standard CPU run
+python code/generate_code.py --model salesforce/codegen-mono-350M
 
-# Auto-offload to GPU if detected (for CodeLlama)
-python code/generate.py --model codellama-7b
+# Optional: GPU Escape Hatch (requires Kaggle credentials)
+GENERATE_WITH_GPU=1 python code/generate_code.py --model codellama-7b
 ```
-*Output*: `data/generated/codegen-350m_samples.json`, `data/generated/codellama-7b_samples.json`.
 
-### Step 3: Analyze & Report
-Computes metrics, runs statistical tests, and generates the report.
+### Step 3: Analyze Metrics
 ```bash
-python code/analyze.py
-python code/statistics.py
-python code/report.py
+python code/analyze_metrics.py
+# Computes Complexity, Mutation Score, Pass Rate. Writes data/analysis/metrics.json
 ```
-*Output*: `data/analysis/metrics.json`, `state/validation_report.yaml`, `results/report.md`.
+
+### Step 4: Run Statistical Tests
+```bash
+python code/statistical_tests.py
+# Performs Wilcoxon, McNemar, Power Analysis. Writes state/validation_results.yaml and state/power_analysis.yaml
+```
+
+### Step 5: Validate Citations (Validation Gate)
+```bash
+python code/validate_citations.py
+# If this fails (exit code 1), the pipeline halts and no report is generated.
+```
+
+### Step 6: Generate Report
+```bash
+python code/report_generator.py
+# Generates report.md with figures and citations, consuming power analysis results.
+```
 
 ## Verification
 
-To verify the integrity of the run:
-```bash
-python code/validate.py
-```
-This script checks all `data/` files against `state/artifact_hashes.yaml` and ensures citations in the report are valid.
+- **Check Sum**: `sha256sum data/raw/humaneval.parquet` should match `state/artifact_hashes.yaml`.
+- **Check Metrics**: `cat data/analysis/metrics.json | jq '.[0]'` should show all fields populated, including `mutation_score`.
+- **Check Stats**: `cat state/validation_results.yaml` should contain p-values and power estimates.
 
 ## Troubleshooting
 
-- **OOM (Out of Memory)**: If `generate.py` fails with OOM, the script automatically attempts to offload to a GPU if the `CUDA_VISIBLE_DEVICES` environment variable is set. On local machines, reduce the batch size or use `--quantize 8bit`.
-- **Checksum Mismatch**: Ensure you are using the exact `datasets` version pinned in `requirements.txt`. Re-run `download.py` to refresh the data.
+- **API Errors**: Ensure `CODEGEN_API_KEY` is set in environment.
+- **Mutation Testing Failures**: If `mutmut` fails, check `data/analysis/metrics.json` for `mutation_error` flag.
+- **Memory**: If `CodeLlama` fails on CPU, the pipeline automatically falls back to `codegen-mono` or uses the GPU escape hatch.
+- **Timeout**: If the pipeline exceeds 4.0 hours, it will abort and re-run on a 50-task sample.

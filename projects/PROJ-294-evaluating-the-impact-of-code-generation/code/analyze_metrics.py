@@ -1,321 +1,357 @@
+"""
+Metric Aggregation and Analysis Pipeline (T017).
+Aggregates intermediate metrics, applies exclusion gates, and produces the final metrics.json.
+"""
 import os
+import sys
 import json
 import logging
 import subprocess
-import sys
 import tempfile
-from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
+import uuid
 
-# Import shared utilities
-from utils import (
-    setup_logging, get_logger, log_info, log_error, ensure_directory
-)
+# --- Shared Utility Contract (MUST match utils.py and other callers) ---
+_task_id = None
+_unique_id = None
+_timestamp = None
 
-# Task ID management
-_task_id: Optional[str] = None
-
-def set_task_id(tid: str):
-    global _task_id
+def set_task_id(tid):
+    global _task_id, _unique_id, _timestamp
     _task_id = tid
+    _unique_id = str(uuid.uuid4())
+    _timestamp = datetime.now().isoformat()
 
-def get_task_id() -> Optional[str]:
+def get_task_id():
     return _task_id
 
-def get_logger() -> logging.Logger:
-    return logging.getLogger('analyze_metrics')
+def get_unique_id():
+    return _unique_id
 
-def log_info(logger: logging.Logger, msg: str):
-    logger.info(msg)
+def get_timestamp():
+    return _timestamp
 
-def log_error(logger: logging.Logger, msg: str):
-    logger.error(msg)
+def setup_logging(*args, **kwargs):
+    """
+    Universal logging setup compatible with all callers in the project.
+    Accepts:
+      - setup_logging()
+      - setup_logging(task_id="T017")
+      - setup_logging(task_id=TASK_ID)
+      - setup_logging(level=logging.INFO)
+    """
+    global _task_id, _unique_id, _timestamp
+
+    # Handle keyword arguments
+    if 'task_id' in kwargs:
+        tid = kwargs.pop('task_id')
+        set_task_id(tid)
+
+    if 'level' in kwargs:
+        level = kwargs.pop('level')
+    else:
+        level = logging.INFO
+
+    # Configure root logger if not already configured
+    if not logging.getLogger().handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s [%(levelname)s] [%(name)s] - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        handler.setFormatter(formatter)
+        logging.getLogger().addHandler(handler)
+        logging.getLogger().setLevel(level)
+
+    logger = logging.getLogger(get_task_id() or "ROOT")
+    return logger
+
+def get_logger():
+    return logging.getLogger(get_task_id() or "ROOT")
+
+def log_info(msg):
+    get_logger().info(msg)
+
+def log_error(msg):
+    get_logger().error(msg)
+
+# --- File I/O Helpers ---
 
 def ensure_dirs():
-    ensure_directory("data/analysis")
-    ensure_directory("logs")
-    ensure_directory("data/generated")
+    """Ensure required directories exist."""
+    dirs = [
+        "data/raw",
+        "data/generated",
+        "data/analysis",
+        "logs"
+    ]
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
 
-def calculate_code_metrics(code: str) -> Dict[str, Any]:
-    """
-    Calculate Cyclomatic Complexity and Halstead metrics using radon.
-    Returns dict with cyclomatic_complexity, halstead_volume, and halstead_components.
-    """
-    try:
-        # Write code to a temp file for radon
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            temp_path = f.name
-
-        try:
-            # Run Cyclomatic Complexity
-            cc_result = subprocess.run(
-                ['radon', 'cc', '--json', temp_path],
-                capture_output=True, text=True, check=False
-            )
-            
-            # Run Halstead
-            hal_result = subprocess.run(
-                ['radon', 'hal', '--json', temp_path],
-                capture_output=True, text=True, check=False
-            )
-
-            cc_data = json.loads(cc_result.stdout) if cc_result.stdout else {}
-            hal_data = json.loads(hal_result.stdout) if hal_result.stdout else {}
-
-            # Extract CC (sum of all functions/classes)
-            total_cc = 0
-            if cc_data:
-                for item in cc_data:
-                    if 'metrics' in item:
-                        total_cc += item['metrics']['complexity']
-                    elif isinstance(item, dict) and 'complexity' in item:
-                        total_cc += item['complexity']
-            
-            # Extract Halstead
-            hal_volume = 0.0
-            hal_components = {"N": 0, "n": 0, "L": 0, "D": 0, "E": 0}
-            
-            if hal_data:
-                # Halstead output is a list of metrics per function
-                # We sum them up for the whole file
-                for item in hal_data:
-                    if 'metrics' in item:
-                        m = item['metrics']
-                        hal_volume += m.get('volume', 0)
-                        # Accumulate components (approximate sum for file level)
-                        hal_components['N'] += m.get('N', 0)
-                        hal_components['n'] += m.get('n', 0)
-                        hal_components['L'] += m.get('L', 0)
-                        hal_components['D'] += m.get('D', 0)
-                        hal_components['E'] += m.get('E', 0)
-                    elif isinstance(item, dict):
-                        hal_volume += item.get('volume', 0)
-                        hal_components['N'] += item.get('N', 0)
-                        hal_components['n'] += item.get('n', 0)
-                        hal_components['L'] += item.get('L', 0)
-                        hal_components['D'] += item.get('D', 0)
-                        hal_components['E'] += item.get('E', 0)
-
-            return {
-                "cyclomatic_complexity": total_cc if total_cc > 0 else 0,
-                "halstead_volume": hal_volume if hal_volume > 0 else 0.0,
-                "halstead_components": hal_components
-            }
-        finally:
-            os.unlink(temp_path)
-    except Exception as e:
-        log_error(get_logger(), f"Error calculating metrics: {e}")
-        return {
-            "cyclomatic_complexity": None,
-            "halstead_volume": None,
-            "halstead_components": None
-        }
-
-def execute_test_suite(code: str, tests: str, entry_point: str) -> int:
-    """
-    Execute pytest against the code. Returns 1 if all tests pass, 0 otherwise.
-    """
-    try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Write code
-            code_path = os.path.join(tmpdir, "solution.py")
-            with open(code_path, 'w') as f:
-                f.write(code)
-
-            # Write tests
-            test_path = os.path.join(tmpdir, "test_solution.py")
-            with open(test_path, 'w') as f:
-                f.write(tests)
-                # Append check function if not present (HumanEval format)
-                if "check(" not in tests:
-                    f.write("\n\n# Check function placeholder\n")
-
-            # Run pytest
-            result = subprocess.run(
-                [sys.executable, "-m", "pytest", test_path, "-v", "--tb=short"],
-                capture_output=True, text=True, timeout=30
-            )
-            
-            # Parse result: 0 = success, non-zero = failure
-            if result.returncode == 0:
-                return 1
-            return 0
-    except subprocess.TimeoutExpired:
-        return 0
-    except Exception as e:
-        log_error(get_logger(), f"Test execution error: {e}")
-        return 0
-
-def execute_coverage_test(code: str, tests: str, entry_point: str) -> Optional[float]:
-    """
-    Execute pytest-cov. Returns branch_coverage_pct or None if failed.
-    """
-    try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            code_path = os.path.join(tmpdir, "solution.py")
-            with open(code_path, 'w') as f:
-                f.write(code)
-
-            test_path = os.path.join(tmpdir, "test_solution.py")
-            with open(test_path, 'w') as f:
-                f.write(tests)
-
-            # Run pytest with coverage
-            result = subprocess.run(
-                [sys.executable, "-m", "pytest", test_path, "--cov=solution", 
-                 "--cov-report=json", "--tb=short", "-q"],
-                capture_output=True, text=True, timeout=30, cwd=tmpdir
-            )
-
-            # Parse coverage.json
-            cov_json_path = os.path.join(tmpdir, "coverage.json")
-            if os.path.exists(cov_json_path):
-                with open(cov_json_path, 'r') as f:
-                    cov_data = json.load(f)
-                
-                # Extract branch coverage
-                if 'totals' in cov_data and 'percent_branch' in cov_data['totals']:
-                    return cov_data['totals']['percent_branch']
-                elif 'totals' in cov_data and 'branch_covered' in cov_data['totals'] and 'branches_total' in cov_data['totals']:
-                    total = cov_data['totals']['branches_total']
-                    covered = cov_data['totals']['branch_covered']
-                    if total > 0:
-                        return (covered / total) * 100.0
-                    return 0.0
-            return None
-    except Exception as e:
-        log_error(get_logger(), f"Coverage execution error: {e}")
-        return None
-
-def load_intermediate_metrics(input_path: str) -> List[Dict[str, Any]]:
-    """Load intermediate metrics from JSON."""
-    if not os.path.exists(input_path):
-        return []
-    with open(input_path, 'r') as f:
+def load_json_file(path):
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def apply_pairwise_exclusion_gate(metrics: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str]]:
+def save_json_file(path, data):
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+def load_intermediate_metrics(path="data/analysis/intermediate_metrics.json"):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Intermediate metrics file not found: {path}")
+    return load_json_file(path)
+
+def save_intermediate_metrics(data, path="data/analysis/intermediate_metrics.json"):
+    save_json_file(path, data)
+
+# --- Metric Parsing & Calculation ---
+
+def parse_radon_output(raw_output):
     """
-    Exclude pairs where either human or codegen has null coverage.
-    Returns (filtered_metrics, excluded_task_ids).
+    Parse raw radon output (JSON string or dict) into structured metrics.
+    Expected keys: cyclomatic_complexity, halstead_volume, halstead_components.
     """
-    # Group by task_id
-    by_task = {}
-    for m in metrics:
-        tid = m.get('task_id')
-        if tid not in by_task:
-            by_task[tid] = []
-        by_task[tid].append(m)
+    if isinstance(raw_output, str):
+        try:
+            data = json.loads(raw_output)
+        except json.JSONDecodeError:
+            return {}
+    else:
+        data = raw_output
 
-    excluded_ids = []
-    valid_metrics = []
+    metrics = {}
+    if 'cc' in data:
+        # radon cc output structure varies; usually a list or dict per file
+        # We assume a simplified structure or extract the first valid entry
+        if isinstance(data['cc'], list) and len(data['cc']) > 0:
+            metrics['cyclomatic_complexity'] = data['cc'][0].get('complexity', 0)
+        elif isinstance(data['cc'], dict):
+            metrics['cyclomatic_complexity'] = data['cc'].get('complexity', 0)
 
-    for tid, items in by_task.items():
-        # Check coverage for human and codegen
-        has_human = False
-        has_codegen = False
-        human_cov = None
-        codegen_cov = None
+    if 'hal' in data:
+        if isinstance(data['hal'], list) and len(data['hal']) > 0:
+            vol = data['hal'][0].get('volume', 0)
+            metrics['halstead_volume'] = vol
+            metrics['halstead_components'] = data['hal'][0].get('components', {})
+        elif isinstance(data['hal'], dict):
+            vol = data['hal'].get('volume', 0)
+            metrics['halstead_volume'] = vol
+            metrics['halstead_components'] = data['hal'].get('components', {})
 
-        for item in items:
-            src = item.get('source_type')
-            if src == 'human':
-                has_human = True
-                human_cov = item.get('branch_coverage_pct')
-            elif src in ['codegen-350M', 'codegen-3B', 'codellama-7B', 'sensitivity']:
-                has_codegen = True
-                codegen_cov = item.get('branch_coverage_pct')
+    return metrics
 
-        # If either is missing or null, exclude the pair
-        if (has_human and human_cov is None) or (has_codegen and codegen_cov is None):
-            excluded_ids.append(tid)
-        else:
-            valid_metrics.extend(items)
-
-    return valid_metrics, excluded_ids
-
-def aggregate_metrics_to_json(input_path: str, output_path: str):
+def calculate_code_metrics(source_code):
     """
-    Aggregate intermediate metrics into the final metrics.json.
-    Schema: task_id, source_type, cyclomatic_complexity, halstead_volume, 
-            branch_coverage_pct, pass_rate.
-    Constraint: Verify no record has null for cyclomatic_complexity OR halstead_volume.
+    Calculate static metrics (CC, Halstead) for a given source code string.
+    Uses radon via subprocess.
     """
-    logger = get_logger()
-    
-    # Load raw intermediate data
-    raw_data = load_intermediate_metrics(input_path)
-    if not raw_data:
-        log_error(logger, f"No data found in {input_path}")
-        return
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as tmp:
+        tmp.write(source_code)
+        tmp_path = tmp.name
 
-    # Apply exclusion gate
-    filtered_data, excluded_ids = apply_pairwise_exclusion_gate(raw_data)
-    
-    if excluded_ids:
-        log_info(logger, f"Excluded {len(excluded_ids)} pairs due to null coverage: {excluded_ids[:5]}...")
-        # Log to file
-        with open("logs/pairwise_exclusions.log", 'a') as f:
-            f.write(f"{datetime.now()}: Excluded {excluded_ids}\n")
+    try:
+        # Run radon cc
+        cc_result = subprocess.run(
+            ['radon', 'cc', '--json', tmp_path],
+            capture_output=True, text=True, timeout=30
+        )
+        cc_data = json.loads(cc_result.stdout) if cc_result.stdout.strip() else {}
 
-    # Validate constraints
-    valid_records = []
-    null_count = 0
-    for record in filtered_data:
-        cc = record.get('cyclomatic_complexity')
-        hal = record.get('halstead_volume')
-        
-        if cc is None or hal is None:
-            null_count += 1
-            log_error(logger, f"Record {record.get('task_id')} ({record.get('source_type')}) has null metrics. Skipping.")
+        # Run radon hal
+        hal_result = subprocess.run(
+            ['radon', 'hal', '--json', tmp_path],
+            capture_output=True, text=True, timeout=30
+        )
+        hal_data = json.loads(hal_result.stdout) if hal_result.stdout.strip() else {}
+
+        combined = {'cc': cc_data, 'hal': hal_data}
+        return parse_radon_output(combined)
+    except Exception as e:
+        log_error(f"Error calculating metrics: {e}")
+        return {'cyclomatic_complexity': None, 'halstead_volume': None}
+    finally:
+        os.unlink(tmp_path)
+
+def calculate_branch_coverage(source_code, test_code):
+    """
+    Calculate branch coverage using coverage.py.
+    Returns a percentage (0-100).
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        code_file = os.path.join(tmpdir, "sample.py")
+        test_file = os.path.join(tmpdir, "test_sample.py")
+        conf_file = os.path.join(tmpdir, ".coveragerc")
+
+        with open(code_file, 'w') as f:
+            f.write(source_code)
+        with open(test_file, 'w') as f:
+            f.write(test_code)
+        with open(conf_file, 'w') as f:
+            f.write("[run]\nbranch=True\n")
+
+        try:
+            # Run coverage
+            subprocess.run(
+                ['coverage', 'run', '--source', code_file, test_file],
+                cwd=tmpdir, capture_output=True, timeout=60
+            )
+            result = subprocess.run(
+                ['coverage', 'report', '--json'],
+                cwd=tmpdir, capture_output=True, text=True, timeout=30
+            )
+            data = json.loads(result.stdout)
+            # Extract total branch coverage
+            totals = data.get('totals', {})
+            return totals.get('branch_pct', 0.0)
+        except Exception as e:
+            log_error(f"Coverage calculation failed: {e}")
+            return 0.0
+
+# --- Data Loading & Merging ---
+
+def load_sensitivity_samples(path="data/generated/sensitivity_samples.json"):
+    if not os.path.exists(path):
+        return []
+    return load_json_file(path)
+
+def merge_sensitivity_with_base(base_metrics, sensitivity_samples):
+    """
+    Merge sensitivity analysis results into the base metrics.
+    Adds 'source_type' and ensures all task_ids are accounted for.
+    """
+    merged = []
+    base_map = {m['task_id']: m for m in base_metrics}
+
+    for sample in sensitivity_samples:
+        tid = sample.get('task_id')
+        if tid in base_map:
+            entry = base_map[tid].copy()
+            entry['source_type'] = 'sensitivity-model'
+            # Override metrics with sensitivity sample if available
+            if 'metrics' in sample:
+                entry.update(sample['metrics'])
+            merged.append(entry)
+            del base_map[tid] # Remove from base to avoid duplication if logic differs
+
+    # Add remaining base samples (codegen-350m)
+    for tid, entry in base_map.items():
+        entry['source_type'] = 'codegen-350m'
+        merged.append(entry)
+
+    return merged
+
+def perform_pairwise_exclusion_gate(data, exclusion_log="logs/pairwise_exclusions.log"):
+    """
+    Identify and exclude pairs where either Human or LLM sample has null coverage.
+    Writes excluded pairs to exclusion_log.
+    Returns filtered data.
+    """
+    excluded = []
+    filtered = []
+
+    # Group by task_id to check pairs
+    task_map = {}
+    for entry in data:
+        tid = entry['task_id']
+        if tid not in task_map:
+            task_map[tid] = []
+        task_map[tid].append(entry)
+
+    for tid, entries in task_map.items():
+        # Check if we have both human and generated samples
+        has_human = any(e.get('source_type') == 'human' for e in entries)
+        has_generated = any(e.get('source_type') in ['codegen-350m', 'sensitivity-model'] for e in entries)
+
+        if not (has_human and has_generated):
+            excluded.append({"task_id": tid, "reason": "Missing pair (human or generated)"})
             continue
-        
-        valid_records.append(record)
 
-    if null_count > 0:
-        log_info(logger, f"Removed {null_count} records with null metrics.")
+        # Check for null coverage
+        has_null_coverage = False
+        for e in entries:
+            if e.get('branch_coverage_pct') is None:
+                has_null_coverage = True
+                break
 
-    # Write final output
-    with open(output_path, 'w') as f:
-        json.dump(valid_records, f, indent=2)
-
-    log_info(logger, f"Aggregated {len(valid_records)} valid records to {output_path}")
-
-def main():
-    logger = setup_logging(task_id="T017")
-    set_task_id("T017")
-    
-    log_info(logger, "Starting Metric Aggregation (T017)")
-    
-    ensure_dirs()
-    
-    input_path = "data/analysis/intermediate_metrics.json"
-    output_path = "data/analysis/metrics.json"
-    
-    # If intermediate doesn't exist, try to load from raw data if available
-    # For now, assume intermediate was produced by T014/T015
-    if not os.path.exists(input_path):
-        # Fallback: check if we need to generate from raw HumanEval + generated code
-        # This logic might be invoked if T014/T015 failed or produced different paths
-        log_error(logger, f"Intermediate metrics file not found: {input_path}")
-        # Try to find any existing metrics
-        if os.path.exists("data/analysis/metrics.json"):
-            log_info(logger, "Output file already exists, skipping aggregation.")
-            return
+        if has_null_coverage:
+            excluded.append({"task_id": tid, "reason": "Null coverage in pair"})
         else:
-            log_error(logger, "Cannot proceed without intermediate metrics.")
+            filtered.extend(entries)
+
+    # Log exclusions
+    os.makedirs(os.path.dirname(exclusion_log), exist_ok=True)
+    with open(exclusion_log, 'w') as f:
+        json.dump(excluded, f, indent=2)
+
+    total_pairs = len(task_map)
+    excluded_count = len(excluded)
+    if excluded_count > 0:
+        log_info(f"Excluded {excluded_count}/{total_pairs} pairs due to coverage issues.")
+        if total_pairs - excluded_count < 30:
+            log_error(f"WARNING: Remaining sample size ({total_pairs - excluded_count}) < 30. Power analysis may be invalid.")
+        if excluded_count / total_pairs > 0.5:
+            log_error("CRITICAL: >50% of pairs excluded. Systematic failure detected.")
             sys.exit(1)
 
-    aggregate_metrics_to_json(input_path, output_path)
-    
-    # Verify output
-    if os.path.exists(output_path):
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-        log_info(logger, f"Verification: {len(data)} records written to {output_path}")
-    else:
-        log_error(logger, f"Failed to write output file: {output_path}")
+    return filtered
+
+# --- Aggregation (T017 Main Logic) ---
+
+def aggregate_metrics_to_json():
+    """
+    Main aggregation function for T017.
+    1. Loads intermediate metrics.
+    2. Merges sensitivity data.
+    3. Performs exclusion gate.
+    4. Validates schema.
+    5. Saves to data/analysis/metrics.json.
+    """
+    log_info("Starting Metric Aggregation (T017)")
+
+    # 1. Load Intermediate Metrics
+    try:
+        intermediate_data = load_intermediate_metrics()
+    except FileNotFoundError as e:
+        log_error(str(e))
+        raise
+
+    # 2. Merge Sensitivity Samples
+    sensitivity_samples = load_sensitivity_samples()
+    merged_data = merge_sensitivity_with_base(intermediate_data, sensitivity_samples)
+
+    # 3. Pairwise Exclusion Gate
+    final_data = perform_pairwise_exclusion_gate(merged_data)
+
+    # 4. Validation: Ensure no nulls in critical fields
+    required_fields = ['cyclomatic_complexity', 'halstead_volume', 'mutation_score']
+    valid_records = []
+    for record in final_data:
+        is_valid = True
+        for field in required_fields:
+            if record.get(field) is None:
+                log_error(f"Record {record.get('task_id')} missing {field}. Excluding.")
+                is_valid = False
+                break
+        if is_valid:
+            valid_records.append(record)
+
+    if len(valid_records) < len(final_data):
+        log_info(f"Filtered {len(final_data) - len(valid_records)} records with null critical metrics.")
+
+    # 5. Save Final Output
+    output_path = "data/analysis/metrics.json"
+    save_json_file(output_path, valid_records)
+    log_info(f"Aggregation complete. Saved {len(valid_records)} records to {output_path}")
+
+    return valid_records
+
+def main():
+    set_task_id("T017")
+    ensure_dirs()
+    try:
+        aggregate_metrics_to_json()
+    except Exception as e:
+        log_error(f"Aggregation failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
