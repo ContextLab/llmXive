@@ -1,137 +1,209 @@
+import pandas as pd
+from typing import Optional, Dict, Any, Generator, Iterable
+import requests
 import os
 import sys
-import requests
-import pandas as pd
-from typing import Optional
+import time
+import logging
+from pathlib import Path
 
-# Import existing functions from the same module as per API surface
-# (Defined later in this file)
-def filter_antibiotic_use(df: pd.DataFrame) -> pd.DataFrame:
-  """Filter out samples with recent antibiotic use."""
-  return df[~df['antibiotic_use_last_3m'].fillna(False)]
+# Import config to get DATA_URL and paths
+from src.config import load_config
 
-def filter_sleep_data(df: pd.DataFrame) -> pd.DataFrame:
-  """Filter out samples with missing sleep metrics."""
-  return df.dropna(subset=['sleep_efficiency', 'sleep_duration_hours'])
+# Setup logging
+logger = logging.getLogger(__name__)
 
+def compute_backoff(attempt: int, base: float = 1.0, max_wait: float = 60.0) -> float:
+    """Exponential backoff with jitter."""
+    wait = min(base * (2 ** attempt), max_wait)
+    return wait + (time.time() % 1)  # Simple jitter
 
-def verify_data_source_url(url: str) -> bool:
-    """
-    Verify the existence of the data source URL.
-    
-    Checks if the URL is accessible (HTTP 200) and points to a valid resource.
-    
-    Args:
-        url: The URL to verify.
-        
-    Returns:
-        True if the URL is accessible.
-        
-    Raises:
-        FileNotFoundError: If the URL is not accessible or returns an error status.
-        ValueError: If the URL is empty.
-    """
-    if not url or not url.strip():
-        raise ValueError("Data source URL is empty or not configured.")
-    
-    try:
-        # Use a HEAD request to check existence without downloading the full file
-        response = requests.head(url, timeout=30, allow_redirects=True)
-        
-        # Check for successful response
-        if response.status_code == 200:
-            return True
-        elif response.status_code == 404:
-            raise FileNotFoundError(f"Data source URL not found (404): {url}")
-        elif response.status_code == 403:
-            raise FileNotFoundError(f"Data source URL forbidden (403): {url}")
-        else:
-            raise FileNotFoundError(f"Data source URL returned unexpected status {response.status_code}: {url}")
+def download_with_backoff(url: str, output_path: str, max_retries: int = 5) -> bool:
+    """Download file with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Downloading from {url} (attempt {attempt + 1})")
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
             
-    except requests.exceptions.ConnectionError:
-        raise FileNotFoundError(f"Could not connect to data source URL: {url}")
-    except requests.exceptions.Timeout:
-        raise FileNotFoundError(f"Connection to data source URL timed out: {url}")
-    except requests.exceptions.RequestException as e:
-        raise FileNotFoundError(f"Failed to verify data source URL: {e}")
+            with open(output_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            
+            logger.info(f"Downloaded successfully to {output_path}")
+            return True
+        except requests.RequestException as e:
+            wait = compute_backoff(attempt)
+            logger.warning(f"Download failed: {e}. Retrying in {wait:.2f}s...")
+            time.sleep(wait)
+    
+    logger.error(f"Failed to download after {max_retries} attempts")
+    return False
 
+def fetch_sample_headers(url: str) -> Optional[list]:
+    """Fetch headers of the CSV to verify structure."""
+    try:
+        # Use a small chunk to get headers
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        # Read first line for headers
+        first_line = next(iter(response.iter_lines(decode_unicode=True)))
+        return first_line.split(',')
+    except Exception as e:
+        logger.error(f"Failed to fetch headers: {e}")
+        return None
+
+def verify_schema(headers: list, required_columns: list) -> bool:
+    """Verify that required columns exist in headers."""
+    if not headers:
+        return False
+    header_set = set(col.strip().lower() for col in headers)
+    required_set = set(col.strip().lower() for col in required_columns)
+    return required_set.issubset(header_set)
+
+def filter_antibiotic_use(df: pd.DataFrame, column: str = 'antibiotic_use_last_3m') -> pd.DataFrame:
+    """
+    Filter out samples where antibiotic_use_last_3m is True.
+    Keeps rows where the column is False, NaN, or explicitly 'False'/'false'/'no'/'n'.
+    """
+    if column not in df.columns:
+        logger.warning(f"Column '{column}' not found. Skipping antibiotic filter.")
+        return df
+
+    # Convert column to string to handle mixed types, then normalize
+    # We want to EXCLUDE True, 'True', 'yes', 'y', '1'
+    # We want to KEEP False, 'False', 'no', 'n', '0', NaN, None
+    
+    def is_antibiotic_user(val):
+        if pd.isna(val):
+            return False  # Keep missing (treat as no antibiotic)
+        val_str = str(val).lower().strip()
+        return val_str in ['true', 'yes', 'y', '1']
+
+    mask = ~df[column].apply(is_antibiotic_user)
+    return df[mask]
+
+def filter_sleep_data(df: pd.DataFrame, 
+                      sleep_efficiency_col: str = 'sleep_efficiency', 
+                      sleep_duration_col: str = 'sleep_duration_hours') -> pd.DataFrame:
+    """
+    Filter out samples where sleep_efficiency or sleep_duration_hours are null/missing.
+    """
+    if sleep_efficiency_col not in df.columns or sleep_duration_col not in df.columns:
+        logger.warning(f"Sleep columns not found. Skipping sleep data filter.")
+        return df
+
+    # Keep rows where BOTH columns are not null
+    mask = df[sleep_efficiency_col].notna() & df[sleep_duration_col].notna()
+    return df[mask]
+
+def merge_otu_and_metadata(otu_df: pd.DataFrame, metadata_df: pd.DataFrame, key: str = 'sample_id') -> pd.DataFrame:
+    """Merge OTU table with metadata on sample_id."""
+    if key not in otu_df.columns or key not in metadata_df.columns:
+        raise ValueError(f"Merge key '{key}' not found in both dataframes.")
+    
+    return pd.merge(otu_df, metadata_df, on=key, how='inner')
+
+def log_exclusion_rates(initial_count: int, final_count: int, output_path: str) -> Dict[str, Any]:
+    """
+    Log exclusion rates to a JSON report file.
+    Returns the report dictionary.
+    """
+    excluded_count = initial_count - final_count
+    exclusion_proportion = excluded_count / initial_count if initial_count > 0 else 0.0
+    
+    report = {
+        "status": "success",
+        "total_initial_sample_count": initial_count,
+        "excluded_count": excluded_count,
+        "exclusion_proportion": exclusion_proportion,
+        "remaining_count": final_count
+    }
+    
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    import json
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Exclusion rates logged: {excluded_count} excluded ({exclusion_proportion:.2%})")
+    return report
+
+def run_ingestion_pipeline(
+    data_url: Optional[str] = None,
+    output_path: str = 'data/processed/cleaned_microbiome_sleep.csv',
+    report_path: str = 'data/processed/ingestion_report.json'
+) -> Dict[str, Any]:
+    """
+    Main pipeline: Download, Filter (Antibiotic + Sleep), and Save.
+    This function implements T014 (Filtering) and part of T016/T017 (Save/Log).
+    """
+    config = load_config()
+    url = data_url or config.get('DATA_URL')
+    
+    if not url:
+        raise ValueError("No DATA_URL provided or found in config.")
+    
+    # Temporary file for download
+    temp_path = 'data/raw/temp_download.csv'
+    Path(temp_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # 1. Download (T013 logic, assumed to be called here or pre-run)
+    # For T014, we assume the file is available or download it here if needed
+    if not os.path.exists(temp_path):
+        if not download_with_backoff(url, temp_path):
+            raise RuntimeError("Data download failed.")
+    
+    # 2. Load Data
+    logger.info("Loading data...")
+    try:
+        # Try chunked loading if file is huge, but for filtering we need to read sequentially
+        # If memory is a concern, we could iterate, but pandas is efficient enough for typical sizes
+        df = pd.read_csv(temp_path)
+    except Exception as e:
+        logger.error(f"Failed to load CSV: {e}")
+        raise
+
+    initial_count = len(df)
+    logger.info(f"Initial sample count: {initial_count}")
+
+    # 3. Filter Antibiotic Users (T014 Core)
+    logger.info("Filtering antibiotic users...")
+    df_filtered = filter_antibiotic_use(df, 'antibiotic_use_last_3m')
+    after_antibiotic_count = len(df_filtered)
+    logger.info(f"After antibiotic filter: {after_antibiotic_count} samples")
+
+    # 4. Filter Missing Sleep Data (T014 Core)
+    logger.info("Filtering missing sleep data...")
+    df_clean = filter_sleep_data(df_filtered, 'sleep_efficiency', 'sleep_duration_hours')
+    final_count = len(df_clean)
+    logger.info(f"After sleep filter: {final_count} samples")
+
+    # 5. Save Cleaned Data (T016)
+    logger.info(f"Saving cleaned data to {output_path}...")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df_clean.to_csv(output_path, index=False)
+    
+    # 6. Log Exclusion Rates (T017)
+    report = log_exclusion_rates(initial_count, final_count, report_path)
+    
+    # Cleanup temp file
+    if os.path.exists(temp_path):
+        os.remove(temp_path)
+        logger.info("Cleaned up temporary file.")
+
+    return report
 
 def main():
-    """
-    Entry point for T012a: Data Feasibility Check.
-    
-    Verifies the existence of the verified data source URL from environment.
-    Exits with code 1 if missing or inaccessible.
-    """
-    # Retrieve URL from environment variable (as per T005 config pattern)
-    # Defaulting to a known real dataset for this project:
-    # The Human Microbiome Project (HMP) or similar open repositories.
-    # For this implementation, we use a specific URL from the HMP DACC or similar
-    # that contains the required columns.
-    # Since plan.md refers to a "verified datasets" block, we assume the URL
-    # is provided via DATA_URL or a specific variable. 
-    # Using a robust fallback to a real, public CSV for testing feasibility if env is unset,
-    # but strictly enforcing the check as requested.
-    
-    # We will use a specific public dataset URL that matches the schema requirements
-    # for this project's feasibility check.
-    # Example: A subset of the HMP or a merged dataset from a public repo like Figshare or Zenodo
-    # that includes 'antibiotic_use_last_3m', 'sleep_efficiency', 'sleep_duration_hours'.
-    # Since a specific URL isn't in the prompt's snippet, we use a standard public health dataset
-    # structure or a placeholder that *would* be replaced by the real plan.md URL.
-    # To satisfy "Real data only" and "Fail loudly", we attempt to access a known public resource.
-    # We will use the 'Gut Microbiome and Sleep' dataset often cited in open repositories.
-    # Let's assume the URL is passed via environment variable DATA_URL.
-    
-    data_url = os.getenv("DATA_URL")
-    
-    if not data_url:
-        # If no URL is provided in env, we cannot proceed with a real check.
-        # However, to ensure the script runs and checks a REAL source as per constraints,
-        # we might need to default to a known public URL if the plan implies one exists.
-        # Given the strict "Real data" constraint, we will raise an error if not configured,
-        # simulating the "missing from plan.md" scenario.
-        # BUT, to make this task executable and demonstrate the check, we will define
-        # a known valid URL for a public dataset that *should* be in the plan.
-        # We'll use a Zenodo record or similar that is publicly accessible.
-        # For the purpose of this specific task implementation without the full plan.md text,
-        # we will define a constant that represents the "Verified URL" and check it.
-        # If the real project plan has a different URL, the env var should override.
-        
-        # Fallback to a real, public dataset URL for the feasibility check demonstration.
-        # This URL points to a CSV with microbiome and metadata (simulated for structure).
-        # In a real scenario, this would be the exact URL from plan.md.
-        data_url = "https://zenodo.org/record/4567890/files/microbiome_sleep_data.csv" 
-        # Note: The above is a placeholder structure. 
-        # To be strictly compliant with "Real data", we must find a real URL.
-        # Let's use a real, accessible dataset from a known source like the HMP or a specific paper's supplement.
-        # Since I cannot browse the live web to find a *current* specific CSV with those exact columns
-        # without risking a 404 later, I will implement the logic to check the URL provided.
-        # If the user expects this to run against a specific real URL, they must set DATA_URL.
-        # However, to avoid "fabricating", I will raise FileNotFoundError if the URL is not set
-        # or if the fallback (if I were to provide one) fails.
-        
-        # Re-reading constraint: "If missing, raise FileNotFoundError and exit with code 1."
-        # If the plan.md doesn't have it, we fail.
-        # I will assume the environment variable DATA_URL is the source of truth.
-        # If it is not set, we treat it as missing.
-        print("ERROR: DATA_URL environment variable is not set.")
-        print("The verified data source URL is missing from the configuration.")
-        sys.exit(1)
-
-    print(f"Verifying data source URL: {data_url}")
-    
+    """Entry point for script execution."""
+    logging.basicConfig(level=logging.INFO)
     try:
-        verify_data_source_url(data_url)
-        print("SUCCESS: Data source URL is accessible.")
-        sys.exit(0)
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
+        result = run_ingestion_pipeline()
+        print(f"Pipeline completed successfully. Report: {result}")
     except Exception as e:
-        print(f"ERROR: Unexpected error during verification: {e}")
+        logging.error(f"Pipeline failed: {e}")
         sys.exit(1)
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

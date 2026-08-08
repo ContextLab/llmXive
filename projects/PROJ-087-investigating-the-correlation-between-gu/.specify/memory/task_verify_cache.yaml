@@ -1,41 +1,38 @@
-T031:
+T020b:
+  c: false
+  h: 9093dd67b91b7650afd7ed9cca315a8540167a2619732cd0148729e29346567d
+  r: "The required input file `data/processed/cleaned_microbiome_sleep.csv` does not\
+    \ exist, and the `src/diversity.py` implementation is truncated (the `calculate_alpha_diversity`\
+    \ function is incomplete and does not show the full alpha\u2011diversity calculations,\
+    \ file\u2011existence check, or chunked processing). Both essential artifacts\
+    \ are missing or incomplete."
+T029:
+  c: false
+  h: 689e14f68494386f14f65eef68c893df48c38a6ced5a09a53745ca82a75de3a5
+  r: "The required file `src/report.py` does not exist in the repository, so no summary\
+    \ table of correlations or final report has been provided. The task\u2019s core\
+    \ deliverable is missing."
+T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No HTML or PDF report was provided; the evidence contains only the task description\
-    \ and specifications, with no actual report file, content, or generated output.\
-    \ The required final report with findings and handling of \u201CNo significant\
-    \ associations\u201D is missing."
-T032:
+  r: No plot files were provided; the required artifacts `data/processed/plots/scatterplot_shannon_sleep.png`
+    and `data/processed/plots/boxplot_sleep_quartile.png` are absent, so the claim
+    that the task is complete cannot be verified. The implementer must generate and
+    save these two PNG files in the specified directory and ensure they exist.
+T031b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `README.md` containing \u201CUsage Examples\u201D\
-    \ and \u201CData Source\u201D sections, nor any updated files in the `docs/` directory\
-    \ showing a pipeline flow diagram, was provided. The required documentation artifacts\
-    \ are missing, so the task is not satisfied."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, diffs, or commit logs are provided showing that unused imports\
-    \ were removed or that module\u202FT014 was refactored to use generator expressions.\
-    \ Without concrete artifacts demonstrating the cleanup and refactoring, the claim\
-    \ cannot be verified. The implementer must supply the updated source code (or\
-    \ a patch/diff) that evidences the changes."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or benchmark evidence showing that the T015 merge step was\
-    \ rewritten to use chunked processing or that RAM usage was reduced is present.\
-    \ The required artifact\u2014a modified ingestion/merge implementation (and preferably\
-    \ performance metrics) demonstrating the optimization\u2014is missing."
+  r: "No `final_report.html` file is present, and no content stating \u201CProject\
+    \ Blocked: No Verified Data Source Found\u201D with the reason from T012c is provided.\
+    \ The required report artifact is missing entirely."
 T035:
   c: false
-  h: cbed33022bdf56e0edc728e3f093ac6635f8e10fd2240ce40479836ba9209622
-  r: "The repository contains a `tests/integration/test_reproducibility.py` file,\
-    \ but it is truncated (e.g., the `get_artifact_hashes` function ends abruptly\
-    \ and never computes hashes for the plot files or compares two runs). Moreover,\
-    \ the required artifact `data/processed/cleaned_microbiome_sleep.csv` does not\
-    \ exist, so the test cannot even locate the file it is supposed to hash. The task\u2019\
-    s requirements are therefore not met."
+  h: bc3388cd8fadca6be66d79a21af94ab8833223af7a3539cedb0eb633dcfd5276
+  r: The `tests/integration/test_reproducibility.py` file is truncated (the `_run_pipeline_stage`
+    method is cut off) and thus does not contain a full, runnable test implementation.
+    Additionally, the required output file `data/processed/cleaned_microbiome_sleep.csv`
+    is missing, so the test cannot even be executed successfully. Both issues must
+    be resolved for the task to be considered complete.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,3 +40,9 @@ T036:
     a validation report, log output, or an updated/confirmed `quickstart.md`) is present.
     The provided material only describes unrelated user stories and contains no evidence
     of the required quickstart validation step.
+T037:
+  c: false
+  h: 198ac684e91a93618e7c8af1729950f67bda90db0abfea83fc3b623ac7fe5a4f
+  r: "The required file `src/models/schemas.py` does not exist, so no Pydantic models\
+    \ were provided. Without the artifact, the task\u2019s core requirement cannot\
+    \ be satisfied."

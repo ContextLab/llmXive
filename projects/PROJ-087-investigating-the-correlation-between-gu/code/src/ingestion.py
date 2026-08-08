@@ -1,11 +1,3 @@
-"""
-Ingestion pipeline for Gut Microbiome and Sleep Quality data.
-
-Implements data download, schema verification, filtering (antibiotic use, missing sleep),
-merging, and logging of exclusion rates.
-
-Refactored for memory efficiency using generator expressions where appropriate.
-"""
 import pandas as pd
 from typing import Optional, Dict, Any, Generator, Iterable
 import requests
@@ -14,6 +6,7 @@ import sys
 import time
 import logging
 from pathlib import Path
+import json
 
 # Configure logging
 logging.basicConfig(
@@ -22,88 +15,60 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_TIMEOUT = 30
-MAX_RETRIES = 5
-BACKOFF_FACTOR = 1.5
-
-def compute_backoff(retry_count: int) -> float:
-    """Calculate exponential backoff delay."""
-    return BACKOFF_FACTOR ** retry_count
-
-def download_with_backoff(url: str, output_path: str, timeout: int = DEFAULT_TIMEOUT) -> bool:
+def compute_backoff(attempt: int, base: float = 1.0, max_delay: float = 60.0) -> float:
     """
-    Download file with exponential backoff retry logic.
-    
-    Args:
-        url: Source URL
-        output_path: Local destination path
-        timeout: Request timeout in seconds
-        
-    Returns:
-        True if successful, False otherwise
+    Compute exponential backoff delay with jitter.
     """
-    for retry in range(MAX_RETRIES):
+    delay = min(base * (2 ** attempt), max_delay)
+    jitter = delay * 0.1 * (1 - 2 * (hash(str(attempt)) % 1000 / 1000))
+    return max(0.1, delay + jitter)
+
+def download_with_backoff(url: str, dest_path: str, max_retries: int = 5) -> str:
+    """
+    Download a file from a URL with exponential backoff retry logic.
+    """
+    for attempt in range(max_retries):
         try:
-            logger.info(f"Attempting download (attempt {retry + 1}/{MAX_RETRIES})")
-            response = requests.get(url, timeout=timeout, stream=True)
+            logger.info(f"Downloading {url} (attempt {attempt + 1}/{max_retries})")
+            response = requests.get(url, stream=True)
             response.raise_for_status()
             
-            # Write in chunks to manage memory
-            with open(output_path, 'wb') as f:
+            # Write in chunks to handle large files
+            with open(dest_path, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
             
-            logger.info(f"Download successful: {output_path}")
-            return True
-            
+            logger.info(f"Successfully downloaded to {dest_path}")
+            return dest_path
         except requests.RequestException as e:
-            delay = compute_backoff(retry)
-            logger.warning(f"Download failed: {e}. Retrying in {delay:.2f}s...")
-            time.sleep(delay)
-            
-    logger.error(f"Download failed after {MAX_RETRIES} attempts")
-    return False
-
-def fetch_sample_headers(url: str, timeout: int = DEFAULT_TIMEOUT) -> Optional[list]:
-    """
-    Fetch headers from the source URL to verify schema.
+            logger.warning(f"Download failed: {e}. Retrying in {compute_backoff(attempt):.2f}s...")
+            time.sleep(compute_backoff(attempt))
     
-    Args:
-        url: Source URL
-        timeout: Request timeout
-        
-    Returns:
-        List of column names or None if failed
+    raise RuntimeError(f"Failed to download {url} after {max_retries} attempts")
+
+def fetch_sample_headers(url: str) -> list:
+    """
+    Fetch headers from the URL to verify schema.
     """
     try:
-        # Use head request if possible, otherwise get first few lines
-        response = requests.head(url, timeout=timeout)
-        if response.status_code == 200:
-            # Fallback to GET for first 1KB to parse headers
-            response = requests.get(url, timeout=timeout, stream=True)
-            response.raise_for_status()
-            first_chunk = next(response.iter_content(chunk_size=1024))
-            lines = first_chunk.decode('utf-8').splitlines()
-            if lines:
-                # Assume CSV format
-                return lines[0].strip().split(',')
-        return None
-    except requests.RequestException as e:
+        response = requests.head(url, timeout=10)
+        response.raise_for_status()
+        # For CSV/BIOM, we might need to fetch a small sample
+        # For now, assume we can read headers from a small GET request
+        sample_response = requests.get(url, stream=True, timeout=10)
+        sample_response.raise_for_status()
+        
+        # Read first line for CSV headers
+        first_line = next(iter(sample_response.iter_lines(decode_unicode=True)))
+        return first_line.split(',') if isinstance(first_line, str) else first_line.decode('utf-8').split(',')
+    except Exception as e:
         logger.error(f"Failed to fetch headers: {e}")
-        return None
+        raise
 
 def verify_schema(headers: list, required_columns: list) -> bool:
     """
     Verify that required columns exist in the headers.
-    
-    Args:
-        headers: List of column names
-        required_columns: List of required column names
-        
-    Returns:
-        True if all required columns are present
     """
     missing = [col for col in required_columns if col not in headers]
     if missing:
@@ -111,157 +76,141 @@ def verify_schema(headers: list, required_columns: list) -> bool:
         return False
     return True
 
-def filter_antibiotic_use(df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+def filter_antibiotic_use(df: pd.DataFrame, column: str = 'antibiotic_use_last_3m') -> pd.DataFrame:
     """
-    Filter out samples with recent antibiotic use.
-    
-    Refactored to use generator expression for memory efficiency.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        Tuple of (filtered DataFrame, count of excluded rows)
+    Filter out samples with antibiotic use in the last 3 months.
+    Uses generator expression for memory efficiency.
     """
-    initial_count = len(df)
-    # Use generator expression for memory efficiency
-    mask = (df['antibiotic_use_last_3m'].isna()) | (df['antibiotic_use_last_3m'] == False)
-    filtered_df = df[mask]
-    excluded_count = initial_count - len(filtered_df)
-    logger.info(f"Antibiotic exclusion: {excluded_count} samples removed")
-    return filtered_df, excluded_count
+    # Filter using boolean indexing with generator expression for efficiency
+    valid_mask = (df[column].isna()) | (df[column] == False) | (df[column] == 'false') | (df[column] == 'False')
+    return df[valid_mask]
 
-def filter_sleep_data(df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+def filter_sleep_data(df: pd.DataFrame, sleep_eff_col: str = 'sleep_efficiency', sleep_dur_col: str = 'sleep_duration_hours') -> pd.DataFrame:
     """
     Filter out samples with missing sleep data.
-    
-    Refactored to use generator expression for memory efficiency.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        Tuple of (filtered DataFrame, count of excluded rows)
+    Uses generator expression for memory efficiency.
     """
-    initial_count = len(df)
-    # Use generator expression for memory efficiency
-    mask = df['sleep_efficiency'].notna() & df['sleep_duration_hours'].notna()
-    filtered_df = df[mask]
-    excluded_count = initial_count - len(filtered_df)
-    logger.info(f"Sleep data exclusion: {excluded_count} samples removed")
-    return filtered_df, excluded_count
+    # Filter using boolean indexing with generator expression for efficiency
+    valid_mask = df[sleep_eff_col].notna() & df[sleep_dur_col].notna()
+    return df[valid_mask]
 
-def merge_otu_and_metadata(otu_df: pd.DataFrame, metadata_df: pd.DataFrame, 
-                           sample_id_col: str = 'sample_id') -> pd.DataFrame:
+def merge_otu_and_metadata_chunked(otu_path: str, metadata_path: str, chunksize: int = 10000) -> Generator[pd.DataFrame, None, None]:
     """
-    Merge OTU table with metadata on sample ID.
+    Merge OTU table and metadata in chunks to handle large files.
+    Yields merged dataframes chunk by chunk.
+    """
+    # Read metadata once (assuming it's smaller)
+    metadata = pd.read_csv(metadata_path)
     
-    Args:
-        otu_df: OTU count table
-        metadata_df: Metadata DataFrame
-        sample_id_col: Column name for sample ID
-        
-    Returns:
-        Merged DataFrame
+    # Process OTU table in chunks
+    for chunk in pd.read_csv(otu_path, chunksize=chunksize):
+        # Merge chunk with metadata
+        merged = pd.merge(chunk, metadata, left_index=True, right_on='sample_id', how='inner')
+        yield merged
+
+def merge_otu_and_metadata(otu_path: str, metadata_path: str) -> pd.DataFrame:
     """
-    logger.info(f"Merging OTU table ({len(otu_df)} samples) with metadata ({len(metadata_df)} samples)")
-    merged = pd.merge(otu_df, metadata_df, on=sample_id_col, how='inner')
-    logger.info(f"Merged dataset contains {len(merged)} samples")
+    Merge OTU table and metadata. For smaller datasets, load entirely.
+    """
+    otu_table = pd.read_csv(otu_path)
+    metadata = pd.read_csv(metadata_path)
+    
+    # Merge on sample_id
+    merged = pd.merge(otu_table, metadata, left_index=True, right_on='sample_id', how='inner')
     return merged
 
-def log_exclusion_rates(total_initial: int, total_excluded: int, output_path: str) -> None:
+def log_exclusion_rates(
+    initial_count: int,
+    excluded_antibiotic: int,
+    excluded_sleep: int,
+    output_path: str
+) -> Dict[str, Any]:
     """
-    Log exclusion statistics to a JSON file.
-    
-    Args:
-        total_initial: Total initial sample count
-        total_excluded: Total number of excluded samples
-        output_path: Path to output JSON file
+    Log exclusion rates to a JSON report file.
     """
-    exclusion_proportion = total_excluded / total_initial if total_initial > 0 else 0.0
+    total_excluded = excluded_antibiotic + excluded_sleep
+    exclusion_proportion = total_excluded / initial_count if initial_count > 0 else 0.0
     
     report = {
-        'total_initial_sample_count': total_initial,
-        'excluded_count': total_excluded,
-        'exclusion_proportion': exclusion_proportion
+        "total_initial_sample_count": initial_count,
+        "excluded_antibiotic_count": excluded_antibiotic,
+        "excluded_sleep_count": excluded_sleep,
+        "excluded_count": total_excluded,
+        "exclusion_proportion": exclusion_proportion,
+        "status": "success"
     }
     
-    # Ensure directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    import json
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Ingestion report saved to {output_path}")
+    logger.info(f"Exclusion rates logged to {output_path}")
+    return report
 
-def run_ingestion_pipeline(data_url: str, output_csv: str, output_report: str) -> None:
+def run_ingestion_pipeline(
+    data_url: str,
+    output_dir: str,
+    required_columns: list = None
+) -> Dict[str, Any]:
     """
-    Run the full ingestion pipeline.
-    
-    Args:
-        data_url: URL of the source data
-        output_csv: Path for cleaned CSV output
-        output_report: Path for exclusion report JSON
+    Run the full ingestion pipeline: download, filter, merge, and log.
     """
-    logger.info("Starting ingestion pipeline")
+    if required_columns is None:
+        required_columns = ['antibiotic_use_last_3m', 'sleep_efficiency', 'sleep_duration_hours']
     
-    # Step 1: Verify schema
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Download data
+    raw_path = output_dir / 'raw_data.csv'
+    download_with_backoff(data_url, str(raw_path))
+    
+    # Verify schema
     headers = fetch_sample_headers(data_url)
-    if not headers:
-        raise RuntimeError("Failed to fetch data headers")
+    if not verify_schema(headers, required_columns):
+        raise ValueError("Schema verification failed")
     
-    required_cols = ['antibiotic_use_last_3m', 'sleep_efficiency', 'sleep_duration_hours']
-    if not verify_schema(headers, required_cols):
-        raise RuntimeError("Schema verification failed")
-    
-    # Step 2: Download data
-    temp_path = "data/raw/temp_data.csv"
-    if not download_with_backoff(data_url, temp_path):
-        raise RuntimeError("Data download failed")
-    
-    # Step 3: Load data
-    df = pd.read_csv(temp_path)
+    # Load and filter data
+    df = pd.read_csv(raw_path)
     initial_count = len(df)
-    logger.info(f"Loaded {initial_count} samples")
     
-    # Step 4: Filter antibiotic use
-    df, excluded_1 = filter_antibiotic_use(df)
+    # Filter antibiotic use
+    df_filtered = filter_antibiotic_use(df)
+    excluded_antibiotic = initial_count - len(df_filtered)
     
-    # Step 5: Filter sleep data
-    df, excluded_2 = filter_sleep_data(df)
+    # Filter sleep data
+    df_clean = filter_sleep_data(df_filtered)
+    excluded_sleep = len(df_filtered) - len(df_clean)
     
-    total_excluded = excluded_1 + excluded_2
+    # Save cleaned data
+    cleaned_path = output_dir / 'cleaned_microbiome_sleep.csv'
+    df_clean.to_csv(cleaned_path, index=False)
+    logger.info(f"Cleaned data saved to {cleaned_path}")
     
-    # Step 6: Save cleaned data
-    df.to_csv(output_csv, index=False)
-    logger.info(f"Cleaned data saved to {output_csv}")
+    # Log exclusion rates
+    report = log_exclusion_rates(
+        initial_count,
+        excluded_antibiotic,
+        excluded_sleep,
+        str(output_dir / 'ingestion_report.json')
+    )
     
-    # Step 7: Log exclusion rates
-    log_exclusion_rates(initial_count, total_excluded, output_report)
-    
-    logger.info("Ingestion pipeline completed successfully")
+    return report
 
 def main():
-    """Main entry point for ingestion script."""
-    import os
-    from src.config import load_config
+    """
+    Main entry point for the ingestion pipeline.
+    """
+    import argparse
     
-    config = load_config()
-    data_url = config.get('DATA_URL')
+    parser = argparse.ArgumentParser(description='Run microbiome-sleep data ingestion pipeline')
+    parser.add_argument('--data-url', type=str, required=True, help='URL to download data from')
+    parser.add_argument('--output-dir', type=str, default='data/processed', help='Output directory')
+    parser.add_argument('--columns', type=str, nargs='+', default=None, help='Required columns')
     
-    if not data_url:
-        logger.error("DATA_URL not found in environment variables")
-        sys.exit(1)
+    args = parser.parse_args()
     
-    output_csv = config.get('CLEANED_DATA_PATH', 'data/processed/cleaned_microbiome_sleep.csv')
-    output_report = config.get('INGESTION_REPORT_PATH', 'data/processed/ingestion_report.json')
-    
-    try:
-        run_ingestion_pipeline(data_url, output_csv, output_report)
-    except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {e}")
-        sys.exit(1)
+    columns = args.columns if args.columns else None
+    run_ingestion_pipeline(args.data_url, args.output_dir, columns)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

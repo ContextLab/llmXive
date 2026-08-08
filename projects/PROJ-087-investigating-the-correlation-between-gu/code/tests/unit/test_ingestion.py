@@ -9,54 +9,51 @@ from pathlib import Path
 
 @pytest.fixture
 def sample_df():
-    return pd.DataFrame({
-        'sample_id': ['S1', 'S2', 'S3', 'S4'],
-        'antibiotic_use_last_3m': [False, True, None, False],
-        'sleep_efficiency': [0.85, 0.70, None, 0.90],
-        'sleep_duration_hours': [7.0, 6.5, 8.0, None]
-    })
+    data = {
+        'antibiotic_use_last_3m': [True, False, False, True, None],
+        'sleep_efficiency': [0.8, 0.9, None, 0.7, 0.85],
+        'sleep_duration_hours': [7.0, 8.0, 6.0, None, 7.5],
+        'sample_id': ['S1', 'S2', 'S3', 'S4', 'S5']
+    }
+    return pd.DataFrame(data)
 
 def test_antibiotic_exclusion_logic(sample_df):
-    """Test that samples with antibiotic_use_last_3m=True are filtered."""
     result = filter_antibiotic_use(sample_df)
-    # S2 has True, should be excluded
+    # Should keep S2, S3, S5 (False or None)
+    # S1 and S4 (True) should be removed
     assert len(result) == 3
-    assert 'S2' not in result['sample_id'].values
+    assert 'S1' not in result['sample_id'].values
+    assert 'S4' not in result['sample_id'].values
 
 def test_sleep_data_validation(sample_df):
-    """Test that samples with null sleep_efficiency or sleep_duration_hours are filtered."""
-    # First apply antibiotic filter to get a clean baseline
-    df_no_abx = filter_antibiotic_use(sample_df)
-    result = filter_sleep_data(df_no_abx)
-    # S3 has null sleep_efficiency, S4 has null sleep_duration_hours
-    # S1 is the only one with both valid
-    assert len(result) == 1
-    assert 'S1' in result['sample_id'].values
+    # First filter antibiotic, then sleep
+    no_antibiotic = filter_antibiotic_use(sample_df)
+    result = filter_sleep_data(no_antibiotic)
+    # S3 has null sleep_efficiency, S4 was already removed
+    # S2 and S5 remain
+    assert len(result) == 2
+    assert 'S3' not in result['sample_id'].values
 
 def test_schema_verification_success():
-    headers = ['sample_id', 'antibiotic_use_last_3m', 'sleep_efficiency', 'sleep_duration_hours']
-    required = ['antibiotic_use_last_3m', 'sleep_efficiency', 'sleep_duration_hours']
+    headers = ['col1', 'col2', 'col3']
+    required = ['col1', 'col3']
     assert verify_schema(headers, required) is True
 
 def test_schema_verification_missing_columns():
-    headers = ['sample_id', 'antibiotic_use_last_3m']
-    required = ['antibiotic_use_last_3m', 'sleep_efficiency', 'sleep_duration_hours']
+    headers = ['col1', 'col2']
+    required = ['col1', 'col3']
     assert verify_schema(headers, required) is False
 
 def test_log_exclusion_rates():
-    """Test that log_exclusion_rates creates the correct JSON file."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'test_report.json')
-        total_initial = 100
-        excluded_count = 25
+        report_path = Path(tmpdir) / "report.json"
+        log_exclusion_rates(100, 80, str(report_path))
         
-        log_exclusion_rates(total_initial, excluded_count, output_path)
+        assert report_path.exists()
+        with open(report_path, 'r') as f:
+            data = json.load(f)
         
-        assert os.path.exists(output_path)
-        with open(output_path, 'r') as f:
-            report = json.load(f)
-        
-        assert report['total_initial_sample_count'] == 100
-        assert report['excluded_count'] == 25
-        assert report['exclusion_proportion'] == 0.25
-        assert report['retained_count'] == 75
+        assert data['total_initial_sample_count'] == 100
+        assert data['excluded_count'] == 20
+        assert data['exclusion_proportion'] == 0.2
+        assert data['status'] == 'success'
