@@ -1,367 +1,293 @@
-"""
-Evaluation and reporting module for User Story 2.
-
-Implements functions to evaluate model performance, run phylogenetic permutation baselines,
-calculate statistical significance, and report primary PGLS results for FR-010 compliance.
-"""
-
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
-
 import numpy as np
 import pandas as pd
-from scipy import stats
+from scipy.stats import pearsonr
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import ElasticNet
+from sklearn.metrics import r2_score, mean_squared_error
 
-from config import get_config, get_data_path
-from models.output import ModelOutput
-from modeling.phylo import train_pgls
+from modeling.train import train_models_loo, load_pca_features
+from modeling.phylo import load_phylogeny, construct_covariance_matrix
+from data.align import align_data
+from utils.logging import get_logger
 
-# Configure logger
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-
-def load_model_results(results_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
-    """
-    Load model results from a JSON file.
-
-    Args:
-        results_path: Path to the results JSON file. If None, uses default path from config.
-
-    Returns:
-        Dictionary containing model results.
-
-    Raises:
-        FileNotFoundError: If the results file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
-    """
+def load_model_results(results_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load model results from a JSON file."""
     if results_path is None:
-        config = get_config()
-        results_path = config.data_path / "processed" / "model_results.json"
-    else:
-        results_path = Path(results_path)
-
-    if not results_path.exists():
+        results_path = "data/processed/model_results.json"
+    path = Path(results_path)
+    if not path.exists():
         raise FileNotFoundError(f"Model results file not found: {results_path}")
-
-    with open(results_path, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
-
-def save_metrics(metrics: Dict[str, Any], metrics_path: Optional[Union[str, Path]] = None) -> Path:
-    """
-    Save metrics to a JSON file.
-
-    Args:
-        metrics: Dictionary of metrics to save.
-        metrics_path: Path to save the metrics file. If None, uses default path.
-
-    Returns:
-        Path to the saved metrics file.
-    """
-    if metrics_path is None:
-        config = get_config()
-        metrics_path = config.data_path / "processed" / "metrics.json"
-    else:
-        metrics_path = Path(metrics_path)
-
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2, default=str)
-
-    logger.info(f"Metrics saved to {metrics_path}")
-    return metrics_path
-
+def save_metrics(metrics: Dict[str, Any], output_path: Optional[str] = None) -> None:
+    """Save metrics to a JSON file."""
+    if output_path is None:
+        output_path = "data/processed/metrics.json"
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Metrics saved to {output_path}")
 
 def evaluate_models(
-    y_true: Union[pd.Series, np.ndarray],
-    y_pred: Union[pd.Series, np.ndarray],
-    model_name: str = "PGLS"
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    model_name: str = "Model"
 ) -> Dict[str, float]:
-    """
-    Calculate model evaluation metrics.
-
-    Args:
-        y_true: True target values.
-        y_pred: Predicted target values.
-        model_name: Name of the model for logging.
-
-    Returns:
-        Dictionary containing R², Pearson correlation, and RMSE.
-    """
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-
-    if len(y_true) != len(y_pred):
-        raise ValueError(f"y_true and y_pred must have the same length. Got {len(y_true)} and {len(y_pred)}")
-
-    # R² score
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-
-    # Pearson correlation
-    if len(y_true) > 2:
-        pearson_corr, p_value = stats.pearsonr(y_true, y_pred)
+    """Calculate R² and Pearson correlation on hold-out sets."""
+    r2 = r2_score(y_true, y_pred)
+    if len(np.unique(y_true)) > 1:
+        pearson_corr, _ = pearsonr(y_true, y_pred)
     else:
         pearson_corr = 0.0
-        p_value = 1.0
-
-    # RMSE
-    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
-
-    metrics = {
-        "model_name": model_name,
-        "r2": float(r2),
-        "pearson_correlation": float(pearson_corr),
-        "p_value": float(p_value),
-        "rmse": float(rmse),
-        "n_samples": len(y_true)
+    mse = mean_squared_error(y_true, y_pred)
+    logger.info(f"Evaluation for {model_name}: R²={r2:.4f}, Pearson={pearson_corr:.4f}, MSE={mse:.4f}")
+    return {
+        "r2": r2,
+        "pearson_correlation": pearson_corr,
+        "mse": mse
     }
 
-    logger.info(f"Evaluation metrics for {model_name}: R²={r2:.4f}, Pearson={pearson_corr:.4f}, RMSE={rmse:.4f}")
-
-    return metrics
-
-
 def run_phylogenetic_permutation(
-    y: Union[pd.Series, np.ndarray],
-    tree_data: Any,
+    y: np.ndarray,
+    X: np.ndarray,
+    tree_path: str,
     n_permutations: int = 100,
-    random_seed: Optional[int] = None
-) -> Tuple[List[float], float]:
+    random_state: Optional[int] = None
+) -> Dict[str, float]:
     """
-    Run phylogenetic permutation to establish a baseline R².
+    Shuffle labels while preserving tree structure to calculate baseline R².
 
-    Shuffles labels while preserving tree structure to create a null distribution.
+    This function implements a phylogenetic permutation test (PGLS baseline).
+    It shuffles the response variable (y) across the tips of the phylogenetic tree
+    in a way that respects the tree's structure (e.g., by permuting independent contrasts
+    or using a Brownian motion model simulation) to generate a null distribution.
+
+    For this implementation, we use a simplified approach:
+    1. Load the phylogeny.
+    2. Calculate the phylogenetic covariance matrix (V).
+    3. Perform a Cholesky decomposition of V to decorrelate the data.
+    4. Shuffle the decorrelated residuals/labels.
+    5. Transform back and calculate R².
+    6. Repeat n_permutations times to get a baseline distribution.
 
     Args:
-        y: Target values.
-        tree_data: Phylogenetic tree data (Newick string or dendropy Tree object).
-        n_permutations: Number of permutations to run.
-        random_seed: Random seed for reproducibility.
+        y: Response variable array (metabolite abundance).
+        X: Feature matrix (BGC counts).
+        tree_path: Path to the Newick tree file.
+        n_permutations: Number of permutations to perform.
+        random_state: Random seed for reproducibility.
 
     Returns:
-        Tuple of (list of permuted R² values, mean baseline R²).
+        Dictionary containing 'mean_baseline_r2', 'std_baseline_r2', 'min_baseline_r2', 'max_baseline_r2'.
     """
-    if random_seed is not None:
-        np.random.seed(random_seed)
+    if random_state is not None:
+        np.random.seed(random_state)
 
-    y = np.asarray(y)
+    logger.info(f"Starting phylogenetic permutation test with {n_permutations} permutations.")
+
+    # Load phylogeny and construct covariance matrix
+    try:
+        tree = load_phylogeny(tree_path)
+        cov_matrix = construct_covariance_matrix(tree)
+    except Exception as e:
+        logger.error(f"Failed to load phylogeny or construct covariance matrix: {e}")
+        raise
+
+    # Ensure dimensions match
+    if cov_matrix.shape[0] != len(y):
+        raise ValueError(f"Phylogeny ({cov_matrix.shape[0]} tips) does not match data length ({len(y)}).")
+
+    # Cholesky decomposition to decorrelate
+    # V = L * L^T  =>  V^{-1} = (L^T)^{-1} * L^{-1}
+    # We want to transform y and X such that the errors are i.i.d.
+    # If y = X*beta + e, where e ~ N(0, V), then L^{-1} * y = L^{-1} * X * beta + L^{-1} * e
+    # where L^{-1} * e ~ N(0, I).
+    try:
+        L = np.linalg.cholesky(cov_matrix)
+        L_inv = np.linalg.inv(L)
+    except np.linalg.LinAlgError:
+        logger.warning("Covariance matrix is not positive definite. Adding jitter.")
+        jitter = np.eye(cov_matrix.shape[0]) * 1e-6
+        L = np.linalg.cholesky(cov_matrix + jitter)
+        L_inv = np.linalg.inv(L)
+
+    # Decorrelate data
+    y_decorrelated = L_inv @ y
+    X_decorrelated = L_inv @ X
+
     baseline_r2s = []
 
-    logger.info(f"Running {n_permutations} phylogenetic permutations...")
+    # Train a simple model on the original decorrelated data to get a baseline for comparison?
+    # No, the task is to shuffle labels to get a NULL distribution.
+    # We will shuffle y_decorrelated, then transform back (or just predict on X_decorrelated with shuffled y)
+    # Actually, the standard phylogenetic permutation shuffles the independent contrasts.
+    # Simplified approach: Shuffle y_decorrelated, then predict using X_decorrelated.
+    # This breaks the phylogenetic signal in y while keeping X fixed (assuming X is not phylogenetically structured or we are testing against that).
+    # A more rigorous test would permute the tips of the tree for both X and y, but here we focus on y permutation.
 
     for i in range(n_permutations):
-        # Shuffle y values (simple permutation for baseline)
-        y_perm = np.random.permutation(y)
+        # Shuffle the decorrelated response
+        y_permuted_decorrelated = np.random.permutation(y_decorrelated)
 
-        # In a full implementation, we would train a PGLS model on permuted data
-        # For now, we calculate a simple correlation-based baseline
-        # This is a placeholder - in reality, we'd need to run train_pgls with permuted data
-        if len(y_perm) > 2:
-            r, _ = stats.pearsonr(y_perm, y)
-            r2_perm = r ** 2
-        else:
-            r2_perm = 0.0
+        # We can either transform back or just fit on decorrelated space.
+        # Fitting on decorrelated space is equivalent to fitting the PGLS on the original data with permuted y.
+        # Let's fit a simple OLS on the decorrelated space to get R².
+        # y_permuted = X_decorrelated * beta + error
+        # We use a simple linear model (ElasticNet with alpha=0 for OLS, or just np.linalg.lstsq)
+        # Using sklearn for consistency with the rest of the pipeline
+        model = ElasticNet(alpha=0.0, l1_ratio=0.0, max_iter=1000)
+        try:
+            model.fit(X_decorrelated, y_permuted_decorrelated)
+            y_pred = model.predict(X_decorrelated)
+            r2 = r2_score(y_permuted_decorrelated, y_pred)
+            baseline_r2s.append(r2)
+        except Exception as e:
+            logger.warning(f"Permutation {i} failed: {e}. Skipping.")
+            continue
 
-        baseline_r2s.append(r2_perm)
-
-    mean_baseline_r2 = np.mean(baseline_r2s)
-
-    logger.info(f"Phylogenetic permutation baseline: mean R² = {mean_baseline_r2:.4f}")
-
-    return baseline_r2s, mean_baseline_r2
-
-
-def calculate_significance(
-    model_r2: float,
-    baseline_r2: float,
-    baseline_std: float,
-    n_permutations: int = 100
-) -> Dict[str, Any]:
-    """
-    Calculate statistical significance by comparing model R² to baseline.
-
-    Args:
-        model_r2: Model R² value.
-        baseline_r2: Mean baseline R² from permutations.
-        baseline_std: Standard deviation of baseline R².
-        n_permutations: Number of permutations used.
-
-    Returns:
-        Dictionary containing p-value and significance flag.
-    """
-    if baseline_std == 0:
-        # If baseline has no variance, check if model is greater than baseline
-        p_value = 0.0 if model_r2 > baseline_r2 else 1.0
-    else:
-        # Z-score approach
-        z_score = (model_r2 - baseline_r2) / baseline_std
-        # One-tailed p-value
-        p_value = 1 - stats.norm.cdf(z_score)
-
-    is_significant = p_value < 0.05
+    if not baseline_r2s:
+        raise RuntimeError("No valid permutations could be completed.")
 
     result = {
-        "model_r2": model_r2,
-        "baseline_r2": baseline_r2,
-        "baseline_std": baseline_std,
-        "z_score": float(z_score),
-        "p_value": float(p_value),
-        "is_significant": is_significant,
+        "mean_baseline_r2": float(np.mean(baseline_r2s)),
+        "std_baseline_r2": float(np.std(baseline_r2s)),
+        "min_baseline_r2": float(np.min(baseline_r2s)),
+        "max_baseline_r2": float(np.max(baseline_r2s)),
         "n_permutations": n_permutations
     }
 
-    logger.info(f"Significance test: p-value = {p_value:.4f}, significant = {is_significant}")
-
+    logger.info(f"Phylogenetic permutation baseline R²: mean={result['mean_baseline_r2']:.4f}, std={result['std_baseline_r2']:.4f}")
     return result
 
-
-def report_primary_results(
-    results_path: Optional[Union[str, Path]] = None,
-    output_path: Optional[Union[str, Path]] = None,
-    metrics_path: Optional[Union[str, Path]] = None
+def calculate_significance(
+    model_r2: float,
+    baseline_stats: Dict[str, float],
+    alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Extract, format, and log the primary PGLS results for FR-010 compliance.
-
-    This function:
-    1. Loads model results from the default or specified path.
-    2. Extracts PGLS R² and feature importance.
-    3. Logs the primary results in a structured format.
-    4. Saves the results to a report file.
+    Compare model R² against baseline (p < 0.05 check).
 
     Args:
-        results_path: Path to the model results JSON file.
-        output_path: Path to save the primary results report.
-        metrics_path: Path to the metrics JSON file for updating.
+        model_r2: The R² score from the actual model.
+        baseline_stats: Statistics from run_phylogenetic_permutation.
+        alpha: Significance level.
 
     Returns:
-        Dictionary containing the primary results.
-
-    Raises:
-        FileNotFoundError: If results file not found.
-        KeyError: If expected keys are missing in results.
+        Dictionary with 'is_significant', 'p_value', 'z_score'.
     """
-    # Load model results
-    results = load_model_results(results_path)
+    mean_base = baseline_stats['mean_baseline_r2']
+    std_base = baseline_stats['std_baseline_r2']
 
-    # Extract PGLS results
-    if "pgls_results" not in results:
-        raise KeyError("PGLS results not found in model results. Ensure T024 has been run successfully.")
+    if std_base == 0:
+        p_value = 0.0 if model_r2 > mean_base else 1.0
+    else:
+        z_score = (model_r2 - mean_base) / std_base
+        # Approximate p-value from Z-score (one-tailed)
+        from scipy.stats import norm
+        p_value = 1 - norm.cdf(z_score)
 
-    pgls_results = results["pgls_results"]
+    is_significant = p_value < alpha
 
-    # Extract primary metrics
-    primary_r2 = pgls_results.get("r2")
-    if primary_r2 is None:
-        raise KeyError("R² value not found in PGLS results.")
+    logger.info(f"Significance test: R²={model_r2:.4f}, Baseline Mean={mean_base:.4f}, Z={z_score:.4f}, p={p_value:.4f}, Significant={is_significant}")
 
-    feature_importance = pgls_results.get("feature_importance", {})
-    n_features = pgls_results.get("n_features", len(feature_importance))
-    n_samples = pgls_results.get("n_samples", 0)
-
-    # Format primary results
-    primary_report = {
-        "task_id": "T024b",
-        "fr_compliance": "FR-010",
-        "model_type": "PGLS",
-        "primary_r2": primary_r2,
-        "n_samples": n_samples,
-        "n_features": n_features,
-        "feature_importance": feature_importance,
-        "timestamp": results.get("timestamp", "unknown"),
-        "status": "success" if primary_r2 > 0 else "warning"
+    return {
+        "is_significant": is_significant,
+        "p_value": float(p_value),
+        "z_score": float(z_score) if std_base > 0 else 0.0
     }
 
-    # Log primary results
-    logger.info("=" * 60)
-    logger.info("PRIMARY RESULTS REPORT (FR-010 COMPLIANCE)")
-    logger.info("=" * 60)
-    logger.info(f"Model Type: PGLS")
-    logger.info(f"Primary R²: {primary_r2:.6f}")
-    logger.info(f"Number of Samples: {n_samples}")
-    logger.info(f"Number of Features: {n_features}")
-    logger.info(f"Status: {'SUCCESS' if primary_r2 > 0 else 'WARNING - R² <= 0'}")
-    logger.info("-" * 60)
-    logger.info("Top Feature Importances:")
-
-    # Sort and log top features
-    sorted_features = sorted(
-        feature_importance.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )[:10]
-
-    for i, (feature, importance) in enumerate(sorted_features, 1):
-        logger.info(f"  {i}. {feature}: {importance:.6f}")
-
-    logger.info("=" * 60)
-
-    # Save primary results report
+def report_primary_results(
+    metrics_path: str,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Extract, format, and log the PGLS R² and feature importance as the primary result.
+    Ensures FR-010 compliance.
+    """
     if output_path is None:
-        config = get_config()
-        output_path = config.data_path / "processed" / "primary_results.json"
-    else:
-        output_path = Path(output_path)
+        output_path = "data/processed/primary_results.json"
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(metrics_path, 'r') as f:
+        metrics = json.load(f)
 
-    with open(output_path, 'w') as f:
-        json.dump(primary_report, f, indent=2, default=str)
+    # Assume metrics contains 'pgls' or 'primary_model' results
+    # Adjust key based on actual output from T024/T024b
+    primary_result = metrics.get('primary_model', metrics.get('pgls', {}))
 
-    logger.info(f"Primary results saved to {output_path}")
+    report = {
+        "primary_r2": primary_result.get('r2'),
+        "feature_importance": primary_result.get('feature_importance', []),
+        "model_type": "PGLS",
+        "timestamp": str(pd.Timestamp.now())
+    }
 
-    # Update metrics file with primary R²
-    if metrics_path is None:
-        config = get_config()
-        metrics_path = config.data_path / "processed" / "metrics.json"
-    else:
-        metrics_path = Path(metrics_path)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(report, f, indent=2)
 
-    if metrics_path.exists():
-        with open(metrics_path, 'r') as f:
-            metrics = json.load(f)
-    else:
-        metrics = {}
-
-    metrics["primary_pgls_r2"] = primary_r2
-    metrics["primary_results_report"] = str(output_path)
-    metrics["fr_010_compliance"] = True
-
-    save_metrics(metrics, metrics_path)
-
-    return primary_report
-
+    logger.info(f"Primary results reported to {output_path}")
+    return report
 
 def main():
-    """Main entry point for reporting primary results."""
-    # Setup logging
-    from utils.logging import setup_logging
-    setup_logging()
+    """
+    Main entry point for running the phylogenetic permutation test.
+    This script is designed to be run after T024 (PGLS training) and T025 (Evaluation).
+    It expects the aligned data and phylogeny to be available.
+    """
+    # Configuration
+    DATA_PATH = "data/processed/aligned_matrix.csv"
+    PHYLO_PATH = "data/raw/phylogeny/species_tree.nwk" # Adjust path as per project structure
+    N_PERMUTATIONS = 100
+    OUTPUT_PATH = "data/processed/permutation_baseline.json"
 
-    logger.info("Starting primary results report generation (T024b)...")
+    logger.info("Starting phylogenetic permutation baseline calculation.")
 
+    # Load data
     try:
-        report = report_primary_results()
-        logger.info("Primary results report generated successfully.")
-        return report
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        logger.error("Ensure T024 (train_pgls) has been run and produced model_results.json")
-        raise
-    except KeyError as e:
-        logger.error(f"Missing required key in results: {e}")
-        logger.error("Ensure the model results file contains 'pgls_results' with 'r2' and 'feature_importance'")
-        raise
+        df = pd.read_csv(DATA_PATH)
+        # Assume 'species' column exists and is index or used for merging
+        # Assume 'metabolite_abundance' is the target and 'bgc_counts' are features
+        # Adjust column names based on actual aligned matrix schema
+        if 'metabolite_abundance' not in df.columns:
+            # Fallback or error handling
+            raise ValueError("Column 'metabolite_abundance' not found in aligned matrix.")
+        
+        y = df['metabolite_abundance'].values
+        X = df.drop(columns=['species', 'metabolite_abundance']).values
     except Exception as e:
-        logger.error(f"Error generating primary results report: {e}")
+        logger.error(f"Failed to load aligned data: {e}")
         raise
 
+    # Run permutation
+    try:
+        baseline_results = run_phylogenetic_permutation(
+            y=y,
+            X=X,
+            tree_path=PHYLO_PATH,
+            n_permutations=N_PERMUTATIONS
+        )
+    except Exception as e:
+        logger.error(f"Permutation test failed: {e}")
+        raise
+
+    # Save results
+    path = Path(OUTPUT_PATH)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(baseline_results, f, indent=2)
+
+    logger.info(f"Phylogenetic permutation baseline saved to {OUTPUT_PATH}")
+    return baseline_results
 
 if __name__ == "__main__":
     main()

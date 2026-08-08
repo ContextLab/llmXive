@@ -5,27 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking"
 
-## Summary of the prior work
-The paper introduces Humanoid-GPT, a causal Transformer model pre-trained on a massive 2 billion-frame motion corpus to achieve zero-shot whole-body control and tracking of complex human dynamics. By scaling both data volume and model capacity, the authors demonstrate that this generative approach surpasses traditional shallow MLP trackers in agility and generalization to unseen motions. The core contribution is establishing that large-scale pre-training on unified mocap data creates a universal controller capable of robust zero-shot transfer.
+**Field**: computer science
 
-## Proposed extension
-Can the zero-shot generalization capabilities of Humanoid-GPT be preserved or enhanced when the model is distilled into a small, non-differentiable rule-based or decision-tree controller that operates exclusively on CPU logic? This question matters because it challenges the assumption that high-fidelity motion tracking strictly requires massive GPU-accelerated Transformers, potentially unlocking real-time deployment on low-power embedded humanoid hardware where energy and compute are severely constrained.
+## Research question
+
+Does distilling a large-scale Transformer-based motion controller into a lightweight, non-differentiable rule-based system preserve its zero-shot generalization to unseen human dynamics, or is the performance gap fundamentally irreducible without continuous, differentiable latent representations?
+
+## Motivation
+
+Current humanoid control relies on massive GPU-accelerated Transformers that are impractical for embedded, low-power hardware. If the "scaling law" benefits of Humanoid-GPT can be captured by simple decision logic, it would democratize real-time motion tracking on resource-constrained robots. Conversely, demonstrating a hard performance floor for non-differentiable controllers would clarify the minimum computational complexity required for universal whole-body control.
+
+## Related work
+
+- [Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking](https://arxiv.org/abs/2606.03985) — Establishes the baseline for zero-shot whole-body control using a causal Transformer pre-trained on a billion-scale motion corpus, demonstrating superior generalization over shallow MLPs.
+- [UniTracker: Learning Universal Whole-Body Motion Tracker for Humanoid Robots](https://arxiv.org/abs/2507.07356) — Proposes a three-stage training framework for universal control, offering a comparative architecture for evaluating how different training regimes impact zero-shot transfer capabilities.
+- [GenTrack: Physical Alignment for Robot-Native Motion Generation and Zero-Shot Humanoid Tracking](https://arxiv.org/abs/2608.01410) — Addresses the cost of extending embodied corpora and explores text-to-motion generators, providing context on the data scalability challenges that the proposed distillation aims to bypass.
+
+## Expected results
+
+We expect the distilled decision-tree or k-NN controller to exhibit a sharp performance cliff on complex, high-frequency motions (e.g., falls or rapid turns) compared to the Transformer, while maintaining comparable accuracy on static or low-dynamic poses. The measurement will quantify the "distillation gap" as the difference in root-mean-square error (RMSE) on joint trajectories across a held-out test set, with the hypothesis that non-differentiable structures fail to capture the continuous latent dynamics required for robust zero-shot transfer.
 
 ## Methodology sketch
-We will extract the attention weights and output trajectories from the pre-trained Humanoid-GPT on a subset of 10,000 diverse motion frames to create a "teacher" dataset, then train a shallow Decision Stump Ensemble or a small k-Nearest Neighbors regressor (using CPU-optimized libraries like scikit-learn) to mimic these outputs using only kinematic state features. The procedure involves comparing the CPU-distilled controller's tracking error and inference latency against the original Transformer across a held-out set of unseen dynamic motions (e.g., complex dances or falls). We expect the distilled model to achieve a sub-10% performance drop in tracking accuracy while reducing inference latency by two orders of magnitude, proving that the "scaling law" benefits can be partially captured by simpler, CPU-tractable structures.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the Humanoid-GPT pre-training corpus subset and the official test benchmark from the project's public repository (or generate synthetic mocap sequences using the provided `Humanoid-GPT` inference script if raw data is restricted).
+- **Teacher Inference**: Run the pre-trained Humanoid-GPT model on 10,000 diverse motion frames (including unseen dynamics) to generate "ground truth" joint trajectories and attention weights, storing these as the teacher dataset.
+- **Feature Engineering**: Extract kinematic state features (joint angles, velocities, angular momentum) as input vectors; exclude any latent embeddings to enforce the "non-differentiable" constraint.
+- **Distillation**: Train a Decision Stump Ensemble and a small k-Nearest Neighbors (k-NN) regressor (using `scikit-learn`) to map kinematic states directly to teacher-generated joint trajectories, optimizing for MSE loss on a training split.
+- **Evaluation Protocol**: Evaluate both distilled models and the original Transformer on a held-out set of unseen complex motions (e.g., dynamic dances, balance recovery).
+- **Statistical Analysis**: Compute RMSE and inference latency (ms per frame) for all models; apply a paired t-test to determine if the performance drop in distilled models is statistically significant (p < 0.05) compared to the Transformer baseline.
+- **Validation Independence**: The evaluation uses a held-out test set of motions *not* seen during the distillation training phase, ensuring the validation target is independent of the training data distribution.
 
-- **Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking** — Zekun Qi, Xuchuan Chen, Dairu Liu, Chenghuai Lin, Yunrui Lian, Sikai Liang, Zhikai Zhang, Yu Guan, Jilong Wang, Wenyao Zhang, Xinqiang Yu, He Wang, Li Yi. https://arxiv.org/abs/2606.03985.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_03985,
-  title = {Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking},
-  author = {Zekun Qi and Xuchuan Chen and Dairu Liu and Chenghuai Lin and Yunrui Lian and Sikai Liang and Zhikai Zhang and Yu Guan and Jilong Wang and Wenyao Zhang and Xinqiang Yu and He Wang and Li Yi},
-  year = {2026},
-  eprint = {2606.03985},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.03985},
-  url = {https://arxiv.org/abs/2606.03985}
-}
-```
+- Reviewed existing ideas: Humanoid-GPT scaling analysis, UniTracker framework comparison, GenTrack physical alignment.
+- Closest match: Humanoid-GPT scaling analysis (similarity: high on topic, low on specific distillation focus).
+- Verdict: NOT a duplicate (The proposed focus on distilling to *non-differentiable, CPU-only* rule-based controllers specifically challenges the assumption of necessary differentiability, distinct from general scaling or architecture comparisons).
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-08T06:36:33Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking" computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking" computer science | 0 |
+| 1 | zero-shot humanoid motion tracking | 4 |
+| 2 | large language models for motion generation | 0 |
+| 3 | scaling laws for motion data and structure | 0 |
+| 4 | transformer-based pose estimation | 0 |
+| 5 | generalizable motion tracking without fine-tuning | 0 |
+| 6 | foundation models for robotics motion control | 0 |
+| 7 | cross-domain motion transfer using LLMs | 0 |
+| 8 | data-efficient humanoid motion synthesis | 0 |
+| 9 | zero-shot imitation learning for humanoids | 0 |
+| 10 | language-guided motion tracking | 0 |
+| 11 | structural priors in motion generation | 0 |
+| 12 | few-shot humanoid motion adaptation | 0 |
+| 13 | multimodal motion understanding with LLMs | 0 |
+| 14 | unsupervised motion representation learning | 0 |
+| 15 | scalable datasets for humanoid kinematics | 0 |
+| 16 | zero-shot robotic skill transfer | 0 |
+| 17 | attention mechanisms for motion sequences | 0 |
+| 18 | pre-trained models for human motion prediction | 0 |
+| 19 | generalist motion models for humanoid robots | 0 |
+| 20 | semantic motion tracking via large language models | 0 |
+
+### Verified citations
+
+1. **Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking** (2026). Zekun Qi, Xuchuan Chen, Dairu Liu, Chenghuai Lin, Yunrui Lian, et al.. arXiv. [2606.03985](https://arxiv.org/abs/2606.03985). PDF-sampled: No.
+2. **UniTracker: Learning Universal Whole-Body Motion Tracker for Humanoid Robots** (2025). Kangning Yin, Weishuai Zeng, Ke Fan, Minyue Dai, Zirui Wang, et al.. arXiv. [2507.07356](https://arxiv.org/abs/2507.07356). PDF-sampled: No.
+3. **GenTrack: Physical Alignment for Robot-Native Motion Generation and Zero-Shot Humanoid Tracking** (2026). Zeyu Ling, Xinyao Yu, Renye Yan, Jikang Cheng, Zhanke Wang, et al.. arXiv. [2608.01410](https://arxiv.org/abs/2608.01410). PDF-sampled: No.

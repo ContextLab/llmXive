@@ -1,10 +1,10 @@
 """
-Pydantic models for the plant secondary metabolite prediction pipeline.
+Package for Pydantic data models.
 """
-from .species import Species
-from .bgc import BGCType, BGCFeature
-from .metabolite import MetaboliteClass, Metabolite
-from .output import ModelOutput
+from models.species import Species
+from models.bgc import BGCType, BGCFeature
+from models.metabolite import MetaboliteClass, Metabolite
+from models.output import ModelOutput
 
 __all__ = [
     "Species",
@@ -12,5 +12,5 @@ __all__ = [
     "BGCFeature",
     "MetaboliteClass",
     "Metabolite",
-    "ModelOutput",
+    "ModelOutput"
 ]

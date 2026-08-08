@@ -143,8 +143,8 @@
  **Output**: Write `data/processed/valid_threads.csv` (only 'valid' threads) and `data/processed/all_threads_classified.csv` (all threads with classification).
 
 - [X] T019a [S] [US1] **Depends on T009, T019**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
- **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads.
- **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'. If upvote/downvote data is missing, set `external_validation_score` to `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
+ **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads. [UNRESOLVED-CLAIM: c_1554098d — status=not_enough_info]
+ **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'. [UNRESOLVED-CLAIM: c_bff6a0c3 — status=not_enough_info] If upvote/downvote data is missing, set `external_validation_score` to `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
  **Input**: Merge data from T009 (seed posts) and T019 (ground truth classification). Iterate over ALL threads in `data/processed/all_threads_classified.csv` (which includes T010 filtering logic).
  **Output**: Append `external_validation_score` to `data/processed/valid_threads.csv` (for valid threads) and `data/processed/all_threads_classified.csv` (for all threads, setting null for 'valid_no_gt').
  **Constraint**: This task runs on the full classified dataset, explicitly handling 'valid_no_gt' threads by setting their score to null.
@@ -611,7 +611,7 @@ With multiple developers:
  **Action**: Generate a PNG heatmap of predictor correlations in `docs/` and reference it in `docs/paper.md`.
  **Constraint**: This task must run after T030.
 
-- [~] T065 [S] **Review Fix**: Validate that the "fail-loud" policy in T031 is correctly triggered during the execution gate (T036) by simulating a complete data source failure and confirming the pipeline halts with a clear error message.
+- [ ] T065 [S] **Review Fix**: Validate that the "fail-loud" policy in T031 is correctly triggered during the execution gate (T036) by simulating a complete data source failure and confirming the pipeline halts with a clear error message.
  **Action**: Add a specific test case in `code/tests/test_fail_loud.py` that mocks all data sources to return errors and verifies the `RuntimeError` is raised.
  **Constraint**: This task must run after T031 and before T036.
 
@@ -619,11 +619,11 @@ With multiple developers:
  **Action**: Add a "Memory and Streaming" section to `docs/quickstart.md` detailing the chunking strategy and memory limits.
  **Constraint**: This task must run after T032 and before T029.
 
-- [~] T067 [S] **Review Fix**: Add a task to verify that the ground truth classification in T019 correctly handles threads with multiple accepted answers (if any exist in the dataset) and logs them as ambiguous.
+- [ ] T067 [S] **Review Fix**: Add a task to verify that the ground truth classification in T019 correctly handles threads with multiple accepted answers (if any exist in the dataset) and logs them as ambiguous.
  **Action**: Update `code/data/validation.py` to check for multiple `accepted_answer_id` values and log them to `data/processed/ambiguous_ground_truth.log`.
  **Constraint**: This task must run after T019.
 
-- [~] T068 [S] **Review Fix**: Ensure the GLMM model in T020 includes a check for model convergence and logs any non-convergent models with diagnostic information (e.g., number of iterations, Hessian status).
+- [ ] T068 [S] **Review Fix**: Ensure the GLMM model in T020 includes a check for model convergence and logs any non-convergent models with diagnostic information (e.g., number of iterations, Hessian status).
  **Action**: Add convergence checks in `code/data/modeling.py` and log warnings to `data/processed/model_convergence.log`.
  **Constraint**: This task must run after T020.
 

@@ -79,7 +79,7 @@
 - [X] T016 [US1] Implement `harmonize_metabolites()` in `code/data/preprocess.py` to apply InChIKey normalization, pseudo-count +1, and log-transformation
 - [X] T015 [US1] Implement `map_bgc_to_metabolite()` in `code/data/preprocess.py` using the MIBiG 3.0 ontology to map BGC types to metabolite classes, explicitly assigning to 'unknown' class if no match is found
 - [X] T017 [US1] Implement `align_data()` in `code/data/align.py` to merge genomic and metabolomic data by species, filtering partial rows and logging warnings
-- [ ] T018 [US1] Implement `save_aligned_matrix()` in `code/data/align.py` to write the final CSV to `data/processed/aligned_matrix.csv`
+- [X] T018 [US1] Implement `save_aligned_matrix()` in `code/data/align.py` to write the final CSV to `data/processed/aligned_matrix.csv`
 - [X] T035a [US1] Implement `calculate_alignment_success_rate()` in `code/data/align.py` to calculate, log, and report the percentage of species with valid data (N≥5) for SC-004
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -104,10 +104,10 @@
 - [X] T024b [US2] Implement `report_primary_results()` in `code/modeling/eval.py` to explicitly extract, format, and log the PGLS R² and feature importance as the primary result for the final report, ensuring FR-010 compliance.
 - [X] T022 [US2] Implement `create_stratified_split()` in `code/modeling/train.py` to split data by phylogenetic clade
 - [ ] T023a-PCA [US2] Implement `apply_pca()` in `code/modeling/train.py` to apply PCA for dimensionality reduction before multivariate modeling to prevent overfitting (N < 50 vs high features). Output saved to `data/interim/pca_features.csv`.
-- [ ] T023a [US2] Implement `train_models_loo()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting using Leave-One-Out CV. **Run this task; if N >= 20, run T023b instead; otherwise skip T023b.** Use PCA-reduced features from T023a-PCA.
-- [ ] T023b [US2] Implement `train_models_5fold()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting with 5-fold CV. **Run only if N >= 20 (skip if N < 20).** Use PCA-reduced features from T023a-PCA.
-- [ ] T025 [US2] Implement `evaluate_models()` in `code/modeling/eval.py` to calculate R² and Pearson correlation on hold-out sets
-- [ ] T026 [US2] Implement `run_phylogenetic_permutation()` in `code/modeling/eval.py` to shuffle labels while preserving tree structure and calculate baseline R²
+- [X] T023a [US2] Implement `train_models_loo()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting using Leave-One-Out CV. **Run this task; if N >= 20, run T023b instead; otherwise skip T023b.** Use PCA-reduced features from T023a-PCA.
+- [X] T023b [US2] Implement `train_models_5fold()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting with 5-fold CV. **Run only if N >= 20 (skip if N < 20).** Use PCA-reduced features from T023a-PCA.
+- [X] T025 [US2] Implement `evaluate_models()` in `code/modeling/eval.py` to calculate R² and Pearson correlation on hold-out sets
+- [X] T026 [US2] Implement `run_phylogenetic_permutation()` in `code/modeling/eval.py` to shuffle labels while preserving tree structure and calculate baseline R²
 - [ ] T027 [US2] Implement `calculate_significance()` in `code/modeling/eval.py` to compare model R² against baseline (p < 0.05 check)
 - [ ] T028 [US2] Implement `save_metrics()` in `code/modeling/eval.py` to write initial metrics to `data/processed/metrics.json`
 

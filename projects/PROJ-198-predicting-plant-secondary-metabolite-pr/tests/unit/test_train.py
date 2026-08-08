@@ -1,157 +1,163 @@
-"""
-Unit tests for phylogenetic stratified splitting logic (T022).
-"""
 import os
 import sys
-import tempfile
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Add code directory to path if running standalone
-code_path = Path(__file__).parent.parent
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from modeling.train import create_stratified_split, StratifiedSplitError, get_clade_members, find_balanced_clades
-import dendropy
-
-
-@pytest.fixture
-def sample_tree():
-    """Create a simple Newick tree for testing."""
-    # Tree structure: ((A,B),(C,D));
-    # Clade 1: A, B
-    # Clade 2: C, D
-    newick = "((A:1,B:1)Clade1:1,(C:1,D:1)Clade2:1)Root;"
-    tree = dendropy.Tree.get(
-        data=newick,
-        schema="newick",
-        preserve_underscores=True
-    )
-    return tree
-
+from modeling.train import (
+    apply_pca, 
+    train_models_loo, 
+    train_models_5fold, 
+    determine_cv_method,
+    load_pca_features,
+    ModelTrainingError
+)
 
 @pytest.fixture
 def sample_data():
-    """Create a sample dataframe with species matching the tree."""
-    data = {
-        'species': ['A', 'B', 'C', 'D'],
-        'value': [10, 20, 30, 40],
-        'feature1': [0.1, 0.2, 0.3, 0.4]
-    }
-    return pd.DataFrame(data)
-
+    """Create sample feature and target data."""
+    np.random.seed(42)
+    n_samples = 15
+    n_features = 10
+    
+    X = pd.DataFrame(
+        np.random.randn(n_samples, n_features),
+        columns=[f'feature_{i}' for i in range(n_features)]
+    )
+    y = pd.Series(np.random.randn(n_samples), name='target')
+    
+    return X, y
 
 @pytest.fixture
-def temp_tree_file(sample_tree):
-    """Write sample tree to a temporary file."""
-    fd, path = tempfile.mkstemp(suffix='.nwk')
-    with os.fdopen(fd, 'w') as f:
-        f.write(str(sample_tree.as_newick_string()))
-    return path
-
-
-def test_get_clade_members(sample_tree):
-    """Test that get_clade_members correctly retrieves tips from a clade."""
-    # Find the root
-    root = sample_tree.seed_node
-    # Find the child clade that contains A and B
-    # In the tree ((A,B),(C,D)), the root has two children.
-    # One child is the clade (A,B).
-    clade_ab = None
-    for child in root.child_nodes():
-        tips = [t.label for t in child.leaf_nodes()]
-        if set(tips) == {'A', 'B'}:
-            clade_ab = child
-            break
-
-    assert clade_ab is not None
+def sample_large_data():
+    """Create larger sample data for 5-fold CV testing."""
+    np.random.seed(42)
+    n_samples = 25
+    n_features = 10
     
-    members = get_clade_members(sample_tree, clade_ab)
-    assert set(members) == {'A', 'B'}
-
-
-def test_find_balanced_clades(sample_tree):
-    """Test that balanced clades are found correctly."""
-    clades = find_balanced_clades(sample_tree, min_size=2)
+    X = pd.DataFrame(
+        np.random.randn(n_samples, n_features),
+        columns=[f'feature_{i}' for i in range(n_features)]
+    )
+    y = pd.Series(np.random.randn(n_samples), name='target')
     
-    # We expect two clades: one with A,B and one with C,D
-    # The order might vary
-    all_members = []
-    for clade in clades:
-        all_members.extend(clade)
+    return X, y
+
+def test_determine_cv_method():
+    """Test CV method selection logic."""
+    assert determine_cv_method(10) == 'loo'
+    assert determine_cv_method(19) == 'loo'
+    assert determine_cv_method(20) == '5fold'
+    assert determine_cv_method(50) == '5fold'
+
+def test_apply_pca_creates_output(tmp_path):
+    """Test that PCA creates output file and reduces dimensions."""
+    np.random.seed(42)
+    n_samples = 20
+    n_features = 10
     
-    assert set(all_members) == {'A', 'B', 'C', 'D'}
-    assert len(clades) == 2
-    for clade in clades:
-        assert len(clade) == 2
-
-
-def test_create_stratified_split_success(temp_tree_file, sample_data):
-    """Test successful creation of a stratified split."""
-    train_df, test_df = create_stratified_split(
-        sample_data,
-        phylogeny_path=temp_tree_file,
-        test_size=0.5,
-        random_state=42
+    X = pd.DataFrame(
+        np.random.randn(n_samples, n_features),
+        columns=[f'feature_{i}' for i in range(n_features)]
     )
     
-    # Check shapes
-    assert len(train_df) + len(test_df) == len(sample_data)
+    output_path = tmp_path / "pca_test.csv"
+    result = apply_pca(X, n_components=3, output_path=str(output_path))
     
-    # Check that species are disjoint
-    train_species = set(train_df['species'])
-    test_species = set(test_df['species'])
-    assert train_species.isdisjoint(test_species)
+    assert result.shape[1] == 3
+    assert result.shape[0] == n_samples
+    assert output_path.exists()
     
-    # Check that all species are present
-    assert train_species.union(test_species) == {'A', 'B', 'C', 'D'}
+    # Check column names
+    assert all(col.startswith('PC') for col in result.columns)
 
-
-def test_create_stratified_split_missing_species(temp_tree_file, sample_data):
-    """Test handling of species not in the tree."""
-    data_with_extra = sample_data.copy()
-    new_row = pd.DataFrame({'species': ['E'], 'value': [50], 'feature1': [0.5]})
-    data_with_extra = pd.concat([data_with_extra, new_row], ignore_index=True)
+def test_apply_pca_variance_threshold(tmp_path):
+    """Test PCA with variance threshold."""
+    np.random.seed(42)
+    n_samples = 20
+    n_features = 10
     
-    # Should not raise, but 'E' should be excluded or handled
-    # Our implementation drops species not in tree for stratification
-    train_df, test_df = create_stratified_split(
-        data_with_extra,
-        phylogeny_path=temp_tree_file,
-        test_size=0.5,
-        random_state=42
+    X = pd.DataFrame(
+        np.random.randn(n_samples, n_features),
+        columns=[f'feature_{i}' for i in range(n_features)]
     )
     
-    # 'E' should not be in either set
-    assert 'E' not in train_df['species'].values
-    assert 'E' not in test_df['species'].values
-    assert len(train_df) + len(test_df) == 4
-
-
-def test_create_stratified_split_insufficient_data(temp_tree_file):
-    """Test error when not enough data."""
-    data = pd.DataFrame({'species': ['A'], 'value': [10], 'feature1': [0.1]})
+    output_path = tmp_path / "pca_variance.csv"
+    result = apply_pca(X, output_path=str(output_path))
     
-    with pytest.raises(StratifiedSplitError):
-        create_stratified_split(
-            data,
-            phylogeny_path=temp_tree_file,
-            test_size=0.5,
-            random_state=42
-        )
+    # Should keep enough components for 95% variance
+    assert result.shape[1] <= n_features
+    assert result.shape[0] == n_samples
+    assert output_path.exists()
 
-
-def test_create_stratified_split_no_tree_file():
-    """Test error when tree file is missing."""
-    data = pd.DataFrame({'species': ['A'], 'value': [10], 'feature1': [0.1]})
+def test_train_models_loo(sample_data, tmp_path):
+    """Test LOO training returns valid results."""
+    X, y = sample_data
+    output_path = tmp_path / "loo_results.json"
     
-    with pytest.raises(StratifiedSplitError):
-        create_stratified_split(
-            data,
-            phylogeny_path="nonexistent_tree.nwk",
-            test_size=0.5,
-            random_state=42
-        )
+    results = train_models_loo(X, y, output_path=str(output_path))
+    
+    # Check all models trained
+    assert 'RandomForest' in results
+    assert 'ElasticNet' in results
+    assert 'GradientBoosting' in results
+    
+    # Check metrics present
+    for model_name in ['RandomForest', 'ElasticNet', 'GradientBoosting']:
+        assert 'mean_r2' in results[model_name]
+        assert 'std_r2' in results[model_name]
+        assert results[model_name]['mean_r2'] is not None
+    
+    # Check output file created
+    assert output_path.exists()
+
+def test_train_models_loo_empty_data():
+    """Test that empty data raises error."""
+    X = pd.DataFrame()
+    y = pd.Series()
+    
+    with pytest.raises(ModelTrainingError):
+        train_models_loo(X, y)
+
+def test_train_models_5fold(sample_large_data, tmp_path):
+    """Test 5-fold training returns valid results."""
+    X, y = sample_large_data
+    output_path = tmp_path / "5fold_results.json"
+    
+    results = train_models_5fold(X, y, output_path=str(output_path))
+    
+    # Check all models trained
+    assert 'RandomForest' in results
+    assert 'ElasticNet' in results
+    assert 'GradientBoosting' in results
+    
+    # Check metrics present
+    for model_name in ['RandomForest', 'ElasticNet', 'GradientBoosting']:
+        assert 'mean_r2' in results[model_name]
+        assert 'std_r2' in results[model_name]
+        assert results[model_name]['mean_r2'] is not None
+    
+    # Check output file created
+    assert output_path.exists()
+
+def test_train_models_5fold_cv_count(sample_large_data, tmp_path):
+    """Test that 5-fold produces correct number of scores."""
+    X, y = sample_large_data
+    output_path = tmp_path / "5fold_test.json"
+    
+    results = train_models_5fold(X, y, n_splits=5, output_path=str(output_path))
+    
+    # Each model should have 5 R2 scores
+    for model_name in ['RandomForest', 'ElasticNet', 'GradientBoosting']:
+        assert len(results[model_name]['r2_scores']) == 5
+
+def test_load_pca_features_missing_file(tmp_path):
+    """Test loading non-existent file raises error."""
+    non_existent = tmp_path / "missing.csv"
+    
+    with pytest.raises(FileNotFoundError):
+        load_pca_features(str(non_existent))

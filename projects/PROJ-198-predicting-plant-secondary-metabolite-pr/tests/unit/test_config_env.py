@@ -1,13 +1,14 @@
 """
-Tests for environment variable management module.
-
-These tests verify that the environment configuration system works correctly,
-including path validation, API key retrieval, and directory creation.
+Unit tests for environment configuration management.
 """
 import os
 import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+
+# Adjust path to import from code/
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from config_env import (
     EnvConfig,
@@ -24,229 +25,207 @@ from config_env import (
 
 
 class TestEnvConfig:
-    """Tests for the EnvConfig model."""
+    """Tests for EnvConfig model."""
 
     def test_default_values(self):
         """Test that default values are set correctly."""
         with patch.dict(os.environ, {}, clear=True):
             config = EnvConfig()
-            assert config.DATA_ROOT == Path("data")
-            assert config.DATA_RAW == Path("data/raw")
-            assert config.DATA_PROCESSED == Path("data/processed")
-            assert config.DATA_INTERIM == Path("data/interim")
-            assert config.LOGS_DIR == Path("logs")
-            assert config.FIGURES_DIR == Path("figures")
+            assert config.DATA_ROOT_DIR == "data"
+            assert config.LOG_LEVEL == "INFO"
             assert config.NCBI_API_KEY is None
 
-    def test_custom_paths(self):
-        """Test that custom paths can be set via environment variables."""
-        test_env = {
-            'DATA_ROOT': '/custom/data',
-            'DATA_RAW': '/custom/data/raw',
-            'LOGS_DIR': '/custom/logs'
-        }
-        with patch.dict(os.environ, test_env):
-            config = EnvConfig()
-            assert config.DATA_ROOT == Path("/custom/data")
-            assert config.DATA_RAW == Path("/custom/data/raw")
-            assert config.LOGS_DIR == Path("/custom/logs")
+    def test_invalid_log_level(self):
+        """Test that invalid log level raises ValueError."""
+        with pytest.raises(ValueError):
+            EnvConfig(
+                LOG_LEVEL="INVALID_LEVEL"
+            )
 
-    def test_api_keys(self):
-        """Test that API keys can be set via environment variables."""
-        test_env = {
-            'NCBI_API_KEY': 'test_ncbi_key',
-            'PMDB_API_KEY': 'test_pmdb_key',
-            'METABOLIGHTS_TOKEN': 'test_metabolights_token'
-        }
-        with patch.dict(os.environ, test_env):
-            config = EnvConfig()
-            assert config.NCBI_API_KEY == 'test_ncbi_key'
-            assert config.PMDB_API_KEY == 'test_pmdb_key'
-            assert config.METABOLIGHTS_TOKEN == 'test_metabolights_token'
+    def test_custom_values(self):
+        """Test that custom values are accepted."""
+        config = EnvConfig(
+            DATA_ROOT_DIR="/custom/data",
+            LOG_LEVEL="DEBUG",
+            NCBI_API_KEY="test-key-123"
+        )
+        assert config.DATA_ROOT_DIR == "/custom/data"
+        assert config.LOG_LEVEL == "DEBUG"
+        assert config.NCBI_API_KEY == "test-key-123"
 
 
 class TestLoadEnvironment:
-    """Tests for the load_environment function."""
+    """Tests for load_environment function."""
 
-    def test_load_environment_success(self):
-        """Test successful loading of environment configuration."""
-        config = load_environment()
-        assert isinstance(config, EnvConfig)
-        assert config.DATA_ROOT is not None
-
-    def test_load_environment_with_custom_values(self):
-        """Test loading with custom environment values."""
-        test_env = {
-            'DATA_ROOT': '/test/root',
-            'DATA_PROCESSED': '/test/processed'
-        }
-        with patch.dict(os.environ, test_env):
+    def test_load_success(self):
+        """Test successful loading of environment."""
+        with patch.dict(os.environ, {
+            'DATA_ROOT_DIR': 'test_data',
+            'LOG_LEVEL': 'WARNING'
+        }):
             config = load_environment()
-            assert config.DATA_ROOT == Path("/test/root")
-            assert config.DATA_PROCESSED == Path("/test/processed")
+            assert config.DATA_ROOT_DIR == 'test_data'
+            assert config.LOG_LEVEL == 'WARNING'
 
 
 class TestEnsureDirectories:
-    """Tests for the ensure_directories function."""
+    """Tests for ensure_directories function."""
 
-    def test_create_missing_directories(self, tmp_path):
-        """Test that missing directories are created."""
-        test_config = EnvConfig()
-        # Override with temp paths
-        test_config.DATA_ROOT = tmp_path / "data"
-        test_config.DATA_RAW = tmp_path / "data" / "raw"
-        test_config.DATA_PROCESSED = tmp_path / "data" / "processed"
-        test_config.DATA_INTERIM = tmp_path / "data" / "interim"
-        test_config.LOGS_DIR = tmp_path / "logs"
-        test_config.FIGURES_DIR = tmp_path / "figures"
+    def test_creates_directories(self, tmp_path):
+        """Test that directories are created."""
+        test_root = tmp_path / "test_data"
+        config = EnvConfig(
+            DATA_ROOT_DIR=str(test_root),
+            DATA_RAW_DIR=str(test_root / "raw"),
+            DATA_PROCESSED_DIR=str(test_root / "processed"),
+            DATA_INTERIM_DIR=str(test_root / "interim"),
+            LOG_FILE_PATH=str(test_root / "logs" / "test.log"),
+            FIGURES_DIR=str(test_root / "figures")
+        )
 
-        ensure_directories(test_config)
+        ensure_directories(config)
 
-        assert test_config.DATA_ROOT.exists()
-        assert test_config.DATA_RAW.exists()
-        assert test_config.DATA_PROCESSED.exists()
-        assert test_config.DATA_INTERIM.exists()
-        assert test_config.LOGS_DIR.exists()
-        assert test_config.FIGURES_DIR.exists()
+        assert test_root.exists()
+        assert (test_root / "raw").exists()
+        assert (test_root / "processed").exists()
+        assert (test_root / "interim").exists()
+        assert (test_root / "logs").exists()
+        assert (test_root / "figures").exists()
 
-    def test_existing_directories_unchanged(self, tmp_path):
-        """Test that existing directories are not modified."""
-        # Create directories first
-        test_dir = tmp_path / "existing"
-        test_dir.mkdir()
-        
-        test_config = EnvConfig()
-        test_config.DATA_ROOT = test_dir
+    def test_skips_existing_directories(self, tmp_path):
+        """Test that existing directories are not recreated."""
+        test_root = tmp_path / "test_data"
+        test_root.mkdir()
 
-        ensure_directories(test_config)
-        
-        assert test_dir.exists()
+        config = EnvConfig(
+            DATA_ROOT_DIR=str(test_root),
+            DATA_RAW_DIR=str(test_root),
+            DATA_PROCESSED_DIR=str(test_root),
+            DATA_INTERIM_DIR=str(test_root),
+            LOG_FILE_PATH=str(test_root / "logs" / "test.log"),
+            FIGURES_DIR=str(test_root)
+        )
+
+        # Should not raise
+        ensure_directories(config)
 
 
-class TestGetApiKey:
-    """Tests for the get_api_key function."""
+class TestGetApiKeys:
+    """Tests for get_api_key function."""
 
-    def test_get_ncbi_key(self):
-        """Test retrieving NCBI API key."""
-        with patch.dict(os.environ, {'NCBI_API_KEY': 'test_key'}):
+    def test_returns_key_when_set(self):
+        """Test that API key is returned when set."""
+        with patch.dict(os.environ, {'NCBI_API_KEY': 'test-key-123'}):
             key = get_api_key('ncbi')
-            assert key == 'test_key'
+            assert key == 'test-key-123'
 
-    def test_get_pmdb_key(self):
-        """Test retrieving PMDB API key."""
-        with patch.dict(os.environ, {'PMDB_API_KEY': 'test_pmdb_key'}):
-            key = get_api_key('pmdb')
-            assert key == 'test_pmdb_key'
-
-    def test_get_metabolights_token(self):
-        """Test retrieving MetaboLights token."""
-        with patch.dict(os.environ, {'METABOLIGHTS_TOKEN': 'test_token'}):
-            key = get_api_key('metabolights')
-            assert key == 'test_token'
-
-    def test_missing_key_returns_none(self):
-        """Test that missing keys return None."""
+    def test_returns_none_when_not_set(self):
+        """Test that None is returned when key is not set."""
         with patch.dict(os.environ, {}, clear=True):
             key = get_api_key('ncbi')
             assert key is None
 
-    def test_unknown_service_raises_error(self):
-        """Test that unknown service names raise ValueError."""
-        with pytest.raises(ValueError, match="Unknown service"):
-            get_api_key('unknown_service')
+    def test_case_insensitive_service(self):
+        """Test that service name is case insensitive."""
+        with patch.dict(os.environ, {'NCBI_API_KEY': 'test-key'}):
+            assert get_api_key('NCBI') == 'test-key'
+            assert get_api_key('ncbi') == 'test-key'
+            assert get_api_key('NcBi') == 'test-key'
 
 
 class TestGetPaths:
-    """Tests for path retrieval functions."""
+    """Tests for path getter functions."""
 
-    def test_get_data_path_root(self):
-        """Test getting root data path."""
-        with patch.dict(os.environ, {'DATA_ROOT': '/test/data'}):
-            path = get_data_path()
-            assert path == Path("/test/data")
-
-    def test_get_data_path_subpath(self):
-        """Test getting subpath within data root."""
-        with patch.dict(os.environ, {'DATA_ROOT': '/test/data'}):
-            path = get_data_path('raw/genomes')
-            assert path == Path("/test/data/raw/genomes")
+    def test_get_data_path(self):
+        """Test get_data_path with and without subdir."""
+        with patch.dict(os.environ, {'DATA_ROOT_DIR': '/test/data'}):
+            assert str(get_data_path()) == '/test/data'
+            assert str(get_data_path('raw')) == '/test/data/raw'
+            assert str(get_data_path('processed/subdir')) == '/test/data/processed/subdir'
 
     def test_get_logs_path(self):
-        """Test getting logs path."""
-        with patch.dict(os.environ, {'LOGS_DIR': '/test/logs'}):
-            path = get_logs_path()
-            assert path == Path("/test/logs")
+        """Test get_logs_path."""
+        with patch.dict(os.environ, {'LOG_FILE_PATH': '/test/logs/app.log'}):
+            assert str(get_logs_path()) == '/test/logs/app.log'
 
     def test_get_figures_path(self):
-        """Test getting figures path."""
+        """Test get_figures_path."""
         with patch.dict(os.environ, {'FIGURES_DIR': '/test/figures'}):
-            path = get_figures_path()
-            assert path == Path("/test/figures")
+            assert str(get_figures_path()) == '/test/figures'
 
 
 class TestValidateRequiredEnvVars:
     """Tests for validate_required_env_vars function."""
 
     def test_all_present(self):
-        """Test validation when all required vars are present."""
-        with patch.dict(os.environ, {'VAR1': 'value1', 'VAR2': 'value2'}):
+        """Test validation passes when all required vars are present."""
+        with patch.dict(os.environ, {
+            'NCBI_API_KEY': 'key1',
+            'METABOLIGHTS_API_KEY': 'key2'
+        }):
             # Should not raise
-            validate_required_env_vars({'VAR1', 'VAR2'})
+            validate_required_env_vars({'NCBI_API_KEY', 'METABOLIGHTS_API_KEY'})
 
-    def test_missing_vars(self):
-        """Test validation when some required vars are missing."""
-        with patch.dict(os.environ, {'VAR1': 'value1'}):
-            with pytest.raises(ValueError, match="Missing required environment variables"):
-                validate_required_env_vars({'VAR1', 'VAR2', 'VAR3'})
+    def test_missing_one(self):
+        """Test validation fails when one required var is missing."""
+        with patch.dict(os.environ, {
+            'NCBI_API_KEY': 'key1'
+        }):
+            with pytest.raises(ValueError) as exc_info:
+                validate_required_env_vars({'NCBI_API_KEY', 'METABOLIGHTS_API_KEY'})
+            assert 'METABOLIGHTS_API_KEY' in str(exc_info.value)
 
-    def test_empty_set(self):
-        """Test validation with empty set of required vars."""
-        # Should not raise
-        validate_required_env_vars(set())
+    def test_empty_value(self):
+        """Test validation fails when value is empty."""
+        with patch.dict(os.environ, {
+            'NCBI_API_KEY': '',
+            'METABOLIGHTS_API_KEY': 'key2'
+        }):
+            with pytest.raises(ValueError) as exc_info:
+                validate_required_env_vars({'NCBI_API_KEY', 'METABOLIGHTS_API_KEY'})
+            assert 'NCBI_API_KEY' in str(exc_info.value)
 
 
 class TestCreateEnvFileTemplate:
     """Tests for create_env_file_template function."""
 
-    def test_create_template(self, tmp_path):
-        """Test creating a template .env file."""
-        output_path = tmp_path / ".env"
-        result_path = create_env_file_template(str(output_path))
-        
-        assert result_path.exists()
-        content = result_path.read_text()
-        assert "NCBI_API_KEY" in content
-        assert "PMDB_API_KEY" in content
-        assert "DATA_ROOT" in content
+    def test_contains_expected_keys(self):
+        """Test that template contains expected configuration keys."""
+        template = create_env_file_template()
+        expected_keys = [
+            'NCBI_API_KEY',
+            'METABOLIGHTS_API_KEY',
+            'PMDB_ACCESS_TOKEN',
+            'DATA_ROOT_DIR',
+            'LOG_LEVEL'
+        ]
+        for key in expected_keys:
+            assert key in template
 
-    def test_existing_file_not_overwritten(self, tmp_path):
-        """Test that existing .env file is not overwritten."""
-        output_path = tmp_path / ".env"
-        output_path.write_text("EXISTING_CONTENT")
-        
-        result_path = create_env_file_template(str(output_path))
-        
-        assert result_path.exists()
-        content = result_path.read_text()
-        assert content == "EXISTING_CONTENT"
+    def test_contains_comments(self):
+        """Test that template contains helpful comments."""
+        template = create_env_file_template()
+        assert '# API Keys' in template
+        assert '# Local Path' in template
 
 
 class TestGetEnvConfig:
     """Tests for get_env_config function."""
 
-    def test_returns_config(self):
-        """Test that get_env_config returns a valid config."""
-        config = get_env_config()
-        assert isinstance(config, EnvConfig)
-        assert config.DATA_ROOT is not None
+    def test_masks_sensitive_data(self):
+        """Test that sensitive data is masked in output."""
+        with patch.dict(os.environ, {
+            'NCBI_API_KEY': 'secret-key-123',
+            'DATA_ROOT_DIR': '/test/data'
+        }):
+            config_dict = get_env_config()
+            assert config_dict['NCBI_API_KEY'] == '***'
+            assert config_dict['DATA_ROOT_DIR'] == '/test/data'
 
-    def test_creates_directories(self, tmp_path):
-        """Test that get_env_config creates required directories."""
-        # This is harder to test in isolation due to side effects,
-        # but we can verify it doesn't crash
-        with patch('config_env.ensure_directories') as mock_ensure:
-            with patch('config_env.load_environment') as mock_load:
-                mock_load.return_value = EnvConfig()
-                config = get_env_config()
-                mock_ensure.assert_called_once()
-                mock_load.assert_called_once()
+    def test_returns_dict(self):
+        """Test that function returns a dictionary."""
+        with patch.dict(os.environ, {}, clear=True):
+            config_dict = get_env_config()
+            assert isinstance(config_dict, dict)
+            assert 'DATA_ROOT_DIR' in config_dict
+            assert 'LOG_LEVEL' in config_dict

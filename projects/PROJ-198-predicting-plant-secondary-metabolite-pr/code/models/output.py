@@ -5,37 +5,43 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
+
 class ModelOutput(BaseModel):
     """
-    Container for model training results and predictions.
+    Model representing the output of a predictive model.
     """
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(populate_by_name=True)
 
-    run_id: str = Field(..., description="Unique identifier for this model run")
-    model_type: str = Field(..., description="Type of model (e.g., PGLS, Random Forest)")
-    species_ids: List[str] = Field(..., description="List of species included in the training set")
-    target_metabolite: str = Field(..., description="Target metabolite or class being predicted")
-    performance_metrics: Dict[str, float] = Field(
-        default_factory=dict,
-        description="Metrics like R2, RMSE, MAE"
+    model_id: str = Field(..., description="Unique identifier for the model run")
+    model_type: str = Field(..., description="Type of model (e.g., 'PGLS', 'Random Forest')")
+    species_id: Optional[str] = Field(None, description="Species ID if prediction is per-species")
+    predicted_metabolite_class: Optional[str] = Field(None, description="Predicted metabolite class")
+    predicted_abundance: Optional[float] = Field(None, ge=0.0, description="Predicted abundance value")
+    prediction_confidence: Optional[float] = Field(
+        None,
+        ge=0.0,
+        le=1.0,
+        description="Confidence score of the prediction"
+    )
+    features_used: Optional[List[str]] = Field(
+        default_factory=list,
+        description="List of features (BGC types) used in the prediction"
     )
     feature_importance: Optional[Dict[str, float]] = Field(
-        None,
-        description="Mapping of BGC types to importance scores"
+        default_factory=dict,
+        description="Mapping of feature names to importance scores"
     )
-    coefficients: Optional[Dict[str, float]] = Field(
-        None,
-        description="Model coefficients if applicable (e.g., for linear models)"
+    model_metrics: Optional[Dict[str, float]] = Field(
+        default_factory=dict,
+        description="Overall model metrics (e.g., R2, RMSE)"
     )
-    phylogenetic_correction_applied: bool = Field(
-        False,
-        description="Whether phylogenetic correction was used"
-    )
-    cv_folds: Optional[int] = Field(None, description="Number of CV folds if used")
-    hyperparameters: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Final hyperparameters used"
-    )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    artifact_path: Optional[str] = Field(None, description="Path to saved model artifact")
-    summary: Optional[str] = Field(None, description="Human-readable summary of results")
+    timestamp: datetime = Field(default_factory=datetime.now, description="Timestamp of prediction")
+    metadata: Optional[dict] = Field(default_factory=dict, description="Additional metadata")
+
+    def to_dict(self) -> dict:
+        """Convert model to dictionary."""
+        return self.model_dump()
+
+    def to_json(self) -> str:
+        """Convert model to JSON string."""
+        return self.model_dump_json()

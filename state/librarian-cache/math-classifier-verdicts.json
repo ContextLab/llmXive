@@ -1679,6 +1679,10 @@
     "classified_at": "2026-07-06T16:45:02Z",
     "verdict": false
   },
+  "PROJ-946-llmxive-follow-up-extending-humanoid-gpt::1.6.0": {
+    "classified_at": "2026-08-08T06:36:16Z",
+    "verdict": false
+  },
   "PROJ-947-llmxive-follow-up-extending-wbench-a-com::1.6.0": {
     "classified_at": "2026-07-21T01:04:36Z",
     "verdict": false

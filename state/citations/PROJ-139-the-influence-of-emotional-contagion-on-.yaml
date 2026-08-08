@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q37573478
   verified_at: '2026-07-31T03:12:28.326882Z'
-- artifact_hash: 4bd72db9559a0e5e412856ae2158f113cbdf94767ffed0403c84565191f646e1
+- artifact_hash: b9a5ab683153c2b2111b9acf308eaf2199780eb7f759321a4d9ab0a3224964c6
   artifact_path: projects/PROJ-139-the-influence-of-emotional-contagion-on-/specs/001-the-influence-of-emotional-contagion-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://www.wikidata.org/wiki/Q47604
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q47604
-  verified_at: '2026-07-31T03:16:52.708139Z'
+  verified_at: '2026-08-08T07:07:44.813074Z'

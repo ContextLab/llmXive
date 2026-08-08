@@ -114,3 +114,24 @@ T064:
   r: No visualization (e.g., correlation heatmap) or updated final report containing
     the collinearity diagnostics is present in the provided evidence; the artifact
     required by the task is missing.
+T065:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No simulation output, logs, or screenshots were provided to demonstrate that\
+    \ a complete data source failure was induced, that the \u201Cfail\u2011loud\u201D\
+    \ policy was triggered, and that the pipeline halted with a clear error message.\
+    \ The required artifact (evidence of the validation test) is missing."
+T067:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, documentation, or script was provided that adds a verification\
+    \ step for T019\u2019s ground\u2011truth classification to detect threads with\
+    \ multiple accepted answers and log them as ambiguous. The required artifact is\
+    \ missing entirely."
+T068:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was provided showing that the GLMM model in
+    T020 was updated to include a convergence check and logging of diagnostic information.
+    The required artifact (modified model implementation with the specified checks)
+    is missing.

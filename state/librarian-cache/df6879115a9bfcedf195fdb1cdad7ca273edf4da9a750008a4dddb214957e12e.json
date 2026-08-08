@@ -1,0 +1,574 @@
+{
+  "fetched_at": "2026-08-08T06:36:33Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking\"",
+      "target_n": 5
+    },
+    "duration_seconds": 45.655,
+    "ended_at": "2026-08-08T06:36:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "zero-shot humanoid motion tracking"
+        ],
+        [
+          2,
+          "large language models for motion generation"
+        ],
+        [
+          3,
+          "scaling laws for motion data and structure"
+        ],
+        [
+          4,
+          "transformer-based pose estimation"
+        ],
+        [
+          5,
+          "generalizable motion tracking without fine-tuning"
+        ],
+        [
+          6,
+          "foundation models for robotics motion control"
+        ],
+        [
+          7,
+          "cross-domain motion transfer using LLMs"
+        ],
+        [
+          8,
+          "data-efficient humanoid motion synthesis"
+        ],
+        [
+          9,
+          "zero-shot imitation learning for humanoids"
+        ],
+        [
+          10,
+          "language-guided motion tracking"
+        ],
+        [
+          11,
+          "structural priors in motion generation"
+        ],
+        [
+          12,
+          "few-shot humanoid motion adaptation"
+        ],
+        [
+          13,
+          "multimodal motion understanding with LLMs"
+        ],
+        [
+          14,
+          "unsupervised motion representation learning"
+        ],
+        [
+          15,
+          "scalable datasets for humanoid kinematics"
+        ],
+        [
+          16,
+          "zero-shot robotic skill transfer"
+        ],
+        [
+          17,
+          "attention mechanisms for motion sequences"
+        ],
+        [
+          18,
+          "pre-trained models for human motion prediction"
+        ],
+        [
+          19,
+          "generalist motion models for humanoid robots"
+        ],
+        [
+          20,
+          "semantic motion tracking via large language models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking\" computer science": 0,
+        "zero-shot humanoid motion tracking": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "motion capture zero-shot transfer pose estimation",
+      "Humanoid-GPT scaling laws motion datasets",
+      "imitation learning human pose trajectory prediction",
+      "zero-shot generalization kinematic reconstruction accuracy",
+      "data contamination memorization synthetic motion sequences"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2507.07356"
+      ]
+    },
+    "per_query_hit_count": {
+      "Humanoid-GPT scaling laws motion datasets": 3,
+      "data contamination memorization synthetic motion sequences": 3,
+      "imitation learning human pose trajectory prediction": 3,
+      "llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking\" computer science": 3,
+      "motion capture zero-shot transfer pose estimation": 3,
+      "zero-shot generalization kinematic reconstruction accuracy": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1809.11144",
+          "rationale": "The paper describes a physical humanoid robot platform (hardware, mechanics, and ROS software) rather than the \"Humanoid-GPT\" machine learning model, data scaling, or zero-shot motion tracking algorithms referenced in the user's question. It fails all inclusion criteria (a-f) because it does not measure the same biological/algorithmic mechanism, share the same dependent variables (LLM performance), or provide a foundational method for the specific deep learning architecture in question, represen",
+          "title": "NimbRo-OP2: Grown-up 3D Printed Open Humanoid Platform for Research"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-08T06:35:48Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+      "raw": "llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-08T06:36:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-08T06:36:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-08T06:36:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent pose-transfer methods aim to generate temporally consistent and fully controllable videos of human action where the motion from a reference video is reenacted by a new identity. We evaluate three state-of-the-art pose-transfer methods -- AnimateAnyone, MagicAnimate, and ExAvatar -- by generating videos with actions and identities outside the training distribution and conducting a participant study about the quality of these videos. In a controlled environment of 20 distinct human actions, we find that participants, presented with the pose-transferred videos, correctly identify the desired action only 42.92% of the time. Moreover, the participants find the actions in the generated videos consistent with the reference (source) videos only 36.46% of the time. These results vary by method: participants find the splatting-based ExAvatar more consistent and photorealistic than the diffusion-based AnimateAnyone and MagicAnimate.",
+          "claimed_authors": [
+            "Vaclav Knapp",
+            "Matyas Bohacek"
+          ],
+          "claimed_title": "Can Pose Transfer Models Generate Realistic Human Motion?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.15648"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Can Pose Transfer Models Generate Realistic Human Motion?')",
+        "failed_at": "2026-08-08T06:36:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a gradient based motion estimation algorithm based on shape-motion prediction, which takes advantage of the correlation between neighboring Binary Alpha Blocks (BABs), to match with the Mpeg-4 shape coding case and speed up the estimation process. The PSNR and computation time achieved by the proposed algorithm seem to be better than those obtained by most popular motion estimation techniques.",
+          "claimed_authors": [
+            "F. Benboubker",
+            "F. Abdi",
+            "A. Ahaitouf"
+          ],
+          "claimed_title": "Shape-Adaptive Motion Estimation Algorithm for MPEG-4 Video Coding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1168"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Shape-Adaptive Motion Estimation Algorithm for MPEG-4 Video Coding')",
+        "failed_at": "2026-08-08T06:36:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-08T06:36:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+          "claimed_authors": [
+            "Ari Brill"
+          ],
+          "claimed_title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07942"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Neural Scaling Laws Rooted in the Data Distribution')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We find that the cross-entropy loss curves of neural language models empirically adhere to a scaling law with learning rate (LR) annealing over training steps: $$L(s) = L_0 + A\\cdot S_1^{-α} - C\\cdot S_2,$$ where $L(s)$ is the validation loss at step $s$, $S_1$ is the area under the LR curve, $S_2$ is the LR annealing area, and $L_0$, $A$, $C$, $α$ are constant parameters. This formulation takes into account two factors: (1) power-law scaling over data size, and (2) the additional loss reduction during LR annealing. Therefore, this formulation can describe the full loss curve at each step, rather than the single loss point at the end of training. Applying the scaling law with LR annealing and fitting only one or two training curves, we can accurately predict the loss at any given step across any learning rate scheduler (LRS). This approach significantly reduces computational cost in formulating scaling laws while providing more accuracy and expressiveness for training dynamics. Extensive experiments demonstrate that our findings hold across a range of hyper-parameters and model architectures, and our equation can extend to scaling effect of model sizes. Moreover, our formulation provides accurate theoretical verification and explanation for empirical results observed in numerous previous studies, particularly those focusing on LR schedule and annealing. We believe that this work is promising to enhance the understanding of LLM training dynamics while greatly democratizing scaling laws, and it can guide researchers in refining training strategies (e.g. critical LRS) for further LLMs.",
+          "claimed_authors": [
+            "Howe Tissue",
+            "Venus Wang",
+            "Lu Wang"
+          ],
+          "claimed_title": "Scaling Law with Learning Rate Annealing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.11029"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Scaling Law with Learning Rate Annealing')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Approaches for teaching learning agents via human demonstrations have been widely studied and successfully applied to multiple domains. However, the majority of imitation learning work utilizes only behavioral information from the demonstrator, i.e. which actions were taken, and ignores other useful information. In particular, eye gaze information can give valuable insight towards where the demonstrator is allocating visual attention, and holds the potential to improve agent performance and generalization. In this work, we propose Gaze Regularized Imitation Learning (GRIL), a novel context-aware, imitation learning architecture that learns concurrently from both human demonstrations and eye gaze to solve tasks where visual attention provides important context. We apply GRIL to a visual navigation task, in which an unmanned quadrotor is trained to search for and navigate to a target vehicle in a photorealistic simulated environment. We show that GRIL outperforms several state-of-the-art gaze-based imitation learning algorithms, simultaneously learns to predict human visual attention, and generalizes to scenarios not present in the training data. Supplemental videos and code can be found at https://sites.google.com/view/gaze-regularized-il/.",
+          "claimed_authors": [
+            "Ravi Kumar Thakur",
+            "MD-Nazmus Samin Sunbeam",
+            "Vinicius G. Goecks",
+            "Ellen Novoseller",
+            "Ritwik Bera",
+            "Vernon J. Lawhern",
+            "Gregory M. Gremillion",
+            "John Valasek",
+            "Nicholas R. Waytowich"
+          ],
+          "claimed_title": "Imitation Learning with Human Eye Gaze via Multi-Objective Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.13008"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Imitation Learning with Human Eye Gaze via Multi-Objective Prediction')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we study imitation learning under the challenging setting of: (1) only a single demonstration, (2) no further data collection, and (3) no prior task or object knowledge. We show how, with these constraints, imitation learning can be formulated as a combination of trajectory transfer and unseen object pose estimation. To explore this idea, we provide an in-depth study on how state-of-the-art unseen object pose estimators perform for one-shot imitation learning on ten real-world tasks, and we take a deep dive into the effects that camera calibration, pose estimation error, and spatial generalisation have on task success rates. For videos, please visit https://www.robot-learning.uk/pose-estimation-perspective.",
+          "claimed_authors": [
+            "Pietro Vitiello",
+            "Kamil Dreczkowski",
+            "Edward Johns"
+          ],
+          "claimed_title": "One-Shot Imitation Learning: A Pose Estimation Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.12077"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='One-Shot Imitation Learning: A Pose Estimation Perspective')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modeling and prediction of human motion dynamics has long been a challenging problem in computer vision, and most existing methods rely on the end-to-end supervised training of various architectures of recurrent neural networks. Inspired by the recent success of deep reinforcement learning methods, in this paper we propose a new reinforcement learning formulation for the problem of human pose prediction, and develop an imitation learning algorithm for predicting future poses under this formulation through a combination of behavioral cloning and generative adversarial imitation learning. Our experiments show that our proposed method outperforms all existing state-of-the-art baseline models by large margins on the task of human pose prediction in both short-term predictions and long-term predictions, while also enjoying huge advantage in training speed.",
+          "claimed_authors": [
+            "Borui Wang",
+            "Ehsan Adeli",
+            "Hsu-kuang Chiu",
+            "De-An Huang",
+            "Juan Carlos Niebles"
+          ],
+          "claimed_title": "Imitation Learning for Human Pose Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.03449"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Imitation Learning for Human Pose Prediction')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, zero-shot learning (ZSL) emerged as an exciting topic and attracted a lot of attention. ZSL aims to classify unseen classes by transferring the knowledge from seen classes to unseen classes based on the class description. Despite showing promising performance, ZSL approaches assume that the training samples from all seen classes are available during the training, which is practically not feasible. To address this issue, we propose a more generalized and practical setup for ZSL, i.e., continual ZSL (CZSL), where classes arrive sequentially in the form of a task and it actively learns from the changing environment by leveraging the past experience. Further, to enhance the reliability, we develop CZSL for a single head continual learning setting where task identity is revealed during the training process but not during the testing. To avoid catastrophic forgetting and intransigence, we use knowledge distillation and storing and replay the few samples from previous tasks using a small episodic memory. We develop baselines and evaluate generalized CZSL on five ZSL benchmark datasets for two different settings of continual learning: with and without class incremental. Moreover, CZSL is developed for two types of variational autoencoders, which generates two types of features for classification: (i) generated features at output space and (ii) generated discriminative features at the latent space. The experimental results clearly indicate the single head CZSL is more generalizable and suitable for practical applications.",
+          "claimed_authors": [
+            "Chandan Gautam",
+            "Sethupathy Parameswaran",
+            "Ashish Mishra",
+            "Suresh Sundaram"
+          ],
+          "claimed_title": "Generalized Continual Zero-Shot Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.08508"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Generalized Continual Zero-Shot Learning')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Humanoid-GPT: Scaling Data and Structure for Zero-', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-08T06:36:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zekun Qi",
+            "Xuchuan Chen",
+            "Dairu Liu",
+            "Chenghuai Lin",
+            "Yunrui Lian",
+            "Sikai Liang",
+            "Zhikai Zhang",
+            "Yu Guan",
+            "Jilong Wang",
+            "Wenyao Zhang",
+            "Xinqiang Yu",
+            "He Wang",
+            "Li Yi"
+          ],
+          "title": "Humanoid-GPT: Scaling Data and Structure for Zero-Shot Motion Tracking",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.03985",
+        "summary": "We introduce Humanoid-GPT, a GPT-style Transformer with causal attention trained on a billion-scale motion corpus for whole-body control. Unlike prior shallow MLP trackers constrained by scarce data and an agility-generalization trade-off, Humanoid-GPT is pre-trained on a 2B-frame retargeted corpus that unifies all major mocap datasets with large-scale in-house recordings. Scaling both data and model capacity yields a single generative Transformer that tracks highly dynamic behaviors while achieving unprecedented zero-shot generalization to unseen motions and control tasks. Extensive experiments and scaling analyses show that our model establishes a new performance frontier, demonstrating robust zero-shot generalization to unseen tasks while simultaneously tracking highly dynamic and complex motions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.03985",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6429,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-08T06:36:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kangning Yin",
+            "Weishuai Zeng",
+            "Ke Fan",
+            "Minyue Dai",
+            "Zirui Wang",
+            "Qiang Zhang",
+            "Zheng Tian",
+            "Jingbo Wang",
+            "Jiangmiao Pang",
+            "Weinan Zhang"
+          ],
+          "title": "UniTracker: Learning Universal Whole-Body Motion Tracker for Humanoid Robots",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.07356",
+        "summary": "Achieving expressive and generalizable whole-body motion control is essential for deploying humanoid robots in real-world environments. In this work, we propose UniTracker, a three-stage training framework that enables robust and scalable motion tracking across a wide range of human behaviors. In the first stage, we train a teacher policy with privileged observations to generate high-quality actions. In the second stage, we introduce a Conditional Variational Autoencoder (CVAE) to model a universal student policy that can be deployed directly on real hardware. The CVAE structure allows the policy to learn a global latent representation of motion, enhancing generalization to unseen behaviors and addressing the limitations of standard MLP-based policies under partial observations. Unlike pure MLPs that suffer from drift in global attributes like orientation, our CVAE-student policy incorporates global intent during training by aligning a partial-observation prior to the full-observation encoder. In the third stage, we introduce a fast adaptation module that fine-tunes the universal policy on harder motion sequences that are difficult to track directly. This adaptation can be performed both for single sequences and in batch mode, further showcasing the flexibility and scalability of our approach. We evaluate UniTracker in both simulation and real-world settings using a Unitree G1 humanoid, demonstrating strong performance in motion diversity, tracking accuracy, and deployment robustness.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.07356",
+          "http_status": 200,
+          "pdf_sample_score": 0.2197,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-08T06:36:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zeyu Ling",
+            "Xinyao Yu",
+            "Renye Yan",
+            "Jikang Cheng",
+            "Zhanke Wang",
+            "Qing Shuai",
+            "Changqing Zou"
+          ],
+          "title": "GenTrack: Physical Alignment for Robot-Native Motion Generation and Zero-Shot Humanoid Tracking",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2608.01410",
+        "summary": "General-purpose humanoid trackers can execute diverse references, but their zero-shot coverage depends on large embodied corpora that are costly to extend. Text-to-motion generators offer scalable supervision, yet models trained on human motion or retargeted data inherit a gap between kinematic plausibility and robot executability. Existing one-way pipelines fix either the generated corpus or the reward tracker. We introduce GenTrack, an online generator--tracker framework that alternates execution-grounded, group-relative generator alignment with tracker training on newly generated references; anchoring and rehearsal constrain drift. On Unitree G1, we evaluate GenTrack with ProtoMotions and SONIC backbones across three zero-shot tracking splits including public AMASS and LAFAN benchmarks, and a private out-of-distribution test set of 1,024 prompt-motion pairs in the wild. The online co-training strategy consistently produces generators that output more robot-executable motions with strong semantic alignment, and trackers with markedly broader zero-shot coverage and improved tracking accuracy, especially on out-of-distribution references. These results demonstrate that joint online post-training effectively narrows the executability gap between retargeted references and robot-native motion, advancing zero-shot humanoid control without additional data collection and beyond the limitations of a static reference pool.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2608.01410",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-08T06:36:21Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

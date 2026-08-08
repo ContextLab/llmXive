@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 
 from utils.logging import get_logger
+from config import get_data_path
 
 logger = get_logger(__name__)
 
@@ -44,12 +45,28 @@ def align_data(genomes_df: pd.DataFrame, metabolites_df: pd.DataFrame) -> pd.Dat
     
     return aligned
 
-def save_aligned_matrix(df: pd.DataFrame, output_path: Union[str, Path]) -> None:
+def save_aligned_matrix(df: pd.DataFrame, output_path: Optional[Union[str, Path]] = None) -> None:
     """
-    Write the final CSV to the specified path.
+    Write the final aligned matrix to CSV.
+    
+    If output_path is not provided, defaults to data/processed/aligned_matrix.csv
+    as specified in the task requirements.
+    
+    Args:
+        df: The aligned DataFrame to save.
+        output_path: Optional path to write the CSV. Defaults to project config.
     """
-    output_path = Path(output_path)
+    if output_path is None:
+        data_root = get_data_path()
+        output_path = Path(data_root) / "processed" / "aligned_matrix.csv"
+    else:
+        output_path = Path(output_path)
+    
+    # Ensure parent directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if df.empty:
+        logger.warning("DataFrame is empty. Saving empty CSV.")
     
     df.to_csv(output_path, index=False)
     logger.info(f"Aligned matrix saved to {output_path}")
@@ -119,11 +136,18 @@ def calculate_alignment_success_rate(
 
 def main():
     """
-    Main entry point for alignment and success rate calculation.
+    Main entry point for alignment and saving the matrix.
+    
+    This function demonstrates the full pipeline:
+    1. Load genomic and metabolomic data (simulated here for standalone execution)
+    2. Align them
+    3. Save to data/processed/aligned_matrix.csv
     """
-    # Example usage (would normally load from config/files)
-    # This function demonstrates the flow expected by the pipeline
     logger.info("Starting alignment process...")
+    
+    # NOTE: In a real pipeline, data would be loaded from data/raw or data/interim
+    # For this task, we assume the data exists or is passed in via a higher-level orchestrator.
+    # If running this script directly without data, it will log a warning.
     
     # Placeholder for actual data loading logic
     # In a real run, these would be loaded from data/raw or data/processed

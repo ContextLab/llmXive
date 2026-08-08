@@ -1,0 +1,161 @@
+project_id: PROJ-099-statistical-analysis-of-algorithmic-fair
+title: Statistical Analysis of Algorithmic Fairness
+description: >-
+  A comprehensive study analyzing the relationships between dataset characteristics
+  and fairness metric divergences across multiple public datasets and baseline models.
+status: active
+created_at: 2024-01-15T00:00:00Z
+updated_at: 2024-01-15T00:00:00Z
+version: 1.0.0
+metadata:
+  authors:
+    - llmXive Automated Research Agent
+  contact: research@llmxive.ai
+  license: MIT
+  repository: https://github.com/llmxive/PROJ-099-statistical-analysis-of-algorithmic-fair
+  tags:
+    - fairness
+    - algorithmic-bias
+    - statistical-analysis
+    - machine-learning
+  dependencies:
+    - scikit-learn
+    - statsmodels
+    - pandas
+    - numpy
+    - scipy
+    - requests
+    - hashlib
+    - joblib
+    - pytest
+    - black
+    - flake8
+    - isort
+phases:
+  - id: phase_1
+    name: Setup
+    status: completed
+    tasks:
+      - T001
+      - T002
+      - T003
+  - id: phase_2
+    name: Foundational
+    status: completed
+    tasks:
+      - T004
+      - T005
+      - T006
+      - T007
+      - T008
+  - id: phase_3
+    name: User Story 1 - Dataset Acquisition
+    status: pending
+    tasks:
+      - T010
+      - T011
+      - T012
+      - T013
+      - T014
+      - T015
+      - T016
+      - T017
+      - T018
+      - T019
+      - T019b
+  - id: phase_4
+    name: User Story 2 - Fairness Metric Computation
+    status: pending
+    tasks:
+      - T021
+      - T022
+      - T023
+      - T024
+      - T025
+      - T026
+      - T027
+      - T028
+      - T029
+  - id: phase_5
+    name: User Story 3 - Correlation Analysis
+    status: pending
+    tasks:
+      - T032
+      - T033
+      - T034
+      - T035
+      - T036
+      - T037
+      - T037b
+      - T038
+      - T040
+      - T041
+      - T042
+      - T043
+      - T045
+      - T059a
+      - T046
+      - T049
+      - T050
+      - T052
+      - T078
+      - T078b
+  - id: phase_6
+    name: Cross-Cutting & Compliance
+    status: pending
+    tasks:
+      - T054
+      - T055
+      - T064
+      - T064a
+      - T064b
+      - T076
+      - T076a
+      - T076b
+      - T077
+      - T077b
+  - id: phase_7
+    name: Performance & Polish
+    status: pending
+    tasks:
+      - T057
+      - T058
+      - T059
+      - T060
+      - T061
+      - T062
+      - T063
+      - T065
+      - T066
+  - id: phase_8
+    name: Final Verification
+    status: pending
+    tasks:
+      - T070
+artifact_hashes: {}
+checkpoints:
+  - phase: phase_2
+    status: reached
+    description: Foundation ready - user story implementation can now begin in parallel
+  - phase: phase_3
+    status: pending
+    description: User Story 1 fully functional and testable
+  - phase: phase_4
+    status: pending
+    description: User Stories 1 and 2 work independently
+  - phase: phase_5
+    status: pending
+    description: All user stories independently functional
+  - phase: phase_6
+    status: pending
+    description: All constitutional principles and functional requirements satisfied
+  - phase: phase_8
+    status: pending
+    description: Full CI pipeline passed, all compliance checks succeeded
+constraints:
+  - FR-008: Findings are associational only; no causal claims are made.
+  - FR-005: No exclusions in correlation analysis.
+  - FR-006: Fixed-effects regression with dataset and model as categorical covariates.
+  - FR-009: Use "metric selection guidance" terminology.
+  - Constitution Principle III: No in-place modification of raw data.
+  - Constitution Principle VII: Link base-rate difference to demographic parity difference.

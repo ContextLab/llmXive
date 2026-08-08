@@ -25,17 +25,16 @@ T008:
     variables for API keys or local data paths have been created, managed, or documented.
     The claim lacks any tangible artifact to verify the setup.
 T018:
-  c: false
-  h: 28a280d97c234c14f37fd7f1f8103d77a3fcbc871c41fab842cc964cfeedc346
-  r: "The repository contains a `save_aligned_matrix()` function, but it only writes\
-    \ to a user\u2011provided path and does not default to `data/processed/aligned_matrix.csv`.\
-    \ Moreover, the expected output file `data/processed/aligned_matrix.csv` is absent\
-    \ from the project. The task\u2019s core requirement\u2014producing that CSV at\
-    \ the specified location\u2014is therefore not met."
+  c: true
+  h: d06fa43e41d100dc9445e77d3b65cef30287c5ff8502d735d08a25c4ac88b436
+  r: "The file `code/data/align.py` contains a non\u2011placeholder implementation\
+    \ of `save_aligned_matrix()` that defaults to writing `aligned_matrix.csv` under\
+    \ `data/processed/` via `get_data_path()`. The function creates the directory\
+    \ if needed and saves the DataFrame, satisfying the task\u2019s requirement."
 T023a:
   c: false
-  h: ccdc64ef7adf9eaddb50ad5013a04e083b7fb8a546cd3b5c7065bec159e02f67
-  r: The provided `train.py` does not contain an `apply_pca()` function (the file
-    is truncated and no such implementation is visible), and the required output file
-    `data/interim/pca_features.csv` is absent from the repository. Both the core function
-    and its expected output are missing, so the task is not fulfilled.
+  h: cd1f2fe7ecf8b50d9d50d070a667f7c1882c81893a3432b82aa199cae13d645d
+  r: The repository lacks the required `apply_pca()` implementation in `code/modeling/train.py`
+    (the file shows only other functions and is truncated before any PCA logic) and
+    the expected output file `data/interim/pca_features.csv` is missing. Both the
+    code artifact and the generated CSV are absent, so the task is not satisfied.
