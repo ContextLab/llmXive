@@ -1,50 +1,31 @@
-# Python
+# Data and logs
+data/
+*.log
+
+# Python cache
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+$PYCHARM_HELPER
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Virtual Environments
-venv/
-ENV/
-env/
-.venv
-
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-
-# Data
-data/
-*.log
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Environment
+.env
+venv/
+.venv/
 
-# Coverage
-htmlcov/
-.coverage
-coverage.xml
+# Build artifacts
+build/
+dist/
+*.egg-info/

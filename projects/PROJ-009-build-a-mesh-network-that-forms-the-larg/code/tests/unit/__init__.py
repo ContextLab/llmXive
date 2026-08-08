@@ -1,2 +1,3 @@
-# Unit Tests
-# Isolated component testing
+"""
+Unit tests: Tests for individual components and functions.
+"""

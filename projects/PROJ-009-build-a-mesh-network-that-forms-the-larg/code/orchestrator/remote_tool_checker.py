@@ -1,10 +1,4 @@
-"""
-Remote Tool Checker Module for Mesh Network Orchestrator.
-
-This module verifies the availability of required CLI tools (tcpdump, mpstat)
-on remote nodes via SSH before attempting to execute benchmarks or instrument
-the network.
-"""
+from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
@@ -12,281 +6,188 @@ from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 
 from orchestrator.logger import get_logger
-from orchestrator.models import PhysicalNode, NodeStatus
 from orchestrator.node_manager import NodeManager, NodeDiscoveryError
 
-# Custom exception for critical tool failures
-class ToolMissingError(Exception):
-    """Raised when a critical tool is missing and cannot be installed."""
-    pass
+logger = get_logger(__name__)
+
 
 @dataclass
 class ToolCheckResult:
-    """Result of checking a single tool on a remote node."""
-    tool_name: str
-    available: bool
-    version_info: Optional[str] = None
+    """Result of checking tools on a single node."""
+    node_ip: str
+    success: bool = True
+    available_tools: List[str] = field(default_factory=list)
+    missing_tools: List[str] = field(default_factory=list)
     error_message: Optional[str] = None
+
 
 @dataclass
 class NodeToolCheckResult:
-    """Result of checking all required tools on a specific node."""
+    """Aggregated result for all tools on a node."""
     node_ip: str
-    node_id: str
-    tools: List[ToolCheckResult] = field(default_factory=list)
-    is_available: bool = True
-    missing_critical_tools: List[str] = field(default_factory=list)
+    success: bool = True
+    tool_results: Dict[str, bool] = field(default_factory=dict)
+    available_tools: List[str] = field(default_factory=list)
+    missing_tools: List[str] = field(default_factory=list)
+    error_message: Optional[str] = None
 
-    def get_missing_tools(self) -> List[str]:
-        """Return list of tool names that are not available."""
-        return [t.tool_name for t in self.tools if not t.available]
+
+class ToolMissingError(Exception):
+    """Raised when a required tool is missing and cannot be installed."""
+    pass
+
 
 class RemoteToolChecker:
-    """
-    Checks for required CLI tools on remote nodes via SSH.
+    """Checks for the presence of CLI tools on remote nodes via SSH."""
 
-    This class uses the NodeManager to establish SSH connections and execute
-    'which <tool>' commands to verify the presence of tcpdump and mpstat.
-    """
+    def __init__(self, node_manager: Optional[NodeManager] = None):
+        self.node_manager = node_manager or NodeManager()
 
-    REQUIRED_TOOLS = ["tcpdump", "mpstat"]
-    CRITICAL_TOOLS = ["tcpdump", "mpstat"]  # Both are critical for US1
-
-    def __init__(self, node_manager: NodeManager, logger: Optional[logging.Logger] = None):
-        self.node_manager = node_manager
-        self.logger = logger or get_logger(__name__)
-
-    def check_tool_on_node(self, node: PhysicalNode, tool_name: str) -> ToolCheckResult:
+    def check_tools_on_node(
+        self, node_ip: str, tools: List[str]
+    ) -> ToolCheckResult:
         """
-        Check if a specific tool exists on a remote node.
+        Check if specified tools are available on a remote node.
 
         Args:
-            node: The PhysicalNode object to check.
-            tool_name: Name of the CLI tool to check (e.g., 'tcpdump').
+            node_ip: IP address of the remote node.
+            tools: List of tool names to check (e.g., ['tcpdump', 'mpstat']).
 
         Returns:
-            ToolCheckResult object with availability status.
+            ToolCheckResult with availability status.
         """
-        command = f"which {tool_name}"
-        self.logger.debug(f"Checking for tool '{tool_name}' on node {node.ip_address}")
+        result = ToolCheckResult(node_ip=node_ip)
 
         try:
-            # Use the node_manager to execute the command remotely
-            # Assuming node_manager has an execute_command method or similar
-            # We will use the SSH client directly via the node_manager's connection logic
-            # Since T013 provides the node_manager, we assume it has a way to run commands.
-            # If not, we fallback to a direct SSH attempt if the node_manager exposes the client.
-            
-            # Strategy: Use node_manager's internal SSH logic. 
-            # Since we cannot see T013's internal implementation details beyond the API surface,
-            # we assume the NodeManager has a method to run a command string.
-            # If not, we attempt to access the SSH client if exposed, or raise a clear error.
-            
-            # Let's assume a generic execute method exists or we simulate the SSH call.
-            # Based on T013 description: "Implement discover_nodes, ping_node, reassign_task".
-            # It likely has a way to run commands. We will try to use a standard pattern.
-            # If node_manager doesn't expose a command runner, we might need to open a new session.
-            # For robustness, we'll try to use the node_manager's connection if available.
-            
-            # Fallback to direct SSH if node_manager doesn't have a command runner method
-            # This assumes the node_manager has a way to get an SSH client or we create one.
-            # Given the constraints, we will assume we can run a command via the node_manager
-            # or we need to implement the SSH call here if the manager only handles discovery.
-            
-            # Let's assume the node_manager has a method `run_command` or similar.
-            # If not, we will implement the SSH logic here to ensure it works.
-            # Since T013 is the dependency, we assume the infrastructure is there.
-            # We will use a try/except block to handle the specific case.
-            
-            # Attempt to use a generic command execution interface
-            # If the node_manager doesn't support this directly, we might need to rely on 
-            # the fact that T013 implemented SSH connections.
-            
-            # We will assume the NodeManager has a method `execute_remote_command`
-            # If it doesn't, we will catch the AttributeError and handle it.
-            
-            try:
-                stdout, stderr, exit_code = self.node_manager.execute_remote_command(
-                    node.ip_address, command
-                )
-            except AttributeError:
-                # Fallback: If node_manager doesn't have the method, we try to use paramiko directly
-                # This assumes the node_manager has the SSH client stored or accessible.
-                # Since we can't see T013's code, we assume a standard pattern.
-                # If this fails, we raise a clear error.
-                self.logger.warning(
-                    f"NodeManager does not expose 'execute_remote_command'. "
-                    f"Attempting direct SSH check for {node.ip_address}."
-                )
-                # Direct SSH implementation fallback
-                import paramiko
-                client = paramiko.SSHClient()
-                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            # Use node manager to execute 'which' command
+            for tool in tools:
                 try:
-                    # Try to connect with default or provided credentials
-                    # We assume the node object has credentials or we use defaults
-                    # This is a simplified fallback; in production, use stored keys
-                    client.connect(
-                        hostname=node.ip_address,
-                        timeout=2,
-                        username=node.username if hasattr(node, 'username') else 'root',
-                        password=node.password if hasattr(node, 'password') else ''
+                    stdin, stdout, stderr = self.node_manager.execute_command(
+                        node_ip, f"which {tool}", timeout=5
                     )
-                    stdin, stdout, stderr = client.exec_command(command)
                     exit_code = stdout.channel.recv_exit_status()
-                    stdout_str = stdout.read().decode('utf-8', errors='ignore')
-                    stderr_str = stderr.read().decode('utf-8', errors='ignore')
-                finally:
-                    client.close()
 
-            if exit_code == 0 and stdout_str.strip():
-                return ToolCheckResult(
-                    tool_name=tool_name,
-                    available=True,
-                    version_info=stdout_str.strip()
-                )
+                    if exit_code == 0:
+                        result.available_tools.append(tool)
+                        result.tool_results[tool] = True
+                    else:
+                        result.missing_tools.append(tool)
+                        result.tool_results[tool] = False
+
+                except Exception as e:
+                    logger.warning(
+                        f"Failed to check tool {tool} on {node_ip}: {e}"
+                    )
+                    result.missing_tools.append(tool)
+                    result.tool_results[tool] = False
+
+            if not result.missing_tools:
+                result.success = True
             else:
-                error_msg = stderr_str.strip() or f"Exit code {exit_code}"
-                return ToolCheckResult(
-                    tool_name=tool_name,
-                    available=False,
-                    error_message=error_msg
-                )
+                result.success = False
 
+        except NodeDiscoveryError as e:
+            result.success = False
+            result.error_message = f"Node discovery failed: {str(e)}"
+            result.missing_tools = tools
         except Exception as e:
-            self.logger.error(f"Failed to check tool '{tool_name}' on {node.ip_address}: {e}")
-            return ToolCheckResult(
-                tool_name=tool_name,
-                available=False,
-                error_message=str(e)
-            )
-
-    def check_node_tools(self, node: PhysicalNode) -> NodeToolCheckResult:
-        """
-        Check all required tools on a specific node.
-
-        Args:
-            node: The PhysicalNode object to check.
-
-        Returns:
-            NodeToolCheckResult object with results for all tools.
-        """
-        self.logger.info(f"Checking tools on node {node.ip_address} ({node.node_id})")
-        result = NodeToolCheckResult(
-            node_ip=node.ip_address,
-            node_id=node.node_id
-        )
-
-        missing_critical = []
-
-        for tool in self.REQUIRED_TOOLS:
-            tool_result = self.check_tool_on_node(node, tool)
-            result.tools.append(tool_result)
-
-            if not tool_result.available:
-                self.logger.warning(
-                    f"Tool '{tool}' missing on node {node.ip_address}. "
-                    f"Reason: {tool_result.error_message}"
-                )
-                if tool in self.CRITICAL_TOOLS:
-                    missing_critical.append(tool)
-
-        # Mark node as unavailable if critical tools are missing
-        if missing_critical:
-            result.is_available = False
-            result.missing_critical_tools = missing_critical
-            self.logger.warning(
-                f"Node {node.ip_address} marked UNAVAILABLE due to missing critical tools: {missing_critical}"
-            )
-        else:
-            self.logger.info(f"All required tools present on node {node.ip_address}")
+            logger.exception(f"Error checking tools on {node_ip}")
+            result.success = False
+            result.error_message = f"Tool check failed: {str(e)}"
+            result.missing_tools = tools
 
         return result
 
-    def check_all_nodes(self, nodes: List[PhysicalNode]) -> List[NodeToolCheckResult]:
+    def check_all_tools(
+        self, node_ip: str, tools: List[str]
+    ) -> NodeToolCheckResult:
         """
-        Check required tools on a list of nodes.
+        Check all tools on a node and return aggregated result.
 
         Args:
-            nodes: List of PhysicalNode objects to check.
+            node_ip: IP address of the remote node.
+            tools: List of tool names to check.
 
         Returns:
-            List of NodeToolCheckResult objects.
+            NodeToolCheckResult with aggregated status.
         """
-        results = []
-        for node in nodes:
-          # Skip if node is already known to be unavailable (optional optimization)
-          if node.status == NodeStatus.UNAVAILABLE:
-              self.logger.info(f"Skipping unavailable node {node.ip_address}")
-              continue
-          
-          result = self.check_node_tools(node)
-          results.append(result)
+        check_result = self.check_tools_on_node(node_ip, tools)
 
-          # If critical tools are missing, we might want to raise an error immediately
-          # depending on the strictness required. The task says "Raise ToolMissingError 
-          # if critical tools are missing and cannot be installed."
-          # Since installation is T012b, we just log and mark unavailable here.
-          # We can raise if the caller requires immediate failure.
-          if not result.is_available:
-              # Optional: raise ToolMissingError if strict mode is on
-              # For now, we just collect results and let the caller decide.
-              pass
+        return NodeToolCheckResult(
+            node_ip=node_ip,
+            success=check_result.success,
+            available_tools=check_result.available_tools,
+            missing_tools=check_result.missing_tools,
+            error_message=check_result.error_message,
+        )
 
-        return results
 
-def create_tool_checker(node_manager: NodeManager) -> RemoteToolChecker:
+def create_tool_checker(
+    node_manager: Optional[NodeManager] = None,
+) -> RemoteToolChecker:
     """Factory function to create a RemoteToolChecker instance."""
-    return RemoteToolChecker(node_manager)
+    return RemoteToolChecker(node_manager=node_manager)
+
 
 def main():
-    """
-    Main entry point for testing the tool checker.
-    This function is intended for CLI usage or manual testing.
-    """
+    """CLI entry point for remote tool checking."""
     import argparse
-    from orchestrator.config import get_config
-    from orchestrator.node_manager import create_node_manager
 
-    parser = argparse.ArgumentParser(description="Check remote tools on mesh nodes")
-    parser.add_argument("--config", type=str, default="config/orchestrator.yaml",
-                        help="Path to configuration file")
+    parser = argparse.ArgumentParser(
+        description="Check for required tools on remote mesh nodes"
+    )
+    parser.add_argument(
+        "--nodes",
+        nargs="+",
+        required=True,
+        help="List of node IPs to check",
+    )
+    parser.add_argument(
+        "--tools",
+        nargs="+",
+        default=["tcpdump", "mpstat"],
+        help="Tools to check (default: tcpdump mpstat)",
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Enable verbose logging"
+    )
+
     args = parser.parse_args()
 
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
     try:
-        config = get_config(args.config)
-        node_manager = create_node_manager(config)
+        node_manager = NodeManager()
+        node_manager.discover_nodes(args.nodes)
+
         checker = create_tool_checker(node_manager)
 
-        # Discover nodes (assuming T013 implemented this)
-        nodes = node_manager.discover_nodes(config.node_ips)
-        
-        if not nodes:
-            print("No nodes discovered.")
-            return
+        all_available = True
+        for node_ip in args.nodes:
+            result = checker.check_all_tools(node_ip, args.tools)
 
-        results = checker.check_all_nodes(nodes)
+            status = "OK" if result.success else "MISSING"
+            logger.info(f"Node {node_ip}: {status}")
 
-        print(f"\nTool Check Results for {len(results)} nodes:")
-        print("-" * 60)
-        for res in results:
-            status = "AVAILABLE" if res.is_available else "UNAVAILABLE"
-            print(f"Node: {res.node_id} ({res.node_ip}) - Status: {status}")
-            for tool in res.tools:
-                avail_str = "OK" if tool.available else "MISSING"
-                print(f"  - {tool.tool_name}: {avail_str}")
-                if not tool.available:
-                    print(f"    Reason: {tool.error_message}")
-            if not res.is_available:
-                print(f"  Missing Critical: {res.missing_critical_tools}")
-            print("-" * 60)
+            if result.available_tools:
+                logger.info(f"  Available: {', '.join(result.available_tools)}")
+            if result.missing_tools:
+                logger.warning(f"  Missing: {', '.join(result.missing_tools)}")
+                all_available = False
 
-    except ToolMissingError as e:
-        print(f"Critical Error: {e}")
-        exit(1)
+        if not all_available:
+            logger.warning("Some tools are missing on some nodes")
+            return 1
+
+        return 0
+
     except Exception as e:
-        print(f"Unexpected Error: {e}")
-        exit(1)
+        logger.exception(f"Tool check failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

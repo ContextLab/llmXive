@@ -1,206 +1,127 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
+from io import StringIO
 
-from orchestrator.instrumentor_remote import RemoteInstrumentor, create_instrumentor, RemoteExecutionError, NetworkSaturationError
+from orchestrator.instrumentor_remote import (
+    RemoteInstrumentor, 
+    create_instrumentor,
+    RemoteExecutionError,
+    NetworkSaturationError,
+    PacketStats,
+    CPUStats
+)
 from orchestrator.models import PhysicalNode, NodeStatus
 from orchestrator.node_manager import NodeManager
-
+from orchestrator.remote_tool_manager import RemoteToolManager
+from orchestrator.remote_wall_clock_timer import RemoteWallClockTimer
 
 class TestRemoteInstrumentor:
     @pytest.fixture
     def mock_node_manager(self):
         manager = Mock(spec=NodeManager)
-        manager.get_ssh_client = Mock()
+        manager._get_ssh_client = Mock(return_value=MagicMock())
         return manager
 
     @pytest.fixture
-    def mock_ssh_client(self):
-        client = Mock()
-        client.exec_command = Mock()
-        return client
+    def mock_tool_manager(self):
+        manager = Mock(spec=RemoteToolManager)
+        manager.check_node_tools = Mock(return_value=MagicMock(all_available=True, missing=[]))
+        return manager
 
     @pytest.fixture
-    def instrumentor(self, mock_node_manager):
-        return RemoteInstrumentor(mock_node_manager, packet_count=100, mpstat_interval=1, mpstat_count=3)
+    def mock_wall_clock_timer(self):
+        timer = Mock(spec=RemoteWallClockTimer)
+        timer.start_timer = Mock()
+        timer.stop_timer = Mock()
+        return timer
 
     @pytest.fixture
-    def test_node(self):
-        return PhysicalNode(
-            id="test-node-1",
-            ip_address="192.168.1.100",
-            status=NodeStatus.AVAILABLE,
-            hostname="test-node-1",
-            ssh_port=22
-        )
+    def instrumentor(self, mock_node_manager, mock_tool_manager, mock_wall_clock_timer):
+        return create_instrumentor(mock_node_manager, mock_tool_manager, mock_wall_clock_timer)
 
-    def test_instrumentor_initialization(self, mock_node_manager):
-        instrumentor = RemoteInstrumentor(mock_node_manager)
-        assert instrumentor.node_manager == mock_node_manager
-        assert instrumentor.packet_count == 1000  # default
-        assert instrumentor.mpstat_interval == 1  # default
-        assert instrumentor.mpstat_count == 5  # default
+    def test_execute_tcpdump_success(self, instrumentor):
+        mock_client = instrumentor.node_manager._get_ssh_client("192.168.1.1")
+        mock_client.exec_command = Mock()
+        mock_stdout = MagicMock()
+        mock_stderr = MagicMock()
+        mock_stdout.read.return_value = b"1000 packets captured\n"
+        mock_stderr.read.return_value = b""
+        mock_client.exec_command.return_value = (None, mock_stdout, mock_stderr)
 
-    def test_capture_tcpdump_success(self, instrumentor, mock_ssh_client, test_node):
-        # Mock tcpdump output
-        mock_output = """
-        12:00:00.000000 IP 192.168.1.1.22 > 192.168.1.100.54321: Flags [S], seq 1234567890, win 65535, length 0
-        12:00:00.000001 IP 192.168.1.100.54321 > 192.168.1.1.22: Flags [S.], seq 1234567890, ack 1234567891, win 65535, length 0
-        100 packets captured
-        0 packets dropped by kernel
+        stats = instrumentor.execute_tcpdump(mock_client, packet_count=1000)
+        
+        assert stats.total_packets == 1000
+        assert stats.lost_packets == 0
+        assert stats.loss_rate == 0.0
+
+    def test_execute_tcpdump_loss_detected(self, instrumentor):
+        mock_client = instrumentor.node_manager._get_ssh_client("192.168.1.1")
+        mock_client.exec_command = Mock()
+        mock_stdout = MagicMock()
+        mock_stderr = MagicMock()
+        mock_stdout.read.return_value = b"800 packets captured\n"
+        mock_stderr.read.return_value = b""
+        mock_client.exec_command.return_value = (None, mock_stdout, mock_stderr)
+
+        stats = instrumentor.execute_tcpdump(mock_client, packet_count=1000)
+        
+        assert stats.total_packets == 800
+        assert stats.lost_packets == 200
+        assert stats.loss_rate == 0.20
+
+    def test_check_network_saturation_below_threshold(self, instrumentor):
+        stats = PacketStats(total_packets=800, packets_per_second=800, lost_packets=200, loss_rate=0.20)
+        assert instrumentor.check_network_saturation(stats, threshold=0.25) is False
+
+    def test_check_network_saturation_above_threshold(self, instrumentor):
+        stats = PacketStats(total_packets=700, packets_per_second=700, lost_packets=300, loss_rate=0.30)
+        assert instrumentor.check_network_saturation(stats, threshold=0.20) is True
+
+    def test_check_network_saturation_exactly_threshold(self, instrumentor):
+        stats = PacketStats(total_packets=800, packets_per_second=800, lost_packets=200, loss_rate=0.20)
+        assert instrumentor.check_network_saturation(stats, threshold=0.20) is False
+        assert instrumentor.check_network_saturation(stats, threshold=0.19) is True
+
+    def test_execute_mpstat_success(self, instrumentor):
+        mock_client = instrumentor.node_manager._get_ssh_client("192.168.1.1")
+        mock_client.exec_command = Mock()
+        mock_stdout = MagicMock()
+        mock_stderr = MagicMock()
+        # Simulate mpstat output
+        output = """
+        Linux 5.4.0-42-generic (node1) 	09/25/2023 	_x86_64_	(4 CPU)
+        
+        10:00:00 AM     CPU     %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+        10:00:01 AM     all    10.00    0.00    5.00    1.00    0.00    0.00    0.00    0.00    0.00   84.00
+        Average:        all    10.00    0.00    5.00    1.00    0.00    0.00    0.00    0.00    0.00   84.00
         """
-        mock_stderr = ""
-        mock_exit_code = 0
+        mock_stdout.read.return_value = output.encode('utf-8')
+        mock_stderr.read.return_value = b""
+        mock_client.exec_command.return_value = (None, mock_stdout, mock_stderr)
 
-        mock_ssh_client.exec_command.return_value = (
-            Mock(read=Mock(return_value=mock_output.encode())),
-            Mock(read=Mock(return_value=mock_stderr.encode())),
-            Mock(recv_exit_status=Mock(return_value=mock_exit_code))
-        )
+        stats = instrumentor.execute_mpstat(mock_client)
+        
+        assert stats.cpu_utilization_pct == 16.0
+        assert stats.idle_pct == 84.0
 
-        # Mock the channel's recv_exit_status to return the exit code
-        mock_channel = Mock()
-        mock_channel.recv_exit_status.return_value = mock_exit_code
-        mock_stdout = Mock()
-        mock_stdout.channel = mock_channel
-        mock_stdout.read.return_value = mock_output.encode()
+    def test_remote_execution_error_on_timeout(self, instrumentor):
+        mock_client = instrumentor.node_manager._get_ssh_client("192.168.1.1")
+        mock_client.exec_command = Mock(side_effect=Exception("SocketTimeout"))
+        
+        with pytest.raises(RemoteExecutionError):
+            instrumentor.execute_tcpdump(mock_client)
 
-        mock_stderr_obj = Mock()
-        mock_stderr_obj.read.return_value = mock_stderr.encode()
-
-        mock_ssh_client.exec_command.return_value = (mock_stdout, mock_stderr_obj, mock_exit_code)
-
-        # Actually, let's simplify by patching _execute_remote_command directly
-        with patch.object(instrumentor, '_execute_remote_command', return_value=(mock_output, mock_stderr, mock_exit_code)):
-            packet_stats = instrumentor.capture_tcpdump(mock_ssh_client)
-
-            assert packet_stats.packet_count == 100
-            assert packet_stats.drop_count == 0
-
-    def test_capture_tcpdump_with_drops(self, instrumentor, mock_ssh_client):
-        mock_output = """
-        12:00:00.000000 IP 192.168.1.1.22 > 192.168.1.100.54321: Flags [S]
-        100 packets captured
-        25 packets dropped by kernel
-        """
-        mock_stderr = ""
-        mock_exit_code = 0
-
-        with patch.object(instrumentor, '_execute_remote_command', return_value=(mock_output, mock_stderr, mock_exit_code)):
-            packet_stats = instrumentor.capture_tcpdump(mock_ssh_client)
-
-            assert packet_stats.packet_count == 100
-            assert packet_stats.drop_count == 25
-
-    def test_capture_tcpdump_network_saturation(self, instrumentor, mock_ssh_client):
-        # 25% drop rate (>20%)
-        mock_output = """
-        100 packets captured
-        25 packets dropped by kernel
-        """
-        mock_stderr = ""
-        mock_exit_code = 0
-
-        with patch.object(instrumentor, '_execute_remote_command', return_value=(mock_output, mock_stderr, mock_exit_code)):
-            with pytest.raises(NetworkSaturationError, match="Network saturation detected"):
-                instrumentor.capture_tcpdump(mock_ssh_client)
-
-    def test_capture_tcpdump_execution_failure(self, instrumentor, mock_ssh_client):
-        mock_output = ""
-        mock_stderr = "tcpdump: interface eth0 not found"
-        mock_exit_code = 2
-
-        with patch.object(instrumentor, '_execute_remote_command', return_value=(mock_output, mock_stderr, mock_exit_code)):
-            with pytest.raises(RemoteExecutionError, match="tcpdump failed"):
-                instrumentor.capture_tcpdump(mock_ssh_client)
-
-    def test_capture_mpstat_success(self, instrumentor, mock_ssh_client):
-        mock_output = """
-        Linux 5.15.0-76-generic (test-node)  06/15/2024  _x86_64_  (8 CPU)
-
-        12:00:00 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-        12:00:01 PM  all    5.00    0.00    1.00    0.50    0.00    0.00    0.00    0.00    0.00   93.50
-        12:00:02 PM  all    6.00    0.00    1.20    0.60    0.00    0.00    0.00    0.00    0.00   92.20
-        12:00:03 PM  all    5.50    0.00    1.10    0.55    0.00    0.00    0.00    0.00    0.00   92.85
-        Average:     all    5.50    0.00    1.10    0.55    0.00    0.00    0.00    0.00    0.00   92.85
-        """
-        mock_stderr = ""
-        mock_exit_code = 0
-
-        with patch.object(instrumentor, '_execute_remote_command', return_value=(mock_output, mock_stderr, mock_exit_code)):
-            cpu_stats = instrumentor.capture_mpstat(mock_ssh_client)
-
-            # 100 - 92.85 = 7.15%
-            assert abs(cpu_stats.cpu_utilization_pct - 7.15) < 0.01
-
-    def test_capture_mpstat_no_average_line(self, instrumentor, mock_ssh_client):
-        mock_output = """
-        Linux 5.15.0-76-generic (test-node)  06/15/2024  _x86_64_  (8 CPU)
-
-        12:00:00 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-        12:00:01 PM  all    5.00    0.00    1.00    0.50    0.00    0.00    0.00    0.00    0.00   93.50
-        12:00:02 PM  all    6.00    0.00    1.20    0.60    0.00    0.00    0.00    0.00    0.00   92.20
-        """
-        mock_stderr = ""
-        mock_exit_code = 0
-
-        with patch.object(instrumentor, '_execute_remote_command', return_value=(mock_output, mock_stderr, mock_exit_code)):
-            cpu_stats = instrumentor.capture_mpstat(mock_ssh_client)
-
-            # Should fall back to last line: 100 - 92.20 = 7.80%
-            assert abs(cpu_stats.cpu_utilization_pct - 7.80) < 0.01
-
-    def test_capture_mpstat_execution_failure(self, instrumentor, mock_ssh_client):
-        mock_output = ""
-        mock_stderr = "mpstat: command not found"
-        mock_exit_code = 127
-
-        with patch.object(instrumentor, '_execute_remote_command', return_value=(mock_output, mock_stderr, mock_exit_code)):
-            with pytest.raises(RemoteExecutionError, match="mpstat failed"):
-                instrumentor.capture_mpstat(mock_ssh_client)
-
-    def test_instrument_node_success(self, instrumentor, mock_ssh_client, test_node):
-        mock_tcpdump_output = """
-        12:00:00.000000 IP 192.168.1.1.22 > 192.168.1.100.54321: Flags [S]
-        100 packets captured
-        0 packets dropped by kernel
-        """
-        mock_mpstat_output = """
-        Linux 5.15.0-76-generic (test-node)  06/15/2024  _x86_64_  (8 CPU)
-
-        12:00:00 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-        12:00:01 PM  all    5.00    0.00    1.00    0.50    0.00    0.00    0.00    0.00    0.00   93.50
-        Average:     all    5.00    0.00    1.00    0.50    0.00    0.00    0.00    0.00    0.00   93.50
-        """
-
-        def mock_exec_command(cmd, timeout=30):
-            if "tcpdump" in cmd:
-                return (Mock(read=Mock(return_value=mock_tcpdump_output.encode())),
-                        Mock(read=Mock(return_value=b"")),
-                        Mock(recv_exit_status=Mock(return_value=0)))
-            elif "mpstat" in cmd:
-                return (Mock(read=Mock(return_value=mock_mpstat_output.encode())),
-                        Mock(read=Mock(return_value=b"")),
-                        Mock(recv_exit_status=Mock(return_value=0)))
-
-        mock_ssh_client.exec_command = Mock(side_effect=mock_exec_command)
-        instrumentor.node_manager.get_ssh_client.return_value = mock_ssh_client
-
-        result = instrumentor.instrument_node(test_node)
-
-        assert result["node_id"] == test_node.id
-        assert result["ip_address"] == test_node.ip_address
-        assert result["packet_stats"]["packet_count"] == 100
-        assert result["cpu_stats"]["cpu_utilization_pct"] == 6.5  # 100 - 93.5
-
-    def test_instrument_node_unavailable(self, instrumentor, test_node):
-        test_node.status = NodeStatus.UNAVAILABLE
-
-        with pytest.raises(RemoteExecutionError, match="not available"):
-            instrumentor.instrument_node(test_node)
-
-    def test_create_instrumentor_factory(self, mock_node_manager):
-        instrumentor = create_instrumentor(mock_node_manager, packet_count=500)
-        assert isinstance(instrumentor, RemoteInstrumentor)
-        assert instrumentor.packet_count == 500
-        assert instrumentor.node_manager == mock_node_manager
+    def test_network_saturation_error_raised(self, instrumentor):
+        mock_client = instrumentor.node_manager._get_ssh_client("192.168.1.1")
+        mock_client.exec_command = Mock()
+        mock_stdout = MagicMock()
+        mock_stderr = MagicMock()
+        mock_stdout.read.return_value = b"600 packets captured\n"
+        mock_stderr.read.return_value = b""
+        mock_client.exec_command.return_value = (None, mock_stdout, mock_stderr)
+        
+        # Simulate saturation check in instrument_node
+        with patch.object(instrumentor, 'check_network_saturation', return_value=True):
+            with pytest.raises(NetworkSaturationError):
+                instrumentor.instrument_node("192.168.1.1")

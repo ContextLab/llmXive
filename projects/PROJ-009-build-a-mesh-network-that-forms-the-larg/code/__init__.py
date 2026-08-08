@@ -1,2 +1,3 @@
-# llmXive Mesh Network Supercomputer Project
-# Root package initialization
+"""
+Root package for the Mesh Network Supercomputer project.
+"""

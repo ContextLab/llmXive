@@ -1,0 +1,19 @@
+# Data and logs
+data/
+*.log
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
+*.swp
+.env
+venv/
+.venv/
+env/
+.idea/
+.vscode/

@@ -88,4 +88,4 @@ code/
 - **CI Mocking**: Unit and contract tests run on the GitHub Actions runner using mocked SSH nodes.
 - **Physical Validation**: A dedicated "Physical Validation" job is triggered manually or via a gated CI step when physical hardware is available. This job runs the full parameter sweep on the real mesh.
 - **Data Flow**: Physical data generated in the "Physical Validation" step is treated as the "Golden Dataset" and is used to calibrate the `des_model.py` simulation.
-- **Time Budget**: 82 runs × [deferred]/run = [deferred]. This leaves a sufficient buffer for data aggregation, analysis, and simulation calibration, fitting within the 6-hour limit.
+- **Time Budget**: Multiple runs × [deferred]/run = [deferred]. This leaves a sufficient buffer for data aggregation, analysis, and simulation calibration, fitting within the 6-hour limit.

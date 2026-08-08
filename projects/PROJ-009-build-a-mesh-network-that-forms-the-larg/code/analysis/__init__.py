@@ -1,2 +1,3 @@
-# Analysis Module
-# Statistical modeling, regression, and overhead calculation
+"""
+Analysis module: Handles data validation, regression modeling, and statistical analysis.
+"""

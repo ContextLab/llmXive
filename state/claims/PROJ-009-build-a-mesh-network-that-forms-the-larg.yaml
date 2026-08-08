@@ -1,0 +1,121 @@
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Flag runs with packet loss rate greater than 20 percent
+  claim_id: c_c5aae01d
+  context: T010 [US1] Implement validate_data_completeness()... Flag runs where packet_loss_rate
+    > 20%. If critical, exclude run.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_runs_with_packet_loss_rate_greater_than_20_percent
+  kind: magnitude
+  raw_text: Flag runs where packet_loss_rate > 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:33:15Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Detect network saturation at 20 percent packet loss
+  claim_id: c_f82f90fe
+  context: 'T014a [US1] Implement instrumentor_remote.py... Network Saturation: Implement
+    check_network_saturation() to detect >20% packet loss.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement check_network_saturation() to detect >20% packet loss.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:33:15Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Calculate capacity using formula N times W divided by log base N
+  claim_id: c_38269903
+  context: 'T032 [US3] Implement theoretical_bound.py... Specifics: Implement capacity
+    = (N * W) / (* log_base(N)) where N=node_count, W=bw...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_capacity_using_formula_N_times_W_divided_by_log_ba
+  kind: entity_fact
+  raw_text: Calculate capacity = (N * W) / (log_base(N)) where N=node_count, W=bw.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:04Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Trigger small-scale physical deployment of 10 to 20 local machines for
+    Golden Dataset
+  claim_id: c_2679e339
+  context: 'T035a_Physical [US3] Implement physical_validation_job.py... Specifics:
+    This task MUST trigger a small-scale physical deployment (10-20 local machines)
+    to generate the ''Golden Dataset''...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger a small-scale physical deployment (10-20 local machines) to generate
+    the 'Golden Dataset'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:19Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Use scipy.optimize.minimize with L-BFGS-B method and 1e-4 tolerance
+  claim_id: c_88c4c570
+  context: T037 [US3] Implement calibration.py... Use scipy.optimize.minimize with
+    method='L-BFGS-B' and tolerance=1e-4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy.optimize.minimize with method='L-BFGS-B' and tolerance=1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:42Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Optimize full parameter sweep to fit within CI time limit
+  claim_id: c_534d87ee
+  context: 'Notes: The full parameter sweep (multiple runs) must be optimized to fit
+    within the CI time limit...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimize_full_parameter_sweep_to_fit_within_CI_time_limit
+  kind: entity_fact
+  raw_text: The full parameter sweep must be optimized to fit within the CI time limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:57Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Reference Author et al 2023 with DOI 10.xxxx/xxxx
+  claim_id: c_052ace3f
+  context: 'The research question is: How can we optimize performance under a constrained
+    confidence interval? ... References: [Author et al., 2023] (doi:10.xxxx/xxxx).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'References: [Author et al., 2023] (doi:10.xxxx/xxxx).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:35:44Z'

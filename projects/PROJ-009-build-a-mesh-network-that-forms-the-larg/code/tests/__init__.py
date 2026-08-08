@@ -1,2 +1,3 @@
-# Tests Module
-# Unit, integration, and contract tests
+"""
+Tests module: Root for all test suites.
+"""

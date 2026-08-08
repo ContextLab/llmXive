@@ -1,15 +1,3 @@
-"""
-Remote Tool Installer for Mesh Network Orchestration.
-
-This module handles the installation of missing system tools (tcpdump, mpstat)
-on remote nodes via SSH. It attempts to use package managers (apt-get, yum)
-and handles sudo prompts. If installation fails, the node is marked as unavailable.
-
-Dependencies:
-    - orchestrator.logger
-    - orchestrator.models (PhysicalNode, NodeStatus)
-    - paramiko (for SSH)
-"""
 from __future__ import annotations
 
 import logging
@@ -19,259 +7,234 @@ from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 
 from orchestrator.logger import get_logger
-from orchestrator.models import PhysicalNode, NodeStatus
-import paramiko
+from orchestrator.node_manager import NodeManager, NodeDiscoveryError
 
-# Configure logger
 logger = get_logger(__name__)
-
-
-class ToolInstallationError(Exception):
-    """Raised when tool installation fails on a remote node."""
-    pass
 
 
 @dataclass
 class InstallationResult:
-    """Result of a tool installation attempt."""
-    node_ip: str
-    tool_name: str
-    success: bool
-    message: str
-    stdout: str
-    stderr: str
+    """Result of tool installation attempt."""
+    success: bool = False
+    installed_tools: List[str] = None
+    failed_tools: List[str] = None
+    error_message: Optional[str] = None
+
+    def __post_init__(self):
+        if self.installed_tools is None:
+            self.installed_tools = []
+        if self.failed_tools is None:
+            self.failed_tools = []
+
+
+class ToolInstallationError(Exception):
+    """Raised when tool installation fails."""
+    pass
 
 
 class RemoteToolInstaller:
-    """
-    Manages the installation of required tools on remote nodes.
+    """Handles installation of CLI tools on remote nodes."""
 
-    This class attempts to install missing tools (tcpdump, mpstat) using
-    the appropriate package manager for the node's OS.
-    """
+    def __init__(self, node_manager: Optional[NodeManager] = None):
+        self.node_manager = node_manager or NodeManager()
+        self._package_managers = [
+            ("apt-get", "apt-get install -y {}"),
+            ("yum", "yum install -y {}"),
+            ("dnf", "dnf install -y {}"),
+        ]
 
-    def __init__(self, ssh_client: paramiko.SSHClient, timeout: int = 300):
+    def install_tools(
+        self, node_ip: str, tools: List[str], sudo: bool = True
+    ) -> InstallationResult:
         """
-        Initialize the RemoteToolInstaller.
+        Install tools on a remote node.
 
         Args:
-            ssh_client: An active paramiko SSHClient instance connected to the node.
-            timeout: Maximum time in seconds to wait for installation to complete.
-        """
-        self.ssh_client = ssh_client
-        self.timeout = timeout
-        self._supported_package_managers = {
-            'apt-get': 'debian',
-            'yum': 'redhat',
-            'dnf': 'fedora',
-            'apk': 'alpine'
-        }
-
-    def _detect_package_manager(self) -> Optional[str]:
-        """
-        Detect the available package manager on the remote node.
+            node_ip: IP address of the remote node.
+            tools: List of tool names to install.
+            sudo: Whether to use sudo (default: True).
 
         Returns:
-            The name of the package manager if found, None otherwise.
+            InstallationResult with success status and installed tools.
         """
-        managers_to_check = list(self._supported_package_managers.keys())
-        
-        for manager in managers_to_check:
-            try:
-                stdin, stdout, stderr = self.ssh_client.exec_command(f"which {manager}")
-                if stdout.channel.recv_exit_status() == 0:
-                    logger.debug(f"Detected package manager: {manager}")
-                    return manager
-            except Exception as e:
-                logger.debug(f"Package manager {manager} check failed: {e}")
-                continue
-        
-        return None
+        result = InstallationResult()
 
-    def _execute_command_with_sudo(self, command: str) -> Tuple[int, str, str]:
-        """
-        Execute a command with sudo privileges, handling password prompts if necessary.
+        if not tools:
+            result.success = True
+            return result
 
-        Args:
-            command: The command to execute.
-
-        Returns:
-            Tuple of (exit_code, stdout, stderr)
-        """
-        # Try running with sudo -n first (non-interactive)
         try:
-            stdin, stdout, stderr = self.ssh_client.exec_command(f"sudo -n {command}", timeout=self.timeout)
-            exit_code = stdout.channel.recv_exit_status()
-            out = stdout.read().decode('utf-8')
-            err = stderr.read().decode('utf-8')
-            
-            if exit_code == 0:
-                return exit_code, out, err
-        except Exception:
-            pass
-
-        # If non-interactive sudo fails, try with password prompt handling
-        # Note: This assumes the user has configured sudoers to allow passwordless sudo
-        # or that the SSH key has appropriate permissions. For password-protected sudo,
-        # we would need to use pexpect or similar, which is not standard in paramiko.
-        try:
-            stdin, stdout, stderr = self.ssh_client.exec_command(f"sudo {command}", timeout=self.timeout)
-            # Read output until EOF
-            out = stdout.read().decode('utf-8')
-            err = stderr.read().decode('utf-8')
-            exit_code = stdout.channel.recv_exit_status()
-            return exit_code, out, err
-        except Exception as e:
-            logger.error(f"Failed to execute command with sudo: {e}")
-            return -1, "", str(e)
-
-    def install_tool(self, tool_name: str) -> InstallationResult:
-        """
-        Attempt to install a specific tool on the remote node.
-
-        Args:
-            tool_name: Name of the tool to install (e.g., 'tcpdump', 'sysstat').
-
-        Returns:
-            InstallationResult containing the outcome of the installation attempt.
-        """
-        package_name_map = {
-            'tcpdump': 'tcpdump',
-            'mpstat': 'sysstat'  # mpstat is part of sysstat package
-        }
-
-        if tool_name not in package_name_map:
-            return InstallationResult(
-                node_ip=self.ssh_client.get_transport().remote_ip if self.ssh_client.get_transport() else "unknown",
-                tool_name=tool_name,
-                success=False,
-                message=f"Unknown tool: {tool_name}",
-                stdout="",
-                stderr=""
-            )
-
-        package_name = package_name_map[tool_name]
-        package_manager = self._detect_package_manager()
-
-        if not package_manager:
-            return InstallationResult(
-                node_ip=self.ssh_client.get_transport().remote_ip if self.ssh_client.get_transport() else "unknown",
-                tool_name=tool_name,
-                success=False,
-                message="No supported package manager found",
-                stdout="",
-                stderr=""
-            )
-
-        # Construct installation command
-        if package_manager == 'apt-get':
-            install_cmd = f"apt-get update && apt-get install -y {package_name}"
-        elif package_manager in ['yum', 'dnf']:
-            install_cmd = f"{package_manager} install -y {package_name}"
-        elif package_manager == 'apk':
-            install_cmd = f"apk add {package_name}"
-        else:
-            return InstallationResult(
-                node_ip=self.ssh_client.get_transport().remote_ip if self.ssh_client.get_transport() else "unknown",
-                tool_name=tool_name,
-                success=False,
-                message=f"Unsupported package manager: {package_manager}",
-                stdout="",
-                stderr=""
-            )
-
-        logger.info(f"Attempting to install {tool_name} using {package_manager} on remote node")
-        
-        try:
-            exit_code, stdout, stderr = self._execute_command_with_sudo(install_cmd)
-            
-            if exit_code == 0:
-                logger.info(f"Successfully installed {tool_name}")
-                return InstallationResult(
-                    node_ip=self.ssh_client.get_transport().remote_ip if self.ssh_client.get_transport() else "unknown",
-                    tool_name=tool_name,
-                    success=True,
-                    message=f"Successfully installed {tool_name} using {package_manager}",
-                    stdout=stdout,
-                    stderr=stderr
+            # Try each package manager
+            for pm_name, install_cmd in self._package_managers:
+                logger.info(
+                    f"Attempting installation on {node_ip} using {pm_name}"
                 )
-            else:
-                logger.error(f"Failed to install {tool_name}: {stderr}")
-                return InstallationResult(
-                    node_ip=self.ssh_client.get_transport().remote_ip if self.ssh_client.get_transport() else "unknown",
-                    tool_name=tool_name,
-                    success=False,
-                    message=f"Installation failed with exit code {exit_code}",
-                    stdout=stdout,
-                    stderr=stderr
-                )
-        except Exception as e:
-            logger.error(f"Exception during installation of {tool_name}: {e}")
-            return InstallationResult(
-                node_ip=self.ssh_client.get_transport().remote_ip if self.ssh_client.get_transport() else "unknown",
-                tool_name=tool_name,
-                success=False,
-                message=f"Exception during installation: {str(e)}",
-                stdout="",
-                stderr=str(e)
-            )
 
-    def install_missing_tools(self, missing_tools: List[str]) -> List[InstallationResult]:
+                success = True
+                for tool in tools:
+                    # Map tool name to package name (simplified)
+                    package_name = tool  # In reality, might need mapping
+
+                    cmd = install_cmd.format(package_name)
+                    if sudo:
+                        cmd = f"sudo {cmd}"
+
+                    try:
+                        stdin, stdout, stderr = self.node_manager.execute_command(
+                            node_ip, cmd, timeout=60
+                        )
+                        exit_code = stdout.channel.recv_exit_status()
+
+                        if exit_code != 0:
+                            error_output = stderr.read().decode("utf-8", errors="ignore")
+                            logger.warning(
+                                f"Failed to install {tool} on {node_ip}: {error_output}"
+                            )
+                            success = False
+                            result.failed_tools.append(tool)
+                        else:
+                            result.installed_tools.append(tool)
+                            logger.info(f"Successfully installed {tool} on {node_ip}")
+
+                    except Exception as e:
+                        logger.warning(
+                            f"Installation error for {tool} on {node_ip}: {e}"
+                        )
+                        success = False
+                        result.failed_tools.append(tool)
+
+                if success and not result.failed_tools:
+                    result.success = True
+                    break
+                elif result.installed_tools:
+                    # Partial success - continue with remaining tools
+                    remaining_tools = [
+                        t for t in tools if t not in result.installed_tools
+                    ]
+                    if remaining_tools:
+                        continue
+                    else:
+                        break
+
+            if not result.success and not result.installed_tools:
+                result.error_message = "All package managers failed"
+
+        except NodeDiscoveryError as e:
+            result.error_message = f"Node discovery failed: {str(e)}"
+        except Exception as e:
+            logger.exception(f"Installation failed on {node_ip}")
+            result.error_message = f"Installation failed: {str(e)}"
+
+        return result
+
+    def install_with_retry(
+        self, node_ip: str, tools: List[str], max_retries: int = 3
+    ) -> InstallationResult:
         """
-        Install multiple missing tools on the remote node.
+        Install tools with retry logic.
 
         Args:
-            missing_tools: List of tool names to install.
+            node_ip: IP address of the remote node.
+            tools: List of tool names to install.
+            max_retries: Maximum number of retry attempts.
 
         Returns:
-            List of InstallationResult objects for each tool.
+            InstallationResult with success status.
         """
-        results = []
-        for tool in missing_tools:
-            result = self.install_tool(tool)
-            results.append(result)
-            # Small delay between installations to avoid overwhelming the package manager
-            if not result.success:
-                logger.warning(f"Skipping further tools due to failure in installing {tool}")
-                break
-        return results
+        for attempt in range(max_retries):
+            result = self.install_tools(node_ip, tools)
+            if result.success:
+                return result
+
+            if attempt < max_retries - 1:
+                logger.info(
+                    f"Retry {attempt + 1}/{max_retries} for {node_ip}"
+                )
+                time.sleep(2 ** attempt)  # Exponential backoff
+
+        return result
 
 
-def create_tool_installer(ssh_client: paramiko.SSHClient, timeout: int = 300) -> RemoteToolInstaller:
-    """
-    Factory function to create a RemoteToolInstaller instance.
-
-    Args:
-        ssh_client: An active paramiko SSHClient instance.
-        timeout: Maximum time in seconds for installation operations.
-
-    Returns:
-        A configured RemoteToolInstaller instance.
-    """
-    return RemoteToolInstaller(ssh_client, timeout)
+def create_tool_installer(
+    node_manager: Optional[NodeManager] = None,
+) -> RemoteToolInstaller:
+    """Factory function to create a RemoteToolInstaller instance."""
+    return RemoteToolInstaller(node_manager=node_manager)
 
 
 def main():
-    """
-    Main entry point for testing the RemoteToolInstaller.
-    
-    This function demonstrates how to use the installer with a mock SSH connection.
-    In a real scenario, this would be integrated with the node_manager to handle
-    actual remote nodes.
-    """
-    print("Remote Tool Installer - Test Mode")
-    print("This module is designed to be used with actual SSH connections.")
-    print("To test, integrate with node_manager.py and provide real node IPs.")
-    
-    # Example usage (would require real SSH connection):
-    # ssh = paramiko.SSHClient()
-    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    # ssh.connect('node_ip', username='user', password='pass')
-    # installer = create_tool_installer(ssh)
-    # result = installer.install_tool('tcpdump')
-    # print(f"Installation result: {result.success}")
-    # ssh.close()
+    """CLI entry point for remote tool installation."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Install required tools on remote mesh nodes"
+    )
+    parser.add_argument(
+        "--nodes",
+        nargs="+",
+        required=True,
+        help="List of node IPs to install tools on",
+    )
+    parser.add_argument(
+        "--tools",
+        nargs="+",
+        default=["tcpdump", "mpstat"],
+        help="Tools to install (default: tcpdump mpstat)",
+    )
+    parser.add_argument(
+        "--no-sudo",
+        action="store_true",
+        help="Don't use sudo for installation",
+    )
+    parser.add_argument(
+        "--retry",
+        type=int,
+        default=3,
+        help="Number of retry attempts (default: 3)",
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Enable verbose logging"
+    )
+
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    try:
+        node_manager = NodeManager()
+        node_manager.discover_nodes(args.nodes)
+
+        installer = create_tool_installer(node_manager)
+
+        all_success = True
+        for node_ip in args.nodes:
+            logger.info(f"Installing tools on {node_ip}")
+            result = installer.install_with_retry(
+                node_ip,
+                args.tools,
+                max_retries=args.retry if not args.no_sudo else 1,
+            )
+
+            if result.success:
+                logger.info(f"  Success: {', '.join(result.installed_tools)}")
+            else:
+                logger.error(f"  Failed: {result.error_message}")
+                if result.failed_tools:
+                    logger.error(f"  Failed tools: {', '.join(result.failed_tools)}")
+                all_success = False
+
+        if not all_success:
+            return 1
+
+        return 0
+
+    except Exception as e:
+        logger.exception(f"Installation failed: {e}")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())

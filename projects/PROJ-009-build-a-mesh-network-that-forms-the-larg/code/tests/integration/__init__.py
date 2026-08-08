@@ -1,2 +1,3 @@
-# Integration Tests
-# Multi-component workflow testing
+"""
+Integration tests: Tests for interactions between components.
+"""

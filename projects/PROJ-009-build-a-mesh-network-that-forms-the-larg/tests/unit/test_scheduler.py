@@ -1,182 +1,131 @@
-"""
-Unit tests for the scheduler module.
-"""
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime
-from pathlib import Path
+from datetime import datetime, timedelta
 import sys
+import os
 
-from orchestrator.scheduler import Scheduler, NodeState, OOMError, StragglerDetectedError
-from orchestrator.models import PhysicalNode, TaskChunk, NodeStatus, TaskStatus
-from orchestrator.node_manager import NodeManager
+# Add code to path if not already
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+
+from orchestrator.scheduler import Scheduler, OOMError, StragglerDetectedError, SchedulerError
+from orchestrator.models import TaskChunk, PhysicalNode, NodeStatus
+from orchestrator.node_manager import NodeManager, NodeDiscoveryError
 
 @pytest.fixture
 def mock_node_manager():
-    """Create a mock NodeManager."""
     manager = Mock(spec=NodeManager)
-    manager.ping_node.return_value = True
-    manager.execute_command.return_value = {"stdout": "OK", "stderr": ""}
+    manager.execute_command = Mock(return_value=MagicMock(returncode=0, stdout="1024", stderr=""))
+    manager.ping_node = Mock(return_value=True)
     return manager
 
 @pytest.fixture
-def mock_nodes():
-    """Create a list of mock PhysicalNodes."""
-    return [
-        PhysicalNode(ip_address="192.168.1.10", hostname="node1", status=NodeStatus.IDLE),
-        PhysicalNode(ip_address="192.168.1.11", hostname="node2", status=NodeStatus.IDLE),
-    ]
+def mock_node():
+    node = PhysicalNode(
+        node_id="node-1",
+        ip_address="192.168.1.10",
+        status=NodeStatus.AVAILABLE,
+        hostname="test-node-1"
+    )
+    return node
 
 @pytest.fixture
-def mock_chunks():
-    """Create a list of mock TaskChunks."""
-    return [
-        TaskChunk(task_id="chunk_1", iterations=100, chunk_size=10, status=TaskStatus.PENDING),
-        TaskChunk(task_id="chunk_2", iterations=100, chunk_size=10, status=TaskStatus.PENDING),
-    ]
+def mock_chunk():
+    return TaskChunk(
+        task_id="task-1",
+        iterations=1000,
+        node_id="node-1",
+        start_idx=0,
+        seed=42
+    )
 
-def test_scheduler_initialization(mock_node_manager):
-    """Test that the scheduler initializes correctly."""
-    scheduler = Scheduler(mock_node_manager)
-    assert scheduler.node_manager == mock_node_manager
-    assert scheduler.timeout_factor == 2.0
-    assert len(scheduler.nodes) == 0
-    assert len(scheduler.pending_tasks) == 0
-    assert len(scheduler.completed_tasks) == 0
+class TestSchedulerRAMCheck:
+    def test_adaptive_chunking_splits_large_chunk(self, mock_node_manager, mock_node, mock_chunk):
+        """Test that a chunk larger than available RAM is split."""
+        # Mock RAM to be very low (100 MB)
+        mock_node_manager.execute_command.return_value = MagicMock(returncode=0, stdout="100", stderr="")
+        
+        scheduler = Scheduler(mock_node_manager)
+        # Manually set state to simulate RAM check
+        from orchestrator.scheduler import NodeState
+        scheduler.node_states["192.168.1.10"] = NodeState(node=mock_node, available_ram_mb=100)
+        
+        # Assume chunk size is estimated as iterations (1000 MB)
+        # 1000 > 100, so it should split
+        adapted = scheduler._adapt_chunk_size(mock_chunk, 100)
+        
+        assert len(adapted) > 1, "Chunk should be split if size > RAM"
+        total_iterations = sum(c.iterations for c in adapted)
+        assert total_iterations == mock_chunk.iterations, "Total iterations must be preserved"
 
-def test_assign_chunk_success(mock_node_manager, mock_nodes, mock_chunks):
-    """Test successful chunk assignment."""
-    scheduler = Scheduler(mock_node_manager)
-    node = mock_nodes[0]
-    chunk = mock_chunks[0]
+    def test_adaptive_chunking_preserves_chunk_if_small(self, mock_node_manager, mock_node, mock_chunk):
+        """Test that a chunk smaller than RAM is not split."""
+        mock_node_manager.execute_command.return_value = MagicMock(returncode=0, stdout="2000", stderr="")
+        
+        scheduler = Scheduler(mock_node_manager)
+        scheduler.node_states["192.168.1.10"] = NodeState(node=mock_node, available_ram_mb=2000)
+        
+        adapted = scheduler._adapt_chunk_size(mock_chunk, 2000)
+        assert len(adapted) == 1
+        assert adapted[0].task_id == mock_chunk.task_id
 
-    # Mock the _execute_task_on_node method to return a successful result
-    mock_result = Mock()
-    mock_result.wall_clock_time = 1.0
-    mock_result.ops_per_sec = 100.0
-    with patch.object(scheduler, '_execute_task_on_node', return_value=mock_result):
-        result = scheduler.assign_chunk(chunk, node)
+class TestSchedulerOOM:
+    def test_parse_oom_signals_detects_oom(self, mock_node_manager):
+        scheduler = Scheduler(mock_node_manager)
+        log = "Out of memory: Kill process 1234 (python)"
+        assert scheduler._parse_oom_signals(log) is True
 
-    assert result is True
-    assert chunk.status == TaskStatus.COMPLETED
-    assert scheduler.nodes[node.ip_address].status == NodeStatus.IDLE
-    assert chunk in scheduler.completed_tasks
+    def test_parse_oom_signals_false_positive(self, mock_node_manager):
+        scheduler = Scheduler(mock_node_manager)
+        log = "Memory usage is high but no OOM"
+        assert scheduler._parse_oom_signals(log) is False
 
-def test_assign_chunk_node_not_idle(mock_node_manager, mock_nodes, mock_chunks):
-    """Test chunk assignment fails when node is not idle."""
-    scheduler = Scheduler(mock_node_manager)
-    node = mock_nodes[0]
-    chunk = mock_chunks[0]
+class TestSchedulerStraggler:
+    def test_straggler_detection(self, mock_node_manager, mock_node, mock_chunk):
+        """Test that a task taking > 2 * median time is flagged."""
+        scheduler = Scheduler(mock_node_manager)
+        
+        # Setup completed tasks with median time 10s
+        scheduler.completed_tasks = [
+            (mock_chunk, 10.0, "192.168.1.10"),
+            (mock_chunk, 10.0, "192.168.1.10"),
+            (mock_chunk, 10.0, "192.168.1.10")
+        ]
+        
+        # Setup state with a task running for 25s ( > 2 * 10)
+        from orchestrator.scheduler import NodeState
+        state = NodeState(node=mock_node, current_task=mock_chunk)
+        state.task_start_time = datetime.now() - timedelta(seconds=25)
+        state.last_heartbeat = datetime.now()
+        scheduler.node_states["192.168.1.10"] = state
+        
+        with pytest.raises(StragglerDetectedError):
+            scheduler.monitor_task("task-1")
 
-    # Set node status to BUSY
-    scheduler._register_node(node)
-    scheduler.nodes[node.ip_address].status = NodeStatus.BUSY
+    def test_no_straggler_if_fast(self, mock_node_manager, mock_node, mock_chunk):
+        scheduler = Scheduler(mock_node_manager)
+        scheduler.completed_tasks = [
+            (mock_chunk, 10.0, "192.168.1.10")
+        ]
+        
+        from orchestrator.scheduler import NodeState
+        state = NodeState(node=mock_node, current_task=mock_chunk)
+        state.task_start_time = datetime.now() - timedelta(seconds=5) # 5s < 2*10
+        state.last_heartbeat = datetime.now()
+        scheduler.node_states["192.168.1.10"] = state
+        
+        # Should not raise
+        duration = scheduler.monitor_task("task-1")
+        assert duration == 5.0
 
-    result = scheduler.assign_chunk(chunk, node)
-
-    assert result is False
-    assert chunk.status == TaskStatus.PENDING
-
-def test_assign_chunk_oom(mock_node_manager, mock_nodes, mock_chunks):
-    """Test OOM handling during chunk assignment."""
-    scheduler = Scheduler(mock_node_manager)
-    node = mock_nodes[0]
-    chunk = mock_chunks[0]
-
-    # Mock OOMError
-    with patch.object(scheduler, '_execute_task_on_node', side_effect=OOMError("Out of memory")):
-        result = scheduler.assign_chunk(chunk, node)
-
-    assert result is False
-    assert scheduler.nodes[node.ip_address].oom_events == 1
-    assert chunk.status == TaskStatus.PENDING  # Should not be marked completed
-
-def test_monitor_task_success(mock_node_manager, mock_nodes, mock_chunks):
-    """Test successful task monitoring."""
-    scheduler = Scheduler(mock_node_manager)
-    node = mock_nodes[0]
-    chunk = mock_chunks[0]
-
-    # Register node and set active task
-    scheduler._register_node(node)
-    scheduler.nodes[node.ip_address].active_task_id = chunk.task_id
-    scheduler.nodes[node.ip_address].status = NodeStatus.BUSY
-    scheduler.task_start_times[chunk.task_id] = datetime.now()
-
-    # Mock task times to avoid straggler detection
-    scheduler.task_times = [1.0, 1.1, 0.9]
-    scheduler._update_median_task_time()
-
-    result = scheduler.monitor_task(chunk.task_id)
-
-    assert result is True
-
-def test_monitor_task_heartbeat_lost(mock_node_manager, mock_nodes, mock_chunks):
-    """Test monitoring fails when heartbeat is lost."""
-    scheduler = Scheduler(mock_node_manager)
-    node = mock_nodes[0]
-    chunk = mock_chunks[0]
-
-    # Register node and set active task with old heartbeat
-    scheduler._register_node(node)
-    scheduler.nodes[node.ip_address].active_task_id = chunk.task_id
-    scheduler.nodes[node.ip_address].status = NodeStatus.BUSY
-    scheduler.nodes[node.ip_address].last_heartbeat = datetime.now() - __import__('datetime').timedelta(seconds=60)
-
-    result = scheduler.monitor_task(chunk.task_id)
-
-    assert result is False
-    assert chunk.task_id not in scheduler.pending_tasks
-    # Task should be re-added to pending for re-assignment
-
-def test_distribute_tasks(mock_node_manager, mock_nodes, mock_chunks):
-    """Test full task distribution workflow."""
-    scheduler = Scheduler(mock_node_manager)
-
-    # Mock execution to return success
-    mock_result = Mock()
-    mock_result.wall_clock_time = 1.0
-    mock_result.ops_per_sec = 100.0
-
-    with patch.object(scheduler, '_execute_task_on_node', return_value=mock_result):
-        results = scheduler.distribute_tasks(mock_chunks, mock_nodes)
-
-    assert len(results) == len(mock_chunks)
-    for r in results:
-        assert r.status == TaskStatus.COMPLETED
-    assert len(scheduler.pending_tasks) == 0
-
-def test_get_node_stats(mock_node_manager, mock_nodes, mock_chunks):
-    """Test retrieving node statistics."""
-    scheduler = Scheduler(mock_node_manager)
-    node = mock_nodes[0]
-    chunk = mock_chunks[0]
-
-    # Register node
-    scheduler._register_node(node)
-    scheduler.nodes[node.ip_address].oom_events = 1
-    scheduler.nodes[node.ip_address].straggler_events = 2
-    scheduler.nodes[node.ip_address].last_error = "Test error"
-
-    stats = scheduler.get_node_stats()
-
-    assert node.ip_address in stats
-    assert stats[node.ip_address]["oom_events"] == 1
-    assert stats[node.ip_address]["straggler_events"] == 2
-    assert stats[node.ip_address]["last_error"] == "Test error"
-    assert stats[node.ip_address]["status"] == NodeStatus.IDLE.value
-
-def test_reassign_task(mock_node_manager, mock_nodes, mock_chunks):
-    """Test task re-assignment logic."""
-    scheduler = Scheduler(mock_node_manager)
-    chunk = mock_chunks[0]
-
-    # Add chunk to pending
-    scheduler.pending_tasks.append(chunk)
-
-    # Simulate re-assignment (which should move it back to pending if not found in active)
-    # In this test, we just check that the method exists and doesn't crash
-    scheduler._reassign_task(chunk.task_id)
-
-    # The task should still be in pending (or re-added)
-    assert len(scheduler.pending_tasks) >= 1
+class TestSchedulerHeartbeat:
+    def test_heartbeat_loss_detection(self, mock_node_manager, mock_node, mock_chunk):
+        scheduler = Scheduler(mock_node_manager)
+        
+        from orchestrator.scheduler import NodeState
+        state = NodeState(node=mock_node, current_task=mock_chunk)
+        state.task_start_time = datetime.now()
+        state.last_heartbeat = datetime.now() - timedelta(seconds=60) # Lost 60s ago
+        scheduler.node_states["192.168.1.10"] = state
+        
+        with pytest.raises(Exception): # NodeHeartbeatLost or generic
+            scheduler.monitor_task("task-1")

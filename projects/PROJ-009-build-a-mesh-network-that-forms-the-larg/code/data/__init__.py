@@ -1,2 +1,3 @@
-# Data Module
-# Raw and processed data storage
+"""
+Data module: Root for data storage.
+"""
