@@ -1,16 +1,19 @@
-"""Gaze event data model."""
+"""
+Gaze Event data model.
+"""
 from dataclasses import dataclass
 from typing import Optional
+
 
 @dataclass
 class GazeEvent:
     """
-    Represents a single gaze event (fixation or saccade).
+    Represents a single gaze event (e.g., fixation or saccade).
 
     Attributes:
-        timestamp: Timestamp of the event in milliseconds.
-        duration: Duration of the event in milliseconds.
-        roi: Region of Interest identifier (e.g., 'source_attribution').
+        timestamp: Timestamp of the event (ms or seconds relative to trial start).
+        duration: Duration of the event (ms).
+        roi: Region of Interest name (e.g., "source_attribution", "headline_body").
         participant_id: ID of the participant who generated this event.
     """
     timestamp: float

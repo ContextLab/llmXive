@@ -1,82 +1,121 @@
+"""Unit tests for the setup_linting module."""
 import os
+import sys
 import tempfile
+import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import subprocess
-
 import pytest
 
-# Add parent to path to import setup_linting
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from setup_linting import create_ruff_config, create_black_config, run_command
+from setup_linting import get_project_root, run_command, create_ruff_config, create_black_config
 
-def test_run_command_success():
-    """Test that run_command executes successfully."""
-    with patch("subprocess.run") as mock_run:
-        mock_run.return_value = MagicMock(returncode=0)
-        result = run_command(["echo", "test"], check=True)
-        mock_run.assert_called_once()
-        assert result.returncode == 0
 
-def test_create_ruff_config_creates_file():
-    """Test that create_ruff_config creates a .ruff.toml file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        config_path = project_root / ".ruff.toml"
-        
-        assert not config_path.exists()
-        create_ruff_config(project_root)
-        assert config_path.exists()
-        
-        content = config_path.read_text()
-        assert "[lint]" in content
-        assert "select" in content
-        assert "E501" in content  # line too long ignored
+class TestSetupLinting:
+    """Test cases for setup_linting functions."""
 
-def test_create_black_config_creates_file():
-    """Test that create_black_config creates a pyproject.toml with Black config."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        config_path = project_root / "pyproject.toml"
-        
-        assert not config_path.exists()
-        create_black_config(project_root)
-        assert config_path.exists()
-        
-        content = config_path.read_text()
-        assert "[tool.black]" in content
-        assert "line-length = 88" in content
+    def test_get_project_root(self):
+        """Test that get_project_root returns the correct path."""
+        root = get_project_root()
+        assert isinstance(root, Path)
+        assert root.exists()
+        # The project root should contain a 'code' directory
+        assert (root / "code").exists()
 
-def test_create_black_config_appends_to_existing():
-    """Test that create_black_config appends to existing pyproject.toml."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        config_path = project_root / "pyproject.toml"
-        
-        # Create a file with some content but no black section
-        config_path.write_text("[project]\nname = 'test'\n")
-        
-        create_black_config(project_root)
-        
-        content = config_path.read_text()
-        assert "[project]" in content
-        assert "[tool.black]" in content
-        assert "name = 'test'" in content
+    def test_run_command_success(self):
+        """Test run_command with a successful command."""
+        # Use a simple command that should always succeed
+        result = run_command(["echo", "test"], "Test command")
+        assert result is True
 
-def test_create_black_config_skips_if_exists():
-    """Test that create_black_config does not duplicate if section exists."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        project_root = Path(tmpdir)
-        config_path = project_root / "pyproject.toml"
-        
-        # Create a file with black section
-        config_path.write_text("[tool.black]\nline-length = 88\n")
-        
-        create_black_config(project_root)
-        
-        content = config_path.read_text()
-        # Should only appear once
-        assert content.count("[tool.black]") == 1
-        assert content.count("line-length = 88") == 1
+    def test_run_command_failure(self):
+        """Test run_command with a failing command."""
+        # Use a command that should fail
+        result = run_command(["false"], "Failing command")
+        assert result is False
+
+    def test_create_ruff_config(self):
+        """Test that ruff configuration is created correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            
+            # Create a mock pyproject.toml
+            pyproject = tmp_path / "pyproject.toml"
+            pyproject.write_text("# Existing content\n")
+            
+            # Temporarily override get_project_root
+            original_func = get_project_root
+            import setup_linting
+            setup_linting.get_project_root = lambda: tmp_path
+            
+            try:
+                config_path = create_ruff_config()
+                assert config_path.exists()
+                content = config_path.read_text()
+                assert "[tool.ruff]" in content
+                assert "select" in content
+            finally:
+                # Restore original function
+                setup_linting.get_project_root = original_func
+
+    def test_create_black_config(self):
+        """Test that black configuration is created correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            
+            # Create a mock pyproject.toml
+            pyproject = tmp_path / "pyproject.toml"
+            pyproject.write_text("# Existing content\n")
+            
+            # Temporarily override get_project_root
+            original_func = get_project_root
+            import setup_linting
+            setup_linting.get_project_root = lambda: tmp_path
+            
+            try:
+                config_path = create_black_config()
+                assert config_path.exists()
+                content = config_path.read_text()
+                assert "[tool.black]" in content
+                assert "line-length" in content
+            finally:
+                # Restore original function
+                setup_linting.get_project_root = original_func
+
+    def test_config_merging(self):
+        """Test that configurations are properly merged with existing content."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            
+            # Create a pyproject.toml with existing tool configs
+            pyproject = tmp_path / "pyproject.toml"
+            existing_content = """[tool.mypy]
+python_version = 3.11
+"""
+            pyproject.write_text(existing_content)
+            
+            # Temporarily override get_project_root
+            original_func = get_project_root
+            import setup_linting
+            setup_linting.get_project_root = lambda: tmp_path
+            
+            try:
+                # Create both configs
+                ruff_path = create_ruff_config()
+                black_path = create_black_config()
+                
+                assert ruff_path.exists()
+                assert black_path.exists()
+                
+                content = pyproject.read_text()
+                
+                # Check that both configs are present
+                assert "[tool.ruff]" in content
+                assert "[tool.black]" in content
+                
+                # Check that original content is preserved
+                assert "[tool.mypy]" in content
+            finally:
+                # Restore original function
+                setup_linting.get_project_root = original_func

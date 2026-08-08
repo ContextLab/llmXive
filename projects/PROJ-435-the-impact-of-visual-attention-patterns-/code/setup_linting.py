@@ -1,171 +1,207 @@
-"""
-Setup linting and formatting tools for the project.
-
-This script creates configuration files for ruff (linting) and black (formatting).
-"""
 import os
 import sys
 import subprocess
 from pathlib import Path
+import json
+import logging
 
 def get_project_root() -> Path:
     """Get the project root directory."""
-    return Path(__file__).resolve().parent.parent
+    current = Path(__file__).resolve()
+    # Navigate up to find the project root (where code/ directory is)
+    while current != current.parent:
+        if (current / "code").is_dir() and (current / "data").is_dir():
+            return current
+        current = current.parent
+    raise FileNotFoundError("Could not find project root")
 
-def run_command(cmd: list) -> bool:
-    """Run a shell command and return True if successful."""
+def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
+    """Run a shell command and return the result."""
+    logging.info(f"Running command: {' '.join(cmd)}")
     try:
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
-        return True
+        result = subprocess.run(
+            cmd,
+            check=check,
+            capture_output=True,
+            text=True,
+            cwd=get_project_root()
+        )
+        if result.stdout:
+            logging.info(result.stdout)
+        if result.stderr:
+            logging.warning(result.stderr)
+        return result
     except subprocess.CalledProcessError as e:
-        print(f"Error running command: {' '.join(cmd)}")
-        print(f"stderr: {e.stderr}")
-        return False
+        logging.error(f"Command failed: {e}")
+        logging.error(f"stderr: {e.stderr}")
+        raise
 
 def create_ruff_config(project_root: Path) -> None:
-    """Create a ruff configuration file."""
-    ruff_config_path = project_root / "ruff.toml"
-    config_content = """# Ruff configuration for llmXive project
-
-# Target Python version
-target-version = "py311"
-
-# Line length for linting checks
-line-length = 100
-
-# Exclude directories
-exclude = [
-    ".git",
-    "__pycache__",
-    ".venv",
-    "venv",
-    "build",
-    "dist",
-    "data",
-    "state",
-    "output",
-]
-
-[lint]
-# Enable specific rules
+    """Create a .ruff.toml configuration file."""
+    config_content = """[lint]
+# Select common error types
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "RUF", # Ruff-specific rules
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 
-# Ignore specific rules if needed
+# Ignore specific rules that conflict with project style
 ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-argument-assignment-in-default
 ]
 
 # Allow autofix for all enabled rules
 fixable = ["ALL"]
 unfixable = []
 
-[lint.per-file-ignores]
-# Allow certain rules to be ignored in specific files
-"__init__.py" = ["F401"]
+# Exclude specific directories
+extend-exclude = [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    ".eggs",
+    "*.egg-info",
+]
 
-[lint.isort]
-# Isort configuration
-known-first-party = ["code", "tests"]
-force-single-line = false
-lines-between-types = 0
-lines-after-imports = 2
+[lint.per-file-ignores]
+# Ignore some rules in test files
+"tests/*" = ["S101", "D100", "D101", "D102", "D103"]
 
 [format]
-# Black-compatible formatting
+# Use double quotes for strings
 quote-style = "double"
+
+# Indent with spaces
 indent-style = "space"
+
+# Respect magic trailing commas
 skip-magic-trailing-comma = false
-line-ending = "auto"
+
+# Line length (matches black default)
+line-length = 88
 """
-    with open(ruff_config_path, 'w') as f:
+    config_path = project_root / ".ruff.toml"
+    with open(config_path, "w", encoding="utf-8") as f:
         f.write(config_content)
-    print(f"Created ruff configuration: {ruff_config_path}")
+    logging.info(f"Created {config_path}")
 
 def create_black_config(project_root: Path) -> None:
-    """Create a black configuration file."""
-    black_config_path = project_root / "pyproject.toml"
+    """Create a pyproject.toml with black configuration if it doesn't exist."""
+    pyproject_path = project_root / "pyproject.toml"
     
-    # Check if pyproject.toml exists and read it
-    if black_config_path.exists():
-        with open(black_config_path, 'r') as f:
+    if pyproject_path.exists():
+        # Read existing content
+        with open(pyproject_path, "r", encoding="utf-8") as f:
             content = f.read()
-    else:
-        content = ""
+        
+        # Check if [tool.black] section already exists
+        if "[tool.black]" in content:
+            logging.info("Black configuration already exists in pyproject.toml")
+            return
+        
+        # Append black configuration
+        black_section = """
 
-    # Check if [tool.black] section already exists
-    if "[tool.black]" in content:
-        print(f"[tool.black] section already exists in {black_config_path}")
-        return
-
-    # Add black configuration
-    black_section = """
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
+include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.venv
-  | venv
-  | __pycache__
+    \\.eggs
+  | \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
   | build
   | dist
-  | data
-  | state
-  | output
 )/
 '''
-include = '\.pyi?$'
 """
-    
-    # Append the black section to the content
-    if content and not content.endswith('\n'):
-        content += '\n'
-    content += black_section
+        with open(pyproject_path, "a", encoding="utf-8") as f:
+            f.write(black_section)
+        logging.info(f"Appended black configuration to {pyproject_path}")
+    else:
+        # Create new pyproject.toml with black configuration
+        content = """[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
-    with open(black_config_path, 'w') as f:
-        f.write(content)
-    print(f"Updated black configuration: {black_config_path}")
+[project]
+name = "visual-attention-misleading-headlines"
+version = "0.1.0"
+description = "Impact of visual attention patterns on susceptibility to misleading headlines"
+requires-python = ">=3.11"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\\.pyi?$'
+exclude = '''
+/(
+    \\.eggs
+  | \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+"""
+        with open(pyproject_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        logging.info(f"Created {pyproject_path} with black configuration")
 
 def main() -> int:
-    """Main function to setup linting and formatting tools."""
-    project_root = get_project_root()
-    print(f"Setting up linting and formatting tools for project at: {project_root}")
-
-    # Create ruff configuration
-    create_ruff_config(project_root)
-
-    # Create black configuration
-    create_black_config(project_root)
-
-    # Try to install the tools if not already installed
-    print("\nAttempting to install linting and formatting tools...")
-    tools = [
-        ["pip", "install", "--upgrade", "ruff"],
-        ["pip", "install", "--upgrade", "black"],
-    ]
-
-    for cmd in tools:
-        if not run_command(cmd):
-            print(f"Warning: Could not install {' '.join(cmd)}")
-            print("Please install manually: pip install ruff black")
-
-    print("\nSetup complete!")
-    print("To run ruff: ruff check .")
-    print("To run black: black .")
-    print("To run ruff format: ruff format .")
-
-    return 0
+    """Main entry point for setting up linting and formatting tools."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        project_root = get_project_root()
+        logging.info(f"Project root: {project_root}")
+        
+        # Create configuration files
+        create_ruff_config(project_root)
+        create_black_config(project_root)
+        
+        # Install tools if not present
+        logging.info("Checking for ruff installation...")
+        try:
+            run_command(["pip", "install", "ruff"], check=False)
+        except Exception as e:
+            logging.warning(f"Could not install ruff: {e}")
+        
+        logging.info("Checking for black installation...")
+        try:
+            run_command(["pip", "install", "black"], check=False)
+        except Exception as e:
+            logging.warning(f"Could not install black: {e}")
+        
+        logging.info("Linting and formatting configuration complete.")
+        return 0
+        
+    except Exception as e:
+        logging.error(f"Failed to set up linting: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

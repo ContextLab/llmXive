@@ -1,4 +1,5 @@
 [lint]
+# Select common error types
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -8,15 +9,42 @@ select = [
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
 ]
+
+# Ignore specific rules that conflict with project style
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-argument-assignment-in-default
 ]
 
-[lint.isort]
-known-first-party = ["code"]
-force-single-line = true
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific directories
+extend-exclude = [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    ".eggs",
+    "*.egg-info",
+]
+
+[lint.per-file-ignores]
+# Ignore some rules in test files
+"tests/*" = ["S101", "D100", "D101", "D102", "D103"]
 
 [format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Line length (matches black default)
 line-length = 88
-indent-width = 4

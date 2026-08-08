@@ -1,3 +1,18 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
+    with black settings) were presented, nor any evidence that ruff/flake8 and black
+    have been set up in the repository. Without these artifacts, the requirement to
+    configure the tools is not satisfied.
+T004:
+  c: false
+  h: 133ccae02c939af8be4cc739adf419fe0ce21ec8dbf300dfdda87e532adefedb
+  r: The provided `validate_dataset_schema.py` is only partially shown and does not
+    contain the logic that loads the input file, performs the required column/ROI
+    checks, raises `DataInvalidError` with missing items, or writes `state/schema_validation.json`.
+    Moreover, the required input file `data/raw/eye_tracking_raw.parquet` is missing,
+    so the script cannot be executed as specified. The task therefore remains unfinished.
 T005:
   c: false
   h: 7443f2e3a49bf50d9dd9e441a1262551652a88c6907d3459fb4026e3692750e7
@@ -14,13 +29,27 @@ T006:
   r: "The required file `code/utils/fixation_detection.py` does not exist, so no implementation\
     \ of I\u2011VT/I\u2011DT, no config\u2011reading logic, and no documentation of\
     \ fallback behavior are present. The task is therefore not satisfied."
-T009:
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No environment configuration files (e.g., `requirements.txt`, `environment.yml`,\
-    \ Dockerfile) or code that sets and documents random seeds for reproducibility\
-    \ are present. The claim provides only high\u2011level user story descriptions,\
-    \ not the concrete artifacts required to satisfy task T009."
+  r: No code files were provided under `code/models/`, and there is no evidence that
+    the three required data model classes (Participant, Stimulus, GazeEvent) with
+    the specified fields have been created. The implementer must add the model definitions
+    in the appropriate directory.
+T007#1:
+  c: false
+  h: 45927385b092f9e90b46dd95814d4b268d654b69437b2178fb4f12facddcba32
+  r: The provided `code/02_data_quality_report.py` is truncated and does not contain
+    the full implementation needed to read the inputs, compute exclusion summaries,
+    and write `output/data_quality_report.csv`. Moreover, the required input file
+    `data/derived/preprocessed_gaze.csv` is missing, and there is no evidence of the
+    expected output CSV being generated. The task therefore remains unfinished.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging configuration files, scripts, or documentation were presented; the\
+    \ required artifact to capture data\u2011quality warnings and exclusion counts\
+    \ is missing, so the task\u2019s requirement is not satisfied."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,12 +57,6 @@ T015:
     \ only material provided is the specification text. The required artifact\u2014\
     a functional implementation that assigns gaze points to the \u201Csource attribution\u201D\
     \ and other bounding boxes\u2014is missing."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a script or function that checks for missing \u201Csource_attribution\u201D\
-    \ ROI coordinates, excludes those trials, and writes the exclusion count to `output/exclusion_log.txt`\
-    \ was provided. The required log file and corresponding implementation are missing."
 T018:
   c: false
   h: 27503bcc5e3e739b84979bc65d40b635d1b75d531731a6fc6e7309c583d008fe
@@ -45,26 +68,40 @@ T018:
     \ functional. The next implementer must supply the complete script logic and ensure\
     \ the input and output files exist (or can be generated) and meet the specified\
     \ schema."
-T020:
+T021:
   c: false
-  h: b16b552bd50c30bf0d3765252607a5c2aa63d15725801054d91cfd3baef8a163
-  r: "The required file `tests/integration/test_mixed_effects_recovery.py` does not\
-    \ exist, so no integration test for coefficient recovery on synthetic data is\
-    \ present. The task\u2019s core deliverable is missing."
+  h: 738bcc9b5367a234e0d5e9e4f997816de429f8c52f082515e730acb73099022c
+  r: The required input `data/derived/empirical_outcomes.csv` and the expected output
+    `data/derived/valence_scores.csv` are absent, and the provided `code/03_valence_calculation.py`
+    is truncated and lacks the core logic for coverage calculation, VADER fallback,
+    and the mandated runtime event logging. The task is therefore not fulfilled.
+T023:
+  c: false
+  h: 3a4b11b58672927354332900389f3734e7c13da6a72cb5dee5875deba0ea7cf7
+  r: "The `code/04_data_merge.py` file exists but is truncated and does not contain\
+    \ the full merging logic, and the three required input CSV files (`preprocessed_gaze.csv`,\
+    \ `empirical_outcomes.csv`, `valence_scores.csv`) are missing from the repository,\
+    \ so the script cannot be executed or validated. The task\u2019s core requirement\u2014\
+    to merge those streams\u2014is therefore not satisfied."
 T024:
   c: false
-  h: b64868de4397cb278ada6422eaa3e95b5499226f8af37d666fdf21dde064153c
-  r: "The required input `data/derived/merged_dataset.csv` does not exist, and the\
-    \ expected output `data/derived/regression_results.csv` is also missing. Without\
-    \ the input file the script cannot run, and the absence of the results file shows\
-    \ the task\u2019s deliverable was not produced."
-T025:
+  h: a9529dfeaf28056e5f174170f9638a9ab7ef6cc1d6ba06f8b149e102a6307717
+  r: "The required input file `data/derived/merged_dataset_full.csv` is missing, so\
+    \ the script cannot actually load the data it is supposed to analyze. Moreover,\
+    \ the provided `code/05_regression_analysis.py` snippet ends before any model\
+    \ fitting occurs, and the generated `regression_results.csv` only lists a single\
+    \ random effect (\u201Cparticipant_id\u201D) instead of the required random intercepts\
+    \ for both participant and headline. Consequently the implementation does not\
+    \ fulfill the task\u2019s specifications."
+T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, analysis script, or output showing the three\u2011way interaction term\
-    \ calculation is present, nor any verification that the estimated coefficient\
-    \ matches ground\u2011truth values. The required artifact (e.g., a regression\
-    \ script and its results) is missing, so the task is not satisfied."
+  r: "No code, script, notebook, or result file was provided that demonstrates the\
+    \ Holm\u2011Bonferroni correction being applied to the fixed\u2011effects and\
+    \ interaction\u2011term p\u2011values. Without such an artifact (e.g., a revised\
+    \ regression output table or a function implementing the correction), we cannot\
+    \ confirm the requirement was met. The implementer must supply the corrected statistical\
+    \ results or the implementation that performs the correction."
 T030:
   c: false
   h: 97969afb6fd11006fdfe02724132e75522ce35ffa7753f183cc1fe045cb09565

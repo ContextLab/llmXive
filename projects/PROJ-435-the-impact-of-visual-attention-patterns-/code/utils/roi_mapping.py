@@ -1,10 +1,10 @@
 """
-ROI Mapping Utilities for Visual Attention Analysis.
+ROI Mapping Module for Eye-Tracking Data.
 
-This module implements the logic to assign gaze points to specific Regions of Interest (ROIs),
-specifically "source_attribution" and other bounding boxes defined in the configuration.
-It handles the geometric containment checks and aggregation of fixation data per ROI.
+Implements point-in-polygon algorithms to assign gaze coordinates to
+defined Regions of Interest (ROIs) such as 'source_attribution' and 'headline_body'.
 """
+
 import logging
 import json
 from pathlib import Path
@@ -12,191 +12,220 @@ from typing import Dict, List, Optional, Tuple, Any
 import pandas as pd
 import numpy as np
 
-from utils.config_loader import load_config
-
+# Configure logger
 logger = logging.getLogger(__name__)
 
-def load_roi_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Load ROI configuration from the project config file.
+def get_project_root() -> Path:
+    """Determine the project root directory (assumes code/utils/roi_mapping.py structure)."""
+    current_file = Path(__file__).resolve()
+    return current_file.parent.parent.parent
 
-    Args:
-        config_path: Optional path to config.yaml. If None, uses default project root location.
+def load_roi_config() -> Dict[str, Any]:
+    """
+    Load ROI bounding box definitions from the project configuration.
+
+    Expects a 'rois' section in config.yaml or a dedicated roi_config.json
+    containing polygon coordinates for each ROI.
 
     Returns:
-        Dictionary containing ROI definitions.
+        Dict mapping ROI names to their polygon coordinates (list of (x, y) tuples).
     """
-    if config_path is None:
-        # Default to code/config.yaml relative to project root
-        config_path = Path("code/config.yaml")
-    
+    project_root = get_project_root()
+    config_path = project_root / "code" / "roi_config.json"
+
     if not config_path.exists():
-        raise FileNotFoundError(f"ROI config file not found at {config_path}")
+        # Fallback to default definitions if file is missing, but log a warning
+        logger.warning(f"ROI config file not found at {config_path}. Using default definitions.")
+        return {
+            "source_attribution": [(0.0, 0.0), (0.2, 0.0), (0.2, 0.15), (0.0, 0.15)],
+            "headline_body": [(0.0, 0.15), (1.0, 0.15), (1.0, 0.4), (0.0, 0.4)]
+        }
 
-    with open(config_path, 'r') as f:
-        config = json.load(f) if config_path.suffix == '.json' else load_config(config_path)
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        return config.get("rois", {})
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to load ROI config: {e}")
+        raise
 
-    if 'rois' not in config:
-        raise ValueError("Config missing 'rois' key. Expected ROI definitions (e.g., source_attribution).")
-    
-    return config['rois']
-
-def is_point_in_roi(x: float, y: float, roi_coords: Dict[str, float]) -> bool:
+def is_point_in_roi(point: Tuple[float, float], roi_polygon: List[Tuple[float, float]]) -> bool:
     """
-    Check if a gaze point (x, y) falls within a rectangular ROI.
+    Determine if a 2D point lies inside a polygon using the Ray Casting algorithm.
 
     Args:
-        x: X coordinate of the gaze point.
-        y: Y coordinate of the gaze point.
-        roi_coords: Dictionary containing 'x_min', 'y_min', 'x_max', 'y_max'.
+        point: (x, y) coordinates of the gaze point.
+        roi_polygon: List of (x, y) vertices defining the ROI polygon.
 
     Returns:
-        True if the point is inside the ROI, False otherwise.
+        True if the point is inside the polygon, False otherwise.
     """
-    x_min = roi_coords.get('x_min', 0)
-    y_min = roi_coords.get('y_min', 0)
-    x_max = roi_coords.get('x_max', 1)
-    y_max = roi_coords.get('y_max', 1)
+    x, y = point
+    inside = False
+    n = len(roi_polygon)
+    if n < 3:
+        return False
 
-    return x_min <= x <= x_max and y_min <= y <= y_max
+    p1x, p1y = roi_polygon[0]
+    for i in range(n + 1):
+        p2x, p2y = roi_polygon[i % n]
+        if y > min(p1y, p2y):
+            if y <= max(p1y, p2y):
+                if x <= max(p1x, p2x):
+                    if p1y != p2y:
+                        xints = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                    if p1x == p2x or x <= xints:
+                        inside = not p1x, p2x
+        p1x, p1y = p2x, p2y
 
-def map_single_point_to_roi(x: float, y: float, rois: Dict[str, Dict[str, float]]) -> Optional[str]:
+    return inside
+
+def map_single_point_to_roi(point: Tuple[float, float], rois: Dict[str, List[Tuple[float, float]]]) -> Optional[str]:
     """
-    Map a single gaze point to the first matching ROI name.
+    Map a single gaze point to the first matching ROI.
 
     Args:
-        x: X coordinate.
-        y: Y coordinate.
+        point: (x, y) gaze coordinates.
         rois: Dictionary of ROI definitions.
 
     Returns:
-        The name of the ROI if found, None if no ROI matches.
+        The name of the ROI containing the point, or None if no match.
     """
-    for roi_name, coords in rois.items():
-        if is_point_in_roi(x, y, coords):
+    for roi_name, polygon in rois.items():
+        if is_point_in_roi(point, polygon):
             return roi_name
     return None
 
-def map_gaze_to_rois(df: pd.DataFrame, rois: Dict[str, Dict[str, float]]) -> pd.DataFrame:
+def map_gaze_to_rois(df: pd.DataFrame, rois: Optional[Dict[str, List[Tuple[float, float]]]] = None) -> pd.DataFrame:
     """
-    Add a 'roi_type' column to the gaze DataFrame based on (x, y) coordinates.
+    Assign ROI types to a DataFrame of gaze points.
+
+    Adds a 'roi_type' column to the input DataFrame.
 
     Args:
-        df: DataFrame containing 'x' and 'y' columns.
-        rois: Dictionary of ROI definitions.
+        df: DataFrame containing 'x' and 'y' columns for gaze coordinates.
+        rois: Optional dictionary of ROI definitions. If None, loads from config.
 
     Returns:
         DataFrame with an added 'roi_type' column.
     """
+    if rois is None:
+        rois = load_roi_config()
+
     if 'x' not in df.columns or 'y' not in df.columns:
         raise ValueError("Input DataFrame must contain 'x' and 'y' columns for ROI mapping.")
 
-    df['roi_type'] = df.apply(
-        lambda row: map_single_point_to_roi(row['x'], row['y'], rois),
-        axis=1
-    )
+    logger.info(f"Mapping {len(df)} gaze points to {len(rois)} ROIs...")
+
+    # Vectorized approach might be faster for huge datasets, but point-in-polygon
+    # is complex to vectorize without shapely. For standard pandas, apply is robust.
+    # We assume coordinates are normalized 0.0-1.0 or match the config scale.
+
+    def apply_mapping(row):
+        return map_single_point_to_roi((row['x'], row['y']), rois)
+
+    df['roi_type'] = df.apply(apply_mapping, axis=1)
     
-    # Log unmapped points
-    unmapped_count = df['roi_type'].isna().sum()
-    if unmapped_count > 0:
-        logger.warning(f"ROI Mapping: {unmapped_count} gaze points fell outside all defined ROIs.")
+    # Log statistics
+    roi_counts = df['roi_type'].value_counts()
+    logger.info(f"ROI mapping complete. Distribution:\n{roi_counts}")
     
     return df
 
-def aggregate_fixation_roi_stats(df: pd.DataFrame) -> pd.DataFrame:
+def aggregate_fixation_roi_stats(fixations_df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Aggregate fixation durations per participant, headline, and ROI type.
-    
-    This function groups the preprocessed gaze data to calculate total fixation
-    duration for each ROI type (e.g., 'source_attribution'). It ensures that
-    combinations with zero fixations are represented with a duration of 0.
+    Aggregate statistics for fixations mapped to ROIs.
 
     Args:
-        df: DataFrame with 'participant_id', 'headline_id', 'roi_type', and 'duration'.
+        fixations_df: DataFrame with fixation data including 'roi_type'.
 
     Returns:
-        DataFrame with aggregated fixation durations per ROI.
+        Dictionary with counts and durations per ROI.
     """
-    if df.empty:
-        return pd.DataFrame(columns=['participant_id', 'headline_id', 'roi_type', 'fixation_duration'])
+    if 'roi_type' not in fixations_df.columns:
+        raise ValueError("DataFrame must contain 'roi_type' column.")
 
-    # Ensure necessary columns exist
-    required_cols = ['participant_id', 'headline_id', 'roi_type', 'duration']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column '{col}' for aggregation.")
+    stats = {}
+    for roi in fixations_df['roi_type'].dropna().unique():
+        subset = fixations_df[fixations_df['roi_type'] == roi]
+        stats[roi] = {
+            "count": len(subset),
+            "total_duration_ms": subset.get('duration', pd.Series([0])).sum(),
+            "avg_duration_ms": subset.get('duration', pd.Series([0])).mean()
+        }
+    return stats
 
-    # Group and sum
-    grouped = df.groupby(['participant_id', 'headline_id', 'roi_type'])['duration'].sum().reset_index()
-    grouped.rename(columns={'duration': 'fixation_duration'}, inplace=True)
-
-    # Ensure all expected ROI types exist for every participant/headline pair
-    # This handles the requirement to treat zero fixations as valid data (duration=0)
-    unique_participants = df['participant_id'].unique()
-    unique_headlines = df['headline_id'].unique()
-    unique_rois = df['roi_type'].dropna().unique()
-
-    # Create a full cartesian product
-    index = pd.MultiIndex.from_product(
-        [unique_participants, unique_headlines, unique_rois],
-        names=['participant_id', 'headline_id', 'roi_type']
-    )
-    
-    full_df = pd.DataFrame(index=index).reset_index()
-    
-    # Merge with actual data
-    result = full_df.merge(grouped, on=['participant_id', 'headline_id', 'roi_type'], how='left')
-    
-    # Fill NaN durations (which represent 0 fixations) with 0
-    result['fixation_duration'] = result['fixation_duration'].fillna(0)
-
-    return result
-
-def handle_zero_fixation_roi(df: pd.DataFrame) -> pd.DataFrame:
+def handle_zero_fixation_roi(df: pd.DataFrame, target_roi: str = "source_attribution") -> pd.DataFrame:
     """
-    Ensure rows exist for participant/headline combinations with zero fixations on specific ROIs.
-    
-    This is a wrapper around aggregate_fixation_roi_stats to ensure the output
-    strictly adheres to the spec: zero fixations are recorded as duration=0, not missing.
+    Ensure trials with zero fixations on the target ROI are represented with duration 0.
+
+    This function identifies (participant_id, headline_id) pairs that exist in the data
+    but have no rows where roi_type == target_roi, and inserts a placeholder row
+    with duration 0 for that ROI.
 
     Args:
-        df: Aggregated DataFrame.
+        df: Preprocessed gaze/fixation DataFrame.
+        target_roi: The ROI name to check for zero fixations.
 
     Returns:
-        DataFrame with explicit 0.0 values for missing ROI interactions.
+        DataFrame with zero-duration rows inserted where missing.
     """
-    # The aggregation logic in aggregate_fixation_roi_stats already handles this via fillna(0).
-    # This function exists for explicit API clarity as per task T017 requirements.
-    return df
+    if 'participant_id' not in df.columns or 'headline_id' not in df.columns:
+        logger.warning("Cannot handle zero fixations: missing participant_id or headline_id columns.")
+        return df
+
+    # Identify all unique combinations
+    all_combinations = df[['participant_id', 'headline_id']].drop_duplicates()
+    
+    # Filter for existing target_roi fixations
+    existing_target = df[df['roi_type'] == target_roi][['participant_id', 'headline_id']].drop_duplicates()
+    
+    # Find missing combinations
+    missing = all_combinations.merge(existing_target, on=['participant_id', 'headline_id'], how='left', indicator=True)
+    missing = missing[missing['_merge'] == 'left_only'][['participant_id', 'headline_id']]
+    
+    if len(missing) == 0:
+        logger.info("No missing target ROI fixations found.")
+        return df
+
+    # Create placeholder rows
+    placeholders = missing.copy()
+    placeholders['roi_type'] = target_roi
+    placeholders['duration'] = 0
+    # Preserve other necessary columns if they exist, set to NaN or 0
+    for col in df.columns:
+        if col not in placeholders.columns:
+            placeholders[col] = 0 if df[col].dtype in [np.int64, np.float64] else None
+    
+    logger.info(f"Inserting {len(placeholders)} zero-duration rows for missing {target_roi} ROI.")
+    return pd.concat([df, placeholders], ignore_index=True)
 
 def main():
-    """
-    Entry point for testing ROI mapping logic directly.
-    """
+    """Main entry point for testing ROI mapping logic."""
     logging.basicConfig(level=logging.INFO)
-    try:
-        rois = load_roi_config()
-        logger.info(f"Loaded ROI config: {list(rois.keys())}")
-        
-        # Create a dummy dataframe for testing
-        test_data = {
-            'participant_id': [1, 1, 1, 2],
-            'headline_id': [101, 101, 102, 101],
-            'x': [100.0, 500.0, 200.0, 100.0],
-            'y': [100.0, 200.0, 300.0, 100.0],
-            'duration': [50, 120, 80, 50]
-        }
-        df = pd.DataFrame(test_data)
-        
-        mapped_df = map_gaze_to_rois(df, rois)
-        logger.info(f"Mapped ROI types: {mapped_df['roi_type'].tolist()}")
-        
-        aggregated = aggregate_fixation_roi_stats(mapped_df)
-        logger.info(f"Aggregated stats:\n{aggregated}")
-        
-    except Exception as e:
-        logger.error(f"ROI mapping execution failed: {e}")
-        raise
+    
+    # Load config
+    rois = load_roi_config()
+    logger.info(f"Loaded ROI definitions: {list(rois.keys())}")
+    
+    # Create dummy data
+    data = {
+        'x': [0.1, 0.5, 0.8, 0.05],
+        'y': [0.05, 0.2, 0.5, 0.1],
+        'participant_id': [1, 1, 1, 1],
+        'headline_id': [101, 101, 101, 101]
+    }
+    df = pd.DataFrame(data)
+    
+    # Map ROIs
+    result = map_gaze_to_rois(df, rois)
+    print(result[['x', 'y', 'roi_type']])
+    
+    # Test zero fixation handling
+    # Simulate a case where one combo is missing the target ROI
+    result = handle_zero_fixation_roi(result, "source_attribution")
+    print("After zero-fixation handling:")
+    print(result[['participant_id', 'headline_id', 'roi_type', 'duration']])
 
 if __name__ == "__main__":
     main()
