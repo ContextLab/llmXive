@@ -1,0 +1,28 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Analysis‑Ready Data Schema"
+type: "object"
+required:
+  - "stimulus_id"
+  - "participant_id"
+  - "relationship_type"
+  - "rating"
+  - "cue_intensity"
+  - "cue_intensity_weighting"
+properties:
+  stimulus_id:
+    type: "string"
+  participant_id:
+    type: "string"
+  relationship_type:
+    type: "string"
+    enum: ["friend", "acquaintance"]
+  rating:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  cue_intensity:
+    type: "number"
+  cue_intensity_weighting:
+    type: "string"
+    enum: ["primary", "equal", "emoji_dominant", "punctuation_dominant"]
+  # Additional stimulus feature columns may be present (emoji_count, etc.) – they are optional for the analysis‑ready view.

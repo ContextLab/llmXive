@@ -1,142 +1,112 @@
 """
-Contract test for stimulus schema.
-Validates that artifacts produced in T006 (schema definitions) are correctly
-enforced against the generated stimuli data (produced by T013).
+Contract test for stimulus schema validation.
 
-This test ensures the schema defined in specs/001-text-tone-emotional-support/contracts/stimulus.schema.yaml
-is valid and can be used to validate the actual data in data/raw/stimuli.csv.
+Validates that the generated stimuli file (data/raw/stimuli.csv)
+conforms to the expected schema defined in specs/001-the-impact-of-text-message-tone-on-perce/contracts/stimulus.schema.yaml.
 """
 import csv
 import json
 import os
-import pytest
+import sys
 from pathlib import Path
+from typing import List, Dict, Any
 
-# Import the schema validation logic from the existing project module
-from code.validate_schemas import load_schema, validate_json_against_schema
-from code.config import get_raw_data_dir, get_specs_dir
+import pytest
+import yaml
 
-# Determine paths based on project config
-SCHEMAS_DIR = get_specs_dir() / "001-text-tone-emotional-support" / "contracts"
-STIMULUS_SCHEMA_PATH = SCHEMAS_DIR / "stimulus.schema.yaml"
-STIMULI_DATA_PATH = get_raw_data_dir() / "stimuli.csv"
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-# Sample valid stimulus data to test against the schema (in-memory for unit validation)
-# These match the schema fields: id, text, emoji_count, punctuation_type, length_category, scenario_id
-VALID_STIMULUS_RECORDS = [
-    {
-        "id": "S001",
-        "text": "Hey, are you free later? 👍",
-        "emoji_count": 1,
-        "punctuation_type": "standard",
-        "length_category": "short",
-        "scenario_id": "SC01"
-    },
-    {
-        "id": "S002",
-        "text": "Hey!! Are you free later??? 😊😊",
-        "emoji_count": 2,
-        "punctuation_type": "exaggerated",
-        "length_category": "long",
-        "scenario_id": "SC01"
-    }
-]
+from config import get_raw_data_dir, get_contracts_dir
+from validate_schemas import load_schema, validate_csv_against_schema
 
-# Sample invalid stimulus data to ensure the schema rejects it
-INVALID_STIMULUS_RECORDS = [
-    {
-        "id": 123,  # Should be string
-        "text": "Test",
-        "emoji_count": "low", # Should be integer
-        "punctuation_type": "standard",
-        "length_category": "short",
-        "scenario_id": "SC01"
-    },
-    {
-        "id": "S003",
-        "text": "Test",
-        "emoji_count": 1,
-        "punctuation_type": "invalid_type", # Should be standard/exaggerated
-        "length_category": "short",
-        "scenario_id": "SC01"
-    }
-]
+class TestStimulusSchema:
+    """Test suite for stimulus schema validation."""
 
-def test_schema_file_exists():
-    """Verify the stimulus schema file exists."""
-    assert STIMULUS_SCHEMA_PATH.exists(), f"Schema file not found at {STIMULUS_SCHEMA_PATH}"
+    @pytest.fixture
+    def stimuli_file(self) -> Path:
+        """Get the path to the stimuli CSV file."""
+        return get_raw_data_dir() / "stimuli.csv"
 
-def test_schema_is_valid_yaml():
-    """Verify the schema file is valid YAML and can be loaded."""
-    try:
-        schema = load_schema(STIMULUS_SCHEMA_PATH)
-        assert schema is not None
-        assert "type" in schema or "$schema" in schema
-    except Exception as e:
-        pytest.fail(f"Failed to load or parse schema: {e}")
+    @pytest.fixture
+    def schema_file(self) -> Path:
+        """Get the path to the stimulus schema YAML file."""
+        return get_contracts_dir() / "stimulus.schema.yaml"
 
-def test_validate_valid_stimulus_records():
-    """Verify that valid stimulus records pass schema validation."""
-    schema = load_schema(STIMULUS_SCHEMA_PATH)
-    assert schema is not None
+    def test_stimuli_file_exists(self, stimuli_file: Path):
+        """Test that the stimuli file exists."""
+        assert stimuli_file.exists(), f"Stimuli file not found: {stimuli_file}"
 
-    # Validate each record individually
-    for record in VALID_STIMULUS_RECORDS:
-        is_valid, errors = validate_json_against_schema(record, schema)
-        assert is_valid, f"Valid record failed validation: {errors}"
+    def test_stimuli_schema_exists(self, schema_file: Path):
+        """Test that the schema file exists."""
+        assert schema_file.exists(), f"Schema file not found: {schema_file}"
 
-def test_validate_invalid_stimulus_records():
-    """Verify that invalid stimulus records fail schema validation."""
-    schema = load_schema(STIMULUS_SCHEMA_PATH)
-    assert schema is not None
+    def test_stimuli_against_schema(self, stimuli_file: Path, schema_file: Path):
+        """Test that the stimuli file conforms to the schema."""
+        # Load schema
+        schema = load_schema(schema_file)
+        
+        # Validate CSV against schema
+        is_valid, errors = validate_csv_against_schema(stimuli_file, schema)
+        
+        assert is_valid, f"Stimuli file does not conform to schema: {errors}"
 
-    # Validate each record individually
-    for record in INVALID_STIMULUS_RECORDS:
-        is_valid, errors = validate_json_against_schema(record, schema)
-        assert not is_valid, f"Invalid record should have failed validation but passed."
-        assert len(errors) > 0, "Validation should return errors for invalid data."
+    def test_required_columns_present(self, stimuli_file: Path):
+        """Test that all required columns are present in the stimuli file."""
+        required_columns = [
+            "id", "text", "emoji_count", "punctuation_type", 
+            "length_category", "scenario_id", "cue_intensity"
+        ]
+        
+        with open(stimuli_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            headers = reader.fieldnames
+            
+            for col in required_columns:
+                assert col in headers, f"Missing required column: {col}"
 
-def test_stimulus_schema_enforces_required_fields():
-    """Verify the schema requires specific fields."""
-    schema = load_schema(STIMULUS_SCHEMA_PATH)
+    def test_data_types(self, stimuli_file: Path):
+        """Test that data types are correct."""
+        with open(stimuli_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+            assert len(rows) > 0, "Stimuli file is empty"
+            
+            # Check first row for data types
+            row = rows[0]
+            
+            # id should be string
+            assert isinstance(row["id"], str), "id should be a string"
+            
+            # text should be string
+            assert isinstance(row["text"], str), "text should be a string"
+            
+            # emoji_count should be integer
+            assert row["emoji_count"].isdigit(), "emoji_count should be an integer"
+            
+            # cue_intensity should be float
+            try:
+                float(row["cue_intensity"])
+            except ValueError:
+                assert False, "cue_intensity should be a float"
 
-    # Check if 'required' field exists in schema properties (standard JSON Schema)
-    if "required" in schema:
-        required_fields = schema["required"]
-        # Based on T006 schema definition: id, text, emoji_count, punctuation_type, length_category
-        expected_fields = ["id", "text", "emoji_count", "punctuation_type", "length_category", "scenario_id"]
-        for field in expected_fields:
-            assert field in required_fields, f"Schema should require field: {field}"
-    else:
-        # Fallback: check if properties exist and assume required logic
-        pytest.skip("Schema does not use standard 'required' field; manual inspection needed.")
-
-def test_generated_stimuli_csv_validates_against_schema():
-    """
-    Integration contract test: Validates the actual generated stimuli.csv file
-    against the defined schema.
-    """
-    assert STIMULI_DATA_PATH.exists(), f"Generated stimuli file not found at {STIMULI_DATA_PATH}"
-
-    schema = load_schema(STIMULUS_SCHEMA_PATH)
-    assert schema is not None
-
-    with open(STIMULI_DATA_PATH, mode='r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        row_count = 0
-        for row in reader:
-            row_count += 1
-            # Convert row values to appropriate types if necessary
-            # The CSV reader returns strings. The schema expects:
-            # id (string), text (string), emoji_count (integer), punctuation_type (string), length_category (string)
-            # We must cast emoji_count to int for validation if the schema enforces integer type.
-            if "emoji_count" in row:
-                try:
-                    row["emoji_count"] = int(row["emoji_count"])
-                except ValueError:
-                    pytest.fail(f"Row {row_count} has non-integer emoji_count: {row['emoji_count']}")
-
-            is_valid, errors = validate_json_against_schema(row, schema)
-            assert is_valid, f"Row {row_count} in stimuli.csv failed validation: {errors}. Row: {row}"
-
-    assert row_count > 0, "stimuli.csv is empty."
+    def test_factorial_combinations_count(self, stimuli_file: Path):
+        """Test that the stimuli file contains the expected 12 factorial combinations."""
+        with open(stimuli_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+            combinations = set()
+            for row in rows:
+                scenario_id = row["scenario_id"]
+                parts = scenario_id.split("_")
+                if len(parts) >= 4:
+                    rel = parts[0]
+                    cue = parts[1]
+                    intensity = parts[2]
+                    combinations.add((rel, cue, intensity))
+            
+            # We expect 12 unique combinations
+            assert len(combinations) == 12, f"Expected 12 factorial combinations, found {len(combinations)}: {combinations}"

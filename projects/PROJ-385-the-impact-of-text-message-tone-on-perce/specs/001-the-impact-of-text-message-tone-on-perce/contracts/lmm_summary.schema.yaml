@@ -1,0 +1,36 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "LMM Summary Schema"
+type: "object"
+required:
+  - "term"
+  - "estimate"
+  - "std_error"
+  - "p_value"
+  - "ci_lower"
+  - "ci_upper"
+properties:
+  term:
+    type: "string"
+    description: "Name of the fixed effect term (e.g., relationship[T.friend]:cue_intensity)."
+  estimate:
+    type: "number"
+    description: "Coefficient estimate (β)."
+  std_error:
+    type: "number"
+    description: "Standard error of the estimate."
+  df:
+    type: "number"
+    description: "Approximate degrees of freedom using Wald Z (normal approximation)."
+  t_value:
+    type: "number"
+    description: "Wald Z‑based statistic."
+  p_value:
+    type: "number"
+    description: "Two‑tailed p‑value."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95 % confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95 % confidence interval."
+additionalProperties: false

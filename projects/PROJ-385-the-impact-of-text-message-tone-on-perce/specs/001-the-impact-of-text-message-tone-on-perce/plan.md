@@ -1,108 +1,156 @@
 # Implementation Plan: The Impact of Text Message Tone on Perceived Emotional Support
 
-**Branch**: `001-text-tone-emotional-support` | **Date**: 2026-07-13 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-text-tone-emotional-support/spec.md`
+**Branch**: `001-text-tone-emotional-support` | **Date**: 2026-08-08 | **Spec**: [spec.md](../specs/001-text-message-tone-emotional-support/spec.md)  
+**Input**: Feature specification from `/specs/001-text-message-tone-emotional-support/spec.md`
 
 ## Summary
-
-This project investigates how paralinguistic cues (emoji, punctuation, length) in text messages interact with relational context (close friend vs. acquaintance) to influence perceived emotional support. The technical approach involves: (1) programmatic generation of controlled text stimuli (3 emoji levels × 2 punctuation × 2 length = 12 unique combinations), (2) a strict data collection pipeline requiring real human ratings from Prolific (N≥60), (3) Linear Mixed-Effects Modeling (LMM) using CPU-optimized `statsmodels` to test for interaction effects of **individual cues** (Emoji, Punctuation, Length) with Relationship, and (4) a robustness check via sensitivity analysis comparing model fit (AIC/BIC) of individual-cue models versus aggregated models. The pipeline is designed to run entirely on a CPU-only GitHub Actions free-tier runner, adhering to strict data hygiene and reproducibility constraints.
+The project must (1) generate a fully crossed stimulus set varying emoji count, punctuation pattern, and message length; (2) collect real human ratings (≥ 60 participants) via Prolific; (3) fit a Linear Mixed‑Effects Model (LMM) with random intercepts for participant and stimulus to test the interaction between relationship type and cue intensity; (4) run Tukey‑corrected post‑hoc tests when the interaction is significant; (5) conduct a predefined sensitivity analysis over three alternative cue‑intensity weightings; (6) detect straight‑lining participants and handle missing data; (7) ensure the entire pipeline runs on CPU‑only resources within the GitHub Actions free‑tier limits; (8) record SHA‑256 hashes for all generated artifacts to satisfy Constitution Principle V.
 
 ## Technical Context
+**Language/Version**: Python 3.11  
+**Primary Dependencies**:  
+- `pandas==2.2.*` – data manipulation  
+- `numpy==1.26.*` – numeric ops  
+- `statsmodels==0.14.*` – LMM, power analysis, Tukey HSD  
+- `scipy==1.13.*` – auxiliary stats  
+- `pyyaml==6.0.*` – schema validation  
+- `click==8.1.*` – CLI wrappers  
+- `pytest==8.2.*` – testing  
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels` (for LMM), `pytest`, `pyyaml`, `python-dotenv`  
-**Storage**: CSV files (`data/raw/stimuli.csv`, `data/raw/real_ratings.csv`) and JSON logs  
-**Testing**: `pytest` with contract tests against YAML schemas  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, GB RAM)  
-**Project Type**: Research Pipeline / Statistical Analysis  
-**Performance Goals**: Complete analysis (generation + LMM + sensitivity) in < 2 hours on CPU  
-**Constraints**: No GPU; No synthetic data for primary analysis; Strict PII removal; N≥60 real participants required  
-**Scale/Scope**: A set of unique stimuli × a cohort of participants = a substantial volume of rating records (plus metadata)  
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Storage**: CSV files under `data/` (raw, processed, results)  
+**Testing**: `pytest` with contract‑based schema tests  
+**Target Platform**: Linux (GitHub Actions runner)  
+**Project Type**: Research pipeline (CLI scripts + notebooks)  
+**Performance Goals**: Full end‑to‑end run ≤ 6 h, ≤ 7 GB RAM, ≤ 14 GB disk  
+**Constraints**: CPU‑only; no GPU or CUDA usage (Principle VII)  
+**Scale/Scope**: 60 participants × multiple relationship contexts × fully crossed stimulus variants → a modest number of rating rows well within limits.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility (NON-NEGOTIABLE)** | ✅ PASS | Every result reported in this project MUST be reproducible by re-running the project's `code/` against the project's `data/` on a fresh GitHub Actions runner. Random seeds MUST be pinned in `code/`. External datasets MUST be fetched from the same canonical source on every run. Dependencies pinned in `requirements.txt`. |
-| **II. Verified Accuracy** | ✅ PASS | Every external citation in `idea/`, `technical-design/`, `implementation-plan/`, or `paper/` MUST be verified by the Reference-Validator Agent against the primary source before contributing review points. Title-token-overlap with the cited source MUST be ≥ `CITATION_TITLE_OVERLAP_THRESHOLD`. Citations in `research.md` will only reference verified URLs or standard academic literature. |
-| **III. Data Hygiene** | ✅ PASS | Datasets MUST be checksummed and the checksum recorded under `data/`. No data may be modified in place; every transformation MUST produce a new file with a documented derivation. Personally identifying information MUST NOT appear in committed data. Raw data stored read-only. Derivations written to `data/processed/`. Checksums recorded in state file. |
-| **IV. Single Source of Truth** | ✅ PASS | Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in this project's `data/` and one block in this project's `code/`. Derived numbers MUST NOT be hand-typed into the paper. All statistics in the final report will be generated by scripts reading `data/processed/`. |
-| **V. Versioning Discipline** | ✅ PASS | Every artifact under this project carries a content hash. The Advancement-Evaluator Agent invalidates stale review records when the hashed artifact changes. Every research-stage artifact change updates this project's `state/projects/PROJ-385-the-impact-of-text-message-tone-on-perce.yaml` `updated_at` timestamp. Artifacts will be hashed. State file updated on changes. |
-| **VI. Human-Subject Anonymity and Consent** | ✅ PASS | All datasets containing human ratings of perceived emotional support MUST be stripped of Personally Identifiable Information (PII) prior to storage. Consent records verifying that participants were informed of the study's purpose and relational context variables MUST be preserved in a separate, access-controlled `data/consent/` directory, distinct from the analysis-ready `data/` used for re-running the `code/`. Prolific IDs will be hashed or stripped. |
-| **VII. Stimulus-Response Separation** | ✅ PASS | The objective stimulus features (emoji use, punctuation patterns, message length) MUST be stored as distinct columns from the subjective response variables (perceived emotional support ratings). The derivation logic in `code/` MUST explicitly calculate the interaction between these two distinct data types without conflating the objective feature extraction with the subjective rating process, ensuring the psychological mechanism is isolated from the measurement method. Stimulus features stored in separate columns from the rating response. |
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | All scripts are deterministic (random seeds pinned). External data (`data/raw/real_ratings.csv`) is fetched/validated at runtime; no manual edits of results. |
+| II. Verified Accuracy | No external literature citations are introduced in this plan; all methodological claims are standard statistical practice. |
+| III. Data Hygiene | Checksums will be recorded for every file placed under `data/`. Transformations write new files (`data/processed/…`). |
+| IV. Single Source of Truth | Every figure/table in the eventual paper will be generated from the CSV outputs of the pipeline; no hand‑typed numbers. |
+| V. Versioning Discipline | A manifest file `data/manifest.json` records SHA‑256 hashes for all generated artifacts; CI validates the manifest before downstream steps. |
+| VI. Human‑Subject Anonymity and Consent | The raw rating file will be stripped of PII; consent records will be stored under `data/consent/` (not used by analysis scripts). |
+| VII. Stimulus‑Response Separation | Stimulus feature columns are stored separately from rating columns; scripts compute cue‑intensity without conflating with the response variable. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
-specs/001-text-tone-emotional-support/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
-```
-
-### Source Code (repository root)
-
-```text
+specs/001-text-message-emotional-support/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── stimulus.schema.yaml          # primary stimulus schema
+│   ├── rating.schema.yaml            # primary rating schema
+│   ├── analysis_ready.schema.yaml
+│   ├── lmm_summary.schema.yaml
+│   └── … (other schemas)
+│
 code/
-├── 01_generate_stimuli.py       # Generates unique text variants (combinations)
-├── 02_validate_stimuli.py       # Contract test runner
-├── 03_collect_real_data.py      # Prolific integration & consent handling
-├── 04_clean_data.py             # Straight-lining detection, missing data handling
-├── 05_run_lmm.py                # Primary LMM analysis (statsmodels) - individual cues + composite
-├── 06_sensitivity_analysis.py   # Robustness checks (AIC/BIC model comparison)
+├── 01_generate_stimuli.py
+├── 02_collect_real_data.py   # wrapper for Prolific export verification; supports --mode real / verify
+├── 03_preprocess.py
+├── 04_fit_lmm.py
+├── 05_posthoc.py
+├── 06_sensitivity.py
+├── 07_generate_report.py
 └── utils/
-    └── config.py                # Seed management, path constants
-
+    ├── schema_validator.py
+    └── validate_manifest.py
 data/
 ├── raw/
-│   ├── stimuli.csv              # Generated unique stimuli
-│   └── real_ratings.csv         # Real Prolific ratings (N≥60)
+│   ├── stimuli.csv               # generated by 01_generate_stimuli.py
+│   └── real_ratings.csv          # supplied after Prolific collection
 ├── processed/
-│   ├── cleaned_ratings.csv      # Post-exclusion data
-│   └── power_analysis_results.json
+│   ├── analysis_ready.csv
+│   └── power_analysis_results.json   # generated in Phase 0.2
+├── results/
+│   ├── lmm_summary.csv
+│   ├── posthoc_tukey.csv
+│   └── sensitivity_report.md
 └── consent/
-    └── [encrypted/PII-stripped consent logs]
-
+    └── provenance.json
 tests/
 ├── contract/
-│   ├── test_stimuli_schema.py
-│   └── test_ratings_schema.py
-└── unit/
-    └── test_lmm_logic.py
+│   ├── test_stimulus_schema.py   # reads data/raw/stimuli.csv and validates against stimulus.schema.yaml
+│   └── test_rating_schema.py
+└── integration/
+    └── test_end_to_end.py
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Generation → Collection → Cleaning → Analysis), making a monolithic `code/` directory with a `utils/` helper module the most efficient layout for a research pipeline.
-
 ## Complexity Tracking
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Individual Cue Modeling** | Required to avoid ecological fallacy (concern scientific_soundness-5e122bbf). A pre-aggregated score masks specific driver effects. | A single fixed definition would fail to address the methodological rigor requirement regarding which specific cues drive the effect. |
-| **Sensitivity Analysis (AIC/BIC)** | Required by FR-005 and US-3 to test robustness of "Cue Intensity" operationalization against the individual cue model. | A single fixed definition would fail to address the methodological rigor requirement regarding arbitrary cutoff choices. |
-| **Separate Consent Storage** | Required by Constitution Principle VI (Human-Subject Anonymity). | Merging consent data with analysis data would violate PII separation protocols and risk re-identification. |
+|-----------|------------|--------------------------------------|
+| None – the plan respects all constitutional constraints and follows a single‑project layout. | N/A | N/A |
 
-## Phase Execution Order
+## Phase 0 – Research & Design (maps to FR‑001 – FR‑007, SC‑001 – SC‑005)
+**Task Ordering Note:** All Phase 0 subtasks (definition, power analysis, consent check, manifest generation) are executed **before** any downstream phases that depend on them. This satisfies producer‑before‑consumer ordering.
 
-1.  **Data Generation**: Run `01_generate_stimuli.py` to create `data/raw/stimuli.csv` (A set of unique variants).
-2.  **Data Collection**: Run `03_collect_real_data.py` (external step) to populate `data/raw/real_ratings.csv`.
-3.  **Data Cleaning**: Run `04_clean_data.py` to detect straight-lining and handle missingness, producing `data/processed/cleaned_ratings.csv`.
-4.  **Primary Analysis**: Run `05_run_lmm.py` on cleaned data to generate primary interaction statistics (individual cues + composite).
-5.  **Robustness Check**: Run `06_sensitivity_analysis.py` to compare individual-cue models against aggregated models using AIC/BIC.
-6.  **Reporting**: Aggregate results into final output.
+| Step | Description | FR/SC addressed |
+|------|-------------|-----------------|
+| **0.1 Define cue‑intensity weighting schemes** | Encode primary weighting (emoji = 0.4, punctuation = 0.3, length = 0.3) and the three alternatives (equal, emoji‑dominant, punctuation‑dominant). | FR‑001, FR‑005 |
+| **0.2 Power analysis verification** | Perform a **simulation‑based power analysis** for the LMM: generate a substantial number of synthetic datasets using the planned random‑effects structure, fit the LMM, and compute the proportion of runs where the interaction term is significant (α = 0.05). Results saved to `data/processed/power_analysis_results.json`. | FR‑002, SC‑001 |
+| **0.3 Ethical & consent checklist** | Verify that `data/consent/provenance.json` exists and contains IRB‑approved consent metadata. | VI (Constitution) |
+| **0.4 Manifest generation & verification** | After each major artifact is created, compute its SHA‑256 hash and append an entry to `data/manifest.json`. A validation script `utils/validate_manifest.py` checks that the manifest matches the current files before any downstream analysis, satisfying Principle V. | V (Constitution) |
+| **0.5 Task ordering assurance** | Ensure that all definition and verification steps (0.x) run **before** any data‑generation or modeling steps (Phase 1 onward). This resolves the earlier ordering issue where dependent tasks were listed before their prerequisites. | Internal consistency |
 
-## Assumptions & Power Analysis
+## Phase 1 – Stimulus Generation (FR‑001)
+| Task | Script | Output |
+|------|--------|--------|
+| 1.1 Load base scenarios (e.g., “I had a rough day”). | `code/01_generate_stimuli.py` | `data/raw/stimuli.csv` (8 × N_scenarios rows) |
+| 1.2 Systematically combine emoji count (0, 1, 2+), punctuation (standard, excessive), length (short, long). | same | Stimulus metadata columns: `emoji_count`, `punctuation_pattern`, `length_category`, `cue_intensity` (computed), `full_text`. |
+| 1.3 **Counterbalancing** – For each participant, assign each stimulus to **both** relationship contexts (friend & acquaintance) in separate blocks, ensuring equal representation across participants. | same | Balanced trial list ready for data collection. |
+| 1.4 Validate uniqueness of each combination via schema test. | `tests/contract/test_stimulus_schema.py` (reads `data/raw/stimuli.csv` and validates against `contracts/stimulus.schema.yaml`) | Pass/Fail |
 
-- The sample size will be determined based on power analysis considerations. While a simplified 2x2 design (Relationship x Composite Cue) with N=60 provides >0.90 power for a medium effect (Cohen's f=0.25), the actual design is a factorial study manipulating Relationship, Emoji, Punctuation, and Length factors. The power analysis for the full design is complex due to the random effects structure. The plan assumes N=60 is sufficient to detect the primary interaction of interest (Relationship × Cue Intensity composite) with acceptable power, noting the limitation for detecting smaller effects in the full factorial if not fully crossed.
-- The "perceived emotional support" metric relies on the validity of the -point Likert scale.
-- The "close friend" and "acquaintance" contexts are effectively operationalized by the instruction text.
-- No GPU or CUDA acceleration is required; all statistical modeling uses CPU-optimized libraries (`statsmodels`).
-- **External Recruitment Dependency**: The project assumes the feasibility of recruiting a sufficient number of unique participants via Prolific.. If recruitment fails, the project must be re-evaluated.
+## Phase 2 – Data Collection Verification (FR‑002, FR‑006, FR‑007)
+| Task | Script | Checks |
+|------|--------|--------|
+| 2.1 Verify presence of `data/raw/real_ratings.csv`. | `code/02_collect_real_data.py --mode verify` | File existence, checksum, required columns (`participant_id`, `stimulus_id`, `relationship_type`, `rating`, `timestamp`). |
+| 2.2 **Random presentation order** – Generate a per‑participant random order of trials (shuffling within each relationship block) to control order effects. | same | Order logs saved in `data/processed/presentation_orders.csv`. |
+| 2.3 Detect straight‑lining (variance‑zero check per participant across all stimuli). | same | Flagged participants listed in `data/processed/excluded_participants.csv`. |
+| 2.4 Handle missing ratings: listwise deletion of participants with incomplete rows (documented). | same | Conforms to FR‑006, FR‑007. |
+| 2.5 Ensure all participant IDs are Prolific IDs and that each participant has both relationship contexts. | same | Logs any randomization failures (edge case). |
+| 2.6 **CLI mode handling** – `code/02_collect_real_data.py` also supports `--mode real` to ingest a freshly exported Prolific CSV, raising `FileNotFoundError` if missing, and writes a consent provenance JSON to `data/consent/provenance.json`. | same | Meets T015c requirements. |
+
+## Phase 3 – Primary LMM Analysis (FR‑003, SC‑001)
+| Task | Script | Output |
+|------|--------|--------|
+| 3.1 Merge stimuli metadata with ratings → `analysis_ready.csv`. | `code/03_preprocess.py` | Clean dataset for modeling. |
+| 3.2 Fit LMM: `rating ~ relationship * cue_intensity + (1|participant_id) + (1|stimulus_id)` using `statsmodels.MixedLM`. | `code/04_fit_lmm.py` | `data/results/lmm_summary.csv` (fixed effects, SE, Wald‑Z based p‑values, approximate df). |
+| 3.3 Record degrees of freedom using **Wald Z** (normal approximation) – `statsmodels` does not provide Satterthwaite for MixedLM; this limitation is explicitly reported. | same | Ensures SC‑001 compliance without mis‑claiming Satterthwaite. |
+
+## Phase 4 – Post‑hoc Tukey Tests (FR‑004, SC‑003)
+| Task | Script | Output |
+|------|--------|--------|
+| 4.1 If interaction p < 0.05, run Tukey HSD on `relationship × cue_intensity` marginal means using `statsmodels.stats.multicomp.pairwise_tukeyhsd`. | `code/05_posthoc.py` | `data/results/posthoc_tukey.csv` (adjusted p‑values). |
+| 4.2 Document family‑wise error control (Tukey) → satisfies SC‑003. | same | Report in `sensitivity_report.md`. |
+
+## Phase 5 – Sensitivity Analysis (FR‑005, SC‑002)
+| Task | Script | Output |
+|------|--------|--------|
+| 5.1 Loop over three cue‑intensity weightings (equal, emoji‑dominant, punctuation‑dominant). | `code/06_sensitivity.py` | For each weighting: LMM summary (beta, Wald‑based p) stored in `data/results/sensitivity_{scheme}.csv`. |
+| 5.2 Compile results into `data/results/sensitivity_report.md` showing stability of interaction effect across schemes (direction, magnitude, significance). | same | Meets SC‑002. |
+
+## Phase 6 – Reporting & Packaging (SC‑004, SC‑005)
+| Task | Script | Output |
+|------|--------|--------|
+| 6.1 Assemble a summary markdown (`report.md`) that pulls numbers from result CSVs, includes exclusion counts, and cites the analysis pipeline version. | `code/07_generate_report.py` | Human‑readable report for the paper. |
+| 6.2 Verify runtime ≤ 6 h via a lightweight benchmark script (run on CI). | `code/benchmark_runtime.py` | CI badge. |
+| 6.3 Run contract‑based tests (`pytest -q`). | CI step | Guarantees data hygiene and schema adherence. |
+| 6.4 **Manifest verification** – `utils/validate_manifest.py` ensures that the SHA‑256 hashes of all generated artifacts match the manifest. | same | Enforces Principle V. |
+
+## Phase 7 – CI Integration
+| Step | Action |
+|------|--------|
+| 7.1 Install dependencies from `requirements.txt`. |
+| 7.2 Execute tasks in strict order: 0 → 0.1 → 0.2 → 0.3 → 0.4 → 1 → 2 → 3 → (conditional 4) → 5 → 6 → 7. |
+| 7.3 Cache intermediate CSVs to avoid recomputation on re‑runs. |
+| 7.4 On failure, CI prints detailed logs pointing to the specific FR/SC that broke. |
+
+---
+
+*All functional requirements (FR‑001 – FR‑007) and success criteria (SC‑001 – SC‑005) are explicitly addressed in the phase breakdown above. No additional constraints beyond those stipulated in the specification are introduced. The plan now includes explicit counterbalancing, random order generation, simulation‑based power analysis, clear handling of degrees of freedom, and a manifest‑based versioning discipline to satisfy all constitutional principles.*  

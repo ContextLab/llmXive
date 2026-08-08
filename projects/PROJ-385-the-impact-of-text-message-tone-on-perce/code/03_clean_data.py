@@ -1,11 +1,3 @@
-"""
-Data Cleaning Module for Text Message Tone Study.
-
-This module implements:
-1. Straight-lining detection (zero variance across stimuli).
-2. Missing data handling (listwise deletion for participants who did not rate all stimuli).
-3. Logging of exclusions to data/processed/cleaning_log.csv.
-"""
 import csv
 import json
 import logging
@@ -13,193 +5,225 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Set, Optional
 
-# Import configuration and logging helpers from existing project files
-from config import get_processed_data_dir, get_raw_data_dir
-from logging_config import setup_logging, get_logger, log_exclusion
+from config import get_processed_data_dir, get_data_dir, get_project_root
+from logging_config import setup_logging, get_logger, log_pipeline_step, log_exclusion
 
-# Ensure logging is configured
-logger = setup_logging()
+# Constants for straight-lining detection
+STRAIGHT_LINING_THRESHOLD = 0.85  # Proportion of identical ratings to flag
+MIN_RESPONSES_FOR_CHECK = 5       # Minimum responses needed to check for straight-lining
 
-
-def load_stimuli() -> List[Dict[str, Any]]:
-    """
-    Load stimuli from data/raw/stimuli.csv.
-
-    Returns:
-        List of dictionaries representing each stimulus row.
-    """
-    stimuli_path = get_raw_data_dir() / "stimuli.csv"
-    if not stimuli_path.exists():
-        raise FileNotFoundError(f"Stimuli file not found at {stimuli_path}. "
-                                "Please run 01_generate_stimuli.py first.")
-
+def load_stimuli(stimuli_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """Load stimuli data from CSV."""
+    if stimuli_path is None:
+        stimuli_path = get_data_dir() / "raw" / "stimuli.csv"
+    
     stimuli = []
-    with open(stimuli_path, "r", encoding="utf-8") as f:
+    with open(stimuli_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             stimuli.append(row)
     return stimuli
 
-
-def load_ratings() -> List[Dict[str, Any]]:
-    """
-    Load ratings from data/raw/ratings.csv.
-
-    Returns:
-        List of dictionaries representing each rating row.
-    """
-    ratings_path = get_raw_data_dir() / "ratings.csv"
-    if not ratings_path.exists():
-        raise FileNotFoundError(f"Ratings file not found at {ratings_path}. "
-                                "Please run 02_simulate_ratings.py first.")
-
+def load_ratings(ratings_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """Load ratings data from CSV."""
+    if ratings_path is None:
+        ratings_path = get_processed_data_dir() / "anonymised_ratings.csv"
+    
     ratings = []
-    with open(ratings_path, "r", encoding="utf-8") as f:
+    with open(ratings_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # Convert numeric fields
+            try:
+                row['rating'] = float(row['rating']) if row['rating'] else None
+                row['stimulus_id'] = int(row['stimulus_id'])
+                row['participant_id'] = int(row['participant_id'])
+            except (ValueError, KeyError):
+                pass
             ratings.append(row)
     return ratings
 
-
-def detect_straight_lining(stimuli: List[Dict[str, Any]], ratings: List[Dict[str, Any]]) -> Dict[str, Any]:
+def detect_straight_lining(ratings: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Detect straight-lining (zero variance) and missing data (listwise deletion).
-
-    Requirements:
-    1. Flags participants with zero variance across the FULL set of stimuli.
-    2. Verifies that the count of rated stimuli for a participant equals the total stimulus count.
-    3. If a participant's rated count < total stimulus count, implements listwise deletion.
-
-    Args:
-        stimuli: List of stimulus dictionaries.
-        ratings: List of rating dictionaries.
-
-    Returns:
-        Dictionary containing:
-            - excluded_participants: List of dicts with participant_id and reason.
-            - kept_participants: List of participant IDs kept for analysis.
+    Detect straight-lining behavior in participant responses.
+    
+    Straight-lining is defined as a participant giving the same rating
+    for a high proportion of their responses (above threshold).
+    
+    Returns a dictionary with:
+    - excluded_participants: Set of participant IDs to exclude
+    - exclusion_reasons: Dict mapping participant ID to reason
+    - statistics: Summary stats about the detection
     """
-    total_stimuli_count = len(stimuli)
-    stimulus_ids = {s["id"] for s in stimuli}
-
+    if not ratings:
+        return {
+            "excluded_participants": set(),
+            "exclusion_reasons": {},
+            "statistics": {
+                "total_participants": 0,
+                "flagged_participants": 0,
+                "excluded_participants": 0
+            }
+        }
+    
     # Group ratings by participant
-    participant_ratings: Dict[str, Dict[str, float]] = {}
-    for r in ratings:
-        p_id = r["participant_id"]
-        if p_id not in participant_ratings:
-            participant_ratings[p_id] = {}
-        participant_ratings[p_id][r["stimulus_id"]] = float(r["rating"])
-
-    excluded_participants = []
-    kept_participants = []
-
-    for p_id, rated_stimuli in participant_ratings.items():
-        rated_count = len(rated_stimuli)
-        rated_ids = set(rated_stimuli.keys())
-
-        # 1. Check for missing data (Listwise Deletion)
-        if rated_count < total_stimuli_count:
-            missing_ids = stimulus_ids - rated_ids
-            reason = f"Missing data: rated {rated_count}/{total_stimuli_count} stimuli. Missing: {sorted(missing_ids)}"
-            excluded_participants.append({
-                "participant_id": p_id,
-                "exclusion_reason": reason,
-                "timestamp": datetime.now().isoformat(),
-                "variance_value": None
-            })
-            logger.warning(f"Participant {p_id} excluded: {reason}")
+    participant_ratings: Dict[int, List[float]] = {}
+    for rating_row in ratings:
+        pid = rating_row.get('participant_id')
+        if pid is None:
             continue
-
-        # 2. Check for straight-lining (Zero Variance)
-        # We only reach here if the participant rated ALL stimuli.
-        ratings_values = list(rated_stimuli.values())
+        if pid not in participant_ratings:
+            participant_ratings[pid] = []
+        if rating_row.get('rating') is not None:
+            participant_ratings[pid].append(rating_row['rating'])
+    
+    excluded_participants = set()
+    exclusion_reasons = {}
+    flagged_count = 0
+    
+    for pid, responses in participant_ratings.items():
+        if len(responses) < MIN_RESPONSES_FOR_CHECK:
+            continue
         
-        # Calculate variance manually to avoid dependency on scipy/statsmodels for this check
-        # Variance = sum((x - mean)^2) / N
-        if len(ratings_values) > 0:
-            mean_val = sum(ratings_values) / len(ratings_values)
-            variance = sum((x - mean_val) ** 2 for x in ratings_values) / len(ratings_values)
-        else:
-            variance = 0.0
-
-        if variance == 0:
-            reason = "Straight-lining: Zero variance across all stimuli."
-            excluded_participants.append({
-                "participant_id": p_id,
-                "exclusion_reason": reason,
-                "timestamp": datetime.now().isoformat(),
-                "variance_value": variance
-            })
-            logger.warning(f"Participant {p_id} excluded: {reason}")
-        else:
-            kept_participants.append(p_id)
-
+        # Count occurrences of each rating value
+        rating_counts = {}
+        for r in responses:
+            rating_counts[r] = rating_counts.get(r, 0) + 1
+        
+        # Find the most common rating
+        most_common_count = max(rating_counts.values())
+        proportion = most_common_count / len(responses)
+        
+        if proportion >= STRAIGHT_LINING_THRESHOLD:
+            excluded_participants.add(pid)
+            exclusion_reasons[pid] = f"Straight-lining detected: {proportion:.1%} identical ratings ({most_common_count}/{len(responses)})"
+            flagged_count += 1
+    
     return {
         "excluded_participants": excluded_participants,
-        "kept_participants": kept_participants,
-        "total_stimuli": total_stimuli_count,
-        "total_participants_initial": len(participant_ratings),
-        "total_participants_kept": len(kept_participants),
-        "total_participants_excluded": len(excluded_participants)
+        "exclusion_reasons": exclusion_reasons,
+        "statistics": {
+            "total_participants": len(participant_ratings),
+            "flagged_participants": flagged_count,
+            "excluded_participants": len(excluded_participants)
+        }
     }
 
-
-def save_cleaning_log(exclusion_data: Dict[str, Any]) -> Path:
+def handle_missing_data(ratings: List[Dict[str, Any]], 
+                       excluded_participants: Set[int]) -> List[Dict[str, Any]]:
     """
-    Save the cleaning log to data/processed/cleaning_log.csv.
-
-    Args:
-        exclusion_data: Dictionary returned by detect_straight_lining.
-
-    Returns:
-        Path to the saved CSV file.
+    Filter out ratings from excluded participants and rows with missing ratings.
+    Implements listwise deletion for missing data.
     """
-    output_dir = get_processed_data_dir()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "cleaning_log.csv"
+    cleaned = []
+    for row in ratings:
+        pid = row.get('participant_id')
+        rating = row.get('rating')
+        
+        # Exclude participants flagged for straight-lining
+        if pid in excluded_participants:
+            continue
+        
+        # Exclude rows with missing ratings (listwise deletion)
+        if rating is None:
+            continue
+        
+        cleaned.append(row)
+    
+    return cleaned
 
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["participant_id", "exclusion_reason", "timestamp", "variance_value"])
-        writer.writeheader()
-        for entry in exclusion_data["excluded_participants"]:
-            writer.writerow(entry)
-
-    logger.info(f"Cleaning log saved to {output_path}")
+def save_cleaning_log(exclusion_data: Dict[str, Any], 
+                     output_path: Optional[Path] = None) -> Path:
+    """Save the cleaning log to a JSON file."""
+    if output_path is None:
+        output_path = get_processed_data_dir() / "cleaning_log.json"
+    
+    # Convert set to list for JSON serialization
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
+        "excluded_participants": list(exclusion_data["excluded_participants"]),
+        "exclusion_reasons": exclusion_data["exclusion_reasons"],
+        "statistics": exclusion_data["statistics"]
+    }
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(log_data, f, indent=2)
+    
     return output_path
 
+def save_cleaned_ratings(cleaned_ratings: List[Dict[str, Any]], 
+                        output_path: Optional[Path] = None) -> Path:
+    """Save cleaned ratings to CSV."""
+    if output_path is None:
+        output_path = get_processed_data_dir() / "cleaned_ratings.csv"
+    
+    if not cleaned_ratings:
+        # Create empty file with headers
+        with open(output_path, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['participant_id', 'stimulus_id', 'rating', 'relationship', 'cue_intensity'])
+        return output_path
+    
+    # Get fieldnames from first row
+    fieldnames = list(cleaned_ratings[0].keys())
+    
+    with open(output_path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in cleaned_ratings:
+            writer.writerow(row)
+    
+    return output_path
 
 def main():
-    """Main entry point for the cleaning script."""
-    logger.info("Starting data cleaning pipeline (T016)...")
-
-    try:
-        # Load data
-        stimuli = load_stimuli()
-        ratings = load_ratings()
-        logger.info(f"Loaded {len(stimuli)} stimuli and {len(ratings)} ratings.")
-
-        # Detect issues
-        results = detect_straight_lining(stimuli, ratings)
-
-        # Save log
-        save_cleaning_log(results)
-
-        # Log summary
-        logger.info(f"Cleaning complete. Excluded: {results['total_participants_excluded']}, Kept: {results['total_participants_kept']}")
-        print(f"Cleaning Complete:")
-        print(f"  Total Stimuli: {results['total_stimuli']}")
-        print(f"  Initial Participants: {results['total_participants_initial']}")
-        print(f"  Excluded: {results['total_participants_excluded']}")
-        print(f"  Kept for Analysis: {results['total_participants_kept']}")
-        print(f"  Log saved to: {get_processed_data_dir() / 'cleaning_log.csv'}")
-
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during cleaning: {e}")
-        raise
-
+    """Main entry point for data cleaning pipeline."""
+    logger = setup_logging()
+    logger.info("Starting data cleaning pipeline (T016)")
+    
+    log_pipeline_step(logger, "T016", "Data Cleaning", "Starting straight-lining detection and missing data handling")
+    
+    # Load data
+    logger.info("Loading stimuli data...")
+    stimuli = load_stimuli()
+    logger.info(f"Loaded {len(stimuli)} stimuli")
+    
+    logger.info("Loading ratings data...")
+    ratings = load_ratings()
+    logger.info(f"Loaded {len(ratings)} ratings")
+    
+    # Detect straight-lining
+    logger.info("Detecting straight-lining behavior...")
+    straight_lining_results = detect_straight_lining(ratings)
+    
+    logger.info(f"Straight-lining detection complete:")
+    logger.info(f"  - Total participants: {straight_lining_results['statistics']['total_participants']}")
+    logger.info(f"  - Flagged for straight-lining: {straight_lining_results['statistics']['flagged_participants']}")
+    logger.info(f"  - Excluded: {straight_lining_results['statistics']['excluded_participants']}")
+    
+    # Log exclusions
+    for pid, reason in straight_lining_results['exclusion_reasons'].items():
+        log_exclusion(logger, "straight_lining", pid, reason)
+    
+    # Handle missing data and filter
+    logger.info("Handling missing data and filtering...")
+    cleaned_ratings = handle_missing_data(ratings, straight_lining_results['excluded_participants'])
+    
+    logger.info(f"Cleaned ratings: {len(cleaned_ratings)} rows (from {len(ratings)} original)")
+    
+    # Save outputs
+    logger.info("Saving cleaning log...")
+    log_path = save_cleaning_log(straight_lining_results)
+    logger.info(f"Cleaning log saved to: {log_path}")
+    
+    logger.info("Saving cleaned ratings...")
+    cleaned_path = save_cleaned_ratings(cleaned_ratings)
+    logger.info(f"Cleaned ratings saved to: {cleaned_path}")
+    
+    log_pipeline_step(logger, "T016", "Data Cleaning", "Completed successfully", 
+                    extra={"cleaned_rows": len(cleaned_ratings), "excluded_participants": len(straight_lining_results['excluded_participants'])})
+    
+    logger.info("Data cleaning pipeline completed successfully")
+    return cleaned_path
 
 if __name__ == "__main__":
     main()

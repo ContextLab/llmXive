@@ -1,1 +1,1 @@
-# This directory stores raw input data (e.g., stimuli.csv, ratings.csv)
+# This file ensures the data/raw directory is tracked by git.

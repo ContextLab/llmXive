@@ -1,42 +1,59 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: Stimulus Schema
-description: Schema for a single generated text message stimulus.
+description: Schema for text message stimuli in the tone research project
+
 type: object
 required:
-  - stimulus_id
-  - base_scenario
-  - emoji_level
-  - punctuation_level
-  - length_level
+  - id
+  - text
+  - emoji_count
+  - punctuation_type
+  - length_category
+  - scenario_id
   - cue_intensity
+
 properties:
-  stimulus_id:
+  id:
     type: string
-    description: "Unique identifier for the stimulus (e.g., stim_001)."
-  base_scenario:
+    description: Unique identifier for the stimulus (e.g., STI_0001)
+    pattern: "^STI_[0-9]{4}$"
+  
+  text:
     type: string
-    description: "The core message text before paralinguistic modification."
-  emoji_level:
+    description: The actual text message content
+    minLength: 1
+  
+  emoji_count:
     type: integer
-    description: "Level of emoji usage (0=none, 1=moderate, 2=high)."
+    description: Number of emojis in the message
     minimum: 0
-    maximum: 2
-  punctuation_level:
+  
+  punctuation_type:
     type: string
-    description: "Punctuation intensity level."
+    description: Type of punctuation intensity used
     enum:
-      - "Low"
-      - "High"
-  length_level:
+      - None
+      - Minimal
+      - Low
+      - Medium
+      - High
+  
+  length_category:
     type: string
-    description: "Message length category."
+    description: Categorization of message length
     enum:
-      - "Short"
-      - "Long"
+      - Short
+      - Medium
+      - Long
+  
+  scenario_id:
+    type: string
+    description: Composite identifier for the factorial combination
+    pattern: "^[A-Za-z]+_[A-Za-z]+_[A-Za-z]+_[0-9]+$"
+  
   cue_intensity:
-    type: string
-    description: "Derived categorical intensity (Low, Medium, High) based on feature combination."
-    enum:
-      - "Low"
-      - "Medium"
-      - "High"
+    type: number
+    description: Normalized cue intensity score (0.0 to 1.0)
+    minimum: 0.0
+    maximum: 1.0
+additionalProperties: false

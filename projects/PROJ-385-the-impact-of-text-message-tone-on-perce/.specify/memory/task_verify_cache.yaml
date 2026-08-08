@@ -12,31 +12,21 @@ T005:
     confirm that `data/raw`, `data/processed`, and `data/consent` exist nor that each
     contains a `.gitkeep`. The implementer must show the actual filesystem state (e.g.,
     output of `ls data/` and `ls data/*/`) to verify the required structure.
-T009b:
-  c: false
-  h: c8b8f6466ef3fd21ec17ce490bd072d7926794cfc6f7a7ad60be6fb5b226c1b0
-  r: "The required output file `data/processed/power_curve.png` does not exist, and\
-    \ the `generate_power_curve` function in `code/00_power_analysis.py` is truncated\
-    \ and does not contain the code to create and save the plot with the required\
-    \ axis labels. The task\u2019s visualization artifact is therefore missing."
 T010a:
   c: false
-  h: 3a1b861496f774e8f94785a4a1b8bc4da17831f8ba44da7615ab012dded69b27
-  r: "The provided test file exists but it only validates hard\u2011coded in\u2011\
-    memory records and never reads `data/raw/stimuli.csv`. Moreover, the required\
-    \ `data/raw/stimuli.csv` file is missing from the repository, so the contract\
-    \ test cannot actually validate the real stimulus data against the schema. The\
-    \ task\u2019s core requirement is therefore unmet."
-T014:
+  h: 249bf6a0b2634b168033e82257890224c5cab9d3fd23b15c1265eb86e1a7d238
+  r: The provided `tests/contract/test_stimulus_schema.py` exists but is truncated
+    (e.g., the `test_data_types` function ends abruptly) and the required data files
+    `data/raw/stimuli.csv` and the schema file `stimulus.schema.yaml` are absent,
+    so the contract test cannot run or pass.
+T013:
   c: false
-  h: bffebeaa544b254c51cff6968bcfe5e1095d0448c8d679a462d2ad1d4450b5a9
-  r: "The repository lacks the required output file `data/raw/ratings.csv`, and the\
-    \ prerequisite file `data/processed/power_analysis_results.json` (produced by\
-    \ T009) is also missing, so the script cannot read `target_N` or enforce the participant\u2011\
-    count constraint. Additionally, the provided `code/02_simulate_ratings.py` is\
-    \ truncated and does not show the logic that writes the CSV or checks the `target_N`\
-    \ condition. These artifacts must be present and functional for the task to be\
-    \ considered complete."
+  h: afe011540da99fecb7c6cf14ad696f7f8a01284f9ca8d3fb8417e4d4565d3ed8
+  r: "The required output file `data/raw/stimuli.csv` does not exist, and the provided\
+    \ `code/01_generate_stimuli.py` is truncated (e.g., `categorize_length` is incomplete)\
+    \ with no evidence that it writes the specified columns or that the `--verify`\
+    \ mode produces the required log message. The task\u2019s core deliverables are\
+    \ therefore missing."
 T015c:
   c: false
   h: 5fa336182c23e4da154c211b33de8fa974ae9099947f73dc1bf4230e29fb71d7
@@ -45,13 +35,6 @@ T015c:
     \ exists with the required `FileNotFoundError`. The snippet ends before any consent\u2011\
     record generation logic, so the core requirement is not implemented. The needed\
     \ checks and conditional consent\u2011record creation are missing."
-T019:
-  c: false
-  h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
-  r: "The required integration test file `tests/integration/test_lmm_pipeline.py`\
-    \ does not exist in the repository, so the artifact needed to verify full LMM\
-    \ pipeline execution is missing. Without this test, the task\u2019s requirement\
-    \ is not satisfied."
 T020:
   c: false
   h: 2c167d912a5b87b162ebe42d0f2883e6ede028307b16ac43a1b978da222a5e7d
@@ -87,10 +70,28 @@ T036:
   r: No evidence of additional unit test files for edge cases (missing data handling,
     randomization failure) was provided in the `tests/unit/` directory; the required
     artifacts are missing.
-T037:
+T041:
   c: false
-  h: 0dc63c38cae7176de59675812c94406816c0b8370a5d68bfc5437999f6079ddf
-  r: The required `data/processed/power_analysis_results.json` file is missing, so
-    the target N cannot be read, and there is no artifact (e.g., a JSON or log file)
-    containing `total_duration_seconds`, `per_stage_duration`, or the required assertion.
-    Consequently the benchmark cannot have been performed as specified.
+  h: f551e8e3793e33575db8279e76464f7ea0cefed7e0395d6ee2d06c5231c264a7
+  r: "The required artifact `data/raw/real_ratings.csv` does not exist on disk, so\
+    \ the verification script cannot confirm its presence or trigger an error as specified.\
+    \ The task\u2019s core requirement\u2014ensuring the file exists before downstream\
+    \ analysis\u2014is unmet."
+T050:
+  c: false
+  h: fdf486dccbc4884d95c71ea7551be3b51bacd7f8512364214630f53cdb2418ba
+  r: "The required file `data/raw/stimuli.csv` does not exist, and the JSON entry\
+    \ contains a placeholder hash rather than the actual SHA\u2011256 checksum of\
+    \ the file. Both the artifact and a correct checksum are missing."
+T090:
+  c: false
+  h: 434bd5540707666a9c4ccc7c16699c4f767e722c8ae321b03f82ce4e40185839
+  r: "The required artifact `data/processed/cue_intensity_weights.json` does not exist,\
+    \ so the cue\u2011intensity weighting schemes have not been defined or stored\
+    \ as specified. The task therefore remains unfinished."
+T092:
+  c: false
+  h: 7d6fa130a87c39e779de112daa41f9cce47928cc2573af6451758ad46c7062cd
+  r: The required script `code/04_fit_lmm.py` does not exist, and the processed data
+    file `data/processed/anonymised_ratings.csv` is also missing, so the guard cannot
+    be verified. Both artifacts must be present and contain the appropriate path checks.
