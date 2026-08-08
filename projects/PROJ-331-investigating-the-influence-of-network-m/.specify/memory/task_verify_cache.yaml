@@ -5,28 +5,44 @@ T012:
     \ not exist, and the expected log file `data/logs/pipeline.log` is also missing,\
     \ so no evidence that the pipeline was run or that the required assertions were\
     \ checked. The task\u2019s deliverables are absent."
-T024:
+T014a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation for a timeout wrapper around the motif enumeration
-    function is provided; there is no artifact showing graceful abort or warning logging.
-    The required implementation is missing entirely.
-T025:
+  h: fab65807f67acd7ea52afd354dbe6852e65dbf4e8950bc5e889a9d012eb9ec0e
+  r: "The repository contains a `code/preprocess.py` with a partially\u2011implemented\
+    \ `parcellate_streamlines` function, but the implementation is truncated and never\
+    \ writes the weighted adjacency matrix to `data/processed/weighted_adjacency.npy`.\
+    \ Moreover, the required output file does not exist. The task\u2019s core deliverable\
+    \ (the saved adjacency matrix) is missing."
+T014c:
   c: false
-  h: 80ddb206fc92314b476a675c541cc4293713af7d056b89f036e9c68d513eb6ba
-  r: "The provided `code/motifs.py` is truncated and does not contain logic to load\
-    \ the three threshold adjacency matrices, run a single optimized loop, compute\
-    \ z\u2011scores, or return the required in\u2011memory dictionary. Moreover, the\
-    \ required input file `data/processed/binary_adj_10p.npy` is missing, so the script\
-    \ cannot even be executed as specified. The task therefore remains unfinished."
-T030:
+  h: 07299e631ff05fccc34b367a9a704e1667f7a1e4369d5940c6b217d30ec6ab53
+  r: "The required output file `data/processed/canonical_binary_adj.npy` is absent,\
+    \ and the provided `code/preprocess.py` does not contain logic to select a threshold\u2011\
+    based canonical binary connectome or to save such an array to that path. The implementation\
+    \ is incomplete and does not meet the task specification."
+T015:
   c: false
-  h: d46f09b23753ac77f1e44339447460dcb83ce37052943a94c75fa9297b08dde6
-  r: "The provided `code/stats.py` contains only placeholder functions (`aggregate_subject_metrics`,\
-    \ `compute_partial_correlations`) that do not implement the required partial Pearson/Spearman\
-    \ correlation calculations, nor do they control for network density. Additionally,\
-    \ the required input file `data/processed/subject_metrics.csv` is missing entirely.\
-    \ Consequently, the task\u2019s core functionality is not realized."
+  h: ddc612ba2c3a563861941c866eb339a9cef5c89e26765c61606b6524a410a083
+  r: "The repository lacks the required data files (`data/processed/weighted_adjacency.npy`,\
+    \ `rsfc.npy`, `global_efficiency.json`) and the provided `code/preprocess.py`\
+    \ does not contain any logic for computing Pearson\u2011correlation rsFC or global\
+    \ efficiency; it is truncated and focuses on streamlines parcellation instead.\
+    \ The task\u2019s outputs are therefore not produced."
+T026:
+  c: false
+  h: eb3b4845d1953fc1b5b0d8a8f1ea1116e2d481f6b13e0ad204121ffc7fdec278
+  r: "The provided `code/motifs.py` is incomplete (truncated) and contains motif\u2011\
+    counting logic rather than the required aggregation of median z\u2011scores and\
+    \ creation of `data/processed/motif_profiles.json`. Moreover, the expected output\
+    \ file `data/processed/motif_profiles.json` does not exist. The task\u2019s core\
+    \ requirement is therefore not satisfied."
+T030a:
+  c: false
+  h: a096ca2ecddf8e2b45df3c414c613544ecd4a79a854cbdbb4945a3fe6282c580
+  r: The provided `code/stats.py` does not contain a `check_vif_and_select_method`
+    implementation (the file only shows other functions), and the required output
+    file `data/processed/quality_flags.json` is absent. Both the function and its
+    JSON output are missing, so the task is not fulfilled.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,8 +53,10 @@ T033:
     \ is therefore missing."
 T039:
   c: false
-  h: 79b4b00030916bb5f9d7d12c40aa92e43b2f60632106264cf0dc6b94b5e97365
-  r: The `code/stats.py` functions are only placeholders (no aggregation logic) and
-    the required input files `data/processed/global_efficiency.json` and `data/processed/rsfc.npy`
-    are absent, so the script cannot produce the expected `data/processed/subject_metrics.csv`.
-    The output CSV is also missing.
+  h: 446ac643865cb74dd3fa89cb60017051fa533f217e3268284855945c878ad15d
+  r: "The repository contains a `code/stats.py` file, but its content relates to motif\
+    \ significance and permutation testing\u2014not the required aggregation of `global_efficiency.json`,\
+    \ `rsfc.npy`, `motif_z_aggregated.json`, and `weighted_adjacency.npy` into `subject_metrics.csv`.\
+    \ Moreover, all the input data files and the expected output CSV are missing from\
+    \ the `data/processed` directory. The task\u2019s core requirement (producing\
+    \ a CSV with a `network_density` column) is therefore not satisfied."

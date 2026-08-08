@@ -1,6 +1,7 @@
 """
-Data loading module for llmXive project.
-Handles fetching the LoCoMo benchmark dataset from HuggingFace and processing it.
+Data loader module for llmXive project.
+Handles fetching, parsing, and noise injection for the LoCoMo benchmark.
+Implements streaming support for large datasets to comply with RAM limits.
 """
 import os
 import json
@@ -8,344 +9,446 @@ import logging
 import hashlib
 import random
 import csv
-import sys
+from typing import List, Dict, Any, Optional, Iterator, Tuple
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
 
 import networkx as nx
-import numpy as np
-from datasets import load_dataset
-from huggingface_hub import hf_hub_download
+import spacy
+from datasets import load_dataset, Dataset
+from tqdm import tqdm
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-GRAPHS_DIR = PROCESSED_DATA_DIR / "graphs"
-
 # Constants
-DATASET_ID = "locomo/locomo-benchmark"
-DEFAULT_SEED = 42
+RAW_DATA_DIR = "data/raw"
+INTERMEDIATE_DATA_DIR = "data/intermediate"
+PROCESSED_DATA_DIR = "data/processed"
+GRAPHS_DIR = "data/processed/graphs"
+STREAMING_THRESHOLD_GB = 6.0
+STREAMING_THRESHOLD_BYTES = STREAMING_THRESHOLD_GB * 1024**3
+
+# Estimated size per row in bytes (conservative estimate for text data)
+ESTIMATED_ROW_SIZE_BYTES = 2048
 
 def ensure_output_dirs():
     """Create necessary output directories if they don't exist."""
-    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directories exist: {RAW_DATA_DIR}, {PROCESSED_DATA_DIR}, {GRAPHS_DIR}")
+    dirs = [RAW_DATA_DIR, INTERMEDIATE_DATA_DIR, PROCESSED_DATA_DIR, GRAPHS_DIR]
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
+    logger.info(f"Ensured output directories exist: {dirs}")
 
-def fetch_locomo_dataset(subset: Optional[int] = None, streaming: bool = False) -> List[Dict[str, Any]]:
+def fetch_locomo_dataset(subset: str = "test", streaming: bool = False) -> Iterator[Dict[str, Any]]:
     """
     Fetch the LoCoMo benchmark dataset from HuggingFace.
-    
+
     Args:
-        subset: Optional number of tasks to fetch. If None, fetches all.
-        streaming: If True, streams the dataset instead of loading it all into memory.
-        
+        subset: The split to load (default: "test")
+        streaming: If True, stream the dataset instead of loading fully into memory.
+
     Returns:
-        List of dictionaries containing 'question', 'context', 'answer', and 'task_id'.
-        
+        An iterator of dataset rows (dicts).
+
     Raises:
         RuntimeError: If the dataset cannot be fetched.
     """
-    ensure_output_dirs()
-    logger.info(f"Fetching LoCoMo dataset: {DATASET_ID}")
-    
+    # Canonical dataset ID for LoCoMo benchmark
+    dataset_id = "locomo/locomo-benchmark"
+
+    logger.info(f"Fetching dataset: {dataset_id}, split: {subset}, streaming: {streaming}")
+
     try:
         if streaming:
-            logger.info("Using streaming mode for dataset loading")
-            ds = load_dataset(DATASET_ID, split="test", streaming=True)
-            # Convert to list for the subset, but only if subset is specified
-            if subset is not None:
-                tasks = list(ds.take(subset))
-            else:
-                # For streaming without subset, we iterate and process on the fly
-                # For this function, we return an iterator or a limited list
-                tasks = list(ds)
+            # Stream the dataset to avoid memory issues
+            ds = load_dataset(dataset_id, split=subset, streaming=True)
+            # Return an iterator that yields rows
+            return iter(ds)
         else:
-            logger.info("Loading dataset into memory")
-            ds = load_dataset(DATASET_ID, split="test")
-            if subset is not None:
-                tasks = ds.select(range(min(subset, len(ds)))).to_list()
-            else:
-                tasks = ds.to_list()
-        
-        # Ensure we have the required columns
-        required_cols = ['question', 'context', 'answer']
-        for task in tasks:
-            if not all(col in task for col in required_cols):
-                missing = [col for col in required_cols if col not in task]
-                raise ValueError(f"Task missing required columns: {missing}")
-            # Add task_id if not present
-            if 'task_id' not in task:
-                task['task_id'] = f"locomo_{hashlib.md5(task['question'].encode()).hexdigest()[:8]}"
-        
-        logger.info(f"Fetched {len(tasks)} tasks from LoCoMo dataset")
-        return tasks
-        
+            # Estimate total size to decide if streaming is needed
+            # We attempt to load a small sample first to estimate size if possible
+            # For now, we assume if we are in streaming mode, we stream.
+            # If not, we try to load. If it fails due to memory, the caller should retry with streaming=True.
+            ds = load_dataset(dataset_id, split=subset)
+            # Convert to iterator for consistent processing
+            return iter(ds)
     except Exception as e:
-        logger.error(f"Failed to fetch LoCoMo dataset: {e}")
-        # Re-raise to fail loudly as per T035 requirement
+        # T035 Compliance: Fail loudly, do not fallback to synthetic data
+        logger.error(f"Failed to fetch dataset '{dataset_id}': {e}")
         raise RuntimeError(f"Cannot proceed without real data. Fetch failed: {e}")
 
-def save_raw_data(tasks: List[Dict[str, Any]], output_path: Optional[Path] = None):
+def save_raw_data(tasks: List[Dict[str, Any]], output_path: str = None):
     """
-    Save raw task data to a CSV file.
-    
+    Save raw tasks to a CSV file.
+
     Args:
         tasks: List of task dictionaries.
-        output_path: Optional path to save the CSV. Defaults to data/raw/locomo.csv.
+        output_path: Path to the output CSV file.
     """
     if output_path is None:
-        output_path = RAW_DATA_DIR / "locomo.csv"
-    
+        output_path = os.path.join(RAW_DATA_DIR, "locomo.csv")
+
     ensure_output_dirs()
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        if not tasks:
-            logger.warning("No tasks to save")
-            return
-        
-        fieldnames = ['task_id', 'question', 'context', 'answer']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+    if not tasks:
+        logger.warning("No tasks to save.")
+        return
+
+    fieldnames = ["task_id", "question", "context", "answer"]
+    # Ensure we have the keys, even if missing in some rows
+    # We assume the dataset provides these columns. If not, we handle gracefully.
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
-        
         for task in tasks:
-            # Ensure all fields are present and strings
+            # Map dataset columns to expected CSV columns if necessary
+            # Assuming dataset has 'question', 'context', 'answer' and an ID
             row = {
-                'task_id': task.get('task_id', ''),
-                'question': task.get('question', ''),
-                'context': task.get('context', ''),
-                'answer': task.get('answer', '')
+                "task_id": task.get("id", "unknown"),
+                "question": task.get("question", ""),
+                "context": task.get("context", ""),
+                "answer": task.get("answer", "")
             }
             writer.writerow(row)
-    
-    logger.info(f"Saved {len(tasks)} tasks to {output_path}")
 
-def build_memory_graph(tasks: List[Dict[str, Any]], seed: int = DEFAULT_SEED) -> nx.DiGraph:
+    logger.info(f"Saved {len(tasks)} raw tasks to {output_path}")
+
+def build_memory_graph(context: str, task_id: str) -> Dict[str, Any]:
     """
-    Build a memory graph from the tasks.
-    This is a simplified version for demonstration; in a real scenario,
-    the graph construction would be based on entity relationships in the context.
-    
+    Parse a context string into a directed graph using NER/Rule-Based extraction.
+    Uses spaCy to identify subject-verb-object triples.
+
     Args:
-        tasks: List of task dictionaries.
-        seed: Random seed for reproducibility.
-        
+        context: The context string to parse.
+        task_id: The ID of the task (for logging/debugging).
+
     Returns:
-        A directed graph representing the memory structure.
+        A JSON-serializable graph structure:
+        {
+            "task_id": str,
+            "edges": [
+                {"source": str, "target": str, "relation_string": str}
+            ]
+        }
+    """
+    # Load spaCy model (lazy loading to avoid overhead if not used)
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except OSError:
+        logger.error("spaCy 'en_core_web_sm' model not found. Run: python -m spacy download en_core_web_sm")
+        raise
+
+    doc = nlp(context)
+    edges = []
+    node_set = set()
+
+    # Simple triple extraction: Subject -> Verb -> Object
+    # We iterate over sentences to improve accuracy
+    for sentence in doc.sents:
+        for token in sentence:
+            if token.dep_ == "nsubj" and token.head.pos_ == "VERB":
+                subj = token.text
+                verb = token.head.text
+                # Look for direct object
+                for child in token.head.children:
+                    if child.dep_ in ("dobj", "attr", "oprd"):
+                        obj = child.text
+                        # Create a unique node ID or use text
+                        source_node = subj.lower().strip()
+                        target_node = obj.lower().strip()
+                        relation = f"{subj} {verb} {obj}".lower().strip()
+
+                        if source_node and target_node and source_node != target_node:
+                            edges.append({
+                                "source": source_node,
+                                "target": target_node,
+                                "relation_string": relation
+                            })
+                            node_set.add(source_node)
+                            node_set.add(target_node)
+
+    # Fallback if no triples found: create a single node graph or empty graph
+    if not edges and node_set:
+        # Create self-loops or just list nodes if necessary, but spec says edges
+        pass
+
+    return {
+        "task_id": task_id,
+        "edges": edges
+    }
+
+def inject_noise(graph: Dict[str, Any], ratio: float = 0.1, seed: int = 42) -> Dict[str, Any]:
+    """
+    Add a proportion of random distractor edges to the original graph.
+
+    Args:
+        graph: The input graph dict with "task_id" and "edges".
+        ratio: The proportion of random edges to add relative to original edges.
+        seed: Random seed for reproducibility.
+
+    Returns:
+        A new graph dict with added edges.
     """
     random.seed(seed)
-    np.random.seed(seed)
-    
-    G = nx.DiGraph()
-    
-    # Create nodes for each task's entities (simplified: use task_id as node)
-    for task in tasks:
-        task_id = task.get('task_id', '')
-        G.add_node(task_id, type='task', question=task['question'], answer=task['answer'])
-        
-        # Extract entities from context (simplified: split by space and filter)
-        context = task.get('context', '')
-        entities = [e for e in context.split() if len(e) > 2]
-        
-        for entity in entities:
-            entity_node = f"entity_{hashlib.md5(entity.encode()).hexdigest()[:8]}"
-            if entity_node not in G:
-                G.add_node(entity_node, type='entity', name=entity)
-            G.add_edge(entity_node, task_id, type='mentions')
-        
-        # Connect entities within the same context
-        for i in range(len(entities) - 1):
-            entity1 = f"entity_{hashlib.md5(entities[i].encode()).hexdigest()[:8]}"
-            entity2 = f"entity_{hashlib.md5(entities[i+1].encode()).hexdigest()[:8]}"
-            if G.has_node(entity1) and G.has_node(entity2):
-                G.add_edge(entity1, entity2, type='co_occurrence')
-    
-    logger.info(f"Built memory graph with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
-    return G
+    edges = graph.get("edges", [])
+    task_id = graph.get("task_id")
 
-def inject_noise(graph: nx.DiGraph, ratio: float = 0.1, seed: int = DEFAULT_SEED) -> nx.DiGraph:
-    """
-    Inject noise into the graph by replacing a proportion of edges with random edges.
-    
-    Args:
-        graph: The input graph.
-        ratio: The proportion of edges to replace.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        A new graph with injected noise.
-    """
-    random.seed(seed)
-    np.random.seed(seed)
-    
-    G = graph.copy()
-    nodes = list(G.nodes())
-    if len(nodes) < 2:
-        logger.warning("Graph has too few nodes to inject noise")
-        return G
-    
-    edges = list(G.edges())
-    num_edges_to_replace = int(len(edges) * ratio)
-    
-    if num_edges_to_replace == 0:
-        logger.info("No edges to replace (ratio too low or graph too small)")
-        return G
-    
-    # Select edges to remove
-    edges_to_remove = random.sample(edges, num_edges_to_replace)
-    
-    # Create new random edges
+    if not edges:
+        return graph
+
+    # Identify existing edges to avoid duplicates
+    existing_pairs = {(e["source"], e["target"]) for e in edges}
+    nodes = set()
+    for e in edges:
+        nodes.add(e["source"])
+        nodes.add(e["target"])
+
+    # Calculate number of edges to add
+    num_to_add = int(len(edges) * ratio)
     new_edges = []
-    for _ in range(num_edges_to_replace):
-        # Ensure we don't create self-loops or duplicate edges
-        while True:
-            src = random.choice(nodes)
-            dst = random.choice(nodes)
-            if src != dst and not G.has_edge(src, dst):
-                # Avoid creating edges that were just removed to maintain randomness
-                if (src, dst) not in edges_to_remove:
-                    new_edges.append((src, dst))
-                    break
-    
-    # Remove old edges and add new ones
-    G.remove_edges_from(edges_to_remove)
-    G.add_edges_from(new_edges)
-    
-    logger.info(f"Injected noise: removed {len(edges_to_remove)} edges, added {len(new_edges)} edges")
-    return G
 
-def generate_noisy_graphs(graph: nx.DiGraph, noise_ratios: List[float] = [0.1], seed: int = DEFAULT_SEED) -> Dict[float, nx.DiGraph]:
+    attempts = 0
+    max_attempts = num_to_add * 100  # Prevent infinite loops if graph is dense
+    while len(new_edges) < num_to_add and attempts < max_attempts:
+        attempts += 1
+        if len(nodes) < 2:
+            break
+
+        source = random.choice(list(nodes))
+        target = random.choice(list(nodes))
+
+        # Avoid self-loops and existing edges
+        if source != target and (source, target) not in existing_pairs:
+            # Generate a random relation string
+            relation = f"random_relation_{attempts}"
+            new_edges.append({
+                "source": source,
+                "target": target,
+                "relation_string": relation
+            })
+            existing_pairs.add((source, target))
+
+    # Combine original and new edges
+    all_edges = edges + new_edges
+
+    return {
+        "task_id": task_id,
+        "edges": all_edges
+    }
+
+def generate_noisy_graphs(graphs: List[Dict[str, Any]], ratio: float = 0.1, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Generate multiple noisy versions of the graph with different noise ratios.
-    
+    Generate noisy versions of a list of graphs.
+
     Args:
-        graph: The input graph.
-        noise_ratios: List of noise ratios to apply.
-        seed: Random seed for reproducibility.
-        
+        graphs: List of input graphs.
+        ratio: Noise ratio.
+        seed: Random seed.
+
     Returns:
-        Dictionary mapping noise ratio to noisy graph.
+        List of noisy graphs.
     """
-    noisy_graphs = {}
-    for ratio in noise_ratios:
-        noisy_graph = inject_noise(graph, ratio=ratio, seed=seed)
-        noisy_graphs[ratio] = noisy_graph
-        logger.info(f"Generated noisy graph with ratio {ratio}")
+    noisy_graphs = []
+    for g in graphs:
+        noisy_g = inject_noise(g, ratio=ratio, seed=seed)
+        noisy_graphs.append(noisy_g)
     return noisy_graphs
 
-def save_noisy_graphs(noisy_graphs: Dict[float, nx.DiGraph], output_dir: Optional[Path] = None):
+def save_noisy_graphs(graphs: List[Dict[str, Any]], output_path: str = None):
     """
-    Save noisy graphs to JSON files.
-    
+    Save noisy graphs to a JSON file.
+
     Args:
-        noisy_graphs: Dictionary mapping noise ratio to graph.
-        output_dir: Optional output directory. Defaults to data/processed/graphs/.
+        graphs: List of graph dictionaries.
+        output_path: Path to the output JSON file.
     """
-    if output_dir is None:
-        output_dir = GRAPHS_DIR
-    
+    if output_path is None:
+        output_path = os.path.join(GRAPHS_DIR, "graph_noise_42.json")
+
     ensure_output_dirs()
-    
-    for ratio, graph in noisy_graphs.items():
-        output_path = output_dir / f"graph_noise_{int(ratio * 100)}.json"
-        
-        # Convert graph to serializable format
-        data = nx.node_link_data(graph)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2)
-        
-        logger.info(f"Saved noisy graph (ratio={ratio}) to {output_path}")
 
-def load_noisy_graphs(input_dir: Optional[Path] = None) -> Dict[float, nx.DiGraph]:
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(graphs, f, indent=2)
+
+    logger.info(f"Saved {len(graphs)} noisy graphs to {output_path}")
+
+def load_noisy_graphs(input_path: str = None) -> List[Dict[str, Any]]:
     """
-    Load noisy graphs from JSON files.
-    
+    Load noisy graphs from a JSON file.
+
     Args:
-        input_dir: Optional input directory. Defaults to data/processed/graphs/.
-        
+        input_path: Path to the input JSON file.
+
     Returns:
-        Dictionary mapping noise ratio to graph.
+        List of graph dictionaries.
     """
-    if input_dir is None:
-        input_dir = GRAPHS_DIR
-    
-    noisy_graphs = {}
-    
-    for file_path in input_dir.glob("graph_noise_*.json"):
-        # Extract ratio from filename
-        filename = file_path.stem
-        # Expected format: graph_noise_XX where XX is ratio * 100
-        try:
-            ratio_str = filename.split('_')[-1]
-            ratio = int(ratio_str) / 100.0
-            
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            
-            graph = nx.node_link_graph(data)
-            noisy_graphs[ratio] = graph
-            logger.info(f"Loaded noisy graph (ratio={ratio}) from {file_path}")
-        except Exception as e:
-            logger.warning(f"Failed to load {file_path}: {e}")
-    
-    return noisy_graphs
+    if input_path is None:
+        input_path = os.path.join(GRAPHS_DIR, "graph_noise_42.json")
+
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Noisy graph file not found: {input_path}")
+
+    with open(input_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def process_in_chunks(
+    dataset_iterator: Iterator[Dict[str, Any]],
+    chunk_size: int = 100,
+    process_func: callable = None,
+    output_callback: callable = None
+) -> Iterator[Dict[str, Any]]:
+    """
+    Process dataset items in configurable chunks to manage memory.
+
+    Args:
+        dataset_iterator: An iterator over dataset items.
+        chunk_size: Number of items to process at once.
+        process_func: Function to apply to each chunk. If None, identity is used.
+        output_callback: Optional callback to handle output of each chunk.
+
+    Yields:
+        Processed chunks (or individual items if no chunking logic is applied).
+    """
+    if process_func is None:
+        process_func = lambda x: x
+
+    chunk = []
+    for item in tqdm(dataset_iterator, desc="Processing in chunks"):
+        chunk.append(item)
+        if len(chunk) >= chunk_size:
+            processed_chunk = process_func(chunk)
+            if output_callback:
+                output_callback(processed_chunk)
+            yield processed_chunk
+            chunk = []
+
+    # Process remaining items
+    if chunk:
+        processed_chunk = process_func(chunk)
+        if output_callback:
+            output_callback(processed_chunk)
+        yield processed_chunk
 
 def main():
     """
-    Main function to download LoCoMo dataset and generate noisy graphs.
-    Usage: python code/data_loader.py --download --generate-graphs --seed 42
+    Main entry point for data loading and graph generation.
+    Supports streaming mode for large datasets.
     """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Download LoCoMo benchmark and generate noisy graphs")
-    parser.add_argument('--download', action='store_true', help="Download the LoCoMo dataset")
-    parser.add_argument('--generate-graphs', action='store_true', help="Generate noisy graphs")
-    parser.add_argument('--seed', type=int, default=DEFAULT_SEED, help="Random seed")
-    parser.add_argument('--subset', type=int, default=None, help="Number of tasks to fetch (for testing)")
-    parser.add_argument('--noise-ratios', type=float, nargs='+', default=[0.1], help="Noise ratios to apply")
-    
+
+    parser = argparse.ArgumentParser(description="Load LoCoMo dataset and generate graphs.")
+    parser.add_argument("--download", action="store_true", help="Download raw dataset.")
+    parser.add_argument("--generate-graphs", action="store_true", help="Build memory graphs from raw data.")
+    parser.add_argument("--inject-noise", action="store_true", help="Inject noise into graphs.")
+    parser.add_argument("--streaming", action="store_true", help="Enable streaming mode for large datasets.")
+    parser.add_argument("--subset", type=str, default="test", help="Dataset split to load.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for noise injection.")
+    parser.add_argument("--noise-ratio", type=float, default=0.1, help="Ratio of noise edges to add.")
+
     args = parser.parse_args()
-    
-    tasks = []
-    graph = None
-    
+
+    ensure_output_dirs()
+
+    # 1. Download raw data
     if args.download:
-        logger.info("Downloading LoCoMo dataset...")
-        tasks = fetch_locomo_dataset(subset=args.subset)
-        save_raw_data(tasks)
-        logger.info("Dataset downloaded and saved.")
-    
+        logger.info("Starting download...")
+        # Determine if streaming is needed based on estimated size or explicit flag
+        # For this implementation, we respect the --streaming flag
+        # In a real scenario, we might estimate size first
+        ds_iter = fetch_locomo_dataset(subset=args.subset, streaming=args.streaming)
+
+        # Collect all items if not streaming, or process in chunks if streaming
+        # For simplicity in this script, we collect all to save to CSV first.
+        # If streaming is True and the dataset is huge, we should stream to disk directly.
+        # However, saving to CSV requires knowing all rows or appending.
+        # We'll append in chunks if streaming.
+        raw_tasks = []
+        if args.streaming:
+            # Stream and save in chunks
+            def save_chunk(chunk):
+                save_raw_data(chunk) # This appends or overwrites? Let's make it append for chunks
+                # Actually, save_raw_data currently overwrites. We need an append version or handle chunks differently.
+                # For this task, we will collect a reasonable number in memory if possible,
+                # or implement a chunked writer.
+                # To keep it simple and robust for the "streaming" requirement:
+                # We will process in chunks and write to a file incrementally.
+                pass
+
+            # Let's implement a streaming save directly
+            output_path = os.path.join(RAW_DATA_DIR, "locomo.csv")
+            ensure_output_dirs()
+            with open(output_path, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=["task_id", "question", "context", "answer"], extrasaction='ignore')
+                writer.writeheader()
+                count = 0
+                for item in ds_iter:
+                    row = {
+                        "task_id": item.get("id", "unknown"),
+                        "question": item.get("question", ""),
+                        "context": item.get("context", ""),
+                        "answer": item.get("answer", "")
+                    }
+                    writer.writerow(row)
+                    count += 1
+                    if count % 1000 == 0:
+                        logger.info(f"Streamed {count} rows...")
+            logger.info(f"Streamed {count} rows to {output_path}")
+        else:
+            # Load all into memory (may fail if too large)
+            raw_tasks = list(ds_iter)
+            save_raw_data(raw_tasks)
+
+    # 2. Build Graphs
     if args.generate_graphs:
-        if not tasks:
-            # Load from CSV if tasks not fetched yet
-            csv_path = RAW_DATA_DIR / "locomo.csv"
-            if csv_path.exists():
-                with open(csv_path, 'r', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    tasks = list(reader)
-                logger.info(f"Loaded {len(tasks)} tasks from CSV.")
-            else:
-                logger.error("No tasks found. Please download the dataset first.")
-                return
-        
-        logger.info("Building memory graph...")
-        graph = build_memory_graph(tasks, seed=args.seed)
-        
-        logger.info("Generating noisy graphs...")
-        noisy_graphs = generate_noisy_graphs(graph, noise_ratios=args.noise_ratios, seed=args.seed)
+        logger.info("Building memory graphs...")
+        # Load raw data
+        raw_path = os.path.join(RAW_DATA_DIR, "locomo.csv")
+        if not os.path.exists(raw_path):
+            logger.error(f"Raw data not found at {raw_path}. Run with --download first.")
+            return
+
+        # Read CSV
+        tasks = []
+        with open(raw_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                tasks.append(row)
+
+        graphs = []
+        # Process in chunks to manage memory
+        def build_graph_chunk(chunk):
+            chunk_graphs = []
+            for task in chunk:
+                graph = build_memory_graph(task["context"], task["task_id"])
+                chunk_graphs.append(graph)
+            return chunk_graphs
+
+        # If the list is huge, we should stream the CSV too, but for now we assume CSV fits or is manageable.
+        # We'll just iterate.
+        for i in range(0, len(tasks), 100):
+            chunk = tasks[i:i+100]
+            chunk_graphs = build_graph_chunk(chunk)
+            graphs.extend(chunk_graphs)
+
+        # Save raw graphs
+        output_path = os.path.join(INTERMEDIATE_DATA_DIR, "graphs_raw.json")
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(graphs, f, indent=2)
+        logger.info(f"Saved {len(graphs)} raw graphs to {output_path}")
+
+    # 3. Inject Noise
+    if args.inject_noise:
+        logger.info("Injecting noise into graphs...")
+        raw_graphs_path = os.path.join(INTERMEDIATE_DATA_DIR, "graphs_raw.json")
+        if not os.path.exists(raw_graphs_path):
+            logger.error(f"Raw graphs not found at {raw_graphs_path}. Run with --generate-graphs first.")
+            return
+
+        with open(raw_graphs_path, "r", encoding="utf-8") as f:
+            graphs = json.load(f)
+
+        noisy_graphs = generate_noisy_graphs(graphs, ratio=args.noise_ratio, seed=args.seed)
         save_noisy_graphs(noisy_graphs)
-        logger.info("Noisy graphs generated and saved.")
 
 if __name__ == "__main__":
     main()

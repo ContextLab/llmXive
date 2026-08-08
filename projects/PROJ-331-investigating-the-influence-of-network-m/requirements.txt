@@ -11,4 +11,4 @@ tqdm
 joblib
 dipy
 statsmodels
-pytest
+scikit-learn

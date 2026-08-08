@@ -1,0 +1,41 @@
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or log file showing that `load_cascade` now enforces a node\u2011\
+    limit, skips oversized cascades, and writes their IDs to `skipped_cascades.log`\
+    \ was provided. The required artifact (updated implementation and log) is missing,\
+    \ so the task is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `network_features.py` file or any of the required pipeline outputs (e.g.,\
+    \ `features.csv`, `model_trace.nc`, `posterior_summary.csv`, `cv_metrics.json`,\
+    \ `collinearity_report.txt`) are present. Without these artifacts, the claim that\
+    \ the feature implementation and end\u2011to\u2011end pipeline are completed cannot\
+    \ be verified. The missing code and output files must be added for the task to\
+    \ be considered complete."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `user_susceptibility.py` file or its contents are provided; without the actual
+    implementation we cannot verify that the required formula and proxy fallback are
+    present. The task therefore remains unfulfilled.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `generate_synthetic.py` file or any synthetic dataset was provided; therefore
+    the required script and its output (a dataset with the specified columns, size
+    limits, and susceptibility formula) are missing. The implementer must add the
+    script and ensure it generates a valid benchmark dataset.
+T082:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the files `network_features.py` and `user_susceptibility.py`\
+    \ exist or contain the required docstrings describing inputs, transformations,\
+    \ and outputs. The implementer\u2019s claim cannot be verified without those artifacts."
+T083:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `manifest.json` file was presented; without the artifact we cannot confirm
+    it contains the required software versions, random seeds, and data hashes (including
+    T061 checksums). The task therefore remains unfulfilled.

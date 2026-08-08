@@ -34,7 +34,7 @@
  numpyro==0.13.2
  cmdstanpy==1.2.0
  networkx==3.2
- scikit-learn==1.4.0
+ {{claim:c_880598ed}} (pi, https://en.wikipedia.org/wiki/Pi)
  pyyaml==6.0.1
  jsonschema==4.20.0
  pytest==8.0.0
@@ -53,7 +53,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Create `run_pipeline.sh` skeleton:
- - Set `OMP_NUM_THREADS=2`
+ - Set `OMP_NUM_THREADS=2 `
  - Add memory‑monitoring hook (abort if RAM > 7 GB)
  - Include placeholder sections for each pipeline stage and logging to `pipeline.log`.
 - [X] T006 Create `code/pipeline/utils.py` with:
@@ -116,7 +116,7 @@
 - [ ] T017 [P] [US1] Create `generate_synthetic.py` to synthesize a small benchmark dataset for testing. Dataset MUST include: cascade_id, node_id, timestamp, cascade_label, historical_degree, historical_shares, user_id, message_id, platform_id. Define 'small' as ≤50 cascades with ≤2,000 nodes each. Use formula `(historical_degree >= 2 AND historical_shares >= 1) ? 1.0: 0.0` for susceptibility.
 - [ ] T082 [P] [US1] Add docstrings to all feature‑engineering scripts (`network_features.py`, `user_susceptibility.py`) that record input sources, transformation steps, and output files.
 - [ ] T083 [P] [US1] Generate `manifest.json` containing software versions, random seeds, and data hashes (including checksums from T061).
-- [ ] T067 [P] [US1] Ensure each feature‑engineering script logs its input file paths, transformation parameters, and output file paths to `pipeline.log` (Constitution Principle VII).
+- [~] T067 [P] [US1] Ensure each feature‑engineering script logs its input file paths, transformation parameters, and output file paths to `pipeline.log` (Constitution Principle VII).
 - [ ] T020 [P] [US1] Implement HMC/NUTS sampling in `hierarchical_model.py`:
  - Monitor divergent transitions (> 5 %)
  - Auto‑reduce step size and retry up to 3 times

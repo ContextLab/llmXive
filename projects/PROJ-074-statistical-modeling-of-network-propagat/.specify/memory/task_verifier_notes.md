@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T014** — No code, tests, or log file showing that `load_cascade` now enforces a node‑limit, skips oversized cascades, and writes their IDs to `skipped_cascades.log` was provided. The required artifact (updated implementation and log) is missing, so the task is not satisfied.
+- **T015** — No `network_features.py` file or any of the required pipeline outputs (e.g., `features.csv`, `model_trace.nc`, `posterior_summary.csv`, `cv_metrics.json`, `collinearity_report.txt`) are present. Without these artifacts, the claim that the feature implementation and end‑to‑end pipeline are completed cannot be verified. The missing code and output files must be added for the task to be considered complete.
+- **T016** — No `user_susceptibility.py` file or its contents are provided; without the actual implementation we cannot verify that the required formula and proxy fallback are present. The task therefore remains unfulfilled.
+- **T017** — No `generate_synthetic.py` file or any synthetic dataset was provided; therefore the required script and its output (a dataset with the specified columns, size limits, and susceptibility formula) are missing. The implementer must add the script and ensure it generates a valid benchmark dataset.
+- **T082** — No evidence was provided that the files `network_features.py` and `user_susceptibility.py` exist or contain the required docstrings describing inputs, transformations, and outputs. The implementer’s claim cannot be verified without those artifacts.
+- **T083** — No `manifest.json` file was presented; without the artifact we cannot confirm it contains the required software versions, random seeds, and data hashes (including T061 checksums). The task therefore remains unfulfilled.

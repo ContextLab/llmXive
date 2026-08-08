@@ -1,51 +1,68 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Pipeline Output Schema
-description: |
-  Schema for the baseline network metrics output file (baseline_metrics.csv).
-  Validates the structure of computed network metrics per participant.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Output Schema"
+description: "Schema for validating the intermediate outputs of the preprocessing and metric extraction pipeline."
 type: object
 required:
-  - headers
-  - rows
+  - baseline_metrics
+  - motion_metrics
+  - connectivity_matrices
 properties:
-  headers:
-    type: array
-    description: Expected column headers
-    items:
-      type: string
-    contains:
-      const: "participant_id"
-    contains:
-      const: "global_efficiency"
-    contains:
-      const: "modularity"
-    contains:
-      const: "fpn_strength"
-    contains:
-      const: "dmn_strength"
-  rows:
-    type: array
-    description: List of metric records
-    items:
-      type: object
-      required:
-        - participant_id
-        - global_efficiency
-        - modularity
-        - fpn_strength
-        - dmn_strength
-      properties:
-        participant_id:
+  baseline_metrics:
+    type: object
+    required:
+      - file_path
+      - columns
+      - row_count
+    properties:
+      file_path:
+        type: string
+        pattern: ".*baseline_metrics\\.csv$"
+      columns:
+        type: array
+        items:
           type: string
-          pattern: "^sub-\\d+$"
-        global_efficiency:
-          type: number
-        modularity:
-          type: number
-        fpn_strength:
-          type: number
-        dmn_strength:
-          type: number
-        exclusion_reason:
+        contains:
+          const: "participant_id"
+      row_count:
+        type: integer
+        minimum: 0
+  motion_metrics:
+    type: object
+    required:
+      - file_path
+      - columns
+      - row_count
+    properties:
+      file_path:
+        type: string
+        pattern: ".*motion_metrics\\.csv$"
+      columns:
+        type: array
+        items:
           type: string
-          description: Optional field if excluded
+        contains:
+          const: "participant_id"
+          const: "mean_fd"
+      row_count:
+        type: integer
+        minimum: 0
+  connectivity_matrices:
+    type: object
+    required:
+      - directory_path
+      - matrix_shape
+      - count
+    properties:
+      directory_path:
+        type: string
+        pattern: ".*data/preprocessed/.*"
+      matrix_shape:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        const: [400, 400]
+      count:
+        type: integer
+        minimum: 0

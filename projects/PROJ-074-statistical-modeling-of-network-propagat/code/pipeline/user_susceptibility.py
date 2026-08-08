@@ -1,11 +1,20 @@
 """
-User susceptibility score computation for misinformation cascade modeling.
+User Susceptibility Feature Engineering Module.
 
-Implements the proxy susceptibility score formula per FR-003 Clarification:
-(historical_degree >= 2 AND historical_shares >= 1) ? 1.0 : 0.0
+This module computes user susceptibility scores based on historical sharing behavior.
+The formula used is: (historical_degree >= 2 AND historical_shares >= 1) ? 1.0 : 0.0
 
-Input: CSV file with columns including historical_degree, historical_shares
-Output: CSV file with added susceptibility_score column
+Input Sources:
+  - Feature data CSV (specified in --input) containing user_id, historical_degree, historical_shares
+
+Transformation Steps:
+  1. Load feature data
+  2. Apply susceptibility formula per user
+  3. Aggregate scores per cascade
+
+Output Files:
+  - Susceptibility features CSV (specified in --output)
+  - Logs written to pipeline.log
 """
 
 import argparse
@@ -17,129 +26,85 @@ import pandas as pd
 
 from pipeline.utils import set_global_seed, setup_logger
 
-# Configure module logger
-logger = setup_logger("user_susceptibility")
 
-
-def compute_susceptibility_score(row: pd.Series) -> float:
+def compute_susceptibility_score(historical_degree: int, historical_shares: int) -> float:
     """
-    Compute proxy susceptibility score using historical network context.
+    Compute susceptibility score for a single user based on historical behavior.
 
-    Formula (per FR-003 Clarification):
-    (historical_degree >= 2 AND historical_shares >= 1) ? 1.0 : 0.0
+    Formula: (historical_degree >= 2 AND historical_shares >= 1) ? 1.0 : 0.0
 
     Args:
-        row: DataFrame row containing historical_degree and historical_shares
+        historical_degree: User's historical degree in the network.
+        historical_shares: User's historical number of shares.
 
     Returns:
-        1.0 if user meets both thresholds, 0.0 otherwise
+        1.0 if susceptible, 0.0 otherwise.
     """
-    historical_degree = row.get("historical_degree", 0)
-    historical_shares = row.get("historical_shares", 0)
-
-    if historical_degree >= 2 and historical_shares >= 1:
-        return 1.0
-    return 0.0
+    return 1.0 if (historical_degree >= 2 and historical_shares >= 1) else 0.0
 
 
-def compute_susceptibility_scores(
-    input_path: str,
-    output_path: str,
-    seed: int = 12345,
-) -> Path:
+def compute_susceptibility_scores(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Load cascade/feature data, compute susceptibility scores, and write output.
+    Compute susceptibility scores for all users in the dataframe.
 
     Args:
-        input_path: Path to input CSV with historical_degree and historical_shares
-        output_path: Path to write output CSV with susceptibility_score column
-        seed: Random seed for reproducibility
+        df: DataFrame with columns 'historical_degree' and 'historical_shares'.
 
     Returns:
-        Path to the output file
+        DataFrame with an added 'susceptibility_score' column.
     """
-    set_global_seed(seed)
-    logger.info(f"Loading input data from {input_path}")
-
-    # Load input data
-    df = pd.read_csv(input_path)
-
-    # Validate required columns exist
-    required_cols = ["historical_degree", "historical_shares"]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-
-    logger.info(f"Input data shape: {df.shape}")
-    logger.info(f"Computing susceptibility scores for {len(df)} records")
-
-    # Compute susceptibility score for each row
-    df["susceptibility_score"] = df.apply(compute_susceptibility_score, axis=1)
-
-    # Log summary statistics
-    score_counts = df["susceptibility_score"].value_counts()
-    logger.info(f"Susceptibility score distribution: {score_counts.to_dict()}")
-    logger.info(
-        f"Susceptibility rate: {df['susceptibility_score'].mean():.4f}"
+    df['susceptibility_score'] = df.apply(
+        lambda row: compute_susceptibility_score(row['historical_degree'], row['historical_shares']),
+        axis=1
     )
-
-    # Write output
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_file, index=False)
-    logger.info(f"Output written to {output_path}")
-
-    return output_file
+    return df
 
 
-def main() -> int:
-    """
-    Entry point for susceptibility score computation script.
-
-    Usage:
-        python code/pipeline/user_susceptibility.py \
-            --input data/intermediate/features_raw.csv \
-            --output results/features.csv
-
-    Returns:
-        0 on success, 1 on failure
-    """
-    parser = argparse.ArgumentParser(
-        description="Compute user susceptibility scores from historical network context"
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        required=True,
-        help="Path to input CSV with historical_degree and historical_shares columns",
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        required=True,
-        help="Path to output CSV with susceptibility_score column added",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=12345,
-        help="Random seed for reproducibility (default: 12345)",
-    )
+def main():
+    """Main entry point for user susceptibility computation."""
+    parser = argparse.ArgumentParser(description='Compute user susceptibility scores.')
+    parser.add_argument('--input', type=str, required=True,
+                        help='Path to input CSV with user features.')
+    parser.add_argument('--output', type=str, required=True,
+                        help='Path for output CSV with susceptibility scores.')
+    parser.add_argument('--seed', type=int, default=12345,
+                        help='Random seed for reproducibility.')
+    parser.add_argument('--log', type=str, default='pipeline.log',
+                        help='Path to log file.')
 
     args = parser.parse_args()
 
+    # Setup logging and seed
+    logger = setup_logger(args.log)
+    set_global_seed(args.seed)
+    logger.info("Starting user susceptibility computation.")
+    logger.info(f"Input file: {args.input}")
+    logger.info(f"Output file: {args.output}")
+
     try:
-        compute_susceptibility_scores(
-            input_path=args.input,
-            output_path=args.output,
-            seed=args.seed,
-        )
-        logger.info("Susceptibility score computation completed successfully")
-        return 0
+        # Load input data
+        df = pd.read_csv(args.input)
+        logger.info(f"Loaded {len(df)} rows from {args.input}")
+
+        # Verify required columns
+        required_cols = ['historical_degree', 'historical_shares']
+        missing = [col for col in required_cols if col not in df.columns]
+        if missing:
+            raise ValueError(f"Missing required columns: {missing}")
+
+        # Compute scores
+        df = compute_susceptibility_scores(df)
+        logger.info("Computed susceptibility scores for all users.")
+
+        # Write output
+        df.to_csv(args.output, index=False)
+        logger.info(f"Wrote {len(df)} rows to {args.output}")
+        logger.info("User susceptibility computation completed successfully.")
+
     except Exception as e:
-        logger.error(f"Susceptibility score computation failed: {e}")
-        return 1
+        logger.error(f"Error during susceptibility computation: {e}", exc_info=True)
+        sys.exit(1)
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

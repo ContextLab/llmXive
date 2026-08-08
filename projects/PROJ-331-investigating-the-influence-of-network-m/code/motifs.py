@@ -4,250 +4,269 @@ import time
 import json
 import logging
 import numpy as np
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from functools import wraps
 from pathlib import Path
+from typing import Dict, Any, Optional
 
 # Import shared utilities
-from utils import get_logger, PipelineError, log_error
+from utils import get_logger, safe_read_json, safe_write_json, safe_mkdir
+from config import ensure_dirs
 
-# Ensure logger is configured
-logger = get_logger('motifs')
+# Configure logger
+logger = get_logger(__name__)
 
-def get_motif_id(edges, n_nodes=3):
+def get_motif_id(edges: tuple) -> str:
     """
-    Convert a set of edges in a 3-node subgraph to a canonical motif ID.
-    Edges should be tuples (u, v) where u < v for undirected, or (u, v) for directed.
-    This function assumes undirected graphs for canonicalization (u < v).
-    Returns a string ID representing the motif type.
+    Convert a set of edges (u, v) into a canonical motif ID string.
+    For 3-node motifs, edges are expected as a tuple of tuples.
     """
-    # Canonicalize edges: sort node indices within edge, sort edges list
-    canonical_edges = tuple(sorted([tuple(sorted(e)) for e in edges]))
-    # Simple hash or string representation for motif ID
-    return str(canonical_edges)
+    nodes = sorted(list(set([n for edge in edges for n in edge])))
+    if len(nodes) != 3:
+        return "invalid"
+    
+    # Canonical representation: sort edges by (min, max) then by tuple
+    canonical_edges = []
+    for u, v in edges:
+        if u > v:
+            u, v = v, u
+        canonical_edges.append((u, v))
+    
+    canonical_edges.sort()
+    return str(tuple(canonical_edges))
 
-def count_motifs(adj_matrix):
+def count_motifs(adj_matrix: np.ndarray) -> Dict[str, int]:
     """
-    Enumerate all 3-node subgraphs in the adjacency matrix and count motif occurrences.
-    Uses networkx for subgraph enumeration.
+    Count all 3-node subgraphs (motifs) in a directed graph represented by adj_matrix.
+    Returns a dictionary mapping motif ID (canonical edge tuple string) to count.
     """
-    import networkx as nx
+    n = adj_matrix.shape[0]
+    counts = {}
     
-    # Convert adjacency matrix to networkx graph
-    G = nx.from_numpy_array(adj_matrix, create_using=nx.DiGraph)
+    # Iterate over all unique triplets of nodes
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                nodes = [i, j, k]
+                # Extract subgraph edges
+                edges = []
+                for u in nodes:
+                    for v in nodes:
+                        if u != v and adj_matrix[u, v] > 0:
+                            edges.append((u, v))
+                
+                if edges:
+                    motif_id = get_motif_id(tuple(edges))
+                    counts[motif_id] = counts.get(motif_id, 0) + 1
+                
+    return counts
+
+def generate_null_model(adj_matrix: np.ndarray, iterations: int = 100) -> list:
+    """
+    Generate degree-preserving null models using Maslov-Sneppen edge rewiring.
+    Returns a list of motif counts for each iteration.
+    """
+    n = adj_matrix.shape[0]
+    null_counts_list = []
     
-    motif_counts = {}
-    total_subgraphs = 0
+    # Create a copy to rewire
+    current_adj = adj_matrix.copy()
     
-    # Enumerate all 3-node induced subgraphs
-    # Note: For large graphs, this can be slow. We rely on the timeout wrapper.
-    for nodes in nx.enumerate_all_cliques(G):
-        if len(nodes) == 3:
-            total_subgraphs += 1
-            subgraph = G.subgraph(nodes)
-            edges = list(subgraph.edges())
-            motif_id = get_motif_id(edges)
-            motif_counts[motif_id] = motif_counts.get(motif_id, 0) + 1
+    # Get non-zero edges
+    edges = np.argwhere(current_adj > 0)
+    m = len(edges)
+    
+    if m < 2:
+        # Not enough edges to rewire
+        for _ in range(iterations):
+            null_counts_list.append(count_motifs(adj_matrix))
+        return null_counts_list
+    
+    for _ in range(iterations):
+        # Perform edge rewiring (Maslov-Sneppen)
+        # Select two edges (a,b) and (c,d)
+        idx1, idx2 = np.random.choice(m, 2, replace=False)
+        a, b = edges[idx1]
+        c, d = edges[idx2]
+        
+        # Ensure we don't create self-loops or duplicate edges
+        if a != d and c != b and (a, d) not in edges and (c, b) not in edges:
+            # Rewire: (a,b), (c,d) -> (a,d), (c,b)
+            current_adj[a, b] = 0
+            current_adj[c, d] = 0
+            current_adj[a, d] = 1
+            current_adj[c, b] = 1
             
-    return motif_counts, total_subgraphs
+            # Update edges list for next iteration
+            edges[idx1] = [a, d]
+            edges[idx2] = [c, b]
+        
+        # Count motifs for this null model
+        null_counts_list.append(count_motifs(current_adj))
+    
+    return null_counts_list
 
-def generate_null_model(adj_matrix, iterations=1000):
+def compute_z_scores(observed_counts: Dict[str, int], null_counts_list: list) -> Dict[str, float]:
     """
-    Generate a degree-preserving null model using Maslov-Sneppen edge rewiring.
-    Returns the mean and std of motif counts over iterations.
-    """
-    import networkx as nx
-    
-    G = nx.from_numpy_array(adj_matrix, create_using=nx.DiGraph)
-    original_degree_sequence = [d for n, d in G.degree()]
-    
-    null_motif_counts = []
-    
-    for i in range(iterations):
-        # Create a copy to rewire
-        G_null = G.copy()
-        
-        # Maslov-Sneppen rewiring: swap edges to preserve degree sequence
-        # We attempt to rewire a fraction of edges
-        edges = list(G_null.edges())
-        n_edges = len(edges)
-        if n_edges < 2:
-            continue
-            
-        # Try to rewire a portion of edges
-        rewires = min(n_edges // 2, 100)  # Limit rewires per iteration for speed
-        for _ in range(rewires):
-            if len(edges) < 2:
-                break
-            # Pick two random edges
-            idx1, idx2 = np.random.choice(len(edges), 2, replace=False)
-            u1, v1 = edges[idx1]
-            u2, v2 = edges[idx2]
-            
-            # Proposed new edges: (u1, v2) and (u2, v1)
-            # Check for self-loops and duplicate edges
-            if u1 != v2 and u2 != v1:
-                if not G_null.has_edge(u1, v2) and not G_null.has_edge(u2, v1):
-                    # Perform swap
-                    G_null.remove_edge(u1, v1)
-                    G_null.remove_edge(u2, v2)
-                    G_null.add_edge(u1, v2)
-                    G_null.add_edge(u2, v1)
-                    # Update edges list for next iteration (simplified)
-                    edges = list(G_null.edges())
-        
-        # Count motifs in the null graph
-        counts, _ = count_motifs(nx.to_numpy_array(G_null))
-        null_motif_counts.append(counts)
-        
-    if not null_motif_counts:
-        return {}, {}
-        
-    # Compute mean and std for each motif ID
-    all_motif_ids = set()
-    for counts in null_motif_counts:
-        all_motif_ids.update(counts.keys())
-        
-    mean_counts = {m: 0.0 for m in all_motif_ids}
-    std_counts = {m: 0.0 for m in all_motif_ids}
-    
-    for m_id in all_motif_ids:
-        values = [c.get(m_id, 0) for c in null_motif_counts]
-        mean_counts[m_id] = np.mean(values)
-        std_counts[m_id] = np.std(values) if len(values) > 1 else 0.0
-        
-    return mean_counts, std_counts
-
-def compute_motif_z_scores(observed_counts, mean_null, std_null):
-    """
-    Compute z-scores for motif counts: z = (observed - mean) / std
+    Compute z-scores for motif prevalence: z = (observed - mean_null) / std_null
     """
     z_scores = {}
-    for m_id, obs in observed_counts.items():
-        mean_val = mean_null.get(m_id, 0.0)
-        std_val = std_null.get(m_id, 1.0)
-        if std_val == 0:
-            # Avoid division by zero; if std is 0, z is 0 if obs == mean, else undefined
-            # We'll set it to 0 if obs == mean, else a large value or skip
-            z_scores[m_id] = 0.0 if obs == mean_val else float('inf')
+    
+    # Get all unique motif IDs from observed and nulls
+    all_motif_ids = set(observed_counts.keys())
+    for null_counts in null_counts_list:
+        all_motif_ids.update(null_counts.keys())
+    
+    for motif_id in all_motif_ids:
+        observed = observed_counts.get(motif_id, 0)
+        null_values = [nc.get(motif_id, 0) for nc in null_counts_list]
+        
+        mean_null = np.mean(null_values)
+        std_null = np.std(null_values)
+        
+        if std_null == 0:
+            # Avoid division by zero; if mean equals observed, z=0, else undefined (set to 0 or large)
+            z = 0.0 if observed == mean_null else 1e6 * np.sign(observed - mean_null)
         else:
-            z_scores[m_id] = (obs - mean_val) / std_val
+            z = (observed - mean_null) / std_null
+        
+        z_scores[motif_id] = float(z)
+    
     return z_scores
 
-def timeout_wrapper(func, timeout_seconds=300):
+def timeout_wrapper(func, timeout_seconds: int = 300):
     """
-    Wrapper to enforce a time limit on motif enumeration.
-    If the function takes longer than timeout_seconds, it raises a TimeoutError
-    and logs a warning.
+    Simple timeout wrapper using signal (Unix only). For cross-platform, 
+    a thread-based approach or joblib would be needed, but we stick to 
+    standard library where possible.
     """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = None
-        exception_raised = None
-        
-        try:
-            # Run the function in a thread to allow timeout enforcement
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(func, *args, **kwargs)
-                try:
-                    result = future.result(timeout=timeout_seconds)
-                except FuturesTimeoutError:
-                    elapsed = time.time() - start_time
-                    logger.warning(f"Timeout warning: Motif enumeration exceeded {timeout_seconds}s (elapsed: {elapsed:.2f}s). Aborting gracefully.")
-                    raise TimeoutError(f"Motif enumeration timed out after {timeout_seconds}s")
-        except Exception as e:
-            elapsed = time.time() - start_time
-            log_error(logger, f"Error in motif processing after {elapsed:.2f}s", e)
-            raise
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Motif enumeration completed successfully in {elapsed:.2f}s")
-        return result
-        
-    return wrapper
-
-def process_motif_analysis(adj_matrix_path, timeout_seconds=300):
-    """
-    Process a single subject's motif analysis with timeout enforcement.
-    Loads the adjacency matrix, runs motif counting and null model generation,
-    and returns z-scores.
-    """
-    import networkx as nx
+    import signal
     
-    # Load adjacency matrix
-    adj_matrix = np.load(adj_matrix_path)
+    def handler(signum, frame):
+        raise TimeoutError(f"Function {func.__name__} timed out after {timeout_seconds}s")
     
-    # Define the analysis function to be wrapped
-    def run_analysis():
-        # 1. Count observed motifs
-        logger.info(f"Starting motif enumeration for {adj_matrix_path}")
-        observed_counts, total_subgraphs = count_motifs(adj_matrix)
-        logger.info(f"Found {len(observed_counts)} unique motif types out of {total_subgraphs} subgraphs")
-        
-        # 2. Generate null model and compute statistics
-        logger.info("Generating degree-preserving null models...")
-        # Use a fixed number of iterations for consistency
-        mean_null, std_null = generate_null_model(adj_matrix, iterations=500)
-        
-        # 3. Compute z-scores
-        z_scores = compute_motif_z_scores(observed_counts, mean_null, std_null)
-        return z_scores, observed_counts
-        
-    # Wrap with timeout
-    wrapped_analysis = timeout_wrapper(run_analysis, timeout_seconds=timeout_seconds)
+    # Set the signal handler
+    old_handler = signal.signal(signal.SIGALRM, handler)
+    signal.alarm(timeout_seconds)
     
     try:
-        z_scores, observed_counts = wrapped_analysis()
-        return z_scores, observed_counts
-    except TimeoutError:
-        # Re-raise to be caught by caller if needed
-        raise
+        result = func()
+        return result
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
 
-def aggregate_motif_profiles(z_scores_list):
+def process_motif_analysis(adj_matrix: np.ndarray, threshold: float, timeout: int = 300) -> Dict[str, float]:
     """
-    Aggregate z-scores from multiple thresholds (e.g., 10%, 20%, 30%) using median.
-    Input: list of dicts (one per threshold)
-    Output: dict of median z-scores
+    Run full motif analysis for a specific threshold:
+    1. Binarize adjacency based on density threshold
+    2. Count motifs
+    3. Generate null models
+    4. Compute z-scores
     """
-    if not z_scores_list:
+    logger.info(f"Processing motif analysis for threshold {threshold}")
+    
+    # Binarize based on density
+    n = adj_matrix.shape[0]
+    total_possible = n * (n - 1)
+    target_edges = int(total_possible * threshold)
+    
+    # Flatten and sort edges to select top ones
+    edges = adj_matrix.flatten()
+    # Mask self-loops
+    mask = ~np.eye(n, dtype=bool)
+    valid_edges = edges[mask]
+    
+    if len(valid_edges) == 0:
+        logger.warning("No valid edges found in adjacency matrix.")
         return {}
-        
-    all_motif_ids = set()
-    for z_dict in z_scores_list:
-        all_motif_ids.update(z_dict.keys())
-        
+    
+    # Select top edges
+    threshold_val = np.sort(valid_edges)[-target_edges] if target_edges > 0 else 0
+    binary_adj = (adj_matrix >= threshold_val).astype(float)
+    np.fill_diagonal(binary_adj, 0)
+    
+    # Count observed motifs
+    observed_counts = count_motifs(binary_adj)
+    
+    # Generate null models
+    logger.info("Generating null models...")
+    null_counts_list = generate_null_model(binary_adj, iterations=100)
+    
+    # Compute z-scores
+    z_scores = compute_z_scores(observed_counts, null_counts_list)
+    
+    return z_scores
+
+def aggregate_motif_profiles(raw_data: Dict[str, Dict[str, float]]) -> Dict[str, float]:
+    """
+    Aggregate z-scores from multiple thresholds using median.
+    Input: {'threshold_10p': {motif_id: z}, 'threshold_20p': {motif_id: z}, ...}
+    Output: {motif_id: median_z}
+    """
     aggregated = {}
-    for m_id in all_motif_ids:
-        values = [z_dict.get(m_id, 0.0) for z_dict in z_scores_list]
-        # Filter out inf values for median calculation if necessary
-        finite_values = [v for v in values if np.isfinite(v)]
-        if finite_values:
-            aggregated[m_id] = float(np.median(finite_values))
+    
+    # Collect all motif IDs across thresholds
+    all_motif_ids = set()
+    for threshold_key, scores in raw_data.items():
+        all_motif_ids.update(scores.keys())
+    
+    for motif_id in all_motif_ids:
+        z_values = []
+        for threshold_key, scores in raw_data.items():
+            if motif_id in scores:
+                z_values.append(scores[motif_id])
+        
+        if z_values:
+            aggregated[motif_id] = float(np.median(z_values))
         else:
-            aggregated[m_id] = 0.0
-            
+            aggregated[motif_id] = 0.0
+    
     return aggregated
 
 def main():
     """
-    Main entry point for motif analysis.
-    Expected to be called with input paths and timeout settings.
+    Main entry point for T026: Aggregate motif z-scores from raw per-threshold data
+    and save final profiles to motif_profiles.json.
     """
-    logger.info("Starting motif analysis pipeline")
+    logger.info("Starting T026: Aggregating motif profiles...")
     
-    # Example: Process a specific adjacency matrix with timeout
-    # In a real pipeline, this would be driven by a configuration or loop over subjects
-    input_path = "data/processed/binary_adj_10p.npy" # Default example path
-    if os.path.exists(input_path):
-        try:
-            z_scores, observed = process_motif_analysis(input_path, timeout_seconds=300)
-            logger.info(f"Motif analysis completed. Unique motifs: {len(z_scores)}")
-            # In a full pipeline, save results here
-        except Exception as e:
-            logger.error(f"Motif analysis failed for {input_path}: {e}")
-    else:
-        logger.warning(f"Input file not found: {input_path}. Skipping.")
+    # Ensure directories exist
+    ensure_dirs()
+    processed_dir = Path("data/processed")
+    safe_mkdir(processed_dir)
+    
+    # Load raw motif z-scores from T025d_raw
+    raw_file = processed_dir / "motif_z_raw.json"
+    if not raw_file.exists():
+        logger.error(f"Raw motif data file not found: {raw_file}")
+        logger.error("T025d_raw must be completed before T026.")
+        sys.exit(1)
+    
+    logger.info(f"Loading raw motif data from {raw_file}")
+    raw_data = safe_read_json(str(raw_file))
+    
+    if not raw_data:
+        logger.error("Raw motif data is empty or invalid.")
+        sys.exit(1)
+    
+    # Aggregate using median across thresholds
+    logger.info("Aggregating z-scores using median...")
+    aggregated_scores = aggregate_motif_profiles(raw_data)
+    
+    # Prepare output structure
+    output_profile = {
+        "aggregated_z_scores": aggregated_scores,
+        "method": "median",
+        "source_raw_file": "motif_z_raw.json",
+        "description": "Aggregated motif z-scores across density thresholds (10%, 20%, 30%) using median."
+    }
+    
+    # Save final profile
+    output_file = processed_dir / "motif_profiles.json"
+    logger.info(f"Saving aggregated motif profiles to {output_file}")
+    safe_write_json(str(output_file), output_profile)
+    
+    logger.info("T026 completed successfully.")
+    return output_profile
 
 if __name__ == "__main__":
     main()

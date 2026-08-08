@@ -43,12 +43,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
+- [ ] T001 Create project structure by explicitly creating directories: `src/`, `src/data/`, `src/synthesis/`, `src/analysis/`, `src/viz/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/`, `state/`.
 - [X] T002 Initialize Python project with pinned `requirements.txt` (numpy, pandas, scipy, statsmodels, arch, yfinance, requests, pyyaml, matplotlib, seaborn, xarray)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [ ] T004 [P] Initialize `pytest` configuration and directory structure (`tests/unit`, `tests/integration`, `tests/contract`)
-
----
+- [ ] T003 [P] Create `ruff.toml` configuration file with strict linting rules (E, F, W, I, N, C, UP) and `black` integration.
+- [ ] T004 [P] Create `pytest.ini` configuration file with test paths, markers, and verbosity settings.
+- [ ] T005 [P] Implement `src/utils/config.py` for random seed management and global constants
+- [ ] T006 [P] Implement `src/utils/logging.py` with structured logging for warnings and errors, including log file rotation.
+- [ ] T007 Create base data schemas in `src/data/schemas.py` using Pydantic: `TimeSeries`, `SyntheticData`, `TestResult`, `ErrorRateSummary` with all required fields defined in the spec.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -56,12 +57,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 [P] Implement `src/utils/config.py` for random seed management and global constants
-- [ ] T006 [P] Implement `src/utils/logging.py` with structured logging for warnings and errors
-- [ ] T007 Create base data schemas for `TimeSeries`, `SyntheticData`, `TestResult`, `ErrorRateSummary` in `src/data/schemas.py`
 - [X] T008 Implement `src/data/ingestion.py` with strict URL validation and checksumming logic (FR-001)
-- [X] T009 Implement `src/data/preprocessing.py` skeleton with ADF and linear regression placeholders (FR-002)
-- [X] T010 [P] Implement `src/data/metrics.py` for ACF (lag 20), Hurst (DFA), and Spectral Density peak ratio (FR-002). **Constraint**: This is a single task to avoid parallel write conflicts on the same file.
+- [X] T009 Implement `src/data/preprocessing.py` skeleton with ADF logic and explicit placeholder for **linear regression residuals** (NO DFA) for detrending (FR-002). **Constraint**: Spec FR-002 mandates linear regression residuals for stationary series; ignore Plan's mention of DFA.
+- [X] T010 [P] Implement `src/data/metrics.py` to compute ACF (lag 20), Hurst exponent (DFA), and Spectral Density peak ratio for **ALL series** (both real and synthetic) in a single pass to avoid race conditions. **Input**: Reads from `data/processed/` after preprocessing. **Constraint**: This single task prevents parallel write conflicts.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,12 +79,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement `src/data/ingestion.py` to download 5 distinct public datasets: NOAA (), Yahoo Finance (yfinance), UK National Grid Load (https://www.nationalgrideso.com), UCI Electricity Load (https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014), and a second NOAA subset. **Constraint**: Must fail loudly on download error; no synthetic fallbacks.
+- [X] T014 [US1] Implement `src/data/ingestion.py` to download 5 distinct public datasets: NOAA (), Yahoo Finance (yfinance package for AAPL/SPY), UK National Grid Load (https://www.nationalgrideso.com/document/174276/download), UCI Electricity Load (https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014), and a second NOAA subset. **Constraint**: Must fail loudly on download error; no synthetic fallbacks.
 - [ ] T015 [US1] Implement linear interpolation for missing values in `src/data/preprocessing.py` (FR-002).
-- [ ] T016 [US1] Implement ADF test logic in `src/data/preprocessing.py`. If p < 0.05, apply differencing until stationarity; if p ≥ 0.05, detrend via linear regression residuals (FR-002).
-- [ ] T017 [US1] Implement `src/data/metrics.py` to compute ACF (lag 20), Hurst exponent (DFA), and **spectral density peak ratio** for **every real series** immediately after preprocessing. **Input**: Read dataset list from `data/raw/manifest.json`. **Constraint**: This task must run for all real series before any hypothesis testing.
-- [ ] T018a [US1] Add logic to resample datasets to a consistent frequency (e.g., hourly) using 'mean' aggregation before stationarity testing (US1-AC3).
-- [ ] T019 [US1] Implement shuffling (permutation) logic in `src/data/preprocessing.py` to generate and store **shuffled null distributions** for **every time series (real and synthetic)**. **Constraint**: This must happen for every series before Phase 5.
+- [ ] T016 [US1] Implement ADF test logic in `src/data/preprocessing.py`. If p < 0.05, apply differencing until stationarity. If p ≥ 0.05, **detrend using linear regression residuals** (FR-002). **Constraint**: Explicitly exclude DFA for detrending; use linear regression residuals only.
+- [ ] T018a [US1] Add logic to resample datasets to a **consistent frequency (e.g., hourly, daily) based on the dataset's native resolution** before stationarity testing (US1-AC3).
+- [ ] T019a [US1] Implement shuffling (permutation) logic in `src/data/preprocessing.py` to generate and store **[deferred] shuffled versions** for **every real time series** to create a null distribution (FR-003, Constitution Principle VII). **Constraint**: This must happen for every real series before Phase 5.
 - [ ] T020 [US1] Add edge case handling: skip datasets < 25 points with a warning log (Edge Case 1).
 - [ ] T021 [US1] Add edge case handling: detect unit roots that cannot be detrended and log the differencing count (Edge Case 2).
 - [ ] T022 [US1] Add edge case handling: fallback to variance-based metric if spectral density fails (Edge Case 3).
@@ -110,9 +107,10 @@
 ### Implementation for User Story 2
 
 - [ ] T026 [US2] Implement `src/synthesis/generators.py` to generate fractional Gaussian noise (fGn) or ARFIMA processes with H ∈ {0.5, 0.7, 0.8, 0.9} and mean=0 (FR-007).
-- [ ] T027 [US2] Implement logic to generate synthetic series with varying lengths (N ∈ {small, medium, large}) for the N-variation grid (Plan).
-- [ ] T029 [US2] Implement `src/synthesis/validation.py` to run the [deferred] trial baseline check on H=0.5 data **before proceeding** to Hurst analysis (FR-008, US2-AC7). **GATE**: This task must write `data/results/baseline_status.json` with a "PASS" status if the rejection rate is within the Clopper-Pearson CI. Phase 5 tasks (T037a) MUST NOT start until this file exists with "PASS".
-- [ ] T030 [US2] Implement `src/synthesis/generators.py` to compute ACF (lag 20), Hurst exponent (DFA), and **spectral density peak ratio** for **every synthetic series** (FR-002).
+- [ ] T027 [US2] Implement logic to generate synthetic series with varying lengths for the N-variation grid (Plan).
+- [ ] T019b [US2] Implement shuffling logic in `src/synthesis/generators.py` to generate and store **[deferred] shuffled versions** for **every synthetic series** to create a null distribution (FR-003, Constitution Principle VII). **Constraint**: Must run after synthetic generation, before Phase 5.
+- [ ] T029 [US2] Implement `src/synthesis/validation.py` to run the **[deferred] trial** baseline check on H=0.5 data **before proceeding** to Hurst analysis (FR-008, US2-AC7). **GATE**: This task must write `data/results/baseline_status.json` with a "PASS" status if the rejection rate is within the Clopper-Pearson CI. Phase 5 tasks (T037a) MUST NOT start until this file exists with "PASS".
+- [ ] T030 [US2] [P] Read metrics from T010 output for synthetic series; verify ACF, Hurst, and spectral density are computed (FR-002).
 - [ ] T031 [US2] Implement calculation of theoretical VIF and N_eff for synthetic series in `src/synthesis/generators.py` (FR-007).
 - [ ] T032 [US2] Add logic to verify generated series mean is within 0.01 of 0 and H is within 0.05 of target (US2-AC1..4).
 
@@ -136,7 +134,7 @@
 
 - [ ] T036 [US3] Implement `src/analysis/hypothesis_tests.py` to apply one-sample t-tests and F-tests to synthetic series (mean=0) (FR-004). **Constraint**: Explicitly exclude two-sample t-test.
 - [ ] T037 [US3] Implement Monte Carlo loop to run a sufficient number of trials per configuration to ensure statistical robustness (H, N) and calculate observed rejection rate at α=0.05 (US3-AC1).
-- [ ] T038 [US3] Implement logic to compare observed test statistics against the null distribution from shuffled versions (generated in T019) to isolate inflation (US3-AC5).
+- [ ] T038 [US3] Implement logic to compare observed test statistics against the null distribution from shuffled versions (generated in T019a/T019b) to isolate inflation (US3-AC5).
 
 **Checkpoint**: Hypothesis testing logic is ready; Analysis phase blocked by T029 Gate.
 
@@ -146,16 +144,17 @@
 
 **Goal**: Perform regression analysis and visualizations.
 
-**Dependency**: This phase is BLOCKED until T029 (Baseline Gate) passes and T037b (Filtering) completes.
+**Dependency**: This phase is BLOCKED until T029 (Baseline Gate) passes.
 
 ### Implementation for User Story 3 (Analysis)
 
 - [ ] T037b [US3] Implement explicit feature filtering logic in `src/analysis/regression.py` to **exclude** Max_ACF_Lag1 and spectral density metrics from the input features. **Output**: Write filtered feature list to `data/results/filtered_features.json`.
-- [ ] T037a [US3] Implement **Linear Regression** model in `src/analysis/regression.py` to regress error rate vs. Hurst exponent (synthetic) or estimated Hurst (real). **Input**: Read error rates from `data/results/error_rates.csv` and filtered features from `data/results/filtered_features.json`. **Constraint**: Must wait for T029 (Gate) and T037b (Filtering). **Output**: Save regression coefficients and VIF/N_eff to `data/results/regression_model.json`.
+- [ ] T037a [US3] Implement **Linear Regression** model in `src/analysis/regression.py` to regress error rate vs. Hurst exponent (synthetic) or estimated Hurst (real). **Input**: Read error rates from `data/results/error_rates.csv` and filtered features from `data/results/filtered_features.json`. **Constraint**: Must wait for T029 (Gate) and T037b (Filtering). **Note**: Spec FR-005 mandates Linear Regression; ignore Plan's mention of GLM/Non-linear. **Output**: Save regression coefficients and VIF/N_eff to `data/results/regression_model.json`.
 - [ ] T037c [US3] Implement calculation of Variance Inflation Factor (VIF) and Effective Sample Size (N_eff) in the regression model (FR-005).
 - [ ] T039 [US3] Implement visualization logic in `src/viz/plots.py` for ACF plots, scatter plots (rejection rate vs. H), and QQ-plots (FR-006).
 - [ ] T039b [US3] Implement visualization logic in `src/viz/plots.py` specifically for **VIF curves** (FR-006).
 - [ ] T040 [US3] Add logic to measure and log total pipeline runtime to ensure it fits within the GitHub Actions time limit (SC-004).
+- [ ] T040b [US3] Implement automated **timeout or early exit mechanism** in `main.py` to programmatically enforce the 6-hour limit (SC-004). If runtime exceeds limit, exit gracefully with a "TIMEOUT" status.
 - [ ] T041 [US3] Implement output of results to `data/results/final_summary.json` including regression slopes, p-values, VIF, N_eff, and error rates. **Schema**: Must be a single JSON file with defined keys for all metrics (US3-AC2, US3-AC3).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -190,7 +189,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. Produces the cleaned, stationary data required by US3.
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Generates synthetic ground truth and null distributions required for US3 validation.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on outputs from US1 (real data metrics + real nulls from T019) and US2 (synthetic data + nulls from T019) to perform regression and comparison. **GATE**: T037a requires T029 success (baseline_status.json).
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on outputs from US1 (real data metrics + real nulls from T019a) and US2 (synthetic data + nulls from T019b) to perform regression and comparison. **GATE**: T037a requires T029 success (baseline_status.json).
 
 ### Within Each User Story
 
@@ -217,7 +216,7 @@ Task: "Unit test for ingestion in tests/unit/test_ingestion.py"
 Task: "Unit test for preprocessing in tests/unit/test_preprocessing.py"
 
 # Launch all implementation tasks for US1 (sequential due to data flow):
-Task: "Implement ingestion" -> Task: "Implement preprocessing" -> Task: "Implement metrics (T017)" -> Task: "Generate nulls (T019)"
+Task: "Implement ingestion" -> Task: "Implement preprocessing" -> Task: "Compute metrics (T010)" -> Task: "Generate real nulls (T019a)"
 ```
 
 ---
@@ -228,7 +227,7 @@ Task: "Implement ingestion" -> Task: "Implement preprocessing" -> Task: "Impleme
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Data Ingestion & Preprocessing) including T017 (metrics) and T019 (nulls).
+3. Complete Phase 3: User Story 1 (Data Ingestion & Preprocessing) including T010 (metrics) and T019a (nulls).
 4. **STOP and VALIDATE**: Verify raw data is ingested, cleaned, stationary, metrics computed, and nulls generated.
 5. Deploy/demo if ready (as a data pipeline).
 
@@ -246,8 +245,8 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Real Data Pipeline + T019)
- - Developer B: User Story 2 (Synthetic Generation & Nulls)
+ - Developer A: User Story 1 (Real Data Pipeline + T019a)
+ - Developer B: User Story 2 (Synthetic Generation & T019b)
  - Developer C: User Story 3 (Analysis & Regression)
 3. Stories complete and integrate independently.
 
@@ -264,7 +263,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Constraint**: All data loaders must fail loudly; no synthetic fallbacks allowed. Real data must be streamed or sampled explicitly if too large.
 - **Critical Compute Constraint**: The full pipeline must complete within 6 hours on a CPU-only runner. Optimize loops and vectorize where possible.
-- **Critical Metric Constraint**: T017 and T030 must compute "spectral density peak ratio" explicitly, not just density.
+- **Critical Metric Constraint**: T010 must compute "spectral density peak ratio" explicitly, not just density.
 - **Critical Architecture Constraint**: T037b explicitly filters forbidden metrics before T037a regression.
 - **Critical Gate Constraint**: T029 must pass before T037a starts.
-- **Plan Note**: The Plan.md 'Technical Context' and 'Fr/Sc Coverage Matrix' must be updated to reflect 'Linear Regression' (FR-005) and 'Linear Regression residuals' (FR-002) instead of 'non-linear/GLM' or 'DFA for long memory'.
+- **Plan Note**: The Plan.md 'Technical Context' and 'Fr/Sc Coverage Matrix' contain contradictions (DFA vs Linear Regression, GLM vs Linear Regression) that conflict with Spec FR-002 and FR-005. The **Spec governs**; tasks implement the Spec (Linear Regression residuals, Linear Regression model).

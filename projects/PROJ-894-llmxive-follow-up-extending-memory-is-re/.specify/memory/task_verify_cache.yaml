@@ -1,36 +1,11 @@
-T011a:
+T013:
   c: false
-  h: c9d22d26d7de2b322cf56fd04854cd64676d5fd63cfb8119abdd77ef84389300
-  r: "The repository contains a `code/data_loader.py` script, but the required output\
-    \ file `data/raw/locomo.csv` is absent, and the provided code snippet is truncated\
-    \ before any CSV\u2011writing logic is shown. Consequently the task\u2019s core\
-    \ deliverable\u2014downloading the dataset and saving it as `locomo.csv`\u2014\
-    has not been demonstrated. The missing CSV (and likely incomplete implementation)\
-    \ must be added."
-T011c:
-  c: false
-  h: a6e3c5ba47e069a52914a7f71c66a9b81769ed609a5fa8b71895475e2190ebd4
-  r: "The required output file `data/processed/graphs/graph_noise_42.json` does not\
-    \ exist, and the provided `code/data_loader.py` snippet is incomplete (truncated)\
-    \ with no visible call to `inject_noise` or logic that writes the noisy graph\
-    \ to the specified path. The task\u2019s core requirement\u2014generating and\
-    \ saving the noisy graph dataset\u2014is therefore unmet."
-T013b:
-  c: false
-  h: 5d9d5e938d79c436a93c4d29ef03527760a16058a284646135aeb48433bb3933
-  r: "The required synthetic graph file `data/processed/graphs/graph_noise_42.json`\
-    \ is absent, and the expected results CSV `data/processed/noisy_baseline_results.csv`\
-    \ was not generated. Moreover, `code/runner.py` only contains generic task\u2011\
-    running utilities and does not implement the noisy\u2011baseline execution or\
-    \ logging of the specified fields. The task\u2019s core functionality and output\
-    \ artifacts are missing."
-T019a:
-  c: false
-  h: 636a1dd91d5d6d11a4466a44e658a9cd82352bbe7556e3608e328de7c330eb9c
-  r: "The provided `code/runner.py` contains generic task\u2011running utilities but\
-    \ does not implement the Lazy strategy, does not apply the required evidence threshold,\
-    \ and does not write results to `data/processed/lazy_results.csv` with the specified\
-    \ schema. Moreover, the `lazy_results.csv` file is missing entirely."
+  h: c36593069273429ba4a91eb1097ceb08d9ec6deda60b05d8c6acc52496cf8d6a
+  r: "The provided `code/runner.py` is truncated and does not contain logic to compute\
+    \ normalized accuracy, record nodes visited, latency, status, or write these fields\
+    \ to `data/processed/baseline_results.csv`. Moreover, the required `baseline_results.csv`\
+    \ file is absent. The task\u2019s core output artifact is missing and the runner\
+    \ implementation is incomplete."
 T019b:
   c: false
   h: 173df7a2044809048b632eebe39e211d6007448aef7eb50251920b33ee576348
@@ -78,3 +53,11 @@ T027a:
   r: "No `power_analysis.json` file or accompanying script is present in the provided\
     \ evidence, so the required MDES and power calculations have not been delivered.\
     \ The task\u2019s deliverable is missing entirely."
+T042:
+  c: false
+  h: 24c0eb2b81272e510b32e25d30e0ea304ed2f36c427025cdde5b1b4db715b668
+  r: The required script `code/utils/verify_seeds.py`, the generated file `data/processed/graphs/graph_noise_42.json`,
+    and the documentation `docs/reproducibility.md` are all missing, so the reproducibility
+    verification cannot have been performed or recorded. Additionally, there is no
+    evidence that any seeding fix was applied in `code/graph_utils.py`. The task therefore
+    remains unfinished.

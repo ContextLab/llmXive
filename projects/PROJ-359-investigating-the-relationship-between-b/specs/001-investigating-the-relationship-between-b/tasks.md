@@ -163,7 +163,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T035 [P] Run full pipeline integration test on ds000278 subset (N≥30) to verify 24-hour runtime and memory constraints (FR-008, SC-005)
-- [ ] T038 [P] Code cleanup and refactoring of `src/regression.py`. **Target**: Ensure max cyclomatic complexity < 10 for non-permutation logic. Permutation loops are exempt if necessary, but helper functions (e.g., p-value calculation, CI generation) must be extracted to separate functions to meet this target.
+- [ ] T038 [P] Code cleanup and refactoring of `src/regression.py`. **Target**: Ensure max cyclomatic complexity < 10 for non-permutation logic. [UNRESOLVED-CLAIM: c_ad918355 — status=not_enough_info] Permutation loops are exempt if necessary, but helper functions (e.g., p-value calculation, CI generation) must be extracted to separate functions to meet this target.
 - [ ] T039 Add unit tests for utility functions in `src/utils.py` (log_json, seed_manager) and `src/validators.py` (ID matching, column check)
 - [ ] T040 [P] Verify `quickstart.md` instructions work in a fresh CI environment
 - [ ] T041 Generate final `data/logs/pipeline_log.json` with `pipeline_status: SUCCESS` and runtime stats

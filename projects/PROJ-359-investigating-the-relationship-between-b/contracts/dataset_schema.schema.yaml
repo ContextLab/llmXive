@@ -1,81 +1,62 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ds000278 Dataset Schema
-description: |
-  Validation schema for the ds000278 OpenNeuro dataset structure and content.
-  Ensures resting-state fMRI data and behavioral data are present and correctly formatted.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ds000278 Dataset Schema"
+description: "Schema for validating the structure and content of the downloaded ds000278 dataset from OpenNeuro."
 type: object
 required:
+  - dataset_id
   - participants
-  - functional_runs
+  - resting_state_scans
   - behavioral_data
 properties:
+  dataset_id:
+    type: string
+    const: "ds000278"
   participants:
-    type: object
-    description: Participants.tsv metadata
-    required:
-      - participant_id
-      - age
-      - sex
-    properties:
-      participant_id:
-        type: array
-        items:
-          type: string
-          pattern: "^sub-\\d+$"
-      age:
-        type: array
-        items:
-          type: integer
-          minimum: 0
-      sex:
-        type: array
-        items:
-          type: string
-          enum: ["M", "F"]
-  functional_runs:
     type: array
-    description: List of resting-state fMRI runs found
     items:
       type: object
       required:
-        - subject
-        - path
-        - space
-        - preprocessing_status
+        - participant_id
+        - age
+        - sex
       properties:
-        subject:
+        participant_id:
           type: string
-          pattern: "^sub-\\d+$"
-        path:
+          pattern: "^sub-[0-9]+$"
+        age:
+          type: integer
+          minimum: 0
+        sex:
           type: string
-          description: Path to NIfTI file
-        space:
+          enum: ["M", "F"]
+  resting_state_scans:
+    type: array
+    items:
+      type: object
+      required:
+        - subject_id
+        - file_path
+        - file_exists
+      properties:
+        subject_id:
           type: string
-          const: "MNI"
-        preprocessing_status:
+          pattern: "^sub-[0-9]+$"
+        file_path:
           type: string
-          const: "preproc"
-        run_type:
-          type: string
-          const: "rest"
+          pattern: ".*_space-MNI_desc-preproc_bold\\.nii\\.gz$"
+        file_exists:
+          type: boolean
   behavioral_data:
     type: object
-    description: Behavioral/Task data TSV
     required:
-      - participant_id
-      - nback_dprime
-      - wm_accuracy
+      - file_path
+      - columns
     properties:
-      participant_id:
+      file_path:
+        type: string
+        pattern: ".*_behavioral\\.tsv$"
+      columns:
         type: array
         items:
           type: string
-          pattern: "^sub-\\d+$"
-      nback_dprime:
-        type: array
-        items:
-          type: number
-      wm_accuracy:
-        type: array
-        items:
-          type: number
+        minItems: 1

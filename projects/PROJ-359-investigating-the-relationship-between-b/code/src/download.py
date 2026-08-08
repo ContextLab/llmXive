@@ -1,12 +1,15 @@
 """
-Download ds000278 from OpenNeuro.
+Data download module for fetching ds000278 (OpenNeuro HCP rs-fMRI release).
 
-This module fetches the resting-state fMRI dataset ds000278 from OpenNeuro.
-It verifies the presence of required resting-state scans and handles errors
-robustly. It does NOT use the heavy `openneuro-py` CLI for the actual download
-to ensure lightweight execution in CI, but relies on `requests` to fetch
-files directly from the OpenNeuro S3 bucket structure.
+This module handles:
+- Fetching dataset metadata from OpenNeuro API
+- Downloading specific resting-state files
+- Verifying checksums
+- Handling HTTP errors and dataset availability checks
+
+Mandatory: Must download ds000278 which contains required resting-state scans.
 """
+
 import os
 import sys
 import hashlib
@@ -14,232 +17,385 @@ import json
 import time
 import requests
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
-
-# Project imports
-from src.utils import seed_manager, log_event, write_json_log, get_log_path
+from urllib.parse import urljoin
 
 # Constants
+OPENNEURO_API_BASE = "https://api.openneuro.org"
 DATASET_ID = "ds000278"
-# OpenNeuro S3 bucket base URL
-S3_BASE = "https://s3.amazonaws.com/openneuro.org/datasets"
-# We look for preprocessed data as per task description:
-# sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz
-# However, ds000278 on OpenNeuro is often raw.
-# The task description explicitly asks for: sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz
-# If the dataset is raw, we must download the raw data and note that preprocessing
-# (T019) is required. But the task says "fetch ds000278 ... which contains the required resting-state scans".
-# Let's check the actual structure. ds000278 is "HCP rs-fMRI".
-# OpenNeuro datasets are typically raw BIDS.
-# The task description might be slightly optimistic about pre-existing preprocessed files.
-# We will attempt to find ANY bold.nii.gz file first. If none exist, we fail.
-# If raw files exist, we download them.
+REQUIRED_FILE_PATTERN = "*_space-MNI_desc-preproc_bold.nii.gz"
+OUTPUT_DIR = "data/raw"
+CHECKSUM_FILE = "data/raw/checksums.json"
+MAX_RETRIES = 3
+RETRY_DELAY = 5  # seconds
 
-# We will download the dataset to data/raw/
-DATA_RAW_DIR = Path("data/raw")
-LOG_DIR = Path("data/logs")
-OUTPUT_FILE = DATA_RAW_DIR / "download_status.json"
+# Import from utils for logging and seeding
+try:
+    from src.utils import log_event, setup_logging, get_log_path
+except ImportError:
+    # Fallback for standalone execution during testing
+    def log_event(msg, level="INFO"):
+        print(f"[{level}] {msg}")
+    
+    def setup_logging():
+        pass
 
-def get_dataset_files(dataset_id: str) -> List[Dict[str, str]]:
+def get_dataset_metadata(dataset_id):
     """
-    Fetch the list of files for a dataset from OpenNeuro API.
-    Returns a list of dicts with 'path' and 'filename'.
+    Fetch dataset metadata from OpenNeuro API.
+    
+    Args:
+        dataset_id: The OpenNeuro dataset identifier (e.g., 'ds000278')
+        
+    Returns:
+        dict: Dataset metadata including version, description, etc.
+        
+    Raises:
+        requests.HTTPError: If dataset is not found or API fails
     """
-    url = f"https://api.openneuro.org/datasets/{dataset_id}/files"
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        # The API returns a list of file objects
-        return data.get("files", [])
-    except requests.RequestException as e:
-        raise RuntimeError(f"Failed to fetch file list from OpenNeuro API: {e}")
+    url = f"{OPENNEURO_API_BASE}/datasets/{dataset_id}"
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "llmXive-pipeline/1.0"
+    }
+    
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = requests.get(url, headers=headers, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            if attempt == MAX_RETRIES - 1:
+                raise
+            log_event(f"Retry {attempt + 1}/{MAX_RETRIES} for metadata fetch: {e}", "WARNING")
+            time.sleep(RETRY_DELAY)
 
-def download_file(url: str, dest_path: Path, chunk_size: int = 8192):
-    """Download a file with progress and basic error handling."""
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        with requests.get(url, stream=True, timeout=300) as r:
-            r.raise_for_status()
-            total_size = int(r.headers.get('content-length', 0))
-            downloaded = 0
-            with open(dest_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=chunk_size):
-                    if chunk:
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        # Optional: print progress if needed, but suppress for CI
-    except requests.RequestException as e:
-        raise RuntimeError(f"Failed to download {url}: {e}")
+def get_dataset_files(dataset_id, version=None):
+    """
+    Fetch list of files in the dataset.
+    
+    Args:
+        dataset_id: The OpenNeuro dataset identifier
+        version: Optional specific version (defaults to latest)
+        
+    Returns:
+        list: List of file objects with path, size, and checksum info
+        
+    Raises:
+        requests.HTTPError: If file list cannot be retrieved
+    """
+    url = f"{OPENNEURO_API_BASE}/datasets/{dataset_id}/files"
+    params = {}
+    if version:
+        params["version"] = version
+        
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "llmXive-pipeline/1.0"
+    }
+    
+    for attempt in range(MAX_RETRIES):
+        try:
+            response = requests.get(url, headers=headers, params=params, timeout=60)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            if attempt == MAX_RETRIES - 1:
+                raise
+            log_event(f"Retry {attempt + 1}/{MAX_RETRIES} for file list: {e}", "WARNING")
+            time.sleep(RETRY_DELAY)
 
-def verify_file_checksum(file_path: Path, expected_md5: Optional[str] = None) -> bool:
+def find_resting_state_files(file_list, dataset_id):
     """
-    Verify file integrity. If expected_md5 is provided, check against it.
-    Otherwise, just check if file is non-empty and readable.
+    Find resting-state BOLD files matching the required pattern.
+    
+    Args:
+        file_list: List of file objects from get_dataset_files
+        dataset_id: Dataset identifier for error messages
+        
+    Returns:
+        list: List of file objects that match the resting-state pattern
+        
+    Raises:
+        FileNotFoundError: If no matching resting-state files are found
     """
-    if not file_path.exists():
+    matching_files = []
+    
+    for file_obj in file_list:
+        file_path = file_obj.get("filename", "")
+        
+        # Check for resting-state BOLD files with MNI space and preproc description
+        if (file_path.startswith("sub-") and 
+            "/func/" in file_path and 
+            "space-MNI" in file_path and 
+            "desc-preproc" in file_path and 
+            file_path.endswith("_bold.nii.gz")):
+            matching_files.append(file_obj)
+    
+    if not matching_files:
+        error_msg = f"Required resting-state dataset {dataset_id} not found. " \
+                   f"No files matching pattern '*_space-MNI_desc-preproc_bold.nii.gz' found."
+        log_event(error_msg, "ERROR")
+        raise FileNotFoundError(error_msg)
+    
+    log_event(f"Found {len(matching_files)} resting-state files in {dataset_id}", "INFO")
+    return matching_files
+
+def download_file(file_obj, output_dir, max_retries=MAX_RETRIES):
+    """
+    Download a single file from OpenNeuro.
+    
+    Args:
+        file_obj: File object from get_dataset_files containing 'filename' and 'urls'
+        output_dir: Directory to save the file
+        max_retries: Maximum number of retry attempts
+        
+    Returns:
+        Path: Path to the downloaded file
+        
+    Raises:
+        requests.HTTPError: If download fails after all retries
+    """
+    filename = file_obj.get("filename")
+    urls = file_obj.get("urls", [])
+    
+    if not urls:
+        raise ValueError(f"No download URLs found for file: {filename}")
+    
+    # Try each URL until one works
+    for url in urls:
+        output_path = Path(output_dir) / filename
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        for attempt in range(max_retries):
+            try:
+                log_event(f"Downloading {filename} (attempt {attempt + 1}/{max_retries})", "INFO")
+                
+                response = requests.get(url, stream=True, timeout=120)
+                response.raise_for_status()
+                
+                total_size = int(response.headers.get('content-length', 0))
+                downloaded = 0
+                
+                with open(output_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+                            downloaded += len(chunk)
+                
+                log_event(f"Downloaded {filename}: {downloaded / (1024*1024):.2f} MB", "INFO")
+                return output_path
+                
+            except requests.exceptions.RequestException as e:
+                if attempt == max_retries - 1:
+                    log_event(f"Failed to download {filename} after {max_retries} attempts: {e}", "ERROR")
+                    raise
+                log_event(f"Retry {attempt + 1}/{max_retries} for {filename}: {e}", "WARNING")
+                time.sleep(RETRY_DELAY)
+    
+    raise requests.HTTPError(f"Failed to download {filename} after exhausting all URLs")
+
+def compute_checksum(file_path, algorithm="md5"):
+    """
+    Compute checksum of a file.
+    
+    Args:
+        file_path: Path to the file
+        algorithm: Hash algorithm to use (default: md5)
+        
+    Returns:
+        str: Hex digest of the file checksum
+    """
+    hash_func = hashlib.new(algorithm)
+    
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_func.update(chunk)
+    
+    return hash_func.hexdigest()
+
+def verify_file_checksum(file_path, expected_checksum, algorithm="md5"):
+    """
+    Verify a file's checksum against an expected value.
+    
+    Args:
+        file_path: Path to the file
+        expected_checksum: Expected checksum value
+        algorithm: Hash algorithm to use
+        
+    Returns:
+        bool: True if checksum matches, False otherwise
+    """
+    if not os.path.exists(file_path):
         return False
-    if expected_md5:
-        hash_md5 = hashlib.md5()
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
-        return hash_md5.hexdigest() == expected_md5
-    return file_path.stat().st_size > 0
+    
+    actual_checksum = compute_checksum(file_path, algorithm)
+    return actual_checksum.lower() == expected_checksum.lower()
+
+def save_checksums(checksums_dict, output_path):
+    """
+    Save checksums to a JSON file.
+    
+    Args:
+        checksums_dict: Dictionary mapping filenames to checksums
+        output_path: Path to save the checksums file
+    """
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(checksums_dict, f, indent=2)
+
+def load_checksums(output_path):
+    """
+    Load checksums from a JSON file.
+    
+    Args:
+        output_path: Path to the checksums file
+        
+    Returns:
+        dict: Dictionary mapping filenames to checksums, or empty dict if file doesn't exist
+    """
+    if not os.path.exists(output_path):
+        return {}
+    
+    with open(output_path, 'r') as f:
+        return json.load(f)
+
+def download_dataset(dataset_id=DATASET_ID, output_dir=OUTPUT_DIR):
+    """
+    Main function to download the ds000278 dataset.
+    
+    This function:
+    1. Fetches dataset metadata
+    2. Retrieves file list
+    3. Identifies resting-state files
+    4. Downloads each file
+    5. Verifies checksums
+    
+    Args:
+        dataset_id: OpenNeuro dataset identifier (default: ds000278)
+        output_dir: Directory to download files to
+        
+    Returns:
+        dict: Summary of download operation including success/failure counts
+        
+    Raises:
+        FileNotFoundError: If required resting-state files are not found
+        requests.HTTPError: If API calls fail
+    """
+    setup_logging()
+    log_event(f"Starting download of dataset {dataset_id}", "INFO")
+    
+    # Create output directory
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing checksums
+    checksums_file = Path(output_dir) / CHECKSUM_FILE
+    existing_checksums = load_checksums(checksums_file)
+    
+    # Get dataset metadata
+    try:
+        metadata = get_dataset_metadata(dataset_id)
+        log_event(f"Dataset {dataset_id} found: {metadata.get('description', {}).get('Name', 'Unknown')}", "INFO")
+    except requests.HTTPError as e:
+        error_msg = f"Required resting-state dataset {dataset_id} not found. " \
+                   f"OpenNeuro API error: {e}"
+        log_event(error_msg, "ERROR")
+        raise FileNotFoundError(error_msg)
+    
+    # Get file list
+    try:
+        file_list = get_dataset_files(dataset_id)
+        log_event(f"Retrieved {len(file_list)} files from dataset", "INFO")
+    except requests.HTTPError as e:
+        error_msg = f"Failed to retrieve file list for {dataset_id}: {e}"
+        log_event(error_msg, "ERROR")
+        raise
+    
+    # Find resting-state files
+    resting_state_files = find_resting_state_files(file_list, dataset_id)
+    
+    # Download files
+    download_summary = {
+        "dataset_id": dataset_id,
+        "total_files": len(resting_state_files),
+        "downloaded": 0,
+        "skipped": 0,
+        "failed": 0,
+        "verified": 0,
+        "failed_verification": 0,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    for file_obj in resting_state_files:
+        filename = file_obj.get("filename")
+        expected_checksum = file_obj.get("checksum", "")
+        
+        # Check if already downloaded and verified
+        file_path = output_path / filename
+        if file_path.exists() and filename in existing_checksums:
+            if verify_file_checksum(file_path, existing_checksums[filename]):
+                log_event(f"Skipping already downloaded and verified: {filename}", "INFO")
+                download_summary["skipped"] += 1
+                download_summary["verified"] += 1
+                continue
+            else:
+                log_event(f"Checksum mismatch for existing file, re-downloading: {filename}", "WARNING")
+        
+        try:
+            # Download file
+            downloaded_path = download_file(file_obj, output_dir)
+            download_summary["downloaded"] += 1
+            
+            # Verify checksum if available
+            if expected_checksum:
+                if verify_file_checksum(downloaded_path, expected_checksum):
+                    download_summary["verified"] += 1
+                    existing_checksums[filename] = expected_checksum
+                    log_event(f"Checksum verified: {filename}", "INFO")
+                else:
+                    download_summary["failed_verification"] += 1
+                    log_event(f"Checksum verification failed: {filename}", "ERROR")
+            else:
+                log_event(f"No checksum available for: {filename}", "WARNING")
+                
+        except Exception as e:
+            download_summary["failed"] += 1
+            log_event(f"Failed to download {filename}: {e}", "ERROR")
+    
+    # Save checksums
+    save_checksums(existing_checksums, checksums_file)
+    
+    # Log summary
+    log_event(f"Download summary: {download_summary}", "INFO")
+    
+    if download_summary["failed"] > 0 or download_summary["failed_verification"] > 0:
+        log_event("Download completed with errors", "WARNING")
+    else:
+        log_event("Download completed successfully", "INFO")
+    
+    return download_summary
 
 def main():
     """
-    Main entry point for downloading ds000278.
+    Main entry point for script execution.
+    
+    Downloads ds000278 dataset and exits with appropriate code.
     """
-    seed_manager() # Ensure deterministic logging if needed
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    
-    log_path = get_log_path()
-    
-    print(f"Starting download for dataset: {DATASET_ID}")
-    
-    # 1. Fetch file list
     try:
-        files = get_dataset_files(DATASET_ID)
-    except RuntimeError as e:
-        log_event("download_failed", {"error": str(e), "dataset": DATASET_ID})
-        write_json_log(log_path, {"status": "failed", "error": str(e)})
-        print(f"ERROR: {e}")
-        sys.exit(1)
-
-    if not files:
-        msg = f"No files found for dataset {DATASET_ID}."
-        log_event("download_failed", {"error": msg, "dataset": DATASET_ID})
-        write_json_log(log_path, {"status": "failed", "error": msg})
-        print(f"ERROR: {msg}")
-        sys.exit(1)
-
-    # 2. Identify BOLD files
-    # We are looking for resting-state data.
-    # Pattern: *_space-MNI_desc-preproc_bold.nii.gz OR just *_bold.nii.gz (if raw)
-    # The task requires: sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz
-    # If that specific preprocessed file doesn't exist, we fallback to raw *_bold.nii.gz
-    # and assume preprocessing will happen later (T019), BUT we must ensure we have data.
-    
-    target_files = []
-    raw_bold_files = []
-    
-    for f in files:
-        path = f.get("filename", f.get("path", ""))
-        # Normalize path
-        if path.startswith("sub-"):
-            if "func" in path:
-                if "preproc" in path and "bold" in path and path.endswith(".nii.gz"):
-                    target_files.append(f)
-                elif "bold" in path and path.endswith(".nii.gz"):
-                    raw_bold_files.append(f)
-
-    if not target_files and not raw_bold_files:
-        msg = f"Required resting-state dataset {DATASET_ID} not found. No bold.nii.gz files detected."
-        log_event("download_failed", {"error": msg, "dataset": DATASET_ID})
-        write_json_log(log_path, {"status": "failed", "error": msg})
-        print(f"ERROR: {msg}")
-        sys.exit(1)
-
-    files_to_download = target_files if target_files else raw_bold_files
-    
-    if not files_to_download:
-        # Fallback logic if the specific patterns above failed but files exist
-        # Just grab the first few bold files found in func directories
-        for f in files:
-            path = f.get("filename", f.get("path", ""))
-            if "func" in path and "bold" in path and path.endswith(".nii.gz"):
-                files_to_download.append(f)
-                if len(files_to_download) >= 5: # Limit for safety in demo, but real run should get all
-                    break
-
-    if not files_to_download:
-        msg = f"Could not identify any resting-state (bold) files in {DATASET_ID}."
-        log_event("download_failed", {"error": msg, "dataset": DATASET_ID})
-        write_json_log(log_path, {"status": "failed", "error": msg})
-        print(f"ERROR: {msg}")
-        sys.exit(1)
-
-    # 3. Download files
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    downloaded_count = 0
-    failed_downloads = []
-    
-    print(f"Found {len(files_to_download)} candidate files. Downloading...")
-    
-    for file_info in files_to_download:
-        filename = file_info.get("filename", file_info.get("path", ""))
-        # Construct S3 URL
-        # OpenNeuro S3 structure: https://s3.amazonaws.com/openneuro.org/datasets/{id}/versions/{version}/files/{path}
-        # We need the version. The API usually returns the latest or we can infer.
-        # Let's try to construct the URL based on the standard OpenNeuro S3 layout.
-        # Actually, the API endpoint for files usually returns the download URL directly or we can construct it.
-        # OpenNeuro API v3: https://api.openneuro.org/datasets/{id}/files
-        # The file object usually has a 'filename' and 'size'.
-        # The S3 URL is typically: https://s3.amazonaws.com/openneuro.org/datasets/{id}/files/{filename}
+        result = download_dataset()
         
-        s3_url = f"{S3_BASE}/{DATASET_ID}/files/{filename}"
-        dest_path = DATA_RAW_DIR / filename
+        # Exit with error if any files failed
+        if result["failed"] > 0 or result["failed_verification"] > 0:
+            sys.exit(1)
         
-        # Create directory structure
-        dest_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        if dest_path.exists():
-            print(f"Skipping {filename} (already exists).")
-            downloaded_count += 1
-            continue
-
-        try:
-            print(f"Downloading {filename}...")
-            download_file(s3_url, dest_path)
-            
-            if verify_file_checksum(dest_path):
-                downloaded_count += 1
-            else:
-                failed_downloads.append(filename)
-                print(f"Checksum verification failed for {filename}")
-                
-        except RuntimeError as e:
-            failed_downloads.append(filename)
-            print(f"Download failed for {filename}: {e}")
-
-    # 4. Final Status
-    status = "success" if not failed_downloads else "partial"
-    if downloaded_count == 0:
-        status = "failed"
-
-    log_event("download_complete", {
-        "dataset": DATASET_ID,
-        "status": status,
-        "total_files": len(files_to_download),
-        "downloaded": downloaded_count,
-        "failed": len(failed_downloads)
-    })
-
-    result = {
-        "status": status,
-        "dataset": DATASET_ID,
-        "files_downloaded": downloaded_count,
-        "files_failed": len(failed_downloads),
-        "failed_files": failed_downloads,
-        "timestamp": time.time()
-    }
-
-    write_json_log(log_path, result)
-    
-    # Write specific status file for downstream tasks
-    with open(OUTPUT_FILE, 'w') as f:
-        json.dump(result, f, indent=2)
-
-    if status == "failed":
-        print(f"CRITICAL: Download failed. No data available.")
-        sys.exit(1)
-    elif status == "partial":
-        print(f"WARNING: Some files failed to download.")
-        sys.exit(0) # Still proceed if some data exists, but log warning
-    else:
-        print(f"SUCCESS: Downloaded {downloaded_count} files.")
         sys.exit(0)
+        
+    except FileNotFoundError as e:
+        log_event(str(e), "ERROR")
+        sys.exit(1)
+    except Exception as e:
+        log_event(f"Unexpected error: {e}", "ERROR")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

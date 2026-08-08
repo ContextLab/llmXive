@@ -1,249 +1,277 @@
 """
 Unit tests for data_loader module.
-
-This test suite verifies that the data_loader module:
-1. Correctly generates noisy graphs when given valid input.
-2. Raises appropriate errors for invalid noise proportions.
-3. Produces reproducible results with the same seed.
-4. Correctly saves and loads noisy graphs.
-5. FAILS LOUDLY when provided with an invalid dataset ID (T035 requirement).
+Focuses on strict data fetching behavior and noise injection logic.
 """
-
 import pytest
+import os
 import json
-from pathlib import Path
 import tempfile
 import shutil
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 import sys
 
-# Import the module under test
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from data_loader import (
-    ensure_output_dirs,
+    fetch_locomo_dataset,
+    save_raw_data,
+    build_memory_graph,
+    inject_noise,
     generate_noisy_graphs,
     save_noisy_graphs,
     load_noisy_graphs,
-    NOISE_PROPORTION,
-    RANDOM_SEED
+    ensure_output_dirs
 )
-from graph_utils import build_memory_graph
+from datasets.exceptions import DatasetNotFoundError
 
-# Mock the fetch_locomo_dataset to avoid network calls in unit tests
-# We test the graph generation logic in isolation
-def mock_fetch_locomo_dataset(subset=None):
-    """Return a small set of mock tasks for testing graph generation."""
-    tasks = [
-        {
-            "task_id": "test_1",
-            "question": "What is the capital?",
-            "context": "The capital of France is Paris. Paris is a beautiful city.",
-            "answer": "Paris"
-        },
-        {
-            "task_id": "test_2", 
-            "question": "Who wrote the book?",
-            "context": "John wrote a book about history. The book was published in 2020.",
-            "answer": "John"
-        }
-    ]
-    if subset is not None:
-        return tasks[:subset]
-    return tasks
 
-def test_generate_noisy_graphs_basic():
-    """Test basic noisy graph generation."""
-    tasks = mock_fetch_locomo_dataset()
-    
-    # Generate noisy graphs
-    noisy_tasks = generate_noisy_graphs(
-        tasks,
-        noise_proportion=0.1,
-        seed=42
-    )
-    
-    # Verify results
-    assert len(noisy_tasks) == len(tasks)
-    
-    for task in noisy_tasks:
-        assert "noisy_graph" in task
-        assert "original_graph" in task
-        assert task["noise_proportion"] == 0.1
+class TestStrictDataFetching:
+    """Tests to verify that data fetching fails loudly without synthetic fallback."""
+
+    def test_fetch_locomo_dataset_raises_on_failure(self):
+        """
+        Verify that fetch_locomo_dataset raises an exception when the dataset
+        is unavailable, rather than returning synthetic data.
+        """
+        # Mock load_dataset to raise a specific error
+        with patch('data_loader.load_dataset') as mock_load:
+            mock_load.side_effect = DatasetNotFoundError(
+                "Dataset 'locomo/locomo-benchmark' doesn't exist."
+            )
+            
+            # Should raise RuntimeError, not return synthetic data
+            with pytest.raises(RuntimeError) as exc_info:
+                fetch_locomo_dataset(subset="test")
+            
+            assert "CRITICAL" in str(exc_info.value)
+            assert "Failed to fetch real data" in str(exc_info.value)
+            assert "fabrication" in str(exc_info.value).lower()
+
+    def test_fetch_locomo_dataset_raises_on_connection_error(self):
+        """
+        Verify that connection errors also cause a loud failure.
+        """
+        with patch('data_loader.load_dataset') as mock_load:
+            mock_load.side_effect = ConnectionError("Network unreachable")
+            
+            with pytest.raises(RuntimeError) as exc_info:
+                fetch_locomo_dataset(subset="test")
+            
+            assert "CRITICAL" in str(exc_info.value)
+
+    def test_no_synthetic_fallback_in_fetch(self):
+        """
+        Ensure that the fetch function does NOT contain any try/except blocks
+        that return synthetic data on failure.
+        """
+        import inspect
+        source = inspect.getsource(fetch_locomo_dataset)
         
-        # Check that graphs are not None
-        assert task["noisy_graph"] is not None
-        assert task["original_graph"] is not None
+        # Check for common patterns of synthetic fallback
+        forbidden_patterns = [
+            "return generate_synthetic",
+            "return mock_data",
+            "return fake",
+            "return [] # synthetic",
+            "return [{}] # placeholder"
+        ]
         
-        # Check graph structure
-        assert "nodes" in task["noisy_graph"]
-        assert "edges" in task["noisy_graph"]
-        assert "nodes" in task["original_graph"]
-        assert "edges" in task["original_graph"]
+        for pattern in forbidden_patterns:
+            assert pattern not in source, (
+                f"Found forbidden pattern '{pattern}' in fetch_locomo_dataset. "
+                "Strict data fetching requires NO synthetic fallbacks."
+            )
 
-def test_generate_noisy_graphs_zero_noise():
-    """Test that zero noise returns original graphs."""
-    tasks = mock_fetch_locomo_dataset()
-    
-    noisy_tasks = generate_noisy_graphs(
-        tasks,
-        noise_proportion=0.0,
-        seed=42
-    )
-    
-    # With zero noise, graphs should be identical
-    for i, task in enumerate(tasks):
-        original_graph = noisy_tasks[i]["original_graph"]
-        noisy_graph = noisy_tasks[i]["noisy_graph"]
+
+class TestNoiseInjection:
+    """Tests for noise injection logic."""
+
+    def test_inject_noise_adds_edges(self):
+        """
+        Verify that inject_noise ADDS edges to the graph,
+        rather than replacing existing ones.
+        """
+        import networkx as nx
         
-        # Both should have same number of nodes and edges
-        assert len(noisy_graph["nodes"]) == len(original_graph["nodes"])
-        assert len(noisy_graph["edges"]) == len(original_graph["edges"])
-
-def test_generate_noisy_graphs_invalid_proportion():
-    """Test that invalid noise proportion raises error."""
-    tasks = mock_fetch_locomo_dataset()
-    
-    with pytest.raises(ValueError):
-        generate_noisy_graphs(
-            tasks,
-            noise_proportion=1.5,  # Invalid: > 1.0
-            seed=42
-        )
-    
-    with pytest.raises(ValueError):
-        generate_noisy_graphs(
-            tasks,
-            noise_proportion=-0.1,  # Invalid: < 0.0
-            seed=42
-        )
-
-def test_reproducibility():
-    """Test that same seed produces same results."""
-    tasks = mock_fetch_locomo_dataset()
-    
-    # Generate twice with same seed
-    noisy_tasks_1 = generate_noisy_graphs(tasks, noise_proportion=0.1, seed=123)
-    noisy_tasks_2 = generate_noisy_graphs(tasks, noise_proportion=0.1, seed=123)
-    
-    # Results should be identical
-    assert noisy_tasks_1[0]["noisy_graph"] == noisy_tasks_2[0]["noisy_graph"]
-    assert noisy_tasks_1[0]["original_graph"] == noisy_tasks_2[0]["original_graph"]
-
-def test_save_and_load_noisy_graphs():
-    """Test saving and loading noisy graphs."""
-    tasks = mock_fetch_locomo_dataset()
-    
-    noisy_tasks = generate_noisy_graphs(tasks, noise_proportion=0.1, seed=42)
-    
-    # Create temp directory
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
+        # Create a simple graph
+        G = nx.DiGraph()
+        G.add_edge("A", "B", relation_string="rel1")
+        G.add_edge("B", "C", relation_string="rel2")
         
-        # Temporarily override the GRAPHS_DIR
-        import data_loader
-        original_graphs_dir = data_loader.GRAPHS_DIR
-        data_loader.GRAPHS_DIR = tmp_path / "graphs"
-        data_loader.GRAPHS_DIR.mkdir(parents=True, exist_ok=True)
+        original_edges = G.number_of_edges()
         
-        try:
-            # Save noisy graphs
-            save_noisy_graphs(noisy_tasks, "test_noisy.json")
+        # Inject noise with ratio 1.0 (should double edges roughly)
+        noisy_G = inject_noise(G, ratio=1.0, seed=42)
+        
+        # Must have MORE edges
+        assert noisy_G.number_of_edges() > original_edges
+        
+        # Original edges must still exist
+        assert noisy_G.has_edge("A", "B")
+        assert noisy_G.has_edge("B", "C")
+
+    def test_inject_noise_reproducibility(self):
+        """
+        Verify that the same seed produces the same noise.
+        """
+        import networkx as nx
+        
+        G = nx.DiGraph()
+        G.add_edge("A", "B")
+        G.add_edge("B", "C")
+        G.add_edge("C", "D")
+        
+        # Generate twice with same seed
+        noisy_1 = inject_noise(G, ratio=0.5, seed=123)
+        noisy_2 = inject_noise(G, ratio=0.5, seed=123)
+        
+        # Compare edge sets
+        edges_1 = set(noisy_1.edges())
+        edges_2 = set(noisy_2.edges())
+        
+        assert edges_1 == edges_2, "Same seed must produce identical noise"
+
+    def test_inject_noise_different_seeds(self):
+        """
+        Verify that different seeds produce different noise (with high probability).
+        """
+        import networkx as nx
+        
+        G = nx.DiGraph()
+        # Create a larger graph to ensure randomness has effect
+        for i in range(10):
+            for j in range(i+1, 10):
+                if i != j:
+                    G.add_edge(f"n{i}", f"n{j}")
+        
+        noisy_1 = inject_noise(G, ratio=0.2, seed=42)
+        noisy_2 = inject_noise(G, ratio=0.2, seed=999)
+        
+        edges_1 = set(noisy_1.edges())
+        edges_2 = set(noisy_2.edges())
+        
+        # They should likely be different
+        # Note: There is a tiny chance they could be the same, but with this graph size
+        # and ratio, it's statistically improbable.
+        assert edges_1 != edges_2, "Different seeds should produce different noise"
+
+    def test_inject_noise_no_self_loops(self):
+        """
+        Verify that noise injection does not create self-loops.
+        """
+        import networkx as nx
+        
+        G = nx.DiGraph()
+        G.add_edge("A", "B")
+        
+        noisy_G = inject_noise(G, ratio=10.0, seed=42)  # High ratio to force many attempts
+        
+        # Check for self-loops
+        for node in noisy_G.nodes():
+            assert not noisy_G.has_edge(node, node), "Self-loops must not be created"
+
+
+class TestGraphConstruction:
+    """Tests for graph construction from text."""
+
+    def test_build_memory_graph_creates_nodes_and_edges(self):
+        """
+        Verify that build_memory_graph creates a valid graph with nodes and edges.
+        """
+        context = "The cat chased the mouse. The mouse ran away."
+        
+        G = build_memory_graph(context, task_id="test_001")
+        
+        assert G.number_of_nodes() > 0
+        assert G.number_of_edges() > 0
+        assert "test_001" in G.nodes()
+
+    def test_build_memory_graph_handles_empty_context(self):
+        """
+        Verify behavior with empty context.
+        """
+        G = build_memory_graph("", task_id="empty_001")
+        
+        # Should at least have the task_id node
+        assert "empty_001" in G.nodes()
+        # Might have no other nodes/edges if parsing fails
+        assert isinstance(G, type(nx.DiGraph()))
+
+
+class TestIO:
+    """Tests for save/load functionality."""
+
+    def test_save_and_load_noisy_graphs(self):
+        """
+        Verify that graphs can be saved to JSON and loaded back correctly.
+        """
+        import networkx as nx
+        
+        # Create test graphs
+        graphs = {}
+        G1 = nx.DiGraph()
+        G1.add_edge("A", "B", relation_string="rel1")
+        G1.add_edge("B", "C", relation_string="rel2")
+        
+        G2 = nx.DiGraph()
+        G2.add_edge("X", "Y", relation_string="rel3")
+        
+        graphs["task_1"] = G1
+        graphs["task_2"] = G2
+        
+        # Save to temp file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_graphs.json"
+            save_noisy_graphs(graphs, output_path)
+            
+            # Load back
+            loaded_graphs = load_noisy_graphs(output_path)
+            
+            # Verify
+            assert "task_1" in loaded_graphs
+            assert "task_2" in loaded_graphs
+            assert loaded_graphs["task_1"].number_of_edges() == 2
+            assert loaded_graphs["task_2"].number_of_edges() == 1
+            
+            # Check edge attributes
+            assert loaded_graphs["task_1"].edges[("A", "B")]["relation_string"] == "rel1"
+
+    def test_load_nonexistent_file_raises(self):
+        """
+        Verify that loading from a nonexistent file raises FileNotFoundError.
+        """
+        with pytest.raises(FileNotFoundError):
+            load_noisy_graphs(Path("/nonexistent/path/graphs.json"))
+
+
+class TestIntegration:
+    """Integration tests for the full pipeline."""
+
+    def test_generate_noisy_graphs_end_to_end(self):
+        """
+        Test the full flow: tasks -> graphs -> noisy graphs -> save.
+        """
+        # Mock tasks
+        tasks = [
+            {"task_id": "t1", "question": "Q1", "context": "The dog barked at the mailman.", "answer": "A1"},
+            {"task_id": "t2", "question": "Q2", "context": "The sun rose in the east.", "answer": "A2"}
+        ]
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Set output path to temp dir
+            output_path = Path(tmpdir) / "integration_test.json"
+            
+            graphs = generate_noisy_graphs(tasks, ratio=0.1, seed=42)
+            save_noisy_graphs(graphs, output_path)
             
             # Verify file exists
-            output_file = tmp_path / "graphs" / "test_noisy.json"
-            assert output_file.exists()
+            assert output_path.exists()
             
-            # Load and verify content
-            loaded_data = load_noisy_graphs("test_noisy.json")
-            
-            assert len(loaded_data) == len(noisy_tasks)
-            assert loaded_data[0]["task_id"] == "test_1"
-            
-        finally:
-            # Restore original directory
-            data_loader.GRAPHS_DIR = original_graphs_dir
-
-def test_fetch_locomo_dataset_raises_on_invalid_id(monkeypatch):
-    """
-    T035: Test that fetch_locomo_dataset raises an exception when the 
-    dataset ID is invalid, rather than falling back to synthetic data.
-    
-    This verifies the strict data fetching requirement.
-    """
-    import data_loader
-    from datasets import DatasetNotFoundError
-    
-    # We can't easily mock the actual HuggingFace call in a unit test
-    # without potentially hitting the network, so we test the error handling
-    # by patching the load_dataset function to raise an error.
-    
-    original_load_dataset = data_loader.load_dataset
-    
-    def mock_load_dataset_fail(path, *args, **kwargs):
-        raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist.")
-    
-    # Patch the function
-    data_loader.load_dataset = mock_load_dataset_fail
-    
-    try:
-        # This should raise a RuntimeError, not return synthetic data
-        with pytest.raises(RuntimeError) as exc_info:
-            data_loader.fetch_locomo_dataset(subset=1)
-        
-        # Verify the error message mentions the dataset ID and fabrication prevention
-        error_msg = str(exc_info.value)
-        assert "locomo/locomo-benchmark" in error_msg or "Dataset" in error_msg
-        assert "fabrication" in error_msg.lower() or "halted" in error_msg.lower()
-        
-    finally:
-        # Restore original function
-        data_loader.load_dataset = original_load_dataset
-
-def test_fetch_locomo_dataset_raises_on_network_error(monkeypatch):
-    """
-    T035: Test that fetch_locomo_dataset raises an exception on network errors,
-    rather than falling back to synthetic data.
-    """
-    import data_loader
-    
-    original_load_dataset = data_loader.load_dataset
-    
-    def mock_load_dataset_network_error(path, *args, **kwargs):
-        raise ConnectionError("Network is unreachable.")
-    
-    data_loader.load_dataset = mock_load_dataset_network_error
-    
-    try:
-        with pytest.raises(RuntimeError) as exc_info:
-            data_loader.fetch_locomo_dataset(subset=1)
-        
-        error_msg = str(exc_info.value)
-        assert "Network" in error_msg or "fetch" in error_msg.lower()
-        assert "fabrication" in error_msg.lower() or "halted" in error_msg.lower()
-        
-    finally:
-        data_loader.load_dataset = original_load_dataset
-
-def test_generate_noisy_graphs_with_empty_tasks():
-    """Test that generating noisy graphs with an empty list returns an empty list."""
-    tasks = []
-    noisy_tasks = generate_noisy_graphs(tasks, noise_proportion=0.1, seed=42)
-    assert len(noisy_tasks) == 0
-
-def test_generate_noisy_graphs_single_task():
-    """Test noisy graph generation with a single task."""
-    tasks = [
-        {
-            "task_id": "single",
-            "question": "Test?",
-            "context": "A simple context.",
-            "answer": "Answer"
-        }
-    ]
-    
-    noisy_tasks = generate_noisy_graphs(tasks, noise_proportion=0.2, seed=99)
-    
-    assert len(noisy_tasks) == 1
-    assert noisy_tasks[0]["task_id"] == "single"
-    assert "noisy_graph" in noisy_tasks[0]
-    assert "original_graph" in noisy_tasks[0]
+            # Verify content
+            loaded = load_noisy_graphs(output_path)
+            assert "t1" in loaded
+            assert "t2" in loaded
+            assert loaded["t1"].number_of_nodes() > 0
+            assert loaded["t2"].number_of_nodes() > 0

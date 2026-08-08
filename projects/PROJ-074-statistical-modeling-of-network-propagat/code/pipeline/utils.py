@@ -1,14 +1,3 @@
-"""
-Pipeline utility functions for the Bayesian Hierarchical Modeling of Misinformation Cascade Size project.
-
-This module provides core infrastructure for:
-- Logging setup and configuration
-- Random seed initialization for reproducibility
-- SHA-256 checksum computation for data integrity
-- Timestamp normalization to UTC
-- Cascade data loading and validation from JSON edge-list files
-"""
-
 import hashlib
 import json
 import logging
@@ -19,487 +8,240 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
 import pandas as pd
 
-# ============================================================================
-# Logging Infrastructure (T006)
-# ============================================================================
-
-
-def setup_logger(
-    name: str = "pipeline",
-    log_file: Optional[str] = "pipeline.log",
-    level: int = logging.INFO,
-) -> logging.Logger:
-    """
-    Set up and return a logger with console and file handlers.
-
-    Args:
-        name: Logger name (default: "pipeline")
-        log_file: Path to log file (default: "pipeline.log" in current directory)
-        level: Logging level (default: logging.INFO)
-
-    Returns:
-        Configured logger instance
-    """
+# --- Logging Setup ---
+def setup_logger(name: str, log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+    """Set up a logger with optional file output."""
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
-    # Avoid adding duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-
-    # File handler
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
-
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
     return logger
 
-
-# ============================================================================
-# Random Seed Initialization (T060)
-# ============================================================================
-
-
-def set_global_seed(seed: int = 12345) -> None:
-    """
-    Set global random seeds for reproducibility across libraries.
-
-    This function ensures consistent results by pinning seeds for:
-    - Python's random module
-    - NumPy
-    - PyTorch (if available)
-
-    Args:
-        seed: Integer seed value (default: 12345)
-    """
+# --- Seed Management ---
+def set_global_seed(seed: int) -> None:
+    """Pin random seeds for reproducibility."""
     random.seed(seed)
-    np.random.seed(seed)
-
-    # Set PyTorch seed if available
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
     try:
         import torch
-
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
     except ImportError:
         pass
 
-    # Set NumPyro seed if available
-    try:
-        import numpyro
-
-        numpyro.set_rng_seed(seed)
-    except ImportError:
-        pass
-
-
-# ============================================================================
-# Checksum Computation (T061)
-# ============================================================================
-
-
+# --- Checksum Utility ---
 def compute_checksum(path: str) -> str:
-    """
-    Compute SHA-256 checksum for a file.
-
-    Args:
-        path: Path to the file
-
-    Returns:
-        Hexadecimal string of SHA-256 hash
-    """
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+# --- Timestamp Normalization ---
+def normalize_timestamp(ts: Any) -> datetime:
+    """Normalize a timestamp string/object to a UTC datetime."""
+    if isinstance(ts, datetime):
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return ts.astimezone(timezone.utc)
+    
+    if isinstance(ts, str):
+        # Attempt common formats
+        formats = [
+            "%Y-%m-%dT%H:%M:%SZ",
+            "%Y-%m-%dT%H:%M:%S.%fZ",
+            "%Y-%m-%dT%H:%M:%S%z",
+            "%Y-%m-%dT%H:%M:%S.%f%z",
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M:%S.%f",
+        ]
+        for fmt in formats:
+            try:
+                dt = datetime.strptime(ts, fmt)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt.astimezone(timezone.utc)
+            except ValueError:
+                continue
+        raise ValueError(f"Unable to parse timestamp: {ts}")
+    
+    raise TypeError(f"Unsupported timestamp type: {type(ts)}")
 
-# ============================================================================
-# Timestamp Normalization (T070)
-# ============================================================================
-
-
-def normalize_timestamp(
-    timestamp: Any, input_format: Optional[str] = None
-) -> str:
-    """
-    Normalize a timestamp to UTC ISO 8601 format.
-
-    Args:
-        timestamp: Timestamp value (string, datetime, or numeric)
-        input_format: Optional format string for parsing (e.g., "%Y-%m-%d %H:%M:%S")
-
-    Returns:
-        Timestamp string in ISO 8601 UTC format (e.g., "2024-01-15T10:30:00Z")
-
-    Raises:
-        ValueError: If timestamp cannot be parsed or normalized
-    """
-    dt: datetime
-
-    # Handle None
-    if timestamp is None:
-        raise ValueError("Timestamp cannot be None")
-
-    # Already a datetime object
-    if isinstance(timestamp, datetime):
-        dt = timestamp
-    # String timestamp
-    elif isinstance(timestamp, str):
-        # Try ISO format first
-        try:
-            # Handle various ISO formats
-            if "T" in timestamp:
-                # ISO format with timezone
-                if timestamp.endswith("Z"):
-                    timestamp = timestamp[:-1] + "+00:00"
-                dt = datetime.fromisoformat(timestamp)
-            else:
-                # Try common formats
-                for fmt in [
-                    "%Y-%m-%d %H:%M:%S",
-                    "%Y-%m-%dT%H:%M:%S",
-                    "%Y-%m-%d",
-                    "%d/%m/%Y %H:%M:%S",
-                    "%m/%d/%Y %H:%M:%S",
-                ]:
-                    try:
-                        dt = datetime.strptime(timestamp, fmt)
-                        break
-                    except ValueError:
-                        continue
-                else:
-                    raise ValueError(f"Unable to parse timestamp: {timestamp}")
-        except (ValueError, AttributeError) as e:
-            raise ValueError(f"Unable to parse timestamp '{timestamp}': {e}")
-    # Numeric timestamp (Unix epoch)
-    elif isinstance(timestamp, (int, float)):
-        dt = datetime.utcfromtimestamp(timestamp)
-    else:
-        raise ValueError(f"Unsupported timestamp type: {type(timestamp)}")
-
-    # Convert to UTC if timezone-aware
-    if dt.tzinfo is not None:
-        dt = dt.astimezone(timezone.utc)
-    else:
-        # Assume UTC if naive
-        dt = dt.replace(tzinfo=timezone.utc)
-
-    # Return ISO 8601 format with Z suffix
-    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-# ============================================================================
-# Cascade Loading and Validation (T080)
-# ============================================================================
-
-
+# --- Cascade Loading with Node Limit Enforcement (T014) ---
 def load_cascade(
     file_path: str,
+    node_limit: int = 2000,
     logger: Optional[logging.Logger] = None,
-    required_columns: Optional[List[str]] = None,
-) -> Tuple[Optional[pd.DataFrame], List[str]]:
+    skipped_log_path: Optional[str] = None
+) -> Optional[pd.DataFrame]:
     """
-    Load and validate a cascade from a JSON edge-list file.
-
-    This function implements T080 requirements:
-    - Accepts JSON edge-list files only
-    - Validates required columns (node_id, timestamp, cascade_id)
-    - Normalizes timestamps to UTC
-    - Logs validation errors
-
+    Load a cascade from a JSON edge-list file.
+    
+    Validates required columns, normalizes timestamps to UTC, and enforces
+    the node limit. Oversized cascades are skipped and logged.
+    
     Args:
-        file_path: Path to the JSON edge-list file
-        logger: Logger instance (creates default if None)
-        required_columns: List of required column names (default: ["node_id", "timestamp", "cascade_id"])
-
+        file_path: Path to the JSON file containing the cascade.
+        node_limit: Maximum allowed number of nodes (default 2000).
+        logger: Logger instance. If None, a default logger is created.
+        skipped_log_path: Path to the log file for skipped cascades.
+    
     Returns:
-        Tuple of (DataFrame or None if invalid, list of validation errors)
-
-    Raises:
-        FileNotFoundError: If file does not exist
-        json.JSONDecodeError: If file is not valid JSON
+        A pandas DataFrame with the cascade data if valid and within limits,
+        otherwise None.
     """
     if logger is None:
-        logger = setup_logger()
+        logger = setup_logger("cascade_loader")
+    
+    path = Path(file_path)
+    if not path.exists():
+        logger.error(f"File not found: {file_path}")
+        return None
 
-    if required_columns is None:
-        required_columns = ["node_id", "timestamp", "cascade_id"]
-
-    errors: List[str] = []
-    file_path_obj = Path(file_path)
-
-    # Validate file extension (JSON only)
-    if file_path_obj.suffix.lower() not in [".json"]:
-        errors.append(
-            f"File '{file_path}' is not a JSON file. Only .json files are accepted."
-        )
-        logger.error(errors[-1])
-        return None, errors
-
-    # Check file exists
-    if not file_path_obj.exists():
-        errors.append(f"File '{file_path}' does not exist.")
-        logger.error(errors[-1])
-        return None, errors
-
-    # Load JSON
     try:
-        with open(file_path_obj, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
-        errors.append(f"Invalid JSON in '{file_path}': {e}")
-        logger.error(errors[-1])
-        return None, errors
+        logger.error(f"Invalid JSON in {file_path}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Error reading {file_path}: {e}")
+        return None
 
-    # Handle different JSON structures
-    # Expected formats:
-    # 1. List of edge records: [{"node_id": "...", "timestamp": "...", "cascade_id": "..."}, ...]
-    # 2. Dict with "edges" key: {"edges": [...], ...}
-    # 3. Dict with cascade_id as key: {"cascade_id": {...}}
-
-    if isinstance(data, list):
-        # Format 1: Direct list of records
-        records = data
-    elif isinstance(data, dict):
-        if "edges" in data:
-            # Format 2: Dict with edges key
-            records = data["edges"]
-        elif "nodes" in data:
-            # Format 3: Nodes as records
-            records = data["nodes"]
-        else:
-            # Try to find list value
-            for key, value in data.items():
-                if isinstance(value, list) and len(value) > 0:
-                    records = value
-                    break
-            else:
-                errors.append(
-                    f"Cannot determine edge list structure in '{file_path}'. "
-                    f"Expected list of records or dict with 'edges' key."
-                )
-                logger.error(errors[-1])
-                return None, errors
+    # Validate structure: expects a list of nodes or a dict with a 'nodes' key
+    if isinstance(data, dict):
+        if "nodes" not in data:
+            logger.error(f"Missing 'nodes' key in {file_path}")
+            return None
+        nodes = data["nodes"]
+    elif isinstance(data, list):
+        nodes = data
     else:
-        errors.append(
-            f"Unexpected JSON structure in '{file_path}'. Expected list or dict."
-        )
-        logger.error(errors[-1])
-        return None, errors
+        logger.error(f"Unexpected JSON structure in {file_path}")
+        return None
 
-    if len(records) == 0:
-        errors.append(f"Empty cascade data in '{file_path}'.")
-        logger.warning(errors[-1])
-        return None, errors
+    if not nodes:
+        logger.warning(f"Empty cascade in {file_path}")
+        return None
 
     # Convert to DataFrame
     try:
-        df = pd.DataFrame(records)
+        df = pd.DataFrame(nodes)
     except Exception as e:
-        errors.append(f"Failed to convert records to DataFrame: {e}")
-        logger.error(errors[-1])
-        return None, errors
+        logger.error(f"Failed to convert nodes to DataFrame in {file_path}: {e}")
+        return None
 
-    # Validate required columns exist
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    if missing_columns:
-        error_msg = (
-            f"Missing required columns in '{file_path}': {missing_columns}. "
-            f"Required columns: {required_columns}."
-        )
-        errors.append(error_msg)
-        logger.error(error_msg)
-        return None, errors
+    # Validate required columns
+    required_cols = {"node_id", "timestamp", "cascade_id"}
+    missing_cols = required_cols - set(df.columns)
+    if missing_cols:
+        logger.error(f"Missing required columns in {file_path}: {missing_cols}")
+        return None
 
-    # Validate column data types and normalize timestamps
-    validated_records = []
-    for idx, record in enumerate(df.to_dict("records")):
-        record_errors = []
+    # Normalize timestamps
+    try:
+        df["timestamp"] = df["timestamp"].apply(normalize_timestamp)
+    except ValueError as e:
+        logger.error(f"Timestamp normalization failed in {file_path}: {e}")
+        return None
 
-        # Validate node_id
-        node_id = record.get("node_id")
-        if node_id is None or (isinstance(node_id, str) and node_id.strip() == ""):
-            record_errors.append(f"Record {idx}: node_id is missing or empty")
+    # T014: Enforce node limit
+    num_nodes = len(df)
+    cascade_id = df["cascade_id"].iloc[0] if not df["cascade_id"].empty else "unknown"
 
-        # Validate cascade_id
-        cascade_id = record.get("cascade_id")
-        if cascade_id is None or (
-            isinstance(cascade_id, str) and cascade_id.strip() == ""
-        ):
-            record_errors.append(f"Record {idx}: cascade_id is missing or empty")
+    if num_nodes > node_limit:
+        msg = f"Cascade {cascade_id} exceeds node limit ({num_nodes} > {node_limit}). Skipping."
+        logger.warning(msg)
+        
+        if skipped_log_path:
+            log_path = Path(skipped_log_path)
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(log_path, "a", encoding="utf-8") as log_file:
+                log_file.write(f"{file_path}|{cascade_id}|{num_nodes}\n")
+        
+        return None
 
-        # Normalize timestamp
-        timestamp = record.get("timestamp")
-        try:
-            normalized_ts = normalize_timestamp(timestamp)
-            record["timestamp"] = normalized_ts
-        except ValueError as e:
-            record_errors.append(f"Record {idx}: timestamp validation failed - {e}")
-
-        if record_errors:
-            errors.extend(record_errors)
-            logger.warning(f"Validation errors in '{file_path}': {record_errors}")
-        else:
-            validated_records.append(record)
-
-    # Check if any records passed validation
-    if len(validated_records) == 0:
-        errors.append(f"No valid records in '{file_path}'.")
-        logger.error(errors[-1])
-        return None, errors
-
-    # Return validated DataFrame
-    result_df = pd.DataFrame(validated_records)
-    logger.info(
-        f"Successfully loaded {len(result_df)} records from '{file_path}' "
-        f"({len(errors)} validation warnings)."
-    )
-
-    return result_df, errors
-
+    return df
 
 def validate_all_cascades(
     data_dir: str,
-    logger: Optional[logging.Logger] = None,
-    required_columns: Optional[List[str]] = None,
-) -> Tuple[Dict[str, pd.DataFrame], Dict[str, List[str]]]:
+    node_limit: int = 2000,
+    skipped_log_path: str = "skipped_cascades.log"
+) -> Tuple[List[pd.DataFrame], int]:
     """
-    Validate all JSON cascade files in a directory.
-
-    Args:
-        data_dir: Path to directory containing JSON cascade files
-        logger: Logger instance
-        required_columns: Required column names
-
+    Load and validate all JSON cascade files in a directory.
+    
     Returns:
-        Tuple of (dict of valid DataFrames by filename, dict of errors by filename)
+        A tuple of (list of valid DataFrames, count of skipped files).
     """
-    if logger is None:
-        logger = setup_logger()
-
-    if required_columns is None:
-        required_columns = ["node_id", "timestamp", "cascade_id"]
-
+    logger = setup_logger("validator")
     data_path = Path(data_dir)
     if not data_path.exists():
-        logger.error(f"Data directory '{data_dir}' does not exist.")
-        return {}, {}
+        logger.error(f"Data directory not found: {data_dir}")
+        return [], 0
 
-    valid_cascades: Dict[str, pd.DataFrame] = {}
-    all_errors: Dict[str, List[str]] = {}
+    valid_cascades = []
+    skipped_count = 0
 
-    json_files = list(data_path.glob("*.json"))
-    logger.info(f"Found {len(json_files)} JSON files in '{data_dir}'.")
-
-    for json_file in json_files:
-        df, errors = load_cascade(str(json_file), logger, required_columns)
+    for json_file in data_path.glob("*.json"):
+        logger.info(f"Processing {json_file.name}")
+        df = load_cascade(
+            str(json_file),
+            node_limit=node_limit,
+            logger=logger,
+            skipped_log_path=skipped_log_path
+        )
         if df is not None:
-            valid_cascades[json_file.name] = df
-        all_errors[json_file.name] = errors
+            valid_cascades.append(df)
+        else:
+            skipped_count += 1
 
-    logger.info(
-        f"Validated {len(valid_cascades)} of {len(json_files)} cascades."
-    )
+    return valid_cascades, skipped_count
 
-    return valid_cascades, all_errors
-
-
-def validate_features(
-    features_df: pd.DataFrame,
-    logger: Optional[logging.Logger] = None,
-    required_columns: Optional[List[str]] = None,
-) -> Tuple[bool, List[str]]:
+def validate_features(df: pd.DataFrame) -> bool:
     """
-    Validate a features DataFrame against schema requirements.
-
+    Validate that the features DataFrame has no missing values.
+    
     Args:
-        features_df: Features DataFrame to validate
-        logger: Logger instance
-        required_columns: List of required column names
-
+        df: The features DataFrame.
+    
     Returns:
-        Tuple of (is_valid, list of validation errors)
+        True if valid, False otherwise.
     """
-    if logger is None:
-        logger = setup_logger()
+    if df.isnull().any().any():
+        return False
+    return True
 
-    if required_columns is None:
-        required_columns = []
+def main():
+    """CLI entry point for utils module (example usage)."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Pipeline utilities CLI")
+    parser.add_argument("--seed", type=int, default=12345, help="Random seed")
+    parser.add_argument("--log-file", type=str, help="Log file path")
+    args = parser.parse_args()
 
-    errors: List[str] = []
+    set_global_seed(args.seed)
+    logger = setup_logger("utils_cli", log_file=args.log_file)
+    logger.info("Utils CLI started")
 
-    # Check for missing values
-    if features_df.isnull().any().any():
-        missing_cols = features_df.columns[features_df.isnull().any()].tolist()
-        errors.append(f"Missing values found in columns: {missing_cols}")
-        logger.warning(errors[-1])
-
-    # Check required columns
-    if required_columns:
-        missing = [col for col in required_columns if col not in features_df.columns]
-        if missing:
-            errors.append(f"Missing required columns: {missing}")
-            logger.error(errors[-1])
-
-    # Check for empty DataFrame
-    if features_df.empty:
-        errors.append("Features DataFrame is empty.")
-        logger.error(errors[-1])
-
-    is_valid = len(errors) == 0
-    if is_valid:
-        logger.info("Features validation passed.")
-    else:
-        logger.warning(f"Features validation failed with {len(errors)} errors.")
-
-    return is_valid, errors
-
-
-# ============================================================================
-# Main Entry Point (for testing)
-# ============================================================================
-
-
-def main() -> None:
-    """
-    Main entry point for standalone execution and testing.
-    """
-    # Set up logger
-    logger = setup_logger()
-    set_global_seed(12345)
-
-    logger.info("Pipeline utilities module loaded successfully.")
-    logger.info("Available functions: setup_logger, set_global_seed, compute_checksum, "
-               "normalize_timestamp, load_cascade, validate_all_cascades, validate_features")
-
-    # Example: Test checksum computation
-    test_path = Path(__file__)
-    if test_path.exists():
-        checksum = compute_checksum(str(test_path))
-        logger.info(f"Checksum of this file: {checksum[:16]}...")
-
-
-if __name__ == "__main__":
-    main()
+    if __name__ == "__main__":
+        main()
