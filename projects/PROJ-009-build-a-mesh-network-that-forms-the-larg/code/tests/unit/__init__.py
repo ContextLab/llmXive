@@ -1,3 +1,1 @@
-"""
-Unit tests: Tests for individual components and functions.
-"""
+"""Unit tests for isolated component verification."""

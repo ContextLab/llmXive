@@ -1,10 +1,15 @@
 """
-Unit tests for the RemoteToolChecker module.
+Unit tests for RemoteToolChecker.
 """
-
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime
+from unittest.mock import patch, MagicMock, Mock
+from dataclasses import dataclass
+
+import sys
+import os
+
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
 from orchestrator.remote_tool_checker import (
     RemoteToolChecker,
@@ -13,97 +18,204 @@ from orchestrator.remote_tool_checker import (
     NodeToolCheckResult,
     create_tool_checker
 )
-from orchestrator.models import PhysicalNode, NodeStatus
-from orchestrator.node_manager import NodeManager
+from orchestrator.node_manager import NodeDiscoveryError
 
-@pytest.fixture
-def mock_node_manager():
-    manager = Mock(spec=NodeManager)
-    manager.execute_remote_command = Mock()
-    return manager
 
-@pytest.fixture
-def mock_node():
-    return PhysicalNode(
-        node_id="test-node-01",
-        ip_address="192.168.1.100",
-        status=NodeStatus.ACTIVE,
-        username="root",
-        password=""
-    )
+class TestRemoteToolCheckerInit:
+    def test_default_timeout(self):
+        checker = RemoteToolChecker()
+        assert checker.timeout == 2.0
 
-def test_tool_check_result_creation():
-    """Test that ToolCheckResult is created correctly."""
-    result = ToolCheckResult(tool_name="tcpdump", available=True, version_info="/usr/bin/tcpdump")
-    assert result.tool_name == "tcpdump"
-    assert result.available is True
-    assert result.version_info == "/usr/bin/tcpdump"
+    def test_custom_timeout(self):
+        checker = RemoteToolChecker(timeout=5.0)
+        assert checker.timeout == 5.0
 
-def test_node_tool_check_result_creation(mock_node):
-    """Test that NodeToolCheckResult is created correctly."""
-    result = NodeToolCheckResult(node_ip="192.168.1.100", node_id="test-node-01")
-    assert result.node_ip == "192.168.1.100"
-    assert result.node_id == "test-node-01"
-    assert result.is_available is True
-    assert result.tools == []
 
-def test_check_tool_on_node_success(mock_node_manager, mock_node):
-    """Test checking a tool that exists."""
-    mock_node_manager.execute_remote_command.return_value = (
-        "/usr/bin/tcpdump\n", "", 0
-    )
+class TestRemoteToolCheckerMockSSH:
+    @pytest.fixture
+    def mock_client(self):
+        client = MagicMock()
+        # Mock the exec_command context
+        mock_stdout = MagicMock()
+        mock_stdout.channel.recv_exit_status.return_value = 0
+        mock_stdout.read.return_value = b"/usr/bin/tcpdump"
+        mock_stderr = MagicMock()
+        mock_stderr.read.return_value = b""
+        client.exec_command.return_value = (MagicMock(), mock_stdout, mock_stderr)
+        return client
 
-    checker = RemoteToolChecker(mock_node_manager)
-    result = checker.check_tool_on_node(mock_node, "tcpdump")
+    @patch('orchestrator.remote_tool_checker.paramiko.SSHClient')
+    def test_tool_present(self, mock_ssh_class, mock_client):
+        mock_ssh_instance = mock_ssh_class.return_value
+        mock_ssh_instance.connect.return_value = None
+        mock_ssh_instance.exec_command.return_value = (
+            MagicMock(),
+            MagicMock(read=lambda: b"/usr/bin/tcpdump", channel=MagicMock(recv_exit_status=lambda: 0)),
+            MagicMock(read=lambda: b"")
+        )
 
-    assert result.tool_name == "tcpdump"
-    assert result.available is True
-    assert result.version_info == "/usr/bin/tcpdump"
+        checker = RemoteToolChecker()
+        result = checker.check_tool(mock_ssh_instance, "tcpdump")
 
-def test_check_tool_on_node_missing(mock_node_manager, mock_node):
-    """Test checking a tool that does not exist."""
-    mock_node_manager.execute_remote_command.return_value = ("", "which: no tcpdump in (/usr/bin:/bin)\n", 1)
+        assert result.is_present is True
+        assert result.path == "/usr/bin/tcpdump"
 
-    checker = RemoteToolChecker(mock_node_manager)
-    result = checker.check_tool_on_node(mock_node, "tcpdump")
+    @patch('orchestrator.remote_tool_checker.paramiko.SSHClient')
+    def test_tool_missing(self, mock_ssh_class, mock_client):
+        # Mock exit status 1 (not found)
+        mock_stdout = MagicMock()
+        mock_stdout.channel.recv_exit_status.return_value = 1
+        mock_stdout.read.return_value = b""
+        mock_stderr = MagicMock()
+        mock_stderr.read.return_value = b"which: no tcpdump in (/usr/bin)"
 
-    assert result.tool_name == "tcpdump"
-    assert result.available is False
-    assert "no tcpdump" in result.error_message
+        mock_ssh_instance = mock_ssh_class.return_value
+        mock_ssh_instance.connect.return_value = None
+        mock_ssh_instance.exec_command.return_value = (MagicMock(), mock_stdout, mock_stderr)
 
-def test_check_node_tools_all_present(mock_node_manager, mock_node):
-    """Test checking all tools when they are present."""
-    mock_node_manager.execute_remote_command.side_effect = [
-        ("/usr/bin/tcpdump\n", "", 0),  # tcpdump
-        ("/usr/bin/mpstat\n", "", 0)    # mpstat
-    ]
+        checker = RemoteToolChecker()
+        result = checker.check_tool(mock_ssh_instance, "tcpdump")
 
-    checker = RemoteToolChecker(mock_node_manager)
-    result = checker.check_node_tools(mock_node)
+        assert result.is_present is False
+        assert result.path is None
+        assert "which: no tcpdump" in result.error
 
-    assert result.is_available is True
-    assert len(result.tools) == 2
-    assert all(t.available for t in result.tools)
-    assert result.missing_critical_tools == []
+    @patch('orchestrator.remote_tool_checker.paramiko.SSHClient')
+    def test_check_node_all_present(self, mock_ssh_class):
+        mock_ssh_instance = mock_ssh_class.return_value
+        mock_ssh_instance.connect.return_value = None
+        
+        # Mock tcpdump found
+        mock_stdout1 = MagicMock()
+        mock_stdout1.channel.recv_exit_status.return_value = 0
+        mock_stdout1.read.return_value = b"/usr/bin/tcpdump"
+        mock_stderr1 = MagicMock()
+        mock_stderr1.read.return_value = b""
+        
+        # Mock mpstat found
+        mock_stdout2 = MagicMock()
+        mock_stdout2.channel.recv_exit_status.return_value = 0
+        mock_stdout2.read.return_value = b"/usr/bin/mpstat"
+        mock_stderr2 = MagicMock()
+        mock_stderr2.read.return_value = b""
 
-def test_check_node_tools_missing_critical(mock_node_manager, mock_node):
-    """Test checking tools when a critical one is missing."""
-    # tcpdump exists, mpstat missing
-    mock_node_manager.execute_remote_command.side_effect = [
-        ("/usr/bin/tcpdump\n", "", 0),
-        ("", "which: no mpstat in (/usr/bin:/bin)\n", 1)
-    ]
+        # Sequence of calls
+        mock_ssh_instance.exec_command.side_effect = [
+            (MagicMock(), mock_stdout1, mock_stderr1),
+            (MagicMock(), mock_stdout2, mock_stderr2)
+        ]
 
-    checker = RemoteToolChecker(mock_node_manager)
-    result = checker.check_node_tools(mock_node)
+        checker = RemoteToolChecker()
+        result = checker.check_node("node-1", "192.168.1.1")
 
-    assert result.is_available is False
-    assert "mpstat" in result.missing_critical_tools
-    assert len(result.tools) == 2
-    assert any(not t.available for t in result.tools)
+        assert result.node_id == "node-1"
+        assert result.all_tools_present is True
+        assert len(result.tool_results) == 2
 
-def test_create_tool_checker_factory(mock_node_manager):
-    """Test the factory function."""
-    checker = create_tool_checker(mock_node_manager)
-    assert isinstance(checker, RemoteToolChecker)
-    assert checker.node_manager == mock_node_manager
+    @patch('orchestrator.remote_tool_checker.paramiko.SSHClient')
+    def test_check_node_one_missing(self, mock_ssh_class):
+        mock_ssh_instance = mock_ssh_class.return_value
+        mock_ssh_instance.connect.return_value = None
+
+        # tcpdump found
+        mock_stdout1 = MagicMock()
+        mock_stdout1.channel.recv_exit_status.return_value = 0
+        mock_stdout1.read.return_value = b"/usr/bin/tcpdump"
+        mock_stderr1 = MagicMock()
+        mock_stderr1.read.return_value = b""
+
+        # mpstat missing
+        mock_stdout2 = MagicMock()
+        mock_stdout2.channel.recv_exit_status.return_value = 1
+        mock_stdout2.read.return_value = b""
+        mock_stderr2 = MagicMock()
+        mock_stderr2.read.return_value = b"not found"
+
+        mock_ssh_instance.exec_command.side_effect = [
+            (MagicMock(), mock_stdout1, mock_stderr1),
+            (MagicMock(), mock_stdout2, mock_stderr2)
+        ]
+
+        checker = RemoteToolChecker()
+        result = checker.check_node("node-2", "192.168.1.2")
+
+        assert result.all_tools_present is False
+        assert any(not t.is_present for t in result.tool_results)
+
+    @patch('orchestrator.remote_tool_checker.paramiko.SSHClient')
+    def test_check_all_nodes_success(self, mock_ssh_class):
+        mock_ssh_instance = mock_ssh_class.return_value
+        mock_ssh_instance.connect.return_value = None
+        mock_ssh_instance.close.return_value = None
+
+        # Mock successful execution for all calls
+        def mock_exec(cmd, *args, **kwargs):
+            stdout = MagicMock()
+            stdout.channel.recv_exit_status.return_value = 0
+            if "tcpdump" in cmd:
+                stdout.read.return_value = b"/usr/bin/tcpdump"
+            else:
+                stdout.read.return_value = b"/usr/bin/mpstat"
+            return (MagicMock(), stdout, MagicMock(read=lambda: b""))
+
+        mock_ssh_instance.exec_command.side_effect = mock_exec
+
+        checker = RemoteToolChecker()
+        nodes = [
+            {"id": "n1", "ip": "10.0.0.1"},
+            {"id": "n2", "ip": "10.0.0.2"}
+        ]
+
+        results = checker.check_all_nodes(nodes)
+
+        assert len(results) == 2
+        assert all(r.all_tools_present for r in results)
+
+    @patch('orchestrator.remote_tool_checker.paramiko.SSHClient')
+    def test_check_all_nodes_raises_tool_missing(self, mock_ssh_class):
+        mock_ssh_instance = mock_ssh_class.return_value
+        mock_ssh_instance.connect.return_value = None
+        mock_ssh_instance.close.return_value = None
+
+        # Mock tcpdump found, mpstat missing
+        def mock_exec(cmd, *args, **kwargs):
+            stdout = MagicMock()
+            if "tcpdump" in cmd:
+                stdout.channel.recv_exit_status.return_value = 0
+                stdout.read.return_value = b"/usr/bin/tcpdump"
+            else:
+                stdout.channel.recv_exit_status.return_value = 1
+                stdout.read.return_value = b""
+            return (MagicMock(), stdout, MagicMock(read=lambda: b"not found"))
+
+        mock_ssh_instance.exec_command.side_effect = mock_exec
+
+        checker = RemoteToolChecker()
+        nodes = [{"id": "n1", "ip": "10.0.0.1"}]
+
+        with pytest.raises(ToolMissingError) as exc_info:
+            checker.check_all_nodes(nodes)
+
+        assert "mpstat" in str(exc_info.value)
+        assert "missing" in str(exc_info.value).lower()
+
+    @patch('orchestrator.remote_tool_checker.paramiko.SSHClient')
+    def test_check_all_nodes_raises_connection_error(self, mock_ssh_class):
+        mock_ssh_instance = mock_ssh_class.return_value
+        mock_ssh_instance.connect.side_effect = NodeDiscoveryError("Connection failed")
+
+        checker = RemoteToolChecker()
+        nodes = [{"id": "n1", "ip": "10.0.0.1"}]
+
+        # Should return a result with error, not raise immediately for single node
+        # unless all nodes fail. Here we test the result structure.
+        result = checker.check_node("n1", "10.0.0.1")
+        assert result.error is not None
+        assert "Connection failed" in result.error
+
+
+class TestFactoryFunction:
+    def test_create_tool_checker(self):
+        checker = create_tool_checker(timeout=3.0)
+        assert isinstance(checker, RemoteToolChecker)
+        assert checker.timeout == 3.0

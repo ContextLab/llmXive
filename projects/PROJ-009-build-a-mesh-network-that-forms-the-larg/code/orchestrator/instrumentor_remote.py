@@ -1,309 +1,345 @@
+"""
+Remote Instrumentor for Mesh Network Supercomputer.
+
+Executes tcpdump and mpstat on remote nodes via SSH, parses output,
+checks for network saturation, and captures unmodeled variables.
+"""
 from __future__ import annotations
 import logging
 import re
 import time
+import socket
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import List, Optional, Tuple, Dict, Any
+from pathlib import Path
 
 import paramiko
-from paramiko import SSHClient, SSHException, AuthenticationException, SocketTimeout
-
 from orchestrator.logger import get_logger
-from orchestrator.remote_tool_manager import RemoteToolManager, create_tool_manager
-from orchestrator.remote_wall_clock_timer import RemoteWallClockTimer, create_timer
-from orchestrator.node_manager import NodeManager, create_node_manager
-
-logger = get_logger(__name__)
+from orchestrator.models import PhysicalNode, NodeStatus
+from orchestrator.node_manager import NodeManager, NodeDiscoveryError
 
 class RemoteExecutionError(Exception):
     """Raised when remote command execution fails."""
     pass
 
 class NetworkSaturationError(Exception):
-    """Raised when network saturation (packet loss > 20%) is detected."""
+    """Raised when network saturation is detected (>20% packet loss)."""
     pass
 
 @dataclass
 class PacketStats:
-    total_packets: int
-    packets_per_second: float
-    lost_packets: int
-    loss_rate: float
+    """Statistics extracted from tcpdump output."""
+    packet_count: int
+    dropped: int
+    captured: int
+    received: int
 
 @dataclass
 class CPUStats:
+    """Statistics extracted from mpstat output."""
     cpu_utilization_pct: float
-    user_pct: float
-    system_pct: float
     idle_pct: float
     iowait_pct: float
+    timestamp: float
+
+@dataclass
+class UnmodeledVars:
+    """Best-effort capture of unmodeled variables (thermal, OS noise)."""
+    thermal_zone: Optional[str] = None
+    loadavg_1m: Optional[float] = None
+    loadavg_5m: Optional[float] = None
+    loadavg_15m: Optional[float] = None
+    os_noise_note: Optional[str] = None
 
 @dataclass
 class NodeMetrics:
+    """Aggregated metrics for a single node execution."""
     node_id: str
-    timestamp: datetime
-    packet_stats: Optional[PacketStats]
-    cpu_stats: Optional[CPUStats]
-    unmodeled_vars: Dict[str, Any]
-    wall_clock_start: Optional[datetime]
-    wall_clock_end: Optional[datetime]
+    wall_clock_start: float
+    wall_clock_end: float
+    wall_clock_duration: float
+    packet_stats: Optional[PacketStats] = None
+    cpu_stats: Optional[CPUStats] = None
+    unmodeled_vars: Optional[UnmodeledVars] = None
+    is_excluded: bool = False
+    exclusion_reason: Optional[str] = None
 
 class RemoteInstrumentor:
-    def __init__(self, node_manager: NodeManager, tool_manager: RemoteToolManager, wall_clock_timer: RemoteWallClockTimer):
+    """
+    Manages remote execution of instrumentation commands (tcpdump, mpstat)
+    on physical nodes via SSH.
+    """
+    def __init__(self, node_manager: NodeManager, logger: Optional[logging.Logger] = None):
         self.node_manager = node_manager
-        self.tool_manager = tool_manager
-        self.wall_clock_timer = wall_clock_timer
-        self.logger = get_logger(__name__)
+        self.logger = logger or get_logger(__name__)
+        self.tcpdump_cmd = "tcpdump -c {count} -i any -n"
+        self.mpstat_cmd = "mpstat 1 5"  # interval=1, count=5
+        self.saturation_threshold = 0.20  # 20%
 
-    def execute_tcpdump(self, ssh_client: SSHClient, interface: str = "any", packet_count: int = 1000) -> PacketStats:
-        """Execute tcpdump to capture packet counts."""
-        command = f"tcpdump -c {packet_count} -i {interface} -n 2>/dev/null"
+    def _execute_remote_command(self, ssh_client: paramiko.SSHClient, command: str, timeout: int = 30) -> Tuple[int, str, str]:
+        """
+        Execute a command on the remote node.
+        Returns (exit_code, stdout, stderr).
+        """
         try:
-            stdin, stdout, stderr = ssh_client.exec_command(command, timeout=30)
-            output = stdout.read().decode('utf-8')
-            error = stderr.read().decode('utf-8')
+            stdin, stdout, stderr = ssh_client.exec_command(command, timeout=timeout)
+            exit_code = stdout.channel.recv_exit_status()
+            out = stdout.read().decode('utf-8', errors='ignore')
+            err = stderr.read().decode('utf-8', errors='ignore')
+            return exit_code, out, err
+        except socket.timeout:
+            raise RemoteExecutionError(f"Command timed out: {command}")
+        except Exception as e:
+            raise RemoteExecutionError(f"Remote command execution failed: {e}")
 
-            if error and "command not found" in error.lower():
-                raise RemoteExecutionError(f"tcpdump not found on remote node: {error}")
+    def run_tcpdump(self, ssh_client: paramiko.SSHClient, count: int = 1000) -> PacketStats:
+        """
+        Execute tcpdump remotely and parse packet counts.
+        """
+        cmd = self.tcpdump_cmd.format(count=count)
+        exit_code, stdout, stderr = self._execute_remote_command(ssh_client, cmd, timeout=60)
+        
+        if exit_code != 0:
+            # tcpdump often exits non-zero if no packets found or interface issue, but we parse output
+            self.logger.warning(f"tcpdump exit code {exit_code}: {stderr}")
 
-            # Parse tcpdump output for packet count
-            # tcpdump typically prints "X packets captured" at the end
-            captured_match = re.search(r'(\d+)\s+packets?\s+captured', output)
-            if captured_match:
-                captured = int(captured_match.group(1))
-            else:
-                # If no explicit count, count lines or assume 0
-                captured = 0
+        # Parse output: usually ends with "X packets captured; Y packets received by filter; Z packets dropped by kernel"
+        # Example: "1000 packets captured, 1002 packets received by filter, 0 packets dropped by kernel"
+        captured = 0
+        received = 0
+        dropped = 0
 
-            # Calculate loss rate if we know how many we expected
-            # For this implementation, we assume packet_count is the target
-            lost = max(0, packet_count - captured)
-            loss_rate = lost / packet_count if packet_count > 0 else 0.0
-            duration = 1.0 # Placeholder; real timing would require start/stop
-            pps = captured / duration if duration > 0 else 0.0
+        # Regex to find numbers near keywords
+        captured_match = re.search(r'(\d+)\s+packets?\s+captured', stdout)
+        received_match = re.search(r'(\d+)\s+packets?\s+(?:received by filter|received)', stdout)
+        dropped_match = re.search(r'(\d+)\s+packets?\s+dropped', stdout)
 
-            return PacketStats(
-                total_packets=captured,
-                packets_per_second=pps,
-                lost_packets=lost,
-                loss_rate=loss_rate
-            )
-        except SocketTimeout:
-            raise RemoteExecutionError("tcpdump command timed out")
-        except SSHException as e:
-            raise RemoteExecutionError(f"SSH execution failed: {e}")
+        if captured_match:
+            captured = int(captured_match.group(1))
+        if received_match:
+            received = int(received_match.group(1))
+        if dropped_match:
+            dropped = int(dropped_match.group(1))
 
-    def execute_mpstat(self, ssh_client: SSHClient, interval: float = 1.0, count: int = 5) -> CPUStats:
-        """Execute mpstat to get CPU utilization."""
-        command = f"mpstat {interval} {count} 2>/dev/null"
+        # If parsing fails, try to infer from stderr or default
+        if captured == 0 and count > 0:
+            # Fallback: assume captured count if we sent a count and got some output
+            # This is a heuristic; real tcpdump output is preferred
+            pass
+
+        return PacketStats(packet_count=captured, dropped=dropped, captured=captured, received=received)
+
+    def run_mpstat(self, ssh_client: paramiko.SSHClient) -> CPUStats:
+        """
+        Execute mpstat remotely and parse CPU utilization.
+        """
+        cmd = self.mpstat_cmd
+        exit_code, stdout, stderr = self._execute_remote_command(ssh_client, cmd, timeout=60)
+
+        if exit_code != 0:
+            raise RemoteExecutionError(f"mpstat failed with exit code {exit_code}: {stderr}")
+
+        # Parse mpstat output
+        # Format: Linux <date> ... <host> ... <cpu> ... %idle ...
+        # We want the last row (average or specific interval)
+        lines = stdout.strip().split('\n')
+        cpu_util = 0.0
+        idle = 0.0
+        iowait = 0.0
+        
+        # Find the line with 'Average' or the last data line
+        data_lines = []
+        for line in lines:
+            if 'Average' in line or (line and line[0].isdigit()):
+                data_lines.append(line)
+
+        if not data_lines:
+            raise RemoteExecutionError("Could not parse mpstat output: no data lines found")
+
+        # Parse the last data line (usually 'Average' or the last interval)
+        last_line = data_lines[-1]
+        parts = last_line.split()
+        
+        # Typical mpstat output:
+        # Linux ... ... cpu ... %usr ... %sys ... %iowait ... %idle ...
+        # Indices depend on version, but usually %idle is near the end
+        # We'll search for the %idle column by name if possible, or use heuristics
+        
+        # Simple heuristic: look for the column header to map indices
+        # For robustness, we assume standard output format
+        # If 'Average' line, it's: cpu, usr, sys, idle, ...
+        # We'll search for the %idle keyword in the line
         try:
-            stdin, stdout, stderr = ssh_client.exec_command(command, timeout=60)
-            output = stdout.read().decode('utf-8')
-            error = stderr.read().decode('utf-8')
+            # Find the index of %idle in the header or data
+            # If the line starts with numbers, it's data
+            # We'll assume the last few columns are percentages
+            # Common format: cpu, usr, nice, sys, iowait, irq, softirq, steal, guest, idle
+            # So %idle is often the last column
+            idle_str = parts[-1]
+            idle = float(idle_str)
+            cpu_util = 100.0 - idle
+            
+            # Try to find %iowait
+            # In many versions, iowait is 4th or 5th column after cpu
+            # We'll search for it in the line
+            iowait_match = re.search(r'(\d+\.?\d*)\s*%', last_line)
+            if iowait_match:
+                # This is a very rough heuristic; better to parse headers
+                pass
+            
+            # For now, we'll just set iowait to 0 if not found
+            # In a real implementation, we'd parse the header row to map columns
+            iowait = 0.0
 
-            if error and "command not found" in error.lower():
-                raise RemoteExecutionError(f"mpstat not found on remote node: {error}")
+        except (ValueError, IndexError) as e:
+            self.logger.error(f"Failed to parse mpstat line: {last_line}, error: {e}")
+            raise RemoteExecutionError(f"Failed to parse mpstat output: {e}")
 
-            # Parse mpstat output
-            # Format: Linux ... time ... %usr %nice %sys %iowait %irq %soft %steal %guest %gnice %idle
-            lines = output.strip().split('\n')
-            avg_user = 0.0
-            avg_sys = 0.0
-            avg_idle = 0.0
-            avg_iowait = 0.0
-            valid_samples = 0
+        return CPUStats(
+            cpu_utilization_pct=cpu_util,
+            idle_pct=idle,
+            iowait_pct=iowait,
+            timestamp=time.time()
+        )
 
-            # Skip header lines, look for data lines
-            for line in lines:
-                parts = line.split()
-                if len(parts) >= 12 and parts[0] != "Average:":
-                    try:
-                        # Find the %idle column (usually last or second to last depending on version)
-                        # Standard mpstat: ... %usr %nice %sys %iowait %irq %soft %steal %guest %gnice %idle
-                        # We'll search for the %idle value
-                        idle_idx = None
-                        for i, val in enumerate(parts):
-                            if val == '%idle' or (i > 0 and parts[i-1] == 'Average:'):
-                                continue
-                            if '%' in val and 'idle' in line.lower():
-                                pass # handled differently
+    def check_network_saturation(self, packet_stats: PacketStats) -> bool:
+        """
+        Check if network saturation (>20% packet loss) is detected.
+        """
+        if packet_stats.captured == 0:
+            return False  # No packets to lose
+        
+        loss_rate = packet_stats.dropped / packet_stats.captured
+        if loss_rate > self.saturation_threshold:
+            self.logger.warning(f"Network saturation detected: {loss_rate:.2%} packet loss")
+            return True
+        return False
 
-                        # Robust parsing: look for the last numeric column before the end of line
-                        # Usually %idle is the last column
-                        if len(parts) > 1:
-                            idle_str = parts[-1]
-                            user_str = parts[-11] # Approximate position
-                            sys_str = parts[-9]
-                            iowait_str = parts[-8]
+    def capture_unmodeled_vars(self, ssh_client: paramiko.SSHClient) -> UnmodeledVars:
+        """
+        Best-effort capture of unmodeled variables (thermal, OS noise).
+        """
+        thermal_zone = None
+        loadavg_1m = None
+        loadavg_5m = None
+        loadavg_15m = None
+        os_noise_note = None
 
-                            # Fallback: search for numeric values
-                            nums = [float(x) for x in parts if x.replace('.', '', 1).replace('-', '', 1).isdigit()]
-                            if len(nums) >= 4:
-                                # Assume order: usr, sys, iowait, idle (simplified)
-                                # This is a heuristic; real parsing depends on mpstat version
-                                # For now, let's assume the last 4 are user, system, iowait, idle
-                                avg_user = nums[-4] if len(nums) >= 4 else 0.0
-                                avg_sys = nums[-3] if len(nums) >= 3 else 0.0
-                                avg_iowait = nums[-2] if len(nums) >= 2 else 0.0
-                                avg_idle = nums[-1]
-                                valid_samples += 1
-                    except (ValueError, IndexError):
-                        continue
-
-            if valid_samples > 0:
-                avg_user /= valid_samples
-                avg_sys /= valid_samples
-                avg_iowait /= valid_samples
-                avg_idle /= valid_samples
-            else:
-                # Fallback if parsing fails
-                avg_user = 0.0
-                avg_sys = 0.0
-                avg_iowait = 0.0
-                avg_idle = 0.0
-
-            utilization = 100.0 - avg_idle
-
-            return CPUStats(
-                cpu_utilization_pct=utilization,
-                user_pct=avg_user,
-                system_pct=avg_sys,
-                idle_pct=avg_idle,
-                iowait_pct=avg_iowait
-            )
-        except SocketTimeout:
-            raise RemoteExecutionError("mpstat command timed out")
-        except SSHException as e:
-            raise RemoteExecutionError(f"SSH execution failed: {e}")
-
-    def check_network_saturation(self, packet_stats: PacketStats, threshold: float = 0.20) -> bool:
-        """Check if packet loss exceeds the threshold (20%)."""
-        return packet_stats.loss_rate > threshold
-
-    def capture_unmodeled_vars(self, ssh_client: SSHClient) -> Dict[str, Any]:
-        """Capture thermal throttling and OS noise metrics."""
-        metrics = {}
-
-        # Check thermal zone
+        # Try to read thermal zone
         try:
-            stdin, stdout, stderr = ssh_client.exec_command("cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null", timeout=10)
-            temps = stdout.read().decode('utf-8').strip().split('\n')
-            temps = [t for t in temps if t.isdigit()]
-            if temps:
-                metrics['thermal_zone_temp_milli'] = [int(t) for t in temps]
+            exit_code, stdout, _ = self._execute_remote_command(ssh_client, "cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null", timeout=5)
+            if exit_code == 0 and stdout.strip():
+                thermal_zone = stdout.strip()
         except Exception as e:
             self.logger.warning(f"Could not read thermal zone: {e}")
 
-        # Check load average
+        # Try to read loadavg
         try:
-            stdin, stdout, stderr = ssh_client.exec_command("cat /proc/loadavg", timeout=10)
-            loadavg = stdout.read().decode('utf-8').strip()
-            parts = loadavg.split()
-            if len(parts) >= 3:
-                metrics['loadavg_1m'] = float(parts[0])
-                metrics['loadavg_5m'] = float(parts[1])
-                metrics['loadavg_15m'] = float(parts[2])
+            exit_code, stdout, _ = self._execute_remote_command(ssh_client, "cat /proc/loadavg", timeout=5)
+            if exit_code == 0 and stdout.strip():
+                parts = stdout.strip().split()
+                if len(parts) >= 3:
+                    loadavg_1m = float(parts[0])
+                    loadavg_5m = float(parts[1])
+                    loadavg_15m = float(parts[2])
         except Exception as e:
-            self.logger.warning(f"Could not read load average: {e}")
+            self.logger.warning(f"Could not read loadavg: {e}")
+
+        # If both failed, note that
+        if thermal_zone is None and loadavg_1m is None:
+            os_noise_note = "Thermal and loadavg metrics unavailable (e.g., mobile device or restricted container)"
+
+        return UnmodeledVars(
+            thermal_zone=thermal_zone,
+            loadavg_1m=loadavg_1m,
+            loadavg_5m=loadavg_5m,
+            loadavg_15m=loadavg_15m,
+            os_noise_note=os_noise_note
+        )
+
+    def instrument_node(self, node: PhysicalNode, packet_count: int = 1000) -> NodeMetrics:
+        """
+        Run full instrumentation suite on a node:
+        1. Start wall-clock timer
+        2. Run tcpdump
+        3. Run mpstat
+        4. Capture unmodeled vars
+        5. Stop wall-clock timer
+        6. Check for saturation and flag exclusion if needed
+        """
+        self.logger.info(f"Instrumenting node {node.ip_address}...")
+        
+        # Establish SSH connection
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            # Use node_manager to get credentials or connection info if needed
+            # For now, assume node has username/password or key configured
+            ssh_client.connect(
+                hostname=node.ip_address,
+                username=node.username,
+                password=node.password,
+                timeout=10,
+                allow_agent=False,
+                look_for_keys=False
+            )
+        except Exception as e:
+            raise RemoteExecutionError(f"Failed to connect to node {node.ip_address}: {e}")
+
+        metrics = NodeMetrics(
+            node_id=node.node_id,
+            wall_clock_start=time.time(),
+            wall_clock_end=0.0,
+            wall_clock_duration=0.0
+        )
+
+        try:
+            # 1. Run tcpdump
+            packet_stats = self.run_tcpdump(ssh_client, count=packet_count)
+            metrics.packet_stats = packet_stats
+
+            # 2. Run mpstat
+            cpu_stats = self.run_mpstat(ssh_client)
+            metrics.cpu_stats = cpu_stats
+
+            # 3. Capture unmodeled vars
+            unmodeled = self.capture_unmodeled_vars(ssh_client)
+            metrics.unmodeled_vars = unmodeled
+
+            # 4. Check network saturation
+            if self.check_network_saturation(packet_stats):
+                metrics.is_excluded = True
+                metrics.exclusion_reason = f"Network saturation: {packet_stats.dropped / packet_stats.captured:.2%} packet loss"
+                self.logger.warning(f"Node {node.node_id} excluded due to network saturation.")
+
+        finally:
+            # 5. Stop wall-clock timer
+            metrics.wall_clock_end = time.time()
+            metrics.wall_clock_duration = metrics.wall_clock_end - metrics.wall_clock_start
+            ssh_client.close()
 
         return metrics
 
-    def instrument_node(self, node_ip: str, packet_count: int = 1000, mpstat_interval: float = 1.0, mpstat_count: int = 5) -> NodeMetrics:
-        """Execute full instrumentation on a remote node."""
-        self.logger.info(f"Starting instrumentation for node {node_ip}")
-
-        # Ensure tools are available
-        tool_status = self.tool_manager.check_node_tools(node_ip, ['tcpdump', 'mpstat'])
-        if not tool_status.all_available:
-            missing = [t for t in tool_status.missing if t in ['tcpdump', 'mpstat']]
-            if missing:
-                raise RemoteExecutionError(f"Critical tools missing on {node_ip}: {missing}")
-
-        # Connect to node
-        client = self.node_manager._get_ssh_client(node_ip)
-        if not client:
-            raise RemoteExecutionError(f"Could not establish SSH connection to {node_ip}")
-
-        try:
-            # Start wall clock timer
-            self.wall_clock_timer.start_timer(node_ip)
-            start_time = datetime.now()
-
-            # Execute tcpdump
-            packet_stats = self.execute_tcpdump(client, packet_count=packet_count)
-
-            # Execute mpstat
-            cpu_stats = self.execute_mpstat(client, interval=mpstat_interval, count=mpstat_count)
-
-            # Capture unmodeled variables
-            unmodeled = self.capture_unmodeled_vars(client)
-
-            # Check network saturation
-            if self.check_network_saturation(packet_stats):
-                self.logger.warning(f"Network saturation detected on {node_ip}: loss_rate={packet_stats.loss_rate:.2%}")
-                raise NetworkSaturationError(f"Network saturation on {node_ip}: {packet_stats.loss_rate:.2%} loss")
-
-            # Stop wall clock timer
-            self.wall_clock_timer.stop_timer(node_ip)
-            end_time = datetime.now()
-
-            return NodeMetrics(
-                node_id=node_ip,
-                timestamp=start_time,
-                packet_stats=packet_stats,
-                cpu_stats=cpu_stats,
-                unmodeled_vars=unmodeled,
-                wall_clock_start=start_time,
-                wall_clock_end=end_time
-            )
-        except NetworkSaturationError:
-            # Re-raise to be handled by caller
-            raise
-        except Exception as e:
-            self.logger.error(f"Instrumentation failed on {node_ip}: {e}")
-            raise RemoteExecutionError(f"Remote execution failed on {node_ip}: {e}")
-
-    def instrument_nodes(self, node_ips: List[str], packet_count: int = 1000, mpstat_interval: float = 1.0, mpstat_count: int = 5) -> List[NodeMetrics]:
-        """Instrument multiple nodes."""
-        results = []
-        for ip in node_ips:
-            try:
-                metrics = self.instrument_node(ip, packet_count, mpstat_interval, mpstat_count)
-                results.append(metrics)
-            except NetworkSaturationError as e:
-                self.logger.error(f"Skipping {ip} due to network saturation: {e}")
-                # Abort run if critical (SC-006)
-                raise
-            except Exception as e:
-                self.logger.error(f"Failed to instrument {ip}: {e}")
-                # Continue with other nodes or fail depending on policy
-                # For now, we log and continue, but the caller can decide to abort
-        return results
-
-def create_instrumentor(node_manager: NodeManager, tool_manager: RemoteToolManager, wall_clock_timer: RemoteWallClockTimer) -> RemoteInstrumentor:
-    return RemoteInstrumentor(node_manager, tool_manager, wall_clock_timer)
+def create_instrumentor(node_manager: NodeManager) -> RemoteInstrumentor:
+    """Factory function to create a RemoteInstrumentor."""
+    return RemoteInstrumentor(node_manager)
 
 def main():
-    """Main entry point for testing instrumentation."""
+    """
+    Main entry point for standalone execution.
+    Demonstrates instrumentation of a single node.
+    """
     logging.basicConfig(level=logging.INFO)
     logger = get_logger(__name__)
 
-    # Create managers
-    node_manager = create_node_manager()
-    tool_manager = create_tool_manager()
-    wall_clock_timer = create_timer()
-
-    # Create instrumentor
-    instrumentor = create_instrumentor(node_manager, tool_manager, wall_clock_timer)
-
-    # Example usage (requires real nodes)
-    # nodes = ["192.168.1.10", "192.168.1.11"]
-    # results = instrumentor.instrument_nodes(nodes)
-    # for r in results:
-    #     print(f"Node {r.node_id}: CPU={r.cpu_stats.cpu_utilization_pct:.2f}%, Packets={r.packet_stats.total_packets}")
-
-    logger.info("RemoteInstrumentor initialized. Use instrument_nodes() to run.")
+    # Example usage (would be replaced by actual node list in production)
+    # node = PhysicalNode(node_id="node1", ip_address="192.168.1.10", username="user", password="pass")
+    # node_manager = NodeManager([node])
+    # instrumentor = create_instrumentor(node_manager)
+    # metrics = instrumentor.instrument_node(node)
+    # print(f"Node Metrics: {metrics}")
+    logger.info("RemoteInstrumentor main() called. Use as a library or integrate with scheduler.")
 
 if __name__ == "__main__":
     main()

@@ -1,337 +1,485 @@
 """
-Remote Wall-Clock Timer Module for Mesh Network Orchestration.
+Remote Wall-Clock Timer Module
 
-This module provides functionality to capture precise wall-clock execution
-timestamps on remote nodes via SSH. It is distinct from the benchmark's
-internal timing and provides an external verification of execution duration.
+Captures wall-clock execution time on remote nodes via SSH.
+This is distinct from the benchmark's internal timing, providing
+node-level wall-clock metrics for the mesh network supercomputer.
 
 Dependencies:
-    - paramiko (SSH2 protocol)
-    - datetime (timezone handling)
-
-Usage:
-    timer = create_timer(config)
-    measurements = timer.measure_batch(node_list, task_id)
+    - T013a (node_manager): For SSH connection management.
+    - T004 (config): For timeout configurations.
 """
+
 from __future__ import annotations
 
 import logging
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Optional, Tuple
+from enum import Enum
 
 import paramiko
-from paramiko.ssh_exception import SSHException, AuthenticationException, SocketTimeout
 
+from orchestrator.node_manager import NodeManager, NodeDiscoveryError
 from orchestrator.logger import get_logger
-from orchestrator.models import PhysicalNode
-from orchestrator.node_manager import NodeDiscoveryError, NodeTimeoutError
+from orchestrator.config import get_config
 
-# Configure logger for this module
 logger = get_logger(__name__)
 
 
+class WallClockTimerError(Exception):
+    """Base exception for wall-clock timer operations."""
+    pass
+
+
+class RemoteTimerStartError(WallClockTimerError):
+    """Raised when starting a remote timer fails."""
+    pass
+
+
+class RemoteTimerStopError(WallClockTimerError):
+    """Raised when stopping a remote timer fails."""
+    pass
+
+
+class RemoteTimerReadError(WallClockTimerError):
+    """Raised when reading the elapsed time fails."""
+    pass
+
+
 @dataclass
-class WallClockMeasurement:
+class WallClockResult:
     """
-    Represents a single wall-clock measurement for a task on a node.
+    Result of a remote wall-clock timing operation.
+
+    Attributes:
+        node_id: Identifier of the remote node.
+        start_time_utc: UTC timestamp when the timer started.
+        stop_time_utc: UTC timestamp when the timer stopped.
+        elapsed_seconds: Measured wall-clock duration in seconds.
+        success: Boolean indicating if the operation completed successfully.
+        error_message: Optional error description if failed.
     """
     node_id: str
-    node_ip: str
-    task_id: str
-    start_timestamp: datetime
-    end_timestamp: datetime
-    duration_seconds: float
-    success: bool
+    start_time_utc: datetime
+    stop_time_utc: Optional[datetime] = None
+    elapsed_seconds: Optional[float] = None
+    success: bool = False
     error_message: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert measurement to a dictionary for serialization."""
+    def to_dict(self) -> Dict:
+        """Convert result to dictionary for serialization."""
         return {
             "node_id": self.node_id,
-            "node_ip": self.node_ip,
-            "task_id": self.task_id,
-            "start_timestamp": self.start_timestamp.isoformat(),
-            "end_timestamp": self.end_timestamp.isoformat(),
-            "duration_seconds": self.duration_seconds,
+            "start_time_utc": self.start_time_utc.isoformat() if self.start_time_utc else None,
+            "stop_time_utc": self.stop_time_utc.isoformat() if self.stop_time_utc else None,
+            "elapsed_seconds": self.elapsed_seconds,
             "success": self.success,
             "error_message": self.error_message
         }
 
 
 @dataclass
-class WallClockBatchResult:
+class RemoteTimerSession:
     """
-    Aggregates results from measuring multiple nodes/tasks.
+    Manages a timing session on a specific remote node.
+
+    This class handles the SSH commands required to start, stop, and
+    read a high-resolution wall-clock timer on the remote host.
     """
-    measurements: List[WallClockMeasurement] = field(default_factory=list)
-    failed_nodes: List[str] = field(default_factory=list)
+    node_id: str
+    manager: NodeManager
+    _ssh_client: Optional[paramiko.SSHClient] = None
+    _start_command: Optional[str] = None
+    _stop_command: Optional[str] = None
+    _read_command: Optional[str] = None
+    _session_active: bool = False
+    _start_time_utc: Optional[datetime] = None
 
-    def add_measurement(self, measurement: WallClockMeasurement) -> None:
-        self.measurements.append(measurement)
-        if not measurement.success:
-            self.failed_nodes.append(measurement.node_id)
+    def __post_init__(self):
+        # Define remote commands using `date` for high-resolution timestamps
+        # We use a unique session ID to avoid conflicts if multiple timers run
+        self._session_id = f"timer_{self.node_id}_{int(time.time())}"
+        self._start_command = f"echo '{self._session_id}:START' > /tmp/{self._session_id}.timer && date +%s.%N"
+        self._stop_command = f"echo '{self._session_id}:STOP' >> /tmp/{self._session_id}.timer && date +%s.%N"
+        self._read_command = f"cat /tmp/{self._session_id}.timer && rm -f /tmp/{self._session_id}.timer"
 
-    def get_success_rate(self) -> float:
-        if not self.measurements:
-            return 0.0
-        return sum(1 for m in self.measurements if m.success) / len(self.measurements)
+    def _ensure_connection(self) -> paramiko.SSHClient:
+        """Ensure an SSH connection is active."""
+        if self._ssh_client is None or not self._ssh_client.get_transport().is_active():
+            # Attempt to reconnect using the manager's node info
+            node_info = self.manager.get_node_info(self.node_id)
+            if not node_info:
+                raise RemoteTimerStartError(f"Node {self.node_id} not found in manager.")
+            
+            logger.info(f"Establishing SSH connection to {self.node_id} for timing.")
+            self._ssh_client = paramiko.SSHClient()
+            self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            try:
+                self._ssh_client.connect(
+                    hostname=node_info.ip_address,
+                    username=node_info.username,
+                    key_filename=node_info.ssh_key_path,
+                    timeout=get_config().ssh_timeout_seconds
+                )
+            except Exception as e:
+                raise RemoteTimerStartError(f"Failed to connect to {self.node_id}: {e}")
+        return self._ssh_client
+
+    def start_timer(self) -> datetime:
+        """
+        Start the remote wall-clock timer.
+        
+        Returns:
+            datetime: The UTC timestamp when the timer was started locally.
+        
+        Raises:
+            RemoteTimerStartError: If the start command fails.
+        """
+        if self._session_active:
+            logger.warning(f"Timer for {self.node_id} is already active.")
+            return self._start_time_utc
+
+        client = self._ensure_connection()
+        self._start_time_utc = datetime.now(timezone.utc)
+        
+        try:
+            stdin, stdout, stderr = client.exec_command(self._start_command)
+            exit_status = stdout.channel.recv_exit_status()
+            
+            if exit_status != 0:
+                error_output = stderr.read().decode('utf-8', errors='replace')
+                raise RemoteTimerStartError(f"Remote start command failed on {self.node_id}: {error_output}")
+            
+            # Optional: Verify the file was created remotely
+            logger.debug(f"Started timer on {self.node_id} at {self._start_time_utc}")
+            self._session_active = True
+            return self._start_time_utc
+
+        except Exception as e:
+            self._session_active = False
+            raise RemoteTimerStartError(f"Exception starting timer on {self.node_id}: {e}")
+
+    def stop_timer(self) -> datetime:
+        """
+        Stop the remote wall-clock timer.
+        
+        Returns:
+            datetime: The UTC timestamp when the timer was stopped locally.
+        
+        Raises:
+            RemoteTimerStopError: If the stop command fails.
+        """
+        if not self._session_active:
+            raise RemoteTimerStopError(f"Timer for {self.node_id} is not active.")
+
+        client = self._ensure_connection()
+        stop_time_utc = datetime.now(timezone.utc)
+        
+        try:
+            stdin, stdout, stderr = client.exec_command(self._stop_command)
+            exit_status = stdout.channel.recv_exit_status()
+            
+            if exit_status != 0:
+                error_output = stderr.read().decode('utf-8', errors='replace')
+                raise RemoteTimerStopError(f"Remote stop command failed on {self.node_id}: {error_output}")
+            
+            logger.debug(f"Stopped timer on {self.node_id} at {stop_time_utc}")
+            self._session_active = False
+            return stop_time_utc
+
+        except Exception as e:
+            self._session_active = False
+            raise RemoteTimerStopError(f"Exception stopping timer on {self.node_id}: {e}")
+
+    def get_elapsed_time(self) -> float:
+        """
+        Retrieve the elapsed time from the remote timer.
+        
+        This method reads the start and stop timestamps written by the
+        remote commands and calculates the difference.
+        
+        Returns:
+            float: Elapsed time in seconds.
+        
+        Raises:
+            RemoteTimerReadError: If reading or parsing the time fails.
+        """
+        if self._session_active:
+            logger.warning(f"Timer for {self.node_id} is still active. Stopping automatically to read.")
+            try:
+                self.stop_timer()
+            except RemoteTimerStopError:
+                pass # Continue to try and read partial data or fail
+
+        client = self._ensure_connection()
+        
+        try:
+            stdin, stdout, stderr = client.exec_command(self._read_command)
+            exit_status = stdout.channel.recv_exit_status()
+            
+            if exit_status != 0:
+                error_output = stderr.read().decode('utf-8', errors='replace')
+                raise RemoteTimerReadError(f"Remote read command failed on {self.node_id}: {error_output}")
+            
+            output = stdout.read().decode('utf-8', errors='replace').strip()
+            
+            # Parse output: "START\n<timestamp>\nSTOP\n<timestamp>"
+            lines = [line for line in output.split('\n') if line.strip()]
+            if len(lines) < 2:
+                raise RemoteTimerReadError(f"Insufficient data from {self.node_id}: {output}")
+            
+            # The first line is the marker, the second is the timestamp
+            # Actually, our command writes marker then timestamp on separate lines
+            # Command: echo '...:START' > file && date
+            # So file contains: "ID:START\n<timestamp>"
+            # Stop command: echo '...:STOP' >> file && date
+            # So file contains: "ID:START\n<timestamp_start>\nID:STOP\n<timestamp_end>"
+            
+            if len(lines) < 4:
+                # Maybe only start was recorded
+                raise RemoteTimerReadError(f"Incomplete timing data on {self.node_id}: {lines}")
+
+            # Extract timestamps (second and fourth lines usually, or parse carefully)
+            # Format: ID:START\n<ts1>\nID:STOP\n<ts2>
+            # We need to find the numeric timestamps
+            timestamps = []
+            for line in lines:
+                if ':' in line:
+                    # Marker line, skip or parse ID
+                    continue
+                try:
+                    timestamps.append(float(line))
+                except ValueError:
+                    # Skip non-numeric lines if any
+                    continue
+
+            if len(timestamps) < 2:
+                raise RemoteTimerReadError(f"Could not parse timestamps from {self.node_id}: {timestamps}")
+
+            start_ts = timestamps[0]
+            stop_ts = timestamps[1]
+            
+            elapsed = stop_ts - start_ts
+            if elapsed < 0:
+                raise RemoteTimerReadError(f"Negative elapsed time on {self.node_id}: {elapsed}")
+            
+            logger.info(f"Remote wall-clock time for {self.node_id}: {elapsed:.6f}s")
+            return elapsed
+
+        except Exception as e:
+            raise RemoteTimerReadError(f"Exception reading timer on {self.node_id}: {e}")
+
+    def close(self):
+        """Close the SSH connection."""
+        if self._ssh_client:
+            self._ssh_client.close()
+            self._ssh_client = None
+            logger.debug(f"Closed SSH connection to {self.node_id}")
 
 
 class RemoteWallClockTimer:
     """
-    Manages remote wall-clock timing operations across a cluster of nodes.
-
-    Uses SSH to execute timing commands on remote nodes to ensure
-    synchronization with the actual execution environment.
+    High-level interface for managing wall-clock timers across multiple nodes.
     """
+    def __init__(self, node_manager: NodeManager):
+        self.manager = node_manager
+        self.sessions: Dict[str, RemoteTimerSession] = {}
 
-    def __init__(self, ssh_timeout: float = 5.0, retry_count: int = 1):
-        self.ssh_timeout = ssh_timeout
-        self.retry_count = retry_count
-        self.logger = get_logger(__name__)
+    def create_session(self, node_id: str) -> RemoteTimerSession:
+        """Create a new timing session for a specific node."""
+        if node_id in self.sessions:
+            logger.warning(f"Session for {node_id} already exists, closing previous.")
+            self.sessions[node_id].close()
+        
+        session = RemoteTimerSession(node_id=node_id, manager=self.manager)
+        self.sessions[node_id] = session
+        return session
 
-    def _get_remote_timestamp(self, ssh_client: paramiko.SSHClient) -> datetime:
+    def start_all(self, node_ids: List[str]) -> Dict[str, WallClockResult]:
         """
-        Retrieves the current UTC timestamp from a remote node.
-        Uses 'date -u +%Y-%m-%dT%H:%M:%S.%3NZ' for millisecond precision if available,
-        otherwise falls back to seconds.
-        """
-        command = "date -u +%Y-%m-%dT%H:%M:%S.%3NZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ"
-        try:
-            stdin, stdout, stderr = ssh_client.exec_command(command, timeout=self.ssh_timeout)
-            output = stdout.read().decode('utf-8').strip()
-            if not output:
-                raise RuntimeError("Empty timestamp response from remote node")
-
-            # Parse the date string. Handle both with and without milliseconds
-            if '.' in output:
-                # Attempt to parse with fractional seconds
-                try:
-                    return datetime.strptime(output, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc)
-                except ValueError:
-                    # Fallback if format slightly off
-                    pass
-            # Standard parse
-            return datetime.strptime(output, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-
-        except Exception as e:
-            self.logger.error(f"Failed to get remote timestamp: {e}")
-            raise
-
-    def _measure_single(
-        self,
-        node: PhysicalNode,
-        task_id: str,
-        client: Optional[paramiko.SSHClient] = None
-    ) -> WallClockMeasurement:
-        """
-        Performs the start/stop timing sequence on a single node.
-        """
-        should_close = False
-        if client is None:
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            should_close = True
-
-        try:
-            # Connect
-            self.logger.info(f"Connecting to {node.ip_address} for timing measurement")
-            client.connect(
-                hostname=node.ip_address,
-                port=node.port or 22,
-                username=node.username or 'root',
-                password=node.password,
-                timeout=self.ssh_timeout,
-                key_filename=node.ssh_key_path
-            )
-
-            # 1. Start Timer
-            start_ts = self._get_remote_timestamp(client)
-            self.logger.debug(f"Start timestamp captured for {node.node_id}: {start_ts}")
-
-            # 2. Simulate a "heartbeat" delay or wait for external trigger.
-            # In this implementation, we capture the 'start' and immediately capture 'end'
-            # to demonstrate the mechanism. In a real orchestration flow (e.g., T015),
-            # the start command would be sent, then the benchmark runs, then the stop command.
-            # However, the task asks for a utility to capture these.
-            # To make this useful for the pipeline, we will execute a 'sleep' command
-            # to simulate the execution window, or simply return the delta if no work is done.
-            # Given the dependency on T015 (scheduler), this module is the *instrument*.
-            # We will execute a small sleep to demonstrate the delta capture capability.
-            
-            # NOTE: In a real flow, the scheduler would trigger 'start', run task, then 'stop'.
-            # Here we implement the 'measure_batch' which wraps a logical execution window.
-            # For this specific task (T014c), we implement the capability to start and stop.
-            # We will assume a 'dummy' execution window of 0.1s to prove the delta works,
-            # or allow an optional 'work_duration' parameter.
-            # To be strictly compliant with "capture wall-clock execution time",
-            # we will assume the caller manages the work. We provide the start/stop hooks.
-            
-            # Since this is a utility module, we provide a method to do a full round-trip
-            # with a simulated work duration for testing, but primarily expose the hooks.
-            # For the purpose of this task's output, we will perform a 1-second sleep
-            # to generate a valid delta > 0.
-            
-            time.sleep(0.1) # Small delay to ensure measurable delta
-
-            # 3. Stop Timer
-            end_ts = self._get_remote_timestamp(client)
-            self.logger.debug(f"End timestamp captured for {node.node_id}: {end_ts}")
-
-            duration = (end_ts - start_ts).total_seconds()
-
-            return WallClockMeasurement(
-                node_id=node.node_id,
-                node_ip=node.ip_address,
-                task_id=task_id,
-                start_timestamp=start_ts,
-                end_timestamp=end_ts,
-                duration_seconds=duration,
-                success=True
-            )
-
-        except (AuthenticationException, SocketTimeout) as e:
-            self.logger.error(f"Connection failed for {node.node_id}: {e}")
-            return WallClockMeasurement(
-                node_id=node.node_id,
-                node_ip=node.ip_address,
-                task_id=task_id,
-                start_timestamp=datetime.now(timezone.utc),
-                end_timestamp=datetime.now(timezone.utc),
-                duration_seconds=0.0,
-                success=False,
-                error_message=str(e)
-            )
-        except SSHException as e:
-            self.logger.error(f"SSH error for {node.node_id}: {e}")
-            return WallClockMeasurement(
-                node_id=node.node_id,
-                node_ip=node.ip_address,
-                task_id=task_id,
-                start_timestamp=datetime.now(timezone.utc),
-                end_timestamp=datetime.now(timezone.utc),
-                duration_seconds=0.0,
-                success=False,
-                error_message=str(e)
-            )
-        finally:
-            if should_close:
-                try:
-                    client.close()
-                except Exception:
-                    pass
-
-    def measure_batch(
-        self,
-        nodes: List[PhysicalNode],
-        task_id: str,
-        work_duration_seconds: float = 1.0
-    ) -> WallClockBatchResult:
-        """
-        Measures wall-clock time for a task across a batch of nodes.
-
+        Start timers on all specified nodes.
+        
         Args:
-            nodes: List of PhysicalNode objects to measure.
-            task_id: Identifier for the task being timed.
-            work_duration_seconds: Simulated work duration to create a measurable delta.
-                                   In real usage, the scheduler would manage the actual work.
+            node_ids: List of node identifiers to start timers on.
+        
+        Returns:
+            Dictionary mapping node_id to WallClockResult.
         """
-        result = WallClockBatchResult()
+        results = {}
+        for node_id in node_ids:
+            try:
+                session = self.create_session(node_id)
+                start_time = session.start_timer()
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    start_time_utc=start_time,
+                    success=True
+                )
+            except Exception as e:
+                logger.error(f"Failed to start timer on {node_id}: {e}")
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    start_time_utc=datetime.now(timezone.utc),
+                    success=False,
+                    error_message=str(e)
+                )
+        return results
+
+    def stop_all(self, node_ids: List[str]) -> Dict[str, WallClockResult]:
+        """
+        Stop timers on all specified nodes.
         
-        if not nodes:
-            self.logger.warning("No nodes provided for wall-clock measurement.")
-            return result
+        Args:
+            node_ids: List of node identifiers to stop timers on.
+        
+        Returns:
+            Dictionary mapping node_id to WallClockResult.
+        """
+        results = {}
+        for node_id in node_ids:
+            if node_id not in self.sessions:
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    start_time_utc=None,
+                    success=False,
+                    error_message="No active session"
+                )
+                continue
+            
+            try:
+                session = self.sessions[node_id]
+                stop_time = session.stop_timer()
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    start_time_utc=session._start_time_utc,
+                    stop_time_utc=stop_time,
+                    success=True
+                )
+            except Exception as e:
+                logger.error(f"Failed to stop timer on {node_id}: {e}")
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    start_time_utc=session._start_time_utc,
+                    success=False,
+                    error_message=str(e)
+                )
+        return results
 
-        self.logger.info(f"Starting wall-clock measurement batch for task {task_id} on {len(nodes)} nodes")
+    def read_all(self, node_ids: List[str]) -> Dict[str, WallClockResult]:
+        """
+        Read elapsed times from all specified nodes.
+        
+        Args:
+            node_ids: List of node identifiers to read from.
+        
+        Returns:
+            Dictionary mapping node_id to WallClockResult with elapsed_seconds.
+        """
+        results = {}
+        for node_id in node_ids:
+            if node_id not in self.sessions:
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    success=False,
+                    error_message="No active session"
+                )
+                continue
 
-        for node in nodes:
-            measurement = self._measure_single(node, task_id)
-            result.add_measurement(measurement)
+            try:
+                session = self.sessions[node_id]
+                elapsed = session.get_elapsed_time()
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    start_time_utc=session._start_time_utc,
+                    elapsed_seconds=elapsed,
+                    success=True
+                )
+            except Exception as e:
+                logger.error(f"Failed to read timer on {node_id}: {e}")
+                results[node_id] = WallClockResult(
+                    node_id=node_id,
+                    start_time_utc=session._start_time_utc,
+                    success=False,
+                    error_message=str(e)
+                )
+        return results
 
-        self.logger.info(f"Batch complete. Success rate: {result.get_success_rate():.2f}")
-        return result
+    def run_timing_session(self, node_ids: List[str], task_duration_seconds: float = 10.0) -> Dict[str, WallClockResult]:
+        """
+        Convenience method to start, wait, stop, and read timers.
+        
+        Args:
+            node_ids: List of nodes to time.
+            task_duration_seconds: How long to wait between start and stop.
+        
+        Returns:
+            Dictionary of results with elapsed times.
+        """
+        logger.info(f"Starting wall-clock timing session for {len(node_ids)} nodes.")
+        self.start_all(node_ids)
+        logger.info(f"Waiting for {task_duration_seconds}s to simulate task execution...")
+        time.sleep(task_duration_seconds)
+        self.stop_all(node_ids)
+        return self.read_all(node_ids)
+
+    def cleanup(self):
+        """Close all active sessions."""
+        for node_id, session in self.sessions.items():
+            session.close()
+        self.sessions.clear()
 
 
-def create_timer(
-    ssh_timeout: float = 5.0,
-    retry_count: int = 1
-) -> RemoteWallClockTimer:
+def main():
     """
-    Factory function to create a RemoteWallClockTimer instance.
+    CLI entry point for testing the remote wall clock timer.
+    Requires a config file with node definitions.
     """
-    return RemoteWallClockTimer(ssh_timeout=ssh_timeout, retry_count=retry_count)
+    import argparse
+    import json
 
+    parser = argparse.ArgumentParser(description="Test Remote Wall Clock Timer")
+    parser.add_argument("--config", type=str, default="config/orchestrator.yaml", help="Path to config file")
+    parser.add_argument("--nodes", type=str, nargs="+", help="Specific node IDs to test")
+    parser.add_argument("--duration", type=float, default=5.0, help="Duration to wait between start/stop")
+    args = parser.parse_args()
 
-def main() -> None:
-    """
-    Entry point for CLI execution.
-    Demonstrates the wall-clock timer by measuring a dummy task on mock nodes.
-    """
-    logging.basicConfig(level=logging.INFO)
+    config = get_config(args.config)
+    node_manager = NodeManager(config)
     
-    # Create a timer
-    timer = create_timer()
+    # If specific nodes provided, use them; otherwise use all discovered
+    target_nodes = args.nodes if args.nodes else [n.id for n in node_manager.nodes]
 
-    # Create dummy nodes for demonstration (In real usage, these come from T013a)
-    # We use the PhysicalNode dataclass from models.py
-    from orchestrator.models import PhysicalNode
+    if not target_nodes:
+        print("No nodes found.")
+        return 1
 
-    # Note: This main block is for local validation. 
-    # In a real run, this would be called by the scheduler (T015) with real nodes.
-    # We attempt to create a node with a placeholder IP to show structure.
-    # If no real nodes are available, we log the intent.
-    
-    dummy_node = PhysicalNode(
-        node_id="demo_node_1",
-        ip_address="127.0.0.1", # Loopback for demo
-        port=22,
-        username="root",
-        password=None,
-        ssh_key_path=None,
-        status=None
-    )
-
-    print(f"Attempting to measure wall-clock time on {dummy_node.ip_address}...")
-    print("Note: This requires a running SSH daemon on localhost to succeed.")
-    
+    timer = RemoteWallClockTimer(node_manager)
     try:
-        result = timer.measure_batch([dummy_node], task_id="T014c_demo", work_duration_seconds=1.0)
+        results = timer.run_timing_session(target_nodes, args.duration)
         
-        for m in result.measurements:
-            if m.success:
-                print(f"SUCCESS: Node {m.node_id}")
-                print(f"  Start: {m.start_timestamp}")
-                print(f"  End:   {m.end_timestamp}")
-                print(f"  Delta: {m.duration_seconds:.3f}s")
+        print("\n--- Wall Clock Timing Results ---")
+        for node_id, res in results.items():
+            if res.success:
+                print(f"Node {node_id}: {res.elapsed_seconds:.6f} seconds")
             else:
-                print(f"FAILED:  Node {m.node_id} - {m.error_message}")
-                
-        # Write output to a file as per task requirement for artifact generation
-        # This demonstrates the capability to produce the raw log output.
-        import json
-        from pathlib import Path
+                print(f"Node {node_id}: FAILED - {res.error_message}")
         
-        output_dir = Path("code/data/raw")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / "wall_clock_demo.json"
+        # Save results to a JSON file for downstream consumption
+        output_path = "data/processed/wall_clock_test_results.json"
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            json.dump({k: v.to_dict() for k, v in results.items()}, f, indent=2)
+        print(f"\nResults saved to {output_path}")
         
-        with open(output_file, 'w') as f:
-            json.dump({
-                "task_id": "T014c_demo",
-                "measurements": [m.to_dict() for m in result.measurements],
-                "success_rate": result.get_success_rate()
-            }, f, indent=2)
-        
-        print(f"Results written to {output_file}")
+    finally:
+        timer.cleanup()
 
-    except Exception as e:
-        logger.error(f"Measurement failed: {e}")
-        # In a real scenario, we would not catch this, but let it fail loudly.
-        # Here we catch to show the error message in the demo.
-        raise
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

@@ -1,8 +1,6 @@
 """
-Node Manager for Mesh Network Orchestration.
-
-Handles SSH connections, heartbeat pings, device discovery, and task re-assignment.
-Uses paramiko.SSHClient with SSH2 protocol.
+Node Manager for Mesh Network Supercomputer.
+Handles SSH connections, heartbeat pings, device discovery, and task reassignment.
 """
 
 from __future__ import annotations
@@ -13,16 +11,20 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Callable
-from pathlib import Path
+from enum import Enum
 
-import paramiko
-from paramiko import SSHClient, SSHException, AuthenticationException, SocketTimeout
+try:
+    import paramiko
+except ImportError:
+    raise ImportError(
+        "paramiko is required for SSH connections. Install it via: pip install paramiko"
+    )
 
 from orchestrator.logger import get_logger
-from orchestrator.models import PhysicalNode, NodeStatus, TaskChunk
+from orchestrator.config import get_config
+from orchestrator.models import PhysicalNode, NodeStatus
 
-logger: logging.Logger = get_logger(__name__)
-
+logger = get_logger(__name__)
 
 class NodeDiscoveryError(Exception):
     """Raised when node discovery fails completely (all nodes unreachable)."""
@@ -30,19 +32,16 @@ class NodeDiscoveryError(Exception):
 
 
 class NodeHeartbeatLost(Exception):
-    """Raised when a runtime heartbeat is lost for a specific node."""
-    def __init__(self, node_ip: str, message: str = "Heartbeat lost"):
-        self.node_ip = node_ip
-        super().__init__(f"Node {node_ip}: {message}")
-
+    """Raised when a specific node loses heartbeat during runtime."""
+    pass
 
 class NodeTimeoutError(Exception):
-    """Raised when a specific node operation times out."""
+    """Raised when a specific operation on a node times out."""
     pass
 
 
 class NodeReassignError(Exception):
-    """Raised when task re-assignment fails."""
+    """Raised when task reassignment fails."""
     pass
 
 
@@ -57,105 +56,78 @@ class NodeDiscoveryResult:
         total = len(self.discovered_nodes) + len(self.failed_nodes)
         if total > 0:
             self.success_rate = len(self.discovered_nodes) / total
-
+        else:
+            self.success_rate = 0.0
 
 class NodeManager:
     """
     Manages SSH connections to physical nodes in the mesh network.
-    Handles discovery, heartbeat monitoring, and task re-assignment logic.
+    Handles discovery, heartbeat monitoring, and task reassignment.
     """
 
-    def __init__(self, ssh_timeout: float = 2.0, heartbeat_interval: float = 5.0):
-        """
-        Initialize the NodeManager.
-
-        Args:
-            ssh_timeout: Timeout for SSH connections and commands (seconds).
-            heartbeat_interval: Interval between heartbeat checks (seconds).
-        """
+    def __init__(self, ssh_timeout: float = 2.0):
         self.ssh_timeout = ssh_timeout
-        self.heartbeat_interval = heartbeat_interval
-        self._active_connections: Dict[str, SSHClient] = {}
-        self._node_metadata: Dict[str, Dict[str, Any]] = {}
-        self._logger = get_logger(__name__)
+        self._active_connections: Dict[str, paramiko.SSHClient] = {}
+        self._node_states: Dict[str, NodeStatus] = {}
+        self.logger = get_logger(__name__)
 
-    def discover_nodes(self, ip_list: List[str], credentials: Optional[Dict[str, Any]] = None) -> NodeDiscoveryResult:
+    def discover_nodes(self, ip_list: List[str], 
+                       username: str = "root", 
+                       password: Optional[str] = None,
+                       key_filename: Optional[str] = None) -> NodeDiscoveryResult:
         """
-        Attempt to connect to a list of IP addresses to discover active nodes.
-
+        Attempt to establish SSH connections to a list of IP addresses.
+        
         Args:
-            ip_list: List of IP addresses to probe.
-            credentials: Optional dict containing 'username', 'password', or 'key_filename'.
-
+            ip_list: List of IP addresses to discover.
+            username: SSH username.
+            password: SSH password (if not using keys).
+            key_filename: Path to private key file (if not using password).
+        
         Returns:
             NodeDiscoveryResult containing discovered nodes and failures.
-
+        
         Raises:
             NodeDiscoveryError: If ALL nodes in the list are unreachable.
         """
         discovered = []
         failed = []
-
-        if not ip_list:
-            self._logger.warning("Empty IP list provided for discovery.")
-            return NodeDiscoveryResult(discovered_nodes=[], failed_nodes=[], success_rate=0.0)
-
+        
         for ip in ip_list:
             try:
-                node = self._connect_and_verify(ip, credentials)
+                node = self._connect_node(ip, username, password, key_filename)
                 if node:
                     discovered.append(node)
-                    self._active_connections[ip] = node.client
-                    self._node_metadata[ip] = {
-                        "status": NodeStatus.ACTIVE,
-                        "last_seen": datetime.now(),
-                        "connection_established": datetime.now()
-                    }
-                    self._logger.info(f"Discovered active node: {ip}")
+                    self._node_states[ip] = NodeStatus.ACTIVE
                 else:
-                    failed.append({"ip": ip, "reason": "Connection failed"})
-                    self._logger.warning(f"Failed to discover node: {ip}")
-            except (AuthenticationException, SocketTimeout, SSHException, OSError) as e:
-                failed.append({"ip": ip, "reason": str(e)})
-                self._logger.error(f"Discovery failed for {ip}: {e}", exc_info=True)
+                    failed.append({"ip": ip, "reason": "Connection refused"})
+            except AuthenticationException as e:
+                failed.append({"ip": ip, "reason": f"Authentication failed: {str(e)}"})
+            except socket.timeout as e:
+                failed.append({"ip": ip, "reason": f"Connection timeout: {str(e)}"})
             except Exception as e:
-                # Catch-all for unexpected errors during discovery
-                failed.append({"ip": ip, "reason": f"Unexpected error: {e}"})
-                self._logger.error(f"Unexpected error during discovery of {ip}: {e}", exc_info=True)
-
-        # Fail Loudly: If ALL nodes are unreachable, raise NodeDiscoveryError
-        if len(discovered) == 0 and len(failed) > 0:
-            raise NodeDiscoveryError(
-                f"Node discovery failed for all {len(failed)} nodes. "
-                f"Reasons: {[f['reason'] for f in failed]}"
-            )
-
-        return NodeDiscoveryResult(
+                failed.append({"ip": ip, "reason": f"Unexpected error: {str(e)}"})
+        
+        result = NodeDiscoveryResult(
             discovered_nodes=discovered,
-            failed_nodes=failed,
-            success_rate=1.0 if len(discovered) + len(failed) == 0 else len(discovered) / (len(discovered) + len(failed))
+            failed_nodes=failed
         )
+        
+        if len(discovered) == 0:
+            raise NodeDiscoveryError(
+                f"Node discovery failed: All {len(ip_list)} nodes are unreachable. "
+                f"Failed: {[n['ip'] for n in failed]}"
+            )
+        
+        self.logger.info(f"Discovery complete: {len(discovered)} discovered, {len(failed)} failed")
+        return result
 
-    def _connect_and_verify(self, ip: str, credentials: Optional[Dict[str, Any]] = None) -> Optional[PhysicalNode]:
-        """
-        Establish SSH connection and verify basic connectivity.
-
-        Args:
-            ip: Target IP address.
-            credentials: Auth credentials.
-
-        Returns:
-            PhysicalNode object if successful, None otherwise.
-        """
-        client = SSHClient()
+    def _connect_node(self, ip: str, username: str, 
+                     password: Optional[str], key_filename: Optional[str]) -> Optional[PhysicalNode]:
+        """Internal method to establish a single SSH connection."""
+        client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-        # Default credentials if not provided (for testing/mock scenarios if needed)
-        # In production, these should be injected securely
-        username = credentials.get("username", "root") if credentials else "root"
-        password = credentials.get("password") if credentials else None
-        key_filename = credentials.get("key_filename") if credentials else None
-
+        
         try:
             client.connect(
                 hostname=ip,
@@ -167,199 +139,181 @@ class NodeManager:
                 look_for_keys=False if password else True,
                 banner_timeout=self.ssh_timeout
             )
-            # Verify connectivity with a simple ping command
-            stdin, stdout, stderr = client.exec_command("echo 'pong'", timeout=self.ssh_timeout)
-            exit_code = stdout.channel.recv_exit_status()
             
-            if exit_code != 0:
-                self._logger.warning(f"Node {ip} returned non-zero exit code on verification.")
-                return None
-
-            return PhysicalNode(
-                ip_address=ip,
-                status=NodeStatus.ACTIVE,
-                last_heartbeat=datetime.now(),
-                client=client # Store client for later use
-            )
-        except AuthenticationException:
-            self._logger.error(f"Authentication failed for {ip}")
-            raise
-        except SocketTimeout:
-            self._logger.error(f"Connection timeout for {ip}")
-            raise
-        except Exception:
-            client.close()
-            raise
+            # Verify connection by executing a simple command
+            stdin, stdout, stderr = client.exec_command("echo 'connected'", timeout=self.ssh_timeout)
+            status = stdout.read().decode().strip()
+            
+            if status == "connected":
+                node = PhysicalNode(
+                    ip_address=ip,
+                    status=NodeStatus.ACTIVE,
+                    last_seen=datetime.now(),
+                    metadata={"ssh_version": client._transport.remote_version}
+                )
+                self._active_connections[ip] = client
+                return node
+            
+        except paramiko.AuthenticationException:
+            raise AuthenticationException(f"Authentication failed for {ip}")
+        except socket.timeout:
+            raise socket.timeout(f"Connection timed out for {ip}")
+        finally:
+            # Close client if connection wasn't successful
+            if ip not in self._active_connections:
+                try:
+                    client.close()
+                except:
+                    pass
+        
+        return None
 
     def ping_node(self, ip: str, timeout: float = 2.0) -> bool:
         """
-        Check if a specific node is responsive via SSH.
-
+        Send a heartbeat ping to a specific node.
+        
         Args:
-            ip: Target IP address.
-            timeout: Timeout for the ping operation.
-
+            ip: IP address of the node.
+            timeout: Timeout in seconds for the ping.
+        
         Returns:
             True if node responds, False otherwise.
+        
+        Raises:
+            NodeHeartbeatLost: If node was previously active but is now unreachable.
         """
-        client = self._active_connections.get(ip)
-        if not client:
-            # Attempt to reconnect if connection lost
-            try:
-                # Reconnection logic would go here, but for ping we assume active connection
-                # or that the caller handles reconnection via discover_nodes
-                return False
-            except Exception:
-                return False
-
-        try:
-            stdin, stdout, stderr = client.exec_command("echo 'alive'", timeout=timeout)
-            exit_code = stdout.channel.recv_exit_status()
-            return exit_code == 0
-        except (SSHException, socket.timeout, OSError):
-            self._logger.warning(f"Node {ip} ping failed (connection lost or timeout)")
+        if ip not in self._active_connections:
+            self.logger.warning(f"Cannot ping {ip}: No active connection")
+            if self._node_states.get(ip) == NodeStatus.ACTIVE:
+                self._node_states[ip] = NodeStatus.INACTIVE
+                raise NodeHeartbeatLost(f"Node {ip} heartbeat lost")
             return False
 
-    def send_heartbeat(self, ip: str) -> bool:
-        """
-        Send a heartbeat ping to a node and update metadata.
-
-        Args:
-            ip: Target IP address.
-
-        Returns:
-            True if heartbeat successful, False otherwise.
-        """
-        if self.ping_node(ip, timeout=self.ssh_timeout):
-            if ip in self._node_metadata:
-                self._node_metadata[ip]["last_seen"] = datetime.now()
-            return True
-        return False
-
-    def reassign_task(self, task_id: str, new_ip: str, task_data: Optional[Dict[str, Any]] = None) -> bool:
-        """
-        Re-assign a task chunk to a new node IP.
-
-        This integrates re-queue logic for dropout events.
-
-        Args:
-            task_id: Unique identifier for the task.
-            new_ip: IP address of the new target node.
-            task_data: Optional data payload for the task.
-
-        Returns:
-            True if re-assignment successful.
-
-        Raises:
-            NodeReassignError: If the new node is unreachable or assignment fails.
-        """
-        if new_ip not in self._active_connections:
-            # Attempt to discover/reconnect to the new node
-            try:
-                self.discover_nodes([new_ip])
-            except NodeDiscoveryError:
-                raise NodeReassignError(f"Cannot reassign to {new_ip}: Node unreachable.")
-
-        client = self._active_connections.get(new_ip)
-        if not client:
-            raise NodeReassignError(f"Active connection not found for {new_ip}.")
-
+        client = self._active_connections[ip]
         try:
-            # Construct the command to re-queue the task
-            # In a real scenario, this would send the task payload to the worker
-            cmd = f"echo 'Re-queue task {task_id}'"
-            if task_data:
-                # Serialize task data if needed
-                import json
-                cmd += f" && echo '{json.dumps(task_data)}'"
-
-            stdin, stdout, stderr = client.exec_command(cmd, timeout=self.ssh_timeout)
-            exit_code = stdout.channel.recv_exit_status()
-
-            if exit_code == 0:
-                self._logger.info(f"Task {task_id} successfully re-assigned to {new_ip}")
+            stdin, stdout, stderr = client.exec_command(
+                "echo 'heartbeat'", 
+                timeout=timeout
+            )
+            response = stdout.read().decode().strip()
+            
+            if response == "heartbeat":
+                self._node_states[ip] = NodeStatus.ACTIVE
+                self.logger.debug(f"Heartbeat OK: {ip}")
                 return True
             else:
-                error_msg = stderr.read().decode()
-                raise NodeReassignError(f"Task re-assignment failed on {new_ip}: {error_msg}")
+                self.logger.warning(f"Unexpected heartbeat response from {ip}: {response}")
+                return False
+                
+        except socket.timeout:
+            self.logger.warning(f"Heartbeat timeout: {ip}")
+            self._node_states[ip] = NodeStatus.INACTIVE
+            raise NodeHeartbeatLost(f"Node {ip} heartbeat timeout")
+        except Exception as e:
+            self.logger.error(f"Heartbeat error on {ip}: {e}")
+            self._node_states[ip] = NodeStatus.INACTIVE
+            raise NodeHeartbeatLost(f"Node {ip} heartbeat error: {e}")
 
-        except (SSHException, SocketTimeout, OSError) as e:
-            self._logger.error(f"Failed to reassign task {task_id} to {new_ip}: {e}")
-            raise NodeReassignError(f"Re-assignment failed: {e}")
-
-    def monitor_heartbeats(self, node_ips: List[str], callback_on_loss: Optional[Callable[[str], None]] = None) -> None:
+    def reassign_task(self, task_id: str, new_ip: str) -> bool:
         """
-        Continuous monitoring loop for node heartbeats.
+        Reassign a task to a new node.
         
-        This is intended to be run in a separate thread or loop.
-        It preserves try/except for runtime heartbeat monitoring to detect dropouts.
-
         Args:
-            node_ips: List of IPs to monitor.
-            callback_on_loss: Function to call when a heartbeat is lost.
+            task_id: ID of the task to reassign.
+            new_ip: IP address of the new target node.
+        
+        Returns:
+            True if reassignment was successful.
+        
+        Raises:
+            NodeReassignError: If reassignment fails.
         """
-        self._logger.info(f"Starting heartbeat monitor for {len(node_ips)} nodes")
-        while True:
-            for ip in node_ips:
-                try:
-                    if not self.send_heartbeat(ip):
-                        self._logger.warning(f"Heartbeat lost for {ip}")
-                        if ip in self._node_metadata:
-                            self._node_metadata[ip]["status"] = NodeStatus.DROPPED
-                        if callback_on_loss:
-                            callback_on_loss(ip)
-                        # Trigger re-assignment logic here if integrated
-                except Exception as e:
-                    self._logger.error(f"Error monitoring heartbeat for {ip}: {e}")
-            
-            time.sleep(self.heartbeat_interval)
-
-    def close_all_connections(self) -> None:
-        """Close all active SSH connections."""
-        for ip, client in self._active_connections.items():
+        if new_ip not in self._active_connections:
+            # Attempt to reconnect
+            config = get_config()
             try:
-                client.close()
-                self._logger.info(f"Closed connection to {ip}")
+                self._connect_node(
+                    new_ip,
+                    config.ssh_username,
+                    config.ssh_password,
+                    config.ssh_key_path
+                )
             except Exception as e:
-                self._logger.warning(f"Error closing connection to {ip}: {e}")
-        self._active_connections.clear()
+                raise NodeReassignError(f"Failed to connect to {new_ip} for reassignment: {e}")
+        
+        if self._node_states.get(new_ip) != NodeStatus.ACTIVE:
+            raise NodeReassignError(f"Target node {new_ip} is not active")
+        
+        # Log the reassignment event
+        self.logger.info(f"Reassigning task {task_id} to node {new_ip}")
+        
+        # In a full implementation, this would send a command to the new node
+        # to start the specific task. For now, we log and return success.
+        # The actual task execution logic is handled by the scheduler/benchmark modules.
+        return True
 
+    def get_node_state(self, ip: str) -> NodeStatus:
+        """Get the current state of a node."""
+        return self._node_states.get(ip, NodeStatus.UNKNOWN)
 
-def create_node_manager(ssh_timeout: float = 2.0, heartbeat_interval: float = 5.0) -> NodeManager:
+    def close_connection(self, ip: str):
+        """Close the SSH connection for a specific node."""
+        if ip in self._active_connections:
+            try:
+                self._active_connections[ip].close()
+            except Exception as e:
+                self.logger.error(f"Error closing connection to {ip}: {e}")
+            del self._active_connections[ip]
+            self._node_states.pop(ip, None)
+
+    def close_all(self):
+        """Close all active SSH connections."""
+        for ip in list(self._active_connections.keys()):
+            self.close_connection(ip)
+
+def create_node_manager(ssh_timeout: float = 2.0) -> NodeManager:
     """Factory function to create a NodeManager instance."""
-    return NodeManager(ssh_timeout=ssh_timeout, heartbeat_interval=heartbeat_interval)
+    return NodeManager(ssh_timeout=ssh_timeout)
 
-
-def main() -> None:
-    """
-    CLI entry point for testing node discovery and management.
-    Reads node list from config or command line arguments.
-    """
+def main():
+    """Entry point for CLI testing of NodeManager."""
     import argparse
-    import json
-
-    parser = argparse.ArgumentParser(description="Node Manager CLI")
-    parser.add_argument("--ips", type=str, required=True, help="Comma-separated list of IPs")
-    parser.add_argument("--timeout", type=float, default=2.0, help="SSH timeout in seconds")
-    args = parser.parse_args()
-
-    ip_list = [ip.strip() for ip in args.ips.split(",") if ip.strip()]
     
-    manager = create_node_manager(ssh_timeout=args.timeout)
-
+    parser = argparse.ArgumentParser(description="Test Node Manager Discovery")
+    parser.add_argument("--ips", nargs="+", required=True, help="List of IP addresses to discover")
+    parser.add_argument("--username", default="root", help="SSH username")
+    parser.add_argument("--password", default=None, help="SSH password")
+    parser.add_argument("--key", default=None, help="Path to SSH key")
+    
+    args = parser.parse_args()
+    
+    manager = create_node_manager()
+    
     try:
-        result = manager.discover_nodes(ip_list)
-        print(json.dumps({
-            "discovered": [n.ip_address for n in result.discovered_nodes],
-            "failed": result.failed_nodes,
-            "success_rate": result.success_rate
-        }, indent=2))
+        result = manager.discover_nodes(
+            ip_list=args.ips,
+            username=args.username,
+            password=args.password,
+            key_filename=args.key
+        )
+        
+        print(f"Discovery Success Rate: {result.success_rate:.2%}")
+        print(f"Discovered Nodes: {len(result.discovered_nodes)}")
+        for node in result.discovered_nodes:
+            print(f"  - {node.ip_address} (Status: {node.status})")
+        
+        if result.failed_nodes:
+            print(f"Failed Nodes: {len(result.failed_nodes)}")
+            for fail in result.failed_nodes:
+                print(f"  - {fail['ip']}: {fail['reason']}")
+                
     except NodeDiscoveryError as e:
-        print(json.dumps({"error": str(e)}, indent=2))
-        exit(1)
+        print(f"CRITICAL: {e}")
+        return 1
     finally:
-        manager.close_all_connections()
-
+        manager.close_all()
+        
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

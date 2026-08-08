@@ -1,31 +1,34 @@
 # Data and logs
 data/
 *.log
-
-# Python cache
 __pycache__/
-*.py[cod]
-$PYCHARM_HELPER
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.env
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-
-# IDE
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache/
+.eggs/
+*.egg-info/
+*.egg
 .idea/
 .vscode/
-*.swp
-*.swo
-
-# OS
 .DS_Store
 Thumbs.db
-
-# Environment
-.env
-venv/
-.venv/
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
+*.swp
+*.swo
+*~
+project.log
+simulation_results/
+figures/
+config/output/

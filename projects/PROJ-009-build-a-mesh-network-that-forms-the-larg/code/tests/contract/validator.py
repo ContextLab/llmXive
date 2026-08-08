@@ -1,145 +1,147 @@
 """
-Schema validation framework using jsonschema and pyyaml.
-Provides utility functions to validate JSON/YAML data against defined schemas.
+Schema validation utility for ExecutionRun and RegressionModel structures.
+Uses jsonschema for validation against YAML-defined schemas.
 """
-import yaml
 import json
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Union, Optional
-from datetime import datetime
-from jsonschema import validate, ValidationError, Draft7Validator
+from typing import Any, Dict, List, Optional, Union
 
-# Import schemas defined in schemas.py
-from code.tests.contract.schemas import EXECUTION_RUN_SCHEMA, REGRESSION_MODEL_SCHEMA
+import jsonschema
+from jsonschema import ValidationError, Draft7Validator
+import yaml
+
+from orchestrator.logger import get_logger
+
+logger = get_logger(__name__)
+
+# Path to the schemas directory relative to project root
+SCHEMAS_DIR = Path(__file__).parent / "schemas"
 
 class SchemaValidationError(Exception):
     """Custom exception for schema validation failures."""
     pass
 
-def load_schema_from_yaml(schema_path: Union[str, Path]) -> Dict[str, Any]:
+def load_schema_from_yaml(schema_file: Path) -> Dict[str, Any]:
     """
-    Load a schema definition from a YAML file.
-
+    Load a JSON schema defined in a YAML file.
+    
     Args:
-        schema_path: Path to the YAML schema file.
-
+        schema_file: Path to the YAML schema file.
+        
     Returns:
-        Dictionary containing the loaded schema.
-
+        The schema as a dictionary.
+        
     Raises:
         FileNotFoundError: If the schema file does not exist.
-        yaml.YAMLError: If the file contains invalid YAML.
+        yaml.YAMLError: If the YAML is invalid.
     """
-    path = Path(schema_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {path}")
+    if not schema_file.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_file}")
+    
+    with open(schema_file, 'r', encoding='utf-8') as f:
+        schema = yaml.safe_load(f)
+    
+    return schema
 
-    with open(path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+def validate_json_against_schema(
+    data: Union[Dict[str, Any], str],
+    schema: Union[Dict[str, Any], str, Path],
+    schema_name: str = "Unknown"
+) -> None:
+    """
+    Validate a JSON object (or JSON string) against a schema.
+    
+    This is the core utility function requested in T007.
+    It raises a SchemaValidationError (wrapping jsonschema.ValidationError)
+    if the data does not conform to the schema.
+    
+    Args:
+        data: The data to validate (dict or JSON string).
+        schema: The schema to validate against (dict, JSON string, or Path to YAML).
+        schema_name: Human-readable name for error messages.
+        
+    Raises:
+        SchemaValidationError: If validation fails.
+        TypeError: If data format is incorrect.
+    """
+    # Load schema if path provided
+    if isinstance(schema, Path):
+        try:
+            schema_dict = load_schema_from_yaml(schema)
+        except Exception as e:
+            logger.error(f"Failed to load schema {schema_name}: {e}")
+            raise
+    elif isinstance(schema, str):
+        # Assume it's a JSON string if it starts with '{'
+        if schema.strip().startswith('{'):
+            try:
+                schema_dict = json.loads(schema)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Invalid JSON schema string: {e}")
+        else:
+            # Assume it's a file path string
+            schema_dict = load_schema_from_yaml(Path(schema))
+    else:
+        schema_dict = schema
 
-def validate_type(value: Any, expected_type: str) -> bool:
-    """
-    Validate that a value matches a JSON Schema type definition.
-    """
-    if expected_type == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    elif expected_type == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-    elif expected_type == "string":
-        return isinstance(value, str)
-    elif expected_type == "boolean":
-        return isinstance(value, bool)
-    elif expected_type == "array":
-        return isinstance(value, list)
-    elif expected_type == "object":
-        return isinstance(value, dict)
-    return False
+    # Parse data if it's a JSON string
+    if isinstance(data, str):
+        try:
+            data_dict = json.loads(data)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON data string: {e}")
+    else:
+        data_dict = data
 
-def validate_enum(value: Any, allowed_values: List[Any]) -> bool:
-    """
-    Validate that a value is in the list of allowed enum values.
-    """
-    return value in allowed_values
+    # Validate
+    try:
+        validator = Draft7Validator(schema_dict)
+        errors = list(validator.iter_errors(data_dict))
+        if errors:
+            error_msgs = [f" - {e.message} (path: {list(e.path)})" for e in errors]
+            full_msg = f"Schema validation failed for {schema_name}:\n" + "\n".join(error_msgs)
+            logger.error(full_msg)
+            raise SchemaValidationError(full_msg)
+        
+        logger.debug(f"Schema validation passed for {schema_name}")
+        
+    except SchemaValidationError:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during validation of {schema_name}: {e}")
+        raise
 
-def validate_minimum(value: Union[int, float], minimum: Union[int, float]) -> bool:
+def validate_execution_run(data: Union[Dict[str, Any], str]) -> None:
     """
-    Validate that a numeric value is >= minimum.
-    """
-    return value >= minimum
-
-def validate_maximum(value: Union[int, float], maximum: Union[int, float]) -> bool:
-    """
-    Validate that a numeric value is <= maximum.
-    """
-    return value <= maximum
-
-def validate_schema(data: Any, schema: Dict[str, Any]) -> None:
-    """
-    Validate data against a JSON Schema.
-    Raises ValidationError if validation fails.
-
+    Validate data against the ExecutionRun schema.
+    
     Args:
         data: The data to validate.
-        schema: The JSON Schema to validate against.
-    """
-    try:
-        validate(instance=data, schema=schema, cls=Draft7Validator)
-    except ValidationError as e:
-        raise SchemaValidationError(f"Schema validation failed: {e.message}")
-
-def validate_execution_run(data: Dict[str, Any]) -> None:
-    """
-    Validate an ExecutionRun data structure against its schema.
-
-    Args:
-        data: Dictionary containing execution run data.
-
+        
     Raises:
-        SchemaValidationError: If the data does not conform to the schema.
+        SchemaValidationError: If validation fails.
     """
-    validate_schema(data, EXECUTION_RUN_SCHEMA)
+    schema_path = SCHEMAS_DIR / "execution_run.yaml"
+    validate_json_against_schema(data, schema_path, "ExecutionRun")
 
-def validate_regression_model(data: Dict[str, Any]) -> None:
+def validate_regression_model(data: Union[Dict[str, Any], str]) -> None:
     """
     Validate a RegressionModel data structure against its schema.
 
     Args:
-        data: Dictionary containing regression model data.
-
+        data: The data to validate.
+        
     Raises:
         SchemaValidationError: If the data does not conform to the schema.
     """
-    validate_schema(data, REGRESSION_MODEL_SCHEMA)
+    schema_path = SCHEMAS_DIR / "regression_model.yaml"
+    validate_json_against_schema(data, schema_path, "RegressionModel")
 
-def validate_json_against_schema(json_data: Union[str, Dict[str, Any]], schema: Dict[str, Any]) -> bool:
-    """
-    Generic utility function to validate JSON data against a schema.
-    This function raises ValidationError on mismatch as required by T007.
+def get_execution_run_schema() -> Dict[str, Any]:
+    """Load and return the ExecutionRun schema dictionary."""
+    return load_schema_from_yaml(SCHEMAS_DIR / "execution_run.yaml")
 
-    Args:
-        json_data: JSON data as a string or dictionary.
-        schema: The JSON Schema to validate against.
-
-    Returns:
-        True if validation passes (only if no exception is raised).
-
-    Raises:
-        SchemaValidationError: If the data does not match the schema.
-        json.JSONDecodeError: If the input string is not valid JSON.
-    """
-    # Parse string input if necessary
-    if isinstance(json_data, str):
-        try:
-            data = json.loads(json_data)
-        except json.JSONDecodeError as e:
-            raise SchemaValidationError(f"Invalid JSON format: {e.msg}")
-    else:
-        data = json_data
-
-    # Perform validation
-    try:
-        validate(instance=data, schema=schema, cls=Draft7Validator)
-    except ValidationError as e:
-        raise SchemaValidationError(f"Validation error: {e.message} at path {'/'.join(map(str, e.path))}")
-
-    return True
+def get_regression_model_schema() -> Dict[str, Any]:
+    """Load and return the RegressionModel schema dictionary."""
+    return load_schema_from_yaml(SCHEMAS_DIR / "regression_model.yaml")

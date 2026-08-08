@@ -1,3 +1,1 @@
-"""
-Tests module: Root for all test suites.
-"""
+"""Tests package root."""

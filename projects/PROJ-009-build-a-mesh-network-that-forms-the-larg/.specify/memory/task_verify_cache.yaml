@@ -1,39 +1,46 @@
-T012:
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/orchestrator/remote_tool_manager.py` file or its contents were provided\
-    \ for review, so we cannot confirm that the required tool\u2011verification and\
-    \ installation logic (checking `tcpdump`/`mpstat`, attempting `apt-get`/`yum`,\
-    \ handling failures, raising `ToolMissingError`) actually exists. The implementer\
-    \ must supply the implemented module (non\u2011empty) for verification."
+  r: No files or code were found under `code/tests/contract/` defining YAML schemas
+    for `ExecutionRun` or `RegressionModel`, nor any implementation using `jsonschema`/`pydantic`
+    to perform runtime validation. The required artifacts are missing, so the task
+    is not satisfied.
 T013a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/orchestrator/node_manager.py` file or its contents were presented, so
-    we cannot confirm that the required functions (`discover_nodes`, `ping_node`,
-    `reassign_task`) are implemented, that Paramiko is used, or that the specified
-    error handling and recovery logic exist. The artifact is missing, making the task
-    unverified.
+  r: "No `code/orchestrator/node_manager.py` file or its contents were presented,\
+    \ so we cannot confirm that the required functions (`discover_nodes`, `ping_node`,\
+    \ `reassign_task`) are implemented with the specified Paramiko usage, error handling,\
+    \ and re\u2011queue logic. The artifact is missing, making the task unverified."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/orchestrator/completion_feedback.py` file or its contents were provided,\
+    \ and there is no evidence that the required `receive_task_status(node_id, task_id,\
+    \ status)` and `update_scheduler_state(task_id, status)` functions have been implemented.\
+    \ The implementer\u2019s claim cannot be verified without the actual code artifact."
 T014a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The repository contains no `code/orchestrator/instrumentor_remote.py` file or\
-    \ any shown implementation of the required remote SSH execution, parsing, network\u2011\
-    saturation check, unmodeled\u2011var capture, or error handling. Without the actual\
-    \ artifact, the task\u2019s specifications cannot be verified as met."
+  r: "No `instrumentor_remote.py` file (or any code) was provided, and therefore none\
+    \ of the required functionality\u2014remote SSH execution of `tcpdump` and `mpstat`,\
+    \ parsing of packet counts and CPU utilization, network\u2011saturation check,\
+    \ unmodeled\u2011vars capture, wall\u2011clock timing, or dependency handling\u2014\
+    can be verified. The implementer must add the actual script with the specified\
+    \ functions and ensure it is present and non\u2011empty."
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/orchestrator/mpstat_parser.py` file or its contents were presented,
-    so there is no evidence that the parser was implemented, nor that it converts
-    raw `mpstat` output into the required `cpu_utilization_pct` field. The required
-    artifact is missing.
+  r: No `code/orchestrator/mpstat_parser.py` file or its contents were presented;
+    without the actual implementation we cannot confirm that raw `mpstat` output is
+    parsed into the required `cpu_utilization_pct` field. The required artifact is
+    missing.
 T014c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `remote_wall_clock_timer.py` file is present in `code/orchestrator/`, and\
-    \ there is no evidence of any code implementing SSH\u2011based start/stop timing\
-    \ or logging `start_timestamp` and `end_timestamp`. The required artifact is missing,\
+  r: "No `remote_wall_clock_timer.py` file (or its contents) was presented in the\
+    \ evidence, and thus there is no proof that a functional SSH\u2011based timer\
+    \ implementation exists in `code/orchestrator/`. The required artifact is missing,\
     \ so the task is not satisfied."
 T016:
   c: false
