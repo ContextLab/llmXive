@@ -1,0 +1,17 @@
+status: none
+intent: GitHub repository metadata dataset Libraries.io Google BigQuery python package
+  dataset
+required_fields:
+- repo_full_name
+- repo_url
+- primary_language
+- stars
+- forks
+- license
+- last_commit_date
+- commit_activity_last_year
+- ci_status
+- default_branch
+cache_key: 83c7fbb2fd9ff6da80ed6755ca2ecfbd32891a9a13b0692920254c72017a89e6
+searched_at: '2026-08-08T05:10:26.942102+00:00'
+retry_count: 1

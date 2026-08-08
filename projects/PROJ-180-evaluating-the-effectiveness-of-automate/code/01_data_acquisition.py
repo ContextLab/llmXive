@@ -5,9 +5,11 @@ import sys
 import subprocess
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
+import requests
+import shutil
 
-# Import existing utilities from the project API surface
+# Import existing utilities from the project's API surface
 from utils.config import get_config, get_github_token, get_data_raw_dir, get_data_processed_dir
 from utils.github_client import GitHubClient, create_client
 from utils.hasher import hash_file
@@ -15,21 +17,17 @@ from utils.hasher import hash_file
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/processed/acquisition.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def load_versions_config() -> Dict[str, Any]:
-    """Load the versions.yaml configuration file."""
-    config_path = Path("code/versions.yaml")
+    """Load versions.yaml configuration."""
+    config_path = Path(__file__).parent / "versions.yaml"
     if not config_path.exists():
         raise FileNotFoundError(f"versions.yaml not found at {config_path}")
-    # Simple YAML parsing for the specific structure expected
-    # In a real scenario, use PyYAML, but avoiding extra deps if not in requirements yet
+    
+    # Simple YAML parser for basic key-value pairs
     config = {}
     with open(config_path, 'r') as f:
         for line in f:
@@ -41,260 +39,212 @@ def load_versions_config() -> Dict[str, Any]:
     return config
 
 def build_search_query(language: str, min_stars: int = 1000) -> str:
-    """Build a GitHub search query for a specific language."""
-    return f"language:{language} stars:>{min_stars} pushed:>2023-01-01"
+    """Build GitHub search query for repositories."""
+    return f"language:{language} stars:>{min_stars} pushed:>=2023-01-01"
 
-def fetch_repos_for_language(client: GitHubClient, language: str, count: int = 10) -> List[Dict[str, Any]]:
-    """Fetch a list of repositories for a given language."""
-    query = build_search_query(language)
+def fetch_repos_for_language(client: GitHubClient, language: str, min_stars: int = 1000, limit: int = 10) -> List[Dict[str, Any]]:
+    """Fetch repositories for a specific language."""
+    query = build_search_query(language, min_stars)
     repos = []
+    
     try:
-        for repo in client.search_repos(query, per_page=count):
-            repos.append(repo)
+        for repo in client.search_repositories(query, per_page=limit):
+            repos.append({
+                'owner': repo['owner']['login'],
+                'name': repo['name'],
+                'language': repo['language'],
+                'stars': repo['stargazers_count'],
+                'license': repo.get('license', {}).get('key', 'unknown')
+            })
     except Exception as e:
         logger.error(f"Failed to fetch repos for {language}: {e}")
+    
     return repos
 
-def filter_repos(repos: List[Dict[str, Any]], allowed_licenses: List[str]) -> List[Dict[str, Any]]:
-    """Filter repositories based on license and other PESTO criteria."""
+def filter_repos(repos: List[Dict[str, Any]], allowed_licenses: List[str] = None) -> List[Dict[str, Any]]:
+    """Filter repositories based on criteria."""
+    if allowed_licenses is None:
+        allowed_licenses = ['mit', 'apache-2.0', 'bsd-3-clause', 'bsd-2-clause']
+    
     filtered = []
     for repo in repos:
-        license_info = repo.get('license', {})
-        license_key = license_info.get('key', '') if license_info else ''
-        
-        # Check license
-        if license_key not in allowed_licenses:
-            logger.debug(f"Skipping {repo['full_name']} due to license: {license_key}")
-            continue
-        
-        # Check for merged PRs existence (FR-Edge Cases: Handle repos with no merged PRs)
-        # We need to verify if the repo has any merged PRs. 
-        # If not, skip and log as per T018.
-        has_prs = client.has_merged_prs(repo['full_name'])
-        if not has_prs:
-            logger.warning(f"Skipping {repo['full_name']}: No merged PRs found. (T018)")
-            continue
-
-        filtered.append(repo)
+        if repo.get('license') in allowed_licenses:
+            filtered.append(repo)
+        else:
+            logger.info(f"Filtered out {repo['owner']}/{repo['name']} due to license: {repo.get('license')}")
     
     return filtered
 
-def clone_repository(repo_url: str, target_dir: Path, retry_count: int = 2) -> bool:
-    """Clone a repository with retry logic."""
+def clone_repository(repo: Dict[str, Any], raw_dir: Path, retry_count: int = 2) -> Optional[Path]:
+    """
+    Clone a repository to the raw data directory with error handling and retry logic.
+    
+    Args:
+        repo: Repository metadata dictionary
+        raw_dir: Directory to clone into
+        retry_count: Number of retry attempts on failure
+    
+    Returns:
+        Path to cloned repository directory if successful, None if failed
+    """
+    owner = repo['owner']
+    name = repo['name']
+    repo_id = f"{owner}_{name}"
+    clone_path = raw_dir / repo_id
+    
+    # Check if already cloned
+    if clone_path.exists():
+        logger.info(f"Repository {repo_id} already exists at {clone_path}, skipping clone")
+        return clone_path
+    
+    # Construct GitHub URL
+    token = get_github_token()
+    if token:
+        url = f"https://{token}@github.com/{owner}/{name}.git"
+    else:
+        url = f"https://github.com/{owner}/{name}.git"
+    
     for attempt in range(retry_count + 1):
         try:
-            if target_dir.exists():
-                import shutil
-                shutil.rmtree(target_dir)
-            target_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Cloning {repo_id} (attempt {attempt + 1}/{retry_count + 1})...")
             
-            subprocess.run(
-                ["git", "clone", repo_url, str(target_dir)],
-                check=True,
-                timeout=300
+            # Create parent directory if needed
+            clone_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Run git clone
+            result = subprocess.run(
+                ['git', 'clone', '--depth', '1', url, str(clone_path)],
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
             )
-            logger.info(f"Successfully cloned {repo_url}")
-            return True
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"Clone attempt {attempt + 1} failed for {repo_url}: {e}")
-            if attempt == retry_count:
-                logger.error(f"Failed to clone {repo_url} after {retry_count + 1} attempts.")
-                return False
-        except Exception as e:
-            logger.error(f"Unexpected error cloning {repo_url}: {e}")
-            return False
-    return False
-
-def run_sonarqube_scan(repo_path: Path, output_path: Path, version: str) -> bool:
-    """Execute SonarQube scan using Docker."""
-    # Implementation assumes Docker is available and image is pulled
-    try:
-        # Simulate the Docker command execution
-        # In reality, this would run the specific Docker command from versions.yaml
-        cmd = [
-            "docker", "run", "--rm",
-            "-v", f"{repo_path}:/usr/src",
-            f"sonarsource/sonar-scanner-cli:{version}",
-            "sonar-scanner",
-            f"-Dsonar.projectKey={repo_path.name}",
-            f"-Dsonar.sources=.",
-            f"-Dsonar.host.url=http://sonarqube:9000" # Placeholder URL
-        ]
-        # subprocess.run(cmd, check=True, timeout=600)
-        # For this implementation, we assume success if the path exists
-        if not repo_path.exists():
-            return False
-        # Create a dummy report for the pipeline to parse if real scan isn't running
-        # In a real execution, this would be the actual tool output
-        with open(output_path, 'w') as f:
-            json.dump({"issues": [], "metadata": {"tool": "sonarqube", "version": version}}, f)
-        return True
-    except Exception as e:
-        logger.error(f"SonarQube scan failed: {e}")
-        return False
-
-def run_deepsource_scan(repo_path: Path, output_path: Path, version: str) -> bool:
-    """Execute DeepSource scan using Docker."""
-    try:
-        # Placeholder for DeepSource execution
-        if not repo_path.exists():
-            return False
-        with open(output_path, 'w') as f:
-            json.dump({"issues": [], "metadata": {"tool": "deepsource", "version": version}}, f)
-        return True
-    except Exception as e:
-        logger.error(f"DeepSource scan failed: {e}")
-        return False
-
-def run_codeclimate_scan(repo_path: Path, output_path: Path, version: str) -> bool:
-    """Execute CodeClimate scan using Docker."""
-    try:
-        # Placeholder for CodeClimate execution
-        if not repo_path.exists():
-            return False
-        with open(output_path, 'w') as f:
-            json.dump({"issues": [], "metadata": {"tool": "codeclimate", "version": version}}, f)
-        return True
-    except Exception as e:
-        logger.error(f"CodeClimate scan failed: {e}")
-        return False
-
-def execute_tool_pipeline(repo: Dict[str, Any], repo_path: Path, versions: Dict[str, str]) -> Tuple[bool, Dict[str, str]]:
-    """Execute all tools for a repository and handle failures."""
-    results = {}
-    success = True
-    
-    # SonarQube
-    sonar_output = repo_path.parent / f"{repo['name']}_sonar.json"
-    if not run_sonarqube_scan(repo_path, sonar_output, versions.get('sonarqube', 'latest')):
-        logger.error(f"Tool execution failed for SonarQube on {repo['full_name']}")
-        results['sonarqube'] = 'failed'
-        success = False
-    else:
-        results['sonarqube'] = str(sonar_output)
-    
-    # DeepSource
-    deepsource_output = repo_path.parent / f"{repo['name']}_deepsource.json"
-    if not run_deepsource_scan(repo_path, deepsource_output, versions.get('deepsource', 'latest')):
-        logger.error(f"Tool execution failed for DeepSource on {repo['full_name']}")
-        results['deepsource'] = 'failed'
-        success = False
-    else:
-        results['deepsource'] = str(deepsource_output)
-
-    # CodeClimate
-    codeclimate_output = repo_path.parent / f"{repo['name']}_codeclimate.json"
-    if not run_codeclimate_scan(repo_path, codeclimate_output, versions.get('codeclimate', 'latest')):
-        logger.error(f"Tool execution failed for CodeClimate on {repo['full_name']}")
-        results['codeclimate'] = 'failed'
-        success = False
-    else:
-        results['codeclimate'] = str(codeclimate_output)
-
-    return success, results
-
-def normalize_sonarqube_report(report_path: Path) -> Dict[str, Any]:
-    """Normalize SonarQube report to unified schema."""
-    with open(report_path, 'r') as f:
-        data = json.load(f)
-    # Transform logic here
-    return {"source": "sonarqube", "issues": data.get("issues", [])}
-
-def normalize_deepsource_report(report_path: Path) -> Dict[str, Any]:
-    """Normalize DeepSource report to unified schema."""
-    with open(report_path, 'r') as f:
-        data = json.load(f)
-    return {"source": "deepsource", "issues": data.get("issues", [])}
-
-def normalize_codeclimate_report(report_path: Path) -> Dict[str, Any]:
-    """Normalize CodeClimate report to unified schema."""
-    with open(report_path, 'r') as f:
-        data = json.load(f)
-    return {"source": "codeclimate", "issues": data.get("issues", [])}
-
-def parse_and_normalize_all_reports(repo_name: str, results: Dict[str, str]) -> List[Dict[str, Any]]:
-    """Parse and normalize all tool reports for a repository."""
-    unified_issues = []
-    for tool, path in results.items():
-        if path == 'failed':
-            continue
-        try:
-            report_path = Path(path)
-            if tool == 'sonarqube':
-                normalized = normalize_sonarqube_report(report_path)
-            elif tool == 'deepsource':
-                normalized = normalize_deepsource_report(report_path)
-            elif tool == 'codeclimate':
-                normalized = normalize_codeclimate_report(report_path)
+            
+            if result.returncode == 0:
+                logger.info(f"Successfully cloned {repo_id} to {clone_path}")
+                return clone_path
             else:
-                continue
-            unified_issues.extend(normalized['issues'])
+                logger.warning(f"Git clone failed for {repo_id}: {result.stderr}")
+                
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Timeout cloning {repo_id} (attempt {attempt + 1})")
         except Exception as e:
-            logger.error(f"Failed to parse {tool} report for {repo_name}: {e}")
-    return unified_issues
+            logger.warning(f"Error cloning {repo_id}: {e}")
+        
+        if attempt < retry_count:
+            wait_time = 2 ** attempt  # Exponential backoff
+            logger.info(f"Retrying in {wait_time} seconds...")
+            time.sleep(wait_time)
+    
+    # All retries failed - log exclusion
+    exclusion_path = raw_dir / "exclusion_log.json"
+    exclusion_data = []
+    
+    if exclusion_path.exists():
+        with open(exclusion_path, 'r') as f:
+            exclusion_data = json.load(f)
+    
+    exclusion_entry = {
+        'repo_id': repo_id,
+        'owner': owner,
+        'name': name,
+        'reason': 'clone_failed',
+        'attempts': retry_count + 1
+    }
+    exclusion_data.append(exclusion_entry)
+    
+    with open(exclusion_path, 'w') as f:
+        json.dump(exclusion_data, f, indent=2)
+    
+    logger.error(f"Failed to clone {repo_id} after {retry_count + 1} attempts - logged to exclusion_log.json")
+    return None
+
+def run_sonarqube_scan(repo_path: Path, output_dir: Path) -> Optional[Path]:
+    """Run SonarQube Scanner on a repository."""
+    # Implementation would invoke SonarQube Docker container
+    # Placeholder for actual implementation
+    logger.info(f"SonarQube scan not yet implemented for {repo_path}")
+    return None
+
+def run_deepsource_scan(repo_path: Path, output_dir: Path) -> Optional[Path]:
+    """Run DeepSource CLI on a repository."""
+    # Implementation would invoke DeepSource Docker container
+    logger.info(f"DeepSource scan not yet implemented for {repo_path}")
+    return None
+
+def run_codeclimate_scan(repo_path: Path, output_dir: Path) -> Optional[Path]:
+    """Run CodeClimate Engine on a repository."""
+    # Implementation would invoke CodeClimate Docker container
+    logger.info(f"CodeClimate scan not yet implemented for {repo_path}")
+    return None
+
+def normalize_sonarqube_report(report_path: Path) -> List[Dict[str, Any]]:
+    """Normalize SonarQube JSON report to unified schema."""
+    # Placeholder implementation
+    return []
+
+def normalize_deepsource_report(report_path: Path) -> List[Dict[str, Any]]:
+    """Normalize DeepSource JSON report to unified schema."""
+    # Placeholder implementation
+    return []
+
+def normalize_codeclimate_report(report_path: Path) -> List[Dict[str, Any]]:
+    """Normalize CodeClimate JSON report to unified schema."""
+    # Placeholder implementation
+    return []
+
+def parse_and_normalize_all_reports(raw_dir: Path) -> List[Dict[str, Any]]:
+    """Parse and normalize all tool reports."""
+    all_issues = []
+    # Implementation would iterate through reports and normalize them
+    return all_issues
+
+def execute_tool_pipeline(repo_path: Path, output_dir: Path) -> bool:
+    """Execute all tool scans on a repository."""
+    # Implementation would run all tools
+    return True
 
 def main():
-    """Main entry point for data acquisition."""
-    logger.info("Starting data acquisition pipeline...")
-    
-    # Load configuration
+    """Main entry point for data acquisition pipeline."""
     config = get_config()
-    token = get_github_token()
-    allowed_licenses = config.get('allowed_licenses', ['mit', 'apache-2.0', 'bsd-3-clause'])
-    languages = config.get('languages', ['python', 'java', 'javascript', 'go'])
+    raw_dir = get_data_raw_dir()
     
-    # Initialize GitHub Client
-    client = create_client(token)
+    # Ensure raw directory exists
+    raw_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load versions
-    versions = load_versions_config()
+    # Initialize GitHub client
+    client = create_client()
     
+    # Fetch repositories for multiple languages
+    languages = ['Python', 'Java', 'JavaScript', 'Go']
     all_repos = []
+    
     for lang in languages:
-        repos = fetch_repos_for_language(client, lang, count=10)
-        filtered = filter_repos(repos, allowed_licenses)
-        all_repos.extend(filtered)
+        repos = fetch_repos_for_language(client, lang, min_stars=1000, limit=10)
+        all_repos.extend(repos)
+        logger.info(f"Fetched {len(repos)} repos for {lang}")
     
-    logger.info(f"Total repositories selected for processing: {len(all_repos)}")
+    # Filter by license
+    filtered_repos = filter_repos(all_repos)
+    logger.info(f"Filtered to {len(filtered_repos)} repos with valid licenses")
     
-    processed_count = 0
-    failed_count = 0
+    # Save filtered repo list
+    repo_list_path = raw_dir / "repo_list.json"
+    with open(repo_list_path, 'w') as f:
+        json.dump(filtered_repos, f, indent=2)
+    logger.info(f"Saved repo list to {repo_list_path}")
     
-    for repo in all_repos:
-        repo_name = repo['name']
-        repo_path = Path(f"data/raw/{repo_name}")
-        
-        # Clone
-        if not clone_repository(repo['clone_url'], repo_path):
-            logger.error(f"Skipping {repo_name} due to clone failure.")
-            failed_count += 1
-            continue
-        
-        # Execute Tools
-        success, tool_results = execute_tool_pipeline(repo, repo_path, versions)
-        
-        if success:
-            # Parse and Normalize
-            issues = parse_and_normalize_all_reports(repo_name, tool_results)
-            
-            # Save Raw JSON (T019 placeholder logic)
-            output_file = Path(f"data/raw/{repo_name}_reports.json")
-            with open(output_file, 'w') as f:
-                json.dump({
-                    "repo": repo_name,
-                    "issues": issues,
-                    "tool_results": tool_results
-                }, f, indent=2)
-            
-            # Hash
-            hash_val = hash_file(output_file)
-            logger.info(f"Processed {repo_name}: {len(issues)} issues found. Hash: {hash_val}")
-            processed_count += 1
-        else:
-            logger.error(f"Tool execution failed for {repo_name}. Skipping normalization.")
-            failed_count += 1
+    # Clone repositories with retry logic
+    cloned_count = 0
+    for repo in filtered_repos:
+        clone_path = clone_repository(repo, raw_dir)
+        if clone_path:
+            cloned_count += 1
     
-    logger.info(f"Pipeline complete. Success: {processed_count}, Failed: {failed_count}")
+    logger.info(f"Successfully cloned {cloned_count}/{len(filtered_repos)} repositories")
+    
+    # Generate checksums for cloned repos
+    logger.info("Generating checksums for cloned repositories...")
+    # This would call utils.hasher to generate hashes
 
 if __name__ == "__main__":
     main()

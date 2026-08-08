@@ -445,3 +445,254 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T10:34:59Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: stratified random sample of 500 code changes or comments
+  claim_id: c_df9d1572
+  context: "T024a [US2] Implement 'Random Stream' sampling logic (independent of keywords)\
+    \ to select a stratified random sample of \u2265500 code changes/comments from\
+    \ data/raw/pr_comments.json (produced by T022), generating data/processed/validation_sample_ids.json\
+    \ (SC-005, Plan Ground Truth Construction)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a stratified random sample of \u2265500 code changes/comments\
+    \ from data/raw/pr_comments.json"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:47:25Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: alignment accuracy threshold of 0.90
+  claim_id: c_661f747f
+  context: "T029d [US2] Implement validation step to measure alignment accuracy on\
+    \ the expert-validated sample (T024b-Ingest) using data/processed/aligned_pairs.json\
+    \ (T027-3), Generates results/alignment_accuracy_report.json (schema: { \"accuracy\"\
+    : float } where accuracy = matches / total_aligned_pairs) and verify \u22650.90\
+    \ threshold (SC-005, FR-005). **BLOCKS T032**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify alignment accuracy threshold \u22650.90"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:47:26Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: runtime threshold of 19800 seconds
+  claim_id: c_1c5b68e2
+  context: "T043 [US1] Run pipeline on a representative sample set (5 specific repos\
+    \ from data/raw/repo_list.json from T013-4, first 5 alphabetically), measure wall-clock\
+    \ time using time module or subprocess, and save results to results/runtime_benchmark.json\
+    \ (schema: { \"total_time_seconds\": float, \"threshold_seconds\": 19800 }) to\
+    \ verify SC-003 (\u2264 5.5 hours)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify threshold of 19800 seconds for total runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:48:00Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: peak memory usage threshold of 6 GB
+  claim_id: c_82c63edd
+  context: "T044a-2 [US1] Execute pipeline with instrumentation enabled, capture peak\
+    \ memory, and generate results/memory_usage_report.json to verify SC-004 (\u2264\
+    \ 6 GB peak)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify peak memory usage threshold of 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:48:32Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers model all-MiniLM-L6-v2
+  claim_id: c_b838770a
+  context: T004b [P] Update code/versions.yaml to pin the sentence-transformers model
+    all-MiniLM-L6-v2 with its specific commit hash or tag (Constitution Principle
+    VI)
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: Use sentence-transformers model all-MiniLM-L6-v2
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T04:48:49Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use requests version 2.31.0
+  claim_id: c_6f73411d
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use requests==2.31.0 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:49:47Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use pandas version 2.1.0
+  claim_id: c_a77fc033
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pandas==2.1.0 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:50:16Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use scikit-learn version 1.3.0
+  claim_id: c_4260611c
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scikit-learn==1.3.0 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:50:47Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use statsmodels version 0.14.0
+  claim_id: c_6da15298
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels==0.14.0 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:51:21Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use pygithub version 2.1.0
+  claim_id: c_79324d3d
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pygithub==2.1.0 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:51:40Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use tqdm version 4.66.0
+  claim_id: c_7d5d03b1
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use tqdm==4.66.0 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:51:58Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers version 2.2.2
+  claim_id: c_af922b04
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sentence-transformers==2.2.2 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:52:33Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use networkx version 3.1
+  claim_id: c_214119f0
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use networkx==3.1 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:52:58Z'
+- artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/tasks.md
+  attempts: 1
+  canonical: use pytest version 7.4.0
+  claim_id: c_6550f4f3
+  context: 'T002a [P] Create requirements.txt with pinned dependencies: requests==2.31.0,
+    pandas==2.1.0, scikit-learn==1.3.0, statsmodels==0.14.0, pygithub==2.1.0, tqdm==4.66.0,
+    sentence-transformers==2.2.2, networkx==3.1, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pytest==7.4.0 dependency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T04:53:24Z'

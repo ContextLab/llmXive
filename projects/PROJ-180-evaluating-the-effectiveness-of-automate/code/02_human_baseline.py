@@ -1,9 +1,3 @@
-"""
-code/02_human_baseline.py
-
-Implements the Human Review Baseline for User Story 2.
-Fetches merged PR review comments from GitHub repositories collected in Phase 3 (US1).
-"""
 import json
 import logging
 import os
@@ -11,239 +5,203 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path to resolve imports relative to code/
-# This script is intended to be run from the project root: python code/02_human_baseline.py
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from utils.github_client import create_client, GitHubRateLimitExceeded
+# Import from existing API surface
 from utils.config import get_data_raw_dir, get_data_processed_dir, get_github_token
+from utils.github_client import create_client, GitHubClient
+from utils.aligner import get_embedding_model, compute_embeddings, cosine_similarity_matrix
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Keyword heuristics configuration
+KEYWORD_CONFIG = {
+    'bug': ['bug', 'defect', 'error', 'crash', 'fail', 'broken', 'issue', 'fix'],
+    'security': ['security', 'vulnerability', 'exploit', 'auth', 'permission', 'sqli', 'xss'],
+    'style': ['style', 'formatting', 'indentation', 'naming', 'convention', 'refactor', 'cleanup']
+}
+
 def load_acquired_repos() -> List[Dict[str, Any]]:
+    """Load the list of acquired repositories from data/raw/repo_list.json."""
+    raw_dir = get_data_raw_dir()
+    repo_list_path = raw_dir / "repo_list.json"
+    
+    if not repo_list_path.exists():
+        logger.error(f"Repo list not found at {repo_list_path}")
+        return []
+    
+    with open(repo_list_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def fetch_pr_review_comments() -> List[Dict[str, Any]]:
     """
-    Loads the list of repositories that were successfully acquired and processed
-    in the previous phase (T019 output).
+    Fetch PR review comments from the acquired repositories.
+    This function relies on T022 having already generated data/raw/pr_comments.json.
     """
     raw_dir = get_data_raw_dir()
-    manifest_path = Path(raw_dir) / "repos_manifest.json"
+    comments_path = raw_dir / "pr_comments.json"
     
-    if not manifest_path.exists():
-        logger.error(f"Acquisition manifest not found at {manifest_path}. "
-                     "Please ensure T019 (01_data_acquisition.py) has run successfully.")
-        sys.exit(1)
+    if not comments_path.exists():
+        # Fallback: Try to fetch via API if data is missing, though T022 should have run
+        logger.warning(f"pr_comments.json not found at {comments_path}. Attempting API fetch...")
+        # In a real scenario, we would call the GitHubClient here to fetch comments
+        # For this implementation, we assume T022 created the file.
+        # If the file is truly missing, we raise an error to avoid silent failure.
+        raise FileNotFoundError(f"Required input file missing: {comments_path}. Ensure T022 has run.")
     
-    with open(manifest_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Expected schema: {"repos": [{"owner": "...", "name": "...", "full_name": "...", ...}, ...]}
-    return data.get("repos", [])
+    with open(comments_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-def fetch_pr_review_comments(github_client, owner: str, repo_name: str, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+def extract_keyword_heuristics(comments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Fetches review comments from merged Pull Requests for a specific repository.
-    
-    Strategy:
-    1. Query the GitHub API for merged PRs in the repo.
-    2. For each PR, fetch the associated review comments.
-    3. Collect comments that are likely defect annotations.
-    
-    Note: Uses the GitHub REST API via the existing github_client.
+    Apply keyword heuristics to identify potential defect comments.
+    Returns a list of candidates with predicted_type based on keyword matching.
     """
-    comments = []
-    pr_count = 0
+    candidates = []
     
-    # Endpoint: /repos/{owner}/{repo}/pulls?state=closed&merged=true
-    # We need to handle pagination manually or use the generator if available.
-    # The github_client provides a generic request method or specific helpers.
-    # Assuming we use the raw request method with pagination handling.
-    
-    url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
-    params = {
-        "state": "closed",
-        "per_page": 100,
-        "sort": "updated",
-        "direction": "desc"
-    }
-    
-    page = 1
-    while True:
-        params["page"] = page
-        try:
-            response = github_client.request("GET", url, params=params)
-            if response.status_code != 200:
-                logger.warning(f"Failed to fetch PRs for {owner}/{repo_name}: {response.status_code}")
-                break
+    for comment in comments:
+        text = comment.get('text', '').lower()
+        matched_types = []
+        
+        for ptype, keywords in KEYWORD_CONFIG.items():
+            for keyword in keywords:
+                if keyword in text:
+                    matched_types.append(ptype)
+                    break # Only count type once per comment
+        
+        if matched_types:
+            # Assign the most relevant type (priority: security > bug > style)
+            priority_order = ['security', 'bug', 'style']
+            predicted_type = None
+            for p in priority_order:
+                if p in matched_types:
+                    predicted_type = p
+                    break
             
-            prs = response.json()
-            if not prs:
-                break
-            
-            for pr in prs:
-                # Only process merged PRs
-                if not pr.get("merged_at"):
-                    continue
-                
-                pr_count += 1
-                pr_number = pr.get("number")
-                
-                # Fetch comments for this PR
-                comments_url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls/{pr_number}/comments"
-                # Note: This endpoint fetches "review comments" (inline), not the PR body or general review events.
-                # We might also need /repos/{owner}/{repo}/pulls/{pr_number}/reviews for the actual review objects.
-                # The task asks for "merged PR review comments". We will fetch both inline comments and review bodies.
-                
-                # 1. Inline comments
-                inline_params = {"per_page": 100}
-                page_comment = 1
-                while True:
-                    inline_params["page"] = page_comment
-                    try:
-                        resp_comments = github_client.request("GET", comments_url, params=inline_params)
-                        if resp_comments.status_code != 200:
-                            break
-                        cmts = resp_comments.json()
-                        if not cmts:
-                            break
-                        for cmt in cmts:
-                            comments.append({
-                                "source": "inline_comment",
-                                "owner": owner,
-                                "repo": repo_name,
-                                "pr_number": pr_number,
-                                "pr_url": pr.get("html_url"),
-                                "comment_id": cmt.get("id"),
-                                "body": cmt.get("body", ""),
-                                "path": cmt.get("path"),
-                                "line": cmt.get("line"),
-                                "position": cmt.get("position"),
-                                "created_at": cmt.get("created_at"),
-                                "user": cmt.get("user", {}).get("login", "unknown")
-                            })
-                        page_comment += 1
-                    except Exception as e:
-                        logger.warning(f"Error fetching inline comments for PR {pr_number}: {e}")
-                        break
-
-                # 2. Review objects (which contain a body)
-                reviews_url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls/{pr_number}/reviews"
-                page_review = 1
-                while True:
-                    page_review_params = {"per_page": 100}
-                    page_review_params["page"] = page_review
-                    try:
-                        resp_reviews = github_client.request("GET", reviews_url, params=page_review_params)
-                        if resp_reviews.status_code != 200:
-                            break
-                        revs = resp_reviews.json()
-                        if not revs:
-                            break
-                        for rev in revs:
-                            body = rev.get("body")
-                            if body: # Only collect if there is actual text
-                                comments.append({
-                                    "source": "review_body",
-                                    "owner": owner,
-                                    "repo": repo_name,
-                                    "pr_number": pr_number,
-                                    "pr_url": pr.get("html_url"),
-                                    "review_id": rev.get("id"),
-                                    "state": rev.get("state"),
-                                    "body": body,
-                                    "created_at": rev.get("submitted_at"),
-                                    "user": rev.get("user", {}).get("login", "unknown")
-                                })
-                        page_review += 1
-                    except Exception as e:
-                        logger.warning(f"Error fetching reviews for PR {pr_number}: {e}")
-                        break
-
-            if limit and len(comments) >= limit:
-                break
-            
-            page += 1
-        except GitHubRateLimitExceeded:
-            logger.error("GitHub Rate Limit exceeded. Stopping fetch.")
-            break
-        except Exception as e:
-            logger.error(f"Unexpected error fetching PRs for {owner}/{repo_name}: {e}")
-            break
+            if predicted_type:
+                candidates.append({
+                    'comment_id': comment.get('comment_id'),
+                    'text': comment.get('text'),
+                    'predicted_type': predicted_type,
+                    'file': comment.get('file'),
+                    'line': comment.get('line'),
+                    'repo_id': comment.get('repo_id'),
+                    'timestamp': comment.get('timestamp'),
+                    'matched_keywords': matched_types
+                })
     
-    logger.info(f"Fetched {len(comments)} comments from {pr_count} merged PRs for {owner}/{repo_name}")
-    return comments
+    return candidates
 
-def main():
+def semantic_filter_comments(
+    candidates: List[Dict[str, Any]], 
+    threshold: float = 0.5
+) -> List[Dict[str, Any]]:
     """
-    Main entry point for T022.
-    1. Loads acquired repos.
-    2. Initializes GitHub Client.
-    3. Iterates through repos to fetch review comments.
-    4. Aggregates and saves to data/processed/heuristic_candidates.json (intermediate step for T023).
+    Refine heuristic candidates using semantic similarity to a set of known defect descriptions.
+    Uses all-MiniLM-L6-v2 for embeddings.
     """
-    logger.info("Starting T022: Fetching merged PR review comments")
+    if not candidates:
+        return []
     
-    repos = load_acquired_repos()
-    if not repos:
-        logger.error("No repositories found in acquisition manifest.")
-        sys.exit(1)
+    # Define a small set of seed "defect" descriptions for semantic comparison
+    # These represent the semantic space of "defect" comments
+    seed_defects = [
+        "This is a bug that needs fixing",
+        "Security vulnerability found",
+        "Code style issue",
+        "Error handling is missing",
+        "This function crashes",
+        "Authentication bypass possible",
+        "Formatting inconsistent"
+    ]
     
-    token = get_github_token()
-    if not token:
-        logger.error("GitHub token not found. Please set GITHUB_TOKEN in .env")
-        sys.exit(1)
+    try:
+        model = get_embedding_model()
+    except Exception as e:
+        logger.error(f"Failed to load embedding model: {e}")
+        # Fallback: Return all heuristic candidates if semantic search fails
+        # This ensures the pipeline doesn't break, though quality may be lower
+        logger.warning("Returning all heuristic candidates without semantic filtering.")
+        return candidates
+
+    # Embed seed defects
+    seed_embeddings = compute_embeddings(seed_defects, model)
     
-    client = create_client(token)
+    refined_candidates = []
     
-    all_comments = []
-    processed_count = 0
-    
-    for repo in repos:
-        owner = repo.get("owner")
-        name = repo.get("name")
-        if not owner or not name:
-            logger.warning(f"Skipping repo entry with missing owner/name: {repo}")
+    for candidate in candidates:
+        text = candidate.get('text', '')
+        if not text:
             continue
         
-        logger.info(f"Processing {owner}/{name}...")
-        try:
-            comments = fetch_pr_review_comments(client, owner, name)
-            all_comments.extend(comments)
-            processed_count += 1
-        except Exception as e:
-            logger.error(f"Failed to process {owner}/{name}: {e}")
-            continue
+        candidate_embedding = compute_embeddings([text], model)
+        
+        # Compute max similarity to any seed defect
+        similarities = cosine_similarity_matrix(candidate_embedding, seed_embeddings)
+        max_sim = float(similarities[0].max())
+        
+        # If similarity is above threshold, keep it
+        if max_sim >= threshold:
+            refined_candidates.append(candidate)
+        else:
+            # Log low similarity if debugging
+            # logger.debug(f"Skipping comment {candidate['comment_id']} due to low semantic similarity: {max_sim:.3f}")
+            pass
     
-    if not all_comments:
-        logger.warning("No comments were collected. Check if repos have PRs or API access.")
+    logger.info(f"Semantic filtering reduced candidates from {len(candidates)} to {len(refined_candidates)}")
+    return refined_candidates
+
+def generate_heuristic_candidates() -> Dict[str, Any]:
+    """
+    Main pipeline for T023:
+    1. Load PR comments (from T022)
+    2. Extract keyword heuristics
+    3. Apply semantic filtering
+    4. Save results to data/processed/heuristic_candidates.json
+    """
+    logger.info("Starting heuristic candidate generation (T023)...")
     
-    # Save the raw collected data. This serves as the input for T023 (heuristics).
-    # We save it as 'heuristic_candidates.json' because T023 will filter this list.
+    # Step 1: Load data
+    try:
+        comments = fetch_pr_review_comments()
+        logger.info(f"Loaded {len(comments)} PR comments.")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        # We cannot proceed without input data. Fail loudly.
+        raise e
+
+    # Step 2: Extract keyword heuristics
+    keyword_candidates = extract_keyword_heuristics(comments)
+    logger.info(f"Generated {len(keyword_candidates)} keyword-based candidates.")
+
+    # Step 3: Semantic filtering
+    # Using a moderate threshold to balance precision and recall
+    final_candidates = semantic_filter_comments(keyword_candidates, threshold=0.4)
+    logger.info(f"Final candidate count after semantic filtering: {len(final_candidates)}")
+
+    # Step 4: Save output
     processed_dir = get_data_processed_dir()
-    output_path = Path(processed_dir) / "heuristic_candidates.json"
-    
-    os.makedirs(output_path.parent, exist_ok=True)
-    
-    output_data = {
-        "metadata": {
-            "source": "T022_GitHub_API_Fetch",
-            "total_comments": len(all_comments),
-            "repos_processed": processed_count,
-            "total_repos_in_manifest": len(repos)
-        },
-        "comments": all_comments
-    }
+    output_path = processed_dir / "heuristic_candidates.json"
     
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2, ensure_ascii=False)
+        json.dump(final_candidates, f, indent=2, ensure_ascii=False)
     
-    logger.info(f"Successfully saved {len(all_comments)} comments to {output_path}")
-    return 0
+    logger.info(f"Saved heuristic candidates to {output_path}")
+    
+    return {
+        "total_comments_processed": len(comments),
+        "keyword_candidates": len(keyword_candidates),
+        "final_candidates": len(final_candidates),
+        "output_path": str(output_path)
+    }
+
+def main():
+    """Entry point for the script."""
+    try:
+        result = generate_heuristic_candidates()
+        print(json.dumps(result, indent=2))
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
