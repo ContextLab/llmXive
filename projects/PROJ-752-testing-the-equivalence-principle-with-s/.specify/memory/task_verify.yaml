@@ -1,8 +1,16 @@
-T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema: 2
-T008 Implement `utils/logging.py` for standardized error handling and progress logging: 2
-? 'T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger
-  if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for
-  LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites
-  in this task (e.g., `) to satisfy the ''Verified Accuracy'' gate before implementation.'
-: 1
-'T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`': 1
+T007: 1
+T008: 1
+T009: 1
+T014: 1
+T015: 1
+T016: 1
+T017: 1
+T018: 1
+T019: 1
+T023: 1
+T024: 1
+T025: 1
+T026: 1
+T027: 1
+T028: 1
+T032: 1

@@ -746,3 +746,214 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T01:29:19Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: statistically significant effect with corrected p-value 0.0250
+  claim_id: c_62354ec1
+  context: Executive Summary section stating the primary finding of the analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis reveals a statistically significant effect (corrected p-value
+    = 0.0250 < 0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:45:36Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: ANOVA F-statistic 12.45
+  claim_id: c_88bacaf6
+  context: Results section under ANOVA Test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'F-statistic: 12.45'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:45:57Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: ANOVA raw p-value 0.0001
+  claim_id: c_38cc8d0e
+  context: Results section under ANOVA Test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw p-value: 0.0001'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:27Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: ANOVA corrected p-value 0.0250
+  claim_id: c_559f9eb0
+  context: Results section under ANOVA Test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Corrected p-value: 0.0250'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test t-statistic 3.89 for High vs Low
+  claim_id: c_b4fe6f95
+  context: Results section under Pairwise t-tests for High vs Low.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 't-statistic: 3.89'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test raw p-value 0.0003 for High vs Low
+  claim_id: c_6ef92a72
+  context: Results section under Pairwise t-tests for High vs Low.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw p-value: 0.0003'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test corrected p-value 0.0009 for High vs Low
+  claim_id: c_4c0bd623
+  context: Results section under Pairwise t-tests for High vs Low.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Corrected p-value: 0.0009'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test t-statistic 2.76 for High vs Target
+  claim_id: c_ebfeb695
+  context: Results section under Pairwise t-tests for High vs Target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 't-statistic: 2.76'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test raw p-value 0.0072 for High vs Target
+  claim_id: c_1ea24c70
+  context: Results section under Pairwise t-tests for High vs Target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw p-value: 0.0072'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test corrected p-value 0.0216 for High vs Target
+  claim_id: c_a867ab16
+  context: Results section under Pairwise t-tests for High vs Target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Corrected p-value: 0.0216'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test t-statistic 1.45 for Low vs Target
+  claim_id: c_713e2c92
+  context: Results section under Pairwise t-tests for Low vs Target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 't-statistic: 1.45'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:49Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test raw p-value 0.1485 for Low vs Target
+  claim_id: c_9c2328f2
+  context: Results section under Pairwise t-tests for Low vs Target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw p-value: 0.1485'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:50Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Pairwise t-test corrected p-value 0.4455 for Low vs Target
+  claim_id: c_90409492
+  context: Results section under Pairwise t-tests for Low vs Target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Corrected p-value: 0.4455'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:46:50Z'
+- artifact_path: projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/docs/research_report.md
+  attempts: 1
+  canonical: Bonferroni correction involved 3 comparisons
+  claim_id: c_ec883890
+  context: Bonferroni Correction Summary section.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Number of comparisons: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:47:09Z'

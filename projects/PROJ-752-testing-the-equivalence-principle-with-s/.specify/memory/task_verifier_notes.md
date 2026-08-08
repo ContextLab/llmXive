@@ -2,7 +2,19 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema** — No `contracts/eotvos_result.schema.yaml` file was presented; the claim provides no schema content, nor any indication that such a file exists or contains the required metric definition. The required artifact is missing, so the task is not satisfied.
-- **T008 Implement `utils/logging.py` for standardized error handling and progress logging** — No `utils/logging.py` file was presented in the evidence, and thus we cannot confirm that a non‑empty module implementing standardized error handling and progress logging exists. The required artifact is missing, so the task is not satisfied.
-- **T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites in this task (e.g., `) to satisfy the 'Verified Accuracy' gate before implementation.** — The required `data/ingestion.py` file does not exist in the repository, so no skeleton or `DataUnavailableError` check is present. The task cannot be considered fulfilled until the file is created with the specified functionality.
-- **T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`** — The claim provides no evidence that the required files (`tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`) exist or contain any content. Since none of these artifacts are present, the task of setting up the pytest framework is not satisfied. The implementer must add the three files with appropriate configurations and dependencies.
+- **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T008** — No `utils/logging.py` file (or any non‑empty implementation) was presented in the evidence. Without the required module containing the standardized error handling and progress‑logging code, the task is not satisfied. The next implementer must add a functional `utils/logging.py` with the specified logging utilities.
+- **T009** — declared artifact(s) missing/empty/invalid: data/ingestion.py
+- **T014** — declared artifact(s) missing/empty/invalid: data/ingestion.py
+- **T015** — declared artifact(s) missing/empty/invalid: data/ingestion.py
+- **T016** — declared artifact(s) missing/empty/invalid: data/preprocessing.py
+- **T017** — declared artifact(s) missing/empty/invalid: data/preprocessing.py
+- **T018** — No code, configuration, or documentation showing that 403 HTTP errors are caught and handled, nor any logic that detects and warns when a dataset contains fewer than 500 points, was provided. The required error‑handling implementation and associated tests or logs are missing.
+- **T019** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_slr_data.csv, data/processed/.checksums.json
+- **T023** — declared artifact(s) missing/empty/invalid: models/dynamics.py
+- **T024** — declared artifact(s) missing/empty/invalid: models/estimator.py
+- **T025** — No code defining `extract_joint_parameters` or any related file was provided; the required function, its return dictionary, and the extraction of `ac`, `g`, and covariance from an `OrbitSolution` are absent. The task therefore lacks the necessary artifact.
+- **T026** — No `analysis/eotvos.py` file was presented, and there is no evidence that such a module exists or contains the required logic to compute η = |a_c| / g and its 95 % confidence interval from the joint covariance matrix. The task therefore remains unfulfilled.
+- **T027** — No code, script, or documentation implementing the required fallback logic (relax tolerance, log warning, output best‑fit) was provided; the evidence consists only of the task description and specifications, with no tangible artifact to verify that the feature was actually built. The implementer must supply the implementation (e.g., source file, unit tests, and example run logs) for review.
+- **T028** — declared artifact(s) missing/empty/invalid: data/results/orbit_solutions.json, data/results/eotvos_metrics.json
+- **T032** — No `analysis/validation.py` file or its contents were presented, and there is no evidence that the required F‑test and BIC model‑comparison functionality has been implemented. The task’s deliverable is missing, so the requirement is not satisfied.

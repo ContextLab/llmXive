@@ -3,54 +3,81 @@ import stat
 import sys
 from pathlib import Path
 
-def set_restricted_permissions():
+def set_restricted_permissions(target_path: str) -> bool:
     """
-    Sets restricted write permissions (read-execute only) on the data/raw directory.
-    This implements task T001b: chmod 555 data/raw.
+    Sets restricted read-execute only permissions (555) on the target directory.
+    
+    This implements T001b: Set restricted write permissions on `data/raw`.
+    
+    Args:
+        target_path: Relative or absolute path to the directory (e.g., 'data/raw')
+        
+    Returns:
+        True if permissions were successfully set, False otherwise.
+        
+    Raises:
+        FileNotFoundError: If the target path does not exist.
+        PermissionError: If the current user cannot modify permissions.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    data_raw_path = project_root / "data" / "raw"
-
-    if not data_raw_path.exists():
-        print(f"Error: Directory does not exist: {data_raw_path}")
-        print("Please ensure T001a (project structure creation) has been completed.")
-        sys.exit(1)
-
-    if not data_raw_path.is_dir():
-        print(f"Error: Path exists but is not a directory: {data_raw_path}")
-        sys.exit(1)
-
+    path = Path(target_path)
+    
+    if not path.exists():
+        raise FileNotFoundError(f"Target path does not exist: {path}")
+    
+    if not path.is_dir():
+        raise NotADirectoryError(f"Target path is not a directory: {path}")
+    
+    # Calculate new mode: Read (4) + Execute (1) for Owner, Group, Others = 555
+    # This removes write (2) permissions for all.
+    new_mode = stat.S_IRUSR | stat.S_IXUSR | \
+               stat.S_IRGRP | stat.S_IXGRP | \
+               stat.S_IROTH | stat.S_IXOTH
+    
     try:
-        # Set permissions to 555 (r-xr-xr-x)
-        # This removes write permissions for owner, group, and others
-        os.chmod(data_raw_path, stat.S_IRUSR | stat.S_IXUSR | 
-                        stat.S_IRGRP | stat.S_IXGRP | 
-                        stat.S_IROTH | stat.S_IXOTH)
+        # Apply the mode
+        os.chmod(path, new_mode)
         
         # Verify the change
-        current_mode = data_raw_path.stat().st_mode
-        # Mask to get permission bits only
+        current_mode = path.stat().st_mode
+        # Mask out file type bits to compare just permission bits
         perm_bits = current_mode & 0o777
         
-        print(f"Successfully set permissions on {data_raw_path}")
-        print(f"New permissions: {oct(perm_bits)} (expected: 0o555)")
+        if perm_bits != new_mode:
+            raise PermissionError(
+                f"Failed to set permissions. Expected 555, got {oct(perm_bits)}"
+            )
         
-        if perm_bits == 0o555:
-            print("Verification passed: Permissions are correctly set to read-execute only.")
-            return True
+        return True
+        
+    except OSError as e:
+        raise PermissionError(f"Failed to change permissions on {path}: {e}") from e
+
+def main():
+    """Entry point for the permission setting script."""
+    import logging
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    target = "data/raw"
+    
+    try:
+        success = set_restricted_permissions(target)
+        if success:
+            logging.info(f"Successfully set read-execute only permissions (555) on {target}")
+            # Verify and log the actual result
+            import stat
+            actual_mode = os.stat(target).st_mode & 0o777
+            logging.info(f"Verified permissions on {target}: {oct(actual_mode)}")
+            sys.exit(0)
         else:
-            print(f"Warning: Permissions verification mismatch. Expected 0o555, got {oct(perm_bits)}")
-            return False
-            
-    except PermissionError as e:
-        print(f"Error: Permission denied when attempting to set permissions on {data_raw_path}")
-        print(f"Details: {e}")
-        print("You may need to run this script with elevated privileges or check directory ownership.")
-        return False
+            logging.error(f"Failed to set permissions on {target}")
+            sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error setting permissions: {e}")
-        return False
+        logging.error(f"Error setting permissions: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = set_restricted_permissions()
-    sys.exit(0 if success else 1)
+    main()

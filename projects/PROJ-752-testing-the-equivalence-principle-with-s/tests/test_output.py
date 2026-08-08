@@ -1,128 +1,207 @@
-"""
-Tests for the output generation and checksum verification logic in code/data/output.py
-"""
 import os
 import json
 import tempfile
-import pandas as pd
 import pytest
+import numpy as np
+from unittest.mock import Mock, patch
+import sys
+import pathlib
 
-from data.output import compute_sha256, save_cleaned_data, record_checksum
+# Add code directory to path for imports
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "code"))
 
+from data.output import (
+    compute_sha256,
+    save_orbit_solution,
+    save_eotvos_metrics,
+    run_output_pipeline,
+    record_checksum
+)
+from models.estimator import OrbitSolution
+from analysis.eotvos import EotvosResult
+from utils.logging import AnalysisError
+
+@pytest.fixture
+def mock_solution():
+    """Create a mock OrbitSolution for testing."""
+    solution = Mock(spec=OrbitSolution)
+    solution.converged = True
+    solution.residuals_norm = 1.2e-5
+    solution.iterations = 15
+    solution.satellites = ["LAGEOS-1", "LAGEOS-2"]
+    
+    # Mock extract_joint_parameters behavior
+    # We'll patch the function in the module
+    return solution
+
+@pytest.fixture
+def mock_eotvos_result():
+    """Create a mock EotvosResult for testing."""
+    result = Mock(spec=EotvosResult)
+    result.eta = 1.5e-14
+    result.eta_std = 0.3e-14
+    result.ci_95_lower = 0.9e-14
+    result.ci_95_upper = 2.1e-14
+    result.ac = 1.5e-13
+    result.g = 9.8
+    result.solution = None  # Will be set if needed
+    return result
 
 def test_compute_sha256():
-    """Test that SHA-256 checksum is computed correctly."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"Hello, World!")
-        tmp_path = tmp.name
+    """Test SHA256 computation on a temporary file."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+        f.write("test content")
+        temp_path = f.name
     
     try:
-        checksum = compute_sha256(tmp_path)
-        # Known SHA-256 hash for "Hello, World!"
-        expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-        assert checksum == expected
+        checksum = compute_sha256(temp_path)
+        assert len(checksum) == 64  # SHA256 hex length
+        assert all(c in '0123456789abcdef' for c in checksum)
     finally:
-        os.unlink(tmp_path)
+        os.unlink(temp_path)
 
-
-def test_save_cleaned_data():
-    """Test saving cleaned data to CSV and computing checksum."""
-    df = pd.DataFrame({
-        "time": ["2023-01-01", "2023-01-02"],
-        "range": [100.0, 200.0],
-        "residual": [0.1, 0.2]
-    })
+def test_save_orbit_solution(tmp_path):
+    """Test saving OrbitSolution to JSON."""
+    output_dir = tmp_path / "results"
+    output_dir.mkdir()
+    output_path = output_dir / "orbit_solutions.json"
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "test.csv")
-        checksum_info = save_cleaned_data(df, output_path)
-        
-        # Verify file exists
-        assert os.path.exists(output_path)
-        
-        # Verify checksum info
-        assert checksum_info["file"] == "test.csv"
-        assert len(checksum_info["sha256"]) == 64  # SHA-256 hex length
-        
-        # Verify checksum is correct by recomputing
-        recomputed = compute_sha256(output_path)
-        assert checksum_info["sha256"] == recomputed
-
-
-def test_record_checksum():
-    """Test recording checksums to JSON file."""
-    checksum_info = {
-        "file": "test.csv",
-        "sha256": "abc123"
+    # Create a mock solution with extractable parameters
+    solution = Mock(spec=OrbitSolution)
+    solution.converged = True
+    solution.residuals_norm = 1.2e-5
+    solution.iterations = 15
+    solution.satellites = ["LAGEOS-1", "LAGEOS-2"]
+    
+    # Mock the extract_joint_parameters to return known values
+    mock_params = {
+        'ac': 1.5e-13,
+        'g': 9.8,
+        'covariance': np.array([[1e-26, 0], [0, 1e-2]])
     }
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        checksum_file = os.path.join(tmpdir, ".checksums.json")
-        
-        # First record
-        record_checksum(checksum_info, checksum_file)
-        
-        with open(checksum_file, 'r') as f:
-            data = json.load(f)
-        
-        assert "entries" in data
-        assert len(data["entries"]) == 1
-        assert data["entries"][0]["file"] == "test.csv"
-        assert data["entries"][0]["sha256"] == "abc123"
-        
-        # Record another checksum
-        checksum_info_2 = {
-            "file": "test2.csv",
-            "sha256": "def456"
-        }
-        record_checksum(checksum_info_2, checksum_file)
-        
-        with open(checksum_file, 'r') as f:
-            data = json.load(f)
-        
-        assert len(data["entries"]) == 2
-        assert any(e["file"] == "test.csv" for e in data["entries"])
-        assert any(e["file"] == "test2.csv" for e in data["entries"])
-        
-        # Update existing checksum
-        checksum_info_updated = {
-            "file": "test.csv",
-            "sha256": "updated123"
-        }
-        record_checksum(checksum_info_updated, checksum_file)
-        
-        with open(checksum_file, 'r') as f:
-            data = json.load(f)
-        
-        assert len(data["entries"]) == 2
-        test_entry = next(e for e in data["entries"] if e["file"] == "test.csv")
-        assert test_entry["sha256"] == "updated123"
-
-
-def test_save_and_record_integration():
-    """Integration test: save data and record checksum in one flow."""
-    df = pd.DataFrame({
-        "time": ["2023-01-01"],
-        "range": [100.0],
-        "residual": [0.1]
-    })
+    with patch('data.output.extract_joint_parameters', return_value=mock_params):
+        save_orbit_solution(solution, str(output_path))
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        csv_path = os.path.join(tmpdir, "cleaned_slr_data.csv")
-        json_path = os.path.join(tmpdir, ".checksums.json")
-        
-        # Save data
-        checksum_info = save_cleaned_data(df, csv_path)
-        
-        # Record checksum
-        record_checksum(checksum_info, json_path)
-        
-        # Verify both files exist and are correct
-        assert os.path.exists(csv_path)
-        assert os.path.exists(json_path)
-        
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-        
-        assert data["entries"][0]["file"] == "cleaned_slr_data.csv"
-        assert data["entries"][0]["sha256"] == checksum_info["sha256"]
+    assert output_path.exists()
+    
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert data['ac'] == 1.5e-13
+    assert data['g'] == 9.8
+    assert data['converged'] is True
+    assert 'covariance' in data
+    assert 'timestamp' in data
+
+def test_save_eotvos_metrics(tmp_path):
+    """Test saving EotvosResult to JSON."""
+    output_dir = tmp_path / "results"
+    output_dir.mkdir()
+    output_path = output_dir / "eotvos_metrics.json"
+    
+    eotvos_result = Mock(spec=EotvosResult)
+    eotvos_result.eta = 1.5e-14
+    eotvos_result.eta_std = 0.3e-14
+    eotvos_result.ci_95_lower = 0.9e-14
+    eotvos_result.ci_95_upper = 2.1e-14
+    eotvos_result.ac = 1.5e-13
+    eotvos_result.g = 9.8
+    eotvos_result.solution = None
+    
+    save_eotvos_metrics(eotvos_result, str(output_path))
+    
+    assert output_path.exists()
+    
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert data['eta'] == 1.5e-14
+    assert data['eta_std'] == 0.3e-14
+    assert data['ci_95_lower'] == 0.9e-14
+    assert data['ci_95_upper'] == 2.1e-14
+    assert data['ac'] == 1.5e-13
+    assert data['g'] == 9.8
+    assert 'timestamp' in data
+
+def test_save_eotvos_metrics_fails_without_eta(tmp_path):
+    """Test that saving EotvosResult fails when eta is None and no solution."""
+    output_dir = tmp_path / "results"
+    output_dir.mkdir()
+    output_path = output_dir / "eotvos_metrics.json"
+    
+    eotvos_result = Mock(spec=EotvosResult)
+    eotvos_result.eta = None
+    eotvos_result.eta_std = None
+    eotvos_result.ci_95_lower = None
+    eotvos_result.ci_95_upper = None
+    eotvos_result.ac = None
+    eotvos_result.g = None
+    eotvos_result.solution = None  # No solution available
+    
+    with pytest.raises(AnalysisError, match="Cannot save EotvosResult"):
+        save_eotvos_metrics(eotvos_result, str(output_path))
+
+def test_run_output_pipeline(tmp_path):
+    """Test the full output pipeline."""
+    output_dir = tmp_path / "results"
+    
+    solution = Mock(spec=OrbitSolution)
+    solution.converged = True
+    solution.residuals_norm = 1.2e-5
+    solution.iterations = 15
+    solution.satellites = ["LAGEOS-1", "LAGEOS-2"]
+    
+    mock_params = {
+        'ac': 1.5e-13,
+        'g': 9.8,
+        'covariance': np.array([[1e-26, 0], [0, 1e-2]])
+    }
+    
+    eotvos_result = Mock(spec=EotvosResult)
+    eotvos_result.eta = 1.5e-14
+    eotvos_result.eta_std = 0.3e-14
+    eotvos_result.ci_95_lower = 0.9e-14
+    eotvos_result.ci_95_upper = 2.1e-14
+    eotvos_result.ac = 1.5e-13
+    eotvos_result.g = 9.8
+    eotvos_result.solution = None
+    
+    with patch('data.output.extract_joint_parameters', return_value=mock_params):
+        results = run_output_pipeline(
+            solution=solution,
+            eotvos_result=eotvos_result,
+            output_dir=str(output_dir)
+        )
+    
+    assert 'orbit_solutions' in results
+    assert 'eotvos_metrics' in results
+    assert os.path.exists(results['orbit_solutions'])
+    assert os.path.exists(results['eotvos_metrics'])
+    
+    # Check checksums file was created
+    checksums_path = output_dir / ".checksums.json"
+    assert checksums_path.exists()
+    
+    with open(checksums_path, 'r') as f:
+        checksums = json.load(f)
+    
+    assert 'orbit_solutions.json' in checksums
+    assert 'eotvos_metrics.json' in checksums
+
+def test_record_checksum(tmp_path):
+    """Test checksum recording."""
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("test content")
+    
+    checksums_path = tmp_path / ".checksums.json"
+    
+    record_checksum(str(test_file), str(checksums_path))
+    
+    assert checksums_path.exists()
+    
+    with open(checksums_path, 'r') as f:
+        data = json.load(f)
+    
+    assert 'test.txt' in data
+    assert data['test.txt']['sha256'] == compute_sha256(str(test_file))

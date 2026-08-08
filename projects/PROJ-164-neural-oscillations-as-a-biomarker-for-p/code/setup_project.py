@@ -1,18 +1,17 @@
-"""
-Script to initialize the project directory structure for PROJ-164.
-Implements Task T001a: Create project structure.
-"""
 import os
 import sys
+from pathlib import Path
 
 def main():
-    # Define the directory structure relative to the project root
-    # Assuming this script is run from the project root or the paths are relative to cwd
-    # The task requires specific directories under the project root.
+    """
+    Create the project directory structure as defined in FR-001.
+    Executes the equivalent of:
+    mkdir -p code/ code/utils/ tests/ data/raw data/processed data/synthetic models/ docs/ docs/contracts/ state/projects/
+    """
+    project_root = Path.cwd()
     
-    # We assume the script is executed from the project root.
-    # If run from elsewhere, we might need to adjust, but standard practice is root.
-    base_dirs = [
+    # Define the required directories relative to the project root
+    dirs_to_create = [
         "code",
         "code/utils",
         "tests",
@@ -23,52 +22,39 @@ def main():
         "docs",
         "docs/contracts",
         "state/projects",
-        "logs"  # Added for FR-008 logging infrastructure readiness
     ]
 
-    created = 0
-    skipped = 0
-
-    print("Initializing project structure for PROJ-164...")
-    
-    for dir_path in base_dirs:
-        try:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path, exist_ok=True)
-                print(f"Created directory: {dir_path}")
-                created += 1
+    created_count = 0
+    for dir_path in dirs_to_create:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            # Even if it exists, ensure it is a directory
+            if full_path.is_dir():
+                print(f"Directory exists: {full_path}")
             else:
-                # Check if it's actually a directory
-                if os.path.isdir(dir_path):
-                    print(f"Directory exists: {dir_path}")
-                    skipped += 1
-                else:
-                    print(f"ERROR: Path exists but is not a directory: {dir_path}")
-                    return 1
-        except PermissionError:
-            print(f"ERROR: Permission denied creating {dir_path}")
-            return 1
-        except Exception as e:
-            print(f"ERROR: Failed to create {dir_path}: {e}")
-            return 1
+                print(f"ERROR: Path exists but is not a directory: {full_path}", file=sys.stderr)
+                sys.exit(1)
 
-    print(f"\nProject structure initialization complete.")
-    print(f"Directories created: {created}")
-    print(f"Directories skipped (already exist): {skipped}")
-    
-    # Verify the critical paths exist
-    required_paths = [
-        "code/utils",
-        "data/raw",
-        "state/projects"
-    ]
-    
-    for p in required_paths:
-        if not os.path.isdir(p):
-            print(f"CRITICAL ERROR: Required path {p} does not exist after setup.")
-            return 1
+    if created_count > 0:
+        print(f"Successfully created {created_count} new directories.")
+    else:
+        print("All required directories already exist.")
 
-    return 0
+    # Verify the structure exists as a final check
+    missing = []
+    for dir_path in dirs_to_create:
+        if not (project_root / dir_path).is_dir():
+            missing.append(dir_path)
+    
+    if missing:
+        print(f"ERROR: The following directories are missing after creation attempt: {missing}", file=sys.stderr)
+        sys.exit(1)
+    
+    print("Project structure verification passed.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

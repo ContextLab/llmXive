@@ -1,136 +1,93 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: EotvosResult
 description: |
-  Schema for the final Eötvös parameter ($\eta$) estimation results derived from
-  joint orbit determination of multiple satellites (e.g., LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette).
-  This schema defines the structure for `data/results/eotvos_metrics.json`.
+  Schema for the final Equivalence Principle test metric (Eötvös parameter $\eta$)
+  and associated statistical confidence intervals derived from the joint orbit solution.
+  This artifact is produced by `analysis/eotvos.py` and saved to `data/results/eotvos_metrics.json`.
 type: object
 required:
-  - meta
-  - parameters
-  - statistics
-  - validation
+  - eta
+  - eta_std
+  - confidence_level
+  - ac
+  - ac_std
+  - g
+  - chi2
+  - dof
+  - p_value
+  - timestamp
+  - satellites
+  - geopotential_model
 properties:
-  meta:
-    type: object
-    description: Metadata regarding the run and data sources.
-    required:
-      - timestamp
-      - satellites
-      - geopotential_model
-      - data_checksum
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the analysis was completed.
-      satellites:
-        type: array
-        items:
-          type: string
-        description: List of satellite IDs included in the joint solution (e.g., ["LAGEOS-1", "LAGEOS-2"]).
-      geopotential_model:
-        type: string
-        description: Identifier for the geopotential model used (e.g., "GGM05C", "EGM2008").
-      data_checksum:
-        type: string
-        description: SHA-256 checksum of the input cleaned dataset (`data/processed/cleaned_slr_data.csv`).
-      pipeline_version:
-        type: string
-        description: Version of the analysis pipeline (e.g., "1.0.0").
-
-  parameters:
-    type: object
-    description: Estimated physical parameters from the joint least-squares fit.
-    required:
-      - ac
-      - ac_uncertainty
-      - g_local
-      - eta
-      - eta_uncertainty
-    properties:
-      ac:
-        type: number
-        description: Differential acceleration (m/s^2) between the test bodies.
-      ac_uncertainty:
-        type: number
-        description: Standard deviation (1-sigma) of the differential acceleration estimate.
-      g_local:
-        type: number
-        description: Local gravitational acceleration magnitude (m/s^2) at the mean orbital altitude.
-      eta:
-        type: number
-        description: Eötvös parameter ($\eta = |a_c| / g$). Dimensionless.
-      eta_uncertainty:
-        type: number
-        description: Standard deviation (1-sigma) of the Eötvös parameter.
-      ci_95_lower:
-        type: number
-        description: Lower bound of the 95% confidence interval for $\eta$.
-      ci_95_upper:
-        type: number
-        description: Upper bound of the 95% confidence interval for $\eta$.
-
-  statistics:
-    type: object
-    description: Goodness-of-fit and statistical metrics.
-    required:
-      - chi2
-      - dof
-      - reduced_chi2
-      - rms_residuals_mm
-    properties:
-      chi2:
-        type: number
-        description: Total chi-squared value of the joint fit.
-      dof:
-        type: integer
-        description: Degrees of freedom (number of observations minus number of estimated parameters).
-      reduced_chi2:
-        type: number
-        description: Reduced chi-squared ($\chi^2 / \text{dof}$).
-      rms_residuals_mm:
-        type: number
-        description: Root Mean Square of post-fit residuals in millimeters.
-      covariance_matrix:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-        description: Full covariance matrix of the estimated parameters (flattened or nested array).
-        minItems: 1
-        description: "Nested array representation of the covariance matrix for parameters [ac, g, ...]."
-
-  validation:
-    type: object
-    description: Robustness and sensitivity analysis results.
-    required:
-      - convergence_status
-      - sensitivity_z_variation
-      - reliability_flag
-    properties:
-      convergence_status:
-        type: string
-        enum: [converged, max_iterations_reached, failed]
-        description: Status of the least-squares solver.
-      sensitivity_z_variation:
-        type: number
-        description: Percentage variation in Z-scores when sweeping geopotential models.
-      reliability_flag:
-        type: string
-        enum: [reliable, unreliable]
-        description: "Flag indicating result reliability based on sensitivity thresholds (e.g., variation > 20% -> unreliable)."
-      p_value_null:
-        type: number
-        description: P-value for the null hypothesis ($\eta = 0$).
-      model_comparison:
-        type: object
-        description: Model comparison metrics (AIC/BIC) if applicable.
-        properties:
-          bic:
-            type: number
-          aic:
-            type: number
-
+  eta:
+    type: number
+    description: |
+      The Eötvös parameter $\eta = |a_c| / g$.
+      Represents the fractional difference in acceleration between the two test bodies.
+    minimum: 0.0
+  eta_std:
+    type: number
+    description: Standard deviation (1-sigma) of $\eta$ derived from the joint covariance matrix.
+    minimum: 0.0
+  confidence_level:
+    type: number
+    description: Confidence level (0.95 for 95% CI) used for interval calculation.
+    example: 0.95
+  eta_ci_lower:
+    type: number
+    description: Lower bound of the confidence interval for $\eta$.
+  eta_ci_upper:
+    type: number
+    description: Upper bound of the confidence interval for $\eta$.
+  ac:
+    type: number
+    description: |
+      Differential acceleration parameter $a_c$ (m/s²) estimated from the joint solution.
+      This is the shared parameter in the least-squares fit.
+  ac_std:
+    type: number
+    description: Standard deviation (1-sigma) of $a_c$.
+  g:
+    type: number
+    description: |
+      Local gravitational acceleration $g$ (m/s²) used for normalization.
+      Typically calculated at the mean orbital radius of the satellite pair.
+  ac_ci_lower:
+    type: number
+    description: Lower bound of the confidence interval for $a_c$.
+  ac_ci_upper:
+    type: number
+    description: Upper bound of the confidence interval for $a_c$.
+  chi2:
+    type: number
+    description: Final reduced chi-squared statistic of the joint fit.
+  dof:
+    type: integer
+    description: Degrees of freedom of the joint fit (observations - estimated parameters).
+    minimum: 1
+  p_value:
+    type: number
+    description: P-value associated with the null hypothesis (Equivalence Principle holds).
+    minimum: 0.0
+    maximum: 1.0
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the analysis was completed.
+  satellites:
+    type: array
+    description: List of satellite IDs included in the joint analysis.
+    items:
+      type: string
+    minItems: 2
+  geopotential_model:
+    type: string
+    description: Identifier of the geopotential model used (e.g., 'GGM05C', 'EGM2008').
+  software_version:
+    type: string
+    description: Version of the analysis software used.
+    example: "1.0.0"
+  notes:
+    type: string
+    description: Optional notes regarding convergence, warnings, or specific conditions.
 additionalProperties: false

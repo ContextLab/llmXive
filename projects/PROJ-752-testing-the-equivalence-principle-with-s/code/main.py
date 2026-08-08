@@ -1,12 +1,3 @@
-"""
-Main entry point for the Equivalence Principle Testing Pipeline.
-
-This script orchestrates the full pipeline:
-1. Data ingestion (T014-T019)
-2. Orbit estimation (T023-T027)
-3. Eotvos parameter calculation (T026)
-4. Result persistence (T028)
-"""
 import os
 import sys
 import json
@@ -14,119 +5,101 @@ import time
 import argparse
 from typing import Optional, Dict, Any
 
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'code'))
 
 from config import get_config
-from utils.logging import get_logger, log_progress, log_error, init_logging
-from data.ingestion import fetch_all_satellites, verify_data_availability
-from data.preprocessing import filter_residuals, align_time_series, merge_multi_satellite_datasets
-from models.estimator import run_joint_fit, extract_joint_parameters
-from analysis.eotvos import compute_eotvos_parameter, run_eotvos_analysis
-from data.output import (
-    save_cleaned_data,
-    record_checksum,
-    save_orbit_solution,
-    save_eotvos_metrics,
-    compute_sha256
-)
+from data.ingestion import fetch_all_satellites, verify_data_availability, DataUnavailableError
+from data.preprocessing import preprocess_slr_data
+from data.output import run_output_pipeline
+from utils.logging import get_logger, handle_fatal_error, log_progress
 
 logger = get_logger(__name__)
 
 def main():
-    parser = argparse.ArgumentParser(description="Equivalence Principle Testing Pipeline")
-    parser.add_argument('--config', type=str, default='config.yaml', help='Path to config file')
-    parser.add_argument('--dry-run', action='store_true', help='Run without saving results')
+    """
+    Main entry point for the SLR Equivalence Principle Testing pipeline.
+    Orchestrates data ingestion, preprocessing, and output generation.
+    """
+    parser = argparse.ArgumentParser(description="Run SLR Equivalence Principle Pipeline")
+    parser.add_argument("--raw-data-dir", type=str, default="data/raw", help="Directory for raw data")
+    parser.add_argument("--processed-data-dir", type=str, default="data/processed", help="Directory for processed data")
+    parser.add_argument("--results-dir", type=str, default="data/results", help="Directory for results")
     args = parser.parse_args()
 
-    init_logging(level='INFO')
-    log_progress("Starting Equivalence Principle Testing Pipeline...")
+    logger.info("Starting Equivalence Principle Testing Pipeline")
+    start_time = time.time()
 
-    config = get_config(args.config)
-    results_dir = config.get('results_dir', 'data/results')
-    processed_dir = config.get('processed_dir', 'data/processed')
-    checksums_file = os.path.join(processed_dir, '.checksums.json')
-
-    os.makedirs(results_dir, exist_ok=True)
-    os.makedirs(processed_dir, exist_ok=True)
-
-    # Step 1: Data Ingestion
-    log_progress("Step 1: Fetching satellite data...")
     try:
-        df_raw = fetch_all_satellites(config.get('satellite_ids', []))
-    except Exception as e:
-        log_error(f"Failed to fetch satellite data: {e}")
-        # In a real run, we would exit. For this task, we proceed if data exists.
-        if not os.path.exists(os.path.join(processed_dir, 'cleaned_slr_data.csv')):
-            raise
+        # 1. Load Configuration
+        config = get_config()
+        raw_data_dir = args.raw_data_dir
+        processed_data_dir = args.processed_data_dir
+        results_dir = args.results_dir
 
-    # Step 2: Preprocessing
-    log_progress("Step 2: Preprocessing data...")
-    try:
-        df_clean = filter_residuals(df_raw, threshold_cm=2.0)
-        df_aligned = align_time_series(df_clean)
-        df_merged = merge_multi_satellite_datasets(df_aligned)
-    except Exception as e:
-        log_error(f"Preprocessing failed: {e}")
-        # Fallback to existing cleaned data if available
-        cleaned_path = os.path.join(processed_dir, 'cleaned_slr_data.csv')
-        if os.path.exists(cleaned_path):
-            import pandas as pd
-            df_merged = pd.read_csv(cleaned_path)
-            log_progress("Using existing cleaned data.")
-        else:
-            raise
+        # Ensure directories exist
+        os.makedirs(raw_data_dir, exist_ok=True)
+        os.makedirs(processed_data_dir, exist_ok=True)
+        os.makedirs(results_dir, exist_ok=True)
 
-    # Save cleaned data
-    cleaned_output_path = os.path.join(processed_dir, 'cleaned_slr_data.csv')
-    save_cleaned_data(df_merged, cleaned_output_path)
-    record_checksum(cleaned_output_path, checksums_file)
+        # 2. Verify Data Availability
+        log_progress(logger, "Verifying data availability...")
+        try:
+            verify_data_availability(config)
+        except DataUnavailableError as e:
+            logger.error(str(e))
+            # In a real scenario, we might attempt to fetch here if not hardcoded,
+            # but T009 logic implies we rely on config verification.
+            # If URLs are missing, we cannot proceed.
+            return 1
 
-    # Step 3: Orbit Estimation
-    log_progress("Step 3: Running joint orbit estimation...")
-    try:
-        solution = run_joint_fit(df_merged)
-    except Exception as e:
-        log_error(f"Orbit estimation failed: {e}")
-        # Fallback logic could be implemented here
-        raise
-
-    # Step 4: Eotvos Analysis
-    log_progress("Step 4: Computing Eotvos parameter...")
-    try:
-        ac, g, covariance = extract_joint_parameters(solution)
-        eotvos_result = compute_eotvos_parameter(ac, g, covariance)
-    except Exception as e:
-        log_error(f"Eotvos analysis failed: {e}")
-        raise
-
-    # Step 5: Save Results (T028)
-    if not args.dry_run:
-        log_progress("Step 5: Saving results...")
+        # 3. Ingest Data
+        log_progress(logger, "Fetching satellite data...")
+        # The ingestion function handles fetching and basic parsing
+        # We assume fetch_all_satellites returns a raw DataFrame
+        raw_df = fetch_all_satellites(config.satellite_ids)
         
-        orbit_sol_path = os.path.join(results_dir, "orbit_solutions.json")
-        save_orbit_solution(solution, orbit_sol_path)
-        record_checksum(orbit_sol_path, checksums_file)
+        if raw_df is None or raw_df.empty:
+            logger.error("No data retrieved from ingestion.")
+            return 1
 
-        eotvos_metrics = {
-            "eta": float(eotvos_result['eta']),
-            "eta_95ci_lower": float(eotvos_result['ci_95_lower']),
-            "eta_95ci_upper": float(eotvos_result['ci_95_upper']),
-            "ac": float(ac),
-            "g": float(g),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        }
+        # 4. Preprocess Data
+        log_progress(logger, "Preprocessing data (filtering, alignment)...")
+        cleaned_df = preprocess_slr_data(raw_df)
+
+        if cleaned_df is None or cleaned_df.empty:
+            logger.error("No data remaining after preprocessing.")
+            return 1
+
+        # 5. Write Output and Checksums (T019)
+        output_csv_path = os.path.join(processed_data_dir, "cleaned_slr_data.csv")
+        checksum_dir = processed_data_dir
         
-        eotvos_path = os.path.join(results_dir, "eotvos_metrics.json")
-        save_eotvos_metrics(eotvos_metrics, eotvos_path)
-        record_checksum(eotvos_path, checksums_file)
+        log_progress(logger, "Saving output and computing checksums...")
+        run_output_pipeline(
+            cleaned_df=cleaned_df,
+            raw_data_dir=raw_data_dir,
+            output_csv_path=output_csv_path,
+            checksum_dir=checksum_dir
+        )
 
-        log_progress(f"Results saved to {results_dir}")
-    else:
-        log_progress("Dry run: Skipping result persistence.")
+        # 6. Final Report
+        elapsed_time = time.time() - start_time
+        logger.info(f"Pipeline completed successfully in {elapsed_time:.2f} seconds.")
+        logger.info(f"Output saved to: {output_csv_path}")
+        
+        # Verify checksum file exists
+        checksum_file = os.path.join(checksum_dir, ".checksums.json")
+        if os.path.exists(checksum_file):
+            with open(checksum_file, 'r') as f:
+                checksums = json.load(f)
+            logger.info(f"Checksums recorded: {checksums}")
 
-    log_progress("Pipeline completed successfully.")
-    return 0
+        return 0
+
+    except Exception as e:
+        handle_fatal_error(logger, e)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

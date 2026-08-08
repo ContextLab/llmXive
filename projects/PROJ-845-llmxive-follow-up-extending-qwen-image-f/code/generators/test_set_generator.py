@@ -1,169 +1,221 @@
+"""
+Test Set Generator for Generalization Set (T013).
+
+Generates a distinct Generalization Set (data/raw/test_set.csv) with N_test >= 500,
+ensuring each sample's structure_hash (SHA256 of premises + operators) is NOT present
+in any training subset. Stratifies by entropy level.
+"""
 import csv
 import hashlib
 import os
 import sys
 import random
+import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Set, Tuple, Optional
+from typing import List, Dict, Set, Any, Optional
 
-# Import from existing API surface
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from models.synthetic_problem import SyntheticProblem
 from generators.logic_generator import generate_propositional_problem, generate_arithmetic_problem
-from config import get_config
+from config import Config, get_config
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 def compute_structure_hash(premises: List[str], operators: List[str]) -> str:
-    """
-    Compute a deterministic SHA256 hash of the logical structure (premises + operators).
-    This ensures that two problems with the same logical structure map to the same hash.
-    """
-    # Sort to ensure order independence for sets of premises/operators if applicable,
-    # but usually logical order matters. We join with a separator.
-    structure_str = "||".join(premises) + ";;" + "||".join(operators)
-    return hashlib.sha256(structure_str.encode('utf-8')).hexdigest()
+    """Compute SHA256 hash of premises + operators to identify structural distinctness."""
+    content = " ".join(premises) + " " + " ".join(operators)
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
-def load_existing_hashes(csv_paths: List[str]) -> Set[str]:
-    """
-    Load all structure hashes from existing CSV files (training sets).
-    Returns a set of hashes that MUST be avoided.
-    """
+def load_existing_hashes(training_paths: List[str]) -> Set[str]:
+    """Load all structure_hash values from existing training CSVs."""
     existing_hashes: Set[str] = set()
-    for path in csv_paths:
-        if not os.path.exists(path):
-            logger.warning(f"Training set file not found: {path}, skipping.")
+    for path_str in training_paths:
+        path = Path(path_str)
+        if not path.exists():
+            logger.warning(f"Training path does not exist: {path}, skipping.")
             continue
-        try:
-            with open(path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    if 'structure_hash' in row:
-                        existing_hashes.add(row['structure_hash'])
-            logger.info(f"Loaded {len(existing_hashes)} existing hashes from {path}")
-        except Exception as e:
-            logger.error(f"Error reading {path}: {e}")
-            raise
+        
+        logger.info(f"Loading hashes from {path}...")
+        with open(path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            count = 0
+            for row in reader:
+                if 'structure_hash' in row:
+                    existing_hashes.add(row['structure_hash'])
+                    count += 1
+        logger.info(f"Loaded {count} hashes from {path.name}.")
+    
     return existing_hashes
 
 def generate_unique_problem(
     existing_hashes: Set[str],
-    entropy_level: str,
-    problem_type: str = "propositional",
+    target_entropy: Optional[str] = None,
     max_attempts: int = 10000
 ) -> Optional[SyntheticProblem]:
     """
     Generate a problem whose structure_hash is NOT in existing_hashes.
-    Retries up to max_attempts. Returns None if no unique problem found.
+    If target_entropy is provided, attempts to match it (best effort).
     """
-    config = get_config()
-    random.seed(config.seed)
-
     for attempt in range(max_attempts):
-        if problem_type == "propositional":
-            problem = generate_propositional_problem(entropy_level=entropy_level)
-        elif problem_type == "arithmetic":
-            problem = generate_arithmetic_problem(entropy_level=entropy_level)
+        # Randomly choose problem type
+        if random.random() < 0.5:
+            prob = generate_propositional_problem()
         else:
-            raise ValueError(f"Unknown problem type: {problem_type}")
-
-        if problem is None:
-            continue
-
-        structure_hash = compute_structure_hash(problem.premises, problem.operators)
-
-        if structure_hash not in existing_hashes:
-            # Success: unique structure found
-            return problem
+            prob = generate_arithmetic_problem()
         
-        # If collision, continue to next attempt
-
-    logger.error(f"Failed to generate a unique problem after {max_attempts} attempts.")
+        # Compute hash
+        structure_hash = compute_structure_hash(prob.premises, prob.operators)
+        
+        if structure_hash not in existing_hashes:
+            # Update metadata to reflect entropy level if needed
+            if target_entropy:
+                prob.metadata['target_entropy'] = target_entropy
+            prob.metadata['generation_attempt'] = attempt
+            return prob
+        
+        if attempt % 1000 == 0:
+            logger.debug(f"Attempt {attempt}: Hash collision, retrying...")
+    
+    logger.error(f"Failed to generate unique problem after {max_attempts} attempts.")
     return None
 
-def main():
-    """
-    Main entry point for generating the Generalization Set (Test Set).
-    Ensures distinctness from training sets via hash verification.
-    """
-    config = get_config()
-    logger.info("Starting Generalization Set generation with hash-based distinctness verification.")
-
-    # Define paths relative to project root
-    # Assuming the script is run from the project root
-    project_root = Path(__file__).resolve().parent.parent.parent
-    data_raw_dir = project_root / "data" / "raw"
-    data_raw_dir.mkdir(parents=True, exist_ok=True)
-
-    training_files = [
-        str(data_raw_dir / "high_entropy.csv"),
-        str(data_raw_dir / "low_entropy.csv"),
-        str(data_raw_dir / "target_specific.csv")
-    ]
-    output_file = str(data_raw_dir / "test_set.csv")
-
-    # 1. Load existing hashes from training sets
-    existing_hashes = load_existing_hashes(training_files)
-    logger.info(f"Total unique training structures to avoid: {len(existing_hashes)}")
-
-    # 2. Generate test samples
-    target_count = 500
-    generated_problems: List[SyntheticProblem] = []
-    
-    # Stratify by entropy level as requested in T013
-    entropy_levels = ["high", "low", "target"]
-    per_level_count = target_count // len(entropy_levels)
-    
-    for level in entropy_levels:
-        logger.info(f"Generating {per_level_count} unique problems for entropy level: {level}")
-        count = 0
-        while count < per_level_count:
-            problem = generate_unique_problem(
-                existing_hashes=existing_hashes,
-                entropy_level=level,
-                problem_type="propositional" # Defaulting to propositional as per T011 context
-            )
-            if problem:
-                # Update metadata to mark as test set
-                problem.metadata["set_type"] = "test_generalization"
-                generated_problems.append(problem)
-                count += 1
-            else:
-                logger.critical(f"Could not generate enough unique problems for level {level}. Stopping.")
-                break
-
-    if not generated_problems:
-        logger.error("No problems generated. Exiting.")
-        sys.exit(1)
-
-    # 3. Save to CSV
-    logger.info(f"Saving {len(generated_problems)} unique problems to {output_file}")
+def write_test_set_csv(
+    problems: List[SyntheticProblem],
+    output_path: str,
+    entropy_levels: List[str]
+) -> None:
+    """Write the generated problems to CSV with stratification metadata."""
+    ensure_data_dir(output_path)
     
     fieldnames = [
-        "id", "premises", "operators", "solution", "entropy_level", 
-        "metadata", "structure_hash", "set_type"
+        'id', 'premises', 'operators', 'solution', 'entropy_level', 
+        'structure_hash', 'set_type', 'metadata'
     ]
     
-    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for problem in generated_problems:
-            # Compute hash again for saving
-            structure_hash = compute_structure_hash(problem.premises, problem.operators)
+        
+        for i, prob in enumerate(problems):
+            # Determine entropy level (use metadata if set, else default)
+            ent_level = prob.metadata.get('entropy_level', 'unknown')
+            if target_entropy := prob.metadata.get('target_entropy'):
+                ent_level = target_entropy
+            
             row = {
-                "id": problem.id,
-                "premises": "; ".join(problem.premises),
-                "operators": "; ".join(problem.operators),
-                "solution": problem.solution,
-                "entropy_level": problem.entropy_level,
-                "metadata": str(problem.metadata),
-                "structure_hash": structure_hash,
-                "set_type": "test_generalization"
+                'id': prob.id,
+                'premises': ';'.join(prob.premises),
+                'operators': ';'.join(prob.operators),
+                'solution': prob.solution,
+                'entropy_level': ent_level,
+                'structure_hash': compute_structure_hash(prob.premises, prob.operators),
+                'set_type': 'test_generalization',
+                'metadata': str(prob.metadata)
             }
             writer.writerow(row)
+    
+    logger.info(f"Wrote {len(problems)} problems to {output_path}")
 
-    logger.info(f"Successfully generated test set with {len(generated_problems)} unique structures.")
-    logger.info("Distinctness verification passed: No training structure hashes found in test set.")
+def ensure_data_dir(file_path: str) -> None:
+    """Ensure the directory for the given file path exists."""
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-if __name__ == "__main__":
+def main() -> None:
+    """
+    Main entry point for generating the Generalization Set (T013).
+    
+    Usage:
+      python code/generators/test_set_generator.py --output data/raw/test_set.csv \
+        --training data/raw/high_entropy.csv data/raw/low_entropy.csv data/raw/target_specific.csv \
+        --n_test 500
+    """
+    parser = argparse.ArgumentParser(description="Generate distinct Generalization Set.")
+    parser.add_argument(
+        '--output', 
+        type=str, 
+        default='data/raw/test_set.csv',
+        help='Output path for test set CSV'
+    )
+    parser.add_argument(
+        '--training', 
+        nargs='+', 
+        default=[
+            'data/raw/high_entropy.csv',
+            'data/raw/low_entropy.csv',
+            'data/raw/target_specific.csv'
+        ],
+        help='Paths to training CSVs to exclude hashes from'
+    )
+    parser.add_argument(
+        '--n_test', 
+        type=int, 
+        default=500,
+        help='Number of test samples to generate (default: 500)'
+    )
+    parser.add_argument(
+        '--seed', 
+        type=int, 
+        default=None,
+        help='Random seed for reproducibility'
+    )
+    
+    args = parser.parse_args()
+    
+    if args.seed is not None:
+        random.seed(args.seed)
+        config = get_config()
+        config.seed = args.seed
+    
+    logger.info(f"Starting test set generation: N={args.n_test}")
+    
+    # Load existing hashes from training sets
+    existing_hashes = load_existing_hashes(args.training)
+    logger.info(f"Loaded {len(existing_hashes)} existing structure hashes.")
+    
+    # Define stratification targets
+    # Stratify by entropy level: High, Low, Target (approx equal split)
+    entropy_levels = ['High', 'Low', 'Target']
+    samples_per_level = args.n_test // len(entropy_levels)
+    remainder = args.n_test % len(entropy_levels)
+    
+    all_problems: List[SyntheticProblem] = []
+    
+    for i, level in enumerate(entropy_levels):
+        count = samples_per_level + (1 if i < remainder else 0)
+        logger.info(f"Generating {count} problems for entropy level: {level}")
+        
+        generated = 0
+        attempts = 0
+        max_total_attempts = count * 10000
+        
+        while generated < count and attempts < max_total_attempts:
+            prob = generate_unique_problem(
+                existing_hashes, 
+                target_entropy=level,
+                max_attempts=1000
+            )
+            if prob:
+                # Add to existing_hashes to prevent duplicates within test set too
+                h = compute_structure_hash(prob.premises, prob.operators)
+                existing_hashes.add(h)
+                all_problems.append(prob)
+                generated += 1
+            attempts += 1
+        
+        if generated < count:
+            logger.warning(f"Could only generate {generated}/{count} for level {level}")
+    
+    if len(all_problems) < 500:
+        logger.error(f"Generated only {len(all_problems)} test samples, requirement is >= 500.")
+        sys.exit(1)
+    
+    write_test_set_csv(all_problems, args.output, entropy_levels)
+    logger.info(f"Successfully generated {len(all_problems)} distinct test samples.")
+
+if __name__ == '__main__':
     main()

@@ -20,8 +20,8 @@
 
 - [ ] T001a [P] Create project structure. Execute the following command to establish the directory tree: `mkdir -p code/ code/utils/ tests/ data/raw data/processed data/synthetic models/ docs/ docs/contracts/ state/projects/`. **[FR-001]**
 - [ ] T001b [P] Set restricted write permissions on `data/raw`. Execute: `chmod 555 data/raw` (read‑execute only). **[FR-001]** *(depends on T001a)*
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt`. Execute: `echo -e "mne==1.7.0\nscikit-learn==1.4.0\nnumpy==1.26.0\npandas==2.1.0\nscipy==1.12.0\nstatsmodels==0.14.1\npyyaml==6.0.1\npytest==7.4.0" > requirements.txt`. Then execute `pip install -r requirements.txt` to install dependencies. Verify file content matches exactly. **[FR-001]**
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools with `pyproject.toml`. Define `target-version = "py311"` and exclude `data/`, `models/`, `state/`. **[FR-001]**
+- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt`. Execute: `echo -e "mne==1.7.0\nscikit-learn==1.4.0\nnumpy==1.26.0\npandas==2.1.0\nscipy==1.12.0\nstatsmodels==0.14.1\npyyaml==6.0.1\npytest==7.4.0" > requirements.txt`. Then execute `pip install -r requirements.txt` to install dependencies. Verify file content matches exactly. **[FR-001]**
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools with `pyproject.toml`. Define `target-version = "py311"` and exclude `data/`, `models/`, `state/`. **[FR-001]**
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -31,9 +31,9 @@
 
 - [X] T004 [P] Setup configuration management in `code/utils/config.py` for paths, seeds, and thresholds (p=0.05, R2_expected=0.1). Include constants for `BANDS = ['delta', 'theta', 'alpha', 'beta', 'gamma']` and `LOWER_FREQ_HZ = 1.0`. **[FR-004][US-4]**
 - [ ] T005 [P] Implement I/O helpers in `code/utils/io_helpers.py` for CSV/Parquet loading, checksumming (SHA-256), and artifact hashing. Ensure `verify_checksum` function returns boolean and logs mismatches. **Mandatory**: Include a function `write_checksum_to_state` that writes successful checksums to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml` as required by FR-005 and Constitution Principle III. **[FR-005]**
-- [~] T006 [P] Create base data schema definitions in `specs/contracts/dataset.schema.yaml`. Define fields strictly matching spec data model: `subject_id`, `channel`, `time`, `voltage`, `condition`. Remove any fields not explicitly defined in spec.md (e.g., `mode_flag`). **[FR-006]**
-- [~] T007 [P] Create output schema definitions in `specs/contracts/output.schema.yaml`. Define fields for `feature_matrix`, `model_metrics` strictly matching plan.md output artifacts. Remove any fields not explicitly defined (e.g., `sensitivity_table`). **[FR-007]**
-- [~] T008 [P] Setup logging infrastructure to capture warnings, mode switches, and resource usage (stdout + `logs/pipeline.log`). Configure log rotation to prevent disk overflow. **[FR-008]**
+- [ ] T006 [P] Create base data schema definitions in `specs/contracts/dataset.schema.yaml`. Define fields strictly matching spec data model: `subject_id`, `channel`, `time`, `voltage`, `condition`. Remove any fields not explicitly defined in spec.md (e.g., `mode_flag`). **[FR-006]**
+- [ ] T007 [P] Create output schema definitions in `specs/contracts/output.schema.yaml`. Define fields for `feature_matrix`, `model_metrics` strictly matching plan.md output artifacts. Remove any fields not explicitly defined (e.g., `sensitivity_table`). **[FR-007]**
+- [ ] T008 [P] Setup logging infrastructure to capture warnings, mode switches, and resource usage (stdout + `logs/pipeline.log`). Configure log rotation to prevent disk overflow. **[FR-008]**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,24 +54,24 @@
 
 ### Implementation (executed only if Primary Mode)
 
-- [ ] T013 [US1] Implement data download for the verified paired dataset identified by T011 (if any) in `code/01_ingest_preprocess.py`. <!-- FAILED: unspecified -->
+- [X] T013 [US1] Implement data download for the verified paired dataset identified by T011 (if any) in `code/01_ingest_preprocess.py`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **URL**: derived from manifest entry.
  - **Output**: Save to `data/raw/` with pattern `sub-{subject_id}_run-{run_id}.edf`.
  - **Constraint**: Monitor RAM/CPU; log metrics to `logs/pipeline.log`. **[FR-012][FR-013]**
 - [~] T015 [US1] **Data Alignment Check**: Verify subject overlap between EEG and tDCS within the single source (FR‑011). **Mandatory**: Run immediately after download (T013). If mismatch, set mode flag to **Data Insufficient** and terminate. **[FR-011]** *(depends on T013)*
 - [ ] T014 [US1] Implement SHA‑256 checksum verification for all files in `data/raw/` and log results to `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`. **Mandatory**: Use `write_checksum_to_state` helper to write successful checksums to the state file. Set files read‑only on success. **[FR-005]** *(depends on T013)*
 - [ ] T016 [US1] **Dataset Representativeness Check**: Analyze dataset metadata to flag if the dataset is small (<50 subjects) or from a single population (e.g., healthy young adults). **Mandatory**: Implement the flagging logic and record this flag explicitly in the final output (e.g., `results.json` and `docs/research_results.md`) as required by FR-021. **[FR-021]** *(depends on T013)*
-- [ ] T017 [US1] Implement band‑pass filtering (1–45 Hz) and common‑average referencing in `code/01_ingest_preprocess.py`. Write filtered epochs to `data/processed/`. **[FR-002][FR-006]**
+- [X] T017 [US1] Implement band‑pass filtering (1–45 Hz) and common‑average referencing in `code/01_ingest_preprocess.py`. Write filtered epochs to `data/processed/`. **[FR-002][FR-006]**
 - [ ] T018 [US1] Implement epoching (fixed‑duration windows) and automated bad‑channel detection (z‑score > 5). Output `data/processed/epochs.fif`. **[FR‑002][FR‑006]**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (only in Primary Mode).
 
 ### Tests for User Story 1 (OPTIONAL)
 
-- [ ] T010 [P] [US1] Write unit test code for checksum verification in `tests/test_preprocess.py`. Test case: Verify SHA‑256 match/mismatch handling.
-- [ ] T011a [P] [US1] Write unit test code for mode detection logic (Primary vs. Data Insufficient) in `tests/test_preprocess.py`. Test case: Verify termination when no paired dataset is found.
+- [X] T010 [P] [US1] Write unit test code for checksum verification in `tests/test_preprocess.py`. Test case: Verify SHA‑256 match/mismatch handling.
+- [X] T011a [P] [US1] Write unit test code for mode detection logic (Primary vs. Data Insufficient) in `tests/test_preprocess.py`. Test case: Verify termination when no paired dataset is found.
 
-- [ ] T045 [US1] **Run** all unit tests (T010‑T011a). **Pass Criteria**: All tests pass. If fail, halt pipeline.
+- [~] T045 [US1] **Run** all unit tests (T010‑T011a). **Pass Criteria**: All tests pass. If fail, halt pipeline.
 
 ---
 
@@ -79,8 +79,8 @@
 
 **Goal**: Compute spectral power and connectivity metrics, then fit a ridge regression model (or Rank‑Ridge if non‑normal). Executes only in Primary Mode.
 
-- [ ] T023 [P] Implement spectral power density extraction (Delta, Theta, Alpha, Beta, Gamma) using Welch's method in `code/02_feature_extraction.py`. Output `data/processed/spectral_power.csv`. **[FR-003]**
-- [ ] T024 [P] Implement connectivity metric extraction (PLV, wPLI) for ROI pairs (C3‑C4, C3‑Cz, C4‑Cz) in `code/02_feature_extraction.py`. Append results to `spectral_power.csv`. **[FR-004]**
+- [~] T023 [P] Implement spectral power density extraction (Delta, Theta, Alpha, Beta, Gamma) using Welch's method in `code/02_feature_extraction.py`. Output `data/processed/spectral_power.csv`. **[FR-003]**
+- [X] T024 [P] Implement connectivity metric extraction (PLV, wPLI) for ROI pairs (C3‑C4, C3‑Cz, C4‑Cz) in `code/02_feature_extraction.py`. Append results to `spectral_power.csv`. **[FR-004]**
 - [ ] T025 [P] Assemble final feature matrix with subject IDs in `code/02_feature_extraction.py`. Output `data/processed/feature_matrix.csv`. **[FR-005]**
 - [ ] T027 [P] **Mode‑Gate Before Modeling**: Read mode flag; if not **Primary**, skip modeling tasks and log "Modeling Skipped: Data Insufficient". **[FR-001][FR-004]**
 - [ ] T028 [D] **Normality Check**: Perform Shapiro‑Wilk on tDCS response (FR‑009). **Mandatory**: If non-normal (p < 0.05), switch to **Rank-Ridge regression** (non-parametric) and explicitly execute the Rank-Ridge model fitting as the replacement for standard Ridge. Log the change and the model type used. **[FR‑009]** *(depends on T025)*

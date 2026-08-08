@@ -1,0 +1,46 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes to `logic_generator.py`, no generated dataset, and no metadata\
+    \ flags or statistical validation are present. The required artifact (the updated\
+    \ generator script and the \u22653,000 samples partitioned into High\u2011Entropy,\
+    \ Low\u2011Entropy, and Target\u2011Specific subsets) is missing, so the task\
+    \ is not satisfied."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test output showing a contradiction\u2011detection step\
+    \ (e.g., a SAT\u2011based solvability check) is present. The provided artifacts\
+    \ only describe dataset generation and distillation pipelines; there is no implementation\
+    \ or evidence that unsolvable problems are identified and discarded. Implementer\
+    \ must add the SAT\u2011check logic and demonstrate it works (e.g., logs or unit\
+    \ tests)."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains no code, script, or documentation showing that early\u2011\
+    stopping logic was added to any training loop, nor any record of the epoch when\
+    \ a loss threshold is first met. Without such artifacts, the task requirement\
+    \ is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or logs showing that `ResourceMonitor` hooks were added to\
+    \ the training script, that RAM usage is capped at 7\u202FGB, that a 6\u2011hour\
+    \ wall\u2011clock limit is enforced, or that a specific error code is emitted\
+    \ on breach are present. The required artifact is missing, so the task is not\
+    \ satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `DistillationRun` JSON files are present in `data/processed/`, and there is
+    no evidence (e.g., command logs, script output) showing that `distill_loop.py`
+    was run for the High, Low, and Target datasets. The required artifacts are missing,
+    so the task is not satisfied.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation showing a hash\u2011based distinctness\
+    \ check was added to the generator is present. The required artifact (implementation\
+    \ of the distinctness verification and evidence it is used by T013) is missing,\
+    \ so the task is not satisfied."

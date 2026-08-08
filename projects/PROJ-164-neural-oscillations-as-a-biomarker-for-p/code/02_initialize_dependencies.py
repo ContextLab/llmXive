@@ -1,59 +1,96 @@
 """
-T002: Initialize Python 3.11 project with requirements.txt.
+Task T002: Initialize Python 3.11 project with requirements.txt.
 
-This script ensures the requirements.txt file exists with the exact content
-specified in the task, and attempts to install the dependencies.
+This script creates the requirements.txt file with the exact content
+specified in the task description and installs the dependencies.
 """
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-REQUIREMENTS_CONTENT = """mne==1.7.0
-scikit-learn==1.4.0
-numpy==1.26.0
-pandas==2.1.0
-scipy==1.12.0
-statsmodels==0.14.1
-pyyaml==6.0.1
-pytest==7.4.0
-"""
+
+def create_requirements_file():
+    """Create requirements.txt with exact content from task specification."""
+    requirements_content = (
+        "mne==1.7.0\n"
+        "scikit-learn==1.4.0\n"
+        "numpy==1.26.0\n"
+        "pandas==2.1.0\n"
+        "scipy==1.12.0\n"
+        "statsmodels==0.14.1\n"
+        "pyyaml==6.0.1\n"
+        "pytest==7.4.0"
+    )
+    
+    project_root = Path(__file__).parent.parent
+    requirements_path = project_root / "requirements.txt"
+    
+    with open(requirements_path, "w", encoding="utf-8") as f:
+        f.write(requirements_content)
+    
+    print(f"Created {requirements_path}")
+    return requirements_path
+
+
+def install_dependencies(requirements_path: Path) -> None:
+    """Install dependencies from requirements.txt."""
+    print(f"Installing dependencies from {requirements_path}...")
+    
+    result = subprocess.run(
+        [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
+        capture_output=False,
+        text=True
+    )
+    
+    if result.returncode != 0:
+        raise RuntimeError(f"Failed to install dependencies. Exit code: {result.returncode}")
+    
+    print("Dependencies installed successfully.")
+
+
+def verify_requirements_content(requirements_path: Path) -> bool:
+    """Verify that requirements.txt content matches specification exactly."""
+    expected_content = (
+        "mne==1.7.0\n"
+        "scikit-learn==1.4.0\n"
+        "numpy==1.26.0\n"
+        "pandas==2.1.0\n"
+        "scipy==1.12.0\n"
+        "statsmodels==0.14.1\n"
+        "pyyaml==6.0.1\n"
+        "pytest==7.4.0"
+    )
+    
+    with open(requirements_path, "r", encoding="utf-8") as f:
+        actual_content = f.read()
+    
+    if actual_content == expected_content:
+        print("✓ requirements.txt content verified successfully.")
+        return True
+    else:
+        print("✗ requirements.txt content does not match specification.")
+        print(f"Expected:\n{expected_content}")
+        print(f"Actual:\n{actual_content}")
+        return False
+
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
-    req_file = project_root / "requirements.txt"
-
-    # 1. Write requirements.txt with exact content
-    print(f"Writing requirements.txt to: {req_file}")
-    req_file.write_text(REQUIREMENTS_CONTENT.strip())
-
-    # 2. Verify file content matches exactly
-    current_content = req_file.read_text()
-    expected_content = REQUIREMENTS_CONTENT.strip()
-
-    if current_content != expected_content:
-        print("ERROR: requirements.txt content mismatch after writing.")
-        print(f"Expected:\n{expected_content}")
-        print(f"Got:\n{current_content}")
-        sys.exit(1)
+    """Main entry point for T002."""
+    print("=== Task T002: Initialize Python 3.11 project with requirements.txt ===")
     
-    print("requirements.txt content verified.")
+    # Create requirements.txt
+    requirements_path = create_requirements_file()
+    
+    # Install dependencies
+    install_dependencies(requirements_path)
+    
+    # Verify content
+    if not verify_requirements_content(requirements_path):
+        raise RuntimeError("Requirements file verification failed.")
+    
+    print("=== Task T002 completed successfully ===")
 
-    # 3. Install dependencies
-    print("Installing dependencies via pip...")
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-r", str(req_file)],
-            check=True,
-            capture_output=False,
-            text=True
-        )
-        print("Dependencies installed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to install dependencies. Exit code: {e.returncode}")
-        sys.exit(1)
-
-    print("T002 Initialization complete.")
 
 if __name__ == "__main__":
     main()

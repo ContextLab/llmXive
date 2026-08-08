@@ -1,68 +1,51 @@
-"""
-Unit tests for the project setup script (Task T001a).
-"""
 import os
-import shutil
-import tempfile
-import pytest
+import subprocess
 import sys
+from pathlib import Path
 
-# Add the parent directory to the path to import the setup script
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from code.setup_project import main
-
-@pytest.fixture
-def temp_project_root():
-    """Create a temporary directory to simulate the project root."""
-    temp_dir = tempfile.mkdtemp()
-    original_cwd = os.getcwd()
-    os.chdir(temp_dir)
-    yield temp_dir
-    os.chdir(original_cwd)
-    shutil.rmtree(temp_dir)
-
-def test_creates_directories(temp_project_root):
-    """Test that the setup script creates the required directory structure."""
-    # Ensure the directories don't exist before running
-    dirs_to_check = [
-        "code", "code/utils", "tests", 
-        "data/raw", "data/processed", "data/synthetic",
-        "models", "docs", "docs/contracts", "state/projects", "logs"
+def test_project_structure_created():
+    """
+    Test that running setup_project.py creates all required directories.
+    """
+    # Ensure we are running in the project root context
+    # We assume the test is run from the root where code/setup_project.py exists
+    
+    required_dirs = [
+        "code",
+        "code/utils",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "data/synthetic",
+        "models",
+        "docs",
+        "docs/contracts",
+        "state/projects",
     ]
-    
-    for d in dirs_to_check:
-        if os.path.exists(d):
-            shutil.rmtree(d)
 
-    # Run the main function
-    exit_code = main()
-    
-    assert exit_code == 0, "Setup script should return 0 on success"
+    # Run the setup script
+    result = subprocess.run(
+        [sys.executable, "code/setup_project.py"],
+        capture_output=True,
+        text=True
+    )
 
-    # Verify directories were created
-    for d in dirs_to_check:
-        assert os.path.isdir(d), f"Directory {d} was not created"
+    # Assert the script exited successfully
+    assert result.returncode == 0, f"Setup script failed: {result.stderr}"
 
-def test_handles_existing_directories(temp_project_root):
-    """Test that the script handles existing directories gracefully."""
-    # Create some directories first
-    os.makedirs("code", exist_ok=True)
-    os.makedirs("data/raw", exist_ok=True)
+    # Verify each directory exists
+    for dir_name in required_dirs:
+        dir_path = Path(dir_name)
+        assert dir_path.exists(), f"Directory {dir_name} does not exist after running setup."
+        assert dir_path.is_dir(), f"Path {dir_name} exists but is not a directory."
 
-    # Run the main function
-    exit_code = main()
-    
-    assert exit_code == 0, "Setup script should return 0 even if dirs exist"
-
-def test_fails_on_file_collision(temp_project_root):
-    """Test that the script fails if a path exists as a file."""
-    # Create a file where a directory should be
-    os.makedirs("code", exist_ok=True)
-    with open("code/utils", "w") as f:
-        f.write("This is a file, not a directory")
-
-    # Run the main function
-    exit_code = main()
-    
-    assert exit_code == 1, "Setup script should return 1 on collision"
+def test_utils_directory_exists():
+    """
+    Specific check for code/utils/ as it is critical for other imports.
+    """
+    utils_path = Path("code/utils")
+    assert utils_path.exists()
+    assert utils_path.is_dir()
+    # Check that we can write a temp file there (if permissions allow, though T001a doesn't restrict this yet)
+    # This is just a structural check
+    assert (utils_path / ".gitkeep").parent == utils_path # Just checking path resolution

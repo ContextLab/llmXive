@@ -63,7 +63,7 @@
 - [X] T006 Create configuration management in `code/config.py` with a `Config` dataclass containing `seed: int = 42`, `max_ram_gb: float = 7.0`, `max_runtime_hours: float = 6.0`.
 - [X] T007 Implement `SyntheticProblem` dataclass in `code/models/synthetic_problem.py` with fields `id: str`, `premises: List[str]`, `operators: List[str]`, `solution: str`, `entropy_level: str`, `metadata: Dict[str, Any]`; provide `to_dict()` and `from_dict()` methods for JSON serialization.
 - [X] T008 Implement `ResourceMonitor` class in `code/utils/resource_monitor.py` with methods `start()`, `stop()`, `get_peak_ram_gb()`, and context‑manager support for automatic monitoring.
-- [ ] T041 Add reproducibility verification script `code/utils/reproducibility_check.py` that runs the generator twice with the same seed from `Config`, computes SHA256 checksums of generated CSVs, and fails the CI if they differ; integrate as a CI step.
+- [X] T041 Add reproducibility verification script `code/utils/reproducibility_check.py` that runs the generator twice with the same seed from `Config`, computes SHA256 checksums of generated CSVs, and fails the CI if they differ; integrate as a CI step.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,12 +88,12 @@
 - [ ] T011‑B [US1] Implement arithmetic problem generator function `generate_arithmetic_problem()` in the same module.
 - [ ] T012 [US1] Add entropy parameterization in `logic_generator.py` to produce High‑Entropy, Low‑Entropy, and Target‑Specific subsets, each receiving [deferred] samples (total N ≥ 3,000) with appropriate metadata flags. <!-- ATOMIZE: requested -->
 - [ ] T013 [US1] Implement generation of a distinct Generalization Set (`data/raw/test_set.csv`) with N_test ≥ 500, ensuring each sample’s `structure_hash` (SHA256 of premises + operators) is **not** present in any training subset; also stratify by entropy level.
-- [~] T014 [US1] Add contradiction detection: before writing a problem, verify solvability (e.g., using a simple SAT check); discard unsolvable problems.
+- [ ] T014 [US1] Add contradiction detection: before writing a problem, verify solvability (e.g., using a simple SAT check); discard unsolvable problems.
 - [X] T015 [US1] Implement function `compute_entropy_statistics()` in `code/analysis/metrics.py` that calculates per‑sample entropy scores and performs a two‑sample t‑test (high vs low); log mean, std, and p‑value.
 - [ ] T015-ENFORCE [US1] Add validation in `metrics.py` that raises `SystemExit(1)` if the t‑test p‑value ≥ 0.05, logging the failure; this enforces the controlled‑entropy requirement without presuming success.
 - [ ] T016 [US1] Save generated CSVs to `data/raw/high_entropy.csv`, `data/raw/low_entropy.csv`, `data/raw/target_specific.csv`, and `data/raw/test_set.csv` with columns for all fields defined in `SyntheticProblem`, including `entropy_level` and `structure_hash`.
 - [X] T017 [US1] Generate SHA256 checksums for each CSV and record them in `code/utils/data_hygiene.py`; log checksum values to the logger.
-- [~] T044 [US1] Add explicit hash‑based distinctness verification in the generator (used by T013) to guarantee that logical structures (premises/operators) of the Generalization Set differ from any training sample, satisfying FR‑008.
+- [ ] T044 [US1] Add explicit hash‑based distinctness verification in the generator (used by T013) to guarantee that logical structures (premises/operators) of the Generalization Set differ from any training sample, satisfying FR‑008.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,7 +108,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [US2] Write unit test `tests/unit/test_loss_function.py` that checks KL‑divergence implementation returns a non‑negative scalar.
-- [ ] T019 [US2] Write integration test `tests/integration/test_distillation_cpu.py` that launches a dummy training loop on a tiny dataset and asserts no CUDA devices are detected.
+- [X] T019 [US2] Write integration test `tests/integration/test_distillation_cpu.py` that launches a dummy training loop on a tiny dataset and asserts no CUDA devices are detected.
 
 ### Implementation for User Story 2
 
@@ -119,9 +119,9 @@
 - [ ] T022‑INT [US2] Modify `code/training/distill_loop.py` to call `filter_trace_consistency()` which discards any training example where `abs(trace_entropy - problem_entropy_score) > threshold`; log the number of discarded samples.
 - T045 [US2] Add a pilot run script `code/training/pilot_resource_check.py` that trains the student on a 100‑sample subset, records peak RAM via `ResourceMonitor`, and asserts runtime < 0.5 h; fail fast if limits are exceeded, providing empirical CPU‑tractability verification.
 - [X] T023 [US2] Implement the main distillation loop in `code/training/distill_loop.py` using KL‑divergence loss, no mixed‑precision, early stopping when loss ≤ 0.1, and logging of `convergence_epoch`.
-- [~] T024 [US2] Add early‑stopping logic to the training loop; record the epoch at which the loss threshold is first met.
-- [~] T025 [US2] Integrate `ResourceMonitor` hooks into the training script to enforce the 7 GB RAM ceiling and 6 h wall‑clock limit, exiting with a specific error code on breach.
-- [~] T026 [US2] Execute three independent distillation runs (High, Low, Target) by invoking `distill_loop.py` with the appropriate dataset path; store each run’s log as a `DistillationRun` JSON in `data/processed/`.
+- [ ] T024 [US2] Add early‑stopping logic to the training loop; record the epoch at which the loss threshold is first met.
+- [ ] T025 [US2] Integrate `ResourceMonitor` hooks into the training script to enforce the 7 GB RAM ceiling and 6 h wall‑clock limit, exiting with a specific error code on breach.
+- [ ] T026 [US2] Execute three independent distillation runs (High, Low, Target) by invoking `distill_loop.py` with the appropriate dataset path; store each run’s log as a `DistillationRun` JSON in `data/processed/`.
 - [~] T027 [US2] Ensure non‑convergent runs are logged with `"status": "failed_non_converge"` and assign `convergence_epoch` = `max_epochs + 1` for downstream statistical handling.
 - [ ] T042 [US2] After all three runs, generate a validation report `data/processed/trace_consistency_report.json` summarizing total samples, number filtered per entropy subset, and overall pass/fail status for FR‑009.
 
@@ -141,16 +141,16 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement evaluation script `code/analysis/evaluation.py` that loads each student model, runs inference on `data/raw/test_set.csv`, and records accuracy and per‑sample epoch of loss‑threshold crossing. <!-- FAILED: unspecified -->
+- [~] T029 [US3] Implement evaluation script `code/analysis/evaluation.py` that loads each student model, runs inference on `data/raw/test_set.csv`, and records accuracy and per‑sample epoch of loss‑threshold crossing. <!-- FAILED: unspecified -->
 - [ ] T029‑VERIFY [US3] Add an assertion in `evaluation.py` that raises `ValueError` if any loaded sample has `set_type != "test_generalization"`; this guarantees exclusive use of the Generalization Set.
 - [X] T030 [US3] Add function `anova_test(accuracies: Dict[str, List[float]]) -> Dict` in `code/analysis/stats.py` that computes the ANOVA F‑statistic and raw p‑value across the three models.
-- [ ] T031 [US3] Add function `pairwise_t_test(convergence_epochs: Dict[str, List[int]]) -> Dict` that performs pairwise t‑tests between model groups.
-- [ ] T032 [US3] Implement Bonferroni correction in `stats.py` that adjusts all p‑values (ANOVA and pairwise) and returns corrected values.
+- [~] T031 [US3] Add function `pairwise_t_test(convergence_epochs: Dict[str, List[int]]) -> Dict` that performs pairwise t‑tests between model groups.
+- [~] T032 [US3] Implement Bonferroni correction in `stats.py` that adjusts all p‑values (ANOVA and pairwise) and returns corrected values.
 - [ ] T033 [US3] Create `StatisticalResult` records (using the schema from contracts) for each test and write them to `data/processed/statistical_results.json`.
-- [ ] T034 [US3] Extend `code/report_generator.py` to produce a human‑readable markdown report `docs/research_report.md` that includes the statistical results and, **conditionally**, inserts the phrase “causal regarding the effect of entropy on performance” **only if** the corrected p‑value < 0.05; otherwise it states “no statistically significant effect detected”.
-- [ ] T034‑VALIDATE [US3] Add a validation function in `report_generator.py` that asserts the conditional phrasing logic matches the statistical outcome, raising an AssertionError on mismatch [UNRESOLVED-CLAIM: c_b57ff2ce — status=not_enough_info].
-- [ ] T043 [US3] Add a separate JSON summary `data/processed/final_statistical_summary.json` that lists all raw and corrected statistics (F, t, p-values) and the final conclusion, to satisfy SC‑001 and SC‑002 as a distinct artifact [UNRESOLVED-CLAIM: c_18702c60 — status=not_enough_info].
-- [ ] T035 [US3] Commit the final markdown report and JSON summary to the repository [UNRESOLVED-CLAIM: c_41e19c50 — status=not_enough_info].
+- [~] T034 [US3] Extend `code/report_generator.py` to produce a human‑readable markdown report `docs/research_report.md` that includes the statistical results and, **conditionally**, inserts the phrase “causal regarding the effect of entropy on performance” **only if** the corrected p‑value < 0.05; otherwise it states “no statistically significant effect detected”.
+- [ ] T034‑VALIDATE [US3] Add a validation function in `report_generator.py` that asserts the conditional phrasing logic matches the statistical outcome, raising an AssertionError on mismatch.
+- [ ] T043 [US3] Add a separate JSON summary `data/processed/final_statistical_summary.json` that lists all raw and corrected statistics (F, t, p-values) and the final conclusion, to satisfy SC‑001 and SC‑002 as a distinct artifact.
+- [ ] T035 [US3] Commit the final markdown report and JSON summary to the repository.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -160,7 +160,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Update `README.md` and `docs/` with usage examples, architecture diagram, and instructions for reproducing the full pipeline [UNRESOLVED-CLAIM: c_31f7765b — status=not_enough_info].
+- [ ] T036 [P] Update `README.md` and `docs/` with usage examples, architecture diagram, and instructions for reproducing the full pipeline.
 - [ ] T037 Code cleanup and refactoring across modules for readability and adherence to style guide.
 - [ ] T038 Performance optimization: profile the generator and training loops; adjust batch sizes if peak RAM approaches 7 GB.
 - [ ] T039 [P] Add additional unit tests for edge cases (contradiction filtering, timeout handling) in `tests/unit/`.

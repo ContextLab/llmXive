@@ -1,0 +1,44 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils/logging.py` file (or any non\u2011empty implementation) was presented\
+    \ in the evidence. Without the required module containing the standardized error\
+    \ handling and progress\u2011logging code, the task is not satisfied. The next\
+    \ implementer must add a functional `utils/logging.py` with the specified logging\
+    \ utilities."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation showing that 403 HTTP errors are caught\
+    \ and handled, nor any logic that detects and warns when a dataset contains fewer\
+    \ than 500 points, was provided. The required error\u2011handling implementation\
+    \ and associated tests or logs are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code defining `extract_joint_parameters` or any related file was provided;
+    the required function, its return dictionary, and the extraction of `ac`, `g`,
+    and covariance from an `OrbitSolution` are absent. The task therefore lacks the
+    necessary artifact.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis/eotvos.py` file was presented, and there is no evidence that such\
+    \ a module exists or contains the required logic to compute \u03B7 = |a_c|\u202F\
+    /\u202Fg and its 95\u202F% confidence interval from the joint covariance matrix.\
+    \ The task therefore remains unfulfilled."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required fallback logic (relax\
+    \ tolerance, log warning, output best\u2011fit) was provided; the evidence consists\
+    \ only of the task description and specifications, with no tangible artifact to\
+    \ verify that the feature was actually built. The implementer must supply the\
+    \ implementation (e.g., source file, unit tests, and example run logs) for review."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis/validation.py` file or its contents were presented, and there is\
+    \ no evidence that the required F\u2011test and BIC model\u2011comparison functionality\
+    \ has been implemented. The task\u2019s deliverable is missing, so the requirement\
+    \ is not satisfied."

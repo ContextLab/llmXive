@@ -1,8 +1,5 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: GateMem Episode Schema
-description: |
-  Schema defining the structure of a single GateMem episode.
-  This schema is used to validate raw data loaded from the dataset source.
+# GateMem Dataset Schema Definition
+# Defines the required structure for raw GateMem episodes
 type: object
 required:
   - id
@@ -10,38 +7,42 @@ required:
   - predictors
   - covariates
   - leak-target
+  - role
+  - domain
+  - query
+  - memory
 properties:
   id:
     type: string
-    description: Unique identifier for the episode.
+    description: Unique identifier for the episode
   outcome:
     type: string
-    description: The ground truth outcome label (e.g., 'leak', 'no_leak', or specific utility label).
+    description: Ground truth outcome (e.g., "leak", "no_leak")
+    enum:
+      - leak
+      - no_leak
   predictors:
     type: array
-    description: List of predictor variables (features) used in the analysis.
     items:
       type: string
+    description: List of predictor features used for the outcome
   covariates:
     type: object
-    description: Dictionary of covariate variables (contextual factors).
+    description: Additional context variables (e.g., domain, timestamp)
     additionalProperties: true
   leak-target:
     type: string
-    description: The specific sensitive information target being evaluated for leakage.
+    description: The specific information that is the target of the leak
   role:
     type: string
-    description: The role of the user making the request (e.g., 'admin', 'user', 'guest').
+    description: The role of the user making the query
   domain:
     type: string
-    description: The domain category of the episode (e.g., 'medical', 'office', 'education').
+    description: The domain of the episode (e.g., "medical", "office")
   query:
     type: string
-    description: The natural language query text.
+    description: The user's query string
   memory:
     type: string
-    description: The memory content associated with the episode.
-  metadata:
-    type: object
-    description: Additional metadata fields.
-    additionalProperties: true
+    description: The memory content being accessed
+additionalProperties: false

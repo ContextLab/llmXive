@@ -61,7 +61,7 @@
 - [ ] T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema
 - [ ] T008 Implement `utils/logging.py` for standardized error handling and progress logging
 - [ ] T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites in this task (e.g., `) to satisfy the 'Verified Accuracy' gate before implementation.
-- [ ] T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`
+- [X] T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,10 +85,10 @@
 
 - [ ] T014 [US1] Implement `data/ingestion.py` function `fetch_single_satellite(satellite_id: str, url: str) -> pd.DataFrame` to fetch data from ILRS (using `requests` with exponential backoff) for a single satellite ID.
 - [ ] T014.1 [US1] Implement `data/ingestion.py` function `fetch_all_satellites(satellite_ids: list[str]) -> pd.DataFrame` to orchestrate the loop over all relevant satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette) and aggregate results into a single DataFrame.
-- [ ] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects
+- [ ] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects <!-- ATOMIZE: requested -->
 - [ ] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
 - [ ] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
-- [~] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings
+- [ ] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings
 - [ ] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `data/processed/.checksums.json` in JSON format `{ "file": "cleaned_slr_data.csv", "sha256": "..." }` and ensure raw data is preserved unchanged
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -111,9 +111,9 @@
 
 - [ ] T023 [P] [US2] Implement `models/dynamics.py` with GGM05C geopotential, Jacchia drag, and SRP models; input: state vector, output: acceleration vector (ITRS coordinates, using `astropy.coordinates`)
 - [ ] T024 [US2] Implement `models/estimator.py` for **joint** weighted least-squares fitting (stack residuals of both satellites into single vector, estimate shared $a_c$); output: joint solution object
-- [~] T025 [US2] Implement function `extract_joint_parameters(solution: OrbitSolution) -> dict` to **extract** differential acceleration $a_c$ and local gravity $g$ **directly from the joint solution vector** and joint covariance matrix, returning a dictionary with keys `{'ac': float, 'g': float, 'covariance': np.array}`.
-- [~] T026 [US2] Implement `analysis/eotvos.py` to compute $\eta = |a_c| / g$ and 95% CI from the joint covariance matrix
-- [~] T027 [US2] Implement fallback logic for non-convergence (relax tolerance, log warning, output best-fit) as authorized by plan robustness requirements
+- [ ] T025 [US2] Implement function `extract_joint_parameters(solution: OrbitSolution) -> dict` to **extract** differential acceleration $a_c$ and local gravity $g$ **directly from the joint solution vector** and joint covariance matrix, returning a dictionary with keys `{'ac': float, 'g': float, 'covariance': np.array}`.
+- [ ] T026 [US2] Implement `analysis/eotvos.py` to compute $\eta = |a_c| / g$ and 95% CI from the joint covariance matrix
+- [ ] T027 [US2] Implement fallback logic for non-convergence (relax tolerance, log warning, output best-fit) as authorized by plan robustness requirements
 - [ ] T028 [US2] Save `OrbitSolution` and `EotvosResult` to `data/results/orbit_solutions.json` and `data/results/eotvos_metrics.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

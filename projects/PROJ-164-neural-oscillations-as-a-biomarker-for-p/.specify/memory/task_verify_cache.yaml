@@ -1,0 +1,41 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided to confirm that the requested
+    folders (`code/`, `code/utils/`, `tests/`, `data/raw`, `data/processed`, `data/synthetic`,
+    `models/`, `docs/`, `docs/contracts/`, `state/projects/`) actually exist. The
+    implementer only claimed to have run the `mkdir` command without supplying any
+    artifact or verification output.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a terminal log, script, or repository commit) was provided\
+    \ to demonstrate that `chmod 555 data/raw` was actually run and that the directory\
+    \ now has read\u2011execute\u2011only permissions. Without such evidence the claim\
+    \ cannot be verified."
+T005:
+  c: false
+  h: 39978c88df8ef9f74c36adcdbe76a00ba0f25f69e45ab9fba5ccb856d7e9f582
+  r: "The `io_helpers.py` file is truncated \u2013 the `write_checksum_to_state` function\
+    \ is incomplete and does not actually write to the required `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`\
+    \ (which is also missing). Additionally, no artifact\u2011hashing helper is present.\
+    \ These missing pieces prevent the task from being fully satisfied."
+T006:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `specs/contracts/dataset.schema.yaml` is missing entirely,
+    so no schema definition exists to verify the required fields or removal of extraneous
+    ones. The task therefore is not satisfied.
+T007:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required file `specs/contracts/output.schema.yaml` does not exist (the only\
+    \ mentioned schema file is missing), so no schema definitions for `feature_matrix`\
+    \ and `model_metrics` are provided. The task\u2019s output artifact is absent."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging configuration, code, or `logs/pipeline.log` file was provided; the\
+    \ claim lacks any artifact demonstrating that stdout capture, warning/mode\u2011\
+    switch logging, resource\u2011usage logging, or log\u2011rotation have been implemented.\
+    \ The required logging infrastructure is therefore missing."

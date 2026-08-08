@@ -43,7 +43,7 @@
 - [ ] T008b [US2] [DEPENDS ON T008a] Extend `src/utils/stats.py` to implement 'domain-stratified analysis' (separate tests per domain) and automatic fallback to paired tests if LMM fails (singular matrix) per Constitution Principle VI
 - [ ] T009 [P] Create `src/gatekeeper/pipeline.py` skeleton with entry points: `run_gatekeeper()`, `run_baseline()`, and `main()` for argument parsing
 - [ ] T010 Create `tests/contract/test_dataset_schema.py` to validate raw data against `dataset.schema.yaml`
-- [ ] T011 Create `tests/contract/test_results_schema.py` to validate output against `results.schema.yaml`
+- [ ] T011 Create `tests/contract/test_results_schema.py` to validate output against `results.schema.yaml` <!-- FAILED: unspecified -->
 - [ ] T015a [P] Create `src/gatekeeper/rules.py` with regex-based rule engine for role validation and deletion log checking
 - [ ] T015b [P] Extend `src/gatekeeper/rules.py` to handle malformed deletion log entries by defaulting to 'deny' and logging anomaly to `logs/deletion_errors.log`
 
@@ -59,7 +59,7 @@
 
 ### Tests for User Story 1
 
-- [ ] T012 [P] [US1] Contract test: Verify `data/processed/access_control_results.json` matches `results.schema.yaml`
+- [ ] T012 [P] [US1] Contract test: Verify `data/processed/access_control_results.json` matches `results.schema.yaml` <!-- FAILED: unspecified -->
 - [ ] T013 [P] [US1] Integration test: Run full pipeline on "medical" domain subset and assert Access Control score is calculated <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
@@ -85,12 +85,12 @@
 ### Tests for User Story 2
 
 - [ ] T021 [P] [US2] Contract test: Verify `data/processed/utility_results.json` contains `conditional_utility` and `overall_success` fields
-- [~] T022 [P] [US2] Integration test: Run pipeline on "education" domain and assert Utility score matches expected range against ground truth
+- [ ] T022 [P] [US2] Integration test: Run pipeline on "education" domain and assert Utility score matches expected range against ground truth
 
 ### Implementation for User Story 2
 
 - [ ] T023 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Utility (task success rate against human-annotated ground truth)
-- [~] T024 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Forgetting (deletion compliance rate for deletion request episodes)
+- [ ] T024 [P] [US2] Implement `src/gatekeeper/metrics.py` function: Calculate Forgetting (deletion compliance rate for deletion request episodes)
 - [ ] T025 [US2] Implement `src/gatekeeper/metrics.py` function: Calculate False Positive (valid query blocked) and False Negative (leak allowed) rates
 - [ ] T026a [US2] Define LMM formula in `src/utils/stats.py`: `score ~ method + (1|Domain)` and implement model fitting logic
 - [ ] T026b [US2] [DEPENDS ON T026a] Implement fallback logic in `src/utils/stats.py`: If LMM fails (singular matrix) or data is flat, run paired t-test or Wilcoxon signed-rank test per Constitution Principle VI
@@ -110,12 +110,12 @@
 
 ### Tests for User Story 3
 
-- [~] T030 [P] [US3] Contract test: Verify `data/processed/performance_results.json` contains `latency_ms` and `peak_ram_mb` fields
-- [~] T031 [P] [US3] Integration test: Run pipeline on small subset and assert resource logs are generated and non-zero
+- [ ] T030 [P] [US3] Contract test: Verify `data/processed/performance_results.json` contains `latency_ms` and `peak_ram_mb` fields
+- [ ] T031 [P] [US3] Integration test: Run pipeline on small subset and assert resource logs are generated and non-zero
 
 ### Implementation for User Story 3
 
-- [~] T032 [P] [US3] Integrate `src/utils/profiling.py` into `src/gatekeeper/pipeline.py` to log start/end times and peak memory for each episode
+- [ ] T032 [P] [US3] Integrate `src/utils/profiling.py` into `src/gatekeeper/pipeline.py` to log start/end times and peak memory for each episode
 - [ ] T033 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Baseline (Long-Context) with profiling enabled
 - [ ] T034 [US3] Implement `src/gatekeeper/pipeline.py` logic: Run Gatekeeper with profiling enabled
 - [ ] T035 [US3] Implement `src/cli/run_evaluation.py` logic: Aggregate profiling data and calculate percentage reduction in latency/RAM for Gatekeeper vs Baseline
@@ -129,7 +129,7 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [~] T037 [P] Documentation: Update `quickstart.md` with instructions to run the full benchmark suite
+- [ ] T037 [P] Documentation: Update `quickstart.md` with instructions to run the full benchmark suite
 - [~] T038 Code cleanup: Refactor imports and ensure type hinting in `src/` modules
 - [ ] T039 [P] Security: Run PII scan on `data/raw/` and `data/processed/` artifacts
 - [ ] T040 [P] Run `pytest` for all unit, integration, and contract tests
