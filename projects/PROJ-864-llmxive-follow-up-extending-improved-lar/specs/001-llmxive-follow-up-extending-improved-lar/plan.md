@@ -22,7 +22,7 @@ The implementation constructs the strict "Micro-Corpus", trains 10 models (5 AR,
 **Project Type**: Computational Research / Machine Learning Experiment.  
 **Performance Goals**: Complete 100 epochs for 10 models (5 seeds x 2 arch) on 1M tokens within 6 hours wall-clock time; peak RAM < 7GB.  
 **Constraints**: Strict token count (MM); no GPU available for training (CPU-first); no access-gated datasets.  
-**Scale/Scope**: Two M-parameter models (multiple seeds each); 1M token dataset; 100 epochs; 1 statistical analysis pipeline.
+**Scale/Scope**: Two M-parameter models (multiple seeds each); M token dataset; 100 epochs; 1 statistical analysis pipeline.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

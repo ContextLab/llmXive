@@ -1,0 +1,563 @@
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'base model configuration: embed_dim=768, num_heads=12, params=100000000'
+  claim_id: c_3fa3f997
+  context: 'Create base model definitions and hyperparameter constants in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py:
+    define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:48:37Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: "corpus token count verification: [deferred] \xB1 10000"
+  claim_id: c_80fb6406
+  context: "verifying the token count is [deferred] \xB1 10,000, and confirming the\
+    \ total disk footprint is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify token count is [deferred] \xB1 10,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:48:53Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'micro-corpus total disk footprint: less than 14GB'
+  claim_id: c_829969eb
+  context: "verifying the token count is [deferred] \xB1 10,000, and confirming the\
+    \ total disk footprint is <14GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Micro-corpus_total_disk_footprint:_less_than_14GB
+  kind: magnitude
+  raw_text: total disk footprint is <14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:49:15Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'tokenization implementation: gpt2 tokenizer version 4.0'
+  claim_id: c_66dec1a7
+  context: Implement tokenize_and_filter.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/
+    using gpt2 tokenizer (v4.0) with strict [deferred] token limit logic
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implement tokenize_and_filter.py using gpt2 tokenizer (v4.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:49:39Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'resource monitoring halt condition: RAM greater than 7GB'
+  claim_id: c_26ccca61
+  context: explicitly halt if RAM > 7GB in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/callbacks.py
+  evidence:
+    entailment_evidence: 'Resource monitoring halt condition: RAM greater than 7GB'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Resource_monitoring_halt_condition:_RAM_greater_than_7GB
+  kind: magnitude
+  raw_text: halt if RAM > 7GB
+  resolved_value: 'resource monitoring halt condition: RAM greater than 7GB'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T14:49:40Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'power analysis verification: power greater than or equal to 0.8 for
+    10 million token 100 epoch regime'
+  claim_id: c_251a6a29
+  context: "Implement power_analysis.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/\
+    \ to verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_verification:_power_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: "verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:49:56Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'peak RAM reduction target: less than 6.5 GB'
+  claim_id: c_00248a7c
+  context: Optimize train_loop.py (T023) to reduce peak RAM to < 6.5 GB via batch_size
+    tuning
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_reduction_target:_less_than_6.5_GB
+  kind: magnitude
+  raw_text: optimize train_loop.py to reduce peak RAM to < 6.5 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:50:20Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'experimental parameters: 10 million tokens, 2 models, 100 epochs'
+  claim_id: c_9b05d6df
+  context: All tasks now strictly adhere to the Spec (10M tokens, 2 models, 100 epochs).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Spec/Plan Alignment: 10M tokens, 2 models, 100 epochs'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:50:35Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Micro-Corpus token count within 10,000 of deferred target and disk footprint
+    under 14GB
+  claim_id: c_4506f897
+  context: "Independent Test for User Story 1: The system can be tested by successfully\
+    \ loading the constructed Micro-Corpus into memory on a standard CPU runner, verifying\
+    \ the token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by successfully loading the constructed Micro-Corpus\
+    \ into memory on a standard CPU runner, verifying the token count is [deferred]\
+    \ \xB1 10,000, and confirming the total disk footprint is <14GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:54:42Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Micro-Corpus disk footprint under 14GB
+  claim_id: c_e9aef898
+  context: "Independent Test for User Story 1: The system can be tested by successfully\
+    \ loading the constructed Micro-Corpus into memory on a standard CPU runner, verifying\
+    \ the token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system can be tested by successfully loading the constructed Micro-Corpus\
+    \ into memory on a standard CPU runner, verifying the token count is [deferred]\
+    \ \xB1 10,000, and confirming the total disk footprint is <14GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:54:42Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Train two M-parameter models (AR and Diffusion)
+  claim_id: c_e766c369
+  context: 'Goal for User Story 2: Train two M-parameter models (AR and Diffusion)
+    for a sufficient number of epochs on the Micro-Corpus using CPU-optimized loops,
+    logging metrics per epoch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_two_M-parameter_models_(AR_and_Diffusion)
+  kind: entity_fact
+  raw_text: Train two M-parameter models (AR and Diffusion) for a sufficient number
+    of epochs on the Micro-Corpus using CPU-optimized loops.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:55:13Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Orchestrate 1 AR and 1 MDM model for 100 epochs
+  claim_id: c_dfedaec8
+  context: 'Implementation for User Story 2: Implement run_experiment.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    to orchestrate multiple models (1 AR, 1 MDM) for 100 epochs and generate data/artifacts/training_logs.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_experiment.py to orchestrate multiple models (1 AR, 1 MDM)
+    for 100 epochs and generate data/artifacts/training_logs.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:55:50Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Verify statistical power at least 0.8 for 10M token 100 epoch regime
+  claim_id: c_26a0f68b
+  context: "Implementation for User Story 3: Implement power_analysis.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/\
+    \ to verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  evidence:
+    candidates:
+    - - M token
+      - 100.0
+    - - Verify statistical power at least
+      - 0.8
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_statistical_power_at_least_0.8_for_10M_token_100_epoc
+  kind: magnitude
+  raw_text: "Verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T14:55:52Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Verify statistical power at least 0.8 for 10 million token 100 epoch
+    regime
+  claim_id: c_eb61ee9f
+  context: "Implementation for User Story 3: Implement power_analysis.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/\
+    \ to verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_statistical_power_at_least_0.8_for_10_million_token_1
+  kind: magnitude
+  raw_text: "Verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:55:53Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: Reduce peak RAM to less than 6.5 GB
+  claim_id: c_38e7446c
+  context: 'Performance optimization across all stories: Optimize train_loop.py (T023)
+    to reduce peak RAM to < 6.5 GB via batch_size tuning and enable torch.compile
+    mode=''reduce-overhead'''
+  evidence:
+    asserted: '6.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Optimize train_loop.py to reduce peak RAM to < 6.5 GB via batch_size tuning
+    and enable torch.compile mode='reduce-overhead'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T14:55:53Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: model config defines EMBED_DIM 768, NUM_HEADS 12, PARAMS 100 million
+  claim_id: c_b61f28e1
+  context: 'Create base model definitions and hyperparameter constants in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py:
+    define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:02:00Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: corpus token count target is deferred plus or minus 10000
+  claim_id: c_b820ba7d
+  context: "verify the token count is [deferred] \xB1 10,000, and confirming the total\
+    \ disk footprint is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify token count is [deferred] \xB1 10,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:02:00Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: corpus total disk footprint less than 14 GB
+  claim_id: c_9e53b5eb
+  context: "verifying the token count is [deferred] \xB1 10,000, and confirming the\
+    \ total disk footprint is <14GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corpus_total_disk_footprint_less_than_14_GB
+  kind: magnitude
+  raw_text: total disk footprint is <14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:02:02Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: using GPT-2 tokenizer version 4.0
+  claim_id: c_8263f781
+  context: Implement tokenize_and_filter.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/
+    using gpt2 tokenizer (v4.0) with strict [deferred] token limit logic
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: using gpt2 tokenizer (v4.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:02:45Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'train two M-parameter models: AR and Diffusion'
+  claim_id: c_5ad4df95
+  context: 'Goal: Train two M-parameter models (AR and Diffusion) for a sufficient
+    number of epochs on the Micro-Corpus using CPU-optimized loops, logging metrics
+    per epoch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_two_M-parameter_models:_AR_and_Diffusion
+  kind: entity_fact
+  raw_text: train two M-parameter models (AR and Diffusion)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:03:10Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: orchestrate 1 AR and 1 MDM model for 100 epochs
+  claim_id: c_0da9611e
+  context: Implement run_experiment.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    to orchestrate multiple models (1 AR, 1 MDM) for 100 epochs and generate data/artifacts/training_logs.csv
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: orchestrate multiple models (1 AR, 1 MDM) for 100 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:03:41Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: verify statistical power greater than or equal to 0.8 for 10 million
+    token and 100 epoch regime
+  claim_id: c_e6a7ea7d
+  context: "Implement power_analysis.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/\
+    \ to verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  evidence:
+    candidates:
+    - - ''
+      - 10.0
+    - - ''
+      - 0.8
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_statistical_power_greater_than_or_equal_to_0.8_for_10
+  kind: magnitude
+  raw_text: "verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T15:03:42Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: reduce peak RAM usage to less than 6.5 GB
+  claim_id: c_ef9edb2e
+  context: Optimize train_loop.py (T023) to reduce peak RAM to < 6.5 GB via batch_size
+    tuning and enable torch.compile mode='reduce-overhead'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_peak_RAM_usage_to_less_than_6.5_GB
+  kind: magnitude
+  raw_text: reduce peak RAM to < 6.5 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:04:07Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: spec adherence requires 10 million tokens, 2 models, and 100 epochs
+  claim_id: c_6989dd6b
+  context: 'Spec/Plan Alignment: All tasks now strictly adhere to the Spec (10M tokens,
+    2 models, 100 epochs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Spec/Plan Alignment: All tasks now strictly adhere to the Spec (10M tokens,
+    2 models, 100 epochs)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:04:21Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'base model configuration: embed dim 768, 12 heads, 100 million parameters'
+  claim_id: c_1cc455cf
+  context: 'Create base model definitions and hyperparameter constants in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py:
+    define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:05:32Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'corpus token count verification: deferred target plus or minus 10000'
+  claim_id: c_9ec0dc4a
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the token count is [deferred] \xB1 10,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:05:33Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: micro-corpus disk footprint less than 14 GB
+  claim_id: c_db6551d7
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Micro-corpus_disk_footprint_less_than_14_GB
+  kind: magnitude
+  raw_text: total disk footprint is <14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:05:34Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: implementation uses GPT-2 tokenizer version 4.0
+  claim_id: c_ff397d59
+  context: Implement tokenize_and_filter.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/
+    using gpt2 tokenizer (v4.0) with strict [deferred] token limit logic to generate
+    data/processed/micro_corpus.jsonl
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use gpt2 tokenizer (v4.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:05:52Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'statistical power analysis: power greater than or equal to 0.8 for 10
+    million tokens and 100 epochs'
+  claim_id: c_3d2ea482
+  context: "Implement power_analysis.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/\
+    \ to verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis:_power_greater_than_or_equal_to_0
+  kind: magnitude
+  raw_text: "verify power \u2265 0.8 for the 10M token / 100 epoch regime"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:05:54Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'performance optimization target: peak RAM less than 6.5 GB'
+  claim_id: c_530f654c
+  context: 'Performance optimization across all stories: Optimize train_loop.py (T023)
+    to reduce peak RAM to < 6.5 GB via batch_size tuning and enable torch.compile
+    mode=''reduce-overhead'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target:_peak_RAM_less_than_6.5_GB
+  kind: magnitude
+  raw_text: reduce peak RAM to < 6.5 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:05:55Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'experiment specification: 10 million tokens, 2 models, 100 epochs'
+  claim_id: c_6e0a439c
+  context: 'Spec/Plan Alignment: All tasks now strictly adhere to the Spec (10M tokens,
+    2 models, 100 epochs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Spec/Plan Alignment: All tasks now strictly adhere to the Spec (10M tokens,
+    2 models, 100 epochs)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T15:05:55Z'
