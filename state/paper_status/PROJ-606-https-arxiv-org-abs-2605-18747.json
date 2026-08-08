@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-08-08T19:24:59.451923+00:00"
+    "audited_at": "2026-08-08T19:51:59.338370+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
-  "updated_at": "2026-08-08T19:24:59.451940+00:00"
+  "updated_at": "2026-08-08T19:51:59.338386+00:00"
 }
