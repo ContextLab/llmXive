@@ -85,6 +85,7 @@ def run_correlation_mapping(external_metrics_path: Path, output_path: Path) -> D
     """
     Main function to run the tag-to-repo mapping logic.
     Reads external_metrics.json, builds mappings, and writes to tag_mappings.json.
+    Also generates unmapped_tags.log if unmapped tags are identified.
     """
     print(f"Loading external metrics from {external_metrics_path}...")
     external_metrics = load_external_metrics(external_metrics_path)
@@ -106,6 +107,23 @@ def run_correlation_mapping(external_metrics_path: Path, output_path: Path) -> D
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    # Generate unmapped_tags.log if there are unmapped tags
+    unmapped_log_path = output_path.parent / "unmapped_tags.log"
+    unmapped_tags = [m["tag"] for m in mappings if not m["mapped"]]
+    
+    if unmapped_tags:
+        print(f"Writing {len(unmapped_tags)} unmapped tags to {unmapped_log_path}...")
+        with open(unmapped_log_path, 'w', encoding='utf-8') as f:
+            for tag in unmapped_tags:
+                f.write(json.dumps({"tag": tag, "reason": "no_match_found"}) + "\n")
+    else:
+        print("No unmapped tags found.")
+        # Ensure the log file exists even if empty, or remove if strictly not needed
+        # Per FR-007: "log unmapped tags ... if no match found". If none, we can create empty or skip.
+        # We'll create an empty file to ensure consistency if expected by downstream.
+        with open(unmapped_log_path, 'w', encoding='utf-8') as f:
+            pass
+
     print(f"Writing tag mappings to {output_path}...")
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2)

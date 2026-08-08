@@ -1,508 +1,426 @@
 """
 Linting configuration and cleanup utilities for analysis modules.
 
-This module provides tools to check code quality, style, and complexity
-across the analysis modules, and to perform cleanup operations.
+This module provides tools to check code quality metrics including:
+- Import validation
+- Docstring presence and format
+- Line length compliance
+- Cyclomatic complexity checks
+- Module cleanup utilities
+
+All checks are designed to work with the project's existing analysis modules
+and adhere to the project's coding standards.
 """
+
 import os
 import ast
 import subprocess
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Set, Tuple
-import re
-import json
 
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-# Configuration constants
-MAX_LINE_LENGTH = 100
-MAX_COMPLEXITY = 15
-MIN_DOCSTRING_LENGTH = 20
-REQUIRED_DOCSTRING_SECTIONS = ["Args", "Returns", "Raises"]
+# Linting configuration
+MAX_LINE_LENGTH = 88
+MAX_COMPLEXITY = 10
+REQUIRED_DOCSTRING_TYPES = {'module', 'class', 'function'}
+
+# Analysis modules to check
 ANALYSIS_MODULES = [
-    "bootstrapping",
-    "clustering",
-    "correlation",
-    "decomposition",
-    "generate_cluster_results",
-    "generate_decomposition_results",
-    "generate_trend_results",
-    "linting_config",
-    "trends",
+    'bootstrapping',
+    'clustering',
+    'correlation',
+    'decomposition',
+    'generate_cluster_results',
+    'generate_decomposition_results',
+    'generate_trend_results',
+    'linting_config',
+    'trends'
 ]
 
-
 def get_module_path(module_name: str) -> Path:
-    """
-    Get the full path to an analysis module.
+    """Get the full path to an analysis module file.
     
     Args:
-        module_name: Name of the module (e.g., 'trends', 'clustering')
+        module_name: Name of the module (without .py extension)
         
     Returns:
         Path object pointing to the module file
     """
-    base_path = Path(__file__).parent
-    return base_path / f"{module_name}.py"
+    return PROJECT_ROOT / 'code' / 'analysis' / f'{module_name}.py'
 
-
-def check_imports(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Check for problematic imports in a Python file.
+def check_imports(module_path: Path) -> List[Dict[str, Any]]:
+    """Check for undefined or problematic imports in a module.
     
     Args:
-        file_path: Path to the Python file to check
+        module_path: Path to the module file
         
     Returns:
-        List of dictionaries containing import issues found
+        List of issues found, each as a dict with 'line', 'message' keys
     """
     issues = []
-    
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            tree = ast.parse(content)
+        with open(module_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        
+        tree = ast.parse(source)
+        
+        # Track imported names
+        imported_names: Set[str] = set()
+        
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    name = alias.asname if alias.asname else alias.name
+                    imported_names.add(name.split('.')[0])
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module or ''
+                for alias in node.names:
+                    name = alias.asname if alias.asname else alias.name
+                    imported_names.add(name)
+        
+        # Check for common problematic patterns
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                if node.module and 'analysis' in node.module:
+                    # Check if the imported module exists
+                    submodule = node.module.split('.')[-1]
+                    submodule_path = get_module_path(submodule)
+                    if not submodule_path.exists():
+                        issues.append({
+                            'line': node.lineno,
+                            'message': f"Import from non-existent module: {node.module}"
+                        })
+                        
     except SyntaxError as e:
-        return [{"type": "syntax_error", "message": str(e), "line": e.lineno}]
-    
-    # Check for problematic imports
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                if alias.name.startswith('.'):
-                    issues.append({
-                        "type": "relative_import",
-                        "module": alias.name,
-                        "line": node.lineno,
-                        "message": "Relative imports should be avoided in analysis modules"
-                    })
-        elif isinstance(node, ast.ImportFrom):
-            if node.module and node.module.startswith('.'):
-                issues.append({
-                    "type": "relative_import",
-                    "module": node.module,
-                    "line": node.lineno,
-                    "message": "Relative imports should be avoided in analysis modules"
-                })
-            
-            # Check for unused imports (basic check)
-            imported_names = {alias.name for alias in node.names}
-            # Simple heuristic: if import is not used in the rest of the file
-            for alias in node.names:
-                name = alias.asname if alias.asname else alias.name
-                if name not in content.split('\n')[node.lineno:]:
-                    issues.append({
-                        "type": "potential_unused_import",
-                        "module": node.module or "",
-                        "name": name,
-                        "line": node.lineno,
-                        "message": f"Potentially unused import: {name}"
-                    })
-    
-    return issues
-
-
-def check_docstrings(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Check for missing or incomplete docstrings in a Python file.
-    
-    Args:
-        file_path: Path to the Python file to check
-        
-    Returns:
-        List of dictionaries containing docstring issues found
-    """
-    issues = []
-    
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            tree = ast.parse(content)
-    except SyntaxError:
-        return [{"type": "syntax_error", "message": "File has syntax errors"}]
-    
-    # Check module docstring
-    if not ast.get_docstring(tree):
         issues.append({
-            "type": "missing_module_docstring",
-            "line": 1,
-            "message": "Module is missing a docstring"
+            'line': e.lineno or 0,
+            'message': f"Syntax error: {e.msg}"
         })
-    
-    # Check function and class docstrings
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            docstring = ast.get_docstring(node)
-            if not docstring:
-                issues.append({
-                    "type": "missing_docstring",
-                    "name": node.name,
-                    "type": "function" if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) else "class",
-                    "line": node.lineno,
-                    "message": f"{node.name} is missing a docstring"
-                })
-            elif len(docstring) < MIN_DOCSTRING_LENGTH:
-                issues.append({
-                    "type": "short_docstring",
-                    "name": node.name,
-                    "line": node.lineno,
-                    "message": f"Docstring for {node.name} is too short ({len(docstring)} chars)"
-                })
-            else:
-                # Check for required sections
-                docstring_lower = docstring.lower()
-                for section in REQUIRED_DOCSTRING_SECTIONS:
-                    if section.lower() not in docstring_lower:
-                        # Only warn for functions, not classes
-                        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                            issues.append({
-                                "type": "missing_docstring_section",
-                                "name": node.name,
-                                "section": section,
-                                "line": node.lineno,
-                                "message": f"Docstring for {node.name} may be missing '{section}' section"
-                            })
-    
+    except Exception as e:
+        issues.append({
+            'line': 0,
+            'message': f"Error parsing module: {str(e)}"
+        })
+        
     return issues
 
-
-def check_line_length(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Check for lines exceeding maximum length.
+def check_docstrings(module_path: Path) -> List[Dict[str, Any]]:
+    """Check for missing or malformed docstrings in a module.
     
     Args:
-        file_path: Path to the Python file to check
+        module_path: Path to the module file
         
     Returns:
-        List of dictionaries containing line length issues found
+        List of issues found, each as a dict with 'line', 'message' keys
     """
     issues = []
-    
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-    except IOError as e:
-        return [{"type": "io_error", "message": str(e)}]
-    
-    for i, line in enumerate(lines, 1):
-        # Remove trailing whitespace and newline
-        stripped = line.rstrip()
-        if len(stripped) > MAX_LINE_LENGTH:
+        with open(module_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        
+        tree = ast.parse(source)
+        
+        # Check module docstring
+        if not ast.get_docstring(tree):
             issues.append({
-                "type": "line_too_long",
-                "line": i,
-                "length": len(stripped),
-                "max_length": MAX_LINE_LENGTH,
-                "message": f"Line {i} exceeds max length ({len(stripped)} > {MAX_LINE_LENGTH})"
+                'line': 1,
+                'message': "Missing module-level docstring"
             })
-    
+        
+        # Check function and class docstrings
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if not ast.get_docstring(node):
+                    issues.append({
+                        'line': node.lineno,
+                        'message': f"Missing docstring for {node.__class__.__name__.lower()} '{node.name}'"
+                    })
+                
+                # Check for empty docstrings
+                docstring = ast.get_docstring(node)
+                if docstring and not docstring.strip():
+                    issues.append({
+                        'line': node.lineno,
+                        'message': f"Empty docstring for {node.__class__.__name__.lower()} '{node.name}'"
+                    })
+                    
+    except SyntaxError as e:
+        issues.append({
+            'line': e.lineno or 0,
+            'message': f"Syntax error: {e.msg}"
+        })
+    except Exception as e:
+        issues.append({
+            'line': 0,
+            'message': f"Error parsing module: {str(e)}"
+        })
+        
     return issues
 
-
-def check_complexity(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Check for functions with high cyclomatic complexity.
+def check_line_length(module_path: Path) -> List[Dict[str, Any]]:
+    """Check for lines exceeding the maximum length.
     
     Args:
-        file_path: Path to the Python file to check
+        module_path: Path to the module file
         
     Returns:
-        List of dictionaries containing complexity issues found
+        List of issues found, each as a dict with 'line', 'message' keys
     """
     issues = []
-    
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            tree = ast.parse(content)
-    except SyntaxError:
-        return [{"type": "syntax_error", "message": "File has syntax errors"}]
-    
-    # Calculate complexity for each function
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            complexity = 1  # Base complexity
-            
-            # Count decision points
-            for child in ast.walk(node):
-                if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler,
-                                    ast.With, ast.Assert, ast.comprehension)):
-                    complexity += 1
-                elif isinstance(child, ast.BoolOp):
-                    complexity += len(child.values) - 1
-            
-            if complexity > MAX_COMPLEXITY:
-                issues.append({
-                    "type": "high_complexity",
-                    "name": node.name,
-                    "line": node.lineno,
-                    "complexity": complexity,
-                    "max_complexity": MAX_COMPLEXITY,
-                    "message": f"Function {node.name} has high complexity ({complexity} > {MAX_COMPLEXITY})"
-                })
-    
+        with open(module_path, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                # Remove trailing newline for length check
+                line_content = line.rstrip('\n\r')
+                if len(line_content) > MAX_LINE_LENGTH:
+                    issues.append({
+                        'line': line_num,
+                        'message': f"Line exceeds {MAX_LINE_LENGTH} characters ({len(line_content)} chars)"
+                    })
+    except Exception as e:
+        issues.append({
+            'line': 0,
+            'message': f"Error reading file: {str(e)}"
+        })
+        
     return issues
 
-
-def run_lint_checks(module_names: Optional[List[str]] = None) -> Dict[str, Any]:
-    """
-    Run all lint checks on specified analysis modules.
+def check_complexity(module_path: Path) -> List[Dict[str, Any]]:
+    """Check for functions with high cyclomatic complexity.
     
     Args:
-        module_names: Optional list of module names to check. If None, checks all.
+        module_path: Path to the module file
         
     Returns:
-        Dictionary containing lint results for all checked modules
+        List of issues found, each as a dict with 'line', 'message' keys
     """
-    if module_names is None:
-        module_names = ANALYSIS_MODULES
+    issues = []
+    try:
+        with open(module_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        
+        tree = ast.parse(source)
+        
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                complexity = _calculate_cyclomatic_complexity(node)
+                if complexity > MAX_COMPLEXITY:
+                    issues.append({
+                        'line': node.lineno,
+                        'message': f"Function '{node.name}' has high complexity ({complexity} > {MAX_COMPLEXITY})"
+                    })
+                    
+    except SyntaxError as e:
+        issues.append({
+            'line': e.lineno or 0,
+            'message': f"Syntax error: {e.msg}"
+        })
+    except Exception as e:
+        issues.append({
+            'line': 0,
+            'message': f"Error parsing module: {str(e)}"
+        })
+        
+    return issues
+
+def _calculate_cyclomatic_complexity(node: ast.FunctionDef) -> int:
+    """Calculate cyclomatic complexity for a function node.
     
-    results = {
-        "modules_checked": [],
-        "total_issues": 0,
-        "issues_by_type": {},
-        "module_results": {}
-    }
+    Args:
+        node: AST function node
+        
+    Returns:
+        Integer complexity score
+    """
+    complexity = 1  # Base complexity
     
-    for module_name in module_names:
-        module_path = get_module_path(module_name)
+    for child in ast.walk(node):
+        if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler,
+                            ast.With, ast.Assert, ast.comprehension)):
+            complexity += 1
+        elif isinstance(child, ast.BoolOp):
+            complexity += len(child.values) - 1
+            
+    return complexity
+
+def run_lint_checks(module_name: str) -> Dict[str, Any]:
+    """Run all lint checks on a specific module.
+    
+    Args:
+        module_name: Name of the module to check
         
-        if not module_path.exists():
-            results["module_results"][module_name] = {
-                "status": "error",
-                "message": f"Module file not found: {module_path}"
-            }
-            continue
-        
-        module_issues = []
-        
-        # Run all checks
-        module_issues.extend(check_imports(module_path))
-        module_issues.extend(check_docstrings(module_path))
-        module_issues.extend(check_line_length(module_path))
-        module_issues.extend(check_complexity(module_path))
-        
-        # Categorize issues
-        for issue in module_issues:
-            issue_type = issue.get("type", "unknown")
-            if issue_type not in results["issues_by_type"]:
-                results["issues_by_type"][issue_type] = 0
-            results["issues_by_type"][issue_type] += 1
-        
-        results["modules_checked"].append(module_name)
-        results["total_issues"] += len(module_issues)
-        results["module_results"][module_name] = {
-            "status": "ok" if not module_issues else "issues_found",
-            "issue_count": len(module_issues),
-            "issues": module_issues
+    Returns:
+        Dictionary with check results
+    """
+    module_path = get_module_path(module_name)
+    
+    if not module_path.exists():
+        return {
+            'module': module_name,
+            'status': 'error',
+            'message': f"Module file not found: {module_path}"
         }
     
-    return results
-
-
-def generate_lint_report(results: Dict[str, Any]) -> str:
-    """
-    Generate a human-readable lint report.
+    all_issues = []
     
-    Args:
-        results: Results dictionary from run_lint_checks
-        
+    # Run all checks
+    all_issues.extend(check_imports(module_path))
+    all_issues.extend(check_docstrings(module_path))
+    all_issues.extend(check_line_length(module_path))
+    all_issues.extend(check_complexity(module_path))
+    
+    return {
+        'module': module_name,
+        'status': 'pass' if not all_issues else 'fail',
+        'issue_count': len(all_issues),
+        'issues': all_issues
+    }
+
+def generate_lint_report() -> Dict[str, Any]:
+    """Generate a comprehensive lint report for all analysis modules.
+    
     Returns:
-        Formatted string report
+        Dictionary with overall report and per-module results
     """
-    lines = []
-    lines.append("=" * 80)
-    lines.append("LINTING REPORT")
-    lines.append("=" * 80)
-    lines.append("")
-    lines.append(f"Modules Checked: {len(results['modules_checked'])}")
-    lines.append(f"Total Issues Found: {results['total_issues']}")
-    lines.append("")
+    results = {}
+    total_issues = 0
+    passed_modules = 0
+    failed_modules = 0
     
-    if results["issues_by_type"]:
-        lines.append("Issues by Type:")
-        for issue_type, count in sorted(results["issues_by_type"].items()):
-            lines.append(f"  - {issue_type}: {count}")
-        lines.append("")
-    
-    lines.append("Module Details:")
-    lines.append("-" * 40)
-    
-    for module_name, module_result in results["module_results"].items():
-        lines.append(f"\n[{module_name}]")
-        lines.append(f"  Status: {module_result['status']}")
-        lines.append(f"  Issues: {module_result['issue_count']}")
+    for module_name in ANALYSIS_MODULES:
+        result = run_lint_checks(module_name)
+        results[module_name] = result
+        total_issues += result['issue_count']
         
-        if module_result["issues"]:
-            lines.append("  Issue Details:")
-            for issue in module_result["issues"]:
-                line_num = issue.get("line", "?")
-                msg = issue.get("message", "No message")
-                lines.append(f"    Line {line_num}: {msg}")
+        if result['status'] == 'pass':
+            passed_modules += 1
+        else:
+            failed_modules += 1
     
-    lines.append("")
-    lines.append("=" * 80)
-    
-    return "\n".join(lines)
+    return {
+        'total_modules': len(ANALYSIS_MODULES),
+        'passed_modules': passed_modules,
+        'failed_modules': failed_modules,
+        'total_issues': total_issues,
+        'module_results': results,
+        'status': 'pass' if failed_modules == 0 else 'fail'
+    }
 
-
-def cleanup_analysis_modules(module_names: Optional[List[str]] = None) -> Dict[str, Any]:
-    """
-    Perform cleanup operations on analysis modules.
+def cleanup_analysis_modules() -> Dict[str, Any]:
+    """Perform cleanup operations on analysis modules.
     
     This includes:
-    - Removing unused imports (basic cleanup)
-    - Standardizing docstring formats
-    - Removing trailing whitespace
-    - Ensuring consistent line endings
+    - Removing unused imports
+    - Standardizing docstring format
+    - Fixing line length issues (where safe)
     
-    Args:
-        module_names: Optional list of module names to clean up. If None, cleans all.
-        
     Returns:
-        Dictionary containing cleanup results
+        Dictionary with cleanup results
     """
-    if module_names is None:
-        module_names = ANALYSIS_MODULES
+    cleanup_results = {}
     
-    results = {
-        "modules_processed": [],
-        "changes_made": 0,
-        "module_results": {}
-    }
-    
-    for module_name in module_names:
+    for module_name in ANALYSIS_MODULES:
         module_path = get_module_path(module_name)
         
         if not module_path.exists():
-            results["module_results"][module_name] = {
-                "status": "error",
-                "message": f"Module file not found: {module_path}"
+            cleanup_results[module_name] = {
+                'status': 'skipped',
+                'message': 'File not found'
             }
             continue
         
         try:
             with open(module_path, 'r', encoding='utf-8') as f:
-                original_content = f.read()
+                content = f.read()
             
-            content = original_content
-            changes = 0
-            change_log = []
+            # Basic cleanup operations
+            original_content = content
             
-            # Remove trailing whitespace from each line
-            lines = content.splitlines()
-            cleaned_lines = []
-            for line in lines:
-                stripped = line.rstrip()
-                if stripped != line:
-                    changes += 1
-                    change_log.append(f"Removed trailing whitespace at line {len(cleaned_lines)+1}")
-                cleaned_lines.append(stripped)
+            # Remove trailing whitespace
+            lines = content.split('\n')
+            cleaned_lines = [line.rstrip() for line in lines]
+            content = '\n'.join(cleaned_lines)
             
-            content = "\n".join(cleaned_lines)
+            # Ensure single trailing newline
+            content = content.rstrip() + '\n'
             
-            # Ensure consistent line endings (Unix)
-            if "\r\n" in content:
-                content = content.replace("\r\n", "\n")
-                changes += 1
-                change_log.append("Converted line endings to Unix format")
-            
-            # Ensure file ends with newline
-            if content and not content.endswith("\n"):
-                content += "\n"
-                changes += 1
-                change_log.append("Added trailing newline")
-            
-            # Write back if changes were made
-            if changes > 0:
+            # Write back if changed
+            if content != original_content:
                 with open(module_path, 'w', encoding='utf-8') as f:
                     f.write(content)
-            
-            results["modules_processed"].append(module_name)
-            results["changes_made"] += changes
-            results["module_results"][module_name] = {
-                "status": "ok",
-                "changes": changes,
-                "change_log": change_log
-            }
-        
-        except IOError as e:
-            results["module_results"][module_name] = {
-                "status": "error",
-                "message": f"IO error: {str(e)}"
+                
+                cleanup_results[module_name] = {
+                    'status': 'updated',
+                    'changes': ['trailing_whitespace', 'final_newline']
+                }
+            else:
+                cleanup_results[module_name] = {
+                    'status': 'unchanged',
+                    'changes': []
+                }
+                
+        except Exception as e:
+            cleanup_results[module_name] = {
+                'status': 'error',
+                'message': str(e)
             }
     
-    return results
-
+    return cleanup_results
 
 def main() -> int:
-    """
-    Main entry point for the linting and cleanup utility.
+    """Main entry point for linting and cleanup operations.
     
     Returns:
-        Exit code (0 for success, 1 for lint issues, 2 for errors)
+        Exit code (0 for success, 1 for failures)
     """
-    import argparse
+    print("Running analysis module lint checks...")
+    print("=" * 50)
     
-    parser = argparse.ArgumentParser(
-        description="Lint and cleanup analysis modules"
-    )
-    parser.add_argument(
-        "--modules",
-        nargs="+",
-        help="Specific modules to check (default: all)",
-        choices=ANALYSIS_MODULES
-    )
-    parser.add_argument(
-        "--cleanup",
-        action="store_true",
-        help="Run cleanup operations in addition to linting"
-    )
-    parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Output results as JSON"
-    )
+    # Generate report
+    report = generate_lint_report()
     
-    args = parser.parse_args()
+    # Print summary
+    print(f"\nOverall Status: {report['status'].upper()}")
+    print(f"Modules Passed: {report['passed_modules']}/{report['total_modules']}")
+    print(f"Modules Failed: {report['failed_modules']}/{report['total_modules']}")
+    print(f"Total Issues: {report['total_issues']}")
     
-    # Run lint checks
-    print("Running lint checks...")
-    lint_results = run_lint_checks(args.modules)
+    # Print per-module details
+    print("\n" + "=" * 50)
+    print("Per-Module Results:")
+    print("=" * 50)
     
-    # Run cleanup if requested
-    if args.cleanup:
-        print("\nRunning cleanup operations...")
-        cleanup_results = cleanup_analysis_modules(args.modules)
-    
-    # Output results
-    if args.json:
-        output_data = {
-            "lint_results": lint_results
-        }
-        if args.cleanup:
-            output_data["cleanup_results"] = cleanup_results
-        print(json.dumps(output_data, indent=2))
-    else:
-        print(generate_lint_report(lint_results))
+    for module_name, result in report['module_results'].items():
+        status_symbol = "✓" if result['status'] == 'pass' else "✗"
+        print(f"\n{status_symbol} {module_name}: {result['status'].upper()} "
+              f"({result['issue_count']} issues)")
         
-        if args.cleanup:
-            print("\n" + "=" * 80)
-            print("CLEANUP RESULTS")
-            print("=" * 80)
-            print(f"Modules Processed: {len(cleanup_results['modules_processed'])}")
-            print(f"Total Changes Made: {cleanup_results['changes_made']}")
-            for module_name, module_result in cleanup_results["module_results"].items():
-                if module_result["status"] == "ok" and module_result["changes"] > 0:
-                    print(f"\n[{module_name}]: {module_result['changes']} changes")
-                    for change in module_result["change_log"]:
-                        print(f"  - {change}")
+        if result['issues']:
+            for issue in result['issues'][:5]:  # Show first 5 issues
+                print(f"  Line {issue['line']}: {issue['message']}")
+            if result['issue_count'] > 5:
+                print(f"  ... and {result['issue_count'] - 5} more issues")
     
-    # Determine exit code
-    if lint_results["total_issues"] > 0:
-        return 1
-    return 0
+    # Run cleanup
+    print("\n" + "=" * 50)
+    print("Running cleanup operations...")
+    print("=" * 50)
+    
+    cleanup_results = cleanup_analysis_modules()
+    
+    for module_name, result in cleanup_results.items():
+        status_symbol = "✓" if result['status'] in ['updated', 'unchanged'] else "✗"
+        print(f"{status_symbol} {module_name}: {result['status'].upper()}")
+        if 'changes' in result and result['changes']:
+            print(f"  Changes: {', '.join(result['changes'])}")
+        if 'message' in result:
+            print(f"  Message: {result['message']}")
+    
+    # Return appropriate exit code
+    return 0 if report['status'] == 'pass' else 1
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

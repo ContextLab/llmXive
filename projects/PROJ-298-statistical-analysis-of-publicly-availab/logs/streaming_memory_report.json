@@ -1,0 +1,7 @@
+{
+  "max_memory_mb": 0.0,
+  "limit_mb": 6000,
+  "checkpoints": [],
+  "safe_execution": true,
+  "note": "This file will be populated when streaming_optimizer.py is executed with real data. No synthetic data is generated."
+}

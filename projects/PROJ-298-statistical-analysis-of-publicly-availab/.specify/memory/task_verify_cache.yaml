@@ -5,22 +5,34 @@ T001a:
     \ directory being created is provided; the implementer only supplied textual description\
     \ without any file system artifact. The task\u2019s core requirement\u2014a non\u2011\
     empty root directory\u2014remains unmet."
-T015:
+T018:
   c: false
-  h: 8d3db6e63351942b04feda6435b387bdc9d2c229e3672eaf3123779b91666d6c
-  r: The `code/analysis/correlation.py` file is truncated and contains an undefined
-    reference (`build_tag_map`) instead of a complete implementation, and the required
-    `data/processed/external_metrics.json` file is missing entirely. Both the mapping
-    logic and the input data needed for it are absent.
-T035:
+  h: 8fe78323c19898f2b3271adf52009d2425c5288d5348e73a34e886fb77fd87a3
+  r: The required output file `data/processed/trend_results.json` does not exist on
+    disk, so the aggregation and finalization step cannot be verified as completed.
+    The missing artifact must be created and populated with the expected trend analysis
+    results.
+T030:
+  c: false
+  h: 2f56a0ce1aee02017613f437a30ed604b7e986766986fe679a2fbe4c12bf423a
+  r: The `code/analysis/clustering.py` file is truncated and does not contain a complete
+    implementation of the Cluster Label Alignment Score (the function is cut off).
+    Additionally, the required taxonomy file `data/taxonomy/survey_2023.json` is missing
+    from the repository. Both the core logic and the necessary data source are absent,
+    so the task is not genuinely fulfilled.
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebooks, benchmark results, or any performance\u2011optimization\
-    \ artifacts are present; the only material shown is a specification for a statistical\u2011\
-    analysis feature that does not address the \u201Cstreaming large data dumps to\
-    \ fit RAM constraint\u201D requirement. Consequently the claimed work does not\
-    \ provide the required implementation, measurements, or reproducible notebook\
-    \ evidence."
+  r: "No `quickstart.md` file with the required step\u2011by\u2011step reproducibility\
+    \ instructions is present, nor are there any documented updates to `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md`.\
+    \ The implementer provided no artifacts to verify that the documentation was created\
+    \ or modified."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No cleaned or refactored code files under `code/analysis/` are provided, nor
+    any linting reports or evidence that lint checks were run. The required artifacts
+    (updated source code and linting output) are missing, so the task is not satisfied.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,14 +40,21 @@ T036:
     \ Jaccard, or ADF functions are present; the provided evidence contains only the\
     \ task description and no actual test code or files, so the required artifact\
     \ is missing."
-T037:
+T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No validation logs, reports, or any output confirming that `quickstart.md` was\
-    \ executed on a CPU\u2011only runner, completed within 6\u202Fhours, and that\
-    \ all notebooks ran reproducibly are present. The implementer only restated feature\
-    \ specifications and did not provide the required artifact proving the quickstart\
-    \ validation succeeded."
+  r: "No artifact such as a requirements file, environment configuration, or a documented\
+    \ virtual\u2011environment setup script is present; the claim that dependencies\
+    \ are installed and a virtual environment is ready cannot be verified from any\
+    \ provided evidence. The implementer must supply concrete files (e.g., `requirements.txt`,\
+    \ `environment.yml`, `setup.sh`, or a reproducible `pipenv/conda` environment)\
+    \ and proof that they have been successfully created."
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, timing records, or any evidence that the `quickstart.md`\
+    \ scripts were run on a CPU\u2011only runner are present. The required artifact\
+    \ (recorded total execution time \u2264\u202F6\u202Fhours) is missing."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
