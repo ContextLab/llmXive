@@ -39,11 +39,11 @@
 
 - [ ] T005 Implement data ingestion module `src/data/download_meg.py` using `datasets.load_dataset(..., streaming=True)` for OpenNeuro ds000246. **Deliverable**: `data/raw/meg_streamed.parquet`. **Verification**: `python -c "import pandas as pd; df=pd.read_parquet('data/raw/meg_streamed.parquet'); assert len(df)>1000"`.
 - [ ] T006 Implement data ingestion module `src/data/download_clutrr.py` for Hugging Face `tasksource/clutrr`. **Deliverable**: `data/raw/clutrr.parquet`. **Verification**: `pytest tests/contract/test_clutrr_schema.py`.
-- [ ] T007 [P] Implement `src/data/preprocess_meg.py` (Part 1): Bandpass filter 30-50Hz on streamed MEG data. **Deliverable**: `data/processed/meg_filtered.npy`. **Dependency**: None.
-- [ ] T047 Implement `src/data/preprocess_meg.py` (Part 2): Compute Welch PSD (zero-pad to 512 if seq_len < 512) and normalize to unit area. **Deliverable**: `data/processed/meg_psd_normalized.npy`. **Verification**: Output matches `contracts/dataset.schema.yaml` spectral section. **Dependency**: T007.
-- [ ] T008 [P] Implement `src/data/preprocess_meg.py` (Part 3): Validate and store pre-processed MEG data. **Deliverable**: Validated `meg_psd_normalized.npy`. **Dependency**: T047.
+- [ ] T007 [P] Implement `src/data/preprocess_meg.py` (Part 1): Bandpass filter 30-50Hz on streamed MEG data. [UNRESOLVED-CLAIM: c_6469b9cc — status=not_enough_info] **Deliverable**: `data/processed/meg_filtered.npy`. **Dependency**: None.
+- [ ] T047 Implement `src/data/preprocess_meg.py` (Part 2): Compute Welch PSD (zero-pad to 512 if seq_len < 512) and normalize to unit area. [UNRESOLVED-CLAIM: c_d5e71987 — status=not_enough_info] **Deliverable**: `data/processed/meg_psd_normalized.npy`. **Verification**: Output matches `contracts/dataset.schema.yaml` spectral section. **Dependency**: T007.
+- [X] T008 [P] Implement `src/data/preprocess_meg.py` (Part 3): Validate and store pre-processed MEG data. **Deliverable**: Validated `meg_psd_normalized.npy`. **Dependency**: T047.
 - [ ] T009 [P] Create base model wrapper `src/models/base_model.py` loading DistilBERT in CPU-only mode. **Deliverable**: `src/models/base_model.py`. **Verification**: `python -c "from src.models.base_model import DistilBERTWrapper; print(DistilBERTWrapper)"`.
-- [X] T010 [P] Implement `src/analysis/stats.py` (Part 1): Permutation test engine (≥1000 iterations). **Deliverable**: `permute_test()` function in `src/analysis/stats.py`. **Verification**: `pytest tests/unit/test_stats.py`.
+- [X] T010 [P] Implement `src/analysis/stats.py` (Part 1): Permutation test engine (≥1000 iterations). [UNRESOLVED-CLAIM: c_6a3445b3 — status=not_enough_info] **Deliverable**: `permute_test()` function in `src/analysis/stats.py`. **Verification**: `pytest tests/unit/test_stats.py`.
 - [X] T048 [P] Implement `src/analysis/stats.py` (Part 2): Bonferroni correction logic. **Deliverable**: `bonferroni_correct()` function. **Dependency**: T010.
 - [ ] T012 [P] Implement `src/analysis/spectral.py`: FFT, Welch PSD, SNR calculation functions. **Note**: Uses output from T047. **Verification**: `pytest tests/unit/test_spectral.py`.
 - [ ] T013 [P] Implement `src/analysis/sdc.py`: Spectral Density Correlation (SDC) calculation (Pearson correlation of normalized PSDs). **Note**: SDC is a complementary/secondary metric to PLV for methodological rigor regarding discrete/continuous time comparison. **Verification**: Output matches `contracts/output.schema.yaml` SDC section. **Dependency**: T012, T047.
@@ -69,9 +69,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Implement `OscillatoryAttentionModule` in `src/models/oscillatory_attention.py`: Inject sinusoidal mask at relative frequency `f` (cycles/sequence). **Deliverable**: Module class ready for injection.
-- [ ] T018 [US1] Implement `src/main.py` orchestration: Load model, inject module (from T017), run forward pass, record `ActivationTimeSeries`. **Dependency**: T009, T017.
-- [ ] T018b [US1] Implement `src/main.py` baseline run: Load model without oscillatory module, run forward pass, record `ActivationTimeSeries` for control comparison. **Dependency**: T009.
+- [X] T017 [P] [US1] Implement `OscillatoryAttentionModule` in `src/models/oscillatory_attention.py`: Inject sinusoidal mask at relative frequency `f` (cycles/sequence). **Deliverable**: Module class ready for injection.
+- [X] T018 [US1] Implement `src/main.py` orchestration: Load model, inject module (from T017), run forward pass, record `ActivationTimeSeries`. **Dependency**: T009, T017.
+- [X] T018b [US1] Implement `src/main.py` baseline run: Load model without oscillatory module, run forward pass, record `ActivationTimeSeries` for control comparison. **Dependency**: T009.
 - [ ] T021 [US1] **Address Feynman/Krakauer**: Implement "Control Run" logic: Run same sequence with oscillation disabled to demonstrate feature integration failure. **Deliverable**: `data/final/control_run_comparison.json` with schema: `{"oscillatory_coherence": float, "baseline_coherence": float, "coherence_difference": float}`. **Note**: Report difference descriptively; no hard threshold assertion. **Dependency**: T018, T018b.
 - [ ] T020 [US1] Implement SNR verification: Calculate peak power in target band vs. adjacent bands; assert SNR ≥ 3.0 dB. **Note**: Uses control run data from T021 for comparative verification. **Dependency**: T012, T018.
 - [ ] T019 [US1] Implement frequency sweep logic: Iterate relative frequencies across a range of cycle counts per sequence. **Deliverable**: `src/main.py` logic; Output artifact `data/processed/sweep_results.csv`. **Dependency**: T018.
@@ -137,7 +137,7 @@
 
 - [ ] T041 [P] Documentation updates: Add "Mapping Hypothesis" section to `README.md` explaining relative frequency vs. physical time
 - [ ] T042 Code cleanup: Ensure all random seeds are pinned and logged in `data/final/statistical_report.json`
-- [ ] T043 Performance optimization: Verify streaming logic prevents OOM on constrained-memory runner. **Verification**: Run on 7GB RAM limit and log success.
+- [ ] T043 Performance optimization: Verify streaming logic prevents OOM on constrained-memory runner. [UNRESOLVED-CLAIM: c_706e7872 — status=not_enough_info] **Verification**: Run on 7GB RAM limit and log success.
 - [ ] T044 [P] Additional unit tests: `tests/unit/test_sdc.py`, `tests/unit/test_stats.py`
 - [ ] T045 Security hardening: Verify no PII in MEG data (confirm OpenNeuro anonymization)
 - [ ] T046 Run `quickstart.md` validation: Ensure all commands execute successfully. **Deliverable**: `data/validation_log.txt`.

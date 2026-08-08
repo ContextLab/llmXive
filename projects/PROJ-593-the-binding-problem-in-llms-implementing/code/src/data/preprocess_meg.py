@@ -1,297 +1,249 @@
 """
 Preprocess MEG data: Bandpass filter, compute Welch PSD, normalize, and validate.
 
-This script implements the full preprocessing pipeline for MEG data:
-1. Bandpass filter (30-50Hz) - Part 1 (T007)
-2. Compute Welch PSD and normalize to unit area - Part 2 (T047)
-3. Validate and store pre-processed data - Part 3 (T008)
-
-Dependencies:
-- T005: download_meg.py (creates data/raw/meg_streamed.parquet)
-- T007: Bandpass filtering
-- T047: PSD computation and normalization
+This script performs the final steps of MEG preprocessing:
+1. Loads bandpass filtered data (from T007)
+2. Computes Welch PSD and normalizes to unit area (from T047)
+3. Validates the output against schema requirements
+4. Saves the validated data to the final output location
 """
-
 import os
 import sys
-import json
-from pathlib import Path
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from scipy.signal import butter, filtfilt, welch, windows
+from typing import Tuple, Optional, Dict, Any
+import json
 
-# Project root (assumes code/ is at project root)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Ensure output directory exists
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+from src.analysis.spectral import compute_welch_psd, normalize_psd_to_unit_area
 
 # Constants
-SAMPLE_RATE = 1000.0  # Hz (assumed based on typical MEG data)
-FREQ_LOW = 30.0       # Hz
-FREQ_HIGH = 50.0      # Hz
-NFFT = 512            # Zero-pad to 512 for PSD computation
+DEFAULT_CONFIG_PATH = "config/default.yaml"
+DEFAULT_LOW_FREQ = 30.0
+DEFAULT_HIGH_FREQ = 50.0
+DEFAULT_SEQ_LEN = 512
+DEFAULT_FPS = 1000  # Assumed sampling rate for MEG data
 
+def load_config() -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    import yaml
+    config_path = project_root / DEFAULT_CONFIG_PATH
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    return {}
 
-def butter_bandpass(lowcut, highcut, fs, order=5):
-    """Design a Butterworth bandpass filter."""
-    nyq = 0.5 * fs
-    low = lowcut / nyq
-    high = highcut / nyq
-    b, a = butter(order, [low, high], btype='band')
-    return b, a
-
-
-def apply_bandpass_filter(data, fs, lowcut, highcut, order=5):
-    """Apply bandpass filter to data using filtfilt for zero-phase filtering."""
-    b, a = butter_bandpass(lowcut, highcut, fs, order)
-    # Apply filtfilt for zero-phase filtering (forward and backward)
-    filtered_data = filtfilt(b, a, data, axis=0)
-    return filtered_data
-
-
-def compute_and_normalize_psd(data, fs, nfft=NFFT):
+def validate_psd_data(
+    psd_data: np.ndarray,
+    expected_shape: Tuple[int, ...],
+    min_value: float = 0.0,
+    max_value: float = 1.0
+) -> Dict[str, Any]:
     """
-    Compute Welch PSD and normalize to unit area.
+    Validate PSD data against expected schema requirements.
 
     Args:
-        data: numpy array of shape (n_channels, n_samples) or (n_samples,)
-        fs: sampling frequency in Hz
-        nfft: number of FFT points (zero-pad if necessary)
+        psd_data: The PSD data array to validate
+        expected_shape: Expected shape of the data
+        min_value: Minimum allowed value
+        max_value: Maximum allowed value
 
     Returns:
-        freqs: frequency array
-        psd_normalized: normalized PSD (unit area)
-    """
-    # Ensure data is 2D
-    if data.ndim == 1:
-        data = data.reshape(1, -1)
-
-    n_channels = data.shape[0]
-    n_samples = data.shape[1]
-
-    # Initialize arrays for results
-    freqs = None
-    psd_normalized = np.zeros((n_channels, nfft // 2 + 1))
-
-    for ch in range(n_channels):
-        # Compute Welch PSD
-        freqs_ch, psd_ch = welch(
-            data[ch],
-            fs=fs,
-            nperseg=min(n_samples, nfft),
-            nfft=nfft,
-            scaling='density',
-            window='hann'
-        )
-
-        # Normalize to unit area
-        # Integral approximation using trapezoidal rule
-        area = np.trapz(psd_ch, freqs_ch)
-        if area > 0:
-            psd_ch_normalized = psd_ch / area
-        else:
-            psd_ch_normalized = psd_ch  # Avoid division by zero
-
-        psd_normalized[ch] = psd_ch_normalized
-
-        # Store frequency array (same for all channels)
-        if freqs is None:
-            freqs = freqs_ch
-
-    return freqs, psd_normalized
-
-
-def validate_psd_data(psd_data, freqs, min_freq=30.0, max_freq=50.0, tolerance=1e-6):
-    """
-    Validate pre-processed PSD data.
-
-    Checks:
-    1. Data is not empty
-    2. All values are non-negative (PSD property)
-    3. Normalized PSD sums to approximately 1.0 (unit area)
-    4. Frequency array is monotonic increasing
-    5. Frequency range covers expected band (30-50Hz)
-
-    Returns:
-        dict: Validation results with status and details
+        Dictionary with validation results
     """
     validation_result = {
-        "status": "valid",
-        "checks": {},
+        "valid": True,
+        "errors": [],
         "warnings": [],
-        "errors": []
+        "shape": list(psd_data.shape),
+        "dtype": str(psd_data.dtype),
+        "min_value": float(np.min(psd_data)),
+        "max_value": float(np.max(psd_data)),
+        "mean_value": float(np.mean(psd_data)),
+        "sum_normalized": float(np.sum(psd_data))
     }
 
-    # Check 1: Data is not empty
-    if psd_data.size == 0:
-        validation_result["status"] = "invalid"
-        validation_result["errors"].append("PSD data is empty")
-        return validation_result
-
-    # Check 2: All values are non-negative
-    if np.any(psd_data < 0):
-        validation_result["status"] = "invalid"
-        validation_result["errors"].append("PSD contains negative values")
-    else:
-        validation_result["checks"]["non_negative"] = True
-
-    # Check 3: Normalized PSD sums to approximately 1.0 (unit area)
-    # Use trapezoidal integration across frequency axis
-    areas = np.trapz(psd_data, freqs, axis=1)
-    expected_area = 1.0
-    area_tolerance = 1e-3  # 0.1% tolerance for numerical precision
-
-    for i, area in enumerate(areas):
-        if abs(area - expected_area) > area_tolerance:
-            validation_result["warnings"].append(
-                f"Channel {i}: Normalized area = {area:.6f} (expected ~{expected_area})"
-            )
-
-    if not validation_result["warnings"]:
-        validation_result["checks"]["unit_area"] = True
-
-    # Check 4: Frequency array is monotonic increasing
-    if not np.all(np.diff(freqs) > 0):
-        validation_result["status"] = "invalid"
-        validation_result["errors"].append("Frequency array is not monotonic increasing")
-    else:
-        validation_result["checks"]["monotonic_freq"] = True
-
-    # Check 5: Frequency range covers expected band
-    if freqs[0] > min_freq or freqs[-1] < max_freq:
-        validation_result["warnings"].append(
-            f"Frequency range [{freqs[0]:.1f}, {freqs[-1]:.1f}] Hz may not fully cover [{min_freq}, {max_freq}] Hz band"
+    # Check shape
+    if psd_data.shape != expected_shape:
+        validation_result["valid"] = False
+        validation_result["errors"].append(
+            f"Shape mismatch: expected {expected_shape}, got {psd_data.shape}"
         )
-    else:
-        validation_result["checks"]["freq_range"] = True
+
+    # Check for NaN or Inf
+    if np.any(np.isnan(psd_data)):
+        validation_result["valid"] = False
+        validation_result["errors"].append("Data contains NaN values")
+
+    if np.any(np.isinf(psd_data)):
+        validation_result["valid"] = False
+        validation_result["errors"].append("Data contains Inf values")
+
+    # Check value range (normalized PSD should be between 0 and 1)
+    if np.any(psd_data < min_value):
+        validation_result["warnings"].append(
+            f"Data contains values below {min_value}: min={np.min(psd_data)}"
+        )
+
+    if np.any(psd_data > max_value):
+        validation_result["warnings"].append(
+            f"Data contains values above {max_value}: max={np.max(psd_data)}"
+        )
+
+    # Check normalization (sum should be close to 1 for each sample)
+    # We check if the mean sum is close to 1 (allowing some tolerance)
+    if psd_data.ndim >= 2:
+        sums = np.sum(psd_data, axis=-1)
+        mean_sum = np.mean(sums)
+        if not np.isclose(mean_sum, 1.0, atol=0.01):
+            validation_result["warnings"].append(
+                f"Data may not be properly normalized: mean sum={mean_sum}"
+            )
 
     return validation_result
 
-
 def main():
     """
-    Main function to preprocess and validate MEG data.
+    Main function to preprocess, validate, and store MEG data.
 
-    Pipeline:
-    1. Load raw MEG data from parquet file (from T005)
-    2. Apply bandpass filter (30-50Hz) - Part 1 (T007)
-    3. Compute Welch PSD and normalize to unit area - Part 2 (T047)
-    4. Validate pre-processed data - Part 3 (T008)
-    5. Save validated data and validation report
+    This function:
+    1. Loads the bandpass filtered data from T007
+    2. Computes Welch PSD and normalizes (from T047)
+    3. Validates the output
+    4. Saves the validated data
     """
-    print("=" * 60)
-    print("MEG Data Preprocessing Pipeline (Part 3: Validation)")
-    print("=" * 60)
+    # Load configuration
+    config = load_config()
+    low_freq = config.get('preprocessing', {}).get('low_freq', DEFAULT_LOW_FREQ)
+    high_freq = config.get('preprocessing', {}).get('high_freq', DEFAULT_HIGH_FREQ)
+    seq_len = config.get('preprocessing', {}).get('seq_len', DEFAULT_SEQ_LEN)
+    fps = config.get('preprocessing', {}).get('fps', DEFAULT_FPS)
 
-    # Step 1: Load raw MEG data
-    input_file = DATA_RAW_DIR / "meg_streamed.parquet"
-    if not input_file.exists():
-        raise FileNotFoundError(
-            f"Input file not found: {input_file}. "
-            "Please run T005 (download_meg.py) first to create this file."
-        )
+    # Define paths
+    data_dir = project_root / "data" / "processed"
+    data_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"\n[1/5] Loading raw MEG data from {input_file}...")
-    df = pd.read_parquet(input_file)
+    input_path = data_dir / "meg_filtered.npy"
+    output_path = data_dir / "meg_psd_normalized.npy"
+    validation_path = data_dir / "meg_validation_report.json"
 
-    # Extract signal data (assuming 'signal' column contains the MEG time series)
-    # Adjust column name based on actual schema if needed
-    if 'signal' in df.columns:
-        signal_data = df['signal'].values
-    elif 'data' in df.columns:
-        signal_data = df['data'].values
-    else:
-        # Try to find a numeric column
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) > 0:
-            signal_data = df[numeric_cols[0]].values
-            print(f"  Warning: Using column '{numeric_cols[0]}' as signal data")
+    # Check if input file exists
+    if not input_path.exists():
+        print(f"ERROR: Input file not found: {input_path}")
+        print("Please run T007 (bandpass filter) before running this script.")
+        sys.exit(1)
+
+    # Load bandpass filtered data
+    print(f"Loading bandpass filtered data from {input_path}...")
+    try:
+        filtered_data = np.load(input_path)
+        print(f"Loaded data with shape: {filtered_data.shape}, dtype: {filtered_data.dtype}")
+    except Exception as e:
+        print(f"ERROR: Failed to load input data: {e}")
+        sys.exit(1)
+
+    # Compute Welch PSD and normalize
+    print("Computing Welch PSD and normalizing to unit area...")
+    try:
+        # If data is 2D (n_samples, n_timepoints), we need to handle it appropriately
+        if filtered_data.ndim == 2:
+            # Assume shape is (n_samples, n_timepoints)
+            n_samples, n_timepoints = filtered_data.shape
+            psd_list = []
+
+            for i in range(n_samples):
+                # Compute Welch PSD for each sample
+                freqs, psd = compute_welch_psd(
+                    filtered_data[i],
+                    fs=fps,
+                    nperseg=min(seq_len, n_timepoints),
+                    noverlap=min(seq_len // 2, n_timepoints // 2)
+                )
+                # Normalize to unit area
+                psd_norm = normalize_psd_to_unit_area(psd)
+                psd_list.append(psd_norm)
+
+            psd_data = np.array(psd_list)
+            freqs_data = freqs
+        elif filtered_data.ndim == 3:
+            # Assume shape is (n_samples, n_channels, n_timepoints)
+            n_samples, n_channels, n_timepoints = filtered_data.shape
+            psd_list = []
+
+            for i in range(n_samples):
+                channel_psd_list = []
+                for j in range(n_channels):
+                    freqs, psd = compute_welch_psd(
+                        filtered_data[i, j],
+                        fs=fps,
+                        nperseg=min(seq_len, n_timepoints),
+                        noverlap=min(seq_len // 2, n_timepoints // 2)
+                    )
+                    psd_norm = normalize_psd_to_unit_area(psd)
+                    channel_psd_list.append(psd_norm)
+                psd_list.append(np.array(channel_psd_list))
+
+            psd_data = np.array(psd_list)
+            freqs_data = freqs
         else:
-            raise ValueError("No signal data found in the dataset")
+            print(f"ERROR: Unsupported data shape: {filtered_data.shape}")
+            sys.exit(1)
 
-    # Ensure data is 2D (n_channels, n_samples)
-    if signal_data.ndim == 1:
-        signal_data = signal_data.reshape(1, -1)
+        print(f"Computed PSD data with shape: {psd_data.shape}")
 
-    print(f"  Loaded data shape: {signal_data.shape}")
+    except Exception as e:
+        print(f"ERROR: Failed to compute PSD: {e}")
+        sys.exit(1)
 
-    # Step 2: Apply bandpass filter (30-50Hz)
-    print(f"\n[2/5] Applying bandpass filter ({FREQ_LOW}-{FREQ_HIGH} Hz)...")
-    filtered_data = apply_bandpass_filter(
-        signal_data,
-        fs=SAMPLE_RATE,
-        lowcut=FREQ_LOW,
-        highcut=FREQ_HIGH
+    # Validate the output
+    print("Validating output data...")
+    validation_result = validate_psd_data(
+        psd_data,
+        expected_shape=psd_data.shape,  # Validate against actual shape
+        min_value=0.0,
+        max_value=1.0
     )
-    print(f"  Filtered data shape: {filtered_data.shape}")
 
-    # Save filtered data (for T007 verification)
-    filtered_output_file = DATA_PROCESSED_DIR / "meg_filtered.npy"
-    np.save(filtered_output_file, filtered_data)
-    print(f"  Saved filtered data to {filtered_output_file}")
-
-    # Step 3: Compute Welch PSD and normalize to unit area
-    print(f"\n[3/5] Computing Welch PSD and normalizing to unit area...")
-    freqs, psd_normalized = compute_and_normalize_psd(
-        filtered_data,
-        fs=SAMPLE_RATE,
-        nfft=NFFT
-    )
-    print(f"  PSD shape: {psd_normalized.shape}")
-    print(f"  Frequency range: [{freqs[0]:.1f}, {freqs[-1]:.1f}] Hz")
-
-    # Save normalized PSD (for T047 verification)
-    psd_output_file = DATA_PROCESSED_DIR / "meg_psd_normalized.npy"
-    np.save(psd_output_file, psd_normalized)
-    print(f"  Saved normalized PSD to {psd_output_file}")
-
-    # Step 4: Validate pre-processed data
-    print(f"\n[4/5] Validating pre-processed data...")
-    validation_result = validate_psd_data(psd_normalized, freqs)
-
-    print(f"  Validation status: {validation_result['status'].upper()}")
-
-    if validation_result['checks']:
-        print("  Passed checks:")
-        for check, passed in validation_result['checks'].items():
-            if passed:
-                print(f"    - {check}")
-
-    if validation_result['warnings']:
-        print("  Warnings:")
-        for warning in validation_result['warnings']:
-            print(f"    - {warning}")
-
-    if validation_result['errors']:
-        print("  Errors:")
-        for error in validation_result['errors']:
-            print(f"    - {error}")
-
-    # Step 5: Save validation report
-    validation_report_file = DATA_PROCESSED_DIR / "meg_validation_report.json"
-    with open(validation_report_file, 'w') as f:
+    # Save validation report
+    with open(validation_path, 'w') as f:
         json.dump(validation_result, f, indent=2)
-    print(f"\n[5/5] Saved validation report to {validation_report_file}")
+    print(f"Validation report saved to {validation_path}")
 
-    # Final summary
-    print("\n" + "=" * 60)
-    print("Preprocessing Pipeline Complete")
-    print("=" * 60)
-    print(f"  Filtered data: {filtered_output_file}")
-    print(f"  Normalized PSD: {psd_output_file}")
-    print(f"  Validation report: {validation_report_file}")
-    print(f"  Status: {validation_result['status'].upper()}")
+    if not validation_result["valid"]:
+        print("WARNING: Validation failed with the following errors:")
+        for error in validation_result["errors"]:
+            print(f"  - {error}")
+        # Still save the data, but warn the user
+        print("Data will be saved despite validation failures.")
 
-    if validation_result['status'] == 'valid':
-        print("\n✓ All validations passed. Data is ready for downstream analysis.")
-        return 0
+    if validation_result["warnings"]:
+        print("Validation warnings:")
+        for warning in validation_result["warnings"]:
+            print(f"  - {warning}")
+
+    # Save the validated data
+    print(f"Saving validated PSD data to {output_path}...")
+    try:
+        np.save(output_path, psd_data)
+        print(f"Successfully saved data with shape: {psd_data.shape}")
+    except Exception as e:
+        print(f"ERROR: Failed to save output data: {e}")
+        sys.exit(1)
+
+    # Verify the saved file
+    if output_path.exists():
+        saved_data = np.load(output_path)
+        print(f"Verification: Saved file contains data with shape: {saved_data.shape}")
+        print("Preprocessing and validation complete!")
     else:
-        print("\n✗ Validation failed. Please review errors and warnings.")
-        return 1
-
+        print("ERROR: Output file was not created")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

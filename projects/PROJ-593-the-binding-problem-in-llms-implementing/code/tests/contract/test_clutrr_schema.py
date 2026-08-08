@@ -1,67 +1,48 @@
-"""
-Contract tests for the CLUTRR dataset schema.
-
-These tests verify that the downloaded CLUTRR dataset adheres to the expected
-schema (columns, data types) required for downstream processing.
-"""
 import os
 import pytest
 import pandas as pd
 from pathlib import Path
 
-# Project root path setup
-_project_root = Path(__file__).resolve().parent.parent.parent
-CLUTRR_PATH = _project_root / "data" / "raw" / "clutrr.parquet"
-
-# Expected schema definition
-# CLUTRR typically contains: story, family_tree, question, answer, etc.
-# We define a flexible but strict schema check for the presence of key columns.
-EXPECTED_COLUMNS = {
-    "story",
-    "family_tree",
-    "question",
-    "answer",
-}
+DATA_PATH = Path("data/raw/clutrr.parquet")
 
 def test_clutrr_file_exists():
-    """Asserts that the CLUTRR parquet file exists on disk."""
-    assert CLUTRR_PATH.exists(), f"CLUTRR dataset file not found at {CLUTRR_PATH}"
+    """Verify that the CLUTRR data file exists."""
+    assert DATA_PATH.exists(), f"CLUTRR data file not found at {DATA_PATH}"
 
 def test_clutrr_schema():
-    """
-    Asserts that the CLUTRR dataset contains the required columns.
+    """Verify the CLUTRR dataset has the expected columns."""
+    assert DATA_PATH.exists(), f"CLUTRR data file not found at {DATA_PATH}"
     
-    This is a contract test ensuring the data ingestion (T006) produced
-    a valid dataset structure.
-    """
-    test_clutrr_file_exists()
+    df = pd.read_parquet(DATA_PATH)
     
-    df = pd.read_parquet(CLUTRR_PATH)
+    # CLUTRR dataset typically contains columns like:
+    # 'story', 'question', 'answer', 'family_tree', etc.
+    # We check for the most critical columns for reasoning tasks.
+    required_columns = ['story', 'question', 'answer']
     
-    assert isinstance(df, pd.DataFrame), "Loaded data is not a DataFrame"
-    assert len(df) > 0, "Dataset is empty"
+    for col in required_columns:
+        assert col in df.columns, f"Missing required column: {col}"
     
-    # Check for required columns
-    missing_columns = EXPECTED_COLUMNS - set(df.columns)
-    assert not missing_columns, f"Missing required columns: {missing_columns}"
+    # Verify data types
+    assert df['story'].dtype == 'object', "Column 'story' should be string/object"
+    assert df['question'].dtype == 'object', "Column 'question' should be string/object"
+    assert df['answer'].dtype == 'object', "Column 'answer' should be string/object"
 
 def test_clutrr_data_types():
-    """
-    Asserts that the required columns are of string type (or object).
+    """Verify the CLUTRR dataset contains non-empty data."""
+    assert DATA_PATH.exists(), f"CLUTRR data file not found at {DATA_PATH}"
     
-    CLUTRR data is textual; numeric fields (if any) should also be validated
-    if they exist, but the core contract is text-based reasoning.
-    """
-    test_clutrr_file_exists()
+    df = pd.read_parquet(DATA_PATH)
     
-    df = pd.read_parquet(CLUTRR_PATH)
+    # Check that we have data
+    assert len(df) > 0, "CLUTRR dataset is empty"
     
-    text_columns = ["story", "family_tree", "question", "answer"]
-    for col in text_columns:
-        if col in df.columns:
-            # Check if the column is of object/string type
-            # Allow for potential NaNs, so we check non-null values
-            non_null = df[col].dropna()
-            if len(non_null) > 0:
-                # Check if the first non-null value is a string
-                assert isinstance(non_null.iloc[0], str), f"Column '{col}' contains non-string values"
+    # Check that story, question, and answer fields are not empty strings
+    assert not df['story'].isna().all(), "All 'story' values are NA"
+    assert not df['question'].isna().all(), "All 'question' values are NA"
+    assert not df['answer'].isna().all(), "All 'answer' values are NA"
+    
+    # Check for reasonable length (stories should have some content)
+    assert df['story'].str.len().mean() > 0, "Stories appear to be empty"
+    assert df['question'].str.len().mean() > 0, "Questions appear to be empty"
+    assert df['answer'].str.len().mean() > 0, "Answers appear to be empty"

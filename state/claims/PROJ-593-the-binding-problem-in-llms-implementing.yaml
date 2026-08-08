@@ -158,3 +158,132 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T12:27:15Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Bandpass filter 30-50Hz on streamed MEG data
+  claim_id: c_6469b9cc
+  context: 'Task T007: Implement src/data/preprocess_meg.py (Part 1): Bandpass filter
+    30-50Hz on streamed MEG data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bandpass filter 30-50Hz on streamed MEG data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:28:11Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Zero-pad to 512 if sequence length less than 512 for Welch PSD
+  claim_id: c_d5e71987
+  context: 'Task T047: Implement src/data/preprocess_meg.py (Part 2): Compute Welch
+    PSD (zero-pad to 512 if seq_len < 512) and normalize to unit area.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Zero-pad_to_512_if_sequence_length_less_than_512_for_Welch_P
+  kind: magnitude
+  raw_text: Compute Welch PSD (zero-pad to 512 if seq_len < 512) and normalize to
+    unit area.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:28:34Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Permutation test engine with at least 1000 iterations
+  claim_id: c_6a3445b3
+  context: "Task T010: Implement src/analysis/stats.py (Part 1): Permutation test\
+    \ engine (\u22651000 iterations)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_engine_with_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "Permutation test engine (\u22651000 iterations)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:28:59Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Verify FFT peak in target band with Signal-to-Noise Ratio at least 3.0
+    dB
+  claim_id: c_19942b3e
+  context: "Independent Test for User Story 1: Run a forward pass on a batch of sequences\
+    \ of tokens; verify FFT shows a peak in the target band with SNR \u2265 3.0 dB."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_FFT_peak_in_target_band_with_Signal-to-Noise_Ratio_at
+  kind: magnitude
+  raw_text: "Verify FFT shows a peak in the target band with SNR \u2265 3.0 dB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:29:50Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Verify if binding effect remains stable or decays after oscillation removal
+  claim_id: c_8c6c5ced
+  context: 'Task T030: Implement Stability Check: Run inference on the same sequence
+    after oscillation removal; verify if the binding effect (PLV/SDC) remains stable
+    or decays.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_if_binding_effect_remains_stable_or_decays_after_osci
+  kind: entity_fact
+  raw_text: Verify if the binding effect (PLV/SDC) remains stable or decays.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:30:12Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Verify baseline accuracy less than 0.5 and oscillatory accuracy greater
+    than 0.5 in toy failure case
+  claim_id: c_faa1b90e
+  context: 'Task T040: Implement Toy Failure demonstration... Assertion: baseline_accuracy
+    < 0.5 and oscillatory_accuracy > 0.5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_baseline_accuracy_less_than_0.5_and_oscillatory_accur
+  kind: magnitude
+  raw_text: Verify baseline fails with baseline_accuracy < 0.5 and oscillatory_accuracy
+    > 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:30:52Z'
+- artifact_path: projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/tasks.md
+  attempts: 1
+  canonical: Verify streaming logic prevents Out of Memory on constrained-memory runner
+  claim_id: c_706e7872
+  context: 'Task T043: Performance optimization: Verify streaming logic prevents OOM
+    on constrained-memory runner. Verification: Run on 7GB RAM limit and log success.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_streaming_logic_prevents_Out_of_Memory_on_constrained
+  kind: entity_fact
+  raw_text: Verify streaming logic prevents OOM on constrained-memory runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T18:31:19Z'

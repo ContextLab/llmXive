@@ -1,1 +1,3 @@
 subject_id,reason
+sub-001,insufficient_trials
+sub-002,excessive_artifact_removal

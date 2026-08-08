@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+data/raw/*.parquet
+data/processed/*.npy
+data/final/*.json
+data/synthetic/*.json
+figures/*.png
+*.log
+.env
+.venv/
+venv/

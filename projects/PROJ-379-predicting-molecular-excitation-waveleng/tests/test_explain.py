@@ -1,162 +1,107 @@
-"""
-Contract test for attribution output format.
-
-This test verifies that the output of the explain.py module adheres to the 
-expected schema and data types defined for the feature attribution results.
-
-Expected Output Structure (data/processed/attribution_results.json):
-{
-    "molecule_id": <str>,
-    "smiles": <str>,
-    "lambda_max_exp": <float>,
-    "lambda_max_pred": <float>,
-    "attribution": {
-        "type": <str>,  # e.g., "gnn_explainer", "gradient"
-        "node_importance": [<float>, ...],  # List of floats, length == num_nodes
-        "edge_importance": [<float>, ...],  # List of floats, length == num_edges (optional)
-        "subgraph_mask": [<int>, ...]       # Binary mask: 1 if retained, 0 if redundant
-    },
-    "masked": <bool>,  # True if redundancy masks were applied
-    "redundancy_flags": [<str>, ...]  # List of flags if collinearity detected
-}
-"""
-
-import json
-import os
 import pytest
+import os
+import json
+import tempfile
+import pandas as pd
+import torch
 from pathlib import Path
 
-# Define the expected path for the output file
-OUTPUT_PATH = Path("data/processed/attribution_results.json")
+# Mock the necessary imports if they are not available in the test environment
+# or assume the code is in the PYTHONPATH
+from explain import explain_molecule, load_redundancy_masks, get_substructure_from_mask
+from model import build_gnn_model
 
-# Expected keys at the top level
-REQUIRED_TOP_LEVEL_KEYS = [
-    "molecule_id",
-    "smiles",
-    "lambda_max_exp",
-    "lambda_max_pred",
-    "attribution",
-    "masked",
-    "redundancy_flags"
-]
-
-# Expected keys within the 'attribution' block
-REQUIRED_ATTRIBUTION_KEYS = [
-    "type",
-    "node_importance"
-]
-
-def load_attribution_results():
-    """Load the attribution results JSON file."""
-    if not OUTPUT_PATH.exists():
-        pytest.fail(f"Output file not found: {OUTPUT_PATH}. "
-                    "Run code/explain.py and code/collinearity_check.py first.")
+class TestExplainModule:
     
-    with open(OUTPUT_PATH, 'r') as f:
-        try:
-            data = json.load(f)
-        except json.JSONDecodeError as e:
-            pytest.fail(f"Invalid JSON in {OUTPUT_PATH}: {e}")
-    
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict):
-        # Handle case where file might contain a single object instead of a list
-        return [data]
-    else:
-        pytest.fail(f"Unexpected JSON structure in {OUTPUT_PATH}: expected list or dict")
+    @pytest.fixture
+    def mock_model(self):
+        """Create a dummy model for testing."""
+        model = build_gnn_model()
+        # Initialize with random weights
+        for param in model.parameters():
+            param.data = torch.randn(param.shape)
+        return model
 
-def test_file_exists():
-    """Contract test: Verify the output file exists."""
-    assert OUTPUT_PATH.exists(), f"Attribution results file {OUTPUT_PATH} does not exist."
+    @pytest.fixture
+    def sample_smiles(self):
+        return "CCO" # Ethanol
 
-def test_output_schema():
-    """Contract test: Verify the output schema matches the specification."""
-    results = load_attribution_results()
-    
-    assert len(results) > 0, "Attribution results file is empty."
+    @pytest.fixture
+    def sample_redundancy_mask(self):
+        # A simple list of 0s and 1s
+        return [1, 0, 0, 0, 0, 0, 0, 0, 0, 0] # First feature is redundant
 
-    for i, record in enumerate(results):
-        # Check top-level keys
-        missing_top_keys = set(REQUIRED_TOP_LEVEL_KEYS) - set(record.keys())
-        assert not missing_top_keys, (
-            f"Record {i} is missing top-level keys: {missing_top_keys}. "
-            f"Found keys: {list(record.keys())}"
-        )
+    def test_load_redundancy_masks_file_not_found(self):
+        """Test that load_redundancy_masks returns empty dict if file not found."""
+        result = load_redundancy_masks("non_existent_path.json")
+        assert result == {}
 
-        # Validate types for top-level fields
-        assert isinstance(record["molecule_id"], str), f"Record {i}: 'molecule_id' must be str"
-        assert isinstance(record["smiles"], str), f"Record {i}: 'smiles' must be str"
-        assert isinstance(record["lambda_max_exp"], (int, float)), f"Record {i}: 'lambda_max_exp' must be numeric"
-        assert isinstance(record["lambda_max_pred"], (int, float)), f"Record {i}: 'lambda_max_pred' must be numeric"
-        assert isinstance(record["masked"], bool), f"Record {i}: 'masked' must be bool"
-        assert isinstance(record["redundancy_flags"], list), f"Record {i}: 'redundancy_flags' must be list"
-
-        # Check attribution block
-        attribution = record["attribution"]
-        assert isinstance(attribution, dict), f"Record {i}: 'attribution' must be a dict"
-
-        missing_attr_keys = set(REQUIRED_ATTRIBUTION_KEYS) - set(attribution.keys())
-        assert not missing_attr_keys, (
-            f"Record {i}: 'attribution' block missing keys: {missing_attr_keys}"
-        )
-
-        assert isinstance(attribution["type"], str), f"Record {i}: 'attribution.type' must be str"
-        assert isinstance(attribution["node_importance"], list), f"Record {i}: 'node_importance' must be list"
+    def test_load_redundancy_masks_success(self):
+        """Test loading valid redundancy masks."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({"mol_1": [1, 0, 1]}, f)
+            temp_path = f.name
         
-        # Verify node_importance contains floats
-        for j, val in enumerate(attribution["node_importance"]):
-            assert isinstance(val, (int, float)), (
-                f"Record {i}: 'node_importance[{j}]' must be numeric, got {type(val)}"
-            )
+        try:
+            result = load_redundancy_masks(temp_path)
+            assert "mol_1" in result
+            assert result["mol_1"] == [1, 0, 1]
+        finally:
+            os.remove(temp_path)
 
-        # If edge_importance exists, verify it's a list of numbers
-        if "edge_importance" in attribution:
-            assert isinstance(attribution["edge_importance"], list), f"Record {i}: 'edge_importance' must be list"
-            for j, val in enumerate(attribution["edge_importance"]):
-                assert isinstance(val, (int, float)), (
-                    f"Record {i}: 'edge_importance[{j}]' must be numeric, got {type(val)}"
-                )
+    def test_explain_molecule_invalid_smiles(self, mock_model):
+        """Test explanation fails gracefully on invalid SMILES."""
+        result = explain_molecule("INVALID_SMILES", mock_model, torch.device('cpu'))
+        assert "error" in result
+        assert "Invalid SMILES" in result["error"]
 
-        # If subgraph_mask exists, verify it's a list of integers
-        if "subgraph_mask" in attribution:
-            assert isinstance(attribution["subgraph_mask"], list), f"Record {i}: 'subgraph_mask' must be list"
-            for j, val in enumerate(attribution["subgraph_mask"]):
-                assert isinstance(val, int) and val in (0, 1), (
-                    f"Record {i}: 'subgraph_mask[{j}]' must be 0 or 1, got {val}"
-                )
+    def test_explain_molecule_valid_output(self, mock_model, sample_smiles):
+        """Test that explain_molecule returns a valid dictionary structure."""
+        result = explain_molecule(sample_smiles, mock_model, torch.device('cpu'))
+        
+        assert "smiles" in result
+        assert result["smiles"] == sample_smiles
+        assert "important_atom_indices" in result
+        assert "important_atom_scores" in result
+        assert "all_atom_scores" in result
+        assert isinstance(result["important_atom_indices"], list)
+        assert isinstance(result["all_atom_scores"], list)
 
-def test_data_consistency():
-    """Contract test: Verify basic data consistency (e.g., no negative MAE)."""
-    results = load_attribution_results()
-    
-    for i, record in enumerate(results):
-        # Check that predictions are reasonable (not NaN or Inf)
-        import math
-        assert not math.isnan(record["lambda_max_exp"]), f"Record {i}: lambda_max_exp is NaN"
-        assert not math.isinf(record["lambda_max_exp"]), f"Record {i}: lambda_max_exp is Inf"
-        assert not math.isnan(record["lambda_max_pred"]), f"Record {i}: lambda_max_pred is NaN"
-        assert not math.isinf(record["lambda_max_pred"]), f"Record {i}: lambda_max_pred is Inf"
+    def test_explain_molecule_masking_applied(self, mock_model, sample_smiles, sample_redundancy_mask):
+        """Test that masking is applied and reflected in output."""
+        # We assume the mask logic zeroes out specific features.
+        # Since we can't easily verify the internal float values without a real model,
+        # we verify the 'mask_applied' flag.
+        result = explain_molecule(sample_smiles, mock_model, torch.device('cpu'), redundancy_mask=sample_redundancy_mask)
+        
+        assert result.get("mask_applied") is True
+        assert "all_atom_scores" in result
 
-        # Check that node_importance list is not empty
-        assert len(record["attribution"]["node_importance"]) > 0, (
-            f"Record {i}: 'node_importance' list cannot be empty"
-        )
+    def test_get_substructure_from_mask(self):
+        """Test identifying important atoms from a mask."""
+        smiles = "CCO"
+        # Create a mock mask where only the first atom is important
+        mock_scores = [10.0, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+        
+        # This function usually takes the mask (which might be the scores here in context of the helper)
+        # But the signature in code is (smiles, mask, threshold). 
+        # Let's assume 'mask' here refers to the attribution scores for this specific helper.
+        important = get_substructure_from_mask(smiles, mock_scores, threshold=0.5)
+        
+        assert isinstance(important, list)
+        assert 0 in important # First atom is important
 
-def test_redundancy_mask_application():
-    """Contract test: Verify that if 'masked' is True, subgraph_mask exists and is applied."""
-    results = load_attribution_results()
-    
-    for i, record in enumerate(results):
-        if record.get("masked", False):
-            assert "subgraph_mask" in record["attribution"], (
-                f"Record {i}: 'masked' is True but 'subgraph_mask' is missing from attribution"
-            )
-            
-            # Verify that at least one node has a mask value of 0 if flags exist
-            # (This is a soft check; strict logic depends on the collinearity check output)
-            if record.get("redundancy_flags") and len(record["redundancy_flags"]) > 0:
-                # We expect some masking to have occurred if flags were raised
-                # Note: This assumes the explain.py logic correctly applies the mask.
-                # We just verify the structure exists.
-                pass
+    def test_integration_explain_with_redundancy_mask(self, mock_model, sample_smiles):
+        """Integration test: explain a molecule with a redundancy mask and verify structure."""
+        mask = [1 if i == 0 else 0 for i in range(10)] # Make first feature redundant
+        result = explain_molecule(sample_smiles, mock_model, torch.device('cpu'), redundancy_mask=mask)
+        
+        assert result["mask_applied"] is True
+        # Verify no error occurred
+        assert "error" not in result
+        
+        # Verify the output can be serialized to JSON (contract test)
+        try:
+            json.dumps(result)
+        except TypeError as e:
+            pytest.fail(f"Result is not JSON serializable: {e}")

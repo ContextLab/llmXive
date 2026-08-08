@@ -44,3 +44,40 @@ T026:
     \ per subject on a CPU. Without concrete evidence (e.g., timing output, profiling\
     \ reports, or reproducible code showing the elapsed time), the requirement cannot\
     \ be verified."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or documentation implementing Bonferroni correction
+    for the theta and gamma band analyses is present. The provided information only
+    restates the feature specification without delivering the required artifact, so
+    the task is not satisfied.
+T034:
+  c: false
+  h: 934d971b7035067c129d7959233c9a71dca6f1fa28656e085d8e713ac215f142
+  r: "The repository lacks the required `data/metrics/sensitivity_report.json` file,\
+    \ and the provided `code/analysis.py` does not contain any implementation of the\
+    \ described sensitivity analysis (re\u2011computing correlations for windows [-600,\u202F\
+    0] and [-400,\u202F0], checking r\u2011change\u202F<\u202F0.1 and p\u202F<\u202F\
+    0.05, and writing the results to the JSON). The task therefore remains unfinished."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README file or its contents were provided; without the `projects/PROJ-498-investigating-the-relationship-between-n/README.md`\
+    \ showing the claimed documentation updates, we cannot verify that the required\
+    \ documentation change was made. The implementer must supply the updated README\
+    \ file (non\u2011empty) containing the new documentation."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no `quickstart.md` file, validation script, or any evidence
+    that the markdown was checked for correctness; instead only unrelated project
+    specifications were shown. The required artifact (a verification of `quickstart.md`
+    validation) is missing.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation showing the claimed CPU\u2011efficiency refactoring\
+    \ were provided; the evidence section contains no artifacts at all, so the requirement\
+    \ for a cleaned\u2011up, refactored codebase is not satisfied. The next implementer\
+    \ must supply the actual refactored code (e.g., updated preprocessing and synchrony\
+    \ scripts) and demonstrate that it meets the CPU\u2011memory constraints."

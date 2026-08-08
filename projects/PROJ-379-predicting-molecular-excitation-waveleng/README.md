@@ -1,18 +1,18 @@
-# Predicting Molecular Excitation Wavelengths with GNNs
+# Predicting Molecular Excitation Wavelengths from SMILES with Graph Neural Networks
 
-This project implements a machine learning pipeline to predict the maximum excitation wavelength (λmax) of molecules from their SMILES strings using Graph Neural Networks (GNNs).
+This project implements a pipeline to predict the maximum excitation wavelength (λmax) of molecules from their SMILES strings using Graph Neural Networks (GNNs). It includes data ingestion, preprocessing, model training, evaluation, and feature attribution analysis.
 
 ## Prerequisites
 
 - Python 3.9+
 - pip
-- 7GB+ RAM (CPU-only execution)
+- 2 vCPU, 7GB RAM (CPU-only execution required)
 
 ## Quickstart
 
 ### 1. Environment Setup
 
-Create and activate a virtual environment, then install dependencies:
+Create a virtual environment and install dependencies:
 
 ```bash
 python -m venv venv
@@ -20,91 +20,88 @@ source venv/bin/activate # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Directory Structure
+### 2. Project Structure
 
-Ensure the project directory structure exists:
-
-```bash
-python code/create_project_dirs.py
-```
-
-This creates:
-- `data/raw/`
-- `data/processed/`
-- `code/`
-- `tests/`
-- `docs/`
-
-### 3. Data Fetching
-
-The pipeline fetches UV-Vis spectral data from the `zjunlp/UV-Vis-ML` Hugging Face dataset. This is handled automatically by the ingestion script.
-
-### 4. Running the Pipeline End-to-End
-
-Execute the full pipeline in sequence:
-
-```bash
-# Step 1: Ingest and validate raw data
-python code/ingest.py
-
-# Step 2: Split data into train/val/test sets
-python code/split.py
-
-# Step 3: Train the GNN model
-python code/train.py
-
-# Step 4: Evaluate model performance
-python code/evaluate.py
-```
-
-### 5. Results
-
-After completion, check the following outputs:
-- `data/processed/metrics.json`: Contains MAE, R², and SC-001 status
-- `data/processed/model.pt`: Trained GNN model weights
-- `data/processed/splits.json`: Train/val/test split information
-
-## Project Structure
+The project uses the following directory structure:
 
 ```
-.
+projects/PROJ-379-predicting-molecular-excitation-waveleng/
 ├── code/ # Source code
-│ ├── ingest.py # Data ingestion
-│ ├── split.py # Data splitting
-│ ├── train.py # Model training
-│ ├── evaluate.py # Model evaluation
-│ ├── models.py # Pydantic data models
-│ ├── utils.py # Utility functions
-│ └── validate_data.py # Data validation
 ├── data/
 │ ├── raw/ # Raw downloaded data
-│ └── processed/ # Processed data and models
+│ ├── processed/ # Processed data and model outputs
+│ └── checksums.txt # Artifact integrity hashes
 ├── tests/ # Test suite
 ├── docs/ # Documentation
+├── state/ # Project state tracking
 ├── requirements.txt # Dependencies
 └── README.md # This file
 ```
 
-## Development
+### 3. Data Fetching
 
-### Running Tests
+The pipeline automatically fetches UV-Vis spectral data from the `zjunlp/UV-Vis-ML` dataset via Hugging Face. If the dataset is unavailable, it falls back to PubChem/SDBS sources as defined in `plan.md`.
 
-```bash
-pytest tests/
-```
-
-### Linting
+To manually trigger data ingestion:
 
 ```bash
-flake8 code/
+python code/ingest.py
 ```
 
-### Formatting
+This will create `data/raw/processed.csv` containing valid SMILES, λmax values, and scaffold IDs.
+
+### 4. Running the Pipeline End-to-End
+
+Execute the full pipeline on CPU:
 
 ```bash
-black code/
+# 1. Validate raw data
+python code/validate_data.py
+
+# 2. Split data by Bemis-Murcko scaffolds
+python code/split.py
+
+# 3. Train GNN and baseline models
+python code/train.py
+
+# 4. Evaluate models and compute SC-001 status
+python code/evaluate.py
+
+# 5. (Optional) Feature attribution and sensitivity analysis
+python code/explain.py
+python code/sensitivity.py
 ```
+
+### 5. Output Artifacts
+
+After successful execution, the following artifacts will be generated:
+
+- `data/processed/train.csv`, `val.csv`, `test.csv`: Scaffold-split datasets
+- `data/processed/model.pt`: Trained GNN model weights
+- `data/processed/metrics.json`: Evaluation metrics (MAE, R², Wilcoxon p-value, SC-001 status)
+- `data/processed/redundancy_masks.json`: Collinearity-based redundancy masks
+- `data/processed/attribution_results.json`: Feature attribution scores
+- `state/projects/PROJ-379-predicting-molecular-excitation-waveleng.yaml`: Project state and artifact hashes
+
+### 6. Verification
+
+Ensure all tests pass:
+
+```bash
+pytest tests/ -v
+```
+
+Verify SC-001 compliance:
+- Check `data/processed/metrics.json` for `sc001_status: "PASS"`
+- Confirm test set size ≥ 50 (enforced in `code/evaluate.py`)
+- Validate MAE < 30 nm and p-value < 0.05 for Wilcoxon test
+
+## Configuration
+
+- **Random Seed**: Fixed at 42 for reproducibility (set in `code/train.py`)
+- **Device**: CPU-only (enforced in `code/utils.py`)
+- **Memory Limit**: <7GB RAM (chunked loading in `code/ingest.py`)
 
 ## License
 
-MIT License
+This project is part of the llmXive automated science pipeline.

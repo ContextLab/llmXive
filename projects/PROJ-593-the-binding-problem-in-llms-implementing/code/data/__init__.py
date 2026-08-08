@@ -1,3 +1,3 @@
 """
-Data ingestion and preprocessing modules
+Data module for llmXive project
 """

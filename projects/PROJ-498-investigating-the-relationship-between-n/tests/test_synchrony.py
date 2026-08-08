@@ -1,21 +1,18 @@
-"""
-Tests for synchrony metrics computation.
-"""
 import os
 import sys
 import unittest
-import tempfile
 import numpy as np
+import pandas as pd
+from pathlib import Path
 import mne
-from unittest.mock import patch, MagicMock
+import tempfile
+import shutil
 
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
 from synchrony import (
     get_region_for_electrode,
-    get_all_electrode_pairs,
-    get_cross_region_pairs,
     get_pair_id,
     compute_wpli,
     compute_plv,
@@ -23,83 +20,137 @@ from synchrony import (
     save_synchrony_metrics
 )
 
-class TestElectrodeMapping(unittest.TestCase):
+class TestSynchronyLogic(unittest.TestCase):
+    
     def test_region_mapping(self):
         self.assertEqual(get_region_for_electrode('F3'), 'DLPFC')
-        self.assertEqual(get_region_for_electrode('P3'), 'Parietal')
-        self.assertIsNone(get_region_for_electrode('O1'))
+        self.assertEqual(get_region_for_electrode('P4'), 'Parietal')
+        self.assertIsNone(get_region_for_electrode('Cz'))
 
-    def test_all_pairs(self):
-        pairs = get_all_electrode_pairs()
-        self.assertTrue(len(pairs) > 0)
-        # Check a specific pair exists
-        pair_ids = [get_pair_id(p[0], p[1]) for p in pairs]
-        self.assertIn('F3-P3', pair_ids)
+    def test_pair_id(self):
+        self.assertEqual(get_pair_id(('F3', 'P4')), 'F3-P4')
+        self.assertEqual(get_pair_id(('P4', 'F3')), 'F3-P4')
 
-    def test_cross_region_pairs(self):
-        pairs = get_cross_region_pairs()
-        # Should contain DLPFC-Parietal pairs
-        found = False
-        for e1, e2 in pairs:
-            r1 = get_region_for_electrode(e1)
-            r2 = get_region_for_electrode(e2)
-            if r1 != r2:
-                found = True
-                break
-        self.assertTrue(found, "No cross-region pairs found")
-
-class TestSynchronyMetrics(unittest.TestCase):
-    def setUp(self):
-        # Create a simple synthetic dataset for testing
-        info = mne.create_info(ch_names=['F3', 'F4', 'P3', 'P4', 'EOG'], sfreq=250, ch_types='eeg')
-        data = np.random.randn(10, 5, 500)  # 10 epochs, 5 channels, 500 time points
-        epochs = mne.EpochsArray(data, info, tmin=-1.0)
-        self.epochs = epochs
-
-    def test_compute_wpli(self):
-        # Test with random data
-        pair_data = self.epochs.get_data()[:, [0, 2], :] # F3 and P3
-        wpli = compute_wpli(pair_data)
-        self.assertIsInstance(wpli, float)
-        self.assertGreaterEqual(wpli, 0.0)
-        self.assertLessEqual(wpli, 1.0)
-
-    def test_compute_plv(self):
-        pair_data = self.epochs.get_data()[:, [0, 2], :]
-        plv = compute_plv(pair_data)
-        self.assertIsInstance(plv, float)
-        self.assertGreaterEqual(plv, 0.0)
-        self.assertLessEqual(plv, 1.0)
-
-    def test_compute_synchrony_metrics(self):
-        # Add required electrode names to info if missing (mocking)
-        # The test data has F3, F4, P3, P4
-        metrics = compute_synchrony_metrics('test_sub', self.epochs, 'data/metrics')
-        self.assertIsInstance(metrics, list)
-        self.assertGreater(len(metrics), 0)
+    def test_compute_wpli_constant_phase(self):
+        """Test wPLI with constant phase difference (should be high)"""
+        n_epochs = 10
+        n_times = 1000
+        sfreq = 1000
         
-        # Check structure
-        for m in metrics:
-            self.assertIn('subject_id', m)
-            self.assertIn('pair_id', m)
-            self.assertIn('band', m)
-            self.assertIn('value', m)
-            self.assertIn(m['band'], ['theta', 'gamma'])
+        # Create signals with constant phase difference
+        t = np.linspace(0, 1, n_times)
+        freq = 10
+        phase_diff = np.pi / 4
+        
+        data1 = np.sin(2 * np.pi * freq * t).reshape(1, -1)
+        data2 = np.sin(2 * np.pi * freq * t + phase_diff).reshape(1, -1)
+        
+        # Repeat for multiple epochs
+        d1 = np.tile(data1, (n_epochs, 1))
+        d2 = np.tile(data2, (n_epochs, 1))
+        
+        wpli = compute_wpli(d1, d2)
+        # wPLI should be close to 1.0 for constant phase difference
+        self.assertGreater(wpli, 0.8)
+
+    def test_compute_wpli_random_phase(self):
+        """Test wPLI with random phase difference (should be low)"""
+        n_epochs = 100
+        n_times = 1000
+        
+        # Random signals
+        d1 = np.random.randn(n_epochs, n_times)
+        d2 = np.random.randn(n_epochs, n_times)
+        
+        wpli = compute_wpli(d1, d2)
+        # wPLI should be close to 0 for random phase
+        self.assertLess(wpli, 0.2)
 
     def test_save_synchrony_metrics(self):
+        """Test saving metrics to CSV"""
+        metrics = {
+            ('F3-P4', 'theta'): 0.5,
+            ('F3-P4', 'gamma'): 0.3,
+            ('F4-P3', 'theta'): 0.6
+        }
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test.csv')
-            results = [
-                {'subject_id': '1', 'pair_id': 'F3-P3', 'band': 'theta', 'value': 0.5},
-                {'subject_id': '1', 'pair_id': 'F3-P3', 'band': 'gamma', 'value': 0.3}
-            ]
-            save_synchrony_metrics(results, output_path)
+            output_path = os.path.join(tmpdir, 'test_metrics.csv')
+            save_synchrony_metrics(metrics, 'sub-01', output_path)
             
             self.assertTrue(os.path.exists(output_path))
-            with open(output_path, 'r') as f:
-                content = f.read()
-                self.assertIn('subject_id', content)
-                self.assertIn('F3-P3', content)
+            df = pd.read_csv(output_path)
+            
+            self.assertEqual(len(df), 3)
+            self.assertIn('subject_id', df.columns)
+            self.assertIn('pair_id', df.columns)
+            self.assertIn('band', df.columns)
+            self.assertIn('value', df.columns)
+            
+            self.assertEqual(df['subject_id'].iloc[0], 'sub-01')
+
+class TestSynchronyIntegration(unittest.TestCase):
+    
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp()
+        self.data_dir = os.path.join(self.tmpdir, 'data', 'processed')
+        self.metrics_dir = os.path.join(self.tmpdir, 'data', 'metrics')
+        os.makedirs(self.data_dir)
+        os.makedirs(self.metrics_dir)
+        
+        # Create a mock epoch file
+        info = mne.create_info(ch_names=['F3', 'F4', 'P3', 'P4', 'Cz'], sfreq=500, ch_types='eeg')
+        data = np.random.randn(5, 1000) # 5 channels, 2 seconds (1000 samples @ 500Hz)
+        raw = mne.io.RawArray(data, info)
+        
+        events = np.array([[1000, 0, 1]]) # Stimulus at 1000 samples
+        epochs = mne.Epochs(raw, events, tmin=-1.0, tmax=2.0, baseline=None, verbose=False)
+        
+        self.epochs_path = os.path.join(self.data_dir, 'sub-01_epochs.fif')
+        epochs.save(self.epochs_path, overwrite=True)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+
+    def test_compute_synchrony_metrics_full(self):
+        """Test end-to-end computation on mock data"""
+        from synchrony import compute_synchrony_metrics
+        
+        epochs = mne.read_epochs(self.epochs_path, verbose=False)
+        bands = {'theta': (4, 7), 'gamma': (30, 45)}
+        
+        metrics = compute_synchrony_metrics(epochs, bands, -1.0, 0.0)
+        
+        # Check that we got metrics for DLPFC-Parietal pairs
+        expected_pairs = [('F3-P3', 'theta'), ('F3-P4', 'theta'), ('F4-P3', 'theta'), ('F4-P4', 'theta'),
+                          ('F3-P3', 'gamma'), ('F3-P4', 'gamma'), ('F4-P3', 'gamma'), ('F4-P4', 'gamma')]
+        
+        for pair, band in expected_pairs:
+            self.assertIn((pair, band), metrics)
+            self.assertIsInstance(metrics[(pair, band)], float)
+
+    def test_save_synchrony_metrics_integration(self):
+        """Test saving to the expected output path"""
+        from synchrony import main
+        
+        # Mock sys.argv to avoid argument parsing if needed, but main() takes no args
+        # We need to patch the paths used in main()
+        # Since main() uses hardcoded 'data/processed' and 'data/metrics', we change cwd
+        
+        original_cwd = os.getcwd()
+        os.chdir(self.tmpdir)
+        
+        try:
+            main()
+            
+            output_csv = os.path.join(self.metrics_dir, 'synchrony_metrics.csv')
+            self.assertTrue(os.path.exists(output_csv))
+            
+            df = pd.read_csv(output_csv)
+            self.assertGreater(len(df), 0)
+            self.assertEqual(df['subject_id'].iloc[0], 'sub-01')
+        finally:
+            os.chdir(original_cwd)
 
 if __name__ == '__main__':
     unittest.main()

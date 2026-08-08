@@ -57,7 +57,7 @@
 
 - [X] T002 Create `.flake8` and `pyproject.toml` with black configuration for linting and formatting
 - [X] T003 Implement `code/utils.py` with RDKit parsing helpers, logging setup, and CPU-only device configuration
-- [ ] T004 [P] Create data directory structure (`data/raw/`, `data/processed/`) and create empty `data/checksums.txt`
+- [X] T004 [P] Create data directory structure (`data/raw/`, `data/processed/`) and create empty `data/checksums.txt`
 - [X] T005 Implement `code/hash_artifacts.py` to compute content hashes for artifacts and update `state/projects/PROJ-379-predicting-molecular-excitation-waveleng.yaml` (keys: `artifact_hashes`, `updated_at`) (Constitution V)
 - [X] T006 Define Pydantic models `Molecule` (fields: `smi`, `lambda_max`, `scaffold_id`) and `Scaffold` in `code/models.py`
 
@@ -132,12 +132,12 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US3] Contract test for attribution output format in `tests/test_explain.py`
-- [ ] T022 [P] [US3] Integration test for sensitivity sweep and collinearity flags in `tests/test_sensitivity.py` <!-- FAILED: unspecified -->
+- [X] T022 [P] [US3] Integration test for sensitivity sweep and collinearity flags in `tests/test_sensitivity.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] Implement `code/collinearity_check.py`: Calculate Pearson r for ECFP bits (flag if ≥0.9) and latent cosine similarity for GNN subgraphs (flag if >0.9), and generate redundancy masks for flagged subgraphs (FR-007). Output to `data/processed/redundancy_masks.json` with structure `{ "molecule_id": [0, 1, 0...] }` (mask array)
-- [ ] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer or gradient-based attribution on test set, consume redundancy masks from T023 to apply masking, and identify contributing substructures (FR-005, FR-007)
+- [X] T023 [US3] Implement `code/collinearity_check.py`: Calculate Pearson r for ECFP bits (flag if ≥0.9) and latent cosine similarity for GNN subgraphs (flag if >0.9), and generate redundancy masks for flagged subgraphs (FR-007). Output to `data/processed/redundancy_masks.json` with structure `{ "molecule_id": [0, 1, 0...] }` (mask array)
+- [X] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer or gradient-based attribution on test set, consume redundancy masks from T023 to apply masking, and identify contributing substructures (FR-005, FR-007)
 - [ ] T025 [US3] Apply and verify masking:
  1. Apply redundancy masks from T023 to the final attribution weights in `code/explain.py`.
  2. Verify masking occurred by comparing masked vs. unmasked weights (ensure masked weights are zero).

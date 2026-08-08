@@ -19,3 +19,11 @@ T022:
     so no integration test for the sensitivity sweep and collinearity flags is present.
     The task cannot be considered completed until this test file is added with appropriate
     test implementations.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, notebook, or output files were provided that demonstrate the application
+    and verification of masking as required by task T025. Without any tangible artifact
+    (e.g., a script that applies masking to the dataset and a report or logs confirming
+    the mask was correctly applied and validated), the claim cannot be confirmed.
+    The implementer must supply the masking implementation and evidence of its verification.
