@@ -31,10 +31,13 @@ properties:
     description: "Top 5 identified substructures."
   alignment_score:
     type: "number"
-    description: "Overall alignment score against the reference set (0.0 to 1.0)."
+    description: "Overall alignment score against the reference set (0.0 to 1.0). Calculated as Mean(max Tanimoto similarity) against reference set."
   recall_at_k:
     type: "number"
     description: "Recall@k metric for substructure matching."
+  null_model_score:
+    type: "number"
+    description: "Baseline score from random subgraph selection to validate non-triviality."
 required:
   - molecule_id
   - node_importance
@@ -42,3 +45,4 @@ required:
   - top_substructures
   - alignment_score
   - recall_at_k
+  - null_model_score

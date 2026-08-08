@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Graph Dataset Schema"
+title: "MolecularGraphDataset"
 description: "Schema for the preprocessed molecular graph dataset used in training."
 type: "object"
 properties:
@@ -8,36 +8,32 @@ properties:
     properties:
       source:
         type: "string"
-        description: "Source dataset identifier (e.g., QM9)"
+        description: "Source dataset URL (e.g., HuggingFace QM9)."
+      version:
+        type: "string"
+        description: "Version of the preprocessing pipeline."
       checksum:
         type: "string"
-        description: "SHA256 checksum of the raw source file"
-      created_at:
-        type: "string"
-        format: "date-time"
-      total_molecules:
-        type: "integer"
-        minimum: 1
-      excluded_molecules:
-        type: "integer"
-        minimum: 0
-        description: "Count of molecules dropped due to invalid SMILES"
+        description: "SHA-256 checksum of the raw source file."
+    required:
+      - "source"
+      - "version"
+      - "checksum"
   graphs:
     type: "array"
+    description: "List of molecular graph objects."
     items:
       type: "object"
       properties:
-        graph_id:
+        molecule_id:
           type: "string"
-          description: "Unique identifier for the molecule"
+          description: "Unique identifier for the molecule."
         smiles:
           type: "string"
-          description: "Canonical SMILES string"
-        target_gap:
-          type: "number"
-          description: "HOMO-LUMO gap in eV"
-        nodes:
+          description: "SMILES string of the molecule."
+        node_features:
           type: "array"
+          description: "List of node feature vectors."
           items:
             type: "object"
             properties:
@@ -45,41 +41,57 @@ properties:
                 type: "integer"
               hybridization:
                 type: "integer"
-                description: "0=sp, 1=sp2, 2=sp3, 3=other"
               formal_charge:
                 type: "integer"
-              is_aromatic:
-                type: "boolean"
+              num_neighbors:
+                type: "integer"
             required:
-              - atomic_number
-              - hybridization
-              - formal_charge
-        edges:
+              - "atomic_number"
+              - "hybridization"
+              - "formal_charge"
+              - "num_neighbors"
+        edge_features:
           type: "array"
+          description: "List of edge feature vectors."
           items:
             type: "object"
             properties:
-              source_node:
-                type: "integer"
-              target_node:
-                type: "integer"
               bond_type:
                 type: "integer"
-                description: "1=single, 2=double, 3=triple, 4=aromatic"
+                description: "1: Single, 2: Double, 3: Triple, 4: Aromatic."
               conjugation:
                 type: "boolean"
-              is_in_ring:
+              in_ring:
                 type: "boolean"
             required:
-              - source_node
-              - target_node
-              - bond_type
+              - "bond_type"
+              - "conjugation"
+              - "in_ring"
+        target:
+          type: "object"
+          properties:
+            homo_lumo_gap:
+              type: "number"
+              description: "HOMO-LUMO gap in eV."
+          required:
+            - "homo_lumo_gap"
+        split:
+          type: "string"
+          enum:
+            - "train"
+            - "val"
+            - "test"
+          description: "Scaffold-based split assignment."
+        similarity_score:
+          type: "number"
+          description: "Max Tanimoto similarity to training set (used for filtering)."
       required:
-        - graph_id
-        - smiles
-        - target_gap
-        - nodes
-        - edges
+        - "molecule_id"
+        - "smiles"
+        - "node_features"
+        - "edge_features"
+        - "target"
+        - "split"
 required:
-  - metadata
-  - graphs
+  - "metadata"
+  - "graphs"

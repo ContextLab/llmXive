@@ -1,0 +1,115 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionOutput"
+description: "Schema for the final model predictions and metrics."
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    description: "Aggregated performance metrics."
+    properties:
+      spectral_gnn:
+        type: "object"
+        properties:
+          mse:
+            type: "number"
+          mae:
+            type: "number"
+          pearson_r:
+            type: "number"
+        required:
+          - "mse"
+          - "mae"
+          - "pearson_r"
+      hetero_gnn:
+        type: "object"
+        properties:
+          mse:
+            type: "number"
+          mae:
+            type: "number"
+          pearson_r:
+            type: "number"
+        required:
+          - "mse"
+          - "mae"
+          - "pearson_r"
+      random_forest:
+        type: "object"
+        properties:
+          mse:
+            type: "number"
+          mae:
+            type: "number"
+          pearson_r:
+            type: "number"
+        required:
+          - "mse"
+          - "mae"
+          - "pearson_r"
+    required:
+      - "spectral_gnn"
+      - "hetero_gnn"
+      - "random_forest"
+  statistical_test:
+    type: "object"
+    description: "Results of the paired t-test between GNNs and RF."
+    properties:
+      comparison:
+        type: "string"
+        description: "e.g., 'spectral_gnn_vs_rf'."
+      p_value:
+        type: "number"
+      significant:
+        type: "boolean"
+    required:
+      - "comparison"
+      - "p_value"
+      - "significant"
+  predictions:
+    type: "array"
+    description: "List of individual predictions."
+    items:
+      type: "object"
+      properties:
+        molecule_id:
+          type: "string"
+        ground_truth:
+          type: "number"
+        spectral_gnn_pred:
+          type: "number"
+        hetero_gnn_pred:
+          type: "number"
+        rf_pred:
+          type: "number"
+      required:
+        - "molecule_id"
+        - "ground_truth"
+        - "spectral_gnn_pred"
+        - "hetero_gnn_pred"
+        - "rf_pred"
+  attribution:
+    type: "object"
+    description: "Top 5 features identified by GNNExplainer."
+    properties:
+      top_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            feature_name:
+              type: "string"
+            importance_score:
+              type: "number"
+            description:
+              type: "string"
+          required:
+            - "feature_name"
+            - "importance_score"
+            - "description"
+    required:
+      - "top_features"
+required:
+  - "metrics"
+  - "statistical_test"
+  - "predictions"
+  - "attribution"
