@@ -1,86 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelMetrics"
-description: "Schema for the output metrics of the Random Forest model."
-type: "object"
+description: "Schema for the evaluation results of the Random Forest model."
+type: object
 required:
-  - "cv_mae"
-  - "test_mae"
-  - "model_type"
-  - "random_seed"
+  - cv_mae
+  - test_mae
+  - feature_importance_cu
+  - feature_importance_mg
+  - feature_importance_si
+  - feature_importance_zn
+  - feature_importance_mn
 properties:
   cv_mae:
-    type: "number"
-    description: "Mean Absolute Error from 5-fold cross-validation."
+    type: number
+    description: "Mean Absolute Error from 5-fold cross-validation"
     minimum: 0
   test_mae:
-    type: "number"
-    description: "Mean Absolute Error on the held-out test set."
+    type: number
+    description: "Mean Absolute Error on the held-out test set"
     minimum: 0
-  model_type:
-    type: "string"
-    description: "Type of model used."
-    const: "Random Forest"
-  random_seed:
-    type: "integer"
-    description: "Random seed used for reproducibility."
-  feature_importance:
-    type: "array"
-    description: "List of feature importance scores mapped back to compositional space via Perturbation Analysis."
-    items:
-      type: "object"
-      required:
-        - "element"
-        - "importance"
-      properties:
-        element:
-          type: "string"
-          description: "Name of the alloying element."
-          enum:
-            - "Cu"
-            - "Mg"
-            - "Si"
-            - "Zn"
-            - "Mn"
-        importance:
-          type: "number"
-          description: "Importance score."
-          minimum: 0
-  collinearity_flags:
-    type: "array"
-    description: "VIF diagnostic flags. is_flagged=true indicates high collinearity in raw space (expected), not a model failure."
-    items:
-      type: "object"
-      required:
-        - "element"
-        - "vif_score"
-        - "is_flagged"
-      properties:
-        element:
-          type: "string"
-        vif_score:
-          type: "number"
-        is_flagged:
-          type: "boolean"
-          description: "True if VIF > 5. Indicates high collinearity in raw space (expected)."
-  mae_confidence_interval:
-    type: "object"
-    description: "95% confidence interval for MAE derived from bootstrap resampling."
-    required:
-      - "lower_bound"
-      - "upper_bound"
-      - "iterations"
-    properties:
-      lower_bound:
-        type: "number"
-        description: "Lower bound of the 95% CI."
-      upper_bound:
-        type: "number"
-        description: "Upper bound of the 95% CI."
-      iterations:
-        type: "integer"
-        description: "Number of bootstrap iterations performed."
-        minimum: 1
-  peak_memory_mb:
-    type: "number"
-    description: "Peak memory usage in MB during training."
+  feature_importance_cu:
+    type: number
+    description: "Permutation importance score for Copper (in ILR space)"
     minimum: 0
+    maximum: 1
+  feature_importance_mg:
+    type: number
+    description: "Permutation importance score for Magnesium (in ILR space)"
+    minimum: 0
+    maximum: 1
+  feature_importance_si:
+    type: number
+    description: "Permutation importance score for Silicon (in ILR space)"
+    minimum: 0
+    maximum: 1
+  feature_importance_zn:
+    type: number
+    description: "Permutation importance score for Zinc (in ILR space)"
+    minimum: 0
+    maximum: 1
+  feature_importance_mn:
+    type: number
+    description: "Permutation importance score for Manganese (in ILR space)"
+    minimum: 0
+    maximum: 1
+  collinearity_flag:
+    type: boolean
+    description: "True if any VIF > 5 (Diagnostic only)"
+additionalProperties: false

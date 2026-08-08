@@ -1,48 +1,3 @@
-- artifact_hash: f567b6e008b537fe4acb50747073c77a8337c78911a9f4942a1f8f08b90a658e
-  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '42347'
-  kind: url
-  value: https://www.openml.org/api/v1/json/data/42347`
-  verification_status: pending
-  verified_against_url: https://www.openml.org/api/v1/json/data/42347
-  verified_at: '2026-07-28T22:50:49.470664Z'
-- artifact_hash: f567b6e008b537fe4acb50747073c77a8337c78911a9f4942a1f8f08b90a658e
-  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: '42347'
-  kind: url
-  value: https://www.openml.org/api/v1/json/data/42347
-  verification_status: pending
-  verified_against_url: https://www.openml.org/api/v1/json/data/42347
-  verified_at: '2026-07-28T22:50:49.470664Z'
-- artifact_hash: f567b6e008b537fe4acb50747073c77a8337c78911a9f4942a1f8f08b90a658e
-  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: "punwaiw/il-reasoning-responses \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/punwaiw/il-reasoning-responses/
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/punwaiw/il-reasoning-responses
-  verified_at: '2026-07-28T22:50:49.470664Z'
-- artifact_hash: f567b6e008b537fe4acb50747073c77a8337c78911a9f4942a1f8f08b90a658e
-  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: "ethanolivertroy/nist-cybersecurity-training \xB7 Datasets at Hugging\
-    \ Face"
-  kind: url
-  value: https://huggingface.co/datasets/ethanolivertroy/nist-cybersecurity-training/
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ethanolivertroy/nist-cybersecurity-training
-  verified_at: '2026-07-28T22:50:49.470664Z'
 - artifact_hash: 89b37509339f6565ee367cbd9121233257f92071730140e1bf19cec8bbaa1937
   artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
   cite_id: c-001
@@ -54,3 +9,25 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/materials/
   verified_at: '2026-08-01T14:47:15.592319Z'
+- artifact_hash: 026b76f886f6dc231f29c441e4fe869b836ed79ae041537ee63b6b50e1b72140
+  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: https://www.materialsproject.org/open
+  fetched_title: null
+  kind: url
+  value: https://www.materialsproject.org/open
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/open
+  verified_at: '2026-08-08T16:56:08.322961Z'
+- artifact_hash: 026b76f886f6dc231f29c441e4fe869b836ed79ae041537ee63b6b50e1b72140
+  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.nist.gov/data-library
+  verification_status: mismatch
+  verified_against_url: https://www.nist.gov/data-library
+  verified_at: '2026-08-08T16:56:08.322961Z'

@@ -2,69 +2,86 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `git`
-- `pip`
-- Access to the internet (to download OpenML dataset).
+- Python 3.11 or higher
+- `pip` package manager
+- Git
 
 ## Installation
 
-1. **Clone the repository** (if applicable) or navigate to the project directory.
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1.  Clone the repository and navigate to the project directory:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-420-predicting-the-effect-of-alloying-on-the/
+    ```
 
-## Data Preparation
-
-1. **Run the download script**:
-   ```bash
-   python code/data/download.py
-   ```
-   - This script fetches an OpenML dataset.
-   - It validates the schema and saves the raw data to `data/raw/`.
-   - If the dataset is missing required fields, it will raise a `DataNotFoundError`.
-
-2. **Verify data integrity**:
-   ```bash
-   python code/data/clean.py --check-only
-   ```
-   - This runs unit checks, filters the data, and checks for independence.
-   - It outputs the count of valid records.
+2.  Create a virtual environment and install dependencies:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
 
 ## Running the Pipeline
 
-To execute the full analysis (Download → Clean → Train → Evaluate):
+### 1. Data Extraction
+
+Download, merge, and filter data from Materials Project and NIST MDR:
 
 ```bash
-python code/main.py
+python code/cli/download_cli.py --extract
 ```
 
-This will:
-1. Download raw data from OpenML 42347.
-2. Filter and normalize the data (including independence check).
-3. Apply ILR transformation.
-4. Train the Random Forest model.
-5. Compute cross-validation and test-set MAE.
-6. Generate feature importance rankings (via Perturbation Analysis).
-7. Save results to `results/metrics.json` and `results/feature_importance.json`.
-8. Log peak memory usage and validate quickstart commands.
+This command:
+- Queries the Materials Project API and NIST MDR.
+- Merges and deduplicates the data.
+- Filters for monolithic aluminum alloys with complete data and independent Poisson's ratio measurements.
+- Normalizes units and composition.
+- Saves the cleaned dataset to `data/processed/alloys_clean.parquet`.
 
-## Expected Output
+### 2. Model Training & Evaluation
 
-- `data/processed/alloys_clean.parquet`: The filtered and normalized dataset.
-- `models/rf_model.pkl`: The trained Random Forest model.
-- `results/metrics.json`: Contains CV MAE, Test MAE, sample size, and memory usage.
-- `results/feature_importance.json`: Ranked list of alloying elements with null model threshold and basis sensitivity flag.
+Train the Random Forest model and evaluate performance:
+
+```bash
+python code/modeling.py
+```
+
+This script:
+- Applies Isometric Log-Ratio (ILR) transformation to the atomic fractions of Cu, Mg, Si, Zn, and Mn.
+- Performs 5-fold cross-validation.
+- Trains the final model on [deferred] of the data.
+- Evaluates on the held-out [deferred] test set.
+- Saves metrics to `data/processed/model_metrics.json`.
+
+### 3. Analysis & Diagnostics
+
+Generate feature importance rankings and collinearity diagnostics:
+
+```bash
+python code/analysis.py
+```
+
+This script:
+- Extracts feature importance scores using Permutation Importance and SHAP values in ILR space.
+- Computes VIF for raw predictors (diagnostic only).
+- Outputs results to `data/processed/analysis_results.json`.
+
+### 4. Verifying Results
+
+To ensure reproducibility, run the following test suite:
+
+```bash
+pytest tests/
+```
+
+This validates:
+- Schema compliance of all output files.
+- Correctness of ILR transformation.
+- Consistency of model metrics.
+- Verification of associational framing in results.
 
 ## Troubleshooting
 
-- **Error: DataNotFoundError**: The required dataset (OpenML 42347) is not found or does not contain the required fields. Please check `research.md` for the current data availability status.
-- **Error: UnitMismatch**: The dataset contains elastic constants in inconsistent units. The script should handle this, but manual inspection of `data/raw/` may be required.
-- **Error: SampleSizeLow**: The dataset contains a limited number of records. The model will train but results should be interpreted with caution.
-- **Error: MemoryLimit**: Peak memory usage exceeded a significant threshold. The script should log this; if it occurs, reduce the dataset size or model complexity.
+- **No data found**: If the pipeline halts with "No valid entries found", check the source APIs for availability or update the query parameters.
+- **VIF > 5**: If collinearity is flagged, note that this is expected for compositional data and confirms the need for ILR transformation.
+- **High MAE**: If test MAE is high relative to the target standard deviation, the model may not be capturing the underlying physics. Consider feature engineering or alternative models in future iterations.

@@ -9,7 +9,8 @@ properties:
   source:
     type: "string"
     enum:
-      - "OpenML"
+      - "Materials Project"
+      - "NIST MDR"
     description: "Source database of the record."
   poissons_ratio:
     type: "number"
@@ -56,21 +57,10 @@ properties:
   is_independent_measurement:
     type: "boolean"
     description: "True if Poisson's ratio is an independent measurement."
-  raw_vif_cu:
-    type: "number"
-    description: "Variance Inflation Factor for Cu in raw space."
-  raw_vif_mg:
-    type: "number"
-    description: "Variance Inflation Factor for Mg in raw space."
-  raw_vif_si:
-    type: "number"
-    description: "Variance Inflation Factor for Si in raw space."
-  raw_vif_zn:
-    type: "number"
-    description: "Variance Inflation Factor for Zn in raw space."
-  raw_vif_mn:
-    type: "number"
-    description: "Variance Inflation Factor for Mn in raw space."
+  alloy_series:
+    type: "string"
+    description: "Derived alloy series."
+
 required:
   - id
   - source
@@ -84,9 +74,6 @@ required:
   - composition_mn
   - composition_al
   - is_independent_measurement
-  - raw_vif_cu
-  - raw_vif_mg
-  - raw_vif_si
-  - raw_vif_zn
-  - raw_vif_mn
+  - alloy_series
+
 additionalProperties: false

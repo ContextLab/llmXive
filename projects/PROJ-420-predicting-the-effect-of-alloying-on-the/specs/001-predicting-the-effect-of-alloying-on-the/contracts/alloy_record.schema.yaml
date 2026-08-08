@@ -1,65 +1,88 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AlloyRecord"
-description: "Schema for a single aluminum alloy record with compositional and property data."
-type: "object"
+description: "Schema for a single aluminum alloy entry after cleaning and filtering."
+type: object
 required:
-  - "alloy_id"
-  - "source"
-  - "poissons_ratio"
-  - "youngs_modulus_gpa"
-  - "fraction_cu"
-  - "fraction_mg"
-  - "fraction_si"
-  - "fraction_zn"
-  - "fraction_mn"
+  - alloy_id
+  - poissons_ratio
+  - youngs_modulus_gpa
+  - composition_cu
+  - composition_mg
+  - composition_si
+  - composition_zn
+  - composition_mn
+  - composition_al
+  - sum_major_elements
+  - measurement_method
+  - source
+  - alloy_series
+  - is_independent_measurement
 properties:
   alloy_id:
-    type: "string"
-    description: "Unique identifier for the alloy entry."
-  source:
-    type: "string"
-    description: "Source of the data (OpenML)."
-    enum:
-      - "OpenML"
+    type: string
+    description: "Unique identifier for the alloy"
   poissons_ratio:
-    type: "number"
-    description: "Poisson's ratio of the alloy."
+    type: number
+    description: "Poisson's ratio (dimensionless)"
     minimum: 0
-    maximum: 1
+    maximum: 0.5
   youngs_modulus_gpa:
-    type: "number"
-    description: "Young's modulus in GPa."
-    minimum: 0
-  fraction_cu:
-    type: "number"
-    description: "Atomic fraction of Copper."
-    minimum: 0
-    maximum: 1
-  fraction_mg:
-    type: "number"
-    description: "Atomic fraction of Magnesium."
+    type: number
+    description: "Young's modulus in GPa"
+    exclusiveMinimum: 0
+  composition_cu:
+    type: number
+    description: "Atomic fraction of Copper"
     minimum: 0
     maximum: 1
-  fraction_si:
-    type: "number"
-    description: "Atomic fraction of Silicon."
+  composition_mg:
+    type: number
+    description: "Atomic fraction of Magnesium"
     minimum: 0
     maximum: 1
-  fraction_zn:
-    type: "number"
-    description: "Atomic fraction of Zinc."
+  composition_si:
+    type: number
+    description: "Atomic fraction of Silicon"
     minimum: 0
     maximum: 1
-  fraction_mn:
-    type: "number"
-    description: "Atomic fraction of Manganese."
+  composition_zn:
+    type: number
+    description: "Atomic fraction of Zinc"
+    minimum: 0
+    maximum: 1
+  composition_mn:
+    type: number
+    description: "Atomic fraction of Manganese"
+    minimum: 0
+    maximum: 1
+  composition_al:
+    type: number
+    description: "Atomic fraction of Aluminum (calculated)"
     minimum: 0
     maximum: 1
   sum_major_elements:
-    type: "number"
-    description: "Sum of the five major element fractions."
-    minimum: 0
-    maximum: 1
+    type: number
+    description: "Sum of Cu, Mg, Si, Zn, Mn"
+    minimum: 0.95
+    maximum: 1.0
+  measurement_method:
+    type: string
+    description: "Method used to measure Poisson's ratio"
+    enum:
+      - "Ultrasonic"
+      - "Resonant Ultrasound Spectroscopy"
+      - "Static Tensile"
+      - "Other"
+  source:
+    type: string
+    description: "Original data source"
+    enum:
+      - "Materials Project"
+      - "NIST MDR"
+  alloy_series:
+    type: string
+    description: "Derived alloy series (e.g., 2xxx, 6xxx)"
   is_independent_measurement:
-    type: "boolean"
-    description: "True if Poisson's ratio is an independent measurement."
+    type: boolean
+    description: "True if Poisson's ratio is an independent measurement"
+additionalProperties: false

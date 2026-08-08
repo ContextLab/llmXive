@@ -53,12 +53,6 @@ properties:
     type: "boolean"
     const: true
     description: "Flag indicating results are framed as associational."
-  null_model_threshold:
-    type: "number"
-    description: "95th percentile of null model importance scores."
-  basis_sensitivity_flag:
-    type: "boolean"
-    description: "True if rankings changed with alternative ILR basis."
   vif_scores:
     type: "object"
     description: "Variance Inflation Factors for raw predictors. High values are expected."
@@ -84,13 +78,7 @@ properties:
       - Si
       - Zn
       - Mn
-  high_vif_flag:
-    type: "boolean"
-    description: "True if any VIF score > 5. Indicates high collinearity in raw space (expected), not a model failure."
-  peak_memory_mb:
-    type: "number"
-    description: "Peak memory usage in MB during training."
-    minimum: 0
+
 required:
   - cv_mae
   - test_mae
@@ -98,9 +86,5 @@ required:
   - n_test
   - feature_importance
   - associational_framing
-  - null_model_threshold
-  - basis_sensitivity_flag
   - vif_scores
-  - high_vif_flag
-  - peak_memory_mb
 additionalProperties: false

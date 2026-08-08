@@ -1,77 +1,36 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AlloyRecord"
-description: "Schema for a single aluminum alloy entry after cleaning and normalization."
+description: "Schema for a single aluminum alloy entry after cleaning and normalization (legacy/compatibility)."
 type: "object"
-required:
-  - "alloy_id"
-  - "composition"
-  - "poisson_ratio"
-  - "youngs_modulus"
-  - "is_monolithic"
 properties:
-  alloy_id:
+  id:
     type: "string"
     description: "Unique identifier for the alloy record."
-  composition:
-    type: "object"
-    description: "Atomic fractions of alloying elements and aluminum balance."
-    required:
-      - "Cu"
-      - "Mg"
-      - "Si"
-      - "Zn"
-      - "Mn"
-      - "Al"
-    properties:
-      Cu:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Atomic fraction of Copper."
-      Mg:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Atomic fraction of Magnesium."
-      Si:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Atomic fraction of Silicon."
-      Zn:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Atomic fraction of Zinc."
-      Mn:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Atomic fraction of Manganese."
-      Al:
-        type: "number"
-        minimum: 0.0
-        maximum: 1.0
-        description: "Calculated atomic fraction of Aluminum (balance)."
-  poisson_ratio:
+  source:
+    type: "string"
+    enum:
+      - "OpenML"
+    description: "Source database of the record."
+  poissons_ratio:
     type: "number"
-    description: "Poisson's ratio (unitless). Must be an independent measurement."
+    description: "Poisson's ratio (dimensionless)."
     minimum: 0.0
     maximum: 0.5
   youngs_modulus:
     type: "number"
     description: "Young's modulus in GPa."
-    minimum: 0.0
+    exclusiveMinimum: 0
   is_monolithic:
     type: "boolean"
     description: "True if the alloy is monolithic (non-composite)."
-  data_quality_flag:
+  measurement_method:
     type: "string"
-    enum:
-      - "PASS"
-      - "MISSING_COMPOSITION"
-      - "SUM_MISMATCH"
-      - "UNIT_ERROR"
-      - "DERIVED_MEASUREMENT"
-    description: "Flag indicating the quality of the record."
+    description: "Method used to measure Poisson's ratio"
+
+required:
+  - id
+  - source
+  - poissons_ratio
+  - youngs_modulus
+  - measurement_method
 additionalProperties: false
