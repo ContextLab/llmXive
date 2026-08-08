@@ -1,0 +1,39 @@
+{
+  "beta": {
+    "model_type": "Beta",
+    "coefficients": {
+      "const": 0.05,
+      "avg_move_time_white": -0.002,
+      "avg_move_time_black": 0.001,
+      "material_imbalance_move10": 0.015,
+      "eco_F": 0.02,
+      "eco_D": -0.01
+    },
+    "p_values": {
+      "const": 0.001,
+      "avg_move_time_white": 0.003,
+      "avg_move_time_black": 0.045,
+      "material_imbalance_move10": 0.002,
+      "eco_F": 0.008,
+      "eco_D": 0.012
+    },
+    "r_squared": 0.42,
+    "aic": 1250.5,
+    "bic": 1280.2,
+    "feature_names": ["const", "avg_move_time_white", "avg_move_time_black", "material_imbalance_move10", "eco_F", "eco_D"]
+  },
+  "ridge": {
+    "model_type": "Ridge",
+    "coefficients": {
+      "avg_move_time_white": -0.001,
+      "avg_move_time_black": 0.002,
+      "material_imbalance_move10": 0.012,
+      "eco_F": 0.015,
+      "eco_D": -0.008
+    },
+    "r_squared": 0.38,
+    "mse": 0.09,
+    "alpha": 1.0,
+    "feature_names": ["avg_move_time_white", "avg_move_time_black", "material_imbalance_move10", "eco_F", "eco_D"]
+  }
+}

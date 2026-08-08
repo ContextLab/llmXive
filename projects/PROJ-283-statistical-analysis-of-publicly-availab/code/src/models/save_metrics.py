@@ -5,55 +5,76 @@ from typing import Dict, Any, List, Optional
 import logging
 import numpy as np
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def convert_numpy_types(obj):
+def convert_numpy_types(obj: Any) -> Any:
     """Convert numpy types to native Python types for JSON serialization."""
     if isinstance(obj, np.integer):
         return int(obj)
-    if isinstance(obj, np.floating):
+    elif isinstance(obj, np.floating):
         return float(obj)
-    if isinstance(obj, np.ndarray):
+    elif isinstance(obj, np.ndarray):
         return obj.tolist()
-    if isinstance(obj, dict):
+    elif isinstance(obj, dict):
         return {k: convert_numpy_types(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [convert_numpy_types(i) for i in obj]
+    elif isinstance(obj, (list, tuple)):
+        return [convert_numpy_types(item) for item in obj]
     return obj
 
-def save_single_model_metrics(metrics: Dict[str, Any], output_path: str):
-    """Save metrics for a single model to a JSON file."""
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+def save_single_model_metrics(model_metrics: Dict[str, Any], output_path: Path) -> None:
+    """Save metrics for a single model."""
+    # Convert numpy types
+    metrics = convert_numpy_types(model_metrics)
     
-    clean_metrics = convert_numpy_types(metrics)
-    
-    with open(output_file, 'w') as f:
-        json.dump(clean_metrics, f, indent=2)
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
     
     logger.info(f"Saved model metrics to {output_path}")
 
-def save_model_metrics(beta_metrics: Dict[str, Any], ridge_metrics: Dict[str, Any], output_path: str):
-    """Save metrics for both Beta and Ridge models to a single JSON file."""
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+def save_model_metrics(all_metrics: Dict[str, Dict[str, Any]], output_path: str) -> None:
+    """
+    Save metrics for all models.
     
-    # Combine metrics into a list
-    all_metrics = [
-        convert_numpy_types(beta_metrics),
-        convert_numpy_types(ridge_metrics)
-    ]
+    Args:
+        all_metrics: Dictionary mapping model names to their metrics
+        output_path: Path to save the metrics file
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_file, 'w') as f:
-        json.dump(all_metrics, f, indent=2)
+    # Convert numpy types
+    metrics = convert_numpy_types(all_metrics)
     
-    logger.info(f"Saved combined model metrics to {output_path}")
+    with open(path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info(f"Saved all model metrics to {output_path}")
 
 def main():
-    """Main entry point for saving metrics (placeholder if called directly)."""
-    logger.warning("save_metrics.py main() called without arguments. Use fit.py main() for full pipeline.")
-    logger.warning("This file is intended to be imported by fit.py.")
+    """Main entry point for the metrics saving script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Save model metrics to JSON')
+    parser.add_argument('--input', type=str, required=True, help='Input metrics file (JSON)')
+    parser.add_argument('--output', type=str, required=True, help='Output metrics file')
+    
+    args = parser.parse_args()
+    
+    try:
+        # Load input metrics
+        with open(args.input, 'r') as f:
+            metrics = json.load(f)
+        
+        # Save metrics
+        save_model_metrics(metrics, args.output)
+        
+        logger.info("Metrics saved successfully")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Failed to save metrics: {e}")
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    import sys
     main()

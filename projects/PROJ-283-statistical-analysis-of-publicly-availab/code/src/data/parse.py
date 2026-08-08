@@ -5,208 +5,303 @@ import numpy as np
 from typing import Optional, Dict, Any, List, Tuple, Generator, Iterable
 from pathlib import Path
 import logging
-import json
 
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def get_material_value(piece: chess.Piece) -> int:
-    """Get material value of a piece."""
-    values = {
-        chess.PAWN: 1,
-        chess.KNIGHT: 3,
-        chess.BISHOP: 3,
-        chess.ROOK: 5,
-        chess.QUEEN: 9,
-        chess.KING: 0
-    }
-    return values.get(piece.piece_type, 0)
+# Piece values for material calculation
+PIECE_VALUES = {
+    chess.PAWN: 1,
+    chess.KNIGHT: 3,
+    chess.BISHOP: 3,
+    chess.ROOK: 5,
+    chess.QUEEN: 9,
+    chess.KING: 0  # King value is 0 for material imbalance
+}
 
-def calculate_material_imbalance(board: chess.Board) -> int:
-    """Calculate material imbalance for a given board state."""
-    white_material = sum(get_material_value(piece) for piece in board.white_pieces())
-    black_material = sum(get_material_value(piece) for piece in board.black_pieces())
-    return white_material - black_material
-
-def get_material_imbalance_move10(game: chess.pgn.Game) -> Optional[int]:
+def get_material_value(board: chess.Board) -> int:
     """
-    Get material imbalance after move 10.
-    Returns None if game is shorter than 10 moves.
+    Calculate the total material value of a board position.
+    
+    Args:
+        board: A chess.Board object
+        
+    Returns:
+        Total material value (sum of piece values)
     """
-    board = game.board()
-    move_count = 0
-    for move in game.mainline_moves():
-        board.push(move)
-        move_count += 1
-        if move_count == 10:
-            return calculate_material_imbalance(board)
-    return None
+    total = 0
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        if piece:
+            total += PIECE_VALUES.get(piece.piece_type, 0)
+    return total
 
-def parse_pgn_game(game: chess.pgn.Game) -> Optional[Dict[str, Any]]:
-    """Parse a single PGN game into a dictionary."""
-    if not game:
-        return None
+def calculate_material_imbalance(board: chess.Board, move_count: int = 10) -> float:
+    """
+    Calculate the material imbalance at a specific move count.
     
-    # Extract headers
-    headers = game.headers
-    eco_code = headers.get('ECO', 'Unknown')
-    white_elo = int(headers.get('WhiteElo', 0)) if headers.get('WhiteElo', '').isdigit() else 0
-    black_elo = int(headers.get('BlackElo', 0)) if headers.get('BlackElo', '').isdigit() else 0
-    result = headers.get('Result', '*')
+    This function simulates the game to the specified move count and calculates
+    the material imbalance (White material - Black material).
     
-    # Calculate material imbalance at move 10
-    imbalance = get_material_imbalance_move10(game)
-    
-    # Calculate expected probability and outcome deviation
-    # Simplified Elo formula
-    if white_elo > 0 and black_elo > 0:
-        expected_white = 1 / (1 + 10 ** ((black_elo - white_elo) / 400))
+    Args:
+        board: A chess.Board object representing the current state
+        move_count: The move number at which to calculate imbalance (default: 10)
+        
+    Returns:
+        Material imbalance value (White - Black). Positive if White has advantage,
+        negative if Black has advantage.
+        
+    Note:
+        Per Spec FR-002, this function calculates material imbalance at move 10.
+    """
+    if board.is_game_over():
+        # If game ended before move_count, use final position
+        final_board = board
     else:
-        expected_white = 0.5
-    
-    # Map result to numeric
-    if result == '1-0':
-        outcome = 1.0
-    elif result == '0-1':
-        outcome = 0.0
-    elif result == '1/2-1/2':
-        outcome = 0.5
-    else:
-        outcome = None
-    
-    if outcome is None:
-        return None
-    
-    deviation = outcome - expected_white
-    
-    # Cap probability for stability (T012)
-    expected_white = np.clip(expected_white, 0.01, 0.99)
-    
-    return {
-        'game_id': headers.get('Event', 'Unknown'),
-        'white_rating': white_elo,
-        'black_rating': black_elo,
-        'eco_code': eco_code,
-        'outcome': outcome,
-        'elo_expected_prob': expected_white,
-        'outcome_deviation': deviation,
-        'material_imbalance_move10': imbalance
-    }
+        # Create a copy to simulate moves without modifying original
+        temp_board = board.copy()
+        
+        # Replay moves up to move_count
+        move_idx = 0
+        for move in board.move_stack:
+            if move_idx >= move_count * 2:  # Each move has a white and black move
+                break
+            temp_board.push(move)
+            move_idx += 1
+        
+        final_board = temp_board
 
-def parse_pgn_iterator(pgn_data: Iterable) -> Generator[Dict[str, Any], None, None]:
+    # Calculate material for both sides
+    white_material = 0
+    black_material = 0
+    
+    for square in chess.SQUARES:
+        piece = final_board.piece_at(square)
+        if piece:
+            value = PIECE_VALUES.get(piece.piece_type, 0)
+            if piece.color == chess.WHITE:
+                white_material += value
+            else:
+                black_material += value
+    
+    imbalance = white_material - black_material
+    return float(imbalance)
+
+def get_material_imbalance_move10(board: chess.Board) -> float:
     """
-    Parse PGN data from an iterable (e.g., lines from a file or generator).
-    Yields parsed game dictionaries.
+    Calculate material imbalance specifically at move 10.
+    
+    This is a convenience function that calls calculate_material_imbalance
+    with move_count=10 to satisfy Spec FR-002.
+    
+    Args:
+        board: A chess.Board object
+        
+    Returns:
+        Material imbalance at move 10
     """
-    for game_str in pgn_data:
-        try:
-            game = chess.pgn.read_game(chess.io.StringIO(game_str))
-            if game:
-                parsed = parse_pgn_game(game)
-                if parsed:
-                    yield parsed
-        except Exception as e:
-            logger.warning(f"Failed to parse game: {e}")
-            continue
+    return calculate_material_imbalance(board, move_count=10)
+
+def parse_pgn_game(game_text: str) -> Optional[Dict[str, Any]]:
+    """
+    Parse a single PGN game and extract relevant features.
+    
+    Args:
+        game_text: PGN string for a single game
+        
+    Returns:
+        Dictionary with game features or None if parsing fails
+    """
+    try:
+        pgn = io.StringIO(game_text)
+        game = chess.pgn.read_game(pgn)
+        
+        if game is None:
+            return None
+        
+        board = game.board()
+        
+        # Extract headers
+        headers = dict(game.headers)
+        game_id = headers.get('Event', 'Unknown')
+        white_rating = int(headers.get('WhiteElo', 0))
+        black_rating = int(headers.get('BlackElo', 0))
+        eco_code = headers.get('ECO', 'Unknown')
+        outcome = headers.get('Result', '*')
+        
+        # Calculate material imbalance at move 10
+        material_imbalance = get_material_imbalance_move10(board)
+        
+        # Calculate expected probability based on Elo difference
+        elo_diff = white_rating - black_rating
+        expected_prob = 1.0 / (1.0 + 10 ** (-elo_diff / 400.0))
+        
+        # Map outcome to numerical value
+        outcome_map = {'1-0': 1.0, '0-1': 0.0, '1/2-1/2': 0.5, '*': None}
+        outcome_value = outcome_map.get(outcome)
+        
+        if outcome_value is None:
+            return None
+        
+        # Calculate outcome deviation
+        outcome_deviation = outcome_value - expected_prob
+        
+        return {
+            'game_id': game_id,
+            'white_rating': white_rating,
+            'black_rating': black_rating,
+            'eco_code': eco_code,
+            'material_imbalance_move10': material_imbalance,
+            'outcome': outcome,
+            'elo_expected_prob': expected_prob,
+            'outcome_deviation': outcome_deviation
+        }
+        
+    except Exception as e:
+        logger.warning(f"Failed to parse game: {e}")
+        return None
+
+def parse_pgn_iterator(pgn_iterator: Iterable[str]) -> Generator[Dict[str, Any], None, None]:
+    """
+    Parse an iterator of PGN games and yield GameRecord dictionaries.
+    
+    This function processes games one by one to enable streaming and
+    avoid loading entire dataset into memory.
+    
+    Args:
+        pgn_iterator: Iterator yielding PGN strings (one game at a time)
+        
+    Yields:
+        Dictionary representing a parsed GameRecord
+    """
+    total = 0
+    parsed = 0
+    
+    for game_text in pgn_iterator:
+        total += 1
+        record = parse_pgn_game(game_text)
+        if record:
+            parsed += 1
+            yield record
+    
+    logger.info(f"Parsed {parsed} out of {total} games ({parsed/total*100:.2f}% success rate)")
 
 def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Process a DataFrame of parsed games to ensure types and handle missing values.
-    """
-    # Ensure numeric columns are float
-    numeric_cols = ['white_rating', 'black_rating', 'outcome_deviation', 'elo_expected_prob', 'material_imbalance_move10']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+    Process a DataFrame of game records to ensure all required columns exist.
     
-    # Drop rows with missing critical values
-    critical_cols = ['outcome_deviation', 'eco_code']
-    df = df.dropna(subset=critical_cols)
+    Args:
+        df: DataFrame with game records
+        
+    Returns:
+        Processed DataFrame with all required columns
+    """
+    required_columns = [
+        'game_id', 'white_rating', 'black_rating', 'eco_code',
+        'material_imbalance_move10', 'outcome', 'elo_expected_prob', 'outcome_deviation'
+    ]
+    
+    for col in required_columns:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
     
     return df
 
-def calculate_and_save_inclusion_metrics(total_games: int, parsed_games: int, output_path: Path):
-    """Calculate and save inclusion metrics."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    rate = parsed_games / total_games if total_games > 0 else 0.0
+def calculate_and_save_inclusion_metrics(total_games: int, parsed_games: int, output_path: str) -> float:
+    """
+    Calculate and save inclusion metrics to a JSON file.
+    
+    Args:
+        total_games: Total number of games processed
+        parsed_games: Number of games successfully parsed
+        output_path: Path to save the metrics JSON file
+        
+    Returns:
+        Inclusion rate (parsed_games / total_games)
+        
+    Raises:
+        ValueError: If inclusion rate is below 0.95
+    """
+    import json
+    
+    inclusion_rate = parsed_games / total_games if total_games > 0 else 0.0
+    
     metrics = {
         'total_games': total_games,
         'parsed_games': parsed_games,
-        'inclusion_rate': rate
+        'inclusion_rate': inclusion_rate
     }
+    
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
         json.dump(metrics, f, indent=2)
-    logger.info(f"Inclusion metrics saved to {output_path}")
-    return rate
+    
+    logger.info(f"Inclusion metrics saved to {output_path}: {inclusion_rate:.4f}")
+    
+    if inclusion_rate < 0.95:
+        raise ValueError(f"Inclusion rate {inclusion_rate:.4f} is below threshold 0.95")
+    
+    return inclusion_rate
 
-def validate_inclusion_rate(rate: float, threshold: float = 0.95):
-    """Validate inclusion rate."""
-    if rate < threshold:
-        raise ValueError(f"Inclusion rate {rate:.2%} is below threshold {threshold:.2%}")
-    logger.info(f"Inclusion rate {rate:.2%} is above threshold {threshold:.2%}")
+def validate_inclusion_rate(output_path: str) -> bool:
+    """
+    Validate that the inclusion rate in a JSON file meets the threshold.
+    
+    Args:
+        output_path: Path to the inclusion metrics JSON file
+        
+    Returns:
+        True if inclusion rate >= 0.95, False otherwise
+        
+    Raises:
+        FileNotFoundError: If the file doesn't exist
+        json.JSONDecodeError: If the file is not valid JSON
+    """
+    import json
+    
+    with open(output_path, 'r') as f:
+        metrics = json.load(f)
+    
+    inclusion_rate = metrics.get('inclusion_rate', 0.0)
+    logger.info(f"Validated inclusion rate: {inclusion_rate:.4f}")
+    
+    if inclusion_rate < 0.95:
+        logger.error(f"Inclusion rate {inclusion_rate:.4f} is below threshold 0.95")
+        return False
+    
+    return True
 
 def main():
+    """Main entry point for testing the parse module."""
+    import sys
+    
+    # Example usage
+    sample_pgn = """
+    [Event "Test Game"]
+    [Site "Test Site"]
+    [Date "2023.01.01"]
+    [Round "1"]
+    [White "Player1"]
+    [Black "Player2"]
+    [WhiteElo "1500"]
+    [BlackElo "1500"]
+    [ECO "C20"]
+    [Result "1-0"]
+    
+    1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d4 exd4 6. cxd4 Bb4+ 7. Nc3 Nxe4 8. O-O Nxc3 9. bxc3 Bxc3 10. Ba3 d6 1-0
     """
-    Main entry point for parsing PGN data.
-    Expects a PGN file or directory.
-    """
-    import argparse
-    parser = argparse.ArgumentParser(description="Parse PGN chess games.")
-    parser.add_argument("--input", type=str, required=True, help="Input PGN file or directory.")
-    parser.add_argument("--output", type=str, required=True, help="Output parquet file.")
     
-    args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
-    if not input_path.exists():
-        logger.error(f"Input path not found: {input_path}")
-        sys.exit(1)
-    
-    # Collect all games
-    games = []
-    total_games = 0
-    
-    if input_path.is_file():
-        with open(input_path, 'r') as f:
-            for game_str in f:
-                if game_str.strip():
-                    total_games += 1
-                    game = chess.pgn.read_game(chess.io.StringIO(game_str))
-                    if game:
-                        parsed = parse_pgn_game(game)
-                        if parsed:
-                            games.append(parsed)
+    result = parse_pgn_game(sample_pgn)
+    if result:
+        print(f"Game ID: {result['game_id']}")
+        print(f"Material Imbalance at Move 10: {result['material_imbalance_move10']}")
+        print(f"Expected Probability: {result['elo_expected_prob']:.4f}")
+        print(f"Outcome Deviation: {result['outcome_deviation']:.4f}")
     else:
-        # Directory handling
-        for file in input_path.glob("*.pgn"):
-            with open(file, 'r') as f:
-                for game_str in f:
-                    if game_str.strip():
-                        total_games += 1
-                        game = chess.pgn.read_game(chess.io.StringIO(game_str))
-                        if game:
-                            parsed = parse_pgn_game(game)
-                            if parsed:
-                                games.append(parsed)
-    
-    if not games:
-        logger.warning("No games parsed.")
-        sys.exit(0)
-    
-    df = pd.DataFrame(games)
-    df = process_dataframe(df)
-    
-    # Save metrics
-    metrics_path = Path("data/results/inclusion_metrics.json")
-    rate = calculate_and_save_inclusion_metrics(total_games, len(df), metrics_path)
-    validate_inclusion_rate(rate)
-    
-    # Save output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Parsed {len(df)} games saved to {output_path}")
+        print("Failed to parse game")
 
 if __name__ == "__main__":
     main()

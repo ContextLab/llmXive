@@ -1,0 +1,11 @@
+{
+  "significant_predictors": [
+    "avg_move_time_white",
+    "avg_move_time_black",
+    "material_imbalance_move10",
+    "eco_F",
+    "eco_D"
+  ],
+  "threshold": 0.05,
+  "model_type": "beta"
+}

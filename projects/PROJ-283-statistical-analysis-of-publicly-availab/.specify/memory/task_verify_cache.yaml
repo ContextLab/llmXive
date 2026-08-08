@@ -1,19 +1,27 @@
-T025:
+T008e:
   c: false
-  h: 253399e81af28d86c8a35ff60b3fc80209a108760c20862f79c6068ec1c1e2b3
-  r: "The script does not sweep thresholds from a low value up to\u202F0.05 in 0.005\
-    \ steps, nor does it compute or report the delta (variation) in significant\u2011\
-    predictor counts. It also never writes the analysis results to `data/results/sensitivity_analysis.json`,\
-    \ and that JSON file is absent. These missing pieces prevent the task from being\
-    \ fulfilled."
-T027:
+  h: 5ca653b7a3b8be8a3e9e95dd0d25ad8af3312e395d9037d0da88b95775966bbf
+  r: "The repository lacks the required `data/raw/selected_ids.txt` file, and `src/data/download.py`\
+    \ does not implement the specified `retry_fetch_with_backoff` function, does not\
+    \ use `datasets.load_dataset(..., streaming=True)`, nor raise a `DataFetchError`\
+    \ on failure. The current code relies on `requests` and is incomplete/truncated,\
+    \ so the task\u2019s core requirements are not satisfied."
+T017:
   c: false
-  h: e2093a664a8f7ed39d74efbf42204e579904c50b9b5279f33017981b11229734
-  r: "The repository lacks the required `data/results/model_metrics.json` file and\
-    \ the `model_output.schema.yaml` schema, so the output cannot be validated. Moreover,\
-    \ the provided `src/models/fit.py` (truncated) shows no code that writes model\
-    \ coefficients, p\u2011values, R\xB2, or AIC to a JSON file, so the core functionality\
-    \ is missing. The task therefore remains unfinished."
+  h: 4e3cd2010ad900843dea4427c36f8c9cdc3436305300e6ce540d30bc292c9d55
+  r: The `src/data/process.py` file shown does not contain a `save_inclusion_metrics`
+    implementation (the excerpt ends before any such function). Moreover, the required
+    `data/results/inclusion_metrics.json` file is absent. Both the function and the
+    output file are missing, so the task requirements are not met.
+T018:
+  c: false
+  h: 7a7f96d1e181d36ef2945bdee723263e51f5ba4c98c7080fea3cf26fab779447
+  r: "The provided `src/main.py` is truncated and does not show the logic that writes\
+    \ the validated DataFrame to `data/processed/games.parquet` or exits with code\u202F\
+    1 on validation failure. Moreover, the required `data/processed/games.parquet`\
+    \ file is absent, so the script\u2019s successful execution cannot be confirmed.\
+    \ The implementation must include the final save step, proper exit\u2011code handling,\
+    \ and the generated parquet file must exist."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

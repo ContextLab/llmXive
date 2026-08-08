@@ -4,9 +4,9 @@ from typing import Dict, List, Tuple, Optional, Any
 from pathlib import Path
 import logging
 import json
+from sklearn.model_selection import KFold
+from sklearn.metrics import r2_score, mean_squared_error
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def load_model_results(results_path: Path) -> Dict[str, Any]:
@@ -18,7 +18,7 @@ def load_model_results(results_path: Path) -> Dict[str, Any]:
         return json.load(f)
 
 def load_processed_data(data_path: Path) -> pd.DataFrame:
-    """Load processed game records from parquet or csv."""
+    """Load processed game records."""
     if data_path.suffix == '.parquet':
         return pd.read_parquet(data_path)
     elif data_path.suffix == '.csv':
@@ -28,154 +28,188 @@ def load_processed_data(data_path: Path) -> pd.DataFrame:
 
 def prepare_features_and_target(
     df: pd.DataFrame,
-    model_type: str = 'beta'
+    target_column: str = 'outcome_deviation'
 ) -> Tuple[pd.DataFrame, pd.Series]:
     """Prepare features and target for cross-validation."""
-    if model_type == 'beta':
-        target_col = 'outcome_deviation'
-        pred_col = 'predicted_outcome_deviation_beta'
-    elif model_type == 'ridge':
-        target_col = 'outcome_deviation'
-        pred_col = 'predicted_outcome_deviation_ridge'
-    elif model_type == 'gaussian':
-        target_col = 'outcome_deviation'
-        pred_col = 'predicted_outcome_deviation_gaussian'
+    exclude_cols = [target_column, 'eco_code', 'eco_family', 'game_id']
+    feature_columns = [col for col in df.columns if col not in exclude_cols and df[col].dtype in [np.float64, np.int64, float, int]]
+    
+    if 'eco_family' in df.columns:
+        eco_dummies = pd.get_dummies(df['eco_family'], prefix='eco', drop_first=True)
+        numeric_features = df[feature_columns]
+        features = pd.concat([numeric_features, eco_dummies], axis=1)
     else:
-        raise ValueError(f"Unknown model type: {model_type}")
+        features = df[feature_columns]
     
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found")
+    features = features.fillna(features.median())
+    target = df[target_column]
     
-    if pred_col not in df.columns:
-        # If predictions not pre-computed, we need to re-fit
-        # For now, assume predictions are already in the data
-        logger.warning(f"Predictions not found for {model_type}")
-        return pd.DataFrame(), df[target_col]
+    return features, target
+
+def calculate_cv_metrics(
+    r2_scores: List[float],
+    mse_scores: List[float],
+    threshold: float = 0.05
+) -> Dict[str, Any]:
+    """
+    Calculate cross-validation metrics and check stability.
     
-    # Features for CV (use predictions as proxy for model output)
-    X = df[[pred_col]].copy()
-    y = df[target_col]
+    Args:
+        r2_scores: List of R² scores from each fold
+        mse_scores: List of MSE scores from each fold
+        threshold: Threshold for R² standard deviation (SC-003)
     
-    return X, y
+    Returns:
+        Dictionary with CV summary and validation status
+    """
+    mean_r2 = np.mean(r2_scores)
+    std_r2 = np.std(r2_scores)
+    mean_mse = np.mean(mse_scores)
+    std_mse = np.std(mse_scores)
+    
+    # Check stability criterion (SC-003)
+    validation_status = 'Pass' if std_r2 < threshold else 'Fail'
+    
+    return {
+        'mean_r2': mean_r2,
+        'std_dev_r2': std_r2,
+        'mean_mse': mean_mse,
+        'std_mse': std_mse,
+        'r2_scores': r2_scores,
+        'mse_scores': mse_scores,
+        'validation_status': validation_status,
+        'threshold': threshold
+    }
 
 def perform_kfold_cross_validation(
     df: pd.DataFrame,
     model_type: str = 'beta',
-    k: int = 5
+    k: int = 5,
+    target_column: str = 'outcome_deviation'
 ) -> Dict[str, Any]:
-    """Perform k-fold cross-validation and calculate metrics."""
-    from sklearn.model_selection import cross_val_score, KFold
-    from sklearn.linear_model import Ridge
-    from sklearn.preprocessing import StandardScaler
+    """
+    Perform k-fold cross-validation for a model.
     
-    X, y = prepare_features_and_target(df, model_type)
+    Args:
+        df: DataFrame with game records
+        model_type: 'beta' or 'ridge'
+        k: Number of folds
+        target_column: Name of target variable
     
-    if len(X) == 0:
-        logger.warning(f"No data available for {model_type} cross-validation")
-        return {
-            'mean_r2': 0.0,
-            'std_r2': 0.0,
-            'mean_mse': 0.0,
-            'fold_scores': []
-        }
+    Returns:
+        Dictionary with CV results
+    """
+    features, target = prepare_features_and_target(df, target_column)
     
-    # For simplicity, use Ridge as proxy for all models
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    kfold = KFold(n_splits=k, shuffle=True, random_state=42)
     
-    model = Ridge(alpha=1.0)
+    r2_scores = []
+    mse_scores = []
     
-    # R2 scores
-    kf = KFold(n_splits=k, shuffle=True, random_state=42)
-    r2_scores = cross_val_score(model, X_scaled, y, cv=kf, scoring='r2')
-    
-    # MSE scores (negative MSE from sklearn)
-    mse_scores = -cross_val_score(model, X_scaled, y, cv=kf, scoring='neg_mean_squared_error')
+    for fold, (train_idx, val_idx) in enumerate(kfold.split(features)):
+        X_train = features.iloc[train_idx]
+        X_val = features.iloc[val_idx]
+        y_train = target.iloc[train_idx]
+        y_val = target.iloc[val_idx]
+        
+        # Simple linear regression for each fold (placeholder for actual model)
+        from sklearn.linear_model import Ridge
+        model = Ridge(alpha=1.0)
+        model.fit(X_train, y_train)
+        
+        y_pred = model.predict(X_val)
+        
+        r2 = r2_score(y_val, y_pred)
+        mse = mean_squared_error(y_val, y_pred)
+        
+        r2_scores.append(r2)
+        mse_scores.append(mse)
+        
+        logger.info(f"Fold {fold + 1}: R²={r2:.4f}, MSE={mse:.4f}")
     
     return {
-        'mean_r2': float(np.mean(r2_scores)),
-        'std_r2': float(np.std(r2_scores)),
-        'mean_mse': float(np.mean(mse_scores)),
-        'fold_r2': r2_scores.tolist(),
-        'fold_mse': mse_scores.tolist()
+        'model_type': model_type,
+        'k_folds': k,
+        'r2_scores': r2_scores,
+        'mse_scores': mse_scores
     }
 
 def run_validation_pipeline(
-    data_path: Path,
-    results_path: Path,
-    output_path: Optional[Path] = None
+    df: pd.DataFrame,
+    cv_results_path: Path,
+    threshold: float = 0.05
 ) -> Dict[str, Any]:
-    """Run full validation pipeline for all models."""
-    if output_path is None:
-        output_path = Path("data/results/validation_results.json")
+    """
+    Run full validation pipeline for Beta and Ridge models.
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    Args:
+        df: Processed game records
+        cv_results_path: Path to save CV results
+        threshold: R² std threshold for validation
     
-    # Load data
-    df = load_processed_data(data_path)
+    Returns:
+        Combined CV summary
+    """
+    # Perform CV for both models
+    logger.info("Performing cross-validation for Beta model...")
+    beta_cv = perform_kfold_cross_validation(df, model_type='beta', k=5)
     
-    # Load model results
-    model_metrics = load_model_results(results_path)
+    logger.info("Performing cross-validation for Ridge model...")
+    ridge_cv = perform_kfold_cross_validation(df, model_type='ridge', k=5)
     
-    # Perform CV for each model
-    cv_results = {}
-    validation_status = "Pass"
+    # Calculate metrics
+    beta_metrics = calculate_cv_metrics(beta_cv['r2_scores'], beta_cv['mse_scores'], threshold)
+    ridge_metrics = calculate_cv_metrics(ridge_cv['r2_scores'], ridge_cv['mse_scores'], threshold)
     
-    for model_type in ['beta', 'ridge', 'gaussian']:
-        logger.info(f"Running cross-validation for {model_type} model")
-        cv_results[model_type] = perform_kfold_cross_validation(df, model_type)
-        
-        # Check R2 std deviation threshold
-        if model_type == 'beta':
-            std_r2 = cv_results[model_type]['std_r2']
-            if std_r2 >= 0.05:
-                validation_status = "Fail"
-                logger.error(f"R2 std deviation {std_r2:.4f} exceeds threshold 0.05")
+    # Determine overall status
+    overall_status = 'Pass' if (beta_metrics['validation_status'] == 'Pass' and 
+                               ridge_metrics['validation_status'] == 'Pass') else 'Fail'
     
-    # Prepare summary
-    summary = {
-        'cv_summary': cv_results,
-        'r2_std': cv_results.get('beta', {}).get('std_r2', 0.0),
-        'validation_status': validation_status
+    cv_summary = {
+        'beta': beta_metrics,
+        'ridge': ridge_metrics,
+        'overall_validation_status': overall_status,
+        'threshold': threshold
     }
     
     # Save results
-    with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
+    cv_results_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(cv_results_path, 'w') as f:
+        json.dump(cv_summary, f, indent=2)
     
-    logger.info(f"Saved validation results to {output_path}")
-    return summary
+    logger.info(f"CV results saved to {cv_results_path}")
+    
+    # Log final status
+    if overall_status == 'Fail':
+        logger.error(f"Validation FAILED: R² std deviation >= {threshold}")
+        raise RuntimeError(f"Validation failed: R² std deviation >= {threshold}")
+    
+    return cv_summary
 
 def main():
-    """Main entry point for validation script."""
-    base_path = Path(__file__).parent.parent.parent
-    data_path = base_path / "data" / "processed" / "games.parquet"
-    results_path = base_path / "data" / "results" / "model_metrics.json"
-    output_path = base_path / "data" / "results" / "validation_results.json"
+    """Main entry point for model validation."""
+    import argparse
     
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Validate models with cross-validation')
+    parser.add_argument('--input', type=str, required=True, help='Path to processed data')
+    parser.add_argument('--results', type=str, required=True, help='Path to model metrics JSON')
+    parser.add_argument('--output', type=str, required=True, help='Path to save CV summary JSON')
+    parser.add_argument('--threshold', type=float, default=0.05, help='R² std threshold')
     
-    if not results_path.exists():
-        logger.error(f"Model results file not found: {results_path}")
-        sys.exit(1)
+    args = parser.parse_args()
     
-    logger.info("Starting validation pipeline")
+    # Load data
+    df = load_processed_data(Path(args.input))
     
-    try:
-        results = run_validation_pipeline(data_path, results_path, output_path)
-        
-        if results['validation_status'] == "Fail":
-            logger.error("Validation failed: R2 std deviation too high")
-            sys.exit(1)
-        
-        logger.info("Validation pipeline completed successfully")
-        sys.exit(0)
-        
-    except Exception as e:
-        logger.error(f"Validation pipeline error: {e}")
-        sys.exit(1)
+    # Run validation
+    cv_summary = run_validation_pipeline(
+        df=df,
+        cv_results_path=Path(args.output),
+        threshold=args.threshold
+    )
+    
+    logger.info("Validation complete")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()
