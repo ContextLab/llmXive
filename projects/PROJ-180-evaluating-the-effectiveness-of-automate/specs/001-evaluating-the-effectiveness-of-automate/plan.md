@@ -29,7 +29,7 @@ This project implements a computational pipeline to evaluate the effectiveness o
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`; `requirements.txt` pins versions; external datasets fetched from verified canonical sources (GitHub API) on every run. |
 | **II. Verified Accuracy** | **PASS** | All citations in `research.md` and `data-model.md` will be validated against primary sources (GitHub API, tool docs) before review points are awarded. |
-| **III. Data Hygiene** | **PASS** | All files in `data/` will be checksummed (SHA-256) and recorded in `state/`. Raw data is immutable; derivations create new files. PII scan enforced via `Repository-Hygiene Agent`. |
+| **III. Data Hygiene** | **PASS** | All files in `data/` will be checksummed (cryptographic hash) and recorded in `state/`. Raw data is immutable; derivations create new files. PII scan enforced via `Repository-Hygiene Agent`. |
 | **IV. Single Source of Truth** | **PASS** | All figures/statistics in the final paper will trace to exactly one row in `data/processed` and one block in `code/`. No hand-typed numbers. |
 | **V. Versioning Discipline** | **PASS** | Content hashes generated for all artifacts; `updated_at` timestamps updated on any change to research artifacts. |
 | **VI. Tool Version Pinning** | **PASS** | SonarQube Scanner, DeepSource CLI, and CodeClimate Engine versions pinned in `code/versions.yaml` and executed via specific Docker images/binaries. |

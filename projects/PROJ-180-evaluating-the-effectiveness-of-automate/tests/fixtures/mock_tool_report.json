@@ -1,0 +1,40 @@
+{
+  "tool": "sonarqube",
+  "repo_id": "test-repo-123",
+  "commit_hash": "abc123def456",
+  "scan_timestamp": "2023-10-27T10:00:00Z",
+  "issues": [
+    {
+      "id": "issue-001",
+      "type": "BUG",
+      "severity": "CRITICAL",
+      "line": 42,
+      "file": "src/main.py",
+      "message": "Potential null pointer dereference",
+      "rule": "python:S1234"
+    },
+    {
+      "id": "issue-002",
+      "type": "VULNERABILITY",
+      "severity": "MAJOR",
+      "line": 15,
+      "file": "src/utils.py",
+      "message": "SQL Injection risk",
+      "rule": "python:S5678"
+    },
+    {
+      "id": "issue-003",
+      "type": "CODE_SMELL",
+      "severity": "MINOR",
+      "line": 88,
+      "file": "src/config.py",
+      "message": "Variable naming convention violation",
+      "rule": "python:S9012"
+    }
+  ],
+  "metadata": {
+    "total_issues": 3,
+    "scan_duration_seconds": 12.5,
+    "tool_version": "9.9.0"
+  }
+}
