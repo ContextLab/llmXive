@@ -2,30 +2,20 @@ import os
 import sys
 from pathlib import Path
 
-def create_results_directory():
+def create_results_directory(base_path: Path) -> None:
     """
-    Creates the 'results' directory under the project root.
-    Ensures the directory exists for storing analysis outputs, reports, and figures.
+    Creates the results directory.
+    Expected: results/
     """
-    # Determine project root based on the script's location relative to code/
-    # Assuming this script is run from the project root or code/ directory
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent if current_dir.name == "code" else current_dir
+    results_path = base_path / "results"
+    results_path.mkdir(parents=True, exist_ok=True)
+    print(f"Created results directory: {results_path}")
 
-    results_dir = project_root / "results"
-    
-    try:
-        results_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Successfully ensured directory exists: {results_dir}")
-        return True
-    except OSError as e:
-        print(f"Error creating directory {results_dir}: {e}", file=sys.stderr)
-        return False
-
-def main():
-    """Entry point for the script."""
-    success = create_results_directory()
-    sys.exit(0 if success else 1)
+def main() -> None:
+    project_root = Path.cwd()
+    project_id = "PROJ-756-assessing-dataset-imbalance-effects-on-m"
+    base_path = project_root / "projects" / project_id
+    create_results_directory(base_path)
 
 if __name__ == "__main__":
     main()

@@ -2,61 +2,47 @@ import os
 import sys
 from pathlib import Path
 
-def create_directories(base_path: Path):
+def create_directories(project_root: Path) -> None:
     """
-    Create the full project directory structure for PROJ-756.
-    Ensures all required subdirectories exist.
-    """
-    # Define the project root relative to the code directory or current working directory
-    # The task specifies: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/
-    project_root = base_path / "projects" / "PROJ-756-assessing-dataset-imbalance-effects-on-m"
+    Creates the full directory structure for the project.
     
-    # Define required subdirectories
-    subdirs = [
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/synthetic",
-        "code",
-        "tests",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration",
-        "artifacts",
-        "results",
-        "results/shap_analysis",
-        "state",
-        "logs",
-        "logs/archive"
+    Structure:
+    projects/<project_id>/
+        data/
+            raw/
+        code/
+        tests/
+        artifacts/
+        results/
+        state/
+        logs/
+            archive/
+    """
+    base_path = project_root / "projects" / "PROJ-756-assessing-dataset-imbalance-effects-on-m"
+    
+    directories = [
+        base_path / "data" / "raw",
+        base_path / "code",
+        base_path / "tests",
+        base_path / "artifacts",
+        base_path / "results",
+        base_path / "state",
+        base_path / "logs" / "archive",
     ]
     
-    created_dirs = []
-    for subdir in subdirs:
-        dir_path = project_root / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(dir_path.relative_to(base_path)))
-    
-    return created_dirs
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
 
-def main():
-    """
-    Entry point to create the project directory structure.
-    """
-    # Determine base path (current working directory)
-    base_path = Path.cwd()
+def main() -> None:
+    """Entry point to create the project directory structure."""
+    # Define the project root relative to the current working directory
+    # Assuming the script is run from the repository root
+    project_root = Path.cwd()
     
-    print(f"Creating project structure in: {base_path}")
-    
-    try:
-        created = create_directories(base_path)
-        print("Successfully created directories:")
-        for d in created:
-            print(f"  - {d}")
-        print("Project structure setup complete.")
-        return 0
-    except Exception as e:
-        print(f"Error creating directories: {e}", file=sys.stderr)
-        return 1
+    print(f"Creating project structure at: {project_root}")
+    create_directories(project_root)
+    print("Project structure creation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

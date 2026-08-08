@@ -1,9 +1,15 @@
+"""
+Downloaders for OQMD, AFLOW, and Materials Project datasets.
+Implements 'Fail Loudly' logic: raises DataFetchError on persistent failure.
+No synthetic fallback is ever used.
+"""
 import os
 import hashlib
 import logging
 import requests
 import pandas as pd
 from pathlib import Path
+from typing import Optional, Dict, Any
 from datasets import load_dataset
 import yaml
 
@@ -13,20 +19,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Global state file path
-STATE_FILE = Path("state/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m.yaml")
+class DataFetchError(Exception):
+    """Custom exception for data fetching failures."""
+    pass
 
-def calculate_sha256(filepath):
-    """Calculate SHA-256 hash of a file."""
+def calculate_sha256(file_path: str) -> str:
+    """Calculate SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url, output_path, timeout=300):
-    """Download a file from a URL with progress logging."""
-    logger.info(f"Downloading {url} to {output_path}")
+def download_file(url: str, dest_path: str, timeout: int = 300) -> None:
+    """Download a file from a URL with error handling."""
+    logger.info(f"Downloading from {url} to {dest_path}")
     try:
         response = requests.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
@@ -34,258 +41,224 @@ def download_file(url, output_path, timeout=300):
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
-        logger.info(f"Download complete: {output_path}")
-        return True
-    except requests.RequestException as e:
+        logger.info(f"Successfully downloaded {dest_path}")
+    except requests.exceptions.RequestException as e:
         logger.error(f"Failed to download {url}: {e}")
-        return False
+        raise DataFetchError(f"Failed to download {url}: {e}") from e
 
-def verify_checksum(filepath, expected_hash):
-    """Verify file checksum against expected hash."""
-    actual_hash = calculate_sha256(filepath)
-    return actual_hash == expected_hash
+def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+    """Verify file checksum against expected value."""
+    actual_checksum = calculate_sha256(file_path)
+    return actual_checksum == expected_checksum
 
-def load_huggingface_dataset(dataset_id, split="train", streaming=False):
+def load_huggingface_dataset(dataset_id: str, split: str = "train") -> pd.DataFrame:
     """
     Load a dataset from Hugging Face.
-    If streaming=True, returns an iterable dataset to save memory.
+    Raises DataFetchError if the dataset cannot be loaded.
     """
+    logger.info(f"Loading dataset {dataset_id} from Hugging Face")
     try:
-        logger.info(f"Loading HuggingFace dataset: {dataset_id} (split={split}, streaming={streaming})")
-        ds = load_dataset(dataset_id, split=split, streaming=streaming)
-        return ds
+        dataset = load_dataset(dataset_id, split=split)
+        df = dataset.to_pandas()
+        logger.info(f"Successfully loaded {len(df)} rows from {dataset_id}")
+        return df
     except Exception as e:
-        logger.error(f"Failed to load HuggingFace dataset {dataset_id}: {e}")
-        raise
+        logger.error(f"Failed to load dataset {dataset_id} from Hugging Face: {e}")
+        raise DataFetchError(f"Failed to load dataset {dataset_id} from Hugging Face: {e}") from e
 
-def download_oqmd_constitution(output_path=None):
-    """Download OQMD dataset from Hugging Face."""
-    if output_path is None:
-        output_path = Path("data/raw/oqmd.parquet")
-    else:
-        output_path = Path(output_path)
+def download_oqmd_constitution(output_path: str, hf_id: str = "oqmd/oqmd-dataset", fallback_url: Optional[str] = None) -> None:
+    """
+    Download OQMD dataset.
+    1. Try Hugging Face.
+    2. If HF fails, try fallback URL (if provided).
+    3. If both fail, raise DataFetchError.
+    """
+    logger.info(f"Attempting to download OQMD dataset to {output_path}")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
+    # Try Hugging Face first
     try:
-        ds = load_huggingface_dataset("oqmd/oqmd-dataset", split="train")
-        # Convert to pandas and save as parquet
-        # Note: If dataset is large, we might need to stream and chunk
-        # For now, assuming it fits in memory or we take a sample if too large
-        # The task requires real data, so we attempt full load first
+        df = load_huggingface_dataset(hf_id, split="train")
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Saved OQMD dataset to {output_path}")
+        return
+    except DataFetchError as e:
+        logger.warning(f"HF download failed for OQMD: {e}")
+    
+    # Fallback to URL if provided
+    if fallback_url:
+        logger.info(f"Attempting fallback URL for OQMD: {fallback_url}")
         try:
-            df = ds.to_pandas()
+            temp_path = output_path + ".tmp"
+            download_file(fallback_url, temp_path)
+            # Basic validation: try to read as parquet
+            df = pd.read_parquet(temp_path)
             df.to_parquet(output_path, index=False)
-            logger.info(f"OQMD dataset saved to {output_path}")
-            return str(output_path)
+            os.remove(temp_path)
+            logger.info(f"Saved OQMD dataset from fallback URL to {output_path}")
+            return
         except Exception as e:
-            logger.warning(f"Full dataset too large to load into memory: {e}")
-            logger.info("Attempting to stream and save first 100,000 rows as a representative sample...")
-            count = 0
-            max_rows = 100000
-            dfs = []
-            for item in ds:
-                if count >= max_rows:
-                    break
-                dfs.append(pd.DataFrame([item]))
-                count += 1
-            if dfs:
-                df_sample = pd.concat(dfs, ignore_index=True)
-                df_sample.to_parquet(output_path, index=False)
-                logger.info(f"Saved {count} rows to {output_path}")
-                return str(output_path)
-            else:
-                raise RuntimeError("Failed to retrieve any data from OQMD dataset")
-    except Exception as e:
-        logger.error(f"Failed to download OQMD dataset: {e}")
-        raise
+            logger.error(f"Fallback URL download failed for OQMD: {e}")
+    
+    # If we reach here, both methods failed
+    raise DataFetchError(f"Failed to download OQMD dataset from both HF and fallback URL")
 
-def download_aflow_constitution(output_path=None):
-    """Download AFLOW dataset from Hugging Face."""
-    if output_path is None:
-        output_path = Path("data/raw/aflow.parquet")
-    else:
-        output_path = Path(output_path)
+def download_aflow_constitution(output_path: str, hf_id: str = "aflow/aflow-dataset", fallback_url: Optional[str] = None) -> None:
+    """
+    Download AFLOW dataset.
+    1. Try Hugging Face.
+    2. If HF fails, try fallback URL (if provided).
+    3. If both fail, raise DataFetchError.
+    """
+    logger.info(f"Attempting to download AFLOW dataset to {output_path}")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
+    # Try Hugging Face first
     try:
-        ds = load_huggingface_dataset("aflow/aflow-dataset", split="train")
+        df = load_huggingface_dataset(hf_id, split="train")
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Saved AFLOW dataset to {output_path}")
+        return
+    except DataFetchError as e:
+        logger.warning(f"HF download failed for AFLOW: {e}")
+    
+    # Fallback to URL if provided
+    if fallback_url:
+        logger.info(f"Attempting fallback URL for AFLOW: {fallback_url}")
         try:
-            df = ds.to_pandas()
+            temp_path = output_path + ".tmp"
+            download_file(fallback_url, temp_path)
+            # Basic validation: try to read as parquet
+            df = pd.read_parquet(temp_path)
             df.to_parquet(output_path, index=False)
-            logger.info(f"AFLOW dataset saved to {output_path}")
-            return str(output_path)
+            os.remove(temp_path)
+            logger.info(f"Saved AFLOW dataset from fallback URL to {output_path}")
+            return
         except Exception as e:
-            logger.warning(f"Full dataset too large to load into memory: {e}")
-            logger.info("Attempting to stream and save first 100,000 rows as a representative sample...")
-            count = 0
-            max_rows = 100000
-            dfs = []
-            for item in ds:
-                if count >= max_rows:
-                    break
-                dfs.append(pd.DataFrame([item]))
-                count += 1
-            if dfs:
-                df_sample = pd.concat(dfs, ignore_index=True)
-                df_sample.to_parquet(output_path, index=False)
-                logger.info(f"Saved {count} rows to {output_path}")
-                return str(output_path)
-            else:
-                raise RuntimeError("Failed to retrieve any data from AFLOW dataset")
-    except Exception as e:
-        logger.error(f"Failed to download AFLOW dataset: {e}")
-        raise
+            logger.error(f"Fallback URL download failed for AFLOW: {e}")
+    
+    # If we reach here, both methods failed
+    raise DataFetchError(f"Failed to download AFLOW dataset from both HF and fallback URL")
 
-def download_materials_project_constitution(output_path=None):
+def download_materials_project(output_path: str, hf_id: str = "materials_project/mp-dataset", fallback_url: Optional[str] = None) -> None:
     """
-    Download Materials Project dataset if API key is available.
-    If no API key or fetch fails, log warning and skip (do not raise error).
-    Output: data/raw/mp.parquet
+    Download Materials Project dataset.
+    If no API key is available or fetch fails, log a warning and skip (do not raise error).
     """
-    if output_path is None:
-        output_path = Path("data/raw/mp.parquet")
-    else:
-        output_path = Path(output_path)
+    logger.info(f"Attempting to download Materials Project dataset to {output_path}")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    mp_api_key = os.getenv("MP_API_KEY")
+    # Check for API key
+    mp_api_key = os.getenv("MATERIALS_PROJECT_API_KEY")
     if not mp_api_key:
-        logger.warning("MP_API_KEY environment variable not found. Skipping Materials Project dataset download.")
-        return None
+        logger.warning("Materials Project API key not found. Skipping MP download.")
+        return
     
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Try Hugging Face first
     try:
-        # Try Hugging Face first
-        logger.info("Attempting to load Materials Project dataset from Hugging Face...")
-        try:
-            ds = load_huggingface_dataset("materials_project/mp-dataset", split="train")
-            try:
-                df = ds.to_pandas()
-                df.to_parquet(output_path, index=False)
-                logger.info(f"Materials Project dataset saved to {output_path}")
-                return str(output_path)
-            except Exception as e:
-                logger.warning(f"Full dataset too large to load into memory: {e}")
-                logger.info("Attempting to stream and save first 100,000 rows as a representative sample...")
-                count = 0
-                max_rows = 100000
-                dfs = []
-                for item in ds:
-                    if count >= max_rows:
-                        break
-                    dfs.append(pd.DataFrame([item]))
-                    count += 1
-                if dfs:
-                    df_sample = pd.concat(dfs, ignore_index=True)
-                    df_sample.to_parquet(output_path, index=False)
-                    logger.info(f"Saved {count} rows to {output_path}")
-                    return str(output_path)
-                else:
-                    raise RuntimeError("Failed to retrieve any data from MP dataset")
-        except Exception as hf_error:
-            logger.warning(f"HuggingFace load failed: {hf_error}. Attempting raw API endpoint...")
-            # Fallback to raw API if HF fails
-            # Note: This is a simplified example; real implementation would need proper API handling
-            url = "https://materialsproject.org/rest/v2/materials?api_key=" + mp_api_key
-            # For demonstration, we assume the HF dataset exists as per task description
-            # If HF fails and raw API is not implemented in detail, we log and return None
-            logger.error("Raw API endpoint fallback not fully implemented for this task. Skipping MP dataset.")
-            return None
+        df = load_huggingface_dataset(hf_id, split="train")
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Saved Materials Project dataset to {output_path}")
+        return
     except Exception as e:
-        logger.error(f"Failed to download Materials Project dataset: {e}")
-        # Per task spec: log warning and skip, do not raise error
-        logger.warning("Skipping Materials Project dataset due to persistent failure.")
-        return None
+        logger.warning(f"HF download failed for MP: {e}")
+    
+    # Fallback to URL if provided
+    if fallback_url:
+        logger.info(f"Attempting fallback URL for MP: {fallback_url}")
+        try:
+            temp_path = output_path + ".tmp"
+            download_file(fallback_url, temp_path)
+            df = pd.read_parquet(temp_path)
+            df.to_parquet(output_path, index=False)
+            os.remove(temp_path)
+            logger.info(f"Saved Materials Project dataset from fallback URL to {output_path}")
+            return
+        except Exception as e:
+            logger.error(f"Fallback URL download failed for MP: {e}")
+    
+    logger.warning("Failed to download Materials Project dataset from both HF and fallback URL. Skipping.")
 
-def generate_checksum_file(file_path, checksum_file_path=None):
+def generate_checksum_file(file_path: str, checksum_file_path: str) -> None:
     """Generate a checksum file in sha256sum format."""
-    if checksum_file_path is None:
-        checksum_file_path = str(file_path) + ".sha256"
-    
-    file_hash = calculate_sha256(file_path)
+    checksum = calculate_sha256(file_path)
     filename = os.path.basename(file_path)
-    
     with open(checksum_file_path, 'w') as f:
-        f.write(f"{file_hash}  {filename}\n")
-    
-    logger.info(f"Checksum file generated: {checksum_file_path}")
-    return file_hash
+        f.write(f"{checksum}  {filename}\n")
+    logger.info(f"Generated checksum file: {checksum_file_path}")
 
-def update_state_file(checksums):
-    """
-    Update the project state YAML file with artifact hashes.
-    checksums: dict mapping artifact name to hash
-    """
-    if not STATE_FILE.exists():
-        logger.warning(f"State file {STATE_FILE} does not exist. Creating new one.")
-        state_data = {
-            "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
-            "artifact_hashes": {}
-        }
-    else:
-        with open(STATE_FILE, 'r') as f:
-            state_data = yaml.safe_load(f)
-        if state_data is None:
-            state_data = {
-                "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
-                "artifact_hashes": {}
-            }
+def update_state_file(state_path: str, artifact_name: str, checksum: str) -> None:
+    """Update the project state YAML file with artifact checksums."""
+    import yaml
     
-    if "artifact_hashes" not in state_data:
-        state_data["artifact_hashes"] = {}
+    state_dir = os.path.dirname(state_path)
+    if state_dir:
+        os.makedirs(state_dir, exist_ok=True)
     
-    for name, hash_val in checksums.items():
-        state_data["artifact_hashes"][name] = hash_val
+    state = {}
+    if os.path.exists(state_path):
+        with open(state_path, 'r') as f:
+            state = yaml.safe_load(f) or {}
     
-    with open(STATE_FILE, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
+    if 'artifact_hashes' not in state:
+        state['artifact_hashes'] = {}
     
-    logger.info(f"State file updated: {STATE_FILE}")
+    state['artifact_hashes'][artifact_name] = checksum
+    
+    with open(state_path, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False)
+    logger.info(f"Updated state file with checksum for {artifact_name}")
 
 def main():
-    """Main entry point for downloading datasets."""
-    logger.info("Starting dataset download process...")
+    """Main function to download all datasets."""
+    # Define paths
+    raw_data_dir = Path("data/raw")
+    raw_data_dir.mkdir(parents=True, exist_ok=True)
     
-    # Ensure data/raw directory exists
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    oqmd_path = raw_data_dir / "oqmd.parquet"
+    aflow_path = raw_data_dir / "aflow.parquet"
+    mp_path = raw_data_dir / "mp.parquet"
     
-    checksums = {}
+    state_path = Path("state/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m.yaml")
     
     # Download OQMD
     try:
-        oqmd_path = download_oqmd_constitution()
-        if oqmd_path:
-            oqmd_hash = generate_checksum_file(oqmd_path)
-            checksums["oqmd.parquet"] = oqmd_hash
-    except Exception as e:
+        download_oqmd_constitution(str(oqmd_path))
+        oqmd_checksum = calculate_sha256(str(oqmd_path))
+        generate_checksum_file(str(oqmd_path), str(raw_data_dir / "oqmd.parquet.sha256"))
+        update_state_file(str(state_path), "oqmd.parquet", oqmd_checksum)
+    except DataFetchError as e:
         logger.error(f"OQMD download failed: {e}")
+        raise  # Re-raise to indicate failure
     
     # Download AFLOW
     try:
-        aflow_path = download_aflow_constitution()
-        if aflow_path:
-            aflow_hash = generate_checksum_file(aflow_path)
-            checksums["aflow.parquet"] = aflow_hash
-    except Exception as e:
+        download_aflow_constitution(str(aflow_path))
+        aflow_checksum = calculate_sha256(str(aflow_path))
+        generate_checksum_file(str(aflow_path), str(raw_data_dir / "aflow.parquet.sha256"))
+        update_state_file(str(state_path), "aflow.parquet", aflow_checksum)
+    except DataFetchError as e:
         logger.error(f"AFLOW download failed: {e}")
+        raise  # Re-raise to indicate failure
     
-    # Download Materials Project (optional, skips if no key/fails)
-    mp_path = download_materials_project_constitution()
-    if mp_path:
-        mp_hash = generate_checksum_file(mp_path)
-        checksums["mp.parquet"] = mp_hash
-    else:
-        logger.info("Materials Project dataset not downloaded (skipped).")
+    # Download Materials Project (optional, skip on failure)
+    try:
+        download_materials_project(str(mp_path))
+        if mp_path.exists():
+            mp_checksum = calculate_sha256(str(mp_path))
+            generate_checksum_file(str(mp_path), str(raw_data_dir / "mp.parquet.sha256"))
+            update_state_file(str(state_path), "mp.parquet", mp_checksum)
+    except Exception as e:
+        logger.error(f"MP download failed: {e}")
+        # Do not raise, as MP is optional
     
-    # Update state file with checksums
-    if checksums:
-        update_state_file(checksums)
-    
-    logger.info("Dataset download process completed.")
-    return checksums
+    logger.info("All dataset downloads completed.")
 
 if __name__ == "__main__":
     main()

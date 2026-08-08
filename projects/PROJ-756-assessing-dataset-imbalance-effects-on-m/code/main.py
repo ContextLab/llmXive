@@ -1,98 +1,64 @@
-"""
-Orchestration script for the Dataset Imbalance Assessment Pipeline.
-
-Executes the full workflow:
-1. Ingestion (fetch raw data)
-2. Descriptors (compute Magpie features)
-3. Imbalance Calculation (Target & Compositional scores)
-4. Baseline Training (RF & GB models on skewed data)
-5. Evaluation (generate baseline report)
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Add project root to path to ensure imports work regardless of CWD
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
-RESULTS_DIR = PROJECT_ROOT / "results"
+# Ensure code directory is in path for imports
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(PROJECT_ROOT / "results" / "pipeline_run.log")
-    ]
-)
-logger = logging.getLogger("main")
+from setup_structure import create_directories
+from setup_data_directory import create_data_directories
+from setup_results_directory import create_results_directory
+from setup_state import create_state_directory
+from setup_tests_directory import create_tests_directory
+from setup_artifacts_directory import create_artifacts_directory
+from setup_raw_data_directory import create_raw_data_directory
 
 def run_pipeline():
-    """Execute the full pipeline steps in order."""
-    logger.info("Starting Dataset Imbalance Assessment Pipeline...")
+    """
+    Main entry point to initialize the project structure and run the pipeline.
+    This function orchestrates the creation of all necessary directories.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('logs/pipeline.log')
+        ]
+    )
+    logger = logging.getLogger(__name__)
     
-    # Ensure output directories exist
-    (DATA_DIR / "raw").mkdir(parents=True, exist_ok=True)
-    (DATA_DIR / "processed").mkdir(parents=True, exist_ok=True)
-    (RESULTS_DIR).mkdir(parents=True, exist_ok=True)
+    project_root = Path.cwd()
+    project_id = "PROJ-756-assessing-dataset-imbalance-effects-on-m"
+    base_path = project_root / "projects" / project_id
 
-    # Step 1: Ingestion
-    logger.info("Step 1: Running Ingestion...")
+    logger.info(f"Initializing project structure at {base_path}")
+
+    # Ensure the base project directory exists
+    base_path.mkdir(parents=True, exist_ok=True)
+
+    # Initialize sub-structures
     try:
-        from ingestion import main as ingestion_main
-        # Run ingestion to populate data/raw/
-        ingestion_main()
+        create_directories(base_path)
+        logger.info("Directory structure created successfully.")
     except Exception as e:
-        logger.error(f"Ingestion failed: {e}")
+        logger.error(f"Failed to create directory structure: {e}")
         raise
 
-    # Step 2: Descriptors
-    logger.info("Step 2: Computing Descriptors...")
-    try:
-        from descriptors import main as descriptors_main
-        # Run descriptors to populate data/processed/
-        descriptors_main()
-    except Exception as e:
-        logger.error(f"Descriptor computation failed: {e}")
-        raise
+    # Additional specific directory setups if needed
+    # These are separate modules as per the API surface
+    create_data_directories(base_path)
+    create_raw_data_directory(base_path)
+    create_results_directory(base_path)
+    create_state_directory(base_path)
+    create_tests_directory(base_path)
+    create_artifacts_directory(base_path)
 
-    # Step 3: Imbalance Calculation
-    logger.info("Step 3: Calculating Imbalance Scores...")
-    try:
-        from imbalance import main as imbalance_main
-        # Calculate Target and Compositional imbalance scores
-        imbalance_main()
-    except Exception as e:
-        logger.error(f"Imbalance calculation failed: {e}")
-        raise
-
-    # Step 4: Baseline Training
-    logger.info("Step 4: Training Baseline Models...")
-    try:
-        from training import main as training_main
-        # Train RF and GB models on skewed data
-        training_main()
-    except Exception as e:
-        logger.error(f"Model training failed: {e}")
-        raise
-
-    # Step 5: Evaluation
-    logger.info("Step 5: Generating Evaluation Report...")
-    try:
-        from evaluation import main as evaluation_main
-        # Generate baseline_report.csv
-        evaluation_main()
-    except Exception as e:
-        logger.error(f"Evaluation failed: {e}")
-        raise
-
-    logger.info("Pipeline completed successfully.")
+    logger.info("Project initialization complete.")
+    return True
 
 if __name__ == "__main__":
     run_pipeline()

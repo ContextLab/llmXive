@@ -1,25 +1,27 @@
 T006b:
   c: false
-  h: a008690e5455852757b110d05be12cc1f3c169b83f501ee4f34c70fda084b4a8
-  r: "The provided `code/downloaders.py` only contains a partially\u2011implemented\
-    \ OQMD download function, lacks any AFLOW download logic, does not include fallback\
-    \ URL handling, and the required output files `data/raw/oqmd.parquet` and `data/raw/aflow.parquet`\
-    \ are absent. The implementation therefore does not meet the task specifications."
+  h: a3c6c07102db75689e9d3d5ffb1c12f605a744db19c5fd30f082bb82b3ef6a2e
+  r: "The repository contains a partially shown `code/downloaders.py`, but the visible\
+    \ portion does not demonstrate that it writes the OQMD or AFLOW DataFrames to\
+    \ `data/raw/oqmd.parquet` and `data/raw/aflow.parquet`. Moreover, the required\
+    \ parquet files are absent from `data/raw/`. Without evidence that the implementation\
+    \ actually creates those files, the task\u2019s core requirement is unmet."
 T006d#1:
   c: false
-  h: 0e96de08acd8390497b6b267481d0b8579b1f681bd936c85184777c764931bf1
-  r: "The repository does not contain `data/raw/mp.parquet`, and the shown `code/downloaders.py`\
-    \ lacks any implementation that checks for a Materials Project API key and downloads\
-    \ the MP dataset to that path (the file is truncated before any MP\u2011specific\
-    \ logic). Consequently the required dataset file is absent and the module does\
-    \ not fulfill the specified behavior."
+  h: 186b8c646ec5381e235085d13fbc56a6ca90edd7ef484f78a42af7dfa6f5c98b
+  r: "The required output file `data/raw/mp.parquet` is not present, and the shown\
+    \ portion of `code/downloaders.py` does not demonstrate the logic for checking\
+    \ a Materials Project API key, downloading the dataset, and writing it to that\
+    \ exact path (or handling the fallback/skipping behavior). The missing file and\
+    \ lack of evident implementation mean the task\u2019s requirements are not satisfied."
 T008:
   c: false
-  h: 91fc7b51a7264c53903fbc195449ef0029de69f6757c4c1065ebe70a03d3f227
-  r: The `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv`
-    files are absent, and the provided `code/imbalance.py` snippet ends abruptly without
-    showing the logic that computes the scores and writes them to those CSVs. Consequently,
-    the required outputs are not generated, so the task is not fully satisfied.
+  h: 7174580481928ef9ddaf6b836abeac0b7b6ef79f81896830be574aa6389b90a3
+  r: "The repository contains a partially\u2011written `code/imbalance.py` that stops\
+    \ mid\u2011function and does not implement the Gini\u2011coefficient calculations,\
+    \ negative\u2011value handling, or the required CSV outputs. Moreover, the expected\
+    \ result files `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv`\
+    \ are absent. The task\u2019s core outputs are therefore not produced."
 T012:
   c: false
   h: a5322a39bab5d625eb6c11f185fc43858f1fcf0976b2e937caa6ae24050a0ff2
@@ -36,3 +38,18 @@ T016:
     `results/baseline_report.csv` path, and the expected CSV file is absent from the
     repository. Consequently the baseline performance report has not been produced
     as the task demands.
+T051:
+  c: false
+  h: 3d1611e329fc219866cb821036d7aa31ae362faf71529db2e6d890eb5ab48384
+  r: The `code/resampling.py` file is truncated and does not show any logic that logs
+    SMOTE fallback events or writes the required JSON entry, and the expected `results/resampling_log.json`
+    file is absent. Both the explicit logging behavior and the output artifact are
+    missing.
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test script, documentation, or other artifact was provided that demonstrates\
+    \ a verification task checking for `datasets.load_dataset(..., streaming=True)`,\
+    \ online statistic accumulation, or a runtime memory check limiting in\u2011memory\
+    \ usage to \u2264\u202F7\u202FGB. The implementer supplied only the task description\
+    \ without any concrete implementation or evidence, so the requirement is not satisfied."
