@@ -1,0 +1,35 @@
+# Ruff configuration for llmXive research pipeline
+# Extends pyproject.toml settings if needed, or provides file-specific overrides
+
+[lint]
+# Explicitly enable rules E (error), F (flake8), W (warning), I (isort)
+select = ["E", "F", "W", "I"]
+
+# Ignore specific rules if necessary (currently none)
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+]
+
+[lint.isort]
+# Configuration for import sorting
+known-first-party = []
+force-single-line = false
+lines-after-imports = 2
+
+[lint.per-file-ignores]
+# Example: Ignore unused imports in __init__.py
+"__init__.py" = ["F401"]

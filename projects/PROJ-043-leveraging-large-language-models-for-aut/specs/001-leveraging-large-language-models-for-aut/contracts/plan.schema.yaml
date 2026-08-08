@@ -1,0 +1,146 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Plan Execution Contract"
+description: "Schema for validating the output of the LLM refactoring pipeline."
+type: "object"
+properties:
+  experiment_summary:
+    $ref: "#/definitions/ExperimentSummary"
+  model_results:
+    type: "array"
+    items:
+      $ref: "#/definitions/ModelResult"
+  function_samples:
+    type: "array"
+    items:
+      $ref: "#/definitions/FunctionSample"
+definitions:
+  ExperimentSummary:
+    type: "object"
+    properties:
+      total_attempts:
+        type: "integer"
+        description: "Total sampling attempts"
+      valid_functions:
+        type: "integer"
+        description: "Number of valid, parseable functions"
+      refactor_success_rate:
+        type: "number"
+        description: "Percentage of successful refactors (0.0 to 1.0)"
+      mean_delta_complexity:
+        type: "number"
+        description: "Mean improvement in complexity"
+      mean_relative_improvement_complexity:
+        type: "number"
+        description: "Mean relative improvement in complexity"
+      mean_delta_pylint:
+        type: "number"
+        description: "Mean improvement in pylint score"
+      t_statistic:
+        type: "number"
+        description: "One-sample t-test statistic"
+      t_p_value:
+        type: "number"
+        description: "One-sample t-test p-value"
+      significance:
+        type: "boolean"
+        description: "True if p < 0.05"
+    required:
+      - total_attempts
+      - valid_functions
+      - refactor_success_rate
+      - t_p_value
+      - significance
+  ModelResult:
+    type: "object"
+    properties:
+      predictor:
+        type: "string"
+        description: "Name of the structural predictor"
+      coefficient:
+        type: "number"
+        description: "Ridge Regression coefficient (β)"
+      std_error:
+        type: "number"
+        description: "Robust standard error of the coefficient"
+      p_value:
+        type: "number"
+        description: "P-value for the coefficient"
+      alpha:
+        type: "number"
+        description: "Regularization parameter used"
+      adj_r_squared:
+        type: "number"
+        description: "Adjusted R² of the model"
+      f_statistic:
+        type: "number"
+        description: "Global F-statistic"
+      f_p_value:
+        type: "number"
+        description: "Global F-test p-value"
+    required:
+      - predictor
+      - coefficient
+      - p_value
+      - alpha
+  FunctionSample:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique identifier"
+      original_code:
+        type: "string"
+        description: "Raw Python source code"
+      refactored_code:
+        type: "string"
+        description: "LLM-generated refactored code"
+      baseline_code:
+        type: "string"
+        description: "Identity copy of original code"
+      is_parseable:
+        type: "boolean"
+        description: "True if original code is valid Python"
+      is_refactor_valid:
+        type: "boolean"
+        description: "True if refactored code is valid Python"
+      loc:
+        type: "integer"
+        description: "Lines of Code"
+      nesting_depth:
+        type: "integer"
+        description: "Max nesting depth"
+      param_count:
+        type: "integer"
+        description: "Number of parameters"
+      pep8_score:
+        type: "number"
+        description: "PEP-8 adherence score"
+      has_docstring:
+        type: "boolean"
+        description: "Presence of docstring"
+      complexity_original:
+        type: "integer"
+        description: "Cyclomatic complexity (original)"
+      complexity_refactored:
+        type: "integer"
+        description: "Cyclomatic complexity (refactored)"
+      delta_complexity:
+        type: "number"
+        description: "Improvement in complexity"
+      relative_improvement_complexity:
+        type: "number"
+        description: "Relative improvement in complexity"
+      status:
+        type: "string"
+        description: "Status of the sample"
+    required:
+      - id
+      - original_code
+      - is_parseable
+      - loc
+      - nesting_depth
+      - status
+required:
+  - experiment_summary
+  - model_results
+  - function_samples

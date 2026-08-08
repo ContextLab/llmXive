@@ -1,0 +1,32 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `code/` directory at the repository root is provided; the artifact\
+    \ list is empty, so the required directory has not been demonstrated as existing.\
+    \ The implementer must add the `code/` folder (non\u2011empty) to satisfy the\
+    \ task."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `data/` directory exists at the repository root;
+    the claim lacks any artifact (e.g., directory listing, screenshot, or file) confirming
+    its creation. The required directory is missing from the supplied information.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing a `tests/` directory at the repository root was provided;\
+    \ without evidence of the directory\u2019s existence, the requirement cannot be\
+    \ confirmed as satisfied. The implementer must add proof (e.g., a directory listing\
+    \ or a file inside `tests/`)."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `paper/` directory at the repository root is provided; the artifact
+    list is empty, so the required directory has not been demonstrated as existing.
+    The implementer must add the `paper/` folder to satisfy the task.
+T009:
+  c: false
+  h: c566cd22779f04d9986f347ef2c16670134590af9c4dad645eaf30b596b1c2d8
+  r: The required artifact `tests/unit/test_static_analysis.py` does not exist in
+    the repository, so no unit test for metric calculation is present. The task cannot
+    be considered completed until this file is added with appropriate tests.

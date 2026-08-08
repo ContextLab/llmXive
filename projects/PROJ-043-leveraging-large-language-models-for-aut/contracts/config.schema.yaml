@@ -1,0 +1,29 @@
+type: object
+title: ConfigSchema
+description: Validation schema for application configuration.
+properties:
+  HF_API_KEY:
+    type: string
+    description: Hugging Face API key for model access.
+  RANDOM_SEED:
+    type: integer
+    description: Seed for random number generation.
+    minimum: 0
+  MAX_ATTEMPTS:
+    type: integer
+    description: Maximum number of retry attempts for API calls.
+    minimum: 1
+  MIN_VALID_FUNCTIONS:
+    type: integer
+    description: Minimum number of valid functions required to proceed.
+    minimum: 1
+  BATCH_SIZE:
+    type: integer
+    description: Number of items to process in a single batch.
+    minimum: 1
+required:
+  - HF_API_KEY
+  - RANDOM_SEED
+  - MAX_ATTEMPTS
+  - MIN_VALID_FUNCTIONS
+  - BATCH_SIZE

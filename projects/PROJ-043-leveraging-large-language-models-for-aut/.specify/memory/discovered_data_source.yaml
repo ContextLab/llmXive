@@ -1,0 +1,12 @@
+status: none
+intent: BigCode Python functions dataset HuggingFace download python package dataset
+required_fields:
+- function_id
+- repository_name
+- file_path
+- function_name
+- function_code
+- language
+cache_key: 22968d968223882aea5a90b3ed4e814a8033f6ecb65b352fddb03d5160abdb4d
+searched_at: '2026-08-08T02:47:42.516326+00:00'
+retry_count: 1

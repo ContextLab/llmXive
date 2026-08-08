@@ -1,0 +1,78 @@
+type: object
+title: OutputSchema
+description: Validation schema for pipeline output data.
+properties:
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+      source_dataset:
+        type: string
+    required:
+      - version
+      - timestamp
+      - source_dataset
+  records:
+    type: array
+    items:
+      type: object
+      properties:
+        function_hash:
+          type: string
+        original_code:
+          type: string
+        metrics:
+          type: object
+          properties:
+            loc:
+              type: integer
+            max_nesting:
+              type: integer
+            param_count:
+              type: integer
+            has_docstring:
+              type: boolean
+            cyclomatic_complexity:
+              type: number
+            pylint_score:
+              type: number
+          required:
+            - loc
+            - max_nesting
+            - param_count
+            - has_docstring
+            - cyclomatic_complexity
+            - pylint_score
+        refactored_code:
+          type: string
+          nullable: true
+        baseline_code:
+          type: string
+        deltas:
+          type: object
+          properties:
+            complexity_delta:
+              type: number
+            pylint_delta:
+              type: number
+            maintainability_delta:
+              type: number
+          required:
+            - complexity_delta
+            - pylint_delta
+            - maintainability_delta
+        status:
+          type: string
+          enum: [success, failed, skipped]
+      required:
+        - function_hash
+        - original_code
+        - metrics
+        - status
+required:
+  - metadata
+  - records
