@@ -1,55 +1,57 @@
-# llmXive Quickstart Guide
+# Quickstart Guide for llmXive Pipeline
 
 ## Prerequisites
+
 - Python 3.11+
-- `pip install -r requirements.txt`
+- Required packages (install via `pip install -r requirements.txt`)
 
-## Data Preparation
-1. Prepare injected datasets:
- ```bash
- python code/data_loader.py prepare
- ```
- This generates `data/processed/injected_datasets.json`.
+## Running the Pipeline
 
-2. Run clustering pipeline:
- ```bash
- python code/clustering.py --threshold 0.95
- ```
- This generates `data/processed/clusters.json`.
-
-3. Run sampling pipeline:
- ```bash
- python code/sampling.py
- ```
- This generates `data/results/consensus_sample.json`.
-
-4. Run ranker and metrics:
- ```bash
- python code/ranker.py --variant baseline --budget 100
- ```
- This generates `data/processed/comparison_log.json`, `data/processed/unique_subset.json`, `data/results/correction_factor.json`, and `data/results/us1_efficiency_ratio.json`.
-
-## Pipeline Execution
-Run the full pipeline with specific variants and budgets:
+### Step 1: Prepare Injected Datasets
 
 ```bash
-python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 42 43 44
+python code/data_loader.py prepare
 ```
 
-Or for clustering-aided:
-```bash
-python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 42 43 44
-```
+This command prepares the injected datasets for `nfcorpus` and `scifact`, creating near-duplicate clusters for redundancy analysis.
 
-## Cross-Dataset Validation
+### Step 2: Validate TREC-COVID Redundancy Clusters
+
 ```bash
 python code/data_loader.py validate_trec_covid
 ```
 
-## Statistical Report
-The statistical report is generated automatically at the end of the pipeline run if prerequisites are met.
-Output: `data/results/statistical_report.md`
+This command validates the redundancy clusters on the `trec-covid` dataset and saves the results to `data/results/trec_covid_validation.json`.
+
+### Step 3: Run the Full Pipeline
+
+```bash
+python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 42
+```
+
+This command runs the full pipeline for the `baseline` variant with specified budgets and seeds.
+
+For the `clustering_aided` variant:
+
+```bash
+python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 42
+```
+
+### Step 4: Generate Statistical Report
+
+The statistical report is automatically generated after the pipeline completes. It is saved to `data/results/statistical_report.md`.
+
+## Output Files
+
+- `data/processed/injected_datasets.json`: Injected datasets with redundancy clusters.
+- `data/processed/clusters.json`: MinHash-LSH clustering results.
+- `data/results/consensus_sample.json`: Sampled pairs for LLM consensus validation.
+- `data/results/flagged_pairs_count.json`: Count of flagged pairs.
+- `data/results/trec_covid_validation.json`: Validation results for `trec-covid`.
+- `data/results/statistical_report.md`: Final statistical report.
 
 ## Troubleshooting
-- If `DataFlowViolationError` occurs, ensure `prepare` and `clustering` steps have been run successfully.
-- If `FileNotFoundError` occurs for `injected_datasets.json`, run `python code/data_loader.py prepare` first.
+
+- Ensure all required artifacts exist before running the pipeline.
+- Check resource limits (6 hours runtime, 7GB memory) to avoid early termination.
+- Verify that the `beir` library is installed and datasets are downloadable.

@@ -11,5 +11,9 @@ onnx
 onnxruntime
 transformers
 accelerate
-matplotlib
+bitsandbytes
+psutil
 pyyaml
+matplotlib
+ruff
+black

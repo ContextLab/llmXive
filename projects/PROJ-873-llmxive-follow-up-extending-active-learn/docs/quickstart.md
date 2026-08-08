@@ -1,97 +1,77 @@
-# Quickstart Guide for llmXive Follow-up
+# Quickstart Guide for llmXive Follow-up Project
 
-This guide explains how to run the full research pipeline for the "Active Learners as Efficient PRP Rerankers" extension.
+This guide provides the commands to run the full pipeline and verify the proxy validation chain.
 
 ## Prerequisites
 
-1. Ensure you have Python 3.11+ installed.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-3. Validate the environment:
- ```bash
- bash code/validate_env.sh
- ```
+- Python 3.11+
+- Install dependencies: `pip install -r requirements.txt`
 
-## Data Preparation
+## 1. Data Preparation
 
-The pipeline requires BEIR datasets (`nfcorpus`, `scifact`, `trec-covid`) and injected redundancy datasets.
-
-### Step 1: Prepare Injected Datasets
-
-Run the data loader to fetch BEIR data and inject synthetic redundancy.
-This generates `data/processed/injected_datasets.json`.
+Fetch BEIR datasets and prepare injected redundancy datasets.
 
 ```bash
 python code/data_loader.py prepare
 ```
 
-### Step 2: Validate TREC-COVID (Optional)
+This command:
+- Downloads `nfcorpus`, `scifact`, and `trec-covid` from BEIR.
+- Generates synthetic redundancy clusters.
+- Writes `data/processed/injected_datasets.json`.
 
-If you specifically need to validate redundancy on TREC-COVID:
+## 2. Run Pipeline (Baseline & Clustering-Aided)
 
-```bash
-python code/data_loader.py validate_trec_covid
-```
-
-## Running the Pipeline
-
-The main pipeline orchestrates the ranking experiments, sampling, and metric calculation.
-
-### Basic Execution
-
-Run the baseline variant with default settings:
+Execute the full active learning pipeline with resource limits.
 
 ```bash
-python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 42
+# Baseline variant (unique subset only)
+python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5
+
+# Clustering-aided variant (MinHash-LSH pre-filtering)
+python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5
 ```
 
-### Clustering-Aided Variant
+**Note**: The `--variant` argument must be either `baseline` or `clustering_aided`.
+The `--budgets` argument accepts multiple integer values.
+The `--seeds` argument specifies the number of random seeds for statistical robustness.
 
-Run the clustering-aided variant:
+## 3. Verify Proxy Validation Chain (T069)
+
+Execute the dry-run of the proxy validation chain (T013 -> T013e -> T013f -> T013d)
+to confirm artifact integrity and data flow.
 
 ```bash
-python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 42
+python code/verify_proxy_chain.py --data-dir data --results-dir data/results
 ```
 
-### Cross-Dataset Generalization
+This command:
+- Reads `consensus_sample.json` (from T013c).
+- Runs T013e (Consensus Validation) -> writes `consensus_ground_truth.json`.
+- Runs T013f (Correction Factor) -> writes `correction_factor.json`.
+- Runs T013d (Final Ratio) -> writes `us1_efficiency_ratio.json`.
+- Outputs a summary to `data/results/t069_chain_verification.json`.
 
-To run the generalization check across `nfcorpus`, `scifact`, and `trec-covid`:
+## 4. Statistical Analysis
+
+Run statistical tests on the results.
 
 ```bash
-python code/run_pipeline.py --variant baseline --budgets 100 --seeds 42 --cross-dataset
+python code/confirm_statistical_robustness.py
+python code/generate_statistical_report.py
 ```
 
-## Artifact Generation
+## 5. Validation & Auditing
 
-The pipeline produces the following key artifacts:
-
-- `data/processed/injected_datasets.json`: Redundancy-injected datasets.
-- `data/processed/clusters.json`: MinHash-LSH clusters.
-- `data/processed/unique_subset.json`: Deduplicated candidate lists.
-- `data/processed/comparison_log.json`: Pairwise comparison logs.
-- `data/results/flagged_pairs_count.json`: Count of "wasted" calls.
-- `data/results/consensus_sample.json`: Sampled pairs for LLM validation.
-- `data/results/consensus_ground_truth.json`: LLM ground truth labels.
-- `data/results/correction_factor.json`: Proxy accuracy correction factor.
-- `data/results/us1_efficiency_ratio.json`: Final efficiency metrics.
-- `data/results/statistical_report.md`: Final statistical analysis.
-
-## Troubleshooting
-
-### Missing Artifacts
-
-If you see `FileNotFoundError` regarding `injected_datasets.json`, ensure you ran the `prepare` command in the Data Preparation section.
-
-### Resource Limits
-
-If the pipeline terminates due to time or memory limits, check `code/config.py` for `MAX_RUNTIME_HOURS` and `MAX_MEMORY_GB` settings.
-
-## Validation
-
-To verify the constitution compliance of the generated artifacts:
+Validate the Constitution compliance and data integrity.
 
 ```bash
 python code/audit/validate_constitution.py
+python code/quickstart_validator.py
 ```
+
+## Troubleshooting
+
+- **Missing Artifacts**: Ensure `code/data_loader.py prepare` has been run successfully before running the pipeline.
+- **Resource Limits**: If the pipeline terminates early, check `data/processed/resource_log.json` for memory or timeout violations.
+- **Data Flow Errors**: If `DataFlowViolationError` is raised, verify that all prerequisite artifacts (e.g., `injected_datasets.json`, `clusters.json`) exist in `data/processed/`.

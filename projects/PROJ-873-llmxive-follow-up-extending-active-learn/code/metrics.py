@@ -7,124 +7,120 @@ import os
 import json
 import logging
 
+from config import get_config
+
 logger = logging.getLogger(__name__)
 
-class StatisticalDegeneracyWarning(Warning):
+class StatisticalDegeneracyWarning(UserWarning):
+    """Raised when statistical tests encounter zero variance."""
     pass
 
 def get_embedding_model():
-    """Returns a sentence transformer model."""
-    try:
-        return SentenceTransformer('all-MiniLM-L6-v2')
-    except Exception:
-        logger.warning("Could not load embedding model. Using mock.")
-        return None
+    """Get the embedding model."""
+    return SentenceTransformer('all-MiniLM-L6-v2')
 
-def calculate_cosine_similarity_proxy(text1: str, text2: str, model) -> float:
-    """Calculates cosine similarity."""
-    if model is None:
-        return 0.95 # Mock
-    embeddings = model.encode([text1, text2])
-    return float(cosine_similarity([embeddings[0]], [embeddings[1]])[0][0])
+def calculate_cosine_similarity_proxy(embeddings: List[np.ndarray]) -> List[List[float]]:
+    """Calculate cosine similarity proxy for embeddings."""
+    return cosine_similarity(embeddings).tolist()
 
-def is_wasted_call(similarity: float, threshold: float = 0.95) -> bool:
-    """Determines if a call is wasted."""
-    return similarity > threshold
+def is_wasted_call(cosine_sim: float, threshold: float = 0.95) -> bool:
+    """Determine if a call is wasted based on cosine similarity."""
+    return cosine_sim > threshold
 
-def calculate_ndcg_at_k(ratings: List[int], k: int) -> float:
-    """Calculates NDCG@k."""
-    if not ratings:
-        return 0.0
-    dcg = sum(r / np.log2(i + 2) for i, r in enumerate(ratings[:k]))
-    idcg = sum(r / np.log2(i + 2) for i, r in enumerate(sorted(ratings, reverse=True)[:k]))
-    return dcg / idcg if idcg else 0.0
+def calculate_ndcg_at_k(scores: List[float], k: int) -> float:
+    """Calculate NDCG@k."""
+    dcg = 0.0
+    idcg = 0.0
+    for i, score in enumerate(scores[:k]):
+        dcg += score / np.log2(i + 2)
+        idcg += 1.0 / np.log2(i + 2)
+    return dcg / idcg if idcg > 0 else 0.0
 
-def calculate_ndcg_at_10() -> str:
-    """T016/T022: Calculates NDCG@10 and writes results."""
-    output_path = "data/results/us1_baseline_metrics.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    # Mock calculation
-    metrics = {
-        "ndcg_at_10_baseline": 0.85,
-        "ndcg_at_10_clustering": 0.88,
-        "drop_percentage": -3.5
-    }
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    return output_path
+def calculate_ndcg_at_10(scores: List[float]) -> float:
+    """Calculate NDCG@10."""
+    return calculate_ndcg_at_k(scores, 10)
 
-def load_beir_ground_truth(dataset: str) -> Dict:
-    """Loads BEIR ground truth."""
-    return {}
+def load_beir_ground_truth(dataset: str) -> Dict[str, Dict[str, int]]:
+    """Load BEIR ground truth qrels."""
+    from beir.datasets.data_loader import GenericDataLoader
+    from beir import util
+    from config import get_config
 
-def load_results_from_json(path: str) -> List[Dict]:
-    """Loads results from JSON."""
-    with open(path, 'r') as f:
+    config = get_config()
+    out_dir = os.path.join(config.data_dir, "beir_data")
+    url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip"
+    data_path = util.download_and_unzip(url, out_dir)
+    _, _, qrels = GenericDataLoader(data_path).load(split="test")
+    return qrels
+
+def load_results_from_json(path: str) -> List[Dict[str, Any]]:
+    """Load results from JSON file."""
+    with open(path, "r") as f:
         return json.load(f)
 
-def aggregate_ndcg_scores(scores: List[float]) -> Dict[str, float]:
-    """Aggregates NDCG scores."""
-    return {"mean": np.mean(scores), "std": np.std(scores)}
+def aggregate_ndcg_scores(results: List[Dict[str, Any]]) -> List[float]:
+    """Aggregate NDCG scores from results."""
+    return [r.get("ndcg_at_10", 0.0) for r in results]
 
-def calculate_wasted_call_ratios() -> str:
-    """T013d: Calculates wasted call ratios."""
-    output_path = "data/results/us1_efficiency_ratio.json"
-    # This is also generated in ranker.py, ensuring idempotency
-    if os.path.exists(output_path):
-        return output_path
-    
-    # Fallback generation if not present
-    with open(output_path, 'w') as f:
-        json.dump({"wasted_ratio": 0.4, "wasted_ratio_corrected": 0.38, "wasted_count": 40, "total_budget": 100}, f)
-    return output_path
+def calculate_wasted_call_ratios(logs: List[Dict[str, Any]], threshold: float = 0.95) -> Dict[str, float]:
+    """Calculate wasted call ratios."""
+    wasted_count = sum(1 for log in logs if log.get("cosine_sim", 0) > threshold)
+    total_count = len(logs)
+    return {
+        "wasted_count": wasted_count,
+        "total_count": total_count,
+        "wasted_ratio": wasted_count / total_count if total_count > 0 else 0.0
+    }
 
-def wilcoxon_signed_rank_test(sample1: List[float], sample2: List[float]) -> float:
-    """Performs Wilcoxon signed-rank test."""
-    if len(sample1) == 0 or len(sample2) == 0:
-        logger.warning("Empty sample for Wilcoxon test.")
-        return 1.0
-    if np.var(sample1) == 0 or np.var(sample2) == 0:
-        logger.warning("Zero variance detected. Returning p=1.0 (no significant difference).")
-        return 1.0
-    try:
-        stat, p = wilcoxon(sample1, sample2)
-        return p
-    except Exception as e:
-        logger.warning(f"Wilcoxon test failed: {e}")
-        return 1.0
+def wilcoxon_signed_rank_test(group1: List[float], group2: List[float]) -> Dict[str, Any]:
+    """Perform Wilcoxon signed-rank test with zero-variance handling."""
+    if len(group1) != len(group2):
+        raise ValueError("Groups must have the same length.")
 
-def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
-    """Applies Bonferroni correction."""
+    # Check for zero variance
+    if np.std(group1) == 0 or np.std(group2) == 0:
+        logger.warning(StatisticalDegeneracyWarning("Zero variance detected in one or both groups."))
+        return {
+            "statistic": 0.0,
+            "pvalue": 1.0,
+            "degeneracy_warning": True
+        }
+
+    statistic, pvalue = wilcoxon(group1, group2)
+    return {
+        "statistic": float(statistic),
+        "pvalue": float(pvalue),
+        "degeneracy_warning": False
+    }
+
+def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[Dict[str, Any]]:
+    """Apply Bonferroni correction to p-values."""
     n = len(p_values)
-    corrected = [p * n for p in p_values]
-    return [min(p, 1.0) for p in corrected]
+    corrected_p_values = [p * n for p in p_values]
+    return [
+        {"pvalue": p, "corrected_pvalue": min(cp, 1.0), "significant": min(cp, 1.0) < alpha}
+        for p, cp in zip(p_values, corrected_p_values)
+    ]
 
-def calculate_dynamic_sample_size(total_count: int, min_size: int = 10, pct: float = 0.05) -> int:
-    """Calculates dynamic sample size."""
-    return max(min_size, int(total_count * pct))
+def calculate_dynamic_sample_size(flagged_count: int, minimum_threshold: int = 10, percentage: float = 0.05) -> int:
+    """Calculate dynamic sample size based on flagged count."""
+    return max(minimum_threshold, int(flagged_count * percentage))
 
-def validate_proxy_accuracy() -> str:
-    """T013f: Validates proxy accuracy and writes correction factor."""
-    output_path = "data/results/correction_factor.json"
-    if os.path.exists(output_path):
-        return output_path
-    
-    with open(output_path, 'w') as f:
-        json.dump({"correction_factor": 0.9, "proxy_accuracy": 0.9, "sample_size": 10, "confusion_matrix": {"tp": 9, "tn": 0, "fp": 0, "fn": 1}}, f)
-    return output_path
+def validate_proxy_accuracy(proxy_labels: List[bool], ground_truth: List[bool]) -> Dict[str, int]:
+    """Validate proxy accuracy against ground truth."""
+    tp = sum(1 for p, g in zip(proxy_labels, ground_truth) if p and g)
+    tn = sum(1 for p, g in zip(proxy_labels, ground_truth) if not p and not g)
+    fp = sum(1 for p, g in zip(proxy_labels, ground_truth) if p and not g)
+    fn = sum(1 for p, g in zip(proxy_labels, ground_truth) if not p and g)
+    return {"tp": tp, "tn": tn, "fp": fp, "fn": fn}
 
-def validate_jaccard_cosine_correlation() -> str:
-    """Validates correlation between Jaccard and Cosine."""
-    output_path = "data/results/jaccard_cosine_correlation.json"
-    with open(output_path, 'w') as f:
-        json.dump({"correlation": 0.85, "p_value": 0.01}, f)
-    return output_path
+def validate_jaccard_cosine_correlation(jaccard_scores: List[float], cosine_scores: List[float]) -> float:
+    """Validate correlation between Jaccard and cosine similarity."""
+    correlation = np.corrcoef(jaccard_scores, cosine_scores)[0, 1]
+    return correlation
 
 def main():
-    calculate_ndcg_at_10()
-    calculate_wasted_call_ratios()
-    validate_proxy_accuracy()
+    pass
 
 if __name__ == "__main__":
     main()

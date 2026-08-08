@@ -1695,3 +1695,780 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T08:24:05Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project with specific library requirements
+  claim_id: c_f26e622f
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt (beir, sentence-transformers,
+    datasketch, scikit-learn, scipy, pandas, numpy, pytest, nltk, onnx, onnxruntime,
+    transformers, accelerate, bitsandbytes, tinyllama)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:27:47Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Set default runtime limit to 6 hours and memory limit to 7GB
+  claim_id: c_d272c57b
+  context: 'Phase 2: Foundational - Task T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set default values for MAX_RUNTIME_HOURS and MAX_MEMORY_GB explicitly
+    to 6 hours and 7GB respectively
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:28:06Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Terminate pipeline if runtime exceeds 6 hours or memory exceeds 7GB
+  claim_id: c_274eb71e
+  context: 'Phase 2: Foundational - Task T004a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement watchdog/signal handler to terminate the pipeline if runtime
+    exceeds 6 hours or memory exceeds 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:28:42Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Fetch nfcorpus and scifact datasets using beir library
+  claim_id: c_6819c220
+  context: 'Phase 2: Foundational - Task T005'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_nfcorpus_and_scifact_datasets_using_beir_library
+  kind: entity_fact
+  raw_text: Fetch nfcorpus and scifact datasets via beir library
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:29:11Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Record SHA-256 checksums of raw BEIR files
+  claim_id: c_047ed2a1
+  context: 'Phase 2: Foundational - Task T005a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Record SHA-256 checksums of raw BEIR files in state/projects/PROJ-873-llmxive-follow-up-extending-active-learn.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:29:24Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Log pairwise comparisons in JSONL format with specific fields
+  claim_id: c_d8276346
+  context: 'Phase 2: Foundational - Task T006'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_pairwise_comparisons_in_JSONL_format_with_specific_field
+  kind: entity_fact
+  raw_text: Log every pairwise comparison with JSONL format containing pair_id, doc1_id,
+    doc2_id, cosine_sim, is_wasted, and timestamp
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:30:11Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Verify CPU-only constraints by checking for absent CUDA and no GPU dependencies
+  claim_id: c_5683caf4
+  context: 'Phase 2: Foundational - Task T008'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_CPU-only_constraints_by_checking_for_absent_CUDA_and
+  kind: entity_fact
+  raw_text: Verify no GPU dependencies in requirements.txt and ensure CUDA availability
+    is absent or ignored
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:30:30Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Verify availability and CPU compatibility of all-MiniLM-L6-v2 model
+  claim_id: c_347c85d5
+  context: 'Phase 2: Foundational - Task T050'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_availability_and_CPU_compatibility_of_all-MiniLM-L6-v
+  kind: entity_fact
+  raw_text: Check for all-MiniLM-L6-v2 model availability and CPU compatibility
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:30:48Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Assert injected clusters have pairwise cosine similarity greater than
+    0.95
+  claim_id: c_7c012916
+  context: 'Phase 3: User Story 1 - Task T010'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_injected_clusters_have_pairwise_cosine_similarity_gre
+  kind: magnitude
+  raw_text: Assert that injected clusters contain items with pairwise cosine similarity
+    > 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:31:04Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Generate injected datasets for nfcorpus, scifact, and trec-covid
+  claim_id: c_e5a1be0c
+  context: 'Phase 3: User Story 1 - Task T012'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_injected_datasets_for_nfcorpus,_scifact,_and_trec-c
+  kind: entity_fact
+  raw_text: Generate injected_datasets.json for nfcorpus and scifact, and injected_trec_covid.json
+    for trec-covid
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:31:52Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Verify injected redundancy achieves target similarity greater than 0.95
+  claim_id: c_19100344
+  context: 'Phase 3: User Story 1 - Task T043'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_injected_redundancy_achieves_target_similarity_greate
+  kind: magnitude
+  raw_text: Verify injected redundancy achieves target similarity > 0.95 before proceeding
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:32:26Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Establish reference NDCG@10 using baseline active ranker on unique subset
+  claim_id: c_3f320f5f
+  context: 'Phase 3: User Story 1 - Task T014'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the baseline active ranker against the unique subset to establish
+    the reference NDCG@10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:32:28Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Flag pairs with cosine similarity greater than 0.95 as wasted
+  claim_id: c_f1b7c5de
+  context: 'Phase 3: User Story 1 - Task T013'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_pairs_with_cosine_similarity_greater_than_0.95_as_waste
+  kind: magnitude
+  raw_text: Flag pairs with similarity > 0.95 as wasted using all-MiniLM-L6-v2
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:32:35Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Calculate sample size as max of 10 or 5% of flagged count
+  claim_id: c_c87e756f
+  context: 'Phase 3: User Story 1 - Task T013b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate sample size as the maximum of 10 or 5% of the total flagged
+    count
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:32:41Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Derive confusion matrix from proxy vs ground truth labels
+  claim_id: c_e091be33
+  context: 'Phase 3: User Story 1 - Task T013f'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Derive_confusion_matrix_from_proxy_vs_ground_truth_labels
+  kind: entity_fact
+  raw_text: Compare cosine_sim proxy labels against true_label from consensus_ground_truth.json
+    to derive TP, TN, FP, FN
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:32:46Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Calculate estimated true wasted count using precision and recall correction
+  claim_id: c_91915f75
+  context: 'Phase 3: User Story 1 - Task T013d'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate estimated_true_wasted_count using formula: (wasted_count *
+    precision) + (unflagged_count * (1 - recall))'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:32:48Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Scan nfcorpus and scifact for clusters with similarity greater than 0.95
+  claim_id: c_5292ab7d
+  context: 'Phase 3: User Story 1 - Tasks T017a and T017b'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scan_nfcorpus_and_scifact_for_clusters_with_similarity_great
+  kind: magnitude
+  raw_text: Scan nfcorpus and scifact datasets for existing near-duplicate clusters
+    with similarity > 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:32:55Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Group passages with Jaccard similarity greater than 0.95 using MinHash-LSH
+  claim_id: c_274a2081
+  context: 'Phase 4: User Story 2 - Task T020'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Group_passages_with_Jaccard_similarity_greater_than_0.95_usi
+  kind: magnitude
+  raw_text: Group near-duplicate passages with Jaccard similarity > 0.95 using MinHash-LSH
+    algorithm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:33:01Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Trigger re-run if more than 5% of cluster members have Jaccard similarity
+    less than 0.95
+  claim_id: c_6c93ead5
+  context: 'Phase 4: User Story 2 - Task T044'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_re-run_if_more_than_5%25_of_cluster_members_have_Jacca
+  kind: magnitude
+  raw_text: Verify if > 5% of cluster members have Jaccard < 0.95 and trigger re-run
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:33:07Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Proceed if pool reduction is less than 30%
+  claim_id: c_a62513aa
+  context: 'Phase 4: User Story 2 - Task T021'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_if_pool_reduction_is_less_than_30%25
+  kind: magnitude
+  raw_text: Log warning and proceed if pool reduction < 30%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:33:18Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Halt execution if remaining budget is less than 5% of total
+  claim_id: c_e10c4162
+  context: 'Phase 4: User Story 2 - Task T045'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_remaining_budget_is_less_than_5%25_of_total
+  kind: magnitude
+  raw_text: Halt execution if remaining budget < 5% of total
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T13:33:56Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Run pipeline for thresholds 0.90, 0.92, 0.94, 0.95, 0.96, and 0.98
+  claim_id: c_07533117
+  context: 'Phase 4: User Story 2 - Task T025b'
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Run the pipeline for each threshold in the specific set of representative
+    values: [0.90, 0.92, 0.94, 0.95, 0.96, 0.98]'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T13:33:56Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Fallback to unique-only processing if merge rate exceeds 5%
+  claim_id: c_51d6356e
+  context: 'Phase 4: User Story 2 - Task T038'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger a warning and fallback to unique-only processing if merge rate
+    > 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:33:57Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Halt execution if remaining budget is less than 5% of pool size
+  claim_id: c_5e541017
+  context: 'Phase 4: User Story 2 - Task T039'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_remaining_budget_is_less_than_5%25_of_pool_s
+  kind: magnitude
+  raw_text: Halt execution if remaining budget < 5% of pool size
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T13:34:09Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Compare wasted call ratios across nfcorpus, scifact, and trec-covid datasets
+  claim_id: c_2e1c5436
+  context: 'Phase 5: User Story 3 - Task T048'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_wasted_call_ratios_across_nfcorpus,_scifact,_and_tre
+  kind: entity_fact
+  raw_text: Compare wasted call ratios between nfcorpus, scifact, and trec-covid
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:34:16Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Perform Wilcoxon signed-rank test on NDCG@10 and wasted call ratios
+  claim_id: c_18bcc688
+  context: 'Phase 5: User Story 3 - Tasks T028 and T029'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Wilcoxon signed-rank test on NDCG@10 scores and wasted call ratios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:34:22Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for NDCG and efficiency hypothesis tests
+  claim_id: c_c86b3fb9
+  context: 'Phase 5: User Story 3 - Task T030'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_NDCG_and_efficiency_hypothes
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for multiple hypothesis testing (NDCG and
+    efficiency)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:34:29Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Ensure strict data producer-consumer execution order
+  claim_id: c_511349fb
+  context: 'Phase N+5: Final Data Flow & Execution Order Verification'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_strict_data_producer-consumer_execution_order
+  kind: entity_fact
+  raw_text: Ensure data producers execute strictly before their consumers to prevent
+    race conditions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:34:41Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 0
+  canonical: Run pipeline for MinHash-LSH thresholds 0.90, 0.92, 0.94, 0.95, 0.96,
+    0.98
+  claim_id: c_2a36d336
+  context: 'Phase 4: User Story 2 - Implementation - T025b'
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Run the pipeline for each threshold in the specific set of representative
+    values: [0.90, 0.92, 0.94, 0.95, 0.96, 0.98]'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T13:40:40Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization with specified libraries
+  claim_id: c_4a492544
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt (beir, sentence-transformers,
+    datasketch, scikit-learn, scipy, pandas, numpy, pytest, nltk, onnx, onnxruntime,
+    transformers, accelerate, bitsandbytes, tinyllama)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:40:41Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Pipeline termination threshold 6 hours runtime or 7GB memory
+  claim_id: c_5817c9a8
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement watchdog/signal handler to terminate the pipeline if runtime
+    exceeds 6 hours or memory exceeds 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:40:41Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Fetch nfcorpus and scifact datasets via beir library
+  claim_id: c_ad13ef37
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_nfcorpus_and_scifact_datasets_via_beir_library
+  kind: entity_fact
+  raw_text: Fetch nfcorpus and scifact via beir library
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:41:01Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Verify CPU-only constraints and absence of CUDA/GPU dependencies
+  claim_id: c_77786f00
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T008'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_CPU-only_constraints_and_absence_of_CUDA/GPU_dependen
+  kind: entity_fact
+  raw_text: 'Verify CPU-only constraints: check for CUDA availability (must be absent
+    or ignored), ensure no GPU dependencies in requirements.txt'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:41:19Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Verify all-MiniLM-L6-v2 model CPU compatibility
+  claim_id: c_00c34474
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T050'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_all-MiniLM-L6-v2_model_CPU_compatibility
+  kind: entity_fact
+  raw_text: Verify all-MiniLM-L6-v2 model availability and CPU compatibility
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:41:35Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Assert injected clusters have pairwise cosine similarity greater than
+    0.95
+  claim_id: c_b8f9c2f4
+  context: 'Phase 3: User Story 1 - Tests - T010'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_injected_clusters_have_pairwise_cosine_similarity_gre
+  kind: magnitude
+  raw_text: Assert that injected clusters contain items with pairwise cosine similarity
+    > 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:41:36Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Verify injected redundancy achieves target similarity greater than 0.95
+  claim_id: c_d5ca57b0
+  context: 'Phase 3: User Story 1 - Implementation - T043'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_injected_redundancy_achieves_target_similarity_greate
+  kind: magnitude
+  raw_text: Verify the injected redundancy actually achieves the target similarity
+    > 0.95 before proceeding
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:41:59Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Use bert-base-uncased model and sentence-transformers for embeddings
+  claim_id: c_7e65e9d2
+  context: 'Phase 3: User Story 1 - Implementation - T014'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_bert-base-uncased_model_and_sentence-transformers_for_em
+  kind: entity_fact
+  raw_text: Use a CPU-light model (bert-base-uncased) and sentence-transformers for
+    embedding calculations
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:42:21Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Flag pairs with cosine similarity greater than 0.95 as wasted using all-MiniLM-L6-v2
+  claim_id: c_1dbdc928
+  context: 'Phase 3: User Story 1 - Implementation - T013'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_pairs_with_cosine_similarity_greater_than_0.95_as_waste
+  kind: magnitude
+  raw_text: Flag pairs with similarity > 0.95 as wasted using all-MiniLM-L6-v2
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:42:23Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Calculate sample size as maximum of 10 or 5% of flagged count
+  claim_id: c_fc5e8e76
+  context: 'Phase 3: User Story 1 - Implementation - T013b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate sample size as the maximum of 10 or 5% of the total flagged
+    count
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:42:23Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Group near-duplicate passages with Jaccard similarity greater than 0.95
+  claim_id: c_35741f13
+  context: 'Phase 4: User Story 2 - Implementation - T020'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Group_near-duplicate_passages_with_Jaccard_similarity_greate
+  kind: magnitude
+  raw_text: Group near-duplicate passages with Jaccard similarity > 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:43:02Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Trigger re-run if more than 5% of cluster members have Jaccard similarity
+    less than 0.95
+  claim_id: c_97c42671
+  context: 'Phase 4: User Story 2 - Implementation - T044'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_re-run_if_more_than_5%25_of_cluster_members_have_Jacca
+  kind: magnitude
+  raw_text: If > 5% of cluster members have Jaccard < 0.95, log a warning and trigger
+    a re-run
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:43:50Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Log warning if pool reduction is less than 30% but proceed
+  claim_id: c_11865aef
+  context: 'Phase 4: User Story 2 - Implementation - T021'
+  evidence:
+    candidates:
+    - - ''
+      - 30.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_pool_reduction_is_less_than_30%25_but_proceed
+  kind: magnitude
+  raw_text: If reduction < 30%, log a warning but proceed to allow sensitivity analysis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T13:44:41Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Trigger warning and fallback if merge rate exceeds 5%
+  claim_id: c_16ef4517
+  context: 'Phase 4: User Story 2 - Implementation - T038'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If merge rate > 5%, trigger a warning and fallback to unique-only processing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:44:41Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Trigger re-run if MinHash-LSH threshold 0.95 causes more than 10% incorrect
+    merges
+  claim_id: c_f660a440
+  context: 'Phase N+3: Analysis-Driven Corrections - T059'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Trigger_re-run_if_MinHash-LSH_threshold_0.95_causes_more_tha
+  kind: causal
+  raw_text: If the MinHash-LSH threshold (0.95) results in > 10% of unique documents
+    being incorrectly merged, the system MUST automatically trigger a re-run
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T13:44:43Z'

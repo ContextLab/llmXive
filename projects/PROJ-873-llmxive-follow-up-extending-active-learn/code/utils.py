@@ -5,140 +5,103 @@ import time
 import resource
 import logging
 import json
-from typing import Dict, Any, Optional, List
-from pathlib import Path
+from typing import Optional
+
+from config import get_config, PipelineConfig
 
 logger = logging.getLogger(__name__)
 
 class PartialRunError(Exception):
-    """Raised when the pipeline must stop gracefully due to resource limits."""
     pass
 
 class DataFlowViolationError(Exception):
-    """Raised when a required data artifact is missing or schema-mismatched."""
     pass
 
 class ResourceWatchdog:
-    def __init__(self, max_runtime_seconds: float, max_memory_bytes: int):
-        self.max_runtime_seconds = max_runtime_seconds
-        self.max_memory_bytes = max_memory_bytes
+    def __init__(self, max_runtime_hours: float, max_memory_gb: float):
+        self.max_runtime_hours = max_runtime_hours
+        self.max_memory_gb = max_memory_gb
         self.start_time = time.time()
+        self.max_memory_bytes = max_memory_gb * 1024 * 1024 * 1024
         self.running = True
 
-    def check(self) -> bool:
-        """Returns True if limits are respected, False otherwise."""
+    def check(self):
+        if not self.running:
+            return
+
         elapsed = time.time() - self.start_time
-        if elapsed > self.max_runtime_seconds:
-            logger.warning(f"Runtime limit exceeded: {elapsed:.2f}s > {self.max_runtime_seconds}s")
-            return False
+        elapsed_hours = elapsed / 3600
+
+        if elapsed_hours > self.max_runtime_hours:
+            logger.error(f"Runtime limit exceeded: {elapsed_hours:.2f}h > {self.max_runtime_hours}h")
+            self._hard_kill()
 
         try:
-            usage = resource.getrusage(resource.RUSAGE_SELF)
-            mem_mb = usage.ru_maxrss / 1024  # Convert KB to MB on Linux/macOS
-            mem_bytes = mem_mb * 1024 * 1024
-            if mem_bytes > self.max_memory_bytes:
-                logger.warning(f"Memory limit exceeded: {mem_bytes:.2f}B > {self.max_memory_bytes}B")
-                return False
+            mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            # On Linux, ru_maxrss is in KB; on macOS, it might be bytes.
+            # Assuming Linux for consistency with cgroups context
+            mem_gb = mem_usage / (1024 * 1024) 
+            if mem_gb > self.max_memory_gb:
+                logger.error(f"Memory limit exceeded: {mem_gb:.2f}GB > {self.max_memory_gb}GB")
+                self._hard_kill()
         except Exception as e:
-            logger.warning(f"Could not check memory usage: {e}")
+            logger.warning(f"Could not check memory: {e}")
 
-        return True
+    def _hard_kill(self):
+        logger.critical("Initiating hard kill.")
+        os.kill(os.getpid(), signal.SIGKILL)
 
-def enforce_resource_limits(watchdog: ResourceWatchdog):
-    if not watchdog.check():
-        raise PartialRunError("Resource limits exceeded, terminating gracefully.")
+    def stop(self):
+        self.running = False
 
-def init_watchdog(max_runtime_hours: float, max_memory_gb: float) -> ResourceWatchdog:
-    max_runtime_seconds = max_runtime_hours * 3600
-    max_memory_bytes = max_memory_gb * 1024 * 1024 * 1024
-    return ResourceWatchdog(max_runtime_seconds, max_memory_bytes)
+def init_watchdog():
+    config = get_config()
+    watchdog = ResourceWatchdog(
+        max_runtime_hours=config.MAX_RUNTIME_HOURS,
+        max_memory_gb=config.MAX_MEMORY_GB
+    )
+    
+    # T004a: Dual-Layer Hard Kill
+    # Layer 1: psutil signals (handled in check via os.kill)
+    # Layer 2: Shell wrapper (handled by external script or cgroups if available)
+    
+    # Verify cgroups or psutil availability
+    try:
+        # Check if cgroups v2 are available
+        with open('/sys/fs/cgroup/cgroup.controllers', 'r') as f:
+            pass
+        logger.info("cgroups v2 available.")
+    except FileNotFoundError:
+        logger.warning("cgroups v2 not available. Fallback to psutil/ulimit.")
+        # Fallback logic handled by watchdog check loop
+    
+    return watchdog
 
-def check_limits_periodically(watchdog: ResourceWatchdog, interval_seconds: float = 60):
+def check_limits_periodically(watchdog: ResourceWatchdog, interval: int = 60):
     while watchdog.running:
-        time.sleep(interval_seconds)
-        if not watchdog.check():
-            raise PartialRunError("Resource limits exceeded, terminating gracefully.")
+        watchdog.check()
+        time.sleep(interval)
 
 def stop_watchdog(watchdog: ResourceWatchdog):
-    watchdog.running = False
+    watchdog.stop()
 
-def validate_artifact_chain(artifact_paths: List[str], schemas: Dict[str, Dict[str, Any]]):
+def validate_artifact_chain():
     """
-    Validates that all required artifacts exist and conform to their expected schemas.
-    
-    Args:
-        artifact_paths: List of file paths to check.
-        schemas: Dictionary mapping file paths to expected schema structures (dicts).
-    
-    Raises:
-        DataFlowViolationError: If a file is missing or schema mismatched.
+    T065: Dependency Graph Validator.
+    Delegates to the dedicated validator script/module for clarity.
     """
-    for path in artifact_paths:
-        if not os.path.exists(path):
-            raise DataFlowViolationError(f"Required artifact missing: {path}")
-        
-        if path in schemas:
-            try:
-                with open(path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                
-                expected_schema = schemas[path]
-                # Simple schema check: ensure all expected keys exist at the top level
-                if isinstance(expected_schema, dict):
-                    for key in expected_schema:
-                        if key not in data:
-                            raise DataFlowViolationError(
-                                f"Artifact {path} missing required key: {key}"
-                            )
-                
-                logger.info(f"Artifact validated: {path}")
-            except json.JSONDecodeError as e:
-                raise DataFlowViolationError(f"Artifact {path} is not valid JSON: {e}")
-            except Exception as e:
-                raise DataFlowViolationError(f"Error validating artifact {path}: {e}")
+    from validate_artifact_chain import validate_artifact_chain as _inner_validate
+    _inner_validate()
 
-def get_config_schema_for_artifact(artifact_name: str) -> Dict[str, Any]:
-    """
-    Returns the expected schema for a given artifact name.
-    This centralizes schema definitions for consistency.
-    """
-    schemas = {
-        "data/processed/injected_datasets.json": {
-            "datasets": dict,
-            "injection_params": dict,
-            "validation_status": str
-        },
-        "data/processed/clusters.json": {
-            "clusters": list,
-            "threshold": float,
-            "algorithm": str
-        },
-        "data/processed/unique_subset.json": {
-            "subset": list,
-            "total_original": int,
-            "total_unique": int
-        },
-        "data/processed/comparison_log.json": {
-            "logs": list
-        },
-        "data/results/flagged_pairs_count.json": {
-            "wasted_count": int,
-            "total_pairs": int,
-            "wasted_ratio": float
-        },
-        "data/results/consensus_sample.json": list,
-        "data/results/consensus_ground_truth.json": list,
-        "data/results/correction_factor.json": {
-            "correction_factor": float,
-            "proxy_accuracy": float,
-            "sample_size": int,
-            "confusion_matrix": dict
-        },
-        "data/results/us1_efficiency_ratio.json": {
-            "wasted_ratio": float,
-            "wasted_ratio_corrected": float,
-            "wasted_count": int,
-            "total_budget": int
-        }
+def get_config_schema_for_artifact():
+    return {
+        "MAX_RUNTIME_HOURS": float,
+        "MAX_MEMORY_GB": float
     }
-    return schemas.get(artifact_name, {})
+
+def main():
+    watchdog = init_watchdog()
+    check_limits_periodically(watchdog)
+
+if __name__ == "__main__":
+    main()
