@@ -13,7 +13,7 @@ This project investigates how paralinguistic cues (emoji, punctuation, length) i
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels` (for LMM), `pytest`, `pyyaml`, `python-dotenv`  
 **Storage**: CSV files (`data/raw/stimuli.csv`, `data/raw/real_ratings.csv`) and JSON logs  
 **Testing**: `pytest` with contract tests against YAML schemas  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, GB RAM)  
 **Project Type**: Research Pipeline / Statistical Analysis  
 **Performance Goals**: Complete analysis (generation + LMM + sensitivity) in < 2 hours on CPU  
 **Constraints**: No GPU; No synthetic data for primary analysis; Strict PII removal; N≥60 real participants required  
@@ -53,7 +53,7 @@ specs/001-text-tone-emotional-support/
 
 ```text
 code/
-├── 01_generate_stimuli.py       # Generates unique text variants (12 combinations)
+├── 01_generate_stimuli.py       # Generates unique text variants (combinations)
 ├── 02_validate_stimuli.py       # Contract test runner
 ├── 03_collect_real_data.py      # Prolific integration & consent handling
 ├── 04_clean_data.py             # Straight-lining detection, missing data handling
@@ -102,7 +102,7 @@ tests/
 ## Assumptions & Power Analysis
 
 - The sample size will be determined based on power analysis considerations. While a simplified 2x2 design (Relationship x Composite Cue) with N=60 provides >0.90 power for a medium effect (Cohen's f=0.25), the actual design is a 2 (Relationship) × 3 (Emoji) × 2 (Punctuation) × 2 (Length) factorial. The power analysis for the full design is complex due to the random effects structure. The plan assumes N=60 is sufficient to detect the primary interaction of interest (Relationship × Cue Intensity composite) with acceptable power, noting the limitation for detecting smaller effects in the full factorial if not fully crossed.
-- The "perceived emotional support" metric relies on the validity of the 7-point Likert scale.
+- The "perceived emotional support" metric relies on the validity of the Likert scale.
 - The "close friend" and "acquaintance" contexts are effectively operationalized by the instruction text.
 - No GPU or CUDA acceleration is required; all statistical modeling uses CPU-optimized libraries (`statsmodels`).
 - **External Recruitment Dependency**: The project assumes the feasibility of recruiting a sufficient number of unique participants via Prolific.. If recruitment fails, the project must be re-evaluated.

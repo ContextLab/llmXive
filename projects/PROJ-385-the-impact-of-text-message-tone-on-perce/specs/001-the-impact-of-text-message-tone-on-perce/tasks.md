@@ -58,32 +58,33 @@
 - [X] T004 Define data model in `specs/001-text-tone-emotional-support/data-model.md` (Stimulus, Participant, Rating, AnalysisResult) and validate against spec/plan requirements. **Requirement**: Produces `specs/.../data-model.md` with explicit entity definitions. **Verification**: Grep for Stimulus, Participant, Rating, AnalysisResult in the file.
 - [X] T005 Create data directory structure: `data/raw/`, `data/processed/`, `data/consent/`. **Requirement**: Execute `mkdir -p data/raw data/processed data/consent`. Create a `.gitkeep` file in each directory to ensure they are tracked by git even when empty. **Verification**: Run `ls data/` to verify three directories exist and `ls data/*/` to verify `.gitkeep` files exist.
 - [X] T006 [P] Define and validate JSON/YAML schemas in `specs/001-text-tone-emotional-support/contracts/`. **Requirement**: Create `stimulus.schema.yaml` (properties: `id` (string), `text` (string), `emoji_count` (integer), `punctuation_type` (string), `length_category` (string)), `rating.schema.yaml` (properties: `participant_id` (string), `stimulus_id` (string), `relationship` (enum: ["friend", "acquaintance"]), `rating` (integer 1-7)), and `analysis_result.schema.yaml`. **Verification**: Run `yamllint` on schema files and verify they are valid YAML and match the spec.
-- [X] T007 Create base configuration management for random seed pinning and path resolution in `code/config.py`. **Requirement**: File must define `RANDOM_SEED`, `DATA_ROOT`, `STIMULI_PATH`. **VARIANCE_PARAMS**: Define as a dictionary with keys `random_effect_variance` and `residual_variance` but **MUST be marked as deprecated fallback defaults**. The code must check for `pilot_data.json` first; if missing, use these defaults but log a warning that empirical estimates are preferred. **Verification**: Run `python -c "from code.config import *; assert RANDOM_SEED is not None"`.
+- [X] T007 Create base configuration management for random seed pinning and path resolution in `code/config.py`. **Requirement**: File must define `RANDOM_SEED`, `DATA_ROOT`, `STIMULI_PATH`. **VARIANCE_PARAMS**: Define fixed default variance estimates (e.g., `random_effect_variance=0.1`, `residual_variance=0.5`) directly in `config.py` to ensure reproducibility without external files. **Verification**: Run `python -c "from code.config import *; assert RANDOM_SEED is not None"`.
 - [X] T008 [P] Setup logging infrastructure by creating `code/logging_config.py` which configures a logger instance writing to `data/pipeline.log` to record pipeline steps and exclusion reasons (straight-lining, missing data). **Requirement**: File must ensure `data/pipeline.log` is created and writable immediately upon import. **Verification**: Run a dummy pipeline start/stop to ensure `data/pipeline.log` is created with entries. **Dependency**: None. **Blocking**: This task MUST complete before T023a.
+- [ ] T009 [US1] Perform Power Analysis. **Requirement**: Calculate minimum sample size (N) for a 2 (Relationship) x 3 (Emoji) x 2 (Punctuation) x 2 (Length) mixed design with alpha=0.05, power=0.80, effect size f=0.25. Output results to `data/processed/power_analysis_results.json` containing keys: `target_N`, `effect_size`, `power`, `alpha`, `design`. **Verification**: Verify JSON file exists and `target_N` is at least 60. **Dependency**: None.
 
 ---
 
 ## Phase 3: User Story 1 - Stimulus Generation and Data Collection (Priority: P1) 🎯 MVP
 
-**Goal**: Generate a controlled set of text message stimuli and collect human ratings for perceived emotional support (via simulation or real collection).
+**Goal**: Generate a controlled set of text message stimuli and collect human ratings for perceived emotional support.
 
-**Independent Test**: Verify that `01_generate_stimuli.py` produces a valid `data/raw/stimuli.csv` and `04_collect_real_data.py` produces a valid `data/raw/ratings.csv` with correct schema and no missing fields.
+**Independent Test**: Verify that `01_generate_stimuli.py` produces a valid `data/raw/stimuli.csv` and `04_collect_real_data.py` produces a valid `data/raw/real_ratings.csv` with correct schema and no missing fields.
 
 **⚠️ CRITICAL NOTE ON DATA PATHS & FR-002**:
 - **FR-002 Requirement**: "System MUST collect independent human ratings... verified via Prolific ID."
-- **T014 (Mock)**: Generates synthetic data. **MANDATORY for CI/Development**. Satisfies structural requirements of FR-002 for automated testing.
-- **T015b-Proc (Real Data)**: Generates real data AND anonymized consent records. **MANUAL/EXTERNAL STEP**. To be executed outside of CI. Does NOT block automated pipeline.
+- **T014 (Mock)**: Generates synthetic data. **MANDATORY for CI/Development** to validate pipeline structure. **Does NOT satisfy FR-002 for final deliverable.**
+- **T015b-Proc (Real Data)**: Generates real data AND anonymized consent records. **MANDATORY for Production**. To be executed outside of CI.
 - **T015c-Mock**: Generates mock consent records for CI. **MANDATORY for CI**.
-- **T015c (Real)**: Generates real consent records. **MANUAL/EXTERNAL STEP**.
-- **MVP Status**: The default execution path MUST include T014 and T015c-Mock. T015b-Proc/T015c are manual steps for production.
+- **T015c (Real)**: Generates real consent records. **MANDATORY for Production**.
+- **MVP Status**: The default execution path MUST include T014 and T015c-Mock for CI. T015b-Proc/T015c are manual steps for production. T041 enforces real data for final report.
 
 ### 3.1 Generation (Blocking Prerequisites for Validation)
 
-- [ ] T013 [US1] Implement factorial stimulus generator in `code/01_generate_stimuli.py`. **Requirement**: Generate a set of unique text message variants by using **3 emoji levels**, **2 punctuation levels**, and **2 length levels** (3 × 2 × 2 = **48 unique variants**). **Output** `data/raw/stimuli.csv` with columns: `id, text, emoji_count, punctuation_type, length_category, scenario_id`. **Verification**: Run `python code/01_generate_stimuli.py --verify` to ensure exactly **48 unique factorial combinations** are present (no filtering) and the file `data/raw/stimuli.csv` is valid CSV. **Dependency**: None. **Blocking**: This task MUST produce `data/raw/stimuli.csv` before T009, T010a, T016, and T017 can proceed.
+- [ ] T013 [US1] Implement factorial stimulus generator in `code/01_generate_stimuli.py`. **Requirement**: Generate a set of unique text message variants by using **3 emoji levels**, **2 punctuation levels**, and **2 length levels** (3 × 2 × 2 = **12 unique variants**). **Output** `data/raw/stimuli.csv` with columns: `id, text, emoji_count, punctuation_type, length_category, scenario_id`. **Verification**: Run `python code/01_generate_stimuli.py --verify` to ensure exactly **12 unique factorial combinations** are present and the file `data/raw/stimuli.csv` is valid CSV. **Dependency**: None. **Blocking**: This task MUST produce `data/raw/stimuli.csv` before T009, T010a, T016, and T017 can proceed.
 
 ### 3.2 Mock Data Path (MANDATORY for CI/Development)
 
-- [ ] T014 [US1] [MANDATORY CI] Implement mock Prolific data collection in `code/02_simulate_ratings.py`. **Requirement**: Generates `data/raw/ratings.csv` with P-IDs, stimulus IDs, relationship context, Likert scores; **reads target_N (participants) from `data/processed/power_analysis_results.json` produced by T009**; **generates total rows = target_N (participants) × [multiple] (contexts) × 48 (stimuli)** to simulate a full within-subjects design. Simulates Prolific ID format validation. **Satisfies structural FR-002 for CI**. **Dependency**: T009, T013.
+- [ ] T014 [US1] [MANDATORY CI] Implement mock Prolific data collection in `code/02_simulate_ratings.py`. **Requirement**: Generates `data/raw/ratings.csv` with P-IDs, stimulus IDs, relationship context, Likert scores; **reads target_N (participants) from `data/processed/power_analysis_results.json` produced by T009**; **generates total rows = target_N (participants) * 2 (contexts) * 12 (stimuli)** to simulate a full within-subjects design. Simulates Prolific ID format validation. **Satisfies structural FR-002 for CI**. **Dependency**: T009, T013.
 - [ ] T015c-Mock [US1] [MANDATORY CI] Implement mock consent record generation for unit testing in `code/04_collect_real_data.py`. **Requirement**: Satisfies Plan.md Constitution Check VI for simulation mode. **Trigger**: Must require CLI flag `--mode mock`. **Verification**: Verify mock consent records are generated ONLY when `--mode mock` is active. **Dependency**: T014. **NOTE**: These mock consent records are for unit testing schema compliance ONLY and do NOT satisfy Constitution Principle VI for the final research product. Real consent records (T015c) are required for production.
 
 ### 3.3 Real Data Path (MANUAL/EXTERNAL STEP)
@@ -96,19 +97,19 @@
 ### 3.4 Validation (Sequential Dependencies)
 
 - [ ] T010a [US1] [ATOMIZE] Create and verify contract test file for stimulus data in `tests/contract/test_stimulus_schema.py`. **Function**: `test_stimulus_schema_valid`. **Requirement**: Validate `data/raw/stimuli.csv` against schema from T006. **Dependency**: T013. **Verification**: Run `pytest tests/contract/test_stimulus_schema.py` and ensure it passes. **Note**: If `data/raw/stimuli.csv` is missing, the test must FAIL (not crash) to indicate missing input. This is a post-condition check.
-- [ ] T011a [US1] [ATOMIZE] Create and verify contract test file for rating data in `tests/contract/test_rating_schema.py`. **Function**: `test_rating_schema_valid`. **Requirement**: Validate `data/raw/ratings.csv` (from T014) or `data/raw/real_ratings.csv` (from T015b-Proc) against schema from T006. **Dependency**: T014 (CI) or T015b-Proc (Manual). **Verification**: Run `pytest tests/contract/test_rating_schema.py` and ensure it passes.
+- [ ] T011a [US1] [ATOMIZE] Create and verify contract test file for rating data in `tests/contract/test_rating_schema.py`. **Function**: `test_rating_schema_valid`. **Requirement**: Validate `data/raw/ratings.csv` (from T014) OR `data/raw/real_ratings.csv` (from T015b-Proc) against schema from T006. **Dependency**: Artifact `data/raw/ratings.csv` OR `data/raw/real_ratings.csv`. **Verification**: Run `pytest tests/contract/test_rating_schema.py` and ensure it passes.
 
 ### 3.5 Cleaning & Preprocessing
 
-- [ ] T017 [US1] [Integrated] Implement validation logic to ensure relationship context (friend/acquaintance) is randomized and logged. **Requirement**: **Integrated into T014 (Mock) and T015b-Code (Real)**. **Verification**: Assert that randomization is recorded in the output file and logged. **Dependency**: T014 (CI) or T015b-Code (Manual). **Note**: T017 is no longer a standalone blocking task; its logic is embedded in the data generation tasks.
+- [ ] T017 [US1] [Integrated] Implement validation logic to ensure relationship context (friend/acquaintance) is randomized and logged. **Requirement**: **Integrated into T014 (Mock) and T015b-Code (Real)**. **Verification**: Assert that randomization is recorded in the output file and logged. **Dependency**: T014 (CI) or T015b-Proc (Manual). **Note**: T017 is no longer a standalone blocking task; its logic is embedded in the data generation tasks.
 - [ ] T016 [US1] Implement straight-lining detector AND missing data handler in `code/03_clean_data.py`. **Requirement**:
- 1. Flags participants with zero variance across the **full set of stimuli** and logs reason 'STRAIGHT_LINING'.
- 2. **DYNAMIC COUNT CHECK**: MUST read the total count of unique `id` values from `data/raw/stimuli.csv` at runtime. Do NOT use hardcoded values like '40' or '12'.
- 3. **Missing Data**: If a participant's rated count < total stimulus count, **FLAG** the participant with reason 'MISSING_DATA' and log to `data/processed/cleaning_log.csv`, THEN implement listwise deletion (dropping the participant from analysis).
- 4. **Data Corruption**: If a participant's rated count > total stimulus count (indicating duplicate entries or data corruption), the participant MUST be flagged with reason 'DATA_CORRUPTION' and excluded. Log the specific discrepancy (e.g., "Participant P-123 rated 45 stimuli but only 48 exist").
- 5. **Validation Step**: Assert that the total stimulus count from `data/raw/stimuli.csv` is at least 1. If not, raise an error to preserve FR-006 constraint.
+ 1. **STRAIGHT_LINING**: Flags participants with zero variance across the **full set of stimuli** (12 items) and logs reason 'STRAIGHT_LINING'.
+ 2. **DYNAMIC COUNT CHECK**: MUST read the total count of unique `id` values from `data/raw/stimuli.csv` at runtime. Do NOT use hardcoded values.
+ 3. **MISSING_DATA**: If a participant's rated count < total stimulus count, **FLAG** the participant with reason 'MISSING_DATA' and log to `data/processed/cleaning_log.csv`, THEN implement listwise deletion (dropping the participant from analysis).
+ 4. **DATA_CORRUPTION**: If a participant's rated count > total stimulus count, flag with reason 'DATA_CORRUPTION' and exclude.
+ 5. **Input Handling**: The script MUST check for the existence of `data/raw/real_ratings.csv` first. If missing, it MUST check for `data/raw/ratings.csv`. It must process whichever file exists.
  6. Output exclusion flags and reasons to `data/processed/cleaning_log.csv`.
- **Verification**: Assert that participants with 0 variance are correctly flagged, partial raters are flagged and excluded, and data corruption (count > total) is handled and logged. **Dependency**: T013, T006, T014 (CI) or T015b-Proc (Manual). **Note**: T016 runs after T014 (CI) or T015b-Proc (Manual).
+ **Verification**: Assert that participants with 0 variance are correctly flagged, partial raters are flagged and excluded, and data corruption is handled and logged. **Dependency**: T013, T006, Artifact `data/raw/ratings.csv` OR `data/raw/real_ratings.csv`. **Note**: T016 runs after data generation.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Stimuli and Ratings generated, Consent handling ready for real path)
 
@@ -119,7 +120,7 @@
 **Purpose**: Validate data generation and benchmark performance before analysis
 
 - [ ] T037a [P] Implement CLI entry point in `code/run_pipeline.py` (handles argument parsing for `--mode`, `--seed`, `--benchmark`). **Requirement**: Must support `--mode mock` (CI) and `--mode real` (Manual). **Verification**: Run `python code/run_pipeline.py --help` and verify output. **Dependency**: None.
-- [ ] T037-Mock [P] [MANDATORY] Benchmark full pipeline duration by running the full pipeline with `--benchmark --mode mock` using the target N from `data/processed/power_analysis_results.json` and the full stimulus set from `data/raw/stimuli.csv` to ensure the benchmark reflects the actual SC-005 constraint. **Requirement**: Measure **wall-clock time in seconds** for the entire pipeline (Data Generation + Cleaning + LMM Analysis + Sensitivity). Output MUST include keys `total_duration_seconds`, `per_stage_duration`. **Verification**: If `total_duration_seconds > 21600`, log a warning "Pipeline exceeds 6h limit; flag for optimization" and **DO NOT FAIL** the task. If `< 21600`, pass. **Dependency**: T009, T037a, T013, T014, T016, T020, T021, T022, T024, T025, T027, T028, T029, T030, T031. **Note**: T037a must complete before T037-Mock runs.
+- [ ] T037-Mock [P] [MANDATORY] Benchmark full pipeline duration by running the full pipeline with `--benchmark --mode mock` using the target N from `data/processed/power_analysis_results.json` and the full stimulus set from `data/raw/stimuli.csv` to ensure the benchmark reflects the actual SC-005 constraint. **Requirement**: Measure **wall-clock time in seconds** for the entire pipeline (Data Generation + Cleaning + LMM Analysis + Sensitivity). Output MUST include keys `total_duration_seconds`, `per_stage_duration`. **Verification**: If `total_duration_seconds > 21600`, log a warning "Pipeline exceeds 6h limit; flag for optimization" and **DO NOT FAIL** the task. If `< 21600`, pass. **Dependency**: T009, T037a, T013, T014, T016, T021, T027, T028, T029, T030, T031. **Note**: T037a must complete before T037-Mock runs.
 
 **Checkpoint**: Data validated, performance benchmarked, pipeline ready for analysis
 
@@ -134,20 +135,22 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for LMM model construction with mock data in `tests/unit/test_analysis_logic.py`
-- [X] T019a [US2] [ATOMIZE] Create unit test file for LMM preprocessing logic in `tests/unit/test_lmm_preprocessing.py`. **Requirement**: Implement tests for data loading, listwise deletion, and schema validation. **Function**: `test_preprocessing_logic`. **Dependency**: T020.
-- [X] T019b [US2] [ATOMIZE] Create unit test file for LMM model execution in `tests/unit/test_lmm_execution.py`. **Requirement**: Implement tests for Satterthwaite approximation and p-value calculation. **Function**: `test_lmm_execution`. **Dependency**: T021, T022.
-- [X] T019c [US2] [ATOMIZE] Create unit test file for Tukey correction logic in `tests/unit/test_lmm_posthoc.py`. **Requirement**: Implement tests for Tukey-corrected pairwise comparisons. **Function**: `test_lmm_posthoc`. **Dependency**: T024.
-- [X] T019d [US2] [ATOMIZE] Create integration test file for full LMM pipeline in `tests/integration/test_lmm_pipeline.py`. **Requirement**: Implement end-to-end test: load data, run LMM, verify p-values and Tukey corrections. **Function**: `test_full_lmm_pipeline`. **Dependency**: T019a, T019b, T019c, T020, T021, T022, T024.
+- [X] T019a [US2] [ATOMIZE] Create unit test file for LMM preprocessing logic in `tests/unit/test_lmm_preprocessing.py`. **Requirement**: Implement tests for data loading, listwise deletion, and schema validation. **Function**: `test_preprocessing_logic`. **Dependency**: T021.
+- [X] T019b [US2] [ATOMIZE] Create unit test file for LMM model execution in `tests/unit/test_lmm_execution.py`. **Requirement**: Implement tests for Satterthwaite approximation and p-value calculation. **Function**: `test_lmm_execution`. **Dependency**: T021.
+- [X] T019c [US2] [ATOMIZE] Create unit test file for Tukey correction logic in `tests/unit/test_lmm_posthoc.py`. **Requirement**: Implement tests for Tukey-corrected pairwise comparisons. **Function**: `test_lmm_posthoc`. **Dependency**: T021.
+- [X] T019d [US2] [ATOMIZE] Create integration test file for full LMM pipeline in `tests/integration/test_lmm_pipeline.py`. **Requirement**: Implement end-to-end test: load data, run LMM, verify p-values and Tukey corrections. **Function**: `test_full_lmm_pipeline`. **Dependency**: T019a, T019b, T019c, T021.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement data preprocessing step in `code/04_run_lmm.py` to handle listwise deletion of excluded participants (**reads exclusion flags from `data/processed/cleaning_log.csv` produced by T016**). **Requirement**: If `data/raw/real_ratings.csv` does not exist, fallback to `data/raw/ratings.csv` (from T014) and log a warning that FR-002 is not satisfied. **Dependency**: T016, T006, T013, T014 (or T015b-Proc).
-- [ ] T021 [US2] Implement primary LMM script in `code/04_run_lmm.py` using `statsmodels` or `linearmodels` (Random intercepts for Participant and Stimulus)
-- [ ] T022 [US2] Implement Satterthwaite approximation for degrees of freedom and p-value calculation in `code/04_run_lmm.py`
-- [ ] T023a [US2] Implement validation check in `code/04_run_lmm.py` that asserts the LMM model summary includes a variance component for **Stimulus**; **if Stimulus variance is negligible (< 0.001), the script MUST log a warning to `data/pipeline.log` and generate a transient exclusion summary object**. **Requirement**: **Do NOT produce a final SSoT file**. The exclusion data must be merged into `analysis_results.json` by T025. **Dependency**: T020, T021, T008.
-- [ ] T023b [P] Create unit test file `tests/unit/test_analysis_validation.py` to validate T023a logic. **Requirement**: Implement tests for: (1) `assert_zero_variance_triggers_flag`, (2) `assert_non_zero_variance_no_flag`, (3) `assert_log_entry_created`, (4) `assert_exclusion_summary_generated`. **Dependency**: T023a.
-- [ ] T024 [US2] Implement Tukey-corrected post-hoc pairwise comparisons in `code/04_run_lmm.py` (triggered if interaction p < 0.05)
-- [ ] T025 [US2] Implement result serialization to `data/processed/analysis_results.json` (JSON format for single source of truth). **Requirement**: The JSON output MUST include a top-level key `exclusion_summary` containing the count of excluded participants and reasons, **merged from the transient object produced by T023a**. This ensures `analysis_results.json` is the **Single Source of Truth** for all analysis metrics, including exclusions, satisfying Constitution Principle IV and resolving the conflict in Plan.md's Constitution Check. **Dependency**: T020, T021, T023a.
+- [ ] T020 [US2] Implement data preprocessing step in `code/04_run_lmm.py` to handle listwise deletion of excluded participants (**reads exclusion flags from `data/processed/cleaning_log.csv` produced by T016**). **Requirement**: If `data/raw/real_ratings.csv` does not exist, fallback to `data/raw/ratings.csv` (from T014) and log a warning that FR-002 is not satisfied. **Dependency**: T016, T006, T013, Artifact `data/raw/ratings.csv` OR `data/raw/real_ratings.csv`.
+- [ ] T021 [US2] Implement and Execute Primary LMM in `code/04_run_lmm.py`. **Requirement**:
+ 1. **Model Construction**: Build LMM with random intercepts for Participant and Stimulus.
+ 2. **Degrees of Freedom**: Use Satterthwaite approximation for p-values.
+ 3. **Validation**: Assert the model includes a variance component for Stimulus; if negligible (< 0.001), log a warning to `data/pipeline.log` and generate a transient exclusion summary object.
+ 4. **Post-hoc**: If interaction p < 0.05, perform Tukey-corrected pairwise comparisons.
+ 5. **Serialization**: Output results to `data/processed/analysis_results.json` including fixed effects, p-values, effect sizes, Tukey results, and `exclusion_summary`.
+ **Verification**: Verify `data/processed/analysis_results.json` contains all required keys and valid statistics. **Dependency**: T020, T016, T006, T013, Artifact `data/raw/ratings.csv` OR `data/raw/real_ratings.csv`.
+- [ ] T023b [P] Create unit test file `tests/unit/test_analysis_validation.py` to validate T021 logic. **Requirement**: Implement tests for: (1) `assert_zero_variance_triggers_flag`, (2) `assert_non_zero_variance_no_flag`, (3) `assert_log_entry_created`, (4) `assert_exclusion_summary_generated`. **Dependency**: T021.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Analysis results generated)
 
@@ -165,13 +168,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] [P] Define **three specific theoretical hypotheses** for "Cue Intensity" based on psycholinguistic literature and output them as machine-readable JSON in `data/processed/sensitivity_definitions.json`. **Schema Requirement**: JSON must contain a list of definitions, each with keys `name` (string), `type` (enum: "weighted_sum"), `formula_type` (string: "weighted_sum"), `rule` (object: e.g., `{"weights": {"emoji": 0.7, "punct": 0.2, "len": 0.1}}`). **Definitions**:
- 1. **Emoji-Dominance**: Weights {emoji: high, punct: moderate, len: low}. Rationale: Based on Hancock & Dunham (2004) on emoji as primary emotional carrier.
- 2. **Punctuation-Dominance**: Weights {emoji: 0.2, punct: 0.7, len: <relative magnitude>}. Rationale: Based on Derks et al. (2008) on punctuation as tone indicator.
- 3. **Length-Dominance**: Weights {emoji: 0.1, punct: 0.2, len: }. Rationale: Based on message length as a proxy for effort/empathy.
+- [ ] T027 [US3] [P] Define **three specific theoretical hypotheses** for "Cue Intensity" based on psycholinguistic literature and output them as machine-readable JSON in `data/processed/sensitivity_definitions.json`. **Schema Requirement**: JSON must contain a list of definitions, each with keys `name` (string), `type` (enum: "weighted_sum"), `formula_type` (string: "weighted_sum"), `rule` (object: e.g., `{"weights": {"emoji": 0.33, "punct": 0.33, "len": 0.33}}`). **Definitions**:
+ 1. **Equal Weight**: Weights {emoji: 0.33, punct: 0.33, len: 0.33}. Rationale: Baseline assumption of equal contribution.
+ 2. **Emoji-Dominance**: Weights {emoji: 0.6, punct: 0.2, len: 0.2}. Rationale: Based on Hancock & Dunham () on emoji as primary emotional carrier.
+ 3. **Punctuation-Dominance**: Weights {emoji: 0.2, punct: 0.6, len: 0.2}. Rationale: Based on Derks et al. on punctuation as tone indicator.
  **Formula**: `Cue_Intensity = (w_emoji * emoji_count) + (w_punct * punct_score) + (w_len * len_score)`. **Verification**: Validate JSON schema against expected keys and count a representative set of items (must be 3). **Requirement**: Verify that `research.md` contains citations for "Hancock & Dunham" and "Derks et al." before generating the file. **Dependency**: None.
-- [ ] T028 [US3] Implement sensitivity analysis engine in `code/05_sensitivity_analysis.py` (**reads operationalization definitions from `data/processed/sensitivity_definitions.json` produced by T027**; **reads primary results from `data/processed/analysis_results.json` produced by T025**; **reads cleaned data from `data/processed/clean_ratings.csv` produced by T020**; **dynamically applies each definition to re-calculate the 'Cue Intensity' variable using the `weighted_sum` formula: `Cue_Intensity = sum(w_i * x_i)`** and re-runs the LMM for each definition). **Dependency**: T027, T025, T020.
-- [ ] T029 [US3] Implement re-execution of LMM for each alternative definition in `code/05_sensitivity_analysis.py` (reusing Tukey logic from T024).
+- [ ] T028 [US3] Implement sensitivity analysis engine in `code/05_sensitivity_analysis.py` (**reads operationalization definitions from `data/processed/sensitivity_definitions.json` produced by T027**; **reads primary results from `data/processed/analysis_results.json` produced by T021**; **reads cleaned data from `data/processed/clean_ratings.csv` produced by T020**; **dynamically applies each definition to re-calculate the 'Cue Intensity' variable using the `weighted_sum` formula: `Cue_Intensity = sum(w_i * x_i)`** and re-runs the LMM for each definition). **Dependency**: T027, T021, T020.
+- [ ] T029 [US3] Implement re-execution of LMM for each alternative definition in `code/05_sensitivity_analysis.py` (reusing Tukey logic from T021).
 - [ ] T030 [US3] Implement stability metric calculation (variation in F-statistics and p-values across definitions) in `code/05_sensitivity_analysis.py`
 - [ ] T031 [US3] Generate sensitivity report CSV in `data/processed/sensitivity_report.csv`
 
@@ -184,12 +187,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T033 [P] Documentation updates in `specs/001-text-tone-emotional-support/quickstart.md`. **Requirement**: Add a section on how to run the power analysis, a section on how to run the pipeline with `--benchmark`, and verify the document contains a `python code/run_pipeline.py` command. **Verification**: Verify `quickstart.md` contains the required sections and commands.
-- [ ] T035 [P] Run full pipeline end-to-end test with fixed seed to verify reproducibility. **Requirement**: Run `python code/run_pipeline.py --seed [RANDOM_SEED]`. Verify `data/processed/analysis_results.json` is generated. Compute the SHA256 hash of the output file and log it. **Verification**: The task must succeed if the pipeline runs without error and produces a deterministic hash for the given seed. **Dependency**: T009, T013, T014, T016, T025.
+- [ ] T035 [P] Run full pipeline end-to-end test with fixed seed to verify reproducibility. **Requirement**: Run `python code/run_pipeline.py --seed [RANDOM_SEED]`. Verify `data/processed/analysis_results.json` is generated. Compute the SHA256 hash of the output file and log it. **Verification**: The task must succeed if the pipeline runs without error and produces a deterministic hash for the given seed. **Dependency**: T009, T013, T014, T016, T021.
 - [ ] T036 [P] Additional unit tests for edge cases (missing data in ratings.csv, invalid P-ID format) in `tests/unit/`. **Requirement**: Create `tests/unit/test_edge_cases.py` with tests for: (1) `assert_missing_data_handled` (verify listwise deletion), (2) `assert_invalid_pid_rejected` (verify regex validation). **Dependency**: T014, T016.
 - [ ] T038 [P] Run quickstart.md validation by executing `pytest tests/integration/test_quickstart.py` and verifying exit code 0.
 - [ ] T039 [P] Update `specs/001-text-tone-emotional-support/research.md` with final methodology notes, power analysis justification, and sensitivity analysis summary. **Requirement**: Add a paragraph on the power analysis results (from T009) and a section on the sensitivity analysis summary (from T031). **Verification**: Verify `research.md` contains the required sections. **Dependency**: T041.
 - [ ] T040 [P] Generate final `README.md` in the feature folder summarizing how to run the pipeline, interpret results, and reproduce the study. **Requirement**: Include a `Usage` section with CLI examples (`python code/run_pipeline.py --mode mock`) and a `Results` section explaining how to interpret the output files (`analysis_results.json`, `sensitivity_report.csv`). **Verification**: Verify `README.md` exists and contains the required sections. **Dependency**: T041.
-- [ ] T041 [P] [GATE] Verify Real Data for Final Report. **Requirement**: Check for existence of `data/raw/real_ratings.csv`. **Verification**: If `data/raw/real_ratings.csv` is missing, **FAIL** this task and prevent T039 and T040 from being marked complete. If present, pass. **Dependency**: T015b-Proc (Manual) or T014 (CI Fallback). **Note**: This task enforces FR-002 by blocking final report generation if real data is missing (unless explicitly overridden by a manual flag, which must be documented).
+- [ ] T041 [P] [GATE] Verify Real Data for Final Report. **Requirement**: Check for existence of `data/raw/real_ratings.csv`. **Verification**: If `data/raw/real_ratings.csv` is missing, **FAIL** this task and prevent T039 and T040 from being marked complete. If present, pass. **Dependency**: T015b-Proc (Manual). **Note**: This task enforces FR-002 by blocking final report generation if real data is missing.
 
 ---
 
@@ -207,7 +210,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on User Story 1 (requires `data/raw/ratings.csv` and `data/raw/stimuli.csv`)
+- **User Story 2 (P2)**: Depends on User Story 1 (requires `data/raw/ratings.csv` or `data/raw/real_ratings.csv` and `data/raw/stimuli.csv`)
 - **User Story 3 (P3)**: Depends on User Story 2 (requires primary analysis results to test robustness)
 
 ### Within Each User Story
