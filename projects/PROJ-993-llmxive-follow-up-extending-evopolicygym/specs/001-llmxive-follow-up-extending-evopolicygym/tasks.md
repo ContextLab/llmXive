@@ -20,34 +20,15 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a [P] Create project directory structure: `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/`, `tests/`, `data/`, `specs/`
 - [X] T001b [P] Create empty `__init__.py` files in all code subdirectories (`envs/`, `agents/`, `explanation/`, `analysis/`, `utils/`)
-- [X] T001c [P] Create `requirements.txt` with pinned versions: `gymnasium==0.29.1 `, `transformers==4.36.0 `, `scikit-learn==1.3.2 `, `statsmodels==0.14.1 `, `radon==6.0.1 `, `pandas==2.1.4 `, `numpy==1.26.2 `, `pyyaml==6.0.1 `, `pytest==7.4.3 `, `pydantic==2.5.2 `, `bitsandbytes==0.41.0 `, `evopolicygym==0.1.0`
+- [X] T001c [P] Create `requirements.txt` with pinned versions: `gymnasium==0.29.1 `, `transformers==4.36.0 `, `scikit-learn==1.3.2 `, `statsmodels==0.14.1 `, `radon==6.0.1 `, `pandas==2.1.4 `, `numpy==1.26.2 `, `pyyaml==6.0.1 `, `pytest==7.4.3 `, `pydantic==2.5.2 `, `bitsandbytes==0.41.0 `, `evopolicygym==v.0`
 - [X] T001d [P] Create `pyproject.toml` with linting (ruff) and formatting (black) configurations
-- [X] T001e [P] **Install EvoPolicyGym**: Add a task to install the specific version/commit of `EvoPolicyGym` required for this feature: `pip install git+https://github.com/evopolicygym/evopolicygym.git@<COMMIT_HASH>` (replace `<COMMIT_HASH>` with the specific commit from the upstream repo) to ensure the registry is available for dynamic discovery.
+- [X] T001e [P] **Install Dependencies**: Execute `pip install -r requirements.txt` directly. Do not rely on a missing `install_deps.py` script. Ensure `evopolicygym==v1.2.0` is installed; if not found, attempt `pip install git+ and fail loudly if both fail. (Depends on T001c)
 
 ---
 
@@ -60,7 +41,7 @@
 - [X] T004 [P] Implement base configuration manager for seed management and hyperparameters in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/utils/config.py`
 - [X] T005 [P] Setup structured logging infrastructure in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/utils/logging.py`
 - [X] T006 [P] Create base environment wrapper extending `gymnasium.Env` for EvoPolicyGym compatibility in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/envs/base_env.py`
-- [X] T007 [P] **Generate Rules Schema Artifact**: Generate and populate `data/rules_schema.json` with the ground-truth Rule IDs, logic, and valid actions. **Algorithm**: Parse `EvoPolicyGym` source file `src/envs/rules.py` (or equivalent entry point) to extract rule definitions, valid actions, and rule IDs. Map these programmatically to the JSON schema. This file MUST be generated programmatically to serve as the input for the counterfactual generator and validator. (Depends on T001e)
+- [X] T007 [P] **Generate Rule Schema Artifact**: Create `data/rules_schema.json`. Logic: 1) Parse `EvoPolicyGym` source code in `envs/` OR use `data/rules_template.json` to extract Rule IDs, logic (as JSON-serializable boolean predicates, e.g., `{"type": "equals", "field": "state", "value": 1}`), and valid actions for all environments. 2) Serialize to JSON. This file serves as the ground-truth input for the counterfactual generator. (Depends on T001e)
 - [X] T008 [P] Implement deterministic random seed pinning utility ensuring reproducibility across runs in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/utils/seed_utils.py`
 - [X] T009 [P] Implement logic to separate test set configuration from training/evolution configuration to enforce Constitution Principle VII (Dynamic-Shift Validation Independence) in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/utils/config.py`
 
@@ -70,7 +51,7 @@
 
 ## Phase 3: User Story 1 - Environment Extension and Dynamic Shift Injection (Priority: P1) 🎯 MVP
 
-**Goal**: Extend 16 existing environments to include "dynamic-shift" modes where reward/transition functions change at a configurable step N (default a majority of budget).
+**Goal**: Extend existing environments to include "dynamic-shift" modes where reward/transition functions change at a configurable step N (default a majority of budget).
 
 **Independent Test**: Run a static agent on the modified environment and verify that the environment state or reward function changes exactly at the configured step N, causing a measurable performance drop.
 
@@ -83,15 +64,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T013c [US1] Define shift configuration schema and implement parsing logic to enforce the default moderate step N in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/envs/dynamic_shift_env.py` (Depends on T007)
-- [X] T013d [US1] **Dynamically Discover** the existing EvoPolicyGym environments by querying the `EvoPolicyGym` registry (e.g., `gymnasium.envs.registration.registry`). This task MUST NOT hardcode IDs but must retrieve the list of available environments programmatically. **It MUST log a warning if the discovered count does not match the expected value., but MUST proceed with all discovered environments.** The task MUST save the discovered list to `data/discovered_envs.json` for downstream tasks. (Depends on T001e, T013c)
-- [X] T013e [US1] **Programmatically Iterate** over the list loaded from `data/discovered_envs.json` and wrap each with `DynamicShiftEnvironment`. (Depends on T013d)
+- [X] T013d [US1] **Enforce Environment Count**: Dynamically discover the existing EvoPolicyGym environments by querying the `EvoPolicyGym` registry. **Logic**: If the discovered count is NOT exactly 16, raise a `RuntimeError` with the message "Expected 16 environments, found {count}". Do NOT proceed with a 'Soft Fail' or empty list. This ensures the study scope (FR-001) is met. (Depends on T001e)
+- [X] T015b [US1] Define schema for `sensitivity_report.csv` with columns: `env_id` (str), `shift_step` (int), `pre_shift_score` (float), `post_shift_score` (float), `drop_rate` (float ratio 0.0-1.0), `p_value` (float). (Depends on T007)
+- [X] T013c [US1] Define shift configuration schema and implement parsing logic to enforce the default moderate step N in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/envs/dynamic_shift_env.py` (Depends on T013d)
+- [X] T013e [US1] **Programmatically Iterate** over the list loaded from `data/discovered_envs.json` (created by T013d) and wrap each with `DynamicShiftEnvironment`. (Depends on T013d)
 - [X] T013b [US1] Implement logic to alter reward functions or transition probabilities after `shift_step` in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/envs/dynamic_shift_env.py`
-- [X] T013f [US1] **Run Static Agent**: Implement a script to run a static (non-adaptive) agent on the dynamic-shift environments to generate `pre_shift_score` and `post_shift_score` data points. (Depends on T013e)
-- [X] T015b [US1] Define schema for `sensitivity_report.csv` with columns: `env_id` (str), `shift_step` (int), `pre_shift_score` (float), `post_shift_score` (float), `drop_rate` (float ratio 0.0-1.0), `p_value` (float). (Depends on T013f)
-- [X] T014 [US1] Add logic to calculate p-value for performance drop using data from T013f; if p >= 0.05, **log a failure for that specific environment ID and SKIP it from subsequent evolution runs** (do not halt the entire experiment), and log the error to `data/shift_validation.log`. (Depends on T015b, T013f)
-- [X] T015a [US1] Create wrapper script to orchestrate the application of `DynamicShiftEnvironment` to the discovered environments in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/main.py` (Depends on T013e)
-- [X] T015c [US1] Implement logic to populate `sensitivity_report.csv` with sensitivity analysis results (Depends on T013c, T014, T013f, T015b)
+- [X] T013f [US1] **Run Static Agent**: Implement a script to run a static (non-adaptive) agent on the dynamic-shift environments to generate `pre_shift_score` and `post_shift_score` data points. Logic: If `data/discovered_envs.json` is empty, skip execution and write an empty `data/sensitivity_report.csv` with headers only. (Depends on T013e, T015b)
+- [X] T014 [US1] Add logic to calculate p-value for performance drop using data from T013f; if p >= 0.05, **log a failure for that specific environment ID and SKIP it from subsequent evolution runs** (do not halt the entire experiment), and log the error to `data/shift_validation.log`. (Depends on T013f, T015b)
+- [X] T015c [US1] **Populate Sensitivity Report**: Write `data/sensitivity_report.csv` with the results from T013f and T014. (Depends on T013f, T015b, T014)
+- [X] T015a [US1] Create wrapper script to orchestrate the application of `DynamicShiftEnvironment` to the discovered environments in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/main.py`. **Logic**: Must verify `data/sensitivity_report.csv` exists (from T015c) before proceeding. (Depends on T013e, T013f, T015b)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,14 +94,12 @@
 ### Implementation for User Story 2
 
 - [X] T020a [US2] Define `CounterfactualExplanation` Pydantic data model in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/explanation/validator.py` (Depends on T007)
-- [X] T020b [US2] Implement `validate_explanation()` function in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/explanation/validator.py` (Depends on T007 for schema input)
-- [X] T021a [US2] **Deterministic Rule Mapping**: Implement logic to extract the `violated_rule_id` and `current_state` from the trajectory by iterating the loaded rule schema (`data/rules_schema.json`). **This task MUST NOT calculate the correct action.** It MUST write the `violated_rule_id`, `current_state`, and trajectory context to `data/derivation_cache.json` for the generation step. (Depends on T007)
+- [X] T020b [US2] Implement `validate_explanation()` function in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/explanation/validator.py` (Depends on T007)
+- [X] T021a-Load [US2] **Schema Loading**: Load `data/rules_schema.json` into memory and cache it in `data/derivation_cache.json` (structure: `{rule_id: logic, valid_actions}`). (Depends on T007)
+- [X] T021a-Logic [US2] **Deterministic Rule Mapping Implementation**: Implement the core algorithm to map a trajectory failure to a rule violation. Logic: 1) Iterate trajectory steps. 2) Match `state` and `action` against `logic` predicates (JSON-serializable booleans) in the cached schema. 3) Identify the first step where the action violates a rule condition. 4) Derive the `correct_action` from the `valid_actions` list in the schema for that rule. 5) Output `{rule_id, correct_action, step_index}` to `data/derivation_result.json`. (Depends on T021a-Load)
 - [X] T023 [US2] Implement fallback mechanism to return a `TemplateExplanation` object **OR a scalar_reward signal** and log fallback event to `data/fallbacks.log` if LLM fails or times out in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/explanation/generator.py` (TemplateExplanation model: {rule_id: str, suggested_action: str, template: str}; Log format: ISO8601 timestamp, env_id, reason, fallback_type)
-- [X] T021b [US2] Implement lightweight, CPU-quantized LLM inference pipeline using **TinyLlama-Chat (low-bit quantized via bitsandbytes)**. The `generate_explanation()` function MUST:
- 1. Load the trajectory and the `violated_rule_id`/`current_state` derived by T021a from `data/derivation_cache.json`.
- 2. **Reason** over `data/rules_schema.json` to infer the `correct_action`: Query the schema for actions valid in `current_state` that do not violate `violated_rule_id`; select the first valid action **via LLM reasoning**, not pre-computation.
- 3. Generate text explicitly stating the violated Rule ID and the inferred `correct_action`.
- 4. Return a `CounterfactualExplanation` object. (Depends on T021a, T023)
+- [X] T021b [US2] Implement lightweight, CPU-quantized LLM inference pipeline using **a lightweight, CPU-tractable model (e.g., TinyLlama-Chat-v1.0 4-bit quantized via bitsandbytes)**. Logic: 1) Load trajectory and `correct_action` from `data/derivation_result.json`. 2) Generate text explicitly stating the violated Rule ID and the derived `correct_action`. 3) Return a `CounterfactualExplanation` object. **Constraint**: The entire generation attempt (load + inference) MUST complete within **30 seconds**. If the model fails or exceeds 30s, immediately trigger T023 fallback. **Do NOT** attempt a fallback to a smaller model, as this risks exceeding the 30s threshold. (Depends on T021a-Logic, T023)
+- [X] T021c [US2] **Log Success**: If T021b successfully generates a valid explanation (passes T020b), log the event to `data/success_log.jsonl` with `run_id`, `env_id`, `rule_id`, and `timestamp`. (Depends on T021b)
 - [X] T021d [US2] Implement token counting, truncation, and 'exceeds limit' failure flagging logic for a defined token constraint. in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/explanation/generator.py`
 - [X] T022 [US2] Implement deterministic rule mapping to ensure output explicitly states violated Rule ID from JSON schema in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/explanation/generator.py`
 - [X] T022b [US2] Implement logic to invoke `validate_explanation()` on generator output before returning the explanation in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/explanation/generator.py`
@@ -146,14 +125,15 @@
 ### Implementation for User Story 3
 
 - [X] T033 [US3] Implement baseline (scalar reward) condition logic and orchestration to run it alongside counterfactual condition in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/agents/evolutionary_harness.py`
-- [X] T034 [US3] Implement policy parser using `radon` to calculate cyclomatic complexity and conditional branch count in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/agents/policy_parser.py`
+- [X] T034 [US3] Implement policy parser module using `radon` to calculate cyclomatic complexity and conditional branch count in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/agents/policy_parser.py`
 - [X] T035 [US3] Add error handling to catch syntactically invalid evolved policy code and record as "generation error" in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/agents/evolutionary_harness.py`
-- [X] T032a [US3] Create `EvolutionaryHarness` class to run agents on both baseline and counterfactual conditions with fixed seeds. **Must depend on T013e** to ensure it iterates only over registered environments. **Must ensure policy write is flushed before parsing** (file-existence check with retry loop). (Depends on T021d, T023, T013e, T033)
-- [X] T032b [US3] Implement logic to write `data/evolution_results.csv` (columns: `run_id` (int), `seed` (int), `seed_run_id` (str composite key: "seed-run_id"), `condition` (str), `env_id` (str), `score` (float), `pre_shift_score` (float), `drop_rate` (float), `complexity` (float), `branch_count` (int)) after each run. **Must call the parser implementation from T034** to calculate complexity and branch count for the generated policy BEFORE writing the row. **Must include `pre_shift_score` and `drop_rate` by joining `data/sensitivity_report.csv` (produced by T013f/T014) with `env_id` and `seed` as composite keys to retrieve these values.** (Depends on T032a, T034, T013f)
-- [X] T036 [US3] Implement mixed-effects model analysis using `statsmodels` with formula `score ~ condition + complexity + (1|seed/run_id)` reading from `data/evolution_results.csv` and writing to `data/stats_results.json`. **Must include conditional logic**: if `p_value < 0.05` AND `effect_size > 0`, set `significant` flag to `True`; otherwise `False`. This formula explicitly models the nested "runs within seeds" structure and is the sole source for statistical significance testing. (Depends on T032a, T032b)
-- [X] T037 [US3] Create CLI entry point to execute full pipeline with command `python main.py --run-evolution` and output `data/final_results.csv` in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/main.py` (CLI args: --seeds, --runs, --envs, --conditions; Output: final_results.csv with aggregated metrics) (Depends on T032a, T032b, T036)
-- [X] T038b [US3] **Parse Fallback Log**: Implement logic to parse `data/fallbacks.log` and export counts to `data/explanation_metrics.json` (columns: `total_failures`, `fallback_count`, `success_count`, `success_rate`). (Depends on T023)
-- [X] T038 [US3] Aggregate success/failure counts from T038b to calculate and report the rate of successful counterfactual explanation generation (SC-004) in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/analysis/stats.py` (Depends on T038b)
+- [X] T032a [US3] Create `EvolutionaryHarness` class to run agents on both baseline and counterfactual conditions with fixed seeds. **Must depend on T013e** to ensure it iterates only over registered environments. **Logic**: Before running, verify `data/sensitivity_report.csv` exists (from T015c). If missing, raise `RuntimeError`. After each run, write `run_id`, `seed`, `condition`, `env_id`, `score`, `pre_shift_score`, `drop_rate` to `data/run_state.json` (one JSON object per line or a list). (Depends on T021d, T023, T013e, T033, T034, T015c)
+- [X] T032b [US3] Write `data/evolution_results.csv`. **Logic**: Read `data/run_state.json` (produced by T032a). Call `policy_parser` (T034 module) on the generated policy file to get complexity and branch count. Retrieve `pre_shift_score` and `drop_rate` from `data/sensitivity_report.csv` (produced by T015c) matching `env_id`. If a row for `env_id` is missing, default to 0.0 for `drop_rate` and log a warning. Combine all data into a CSV row. Columns: `run_id` (int), `seed` (int), `seed_run_id` (str), `condition` (str), `env_id` (str), `score` (float), `pre_shift_score` (float), `drop_rate` (float), `complexity` (float), `branch_count` (int). (Depends on T032a, T034, T015c)
+- [X] T036a [US3] **Dry-Run & Mock Data**: Implement a script to generate `data/mock_evolution_results.csv` with synthetic but structurally valid data (random seeds, conditions, scores, complexity) to test the statistical pipeline (T036) without running the full evolution loop. (No dependencies)
+- [X] T036 [US3] Implement mixed-effects model analysis using `statsmodels` with formula `score ~ condition + complexity + (1|seed/run_id)` reading from `data/evolution_results.csv` (primary) or `data/mock_evolution_results.csv` (optional for dry-run) and writing to `data/stats_results.json`. **Logic**: 1) Handle convergence errors (log warning, flag as failed). 2) If `p_value < 0.05` AND `effect_size > 0`, set `significant` flag to `True`; otherwise `False`. (Depends on T032b, T036a)
+- [X] T037 [US3] Create CLI entry point to execute full pipeline with command `python main.py --run-evolution` and output `data/final_results.csv` in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/main.py` (CLI args: --seeds, --runs, --envs, --conditions; Output: final_results.csv with aggregated metrics) (Depends on T032a, T036)
+- [X] T038a [US3] **Log Parsing**: Parse `data/fallbacks.log` and `data/timeouts.log` using regex to extract counts. Output `data/aggregation_stats.json` with keys `fallback_count`, `timeout_count`, `total_failures`. (No dependencies)
+- [X] T038 [US3] Aggregate success/failure counts to calculate and report the rate of successful counterfactual explanation generation (SC-004). **Logic**: Read `data/success_log.jsonl` (from T021c) to get `successful_count`. **Handle missing file**: If `data/success_log.jsonl` does not exist, treat `successful_count` as 0. Read `data/fallbacks.log` and `data/timeouts.log` to get `failure_count`. Calculate rate = `successful_count / (successful_count + failure_count)`. Output to `data/aggregation_stats.json`. (Depends on T038a, T021c)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -163,7 +143,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T038a [P] Write `README.md` with project overview, installation instructions, and CLI usage examples in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/README.md`
+- [X] T038b [P] Write `README.md` with project overview, installation instructions, and CLI usage examples in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/README.md`
 - [X] T038c [P] Write `quickstart.md` with step-by-step guide to run a single evolutionary experiment in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/quickstart.md`
 - [X] T038d [P] Update `CONTRIBUTING.md` with coding standards and testing guidelines in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/CONTRIBUTING.md`
 - [X] T039 [P] Code cleanup and refactoring (reduce cyclomatic complexity of T013b, T021, T032a to <10)
@@ -184,7 +164,6 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Revision**: **REMOVED**. All requirements previously deferred to a "Revision" phase have been integrated into Phases 3, 4, and 5 with concrete specifications. No future analysis pass is required to define the work.
 
 ### User Story Dependencies
 
