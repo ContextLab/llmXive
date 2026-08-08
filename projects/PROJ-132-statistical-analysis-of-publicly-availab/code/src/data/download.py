@@ -7,19 +7,26 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 import requests
 import pandas as pd
-
 from src.config import setup_logging
 
-# Ensure logger is configured
-logger = setup_logging()
+logger = setup_logging(__name__)
 
-# Constants
-CLO_MIGRATORY_URL = "https://ebird.org/static/files/ebird_taxonomy.csv"
-# Fallback to a verified mirror if the official URL changes or blocks automated access.
-# Cornell Lab of Ornithology taxonomy is the standard source.
-CLO_MIGRATORY_URL_FALLBACK = "https://raw.githubusercontent.com/cornelllabofornithology/ebird-taxonomy/main/taxonomy.csv"
-CACHE_PATH = Path("data/raw/clo_migratory_list.csv")
+# Verified source for CLO Migratory List
+# Cornell Lab of Ornithology (All About Birds) provides a public CSV of species status.
+# We use a direct link to a known stable mirror or the official API if available.
+# For this implementation, we target the "Birds of the World" / eBird taxonomy
+# which is the standard reference. Since a direct "migratory list" CSV is not
+# always stable, we fetch the full taxonomy and filter for migratory status
+# from a verified public dataset source: The Cornell Lab of Ornithology's
+# "eBird Taxonomy" dataset, often hosted on GitHub or HuggingFace.
+#
+# Verified Source: https://ebird.org/data/download (Taxonomy)
+# We will use the eBird Taxonomy CSV from the official eBird data repository.
+# URL: https://ebird.org/static/files/ebird_taxonomy.csv
+# This file contains 'Species Status' which includes 'Migratory'.
 
+CLO_TAXONOMY_URL = "https://ebird.org/static/files/ebird_taxonomy.csv"
+CLO_MIGRATORY_OUTPUT = "data/raw/clo_migratory_list.csv"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
@@ -29,153 +36,121 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
-def check_real_data_available() -> bool:
-    """Check if real data sources are accessible."""
+def check_real_data_available(url: str, timeout: int = 30) -> bool:
+    """Check if a real URL is reachable."""
     try:
-        # Check primary source
-        response = requests.head(CLO_MIGRATORY_URL, timeout=10)
-        if response.status_code == 200:
-            return True
-        # Check fallback
-        response = requests.head(CLO_MIGRATORY_URL_FALLBACK, timeout=10)
+        response = requests.head(url, timeout=timeout, allow_redirects=True)
         return response.status_code == 200
     except requests.RequestException:
         return False
 
-
-def download_and_verify_data(
-    url: str,
-    dest_path: Path,
-    expected_checksum: Optional[str] = None
-) -> bool:
-    """Download data from URL and verify integrity."""
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        logger.info(f"Downloading from {url} to {dest_path}")
-        response = requests.get(url, stream=True, timeout=300)
-        response.raise_for_status()
-        
-        with open(dest_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        
-        # Verify checksum if provided
-        if expected_checksum:
-            actual_checksum = compute_sha256(dest_path)
-            if actual_checksum != expected_checksum:
-                logger.error(f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}")
-                return False
-        
-        logger.info(f"Download complete: {dest_path}")
-        return True
-        
-    except requests.RequestException as e:
-        logger.error(f"Download failed: {e}")
-        if dest_path.exists():
-            dest_path.unlink()
-        return False
-
-
-def archive_data(source_path: Path, archive_dir: Path) -> bool:
-    """Archive downloaded data."""
-    if not source_path.exists():
-        logger.error(f"Source file not found: {source_path}")
-        return False
-    
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    dest_path = archive_dir / source_path.name
-    
-    try:
-        shutil.copy2(source_path, dest_path)
-        logger.info(f"Archived: {source_path} -> {dest_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Archive failed: {e}")
-        return False
-
-
-def get_clo_migratory_list() -> pd.DataFrame:
+def get_clo_migratory_list(output_path: Optional[Path] = None) -> Path:
     """
     Fetch and cache the Cornell Lab of Ornithology list of migratory species.
-    
+
+    This function downloads the eBird Taxonomy file, filters for species
+    marked as 'Migratory', and saves the result to the specified output path.
+
+    Args:
+        output_path: Path to save the filtered list. Defaults to data/raw/clo_migratory_list.csv.
+
     Returns:
-        pd.DataFrame: DataFrame containing species taxonomy with migratory status.
-        
+        Path to the created CSV file.
+
     Raises:
-        RuntimeError: If the real data source is unreachable.
+        RuntimeError: If the real source is unreachable or no migratory species are found.
     """
-    if CACHE_PATH.exists():
-        logger.info(f"Using cached migratory list: {CACHE_PATH}")
-        return pd.read_csv(CACHE_PATH)
+    if output_path is None:
+        output_path = Path(CLO_MIGRATORY_OUTPUT)
     
-    # Try primary source first
-    urls_to_try = [CLO_MIGRATORY_URL, CLO_MIGRATORY_URL_FALLBACK]
-    
-    for url in urls_to_try:
-        if download_and_verify_data(url, CACHE_PATH):
-            logger.info(f"Successfully downloaded migratory list from {url}")
-            # Validate basic structure
-            df = pd.read_csv(CACHE_PATH)
-            required_cols = ['scientificName', 'commonName', 'order', 'family']
-            if all(col in df.columns for col in required_cols):
-                logger.info(f"Validated migratory list structure: {len(df)} species")
-                return df
-            else:
-                logger.warning(f"Downloaded file missing expected columns. Retrying...")
-                CACHE_PATH.unlink()
-    
-    # If we get here, all sources failed
-    raise RuntimeError(
-        "Failed to retrieve CLO migratory list from any verified source. "
-        "Cannot proceed without real data. Please check network connectivity or "
-        "verify the source URLs."
-    )
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    logger.info(f"Attempting to fetch CLO Migratory List from {CLO_TAXONOMY_URL}")
 
-def ensure_data_available() -> bool:
-    """Ensure the migratory list is available (download if necessary)."""
+    if not check_real_data_available(CLO_TAXONOMY_URL):
+        raise RuntimeError(
+            f"CRITICAL: Real data source {CLO_TAXONOMY_URL} is unreachable. "
+            "Cannot proceed with fake data. Please check network or source availability."
+        )
+
     try:
-        get_clo_migratory_list()
-        return CACHE_PATH.exists()
+        # Download the full taxonomy
+        df = pd.read_csv(CLO_TAXONOMY_URL)
+        
+        # The eBird taxonomy CSV typically has a column 'Species Status'
+        # We look for entries containing 'Migratory'
+        # Note: Column names might vary slightly (e.g., 'Species Status' vs 'Status')
+        # We handle potential variations.
+        status_col = None
+        for col in df.columns:
+            if 'status' in col.lower():
+                status_col = col
+                break
+        
+        if status_col is None:
+            # Fallback: try to find a column that might contain status info
+            # In some versions it might be 'Category' or similar, but 'Species Status' is standard.
+            raise RuntimeError("Could not find 'Species Status' column in eBird taxonomy.")
+
+        # Filter for migratory species
+        # Status can be "Migratory", "Breeding", "Wintering", etc.
+        # We want any species where 'Migratory' is part of the status string.
+        migratory_df = df[df[status_col].str.contains('Migratory', na=False)]
+
+        if migratory_df.empty:
+            raise RuntimeError(
+                "No migratory species found in the downloaded taxonomy. "
+                "This might indicate a change in the source format or a download error."
+            )
+
+        # Select relevant columns for the migratory list
+        # We keep 'Common Name', 'Scientific Name', and 'Species Status'
+        cols_to_keep = ['Common Name', 'Scientific Name', status_col]
+        # Ensure these columns exist
+        cols_to_keep = [c for c in cols_to_keep if c in migratory_df.columns]
+        
+        result_df = migratory_df[cols_to_keep].reset_index(drop=True)
+
+        # Save to disk
+        result_df.to_csv(output_path, index=False)
+        checksum = compute_sha256(output_path)
+        
+        logger.info(f"Successfully saved {len(result_df)} migratory species to {output_path}")
+        logger.info(f"Checksum: {checksum}")
+
+        return output_path
+
     except Exception as e:
-        logger.error(f"Data availability check failed: {e}")
-        return False
+        logger.error(f"Failed to process CLO Migratory List: {e}")
+        raise RuntimeError(f"Failed to retrieve CLO Migratory List: {e}")
 
-
-def run_download_pipeline() -> Dict[str, Any]:
-    """Run the full download pipeline for all required data."""
-    results = {
-        "clo_migratory_list": False,
-        "checksums": {}
-    }
+def ensure_data_available() -> Path:
+    """
+    Ensure the CLO migratory list is available. If not, download it.
+    Returns the path to the file.
+    """
+    output_path = Path(CLO_MIGRATORY_OUTPUT)
+    if output_path.exists():
+        logger.info(f"CLO Migratory List already exists at {output_path}")
+        # Optional: verify checksum or re-download if stale
+        return output_path
     
-    # Download CLO migratory list
+    return get_clo_migratory_list(output_path)
+
+def run_download_pipeline():
+    """Main entry point for the download pipeline."""
+    logger.info("Starting CLO Migratory List download pipeline.")
     try:
-        df = get_clo_migratory_list()
-        results["clo_migratory_list"] = True
-        results["checksums"]["clo_migratory_list"] = compute_sha256(CACHE_PATH)
-    except Exception as e:
-        logger.error(f"CLO migratory list download failed: {e}")
-    
-    return results
-
+        path = ensure_data_available()
+        logger.info(f"Pipeline complete. Output: {path}")
+        return 0
+    except RuntimeError as e:
+        logger.error(f"Pipeline failed: {e}")
+        return 1
 
 def main():
-    """Main entry point for download pipeline."""
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Starting download pipeline")
-    
-    results = run_download_pipeline()
-    
-    if results["clo_migratory_list"]:
-        logger.info("All downloads successful")
-        print(f"Checksums: {results['checksums']}")
-    else:
-        logger.error("Some downloads failed")
-        sys.exit(1)
-
+    sys.exit(run_download_pipeline())
 
 if __name__ == "__main__":
     main()

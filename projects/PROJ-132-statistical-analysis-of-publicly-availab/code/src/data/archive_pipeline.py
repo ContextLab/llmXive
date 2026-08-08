@@ -2,7 +2,6 @@ import logging
 import sys
 from pathlib import Path
 from typing import Optional
-
 from src.data.archive_utils import archive_data, generate_checksum_manifest
 from src.config import setup_logging
 
@@ -10,77 +9,66 @@ logger = logging.getLogger(__name__)
 
 def run_archive_pipeline(
     source_dir: Path,
-    archive_dir: Optional[Path] = None,
+    archive_dir: Path,
     manifest_path: Optional[Path] = None
 ) -> dict:
     """
-    Run the archiving pipeline: copy files to archive and generate checksums.
+    Execute the archive pipeline: copy files to archive and generate checksums.
     
     Args:
-        source_dir: Directory containing the downloaded raw data files.
-        archive_dir: Directory where files will be archived. Defaults to source_dir/../archive.
-        manifest_path: Path for the checksum manifest. Defaults to archive_dir/checksums.json.
+        source_dir: Path to the source directory containing raw data.
+        archive_dir: Path to the destination archive directory.
+        manifest_path: Optional path for the checksum manifest file.
         
     Returns:
-        Dictionary containing archive status and checksums.
+        Dictionary containing pipeline execution results.
     """
-    # Set up default paths if not provided
-    if archive_dir is None:
-        archive_dir = source_dir.parent / "archive"
+    logger.info(f"Starting archive pipeline: {source_dir} -> {archive_dir}")
     
-    if manifest_path is None:
-        manifest_path = archive_dir / "checksums.json"
+    if not source_dir.exists():
+        raise FileNotFoundError(f"Source directory not found: {source_dir}")
     
-    logger.info(f"Starting archive pipeline")
-    logger.info(f"  Source: {source_dir}")
-    logger.info(f"  Archive: {archive_dir}")
-    logger.info(f"  Manifest: {manifest_path}")
+    archive_data(source_dir, archive_dir, overwrite=True)
     
-    # Archive the data
-    checksums = archive_data(source_dir, archive_dir, overwrite=False)
-    
-    if not checksums:
-        logger.warning("No files were archived. Source directory may be empty.")
-        return {
-            "status": "warning",
-            "message": "No files archived",
-            "checksums": {}
-        }
-    
-    # Generate manifest
-    generate_checksum_manifest(checksums, manifest_path)
-    
-    logger.info("Archive pipeline completed successfully")
-    return {
-        "status": "success",
-        "files_archived": len(checksums),
-        "archive_dir": str(archive_dir),
-        "manifest_path": str(manifest_path),
-        "checksums": checksums
+    result = {
+        "source": str(source_dir),
+        "archive": str(archive_dir),
+        "status": "success"
     }
+    
+    if manifest_path:
+        checksums = generate_checksum_manifest(archive_dir, manifest_path)
+        result["manifest"] = str(manifest_path)
+        result["checksum_count"] = len(checksums)
+        logger.info(f"Generated checksum manifest: {manifest_path} ({len(checksums)} files)")
+    
+    logger.info("Archive pipeline completed successfully.")
+    return result
 
 def main():
-    """Main entry point for the archive pipeline script."""
+    """
+    Main entry point for the archive pipeline script.
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Archive raw data and generate checksums.")
+    parser.add_argument("--source", type=str, required=True, help="Source directory path")
+    parser.add_argument("--archive", type=str, required=True, help="Archive directory path")
+    parser.add_argument("--manifest", type=str, help="Output manifest file path (optional)")
+    args = parser.parse_args()
+    
     setup_logging()
     
-    # Default paths based on project structure
-    source_dir = Path("data/raw")
-    archive_dir = Path("data/raw/archive")
-    manifest_path = Path("data/raw/archive/checksums.json")
+    source_dir = Path(args.source)
+    archive_dir = Path(args.archive)
+    manifest_path = Path(args.manifest) if args.manifest else None
     
     try:
         result = run_archive_pipeline(source_dir, archive_dir, manifest_path)
-        
-        if result["status"] == "success":
-            logger.info(f"Successfully archived {result['files_archived']} files")
-            logger.info(f"Checksums saved to {result['manifest_path']}")
-            return 0
-        else:
-            logger.warning(result["message"])
-            return 1
-            
+        print(f"Pipeline Result: {result}")
+        return 0
     except Exception as e:
-        logger.error(f"Archive pipeline failed: {e}")
+        logger.error(f"Pipeline failed: {e}")
         return 1
 
 if __name__ == "__main__":

@@ -5,197 +5,260 @@ import yaml
 import logging
 import json
 from pathlib import Path
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 import pandas as pd
-import numpy as np
+from datetime import datetime
 
+# Import existing utilities from project
 from src.config import setup_logging
+from src.data.download import get_clo_migratory_list, check_real_data_available
+from src.data.impute import run_imputation_pipeline
 
-# Ensure the logger is configured for this module
 logger = logging.getLogger(__name__)
 
-def mark_insufficient_cells(
-    df: pd.DataFrame,
-    min_count: int = 5,
-    output_path: Optional[Path] = None,
-    log_path: Optional[Path] = None
-) -> pd.DataFrame:
-    """
-    Scan aggregated grid cells and mark those with insufficient data.
+# Constants (matching T010a)
+SEED: int = 42
+GRID_RES: float = 0.5
+PERMUTATIONS: int = 10000
 
-    Logic:
-    1. Scan aggregated grid cells.
-    2. If count < min_count (default 5), set data_quality="insufficient".
-    3. Exclude these cells from downstream modeling by filtering them out
-       (or flagging them, depending on downstream needs).
-    4. Log species, grid cell, and reason to the provided log path.
-    5. Write metadata to data/processed/metadata_insufficient_cells.json.
-
-    Args:
-        df: DataFrame containing aggregated grid cell data.
-            Expected columns: 'species', 'grid_cell', 'count', and others.
-        min_count: Minimum count threshold for sufficient data.
-        output_path: Optional path to write the metadata JSON.
-        log_path: Optional path to the pipeline log file.
-
-    Returns:
-        DataFrame with a new column 'data_quality' where insufficient cells
-        are marked as "insufficient".
-    """
-    if df.empty:
-        logger.warning("Input DataFrame is empty. No cells to mark.")
-        return df
-
-    # Ensure 'count' column exists
-    if 'count' not in df.columns:
-        raise ValueError("Input DataFrame must contain a 'count' column.")
-
-    # Initialize data_quality column
-    df['data_quality'] = 'sufficient'
-
-    # Identify insufficient cells
-    insufficient_mask = df['count'] < min_count
-    insufficient_df = df[insufficient_mask]
-
-    if not insufficient_df.empty:
-        # Update data_quality for insufficient cells
-        df.loc[insufficient_mask, 'data_quality'] = 'insufficient'
-
-        # Prepare metadata for insufficient cells
-        insufficient_metadata = insufficient_df[['species', 'grid_cell', 'count']].to_dict(
-            orient='records'
-        )
-
-        # Add reason to metadata
-        for record in insufficient_metadata:
-            record['reason'] = f"Count ({record['count']}) is below threshold ({min_count})."
-            record['timestamp'] = datetime.now(timezone.utc).isoformat()
-
-        # Log insufficient cells
-        if log_path:
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_path, 'a', encoding='utf-8') as log_file:
-                for record in insufficient_metadata:
-                    log_entry = (
-                        f"[INSUFFICIENT] species={record['species']}, "
-                        f"grid_cell={record['grid_cell']}, "
-                        f"count={record['count']}, "
-                        f"reason={record['reason']}\n"
-                    )
-                    log_file.write(log_entry)
-            logger.info(f"Logged {len(insufficient_metadata)} insufficient cells to {log_path}.")
-
-        # Write metadata to output path
-        if output_path:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'w', encoding='utf-8') as meta_file:
-                json.dump(insufficient_metadata, meta_file, indent=2)
-            logger.info(f"Wrote insufficient cells metadata to {output_path}.")
-        else:
-            logger.warning("No output path provided for insufficient cells metadata.")
-
+def load_ebird_data(data_path: str) -> pd.DataFrame:
+    """Load eBird data from parquet or csv."""
+    path = Path(data_path)
+    if path.suffix == '.parquet':
+        return pd.read_parquet(path)
+    elif path.suffix == '.csv':
+        return pd.read_csv(path)
     else:
-        logger.info("No insufficient cells found.")
+        raise ValueError(f"Unsupported file format: {path.suffix}")
 
+def filter_migratory_species(df: pd.DataFrame, migratory_list_path: str) -> pd.DataFrame:
+    """Filter eBird records to migratory species using CLO list."""
+    migratory_species = get_clo_migratory_list(migratory_list_path)
+    return df[df['species'].isin(migratory_species)]
+
+def filter_date_range(df: pd.DataFrame, start_year: int = 2020, end_year: int = 2024) -> pd.DataFrame:
+    """Filter records to specified date range."""
+    df['date'] = pd.to_datetime(df['date'])
+    return df[(df['date'].dt.year >= start_year) & (df['date'].dt.year <= end_year)]
+
+def assign_grid_cell(df: pd.DataFrame, grid_res: float = GRID_RES) -> pd.DataFrame:
+    """Assign grid cell to each record based on lat/lon."""
+    df['grid_cell'] = (
+        df['lat'].round(grid_res) * 100 + df['lon'].round(grid_res)
+    ).astype(int)
     return df
 
-def run_preprocessing_pipeline(
-    input_path: Path,
-    output_path: Path,
-    log_path: Optional[Path] = None,
-    metadata_path: Optional[Path] = None,
-    min_count: int = 5
-) -> None:
-    """
-    Run the full preprocessing pipeline including marking insufficient cells.
+def aggregate_to_weekly_grid(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate records to weekly counts per grid cell."""
+    df['week'] = df['date'].dt.isocalendar().week
+    df['year'] = df['date'].dt.year
+    
+    aggregated = df.groupby(['species', 'grid_cell', 'year', 'week']).agg({
+        'count': 'sum',
+        'checklist_id': 'first'  # Keep one checklist_id for provenance
+    }).reset_index()
+    
+    return aggregated
 
-    This function:
-    1. Loads the aggregated data from input_path.
-    2. Calls mark_insufficient_cells to flag cells with insufficient data.
-    3. Writes the processed DataFrame to output_path.
-    4. Logs and writes metadata for insufficient cells.
+def compute_phenology_metrics(df: pd.DataFrame) -> pd.DataFrame:
+    """Compute phenology metrics: first_arrival, median_arrival, stopover_duration."""
+    # Group by species, grid_cell, year
+    result = []
+    
+    for (species, grid_cell, year), group in df.groupby(['species', 'grid_cell', 'year']):
+        sorted_group = group.sort_values('week')
+        
+        first_arrival = sorted_group['week'].min()
+        median_arrival = sorted_group['week'].median()
+        
+        # Stopover duration: 90th percentile - 10th percentile
+        weeks = sorted_group['week'].values
+        low_pct = int(np.percentile(weeks, 10))
+        high_pct = int(np.percentile(weeks, 90))
+        stopover_duration = high_pct - low_pct
+        
+        result.append({
+            'species': species,
+            'grid_cell': grid_cell,
+            'year': year,
+            'first_arrival': first_arrival,
+            'median_arrival': median_arrival,
+            'stopover_duration': stopover_duration
+        })
+    
+    return pd.DataFrame(result)
 
-    Args:
-        input_path: Path to the input aggregated data (e.g., parquet or csv).
-        output_path: Path to write the processed DataFrame.
-        log_path: Path to the pipeline log file.
-        metadata_path: Path to write the insufficient cells metadata JSON.
-        min_count: Minimum count threshold for sufficient data.
-    """
-    logger.info(f"Starting preprocessing pipeline. Input: {input_path}, Output: {output_path}")
+def mark_insufficient_cells(df: pd.DataFrame, min_count: int = 5) -> pd.DataFrame:
+    """Mark grid cells with insufficient data."""
+    df['data_quality'] = 'sufficient'
+    insufficient_mask = df['count'] < min_count
+    df.loc[insufficient_mask, 'data_quality'] = 'insufficient'
+    
+    # Log insufficient cells
+    insufficient_cells = df[insufficient_mask][['species', 'grid_cell', 'count']]
+    if not insufficient_cells.empty:
+        logger.warning(f"Marked {len(insufficient_cells)} cells as insufficient data")
+    
+    return df
 
-    # Load data
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    if input_path.suffix == '.parquet':
-        df = pd.read_parquet(input_path)
-    elif input_path.suffix == '.csv':
-        df = pd.read_csv(input_path)
-    else:
-        raise ValueError(f"Unsupported file format: {input_path.suffix}")
-
-    logger.info(f"Loaded {len(df)} records from {input_path}")
-
-    # Mark insufficient cells
-    df_processed = mark_insufficient_cells(
-        df=df,
-        min_count=min_count,
-        output_path=metadata_path,
-        log_path=log_path
+def merge_climate_data(df: pd.DataFrame, climate_data: pd.DataFrame) -> pd.DataFrame:
+    """Merge climate data with eBird aggregated data."""
+    # Ensure grid_cell is same type
+    df['grid_cell'] = df['grid_cell'].astype(int)
+    climate_data['grid_cell'] = climate_data['grid_cell'].astype(int)
+    
+    merged = pd.merge(
+        df,
+        climate_data[['grid_cell', 'year', 'temp_avg', 'precip_total', 'is_imputed']],
+        on=['grid_cell', 'year'],
+        how='left'
     )
+    
+    return merged
 
-    # Filter out insufficient cells for downstream modeling (optional, depending on needs)
-    # Here we keep all rows but mark them; downstream can filter if needed.
-    # If we want to exclude them:
-    # df_processed = df_processed[df_processed['data_quality'] != 'insufficient']
-
-    # Write output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    if output_path.suffix == '.parquet':
-        df_processed.to_parquet(output_path, index=False)
-    elif output_path.suffix == '.csv':
-        df_processed.to_csv(output_path, index=False)
-    else:
-        raise ValueError(f"Unsupported output format: {output_path.suffix}")
-
-    logger.info(f"Preprocessing pipeline completed. Output written to {output_path}")
-
-def main() -> None:
+def generate_provenance(processed_df: pd.DataFrame, raw_df: pd.DataFrame, output_path: str) -> None:
     """
-    Main entry point for the preprocessing pipeline.
-
-    This function:
-    1. Sets up logging.
-    2. Defines input and output paths.
-    3. Runs the preprocessing pipeline.
+    Generate provenance mapping from processed rows back to original checklist_ids.
+    
+    Args:
+        processed_df: The processed/aggregated DataFrame
+        raw_df: The original raw eBird DataFrame
+        output_path: Path to write the JSON mapping file
     """
-    # Set up logging
-    log_dir = Path("logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / "pipeline.log"
+    logger.info("Generating provenance mapping...")
+    
+    # Create mapping: processed row -> original checklist_ids
+    mapping = []
+    
+    for idx, row in processed_df.iterrows():
+        species = row['species']
+        grid_cell = row['grid_cell']
+        year = row['year']
+        week = row['week']
+        
+        # Find matching checklist_ids in raw data
+        # Note: In aggregated data, we kept 'checklist_id' from first record
+        # For full provenance, we'd need to track all contributing checklists
+        # Here we use the stored checklist_id from aggregation
+        checklist_id = row.get('checklist_id')
+        
+        if pd.notna(checklist_id):
+            mapping.append({
+                'processed_row_idx': int(idx),
+                'species': species,
+                'grid_cell': int(grid_cell),
+                'year': int(year),
+                'week': int(week),
+                'original_checklist_id': str(checklist_id)
+            })
+    
+    # Verify integrity: all checklist_ids in mapping exist in raw data
+    if raw_df is not None and 'checklist_id' in raw_df.columns:
+        raw_checklist_ids = set(raw_df['checklist_id'].astype(str))
+        mapping_checklist_ids = set(m['original_checklist_id'] for m in mapping)
+        
+        missing = mapping_checklist_ids - raw_checklist_ids
+        if missing:
+            logger.warning(f"Found {len(missing)} checklist_ids in mapping not in raw data")
+        else:
+            logger.info("Provenance integrity verified: all checklist_ids exist in raw data")
+    
+    # Write mapping to JSON
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        json.dump(mapping, f, indent=2)
+    
+    logger.info(f"Provenance mapping written to {output_path}")
 
-    # Configure logging
-    logger = setup_logging(log_file=log_path)
+def run_preprocessing_pipeline(
+    ebird_data_path: str,
+    climate_data_path: str,
+    migratory_list_path: str,
+    output_path: str,
+    provenance_path: str
+) -> pd.DataFrame:
+    """
+    Run the full preprocessing pipeline.
+    
+    Args:
+        ebird_data_path: Path to raw eBird data
+        climate_data_path: Path to climate data
+        migratory_list_path: Path to CLO migratory species list
+        output_path: Path to write processed data
+        provenance_path: Path to write provenance mapping
+        
+    Returns:
+        Processed DataFrame
+    """
+    logger.info("Starting preprocessing pipeline...")
+    
+    # 1. Load raw data
+    raw_df = load_ebird_data(ebird_data_path)
+    logger.info(f"Loaded {len(raw_df)} raw eBird records")
+    
+    # 2. Filter to migratory species
+    df = filter_migratory_species(raw_df, migratory_list_path)
+    logger.info(f"Filtered to {len(df)} migratory species records")
+    
+    # 3. Filter date range
+    df = filter_date_range(df)
+    logger.info(f"Filtered to date range: {len(df)} records")
+    
+    # 4. Assign grid cells
+    df = assign_grid_cell(df)
+    
+    # 5. Aggregate to weekly grid
+    aggregated = aggregate_to_weekly_grid(df)
+    logger.info(f"Aggregated to {len(aggregated)} weekly grid cells")
+    
+    # 6. Mark insufficient cells
+    aggregated = mark_insufficient_cells(aggregated)
+    
+    # 7. Merge climate data
+    climate_df = load_ebird_data(climate_data_path)
+    final_df = merge_climate_data(aggregated, climate_df)
+    
+    # 8. Compute phenology metrics
+    phenology_df = compute_phenology_metrics(final_df)
+    
+    # 9. Generate provenance mapping
+    generate_provenance(phenology_df, raw_df, provenance_path)
+    
+    # 10. Write output
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    phenology_df.to_parquet(output_path, index=False)
+    
+    logger.info(f"Preprocessing complete. Output written to {output_path}")
+    return phenology_df
 
-    # Define paths
-    input_path = Path("data/interim/aggregated_data.parquet")
-    output_path = Path("data/processed/processed_data.parquet")
-    metadata_path = Path("data/processed/metadata_insufficient_cells.json")
-
-    # Run pipeline
-    try:
-        run_preprocessing_pipeline(
-            input_path=input_path,
-            output_path=output_path,
-            log_path=log_path,
-            metadata_path=metadata_path,
-            min_count=5
-        )
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+def main():
+    """Main entry point for preprocessing pipeline."""
+    logger = setup_logging()
+    
+    # Paths (adjust based on actual project structure)
+    base_path = Path(__file__).parent.parent.parent
+    ebird_path = base_path / "data" / "raw" / "ebird_sample.parquet"
+    climate_path = base_path / "data" / "raw" / "climate.parquet"
+    migratory_path = base_path / "data" / "raw" / "clo_migratory_list.csv"
+    output_path = base_path / "data" / "processed" / "phenology_metrics.parquet"
+    provenance_path = base_path / "data" / "provenance" / "row_mapping.json"
+    
+    # Verify data availability
+    if not check_real_data_available(ebird_path):
+        logger.error(f"eBird data not found at {ebird_path}")
         sys.exit(1)
+    
+    # Run pipeline
+    run_preprocessing_pipeline(
+        ebird_data_path=str(ebird_path),
+        climate_data_path=str(climate_path),
+        migratory_list_path=str(migratory_path),
+        output_path=str(output_path),
+        provenance_path=str(provenance_path)
+    )
 
 if __name__ == "__main__":
     main()

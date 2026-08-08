@@ -2,48 +2,54 @@
 
 ## Project Overview
 
-This project analyzes publicly available bird migration data to study the correlation
-between migration patterns and climate change.
+This project analyzes bird migration patterns and their correlation with climate change using publicly available datasets.
 
 ## Prerequisites
 
 - Python 3.11+
 - pip
+- virtualenv (recommended)
 
 ## Installation
 
 1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd <project-directory>
- ```
+```bash
+git clone <repository-url>
+cd PROJ-132-statistical-analysis-of-publicly-availab
+```
 
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
 
-3. Install pre-commit hooks:
- ```bash
- pre-commit install
- ```
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Install pre-commit hooks:
+```bash
+pip install pre-commit
+pre-commit install
+```
 
 ## Pre-commit Hooks
 
-This project uses pre-commit hooks to ensure code quality before each commit.
-The following hooks are configured:
+This project uses pre-commit hooks to ensure code quality before each commit. The following hooks are configured:
 
-- **Black**: Code formatter to maintain consistent style
-- **Ruff**: Fast Python linter and formatter
+- **Black**: Code formatter to ensure consistent code style.
+- **Ruff**: Fast Python linter to catch errors and enforce coding standards.
 
-To manually run all hooks on all files:
+To run pre-commit manually on all files:
 ```bash
 pre-commit run --all-files
 ```
 
-To run hooks on staged files only:
+To update pre-commit hooks to the latest versions:
 ```bash
-pre-commit run
+pre-commit autoupdate
 ```
 
 ## Project Structure
@@ -52,13 +58,15 @@ pre-commit run
 .
 ├── code/
 │ ├── src/
+│ │ ├── config.py
 │ │ ├── data/
 │ │ ├── models/
-│ │ ├── analysis/
-│ │ └── config.py
+│ │ └── analysis/
 │ ├── tests/
-│ ├── run_pipeline.py
-│ └── setup_project.py
+│ │ ├── unit/
+│ │ ├── integration/
+│ │ └── contract/
+│ └── run_pipeline.py
 ├── data/
 │ ├── raw/
 │ ├── processed/
@@ -66,12 +74,13 @@ pre-commit run
 ├── docs/
 ├──.pre-commit-config.yaml
 ├── pyproject.toml
+├── requirements.txt
 └── README.md
 ```
 
-## Usage
+## Running the Pipeline
 
-Run the full analysis pipeline:
+To execute the full analysis pipeline:
 ```bash
 python code/run_pipeline.py
 ```
@@ -80,9 +89,9 @@ python code/run_pipeline.py
 
 Project configuration is managed in `code/src/config.py`. Key parameters include:
 - `GRID_RES`: Spatial grid resolution (default: 0.5 degrees)
-- `PERMUTATIONS`: Number of permutation test iterations (default: 10000)
-- `SEED`: Random seed for reproducibility (default: 42)
+- `PERMUTATIONS`: Number of permutations for statistical testing (default: 10000)
+- Logging settings and output paths
 
 ## License
 
-This project is licensed under the terms specified in the LICENSE file.
+This project is licensed under the MIT License.

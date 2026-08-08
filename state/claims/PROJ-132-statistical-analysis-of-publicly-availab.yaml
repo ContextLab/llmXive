@@ -510,3 +510,509 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T04:52:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'Constants defined: SEED 42, GRID_RES 0.5, PERMUTATIONS 10000'
+  claim_id: c_62ad2ab9
+  context: 'T010a [S] [Foundation] **Define Constants**: Create `src/config.py` file
+    and define constants. Constants: Define and export `SEED: int = 42`, `GRID_RES:
+    float = 0.5`, `PERMUTATIONS: int = 10000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T010a Define Constants: SEED: int = 42, GRID_RES: float = 0.5, PERMUTATIONS:
+    int = 10000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:40:39Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Seasonal climate averages calculated for March-May period
+  claim_id: c_2937d5d3
+  context: "T017b [US1] Implement **seasonal climate average calculation** (March\u2013\
+    May temperature, precipitation, extreme weather indices) in `src/data/preprocess.py`\
+    \ to satisfy **FR-003** and **Imputation Flagging**."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seasonal_climate_averages_calculated_for_March-May_period
+  kind: entity_fact
+  raw_text: "T017b Implement seasonal climate average calculation (March\u2013May\
+    \ temperature, precipitation, extreme weather indices) in `src/data/preprocess.py`."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:41:08Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Moran's I threshold for refit set to 0.15
+  claim_id: c_4d806352
+  context: 'T023b [S] [US2] **Compute Moran''s I Diagnostic**: ... Logic: If `morans_i
+    > 0.15`, set `trigger_refit` to `True`. This flag is read by T023b_refit to initiate
+    the mandatory re-fit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T023b Compute Moran''s I Diagnostic: If `morans_i > 0.15`, set `trigger_refit`
+    to `True`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:41:53Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Permutation test n_shuffles set to 10000
+  claim_id: c_9ad1f680
+  context: 'T025b [S] [US2] **Permutation Test Loop**: Implement `src/models/utils.py::run_permutation_test`
+    with `n_shuffles=10000` (hard constraint) and `config.PERMUTATIONS`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T025b Permutation Test Loop: `n_shuffles=10000` (hard constraint).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:42:03Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: CI width compared against DEFAULT_CI_WIDTH_TARGET
+  claim_id: c_e8f4cdc6
+  context: 'T033a [P] [US3] **Calculate CI Width**: Implement `src/analysis/ci_width.py`
+    to calculate the width of 95% CIs from T033. Action: Compute `ci_upper - ci_lower`
+    for each species and compare against `config.DEFAULT_CI_WIDTH_TARGET`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_width_compared_against_DEFAULT_CI_WIDTH_TARGET
+  kind: entity_fact
+  raw_text: 'T033a Calculate CI Width: Compare against `config.DEFAULT_CI_WIDTH_TARGET`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:42:21Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'Default targets defined: Power 0.80, CI Width 5.0, Convergence 0.90,
+    Insufficient Data 0.20'
+  claim_id: c_5d816f0d
+  context: 'T010a [S] [Foundation] **Define Constants**: ... Targets: Define `DEFAULT_POWER_TARGET:
+    float = 0.80`, `DEFAULT_CI_WIDTH_TARGET: float = 5.0`, `DEFAULT_CONVERGENCE_TARGET:
+    float = 0.90`, `DEFAULT_INSUFFICIENT_DATA_TARGET: float = 0.20`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T010a Define Targets: `DEFAULT_POWER_TARGET: float = 0.80`, `DEFAULT_CI_WIDTH_TARGET:
+    float = 5.0`, `DEFAULT_CONVERGENCE_TARGET: float = 0.90`, `DEFAULT_INSUFFICIENT_DATA_TARGET:
+    float = 0.20`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:42:23Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Log file rotation max bytes set to 10485760 (10MB)
+  claim_id: c_37c15c2d
+  context: 'T010b [S] [Foundation] **Implement Logging**: ... Rotation Policy: Max
+    files, each limited to `maxBytes=10485760` (10MB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T010b Logging: Max files, each limited to `maxBytes=10485760` (10MB).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:42:44Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Chunked permutation utility chunk size set to 1000
+  claim_id: c_514a3743
+  context: 'T057a [S] [Foundation] **Implement Chunked Permutation Utility**: ...
+    Action: Create a function `run_permutation_chunked(data, n_shuffles, chunk_size=1000)`
+    that splits the permutation shuffles into smaller batches to avoid memory overflow.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: const int DEFAULT_SIZE 1000 ;
+      source_id: '2101.00172'
+      url: https://arxiv.org/abs/2101.00172
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 'T057a Chunked Permutation Utility: `chunk_size=1000`.'
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T19:43:23Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: EBD download target covers North America 2020 to 2024
+  claim_id: c_9cbc61cc
+  context: "T005a_full [S] [Foundation] **Attempt Full EBD Download**: Attempt to\
+    \ download the full eBird Basic Dataset (EBD) for North America (2020\u20132024)\
+    \ as per spec FR-001."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T005a_full Download the full eBird Basic Dataset (EBD) for North America\
+    \ (2020\u20132024)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:43:36Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: eBird records filtered to 2020 to 2024 period
+  claim_id: c_60801293
+  context: 'T015b1 [S] [US1] **Filter eBird Records**: Filter eBird records to migratory
+    species using the CLO list from `data/raw/clo_migratory_list.csv` and the 2020-2024
+    period.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T015b1 Filter eBird records to the 2020-2024 period.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:43:49Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 95 percent confidence interval width calculated
+  claim_id: c_c9c0e2bf
+  context: 'T033a [P] [US3] **Calculate CI Width**: Implement `src/analysis/ci_width.py`
+    to calculate the width of 95% CIs from T033.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T033a Calculate the width of 95% CIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:44:13Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Geodesic distances calculated on S2 sphere using geomstats
+  claim_id: c_9de46e58
+  context: "T031c [S] [US3] Implement trajectory analysis using **Riemannian Manifold\
+    \ Statistics** on the 2-sphere (S^2) via `geomstats`. Algorithm: ... 2. Calculate\
+    \ geodesic distances on S\xB2 using `geomstats.geometry.sphere.Sphere` (or equivalent\
+    \ Riemannian metric)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Geodesic_distances_calculated_on_S2_sphere_using_geomstats
+  kind: entity_fact
+  raw_text: "T031c Calculate geodesic distances on S\xB2 using `geomstats.geometry.sphere.Sphere`."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:44:46Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Scipy fallback geodesic formula acos(sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2)*cos(lon2-lon1))
+  claim_id: c_daaac426
+  context: 'T031c [S] [US3] ... **Fallback**: If `geomstats` is unavailable, use `scipy`
+    with explicit geodesic formula `acos(sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2)*cos(lon2-lon1))`
+    as a secondary validation step only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scipy_fallback_geodesic_formula_acos(sin(lat1)*sin(lat2)_+_c
+  kind: entity_fact
+  raw_text: 'T031c Fallback: Use `scipy` with explicit geodesic formula `acos(sin(lat1)*sin(lat2)
+    + cos(lat1)*cos(lat2)*cos(lon2-lon1))`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:44:52Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: spatial interpolation neighbor search constrained to 1 degree radius
+  claim_id: c_13dfd8a9
+  context: "Logic: Use `scipy.spatial.cKDTree` or `scipy.interpolate.griddata` with\
+    \ a neighbor search explicitly constrained to a **1\xB0 radius** around the target\
+    \ cell."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use `scipy.spatial.cKDTree` or `scipy.interpolate.griddata` with a neighbor\
+    \ search explicitly constrained to a 1\xB0 radius around the target cell."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:51:34Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: constants seed 42 grid res 0.5 permutations 10000
+  claim_id: c_904b5cc7
+  context: 'Constants: Define and export `SEED: int = 42`, `GRID_RES: float = 0.5`,
+    `PERMUTATIONS: int = 10000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define and export `SEED: int = 42`, `GRID_RES: float = 0.5`, `PERMUTATIONS:
+    int = 10000`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:51:49Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: targets power 0.80 ci width 5.0 convergence 0.90 insufficient data 0.20
+  claim_id: c_fd2ae1b1
+  context: 'Targets: Define `DEFAULT_POWER_TARGET: float = 0.80`, `DEFAULT_CI_WIDTH_TARGET:
+    float = 5.0`, `DEFAULT_CONVERGENCE_TARGET: float = 0.90`, `DEFAULT_INSUFFICIENT_DATA_TARGET:
+    float = 0.20`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define `DEFAULT_POWER_TARGET: float = 0.80`, `DEFAULT_CI_WIDTH_TARGET:
+    float = 5.0`, `DEFAULT_CONVERGENCE_TARGET: float = 0.90`, `DEFAULT_INSUFFICIENT_DATA_TARGET:
+    float = 0.20`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:52:23Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: log rotation max bytes 10485760
+  claim_id: c_236dbc65
+  context: 'Rotation Policy: Max files, each limited to `maxBytes=10485760` (10MB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log rotation policy limited to `maxBytes=10485760` (10MB).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:52:35Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: chunked permutation utility chunk size 1000
+  claim_id: c_b9499d4e
+  context: 'Action: Create a function `run_permutation_chunked(data, n_shuffles, chunk_size=1000)`
+    that splits the permutation shuffles into smaller batches to avoid memory overflow.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a function `run_permutation_chunked(data, n_shuffles, chunk_size=1000)`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:52:46Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: filter ebird records 2020 to 2024
+  claim_id: c_54fa0d43
+  context: 'Action: Filter eBird records to migratory species using the CLO list and
+    a recent multi-year period.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter eBird records to migratory species using the CLO list and the 2020-2024
+    period.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:53:09Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: aggregate ebird records grid res 0.5
+  claim_id: c_77807a1f
+  context: 'Action: Aggregate filtered eBird records to weekly counts per spatial
+    grid cell. Requirement: Ensure the aggregation is performed correctly.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Aggregate filtered eBird records to weekly counts per spatial grid cell
+    (Use `GRID_RES=0.5`).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:53:41Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: mark insufficient data cells count less than 5
+  claim_id: c_ad7967ba
+  context: 'Logic: Scan aggregated grid cells. If count < 5, set `data_quality="insufficient"`
+    and exclude from downstream modeling.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mark_insufficient_data_cells_count_less_than_5
+  kind: magnitude
+  raw_text: If count < 5, set `data_quality="insufficient"` and exclude from downstream
+    modeling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:53:47Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute seasonal climate average march may
+  claim_id: c_0d245c19
+  context: "Logic: Compute mean temperature and total precipitation for the March\u2013\
+    May period per grid cell and year."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_seasonal_climate_average_march_may
+  kind: entity_fact
+  raw_text: "Compute mean temperature and total precipitation for the March\u2013\
+    May period per grid cell and year."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:53:55Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: trigger refit morans i greater than 0.15
+  claim_id: c_eb4fe2a4
+  context: 'Logic: If `morans_i > 0.15`, set `trigger_refit` to `True`. This flag
+    is read by T023b_refit to initiate the mandatory re-fit.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_refit_morans_i_greater_than_0.15
+  kind: magnitude
+  raw_text: If `morans_i > 0.15`, set `trigger_refit` to `True`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:54:04Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: permutation test 10000 shuffles
+  claim_id: c_ad1c4c58
+  context: 'Logic: Run full shuffles in chunks (batch size 1000) using the utility
+    from T057a.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/models/utils.py::run_permutation_test` with `n_shuffles=10000`
+    (hard constraint).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:54:12Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: calculate geodesic distances on sphere using geomstats
+  claim_id: c_9d4cc5a4
+  context: "Algorithm: 2. Calculate geodesic distances on S\xB2 using `geomstats.geometry.sphere.Sphere`\
+    \ (or equivalent Riemannian metric)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_geodesic_distances_on_sphere_using_geomstats
+  kind: entity_fact
+  raw_text: "Calculate geodesic distances on S\xB2 using `geomstats.geometry.sphere.Sphere`."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:54:18Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: fallback geodesic formula acos sin lat1 sin lat2
+  claim_id: c_7e9ff5a7
+  context: 'Fallback: If `geomstats` is unavailable, use `scipy` with explicit geodesic
+    formula `acos(sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2)*cos(lon2-lon1))` as a
+    secondary validation step only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_geodesic_formula_acos_sin_lat1_sin_lat2
+  kind: entity_fact
+  raw_text: Use `scipy` with explicit geodesic formula `acos(sin(lat1)*sin(lat2) +
+    cos(lat1)*cos(lat2)*cos(lon2-lon1))` as a fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:54:23Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: verify total runtime less than 6 hours
+  claim_id: c_cf19f59b
+  context: '5. **SC-005 (Runtime)**: Call `src/analysis/runtime_validation.py` (T046
+    logic) to verify total runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify total runtime < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:54:27Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: raise memory error if chunk usage exceeds 6 GB
+  claim_id: c_dfecef10
+  context: 'Action: Add a runtime check that calculates estimated memory usage per
+    chunk. If > 6 GB, raise a `MemoryError` with a suggestion to reduce chunk size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a `MemoryError` if estimated memory usage per chunk is > 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T19:54:27Z'

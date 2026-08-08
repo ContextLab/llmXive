@@ -1,6 +1,5 @@
-'|calculation geometry geomstat library provide riemannian sphere tool':
-  quote: "Data on manifolds naturally arise in di\uFB00erent \uFB01elds.Hyperspheres\
-    \ model directional data in"
-  source_id: '2004.04667'
-  url: https://arxiv.org/abs/2004.04667
-  value: Hypersphere
+057|chunk chunked permutation size t057a utility:
+  quote: const int DEFAULT_SIZE 1000 ;
+  source_id: '2101.00172'
+  url: https://arxiv.org/abs/2101.00172
+  value: '1000'

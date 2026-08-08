@@ -4,152 +4,90 @@ import tempfile
 import shutil
 from pathlib import Path
 import pytest
-import pandas as pd
 from unittest.mock import patch, MagicMock
-import requests
+import pandas as pd
 
-from src.data.download import (
-    get_clo_migratory_list,
-    download_and_verify_data,
-    compute_sha256,
-    ensure_data_available
-)
+# Add the code directory to the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from src.data.download import get_clo_migratory_list, check_real_data_available, compute_sha256
 
 class TestDownloadModule:
-    """Unit tests for the download module."""
+    @pytest.fixture
+    def temp_dir(self):
+        temp_path = tempfile.mkdtemp()
+        yield Path(temp_path)
+        shutil.rmtree(temp_path)
 
-    def test_compute_sha256_basic(self, tmp_path):
-        """Test SHA-256 computation on a simple file."""
-        test_file = tmp_path / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
-        
+    def test_compute_sha256_basic(self, temp_dir):
+        """Test basic SHA-256 computation."""
+        test_file = temp_dir / "test.txt"
+        test_file.write_text("test content")
         checksum = compute_sha256(test_file)
-        assert len(checksum) == 64  # SHA-256 hex string length
+        assert len(checksum) == 64  # SHA-256 hex length
         assert isinstance(checksum, str)
 
-    @patch('src.data.download.requests.get')
-    def test_download_and_verify_data_success(self, mock_get, tmp_path):
-        """Test successful data download."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.iter_content = lambda chunk_size: [b"test data"]
-        mock_get.return_value = mock_response
-        
-        dest = tmp_path / "downloaded.csv"
-        result = download_and_verify_data("http://example.com/data.csv", dest)
-        
-        assert result is True
-        assert dest.exists()
-        assert dest.read_bytes() == b"test data"
+    def test_check_real_data_available_success(self):
+        """Test successful URL check."""
+        # This is a mock test; in real execution, we might test against a known good URL
+        # For now, we verify the function handles the request correctly
+        with patch('src.data.download.requests.head') as mock_head:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_head.return_value = mock_response
+            assert check_real_data_available("http://example.com") is True
 
-    @patch('src.data.download.requests.get')
-    def test_download_and_verify_data_failure(self, mock_get, tmp_path):
-        """Test failed data download."""
-        mock_get.side_effect = requests.RequestException("Network error")
-        
-        dest = tmp_path / "downloaded.csv"
-        result = download_and_verify_data("http://example.com/data.csv", dest)
-        
-        assert result is False
-        assert not dest.exists()
+    def test_check_real_data_available_failure(self):
+        """Test failed URL check."""
+        with patch('src.data.download.requests.head') as mock_head:
+            mock_head.side_effect = Exception("Connection error")
+            assert check_real_data_available("http://invalid.url") is False
 
-    @patch('src.data.download.requests.head')
-    @patch('src.data.download.requests.get')
-    def test_get_clo_migratory_list_cached(self, mock_get, mock_head, tmp_path):
-        """Test that cached file is used when available."""
-        # Create a fake cached file
-        cache_file = Path("data/raw/clo_migratory_list.csv")
-        cache_file.parent.mkdir(parents=True, exist_ok=True)
+    @patch('src.data.download.pd.read_csv')
+    @patch('src.data.download.check_real_data_available')
+    def test_get_clo_migratory_list_success(self, mock_check, mock_read_csv, temp_dir):
+        """Test successful retrieval of migratory list."""
+        mock_check.return_value = True
         
-        # Create a minimal valid CSV
+        # Create a mock DataFrame
         mock_df = pd.DataFrame({
-            'scientificName': ['Test Species'],
-            'commonName': ['Test'],
-            'order': ['TestOrder'],
-            'family': ['TestFamily']
+            'Common Name': ['Species A', 'Species B', 'Species C'],
+            'Scientific Name': ['SpA', 'SpB', 'SpC'],
+            'Species Status': ['Migratory', 'Resident', 'Migratory']
         })
-        mock_df.to_csv(cache_file, index=False)
-        
-        try:
-            # Should use cache, not download
-            result = get_clo_migratory_list()
-            
-            assert isinstance(result, pd.DataFrame)
-            assert len(result) == 1
-            assert 'scientificName' in result.columns
-        finally:
-            if cache_file.exists():
-                cache_file.unlink()
+        mock_read_csv.return_value = mock_df
 
-    @patch('src.data.download.requests.get')
-    @patch('src.data.download.requests.head')
-    def test_get_clo_migratory_list_download_success(self, mock_head, mock_get, tmp_path):
-        """Test successful download when no cache exists."""
-        # Mock HEAD requests to succeed
-        mock_head_response = MagicMock()
-        mock_head_response.status_code = 200
-        mock_head.return_value = mock_head_response
-        
-        # Mock GET request to return valid CSV data
-        mock_get_response = MagicMock()
-        mock_get_response.status_code = 200
-        mock_get_response.iter_content = lambda chunk_size: [b"scientificName,commonName,order,family\nTest,Test,Test,Test"]
-        mock_get.return_value = mock_get_response
-        
-        # Temporarily change cache path for testing
-        original_cache = Path("data/raw/clo_migratory_list.csv")
-        test_cache = tmp_path / "test_cache.csv"
-        
-        # Patch the CACHE_PATH in the module
-        import src.data.download as download_module
-        original_cache_path = download_module.CACHE_PATH
-        download_module.CACHE_PATH = test_cache
-        
-        try:
-            result = get_clo_migratory_list()
-            
-            assert isinstance(result, pd.DataFrame)
-            assert len(result) == 1
-            assert test_cache.exists()
-        finally:
-            download_module.CACHE_PATH = original_cache_path
-            if test_cache.exists():
-                test_cache.unlink()
+        output_path = temp_dir / "output.csv"
+        result_path = get_clo_migratory_list(output_path)
 
-    @patch('src.data.download.requests.get')
-    @patch('src.data.download.requests.head')
-    def test_get_clo_migratory_list_all_sources_fail(self, mock_head, mock_get):
-        """Test that RuntimeError is raised when all sources fail."""
-        mock_head.side_effect = requests.RequestException("Network error")
-        mock_get.side_effect = requests.RequestException("Network error")
-        
-        with pytest.raises(RuntimeError, match="Failed to retrieve CLO migratory list"):
-            get_clo_migratory_list()
+        assert result_path.exists()
+        result_df = pd.read_csv(result_path)
+        assert len(result_df) == 2  # Only migratory species
+        assert 'Common Name' in result_df.columns
 
-    def test_ensure_data_available_success(self, tmp_path):
-        """Test ensure_data_available when data exists."""
-        # Create a fake cache file
-        cache_file = Path("data/raw/clo_migratory_list.csv")
-        cache_file.parent.mkdir(parents=True, exist_ok=True)
-        cache_file.write_text("scientificName,commonName\nTest,Test")
+    @patch('src.data.download.check_real_data_available')
+    def test_get_clo_migratory_list_unavailable(self, mock_check, temp_dir):
+        """Test handling of unavailable source."""
+        mock_check.return_value = False
+        output_path = temp_dir / "output.csv"
         
-        try:
-            result = ensure_data_available()
-            assert result is True
-        finally:
-            if cache_file.exists():
-                cache_file.unlink()
+        with pytest.raises(RuntimeError, match="CRITICAL: Real data source"):
+            get_clo_migratory_list(output_path)
 
-    def test_ensure_data_available_missing(self, tmp_path):
-        """Test ensure_data_available when data is missing and download fails."""
-        # Ensure no cache file exists
-        cache_file = Path("data/raw/clo_migratory_list.csv")
-        if cache_file.exists():
-            cache_file.unlink()
+    @patch('src.data.download.pd.read_csv')
+    @patch('src.data.download.check_real_data_available')
+    def test_get_clo_migratory_list_no_migratory(self, mock_check, mock_read_csv, temp_dir):
+        """Test handling of empty migratory result."""
+        mock_check.return_value = True
         
-        with patch('src.data.download.get_clo_migratory_list') as mock_get:
-            mock_get.side_effect = RuntimeError("Download failed")
-            result = ensure_data_available()
-            assert result is False
+        mock_df = pd.DataFrame({
+            'Common Name': ['Species A'],
+            'Scientific Name': ['SpA'],
+            'Species Status': ['Resident']
+        })
+        mock_read_csv.return_value = mock_df
+
+        output_path = temp_dir / "output.csv"
+        
+        with pytest.raises(RuntimeError, match="No migratory species found"):
+            get_clo_migratory_list(output_path)

@@ -1,41 +1,23 @@
-T005a:
+T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (script, log, report, or data file) was provided to demonstrate\
-    \ that the full eBird Basic Dataset for North America (2020\u20132024) was actually\
-    \ checked for availability. The claim lacks any concrete evidence of verification,\
-    \ so the requirement is not satisfied."
-T005b:
+  r: "No directory tree or listing was provided to demonstrate that the required folders\
+    \ (`src/data`, `src/models`, `src/analysis`, `data/raw`, `data/processed`, `data/interim`,\
+    \ `tests/contract`, `tests/unit`, `tests/integration`, `docs`) were actually created.\
+    \ The implementer\u2019s claim lacks concrete evidence, so the task is not verified\
+    \ as completed."
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No downloaded dataset files, checksum logs, or verification scripts were presented.\
-    \ The required artifact\u2014a downloaded eBird Basic Dataset (or the sample `vvud/eb-data`)\
-    \ and evidence that its checksums were verified\u2014is missing, so the task is\
-    \ not satisfied."
+  r: "No code, documentation, tests, or any other artifact for the \u201CReference-Validator\
+    \ Agent\u201D was provided. The claim contains only the original feature specification\
+    \ for bird\u2011migration analysis, which is unrelated to the required accuracy\u2011\
+    gate implementation, so the required logic is missing."
 T005c:
   c: false
   h: b29cccd4d89439d0719bcfa9914e35a50527e32699cf261e018f6b3068b4a9ee
   r: The required file `data/provenance/scope_limitation.json` does not exist, so
     the scope limitation documentation was not provided as the task demanded.
-T005d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of an `data/raw/archive/` directory containing copied raw files\
-    \ was provided, nor any SHA\u2011256 checksum file or listing. The required archive\
-    \ and checksum artifacts are missing, so the task is not satisfied."
-T010c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test log entry file or parsing script was provided; the only artifacts present\
-    \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
-    \ task. Consequently the required log entry and its format\u2011compliance verification\
-    \ are missing."
-T014:
-  c: false
-  h: e54b4837935106f97bcc5c25898dc65a522cf61cfa2919768ebbeaa547451908
-  r: "The required file `src/data/preprocess.py` does not exist, so no code can call\
-    \ the T005 download functions or perform file\u2011presence and checksum verification.\
-    \ The artifact is missing, making the task unfulfilled."
 T016:
   c: false
   h: f0c5d93f7fed47d460ea156c9bce99400b0f08d8643d6237337e926224064bb5
@@ -43,6 +25,13 @@ T016:
     (the shown excerpt ends before such a definition and the file is truncated), and
     the required output file `data/provenance/row_mapping.json` is absent from the
     repository. Both the implementation and the generated artifact are missing.
+T017d:
+  c: false
+  h: e5991be00aa0ba3e1c4bd90f145b5e604ea0178c56dec5e7b2b85b7ec268f596
+  r: The repository lacks the required `data/processed/imputation_metadata.json` file,
+    and the provided `tests/unit/test_preprocess.py` does not contain a `test_imputation_metadata_exists`
+    function verifying its existence. Both the artifact and the specific test are
+    missing.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,14 +39,6 @@ T018:
     \ the required logic to flag grid cells with fewer than 5 observations per Plan\
     \ Phase\u202F2 and to exclude them from downstream modeling. Consequently, the\
     \ artifact demanded by T018 is missing."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, notebooks, or output files implementing the Riemannian\u2011\
-    manifold trajectory analysis on the 2\u2011sphere are present. The claim lacks\
-    \ any concrete artifact (e.g., a Python module using `scipy` and `geopy` to compute\
-    \ geodesics on S\xB2, example data, and resulting analysis plots or metrics).\
-    \ Without these deliverables, the requirement is not satisfied."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -67,27 +48,24 @@ T043:
     \ cannot be verified as met. The implementer must supply the actual computation\
     \ (e.g., a numeric result, a data file, or reproducible code) that derives this\
     \ proportion from the preprocessed dataset."
-T044:
+T045a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided only the task description and project specifications
-    but no actual artifact (e.g., script, log, or report) showing the calculation
-    of the GAMM convergence rate. Without a concrete output or evidence, the requirement
-    is not satisfied. The missing deliverable is the computed convergence rate (e.g.,
-    number of iterations, time to converge, diagnostic plots) and associated code
-    or results.
-T046:
+  r: "No code, module, or documentation implementing a file\u2011based lock wrapper\
+    \ with `filelock.FileLock` is present in the provided artifacts. The claim cannot\
+    \ be verified because the required implementation file (e.g., `lock_wrapper.py`\
+    \ or similar) is missing entirely."
+T050b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No logs, runtime reports, or lock\u2011mechanism verification artifacts are\
-    \ present; without evidence of a lock check or total runtime measurement, the\
-    \ post\u2011run validation requirement cannot be confirmed. The implementer must\
-    \ provide concrete validation output (e.g., a summary file or console log showing\
-    \ lock status and runtime vs. budget)."
-T050a:
+  r: "No evidence was provided that `plan.md` and `spec.md` were examined, nor any\
+    \ report or document showing identified contradictions (or confirming none exist).\
+    \ The required artifact\u2014a scan/result of plan\u2011spec alignment\u2014is\
+    \ missing."
+T051a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a report, diff, or summary file) showing the results of scanning
-    `plan.md` and `spec.md` for contradictions was provided. The implementer did not
-    supply any evidence that the files were examined or that any inconsistencies were
-    identified, which is required to satisfy the task.
+  r: "No artifact (e.g., a URL, screenshot, API query result, or script output) confirming\
+    \ the presence of the `vvud/eb-data` dataset on HuggingFace was provided. Without\
+    \ concrete evidence of the dataset\u2019s existence, the task requirement is not\
+    \ satisfied."

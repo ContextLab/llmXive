@@ -87,7 +87,7 @@ tests/
 |-----------|------------|-------------------------------------|
 | Discrete Centroid Trajectory Analysis | Required by FR-006 and US-3 to detect spatial route shifts. Continuous manifold statistics (Fréchet means) are invalid for sparse grid data. | Linear regression on lat/lon fails to capture spherical geometry and great-circle distances, leading to biased shift vectors. |
 | File-based Locking (`filelock`) | Required by T045/T046 to serialize parallel tasks (if any) and prevent race conditions in shared `data/` writes. | Simple file writes without locking risk corruption if the pipeline is re-triggered or if multiple processes access the same intermediate files. |
-| Streaming Data Loading | Required by T051 to handle datasets exceeding 7 GB RAM on the CI runner. | Loading full EBD/NOAA datasets into memory would cause OOM crashes on the 2-core/7GB runner. |
+| Streaming Data Loading | Required by T051 to handle datasets exceeding 7 GB RAM on the CI runner. | Loading full EBD/NOAA datasets into memory would cause OOM crashes on the -core/7GB runner. |
 | Block Bootstrap | Required by T054 to preserve temporal autocorrelation in trajectory analysis. | Simple permutation destroys the temporal structure of migration routes, leading to invalid p-values. |
 
 ## Phase Breakdown

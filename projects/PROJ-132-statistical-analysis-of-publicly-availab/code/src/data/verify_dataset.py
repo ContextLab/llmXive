@@ -1,83 +1,93 @@
 """
-Verify the existence of the vvud/eb-data dataset on HuggingFace.
+T051a: Verify the existence of the vvud/eb-data dataset on HuggingFace.
 
-This script attempts to list the 'vvud/eb-data' dataset using the datasets library.
-If the dataset is not found or accessible, it raises a RuntimeError with a clear
-message referencing the plan's scope note.
+This script attempts to list the 'vvud/eb-data' dataset using the HuggingFace
+datasets library. If the dataset is not found or inaccessible, it raises a
+RuntimeError with a clear message referencing the plan's "Critical Data Scope Note".
 
-Dependency: T005a (Verify Full EBD Availability)
+The script must fail loudly (raise an exception) rather than falling back to
+synthetic data or a mock.
 """
 import sys
 import logging
 from pathlib import Path
 
-from datasets import load_dataset
-from src.config import setup_logging
+# Import local config for logging setup
+# Note: The API surface shows src/config is available
+try:
+    from src.config import setup_logging
+except ImportError:
+    # Fallback if src is not in path during direct execution
+    import os
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+    from src.config import setup_logging
 
-# Configure logging
-logger = setup_logging(__name__)
+from datasets import load_dataset
+
+# Configure logger
+logger = setup_logging()
 
 DATASET_NAME = "vvud/eb-data"
-PLAN_SCOPE_NOTE = (
-    "Critical Data Scope Note: If the full eBird Basic Dataset (EBD) for North America "
-    "(2020–2024) is unavailable via a verified public URL, the pipeline must proceed "
-    "using the sample dataset 'vvud/eb-data' from HuggingFace. Do NOT fall back to "
-    "synthetic data."
-)
 
 def verify_dataset_existence() -> bool:
     """
-    Verify that the vvud/eb-data dataset exists on HuggingFace.
-
+    Verifies the existence of the specified dataset on HuggingFace.
+    
     Returns:
-        True if the dataset exists and is accessible.
-
+        True if the dataset is found and accessible.
+        
     Raises:
         RuntimeError: If the dataset cannot be found or accessed.
     """
-    logger.info(f"Attempting to verify existence of dataset: {DATASET_NAME}")
-    try:
-        # Attempt to load the dataset info (metadata only) to verify existence
-        # using streaming=False is fine for just checking existence, but we can
-        # also use streaming=True to be safe. For existence check, we just need
-        # to resolve the dataset info.
-        ds = load_dataset(DATASET_NAME, streaming=True)
-        
-        # If we get here, the dataset exists and is accessible
-        logger.info(f"SUCCESS: Dataset '{DATASET_NAME}' found and accessible on HuggingFace.")
-        logger.info(f"Dataset info: {ds}")
-        return True
-
-    except Exception as e:
-        error_msg = (
-            f"CRITICAL: The verified sample dataset '{DATASET_NAME}' could not be found "
-            f"or accessed on HuggingFace. This violates the plan's '{PLAN_SCOPE_NOTE}'. "
-            f"Original error: {type(e).__name__}: {str(e)}"
-        )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg) from e
-
-def main():
-    """
-    Main entry point for the verification script.
-    """
-    logger.info("Starting dataset verification task (T051a)...")
+    logger.info(f"Verifying existence of dataset: {DATASET_NAME}")
     
     try:
-        success = verify_dataset_existence()
-        if success:
-            logger.info("T051a VERIFICATION PASSED: Dataset exists.")
-            sys.exit(0)
-        else:
-            # Should not reach here if exception is raised on failure
-            logger.error("T051a VERIFICATION FAILED: Dataset check returned False.")
-            sys.exit(1)
-    except RuntimeError as e:
-        logger.error(f"T051a VERIFICATION FAILED: {e}")
-        sys.exit(1)
+        # Attempt to list the dataset info without downloading data
+        # We use load_dataset with streaming=False but just checking info
+        # or simply trying to load the config list.
+        # The most robust way to "verify existence" before download is to try loading the dataset builder.
+        
+        # We try to load the dataset with streaming=True to check connectivity
+        # but we don't process it here. We just ensure the handle is valid.
+        # Using a timeout isn't directly available in load_dataset for the initial handshake 
+        # in older versions, but the library will raise an error if not found.
+        
+        # We request a minimal subset to verify access without heavy IO
+        ds = load_dataset(
+            DATASET_NAME, 
+            split="train", 
+            streaming=True, 
+            trust_remote_code=True,
+            download_mode="force_redownload" # Ensure we hit the network
+        )
+        
+        # If we get here, the dataset exists and is accessible.
+        # We don't iterate to save time, just confirming the handle is valid.
+        logger.info(f"Successfully verified dataset: {DATASET_NAME}")
+        return True
+        
     except Exception as e:
-        logger.error(f"Unexpected error during verification: {type(e).__name__}: {e}")
-        sys.exit(1)
+        error_msg = str(e)
+        logger.error(f"Failed to verify dataset {DATASET_NAME}: {error_msg}")
+        
+        # Specific check for 404 or dataset not found errors
+        if "Dataset not found" in error_msg or "404" in error_msg or "Repository Not Found" in error_msg:
+            raise RuntimeError(
+                f"CRITICAL FAILURE: The dataset '{DATASET_NAME}' does not exist on HuggingFace. "
+                f"This violates the 'Critical Data Scope Note' in plan.md which mandates this specific source. "
+                f"Please verify the dataset ID or network access. Original error: {error_msg}"
+            ) from e
+        
+        # For network issues or other errors, we still fail loudly as per requirements
+        raise RuntimeError(
+            f"CRITICAL FAILURE: Unable to access dataset '{DATASET_NAME}' from HuggingFace. "
+            f"Real data source verification failed. Original error: {error_msg}"
+        ) from e
+
+def main():
+    """Main entry point for T051a."""
+    verify_dataset_existence()
+    logger.info("T051a Verification Complete: Dataset exists and is accessible.")
 
 if __name__ == "__main__":
     main()
