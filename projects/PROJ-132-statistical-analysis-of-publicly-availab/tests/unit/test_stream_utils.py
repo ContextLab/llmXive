@@ -1,117 +1,167 @@
 """
-Unit tests for stream_utils module.
-
-These tests verify that the streaming utilities for the eBird dataset
-function correctly and handle edge cases appropriately.
+Unit tests for the streaming utilities module.
 """
 
+import json
 import os
-import sys
 import tempfile
-import shutil
 from pathlib import Path
-import pytest
 from unittest.mock import patch, MagicMock
 
-import numpy as np
-from datasets import load_dataset
+import pytest
 
-# Add the project root to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from src.data.stream_utils import stream_ebird_data, process_streamed_chunks
+from src.data.stream_utils import (
+    stream_ebird_data,
+    process_streamed_chunks,
+    get_dataset_info,
+    run_streaming_pipeline
+)
 
 
 class TestStreamEbirdData:
-    """Tests for the stream_ebird_data function."""
+    """Tests for stream_ebird_data function."""
 
     @patch('src.data.stream_utils.load_dataset')
-    def test_stream_ebird_data_basic(self, mock_load_dataset):
-        """Test basic streaming functionality."""
-        # Mock dataset
+    def test_stream_success(self, mock_load_dataset):
+        """Test successful streaming of dataset chunks."""
+        # Mock dataset iterator
         mock_dataset = MagicMock()
-        mock_dataset.__iter__ = MagicMock(return_value=iter([{"id": i} for i in range(5)]))
+        mock_dataset.__iter__ = MagicMock(return_value=iter([
+            {"species": "A", "lat": 1.0, "lon": 1.0},
+            {"species": "B", "lat": 2.0, "lon": 2.0},
+            {"species": "C", "lat": 3.0, "lon": 3.0},
+            {"species": "D", "lat": 4.0, "lon": 4.0},
+        ]))
         mock_load_dataset.return_value = mock_dataset
 
-        # Stream data
-        chunks = list(stream_ebird_data(dataset_name="test_dataset", split="train", chunk_size=2))
+        chunks = list(stream_ebird_data(chunk_size=2))
 
-        # Verify results
-        assert len(chunks) == 3  # 5 rows / 2 chunk_size = 3 chunks
-        assert chunks[0]["num_rows"] == 2
-        assert chunks[1]["num_rows"] == 2
-        assert chunks[2]["num_rows"] == 1
+        assert len(chunks) == 2
+        assert chunks[0]["count"] == 2
+        assert chunks[1]["count"] == 2
+        assert chunks[0]["total_rows"] == 2
+        assert chunks[1]["total_rows"] == 4
 
     @patch('src.data.stream_utils.load_dataset')
-    def test_stream_ebird_data_empty_dataset(self, mock_load_dataset):
-        """Test streaming an empty dataset."""
-        # Mock empty dataset
+    def test_stream_empty_dataset(self, mock_load_dataset):
+        """Test streaming with empty dataset."""
         mock_dataset = MagicMock()
         mock_dataset.__iter__ = MagicMock(return_value=iter([]))
         mock_load_dataset.return_value = mock_dataset
 
-        # Stream data
-        chunks = list(stream_ebird_data(dataset_name="test_dataset", split="train", chunk_size=2))
+        chunks = list(stream_ebird_data(chunk_size=2))
 
-        # Verify results
         assert len(chunks) == 0
 
     @patch('src.data.stream_utils.load_dataset')
-    def test_stream_ebird_data_load_error(self, mock_load_dataset):
-        """Test handling of dataset load errors."""
-        # Mock load failure
-        mock_load_dataset.side_effect = Exception("Load failed")
+    def test_stream_invalid_chunk_size(self, mock_load_dataset):
+        """Test that invalid chunk size raises ValueError."""
+        with pytest.raises(ValueError, match="chunk_size must be positive"):
+            list(stream_ebird_data(chunk_size=0))
 
-        # Verify RuntimeError is raised
+    @patch('src.data.stream_utils.load_dataset')
+    def test_stream_load_failure(self, mock_load_dataset):
+        """Test that dataset load failure raises RuntimeError."""
+        mock_load_dataset.side_effect = Exception("Dataset not found")
+
         with pytest.raises(RuntimeError, match="Failed to load dataset"):
-            list(stream_ebird_data(dataset_name="test_dataset", split="train"))
+            list(stream_ebird_data())
 
-    def test_stream_ebird_data_chunk_size_too_large(self):
-        """Test handling of chunk size that is too large for available RAM."""
-        # This test is a bit tricky because we can't easily mock the memory check
-        # We'll test the logic by directly calling the function with a very large chunk_size
-        # and verifying it raises a MemoryError
-
-        # Note: In a real scenario, this would depend on the actual available memory
-        # For testing purposes, we'll use a chunk_size that is guaranteed to be too large
-        # based on the heuristic in the function (6GB limit)
-
-        # We can't easily test this without mocking the memory limit, so we'll skip
-        # for now and rely on the logic being correct
-        pass
 
 class TestProcessStreamedChunks:
-    """Tests for the process_streamed_chunks function."""
+    """Tests for process_streamed_chunks function."""
 
-    def test_process_streamed_chunks_basic(self):
-        """Test basic chunk processing."""
-        # Create a mock chunk generator
-        def mock_chunk_gen():
-            for i in range(3):
-                yield {"chunk_index": i, "data": [i], "num_rows": 1}
+    @patch('src.data.stream_utils.stream_ebird_data')
+    def test_process_with_callback(self, mock_stream):
+        """Test processing with a custom callback function."""
+        mock_stream.return_value = [
+            {"rows": [{"species": "A"}], "count": 1, "total_rows": 1},
+            {"rows": [{"species": "B"}], "count": 1, "total_rows": 2},
+        ]
 
-        # Process chunks
-        processed = []
-        def process_func(chunk):
-            processed.append(chunk["chunk_index"])
+        processed_count = 0
 
-        process_streamed_chunks(mock_chunk_gen(), process_func)
+        def callback(chunk_data):
+            nonlocal processed_count
+            processed_count += 1
 
-        # Verify results
-        assert processed == [0, 1, 2]
+        stats = process_streamed_chunks(processing_fn=callback)
 
-    def test_process_streamed_chunks_error(self):
-        """Test handling of errors during chunk processing."""
-        # Create a mock chunk generator
-        def mock_chunk_gen():
-            for i in range(3):
-                yield {"chunk_index": i, "data": [i], "num_rows": 1}
+        assert stats["total_chunks"] == 2
+        assert stats["total_rows"] == 2
+        assert processed_count == 2
 
-        # Process chunks with a function that raises an error
-        def process_func(chunk):
-            if chunk["chunk_index"] == 1:
-                raise ValueError("Processing error")
+    @patch('src.data.stream_utils.stream_ebird_data')
+    def test_process_without_callback(self, mock_stream):
+        """Test processing without callback."""
+        mock_stream.return_value = [
+            {"rows": [{"species": "A"}], "count": 1, "total_rows": 1},
+        ]
 
-        # Verify exception is raised
-        with pytest.raises(ValueError, match="Processing error"):
-            process_streamed_chunks(mock_chunk_gen(), process_func)
+        stats = process_streamed_chunks()
+
+        assert stats["total_chunks"] == 1
+        assert stats["total_rows"] == 1
+        assert "rows_per_chunk" in stats
+
+
+class TestGetDatasetInfo:
+    """Tests for get_dataset_info function."""
+
+    @patch('src.data.stream_utils.load_dataset')
+    def test_get_info_success(self, mock_load_dataset):
+        """Test successful retrieval of dataset info."""
+        mock_dataset = MagicMock()
+        mock_dataset.features = {"species": "string", "lat": "float"}
+        mock_dataset.__iter__ = MagicMock(return_value=iter(["train", "test"]))
+        mock_load_dataset.return_value = mock_dataset
+
+        info = get_dataset_info()
+
+        assert "features" in info
+        assert "dataset_name" in info
+        assert info["dataset_name"] == "vvud/eb-data"
+
+    @patch('src.data.stream_utils.load_dataset')
+    def test_get_info_failure(self, mock_load_dataset):
+        """Test that info retrieval failure raises RuntimeError."""
+        mock_load_dataset.side_effect = Exception("Not found")
+
+        with pytest.raises(RuntimeError, match="Failed to get dataset info"):
+            get_dataset_info()
+
+
+class TestRunStreamingPipeline:
+    """Tests for run_streaming_pipeline function."""
+
+    @patch('src.data.stream_utils.process_streamed_chunks')
+    @patch('src.data.stream_utils.get_dataset_info')
+    def test_pipeline_with_output(self, mock_info, mock_process):
+        """Test pipeline with output file generation."""
+        mock_process.return_value = {"total_chunks": 1, "total_rows": 10}
+        mock_info.return_value = {"features": ["species"]}
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_output.json"
+
+            result = run_streaming_pipeline(output_path=output_path)
+
+            assert result == output_path
+            assert output_path.exists()
+
+            with open(output_path) as f:
+                data = json.load(f)
+
+            assert "total_chunks" in data
+            assert "dataset_info" in data
+
+    @patch('src.data.stream_utils.process_streamed_chunks')
+    @patch('src.data.stream_utils.get_dataset_info')
+    def test_pipeline_without_output(self, mock_info, mock_process):
+        """Test pipeline without output file."""
+        mock_process.return_value = {"total_chunks": 1}
+        mock_info.return_value = {}
+
+        result = run_streaming_pipeline(output_path=None)
+
+        assert result is None

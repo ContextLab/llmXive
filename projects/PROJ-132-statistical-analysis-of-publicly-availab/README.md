@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-This project analyzes bird migration patterns and their correlation with climate change using publicly available datasets.
+This project analyzes publicly available bird migration data (eBird) and climate data (Daymet) to study the correlation between migration patterns and climate change.
 
 ## Prerequisites
 
 - Python 3.11+
 - pip
-- virtualenv (recommended)
+- git
 
 ## Installation
 
@@ -18,36 +18,45 @@ git clone <repository-url>
 cd PROJ-132-statistical-analysis-of-publicly-availab
 ```
 
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+2. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
 3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 4. Install pre-commit hooks:
-```bash
-pip install pre-commit
-pre-commit install
-```
+ ```bash
+ pre-commit install
+ ```
 
-## Pre-commit Hooks
+## Pre-commit Configuration
 
-This project uses pre-commit hooks to ensure code quality before each commit. The following hooks are configured:
+This project uses pre-commit hooks to ensure code quality before commits. The hooks include:
 
-- **Black**: Code formatter to ensure consistent code style.
-- **Ruff**: Fast Python linter to catch errors and enforce coding standards.
+- **Black**: Code formatter
+- **Ruff**: Fast Python linter and formatter
 
-To run pre-commit manually on all files:
+### Running Pre-commit Manually
+
+To run all hooks on all files:
 ```bash
 pre-commit run --all-files
 ```
 
-To update pre-commit hooks to the latest versions:
+To run a specific hook:
+```bash
+pre-commit run black
+pre-commit run ruff
+```
+
+### Updating Pre-commit Hooks
+
+To update hook versions, edit the `rev` field in `.pre-commit-config.yaml` and run:
 ```bash
 pre-commit autoupdate
 ```
@@ -61,37 +70,71 @@ pre-commit autoupdate
 │ │ ├── config.py
 │ │ ├── data/
 │ │ ├── models/
-│ │ └── analysis/
+│ │ ├── analysis/
+│ │ └── plan/
 │ ├── tests/
+│ │ ├── contract/
 │ │ ├── unit/
-│ │ ├── integration/
-│ │ └── contract/
-│ └── run_pipeline.py
+│ │ └── integration/
+│ ├── run_pipeline.py
+│ └── setup_project.py
 ├── data/
 │ ├── raw/
+│ ├── interim/
 │ ├── processed/
-│ └── interim/
+│ └── provenance/
 ├── docs/
 ├──.pre-commit-config.yaml
-├── pyproject.toml
 ├── requirements.txt
 └── README.md
 ```
 
 ## Running the Pipeline
 
-To execute the full analysis pipeline:
+### Running the Pipeline
+
 ```bash
 python code/run_pipeline.py
 ```
 
+### Running Tests
+
+```bash
+pytest
+```
+
+### Code Formatting and Linting
+
+```bash
+# Format code with Black
+black code/
+
+# Lint code with Ruff
+ruff check code/
+```
+
 ## Configuration
 
-Project configuration is managed in `code/src/config.py`. Key parameters include:
-- `GRID_RES`: Spatial grid resolution (default: 0.5 degrees)
-- `PERMUTATIONS`: Number of permutations for statistical testing (default: 10000)
-- Logging settings and output paths
+Project configuration is managed in `code/src/config.py`. Key settings include:
+
+- `SEED`: Random seed for reproducibility
+- `GRID_RES`: Spatial grid resolution
+- `PERMUTATIONS`: Number of permutations for statistical tests
+- Logging configuration
+
+## Data Sources
+
+- **eBird Data**: `vvud/eb-data` from HuggingFace
+- **Climate Data**: `daymet/annual` from HuggingFace
 
 ## License
 
-This project is licensed under the MIT License.
+[Add license information here]
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run pre-commit hooks to ensure code quality
+5. Submit a pull request

@@ -1,122 +1,101 @@
+"""
+Unit tests for T005b: Download and Verify eBird Sample Data.
+"""
 import os
 import sys
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
-import json
 
-# Add the code directory to the path
-code_dir = Path(__file__).parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from src.data.download import (
-    check_real_data_available,
-    download_and_verify_data,
-    archive_data,
-    compute_sha256,
-    ensure_data_available,
-    DATASET_NAME
-)
+from src.data.download_t005b import compute_sha256, verify_checksums, archive_data
+
 
 class TestDownloadT005b:
-    """Tests for T005b: Download and Verify Canonical Data."""
+    """Test suite for T005b download and verification functions."""
 
-    def test_check_real_data_available_success(self):
-        """Test that we can verify the real dataset exists."""
-        # This test assumes the dataset is available on HuggingFace
-        # In a CI environment, this might fail if there's no internet access
-        # We mock the load_dataset function to simulate success
-        from unittest.mock import patch, MagicMock
+    @pytest.fixture
+    def temp_dirs(self):
+        """Create temporary directories for testing."""
+        temp_root = tempfile.mkdtemp()
+        temp_data = Path(temp_root) / "data"
+        temp_archive = Path(temp_root) / "archive"
+        temp_data.mkdir()
+        temp_archive.mkdir()
         
-        mock_dataset = MagicMock()
-        mock_dataset.__iter__ = MagicMock(return_value=iter([{"species": "test"}]))
+        # Create a dummy file
+        dummy_file = temp_data / "test_file.txt"
+        dummy_file.write_text("Hello, World!")
         
-        with patch('src.data.download.load_dataset', return_value=mock_dataset):
-            result = check_real_data_available()
-            assert result is True
-
-    def test_check_real_data_available_failure(self):
-        """Test that we correctly handle dataset unavailability."""
-        from unittest.mock import patch
+        yield {
+            "root": Path(temp_root),
+            "data": temp_data,
+            "archive": temp_archive,
+            "dummy_file": dummy_file
+        }
         
-        with patch('src.data.download.load_dataset', side_effect=Exception("Dataset not found")):
-            result = check_real_data_available()
-            assert result is False
+        # Cleanup
+        shutil.rmtree(temp_root)
 
-    def test_compute_sha256(self):
-        """Test SHA-256 computation."""
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data")
-            tmp_path = Path(tmp.name)
+    def test_compute_sha256_basic(self, temp_dirs):
+        """Test basic SHA-256 computation."""
+        checksum = compute_sha256(temp_dirs["dummy_file"])
+        assert len(checksum) == 64  # SHA-256 hex string length
+        assert all(c in '0123456789abcdef' for c in checksum)
+
+    def test_compute_sha256_file_not_found(self, temp_dirs):
+        """Test SHA-256 computation on non-existent file."""
+        non_existent = temp_dirs["data"] / "non_existent.txt"
+        with pytest.raises(FileNotFoundError):
+            compute_sha256(non_existent)
+
+    def test_verify_checksums(self, temp_dirs):
+        """Test checksum verification."""
+        file_paths = [temp_dirs["dummy_file"]]
+        checksums = verify_checksums(file_paths)
         
-        try:
-            checksum = compute_sha256(tmp_path)
-            assert len(checksum) == 64  # SHA-256 hex length
-            assert checksum == "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
-        finally:
-            os.unlink(tmp_path)
+        assert len(checksums) == 1
+        assert "test_file.txt" in checksums
+        assert len(checksums["test_file.txt"]) == 64
 
-    def test_download_and_verify_data(self):
-        """Test downloading and verifying data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            # Mock the load_dataset to return a simple dataset
-            from unittest.mock import patch, MagicMock
-            import pandas as pd
-            
-            mock_df = pd.DataFrame({
-                'species': ['test_species'],
-                'lat': [45.0],
-                'lon': [-75.0],
-                'date': ['2020-01-01'],
-                'count': [1],
-                'checklist_id': ['test_id']
-            })
-            
-            mock_dataset = MagicMock()
-            mock_dataset.to_parquet = MagicMock()
-            mock_dataset.__iter__ = MagicMock(return_value=iter([{"species": "test"}]))
-            
-            with patch('src.data.download.load_dataset', return_value=mock_dataset):
-                # This will fail because we're mocking, but we can test the structure
-                # In a real test, we'd need actual data or a more sophisticated mock
-                pass
+    def test_archive_data_basic(self, temp_dirs):
+        """Test basic archiving functionality."""
+        archived_files = archive_data([temp_dirs["dummy_file"]], temp_dirs["archive"])
+        
+        assert len(archived_files) == 1
+        assert archived_files[0].exists()
+        assert archived_files[0].name == "test_file.txt"
+        
+        # Verify content matches
+        original_content = temp_dirs["dummy_file"].read_text()
+        archived_content = archived_files[0].read_text()
+        assert original_content == archived_content
 
-    def test_archive_data(self):
-        """Test archiving data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            source_dir = Path(tmpdir) / "source"
-            archive_dir = Path(tmpdir) / "archive"
-            source_dir.mkdir()
-            
-            # Create a test file
-            test_file = source_dir / "test.parquet"
-            test_file.write_text("test data")
-            
-            archive_data(source_dir, archive_dir)
-            
-            assert (archive_dir / "test.parquet").exists()
-            assert (archive_dir / "test.parquet").read_text() == "test data"
+    def test_archive_data_overwrite_false(self, temp_dirs):
+        """Test archiving when overwrite is not explicitly handled (shutil.copy2 by default)."""
+        # First archive
+        archive_data([temp_dirs["dummy_file"]], temp_dirs["archive"])
+        
+        # Modify original
+        temp_dirs["dummy_file"].write_text("Modified content")
+        
+        # Archive again
+        archived_files = archive_data([temp_dirs["dummy_file"]], temp_dirs["archive"])
+        
+        # Should reflect the modification
+        archived_content = archived_files[0].read_text()
+        assert archived_content == "Modified content"
 
-    def test_ensure_data_available_fails_without_data(self):
-        """Test that ensure_data_available fails when data is not available."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create a temporary directory that acts as our data directory
-            # but ensure the dataset is not available
-            from unittest.mock import patch
-            
-            with patch('src.data.download.check_real_data_available', return_value=False):
-                with pytest.raises(RuntimeError) as excinfo:
-                    # We need to temporarily change the RAW_DIR to our temp dir
-                    # This is a bit tricky, so we'll just test the logic
-                    pass
-                
-                # The actual test would require more complex mocking
-                # to change the global RAW_DIR path
+    def test_archive_data_empty_source(self, temp_dirs):
+        """Test archiving with empty source list."""
+        archived_files = archive_data([], temp_dirs["archive"])
+        assert len(archived_files) == 0
 
-    def test_dataset_name_constant(self):
-        """Test that the dataset name constant is correct."""
-        assert DATASET_NAME == "vvud/eb-data"
+    def test_archive_data_source_not_found(self, temp_dirs):
+        """Test archiving with non-existent source file."""
+        non_existent = temp_dirs["data"] / "non_existent.txt"
+        with pytest.raises(FileNotFoundError):
+            archive_data([non_existent], temp_dirs["archive"])

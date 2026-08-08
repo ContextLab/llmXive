@@ -16,167 +16,146 @@ from src.data.archive_utils import (
 @pytest.fixture
 def temp_dirs():
     """Create temporary source and archive directories for testing."""
-    temp_base = tempfile.mkdtemp()
-    source_dir = Path(temp_base) / "source"
-    archive_dir = Path(temp_base) / "archive"
-    source_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create some test files
-    (source_dir / "file1.txt").write_text("content1")
-    (source_dir / "subdir").mkdir()
-    (source_dir / "subdir" / "file2.txt").write_text("content2")
-    
-    yield source_dir, archive_dir
-    
-    # Cleanup
-    shutil.rmtree(temp_base, ignore_errors=True)
+    src_dir = tempfile.mkdtemp()
+    arc_dir = tempfile.mkdtemp()
+    yield Path(src_dir), Path(arc_dir)
+    shutil.rmtree(src_dir, ignore_errors=True)
+    shutil.rmtree(arc_dir, ignore_errors=True)
 
-def test_compute_sha256_basic():
-    """Test basic SHA-256 computation on a known string."""
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(b"test content")
-        temp_path = Path(f.name)
-    
-    try:
-        hash_val = compute_sha256(temp_path)
-        expected = hashlib.sha256(b"test content").hexdigest()
-        assert hash_val == expected
-    finally:
-        os.unlink(temp_path)
+def test_compute_sha256_basic(temp_dirs):
+    src_dir, _ = temp_dirs
+    test_file = Path(src_dir) / "test.txt"
+    content = b"Hello, World!"
+    test_file.write_bytes(content)
+
+    expected_hash = hashlib.sha256(content).hexdigest()
+    actual_hash = compute_sha256(test_file)
+
+    assert actual_hash == expected_hash
 
 def test_compute_sha256_file_not_found():
-    """Test that FileNotFoundError is raised for missing file."""
     with pytest.raises(FileNotFoundError):
-        compute_sha256(Path("/nonexistent/file.txt"))
+        compute_sha256(Path("non_existent_file.txt"))
 
-def test_compute_sha256_large_file():
-    """Test SHA-256 computation on a larger file."""
-    content = b"x" * (1024 * 1024)  # 1MB of data
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(content)
-        temp_path = Path(f.name)
-    
-    try:
-        hash_val = compute_sha256(temp_path)
-        expected = hashlib.sha256(content).hexdigest()
-        assert hash_val == expected
-    finally:
-        os.unlink(temp_path)
+def test_compute_sha256_large_file(temp_dirs):
+    src_dir, _ = temp_dirs
+    test_file = Path(src_dir) / "large.bin"
+    # Create a 1MB file
+    content = os.urandom(1024 * 1024)
+    test_file.write_bytes(content)
+
+    expected_hash = hashlib.sha256(content).hexdigest()
+    actual_hash = compute_sha256(test_file)
+
+    assert actual_hash == expected_hash
 
 def test_archive_data_basic(temp_dirs):
-    """Test basic archiving functionality."""
-    source_dir, archive_dir = temp_dirs
-    result = archive_data(source_dir, archive_dir)
-    
-    assert result["status"] == "success"
-    assert result["files_archived"] == 2
-    assert (archive_dir / "file1.txt").exists()
-    assert (archive_dir / "subdir" / "file2.txt").exists()
+    src_dir, arc_dir = temp_dirs
+    # Create nested structure
+    (src_dir / "subdir").mkdir()
+    file1 = src_dir / "file1.txt"
+    file2 = src_dir / "subdir" / "file2.txt"
+    file1.write_text("data1")
+    file2.write_text("data2")
+
+    count = archive_data(src_dir, arc_dir)
+
+    assert count == 2
+    assert (arc_dir / "file1.txt").exists()
+    assert (arc_dir / "subdir" / "file2.txt").exists()
 
 def test_archive_data_overwrite_false(temp_dirs):
-    """Test archiving with overwrite=False when files exist."""
-    source_dir, archive_dir = temp_dirs
-    
-    # Pre-populate archive with a different content
-    (archive_dir / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
-    (archive_dir / "file1.txt").write_text("different content")
-    
-    result = archive_data(source_dir, archive_dir, overwrite=False)
-    
-    # Should skip existing file
-    assert result["files_archived"] == 1  # Only subdir/file2.txt
-    assert (archive_dir / "file1.txt").read_text() == "different content"
+    src_dir, arc_dir = temp_dirs
+    file1 = src_dir / "file1.txt"
+    file1.write_text("new_data")
+
+    # Pre-existing file in archive
+    arc_file = arc_dir / "file1.txt"
+    arc_file.write_text("old_data")
+
+    count = archive_data(src_dir, arc_dir, overwrite=False)
+
+    assert count == 0  # Should skip existing
+    assert arc_file.read_text() == "old_data"  # Content unchanged
 
 def test_archive_data_overwrite_true(temp_dirs):
-    """Test archiving with overwrite=True."""
-    source_dir, archive_dir = temp_dirs
-    
-    # Pre-populate archive
-    (archive_dir / "file1.txt").parent.mkdir(parents=True, exist_ok=True)
-    (archive_dir / "file1.txt").write_text("different content")
-    
-    result = archive_data(source_dir, archive_dir, overwrite=True)
-    
-    assert result["files_archived"] == 2
-    assert (archive_dir / "file1.txt").read_text() == "content1"
+    src_dir, arc_dir = temp_dirs
+    file1 = src_dir / "file1.txt"
+    file1.write_text("new_data")
+
+    # Pre-existing file in archive
+    arc_file = arc_dir / "file1.txt"
+    arc_file.write_text("old_data")
+
+    count = archive_data(src_dir, arc_dir, overwrite=True)
+
+    assert count == 1
+    assert arc_file.read_text() == "new_data"
 
 def test_archive_data_empty_source(temp_dirs):
-    """Test archiving from an empty source directory."""
-    source_dir, archive_dir = temp_dirs
-    
-    # Remove all files from source
-    for item in source_dir.rglob("*"):
-        if item.is_file():
-            item.unlink()
-    
-    result = archive_data(source_dir, archive_dir)
-    assert result["status"] == "success"
-    assert result["files_archived"] == 0
+    src_dir, arc_dir = temp_dirs
+    count = archive_data(src_dir, arc_dir)
+    assert count == 0
 
-def test_archive_data_source_not_found():
-    """Test that FileNotFoundError is raised for missing source directory."""
-    with pytest.raises(FileNotFoundError):
-        archive_data(Path("/nonexistent/source"), Path("/tmp/archive"))
+def test_archive_data_source_not_found(temp_dirs):
+    _, arc_dir = temp_dirs
+    count = archive_data(Path("/non/existent/path"), arc_dir)
+    assert count == 0
 
 def test_verify_archive_integrity_valid(temp_dirs):
-    """Test integrity verification with correct checksums."""
-    source_dir, archive_dir = temp_dirs
-    archive_data(source_dir, archive_dir)
-    
-    checksums = generate_checksum_manifest(archive_dir, archive_dir / "checksums.json")
-    assert verify_archive_integrity(archive_dir, checksums) is True
+    src_dir, arc_dir = temp_dirs
+    file1 = src_dir / "file1.txt"
+    file1.write_text("test")
+
+    archive_data(src_dir, arc_dir)
+
+    manifest_path = Path(arc_dir.parent) / "manifest.json"
+    generate_checksum_manifest(arc_dir, manifest_path)
+
+    assert verify_archive_integrity(arc_dir, manifest_path) is True
 
 def test_verify_archive_integrity_invalid(temp_dirs):
-    """Test integrity verification with incorrect checksums."""
-    source_dir, archive_dir = temp_dirs
-    archive_data(source_dir, archive_dir)
-    
-    # Create wrong checksums
-    checksums = {
-        "file1.txt": "wrong_hash_value",
-        "subdir/file2.txt": "another_wrong_hash"
-    }
-    
-    assert verify_archive_integrity(archive_dir, checksums) is False
+    src_dir, arc_dir = temp_dirs
+    file1 = src_dir / "file1.txt"
+    file1.write_text("test")
+
+    archive_data(src_dir, arc_dir)
+
+    manifest_path = Path(arc_dir.parent) / "manifest.json"
+    generate_checksum_manifest(arc_dir, manifest_path)
+
+    # Corrupt the file in archive
+    (arc_dir / "file1.txt").write_text("corrupted")
+
+    assert verify_archive_integrity(arc_dir, manifest_path) is False
 
 def test_verify_archive_integrity_missing_file(temp_dirs):
-    """Test integrity verification when a file is missing."""
-    source_dir, archive_dir = temp_dirs
-    archive_data(source_dir, archive_dir)
-    
-    checksums = {
-        "file1.txt": compute_sha256(archive_dir / "file1.txt"),
-        "nonexistent.txt": "some_hash"
-    }
-    
-    assert verify_archive_integrity(archive_dir, checksums) is False
+    src_dir, arc_dir = temp_dirs
+    file1 = src_dir / "file1.txt"
+    file1.write_text("test")
+
+    archive_data(src_dir, arc_dir)
+
+    manifest_path = Path(arc_dir.parent) / "manifest.json"
+    generate_checksum_manifest(arc_dir, manifest_path)
+
+    # Remove file from archive
+    (arc_dir / "file1.txt").unlink()
+
+    assert verify_archive_integrity(arc_dir, manifest_path) is False
 
 def test_generate_checksum_manifest(temp_dirs):
-    """Test checksum manifest generation."""
-    source_dir, archive_dir = temp_dirs
-    archive_data(source_dir, archive_dir)
-    
-    manifest_path = archive_dir / "manifest.json"
-    checksums = generate_checksum_manifest(archive_dir, manifest_path)
-    
-    assert manifest_path.exists()
-    assert len(checksums) == 2
-    assert "file1.txt" in checksums
-    assert "subdir/file2.txt" in checksums
-    
-    # Verify JSON content
-    with open(manifest_path) as f:
-        data = json.load(f)
-    assert data == checksums
+    src_dir, arc_dir = temp_dirs
+    file1 = src_dir / "file1.txt"
+    file1.write_text("test")
 
-def test_run_archive_pipeline(temp_dirs):
-    """Test the full archive pipeline."""
-    source_dir, archive_dir = temp_dirs
-    manifest_path = archive_dir / "pipeline_manifest.json"
-    
-    result = run_archive_pipeline(source_dir, archive_dir, manifest_path)
-    
-    assert result["status"] == "success"
-    assert result["files_archived"] == 2
-    assert manifest_path.exists()
-    assert result["total_checksums"] == 2
+    archive_data(src_dir, arc_dir)
+
+    manifest_path = Path(arc_dir.parent) / "manifest.json"
+    manifest = generate_checksum_manifest(arc_dir, manifest_path)
+
+    assert "files" in manifest
+    assert len(manifest["files"]) == 1
+    assert manifest["files"][0]["path"] == "file1.txt"
+    assert "sha256" in manifest["files"][0]
+    assert "size_bytes" in manifest["files"][0]

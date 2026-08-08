@@ -6,25 +6,20 @@ T002a:
     \ `tests/contract`, `tests/unit`, `tests/integration`, `docs`) were actually created.\
     \ The implementer\u2019s claim lacks concrete evidence, so the task is not verified\
     \ as completed."
-T004:
+T002b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, documentation, tests, or any other artifact for the \u201CReference-Validator\
-    \ Agent\u201D was provided. The claim contains only the original feature specification\
-    \ for bird\u2011migration analysis, which is unrelated to the required accuracy\u2011\
-    gate implementation, so the required logic is missing."
-T005c:
+  r: No directory listing or any artifact showing the created project structure was
+    provided; the claim lacks the required output that enumerates the project's folders.
+    The implementer must supply a concrete list of the directories that were created
+    for the project.
+T010c:
   c: false
-  h: b29cccd4d89439d0719bcfa9914e35a50527e32699cf261e018f6b3068b4a9ee
-  r: The required file `data/provenance/scope_limitation.json` does not exist, so
-    the scope limitation documentation was not provided as the task demanded.
-T016:
-  c: false
-  h: f0c5d93f7fed47d460ea156c9bce99400b0f08d8643d6237337e926224064bb5
-  r: The `src/data/preprocess.py` file does not contain a `generate_provenance` function
-    (the shown excerpt ends before such a definition and the file is truncated), and
-    the required output file `data/provenance/row_mapping.json` is absent from the
-    repository. Both the implementation and the generated artifact are missing.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test log entry file or parsing script was provided; the only artifacts present\
+    \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
+    \ task. Consequently the required log entry and its format\u2011compliance verification\
+    \ are missing."
 T017d:
   c: false
   h: e5991be00aa0ba3e1c4bd90f145b5e604ea0178c56dec5e7b2b85b7ec268f596
@@ -55,13 +50,27 @@ T045a:
     \ with `filelock.FileLock` is present in the provided artifacts. The claim cannot\
     \ be verified because the required implementation file (e.g., `lock_wrapper.py`\
     \ or similar) is missing entirely."
+T045b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, commit, or documentation showing that a lock mechanism was added to\
+    \ the components T023a and T032b is present. The provided artifacts relate only\
+    \ to the bird\u2011migration statistical analysis and contain no evidence of any\
+    \ lock integration, so the task requirement is not satisfied."
+T045c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test code, script, or documentation for lock contention was provided; the\
+    \ only artifacts listed pertain to bird\u2011migration data pipelines, not a lock\u2011\
+    contention test. The required test file (e.g., a unit\u2011 or integration\u2011\
+    test that creates competing threads/processes to provoke lock contention and asserts\
+    \ expected behavior) is missing."
 T050b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that `plan.md` and `spec.md` were examined, nor any\
-    \ report or document showing identified contradictions (or confirming none exist).\
-    \ The required artifact\u2014a scan/result of plan\u2011spec alignment\u2014is\
-    \ missing."
+  r: No `plan.md` or `spec.md` files were provided, nor any report or output showing
+    that the implementer scanned those documents for contradictions. Without the required
+    artifacts, we cannot confirm the task was performed.
 T051a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

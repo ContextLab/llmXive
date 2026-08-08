@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-132-statistical-analysis-of-publicly-availab
-last_run_id: f5bdf5cf-996a-4ba4-a694-ac2311294c52
+last_run_id: 0c195626-b376-4c62-9e1b-618fed15f95b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate
   Change
-updated_at: '2026-08-08T19:59:54.004760Z'
+updated_at: '2026-08-08T20:06:06.648900Z'

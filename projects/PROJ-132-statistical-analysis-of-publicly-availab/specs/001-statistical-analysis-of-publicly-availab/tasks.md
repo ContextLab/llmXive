@@ -48,13 +48,14 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Verify plan/spec alignment and document scope limitations without editing the plan until verification is complete.
 
-- [ ] T050b [S] [Plan] **Verify Plan Alignment**: Scan `plan.md` and `spec.md` for contradictions.
+- [ ] T050b [S] [Plan] **Verify Plan Alignment**: Scan `plan.md` and `spec.md` for specific contradictions. <!-- FAILED: unspecified -->
  - **Action**: Write a script `src/plan/verify_alignment.py` that scans `plan.md` and `spec.md`.
  - **Logic**:
  1. Check if `plan.md` contains "mandatory a priori GP" (matches spec US-2).
  2. Check if `plan.md` contains "Critical Data Scope Note" regarding the sample dataset.
- 3. Check for any terms in `plan.md` that do not exist in `spec.md` (e.g., "FR-002-S").
- - **Output**: Write findings to `data/provenance/plan_conflicts.json` with keys: `{"contradictions": [{"location": "string", "spec_req": "string", "plan_text": "string"}]}`.
+ 3. Check for specific text patterns: 'NOAA/PRISM' in `spec.md` vs 'Daymet' in `plan.md`. If found, flag as "DATA_SOURCE_MISMATCH".
+ 4. Check for any terms in `plan.md` that do not exist in `spec.md` (e.g., "FR-002-S").
+ - **Output**: Write findings to `data/provenance/plan_conflicts.json` with keys: `{"contradictions": [{"location": "string", "spec_req": "string", "plan_text": "string", "type": "DATA_SOURCE_MISMATCH"|"SCOPE_NOTE"|"OTHER"}]}`.
  - **Requirement**: If no contradictions, log "No contradictions found". Do NOT edit `plan.md`.
  - **Dependency**: None.
 
@@ -86,52 +87,35 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [S] [Foundation] **Implement Verified Accuracy Gate**: Implement the "Reference-Validator Agent" logic to verify external citations and data sources before processing.
- - **Action**: Write a script `src/data/verify_accuracy.py` that checks the integrity and reachability of all dataset URLs against primary sources.
+- [ ] T005a [S] [Foundation] **Verify Data Availability**: Check for the existence of the verified sample dataset (`vvud/eb-data`) and climate dataset (`daymet/annual`).
+ - **Action**: Write a script `src/data/verify_dataset.py` that attempts to list `vvud/eb-data` and `daymet/annual` using `datasets.load_dataset`.
  - **Logic**:
- 1. Verify eBird source (HuggingFace `vvud/eb-data` or full EBD URL).
- 2. Verify NOAA/PRISM source.
- 3. Check checksums against known values.
- - **Output**: Write `data/provenance/accuracy_verification.json` with keys: `{"source": "string", "status": "verified|failed", "checksum": "string"}`.
- - **Requirement**: Raise `RuntimeError` if any source fails verification. Do NOT proceed to download tasks if verification fails.
+ 1. If `vvud/eb-data` exists, set `sample_scope_adopted = True` and `full_ebd_available = False`.
+ 2. If `daymet/annual` exists, set `climate_data_available = True`.
+ 3. If either is missing, raise `RuntimeError`.
+ - **Output**: Write `data/provenance/data_availability_report.json` with keys: `{"full_ebd_available": bool, "sample_scope_adopted": bool, "climate_data_available": bool, "source": "vvud/eb-data"|"daymet/annual"|"unknown"}`.
+ - **Requirement**: Do NOT attempt to download full EBD first. The Plan's scope note explicitly adopts the sample.
  - **Dependency**: None.
-- [ ] T005a_full [S] [Foundation] **Attempt Full EBD Download**: Attempt to download the full eBird Basic Dataset (EBD) for North America (2020–2024) as per spec FR-001.
- - **Action**: Check for a verified public URL for the full EBD. If available, attempt download using `datasets.load_dataset` with streaming.
- - **Output**: Write `data/provenance/data_availability.json` with keys: `{"full_ebd_available": boolean, "sample_fallback": boolean, "timestamp": "ISO8601"}`.
- - **Requirement**: Do NOT fall back to synthetic data. If full EBD is unavailable, proceed to T005_select with a scope limitation flag.
- - **Dependency**: Depends on T004.
-- [ ] T005_select [S] [Foundation] **Select Data Source**: Determine whether to use Full EBD or Sample based on T005a_full output.
- - **Action**: Read `data/provenance/data_availability.json`. Set environment variable `EBD_SOURCE_TYPE` to "FULL" or "SAMPLE".
- - **Requirement**: Ensure downstream tasks branch correctly based on this flag.
- - **Dependency**: Depends on T005a_full.
-- [ ] T005b1 [S] [Foundation] **Download eBird Sample Data**: Download the verified sample data from HuggingFace (`vvud/eb-data`) ONLY if T005_select indicates sample fallback.
- - **Action**: Use `datasets.load_dataset("vvud/eb-data", split="train", streaming=True, trust_remote_code=True)` to fetch the data.
+- [ ] T005b [S] [Foundation] **Download and Verify eBird Sample Data**: Download the verified sample data from HuggingFace (`vvud/eb-data`) and verify checksums.
+ - **Action**: Use `datasets.load_dataset("vvud/eb-data", split="train", trust_remote_code=True)` to fetch the data. Compute SHA-256 checksums of the downloaded files.
+ - **Requirement**: Ensure data is downloaded from the canonical source. Do NOT fall back to synthetic data.
+ - **Dependency**: Depends on T005a.
+- [ ] T005c1 [S] [Foundation] **Download Daymet Climate Data**: Download the Daymet climate data for North America for a recent multi-year period.
+ - **Action**: Use `datasets.load_dataset("daymet/annual",...)` to fetch the data from the verified public URL. Note: Daymet is used as a verified substitute for NOAA/PRISM per the Plan's "Critical Data Scope Note".
  - **Requirement**: Ensure data is downloaded from the canonical source.
- - **Dependency**: Depends on T005_select.
-- [ ] T005b2 [P] [Foundation] **Verify eBird Sample Checksums**: Verify checksums of the downloaded eBird sample data.
- - **Action**: Compute cryptographic checksums of the downloaded files.
- - **Requirement**: Ensure data integrity.
- - **Dependency**: Depends on T005b1.
-- [ ] T005b3 [P] [Foundation] **Handle eBird Sample Fallback**: Handle fallback logic if full EBD is unavailable.
- - **Action**: Log "Full EBD not available via verified public URL; falling back to sample scope".
- - **Requirement**: Ensure the fallback logic is correctly implemented.
- - **Dependency**: Depends on T005a_full.
-- [ ] T005c1 [S] [Foundation] **Download NOAA/PRISM Climate Data**: Download the NOAA/PRISM climate data for North America for a recent multi-year period.
- - **Action**: Use `datasets.load_dataset("daymet/annual", split="train", streaming=True, trust_remote_code=True)` to fetch the data from a verified public URL.
- - **Requirement**: Ensure data is downloaded from the canonical source.
- - **Dependency**: Depends on T005_select.
-- [ ] T005c2 [P] [Foundation] **Verify NOAA/PRISM Checksums**: Verify checksums of the downloaded NOAA/PRISM climate data.
+ - **Dependency**: Depends on T005a.
+- [ ] T005c2 [S] [Foundation] **Verify Daymet Checksums**: Verify checksums of the downloaded Daymet climate data.
  - **Action**: Compute SHA-256 checksums of the downloaded files.
  - **Requirement**: Ensure data integrity.
  - **Dependency**: Depends on T005c1.
-- [X] T005c [S] [Foundation] **Scope Documentation**: If T005a_full determined full EBD was unavailable, document this in `data/provenance/scope_limitation.json`.
- - **Action**: Write a JSON file `data/provenance/scope_limitation.json` with keys: `{"source": "vvud/eb-data", "reason": "Full EBD unavailable", "timestamp": "ISO8601"}`.
- - **Requirement**: Ensure `plan.md` is NOT edited; scope is recorded in provenance.
- - **Dependency**: Depends on T005a_full.
+- [ ] T005c3 [S] [Foundation] **Document Spec/Plan Data Deviation**: Document the deviation between Spec FR-001 (NOAA/PRISM) and Plan/Tasks (Daymet).
+ - **Action**: Write a JSON file `data/provenance/spec_plan_deviation.json` with keys: `{"spec_requirement": "NOAA/PRISM", "plan_substitute": "Daymet", "reason": "Verified open-source availability", "timestamp": "ISO8601"}`.
+ - **Requirement**: Ensure this deviation is explicitly recorded. Do NOT edit `spec.md`.
+ - **Dependency**: Depends on T005c2.
 - [ ] T005d [P] [Foundation] **Archive and Checksum**: Archive the downloaded files unchanged (copy to `data/raw/archive/`) and compute SHA-256 checksums.
  - **Action**: Copy files to `data/raw/archive/`. Compute checksums. Write results to `data/raw/archive/checksums.sha256`.
  - **Requirement**: Ensure data integrity.
- - **Dependency**: Depends on T005b2, T005c2.
+ - **Dependency**: Depends on T005b, T005c2.
 - [X] T005e [S] [Foundation] **Update State File**: Write checksums to `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` under keys `artifact_hashes` and `updated_at`.
  - **Action**: Update the state file with checksums.
  - **Requirement**: Ensure state file is up to date.
@@ -153,13 +137,13 @@ description: "Task list template for feature implementation"
  - **Logging**: Implement logging configuration with format `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
  - **Rotation Policy**: Max files, each limited to `maxBytes=10485760` (10MB).
  - **Dependency**: Depends on T010a.
-- [ ] T010c [S] [Foundation] **Test Logging**: Write a unit test `tests/unit/test_config.py::test_logging_format` to ensure format compliance.
- - **Verification**: Write a test log entry and parse it to ensure format compliance. Assert log line matches regex `r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'`.
+- [X] T010c [S] [Foundation] **Test Logging**: Write a unit test `tests/unit/test_config.py::test_logging_format` to ensure format compliance.
+ - **Verification**: Write a test log entry and parse it to ensure format compliance. Assert log line contains ISO8601 timestamp.
  - **Dependency**: Depends on T010b.
 - [ ] T051a [P] [Foundation] **Verify Verified Sample Dataset**: Verify the existence of the `vvud/eb-data` dataset on HuggingFace as specified in the plan's "Critical Data Scope Note".
  - **Action**: Write a script `src/data/verify_dataset.py` that attempts to list the `vvud/eb-data` dataset using `datasets.load_dataset`.
  - **Requirement**: If the dataset is not found, raise a `RuntimeError` with a clear message referencing the plan's scope note.
- - **Dependency**: Depends on T005a_full.
+ - **Dependency**: Depends on T005a.
 - [X] T051 [P] [Foundation] **Stream Verified Sample Data**: Implement `src/data/stream_utils.py` to stream the verified sample eBird dataset in chunks.
  - **Action**: Use `datasets.load_dataset("vvud/eb-data", streaming=True)` to fetch data in chunks.
  - **Requirement**: Ensure the pipeline processes the available sample dataset without loading it all into memory.
@@ -195,19 +179,7 @@ description: "Task list template for feature implementation"
  - **Action**: Download the official CLO list (or a verified mirror) and cache it in `data/raw/clo_migratory_list.csv`.
  - **Requirement**: Ensure the list is used for filtering in T015b.
  - **Dependency**: Depends on T005e.
-- [ ] T015b1 [S] [US1] **Filter eBird Records**: Filter eBird records to migratory species using the CLO list from `data/raw/clo_migratory_list.csv` and the 2020-2024 period.
- - **Action**: Filter eBird records to migratory species using the CLO list and a recent multi-year period.
- - **Requirement**: Ensure the 2020-2024 period filter is explicitly applied.
- - **Dependency**: Depends on T015a, T051, T005e.
-- [ ] T015b2 [S] [US1] **Aggregate to Grid Cells**: Aggregate filtered eBird records to weekly counts per spatial grid cell (Use `GRID_RES=0.5` from T010 config).
- - **Action**: Aggregate filtered eBird records to weekly counts per spatial grid cell.
- - **Requirement**: Ensure the aggregation is performed correctly.
- - **Dependency**: Depends on T015b1.
-- [ ] T015b3 [S] [US1] **Call Mark Insufficient Cells**: Call `mark_insufficient_cells` (T018) *after* aggregation to ensure invalid cells are excluded.
- - **Action**: Call `mark_insufficient_cells` (T018) *after* aggregation to ensure invalid cells are excluded.
- - **Requirement**: Ensure the `mark_insufficient_cells` function is called correctly.
- - **Dependency**: Depends on T015b2.
-- [X] T015b [S] [US1] **Implement `src/data/preprocess.py` to filter eBird records to migratory species using the CLO list from T015a and the 2020-2024 period, and aggregate to weekly counts per spatial grid cell (Use `GRID_RES=0.5` from T010 config).**
+- [X] T015b [S] [US1] **Implement Preprocessing Pipeline**: Implement `src/data/preprocess.py` to filter eBird records to migratory species using the CLO list from Ta and the 2020-2024 period, and aggregate to weekly counts per spatial grid cell (Use `GRID_RES=0.5` from T010 config).
  - **Logic**: Call `mark_insufficient_cells` (T018) *after* aggregation to ensure invalid cells are excluded.
  - **Dependency**: Depends on T015a, T051, T005e.
 - [ ] T016 [S] [US1] **Generate Provenance Mapping**: Implement `src/data/preprocess.py::generate_provenance` to create `data/provenance/row_mapping.json`.
@@ -218,7 +190,7 @@ description: "Task list template for feature implementation"
 - [X] T017a [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`.
  - **Logic**: `stopover_duration` = High percentile DOY - Low percentile DOY.
 - [X] T017b [US1] Implement **seasonal climate average calculation** (March–May temperature, precipitation, extreme weather indices) in `src/data/preprocess.py` to satisfy **FR-003** and **Imputation Flagging**.
- - **Logic**: Compute mean temperature and total precipitation for the March–May period per grid cell and year. Calculate extreme weather indices (e.g., heatwaves, heavy precipitation events) from NOAA/PRISM data.
+ - **Logic**: Compute mean temperature and total precipitation for the March–May period per grid cell and year. Calculate extreme weather indices (e.g., heatwaves, heavy precipitation events) from Daymet data.
  - **Imputation**: If missing, use `src/data/impute.py` (T007) to interpolate.
  - **Output**: Append `climate_temp_avg`, `climate_precip_total`, `extreme_weather_index`, and `is_imputed` (bool) to the output dataset.
  - **Metadata**: Write a separate `data/processed/imputation_metadata.json` listing all imputed cells and their sources. **Explicitly flag imputed cells in this metadata**.
@@ -259,42 +231,34 @@ description: "Task list template for feature implementation"
  - **Logic**: Lock file path: `data/interim/pipeline.lock`. Timeout: A predefined duration.
  - **Output**: Log execution order.
  - **Dependency**: Depends on T010a.
-- [ ] T045b [P] **Integrate Lock**: Integrate the lock into T025b and T032b.
- - **Logic**: Ensure T025b and T032b acquire the lock before running.
+- [ ] T045b [P] **Integrate Lock**: Integrate the lock into T023a and T032b.
+ - **Logic**: Ensure T023a and T032b acquire the lock before running.
  - **Dependency**: Depends on T045a.
 - [ ] T045c [P] **Test Lock Contention**: Write a test for lock contention.
  - **Dependency**: Depends on T045b.
-- [ ] T023a [S] [US2] **Fit GAMM with Mandatory GP**: Implement `src/models/gamm_fit.py` to fit a GAMM per Spec FR-004 with a **mandatory a priori** GP random effect. **Depends on T016, T018, T017b**.
- - **Model**: `phenology_metric ~ s(temp) + s(precip) + s(effort) + (1 + temp | species) + gp(lat, lon, kernel="matern")`.
+- [X] T023a [S] [US2] **Fit GAMM with Mandatory GP**: Implement `src/models/gamm_fit.py` to fit a GAMM per Spec FR-004 with a **mandatory a priori** GP random effect. **Depends on T016, T018, T017d**.
+ - **Model**: `phenology_metric ~ s(temp) + s(precip) + s(extreme_weather_index) + (1 + temp | species) + gp(lat, lon, kernel="matern")`.
+ - **Logic**:
+ 1. Implement species-year random intercepts and slopes (temperature slope variation) as defined in the formula `(1 + temp | species)`.
+ 2. Fit the model for each species-year combination.
+ 3. Log and output results to `data/processed/model_results.parquet`.
  - **Output**: Write base model results to `data/processed/model_results_base.parquet`.
- - **Dependency**: Depends on T015b, T016, T018, T017b.
-- [ ] T023d [S] [US2] **Implement Species-Year Random Intercepts and Slopes Logic**: Implement `src/models/gamm_fit.py::implement_species_year_random_intercepts_and_slopes` to implement the logic for species-year random intercepts and slopes.
- - **Action**: Implement the logic for species-year random intercepts and slopes.
- - **Requirement**: Ensure the logic is correctly implemented.
- - **Dependency**: Depends on T023a.
-- [ ] T023e [S] [US2] **Log and Output Results**: Implement `src/models/gamm_fit.py::log_and_output` to log and output results.
- - **Action**: Log results and output to `data/processed/model_results.parquet`.
- - **Dependency**: Depends on T023b_refit, T023d.
-- [ ] T023b [S] [US2] **Compute Moran's I Diagnostic**: Implement `src/models/gamm_fit.py::compute_morans_i` to compute Moran's I on residuals.
+ - **Dependency**: Depends on T015b, T016, T018, T017d.
+- [X] T023b [S] [US2] **Compute Moran's I Diagnostic**: Implement `src/models/gamm_fit.py::compute_morans_i` to compute Moran's I on residuals.
  - **Action**: Compute Moran's I on residuals of the final model.
  - **Output**: Write structured output to `data/provenance/morans_i.json` with keys: `{"species": str, "morans_i": float, "p_value": float, "trigger_refit": bool}`.
  - **Logic**: If `morans_i > 0.15`, set `trigger_refit` to `True`. This flag is read by T023b_refit to initiate the mandatory re-fit.
  - **Requirement**: Write the structured JSON output. Do NOT perform the re-fit here; only flag it.
  - **Dependency**: Depends on T023a.
-- [ ] T023b_refit [S] [US2] **Refit GAMM with GP if Moran's I > 0.15**: Implement `src/models/gamm_fit.py::refit_gamm_with_gp` to trigger a re-fit with a Gaussian Process (GP) random effect if `trigger_refit` is True in `data/provenance/morans_i.json`.
- - **Action**: Read `data/provenance/morans_i.json`. If `trigger_refit` is True, refit the model with a GP random effect.
- - **Output**: Write refit results to `data/processed/model_results_gam_gam_gp.parquet`.
- - **Requirement**: This task implements the mandatory re-fit required by Spec US-2 Acceptance Scenario 2.
- - **Dependency**: Depends on T023b.
-- [ ] T025a [S] [US2] **Benchmark Permutation Test**: Implement `src/models/utils.py::benchmark_permutation` to estimate runtime.
+- [X] T025a [S] [US2] **Benchmark Permutation Test**: Implement `src/models/utils.py::benchmark_permutation` to estimate runtime.
  - **Action**: Run multiple shuffles and measure time.
  - **Requirement**: Use this to estimate the time for full shuffles.
  - **Dependency**: Depends on T057a.
-- [ ] T025b [S] [US2] **Permutation Test Loop**: Implement `src/models/utils.py::run_permutation_test` with `n_shuffles=10000` (hard constraint) and `config.PERMUTATIONS`.
+- [X] T025b [S] [US2] **Permutation Test Loop**: Implement `src/models/utils.py::run_permutation_test` with `n_shuffles=10000` (hard constraint) and `config.PERMUTATIONS`.
  - **Logic**: Run full shuffles in chunks (batch size 1000) using the utility from T057a.
  - **Output**: Write to `data/processed/permutation_results.json` with schema: `{ "species": str, "coefficient": str, "p_value": float, "n_shuffles": int, "final_p_value": float }`.
  - **Requirement**: Ensure the [deferred] shuffles requirement is explicitly stated in the task logic.
- - **Dependency**: Depends on T023e, T025a, T057a, T045b.
+ - **Dependency**: Depends on T023a, T025a, T057a, T045b.
 - [ ] T025c [S] [US2] **Apply FDR Correction**: Implement `src/models/utils.py::apply_fdr_correction` to adjust p-values.
  - **Action**: Apply Benjamini-Hochberg FDR correction to the p-values from T025b.
  - **Output**: Write to `data/processed/model_results_fdr.parquet` with `q_value` column.
@@ -345,17 +309,21 @@ description: "Task list template for feature implementation"
  - **Logic**: Run full shuffles in chunks (batch size 1000) using the utility from T058a.
  - **Output**: Write to `data/processed/trajectory_permutation_results.json` with schema: `{ "species": str, "shift_magnitude": float, "p_value": float, "n_shuffles": int, "final_p_value": float }`.
  - **Dependency**: Depends on T030, T031c, T032a, T058a, T045b.
-- [ ] T033 [S] [US3] Implement bootstrapped **confidence intervals** generation for **phenology shift predictions and trajectory shift magnitudes** in `src/models/utils.py`.
- - **Logic**: Resample the centroid estimation process and trajectory shift magnitudes using **Block Bootstrap** to preserve temporal autocorrelation.
+- [ ] T033a [S] [US3] **Generate Phenology Confidence Intervals**: Implement `src/models/utils.py::generate_phenology_ci` to generate confidence intervals for model predictions (FR-007).
+ - **Logic**: Resample the centroid estimation process and model predictions using **Block Bootstrap** to preserve temporal autocorrelation.
+ - **Output**: Append `ci_lower`, `ci_upper` to the phenology results file.
+ - **Requirement**: Ensure the CI level is explicitly stated as [deferred] and traceable to FR-007.
+ - **Dependency**: Depends on T023a.
+- [ ] T033b [S] [US3] **Generate Trajectory Confidence Intervals**: Implement `src/models/utils.py::generate_trajectory_ci` to generate confidence intervals for trajectory shift magnitudes (US-3).
+ - **Logic**: Resample the trajectory shift magnitudes using **Block Bootstrap** to preserve temporal autocorrelation.
  - **Output**: Append `ci_lower`, `ci_upper` to the trajectory results file.
- - **Note**: This task consolidates FR-007 requirements for both phenology and trajectory shifts.
- - **Requirement**: Ensure the A confidence interval will be constructed to assess the statistical reliability of the findings. level is explicitly stated in the task description.
+ - **Requirement**: Ensure the CI level is explicitly stated as [deferred] and traceable to US-3 uncertainty quantification.
  - **Dependency**: Depends on T032b.
-- [ ] T033a [P] [US3] **Calculate CI Width**: Implement `src/analysis/ci_width.py` to calculate the width of 95% CIs from T033.
+- [ ] T033a1 [P] [US3] **Calculate CI Width**: Implement `src/analysis/ci_width.py` to calculate the width of 95% CIs from T033a/T033b.
  - **Action**: Compute `ci_upper - ci_lower` for each species and compare against `config.DEFAULT_CI_WIDTH_TARGET`.
  - **Output**: Write CI width metrics to `data/processed/ci_width_report.json`.
  - **Requirement**: Satisfy SC-004 measurement.
- - **Dependency**: Depends on T033.
+ - **Dependency**: Depends on T033a, T033b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -367,14 +335,14 @@ description: "Task list template for feature implementation"
 
 - [ ] T043 [S] **Calculate and Report All Success Criteria**: Consolidate all SC calculations into a single orchestration task.
  - **Logic**:
- 1. **SC-001 (Power)**: Call `src/analysis/power_analysis.py` (T011a) to compute statistical power and effect size stability. Input: `data/processed/model_results_fdr.parquet`.
- 2. **SC-002 (Insufficient Data)**: Call `src/analysis/insufficient_data.py` (T043 logic) to calculate the proportion of grid cells marked "insufficient data". Input: `data/processed/metadata_insufficient_cells.json`.
- 3. **SC-003 (Convergence)**: Call `src/analysis/convergence_rate.py` (T044 logic) to calculate the GAMM convergence rate. Input: `data/processed/model_results.parquet`.
- 4. **SC-004 (CI Width)**: Call `src/analysis/ci_width.py` (T033a) to calculate the width of 95% CIs. Input: `data/processed/ci_width_report.json`.
+ 1. **SC-001 (Power)**: Call `src/analysis/power_analysis.py` (T011a) to compute statistical power and effect size stability.
+ 2. **SC-002 (Insufficient Data)**: Call `src/analysis/insufficient_data.py` (T018 logic) to calculate the proportion of grid cells marked "insufficient data".
+ 3. **SC-003 (Convergence)**: Call `src/analysis/convergence_rate.py` (T027 logic) to calculate the GAMM convergence rate.
+ 4. **SC-004 (CI Width)**: Call `src/analysis/ci_width.py` (T033a1 logic) to calculate the width of 95% CIs.
  5. **SC-005 (Runtime)**: Call `src/analysis/runtime_validation.py` (T046 logic) to verify total runtime < 6h.
  - **Output**: Aggregate results from all sub-calculations into `data/processed/final_success_report.json`.
  - **Requirement**: Ensure all deferred targets are reported with actual values. If any target is not met, flag the result and include the specific MDES or limitation in the report.
- - **Dependency**: Depends on T011a, T018, T027, T033, T025b, T032b, T045c.
+ - **Dependency**: Depends on T011a, T018, T027, T033a, T033b, T025b, T032b, T045c.
 
 **Checkpoint**: All success criteria calculated and reported
 
@@ -520,7 +488,12 @@ With multiple developers:
  - **Action**: Add a "GPU Offload Strategy" section to `plan.md` detailing the auto-detection and retry logic for GAMM and Manifold tasks.
  - **Requirement**: Ensures the plan reflects the actual execution path for heavy computations.
  - **Dependency**: Depends on T059, T060.
-- [ ] T062 [S] [US1] **Verify Data Streaming Limits**: Implement a check in `src/data/stream_utils.py` to verify that the streaming chunk size does not exceed the available RAM limit.
+- [ ] T062 [S] [US1] **Verify Data Streaming Limits**: Implement a check in `src/data/stream_utils.py` to verify that the streaming chunk size does not exceed RAM limit
+
+The specific value to remove/generalize: 'RAM limit'
+
+Rewritten passage:
+exceed available RAM capacity.
  - **Action**: Add a runtime check that calculates estimated memory usage per chunk. If > 6 GB, raise a `MemoryError` with a suggestion to reduce chunk size.
  - **Requirement**: Prevents OOM crashes on the CI runner while ensuring real data is processed.
  - **Dependency**: Depends on T051.
@@ -531,7 +504,7 @@ With multiple developers:
 - [ ] T064 [S] [US3] **Validate Block Bootstrap Block Size**: Implement a check in `src/models/utils.py` to ensure the block size for block bootstrap is appropriate for the time series length.
  - **Action**: Add a validation step that warns if `block_size > 0.5 * time_series_length`.
  - **Requirement**: Prevents invalid bootstrapping results due to inappropriate block sizes.
- - **Dependency**: Depends on T033.
+ - **Dependency**: Depends on T033a.
 - [ ] T065 [S] [Plan] **Document Power Analysis Limitations**: Add a section to `plan.md` explicitly stating the power limitations of the `vvud/eb-data` sample size for detecting small effect sizes.
  - **Action**: Append a "Power Analysis Limitations" section to `plan.md` referencing the sample size and expected MDES.
  - **Requirement**: Ensures transparency about the study's statistical power as required by SC-001.

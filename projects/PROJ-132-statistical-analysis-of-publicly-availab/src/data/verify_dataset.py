@@ -1,78 +1,93 @@
-"""
-Verify the existence of the 'vvud/eb-data' dataset on HuggingFace.
-
-This script attempts to list the dataset using the HuggingFace datasets library.
-If the dataset is not found or accessible, it raises a RuntimeError.
-"""
 import sys
 import logging
+import json
 from pathlib import Path
 
-# Add project root to path if necessary (for local execution)
-project_root = Path(__file__).resolve().parents[2]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+from datasets import load_dataset
 from src.config import setup_logging
 
-# Configure logging
-logger = setup_logging("verify_dataset")
+logger = logging.getLogger(__name__)
 
-DATASET_ID = "vvud/eb-data"
-
-def verify_dataset_existence(dataset_id: str) -> bool:
+def verify_dataset_existence(dataset_name: str = "vvud/eb-data") -> bool:
     """
-    Verify that a dataset exists on HuggingFace Hub.
+    Verify the existence of the specified dataset on HuggingFace.
 
     Args:
-        dataset_id: The HuggingFace dataset identifier (e.g., "username/dataset-name").
+        dataset_name: The HuggingFace dataset identifier.
 
     Returns:
         True if the dataset exists and is accessible.
 
     Raises:
-        RuntimeError: If the dataset cannot be found or accessed.
+        RuntimeError: If the dataset is not found or accessible.
     """
+    logger.info(f"Verifying existence of dataset: {dataset_name}")
     try:
-        from datasets import load_dataset
-        from huggingface_hub import HfApi
-
-        logger.info(f"Attempting to verify existence of dataset: {dataset_id}")
-
-        # Method 1: Check via HfApi directly (lightweight check)
-        api = HfApi()
-        try:
-            api.dataset_info(dataset_id=dataset_id)
-            logger.info(f"Dataset '{dataset_id}' verified via HfApi.")
-            return True
-        except Exception as api_error:
-            # If API check fails, try loading (which might handle auth differently)
-            logger.warning(f"HfApi check failed: {api_error}. Attempting load_dataset...")
-
-        # Method 2: Attempt to load with streaming (lightweight)
-        # This forces a check of the dataset existence without downloading data
-        ds = load_dataset(dataset_id, streaming=True)
-        logger.info(f"Dataset '{dataset_id}' verified via load_dataset(streaming=True).")
+        # Attempt to load the dataset info to verify existence without downloading full data
+        # Using streaming=False but split="train" to trigger existence check quickly
+        # trust_remote_code is required per task spec for this specific dataset
+        ds = load_dataset(dataset_name, split="train", trust_remote_code=True)
+        logger.info(f"Dataset '{dataset_name}' verified successfully. Rows: {len(ds)}")
         return True
-
     except Exception as e:
-        error_msg = f"Dataset '{dataset_id}' not found or inaccessible: {e}"
+        error_msg = f"Dataset '{dataset_name}' not found or inaccessible: {e}"
         logger.error(error_msg)
         raise RuntimeError(error_msg) from e
 
 def main():
-    """Main entry point for the verification script."""
-    logger.info("Starting dataset verification process.")
+    """
+    Main entry point for verifying the eBird sample dataset.
+    Writes a JSON report to data/provenance/data_availability_report.json.
+    """
+    # Setup logging
+    setup_logging()
+
+    output_dir = Path("data/provenance")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "data_availability_report.json"
+
+    dataset_name = "vvud/eb-data"
+    climate_dataset_name = "daymet/annual"
+
+    report = {
+        "full_ebd_available": False,
+        "sample_scope_adopted": False,
+        "climate_data_available": False,
+        "source": "unknown"
+    }
+
     try:
-        if verify_dataset_existence(DATASET_ID):
-            logger.info(f"SUCCESS: Dataset '{DATASET_ID}' exists.")
-            return 0
+        # Verify eBird sample dataset
+        if verify_dataset_existence(dataset_name):
+            report["sample_scope_adopted"] = True
+            report["source"] = dataset_name
+            logger.info(f"Verified sample dataset: {dataset_name}")
+        else:
+            raise RuntimeError(f"Sample dataset {dataset_name} verification failed.")
+
+        # Verify climate dataset
+        try:
+            if verify_dataset_existence(climate_dataset_name):
+                report["climate_data_available"] = True
+                logger.info(f"Verified climate dataset: {climate_dataset_name}")
+        except RuntimeError as e:
+            logger.warning(f"Climate dataset check failed: {e}")
+            report["climate_data_available"] = False
+
+        # Write report
+        with open(output_file, "w") as f:
+            json.dump(report, f, indent=2)
+
+        logger.info(f"Data availability report written to {output_file}")
+        print(f"Success: {output_file}")
+
     except RuntimeError as e:
-        logger.error(f"FAILURE: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"UNEXPECTED ERROR: {e}")
-        return 1
+        logger.error(f"Verification failed: {e}")
+        # Even on failure, write a partial report if possible, or fail loudly
+        report["source"] = "error"
+        with open(output_file, "w") as f:
+            json.dump(report, f, indent=2)
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

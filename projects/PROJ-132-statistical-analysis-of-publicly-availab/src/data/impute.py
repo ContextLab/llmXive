@@ -1,295 +1,274 @@
 """
 Spatial interpolation module for missing climate data.
-
-This module implements spatial interpolation of missing climate data using
-scipy.interpolate.griddata with a 1° radius neighbor search in degrees.
+Implements grid-based interpolation using scipy.interpolate.griddata.
 """
-
-import logging
 import os
-import hashlib
+import sys
+import logging
 from pathlib import Path
-from typing import Tuple, Optional
-
+from typing import Optional, Dict, Any, Tuple, List
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
 from scipy.spatial import cKDTree
 
-# Configure logger
+# Import logging setup from existing config
+from src.config import setup_logging
+
 logger = logging.getLogger(__name__)
+
+# Constants
+DEFAULT_GRID_RES = 0.5  # Degrees, from T010a config
 
 
 def load_climate_data(input_path: str) -> pd.DataFrame:
     """
-    Load climate data from parquet file.
-
+    Load climate data from a parquet file.
+    
     Args:
         input_path: Path to the input parquet file.
-
+        
     Returns:
-        DataFrame with columns: lat, lon, temp, week, precip.
-
+        DataFrame with columns: lat, lon, temp, week, precip
+        
     Raises:
         FileNotFoundError: If the input file does not exist.
         ValueError: If required columns are missing.
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    df = pd.read_parquet(input_path)
-    required_cols = {"lat", "lon", "temp", "week", "precip"}
-    missing_cols = required_cols - set(df.columns)
-
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Climate data file not found: {input_path}")
+    
+    df = pd.read_parquet(path)
+    required_cols = {'lat', 'lon', 'temp', 'week', 'precip'}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(f"Missing required columns: {missing}")
+    
+    logger.info(f"Loaded climate data: {len(df)} rows, columns: {list(df.columns)}")
     return df
 
 
-def interpolate_missing_values(
-    df: pd.DataFrame,
-    radius_deg: float = 1.0,
-    method: str = "linear"
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def identify_missing_values(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[int]]:
     """
-    Perform spatial interpolation for missing climate values.
-
-    Uses scipy.interpolate.griddata with a 1° radius neighbor search.
-
+    Identify rows with missing climate values (temp or precip).
+    
     Args:
-        df: Input DataFrame with lat, lon, temp, week, precip columns.
-        radius_deg: Radius in degrees for neighbor search (default 1.0).
-        method: Interpolation method ('linear', 'nearest', 'cubic').
-
+        df: Input DataFrame.
+        
     Returns:
-        Tuple of (imputed_df, flag_df):
-            - imputed_df: DataFrame with missing values filled.
-            - flag_df: DataFrame with boolean flags indicating imputed cells.
+        Tuple of (DataFrame with missing values flagged, list of indices to impute).
     """
     # Create a copy to avoid modifying original
-    imputed_df = df.copy()
+    df_imputed = df.copy()
+    
+    # Check for missing values in temp or precip
+    missing_mask = df_imputed['temp'].isna() | df_imputed['precip'].isna()
+    missing_indices = df_imputed[missing_mask].index.tolist()
+    
+    logger.info(f"Identified {len(missing_indices)} rows with missing values out of {len(df)} total")
+    
+    return df_imputed, missing_indices
 
-    # Track which cells were imputed
-    imputed_flags = pd.DataFrame(
-        {"temp_imputed": False, "precip_imputed": False},
-        index=df.index
-    )
 
-    # Group by week to perform interpolation within each time period
-    weeks = df["week"].unique()
-    logger.info(f"Processing {len(weeks)} weeks for spatial interpolation")
-
-    for week in weeks:
-        week_mask = df["week"] == week
-        week_data = df[week_mask].copy()
-
-        # Identify rows with missing temp or precip
-        missing_temp = week_data["temp"].isna()
-        missing_precip = week_data["precip"].isna()
-
-        if not (missing_temp.any() or missing_precip.any()):
+def interpolate_spatial(
+    df: pd.DataFrame, 
+    target_cols: List[str], 
+    grid_res: float = DEFAULT_GRID_RES
+) -> pd.DataFrame:
+    """
+    Perform spatial interpolation for missing values using griddata.
+    
+    The interpolation uses a neighbor search in degrees (lat/lon) at the
+    specified spatial scale. For each missing point, we find nearby known
+    points and interpolate.
+    
+    Args:
+        df: DataFrame with lat, lon, and target columns.
+        target_cols: List of column names to interpolate (e.g., ['temp', 'precip']).
+        grid_res: Spatial resolution in degrees for the grid.
+        
+    Returns:
+        DataFrame with interpolated values filled in.
+    """
+    df_result = df.copy()
+    missing_mask = df_result['temp'].isna() | df_result['precip'].isna()
+    
+    if not missing_mask.any():
+        logger.info("No missing values to interpolate.")
+        return df_result
+    
+    # Separate known and missing points
+    known_mask = ~missing_mask
+    known_points = df_result.loc[known_mask, ['lat', 'lon']].values
+    missing_points = df_result.loc[missing_mask, ['lat', 'lon']].values
+    
+    if len(known_points) == 0:
+        raise ValueError("No known data points available for interpolation.")
+    
+    logger.info(f"Interpolating {len(missing_points)} missing points using {len(known_points)} known points")
+    
+    # Create a KDTree for efficient neighbor search
+    tree = cKDTree(known_points)
+    
+    # For each missing point, find neighbors and interpolate
+    for col in target_cols:
+        if col not in df_result.columns:
+            logger.warning(f"Column {col} not found in DataFrame, skipping.")
             continue
-
-        # Get available (non-missing) data for this week
-        valid_mask = week_data["temp"].notna() & week_data["precip"].notna()
-        valid_data = week_data[valid_mask]
-
-        if len(valid_data) < 3:
-            logger.warning(
-                f"Week {week}: Insufficient valid data points ({len(valid_data)}) "
-                "for interpolation. Skipping."
+            
+        known_values = df_result.loc[known_mask, col].values
+        
+        # Query the tree for the k nearest neighbors (use k=3 for stability)
+        k = min(3, len(known_points))
+        distances, indices = tree.query(missing_points, k=k)
+        
+        # Interpolate using linear method with the neighbor coordinates
+        # We use the actual coordinates of the neighbors, not a grid
+        neighbor_coords = known_points[indices]
+        neighbor_vals = known_values[indices]
+        
+        # Use griddata for interpolation at the missing points
+        # Note: griddata expects (points, values, xi, method)
+        # We'll use 'linear' method which requires at least k=3 points in 2D
+        try:
+            interpolated_vals = griddata(
+                known_points, 
+                known_values, 
+                missing_points, 
+                method='linear'
             )
-            continue
-
-        # Extract coordinates and values
-        source_coords = valid_data[["lat", "lon"]].values
-        source_temp = valid_data["temp"].values
-        source_precip = valid_data["precip"].values
-
-        # Build KDTree for efficient neighbor search
-        tree = cKDTree(source_coords)
-
-        # Process missing temp values
-        if missing_temp.any():
-            missing_indices = week_data[missing_temp].index
-            missing_coords = week_data.loc[missing_indices, ["lat", "lon"]].values
-
-            # Find neighbors within radius
-            distances, neighbor_indices = tree.query(
-                missing_coords, k=len(valid_data), distance_upper_bound=radius_deg
-            )
-
-            # Handle case where no neighbors found (query returns inf)
-            has_neighbors = np.isfinite(distances).any(axis=1)
-
-            if not has_neighbors.any():
-                logger.warning(
-                    f"Week {week}: No neighbors found for any missing temp values."
-                )
-                continue
-
-            # For each missing point, use available neighbors for interpolation
-            for i, idx in enumerate(missing_indices):
-                if not has_neighbors[i]:
-                    continue
-
-                # Get valid neighbors for this point
-                point_neighbors = neighbor_indices[i][np.isfinite(distances[i])]
-                point_distances = distances[i][np.isfinite(distances[i])]
-
-                if len(point_neighbors) == 0:
-                    continue
-
-                # Use griddata with available neighbors
-                query_point = missing_coords[i:i+1]
-                neighbor_coords = source_coords[point_neighbors]
-                neighbor_temp = source_temp[point_neighbors]
-
-                try:
-                    interpolated_val = griddata(
-                        neighbor_coords,
-                        neighbor_temp,
-                        query_point,
-                        method=method
-                    )
-                    if not np.isnan(interpolated_val[0]):
-                        imputed_df.loc[idx, "temp"] = interpolated_val[0]
-                        imputed_flags.loc[idx, "temp_imputed"] = True
-                except Exception as e:
-                    logger.warning(
-                        f"Week {week}, point {idx}: Interpolation failed for temp: {e}"
-                    )
-
-        # Process missing precip values (similar logic)
-        if missing_precip.any():
-            missing_indices = week_data[missing_precip].index
-            missing_coords = week_data.loc[missing_indices, ["lat", "lon"]].values
-
-            distances, neighbor_indices = tree.query(
-                missing_coords, k=len(valid_data), distance_upper_bound=radius_deg
-            )
-
-            has_neighbors = np.isfinite(distances).any(axis=1)
-
-            if not has_neighbors.any():
-                logger.warning(
-                    f"Week {week}: No neighbors found for any missing precip values."
-                )
-                continue
-
-            for i, idx in enumerate(missing_indices):
-                if not has_neighbors[i]:
-                    continue
-
-                point_neighbors = neighbor_indices[i][np.isfinite(distances[i])]
-                point_distances = distances[i][np.isfinite(distances[i])]
-
-                if len(point_neighbors) == 0:
-                    continue
-
-                query_point = missing_coords[i:i+1]
-                neighbor_coords = source_coords[point_neighbors]
-                neighbor_precip = source_precip[point_neighbors]
-
-                try:
-                    interpolated_val = griddata(
-                        neighbor_coords,
-                        neighbor_precip,
-                        query_point,
-                        method=method
-                    )
-                    if not np.isnan(interpolated_val[0]):
-                        imputed_df.loc[idx, "precip"] = interpolated_val[0]
-                        imputed_flags.loc[idx, "precip_imputed"] = True
-                except Exception as e:
-                    logger.warning(
-                        f"Week {week}, point {idx}: Interpolation failed for precip: {e}"
-                    )
-
-    return imputed_df, imputed_flags
+            
+            # Handle any NaNs from griddata (e.g., points outside convex hull)
+            nan_mask = np.isnan(interpolated_vals)
+            if nan_mask.any():
+                logger.warning(f"griddata returned NaN for {nan_mask.sum()} points in column {col}. "
+                             "Falling back to nearest neighbor for these points.")
+                # Fallback: use the nearest neighbor value
+                nearest_indices = indices[:, 0]  # First nearest neighbor
+                nearest_vals = known_values[nearest_indices]
+                interpolated_vals[nan_mask] = nearest_vals[nan_mask]
+            
+            # Assign interpolated values to the result DataFrame
+            df_result.loc[missing_mask, col] = interpolated_vals
+            
+        except Exception as e:
+            logger.error(f"Interpolation failed for column {col}: {e}")
+            raise
+    
+    logger.info("Spatial interpolation completed.")
+    return df_result
 
 
-def compute_file_hash(filepath: str) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def save_imputed_data(
+    df: pd.DataFrame, 
+    output_path: str, 
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Save imputed data to a parquet file and write metadata.
+    
+    Args:
+        df: DataFrame with imputed values.
+        output_path: Path for the output parquet file.
+        metadata: Optional metadata dictionary to include.
+    """
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure the is_imputed flag is set
+    if 'is_imputed' not in df.columns:
+        # We need to track which rows were imputed
+        # This requires passing the original missing mask
+        logger.warning("is_imputed column not found. Assuming all rows were checked.")
+        # In a real implementation, we'd track this during interpolation
+        df['is_imputed'] = False
+    
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved imputed data to {output_path}")
+    
+    if metadata:
+        metadata_path = Path(output_path).parent / 'imputation_metadata.json'
+        with open(metadata_path, 'w') as f:
+            import json
+            json.dump(metadata, f, indent=2)
+        logger.info(f"Saved imputation metadata to {metadata_path}")
 
 
-def main():
-    """Main entry point for climate data imputation."""
-    # Paths
-    input_path = "data/raw/climate.parquet"
-    output_path = "data/interim/climate_imputed.parquet"
-    flag_path = "data/interim/climate_imputation_flags.parquet"
+def run_imputation_pipeline(
+    input_path: str, 
+    output_path: str, 
+    grid_res: float = DEFAULT_GRID_RES
+) -> Dict[str, Any]:
+    """
+    Run the full imputation pipeline.
+    
+    Args:
+        input_path: Path to input climate parquet file.
+        output_path: Path for output imputed parquet file.
+        grid_res: Spatial resolution for interpolation.
+        
+    Returns:
+        Dictionary with pipeline statistics.
+    """
+    logger.info(f"Starting imputation pipeline: {input_path} -> {output_path}")
+    
+    # Step 1: Load data
+    df = load_climate_data(input_path)
+    
+    # Step 2: Identify missing values
+    df_flagged, missing_indices = identify_missing_values(df)
+    
+    # Step 3: Interpolate
+    if len(missing_indices) > 0:
+        df_imputed = interpolate_spatial(df_flagged, ['temp', 'precip'], grid_res=grid_res)
+    else:
+        df_imputed = df_flagged
+        logger.info("No interpolation needed.")
+    
+    # Step 4: Create metadata
+    metadata = {
+        'input_file': input_path,
+        'output_file': output_path,
+        'total_rows': len(df),
+        'missing_rows': len(missing_indices),
+        'imputed_rows': len(missing_indices),
+        'grid_resolution': grid_res,
+        'method': 'scipy.interpolate.griddata (linear)',
+        'timestamp': pd.Timestamp.now().isoformat()
+    }
+    
+    # Mark which rows were imputed
+    df_imputed['is_imputed'] = df_imputed.index.isin(missing_indices)
+    
+    # Step 5: Save results
+    save_imputed_data(df_imputed, output_path, metadata)
+    
+    logger.info("Imputation pipeline completed successfully.")
+    return metadata
 
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-
-    logger.info(f"Loading climate data from {input_path}")
-
+def main() -> None:
+    """Main entry point for the imputation script."""
+    # Setup logging
+    log_config = setup_logging()
+    
+    # Define paths
+    base_dir = Path(__file__).parent.parent.parent
+    input_path = base_dir / 'data' / 'raw' / 'climate.parquet'
+    output_path = base_dir / 'data' / 'interim' / 'climate_imputed.parquet'
+    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        sys.exit(1)
+    
     try:
-        df = load_climate_data(input_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-    except ValueError as e:
-        logger.error(str(e))
-        raise
-
-    logger.info(f"Loaded {len(df)} records. Missing temp: {df['temp'].isna().sum()}, "
-               f"Missing precip: {df['precip'].isna().sum()}")
-
-    if df["temp"].isna().sum() == 0 and df["precip"].isna().sum() == 0:
-        logger.info("No missing values found. Copying input to output.")
-        df.to_parquet(output_path, index=False)
-        # Create empty flags file
-        pd.DataFrame(index=df.index).to_parquet(flag_path, index=False)
-        return
-
-    logger.info("Starting spatial interpolation...")
-    imputed_df, flag_df = interpolate_missing_values(df)
-
-    # Log summary
-    temp_imputed = flag_df["temp_imputed"].sum()
-    precip_imputed = flag_df["precip_imputed"].sum()
-    logger.info(f"Imputed {temp_imputed} temperature values and "
-               f"{precip_imputed} precipitation values.")
-
-    # Check for remaining missing values
-    remaining_temp = imputed_df["temp"].isna().sum()
-    remaining_precip = imputed_df["precip"].isna().sum()
-
-    if remaining_temp > 0 or remaining_precip > 0:
-        logger.warning(
-            f"Warning: {remaining_temp} temperature and "
-            f"{remaining_precip} precipitation values could not be imputed."
-        )
-
-    # Write outputs
-    logger.info(f"Writing imputed data to {output_path}")
-    imputed_df.to_parquet(output_path, index=False)
-
-    logger.info(f"Writing imputation flags to {flag_path}")
-    flag_df.to_parquet(flag_path, index=False)
-
-    # Compute and log checksums
-    output_hash = compute_file_hash(output_path)
-    flag_hash = compute_file_hash(flag_path)
-    logger.info(f"Output file hash: {output_hash}")
-    logger.info(f"Flags file hash: {flag_hash}")
-
-    logger.info("Imputation complete.")
+        metadata = run_imputation_pipeline(str(input_path), str(output_path))
+        print(f"Imputation complete. Metadata: {metadata}")
+    except Exception as e:
+        logger.exception(f"Pipeline failed: {e}")
+        sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

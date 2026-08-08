@@ -1,3 +1,11 @@
+"""
+Integration tests for GAMM modeling convergence.
+
+This module tests the convergence of GAMM models on synthetic data
+to ensure the modeling pipeline functions correctly before running
+on real data.
+"""
+
 import pytest
 import pandas as pd
 import numpy as np
@@ -5,204 +13,239 @@ from pathlib import Path
 import tempfile
 import os
 import sys
-from datetime import datetime
 
-# Ensure the src directory is in the path for imports
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root / "code") not in sys.path:
-    sys.path.insert(0, str(_project_root / "code"))
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.models.gamm_fit import run_gamm_pipeline
-from src.config import setup_logging
+from src.models.gamm_fit import fit_species_year_gamm
+from src.config import SEED
+
+# Set random seed for reproducibility
+np.random.seed(SEED)
+
+
+def generate_synthetic_gamm_data(
+    n_species: int = 3,
+    n_years: int = 3,
+    n_observations_per_species_year: int = 50,
+    include_convergence_issues: bool = False
+) -> pd.DataFrame:
+    """
+    Generate synthetic data for GAMM convergence testing.
+    
+    Args:
+        n_species: Number of distinct species in the dataset
+        n_years: Number of years in the dataset
+        n_observations_per_species_year: Number of observations per species-year
+        include_convergence_issues: If True, generate some problematic data points
+        
+    Returns:
+        DataFrame with columns: species, year, temp, precip, extreme_weather_index, 
+        phenology_metric, lat, lon
+    """
+    species_list = [f"Species_{i}" for i in range(n_species)]
+    years = list(range(2020, 2020 + n_years))
+    
+    data = []
+    
+    for species in species_list:
+        for year in years:
+            for _ in range(n_observations_per_species_year):
+                # Generate realistic covariates
+                temp = np.random.normal(15.0, 5.0)  # Temperature in Celsius
+                precip = np.random.exponential(10.0)  # Precipitation in mm
+                extreme_weather_index = np.random.beta(2, 5) * 10  # Index 0-10
+                
+                # Generate response variable with some true relationship
+                # phenology_metric = f(temp, precip) + noise
+                base_phenology = 100.0
+                temp_effect = -2.0 * temp
+                precip_effect = 0.5 * precip
+                extreme_effect = -1.0 * extreme_weather_index
+                
+                phenology_metric = base_phenology + temp_effect + precip_effect + extreme_effect
+                
+                # Add some noise
+                phenology_metric += np.random.normal(0, 5.0)
+                
+                # Occasionally create problematic data points if requested
+                if include_convergence_issues and np.random.random() < 0.05:
+                    # Create extreme outliers
+                    phenology_metric += np.random.choice([-100, 100])
+                
+                # Generate spatial coordinates (random points in a region)
+                lat = np.random.uniform(30.0, 50.0)
+                lon = np.random.uniform(-120.0, -70.0)
+                
+                data.append({
+                    'species': species,
+                    'year': year,
+                    'temp': temp,
+                    'precip': precip,
+                    'extreme_weather_index': extreme_weather_index,
+                    'phenology_metric': phenology_metric,
+                    'lat': lat,
+                    'lon': lon
+                })
+    
+    return pd.DataFrame(data)
+
+
+@pytest.fixture
+def synthetic_gamm_data():
+    """Generate synthetic GAMM data for testing."""
+    return generate_synthetic_gamm_data(
+        n_species=2,
+        n_years=2,
+        n_observations_per_species_year=30,
+        include_convergence_issues=False
+    )
+
 
 @pytest.fixture
 def temp_data_dir():
-    """Create a temporary directory for test data artifacts."""
+    """Create a temporary directory for test outputs."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
-def _generate_synthetic_phenology_data(n_species=2, n_years=3, n_weeks=20):
-    """
-    Generate a deterministic synthetic dataset for GAMM convergence testing.
-    Creates data where phenology_metric (e.g., arrival day) is positively
-    correlated with temperature, with some random noise.
-    """
-    np.random.seed(42)
-    rows = []
-    
-    species_list = [f"Species_{i}" for i in range(n_species)]
-    
-    for species in species_list:
-        for year in range(2020, 2020 + n_years):
-            # Generate weekly observations
-            for week in range(1, n_weeks + 1):
-                # Simulate climate variables
-                # Temperature varies by week (seasonality) + random noise
-                base_temp = 10 + 5 * np.sin(2 * np.pi * week / n_weeks)
-                temp = base_temp + np.random.normal(0, 2)
-                
-                # Precipitation
-                precip = np.random.exponential(5)
-                
-                # Effort (number of checklists)
-                effort = np.random.randint(5, 20)
-                
-                # Phenology metric (Day of Year)
-                # True relationship: higher temp -> earlier arrival (lower DOY)
-                # DOY = Base + YearEffect + Seasonal + Noise
-                doy = 100 + 2 * year - 3 * temp + np.random.normal(0, 5)
-                
-                rows.append({
-                    "species": species,
-                    "year": year,
-                    "week": week,
-                    "phenology_metric": doy,
-                    "climate_temp": temp,
-                    "climate_precip": precip,
-                    "effort": effort,
-                    "lat": 40.0 + np.random.normal(0, 1),
-                    "lon": -90.0 + np.random.normal(0, 1),
-                    "grid_cell": f"{int(40.0):.1f}_{int(-90.0):.1f}"
-                })
-    
-    return pd.DataFrame(rows)
 
-def test_gamm_convergence(temp_data_dir):
+def test_gamm_convergence(synthetic_gamm_data, temp_data_dir):
     """
-    Integration test verifying GAMM fit on synthetic data.
+    Test that GAMM models converge on synthetic data.
     
-    This test:
-    1. Generates synthetic data with known correlation properties.
-    2. Configures the pipeline to use temporary directories.
-    3. Runs the GAMM pipeline.
-    4. Verifies that output files are created.
-    5. Verifies that the model converged (no convergence errors in logs/results).
-    6. Verifies that the output schema contains expected columns.
+    This test verifies:
+    1. The model fitting process completes without convergence errors
+    2. The output contains expected columns (coefficients, p-values, fit statistics)
+    3. Results are reasonable (finite values, expected ranges)
     """
-    # Setup paths
-    raw_dir = temp_data_dir / "raw"
-    processed_dir = temp_data_dir / "processed"
-    provenance_dir = temp_data_dir / "provenance"
-    log_dir = temp_data_dir / "logs"
+    # Ensure output directory exists
+    output_dir = temp_data_dir / "model_results"
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    provenance_dir.mkdir(parents=True, exist_ok=True)
-    log_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "test_convergence_results.parquet"
     
-    # Generate and save synthetic input data
-    # The pipeline expects preprocessed data in a specific format or raw data
-    # Based on T023a, it reads from processed data (merged climate + phenology).
-    # We will simulate the output of T015b/T017b (preprocess) directly.
-    
-    synthetic_df = _generate_synthetic_phenology_data()
-    
-    # Save as parquet to simulate the output of the preprocessing pipeline
-    input_file = processed_dir / "phenology_climate_merged.parquet"
-    synthetic_df.to_parquet(input_file)
-    
-    # Mock the insufficient cells metadata (empty means no cells marked insufficient)
-    insufficient_file = processed_dir / "metadata_insufficient_cells.json"
-    insufficient_file.write_text("[]")
-    
-    # Mock the row mapping (empty for this synthetic test)
-    mapping_file = provenance_dir / "row_mapping.json"
-    mapping_file.write_text("{}")
-    
-    # Mock the imputation metadata
-    imputation_file = processed_dir / "imputation_metadata.json"
-    imputation_file.write_text("{}")
-    
-    # Mock the Moran's I file (ensure trigger_refit is False for this simple test)
-    morans_file = provenance_dir / "morans_i.json"
-    morans_file.write_text('[{"species": "test", "morans_i": 0.0, "p_value": 1.0, "trigger_refit": false}]')
-    
-    # Setup logging to the temp directory
-    logger = setup_logging(log_dir)
-    
-    # Run the pipeline
-    # We need to patch the run_gamm_pipeline to use our temp directories
-    # Since run_gamm_pipeline likely hardcodes paths or reads from config,
-    # we will call it and catch any path issues, or assume it accepts args.
-    # Looking at the API surface, run_gamm_pipeline takes no args in the signature provided.
-    # We must assume it reads from a global config or environment, or we modify it.
-    # However, the task asks to verify fit on synthetic data.
-    # To make this testable without global state pollution, we will assume the pipeline
-    # can be directed via environment variables or we mock the file paths.
-    # Given the constraints, we will assume the pipeline reads from 'data/processed' by default.
-    # We will move our temp files to a structure that mimics the project root.
-    
-    # For the sake of this specific test, we will copy files to the expected relative paths
-    # relative to the current working directory (temp_data_dir) if the pipeline is cwd-aware,
-    # OR we rely on the fact that the test runner might set the cwd.
-    # A robust approach: Create a wrapper that sets up the environment.
-    
-    # Let's assume the pipeline uses relative paths from the project root.
-    # We will create a temporary project structure inside temp_data_dir.
-    project_root = temp_data_dir / "project_root"
-    project_root.mkdir()
-    (project_root / "data").mkdir()
-    (project_root / "data" / "processed").mkdir()
-    (project_root / "data" / "provenance").mkdir()
-    (project_root / "logs").mkdir()
-    
-    # Copy files
-    synthetic_df.to_parquet(project_root / "data" / "processed" / "phenology_climate_merged.parquet")
-    Path(project_root / "data" / "processed" / "metadata_insufficient_cells.json").write_text("[]")
-    Path(project_root / "provenance" / "row_mapping.json").write_text("{}")
-    Path(project_root / "data" / "processed" / "imputation_metadata.json").write_text("{}")
-    Path(project_root / "data" / "provenance" / "morans_i.json").write_text('[{"species": "Species_0", "morans_i": 0.0, "p_value": 1.0, "trigger_refit": false}, {"species": "Species_1", "morans_i": 0.0, "p_value": 1.0, "trigger_refit": false}]')
-    
-    # Change to the project root to let relative paths work
-    original_cwd = os.getcwd()
-    os.chdir(project_root)
+    # Run the GAMM fitting pipeline
+    # We use a subset of data for faster testing
+    test_data = synthetic_gamm_data.head(100)
     
     try:
-        # Run the pipeline
-        # We expect this to run without crashing and produce results
-        results = run_gamm_pipeline()
+        results = fit_species_year_gamm(
+            data=test_data,
+            output_path=str(output_file),
+            max_iter=100,
+            convergence_threshold=1e-6
+        )
         
-        # Assert that results were returned
-        assert results is not None, "GAMM pipeline returned None"
-        assert isinstance(results, dict), "GAMM pipeline should return a dict of results"
+        # Verify results exist and are not empty
+        assert results is not None, "GAMM fitting returned None"
+        assert len(results) > 0, "GAMM fitting returned empty results"
         
-        # Check for expected keys
-        assert "model_results" in results or "convergence_status" in results or len(results) > 0, \
-            "Pipeline should produce some output"
+        # Check that results have expected columns
+        expected_columns = [
+            'species', 'year', 'coefficients', 'p_values', 
+            'convergence_status', 'deviance_explained', 'edf'
+        ]
         
-        # Check for convergence success
-        # If the pipeline logs convergence failures, it should still return, but we check the log or result
-        # We verify that the output file exists if the pipeline writes to disk
-        output_file = Path("data/processed/model_results.parquet")
-        if output_file.exists():
-            df_results = pd.read_parquet(output_file)
-            assert "species" in df_results.columns, "Output must contain 'species' column"
-            # Check if we have any rows
-            assert len(df_results) > 0, "Output should contain at least one row"
+        for col in expected_columns:
+            assert col in results.columns, f"Missing expected column: {col}"
+        
+        # Verify convergence status
+        # Most models should converge successfully
+        convergence_counts = results['convergence_status'].value_counts()
+        successful_convergence = convergence_counts.get('converged', 0)
+        
+        # At least 50% of models should converge (allowing for some edge cases)
+        assert successful_convergence >= len(results) * 0.5, \
+            f"Too many convergence failures: {successful_convergence}/{len(results)}"
+        
+        # Verify coefficient values are finite and reasonable
+        # Extract coefficients as a list of dicts and check values
+        for _, row in results.iterrows():
+            coeffs = row['coefficients']
+            if isinstance(coeffs, dict):
+                for key, value in coeffs.items():
+                    assert np.isfinite(value), f"Non-finite coefficient value: {key}={value}"
             
-            # Verify convergence status if available
-            if "converged" in df_results.columns:
-                # At least some models should have converged
-                assert df_results["converged"].any() or not df_results["converged"].all(), \
-                    "Convergence column should indicate status"
-            else:
-                # If no explicit column, assume success if file is generated
-                pass
+            # Check p-values are valid probabilities
+            p_values = row['p_values']
+            if isinstance(p_values, dict):
+                for key, value in p_values.items():
+                    assert 0 <= value <= 1, f"Invalid p-value: {key}={value}"
+                    assert np.isfinite(value), f"Non-finite p-value: {key}={value}"
         
-        # If we reached here, the model fitted (or at least the pipeline ran)
-        # The specific requirement is "verifying fit on synthetic data"
-        # We assume that if the pipeline runs and produces a file with schema, it fitted.
+        # Verify deviance explained is in valid range
+        for _, row in results.iterrows():
+            deviance = row['deviance_explained']
+            assert 0 <= deviance <= 100, f"Invalid deviance explained: {deviance}"
+            assert np.isfinite(deviance), f"Non-finite deviance: {deviance}"
+        
+        # Verify EDF (effective degrees of freedom) are reasonable
+        for _, row in results.iterrows():
+            edf = row['edf']
+            assert edf > 0, f"Invalid EDF: {edf}"
+            assert np.isfinite(edf), f"Non-finite EDF: {edf}"
+        
+        # Verify output file was created
+        assert output_file.exists(), f"Output file not created: {output_file}"
+        
+        # Verify file is not empty
+        assert output_file.stat().st_size > 0, f"Output file is empty: {output_file}"
+        
+        # Log success
+        print(f"GAMM convergence test passed. Successfully fitted {len(results)} models.")
+        print(f"Convergence rate: {successful_convergence}/{len(results)} ({100*successful_convergence/len(results):.1f}%)")
         
     except Exception as e:
-        # If the pipeline fails due to missing dependencies (e.g., pyGAM not installed),
-        # we catch it and fail the test explicitly.
-        # But for the purpose of the test, we want to verify the logic works IF dependencies are present.
-        # If the error is "ModuleNotFoundError", that's an environment issue, not a code logic issue.
-        # However, the task requires a test that verifies the fit.
-        # We will assert that the error is NOT a logic error in our code.
-        if "No module named" in str(e):
-            pytest.skip(f"Dependency missing for GAMM fit: {e}")
-        else:
-            raise e
-    finally:
-        os.chdir(original_cwd)
+        pytest.fail(f"GAMM convergence test failed with exception: {str(e)}")
+
+
+def test_gamm_convergence_with_problematic_data(temp_data_dir):
+    """
+    Test GAMM convergence with intentionally problematic data.
+    
+    This test verifies that the model handles edge cases gracefully
+    and reports convergence issues appropriately.
+    """
+    # Generate data with some problematic points
+    problematic_data = generate_synthetic_gamm_data(
+        n_species=1,
+        n_years=1,
+        n_observations_per_species_year=20,
+        include_convergence_issues=True
+    )
+    
+    output_dir = temp_data_dir / "problematic_model_results"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_file = output_dir / "problematic_results.parquet"
+    
+    try:
+        results = fit_species_year_gamm(
+            data=problematic_data,
+            output_path=str(output_file),
+            max_iter=100,
+            convergence_threshold=1e-6
+        )
+        
+        # Even with problematic data, we should get some results
+        assert results is not None, "GAMM fitting returned None for problematic data"
+        
+        # Check that convergence status is recorded for all models
+        assert 'convergence_status' in results.columns, "Missing convergence_status column"
+        
+        # Verify that at least some models converged (even with problematic data)
+        # or that convergence failures are properly recorded
+        convergence_counts = results['convergence_status'].value_counts()
+        
+        # Either we have successful convergence or properly recorded failures
+        has_converged = 'converged' in convergence_counts
+        has_failed = 'failed' in convergence_counts or 'warning' in convergence_counts
+        
+        assert has_converged or has_failed, \
+            "No convergence status recorded for any model"
+        
+        print(f"Problematic data test passed. Convergence distribution: {dict(convergence_counts)}")
+        
+    except Exception as e:
+        # If the model crashes completely, that's a failure
+        pytest.fail(f"GAMM failed catastrophically on problematic data: {str(e)}")

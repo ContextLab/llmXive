@@ -5,71 +5,69 @@ from typing import Optional
 from src.data.archive_utils import archive_data, generate_checksum_manifest
 from src.config import setup_logging
 
-logger = logging.getLogger(__name__)
-
 def run_archive_pipeline(
-    source_dir: Path,
-    archive_dir: Path,
-    manifest_path: Optional[Path] = None
-) -> dict:
+    source_dirs: list[str],
+    archive_root: str = "data/raw/archive",
+    checksum_manifest: str = "data/provenance/checksums.json",
+) -> None:
     """
-    Execute the archive pipeline: copy files to archive and generate checksums.
-    
-    Args:
-        source_dir: Path to the source directory containing raw data.
-        archive_dir: Path to the destination archive directory.
-        manifest_path: Optional path for the checksum manifest file.
-        
-    Returns:
-        Dictionary containing pipeline execution results.
-    """
-    logger.info(f"Starting archive pipeline: {source_dir} -> {archive_dir}")
-    
-    if not source_dir.exists():
-        raise FileNotFoundError(f"Source directory not found: {source_dir}")
-    
-    archive_data(source_dir, archive_dir, overwrite=True)
-    
-    result = {
-        "source": str(source_dir),
-        "archive": str(archive_dir),
-        "status": "success"
-    }
-    
-    if manifest_path:
-        checksums = generate_checksum_manifest(archive_dir, manifest_path)
-        result["manifest"] = str(manifest_path)
-        result["checksum_count"] = len(checksums)
-        logger.info(f"Generated checksum manifest: {manifest_path} ({len(checksums)} files)")
-    
-    logger.info("Archive pipeline completed successfully.")
-    return result
+    Orchestrates the archiving of downloaded files and generation of checksums.
 
-def main():
+    Args:
+        source_dirs: List of relative paths to directories containing downloaded data.
+        archive_root: Destination directory for the archived data.
+        checksum_manifest: Path where the checksum manifest JSON will be written.
     """
-    Main entry point for the archive pipeline script.
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Archive raw data and generate checksums.")
-    parser.add_argument("--source", type=str, required=True, help="Source directory path")
-    parser.add_argument("--archive", type=str, required=True, help="Archive directory path")
-    parser.add_argument("--manifest", type=str, help="Output manifest file path (optional)")
-    args = parser.parse_args()
-    
-    setup_logging()
-    
-    source_dir = Path(args.source)
-    archive_dir = Path(args.archive)
-    manifest_path = Path(args.manifest) if args.manifest else None
-    
+    logger = setup_logging()
+    logger.info("Starting archive pipeline.")
+
+    archive_path = Path(archive_root)
+    manifest_path = Path(checksum_manifest)
+
+    # Ensure archive directory exists
+    archive_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Archive directory ensured at: {archive_path}")
+
+    total_files = 0
+    for source_dir in source_dirs:
+        src_path = Path(source_dir)
+        if not src_path.exists():
+            logger.warning(f"Source directory does not exist, skipping: {src_path}")
+            continue
+
+        count = archive_data(src_path, archive_path)
+        total_files += count
+        logger.info(f"Archived {count} files from {src_path} to {archive_path}")
+
+    if total_files == 0:
+        logger.warning("No files were archived. Check source directories.")
+    else:
+        logger.info(f"Total files archived: {total_files}")
+        logger.info("Generating checksum manifest...")
+        generate_checksum_manifest(archive_path, manifest_path)
+        logger.info(f"Checksum manifest written to: {manifest_path}")
+
+    logger.info("Archive pipeline completed.")
+
+def main() -> None:
+    """Entry point for the archive pipeline script."""
+    logger = setup_logging()
     try:
-        result = run_archive_pipeline(source_dir, archive_dir, manifest_path)
-        print(f"Pipeline Result: {result}")
-        return 0
+        # Define source directories based on previous tasks (T005b, T005c2)
+        # These correspond to the eBird sample and Daymet climate data locations.
+        source_dirs = [
+            "data/raw/ebird_sample",  # Expected location from T005b
+            "data/raw/climate",       # Expected location from T005c2
+        ]
+
+        run_archive_pipeline(
+            source_dirs=source_dirs,
+            archive_root="data/raw/archive",
+            checksum_manifest="data/provenance/checksums.json",
+        )
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        return 1
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

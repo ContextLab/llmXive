@@ -1,59 +1,85 @@
 """
-Unit tests for T051a: Verify Dataset Existence.
-
-These tests verify that the verify_dataset.py script correctly raises
-a RuntimeError when the dataset is not found, and handles the verification logic.
+Unit tests for the dataset verification functionality.
 """
+
 import pytest
+import json
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 import sys
-from pathlib import Path
+import os
 
-# Add code root to path for imports
-code_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(code_root))
+# Add the code directory to the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from src.data.verify_dataset import verify_dataset_existence
+from src.data.verify_dataset import verify_dataset_existence, main
 
-def test_verify_dataset_success():
-    """Test that verify_dataset_existence returns True when dataset is found."""
-    with patch('src.data.verify_dataset.load_dataset') as mock_load:
-        # Mock the dataset object
+
+class TestVerifyDataset:
+    """Tests for the verify_dataset module."""
+
+    @patch('src.data.verify_dataset.load_dataset')
+    def test_verify_dataset_exists(self, mock_load_dataset):
+        """Test that verification succeeds when dataset exists."""
+        # Mock a dataset iterator
         mock_ds = MagicMock()
-        mock_load.return_value = mock_ds
-        
-        result = verify_dataset_existence()
+        mock_ds.__iter__ = MagicMock(return_value=iter([{"species": "test"}]))
+        mock_load_dataset.return_value = mock_ds
+
+        result = verify_dataset_existence("vvud/eb-data")
         
         assert result is True
-        mock_load.assert_called_once()
-        
-        # Verify arguments match the task requirements
-        call_kwargs = mock_load.call_args.kwargs
-        assert call_kwargs['streaming'] is True
-        assert call_kwargs['trust_remote_code'] is True
+        mock_load_dataset.assert_called_once_with(
+            "vvud/eb-data",
+            split="train",
+            streaming=True,
+            trust_remote_code=True
+        )
 
-def test_verify_dataset_not_found_raises_runtime_error():
-    """Test that a 404 or 'not found' error raises RuntimeError."""
-    error_message = "Dataset not found: vvud/eb-data"
-    
-    with patch('src.data.verify_dataset.load_dataset') as mock_load:
-        mock_load.side_effect = Exception(error_message)
-        
-        with pytest.raises(RuntimeError) as excinfo:
-            verify_dataset_existence()
-        
-        assert "CRITICAL FAILURE" in str(excinfo.value)
-        assert "does not exist" in str(excinfo.value)
+    @patch('src.data.verify_dataset.load_dataset')
+    def test_verify_dataset_not_found(self, mock_load_dataset):
+        """Test that verification raises RuntimeError when dataset is missing."""
+        mock_load_dataset.side_effect = Exception("Dataset not found")
 
-def test_verify_dataset_network_error_raises_runtime_error():
-    """Test that network errors also raise RuntimeError (fail loudly)."""
-    error_message = "Connection timeout"
-    
-    with patch('src.data.verify_dataset.load_dataset') as mock_load:
-        mock_load.side_effect = Exception(error_message)
-        
-        with pytest.raises(RuntimeError) as excinfo:
-            verify_dataset_existence()
-        
-        assert "CRITICAL FAILURE" in str(excinfo.value)
-        assert "Unable to access" in str(excinfo.value)
+        with pytest.raises(RuntimeError) as exc_info:
+            verify_dataset_existence("vvud/eb-data")
+
+        assert "vvud/eb-data" in str(exc_info.value)
+        assert "Critical Data Scope Note" in str(exc_info.value)
+
+    @patch('src.data.verify_dataset.load_dataset')
+    def test_verify_dataset_access_error(self, mock_load_dataset):
+        """Test that verification raises RuntimeError when dataset is inaccessible."""
+        mock_load_dataset.side_effect = Exception("Access denied")
+
+        with pytest.raises(RuntimeError) as exc_info:
+            verify_dataset_existence("vvud/eb-data")
+
+        assert "vvud/eb-data" in str(exc_info.value)
+
+    def test_main_success(self, tmp_path, caplog):
+        """Test that main() returns 0 on success and writes report."""
+        with patch('src.data.verify_dataset.setup_logging'), \
+             patch('src.data.verify_dataset.verify_dataset_existence', return_value=True), \
+             patch('src.data.verify_dataset.Path') as mock_path:
+            
+            # Setup mock for directory creation
+            mock_provenance_dir = MagicMock()
+            mock_path.return_value = mock_provenance_dir
+            
+            result = main()
+            
+            assert result == 0
+            # Verify that a report was written
+            mock_path.assert_called()
+
+    def test_main_failure(self, caplog):
+        """Test that main() returns 1 on failure."""
+        with patch('src.data.verify_dataset.setup_logging'), \
+             patch('src.data.verify_dataset.verify_dataset_existence', 
+                   side_effect=RuntimeError("Dataset not found")):
+            
+            result = main()
+            
+            assert result == 1
+            assert "Verification failed" in caplog.text
