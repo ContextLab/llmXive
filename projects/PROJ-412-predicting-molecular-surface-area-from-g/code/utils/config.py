@@ -1,43 +1,41 @@
+"""
+Configuration utilities for the project.
+"""
 import os
 from pathlib import Path
 import yaml
 
 def get_project_root() -> Path:
     """
-    Get the project root directory.
-    Assumes the project root is the parent of the 'code' directory.
+    Returns the absolute path to the project root directory.
+    Assumes the code is run from the project root or a subdirectory.
     """
-    current_file = Path(__file__).resolve()
-    # Navigate up two levels: code/utils -> code -> project_root
-    return current_file.parent.parent
+    # Look for a marker file or assume the parent of 'code' is root
+    current = Path(__file__).resolve()
+    # Traverse up until we find a directory that looks like root
+    # A simple heuristic: the directory containing 'code', 'data', 'tests'
+    parent = current.parent.parent
+    if (parent / "code").exists() and (parent / "data").exists() and (parent / "tests").exists():
+        return parent
+    # Fallback to current working directory
+    return Path.cwd()
 
 def get_data_dir() -> Path:
-    """
-    Get the data directory path.
-    """
+    """Returns the path to the data directory."""
     return get_project_root() / "data"
 
 def get_results_dir() -> Path:
-    """
-    Get the results directory path.
-    """
+    """Returns the path to the results directory."""
     return get_project_root() / "results"
 
-def load_env_config(config_path: str = None) -> dict:
+def load_env_config(config_path: str = None):
     """
-    Load environment configuration from a YAML file.
-    
-    Args:
-        config_path: Path to the config file. If None, uses default location.
-        
-    Returns:
-        Dictionary containing configuration.
+    Loads configuration from a YAML file or environment variables.
     """
     if config_path is None:
         config_path = get_project_root() / "config.yaml"
     
-    if not Path(config_path).exists():
-        return {}
-    
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f) or {}
+    if Path(config_path).exists():
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    return {}

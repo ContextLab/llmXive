@@ -1,3 +1,3 @@
 """
-Evaluation metrics and analysis modules.
+Evaluation package
 """

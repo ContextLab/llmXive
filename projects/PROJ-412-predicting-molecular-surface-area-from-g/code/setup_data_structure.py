@@ -2,60 +2,58 @@ import os
 import sys
 import logging
 from pathlib import Path
+from code.utils.logging import get_logger
+from code.utils.config import get_project_root, get_data_dir
 
-# Import existing utilities from the project API surface
-from utils.logging import get_logger
-from utils.config import get_project_root, get_data_dir
-
-def create_data_directories(logger: logging.Logger) -> None:
+def create_data_directories():
     """
     Creates the required directory structure for the data pipeline.
     
-    Creates:
-        data/raw/          - Raw ingested data (e.g., ZINC15 chunks)
-        data/processed/    - Preprocessed data with features
-        data/splits/       - Train/test split indices
-        data/schemas/      - Schema definition files
+    Directories created:
+    - data/raw/
+    - data/processed/
+    - data/splits/
+    - data/schemas/
     
-    Args:
-        logger: Logger instance for recording directory creation status.
+    Returns:
+        list: A list of created directory paths.
     """
+    logger = get_logger("setup_data_structure")
     project_root = get_project_root()
     data_dir = get_data_dir()
     
-    # Ensure the base data directory exists
-    data_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Base data directory ensured: {data_dir}")
-    
-    # Define subdirectories to create
-    subdirectories = [
-        "raw",
-        "processed",
-        "splits",
-        "schemas"
+    directories = [
+        data_dir / "raw",
+        data_dir / "processed",
+        data_dir / "splits",
+        data_dir / "schemas"
     ]
     
-    for subdir in subdirectories:
-        dir_path = data_dir / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created/Verified directory: {dir_path}")
-
-def main() -> int:
-    """
-    Main entry point for creating the data directory structure.
+    created_paths = []
+    for dir_path in directories:
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_paths.append(str(dir_path))
+            logger.info(f"Created directory: {dir_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {dir_path}: {e}")
+            raise
     
-    Returns:
-        int: 0 on success, 1 on failure.
-    """
-    logger = get_logger(__name__)
-    logger.info("Starting data directory structure creation for task T001b...")
+    return created_paths
+
+def main():
+    """Main entry point for creating data directory structure."""
+    logger = setup_logging("setup_data_structure")
+    logger.info("Starting data directory structure creation...")
     
     try:
-        create_data_directories(logger)
-        logger.info("Data directory structure creation completed successfully.")
+        created = create_data_directories()
+        logger.info(f"Successfully created {len(created)} directories.")
+        for path in created:
+            logger.info(f"  - {path}")
         return 0
     except Exception as e:
-        logger.error(f"Failed to create data directory structure: {e}")
+        logger.error(f"Error creating data directories: {e}")
         return 1
 
 if __name__ == "__main__":

@@ -1,22 +1,47 @@
+# Ruff configuration for llmXive Molecular SASA project
+# Enforces consistent style and catches common errors
+
+line-length = 88
+target-version = "py39"
+
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # Line too long (handled by black)
+    "F403", # 'from module import *' used; unable to detect undefined names (allowed in specific __init__.py if needed)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
 ]
+
+# Exclude generated or third-party directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "data/raw",
+    "data/processed",
+    "results",
+    "logs"
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = false
+lines-after-imports = 2
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
+"code/__init__.py" = ["F401"]
+"code/data/__init__.py" = ["F401"]
+"code/models/__init__.py" = ["F401"]
+"code/eval/__init__.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]
+"tests/*" = ["S101"] # Allow assert in tests
 
 [format]
-line-length = 88
-indent-style = "space"
 quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

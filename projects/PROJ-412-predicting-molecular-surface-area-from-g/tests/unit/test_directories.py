@@ -1,62 +1,92 @@
-import os
-import tempfile
-from pathlib import Path
 import pytest
-from unittest.mock import patch, MagicMock
+import os
+from pathlib import Path
+import tempfile
+import shutil
 
-from code.utils.config import get_project_root, get_results_dir
-from code.utils.directories import create_results_directories, create_all_directories
+from code.utils.directories import create_all_directories, create_results_directories
+from code.utils.config import get_project_root
 
-@pytest.fixture
-def mock_logger():
-    """Create a mock logger for testing."""
-    logger = MagicMock()
-    return logger
+class TestDirectoryCreation:
+    """Unit tests for directory creation utilities."""
 
-def test_create_results_directories(mock_logger):
-    """Test that create_results_directories creates the required structure."""
-    # We can't easily test the actual file system creation in a unit test
-    # without side effects, so we mock the path operations.
-    with patch('code.utils.directories.get_results_dir') as mock_get_dir:
-        with patch('pathlib.Path.mkdir') as mock_mkdir:
-            mock_dir = Path("/fake/results")
-            mock_get_dir.return_value = mock_dir
+    def test_create_results_directories_structure(self, tmp_path):
+        """Test that create_results_directories creates the required T001d structure."""
+        # Create a temporary project root
+        test_root = tmp_path / "test_project"
+        test_root.mkdir()
+        
+        # Call the function with the temp root
+        create_results_directories(test_root)
+        
+        # Verify the required directories exist
+        required_dirs = [
+            "results",
+            "results/reports",
+            "results/plots",
+            "results/baseline",
+            "results/predictions"
+        ]
+        
+        for rel_path in required_dirs:
+            full_path = test_root / rel_path
+            assert full_path.exists(), f"Directory {full_path} was not created"
+            assert full_path.is_dir(), f"{full_path} is not a directory"
 
-            create_results_directories(mock_logger)
+    def test_create_all_directories_comprehensive(self, tmp_path):
+        """Test that create_all_directories creates the full project structure."""
+        test_root = tmp_path / "full_project"
+        test_root.mkdir()
+        
+        create_all_directories(test_root)
+        
+        # Check code structure
+        code_dirs = ["code", "code/data", "code/models", "code/eval", "code/utils"]
+        for d in code_dirs:
+            assert (test_root / d).exists(), f"Missing code dir: {d}"
+        
+        # Check data structure
+        data_dirs = ["data/raw", "data/processed", "data/splits", "data/schemas"]
+        for d in data_dirs:
+            assert (test_root / d).exists(), f"Missing data dir: {d}"
+        
+        # Check tests structure
+        test_dirs = ["tests/contract", "tests/unit", "tests/integration"]
+        for d in test_dirs:
+            assert (test_root / d).exists(), f"Missing tests dir: {d}"
+        
+        # Check results structure (T001d)
+        results_dirs = ["results/reports", "results/plots", "results/baseline", "results/predictions"]
+        for d in results_dirs:
+            assert (test_root / d).exists(), f"Missing results dir: {d}"
+        
+        # Check logs
+        assert (test_root / "logs").exists(), "Missing logs dir"
 
-            # Verify mkdir was called 3 times (results, reports, plots)
-            assert mock_mkdir.call_count == 3
-            
-            # Verify logger was called for each directory
-            assert mock_logger.info.call_count == 3
+    def test_create_all_directories_idempotent(self, tmp_path):
+        """Test that calling create_all_directories multiple times does not fail."""
+        test_root = tmp_path / "idempotent_test"
+        test_root.mkdir()
+        
+        # Create once
+        create_all_directories(test_root)
+        
+        # Create again - should not raise
+        create_all_directories(test_root)
+        
+        # Verify structure still intact
+        assert (test_root / "results/reports").exists()
+        assert (test_root / "results/predictions").exists()
 
-def test_create_all_directories(mock_logger):
-    """Test that create_all_directories creates all required structures."""
-    with patch('code.utils.directories.get_project_root') as mock_proj_root:
-        with patch('code.utils.directories.get_data_dir') as mock_data_dir:
-            with patch('pathlib.Path.mkdir') as mock_mkdir:
-                mock_proj = Path("/fake/project")
-                mock_data = Path("/fake/data")
-                mock_proj_root.return_value = mock_proj
-                mock_data_dir.return_value = mock_data
-
-                create_all_directories(mock_logger)
-
-                # Verify mkdir was called for all directories
-                # code (5), data (5), tests (4), results (3) = 17 calls
-                # Note: The actual count depends on implementation details
-                # We just verify it's called multiple times
-                assert mock_mkdir.call_count > 10
-                
-                # Verify logger was called for each directory
-                assert mock_logger.info.call_count > 10
-
-def test_directory_paths_exist():
-    """Test that the directory paths returned by config functions are valid Path objects."""
-    proj_root = get_project_root()
-    results_dir = get_results_dir()
-    
-    assert isinstance(proj_root, Path)
-    assert isinstance(results_dir, Path)
-    assert results_dir.name == "results"
-    assert str(results_dir).startswith(str(proj_root))
+    def test_create_results_directories_idempotent(self, tmp_path):
+        """Test that create_results_directories is idempotent."""
+        test_root = tmp_path / "idempotent_results"
+        test_root.mkdir()
+        
+        create_results_directories(test_root)
+        create_results_directories(test_root)
+        
+        assert (test_root / "results/reports").exists()
+        assert (test_root / "results/plots").exists()
+        assert (test_root / "results/baseline").exists()
+        assert (test_root / "results/predictions").exists()

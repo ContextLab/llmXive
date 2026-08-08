@@ -111,7 +111,7 @@ results/
 | :--- | :--- | :--- |
 | **FR-001** (Ingest SMILES -> 2D Graph) | Phase 1: Data Ingestion & Preprocessing | `code/data/ingest.py` fetches verified SMILES; `code/data/preprocess.py` generates ConvMol features. |
 | **FR-002** (Generate 3D SASA) | Phase 1: Data Ingestion & Preprocessing | `code/data/preprocess.py` uses RDKit ETKDG to generate conformers and compute SASA (mean of multiple conformers). |
-| **FR-003** (Train GCN, CPU, 50 epochs) | Phase 2: Model Training | `code/train/run.py` implements GCN with early stopping (patience=5) on CPU. |
+| **FR-003** (Train GCN, CPU, for a sufficient number of epochs to ensure convergence.) | Phase 2: Model Training | `code/train/run.py` implements GCN with early stopping (patience=5) on CPU. |
 | **FR-004** (Geometry-Based Baseline) | Phase 2: Geometry Oracle Evaluation (T024) | `code/eval/oracle.py` performs direct SASA calculation via RDKit on test set (deterministic). |
 | **FR-004** (Descriptor Baseline) | Phase 2: Baseline Comparison (T021b) | `code/models/baseline.py` trains Linear Regression on molecular descriptors. |
 | **FR-005** (Paired t-test) | Phase 2: Evaluation | `code/eval/metrics.py` performs paired t-test on MAE errors (GCN vs Linear Baseline), reports p-value and Cohen's d. |

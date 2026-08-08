@@ -22,6 +22,7 @@ def check_huggingface_connection(timeout: int = 10) -> Tuple[bool, Optional[str]
         api = HfApi()
         # Try to list a small public dataset to verify connectivity
         # Using a generic search to avoid specific dataset dependency issues
+        # We search for "zinc" to ensure the ZINC15 source is reachable
         api.list_datasets(search="zinc", limit=1)
         return True, None
     except Exception as e:

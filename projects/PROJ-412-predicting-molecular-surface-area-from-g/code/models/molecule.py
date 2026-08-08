@@ -1,6 +1,3 @@
-"""
-Data model for molecular representation.
-"""
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 import json
@@ -10,55 +7,56 @@ import numpy as np
 @dataclass
 class Molecule:
     """
-    Represents a molecular entity with its core properties.
-
-    Attributes:
-        smiles: The SMILES string representation of the molecule.
-        molecular_weight: Calculated molecular weight (g/mol).
-        node_features: N x D array of node features (atom properties).
-        edge_index: 2 x E array representing edge connectivity.
-        edge_features: E x F array of edge features (bond properties).
-        sasa: Solvent Accessible Surface Area (Å²).
-        metadata: Additional arbitrary metadata.
+    Data model representing a molecule with its SMILES string,
+    atom count, and optional 3D conformer data.
     """
     smiles: str
-    molecular_weight: float
-    node_features: np.ndarray
-    edge_index: np.ndarray
-    edge_features: np.ndarray
-    sasa: Optional[float] = None
+    atom_count: int
+    molecular_weight: Optional[float] = None
+    node_features: Optional[np.ndarray] = None
+    edge_features: Optional[np.ndarray] = None
+    surface_area: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the molecule instance to a dictionary."""
+        """Convert the Molecule instance to a dictionary for serialization."""
         return {
             "smiles": self.smiles,
+            "atom_count": self.atom_count,
             "molecular_weight": self.molecular_weight,
-            "node_features": self.node_features.tolist(),
-            "edge_index": self.edge_index.tolist(),
-            "edge_features": self.edge_features.tolist(),
-            "sasa": self.sasa,
+            "node_features": self.node_features.tolist() if self.node_features is not None else None,
+            "edge_features": self.edge_features.tolist() if self.edge_features is not None else None,
+            "surface_area": self.surface_area,
             "metadata": self.metadata
         }
 
-    def to_json(self) -> str:
-        """Serialize the molecule to a JSON string."""
-        return json.dumps(self.to_dict())
-
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Molecule":
-        """Reconstruct a Molecule instance from a dictionary."""
+        """Create a Molecule instance from a dictionary."""
+        node_features = np.array(data["node_features"]) if data.get("node_features") is not None else None
+        edge_features = np.array(data["edge_features"]) if data.get("edge_features") is not None else None
+        
         return cls(
             smiles=data["smiles"],
-            molecular_weight=data["molecular_weight"],
-            node_features=np.array(data["node_features"]),
-            edge_index=np.array(data["edge_index"]),
-            edge_features=np.array(data["edge_features"]),
-            sasa=data.get("sasa"),
+            atom_count=data["atom_count"],
+            molecular_weight=data.get("molecular_weight"),
+            node_features=node_features,
+            edge_features=edge_features,
+            surface_area=data.get("surface_area"),
             metadata=data.get("metadata", {})
         )
 
+    def to_json(self) -> str:
+        """Serialize the Molecule to a JSON string."""
+        return json.dumps(self.to_dict())
+
     @classmethod
     def from_json(cls, json_str: str) -> "Molecule":
-        """Reconstruct a Molecule instance from a JSON string."""
+        """Deserialize a Molecule from a JSON string."""
         return cls.from_dict(json.loads(json_str))
+
+    def __post_init__(self):
+        if self.atom_count <= 0:
+            raise ValueError("Atom count must be positive.")
+        if self.smiles and not isinstance(self.smiles, str):
+            raise TypeError("SMILES must be a string.")

@@ -1,0 +1,12 @@
+rdkit
+pandas
+scikit-learn
+pyyaml
+numpy
+pytest
+ruff
+black
+datasets
+huggingface_hub
+torch --index-url https://download.pytorch.org/whl/cpu
+torch-geometric --index-url https://download.pytorch.org/whl/cpu

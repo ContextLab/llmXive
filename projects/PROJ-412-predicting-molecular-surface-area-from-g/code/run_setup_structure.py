@@ -7,39 +7,46 @@ from code.utils.directories import create_all_directories
 
 def main():
     """
-    Main entry point to create the project directory structure.
-    This script satisfies T001a, T001b, T001c, and T001d by creating all required directories.
+    Main entry point to run the full setup structure creation.
+    This script ensures all project directories (code, data, tests, results, logs)
+    are created according to the project specification.
     """
     setup_logging()
     logger = get_logger(__name__)
-    logger.info("Executing directory structure setup (T001a-d)")
-
-    # Create code structure (T001a)
-    create_all_directories()
-
-    # Create data structure (T001b)
-    project_root = Path(__file__).parent.parent
-    data_dirs = ["data/raw", "data/processed", "data/splits", "data/schemas"]
-    for d in data_dirs:
-        path = project_root / d
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created: {path}")
-
-    # Create tests structure (T001c)
-    test_dirs = ["tests/contract", "tests/unit", "tests/integration"]
-    for d in test_dirs:
-        path = project_root / d
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created: {path}")
-
-    # Create results structure (T001d)
-    results_dirs = ["results/reports", "results/plots"]
-    for d in results_dirs:
-        path = project_root / d
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created: {path}")
-
-    logger.info("All directory structures created successfully.")
+    
+    logger.info("=" * 60)
+    logger.info("Running Project Directory Setup (T001a, T001b, T001c, T001d)")
+    logger.info("=" * 60)
+    
+    try:
+        # Create all directories including results structure (T001d)
+        project_root = create_all_directories()
+        
+        logger.info("Directory structure creation completed successfully.")
+        logger.info(f"Project root: {project_root}")
+        
+        # Verify specific T001d requirements
+        results_dirs = [
+            "results/reports",
+            "results/plots",
+            "results/baseline",
+            "results/predictions"
+        ]
+        
+        logger.info("Verifying results directory structure (T001d)...")
+        for rel_path in results_dirs:
+            full_path = project_root / rel_path
+            if full_path.exists():
+                logger.info(f"  [OK] {rel_path}")
+            else:
+                logger.error(f"  [MISSING] {rel_path}")
+                raise FileNotFoundError(f"Required directory missing: {full_path}")
+        
+        logger.info("All verification checks passed.")
+        
+    except Exception as e:
+        logger.error(f"Setup failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

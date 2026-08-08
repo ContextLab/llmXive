@@ -1,10 +1,31 @@
-T003:
+T001a:
   c: false
-  h: 2ede21c97380a23ffb1d5532a02393271bece9fbcf088313100cd9217f7522c6
-  r: "The `pyproject.toml` file is present and contains Black configuration, but the\
-    \ required `.ruff.toml` file is missing entirely, so the linting tool configuration\
-    \ is not fully provided as the task specifies. The implementer must add a `.ruff.toml`\
-    \ (or equivalent ruff config) with the project\u2011specific rules."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or file system snapshots were provided, so there is no\
+    \ evidence that the required `code/`, `data/`, `tests/`, `results/`, and `logs/`\
+    \ hierarchies (including all sub\u2011folders) actually exist or contain any files.\
+    \ The implementer must supply a concrete view of the repository (e.g., a tree\
+    \ output or screenshots) showing the full directory tree."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` directory or its subfolders (`raw`, `processed`, `splits`,
+    `schemas`) is present; the implementer provided no file system listing, screenshots,
+    or code that creates these directories. The required artifact is missing, so the
+    task is not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory or its subfolders (`contract`, `unit`, `integration`)
+    was provided; without visible files or directory listings, we cannot confirm the
+    required structure exists. The implementer must add the specified test directories
+    to the repository.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `results/` directory or its subfolders (`reports/`, `plots/`,
+    `baseline/`, `predictions/`) was provided; without actual filesystem artifacts,
+    the requirement cannot be confirmed as satisfied.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,6 +34,12 @@ T007:
     that the base data models exist cannot be verified. The implementer must add the
     three model classes in the `code/models/` directory and ensure they contain the
     appropriate fields and methods.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files were provided under `code/models/`, and there is no evidence that
+    classes named `Molecule`, `Graph`, or `EvaluationResult` have been created. The
+    required artifact is missing, so the task is not satisfied.
 T011:
   c: false
   h: 557089656345f3ce41fd9efdc1ef18286508a05e2a023ba839ebc4b187b87e33
@@ -20,6 +47,14 @@ T011:
     repository, so the integration test for the SMILES ingestion pipeline is missing.
     The task cannot be considered completed until this file is added with appropriate
     test code.
+T014:
+  c: false
+  h: 5aea2672154aab8c7c6304c8d22b04c8b6dc6cc2237da6cd417d835d838e5492
+  r: "The `code/data/preprocess.py` file exists and contains the 2D feature extraction\
+    \ and molecular weight calculation, but it does not log excluded molecules nor\
+    \ does it produce the required `data/processed/graphs_with_features.parquet` file\
+    \ (the file is missing). Consequently the task\u2019s output and logging requirements\
+    \ are not met."
 T015:
   c: false
   h: 658fccdc89017f412591cded056527b6b62f137a5dfd958bcb4f2988353dde8d
