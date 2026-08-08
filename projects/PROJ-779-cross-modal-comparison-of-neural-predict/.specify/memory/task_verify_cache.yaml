@@ -14,11 +14,11 @@ T022:
     \ is unmet."
 T032:
   c: false
-  h: 15ca7a98e47e2faa359c73dc1989b203ee84d64f4210a3e3e87ee5c509d1724a
+  h: 04cb47215622b2f2189995c460fae939a7334312eb540df2cd70c31e2c47313a
   r: The repository lacks the required `data/results/metrics_summary.json` file, and
     the shown portion of `code/main.py` does not demonstrate a call to the extraction
-    step (e.g., `generate_metrics_summary`) after preprocessing nor any code that
-    writes the results to that JSON path. The task therefore remains unfinished.
+    step after preprocessing nor any code that writes a JSON summary to that path.
+    Both the artifact and the expected behavior are missing.
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,10 +28,9 @@ T036:
     \ these artifacts the CI integration test cannot be verified."
 T039:
   c: false
-  h: 27d743aa882ca038282132449109623f866c4fbe42dc7b890f994455f5f0e205
-  r: "The provided `code/analysis/source.py` contains only head\u2011model setup utilities\
-    \ and does not implement the required sensitivity\u2011analysis sweep, Coefficient\
-    \ of Variation computation, or CSV export. Moreover, the expected output file\
-    \ `data/results/sensitivity_analysis.csv` is absent from the repository. Both\
-    \ the functional code and the result artifact are missing, so the task is not\
-    \ satisfied."
+  h: ed71639131a713959a0e65f5bca3fa0a64c05a1f22b617bd62e389ab4afb0402
+  r: "The provided `code/analysis/source.py` contains only head\u2011model and forward\u2011\
+    solution setup code; there is no implementation of a spatial\u2011smoothing kernel\
+    \ sweep, Coefficient of Variation calculation, or CSV export. Moreover, the required\
+    \ output file `data/results/sensitivity_analysis.csv` does not exist. Both the\
+    \ functional code and the expected result artifact are missing."

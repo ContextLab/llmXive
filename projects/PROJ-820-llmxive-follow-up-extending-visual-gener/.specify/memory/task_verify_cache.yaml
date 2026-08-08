@@ -39,3 +39,40 @@ T001l:
     proof, we cannot confirm the required setup step was performed. The implementer
     must add the `tests/contract` folder (with at least one file or placeholder) and
     provide evidence of its presence.
+T001m:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that a `tests/integration` directory exists
+    in the repository; the claim is unsubstantiated and the required artifact is missing.
+T001n:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/unit` directory was provided; the claim lacks any artifact
+    showing the directory exists or contains files. The required setup step is therefore
+    not verified.
+T001o:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `specs/001-llmxive-followup` directory (or any files within
+    it) is provided; the implementer did not show that the required directory was
+    created. The task remains undone.
+T001p:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing the `specs/001-llmxive-followup/contracts` directory (or\
+    \ its contents) was provided; without concrete evidence of the directory\u2019\
+    s existence, the setup task cannot be confirmed as completed."
+T001q:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `state/projects` directory is provided; the claim lacks any\
+    \ artifact confirming the directory\u2019s creation, so the required setup is\
+    \ missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml`
+    with Black settings, or a `.pre-commit-config.yaml` invoking ruff/black) are present
+    in the provided artifacts, nor any documentation showing they have been set up.
+    The claim lacks any concrete evidence that ruff and black have been configured
+    for the project.

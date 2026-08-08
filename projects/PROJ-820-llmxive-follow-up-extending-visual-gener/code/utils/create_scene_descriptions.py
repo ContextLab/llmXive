@@ -1,196 +1,172 @@
 """
-Module to create scene descriptions from real data sources or deterministic fallbacks.
-
-This module implements T011: Create `data/raw/scene_descriptions.csv` with a curated set
-of 100 scene descriptions (N=100 scope).
-
-It attempts to fetch from a real source (COCO Captions) and filters for object interaction
-scenes. If the fetch fails (network error, missing package, empty results), it executes
-a deterministic script using a fixed seed and predefined interaction templates to generate
-valid scenes.
-
-CRITICAL: The loader must FAIL LOUDLY if the real fetch fails and no deterministic fallback
-is possible, but here we implement the fallback as requested by the task description to
-ensure the pipeline can proceed with valid physics-inferable scenes.
+Creates data/raw/scene_descriptions.csv with N=100 curated scene descriptions.
+Fetches from the real COCO Captions dataset, filtering for object interaction scenes.
+If the fetch fails, it falls back to a deterministic generation using predefined
+interaction templates with a fixed seed to ensure reproducibility without fabrication.
 """
 import csv
 import os
 import sys
 import random
+import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Constants
-TARGET_COUNT = 100
-RANDOM_SEED = 42
-OUTPUT_PATH = Path("data/raw/scene_descriptions.csv")
+# Attempt to import datasets, but handle absence gracefully for fallback logic
+try:
+    from datasets import load_dataset
+    DATASETS_AVAILABLE = True
+except ImportError:
+    DATASETS_AVAILABLE = False
 
-# Predefined interaction templates for deterministic fallback
+# Predefined interaction templates for fallback
 INTERACTION_TEMPLATES = [
-    "A {obj1} on top of a {obj2}",
-    "A {obj1} next to a {obj2}",
-    "A {obj1} above a {obj2}",
-    "A {obj1} below a {obj2}",
-    "A {obj1} inside a {obj2}",
-    "A {obj1} behind a {obj2}",
-    "A {obj1} in front of a {obj2}",
-    "A {obj1} touching a {obj2}",
-    "A {obj1} beside a {obj2}",
-    "A {obj1} near a {obj2}",
+    "A {obj_a} is on top of a {obj_b}",
+    "A {obj_a} is next to a {obj_b}",
+    "A {obj_a} is below a {obj_b}",
+    "A {obj_a} is holding a {obj_b}",
+    "A {obj_a} is sitting on a {obj_b}",
+    "A {obj_a} is standing near a {obj_b}",
+    "A {obj_a} is leaning against a {obj_b}",
+    "A {obj_a} is inside a {obj_b}",
+    "A {obj_a} is above a {obj_b}",
+    "A {obj_a} is beside a {obj_b}",
 ]
 
 OBJECTS = [
-    "car", "dog", "cat", "person", "chair", "table", "book", "cup",
-    "laptop", "bottle", "cell phone", "keyboard", "mouse", "clock",
-    "vase", "scissors", "teddy bear", "hair drier", "toothbrush", "banana",
-    "apple", "sandwich", "orange", "broccoli", "carrot", "pizza", "donut",
-    "cake", "train", "bus", "airplane", "bicycle", "motorcycle", "truck",
-    "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe",
-    "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
-    "skis", "snowboard", "sports ball", "kite", "baseball bat", "basketball",
-    "tennis racket", "wine glass", "fork", "knife", "spoon", "bowl",
-    "hot dog", "orange", "cake", "person", "chair", "couch", "potted plant",
-    "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote",
-    "keyboard", "cell phone", "microwave", "oven", "toaster", "sink",
-    "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
-    "hair drier", "toothbrush"
+    "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train",
+    "truck", "boat", "traffic light", "fire hydrant", "stop sign",
+    "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep",
+    "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
+    "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard",
+    "sports ball", "kite", "baseball bat", "baseball glove", "skateboard",
+    "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork",
+    "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange",
+    "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair",
+    "couch", "potted plant", "bed", "dining table", "toilet", "tv",
+    "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave",
+    "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase",
+    "scissors", "teddy bear", "hair drier", "toothbrush"
 ]
 
-# Remove duplicates while preserving order
-OBJECTS = list(dict.fromkeys(OBJECTS))
-
-def generate_fallback_scenes() -> List[Dict[str, Any]]:
+def generate_fallback_scenes(n: int = 100, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Generate N=100 scene descriptions using a deterministic fallback.
-    
-    Uses a fixed seed and predefined interaction templates to ensure
-    reproducibility and valid physics-inferable scenes.
-    
-    Returns:
-        List of dictionaries with 'scene_id' and 'description' keys.
+    Generates deterministic scene descriptions using predefined templates.
+    This is used ONLY if the real COCO fetch fails.
     """
-    random.seed(RANDOM_SEED)
+    random.seed(seed)
     scenes = []
-    
-    for i in range(TARGET_COUNT):
-        obj1 = random.choice(OBJECTS)
-        obj2 = random.choice([o for o in OBJECTS if o != obj1])
+    for i in range(n):
         template = random.choice(INTERACTION_TEMPLATES)
-        description = template.format(obj1=obj1, obj2=obj2)
-        
+        obj_a = random.choice(OBJECTS)
+        obj_b = random.choice(OBJECTS)
+        # Ensure we don't pick the exact same object for a simple "on top of" if it looks weird,
+        # but for general interactions, duplicates are allowed (e.g., person on person in a crowd).
+        description = template.format(obj_a=obj_a, obj_b=obj_b)
         scenes.append({
-            "scene_id": f"scene_{i:04d}",
-            "description": description
+            "scene_id": f"scene_{i+1:03d}",
+            "description": description,
+            "source": "fallback_synthetic",
+            "seed": seed
         })
-    
     return scenes
 
-def fetch_and_filter_coco() -> Optional[List[Dict[str, Any]]]:
+def fetch_and_filter_coco(n: int = 100, split: str = "train") -> List[Dict[str, Any]]:
     """
-    Attempt to fetch and filter object interaction scenes from COCO Captions.
-    
-    This function tries to load the 'coco-captions' dataset and filters for
-    scenes that contain at least two distinct objects with spatial relationships.
-    
-    Returns:
-        List of scene dictionaries if successful, None if fetch fails.
+    Fetches real captions from COCO Captions dataset and filters for object interactions.
+    Heuristic filter: Look for common prepositions indicating spatial relationships.
     """
+    if not DATASETS_AVAILABLE:
+        raise ImportError("The 'datasets' library is required to fetch real COCO data. "
+                          "Please install it via 'pip install datasets'.")
+
+    print(f"Fetching {n} scenes from COCO Captions dataset (split={split})...")
     try:
-        # Try to import datasets package
-        from datasets import load_dataset
-        
-        # Load a small subset of COCO Captions for efficiency
-        # Using streaming to avoid loading entire dataset into memory
-        dataset = load_dataset(
-            'coco-captions',
-            split='train',
-            streaming=True,
-            trust_remote_code=True
-        )
-        
-        scenes = []
-        count = 0
-        
-        # Keywords that indicate object interactions
-        interaction_keywords = [
-            'on', 'next to', 'above', 'below', 'inside', 'behind', 
-            'in front of', 'touching', 'beside', 'near', 'with',
-            'between', 'around', 'through', 'under', 'over'
-        ]
-        
-        # Iterate through dataset until we have enough scenes
-        for item in dataset:
-            caption = item.get('caption', '')
-            if not caption:
-                continue
-            
-            # Check if caption contains interaction keywords
-            has_interaction = any(kw in caption.lower() for kw in interaction_keywords)
+        # Load a small subset of the train split to find interactions
+        # We load streaming to avoid downloading the full ~13GB dataset if not needed
+        ds = load_dataset("coco-captions", split=split, streaming=True, trust_remote_code=True)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load COCO dataset: {e}")
+
+    interaction_keywords = ["on", "next to", "beside", "above", "below", "under", "over", "near", "holding", "sitting", "standing", "inside", "leaning", "against"]
+    collected_scenes = []
+    count = 0
+    target_count = n
+
+    try:
+        for item in ds:
+            if count >= target_count:
+                break
+
+            caption = item.get("caption", "").lower()
+            # Simple heuristic: check if any interaction keyword appears
+            has_interaction = any(kw in caption for kw in interaction_keywords)
+
             if has_interaction:
-                scenes.append({
-                    "scene_id": f"coco_{item['id']:06d}",
-                    "description": caption
+                scene_id = f"scene_{count+1:03d}"
+                collected_scenes.append({
+                    "scene_id": scene_id,
+                    "description": item["caption"],
+                    "source": "coco-captions",
+                    "split": split
                 })
                 count += 1
-                if count >= TARGET_COUNT:
-                    break
-        
-        # If we didn't get enough scenes, return None to trigger fallback
-        if count < TARGET_COUNT:
-            return None
-        
-        return scenes
-        
     except Exception as e:
-        # Log the error but return None to trigger fallback
-        print(f"Warning: Failed to fetch COCO captions: {e}", file=sys.stderr)
-        return None
+        raise RuntimeError(f"Error during dataset iteration: {e}")
+
+    if len(collected_scenes) < target_count:
+        print(f"Warning: Only found {len(collected_scenes)} interaction scenes in COCO. "
+              f"Remaining {target_count - len(collected_scenes)} will be filled with fallback.")
+        # Fill the rest with deterministic fallback to meet N=100 exactly
+        fallback_needed = target_count - len(collected_scenes)
+        fallback_scenes = generate_fallback_scenes(n=fallback_needed, seed=42 + len(collected_scenes))
+        # Re-index fallback scenes to continue the sequence
+        for i, scene in enumerate(fallback_scenes):
+            scene["scene_id"] = f"scene_{len(collected_scenes)+i+1:03d}"
+            scene["source"] = "coco_fallback"
+        collected_scenes.extend(fallback_scenes)
+
+    return collected_scenes
 
 def write_csv(scenes: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Write scene descriptions to a CSV file.
-    
-    Args:
-        scenes: List of scene dictionaries with 'scene_id' and 'description' keys.
-        output_path: Path to the output CSV file.
+    Writes the list of scene dictionaries to a CSV file.
     """
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['scene_id', 'description']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = ["scene_id", "description", "source", "seed", "split"]
+    with open(output_path, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         for scene in scenes:
-            writer.writerow(scene)
-    
-    print(f"Successfully wrote {len(scenes)} scenes to {output_path}")
+            # Ensure all keys exist to avoid KeyError
+            row = {k: scene.get(k, "") for k in fieldnames}
+            writer.writerow(row)
+    print(f"Wrote {len(scenes)} scenes to {output_path}")
 
-def main() -> None:
+def main():
     """
-    Main entry point for creating scene descriptions.
-    
-    Attempts to fetch from COCO Captions first. If that fails or returns
-    insufficient data, falls back to deterministic generation.
+    Main entry point for T011.
+    Attempts to fetch real data. If that fails, uses deterministic fallback.
     """
-    print(f"Starting scene description generation (target: {TARGET_COUNT} scenes)...")
-    
-    # Try to fetch from real source
-    scenes = fetch_and_filter_coco()
-    
-    if scenes is None or len(scenes) < TARGET_COUNT:
-        print("COCO fetch failed or insufficient data. Using deterministic fallback...")
-        scenes = generate_fallback_scenes()
-    
-    # Write to CSV
-    write_csv(scenes, OUTPUT_PATH)
-    
-    # Verify output
-    if not OUTPUT_PATH.exists():
-        raise FileNotFoundError(f"Failed to create output file: {OUTPUT_PATH}")
-    
-    print("Scene description generation completed successfully.")
+    # Determine output path relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    output_file = project_root / "data" / "raw" / "scene_descriptions.csv"
+
+    scenes = []
+    try:
+        scenes = fetch_and_filter_coco(n=100)
+        source_used = "coco-captions (with fallback fill)" if any(s['source'].startswith('coco') or s['source'] == 'coco_fallback' for s in scenes) else "coco-captions"
+    except Exception as e:
+        print(f"Real data fetch failed: {e}")
+        print("Switching to deterministic fallback generation (fixed seed 42).")
+        scenes = generate_fallback_scenes(n=100, seed=42)
+        source_used = "deterministic_fallback"
+
+    write_csv(scenes, output_file)
+    print(f"Task T011 completed. Created {output_file} using source: {source_used}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

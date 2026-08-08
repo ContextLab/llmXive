@@ -1,7 +1,8 @@
 """
 Unit tests for the MAE and RMSE metric implementations.
 
-The tests verify correctness on simple, deterministic inputs.
+The tests verify correctness on simple, deterministic inputs and edge cases
+including empty inputs and NaN values.
 """
 
 import numpy as np
@@ -40,3 +41,38 @@ def test_mae_rmse(y_true, y_pred, expected_mae, expected_rmse):
     # Use a tolerant comparison for floating‑point results.
     np.testing.assert_allclose(computed_mae, expected_mae, rtol=1e-7, atol=1e-9)
     np.testing.assert_allclose(computed_rmse, expected_rmse, rtol=1e-7, atol=1e-9)
+
+
+def test_metrics_handles_empty_input():
+    """Assert that empty input raises a ValueError."""
+    empty_true = np.array([])
+    empty_pred = np.array([])
+
+    with pytest.raises(ValueError, match="Input arrays cannot be empty"):
+        mae(empty_true, empty_pred)
+
+    with pytest.raises(ValueError, match="Input arrays cannot be empty"):
+        rmse(empty_true, empty_pred)
+
+
+def test_metrics_handles_nan_values():
+    """Assert that inputs containing NaN raise a ValueError."""
+    y_true_nan = np.array([1.0, np.nan, 3.0])
+    y_pred_valid = np.array([1.0, 2.0, 3.0])
+
+    y_true_valid = np.array([1.0, 2.0, 3.0])
+    y_pred_nan = np.array([1.0, np.nan, 3.0])
+
+    # Test NaN in true values
+    with pytest.raises(ValueError, match="Input arrays contain NaN"):
+        mae(y_true_nan, y_pred_valid)
+
+    with pytest.raises(ValueError, match="Input arrays contain NaN"):
+        rmse(y_true_nan, y_pred_valid)
+
+    # Test NaN in predicted values
+    with pytest.raises(ValueError, match="Input arrays contain NaN"):
+        mae(y_true_valid, y_pred_nan)
+
+    with pytest.raises(ValueError, match="Input arrays contain NaN"):
+        rmse(y_true_valid, y_pred_nan)

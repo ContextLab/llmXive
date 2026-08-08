@@ -1,8 +1,8 @@
 """
-Module to update the project state by calculating SHA-256 hashes of artifacts.
+Update state files with SHA-256 hashes of artifacts.
 
-This script scans specified directories, calculates hashes for all files,
-and updates the state YAML files in `state/projects`.
+This module scans directories and calculates SHA-256 hashes for all files,
+then updates the project state YAML file with these hashes.
 """
 
 import os
@@ -11,18 +11,16 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-import yaml # Assuming yaml is available via requirements.txt
-
 
 def calculate_sha256(file_path: Path) -> str:
     """
-    Calculate the SHA-256 hash of a file.
+    Calculate SHA-256 hash of a file.
     
     Args:
-        file_path: Path to the file.
-        
+        file_path: Path to the file
+    
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hexadecimal string of the SHA-256 hash
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -30,94 +28,98 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
-def scan_directory(directory: Path) -> List[Dict[str, Any]]:
+def scan_directory(directory: Path, extensions: Optional[List[str]] = None) -> Dict[str, str]:
     """
-    Recursively scan a directory and collect file metadata and hashes.
+    Scan a directory and calculate hashes for all files.
     
     Args:
-        directory: Path to the directory to scan.
-        
+        directory: Path to the directory to scan
+        extensions: Optional list of file extensions to include (e.g., ['.py', '.json'])
+                   If None, include all files
+    
     Returns:
-        List of dictionaries containing relative path, absolute path, and hash.
+        Dictionary mapping relative file paths to their SHA-256 hashes
     """
+    hashes = {}
+    
     if not directory.exists():
-        return []
+        print(f"Warning: Directory {directory} does not exist, skipping.")
+        return hashes
     
-    artifacts = []
-    for path in directory.rglob("*"):
-        if path.is_file():
-            # Skip hidden files or specific patterns if needed
-            if path.name.startswith(".") or path.suffix in [".pyc", ".pyo"]:
-                continue
+    for file_path in directory.rglob("*"):
+        if file_path.is_file():
+            # Check extension filter
+            if extensions is not None:
+                if file_path.suffix not in extensions:
+                    continue
             
-            rel_path = path.relative_to(directory)
-            file_hash = calculate_sha256(path)
-            artifacts.append({
-                "path": str(rel_path),
-                "absolute_path": str(path),
-                "hash": file_hash,
-                "size": path.stat().st_size
-            })
+            # Calculate relative path
+            rel_path = file_path.relative_to(directory)
+            hashes[str(rel_path)] = calculate_sha256(file_path)
     
-    return artifacts
+    return hashes
 
-
-def update_state_file(project_id: str, artifacts: List[Dict[str, Any]], output_dir: Path) -> None:
+def update_state_file(state_path: Path, hashes: Dict[str, Dict[str, str]]) -> None:
     """
-    Update or create the state file for a project with the calculated artifacts.
+    Update the state YAML/JSON file with new hashes.
     
     Args:
-        project_id: The ID of the project (e.g., 'PROJ-820').
-        artifacts: List of artifact metadata.
-        output_dir: Directory where the state file should be saved.
+        state_path: Path to the state file
+        hashes: Dictionary mapping directory names to their file hashes
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    state_file = output_dir / f"{project_id}_state.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
     
-    state_data = {
-        "project_id": project_id,
-        "last_updated": str(Path().resolve()), # Or use datetime if needed
-        "artifacts": artifacts
-    }
+    # Load existing state or create new
+    if state_path.exists():
+        with open(state_path, 'r') as f:
+            state = json.load(f)
+    else:
+        state = {"artifacts": {}}
     
-    with open(state_file, "w", encoding="utf-8") as f:
-        json.dump(state_data, f, indent=2)
+    # Update with new hashes
+    for dir_name, dir_hashes in hashes.items():
+        state["artifacts"][dir_name] = dir_hashes
     
-    print(f"State file updated: {state_file}")
+    # Add timestamp
+    import datetime
+    state["last_updated"] = datetime.datetime.now().isoformat()
+    
+    # Write back
+    with open(state_path, 'w') as f:
+        json.dump(state, f, indent=2)
+    
+    print(f"Updated state file: {state_path}")
 
-
-def main():
+def main() -> None:
     """
-    Main entry point for updating the project state.
+    Main entry point for state update.
     
-    Scans the 'data' and 'code' directories and updates the state file.
+    Scans key directories and updates the state file.
     """
-    project_root = Path(__file__).parent.parent.parent
-    state_dir = project_root / "state" / "projects"
-    
     # Define directories to scan
-    dirs_to_scan = [
-        project_root / "data",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "specs"
+    directories = [
+        Path("code"),
+        Path("data/derived"),
+        Path("data/processed"),
+        Path("specs/001-llmxive-followup")
     ]
     
-    all_artifacts = []
-    for d in dirs_to_scan:
-        if d.exists():
-            print(f"Scanning {d}...")
-            artifacts = scan_directory(d)
-            all_artifacts.extend(artifacts)
-        else:
-            print(f"Directory not found: {d}, skipping.")
+    # Define state file path
+    state_path = Path("state/projects/llmxive-followup.json")
     
-    # Project ID from task description
-    project_id = "PROJ-820"
+    # Scan directories and collect hashes
+    all_hashes = {}
+    for directory in directories:
+        if directory.exists():
+            dir_name = directory.name
+            hashes = scan_directory(directory)
+            if hashes:
+                all_hashes[dir_name] = hashes
     
-    update_state_file(project_id, all_artifacts, state_dir)
-
+    if all_hashes:
+        update_state_file(state_path, all_hashes)
+    else:
+        print("No artifacts found to hash.")
 
 if __name__ == "__main__":
     main()

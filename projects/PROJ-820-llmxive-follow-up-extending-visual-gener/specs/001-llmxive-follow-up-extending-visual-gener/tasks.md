@@ -55,11 +55,11 @@
 - [ ] T001j [Setup] Create `code/analysis` directory.
 - [ ] T001k [Setup] Create `code/utils` directory.
 - [ ] T001l [Setup] Create `tests/contract` directory.
-- [~] T001m [Setup] Create `tests/integration` directory.
-- [~] T001n [Setup] Create `tests/unit` directory.
-- [~] T001o [Setup] Create `specs/001-llmxive-followup` directory.
-- [~] T001p [Setup] Create `specs/001-llmxive-followup/contracts` directory.
-- [~] T001q [Setup] Create `state/projects` directory.
+- [ ] T001m [Setup] Create `tests/integration` directory.
+- [ ] T001n [Setup] Create `tests/unit` directory.
+- [ ] T001o [Setup] Create `specs/001-llmxive-followup` directory.
+- [ ] T001p [Setup] Create `specs/001-llmxive-followup/contracts` directory.
+- [ ] T001q [Setup] Create `state/projects` directory.
 
 ---
 
@@ -69,8 +69,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_de4c8cbf — status=not_enough_info] with `requirements.txt` (pymunk, diffusers, torch-cpu, ultralytics, scikit-learn, pandas, numpy, pyyaml)
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pymunk, diffusers, torch-cpu, ultralytics, scikit-learn, pandas, numpy, pyyaml)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [MUST run after T001a-T001q] Create `code/utils/update_state.py` to calculate SHA-256 hashes of artifacts and update `state/...yaml`
 - [X] T005a [P] Create `code/simulation/__init__.py`
 - [X] T005b [P] Create `code/generation/__init__.py`
@@ -100,12 +100,12 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Create `data/raw/scene_descriptions.csv` with a curated set of 100 scene descriptions (N=100 scope). Fetch from a real, physics-inferable source (e.g., `datasets.load_dataset('coco-captions', split='train', trust_remote_code=True)` filtered for object interaction scenes). If fetch fails, execute a deterministic script using a fixed seed and predefined interaction templates (e.g., "A on B", "A next to B") to generate valid scenes, ensuring no hallucinated external datasets.
-- [~] T012 [US1] [Depends on T011] Implement `code/simulation/physics_engine.py`: Load scene, run `pymunk` simulation, detect logical contradictions (cycles, impossible overlaps, A above B AND B above A), output `data/derived/physics_constraints/{scene_id}.json`. Log any contradictions to `data/derived/physics_constraints/contradiction_log.json`.
+- [X] T012 [US1] [Depends on T011] Implement `code/simulation/physics_engine.py`: Load scene, run `pymunk` simulation, detect logical contradictions (cycles, impossible overlaps, A above B AND B above A), output `data/derived/physics_constraints/{scene_id}.json`. Log any contradictions to `data/derived/physics_constraints/contradiction_log.json`.
 - [X] T013 [US1] [Depends on T011] Implement `code/generation/prompt_engine.py`: Read scene description + physics JSON, generate natural language descriptor, output `data/derived/prompts/{scene_id}_{group}.txt` (Baseline, Experimental).
 - [X] T013b [US1] [Depends on T011] Implement `code/generation/prompt_engine.py` (Control): Read scene description, generate length-matched random noise descriptor, output `data/derived/prompts/{scene_id}_control.txt`.
 - [~] T014 [US1] Add validation logic in `physics_engine.py` to exclude contradictory scenes and log them as "Invalid Physics Rules" (FR-006).
 - [~] T015 [US1] Add error handling for missing scene descriptions or simulation failures.
-- [ ] T016 [US1] [Depends on T012] Implement logic to aggregate contradiction logs from `data/derived/physics_constraints/contradiction_log.json`, calculate contradiction rate percentage, and verify it is < 5% (SC-004); if rate > 5%, flag the study (soft fail) but continue to allow downstream analysis to halt the pipeline if required.
+- [X] T016 [US1] [Depends on T012] Implement logic to aggregate contradiction logs from `data/derived/physics_constraints/contradiction_log.json`, calculate contradiction rate percentage, and verify it is < 5% (SC-004); if rate > 5%, flag the study (soft fail) but continue to allow downstream analysis to halt the pipeline if required.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -123,7 +123,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] [Depends on T013, T013b] Implement `code/generation/diffusion_runner.py`: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv1-5') [UNRESOLVED-CLAIM: c_5dbbdd21 — status=not_enough_info], set random seeds, generate images from Baseline, Experimental, and Control prompt files. Ensure T013 and T013b are complete before execution.
+- [X] T018 [US2] [Depends on T013, T013b] Implement `code/generation/diffusion_runner.py`: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv1-5'), set random seeds, generate images from Baseline, Experimental, and Control prompt files. Ensure T013 and T013b are complete before execution.
 - [~] T019 [US2] Implement seed locking mechanism ensuring Baseline and Experimental groups use identical seeds for the same scene ID (FR-007).
 - [~] T019b [US2] Implement seed locking for Control group (distinct from Baseline/Exp but consistent within Control).
 - [~] T020 [US2] Implement retry logic (max attempts) for generation failures and log "Generation Failure" if exceeded (FR-006, Edge Case).
@@ -152,12 +152,12 @@ The research question, method, and references remain unchanged as per the planni
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] [Depends on T012, T021] Implement `code/evaluation/detector.py`: Load YOLOv8n (CPU) [UNRESOLVED-CLAIM: c_dae10f79 — status=not_enough_info], detect objects, extract bounding boxes, compare against `physics_constraints/{scene_id}.json` (relative to 512x512 output, IoU < 0.5 or Y-offset > 5px).
-- [ ] T027 [US3] Implement violation logic: Count floating objects/interpenetration; default to violation if object confidence < 0.7 [UNRESOLVED-CLAIM: c_efac43fe — status=not_enough_info] (Edge Case).
+- [ ] T026 [US3] [Depends on T012, T021] Implement `code/evaluation/detector.py`: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)), detect objects, extract bounding boxes, compare against `physics_constraints/{scene_id}.json` (relative to 512x512 output, IoU < 0.5 or Y-offset > 5px).
+- [ ] T027 [US3] Implement violation logic:Count floating objects/interpenetration; default to violation if object confidence < 0.7 (Edge Case).
 - [ ] T028 [US3] Save evaluation results to `data/derived/evaluation_results/{scene_id}.json` with violation flags and confidence distributions (FR-010).
-- [ ] T029 [US3] [Independent of T016] Implement `code/analysis/statistics.py` Power Analysis: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8) [UNRESOLVED-CLAIM: c_83f9b4b2 — status=not_enough_info] and output `power_analysis_report.json`.
+- [ ] T029 [US3] [Independent of T016] Implement `code/analysis/statistics.py` Power Analysis: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8) and output `power_analysis_report.json`.
 - [ ] T029a [US3] [Depends on T029] Implement Power Verification: Verify that the calculated power (≥0.8) is achieved. If power < 0.8, halt the pipeline and flag `power_analysis_report.json` as failed.
-- [ ] T029b [US3] Implement Statistical Test Switching Logic: Read the `power_analysis_report.json` and check expected cell counts. If cell counts < 5, switch to Fisher's Exact Test [UNRESOLVED-CLAIM: c_799f7d34 — status=refuted]; otherwise, use two-proportion z-test.
+- [ ] T029b [US3] Implement Statistical Test Switching Logic: Read the `power_analysis_report.json` and check expected cell counts. If cell counts < 5, switch to Fisher's Exact Test; otherwise, use two-proportion z-test.
 - [ ] T029c [US3] [Depends on T016] Implement Exclusion Logic: Read contradiction logs (from T016) and generation failure logs (from T020), identify the corresponding scene IDs, and exclude them from the final statistical denominator.
 - [ ] T029d [US3] [Depends on T016] Implement Contradiction Rate Check: Re-calculate the contradiction rate from logs. If rate > 5%, raise a `StudyInvalidError` to halt the pipeline (Hard Fail).
 - [ ] T030 [US3] [Depends on T030b] Generate `data/processed/final_analysis.csv` with aggregated stats, p-values, and "Prompt Adherence Rate" labeling (FR-009).
@@ -177,7 +177,7 @@ The research question, method, and references remain unchanged as per the planni
 
 - [ ] T033 [P] Update `README.md` with project overview, dependencies, and step-by-step execution instructions for the full pipeline; specifically update the "Results" and "Methodology" sections to reflect the N=100 scope and Control Group inclusion.
 - [ ] T034 [P] Update `quickstart.md` with environment setup, CPU-only model download instructions, and N=100 run validation steps; ensure the "Expected Output" section lists the three groups (Baseline, Experimental, Control).
-- [ ] T035 [P] Create `scope_justification.md` artifact explaining the deviation from N=500 to N=100 [UNRESOLVED-CLAIM: c_f0c1212d — status=not_enough_info] due to compute constraints and citing the plan.md constraints.
+- [ ] T035 [P] Create `scope_justification.md` artifact explaining the deviation from N=500 to N=100 due to compute constraints and citing the plan.md constraints.
 - [ ] T036 Code cleanup and refactoring of `code/` modules
 - [ ] T037 Performance optimization for CPU generation batch sizes
 - [ ] T038 [P] Additional unit tests in `tests/unit/`

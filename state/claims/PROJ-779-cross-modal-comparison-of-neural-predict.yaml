@@ -1135,3 +1135,62 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T16:24:55Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Data must originate from OpenNeuro datasets; no synthetic data generation
+    permitted
+  claim_id: c_8f1464d2
+  context: Document "Real Data" assumption in docs/README.md and code/config.py, explicitly
+    stating that all data must originate from OpenNeuro datasets and that no synthetic
+    data generation is permitted.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_must_originate_from_OpenNeuro_datasets;_no_synthetic_da
+  kind: entity_fact
+  raw_text: All data must originate from OpenNeuro datasets and no synthetic data
+    generation is permitted.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:11:10Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Datasets fetched from OpenNeuro ds000246 and ds000117
+  claim_id: c_10c2f3bb
+  context: All datasets must be fetched from real sources (OpenNeuro ds000246, ds000117);
+    no synthetic data generation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_fetched_from_OpenNeuro_ds000246_and_ds000117
+  kind: entity_fact
+  raw_text: All datasets must be fetched from real sources OpenNeuro ds000246 and
+    ds000117.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:11:29Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: 'Pipeline runs on GitHub Actions free-tier: CPU-only, 7GB RAM, 6-hour
+    limit'
+  claim_id: c_52a69c6b
+  context: All tasks must be executable on CPU-only GitHub Actions free-tier (limited
+    CPU resources, 7GB RAM, 6h limit). No GPU, no 8-bit quantization, no large model
+    training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run on CPU-only GitHub Actions free-tier with limited
+    CPU resources, 7GB RAM, and a 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:11:37Z'

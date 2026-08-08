@@ -357,3 +357,177 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T22:01:50Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: curated set of 100 scene descriptions
+  claim_id: c_3e0dd8c4
+  context: Implement logic to fetch or generate scene descriptions for the study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/scene_descriptions.csv with a curated set of 100 scene
+    descriptions (N=100 scope).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:26:26Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: use LCM-LoRA model for image generation
+  claim_id: c_5c69daff
+  context: Goal is to execute image generation using a CPU-optimized diffusion model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_LCM-LoRA_model_for_image_generation
+  kind: entity_fact
+  raw_text: Use a CPU-optimized diffusion model (LCM-LoRA) with strict seed locking
+    for Baseline, Experimental, and Control groups.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:26:39Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: use YOLOv8n for object detection
+  claim_id: c_41e1fba6
+  context: Implement code/evaluation/detector.py to load YOLOv8n and detect objects.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: CPU
+      source_id: Q117453145
+      url: https://www.wikidata.org/wiki/Q117453145
+      value: CPU
+    filled: true
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU) to detect objects and extract bounding boxes.
+  resolved_value: CPU
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T01:26:55Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: power analysis with effect_size 0.2 alpha 0.05 power_target 0.8
+  claim_id: c_3ef80b35
+  context: Implement power analysis in code/analysis/statistics.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with effect_size=0.2, alpha=0.05, and power_target=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:27:13Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: switch to Fisher's Exact Test if cell counts less than 5
+  claim_id: c_ef4b3ff2
+  context: Implement Statistical Test Switching Logic based on expected cell counts.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Fisher%27s_Exact_Test_if_cell_counts_less_than_5
+  kind: magnitude
+  raw_text: Switch to Fisher's Exact Test if cell counts are less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:30:58Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: flag study if contradiction rate exceeds 5 percent
+  claim_id: c_929fa61b
+  context: Calculate contradiction rate percentage and verify it is less than 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag the study if the contradiction rate exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:30:58Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: treat objects as violations if confidence less than 0.7
+  claim_id: c_83756897
+  context: Implement violation logic with default violation if object confidence is
+    below threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Treat_objects_as_violations_if_confidence_less_than_0.7
+  kind: magnitude
+  raw_text: Treat objects as violations if confidence is less than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:33:29Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: violation if IoU less than 0.5 or Y-offset greater than 5px
+  claim_id: c_3983162c
+  context: Compare extracted bounding boxes against physics JSON ground truth.
+  evidence:
+    candidates:
+    - - Y-offset greater than
+      - 5.0
+    - - Violation if IoU less than
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Violation_if_IoU_less_than_0.5_or_Y-offset_greater_than_5px
+  kind: magnitude
+  raw_text: Consider objects violating physics rules if IoU is less than 0.5 or Y-offset
+    is greater than 5px.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T01:33:47Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: generate 5 candidate images per prompt
+  claim_id: c_8fb706b3
+  context: Implement fallback mechanism if architecture permits only approximate seed
+    control.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=5 candidate images per prompt for the fallback mechanism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:34:04Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: reduce scope from 500 to 100 due to compute constraints
+  claim_id: c_e335c096
+  context: Create scope_justification.md artifact explaining the deviation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce scope from N=500 to N=100 due to compute constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:34:17Z'

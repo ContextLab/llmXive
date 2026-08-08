@@ -119,7 +119,7 @@
 - [X] T029 [US2] Implement `code/analysis/metrics.py` peak latency extraction (Auditory and Visual modalities)
 - [X] T030 [US2] Implement `code/analysis/metrics.py` mean amplitude extraction for the same windows <!-- FAILED: unspecified -->
 - [X] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels
-- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing and save results to `data/results/metrics_summary.json`
+- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing and save results to `data/results/metrics_summary.json` <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -136,7 +136,7 @@
 - [X] T033 [P] [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py` <!-- SKIPPED: non-mapping output -->
 - [X] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
 - [X] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
-- [ ] T036 [P] [US3] CI Integration test: Run full pipeline on GitHub Actions and verify time/memory constraints
+- [ ] T036 [P] [US3] CI Integration test: Run full pipeline on GitHub Actions and verify time/memory constraints <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
@@ -148,9 +148,9 @@
 - [X] T042 [US3] Implement `code/analysis/stats.py` TOST (Two One-Sided Tests) for **source strength** equivalence. **Depends on T041.**
 - [X] T043 [US3] Implement `code/analysis/stats.py` Benjamini-Hochberg correction for multiple comparisons. **Depends on T042.**
 - [X] T044 [US3] Implement `code/validation/reliability.py` split-half reliability (Odd/Even trials) and Cronbach's α calculation (FR-013). **Depends on T039.**
-- [ ] T045 [US3] Implement `code/main.py` to aggregate results from T037-T044 for final report generation (Report Assembly). **Depends on completion of T037-T044.**
-- [ ] T046 [US3] Implement `code/main.py` logic for Latency Classification: Check |Δt| < 50ms (SC-001) and set classification field.
-- [ ] T047 [US3] Implement `code/main.py` logic for Source Overlap: Check **Dice > 0.6 AND TOST p < 0.05** (Plan Logic) and set classification field. **Note: Implements Plan Phase 4 logic, overriding obsolete SC-002 text.**
+- [X] T045 [US3] Implement `code/main.py` to aggregate results from T037-T044 for final report generation (Report Assembly). **Depends on completion of T037-T044.**
+- [X] T046 [US3] Implement `code/main.py` logic for Latency Classification: Check |Δt| < 50ms (SC-001) and set classification field.
+- [X] T047 [US3] Implement `code/main.py` logic for Source Overlap: Check **Dice > 0.6 AND TOST p < 0.05** (Plan Logic) and set classification field. **Note: Implements Plan Phase 4 logic, overriding obsolete SC-002 text.**
 - [ ] T048 [US3] **Data Integrity Verification**: Implement `code/main.py` to validate that processed data artifacts match the checksums recorded in `data/manifest.json` (generated during T015/T016). **Replace any 'random source' detection logic with this concrete checksum verification to ensure data originates from the fetched OpenNeuro sources.** **Depends on T045.**
 - [ ] T049 [US3] Generate final report in `data/results/final_report.md` stating: (A) Latency difference vs 50ms threshold, (B) Source overlap (Dice) & TOST result, (C) Reliability score, (D) Computational feasibility confirmation. **Depends on T046, T047, T048.**
 

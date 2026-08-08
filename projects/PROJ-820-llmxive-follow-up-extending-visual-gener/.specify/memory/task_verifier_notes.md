@@ -8,6 +8,11 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T001j** — No artifact showing the `code/analysis` directory was provided; without a listing, screenshot, or other proof of its existence, we cannot confirm the directory was actually created. The implementer must supply evidence (e.g., a directory tree dump) that the `code/analysis` folder now exists.
 - **T001k** — No evidence of a `code/utils` directory was provided; the claim cannot be verified because the artifact (the directory) is missing from the supplied information. The implementer must create the directory (and optionally add a placeholder file) and present proof that it exists.
 - **T001l** — No evidence was presented showing that a `tests/contract` directory exists in the repository (e.g., a directory listing, file paths, or contents). Without such proof, we cannot confirm the required setup step was performed. The implementer must add the `tests/contract` folder (with at least one file or placeholder) and provide evidence of its presence.
+- **T001m** — No evidence was provided showing that a `tests/integration` directory exists in the repository; the claim is unsubstantiated and the required artifact is missing.
+- **T001n** — No evidence of a `tests/unit` directory was provided; the claim lacks any artifact showing the directory exists or contains files. The required setup step is therefore not verified.
+- **T001o** — No evidence of a `specs/001-llmxive-followup` directory (or any files within it) is provided; the implementer did not show that the required directory was created. The task remains undone.
+- **T001p** — No artifact showing the `specs/001-llmxive-followup/contracts` directory (or its contents) was provided; without concrete evidence of the directory’s existence, the setup task cannot be confirmed as completed.
+- **T001q** — No evidence of a `state/projects` directory is provided; the claim lacks any artifact confirming the directory’s creation, so the required setup is missing.
+- **T003** — No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml` with Black settings, or a `.pre-commit-config.yaml` invoking ruff/black) are present in the provided artifacts, nor any documentation showing they have been set up. The claim lacks any concrete evidence that ruff and black have been configured for the project.
 - **T011** — declared artifact(s) missing/empty/invalid: data/raw/scene_descriptions.csv
-- **T016** — declared artifact(s) missing/empty/invalid: data/derived/physics_constraints/contradiction_log.json
-- **T018** — declared artifact(s) missing/empty/invalid: code/generation/diffusion_runner.py
+- **T026** — declared artifact(s) missing/empty/invalid: code/evaluation/detector.py
