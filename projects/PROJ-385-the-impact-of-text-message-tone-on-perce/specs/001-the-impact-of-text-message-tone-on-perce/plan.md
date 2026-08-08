@@ -101,8 +101,8 @@ tests/
 
 ## Assumptions & Power Analysis
 
-- The sample size will be determined based on power analysis considerations. While a simplified 2x2 design (Relationship x Composite Cue) with N=60 provides >0.90 power for a medium effect (Cohen's f=0.25), the actual design is a 2 (Relationship) × 3 (Emoji) × 2 (Punctuation) × 2 (Length) factorial. The power analysis for the full design is complex due to the random effects structure. The plan assumes N=60 is sufficient to detect the primary interaction of interest (Relationship × Cue Intensity composite) with acceptable power, noting the limitation for detecting smaller effects in the full factorial if not fully crossed.
-- The "perceived emotional support" metric relies on the validity of the Likert scale.
+- The sample size will be determined based on power analysis considerations. While a simplified 2x2 design (Relationship x Composite Cue) with N=60 provides >0.90 power for a medium effect (Cohen's f=0.25), the actual design is a factorial study manipulating Relationship, Emoji, Punctuation, and Length factors. The power analysis for the full design is complex due to the random effects structure. The plan assumes N=60 is sufficient to detect the primary interaction of interest (Relationship × Cue Intensity composite) with acceptable power, noting the limitation for detecting smaller effects in the full factorial if not fully crossed.
+- The "perceived emotional support" metric relies on the validity of the -point Likert scale.
 - The "close friend" and "acquaintance" contexts are effectively operationalized by the instruction text.
 - No GPU or CUDA acceleration is required; all statistical modeling uses CPU-optimized libraries (`statsmodels`).
 - **External Recruitment Dependency**: The project assumes the feasibility of recruiting a sufficient number of unique participants via Prolific.. If recruitment fails, the project must be re-evaluated.
