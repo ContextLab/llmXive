@@ -5,27 +5,40 @@ T012:
     \ not exist, and the expected log file `data/logs/pipeline.log` is also missing,\
     \ so no evidence that the pipeline was run or that the required assertions were\
     \ checked. The task\u2019s deliverables are absent."
-T014:
-  c: false
-  h: a04b26f96a9af15eff970ab17f3cff0a6c881348b9527ca2a9512934a8613c1e
-  r: "The repository contains a `code/preprocess.py` file, but it only contains simulated\
-    \ placeholder logic (random matrix generation, dummy atlas loading) and does not\
-    \ actually write the required `data/processed/binary_adjacency.npy` and `data/processed/weighted_adjacency.npy`\
-    \ files, which are absent from the filesystem. Consequently the task\u2019s functional\
-    \ and output requirements are not met."
-T015:
-  c: false
-  h: 296f78527f97dfb9ae643d989553b53e84bb0d2ecc2a084a8efac728a88f3a80
-  r: "The required input file `data/processed/weighted_adjacency.npy` is missing,\
-    \ and the provided `code/preprocess.py` does not contain any implementation for\
-    \ computing Pearson\u2011correlation rsFC or Global Efficiency on that matrix\
-    \ (it is truncated and focuses on streamlines/parcellation). Consequently the\
-    \ expected output files `data/processed/rsfc.npy` and `data/processed/global_efficiency.json`\
-    \ are also absent."
-T017:
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/processed/` directory containing non\u2011\
-    empty `structural.npy` and `rsfc.npy` files (with accompanying provenance metadata)\
-    \ was provided. The implementer did not supply any artifacts or code demonstrating\
-    \ that the matrices are saved as specified, so the task is not satisfied."
+  r: No code, script, or documentation for a timeout wrapper around the motif enumeration
+    function is provided; there is no artifact showing graceful abort or warning logging.
+    The required implementation is missing entirely.
+T025:
+  c: false
+  h: 80ddb206fc92314b476a675c541cc4293713af7d056b89f036e9c68d513eb6ba
+  r: "The provided `code/motifs.py` is truncated and does not contain logic to load\
+    \ the three threshold adjacency matrices, run a single optimized loop, compute\
+    \ z\u2011scores, or return the required in\u2011memory dictionary. Moreover, the\
+    \ required input file `data/processed/binary_adj_10p.npy` is missing, so the script\
+    \ cannot even be executed as specified. The task therefore remains unfinished."
+T030:
+  c: false
+  h: d46f09b23753ac77f1e44339447460dcb83ce37052943a94c75fa9297b08dde6
+  r: "The provided `code/stats.py` contains only placeholder functions (`aggregate_subject_metrics`,\
+    \ `compute_partial_correlations`) that do not implement the required partial Pearson/Spearman\
+    \ correlation calculations, nor do they control for network density. Additionally,\
+    \ the required input file `data/processed/subject_metrics.csv` is missing entirely.\
+    \ Consequently, the task\u2019s core functionality is not realized."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing zero\u2011variance detection\
+    \ or the VIF collinearity check was provided; the evidence contains no artifacts\
+    \ to verify that tests are skipped, flags are added to reports, or that a switch\
+    \ to Spearman correlation occurs when VIF\u202F>\u202F5. The required functionality\
+    \ is therefore missing."
+T039:
+  c: false
+  h: 79b4b00030916bb5f9d7d12c40aa92e43b2f60632106264cf0dc6b94b5e97365
+  r: The `code/stats.py` functions are only placeholders (no aggregation logic) and
+    the required input files `data/processed/global_efficiency.json` and `data/processed/rsfc.npy`
+    are absent, so the script cannot produce the expected `data/processed/subject_metrics.csv`.
+    The output CSV is also missing.

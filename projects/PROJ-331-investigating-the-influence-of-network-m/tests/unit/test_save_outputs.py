@@ -1,138 +1,115 @@
 """
-Unit tests for T017: save_outputs.py
+tests/unit/test_save_outputs.py
+Unit tests for T017: Save processed matrices with provenance metadata.
 """
-import pytest
-import numpy as np
+import os
 import json
+import numpy as np
+import pytest
 from pathlib import Path
 import tempfile
 import shutil
-import sys
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Mock imports for testing
+from unittest.mock import patch, MagicMock
 
-from utils import save_npy, load_npy, compute_sha256
+# Import the module under test
+from save_outputs import compute_sha256_file, save_with_provenance, load_provenance_info
 
-class TestSaveOutputs:
-    """Tests for the save_with_provenance functionality."""
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test artifacts."""
+    temp = tempfile.mkdtemp()
+    yield temp
+    shutil.rmtree(temp)
 
-    @pytest.fixture
-    def temp_dir(self):
-        """Create a temporary directory for testing."""
-        temp = tempfile.mkdtemp()
-        yield Path(temp)
-        shutil.rmtree(temp)
+@pytest.fixture
+def sample_matrix(temp_dir):
+    """Create a sample numpy matrix file."""
+    matrix = np.random.rand(100, 100).astype(np.float32)
+    matrix_path = os.path.join(temp_dir, "sample.npy")
+    np.save(matrix_path, matrix)
+    return matrix_path, matrix
 
-    def test_save_npy_creates_file(self, temp_dir):
-        """Test that save_npy creates a valid .npy file."""
-        test_data = np.array([[1.0, 2.0], [3.0, 4.0]])
-        output_path = temp_dir / "test.npy"
-        
-        save_npy(test_data, output_path)
-        
-        assert output_path.exists()
-        assert output_path.stat().st_size > 0
-        
-        # Verify we can load it back
-        loaded = load_npy(output_path)
-        np.testing.assert_array_equal(test_data, loaded)
+def test_compute_sha256_file(sample_matrix):
+    """Test SHA256 computation on a file."""
+    matrix_path, _ = sample_matrix
+    hash1 = compute_sha256_file(matrix_path)
+    hash2 = compute_sha256_file(matrix_path)
+    
+    # Hash should be consistent
+    assert hash1 == hash2
+    assert len(hash1) == 64  # SHA256 hex string length
+    assert all(c in "0123456789abcdef" for c in hash1)
 
-    def test_compute_sha256_consistency(self, temp_dir):
-        """Test that SHA256 is consistent for the same file."""
-        test_data = np.random.rand(10, 10)
-        output_path = temp_dir / "test.npy"
-        
-        save_npy(test_data, output_path)
-        
-        hash1 = compute_sha256(output_path)
-        hash2 = compute_sha256(output_path)
-        
-        assert hash1 == hash2
-        assert len(hash1) == 64  # SHA256 hex string length
+def test_save_with_provenance_creates_files(sample_matrix, temp_dir):
+    """Test that save_with_provenance creates both .npy and _provenance.json files."""
+    matrix_path, matrix = sample_matrix
+    output_dir = os.path.join(temp_dir, "output")
+    os.makedirs(output_dir)
+    
+    result = save_with_provenance(
+        matrix_path=matrix_path,
+        output_path=output_dir,
+        matrix_name="test_structural.npy",
+        description="Test description",
+        extra_metadata={"test_key": "test_value"}
+    )
+    
+    # Check .npy file exists
+    npy_path = os.path.join(output_dir, "test_structural.npy")
+    assert os.path.exists(npy_path)
+    
+    # Check provenance JSON exists
+    json_path = os.path.join(output_dir, "test_structural_provenance.json")
+    assert os.path.exists(json_path)
+    
+    # Check provenance content
+    with open(json_path, "r") as f:
+        provenance = json.load(f)
+    
+    assert provenance["file_name"] == "test_structural.npy"
+    assert provenance["description"] == "Test description"
+    assert provenance["test_key"] == "test_value"
+    assert "file_hash_sha256" in provenance
+    assert provenance["shape"] == list(matrix.shape)
+    assert provenance["dtype"] == str(matrix.dtype)
 
-    def test_provenance_structure(self, temp_dir):
-        """Test that provenance metadata has the expected structure."""
-        test_data = np.array([[1.0, 2.0], [3.0, 4.0]])
-        input_path = temp_dir / "input.npy"
-        output_path = temp_dir / "output.npy"
-        
-        save_npy(test_data, input_path)
-        save_npy(test_data, output_path)
-        
-        # Simulate provenance structure
-        provenance = {
-            "task_id": "T017",
-            "artifacts": [
-                {
-                    "description": "Test Artifact",
-                    "input": {
-                        "path": str(input_path),
-                        "exists": True,
-                        "sha256": compute_sha256(input_path),
-                        "shape": list(test_data.shape)
-                    },
-                    "output": {
-                        "path": str(output_path),
-                        "sha256": compute_sha256(output_path),
-                        "shape": list(test_data.shape)
-                    }
-                }
-            ]
-        }
-        
-        # Verify structure
-        assert provenance["task_id"] == "T017"
-        assert len(provenance["artifacts"]) == 1
-        assert "description" in provenance["artifacts"][0]
-        assert "input" in provenance["artifacts"][0]
-        assert "output" in provenance["artifacts"][0]
-        assert "sha256" in provenance["artifacts"][0]["input"]
-        assert "sha256" in provenance["artifacts"][0]["output"]
+def test_save_with_provenance_loads_correct_matrix(sample_matrix, temp_dir):
+    """Test that the saved matrix can be loaded and matches the original."""
+    matrix_path, original_matrix = sample_matrix
+    output_dir = os.path.join(temp_dir, "output")
+    os.makedirs(output_dir)
+    
+    save_with_provenance(
+        matrix_path=matrix_path,
+        output_path=output_dir,
+        matrix_name="test_structural.npy",
+        description="Test description"
+    )
+    
+    # Load the saved matrix
+    saved_path = os.path.join(output_dir, "test_structural.npy")
+    loaded_matrix = np.load(saved_path)
+    
+    # Check equality
+    np.testing.assert_array_equal(original_matrix, loaded_matrix)
 
-    def test_metadata_json_serializable(self, temp_dir):
-        """Test that provenance metadata is JSON serializable."""
-        test_data = np.array([[1.0, 2.0], [3.0, 4.0]])
-        input_path = temp_dir / "input.npy"
-        
-        save_npy(test_data, input_path)
-        
-        metadata = {
-            "task_id": "T017",
-            "timestamp": "2024-01-01T00:00:00",
-            "execution_time_seconds": 1.5,
-            "artifacts": [
-                {
-                    "description": "Test",
-                    "input": {
-                        "path": str(input_path),
-                        "exists": True,
-                        "size_bytes": input_path.stat().st_size,
-                        "sha256": compute_sha256(input_path),
-                        "shape": list(test_data.shape),
-                        "dtype": str(test_data.dtype),
-                        "min": float(np.min(test_data)),
-                        "max": float(np.max(test_data))
-                    }
-                }
-            ]
-        }
-        
-        # Should not raise
-        json_str = json.dumps(metadata)
-        assert len(json_str) > 0
+def test_load_provenance_info_missing_file():
+    """Test load_provenance_info when file doesn't exist."""
+    with patch('pathlib.Path.exists', return_value=False):
+        result = load_provenance_info()
+        assert result == {}
 
-    def test_error_on_missing_input(self, temp_dir):
-        """Test that missing input file is handled correctly."""
-        non_existent = temp_dir / "does_not_exist.npy"
-        
-        assert not non_existent.exists()
-        
-        # Our implementation should raise ProcessingError
-        from utils import ProcessingError
-        
-        with pytest.raises(ProcessingError):
-            # Simulate the check that would happen in save_with_provenance
-            if not non_existent.exists():
-                raise ProcessingError(f"Input file not found: {non_existent}")
+def test_load_provenance_info_invalid_json(temp_dir):
+    """Test load_provenance_info with invalid JSON."""
+    # Create a fake state directory with invalid JSON
+    state_dir = Path(temp_dir) / "state"
+    state_dir.mkdir(exist_ok=True)
+    provenance_file = state_dir / "provenance.json"
+    provenance_file.write_text("{ invalid json }")
+    
+    with patch('pathlib.Path.exists', return_value=True):
+        with patch('builtins.open', side_effect=FileNotFoundError):
+            result = load_provenance_info()
+            assert result == {}

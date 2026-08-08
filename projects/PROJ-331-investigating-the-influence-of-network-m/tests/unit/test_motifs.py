@@ -1,183 +1,149 @@
 """
-Unit tests for motif analysis functionality.
-Specifically tests the Maslov-Sneppen null model generation.
+tests/unit/test_motifs.py
+
+Unit tests for motif enumeration and null model generation.
 """
+
 import numpy as np
+import networkx as nx
 import pytest
 import sys
-from pathlib import Path
+import os
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-# Import the function to test. 
-# Note: The actual implementation of generate_null_model is expected in code/motifs.py.
-# Since T022 (implementation) is not yet marked complete in the provided list, 
-# we must implement the function in this file or ensure it exists.
-# However, per constraints, we must implement the TEST task. 
-# If the implementation doesn't exist, we should ideally import it and let the test 
-# fail if the import fails, OR provide a minimal implementation in the test file 
-# if the task implies "implement the test AND the necessary helper to make it runnable".
-# Given the constraint "Implement the task for real... never a stub", and the fact 
-# that T022 is not done, we will implement the `generate_null_model` function 
-# locally in this file to satisfy the test contract, or import it if it were available.
-# Since the API surface provided does NOT list `generate_null_model` in `code/motifs.py` 
-# (which doesn't exist in the surface list anyway), we will define it here to ensure 
-# the test is runnable and verifies the logic.
-# In a real workflow, this function would be in `code/motifs.py` (T022).
+from motifs import count_motifs, generate_null_model, compute_motif_z_scores
 
-def generate_null_model(adj_matrix, iterations=100, seed=42):
-    """
-    Generate a degree-preserving null model using the Maslov-Sneppen algorithm.
+def test_count_motifs_small_graph():
+    """Test motif counting on a small, known graph."""
+    # Create a simple graph: 0->1, 1->2, 2->0 (a directed triangle)
+    adj = np.array([
+        [0, 1, 0],
+        [0, 0, 1],
+        [1, 0, 0]
+    ])
     
-    This function performs edge rewiring while preserving the in-degree and out-degree 
-    of every node.
+    counts = count_motifs(adj)
     
-    Parameters:
-    -----------
-    adj_matrix : np.ndarray
-        Square adjacency matrix (binary or weighted, treated as binary for topology)
-    iterations : int
-        Number of rewiring attempts
-    seed : int
-        Random seed for reproducibility
+    # A directed triangle is one specific motif.
+    # There should be exactly 1 motif found (the triangle itself).
+    assert len(counts) == 1
+    # The count should be 1
+    assert sum(counts.values()) == 1
+
+def test_count_motifs_empty():
+    """Test motif counting on a graph with no edges."""
+    adj = np.zeros((4, 4), dtype=int)
+    counts = count_motifs(adj)
+    assert counts == {}
+
+def test_count_motifs_incomplete():
+    """Test on a graph with < 3 nodes."""
+    adj = np.array([[0, 1], [1, 0]])
+    counts = count_motifs(adj)
+    assert counts == {}
+
+def test_generate_null_model_preserves_degree():
+    """Test that Maslov-Sneppen preserves in/out degrees."""
+    # Create a graph with known degrees
+    adj = np.array([
+        [0, 1, 1],
+        [1, 0, 0],
+        [0, 1, 0]
+    ])
+    
+    G = nx.DiGraph(adj)
+    in_deg_orig = dict(G.in_degree())
+    out_deg_orig = dict(G.out_degree())
+    
+    nulls = generate_null_model(adj, iterations=5)
+    assert len(nulls) == 5
+    
+    for null_adj in nulls:
+        G_null = nx.DiGraph(null_adj)
+        in_deg_null = dict(G_null.in_degree())
+        out_deg_null = dict(G_null.out_degree())
         
-    Returns:
-    --------
-    np.ndarray
-        Rewired adjacency matrix with same shape and degree distribution
-    """
-    rng = np.random.default_rng(seed)
-    n = adj_matrix.shape[0]
-    
-    # Ensure binary for topology preservation
-    binary_adj = (adj_matrix > 0).astype(int)
-    
-    # Find all edges (i, j) where binary_adj[i, j] == 1
-    edges = np.argwhere(binary_adj == 1)
-    edge_list = [tuple(e) for e in edges]
-    
-    if len(edge_list) == 0:
-        return binary_adj.copy()
-        
-    # Perform Maslov-Sneppen rewiring
-    # We need to select two edges (i, j) and (k, l) such that:
-    # i != k, j != l, i != l, k != j
-    # And rewire to (i, l) and (k, j)
-    
-    for _ in range(iterations):
-        if len(edge_list) < 2:
-            break
-            
-        # Select two distinct edges
-        idx1, idx2 = rng.choice(len(edge_list), size=2, replace=False)
-        i, j = edge_list[idx1]
-        k, l = edge_list[idx2]
-        
-        # Check constraints to avoid self-loops and multi-edges
-        if i == k or j == l or i == l or k == j:
-            continue
-            
-        # Check if new edges already exist
-        if binary_adj[i, l] == 1 or binary_adj[k, j] == 1:
-            continue
-            
-        # Perform rewiring
-        binary_adj[i, j] = 0
-        binary_adj[k, l] = 0
-        binary_adj[i, l] = 1
-        binary_adj[k, j] = 1
-        
-        # Update edge list
-        edge_list[idx1] = (i, l)
-        edge_list[idx2] = (k, j)
-        
-    return binary_adj
+        assert in_deg_orig == in_deg_null
+        assert out_deg_orig == out_deg_null
 
-def test_generate_null_model_preserves_degrees():
-    """
-    Contract: Verify `generate_null_model(adj_matrix, iterations=100)` preserves degree distribution.
-    Assert mean degree difference is < 1e-6.
-    """
-    # Create a test adjacency matrix (directed graph)
-    # Shape (N, N)
-    N = 20
-    rng = np.random.default_rng(42)
+def test_compute_z_scores():
+    """Test z-score computation."""
+    observed = {"key1": 10}
+    # Create null models that have counts close to 10
+    # Mock null counts
+    null_counts = [
+        {"key1": 9},
+        {"key1": 11},
+        {"key1": 10}
+    ]
     
-    # Create a random directed graph with specific density
-    adj = rng.integers(0, 2, size=(N, N)).astype(float)
-    # Remove self-loops
-    np.fill_diagonal(adj, 0)
+    # We need to pass adjacency matrices to compute_motif_z_scores?
+    # The function signature is compute_motif_z_scores(observed_counts, null_models, iterations)
+    # But it calls count_motifs on null_models.
+    # So we need to pass actual adjacency matrices, not counts.
+    # Let's create dummy matrices that produce the counts we want?
+    # That's hard.
+    # Let's adjust the test to use the function as designed.
+    # We will create a few simple graphs that have a specific motif count.
     
-    # Calculate original degrees
-    out_degrees_orig = np.sum(adj > 0, axis=1)
-    in_degrees_orig = np.sum(adj > 0, axis=0)
+    # Graph 1: Triangle (1 count)
+    g1 = np.array([[0,1,0],[0,0,1],[1,0,0]])
+    # Graph 2: Triangle
+    g2 = np.array([[0,1,0],[0,0,1],[1,0,0]])
+    # Graph 3: Triangle
+    g3 = np.array([[0,1,0],[0,0,1],[1,0,0]])
     
-    # Generate null model
-    null_adj = generate_null_model(adj, iterations=100, seed=42)
+    # Observed: 10 triangles? No, we need a graph with 10 triangles.
+    # Let's just test the math with mocked counts if we refactor?
+    # No, we must test the real function.
+    # Let's create a graph with 10 triangles?
+    # A complete graph K4 has 4 triangles? No, 4 choose 3 = 4.
+    # K5 has 10 triangles.
+    adj_obs = np.ones((5,5)) - np.eye(5)
+    observed_counts = count_motifs(adj_obs)
+    # K5 has 10 directed triangles?
+    # In a complete directed graph (no self loops), every 3 nodes form a tournament.
+    # There are 2 types of tournaments on 3 nodes: transitive and cyclic.
+    # A complete graph has all edges.
+    # Number of 3-node subgraphs in K5 is 10.
+    # Each subgraph is a complete directed graph (3 edges in each direction? No, 1 edge per pair).
+    # Wait, our adj_obs is 1 for all i!=j.
+    # So every 3 nodes form a "complete" subgraph (3 edges, 3 reverse edges? No, 6 edges).
+    # Actually, our count_motifs counts induced subgraphs.
+    # In K5, every 3 nodes have 6 edges (complete bidirectional).
+    # So all 10 subgraphs are the same type.
+    # observed_counts will have 1 entry with value 10.
     
-    # Calculate null degrees
-    out_degrees_null = np.sum(null_adj > 0, axis=1)
-    in_degrees_null = np.sum(null_adj > 0, axis=0)
+    null_models = [g1, g2, g3]
+    # Each g has 1 triangle.
     
-    # Assert degrees are exactly preserved
-    # Using mean absolute difference as a robust check
-    mean_out_diff = np.mean(np.abs(out_degrees_orig - out_degrees_null))
-    mean_in_diff = np.mean(np.abs(in_degrees_orig - in_degrees_null))
+    z_scores = compute_motif_z_scores(observed_counts, null_models, iterations=3)
     
-    assert mean_out_diff < 1e-6, f"Out-degree not preserved: mean diff = {mean_out_diff}"
-    assert mean_in_diff < 1e-6, f"In-degree not preserved: mean diff = {mean_in_diff}"
-    
-    # Also assert that the matrix is not identical to the original (unless iterations=0)
-    # Note: With random rewiring, it's possible (though unlikely) to return the same graph,
-    # but we assert that the function runs and produces a valid matrix.
-    assert null_adj.shape == adj.shape
-    assert np.array_equal((null_adj > 0).astype(int), (null_adj > 0).astype(int))
+    # Mean null = 1.0, Std null = 0.0 (all 1s)
+    # Observed = 10.
+    # Z = (10 - 1) / 0 -> inf
+    # Let's check if it handles inf
+    assert len(z_scores) == 1
+    # The value should be inf or a very large number if we handled it.
+    # Our implementation returns float('inf').
+    assert z_scores[list(z_scores.keys())[0]] == float('inf')
 
-def test_generate_null_model_shape_and_type():
-    """
-    Verify output is a numpy array of the same shape and compatible dtype.
-    """
-    N = 10
-    adj = np.random.randint(0, 2, size=(N, N))
-    np.fill_diagonal(adj, 0)
-    
-    null_adj = generate_null_model(adj, iterations=10, seed=42)
-    
-    assert isinstance(null_adj, np.ndarray)
-    assert null_adj.shape == adj.shape
-    assert null_adj.dtype == adj.dtype
+def test_generate_null_model_empty():
+    """Test null model generation on empty graph."""
+    adj = np.zeros((3, 3))
+    nulls = generate_null_model(adj, iterations=5)
+    assert len(nulls) == 5
+    for n in nulls:
+        assert np.sum(n) == 0
 
-def test_generate_null_model_empty_graph():
-    """
-    Verify behavior on an empty graph (no edges).
-    """
-    N = 5
-    adj = np.zeros((N, N))
-    
-    null_adj = generate_null_model(adj, iterations=100, seed=42)
-    
-    assert np.array_equal(null_adj, adj)
-    assert null_adj.shape == adj.shape
-
-def test_generate_null_model_complete_graph():
-    """
-    Verify behavior on a complete graph (all edges present except self-loops).
-    Rewiring on a complete graph is impossible without creating self-loops or duplicates,
-    so it should return the same graph.
-    """
-    N = 5
-    adj = np.ones((N, N))
-    np.fill_diagonal(adj, 0)
-    
-    null_adj = generate_null_model(adj, iterations=100, seed=42)
-    
-    # For a complete graph, no valid rewiring exists, so it should remain unchanged
-    assert np.array_equal(null_adj, adj)
-    
-    # Verify degrees are still correct
-    out_deg_orig = np.sum(adj > 0, axis=1)
-    out_deg_null = np.sum(null_adj > 0, axis=1)
-    assert np.mean(np.abs(out_deg_orig - out_deg_null)) < 1e-6
-    
+def test_generate_null_model_single_edge():
+    """Test null model generation on graph with 1 edge."""
+    adj = np.zeros((3, 3))
+    adj[0, 1] = 1
+    nulls = generate_null_model(adj, iterations=5)
+    # With 1 edge, we cannot rewire (need 2 edges).
+    # So all nulls should be the same as original.
+    for n in nulls:
+        assert np.array_equal(n, adj)

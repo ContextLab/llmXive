@@ -4,7 +4,9 @@
 
 ## Summary
 
-This project implements a reproducible, CPU-constrained pipeline to investigate whether specific 3-node network motif configurations in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC). The system downloads HCP diffusion and rs-fMRI data (or uses pre-seeded data), constructs Schaefer parcellated connectomes (preserving both binary and weighted forms), enumerates small-node motifs against degree-preserving null models (A fixed number of iterations), and computes partial correlations controlling for network density. Statistical rigor is enforced via FDR (Benjamini-Hochberg) correction, permutation testing, and power analysis, with all results rendered in a single PDF report.
+This project implements a reproducible, CPU-constrained pipeline to investigate whether specific Network motif configurations
+
+The research question investigates how network motif structures influence system dynamics. The method involves analyzing the frequency and functional roles of recurring subgraph patterns within complex networks, following the framework established by Milo et al. and Kashtan et al. in structural brain connectomes constrain individual variation in resting-state functional connectivity (rsFC). The system downloads HCP diffusion and rs-fMRI data (or uses pre-seeded data), constructs Schaefer parcellated connectomes (preserving both binary and weighted forms), enumerates small-node motifs against degree-preserving null models (A fixed number of iterations), and computes partial correlations controlling for network density. Statistical rigor is enforced via FDR (Benjamini-Hochberg) correction, permutation testing, and power analysis, with all results rendered in a single PDF report.
 
 ## Technical Context
 
@@ -12,13 +14,15 @@ This project implements a reproducible, CPU-constrained pipeline to investigate 
 **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `networkx`, `matplotlib`, `seaborn`, `nibabel`, `requests`, `reportlab`, `tqdm`, `joblib`, `dipy` (for streamline counting)  
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`)  
 **Testing**: `pytest` (unit tests for motif counting, integration tests for pipeline steps)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM, no GPU)  
 **Project Type**: Scientific data pipeline / CLI  
 **Performance Goals**: Motif enumeration ≤ 300s/subject; Full pipeline ≤ 6h; PDF generation ≤ 2m  
 **Constraints**: No GPU; Memory ≤ 7GB; Disk ≤ 14GB; Must handle missing subjects gracefully; Must include mandatory associational disclaimer.  
-**Scale/Scope**: N=50 subjects; -node motifs only; Schaefer-100 parcellation (100x100 matrices).
+**Scale/Scope**: N=50 subjects; -node motifs only; Schaefer parcellation
 
-> **Dataset Fit Note**: The plan relies on the HCP S1200 Release which provides raw diffusion tractography (streamlines/NIFTI) and resting-state fMRI for the same subjects. The pipeline performs local tractography-to-matrix conversion (streamline counting) and applies the Schaefer-100 parcellation to ensure node correspondence.
+The research question concerns the optimal granularity of cortical parcellation for network analysis. The method involves applying the Schaefer atlas to functional MRI data to evaluate network stability across varying levels of resolution. References: Schaefer et al. (2018). (100x100 matrices).
+
+> **Dataset Fit Note**: The plan relies on the HCP S Release which provides raw diffusion tractography (streamlines/NIFTI) and resting-state fMRI for the same subjects. The pipeline performs local tractography-to-matrix conversion (streamline counting) and applies a Schaefer parcellation scheme to ensure node correspondence.
 
 ## Constitution Check
 
@@ -26,7 +30,7 @@ This project implements a reproducible, CPU-constrained pipeline to investigate 
 
 | Principle | Compliance Check | Implementation Strategy |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `random.seed(42)` pinned in all stochastic steps (null model generation, permutation). `requirements.txt` pins all versions. Pipeline runs end-to-end on fresh CI. |
+| **I. Reproducibility** | **PASS** | `random.seed()` pinned in all stochastic steps (null model generation, permutation). `requirements.txt` pins all versions. Pipeline runs end-to-end on fresh CI. |
 | **II. Verified Accuracy** | **PASS** | Citations (Schaefer et al.; HCP) will be validated against primary sources before final report generation. |
 | **III. Data Hygiene** | **PASS** | Raw HCP data stored in `data/raw/` with checksums (SHA256) recorded in `data/raw/.checksums.json`. Derived matrices stored in `data/processed/` with provenance metadata. No in-place modification. |
 | **IV. Single Source of Truth** | **PASS** | All statistics in the PDF are generated directly from `results/` CSVs/JSONs produced by the code. No manual typing. Power analysis results written to `results/power_analysis.json`. |
@@ -96,10 +100,12 @@ results/
 *   **Data Conversion**: Use `dipy` to count streamlines between Schaefer-100 nodes. Save weighted matrix (floating-point) and binary matrices (integer) at three density thresholds.
 
 ### Phase 2: Motif Quantification
-*   **Goal**: Enumerate 3-node motifs and compute z-scores.
+*   **Goal**: Enumerate Motifs
+
+The research question focuses on identifying recurring subgraph patterns within complex networks. The method involves enumerating and statistically evaluating subgraph frequencies against randomized null models. References: Milo et al. (2002); DOI:10.1126/science.1073289. and compute z-scores.
 *   **FR/SC Mapping**:
-    *   **FR-004**: Enumerate 3-node subgraphs; generate degree-preserving nulls (Maslov-Sneppen); compute z-scores.
-    *   **SC-002**: Ensure execution ≤ 300s/subject on 2-core CPU (achieved by limiting to 100 iterations and using `networkx`).
+    *   **FR-004**: Enumerate -node subgraphs; generate degree-preserving nulls (Maslov-Sneppen); compute z-scores.
+    *   **SC-002**: Ensure execution ≤ 300s/subject on 2-core CPU (achieved by limiting to a fixed number of iterations and using `networkx`).
     *   **Edge Case**: If null model fails to converge after a predetermined number of retries, exclude subject from that specific motif's analysis (set z-score to `null` in JSON, do not assign 0).
 *   **Method**: `networkx` for subgraph isomorphism counting. Output normalized to `motif_profile.schema.yaml`.
 *   **Thresholding Strategy**: Compute z-scores at three density thresholds. Aggregate final `motif_z_scores` using the **median** value across thresholds to mitigate thresholding bias. Raw per-threshold scores stored in `motif_z_scores_raw`.
@@ -113,7 +119,7 @@ results/
     *   **SC-003**: Report corrected p-values for all motifs.
     *   **Edge Case**: Zero-variance detection (skip test, flag in report). VIF check for collinearity.
 *   **Statistical Rigor**:
-    *   **Multiple Comparisons**: FDR (Benjamini-Hochberg) applied across all directed 3-node motifs. Bonferroni is avoided as it is overly conservative for correlated tests.
+    *   **Multiple Comparisons**: FDR (Benjamini-Hochberg) applied across all directed -node motifs. Bonferroni is avoided as it is overly conservative for correlated tests.
     *   **Power**: With N=50 and FDR-adjusted alpha, detectable r is likely moderate (two-tailed test assumed for conservatism). This is explicitly reported.
     *   **Causal Claims**: None. The plan explicitly frames results as associational (FR-009, Constitution Principle VII).
     *   **Collinearity**: VIF check performed. If VIF > 5 for the control variable, report collinearity and switch to Spearman or uncorrected correlations with caveats.
@@ -135,7 +141,7 @@ results/
 *   **Collinearity**: VIF check performed before partial correlation. If VIF > 5 for the control variable, the plan reports collinearity and adjusts the statistical approach.
 *   **Circularity**: Global Efficiency is calculated on the *weighted* structural graph (unthresholded), while motifs are calculated on the *binary* graph (thresholded). The control variable is *network density* (not global degree) to avoid statistical redundancy with the null model which preserves degree.
 *   **Compute Feasibility**:
-    *   **Motif Counting**: Motifs on 100-node graphs are computationally feasible.
-    *   **Null Models**: 100 iterations per subject (reduced from 1000 to ensure SC-002 compliance). Edge-switching algorithms (Maslov-Sneppen) are used.
-    *   **Memory**: 50 subjects * 100x100 matrices is negligible. Processing is sequential to stay under 7GB RAM.
+    *   **Motif Counting**: Motifs on Large-scale graphs are computationally feasible.
+    *   **Null Models**: A fixed number of iterations per subject (reduced from 1000 to ensure SC-002 compliance). Edge-switching algorithms (Maslov-Sneppen) are used.
+    *   **Memory**: 50 subjects * 100x100 matrices is negligible. Processing is sequential to stay under a constrained RAM budget.
     *   **Timeout**: A timeout wrapper (s) is implemented for motif counting. If exceeded, the subject is skipped for that motif and logged.

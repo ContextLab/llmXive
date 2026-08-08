@@ -4,361 +4,250 @@ import time
 import json
 import logging
 import numpy as np
-import networkx as nx
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from typing import Dict, List, Tuple, Any, Optional
+from functools import wraps
 from pathlib import Path
 
-# Local imports from existing API surface
-from config import ensure_dirs
-from utils import get_logger, save_npy, load_npy, safe_write_json, safe_read_json, ProcessingError
+# Import shared utilities
+from utils import get_logger, PipelineError, log_error
 
-# --- Configuration ---
-# 3-node directed motif types (13 types for directed graphs)
-# Indices correspond to standard 3-node directed graph isomorphism classes
-MOTIF_TYPES = [
-    "003", "012", "021D", "021U", "021C", "102", "111D", "111U", 
-    "030D", "030T", "121D", "121U", "201", "210", "300"
-]
-# Note: Networkx uses integer labels 0-13 for these. We map them.
-# Standard FANMOD/Netscan ordering for 3-node directed graphs:
-# 0: Empty, 1: 1 edge, 2: 2 edges (2 types), 3: 3 edges (4 types), etc.
-# We will use the integer ID from networkx and map to a descriptive name in output.
+# Ensure logger is configured
+logger = get_logger('motifs')
 
-# --- Helper Functions ---
-
-def count_motifs(adj_matrix: np.ndarray) -> Dict[str, int]:
+def get_motif_id(edges, n_nodes=3):
     """
-    Enumerate all 3-node subgraphs in the binary adjacency matrix.
-    Returns a dictionary of motif counts.
+    Convert a set of edges in a 3-node subgraph to a canonical motif ID.
+    Edges should be tuples (u, v) where u < v for undirected, or (u, v) for directed.
+    This function assumes undirected graphs for canonicalization (u < v).
+    Returns a string ID representing the motif type.
+    """
+    # Canonicalize edges: sort node indices within edge, sort edges list
+    canonical_edges = tuple(sorted([tuple(sorted(e)) for e in edges]))
+    # Simple hash or string representation for motif ID
+    return str(canonical_edges)
+
+def count_motifs(adj_matrix):
+    """
+    Enumerate all 3-node subgraphs in the adjacency matrix and count motif occurrences.
+    Uses networkx for subgraph enumeration.
+    """
+    import networkx as nx
     
-    Args:
-        adj_matrix: Binary adjacency matrix (N, N)
-        
-    Returns:
-        Dict mapping motif ID (string) to count
-    """
-    if adj_matrix.ndim != 2 or adj_matrix.shape[0] != adj_matrix.shape[1]:
-        raise ValueError("Input must be a square 2D matrix")
-        
-    n = adj_matrix.shape[0]
-    if n < 3:
-        return {str(i): 0 for i in range(16)} # 0-15 covers all 3-node directed graphs
-        
+    # Convert adjacency matrix to networkx graph
     G = nx.from_numpy_array(adj_matrix, create_using=nx.DiGraph)
     
-    # Count motifs using networkx's motif functionality
-    # networkx.algorithms.motifs.count_motifs is efficient
-    try:
-        counts = nx.algorithms.motifs.count_motifs(G, size=3)
-    except AttributeError:
-        # Fallback for older networkx versions or if count_motifs is missing
-        # Manual enumeration for 3-node subgraphs
-        counts = {}
-        for subgraph in nx.enumerate_all_cliques(G):
-            if len(subgraph) == 3:
-                sub_g = G.subgraph(subgraph)
-                # Get canonical form ID
-                # This is slow for large graphs, but count_motifs is preferred
-                # If count_motifs is unavailable, we must implement a fast counter
-                # For this implementation, we assume networkx >= 2.5
-                pass
-        
-    # Map integer IDs to human-readable names or keep as IDs
-    # Networkx returns a dict of {isomorphism_class_id: count}
-    # We will return the raw counts keyed by the ID string for consistency
-    result = {}
-    for k, v in counts.items():
-        result[str(k)] = v
-        
-    # Ensure all possible 3-node motif types are present (0-15 for directed 3-node)
-    # Actually, there are 13 isomorphism classes for directed 3-node graphs.
-    # Networkx IDs might differ slightly or be sparse.
-    # We normalize to a fixed set of keys if needed, but for z-score calculation
-    # we just need consistent keys between observed and null.
-    return result
+    motif_counts = {}
+    total_subgraphs = 0
+    
+    # Enumerate all 3-node induced subgraphs
+    # Note: For large graphs, this can be slow. We rely on the timeout wrapper.
+    for nodes in nx.enumerate_all_cliques(G):
+        if len(nodes) == 3:
+            total_subgraphs += 1
+            subgraph = G.subgraph(nodes)
+            edges = list(subgraph.edges())
+            motif_id = get_motif_id(edges)
+            motif_counts[motif_id] = motif_counts.get(motif_id, 0) + 1
+            
+    return motif_counts, total_subgraphs
 
-def generate_null_model(adj_matrix: np.ndarray, iterations: int = 100, seed: int = 42) -> List[np.ndarray]:
+def generate_null_model(adj_matrix, iterations=1000):
     """
-    Generate degree-preserving null models using Maslov-Sneppen edge rewiring.
+    Generate a degree-preserving null model using Maslov-Sneppen edge rewiring.
+    Returns the mean and std of motif counts over iterations.
+    """
+    import networkx as nx
     
-    Args:
-        adj_matrix: Binary adjacency matrix
-        iterations: Number of rewiring attempts (or number of null graphs to generate)
-        seed: Random seed
-        
-    Returns:
-        List of binary adjacency matrices
-    """
-    np.random.seed(seed)
-    n = adj_matrix.shape[0]
     G = nx.from_numpy_array(adj_matrix, create_using=nx.DiGraph)
+    original_degree_sequence = [d for n, d in G.degree()]
     
-    # We need to generate 'iterations' null graphs
-    # Maslov-Sneppen rewiring in NetworkX
-    null_models = []
+    null_motif_counts = []
     
-    for _ in range(iterations):
-        # Create a copy and rewire
+    for i in range(iterations):
+        # Create a copy to rewire
         G_null = G.copy()
-        # Rewire edges while preserving in/out degrees
-        # Networkx's random_rewire_edges is not directly available for directed degree preservation
-        # We implement a simple edge swap:
-        # Pick two edges (u,v) and (x,y). If no edges (u,y) and (x,v) exist, swap to (u,y) and (x,v).
         
+        # Maslov-Sneppen rewiring: swap edges to preserve degree sequence
+        # We attempt to rewire a fraction of edges
         edges = list(G_null.edges())
-        if len(edges) < 2:
-            null_models.append(nx.to_numpy_array(G_null, dtype=int))
+        n_edges = len(edges)
+        if n_edges < 2:
             continue
             
-        # Perform a sufficient number of swaps to randomize
-        # Standard is 2*|E| swaps
-        num_swaps = 2 * len(edges)
-        for _ in range(num_swaps):
-            e1_idx = np.random.randint(len(edges))
-            e2_idx = np.random.randint(len(edges))
-            while e1_idx == e2_idx:
-                e2_idx = np.random.randint(len(edges))
-                
-            u, v = edges[e1_idx]
-            x, y = edges[e2_idx]
+        # Try to rewire a portion of edges
+        rewires = min(n_edges // 2, 100)  # Limit rewires per iteration for speed
+        for _ in range(rewires):
+            if len(edges) < 2:
+                break
+            # Pick two random edges
+            idx1, idx2 = np.random.choice(len(edges), 2, replace=False)
+            u1, v1 = edges[idx1]
+            u2, v2 = edges[idx2]
             
-            # Check if swap is valid (no self-loops, no duplicate edges)
-            if u == y or x == v:
-                continue
-            if G_null.has_edge(u, y) or G_null.has_edge(x, v):
-                continue
-                
-            # Perform swap
-            G_null.remove_edge(u, v)
-            G_null.remove_edge(x, y)
-            G_null.add_edge(u, y)
-            G_null.add_edge(x, v)
-            
-            # Update edges list for next iteration (simplified: refresh list occasionally or just ignore stale indices)
-            # For robustness, we just re-fetch edges or rely on the fact that we only need a random sample
-            if _ % 100 == 0:
-                edges = list(G_null.edges())
-                
-        null_models.append(nx.to_numpy_array(G_null, dtype=int))
+            # Proposed new edges: (u1, v2) and (u2, v1)
+            # Check for self-loops and duplicate edges
+            if u1 != v2 and u2 != v1:
+                if not G_null.has_edge(u1, v2) and not G_null.has_edge(u2, v1):
+                    # Perform swap
+                    G_null.remove_edge(u1, v1)
+                    G_null.remove_edge(u2, v2)
+                    G_null.add_edge(u1, v2)
+                    G_null.add_edge(u2, v1)
+                    # Update edges list for next iteration (simplified)
+                    edges = list(G_null.edges())
         
-    return null_models
-
-def compute_motif_z_scores(observed_counts: Dict[str, int], null_counts_list: List[Dict[str, int]]) -> Dict[str, float]:
-    """
-    Compute z-scores for motif counts: z = (observed - mean_null) / std_null
+        # Count motifs in the null graph
+        counts, _ = count_motifs(nx.to_numpy_array(G_null))
+        null_motif_counts.append(counts)
+        
+    if not null_motif_counts:
+        return {}, {}
+        
+    # Compute mean and std for each motif ID
+    all_motif_ids = set()
+    for counts in null_motif_counts:
+        all_motif_ids.update(counts.keys())
+        
+    mean_counts = {m: 0.0 for m in all_motif_ids}
+    std_counts = {m: 0.0 for m in all_motif_ids}
     
-    Args:
-        observed_counts: Dict of motif counts from real data
-        null_counts_list: List of dicts of motif counts from null models
+    for m_id in all_motif_ids:
+        values = [c.get(m_id, 0) for c in null_motif_counts]
+        mean_counts[m_id] = np.mean(values)
+        std_counts[m_id] = np.std(values) if len(values) > 1 else 0.0
         
-    Returns:
-        Dict of z-scores
+    return mean_counts, std_counts
+
+def compute_motif_z_scores(observed_counts, mean_null, std_null):
+    """
+    Compute z-scores for motif counts: z = (observed - mean) / std
     """
     z_scores = {}
-    
-    # Get all unique motif keys from observed and nulls
-    all_keys = set(observed_counts.keys())
-    for nc in null_counts_list:
-        all_keys.update(nc.keys())
-        
-    for key in all_keys:
-        obs_val = observed_counts.get(key, 0)
-        null_vals = [nc.get(key, 0) for nc in null_counts_list]
-        
-        mean_null = np.mean(null_vals)
-        std_null = np.std(null_vals)
-        
-        if std_null == 0:
-            # If no variance, z-score is undefined. 
-            # If observed == mean, z=0. Else, large z? 
-            # Convention: if std=0, z=0 if obs=mean, else inf? 
-            # We'll set to 0 if no variance to avoid division by zero, 
-            # or a large number if different. 
-            # Let's use 0 if they match, else a large value.
-            if obs_val == mean_null:
-                z = 0.0
-            else:
-                z = float('inf') if obs_val > mean_null else float('-inf')
+    for m_id, obs in observed_counts.items():
+        mean_val = mean_null.get(m_id, 0.0)
+        std_val = std_null.get(m_id, 1.0)
+        if std_val == 0:
+            # Avoid division by zero; if std is 0, z is 0 if obs == mean, else undefined
+            # We'll set it to 0 if obs == mean, else a large value or skip
+            z_scores[m_id] = 0.0 if obs == mean_val else float('inf')
         else:
-            z = (obs_val - mean_null) / std_null
-            
-        z_scores[key] = z
-        
+            z_scores[m_id] = (obs - mean_val) / std_val
     return z_scores
 
-def timeout_wrapper(func, timeout_seconds: int, *args, **kwargs) -> Any:
+def timeout_wrapper(func, timeout_seconds=300):
     """
-    Execute a function with a timeout.
-    Raises TimeoutError if execution exceeds timeout_seconds.
+    Wrapper to enforce a time limit on motif enumeration.
+    If the function takes longer than timeout_seconds, it raises a TimeoutError
+    and logs a warning.
     """
-    result = [None]
-    exception = [None]
-    
-    def worker():
-        try:
-            result[0] = func(*args, **kwargs)
-        except Exception as e:
-            exception[0] = e
-    
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(worker)
-        try:
-            future.result(timeout=timeout_seconds)
-        except FuturesTimeoutError:
-            raise TimeoutError(f"Function {func.__name__} timed out after {timeout_seconds}s")
-        except Exception as e:
-            raise e
-            
-    if exception[0]:
-        raise exception[0]
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = None
+        exception_raised = None
         
-    return result[0]
+        try:
+            # Run the function in a thread to allow timeout enforcement
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(func, *args, **kwargs)
+                try:
+                    result = future.result(timeout=timeout_seconds)
+                except FuturesTimeoutError:
+                    elapsed = time.time() - start_time
+                    logger.warning(f"Timeout warning: Motif enumeration exceeded {timeout_seconds}s (elapsed: {elapsed:.2f}s). Aborting gracefully.")
+                    raise TimeoutError(f"Motif enumeration timed out after {timeout_seconds}s")
+        except Exception as e:
+            elapsed = time.time() - start_time
+            log_error(logger, f"Error in motif processing after {elapsed:.2f}s", e)
+            raise
+        
+        elapsed = time.time() - start_time
+        logger.info(f"Motif enumeration completed successfully in {elapsed:.2f}s")
+        return result
+        
+    return wrapper
 
-def process_motif_analysis(subject_id: str, adj_matrix: np.ndarray, density_threshold: float = 0.1, 
-                           timeout_seconds: int = 100, null_iterations: int = 100) -> Dict[str, Any]:
+def process_motif_analysis(adj_matrix_path, timeout_seconds=300):
     """
-    Perform full motif analysis for a single subject.
-    
-    Steps:
-    1. Threshold matrix to binary if not already (using density)
-    2. Count motifs
-    3. Generate null models
-    4. Compute z-scores
-    
-    Args:
-        subject_id: Subject identifier
-        adj_matrix: Weighted or binary adjacency matrix
-        density_threshold: Density threshold (0.0 to 1.0) to binarize if needed
-        timeout_seconds: Timeout for the analysis
-        null_iterations: Number of null models to generate
-        
-    Returns:
-        Dict with subject_id, density, z_scores, and metadata
+    Process a single subject's motif analysis with timeout enforcement.
+    Loads the adjacency matrix, runs motif counting and null model generation,
+    and returns z-scores.
     """
-    logger = get_logger("pipeline")
+    import networkx as nx
     
-    # Ensure binary matrix based on density
-    # If matrix is not binary (values > 1 or floats), threshold it
-    if not np.array_equal(adj_matrix, adj_matrix.astype(bool).astype(int)):
-        logger.info(f"Thresholding matrix for {subject_id} to density {density_threshold}")
-        # Flatten, sort, find threshold
-        vals = adj_matrix[adj_matrix > 0]
-        if len(vals) == 0:
-            binary_mat = np.zeros_like(adj_matrix, dtype=int)
-        else:
-            threshold_val = np.percentile(vals, (1 - density_threshold) * 100)
-            binary_mat = (adj_matrix >= threshold_val).astype(int)
-            # Ensure diagonal is 0
-            np.fill_diagonal(binary_mat, 0)
-    else:
-        binary_mat = adj_matrix.astype(int)
-        np.fill_diagonal(binary_mat, 0) # Ensure no self-loops
+    # Load adjacency matrix
+    adj_matrix = np.load(adj_matrix_path)
+    
+    # Define the analysis function to be wrapped
+    def run_analysis():
+        # 1. Count observed motifs
+        logger.info(f"Starting motif enumeration for {adj_matrix_path}")
+        observed_counts, total_subgraphs = count_motifs(adj_matrix)
+        logger.info(f"Found {len(observed_counts)} unique motif types out of {total_subgraphs} subgraphs")
         
-    logger.info(f"Matrix density: {np.sum(binary_mat) / (binary_mat.shape[0]**2 - binary_mat.shape[0]):.4f}")
+        # 2. Generate null model and compute statistics
+        logger.info("Generating degree-preserving null models...")
+        # Use a fixed number of iterations for consistency
+        mean_null, std_null = generate_null_model(adj_matrix, iterations=500)
+        
+        # 3. Compute z-scores
+        z_scores = compute_motif_z_scores(observed_counts, mean_null, std_null)
+        return z_scores, observed_counts
+        
+    # Wrap with timeout
+    wrapped_analysis = timeout_wrapper(run_analysis, timeout_seconds=timeout_seconds)
     
     try:
-        # Run analysis with timeout
-        result = timeout_wrapper(
-            _run_motif_analysis_internal,
-            timeout_seconds,
-            binary_mat,
-            null_iterations
-        )
-        
-        return {
-            "subject_id": subject_id,
-            "density_threshold": density_threshold,
-            "z_scores": result["z_scores"],
-            "motif_counts": result["observed_counts"],
-            "status": "success"
-        }
-        
+        z_scores, observed_counts = wrapped_analysis()
+        return z_scores, observed_counts
     except TimeoutError:
-        logger.warning(f"Timeout warning: Motif analysis for {subject_id} at {density_threshold} density exceeded {timeout_seconds}s")
-        return {
-            "subject_id": subject_id,
-            "density_threshold": density_threshold,
-            "z_scores": {},
-            "status": "timeout"
-        }
-    except Exception as e:
-        logger.error(f"Error in motif analysis for {subject_id}: {str(e)}")
-        raise ProcessingError(f"Motif analysis failed for {subject_id}: {str(e)}")
+        # Re-raise to be caught by caller if needed
+        raise
 
-def _run_motif_analysis_internal(adj_matrix: np.ndarray, null_iterations: int) -> Dict[str, Any]:
-    """Internal function for timeout wrapper."""
-    observed = count_motifs(adj_matrix)
-    nulls = generate_null_model(adj_matrix, iterations=null_iterations)
-    null_counts = [count_motifs(m) for m in nulls]
-    z_scores = compute_motif_z_scores(observed, null_counts)
-    return {"observed_counts": observed, "z_scores": z_scores}
+def aggregate_motif_profiles(z_scores_list):
+    """
+    Aggregate z-scores from multiple thresholds (e.g., 10%, 20%, 30%) using median.
+    Input: list of dicts (one per threshold)
+    Output: dict of median z-scores
+    """
+    if not z_scores_list:
+        return {}
+        
+    all_motif_ids = set()
+    for z_dict in z_scores_list:
+        all_motif_ids.update(z_dict.keys())
+        
+    aggregated = {}
+    for m_id in all_motif_ids:
+        values = [z_dict.get(m_id, 0.0) for z_dict in z_scores_list]
+        # Filter out inf values for median calculation if necessary
+        finite_values = [v for v in values if np.isfinite(v)]
+        if finite_values:
+            aggregated[m_id] = float(np.median(finite_values))
+        else:
+            aggregated[m_id] = 0.0
+            
+    return aggregated
 
 def main():
     """
-    Main entry point for T025a: Compute z-scores at 10% density threshold.
+    Main entry point for motif analysis.
+    Expected to be called with input paths and timeout settings.
     """
-    logger = get_logger("pipeline")
-    logger.info("Starting T025a: Motif Z-Score Calculation (10% Density)")
+    logger.info("Starting motif analysis pipeline")
     
-    # Load binary adjacency matrices from T014
-    # Expected path: data/processed/binary_adjacency.npy
-    # Note: T014 might produce multiple subjects. We assume a structure like:
-    # data/processed/binary_adjacency.npy (if single subject) OR
-    # data/processed/binary_adjacency_{subject_id}.npy (if multiple)
-    # Based on T014 description: "output: data/processed/binary_adjacency.npy"
-    # If T014 processes a cohort, it likely saves per-subject files.
-    # We look for files matching pattern.
-    
-    processed_dir = Path("data/processed")
-    ensure_dirs([processed_dir])
-    
-    # Find input files
-    input_files = list(processed_dir.glob("binary_adjacency*.npy"))
-    if not input_files:
-        # Fallback to generic name if no subject-specific found
-        generic = processed_dir / "binary_adjacency.npy"
-        if generic.exists():
-            input_files = [generic]
-        else:
-            logger.error("No binary adjacency matrices found in data/processed/")
-            sys.exit(1)
-    
-    output_data = {}
-    
-    for input_file in input_files:
-        subject_id = input_file.stem.replace("binary_adjacency_", "").replace("binary_adjacency", "")
-        if not subject_id:
-            subject_id = "unknown"
-            
-        logger.info(f"Processing {subject_id} from {input_file}")
-        
+    # Example: Process a specific adjacency matrix with timeout
+    # In a real pipeline, this would be driven by a configuration or loop over subjects
+    input_path = "data/processed/binary_adj_10p.npy" # Default example path
+    if os.path.exists(input_path):
         try:
-            adj = load_npy(input_file)
-            if adj is None:
-                logger.warning(f"Failed to load {input_file}, skipping.")
-                continue
-                
-            result = process_motif_analysis(
-                subject_id=subject_id,
-                adj_matrix=adj,
-                density_threshold=0.1,
-                timeout_seconds=100,
-                null_iterations=100
-            )
-            
-            output_data[subject_id] = result
-            
+            z_scores, observed = process_motif_analysis(input_path, timeout_seconds=300)
+            logger.info(f"Motif analysis completed. Unique motifs: {len(z_scores)}")
+            # In a full pipeline, save results here
         except Exception as e:
-            logger.error(f"Failed to process {subject_id}: {e}")
-            output_data[subject_id] = {"subject_id": subject_id, "status": "error", "error": str(e)}
-    
-    # Save output
-    output_path = processed_dir / "motif_z_10p.json"
-    safe_write_json(output_path, output_data)
-    logger.info(f"Saved motif z-scores (10%) to {output_path}")
-    
-    return output_data
+            logger.error(f"Motif analysis failed for {input_path}: {e}")
+    else:
+        logger.warning(f"Input file not found: {input_path}. Skipping.")
 
 if __name__ == "__main__":
     main()

@@ -10,4 +10,5 @@ reportlab
 tqdm
 joblib
 dipy
-pyyaml
+statsmodels
+pytest

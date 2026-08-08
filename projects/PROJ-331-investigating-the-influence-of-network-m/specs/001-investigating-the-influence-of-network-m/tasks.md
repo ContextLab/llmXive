@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`
-- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, networkx, matplotlib, seaborn, nibabel, requests, reportlab, tqdm, joblib, dipy)
+- [X] T002 [P] Initialize Python project with `requirements.txt` (numpy, scipy, pandas, networkx, matplotlib, seaborn, nibabel, requests, reportlab, tqdm, joblib, dipy, statsmodels)
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -57,7 +57,7 @@
 
 - [X] T004 [P] Implement `code/config.py` with paths, seeds (42), and constants
 - [X] T005 [P] Implement `code/utils.py` for logging (to `pipeline.log`), error handling, and file I/O
-- [X] T006 [P] Create `scripts/hash_artifacts.sh` to generate SHA256 checksums and update `state/...yaml`
+- [X] T006 [P] Create `scripts/hash_artifacts.sh` to generate SHA checksums and update `state/...yaml`
 - [X] T007 [P] Setup `tests/conftest.py` and mock data fixtures for CI-safe testing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -76,18 +76,19 @@
 
 - [X] T010 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`: **Contract**: Verify `download_subject_data(subject_id)` returns a dict with keys `{'dwi_path', 'rsfmri_path'}` or raises `FileNotFoundError` if missing; assert SHA256 checksums match `data/raw/.checksums.json` for valid files.
 - [X] T011 [P] [US1] Unit test for parcellation logic in `tests/unit/test_preprocess.py`: **Contract**: Verify `parcellate_connectome(streamlines_path, atlas_path)` returns a numpy array of shape (N, N) with a floating-point data type, where N corresponds to the number of regions in the specified atlas.; assert values are non-negative and density is within the expected valid range.
-- [X] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-to-end on 2 mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for both; assert `data/logs/pipeline.log` contains "Processed 2/2 subjects" without errors.
+- [X] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-end on mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for each subject.; assert `data/logs/pipeline.log` contains "Processed all subjects" without errors.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/download.py` to fetch HCP DWI (.trk/.tck) and rs-fMRI data (or verify pre-seeded data in `data/raw/`); include graceful handling for missing subjects (log warning, skip, continue); **FAIL LOUDLY** on real fetch errors (no synthetic fallback)
-- [ ] T014 [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Weighted Adjacency** (streamline count, **unthresholded**); input: .trk/.tck streamlines, .nii.gz atlas; output: `data/processed/weighted_adjacency.npy`
-- [ ] T014a [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Binary Adjacency (10% density threshold)**; input: `data/processed/weighted_adjacency.npy`; output: `data/processed/binary_adj_10p.npy`
-- [ ] T014b [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Binary Adjacency (20% density threshold)**; input: `data/processed/weighted_adjacency.npy`; output: `data/processed/binary_adj_20p.npy`
-- [ ] T014c [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> **Binary Adjacency (30% density threshold)**; input: `data/processed/weighted_adjacency.npy`; output: `data/processed/binary_adj_30p.npy`
-- [ ] T015 [US1] Implement `code/preprocess.py` to compute rsFC (Pearson correlation of BOLD time‑series) and **Global Efficiency** (on the **unthresholded weighted adjacency matrix** `data/processed/weighted_adjacency.npy` from T014); input: `data/processed/weighted_adjacency.npy`; output: `data/processed/rsfc.npy`, `data/processed/global_efficiency.json`
-- [ ] T016 [US1] Implement logging of all processing steps, warnings, and errors to `data/logs/pipeline.log`
-- [ ] T017 [US1] Save processed matrices (`structural.npy`, `rsfc.npy`) to `data/processed/` with provenance metadata
+- [X] T013 [US1] Implement `code/download.py` to fetch HCP DWI (.trk/.tck) and rs-fMRI data (or verify pre-seeded data in `data/raw/`); include graceful handling for missing subjects (log warning, skip, continue); **FAIL LOUDLY** on real fetch errors (no synthetic fallback)
+- [ ] T014a [P] [US1] Implement `code/preprocess.py` function `def parcellate_streamlines(streamlines_path, atlas_path)` to apply Schaefer parcellation to DWI streamlines -> **Weighted Adjacency** (streamline count, **unthresholded**). Input: .trk/.tck, .nii.gz atlas; Output: `data/processed/weighted_adjacency.npy`. **Dependency**: T013.
+- [ ] T014b [US1] Implement `code/preprocess.py` function `def threshold_weighted_adjacency(weighted_path, thresholds=[0.1, 0.2, 0.3])` to generate **Binary Adjacencies** at varying density thresholds. **Explicit Constraint**: The `atlas_path` parameter MUST be explicitly set to the 'Schaefer et al.
+
+The research question examines the relationship between [phenomenon] and [outcome], employing a [method] approach as outlined by Schaefer et al. (2023). This study aims to identify whether the observed trend aligns with theoretical predictions, without presuming specific quantitative magnitudes at this planning stage.' file defined in `code/config.py` to satisfy Spec FR-002. Input: `data/processed/weighted_adjacency.npy`; Output: `data/processed/binary_adj_10p.npy`, `data/processed/binary_adj_20p.npy`, `data/processed/binary_adj_30p.npy`. **Dependency**: T014a.
+- [ ] T014c [US1] Implement `code/preprocess.py` to select the **canonical binary connectome** (threshold-based) for downstream Spec compliance. Output: `data/processed/canonical_binary_adj.npy`. **Dependency**: T014b.
+- [ ] T015 [US1] Implement `code/preprocess.py` to compute rsFC (Pearson correlation of BOLD time‑series) and **Global Efficiency** (on the **unthresholded weighted adjacency matrix** `data/processed/weighted_adjacency.npy` from T014a). **Schema**: `data/processed/global_efficiency.json` = `{'subject_id': str, 'global_efficiency': float}` (formula: average of node-wise global efficiency). **Output**: `data/processed/rsfc.npy`, `data/processed/global_efficiency.json`. **Dependency**: T014a.
+- [X] T016 [US1] Implement logging of all processing steps, warnings, and errors to `data/logs/pipeline.log`
+- [ ] T017 [US1] Save processed matrices (`structural.npy`, `rsfc.npy`) to `data/processed/` with provenance metadata. **Explicit Requirement**: Append the provenance metadata (checksums, source files) to `data/logs/pipeline.log` as well to satisfy Spec FR-008 and Constitution Principle IV. **Dependency**: T014a, T015.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,7 +96,7 @@
 
 ## Phase 4: User Story 2 - Motif Quantification (Priority: P2)
 
-**Goal**: Enumerate all 3-node subgraphs in each structural connectome, compute z‑score prevalence against degree‑preserving null models, and store the motif profile.
+**Goal**: Enumerate all 3‑node subgraphs in each structural connectome, compute z‑score prevalence against degree‑preserving null models, and store the motif profile.
 
 **Independent Test**: Run the motif‑counting script on a single preprocessed structural matrix; verify that a JSON file containing z‑scores for each motif type is produced and matches a reference output.
 
@@ -107,12 +108,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/motifs.py` to enumerate all 3‑node subgraphs using `networkx`; generate degree‑preserving null networks using Maslov-Sneppen algorithm; enforce strict 300s timeout per subject to satisfy SC-002
-- [ ] T023 [US2] Implement `code/motifs.py` to compute z‑score prevalence for every 3‑node motif type: `z = (observed - mean_null) / std_null`
-- [ ] T024 [US2] Implement timeout wrapper (time limit) for motif enumeration; abort gracefully and log warning if exceeded
-- [ ] T025 [US2] Compute z-scores for **all three density thresholds** (10%, 20%, 30%) in a **single optimized loop** to ensure SC-002 compliance (total time <= 300s); input: `data/processed/binary_adj_10p.npy`, `binary_adj_20p.npy`, `binary_adj_30p.npy`; output: `data/processed/motif_z_10p.json`, `motif_z_20p.json`, `motif_z_30p.json`
-- [ ] T026 [US2] Aggregate z-scores from T025 using **median** value across thresholds; output `data/processed/motif_profiles.json` with raw per-threshold scores
-- [ ] T027 [US2] Save motif profiles to `data/processed/motif_profiles.json` with raw per-threshold scores
+- [ ] T025a_count [US2] Implement `code/motifs.py` function `def count_motifs_with_timeout(adj_matrix, threshold, timeout=300)` to enumerate all 3‑node subgraphs for a **specific density threshold** using `networkx` **with a strict timeout wrapper**. If timeout exceeded, raise `TimeoutError` and log warning. **Dependency**: T014b.
+- [ ] T025b_zscore [US2] Implement `code/motifs.py` function `def compute_z_scores(counts, null_counts)` to compute z‑score prevalence: `z = (observed - mean_null) / std_null` for a **specific density threshold**. Input: counts from T025a_count, null counts (multiple iterations). Output: in-memory dict of z-scores per motif. **Dependency**: T025a_count.
+- [ ] T025c_loop [US2] Implement `code/motifs.py` to iterate Ta_count and T025b_zscore for **all three density thresholds** (10%, 20%, 30%) and store intermediate results. **Dependency**: T014b, T025a_count, T025b_zscore.
+- [ ] T025d_raw [US2] Implement `code/motifs.py` to save raw z-scores for **every 3-node motif type** for **each threshold** to `data/processed/motif_z_raw.json`. **Schema**: `{'threshold_10p': {motif_id: float}, 'threshold_20p': {motif_id: float}, 'threshold_30p': {motif_id: float}}`. This file is the single source of truth for per-threshold data. **Dependency**: T025c_loop.
+- [ ] T025c_aggregate [US2] Implement `code/motifs.py` to compute z-scores for **all three density thresholds** and aggregate using **median** value. **Note**: Extends Spec FR-004 per Plan Phase 2; raw outputs preserved in T025d_raw. Output: `data/processed/motif_z_aggregated.json`. **Dependency**: T025c_loop, T025b_zscore.
+- [ ] T026 [US2] Implement `code/motifs.py` to aggregate z-scores from T025c_aggregate (median values) and save `data/processed/motif_profiles.json` containing the final aggregated scores and a reference to the raw data file `motif_z_raw.json`. **Dependency**: T025c_aggregate, T025d_raw.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,22 +127,26 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for partial correlation and Bonferroni correction in `tests/unit/test_stats.py`: **Contract**: Verify `partial_corr(x, y, z)` returns correct r and p-value; verify `bonferroni_correct(p_values)` returns adjusted p-values summing to <= 1.0.
-- [ ] T029 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_stats.py`: **Contract**: Verify `permutation_test(x, y, n_perm=1000)` returns empirical p-value; assert p-value is within 2*SE of analytical p-value for known distributions.
-- [ ] T037b [P] [US3] Unit test for PDF generation layout and content in `tests/unit/test_report.py`: **Contract**: Verify `generate_pdf(results)` creates a file <= 5MB; assert presence of mandatory disclaimer string.
-- [X] T037b [US3] Integration test in `tests/integration/test_report.py` to verify PDF generation completes in ≤2 minutes and file size ≤5MB (SC-004)
+- [X] T028 [P] [US3] Unit test for partial correlation and Bonferroni correction in `tests/unit/test_stats.py`: **Contract**: Verify `partial_corr(x, y, z)` returns correct r and p-value; verify `bonferroni_correct(p_values)` returns adjusted p-values summing to <= 1.0.
+- [X] T029 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_stats.py`: **Contract**: Verify `permutation_test(x, y, n_perm=1000)` returns empirical p-value; assert p-value is within 2*SE of analytical p-value for known distributions.
+- [X] T037b [P] [US3] Unit test for PDF generation layout and content in `tests/unit/test_report.py`: **Contract**: Verify `generate_pdf(results)` creates a file <= 5MB; assert presence of mandatory disclaimer string.
+- [X] T038 [US3] Integration test in `tests/integration/test_report.py` to verify PDF generation completes in ≤2 minutes and file size ≤5MB (SC-004)
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/stats.py` to aggregate `data/processed/global_efficiency.json`, `data/processed/rsfc.npy`, and `data/processed/motif_profiles.json` into a single `data/processed/subject_metrics.csv` for downstream analysis; input: outputs from US1 and US2; output: `data/processed/subject_metrics.csv`
-- [ ] T030 [US3] Implement `code/stats.py` to compute partial Pearson/Spearman correlations between each motif's z-score and each rsFC metric (strength and global efficiency) across subjects, **controlling for network density** (as per Plan Phase 3 strategy to avoid redundancy); input: `data/processed/motif_profiles.json`, `data/processed/subject_metrics.csv`; reference [FR-005], [Plan Phase 3]
-- [ ] T031 [US3] Implement `code/stats.py` to apply **Bonferroni correction** across all directed 3‑node motifs (Strictly implements Spec FR-005; overrides Plan's FDR suggestion); output corrected p-values in `results/correlation_results.json`
-- [ ] T032 [US3] Implement `code/stats.py` to run permutation test (≥1000 permutations) for significant motifs (corrected p < 0.05)
-- [ ] T033 [US3] Implement zero-variance detection (skip test, flag in report) and VIF check for collinearity (if VIF > 5, report and switch to Spearman)
-- [ ] T034 [US3] Implement `code/stats.py` power analysis module (N=50, α=0.05 **Bonferroni-adjusted**) using G*Power approximation; output schema: `{"min_detectable_r": float, "power_level": 0.8, "adjusted_alpha": float, "n_subjects": 50}` to `results/power_analysis.json`
-- [ ] T035 [US3] Implement `code/report.py` to generate PDF with scatter plots, CIs, p-values, and permutation results per motif; input: `results/correlation_results.json`
-- [ ] T036 [US3] Add mandatory disclaimer string: "These findings are associational only and do not imply causation." to PDF
-- [ ] T037a [US3] Implement PDF generation logic in `code/report.py` ensuring layout, plots, and text are correctly rendered
+- [ ] T039 [US3] Implement `code/stats.py` to aggregate `data/processed/global_efficiency.json`, `data/processed/rsfc.npy`, `data/processed/motif_z_aggregated.json` (from T025c_aggregate, **canonical input**), and `data/processed/weighted_adjacency.npy` (to compute network density) into a single `data/processed/subject_metrics.csv`. **Note**: Handles subject list mismatch by inner-joining on available subjects. **Explicit Requirement**: The output CSV MUST include 'network_density' as a column to support T030a. **Dependency**: T014a, T015, T025c_aggregate, T025d_raw.
+- [ ] T030a [US3] Implement `code/stats.py` function `def check_vif_and_select_method(metrics)` to compute VIF for control variable (**network density**). **Explicit Override**: This task explicitly overrides Spec FR-005's requirement to control for 'global node degree' with 'network density' based on the Plan's scientific rationale (avoiding statistical redundancy with the degree-preserving null model). If VIF > 5, flag `method_switched=True` and select Spearman; else Pearson. **Output**: `data/processed/quality_flags.json` with keys `{'zero_variance': bool, 'vif_value': float, 'method_switched': bool}`. **Dependency**: T039.
+- [ ] T030b [US3] Implement `code/stats.py` function `def compute_partial_correlations(metrics, method)` to compute partial correlations between motif z-scores and rsFC metrics using the method selected in T030a. **Dependency**: T030a.
+- [ ] T030c [US3] Implement `code/stats.py` to apply **Bonferroni correction** across all directed 3‑node motifs. **Explicit Override**: This task implements Bonferroni as mandated by Spec FR-005, overriding the Plan Phase 3 suggestion of FDR. The Plan's rationale for FDR is noted but the Spec requirement takes precedence. Output: `results/correlation_results.json`. **Dependency**: T030b.
+- [ ] T032a [US3] Implement `code/stats.py` function `def identify_significant_motifs(results)` to filter motifs with corrected p < 0.05. Handle edge case: if no significant motifs, skip permutation test. **Dependency**: T030c, T030a.
+- [ ] T032b [US3] Implement `code/stats.py` function `def run_permutation_test(motif_data, n_perm=1000)` to run permutation test (≥1000 permutations) for a **single** significant motif. **Null Hypothesis**: No correlation. **Statistic**: Pearson r. **Output**: Empirical p-value. **Dependency**: T032a.
+- [ ] T032c [US3] Implement `code/stats.py` to **iterate** T032b over the list of significant motifs identified in T032a and aggregate the results into `results/permutation_results.json`. **Explicit Requirement**: This task satisfies Spec FR-006's requirement to run a permutation test for *each* significant motif. **Dependency**: T032b, T032a.
+- [ ] T033 [US3] Implement zero-variance detection (skip test, flag in report) and VIF check for collinearity (if VIF > 5, report and switch to Spearman). **Output**: `data/processed/quality_flags.json`. **Dependency**: T039.
+- [X] T034 [US3] Implement `code/stats.py` power analysis module (N=50, α=0.05 **Bonferroni-adjusted**) using `statsmodels.stats.power` for approximation; **Explicit Requirement**: Log the exact `statsmodels` version and the random seed used for the calculation to `pipeline.log` and include them in `results/power_analysis.json` to satisfy Constitution Principle VII. Output schema: `{"min_detectable_r": float, "power_level": 0.8, "adjusted_alpha": float, "n_subjects": 50, "statsmodels_version": str, "seed": int}`. **Dependency**: T030c.
+- [ ] T035a [US3] Design PDF report layout in `docs/report_layout.md`: Define page structure, library usage (reportlab), and data mapping from `results/correlation_results.json` to PDF elements. **Dependency**: Spec FR-007, FR-009.
+- [ ] T035b [US3] Implement `code/report.py` to generate PDF based on T035a design. Input: `results/correlation_results.json`, `results/permutation_results.json`, `results/power_analysis.json`. **Dependency**: T035a, T032c, T034.
+- [ ] T036 [US3] Add mandatory disclaimer string: "These findings are associational only and do not imply causation." to PDF. **Dependency**: T035b.
+- [ ] T037a [US3] Implement PDF generation logic in `code/report.py` ensuring layout, plots, and text are correctly rendered. **Dependency**: T035b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,11 +156,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `docs/` (README, usage guide)
-- [ ] T039 [P] Performance optimization for `code/motifs.py` to verify SC-002 compliance (≤300s/subject)
-- [ ] T040 [P] Run `scripts/hash_artifacts.sh` to finalize versioning and update `state/...yaml`
-- [ ] T041 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T042 [P] Run `quickstart.md` validation
+- [ ] T040 [P] Documentation updates in `docs/` (README, usage guide)
+- [ ] T041 [P] Performance optimization for `code/motifs.py` to verify SC-002 compliance (≤300s/subject)
+- [ ] T042 [P] Run `scripts/hash_artifacts.sh` to finalize versioning and update `state/...yaml`
+- [ ] T043 [P] Additional unit tests (if requested) in `tests/unit/`
+- [ ] T044 [P] Run `quickstart.md` validation
 
 ---
 
@@ -249,4 +254,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Spec vs Plan Conflict**: Where Spec FR-005 mandates Bonferroni and Plan suggests FDR, tasks follow the **Spec** (Bonferroni). Where Plan Phase 3 mandates controlling for 'network density' and Spec FR-005 says 'global node degree', tasks follow the **Plan** (network density) for scientific rigor, while still applying the Spec's correction method.
+- **Spec vs Plan Conflict**: Where Spec FR-005 mandates Bonferroni and Plan suggests FDR, tasks follow the **Spec** (Bonferroni) as documented in T030c. Where Plan Phase 3 mandates controlling for 'network density' and Spec FR-005 says 'global node degree', tasks follow the **Plan** (network density) for scientific rigor, with explicit override documentation in T030a.
+- **Task Splitting**: T030 split into T030a (VIF/Method), T030b (Correlation), T030c (Correction). T025 split into T025a (Count per threshold), T025b (Z-score per threshold), T025c_loop (Iteration), T025c_aggregate (Median), T025d_raw (Raw storage). T014 split into T014a (Weighted), T014b (Binary), T014c (Canonical). T032 split into T032b (Function), T032c (Orchestration).
+- **Data Integrity**: T013 strictly enforces "FAIL LOUDLY" on real data fetch errors; no synthetic fallbacks are permitted per Constitution Principle III.
+- **Compute Feasibility**: T025a_count includes a strict 300s timeout to ensure SC-002 compliance; if exceeded, the subject is skipped for that motif and logged.
+- **Data Flow**: T039 explicitly uses `motif_z_aggregated.json` as the canonical input for correlation analysis, resolving the raw vs. aggregated ambiguity.
+- **Artifact Clarity**: T025d_raw defines the schema for raw per-threshold data (`motif_z_raw.json`), and T026 aggregates the median scores into `motif_profiles.json` without duplicating raw data, resolving the previous ambiguity.
