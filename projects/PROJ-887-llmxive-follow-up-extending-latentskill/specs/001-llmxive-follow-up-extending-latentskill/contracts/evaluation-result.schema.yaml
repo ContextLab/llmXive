@@ -1,40 +1,156 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "EvaluationResult"
-description: "Schema for a single evaluation run result."
-type: "object"
-properties:
-  task_id:
-    type: "string"
-    description: "Reference to the composite task being evaluated."
-  method:
-    type: "string"
-    enum:
-      - "nearest_neighbor"
-      - "arithmetic_mean"
-      - "weighted_mean"
-      - "baseline"
-    description: "The retrieval/interpolation strategy used."
-  run_id:
-    type: "integer"
-    description: "The run number (1 to N)."
-  success:
-    type: "integer"
-    enum:
-      - 0
-      - 1
-    description: "Binary outcome: 1 for success, 0 for failure."
-  selection_latency_ms:
-    type: "number"
-    description: "Wall-clock time for skill selection in milliseconds."
-  timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of the run."
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Result Schema
+description: >
+  Defines the structure of the statistical evaluation report
+  generated after running the evaluation pipeline (User Story 3).
+type: object
 required:
-  - task_id
-  - method
-  - run_id
-  - success
-  - selection_latency_ms
+  - experiment_id
   - timestamp
-additionalProperties: false
+  - configuration
+  - results
+  - statistical_analysis
+  - sensitivity_analysis
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the experiment run
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the run
+  configuration:
+    type: object
+    required:
+      - base_model_path
+      - strategies_used
+      - k_values
+    properties:
+      base_model_path:
+        type: string
+        description: Path to the GGUF model used
+      strategies_used:
+        type: array
+        items:
+          type: string
+        description: List of retrieval strategies tested (e.g., 'nearest_neighbor', 'cosine_weighted')
+      k_values:
+        type: array
+        items:
+          type: integer
+        description: List of k values used for sensitivity analysis
+      seed:
+        type: integer
+        description: Random seed used for reproducibility
+  results:
+    type: object
+    description: >
+      Map of task names to their success metrics.
+      Structure: { task_name: { strategy: { mean_success: float, trials: int, outcomes: [bool] } } }
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: object
+        required:
+          - mean_success
+          - trials
+          - outcomes
+        properties:
+          mean_success:
+            type: number
+            format: float
+            description: Mean of binary outcomes (0.0 to 1.0)
+          trials:
+            type: integer
+            description: Number of independent runs (N >= 5)
+          outcomes:
+            type: array
+            items:
+              type: boolean
+            description: List of binary success/failure results
+  statistical_analysis:
+    type: object
+    required:
+      - method
+      - comparisons
+      - bh_correction
+    properties:
+      method:
+        type: string
+        description: Statistical test used (e.g., 'paired_t_test', 'wilcoxon')
+      comparisons:
+        type: array
+        items:
+          type: object
+          required:
+            - strategy_a
+            - strategy_b
+            - p_value
+            - significant
+          properties:
+            strategy_a:
+              type: string
+            strategy_b:
+              type: string
+            p_value:
+              type: number
+              format: float
+            significant:
+              type: boolean
+      bh_correction:
+        type: array
+        items:
+          type: object
+          required:
+            - comparison_id
+            - q_value
+            - significant
+          properties:
+            comparison_id:
+              type: string
+            q_value:
+              type: number
+              format: float
+            significant:
+              type: boolean
+  sensitivity_analysis:
+    type: object
+    description: >
+      Results of varying k (number of neighbors) in {1, 3, 5}.
+      Structure: { k: { strategy: { mean_success: float } } }
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: object
+        required:
+          - mean_success
+        properties:
+          mean_success:
+            type: number
+            format: float
+  linearity_check:
+    type: object
+    description: >
+      Optional field if linearity check (T030) was performed.
+    required:
+      - correlation
+      - is_valid
+    properties:
+      correlation:
+        type: number
+        format: float
+        description: Pearson correlation between text-space and weight-space distances
+      is_valid:
+        type: boolean
+        description: True if correlation >= 0.6
+  reconstruction_error:
+    type: object
+    description: >
+      Optional field if reconstruction error (T022b) was computed.
+    required:
+      - cosine_distance
+    properties:
+      cosine_distance:
+        type: number
+        format: float
+        description: Cosine distance between synthesized and true weights

@@ -1,8 +1,37 @@
-T003:
+T022b:
+  c: false
+  h: 021df1d3f20ea2ff5b8b7eb2aafc69f14460731120f37c8f2362f960365b3874
+  r: "The provided `src/validation/reconstruction_error.py` is truncated (ends abruptly\
+    \ with \u201Cw\u201D) and never reaches the code that writes the JSON result.\
+    \ Consequently, `data/results/reconstruction_error.json` does not exist, so the\
+    \ required output file is missing. The task is not fully implemented."
+T026:
+  c: false
+  h: 32dc9bf825c35271952ac812936b8cb4256fd022c5e4d6d845ba02b64f244168
+  r: "The provided `src/evaluation/runner.py` contains only stubbed logic with comments\
+    \ like \u201Cimplementation deferred to T026\u201D and does not actually load\
+    \ the GGUF model or apply LoRA adapters via `llama-cpp-python`. Moreover, the\
+    \ required model file `data/models/llama-2-7b-q4_0.gguf` is absent. Hence the\
+    \ task\u2019s core requirement is not fulfilled."
+T030:
+  c: false
+  h: fc015b616c77f38a1c66434465810fae544d8d7631f14169865dd6764f599cc8
+  r: The provided `src/validation/linearity_check.py` is truncated (ends with an incomplete
+    line `if l`) and does not contain the full logic to compute the correlation, write
+    the JSON with the required fields, or handle the threshold without raising an
+    error. Additionally, the expected output file `data/results/linearity_check.json`
+    is absent. The task therefore remains unfinished.
+T031:
+  c: false
+  h: 915ede7ec89b76875b6247666939fc2ddd800c578f535a72326da608988c1968
+  r: "The provided `strategies.py` and `runner.py` files contain retrieval and evaluation\
+    \ scaffolding but show no implementation of sensitivity\u2011analysis loops for\
+    \ k\u202F=\u202F1,\u202F3,\u202F5, nor any code that writes a `sensitivity_analysis`\
+    \ entry to `data/results/stats_report.json`. Moreover, the required `stats_report.json`\
+    \ file is missing entirely. The task\u2019s core requirement is therefore unmet."
+T033a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ `black.toml`) or setup scripts are present in the provided evidence, and the\
-    \ artifacts shown relate to unrelated feature specifications rather than the required\
-    \ ruff/black setup. The task\u2019s requirement to configure linting and formatting\
-    \ tools is therefore not satisfied."
+  r: No evidence of a modified `README.md` is provided; the claim lacks the actual
+    file showing installation instructions, usage examples, and data source details.
+    The required documentation update is missing.

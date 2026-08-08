@@ -3,10 +3,11 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-follow-up-extending-latentskill"
+name = "llmxive-follow-up-extending-latentskill"
 version = "0.1.0"
-description = "Extending LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills"
-requires-python = ">=3.9"
+description = "Automated science pipeline for extending LatentSkill from in-context text to in-weight latent skills."
+readme = "README.md"
+requires-python = ">=3.11"
 dependencies = [
     "torch",
     "numpy",
@@ -17,19 +18,22 @@ dependencies = [
     "scipy",
     "llama-cpp-python",
     "pytest",
-    "faiss-cpu",
-    "ruff",
+]
+
+[project.optional-dependencies]
+dev = [
     "black",
+    "ruff",
+    "pytest",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py39", "py310", "py311"]
+target-version = ["py311"]
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -43,15 +47,15 @@ extend-exclude = '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py39"
+target-version = "py311"
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by black)
@@ -59,46 +63,14 @@ ignore = [
     "C901", # too complex
 ]
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
     ".tox",
     ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
     "build",
     "dist",
-    "node_modules",
-    "venv",
 ]
-per-file-ignores = {}
-
-[tool.ruff.isort]
-known-first-party = ["src"]
-force-sort-within-sections = false
-lines-after-imports = 2
-combine-as-imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+python_files = ["test_*.py"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
-exclude = ["tests*"]

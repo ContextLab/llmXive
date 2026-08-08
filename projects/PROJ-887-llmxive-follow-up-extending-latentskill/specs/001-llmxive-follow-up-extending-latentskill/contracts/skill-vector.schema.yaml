@@ -1,33 +1,97 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "SkillVector"
-description: "Schema for a single flattened and normalized LoRA skill vector."
-type: "object"
-properties:
-  id:
-    type: "string"
-    description: "Unique identifier for the task (e.g., 'alfworld_task_001')."
-  task_description:
-    type: "string"
-    description: "Natural language description of the task."
-  source:
-    type: "string"
-    description: "Source dataset name (e.g., 'ALFWorld', 'Search-QA')."
-  vector_shape:
-    type: "array"
-    items:
-      type: "integer"
-    description: "Dimensions of the flattened vector (should be 1D, so [N])."
-  is_normalized:
-    type: "boolean"
-    description: "True if L2 normalization has been applied."
-  checksum:
-    type: "string"
-    description: "SHA256 checksum of the vector data for integrity verification."
+$schema: http://json-schema.org/draft-07/schema#
+title: Skill Vector Schema
+description: >
+  Defines the structure of a flattened, normalized LoRA skill vector
+  extracted from A/B matrices. Used for ingestion and indexing.
+type: object
 required:
-  - id
-  - task_description
+  - skill_id
   - source
-  - vector_shape
-  - is_normalized
-  - checksum
-additionalProperties: false
+  - task_name
+  - vector_data
+  - shape_info
+  - normalization
+  - metadata
+properties:
+  skill_id:
+    type: string
+    description: Unique identifier for the skill (e.g., 'alfworld_peg_insert_same')
+    pattern: '^[a-z0-9_]+$'
+  source:
+    type: string
+    description: Origin dataset or repository (e.g., 'latent-skills/alfworld-weights')
+    enum:
+      - latent-skills/alfworld-weights
+      - latent-skills/searchqa-weights
+      - synthetic-proxy
+  task_name:
+    type: string
+    description: Human-readable name of the task the skill represents
+  vector_data:
+    type: array
+    items:
+      type: number
+      format: float
+    description: >
+      The flattened, L2-normalized 1D array of weight parameters.
+      Values should be float32 equivalents.
+  shape_info:
+    type: object
+    required:
+      - original_shape
+      - flattened_dim
+      - matrix_type
+    properties:
+      original_shape:
+        type: array
+        items:
+          type: integer
+        description: Tuple of (rows, cols) for the original matrix (A or B)
+      flattened_dim:
+        type: integer
+        description: Total number of elements (rows * cols)
+      matrix_type:
+        type: string
+        description: Which LoRA matrix was flattened
+        enum:
+          - lora_A
+          - lora_B
+  normalization:
+    type: object
+    required:
+      - method
+      - epsilon
+    properties:
+      method:
+        type: string
+        description: Normalization method used
+        enum:
+          - L2
+      epsilon:
+        type: number
+        format: float
+        description: Small constant added to denominator to avoid division by zero
+        default: 1e-8
+  metadata:
+    type: object
+    required:
+      - is_proxy
+      - base_model
+      - r
+      - alpha
+    properties:
+      is_proxy:
+        type: boolean
+        description: True if weights were generated via proxy (numpy.random)
+      base_model:
+        type: string
+        description: Base model architecture (e.g., 'llama-2-7b')
+      r:
+        type: integer
+        description: LoRA rank
+      alpha:
+        type: integer
+        description: LoRA scaling factor
+      hash:
+        type: string
+        description: SHA256 hash of the raw weight bytes for versioning

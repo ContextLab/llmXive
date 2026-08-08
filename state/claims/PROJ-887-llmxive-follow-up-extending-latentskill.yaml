@@ -1098,3 +1098,121 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T07:28:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
+  attempts: 1
+  canonical: Ingests LoRA adapters from ALFWorld and Search-QA benchmarks
+  claim_id: c_f121e055
+  context: 'Skill Vector Database: Ingests LoRA A/B matrices from ALFWorld and Search-QA
+    benchmarks, flattens them into normalized high-dimensional vectors, and builds
+    a static CPU-compatible index.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ingests_LoRA_adapters_from_ALFWorld_and_Search-QA_benchmarks
+  kind: entity_fact
+  raw_text: The project ingests pre-trained LoRA adapters from ALFWorld and Search-QA
+    benchmarks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:10:17Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
+  attempts: 1
+  canonical: Uses all-MiniLM-L6-v2 for text embeddings
+  claim_id: c_c00634ec
+  context: 'Retrieval & Interpolation: Queries the skill database using text embeddings
+    (`all-MiniLM-L6-v2`) and synthesizes new LoRA adapters via unweighted mean or
+    cosine-weighted averaging.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The project uses the 'all-MiniLM-L6-v2' model for text embeddings.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T00:11:22Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
+  attempts: 1
+  canonical: Uses Benjamini-Hochberg correction for statistical analysis
+  claim_id: c_0942dc8e
+  context: 'Validation: Evaluates synthesized adapters on composite tasks using environment
+    logic (ALFWorld/Search-QA) and performs statistical analysis (Benjamini-Hochberg
+    correction).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.1, ifi is in the high-signal regionR,
+      source_id: '1606.07926'
+      url: https://arxiv.org/abs/1606.07926
+      value: '0.1'
+    filled: true
+  kind: entity_fact
+  raw_text: The project performs statistical analysis using Benjamini-Hochberg correction.
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T00:12:02Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
+  attempts: 1
+  canonical: Base model is llama-2-7b-q4_0.gguf
+  claim_id: c_666f306d
+  context: 'Optional) Download the base model for evaluation: Place `llama-2-7b-q4_0.gguf`
+    in `data/models/`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base model used for evaluation is llama-2-7b-q4_0.gguf.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:12:26Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
+  attempts: 1
+  canonical: LoRA weights from HuggingFace latent-skills/alfworld-weights
+  claim_id: c_902605cb
+  context: 'LoRA Weights: HuggingFace Dataset: `latent-skills/alfworld-weights`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LoRA_weights_from_HuggingFace_latent-skills/alfworld-weights
+  kind: entity_fact
+  raw_text: 'The LoRA weights are sourced from HuggingFace Dataset: latent-skills/alfworld-weights.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:13:19Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
+  attempts: 1
+  canonical: LoRA weights from HuggingFace latent-skills/searchqa-weights
+  claim_id: c_56bca1e5
+  context: 'LoRA Weights: HuggingFace Dataset: `latent-skills/searchqa-weights`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LoRA_weights_from_HuggingFace_latent-skills/searchqa-weights
+  kind: entity_fact
+  raw_text: 'The LoRA weights are sourced from HuggingFace Dataset: latent-skills/searchqa-weights.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T00:13:45Z'

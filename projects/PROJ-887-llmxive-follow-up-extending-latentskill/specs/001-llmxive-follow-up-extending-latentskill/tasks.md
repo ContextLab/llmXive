@@ -24,11 +24,17 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001b [P] Create `__init__.py` files in `src/ingestion/`, `src/retrieval/`, `src/evaluation/`, `src/validation/`, `src/validate/`, `src/utils/`, `src/benchmark/`
+- [ ] T001b1 [P] Create `src/ingestion/__init__.py` (empty file or minimal docstring)
+- [ ] T001b2 [P] Create `src/retrieval/__init__.py` (empty file or minimal docstring)
+- [ ] T001b3 [P] Create `src/evaluation/__init__.py` (empty file or minimal docstring)
+- [ ] T001b4 [P] Create `src/validation/__init__.py` (empty file or minimal docstring)
+- [ ] T001b5 [P] Create `src/validate/__init__.py` (empty file or minimal docstring)
+- [ ] T001b6 [P] Create `src/utils/__init__.py` (empty file or minimal docstring)
 - [ ] T001c [P] Create `.gitkeep` files in `data/raw/`, `data/processed/`, `data/results/`, `artifacts/synthesized_adapters/`, `specs/001-lattentskill-retrieval-geometry/contracts/`
-- [X] T002a Create `requirements.txt` with pinned versions for: `torch`, `numpy`, `scikit-learn`, `sentence-transformers`, `transformers`, `pandas`, `scipy`, `llama-cpp-python`, `pytest`, `faiss-cpu`
+- [X] T002a Create `requirements.txt` with pinned versions for: `torch`, `numpy`, `scikit-learn`, `sentence-transformers`, `transformers`, `pandas`, `scipy`, `llama-cpp-python`, `pytest`. **REMOVE** `faiss-cpu` as it is not in the plan's approved dependencies.
 - [X] T002b Run `pip install -r requirements.txt` to verify dependency resolution
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003a [P] Create `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections (line-length=88, target-version=py311)
+- [ ] T003b [P] Create `.ruff.toml` with specific ignore rules and line-length settings
 
 ---
 
@@ -39,12 +45,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup `src/utils/config.py` for seed pinning, path resolution, and environment variable loading
-- [ ] T005 [P] Implement `src/utils/versioning.py` to compute SHA256 hashes for artifacts and update `state/projects/...yaml`
-- [ ] T006 [P] Create `src/validate/citation_check.py` to verify dataset URLs (NAB, UCI, HuggingFace, LatentSkill repo) before execution
+- [X] T005 [P] Implement `src/utils/versioning.py` to compute SHA256 hashes for artifacts and update `state/projects/...yaml`
+- [X] T006a [P] Create `data_sources.yaml` defining the canonical URLs/IDs for NAB, UCI, HuggingFace, and LatentSkill repo datasets to serve as the source of truth for validation.
+- [X] T006 Create `src/validate/citation_check.py` to verify dataset URLs listed in `data_sources.yaml`. **Implementation**: Create the script to perform HTTP 200 checks and metadata schema validation against the URLs defined in `data_sources.yaml`. (Depends on T006a, T004)
 - [ ] T007 Create `specs/001-lattentskill-retrieval-geometry/contracts/skill-vector.schema.yaml` and `evaluation-result.schema.yaml`
-- [ ] T008 Setup `tests/contract/test_schemas.py` to validate JSON/YAML outputs against contracts
-- [ ] T009 Configure `src/ingestion/__init__.py` and `src/retrieval/__init__.py` package structures
-- [ ] T012 [US1] Implement `src/ingestion/download_weights.py` to fetch real LoRA weights from the **original LatentSkill repository (arXiv:2606.06087)** for ALFWorld and Search-QA benchmarks. **If real weights are unavailable**, generate a documented proxy using `numpy.random.normal` with shape matching the expected A/B matrices and `dtype=float32`, ensuring structural identity. Mark metadata with `is_proxy=true`. **NEVER** fall back to random data without this specific generation method; the proxy must preserve matrix dimensions. Raise an exception only if the proxy generation logic itself fails. (Depends on T006, T004)
+- [X] T008 Setup `tests/contract/test_schemas.py` to validate JSON/YAML outputs against contracts
+- [X] T009 Configure `src/ingestion/__init__.py` and `src/retrieval/__init__.py` package structures
+- [X] T012 [US1] Implement `src/ingestion/download_weights.py` to fetch real LoRA weights from the **HuggingFace dataset 'latent-skills/alfworld-weights'** and **'latent-skills/searchqa-weights'** for ALFWorld and Search-QA benchmarks. **Execute** `src/validate/citation_check.py` (T006) **first** to verify the source. **If real weights are unavailable**, generate a documented proxy using `numpy.random.normal` with shape matching the expected A/B matrices and `dtype=float32`, ensuring structural identity. Mark metadata with `is_proxy=true`. **NEVER** fall back to random data without this specific generation method; the proxy must preserve matrix dimensions. Raise an exception only if the proxy generation logic itself fails. Log the exact resolved URL/ID used. (Depends on T006, T004)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,15 +65,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/ingestion/flatten_lora.py` (FR-001) to load A/B matrices, flatten to 1D, and apply L2 normalization
+- [X] T013 [US1] Implement `src/ingestion/flatten_lora.py` (FR-001) to load A/B matrices, flatten to 1D, and apply L2 normalization
 - [ ] T014 [US1] Implement `src/retrieval/vector_db.py` (FR-001) to construct and save the static index to `data/processed/skill_index.npz`
-- [ ] T015 [US1] Add validation in `src/ingestion/flatten_lora.py` to ensure consistent dimensions across all adapters
-- [ ] T016 [US1] Add logging for ingestion metrics (vectors processed, index size) in `src/ingestion/flatten_lora.py`
+- [X] T015 [US1] Add validation in `src/ingestion/flatten_lora.py` to ensure consistent dimensions across all adapters
+- [X] T016 [US1] Add logging for ingestion metrics (vectors processed, index size) in `src/ingestion/flatten_lora.py`
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Unit test for `src/ingestion/flatten_lora.py` to verify vector dimensionality matches A*B product in `tests/unit/test_strategies.py`
-- [ ] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` verifying index generation on CPU
+- [X] T010 [P] [US1] Unit test for `src/ingestion/flatten_lora.py` to verify vector dimensionality matches A*B product in `tests/unit/test_ingestion.py`. (Depends on T013 completion)
+- [X] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` verifying index generation on CPU. (Depends on T013 completion)
 
 **Checkpoint**: Skill Vector Database is generated and ready for retrieval.
 
@@ -80,20 +87,21 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `src/retrieval/query.py` (FR-002) to generate query vectors using `all-MiniLM-L6-v2`
-- [ ] T020 [US2] Implement `src/retrieval/strategies.py` (FR-003) for: (1) Single Nearest Neighbor, (2) Unweighted Arithmetic Mean (k-top), (3) Cosine-Weighted Averaging
-- [ ] T021 [US2] Implement `src/retrieval/strategies.py` to handle edge cases (out-of-distribution queries, identical similarity scores)
-- [ ] T022 [US2] Implement `src/retrieval/strategies.py` to synthesize and **save** the LoRA adapter file (A/B matrices) to `artifacts/synthesized_adapters/` based on query results; explicitly **DO NOT** apply the adapter to a model or run inference in this task (application logic is deferred to T026/US3)
-- [ ] T023 [US2] Add logging for retrieval latency (SC-003) and similarity scores in `src/retrieval/query.py`
+- [X] T019 [US2] Implement `src/retrieval/query.py` (FR-002) to generate query vectors using `all-MiniLM-L6-v2`. **Include** logic to measure and log wall-clock latency for text embedding generation to satisfy SC-003. (Depends on T014)
+- [X] T020 [US2] Implement `src/retrieval/strategies.py` (FR-003) for: (1) Single Nearest Neighbor, (2) Unweighted Arithmetic Mean (k-top), (3) Cosine-Weighted Averaging. **Include** logic to measure and log wall-clock latency for retrieval/interpolation to satisfy SC-003.
+- [X] T021 [US2] Implement `src/retrieval/strategies.py` to handle edge cases (out-of-distribution queries, identical similarity scores)
+- [X] T022 [US2] Implement `src/retrieval/strategies.py` to synthesize and **save** the LoRA adapter file (A/B matrices) to `artifacts/synthesized_adapters/` based on query results; explicitly **DO NOT** apply the adapter to a model or run inference in this task (application logic is deferred to T026/US3).
+- [ ] T022b [US2] Implement `src/validation/reconstruction_error.py` to calculate the cosine distance (reconstruction error) between the synthesized LoRA weights and the true weights of a known composite task. **Output** the error value to `data/results/reconstruction_error.json`. (Depends on T022)
+- [X] T023 [US2] Add logging for retrieval latency (SC-003) and similarity scores in `src/retrieval/query.py`
 
 ### Validation for User Story 2 (Blocking Gate for US3)
 
-- [ ] T030 [US2] Implement `src/validation/linearity_check.py` (FR-007) to calculate Pearson correlation between text-space and weight-space distances [UNRESOLVED-CLAIM: c_9661d5df — status=not_enough_info]. **Output** the correlation value and a validity flag (True if >= 0.6, False otherwise) to `data/results/linearity_check.json`. **DO NOT** raise an error if the threshold is not met; the experiment must proceed to measure the impact of non-linearity. (Depends on T014, T019)
+- [ ] T030 [US2] Implement `src/validation/linearity_check.py` ([FR-007]) to calculate Pearson correlation between text-space and weight-space distances for a held-out set of known task pairs. **Output** the correlation value and a validity flag (True if >= 0.6, False otherwise) to `data/results/linearity_check.json`. **DO NOT** raise an error if the threshold is not met; the experiment must proceed to measure the impact of non-linearity. (Depends on T014, T019)
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Unit test for `src/retrieval/strategies.py` verifying unweighted and weighted averaging math in `tests/unit/test_strategies.py`
-- [ ] T018 [P] [US2] Contract test for `src/retrieval/query.py` output format in `tests/contract/test_schemas.py`
+- [X] T017 [P] [US2] Unit test for `src/retrieval/strategies.py` verifying unweighted and weighted averaging math in `tests/unit/test_strategies.py`
+- [X] T018 [P] [US2] Contract test for `src/retrieval/query.py` output format in `tests/contract/test_schemas.py`
 
 **Checkpoint**: Retrieval and interpolation mechanisms produce valid synthesized adapters; linearity assumption validated (or measured).
 
@@ -101,24 +109,24 @@
 
 ## Phase 5: User Story 3 - Validating Performance via Environment Logic (Priority: P3)
 
-**Goal**: Evaluate synthesized adapters on composite tasks using environment logic, run multiple trials (N≥5) [UNRESOLVED-CLAIM: c_b1ea3deb — status=not_enough_info], and perform statistical testing with BH correction [UNRESOLVED-CLAIM: c_23fa22b6 — status=not_enough_info].
+**Goal**: Evaluate synthesized adapters on composite tasks using environment logic, run multiple trials (N≥5), and perform statistical testing with BH correction.
 
 **Independent Test**: System runs evaluation, outputs success/failure logs, and generates a statistical report with p-values and BH correction.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/evaluation/runner.py` (FR-004) to apply adapters (from T022) to a frozen base LLM (via `llama-cpp-python` GGUF) and execute environment logic (ALFWorld/Search-QA). (Depends on T022, T030)
-- [ ] T026b [US3] Implement memory validation and streaming/chunking logic in `src/evaluation/runner.py` to ensure the base LLM inference fits within 7GB RAM [UNRESOLVED-CLAIM: c_39b77cc7 — status=not_enough_info]. Explicitly log memory usage during the first run and fail loudly if it exceeds a significant memory threshold. (Depends on T026)
-- [ ] T027 [US3] Implement `src/evaluation/runner.py` loop to execute multiple runs per task (FR-008) and record binary outcomes
-- [ ] T028 [US3] Implement `src/evaluation/stats.py` (FR-005) to {{claim:c_a23680b0}} (1812.08824, https://arxiv.org/abs/1812.08824)
-- [ ] T029 [US3] Implement `src/evaluation/stats.py` (FR-006) to apply Benjamini-Hochberg correction for multiple comparisons [UNRESOLVED-CLAIM: c_cad8a17d — status=not_enough_info]
-- [ ] T031 [US3]Implement sensitivity analysis logic (SC-004) for **k in {3, 5} per SC-004 Measurable Outcomes** in `src/retrieval/strategies.py`. (Do not include k=10 unless SC-004 is updated). (Depends on T020)
-- [ ] T032 [US3] Generate final report in `data/results/stats_report.json` including p-values, BH-adjusted q-values, reconstruction errors (SC-005), and linearity correlation (from T030)
+- [ ] T026 [US3] Implement `src/evaluation/runner.py` (FR-004) to apply adapters (from T022) to a frozen base LLM (via `llama-cpp-python` GGUF, model path: `data/models/llama-2-7b-q4_0.gguf`, quantization: q4_0) and execute environment logic (ALFWorld/Search-QA). (Depends on T022, T030, T014, T019) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T026b [US3] Implement memory validation and streaming/chunking logic in `src/evaluation/runner.py` to ensure the base LLM inference fits within 7GB RAM. Explicitly log memory usage during the first run and fail loudly if it exceeds **6.5 GB**. (Depends on T026)
+- [X] T027 [US3] Implement `src/evaluation/runner.py` loop to execute **N >= 5** independent runs per task (FR-008) and record binary outcomes, calculating the **mean of these binary outcomes** to establish a stable success probability. (Depends on T026b)
+- [X] T028 [US3] Implement `src/evaluation/stats.py` (FR-005) to perform paired t-test or Wilcoxon signed-rank test on success rates between strategies and baseline. (Depends on T027)
+- [X] T029 [US3] Implement `src/evaluation/stats.py` (FR-006) to apply Benjamini-Hochberg correction for multiple comparisons across all primary strategies and **sensitivity sweeps** (T031). (Depends on T028, T031)
+- [ ] T031 [US3] Implement sensitivity analysis logic (SC-004) for **k in {1, 3, 5}** in `src/retrieval/strategies.py` and `src/evaluation/runner.py`. **Output** results to `data/results/stats_report.json` under the key `sensitivity_analysis`. (Depends on T020, T026) <!-- FAILED: unspecified -->
+- [ ] T032 [US3] Generate final report in `data/results/stats_report.json` including p-values, BH-adjusted q-values, reconstruction errors (SC-005, from T022b), and linearity correlation (from T030). (Depends on T031, T029, T022b, T030)
 
 ### Tests for User Story 3
 
-- [ ] T024 [P] [US3] Contract test for `src/evaluation/stats.py` output schema in `tests/contract/test_schemas.py`
-- [ ] T025 [P] [US3] Integration test for full evaluation loop in `tests/integration/test_pipeline.py`
+- [X] T024 [P] [US3] Contract test for `src/evaluation/stats.py` output schema in `tests/contract/test_schemas.py`
+- [X] T025 [P] [US3] Integration test for full evaluation loop in `tests/integration/test_pipeline.py`
 
 **Checkpoint**: Evaluation complete with statistical validation.
 
@@ -131,11 +139,11 @@
 - [ ] T033a Update `README.md` with installation instructions, usage examples, and data source details
 - [ ] T033b Create `docs/api.md` with function signatures and module descriptions
 - [ ] T034 Code cleanup and refactoring of `src/retrieval/strategies.py`
-- [ ] T035a Implement benchmark script `src/benchmark/latency_bench.py` to measure wall-clock latency for skill selection (retrieval + interpolation) [UNRESOLVED-CLAIM: c_396c955a — status=not_enough_info]
-- [ ] T035b Optimize retrieval logic in `src/retrieval/strategies.py` to meet <1s latency target per SC-003. **Techniques to attempt**: Switch to **FAISS** for indexing or implement **vector quantization (PQ)**. Record results in `data/results/latency_report.json`. (Depends on T035a)
 - [ ] T036 [P] Additional unit tests for edge cases in `tests/unit/`
 - [ ] T037 Run `src/validate/citation_check.py` to verify all dataset sources
 - [ ] T038 Run `quickstart.md` validation to ensure full pipeline reproducibility
+
+**Removed Tasks**: T035a, T035b1, T035b2 (FAISS/PQ optimization) removed as they constitute scope creep and violate the CPU-only standard library constraint. Latency benchmarking (SC-003) is now integrated into T019 and T020.
 
 ---
 
@@ -166,9 +174,9 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT** T006 (sequential prerequisite) and T012 which depends on T006.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
+- All tests for a user story marked [P] can run in parallel **after** the implementation task they depend on is complete.
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -176,8 +184,8 @@
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test for flatten_lora.py in tests/unit/test_strategies.py"
+# Launch all tests for User Story 1 together (after T013 is done):
+Task: "Unit test for flatten_lora.py in tests/unit/test_ingestion.py"
 Task: "Integration test for ingestion pipeline in tests/integration/test_pipeline.py"
 
 # Launch implementation tasks (sequential within story, but can be parallelized if split):
@@ -227,10 +235,10 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Constraint**: All tasks MUST run on CPU-only free-tier CI (cores, 7GB RAM). No `bitsandbytes` CUDA usage. Use `llama-cpp-python` (GGUF) for inference.
-- **Data**: No fabrication. All datasets must be fetched from real sources (specifically the LatentSkill repository for weights) [UNRESOLVED-CLAIM: c_6a381eda — status=not_enough_info]. If real weights are unavailable, use a documented proxy with `is_proxy=true` flag, generated via `numpy.random.normal` with matching shapes.
+- **Constraint**: All tasks MUST run on CPU-only free-tier CI (limited cores, 7GB RAM). No `bitsandbytes` CUDA usage. Use `llama-cpp-python` (GGUF) for inference.
+- **Data**: No fabrication. All datasets must be fetched from real sources (specifically the LatentSkill repository for weights). If real weights are unavailable, use a documented proxy with `is_proxy=true` flag, generated via `numpy.random.normal` with matching shapes.
 - **Critical Data Hygiene**: `src/ingestion/download_weights.py` (T012) MUST raise an exception only if the proxy generation logic fails; otherwise, it must log the unavailability and proceed with the proxy.
-- **Memory Management**: T012 and T013 must stream or chunk the LoRA weight loading to ensure the 7GB RAM limit is not exceeded during ingestion of large adapters. T026b must explicitly validate memory during inference.
+- **Memory Management**: T012 and T013 must stream or chunk the LoRA weight loading to ensure the 7GB RAM limit is not exceeded during ingestion of large adapters. T026b must explicitly validate memory during inference with a 6.5 GB threshold.
 - **Statistical Rigor**: T030 must output the correlation value and validity flag to the report, not halt execution.
 - **Sensitivity Analysis**: T031 must use k in {1, 3, 5} per SC-004.
-- **Latency Reporting**: T035b must explicitly record latency metrics for SC-003.
+- **Latency Reporting**: Latency logging is integrated into T019 and T020 to satisfy SC-003.

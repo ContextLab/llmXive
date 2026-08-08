@@ -1,4 +1,39 @@
-# Extend the main pyproject.toml configuration if needed, 
-# or use this as a standalone config if preferred.
-# Currently pointing to the pyproject.toml settings.
-extend = "pyproject.toml"
+line-length = 88
+target-version = "py311"
+
+[lint]
+# Ignore rules to align with the project's coding standards and existing codebase
+ignore = [
+    "E501",  # line-too-long (handled by formatter)
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in __init__
+    "S101",  # Use of assert detected
+    "S403",  # `pickle`, `cPickle`, `dill`, and `shelve` modules are possibly insecure
+    "S404",  # `subprocess` module is possibly insecure
+    "S602",  # `subprocess` call with `shell=True` identified
+    "S603",  # `subprocess` call with shell=False but potentially unsafe args
+    "S607",  # Start a process with a partial path
+    "T201",  # `print` found
+    "T203",  # `pprint` found
+]
+
+[lint.per-file-ignores]
+"tests/*" = [
+    "D100", "D101", "D102", "D103", "D104", "D105", "D107",
+    "S101", "S403", "S404", "S602", "S603", "S607",
+]
+"scripts/*" = [
+    "D100", "D101", "D102", "D103", "D104", "D105", "D107",
+    "T201", "T203",
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

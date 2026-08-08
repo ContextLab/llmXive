@@ -4,8 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001b` (rejected 1x): No actual `__init__.py` files were presented for any of the required directories; the evidence consists only of a claim without any file listings or contents. The required artifacts are missing, so the task is not satisfied.
-- `T001c` (rejected 1x): No evidence of `.gitkeep` files was presented for any of the required directories (`data/raw/`, `data/processed/`, `data/results/`, `artifacts/synthesized_adapters/`, `specs/001-lattentskill-retrieval-geometry/contracts/`). Without these files present, the task requirement is not satisfied. The implementer must add a `.gitkeep` file to each listed path.
+- `T001c` (rejected 1x): No evidence of the required `.gitkeep` files in `data/raw/`, `data/processed/`, `data/results/`, `artifacts/synthesized_adapters/`, or `specs/001-lattentskill-retrieval-geometry/contracts/` was provided; the artifact list is empty, so the task’s requirement is not satisfied.
+- `T003b` (rejected 1x): declared artifact(s) missing/empty/invalid: ruff.toml
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T014` (rejected 1x): The repository contains `src/retrieval/vector_db.py`, but the required output file `data/processed/skill_index.npz` is absent, and the provided module does not demonstrate that it actually constructs and writes the index (no top‑level execution or invoked logic shown). Without the generated `.npz` file, the task’s core requirement is unmet.
 
 ## Required change
 
