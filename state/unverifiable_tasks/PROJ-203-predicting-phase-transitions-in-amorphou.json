@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-203-predicting-phase-transitions-in-amorphou",
+  "tasks": [
+    {
+      "task_key": "T020",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: code/utils/timeout_enforcer.py",
+      "first_seen": "2026-08-08T21:57:23.895318+00:00",
+      "last_seen": "2026-08-08T21:57:23.895318+00:00"
+    },
+    {
+      "task_key": "T017",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: code/models/train.py, data/processed/final_dataset.parquet, docs/reports/confusion_matrix.png",
+      "first_seen": "2026-08-08T21:57:23.896626+00:00",
+      "last_seen": "2026-08-08T21:57:23.896626+00:00"
+    },
+    {
+      "task_key": "T023",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: docs/reports/collinearity_report.json",
+      "first_seen": "2026-08-08T21:57:23.897687+00:00",
+      "last_seen": "2026-08-08T21:57:23.897687+00:00"
+    }
+  ],
+  "updated_at": "2026-08-08T21:57:23.897687+00:00"
+}

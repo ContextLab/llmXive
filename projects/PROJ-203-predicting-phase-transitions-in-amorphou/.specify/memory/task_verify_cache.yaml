@@ -6,11 +6,30 @@ T012:
     \ flag, or related metadata. Additionally, the required `data/processed/metadata.json`\
     \ file is absent. These missing pieces mean the active timescale matching protocol\
     \ has not been implemented."
-T017:
+T025:
   c: false
-  h: 206cc9a4db256e47085035f2ad91b9fb5f3dccf27aa925b019db566306c56ae3
-  r: "The required `data/processed/final_dataset.parquet` file is absent, so the training\
-    \ script cannot load the labels. The expected confusion\u2011matrix image `docs/reports/confusion_matrix.png`\
-    \ is also missing. Moreover, the provided `code/models/train.py` is truncated\
-    \ and does not show the full Random Forest classifier training or the code that\
-    \ writes the PNG, indicating the implementation is incomplete."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files or figures were found in `docs/reports/shap_plots/`; the implementer\
+    \ did not provide the required SHAP summary plots or ranked feature\u2011importance\
+    \ lists for each chemical family, so the task is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No partial dependence plot files (e.g., PNG/JPEG/HTML) or generated code/report
+    are present; the claim provides only a textual description without any actual
+    artifact demonstrating the plots for top predictors per chemical family. The required
+    visualizations are missing, so the task is not satisfied.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the task description and no actual artifact (e.g., a\
+    \ statistical analysis report, p\u2011values, confidence\u2011interval tables,\
+    \ or plots) demonstrating significance testing of family differences for the top\
+    \ descriptors. Consequently, the required evidence is missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/quickstart.md` (or any updated documentation) was presented; the evidence
+    contains no files or content to verify that the required documentation updates
+    exist. The implementer must add the documentation files with instructions for
+    running the pipeline.

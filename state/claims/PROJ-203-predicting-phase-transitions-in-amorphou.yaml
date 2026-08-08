@@ -2935,3 +2935,66 @@
   source_type: external
   status: verified
   updated_at: '2026-08-06T08:44:25Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: Pilot study includes 24 compositions
+  claim_id: c_f63ca216
+  context: 'This guide provides step-by-step instructions to run the full machine
+    learning pipeline for predicting phase transitions in amorphous solids (Pilot
+    Study: N=24 compositions).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pilot Study: N=24 compositions'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:56:30Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: MD simulations run for 24 pilot compositions
+  claim_id: c_5a7295b5
+  context: 'Simulation Execution: Runs MD simulations for 24 pilot compositions (with
+    time caps).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Runs MD simulations for 24 pilot compositions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:56:55Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: Pipeline expected runtime is 6 hours or less
+  claim_id: c_d2ebb5f5
+  context: "Expected Runtime: \u2264 6 hours (enforced by `code/utils/timeout_enforcer.py`)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Expected Runtime: \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:56:56Z'
+- artifact_path: projects/PROJ-203-predicting-phase-transitions-in-amorphou/docs/quickstart.md
+  attempts: 1
+  canonical: Pipeline enforces 6-hour wall-clock limit
+  claim_id: c_a5b5c8c7
+  context: The pipeline enforces a 6-hour wall-clock limit via `code/utils/timeout_enforcer.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a 6-hour wall-clock limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:57:21Z'
