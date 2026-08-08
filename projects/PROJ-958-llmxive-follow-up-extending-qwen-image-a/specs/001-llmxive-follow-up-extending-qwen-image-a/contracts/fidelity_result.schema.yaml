@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fidelity Result Record"
+description: "Schema for the fidelity measurement and delta calculation between Baseline (Full Agent/Proxy) and Hybrid (Rule-Expanded) images. Based on REAL generated images."
+type: "object"
+required:
+  - prompt_id
+  - baseline_image_path
+  - hybrid_image_path
+  - baseline_clip_score
+  - hybrid_clip_score
+  - fidelity_delta
+  - domain
+  - routing_category
+properties:
+  prompt_id:
+    type: "string"
+    description: "Reference to the prompt ID."
+  baseline_image_path:
+    type: "string"
+    description: "Relative path to the Baseline image (Full Agent/Proxy generated from original prompt)."
+  hybrid_image_path:
+    type: "string"
+    description: "Relative path to the Hybrid image (Lightweight or Agent generated from expanded prompt)."
+  baseline_clip_score:
+    type: "number"
+    description: "CLIP score for the Baseline image against the reference text."
+    minimum: 0.0
+    maximum: 1.0
+  hybrid_clip_score:
+    type: "number"
+    description: "CLIP score for the Hybrid image against the reference text."
+    minimum: 0.0
+    maximum: 1.0
+  fidelity_delta:
+    type: "number"
+    description: "Difference: baseline_clip_score - hybrid_clip_score. Measures fidelity loss/gain from expansion."
+  domain:
+    type: "string"
+    description: "Visual domain for stratification."
+  routing_category:
+    type: "string"
+    description: "Routing category based on ambiguity score."
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+  latency_baseline:
+    type: "number"
+    description: "Latency for baseline (ms)."
+  latency_hybrid:
+    type: "number"
+    description: "Latency for hybrid (ms)."
+  efficiency_gain:
+    type: "number"
+    description: "Percentage reduction in latency."
+  token_count_baseline:
+    type: ["number", "null"]
+    description: "Token count for baseline. Null for diffusion models (SDXL); use inference_steps instead."
+  token_count_hybrid:
+    type: ["number", "null"]
+    description: "Token count for hybrid. Null for diffusion models (SDXL); use inference_steps instead."
+  inference_steps_baseline:
+    type: ["integer", "null"]
+    description: "Inference steps for baseline (if diffusion model)."
+  inference_steps_hybrid:
+    type: ["integer", "null"]
+    description: "Inference steps for hybrid (if diffusion model)."
+  structural_detail_score_baseline:
+    type: "number"
+    description: "Structural detail score for baseline."
+  structural_detail_score_hybrid:
+    type: "number"
+    description: "Structural detail score for hybrid."
+additionalProperties: false

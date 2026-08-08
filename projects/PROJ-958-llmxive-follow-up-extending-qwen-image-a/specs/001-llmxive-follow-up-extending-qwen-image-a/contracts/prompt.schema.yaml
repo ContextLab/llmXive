@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prompt Input Schema"
+description: "Schema for raw prompt data ingested from IA-Bench and LAION-CC."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the prompt."
+  source:
+    type: "string"
+    enum:
+      - "IA-Bench"
+      - "LAION-CC"
+    description: "Source dataset of the prompt."
+  raw_text:
+    type: "string"
+    description: "The original text prompt."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of ingestion."
+required:
+  - "prompt_id"
+  - "source"
+  - "raw_text"
+  - "timestamp"

@@ -1,9 +1,10 @@
 status: none
-intent: download IA-Bench and WISE-Verified prompt datasets python package dataset
+intent: download IA-Bench and WISE-Verified prompt datasets HuggingFace python package
+  dataset
 required_fields:
 - prompt_id
 - prompt_text
-- source_dataset
-cache_key: a8bd125bd3df9ab9dba0e3cb81864104f13359c6fc9760bf3f46e1307d383330
-searched_at: '2026-08-05T07:43:41.881193+00:00'
+- source
+cache_key: 7dff73dabc8cf335da8b7d9b18d43496df8f1d84474bc8c5323ab23055ddf0ab
+searched_at: '2026-08-08T02:03:11.034615+00:00'
 retry_count: 1

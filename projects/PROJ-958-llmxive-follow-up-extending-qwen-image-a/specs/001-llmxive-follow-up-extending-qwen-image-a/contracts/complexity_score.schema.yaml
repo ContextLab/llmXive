@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Complexity Score Schema"
+description: "Schema for the computed syntactic complexity score and derived metrics."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Foreign key to the prompt."
+  parse_depth:
+    type: "number"
+    description: "Maximum depth of the dependency parse tree."
+  clause_count:
+    type: "integer"
+    description: "Number of clauses detected in the sentence."
+  mtld:
+    type: "number"
+    description: "Mean Length of T-Units (lexical diversity)."
+  complexity_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized syntactic complexity score (0.0-1.0)."
+  routing_category:
+    type: "string"
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+    description: "Category assigned based on thresholds (<0.2, 0.2-0.6, >0.6)."
+required:
+  - "prompt_id"
+  - "parse_depth"
+  - "clause_count"
+  - "mtld"
+  - "complexity_score"
+  - "routing_category"

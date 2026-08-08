@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fidelity Metric Schema"
+description: "Schema for CLIP-based fidelity scores and regression inputs."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Foreign key to the prompt."
+  reference_text:
+    type: "string"
+    description: "Human-verified reference description."
+  clip_score_baseline:
+    type: "number"
+    description: "CLIP similarity score from the full agent (baseline)."
+  clip_score_hybrid:
+    type: "number"
+    description: "CLIP similarity score from the hybrid path."
+  fidelity_delta:
+    type: "number"
+    description: "Difference between baseline and hybrid scores."
+  domain_stratum:
+    type: "string"
+    enum:
+      - "photorealistic"
+      - "abstract"
+      - "illustration"
+    description: "Visual domain classification of the generated image."
+required:
+  - "prompt_id"
+  - "reference_text"
+  - "clip_score_baseline"
+  - "clip_score_hybrid"
+  - "fidelity_delta"
+  - "domain_stratum"

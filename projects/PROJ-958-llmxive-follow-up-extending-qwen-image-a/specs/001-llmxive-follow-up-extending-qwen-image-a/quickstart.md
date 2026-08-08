@@ -1,106 +1,81 @@
-# Quickstart: llmXive follow-up: extending "Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generation"
+# Quickstart: llmXive follow-up: extending "Qwen-Image-Agent"
 
 ## Prerequisites
-- Python 3.11+
-- `pip`
-- Access to HuggingFace (for dataset download)
-- ~10GB disk space (for datasets, images, and derived files)
+
+-   Python 3.11+
+-   Git
+-   Access to Hugging Face (for dataset download)
+-   (Optional) Kaggle account (for GPU offload if running locally)
 
 ## Installation
 
-1. **Clone the repository** (if not already done) and navigate to the project root.
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` pins `nltk`, `spacy`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `textstat`.*
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-4. **Download NLTK data** (required for parsing):
-   ```bash
-   python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('maxent_ne_chunker'); nltk.download('words'); nltk.download('stopwords')"
-   ```
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note*: This installs `spacy`, `nltk`, `torch`, `transformers`, `scikit-learn`, `datasets`, `matplotlib`, `diffusers`.
 
-5. **Download Spacy model**:
-   ```bash
-   python -m spacy download en_core_web_sm
-   ```
+3.  **Download Models**:
+    ```bash
+    python -m spacy download en_core_web_sm
+    # CLIP, ResNet, and SDXL models will be downloaded automatically on first run
+    ```
 
 ## Running the Pipeline
 
-### 1. Validate Citations (Blocking Gate)
-Run the Reference-Validator Agent to ensure all dataset citations are valid before proceeding:
+### 1. Data Download
+Download the raw datasets to `data/raw/`:
 ```bash
-python code/validate_citations.py
+python src/pipeline/download_data.py
 ```
-*This step is mandatory and blocks further execution if any citation is invalid.*
+*Output*: `data/raw/ia_bench_prompts.parquet`, `data/raw/laion_cc_prompts.parquet`.
 
-### 2. Download Raw Data
-Run the data loader to fetch IA-Bench dataset (prompts and images):
+### 2. Run Pilot Study (Phase 0)
+Execute the pilot to validate scoring weights and freeze normalization:
 ```bash
-python code/data_loader.py --download
+python src/pilot/study_runner.py
 ```
-*This creates `data/raw/prompts_ia_bench.jsonl` and downloads images to `data/raw/images/`.*
+*Output*: `data/processed/pilot_results.json`, `data/processed/normalization_params.json`.
 
-### 3. Compute Ambiguity Scores
+### 3. Compute Complexity Scores
+Calculate syntactic metrics for all prompts (using frozen params):
 ```bash
-python code/scoring.py
+python src/pipeline/run_scoring.py
 ```
-*Output: `data/derived/scoring_results.csv`*
+*Output*: `data/processed/complexity_scores.csv`.
 
-### 4. Route & Simulate
+### 4. Execute Hybrid Routing & Generation
+Run the routing logic and generate **paired** images.
+*Note*: This requires GPU access (Kaggle offload).
 ```bash
-python code/router.py
+python src/pipeline/run_routing.py --paired-sample
 ```
-*Output: `data/derived/routing_logs.csv` (updated with latency/token stats and expanded text).*
+*Output*: `data/processed/routing_logs.json`, `data/processed/generated_images/`.
 
-### 5. Compute Fidelity (CLIP)
-*Note: This step computes CLIP scores between the (original/expanded) prompt and the ground-truth image.*
+### 5. Evaluate Fidelity
+Compute CLIP scores and perform regression analysis:
 ```bash
-python code/fidelity.py
+python src/pipeline/run_fidelity_analysis.py
 ```
-*Output: `data/derived/fidelity_deltas.csv`*
+*Output*: `data/results/fidelity_metrics.csv`, `data/results/regression_stats.json`, `data/results/plots/fidelity_delta_curve.png`.
 
-### 6. Run Regression Analysis
+## Verification
+
+Run the test suite to ensure integrity:
 ```bash
-python code/regression.py
+pytest tests/ -v
 ```
-*Output: `data/derived/regression_results.json` and plots in `data/plots/`*
-
-### 7. Full Pipeline (One Command)
-```bash
-python code/main.py
-```
-*Includes the citation validation gate as the first step.*
-
-## Testing
-
-Run the unit tests to verify logic (e.g., routing thresholds, scoring independence):
-```bash
-pytest tests/unit/ -v
-```
-
-Run the integration test on a 100-prompt subset:
-```bash
-pytest tests/integration/ -v
-```
-
-## Expected Outputs
-- **Console**: Logs showing routing decisions, progress bars for CLIP inference.
-- **Files**:
-  - `data/derived/scoring_results.csv`
-  - `data/derived/routing_logs.csv`
-  - `data/derived/fidelity_deltas.csv`
-  - `data/derived/regression_results.json`
-  - `data/plots/fidelity_curve.png` (Fidelity Delta vs. Ambiguity Score)
-  - `data/plots/knee_point_detection.png`
 
 ## Troubleshooting
-- **Memory Error**: If CLIP inference fails due to RAM, reduce `BATCH_SIZE` in `code/config.py` (default 8).
-- **Parsing Error**: If `nltk` fails, ensure the `en_core_web_sm` model is installed.
-- **Dataset Missing**: Ensure you have internet access for the initial `data_loader.py` run. The data is cached in `data/raw/`.
-- **Citation Invalid**: If `validate_citations.py` fails, check the `spec.md` for incorrect dataset URLs.
+
+-   **Memory Error**: If CLIP inference fails, reduce `BATCH_SIZE` in `config.yaml`.
+-   **CUDA Not Found**: If the agent execution fails on CPU, the system will log a warning and trigger the Kaggle offload. Ensure the offload mechanism is active for full runs.
+-   **Data Missing**: Re-run `download_data.py` to ensure checksums match.

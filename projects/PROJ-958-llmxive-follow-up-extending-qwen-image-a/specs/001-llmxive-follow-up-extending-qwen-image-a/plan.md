@@ -1,37 +1,43 @@
-# Implementation Plan: llmXive follow-up: extending "Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generation"
+# Implementation Plan: llmXive follow-up: extending "Qwen-Image-Agent"
 
 **Branch**: `001-llmxive-followup` | **Date**: 2026-08-01 | **Spec**: `specs/001-llmxive-followup/spec.md`
 **Input**: Feature specification from `specs/001-llmxive-followup/spec.md`
 
 ## Summary
 
-This feature implements a deterministic "Hybrid Routing" system to test the hypothesis that syntactic/lexical complexity metrics can predict when a full agentic image generation pipeline is necessary versus when a cheaper rule-based expansion suffices. The system ingests prompts and *ground-truth images* from IA-Bench, computes a non-circular "Ambiguity Score" (syntactic depth, MTLD), and routes them to either a rule-based text expansion path or a simulated agent path. The core output is the identification of a "knee point" threshold via piecewise linear regression where the fidelity advantage of the *rule-based expansion* (compared to the original prompt) vanishes. The study uses *real images* from the dataset as the ground truth for CLIP scoring, eliminating the need for mock image generation.
+This feature implements a hybrid image generation routing system that determines whether a text prompt requires the full computational cost of the Qwen-Image-Agent pipeline (or a Verified Proxy) or can be handled by a lightweight rule-based generator. The core innovation is a "Syntactic Complexity Score" (0.0–1.0) derived strictly from parse tree depth, clause count, and MTLD (Mean Length of T-Units), explicitly excluding semantic embeddings to prevent circular validation. The system routes "high" complexity prompts (>0.6) to the real agent/proxy and "low/medium" prompts to the lightweight path. The implementation validates this hypothesis by measuring "Context Fidelity" (CLIP similarity + Structural Detail Score against generated gold-standard references) on a **fully paired sample** (Baseline and Hybrid generated for EVERY prompt) to identify a "knee point" threshold where agentic reasoning provides no statistically significant fidelity gain.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `nltk`, `spacy`, `torch`, `transformers` (CLIP), `statsmodels`, `pyyaml`, `textstat`
-**Storage**: Local `data/` directory (raw JSONL/JSON, images), `data/derived/` (scoring results, fidelity deltas)
-**Testing**: `pytest` (unit tests for scoring logic, routing logic, regression validation)
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7GB RAM)
-**Project Type**: Research CLI / Data Analysis Pipeline
-**Performance Goals**: Process [deferred] prompts within 6 hours; CLIP inference batched to fit RAM.
-**Constraints**: No GPU on primary runner (CPU-first CLIP inference); no semantic embeddings in ambiguity scoring; strict adherence to dataset URLs provided in the verified block.
-**Scale/Scope**: A substantial set of prompts (IA-Bench); routing categories; primary regression model.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `spacy` (syntactic parsing), `nltk` (MTLD), `torch` (CLIP ViT-B/32), `scikit-learn` (regression), `datasets` (Hugging Face loading), `numpy`, `pandas`, `matplotlib`, `seaborn`, `diffusers` (SDXL-Turbo proxy), `transformers`.  
+**Storage**: Local `data/` directory for raw and derived datasets; `data/` files are checksummed.  
+**Testing**: `pytest` for unit tests (scoring logic, routing logic); integration tests for pipeline execution on small subsets.  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
+**Project Type**: Research pipeline / CLI tool.  
+**Performance Goals**: Process 600+ paired prompts within 6 hours on CPU (for scoring/CLIP); GPU offload for generation.  
+**Constraints**: No semantic embeddings in complexity scoring; strict separation of routing features and fidelity verification; all data must be downloadable without credentials; normalization parameters frozen from Pilot Study.  
+**Scale/Scope**: A substantial set of prompts for the paired analysis sample (approximately dozens per domain).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+The research question remains: Can a deterministic syntactic complexity score predict the necessity of agentic reasoning in image generation?
+The method remains: Paired execution with piecewise regression and permutation testing.
+References remain: IA-Bench, LAION-CC; pilot study of a set of prompts.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-- **[PRINCIPLE I: Reproducibility]**: All random seeds for data sampling and permutation tests will be pinned in `code/config.py`. External datasets (IA-Bench) will be fetched via `datasets.load_dataset` or direct URL download as specified in the verified block, ensuring the same canonical source on every run.
-- **[PRINCIPLE II: Verified Accuracy]**: Citations for datasets (IA-Bench) will be restricted to the verified URLs provided in the prompt. The CLIP model version (ViT-B/32) will be pinned to a specific HuggingFace commit hash. **Execution Gate**: The `main.py` pipeline will explicitly invoke the `Reference-Validator` agent *before* any data loading or processing steps to ensure all citations are valid and blocking gates are enforced.
-- **[PRINCIPLE III: Data Hygiene]**: Raw data downloads (prompts and images) will be stored in `data/raw/` with checksums recorded in `state/`. Derived datasets (scoring outputs, fidelity deltas) will be written to `data/derived/` as new files. No in-place modifications.
-- **[PRINCIPLE IV: Single Source of Truth]**: All figures (regression plots) and statistics (knee point, p-values) in the final report will be generated programmatically from `data/derived/` CSVs. No hand-typed numbers.
-- **[PRINCIPLE V: Versioning]**: `requirements.txt` will pin exact versions of `nltk`, `spacy`, `torch`, and `transformers`. **Artifact Versioning**: The `state/...yaml` file will be updated with content hashes for all *derived artifacts* (e.g., `scoring_results.csv`, `regression_results.json`) to trigger the versioning gate logic, distinct from raw data checksums (Principle III).
-- **[PRINCIPLE VI: Syntactic Ambiguity Measurement Independence]**: The ambiguity scoring module will explicitly exclude any semantic embedding vectors (e.g., BERT, CLIP text encoders). It will rely solely on `nltk`/`spacy` parse trees and lexical diversity algorithms (MTLD).
-- **[PRINCIPLE VII: Domain-Specific Fidelity Validation]**: The regression analysis phase will include a stratification step *only if* the IA-Bench dataset explicitly contains "visual domain" metadata. If metadata is missing, the plan will **not** fallback to keyword heuristics or aggregate data; instead, it will perform a global regression and explicitly report the inability to validate domain-specific thresholds as a limitation, ensuring the "MUST not aggregate" clause is respected.
+| Principle | Status | Implementation Note |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | PASS | All random seeds pinned in `code/`; datasets fetched via `datasets` library from canonical HF URLs; environment pinned in `requirements.txt`. |
+| **II. Verified Accuracy** | PASS | All dataset citations in `research.md` map to the verified list provided in the spec. No fabricated URLs. |
+| **III. Data Hygiene** | PASS | Raw data stored in `data/raw/` with checksums; derived data in `data/processed/`; no in-place modifications. |
+| **IV. Single Source of Truth** | PASS | Fidelity scores and regression parameters generated by code and stored in `data/results/`; paper references these files only. |
+| **V. Versioning Discipline** | PASS | Artifact hashes tracked in `state/`; `requirements.txt` pinned to specific versions. |
+| **VI. Syntactic Ambiguity Independence** | PASS | **Enforced by: `src/scoring/syntactic_features.py`**. This file MUST exist and be verified by the 'Verified Accuracy' gate before the plan proceeds. It explicitly uses only `spacy` parse trees and `nltk` MTLD. No embedding vectors are loaded or used in this phase. |
+| **VII. Domain-Specific Fidelity Validation** | PASS | Plan includes stratified regression (FR-010) on the **paired sample** (N=200/domain). The sample is stratified by visual domain (ResNet-50, **implemented in `src/domain/classifier.py`** which MUST implement ResNet-50) before generation to ensure valid domain-specific thresholds. |
 
 ## Project Structure
 
@@ -50,39 +56,64 @@ specs/001-llmxive-followup/
 ### Source Code (repository root)
 
 ```text
-code/
-├── config.py            # Seed pins, path configs, threshold constants
-├── data_loader.py       # Fetch IA-Bench; streaming logic; download images
-├── scoring.py           # Ambiguity score calculation (syntactic/lexical only)
-├── router.py            # Deterministic routing logic (low/med/high)
-├── expansion.py         # Rule-based context expansion (text transformation)
-├── simulation.py        # Mock agent execution (token/latency simulation only)
-├── fidelity.py          # CLIP inference (CPU batched), delta calculation
-├── regression.py        # Piecewise linear regression, knee point detection, F-test
-├── utils.py             # Logging, error handling, domain stratification
-└── main.py              # Orchestration script (includes Reference-Validator gate)
+src/
+├── scoring/
+│   ├── __init__.py
+│   ├── syntactic_features.py   # FR-001: Parse depth, clause count, MTLD (Enforces Principle VI)
+│   └── complexity_calculator.py # FR-001: Score aggregation (0.0-1.0)
+├── routing/
+│   ├── __init__.py
+│   ├── router.py               # FR-002, FR-003: Threshold logic & dispatch
+│   └── lightweight_expander.py # FR-003: Rule-based context generator
+├── fidelity/
+│   ├── __init__.py
+│   ├── clip_evaluator.py       # FR-004: CLIP ViT-B/32 scoring
+│   └── regression_analysis.py  # FR-005, FR-006: Piecewise regression, permutation test, LRT
+├── domain/
+│   ├── __init__.py
+│   └── classifier.py           # FR-011: ResNet-50 domain classification (Enforces Principle VII)
+├── pipeline/
+│   ├── __init__.py
+│   ├── runner.py               # Main orchestration (FR-009)
+│   └── logger.py               # FR-007, FR-008: Routing & efficiency logs
+├── pilot/
+│   ├── __init__.py
+│   └── study_runner.py         # FR-012: Pilot study execution & correlation
+└── utils/
+    ├── data_loader.py          # HF dataset streaming
+    └── seeds.py                # Global seed management
 
 tests/
 ├── unit/
-│   ├── test_scoring.py  # Verify no semantic embeddings used
-│   ├── test_router.py   # Verify threshold logic
-│   └── test_regression.py # Verify F-test and knee point logic
+│   ├── test_scoring.py
+│   ├── test_routing.py
+│   └── test_fidelity.py
 └── integration/
-    └── test_pipeline.py # End-to-end run on a representative sample subset
+    └── test_full_pipeline.py
 
-The research question is: Can end-to-end models effectively process limited data subsets?
-The method is: Training and evaluation on a stratified sample of the full dataset.
-References: [Citation to be inserted per project bibliography]
-
-requirements.txt
+data/
+├── raw/                        # Downloaded datasets (checksummed)
+├── processed/                  # Scores, routed prompts, generated images, pilot results
+└── results/                    # Regression outputs, plots, stats, pilot correlation
 ```
 
-**Structure Decision**: Single project structure (`code/`) is selected. This is a research pipeline, not a web service or mobile app. The separation of concerns (scoring, routing, expansion, simulation, fidelity, regression) into distinct modules ensures testability and aligns with the FR/SC breakdown. `regression.py` is explicitly linked to the generation of `contracts/regression_results.schema.yaml` and `data/derived/regression_results.json`.
+**Structure Decision**: Single `src/` directory structure chosen. This is a research pipeline, not a web service. Separation into `scoring`, `routing`, `fidelity`, and `domain` modules ensures strict adherence to the independence principle (Principle VI) and facilitates unit testing of each component in isolation.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Piecewise Regression (vs Linear) | The hypothesis posits a "knee point" (non-linear threshold). A simple linear model cannot identify where the slope changes. | Linear regression would fail to detect the specific "vanishing advantage" point, invalidating the core research question (US-3, FR-005). |
-| Real Image Ground Truth (vs Mock) | CLIP measures semantic alignment. Mock images (noise) have no semantic content, invalidating the fidelity metric. | Using mock images renders the "Context Fidelity" metric meaningless. The plan uses real images from IA-Bench to ensure validity. |
-| CPU-First CLIP | GitHub Actions free tier has no GPU. | GPU-only CLIP would make the project unexecutable on the primary runner. The plan uses CPU-tractable `transformers` with batching. |
+| **Piecewise Regression + Permutation Test + LRT** | Required to scientifically validate the "knee point" (FR-005, FR-006) and avoid false positives in threshold detection. | Simple linear regression cannot detect non-linear "knee" behavior; t-tests on binned data suffer from arbitrary binning bias and loss of power. Likelihood Ratio Test (LRT) is required by FR-005. |
+| **Stratified Domain Analysis** | Required by Principle VII to ensure fidelity metrics are not confounded by visual style. | Aggregating all images would mask domain-specific thresholds (e.g., abstract art may need less context than photorealism), invalidating the "knee point" generalization. |
+| **Lightweight Rule-Based Expander** | Required to test the hypothesis that simple prompts don't need agents (FR-003). | Using a small LLM for the "low" path would introduce semantic embeddings and cost, defeating the purpose of measuring the *syntactic* threshold. |
+| **Full Paired Execution Sample** | Required to avoid the confound of missing baselines (Methodology concern). | Running the agent only on a subset and assuming the rest creates circular validation and statistical invalidity. |
+
+## Success Criteria Alignment
+
+- **SC-001 (Syntactic Score)**: Measured via `src/scoring/syntactic_features.py` against IA-Bench/LAION-CC.
+- **SC-002 (Context Fidelity)**: Measured via `src/fidelity/clip_evaluator.py` against generated gold-standard references.
+- **SC-003 (Knee Point)**: Measured via `src/fidelity/regression_analysis.py` (Piecewise Regression).
+- **SC-004 (Statistical Significance)**: Measured via Permutation Test (sufficient iterations for convergence) and LRT.
+- **SC-005 (Efficiency)**: Measured via `token_count` (LLM) or `inference_steps` (Diffusion) + `latency_ms`. Note: For diffusion models, "Compute Steps" is the valid proxy for "Token Count".
+- **SC-006 (Domain Thresholds)**: Measured via stratified regression on domain-specific subsets.
+- **FR-012 (Pilot Study)**: Must produce `data/results/pilot_correlation.json` with correlation coefficient ≥ 0.5. This file is a hard gate for Phase 1.

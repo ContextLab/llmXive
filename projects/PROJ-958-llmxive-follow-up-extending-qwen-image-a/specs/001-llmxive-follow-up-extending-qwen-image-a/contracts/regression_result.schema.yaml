@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Result Schema"
+description: "Schema for the final statistical analysis results including LRT and Permutation Test."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "piecewise"
+      - "linear"
+    description: "Type of regression model fitted."
+  knee_point:
+    type: "number"
+    description: "The identified complexity score threshold where the slope changes."
+  slope_change:
+    type: "number"
+    description: "The magnitude of the change in slope at the knee point."
+  p_value_f_test:
+    type: "number"
+    description: "P-value from the F-test comparing piecewise vs linear models."
+  p_value_lrt:
+    type: "number"
+    description: "P-value from the Likelihood Ratio Test (LRT) comparing piecewise vs linear models."
+  p_value_permutation:
+    type: "number"
+    description: "P-value from the permutation test."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination for the fitted model."
+  domain_stratum:
+    type: "string"
+    description: "The visual domain this result applies to (or 'overall')."
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence interval for the knee point."
+  model_comparison:
+    type: "string"
+    description: "Result of the model comparison."
+    enum:
+      - "piecewise_superior"
+      - "linear_sufficient"
+      - "no_threshold_found"
+required:
+  - "model_type"
+  - "knee_point"
+  - "slope_change"
+  - "p_value_f_test"
+  - "p_value_lrt"
+  - "p_value_permutation"
+  - "r_squared"
+  - "domain_stratum"
+  - "model_comparison"
