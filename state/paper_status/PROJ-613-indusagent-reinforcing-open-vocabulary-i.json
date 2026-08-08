@@ -32,12 +32,12 @@
         "page": 46
       }
     ],
-    "audited_at": "2026-08-08T17:21:51.439195+00:00"
+    "audited_at": "2026-08-08T17:54:50.102537+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-613-indusagent-reinforcing-open-vocabulary-i",
-  "updated_at": "2026-08-08T17:21:51.439208+00:00"
+  "updated_at": "2026-08-08T17:54:50.102551+00:00"
 }
