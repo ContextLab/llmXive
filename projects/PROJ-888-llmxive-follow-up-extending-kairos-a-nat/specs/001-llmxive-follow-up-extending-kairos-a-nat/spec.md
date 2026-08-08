@@ -9,11 +9,11 @@
 
 ### User Story 1 - Data Construction and Quantization Pipeline (Priority: P1)
 
-The research system MUST convert the continuous LIBERO benchmark dataset (RGB frames and proprioceptive states) into discrete, JSON-serialized state vectors with configurable quantization levels (4-bit, 8-bit, 16-bit) to simulate sparse sensor inputs. Velocities MUST be derived via finite differencing of position data, as the source dataset does not natively provide velocity fields. Noise injection MUST use a standard deviation of 0.1 * quantization_step.
+The research system MUST convert the continuous LIBERO benchmark dataset (RGB frames and proprioceptive states) into discrete, JSON-serialized state vectors with configurable quantization levels (4-bit, 8-bit, 16-bit) to simulate sparse sensor inputs. Velocities MUST be derived via finite differencing of position data, as the source dataset does not natively provide velocity fields. Noise injection MUST use a small standard deviation relative to the quantization_step, calibrated to balance perturbation magnitude with signal integrity.
 
 **Why this priority**: Without a reproducible, quantized dataset representing the "Sparse Physical World," no subsequent modeling or stability analysis can occur. This is the foundational input for the entire study.
 
-**Independent Test**: The pipeline can be tested by running the conversion script on a subset of LIBERO data, verifying that the output JSON files contain discrete integer values within the specified bit-depth ranges (e.g., 0-15 for 4-bit), and confirming that the total dataset size fits within the 7GB RAM constraint.
+**Independent Test**: The pipeline can be tested by running the conversion script on a subset of LIBERO data, verifying that the output JSON files contain discrete integer values within the specified bit-depth ranges (e.g., 0-15 for 4-bit), and confirming that the total dataset size fits within the available RAM constraint.
 
 **Acceptance Scenarios**:
 
@@ -29,7 +29,7 @@ The system MUST load the pre-trained Kairos Hybrid Linear Temporal Attention mod
 
 **Why this priority**: The core research question depends on evaluating the architecture's stability under CPU constraints and modality shift. If the model cannot learn the discrete-to-latent mapping (due to an untrained layer), the hypothesis regarding "resource-constrained deployment" cannot be tested.
 
-**Independent Test**: The model can be tested by initiating a training run with a fixed random seed, verifying that the loss trend shows convergence (loss decreases by ≥5% over a window of 5 epochs or loss < 0.05), confirming that the total training time is ≤ 4 hours (graceful exit if > 6h), and confirming that inference on a 500-step sequence completes without CUDA errors or out-of-memory exceptions.
+**Independent Test**: The model can be tested by initiating a training run with a fixed random seed, verifying that the loss trend shows convergence (loss decreases by ≥5% over a window of 5 epochs or loss < 0.05), confirming that the total training time is ≤ 4 hours (graceful exit if > 6h), and confirming that inference on a long sequence completes without CUDA errors or out-of-memory exceptions.
 
 **Acceptance Scenarios**:
 
@@ -41,7 +41,7 @@ The system MUST load the pre-trained Kairos Hybrid Linear Temporal Attention mod
 
 ### User Story 3 - Stability Analysis and Threshold Mapping (Priority: P3)
 
-The system MUST compute the Mean Squared Error (MSE) between predicted and ground-truth discrete sequences across varying quantization levels and noise levels, performing statistical validation to identify the minimum information density threshold where stability guarantees break down. The baseline for comparison MUST be the error of the *trained continuous model* (same architecture, trained on continuous data). The stability threshold is defined as the point where the *model error* (total error minus quantization noise floor) exceeds 1.20x the baseline continuous model error.
+The system MUST compute the Mean Squared Error (MSE) between predicted and ground-truth discrete sequences across varying quantization levels and noise levels, performing statistical validation to identify the minimum information density threshold where stability guarantees break down. The baseline for comparison MUST be the error of the *trained continuous model* (same architecture, trained on continuous data). The stability threshold is defined as the point where the *model error* (total error minus quantization noise floor) exceeds a defined multiple of the baseline continuous model error.
 
 **Why this priority**: This is the direct answer to the research question. It synthesizes the data and model outputs into the "scaling law" and "threshold" findings required for the paper.
 
@@ -84,11 +84,11 @@ The system MUST compute the Mean Squared Error (MSE) between predicted and groun
 
 ### Measurable Outcomes
 
-- **SC-001**: The minimum information density threshold (quantization level) required to maintain stable long-horizon forecasting is measured against the point where the *model error* exceeds 1.20x the baseline continuous model error. (See US-3).
+- **SC-001**: The minimum information density threshold (quantization level) required to maintain stable long-horizon forecasting is measured against the point where the *model error* exceeds a predefined tolerance relative to the baseline continuous model error. (See US-3).
 - **SC-002**: The error accumulation rate (model error growth per time step) is measured against the continuous visual-modality baseline to determine the relative degradation caused by the discrete modality. (See US-3).
 - **SC-003**: The computational feasibility (training time and peak RAM) is measured against the time and memory constraints of the GitHub Actions Free Tier runner to ensure the study is reproducible. (See US-2).
 - **SC-004**: The statistical significance of the difference in error rates between discrete and visual modalities is measured against the p < 0.05 threshold using a paired t-test or Wilcoxon test (paired by episode_id, timestep). (See US-3).
-- **SC-005**: The sensitivity of the stability threshold to quantization resolution is measured by the change in model error when sweeping the bit-depth across the set {4-bit, 8-bit, 16-bit}. (See US-3).
+- **SC-005**: The sensitivity of the stability threshold to quantization resolution is measured by the change in model error when sweeping the bit-depth across a set of representative resolutions. (See US-3).
 - **SC-006**: The quantization noise floor is measured and explicitly separated from the model error to ensure the stability threshold reflects architectural capacity, not input transformation artifacts. (See US-3).
 
 ## Assumptions

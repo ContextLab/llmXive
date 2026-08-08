@@ -1,17 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DiscreteStateVector"
-description: "Schema for quantized state vectors generated from LIBERO dataset."
+description: "Schema for the quantized state vectors generated from the LIBERO dataset."
 type: "object"
-required:
-  - "timestep"
-  - "bit_depth"
-  - "proprioception"
-  - "object_states"
 properties:
+  episode_id:
+    type: "string"
+    description: "Unique identifier for the episode."
   timestep:
     type: "integer"
-    minimum: 0
-    description: "Global time step index."
+    description: "Time step index within the episode."
   bit_depth:
     type: "integer"
     enum:
@@ -19,47 +16,28 @@ properties:
       - 8
       - 16
     description: "Quantization level used."
-  proprioception:
+  state_values:
     type: "array"
     items:
       type: "integer"
-      minimum: 0
-      description: "Discretized joint angles/positions."
-  object_states:
+    description: "Discrete integer values in range [0, 2^bit_depth - 1]."
+  velocity_values:
     type: "array"
     items:
-      type: "object"
-      required:
-        - "obj_id"
-        - "position"
-        - "velocity"
-        - "collision_flag"
-      properties:
-        obj_id:
-          type: "integer"
-          minimum: 0
-        position:
-          type: "array"
-          minItems: 3
-          maxItems: 3
-          items:
-            type: "integer"
-            minimum: 0
-        velocity:
-          type: "array"
-          minItems: 3
-          maxItems: 3
-          items:
-            type: "integer"
-            minimum: 0
-          description: "Discretized velocity derived via finite differencing of positions."
-        collision_flag:
-          type: "integer"
-          enum:
-            - 0
-            - 1
-  noise_level:
+      type: "integer"
+    description: "Discrete velocity values derived via finite differencing."
+  noise_seed:
+    type: "integer"
+    description: "Random seed used for noise injection."
+  quantization_error:
     type: "number"
-    minimum: 0.0
-    description: "Standard deviation of injected Gaussian noise."
+    description: "Theoretical noise floor for this bit depth."
+required:
+  - episode_id
+  - timestep
+  - bit_depth
+  - state_values
+  - velocity_values
+  - noise_seed
+  - quantization_error
 additionalProperties: false

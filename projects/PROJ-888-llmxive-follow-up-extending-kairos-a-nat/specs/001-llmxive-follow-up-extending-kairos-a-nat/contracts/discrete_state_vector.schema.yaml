@@ -3,48 +3,41 @@ title: "DiscreteStateVector"
 description: "Schema for a single quantized state vector from the LIBERO dataset."
 type: "object"
 properties:
-  timestamp:
-    type: "number"
-    description: "Timestamp in seconds."
+  episode_id:
+    type: "string"
+    description: "Unique identifier for the episode."
+  timestep:
+    type: "integer"
+    description: "Time step index within the episode."
   bit_depth:
     type: "integer"
-    enum: [4, 8, 12, 16]
-    description: "Quantization bit depth."
-  noise_std:
-    type: "number"
-    description: "Standard deviation of injected Gaussian noise."
-  state_vector:
+    enum:
+      - 4
+      - 8
+      - 16
+    description: "Quantization level used."
+  state_values:
     type: "array"
     items:
       type: "integer"
-    description: "List of quantized integer values representing the state."
-  is_dropped:
-    type: "boolean"
-    description: "True if the timestep was dropped due to sparsity simulation."
-  source_episode_id:
-    type: "string"
-    description: "ID of the source episode for pairing in statistical tests."
-  metadata:
-    type: "object"
-    properties:
-      scene_id:
-        type: "string"
-      episode_id:
-        type: "string"
-      velocity_derivation:
-        type: "string"
-        const: "finite_differencing"
-        description: "Method used to derive velocity."
-    required:
-      - scene_id
-      - episode_id
-      - velocity_derivation
+    description: "Discrete integer values in range [0, 2^bit_depth - 1]."
+  velocity_values:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Discrete velocity values derived via finite differencing."
+  noise_seed:
+    type: "integer"
+    description: "Random seed used for noise injection."
+  quantization_error:
+    type: "number"
+    description: "Theoretical noise floor for this bit depth."
 required:
-  - timestamp
+  - episode_id
+  - timestep
   - bit_depth
-  - noise_std
-  - state_vector
-  - is_dropped
-  - source_episode_id
-  - metadata
+  - state_values
+  - velocity_values
+  - noise_seed
+  - quantization_error
 additionalProperties: false

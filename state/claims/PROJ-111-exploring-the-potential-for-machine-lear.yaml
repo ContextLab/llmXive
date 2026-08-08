@@ -1,0 +1,170 @@
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: generate spin configurations for J1-J2 Heisenberg and XY models at L=16
+    and L=24 covering T=0.1 to 3.0
+  claim_id: c_46d46853
+  context: "Otherwise, implement the Metropolis-Hastings algorithm to generate raw\
+    \ spin configurations for the J1\u2011J2 Heisenberg model and the XY model at\
+    \ lattice sizes L=16 and L=24, covering temperatures T=0.1\u20113.0."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "generate raw spin configurations for the J1\u2011J2 Heisenberg model\
+    \ and the XY model at lattice sizes L=16 and L=24, covering temperatures T=0.1\u2011\
+    3.0"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T10:11:07Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: verify shape N,3,L,L unit norm and stratification variance less than
+    or equal to 5
+  claim_id: c_3010776e
+  context: "Independent Test: A script executes to download/generate raw spins, normalize,\
+    \ reshape, and split. Test verifies shape (N, 3, L, L), unit norm, and stratification\
+    \ variance \u2264 5."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_shape_N,3,L,L_unit_norm_and_stratification_variance_l
+  kind: magnitude
+  raw_text: "test verifies shape (N, 3, L, L), unit norm, and stratification variance\
+    \ \u2264 5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T10:11:49Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: verify end-to-end data pipeline memory less than 6 GB for L=24
+  claim_id: c_452e7f13
+  context: "T011 [P] [US1] Integration test for end\u2011to\u2011end data pipeline\
+    \ in tests/integration/test_data_pipeline.py verifying memory < 6 GB for L=24"
+  evidence:
+    candidates:
+    - - ''
+      - 6.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_end-to-end_data_pipeline_memory_less_than_6_GB_for_L%3D
+  kind: magnitude
+  raw_text: "Integration test for end\u2011to\u2011end data pipeline verifying memory\
+    \ < 6 GB for L=24"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T10:12:13Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: verify loss convergence delta loss less than 1e-3 for 5 epochs latent
+    mean approximately 0 and total time less than 6 hours
+  claim_id: c_b1acc4b2
+  context: "Independent Test: The training loop runs for multiple epochs on CPU. Test\
+    \ verifies loss convergence (|\u0394Loss| < 1e\u20113 for 5 epochs), latent mean\
+    \ \u2248 0, and total time < 6 h."
+  evidence:
+    asserted: '1.0'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: magnitude
+  raw_text: "Test verifies loss convergence (|\u0394Loss| < 1e\u20113 for 5 epochs),\
+    \ latent mean \u2248 0, and total time < 6 h"
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T10:12:13Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: VAE architecture 2 convolutional 2 deconvolutional layers latent dimension
+    10
+  claim_id: c_efad60a7
+  context: T018 [P] [US2] Unit test for VAE architecture (2 conv/2 deconv layers,
+    latent dim 10) in tests/unit/test_vae_model.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VAE architecture (2 conv/2 deconv layers, latent dim 10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T10:12:35Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: implement VAE model with 2 convolutional encoder layers 2 deconvolutional
+    decoder layers and latent dimension 10
+  claim_id: c_1359c63e
+  context: T020 [US2] Implement `code/vae_model.py` with 2 convolutional encoder layers
+    and 2 deconvolutional decoder layers, latent dimension 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/vae_model.py` with 2 convolutional encoder layers and
+    2 deconvolutional decoder layers, latent dimension 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T10:12:53Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: use Pearson correlation coefficient to compute p-value for XY model BKT
+    transition correlation
+  claim_id: c_81e13c62
+  context: "T030 [US3] Cross\u2011validate the ML\u2011derived T* against magnetic\
+    \ susceptibility \u03C7 (output of T007) and literature values. Use Pearson correlation\
+    \ coefficient to compute the p-value for the XY model BKT transition correlation\
+    \ (FR\u2011008)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Pearson_correlation_coefficient_to_compute_p-value_for_X
+  kind: entity_fact
+  raw_text: Use Pearson correlation coefficient to compute the p-value for the XY
+    model BKT transition correlation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T10:13:29Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: report pseudo-critical temperatures for L=16 and L=24
+  claim_id: c_8e3b12ff
+  context: "T032 [US3] Report pseudo-critical temperatures for L=16 and L=24 as distinct\
+    \ primary output fields, along with the extrapolated T* and status flags (e.g.,\
+    \ \"FSS Inconclusive\" if fitting fails) (FR\u2011009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report pseudo-critical temperatures for L=16 and L=24 as distinct primary
+    output fields
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T10:13:45Z'

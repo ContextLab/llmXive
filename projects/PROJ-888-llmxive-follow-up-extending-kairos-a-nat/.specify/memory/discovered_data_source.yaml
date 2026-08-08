@@ -1,12 +1,11 @@
 status: none
-intent: download LIBERO benchmark dataset HDF5 python package dataset
+intent: download LIBERO benchmark dataset from Hugging Face python package dataset
 required_fields:
-- rgb_frame
+- rgb_image
 - proprioceptive_state
 - joint_positions
-- joint_velocities
-- gripper_state
+- object_positions
 - timestamp
-cache_key: d92e266f77e5414067606fb8aa92c37037467ecc993e5830b3d02d20e983ace8
-searched_at: '2026-08-04T16:29:10.134087+00:00'
+cache_key: a182a2a999da1edf92dd8dd69240ba35197d4a364c2be2ca20dc79878eb8e616
+searched_at: '2026-08-08T09:25:12.953159+00:00'
 retry_count: 1

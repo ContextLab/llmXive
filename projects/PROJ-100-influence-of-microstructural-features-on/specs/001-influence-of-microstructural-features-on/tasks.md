@@ -46,7 +46,7 @@
 - [ ] T001a Create `code/` directory for source code and scripts
 - [ ] T001b Create `data/raw/` and `data/processed/` directories for data hygiene
 - [ ] T001c Create `results/` and `results/plots/` directories for artifacts
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, opencv-python, scikit-image, matplotlib, seaborn, requests, huggingface_hub, pytest)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, opencv-python, scikit-image, matplotlib, seaborn, requests, huggingface_hub, pytest)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
@@ -77,7 +77,7 @@ Examples of foundational tasks (adjust based on your project):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Contract test for data generation logic in `tests/unit/test_data_generation.py`
-- [~] T011 [P] [US1] Integration test for data cleaning pipeline in `tests/integration/test_data_pipeline.py`
+- [ ] T011 [P] [US1] Integration test for data cleaning pipeline in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
@@ -89,7 +89,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T012 [US1] **Validate Raw Data**: Validate that the downloaded (T007) or synthetic (T009) data meets statistical properties (mean, std, correlation) and contains all required columns. **Explicitly calculate and log the percentage of records missing specific microstructural features** to verify the ≥80% threshold required by FR-003. Save to `data/raw/validated_data.csv`.
 - [ ] T014 [US1] **Clean and Impute Data**: Implement data cleaning in `code/01_data_acquisition.py`. Remove records with missing fatigue cycles or unverified microstructure. **Conditional Logic**: If missing microstructural features < 20% of remaining records, impute using **median**; otherwise, exclude the record. Log the method used (impute/exclude) and counts to `results/exclusion_report.log`.
 - [ ] T016 [US1] **Save Cleaned Dataset**: Save the final cleaned dataset to `data/processed/cleaned_aluminum_fatigue.csv` with schema validation. Ensure all required columns are present.
-- [ ] T017 [US1] **Document Data Source**: Update `results/data_source_report.md` to explicitly state whether data was real (T007) or synthetic (T009) and log the fallback reason if applicable.
+- [X] T017 [US1] **Document Data Source**: Update `results/data_source_report.md` to explicitly state whether data was real (T007) or synthetic (T009) and log the fallback reason if applicable.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,20 +103,20 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for image processing fallback in `tests/unit/test_feature_extraction.py`
+- [X] T018 [P] [US2] Contract test for image processing fallback in `tests/unit/test_feature_extraction.py`
 - [ ] T019 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] **Implement Feature Extraction Pipeline**: Implement `code/02_feature_extraction.py` to:
+- [X] T020 [US2] **Implement Feature Extraction Pipeline**: Implement `code/02_feature_extraction.py` to:
  1. **Load** 512×512 microscopy images (real or synthetic Voronoi from T011) and verify dimensions.
  2. **Convert** to grayscale and apply OpenCV thresholding for grain boundary detection.
  3. **Quantify** grain size (equivalent diameter distribution), secondary phase fraction (area %), and dislocation density proxies using **GLCM contrast, energy, and entropy** (texture metrics).
  4. **Output**: Save feature matrix to `data/processed/feature_matrix.csv`. **Explicitly include an `is_proxy` boolean column** for dislocation density features as required by FR-013.
  5. **Fallback**: If images are missing, skip image processing and use tabular data only, logging the event.
-- [ ] T021 [US2] **Implement Model Training**: Implement `code/03_model_training.py` to fit Random Forest, Gradient Boosting, and ElasticNet models (≤100 trees/estimators).
-- [ ] T022 [US2] **Implement Grouped Cross-Validation**: Implement 5-fold *grouped* cross-validation (stratified by `alloy_batch_id` and `heat_treatment_group` from T008) in `code/03_model_training.py`.
-- [ ] T023a [US2] **Implement Memory Profiling**: Implement memory profiling in `code/03_model_training.py` using `tracemalloc` or similar. Log peak usage to `results/memory_profile.log`.
+- [X] T021 [US2] **Implement Model Training**: Implement `code/03_model_training.py` to fit Random Forest, Gradient Boosting, and ElasticNet models (≤100 trees/estimators).
+- [X] T022 [US2] **Implement Grouped Cross-Validation**: Implement 5-fold *grouped* cross-validation (stratified by `alloy_batch_id` and `heat_treatment_group` from T008) in `code/03_model_training.py`.
+- [X] T023a [US2] **Implement Memory Profiling**: Implement memory profiling in `code/03_model_training.py` using `tracemalloc` or similar. Log peak usage to `results/memory_profile.log`.
 - [ ] T023b [US2] **Enforce RAM Constraints**: Add a check in `code/03_model_training.py` that raises an error if peak memory usage > 7GB, ensuring FR-006 compliance.
 - [ ] T024 [US2] **Evaluate Models**: Evaluate models on held-out test data and compute R², RMSE, MAE in `code/03_model_training.py`. **Log whether data source was real or synthetic** for context.
 - [ ] T026 [US2] **Label Proxy Features**: Ensure the `is_proxy` boolean flag from T020 is propagated to the final visualization labels and report text to satisfy FR-013.

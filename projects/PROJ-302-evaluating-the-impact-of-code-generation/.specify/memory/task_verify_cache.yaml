@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required core directories (`code/`, `data/`, `tests/`, `docs/`)
+    being present was provided; the implementer supplied no artifact list or screenshots
+    showing these folders. The task remains undone until those directories exist in
+    the project repository.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories (or
+    any files within them) is provided; without tangible artifacts the claim that
+    the subdirectories were created cannot be verified. The implementer must add the
+    actual directories (and optionally placeholder files) to the repository.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory structure was presented in the evidence; there is no listing or\
+    \ contents showing that the required subfolders (`code/data_acquisition/`, `code/feature_extraction/`,\
+    \ `code/analysis/`, `code/utils/`) actually exist. The implementer\u2019s claim\
+    \ cannot be verified without these artifacts."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`)
+    or scripts setting up ruff linting and black formatting are present in the provided
+    evidence, so the required artifact for task T003 is missing.
+T014b:
+  c: false
+  h: 0e347d83bbac564ebd8307afff2f170b25a403ee757507671331c6543d35d6ae
+  r: The repository contains `code/data_acquisition/synthetic_generator.py`, but the
+    required output file `data/processed/generated_snippets.parquet` is missing, and
+    the shown script is truncated before any logic that writes the Parquet file or
+    fully creates the amendment markdown. Without the generated dataset, the mandatory
+    generation requirement is not satisfied.
+T017b:
+  c: false
+  h: 17e0ddac776570dd335872bf1ae2caa823c66bbc18da9958ec7c9319e2d5c342
+  r: "The repository contains `code/feature_extraction/semantic_similarity.py`, but\
+    \ the shown code is incomplete (truncated) and does not demonstrate that it computes\
+    \ similarity scores and writes them to `data/processed/diagnostic_scores.parquet`.\
+    \ Moreover, the required parquet file is absent from the filesystem. The task\u2019\
+    s primary output is therefore missing."

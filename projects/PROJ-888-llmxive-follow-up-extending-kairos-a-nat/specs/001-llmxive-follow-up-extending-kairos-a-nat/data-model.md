@@ -2,69 +2,94 @@
 
 ## Overview
 
-This document defines the data structures used throughout the project, ensuring consistency between the quantization pipeline, the model training loop, and the analysis phase. All data is derived from the LIBERO benchmark and transformed into discrete representations.
+This document defines the data structures used in the quantization pipeline, model training, and analysis phases. All data flows from the continuous LIBERO dataset through the quantization engine to the discrete state vectors, and finally to the error metrics and stability reports.
 
-## Entity Definitions
+## Core Entities
 
-### 1. DiscreteStateVector
-Represents the quantized state of the embodied agent at a single time step.
+### 1. ContinuousStateVector
+*Source*: Raw LIBERO dataset (parquet).
+*Description*: The ground-truth continuous state of the embodied agent at a single time step.
 
-- **Type**: JSON Object / Dictionary
-- **Fields**:
-  - `timestep` (int): The global time step index.
-  - `bit_depth` (int): The quantization level used (4, 8, or 16).
-  - `proprioception` (list[int]): Discretized joint angles/positions.
-  - `object_states` (list[dict]): List of object states.
-    - `obj_id` (int): Unique object identifier.
-    - `position` (list[int]): Discretized [x, y, z] coordinates.
-    - `velocity` (list[int]): Discretized [vx, vy, vz]. **Derived via finite differencing of positions.**
-    - `collision_flag` (int): Binary (0 or 1).
-  - `noise_level` (float): The standard deviation of Gaussian noise applied (if any).
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `episode_id` | `str` | Unique identifier for the episode. |
+| `timestep` | `int` | Time step index within the episode. |
+| `position` | `List[float]` | 3D position of the end-effector (derived from `observations.state[0:3]`). |
+| `orientation` | `List[float]` | Quaternion (derived from `observations.state[3:7]`). |
+| `joint_angles` | `List[float]` | Robot joint angles. |
+| `task_id` | `str` | Identifier for the specific task. |
 
-### 2. PredictionHorizon
-Defines the scope of a prediction task.
+### 2. DiscreteStateVector
+*Source*: Output of `data/quantize.py`.
+*Description*: The quantized, JSON-serialized state vector with derived velocities and noise injection.
 
-- **Type**: Integer
-- **Values**: 100, 250, 500 (as per spec).
-- **Usage**: Used to slice sequences for training and evaluation.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `episode_id` | `str` | Inherited from source. |
+| `timestep` | `int` | Inherited from source. |
+| `bit_depth` | `int` | Quantization level (4, 8, or 16). |
+| `state_values` | `List[int]` | Discrete integer values in range $[0, 2^{bit\_depth} - 1]$. |
+| `velocity_values` | `List[int]` | Discrete velocity values derived from continuous data, then quantized. |
+| `noise_seed` | `int` | Random seed used for noise injection (for reproducibility). |
+| `quantization_error` | `float` | Theoretical noise floor for this bit depth (combined with injected noise). |
 
-### 3. ErrorMetric
-Composite record for statistical analysis.
+### 3. PredictionHorizon
+*Description*: Configuration for long-horizon prediction.
 
-- **Type**: JSON Object / Dictionary
-- **Fields**:
-  - `run_id` (string): Unique identifier for the experiment run.
-  - `bit_depth` (int): Quantization level.
-  - `horizon` (int): Prediction horizon used.
-  - `mse` (float): Raw Mean Squared Error.
-  - `mse_normalized` (float): MSE divided by state space dimensionality.
-  - `quantization_noise_floor` (float): Theoretical MSE of the quantization process.
-  - `mse_adjusted` (float): `mse_normalized` - `quantization_noise_floor`. **Primary metric for stability threshold.**
-  - `cumulative_error_rate` (float): Slope of error growth over time.
-  - `p_value` (float): Result of statistical test vs. baseline.
-  - `is_significant` (bool): True if p < 0.05.
-  - `degradation_factor` (float): Ratio of discrete MSE to continuous baseline MSE.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `horizon_length` | `int` | Number of future steps to predict (100, 250, 500, 1000). |
+| `input_context_length` | `int` | Number of past steps used as context. |
+
+### 4. ErrorMetric
+*Source*: Output of `analysis/metrics.py`.
+*Description*: Composite record of error analysis for a specific run and bit depth.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `run_id` | `str` | Unique identifier for the independent run (includes noise seed). |
+| `bit_depth` | `int` | Quantization level tested. |
+| `horizon_length` | `int` | Prediction horizon used. |
+| `total_mse` | `float` | Mean Squared Error between prediction and ground truth. |
+| `quantization_noise_floor` | `float` | Theoretical noise floor calculated from combined noise distribution. |
+| `model_error` | `float` | **Total MSE** (not subtracted). |
+| `cumulative_growth_rate` | `float` | Slope of error accumulation over time. |
+| `baseline_continuous_error` | `float` | Error of the continuous baseline model (re-trained per-run). |
+| `degradation_ratio` | `float` | `model_error` / `baseline_continuous_error`. |
+| `is_stable` | `bool` | `True` if `degradation_ratio` < 1.20. |
+| `mse_normalized` | `float` | MSE divided by state space dimensionality. |
+| `entropy_score` | `float` | Entropy of the quantized distribution (validation metric). |
+| `ram_peak_mb` | `float` | Peak RAM usage in MB. |
+| `latency_per_step_ms` | `float` | Inference latency per step in milliseconds. |
+| `is_untrained` | `bool` | True if model was trained from scratch due to missing weights. |
+| `noise_std` | `float` | Standard deviation of injected noise. |
+
+### 5. StabilityReport
+*Source*: Output of `analysis/stats.py`.
+*Description*: Aggregated results across N=10 runs.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `bit_depth` | `int` | The quantization level analyzed. |
+| `n_runs` | `int` | Number of independent runs (≥10). |
+| `mean_model_error` | `float` | Average model error across runs. |
+| `std_model_error` | `float` | Standard deviation of model error. |
+| `p_value` | `float` | Result of mixed-effects model or block-bootstrap test vs. baseline. |
+| `is_significant` | `bool` | `True` if `p_value` < 0.05. |
+| `stability_threshold_met` | `bool` | `True` if mean degradation ratio < 1.20. |
+| `stability_claim_framing` | `str` | Text description of the relative degradation. |
 
 ## Data Flow
 
-1.  **Raw Input**: `LIBERO_Parquet` (Continuous floats).
-2.  **Transformation**: `Quantizer` (Continuous -> Discrete, with finite differencing for velocity).
-3.  **Intermediate**: `DiscreteStateVector` (JSON).
-4.  **Model Input**: Tensorized `DiscreteStateVector` (CPU).
-5.  **Model Output**: `PredictedDiscreteStateVector`.
-6.  **Analysis**: `ErrorMetric` (Aggregated statistics).
+1.  **Raw Data**: `data/raw/*.parquet` (ContinuousStateVector)
+2.  **Quantization**: `data/processed/quantized/*.json` (DiscreteStateVector)
+    - *Transformation*: `quantize.py` (Finite differencing, binning, noise injection).
+3.  **Training/Inference**: `results/runs/<run_id>/` (Model checkpoints, predictions).
+4.  **Analysis**: `results/aggregate/stability_report.json` (ErrorMetric, StabilityReport).
 
-## Storage Layout
+## Constraints & Validation
 
-- **`data/raw/`**: Raw parquet files (downloaded via streaming, not stored permanently if possible, or stored with checksum).
-- **`data/derived/quantized_4bit/`**: JSON files containing `DiscreteStateVector` for 4-bit.
-- **`data/derived/quantized_8bit/`**: JSON files containing `DiscreteStateVector` for 8-bit.
-- **`data/derived/quantized_16bit/`**: JSON files containing `DiscreteStateVector` for 16-bit.
-- **`data/results/`**: `ErrorMetric` JSON files for each run.
-
-## Constraints
-
-- **Integrity**: No floating-point values in `DiscreteStateVector` fields (except `noise_level`).
-- **Range**: All integer values must be within $[0, 2^{\text{bit\_depth}} - 1]$.
-- **Validation**: All derived files must be validated against `contracts/dataset.schema.yaml` before training.
-- **Derivation**: `velocity` fields MUST be derived via finite differencing, not natively extracted.
+- **DiscreteStateVector**: `state_values` must be integers in $[0, 2^{bit\_depth} - 1]$.
+- **ErrorMetric**: `model_error` must be non-negative. `degradation_ratio` must be > 0.
+- **StabilityReport**: `n_runs` must be ≥ 10.
+- **1-bit Collapse**: If `bit_depth` == 1 and `len(unique(state_values))` == 1, the run is flagged as "Invalid Data" and excluded from analysis.

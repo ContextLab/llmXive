@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProjectConfig"
+description: "Configuration parameters for the experiment."
+type: "object"
+properties:
+  random_seed:
+    type: "integer"
+    description: "Global random seed for reproducibility."
+  bit_depths:
+    type: "array"
+    items:
+      type: "integer"
+      enum:
+        - 4
+        - 8
+        - 16
+    description: "List of quantization levels to test."
+  n_runs:
+    type: "integer"
+    minimum: 10
+    description: "Number of independent runs with different noise seeds."
+  horizons:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Prediction horizons to test (e.g., 100, 250, 500, 1000)."
+  noise_std_factor:
+    type: "number"
+    default: 0.1
+    description: "Factor for noise injection (std dev = factor * quantization_step)."
+  max_ram_gb:
+    type: "number"
+    default: 7.0
+    description: "Maximum RAM constraint in GB."
+  max_time_hours:
+    type: "number"
+    default: 6.0
+    description: "Maximum runtime in hours."
+  stability_threshold_ratio:
+    type: "number"
+    default: 1.20
+    description: "Ratio of model error to baseline error that defines instability."
+required:
+  - random_seed
+  - bit_depths
+  - n_runs
+  - horizons
+  - noise_std_factor
+  - stability_threshold_ratio
+additionalProperties: false

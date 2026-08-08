@@ -2,82 +2,87 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Hugging Face CLI (optional, for large downloads)
-- Sufficient RAM available (for streaming processing)
+- **Python**: 3.11 or higher.
+- **System**: Linux environment (recommended for GitHub Actions compatibility).
+- **RAM**: ≥ 7GB available.
+- **Disk**: ≥ 14GB available.
+- **Dependencies**: `pip` and `git`.
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone the repository** and navigate to the project directory:
     ```bash
-    git clone <repository-url>
+    git clone <repo-url>
     cd projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create a virtual environment** and install dependencies:
     ```bash
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
+    source venv/bin/activate
     pip install -r code/requirements.txt
     ```
+    *Note: `requirements.txt` pins `torch` to a CPU-only build to ensure compatibility with the target environment.*
 
-## Running the Pipeline
+## Data Preparation
 
-### 1. Data Construction (Quantization)
+The project uses the **LIBERO** dataset. The data preparation script will download a sample subset and convert it to the required format.
 
-Convert the continuous LIBERO dataset to discrete JSON vectors.
+1.  **Run the data download and quantization pipeline**:
+    ```bash
+    python code/main.py --task prepare_data --bit_depth 4 8 16
+    ```
+    This will:
+    - Download a sample of the LIBERO dataset from the verified Hugging Face sources.
+    - Compute velocities from continuous data via finite differencing.
+    - Quantize states to 4, 8, and 16-bit discrete vectors.
+    - Inject noise (std dev = 0.1 * quantization_step).
+    - Save results to `data/processed/quantized/`.
 
-```bash
-python code/data/quantizer.py \
-  --bit-depth 4 \
-  --source "physical-intelligence/libero" \
-  --output-dir data/derived/quantized_4bit \
-  --streaming
-```
+2.  **Verify data integrity**:
+    ```bash
+    python code/main.py --task verify_data
+    ```
+    This checks for 1-bit collapse and ensures all files are within expected size limits.
 
-*Note: Use appropriate bit-depth settings for other resolutions.*
+## Training & Inference
 
-### 2. Training (CPU-Only)
+Execute the training and inference loop on the CPU.
 
-Train the Kairos adapter on the quantized data.
+1.  **Run the full experiment** (Training + Inference + Analysis):
+    ```bash
+    python code/main.py --task run_experiment --n_runs 10 --horizons 100 250 500 1000
+    ```
+    - This will train the adapted Kairos model for each bit depth.
+    - Train a continuous baseline model per-run for fair comparison.
+    - Perform inference on long sequences.
+    - Calculate error metrics and stability thresholds.
+    - Generate the final `stability_report.json`.
 
-```bash
-python code/model/trainer.py \
-  --data-dir data/derived/quantized_4bit \
-  --epochs 10 \
-  --horizon 500 \
-  --checkpoint-interval 1 \
-  --seed 42
-```
+2.  **Monitor resource usage**:
+    The script logs CPU utilization and peak RAM usage to `results/resource_profile.json`.
 
-*The training loop includes a timeout guard.*
+## Analysis & Reporting
 
-### 3. Analysis & Threshold Detection
+1.  **View the stability report**:
+    ```bash
+    cat results/aggregate/stability_report.json
+    ```
+    This file contains the minimum information density threshold and statistical significance results.
 
-Compute stability metrics and statistical significance.
-
-```bash
-python code/analysis/stats.py \
-  --results-dir data/results/ \
-  --baseline-mode "continuous" \
-  --test-type "paired_t"
-```
-
-## Testing
-
-Run the contract and integration tests to verify data integrity and pipeline logic.
-
-```bash
-pytest tests/ -v
-```
+2.  **Visualize results** (optional, requires `matplotlib`):
+    ```bash
+    python code/analysis/plot_results.py
+    ```
 
 ## Troubleshooting
 
-- **Out of Memory**: Ensure `--streaming` is used during quantization. The raw dataset should not be loaded entirely into RAM.
-- **CUDA Errors**: This project is CPU-only. If you see CUDA errors, check `code/config.py` to ensure `device="cpu"` is set.
-- **Degenerate Data**: If the 1-bit quantization is attempted, the script will raise a `ValueError` indicating "Invalid Data: State space collapse."
+- **Out of Memory (OOM)**: Reduce the sample size in `code/config.py` or decrease the batch size.
+- **Timeout (6h limit)**: The script will checkpoint and exit gracefully. Resume by running `python code/main.py --task resume`.
+- **1-bit Collapse**: If the data is flagged as "Invalid Data" for 1-bit, the analysis will skip that level and report the reason.
+
+## Validation
+
+To ensure the pipeline is working correctly:
+- Run `pytest tests/` to execute unit and integration tests.
+- Verify that `results/aggregate/stability_report.json` contains a `stability_claim_framing` field and valid p-values.

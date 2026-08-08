@@ -8,16 +8,16 @@ properties:
     description: "Unique identifier for the independent run."
   bit_depth:
     type: "integer"
-    enum: [4, 8, 12, 16]
+    enum: [4, 8, 16]
     description: "Quantization bit depth used."
   noise_std:
     type: "number"
     description: "Standard deviation of injected Gaussian noise."
   horizon:
     type: "integer"
-    enum: [100, 250, 500]
+    enum: [100, 250, 500, 1000]
     description: "Prediction horizon in time steps."
-  mse:
+  total_mse:
     type: "number"
     description: "Mean Squared Error between predicted and clean ground truth."
   mse_normalized:
@@ -25,13 +25,22 @@ properties:
     description: "MSE divided by state space dimensionality."
   quantization_noise_floor:
     type: "number"
-    description: "Theoretical MSE of the quantization process."
-  mse_adjusted:
+    description: "Theoretical MSE of the quantization process (combined noise)."
+  model_error:
     type: "number"
-    description: "Model-adjusted error (mse_normalized - quantization_noise_floor)."
-  cumulative_error_rate:
+    description: "Model-adjusted error (Total MSE)."
+  cumulative_growth_rate:
     type: "number"
     description: "MSE growth rate per time step."
+  baseline_continuous_error:
+    type: "number"
+    description: "Error of the continuous baseline model."
+  degradation_ratio:
+    type: "number"
+    description: "Ratio of model_error to baseline_continuous_error."
+  is_stable:
+    type: "boolean"
+    description: "True if degradation_ratio < 1.20."
   entropy_score:
     type: "number"
     description: "Entropy of the quantized distribution (validation metric)."
@@ -49,11 +58,14 @@ required:
   - bit_depth
   - noise_std
   - horizon
-  - mse
+  - total_mse
   - mse_normalized
   - quantization_noise_floor
-  - mse_adjusted
-  - cumulative_error_rate
+  - model_error
+  - cumulative_growth_rate
+  - baseline_continuous_error
+  - degradation_ratio
+  - is_stable
   - entropy_score
   - ram_peak_mb
   - latency_per_step_ms

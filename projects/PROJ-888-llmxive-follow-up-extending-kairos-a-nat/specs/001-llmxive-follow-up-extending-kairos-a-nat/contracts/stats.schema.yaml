@@ -8,7 +8,7 @@ properties:
     description: "Description of the comparison (e.g., '4-bit vs Continuous')."
   test_method:
     type: "string"
-    enum: ["paired_t_test", "wilcoxon_signed_rank"]
+    enum: ["mixed_effects_model", "block_bootstrap"]
     description: "Statistical test used."
   p_value:
     type: "number"
@@ -22,15 +22,15 @@ properties:
   mean_mse_baseline:
     type: "number"
     description: "Mean MSE for the continuous baseline."
-  stability_threshold:
-    type: "integer"
-    description: "Identified bit-depth threshold for stability."
+  stability_threshold_met:
+    type: "boolean"
+    description: "True if mean degradation ratio < 1.20."
   variance_equal:
     type: "boolean"
     description: "Result of Levene's test for equal variance."
   noise_floor_subtracted:
     type: "boolean"
-    description: "True if quantization noise floor was subtracted."
+    description: "False (noise floor is reported separately, not subtracted)."
 required:
   - "comparison"
   - "test_method"
@@ -38,7 +38,7 @@ required:
   - "significant"
   - "mean_mse_discrete"
   - "mean_mse_baseline"
-  - "stability_threshold"
+  - "stability_threshold_met"
   - "variance_equal"
   - "noise_floor_subtracted"
 additionalProperties: false

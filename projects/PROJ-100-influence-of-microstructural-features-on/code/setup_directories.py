@@ -1,32 +1,33 @@
 import os
 import sys
+from typing import List
 
-def ensure_directories():
+# Define all required directories relative to project root
+DIRECTORIES = [
+    "code",
+    "data/raw",
+    "data/processed",
+    "results",
+    "results/plots",
+]
+
+def ensure_directories() -> List[str]:
     """
-    Create the necessary directory structure for the project artifacts.
-    Creates 'results/' and 'results/plots/' if they do not exist.
+    Create all required project directories if they do not exist.
     
     Returns:
-        bool: True if directories were created or already existed, False on error.
+        List[str]: List of directory paths that were created or verified.
     """
-    directories = [
-        "results",
-        "results/plots"
-    ]
-    
-    for dir_path in directories:
-        try:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path, exist_ok=True)
-                print(f"Created directory: {dir_path}")
-            else:
-                print(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-            return False
-    
-    return True
+    created_or_verified = []
+    for dir_path in DIRECTORIES:
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+            created_or_verified.append(dir_path)
+        else:
+            created_or_verified.append(dir_path)
+    return created_or_verified
 
 if __name__ == "__main__":
-    success = ensure_directories()
-    sys.exit(0 if success else 1)
+    print("Ensuring project directory structure...")
+    dirs = ensure_directories()
+    print(f"Verified/created directories: {dirs}")

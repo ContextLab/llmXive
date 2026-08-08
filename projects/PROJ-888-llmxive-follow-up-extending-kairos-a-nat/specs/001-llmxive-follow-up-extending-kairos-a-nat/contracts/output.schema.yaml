@@ -1,54 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ErrorMetric"
-description: "Schema for statistical analysis results of model stability."
+title: "StabilityReport"
+description: "Aggregated results of the stability analysis across independent runs."
 type: "object"
-required:
-  - "run_id"
-  - "bit_depth"
-  - "horizon"
-  - "mse"
-  - "mse_normalized"
-  - "p_value"
-  - "is_significant"
 properties:
-  run_id:
-    type: "string"
-    description: "Unique identifier for the experiment run."
   bit_depth:
     type: "integer"
     enum:
       - 4
       - 8
       - 16
-    description: "Quantization level used."
-  horizon:
+    description: "The quantization level analyzed."
+  n_runs:
     type: "integer"
-    enum:
-      - 100
-      - 250
-      - 500
-    description: "Prediction horizon used."
-  mse:
+    minimum: 10
+    description: "Number of independent runs (must be >= 10)."
+  mean_model_error:
     type: "number"
-    minimum: 0
-    description: "Raw Mean Squared Error."
-  mse_normalized:
+    description: "Average model error across runs."
+  std_model_error:
     type: "number"
-    minimum: 0
-    description: "MSE divided by state space dimensionality."
-  cumulative_error_rate:
-    type: "number"
-    description: "Slope of error growth over time."
+    description: "Standard deviation of model error."
   p_value:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Result of statistical test vs. baseline."
+    description: "Result of mixed-effects model or block-bootstrap test vs. baseline."
   is_significant:
     type: "boolean"
-    description: "True if p < 0.05."
-  degradation_factor:
-    type: "number"
-    minimum: 0
-    description: "Ratio of discrete MSE to continuous baseline MSE."
+    description: "True if p_value < 0.05."
+  stability_threshold_met:
+    type: "boolean"
+    description: "True if mean degradation ratio < 1.20."
+  stability_claim_framing:
+    type: "string"
+    description: "Text description of the relative degradation."
+required:
+  - bit_depth
+  - n_runs
+  - mean_model_error
+  - p_value
+  - stability_threshold_met
+  - stability_claim_framing
 additionalProperties: false

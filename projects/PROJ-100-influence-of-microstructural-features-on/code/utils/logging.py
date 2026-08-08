@@ -1,98 +1,64 @@
-"""
-Logging utilities for the pipeline.
-Provides standardized loggers for exclusions, fallbacks, methodology, and main pipeline steps.
-"""
 import logging
 import sys
 import os
 from typing import Optional, TextIO
 from datetime import datetime
 
-LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "results")
-os.makedirs(LOG_DIR, exist_ok=True)
+_loggers = {}
 
-def get_main_logger(name: str = "pipeline") -> logging.Logger:
-    """Returns the main logger for general pipeline steps."""
+def get_main_logger(name: str = "main") -> logging.Logger:
+    return _get_logger(name, "results/pipeline.log")
+
+def get_exclusion_logger(name: str = "exclusion") -> logging.Logger:
+    return _get_logger(name, "results/exclusion_report.log")
+
+def get_fallback_logger(name: str = "fallback") -> logging.Logger:
+    return _get_logger(name, "results/fallback_events.log")
+
+def get_methodology_logger(name: str = "methodology") -> logging.Logger:
+    return _get_logger(name, "results/methodology_notes.log")
+
+def _get_logger(name: str, log_file: str) -> logging.Logger:
+    if name in _loggers:
+        return _loggers[name]
+    
     logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
+    logger.setLevel(logging.DEBUG)
     
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    if not logger.handlers:
+        # Ensure log directory exists
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
+        
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
+        
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        
+        logger.addHandler(fh)
+        logger.addHandler(ch)
     
-    # File handler for main log
-    file_handler = logging.FileHandler(os.path.join(LOG_DIR, "main_pipeline.log"))
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    
+    _loggers[name] = logger
     return logger
 
-def get_exclusion_logger() -> logging.Logger:
-    """Returns a logger specifically for data exclusion events."""
-    logger = logging.getLogger("exclusion")
-    if logger.handlers:
-        return logger
-    
-    logger.setLevel(logging.INFO)
-    file_handler = logging.FileHandler(os.path.join(LOG_DIR, "exclusion_report.log"))
-    file_handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    return logger
+def log_exclusion(logger: logging.Logger, reason: str, count: int) -> None:
+    logger.info(f"Excluded {count} records: {reason}")
 
-def get_fallback_logger() -> logging.Logger:
-    """Returns a logger for fallback events (e.g., synthetic data generation)."""
-    logger = logging.getLogger("fallback")
-    if logger.handlers:
-        return logger
-    
-    logger.setLevel(logging.WARNING)
-    file_handler = logging.FileHandler(os.path.join(LOG_DIR, "fallback_events.log"))
-    file_handler.setLevel(logging.WARNING)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    return logger
+def log_fallback_event(logger: logging.Logger, event: str) -> None:
+    logger.warning(f"Fallback triggered: {event}")
 
-def get_methodology_logger() -> logging.Logger:
-    """Returns a logger for methodological notes and disclaimers."""
-    logger = logging.getLogger("methodology")
-    if logger.handlers:
-        return logger
-    
-    logger.setLevel(logging.INFO)
-    file_handler = logging.FileHandler(os.path.join(LOG_DIR, "methodology_notes.log"))
-    file_handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    return logger
+def log_methodological_note(logger: logging.Logger, note: str) -> None:
+    logger.info(f"Methodological Note: {note}")
 
-def log_exclusion(message: str) -> None:
-    """Logs an exclusion event."""
-    get_exclusion_logger().info(message)
-
-def log_fallback_event(message: str) -> None:
-    """Logs a fallback event."""
-    get_fallback_logger().warning(message)
-
-def log_methodological_note(message: str) -> None:
-    """Logs a methodological note."""
-    get_methodology_logger().info(message)
-
-def log_pipeline_step(step_name: str) -> None:
-    """Logs a pipeline step."""
-    get_main_logger().info(f"Step: {step_name}")
+def log_pipeline_step(logger: logging.Logger, step: str) -> None:
+    logger.info(f"Pipeline Step: {step}")
 
 def init_logging():
-    """Initializes all loggers."""
-    get_main_logger()
-    get_exclusion_logger()
-    get_fallback_logger()
-    get_methodology_logger()
+    """Initialize logging configuration."""
+    pass

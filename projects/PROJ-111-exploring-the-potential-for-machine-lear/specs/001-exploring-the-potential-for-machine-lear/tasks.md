@@ -120,7 +120,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analysis.py` to calculate total latent variance $\sum \text{Var}(\mu)$ for each temperature bin.
+- [X] T026 [US3] Implement `code/analysis.py` to calculate total latent variance $\sum \text{Var}(\mu)$ for each temperature bin.
 - [ ] T027 [US3] Implement Gaussian Process regression (squared‑exponential kernel) for smoothing and peak detection per FR‑005. **Explicitly enforce:**
  - Second derivative threshold: **< -0.01** (normalized by global max).
  - Peak height condition: **> 2σ** above a moving average (window size = 5 points) of the residuals.

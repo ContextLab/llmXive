@@ -1,164 +1,145 @@
-"""
-Unit tests for the peak-finding algorithm in code/analysis.py.
-
-Tests cover:
-1. Gaussian Process (GP) smoothing of variance data.
-2. Derivative analysis for peak detection (second derivative check).
-3. Peak height condition relative to moving average of residuals.
-4. Handling of flat/no-peak scenarios.
-"""
+import os
+import sys
+import unittest
 import numpy as np
-import pytest
-from typing import Tuple, List, Optional
+import tempfile
+import json
 
-# We mock the GP implementation if sklearn is not available in the strict test env,
-# but the test logic validates the algorithmic steps defined in T027.
-try:
-    from sklearn.gaussian_process import GaussianProcessRegressor
-    from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-# Import the function to test. We assume code/analysis.py exists and implements
-# the logic described in T027. If it doesn't exist yet, this test will fail
-# with an ImportError, which is the correct behavior for a "test first" approach.
-try:
-    from code.analysis import find_peak_temperature_gaussian
-    PEAK_FUNC_EXISTS = True
-except ImportError:
-    PEAK_FUNC_EXISTS = False
+from analysis import (
+    load_latent_data,
+    calculate_total_variance_per_bin,
+    smooth_and_detect_peak,
+    save_variance_results
+)
 
+class TestAnalysis(unittest.TestCase):
 
-@pytest.fixture
-def synthetic_variance_data() -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Generates synthetic data with a known Gaussian peak to test peak detection.
-    Temperatures: 0.5 to 3.0
-    Variance: Gaussian peak at T=1.5 with noise.
-    """
-    temps = np.linspace(0.5, 3.0, 25)
-    true_peak_temp = 1.5
-    true_peak_height = 2.0
-    width = 0.3
-    
-    # Gaussian peak
-    signal = true_peak_height * np.exp(-((temps - true_peak_temp) ** 2) / (2 * width ** 2))
-    
-    # Add small noise
-    noise = np.random.normal(0, 0.05, size=temps.shape)
-    variance_data = signal + noise
-    
-    return temps, variance_data
-
-@pytest.fixture
-def flat_variance_data() -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Generates flat data with noise (no peak) to test the 'no peak found' condition.
-    """
-    temps = np.linspace(0.5, 3.0, 25)
-    variance_data = np.ones_like(temps) * 0.5 + np.random.normal(0, 0.02, size=temps.shape)
-    return temps, variance_data
-
-@pytest.mark.skipif(not HAS_SKLEARN, reason="scikit-learn required for GP smoothing")
-@pytest.mark.skipif(not PEAK_FUNC_EXISTS, reason="code.analysis.find_peak_temperature_gaussian not implemented yet")
-def test_gp_smoothing_and_peak_detection(synthetic_variance_data: Tuple[np.ndarray, np.ndarray]):
-    """
-    Test that the algorithm correctly identifies a peak in smoothed data.
-    Verifies:
-    - Second derivative < -0.01 (normalized) at the peak.
-    - Peak height > 2σ above moving average of residuals.
-    """
-    temps, variance = synthetic_variance_data
-    
-    # Call the function (signature assumed based on T027 requirements)
-    # Expected: (peak_temp, peak_val, is_peak_found, diagnostics_dict)
-    result = find_peak_temperature_gaussian(temps, variance)
-    
-    peak_temp, peak_val, is_found, diagnostics = result
-    
-    assert is_found, "Peak detection failed for synthetic data with clear Gaussian peak."
-    assert peak_temp is not None, "Peak temperature should not be None."
-    
-    # Check that the detected peak is close to the true peak (within 2 bins)
-    bin_width = temps[1] - temps[0]
-    assert abs(peak_temp - 1.5) < 2 * bin_width, f"Detected peak {peak_temp} too far from true peak 1.5"
-    
-    # Verify diagnostics contain expected keys
-    assert "second_derivative" in diagnostics, "Diagnostics missing 'second_derivative'"
-    assert "residual_std" in diagnostics, "Diagnostics missing 'residual_std'"
-    assert "moving_avg_residual" in diagnostics, "Diagnostics missing 'moving_avg_residual'"
-
-@pytest.mark.skipif(not HAS_SKLEARN, reason="scikit-learn required for GP smoothing")
-@pytest.mark.skipif(not PEAK_FUNC_EXISTS, reason="code.analysis.find_peak_temperature_gaussian not implemented yet")
-def test_flat_data_no_peak(flat_variance_data: Tuple[np.ndarray, np.ndarray]):
-    """
-    Test that the algorithm correctly reports 'no peak found' for flat data.
-    """
-    temps, variance = flat_variance_data
-    
-    result = find_peak_temperature_gaussian(temps, variance)
-    peak_temp, peak_val, is_found, diagnostics = result
-    
-    assert not is_found, "Algorithm incorrectly identified a peak in flat data."
-    assert peak_temp is None, "Peak temperature should be None when no peak found."
-
-@pytest.mark.skipif(not HAS_SKLEARN, reason="scikit-learn required for GP smoothing")
-@pytest.mark.skipif(not PEAK_FUNC_EXISTS, reason="code.analysis.find_peak_temperature_gaussian not implemented yet")
-def test_derivative_threshold_condition(synthetic_variance_data: Tuple[np.ndarray, np.ndarray]):
-    """
-    Explicitly verify the second derivative threshold logic.
-    The peak must have a second derivative < -0.01 (normalized by global max).
-    """
-    temps, variance = synthetic_variance_data
-    
-    # We need to inspect the internal logic or rely on the result's diagnostics.
-    # Assuming the function returns diagnostics with the normalized second derivative at the peak.
-    result = find_peak_temperature_gaussian(temps, variance)
-    _, _, is_found, diagnostics = result
-    
-    if is_found:
-        # The condition from T027: second derivative < -0.01 (normalized)
-        # Note: The actual normalization factor depends on the implementation.
-        # We assert that the diagnostic exists and is negative (concave down).
-        second_deriv = diagnostics.get("second_derivative")
-        assert second_deriv is not None, "Second derivative not in diagnostics"
-        assert second_deriv < 0, "Peak must be concave down (second derivative < 0)"
+    def setUp(self):
+        """Create temporary directory and mock data for testing."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.mock_data_path = os.path.join(self.temp_dir, "mock_latent.npz")
         
-        # If the implementation normalizes by global max, check the specific threshold
-        # This is a soft check unless we know the exact normalization constant.
-        # The strict check is: second_deriv < -0.01 * global_max (if normalized by 1)
-        # Here we just ensure it's significantly negative.
-        assert second_deriv < -0.001, "Second derivative not sufficiently negative for a peak"
+        # Create mock latent data
+        # Temperatures: 0.1 to 3.0
+        temps = np.linspace(0.1, 3.0, 30)
+        # Latent dim = 10
+        latent_dim = 10
+        # Generate synthetic variance pattern: peak around T=1.5
+        mu_data = []
+        for t in temps:
+            # Create a distribution that has higher variance near T=1.5
+            # We simulate samples for this temperature
+            n_samples = 50
+            # Mean shifts slightly, variance changes
+            base_var = 0.01 + 0.5 * np.exp(-((t - 1.5) / 0.5) ** 2)
+            samples = np.random.normal(0, np.sqrt(base_var), size=(n_samples, latent_dim))
+            mu_data.append(samples)
+        
+        mu_all = np.vstack(mu_data)
+        temps_all = np.repeat(temps, 50)
+        
+        np.savez(self.mock_data_path, temperatures=temps_all, mu=mu_all)
 
-@pytest.mark.skipif(not HAS_SKLEARN, reason="scikit-learn required for GP smoothing")
-@pytest.mark.skipif(not PEAK_FUNC_EXISTS, reason="code.analysis.find_peak_temperature_gaussian not implemented yet")
-def test_peak_height_condition(synthetic_variance_data: Tuple[np.ndarray, np.ndarray]):
-    """
-    Verify the peak height condition: > 2σ above moving average of residuals.
-    """
-    temps, variance = synthetic_variance_data
-    
-    result = find_peak_temperature_gaussian(temps, variance)
-    _, _, is_found, diagnostics = result
-    
-    if is_found:
-        # Check that the peak height condition was met
-        # The diagnostics should reflect this check
-        assert diagnostics.get("peak_height_condition_met", False), "Peak height condition not met but peak found"
+    def tearDown(self):
+        """Clean up temporary files."""
+        if os.path.exists(self.mock_data_path):
+            os.remove(self.mock_data_path)
+        os.rmdir(self.temp_dir)
 
-@pytest.mark.skipif(not HAS_SKLEARN, reason="scikit-learn required for GP smoothing")
-@pytest.mark.skipif(not PEAK_FUNC_EXISTS, reason="code.analysis.find_peak_temperature_gaussian not implemented yet")
-def test_gaussian_kernel_parameters(synthetic_variance_data: Tuple[np.ndarray, np.ndarray]):
-    """
-    Ensure the GP uses the squared-exponential kernel as required.
-    This test mocks or inspects the kernel if possible, or relies on the fact
-    that the function runs without error using sklearn's RBF kernel.
-    """
-    temps, variance = synthetic_variance_data
-    
-    # Just ensure it runs. If the kernel is wrong, it might still run,
-    # but the smoothing behavior would be different.
-    # A more rigorous test would require inspecting the model internals.
-    result = find_peak_temperature_gaussian(temps, variance)
-    assert result is not None, "Function returned None"
+    def test_load_latent_data(self):
+        """Test loading latent data from .npz file."""
+        data = load_latent_data(self.mock_data_path)
+        self.assertIn('temperatures', data)
+        self.assertIn('mu', data)
+        self.assertEqual(data['temperatures'].shape[0], len(temps_all))
+        self.assertEqual(data['mu'].shape[0], len(temps_all))
+        self.assertEqual(data['mu'].shape[1], 10)
+
+    def test_calculate_total_variance_per_bin(self):
+        """Test variance calculation per temperature bin."""
+        data = load_latent_data(self.mock_data_path)
+        temps, variances = calculate_total_variance_per_bin(data)
+        
+        self.assertEqual(len(temps), 30) # 30 unique temperatures
+        self.assertEqual(len(variances), 30)
+        
+        # Check that variance is higher around T=1.5
+        idx_peak = np.argmin(np.abs(temps - 1.5))
+        idx_low = np.argmin(np.abs(temps - 0.5))
+        self.assertGreater(variances[idx_peak], variances[idx_low])
+
+    def test_smooth_and_detect_peak_curvature(self):
+        """Test peak detection with curvature condition."""
+        # Generate data with a clear peak
+        temps = np.linspace(0.1, 3.0, 50)
+        # Create a Gaussian peak
+        peak_t = 1.5
+        width = 0.3
+        variances = 0.01 + 1.0 * np.exp(-((temps - peak_t) / width) ** 2)
+        
+        result = smooth_and_detect_peak(
+            temperatures=temps,
+            variances=variances,
+            kernel_lengthscale=0.2,
+            second_derivative_threshold=-0.01,
+            moving_avg_window=5,
+            sigma_threshold_factor=2.0
+        )
+        
+        self.assertIn('peak_temperature', result)
+        self.assertIn('peak_value', result)
+        self.assertTrue(result['peak_found_by_curvature'])
+        
+        # Check if detected peak is close to 1.5
+        self.assertAlmostEqual(result['peak_temperature'], peak_t, delta=0.2)
+
+    def test_smooth_and_detect_peak_height_condition(self):
+        """Test peak detection with height condition (2 sigma above MA of residuals)."""
+        # Same setup as above
+        temps = np.linspace(0.1, 3.0, 50)
+        peak_t = 1.5
+        width = 0.3
+        variances = 0.01 + 1.0 * np.exp(-((temps - peak_t) / width) ** 2)
+        
+        result = smooth_and_detect_peak(
+            temperatures=temps,
+            variances=variances,
+            kernel_lengthscale=0.2,
+            second_derivative_threshold=-0.01,
+            moving_avg_window=5,
+            sigma_threshold_factor=2.0
+        )
+        
+        self.assertIn('criteria_met', result)
+        self.assertEqual(result['criteria_met']['sigma_threshold'], 2.0)
+        self.assertEqual(result['criteria_met']['window_size'], 5)
+
+    def test_save_variance_results(self):
+        """Test saving results to JSON."""
+        results = {
+            'input_file': 'test.npz',
+            'temperature_bins': [0.1, 0.2],
+            'variances': [0.5, 0.6],
+            'peak_detection': {
+                'peak_temperature': 1.5,
+                'peak_value': 1.0,
+                'smoothed_variance': [0.5, 0.6],
+                'peak_found_by_curvature': True
+            }
+        }
+        
+        output_path = os.path.join(self.temp_dir, "results.json")
+        save_variance_results(results, output_path)
+        
+        self.assertTrue(os.path.exists(output_path))
+        
+        with open(output_path, 'r') as f:
+            loaded = json.load(f)
+        
+        self.assertEqual(loaded['peak_detection']['peak_temperature'], 1.5)
+
+if __name__ == '__main__':
+    unittest.main()

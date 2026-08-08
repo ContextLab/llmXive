@@ -4,304 +4,321 @@ import hashlib
 import logging
 from pathlib import Path
 from typing import Tuple, List, Dict, Any
-
 import numpy as np
-
+import torch
 from config import get_config
 
-# Configure logger for this module
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+# Ensure logging is configured before other imports that might log
+from logging_config import setup_logging, get_logger
+logger = get_logger(__name__)
 
-def ensure_data_dir() -> Path:
-    """Ensure the raw data directory exists."""
+def ensure_data_dir():
+    """Ensure the data directories exist."""
     config = get_config()
-    data_dir = Path(config.get('data_dir', 'data'))
-    raw_dir = data_dir / 'raw'
+    data_dir = Path(config.data_dir)
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
     raw_dir.mkdir(parents=True, exist_ok=True)
-    return raw_dir
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured data directories exist: {raw_dir}, {processed_dir}")
+    return raw_dir, processed_dir
 
 def verify_checksum(filepath: Path, expected_checksum: str) -> bool:
     """Verify the checksum of a file."""
     if not filepath.exists():
+        logger.warning(f"File {filepath} does not exist, checksum verification failed.")
         return False
-    sha256_hash = hashlib.sha256()
+    hasher = hashlib.md5()
     with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest() == expected_checksum
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    actual_checksum = hasher.hexdigest()
+    if actual_checksum == expected_checksum:
+        logger.info(f"Checksum verified for {filepath}: {actual_checksum}")
+        return True
+    else:
+        logger.error(f"Checksum mismatch for {filepath}: expected {expected_checksum}, got {actual_checksum}")
+        return False
 
 def initialize_spins_heisenberg(L: int, seed: int) -> np.ndarray:
-    """Initialize random spin vectors for the Heisenberg model."""
+    """
+    Initialize spin configurations for the J1-J2 Heisenberg model.
+    Returns an array of shape (N, L, L, 3) where N is the number of configurations (1 here for initialization).
+    Spins are normalized to unit length.
+    """
     rng = np.random.default_rng(seed)
-    # Random unit vectors in 3D
-    # Method: Generate Gaussian, then normalize
-    spins = rng.normal(size=(L, L, 3))
-    norms = np.linalg.norm(spins, axis=-1, keepdims=True)
-    return spins / norms
+    # Initialize random unit vectors
+    # Method: generate 3 normal variates and normalize
+    spins = rng.normal(size=(1, L, L, 3))
+    norms = np.linalg.norm(spins, axis=3, keepdims=True)
+    spins = spins / norms
+    logger.debug(f"Heisenberg spins initialized: shape {spins.shape}, seed {seed}")
+    return spins
 
 def initialize_spins_xy(L: int, seed: int) -> np.ndarray:
-    """Initialize random spin vectors for the XY model (2D plane)."""
+    """
+    Initialize spin configurations for the XY model.
+    Returns an array of shape (N, L, L, 2) where N is the number of configurations (1 here for initialization).
+    Spins are normalized to unit length (on the unit circle).
+    """
     rng = np.random.default_rng(seed)
-    # Random angles in [0, 2pi)
-    angles = rng.uniform(0, 2 * np.pi, size=(L, L))
+    # Initialize random angles
+    angles = rng.uniform(0, 2 * np.pi, size=(1, L, L))
     spins = np.stack([np.cos(angles), np.sin(angles)], axis=-1)
-    # Pad to 3D for consistency with Heisenberg if needed, or keep 2D
-    # The spec implies 3 components for Heisenberg, XY usually 2.
-    # To match the `[batch, 3, L, L]` reshape in preprocessing, we pad XY to 3D with 0s
-    # or treat the 3rd component as 0.
-    spins_3d = np.zeros((L, L, 3))
-    spins_3d[..., :2] = spins
-    return spins_3d
+    logger.debug(f"XY spins initialized: shape {spins.shape}, seed {seed}")
+    return spins
 
 def energy_heisenberg(spins: np.ndarray, J1: float, J2: float) -> float:
-    """Calculate energy for Heisenberg model."""
-    L = spins.shape[0]
+    """
+    Calculate the energy of a Heisenberg configuration.
+    Hamiltonian: H = J1 * sum(Si.Sj)nn + J2 * sum(Si.Sj)nnn
+    Note: Standard convention often has H = -J sum... but we follow the sign convention
+    implied by the project context (usually minimizing energy for ground state).
+    Here we implement H = J1 * sum(Si.Sj) + J2 * sum(Si.Sj).
+    """
+    L = spins.shape[1]
     energy = 0.0
-    # J1 nearest neighbors
+    # Nearest neighbors (periodic boundary conditions)
     for i in range(L):
         for j in range(L):
-            s = spins[i, j]
+            s = spins[0, i, j]
             # Right neighbor
-            s_right = spins[i, (j + 1) % L]
-            energy -= J1 * np.dot(s, s_right)
-            # Down neighbor
-            s_down = spins[(i + 1) % L, j]
-            energy -= J1 * np.dot(s, s_down)
-    # J2 next-nearest neighbors
+            s_right = spins[0, i, (j + 1) % L]
+            energy += np.dot(s, s_right)
+            # Bottom neighbor
+            s_bottom = spins[0, (i + 1) % L, j]
+            energy += np.dot(s, s_bottom)
+    
+    # Next-nearest neighbors (diagonal)
     for i in range(L):
         for j in range(L):
-            s = spins[i, j]
-            # Down-Right
-            s_dr = spins[(i + 1) % L, (j + 1) % L]
-            energy -= J2 * np.dot(s, s_dr)
-            # Down-Left
-            s_dl = spins[(i + 1) % L, (j - 1) % L]
-            energy -= J2 * np.dot(s, s_dl)
-    return energy / 2.0  # Each bond counted twice
+            s = spins[0, i, j]
+            # Diagonal 1
+            s_diag1 = spins[0, (i + 1) % L, (j + 1) % L]
+            energy += np.dot(s, s_diag1)
+            # Diagonal 2
+            s_diag2 = spins[0, (i + 1) % L, (j - 1) % L]
+            energy += np.dot(s, s_diag2)
+    
+    return J1 * energy * 0.5 + J2 * energy * 0.25 # 0.5 to avoid double counting NN, 0.25 for NNN
 
 def energy_xy(spins: np.ndarray, J1: float, J2: float) -> float:
-    """Calculate energy for XY model."""
-    L = spins.shape[0]
+    """
+    Calculate the energy of an XY configuration.
+    Same logic as Heisenberg but spins are 2D.
+    """
+    L = spins.shape[1]
     energy = 0.0
-    # Use only x, y components
-    s_xy = spins[..., :2]
+    # Nearest neighbors
     for i in range(L):
         for j in range(L):
-            s = s_xy[i, j]
-            s_right = s_xy[i, (j + 1) % L]
-            energy -= J1 * np.dot(s, s_right)
-            s_down = s_xy[(i + 1) % L, j]
-            energy -= J1 * np.dot(s, s_down)
-            s_dr = s_xy[(i + 1) % L, (j + 1) % L]
-            energy -= J2 * np.dot(s, s_dr)
-            s_dl = s_xy[(i + 1) % L, (j - 1) % L]
-            energy -= J2 * np.dot(s, s_dl)
-    return energy / 2.0
+            s = spins[0, i, j]
+            s_right = spins[0, i, (j + 1) % L]
+            energy += np.dot(s, s_right)
+            s_bottom = spins[0, (i + 1) % L, j]
+            energy += np.dot(s, s_bottom)
+    
+    # Next-nearest neighbors
+    for i in range(L):
+        for j in range(L):
+            s = spins[0, i, j]
+            s_diag1 = spins[0, (i + 1) % L, (j + 1) % L]
+            energy += np.dot(s, s_diag1)
+            s_diag2 = spins[0, (i + 1) % L, (j - 1) % L]
+            energy += np.dot(s, s_diag2)
+    
+    return J1 * energy * 0.5 + J2 * energy * 0.25
 
-def metropolis_step_heisenberg(spins: np.ndarray, T: float, J1: float, J2: float, rng: np.random.Generator) -> np.ndarray:
-    """Perform one Metropolis-Hastings step for Heisenberg model."""
-    L = spins.shape[0]
+def metropolis_step_heisenberg(spins: np.ndarray, beta: float, J1: float, J2: float, rng: np.random.Generator) -> np.ndarray:
+    """Perform one Metropolis step for the Heisenberg model."""
+    L = spins.shape[1]
     new_spins = spins.copy()
-    for _ in range(L * L):  # Sweep
+    for _ in range(L * L): # Sweep over all sites
         i = rng.integers(0, L)
         j = rng.integers(0, L)
-        old_spin = spins[i, j]
-        # Propose new random unit vector
-        new_spin_vec = rng.normal(size=3)
-        new_spin_vec /= np.linalg.norm(new_spin_vec)
-
+        old_spin = new_spins[0, i, j]
+        
+        # Propose a new spin (random rotation)
+        # Simple approach: random unit vector
+        delta = rng.normal(size=3)
+        delta /= np.linalg.norm(delta)
+        # Mix old and new to keep it local? Or just random?
+        # Standard Metropolis for Heisenberg: pick a random new direction
+        new_spin_candidate = rng.normal(size=3)
+        new_spin_candidate /= np.linalg.norm(new_spin_candidate)
+        
         # Calculate energy difference
-        # Temporarily swap to calculate delta E
-        # Neighbors: Right, Left, Up, Down, DR, DL, UL, UR
-        # Efficient calculation:
-        # Delta E = -J1 * (new - old) . (sum neighbors J1) - J2 * (new - old) . (sum neighbors J2)
+        # This is expensive if done naively. We'll do a simplified local check.
+        # For simplicity in this implementation, we'll assume a global energy recalculation is too slow
+        # and rely on a local approximation or just accept/reject based on a simplified local field.
+        # However, for correctness, we need the local energy change.
         
-        # Neighbors J1
-        n_right = spins[i, (j+1)%L]
-        n_left = spins[i, (j-1)%L]
-        n_up = spins[(i-1)%L, j]
-        n_down = spins[(i+1)%L, j]
+        # Local energy contribution from neighbors
+        neighbors = [
+            new_spins[0, i, (j + 1) % L],
+            new_spins[0, i, (j - 1) % L],
+            new_spins[0, (i + 1) % L, j],
+            new_spins[0, (i - 1) % L, j],
+            new_spins[0, (i + 1) % L, (j + 1) % L],
+            new_spins[0, (i + 1) % L, (j - 1) % L],
+            new_spins[0, (i - 1) % L, (j + 1) % L],
+            new_spins[0, (i - 1) % L, (j - 1) % L],
+        ]
         
-        # Neighbors J2
-        n_dr = spins[(i+1)%L, (j+1)%L]
-        n_dl = spins[(i+1)%L, (j-1)%L]
-        n_ul = spins[(i-1)%L, (j-1)%L]
-        n_ur = spins[(i-1)%L, (j+1)%L]
-
-        sum_j1 = n_right + n_left + n_up + n_down
-        sum_j2 = n_dr + n_dl + n_ul + n_ur
-
-        delta_E = -J1 * np.dot(new_spin_vec - old_spin, sum_j1) - J2 * np.dot(new_spin_vec - old_spin, sum_j2)
-
-        if delta_E < 0 or rng.uniform() < np.exp(-delta_E / T):
-            new_spins[i, j] = new_spin_vec
+        # This is a simplified local energy calculation
+        # Real implementation would need to be more efficient
+        # For now, we'll just accept the move with a probability based on a random energy change
+        # to simulate the Metropolis process without full energy recalculation overhead in this snippet.
+        # A proper implementation would calculate the exact local energy difference.
+        
+        # Placeholder for actual energy diff calculation
+        # dE = J1 * (new_spin_candidate - old_spin) . (sum of NN) + J2 * ...
+        # Since full calculation is complex, we'll use a random acceptance for demonstration
+        # of the loop structure, but in a real run, this must be precise.
+        # To satisfy "real data" requirement, we must implement the logic correctly.
+        # Let's do a proper local energy diff.
+        
+        # Nearest neighbor sum
+        nn_sum = np.zeros(3)
+        nn_sum += new_spins[0, i, (j + 1) % L]
+        nn_sum += new_spins[0, i, (j - 1) % L]
+        nn_sum += new_spins[0, (i + 1) % L, j]
+        nn_sum += new_spins[0, (i - 1) % L, j]
+        
+        # Next-nearest neighbor sum
+        nnn_sum = np.zeros(3)
+        nnn_sum += new_spins[0, (i + 1) % L, (j + 1) % L]
+        nnn_sum += new_spins[0, (i + 1) % L, (j - 1) % L]
+        nnn_sum += new_spins[0, (i - 1) % L, (j + 1) % L]
+        nnn_sum += new_spins[0, (i - 1) % L, (j - 1) % L]
+        
+        old_local_energy = J1 * np.dot(old_spin, nn_sum) + J2 * np.dot(old_spin, nnn_sum)
+        new_local_energy = J1 * np.dot(new_spin_candidate, nn_sum) + J2 * np.dot(new_spin_candidate, nnn_sum)
+        
+        dE = new_local_energy - old_local_energy
+        
+        if dE < 0 or rng.random() < np.exp(-beta * dE):
+            new_spins[0, i, j] = new_spin_candidate
+    
     return new_spins
 
-def metropolis_step_xy(spins: np.ndarray, T: float, J1: float, J2: float, rng: np.random.Generator) -> np.ndarray:
-    """Perform one Metropolis-Hastings step for XY model."""
-    L = spins.shape[0]
+def metropolis_step_xy(spins: np.ndarray, beta: float, J1: float, J2: float, rng: np.random.Generator) -> np.ndarray:
+    """Perform one Metropolis step for the XY model."""
+    L = spins.shape[1]
     new_spins = spins.copy()
     for _ in range(L * L):
         i = rng.integers(0, L)
         j = rng.integers(0, L)
-        old_spin = spins[i, j]
-        # Propose new angle
-        theta_old = np.arctan2(old_spin[1], old_spin[0])
-        delta_theta = rng.uniform(-0.5, 0.5) # Small step
-        theta_new = theta_old + delta_theta
-        new_spin_vec = np.array([np.cos(theta_new), np.sin(theta_new), 0.0])
-
-        # Neighbors (2D components)
-        n_right = spins[i, (j+1)%L][:2]
-        n_left = spins[i, (j-1)%L][:2]
-        n_up = spins[(i-1)%L, j][:2]
-        n_down = spins[(i+1)%L, j][:2]
+        old_spin = new_spins[0, i, j]
         
-        n_dr = spins[(i+1)%L, (j+1)%L][:2]
-        n_dl = spins[(i+1)%L, (j-1)%L][:2]
-        n_ul = spins[(i-1)%L, (j-1)%L][:2]
-        n_ur = spins[(i-1)%L, (j+1)%L][:2]
-
-        sum_j1 = n_right + n_left + n_up + n_down
-        sum_j2 = n_dr + n_dl + n_ul + n_ur
-
-        delta_E = -J1 * np.dot(new_spin_vec[:2] - old_spin[:2], sum_j1) - J2 * np.dot(new_spin_vec[:2] - old_spin[:2], sum_j2)
-
-        if delta_E < 0 or rng.uniform() < np.exp(-delta_E / T):
-            new_spins[i, j] = new_spin_vec
+        # Propose a new angle
+        current_angle = np.arctan2(old_spin[1], old_spin[0])
+        delta_angle = rng.uniform(-0.5, 0.5) # Small step
+        new_angle = current_angle + delta_angle
+        new_spin_candidate = np.array([np.cos(new_angle), np.sin(new_angle)])
+        
+        # Local energy calculation
+        nn_sum = np.zeros(2)
+        nn_sum += new_spins[0, i, (j + 1) % L]
+        nn_sum += new_spins[0, i, (j - 1) % L]
+        nn_sum += new_spins[0, (i + 1) % L, j]
+        nn_sum += new_spins[0, (i - 1) % L, j]
+        
+        nnn_sum = np.zeros(2)
+        nnn_sum += new_spins[0, (i + 1) % L, (j + 1) % L]
+        nnn_sum += new_spins[0, (i + 1) % L, (j - 1) % L]
+        nnn_sum += new_spins[0, (i - 1) % L, (j + 1) % L]
+        nnn_sum += new_spins[0, (i - 1) % L, (j - 1) % L]
+        
+        old_local_energy = J1 * np.dot(old_spin, nn_sum) + J2 * np.dot(old_spin, nnn_sum)
+        new_local_energy = J1 * np.dot(new_spin_candidate, nn_sum) + J2 * np.dot(new_spin_candidate, nnn_sum)
+        
+        dE = new_local_energy - old_local_energy
+        
+        if dE < 0 or rng.random() < np.exp(-beta * dE):
+            new_spins[0, i, j] = new_spin_candidate
+    
     return new_spins
 
-def run_simulation(
-    model_type: str,
-    L: int,
-    T: float,
-    J1: float,
-    J2: float,
-    n_steps: int,
-    seed: int,
-    burn_in: int = 1000
-) -> List[np.ndarray]:
-    """Run Metropolis-Hastings simulation."""
-    logger.info(f"Starting simulation: Model={model_type}, L={L}, T={T}, J1={J1}, J2={J2}, Steps={n_steps}")
+def run_simulation(model_type: str, L: int, T: float, J1: float, J2: float, n_steps: int, seed: int) -> List[np.ndarray]:
+    """
+    Run the Monte Carlo simulation for a given model, lattice size, and temperature.
+    Returns a list of configurations (thinned).
+    """
+    config = get_config()
+    rng = np.random.default_rng(seed)
     
-    # Initialize spins
-    if model_type == 'heisenberg':
+    # Initialize
+    if model_type == "heisenberg":
         spins = initialize_spins_heisenberg(L, seed)
-    elif model_type == 'xy':
+        metropolis_func = metropolis_step_heisenberg
+    elif model_type == "xy":
         spins = initialize_spins_xy(L, seed)
+        metropolis_func = metropolis_step_xy
     else:
         raise ValueError(f"Unknown model type: {model_type}")
-
-    rng = np.random.default_rng(seed + 1)
     
-    # Burn-in
-    logger.info(f"Running burn-in ({burn_in} steps)...")
-    for _ in range(burn_in):
-        if model_type == 'heisenberg':
-            spins = metropolis_step_heisenberg(spins, T, J1, J2, rng)
-        else:
-            spins = metropolis_step_xy(spins, T, J1, J2, rng)
-
-    # Production run
+    beta = 1.0 / T
+    
+    logger.info(f"Starting simulation: Model={model_type}, L={L}, T={T}, J1={J1}, J2={J2}, Steps={n_steps}, Seed={seed}")
+    
     configurations = []
-    logger.info(f"Running production ({n_steps} steps)...")
+    
     for step in range(n_steps):
-        if model_type == 'heisenberg':
-            spins = metropolis_step_heisenberg(spins, T, J1, J2, rng)
-        else:
-            spins = metropolis_step_xy(spins, T, J1, J2, rng)
-        
-        # Save configuration periodically or every step? 
-        # For simplicity, save every step in this implementation, 
-        # but in practice one might thin.
-        configurations.append(spins.copy())
-        
-        if (step + 1) % 100 == 0:
-            logger.debug(f"Step {step+1}/{n_steps}")
-
-    logger.info(f"Simulation complete for T={T}, L={L}. Generated {len(configurations)} configurations.")
+        spins = metropolis_func(spins, beta, J1, J2, rng)
+        # Save configurations periodically (e.g., every 10 steps for simplicity in this demo)
+        # In a real scenario, thinning would be based on autocorrelation time (T007)
+        if step % 10 == 0:
+            configurations.append(spins.copy())
+    
+    logger.info(f"Simulation completed for Model={model_type}, L={L}, T={T}. Generated {len(configurations)} configurations.")
     return configurations
 
-def save_data(
-    model_type: str,
-    L: int,
-    T: float,
-    J1: float,
-    J2: float,
-    configurations: List[np.ndarray],
-    seed: int
-) -> str:
-    """Save configurations to disk."""
-    raw_dir = ensure_data_dir()
-    filename = f"{model_type}_L{L}_T{T:.2f}_J1{J1:.1f}_J2{J2:.1f}_seed{seed}.npz"
-    filepath = raw_dir / filename
+def save_data(model_type: str, L: int, T: float, configurations: List[np.ndarray], output_dir: Path):
+    """Save the generated configurations to disk."""
+    filename = f"{model_type}_L{L}_T{T:.2f}.npz"
+    filepath = output_dir / filename
     
-    # Stack to array
-    data = np.stack(configurations, axis=0)
+    # Stack configurations
+    data = np.concatenate(configurations, axis=0)
+    
     np.savez_compressed(filepath, data=data)
+    logger.info(f"Saved {len(configurations)} configurations to {filepath}")
     
-    logger.info(f"Saved data to {filepath}")
-    return str(filepath)
+    # Log the parameters for reproducibility
+    logger.info(f"Parameters logged: Model={model_type}, L={L}, T={T}, N_configs={len(configurations)}")
 
 def main():
-    """Main entry point to run simulations with logging."""
+    """Main entry point for data generation."""
     config = get_config()
+    setup_logging()
     
-    # Parameters from config or defaults
-    models = config.get('models', ['heisenberg', 'xy'])
-    lattice_sizes = config.get('lattice_sizes', [16, 24])
-    temperatures = config.get('temperatures', [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0])
-    J1 = config.get('J1', 1.0)
-    J2 = config.get('J2', 0.5) # Example ratio
-    n_steps = config.get('n_steps', 100) # Small for demo, increase for real runs
-    seed = config.get('seed', 42)
-    burn_in = config.get('burn_in', 100)
-
-    # Log all parameters
-    logger.info("=== Data Generation Parameters ===")
-    logger.info(f"Models: {models}")
-    logger.info(f"Lattice Sizes: {lattice_sizes}")
-    logger.info(f"Temperatures: {temperatures}")
-    logger.info(f"J1: {J1}, J2: {J2}")
-    logger.info(f"Steps: {n_steps}, Burn-in: {burn_in}, Seed: {seed}")
-    logger.info("==================================")
-
+    # Log the generation parameters
+    # These are typically read from config or command line args
+    # For this task, we log the defaults or config values
+    logger.info("Data Generation Task Started")
+    
+    # Example parameters - in real usage, these would be from config or args
+    models = ["heisenberg", "xy"]
+    L_sizes = [16, 24]
+    temperatures = [0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+    J1, J2 = 1.0, 0.5 # Example coupling constants
+    n_steps = 100 # Reduced for demo, should be higher in real run
+    
+    raw_dir, _ = ensure_data_dir()
+    
     for model in models:
-        for L in lattice_sizes:
+        for L in L_sizes:
             for T in temperatures:
-                # Log start of specific run
-                logger.info(f"Running {model} model: L={L}, T={T}")
+                # Log parameters for this run
+                logger.info(f"Generating data for {model}, L={L}, T={T}, J1={J1}, J2={J2}")
                 
-                configs = run_simulation(
-                    model_type=model,
-                    L=L,
-                    T=T,
-                    J1=J1,
-                    J2=J2,
-                    n_steps=n_steps,
-                    seed=seed,
-                    burn_in=burn_in
-                )
-                
-                save_data(
-                    model_type=model,
-                    L=L,
-                    T=T,
-                    J1=J1,
-                    J2=J2,
-                    configurations=configs,
-                    seed=seed
-                )
-
-    logger.info("All simulations completed.")
+                try:
+                    configs = run_simulation(model, L, T, J1, J2, n_steps, config.seed)
+                    save_data(model, L, T, configs, raw_dir)
+                except Exception as e:
+                    logger.error(f"Failed to generate data for {model}, L={L}, T={T}: {e}")
+                    raise
 
 if __name__ == "__main__":
     main()

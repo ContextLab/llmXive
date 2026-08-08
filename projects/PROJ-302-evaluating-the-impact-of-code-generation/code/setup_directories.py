@@ -1,45 +1,54 @@
+"""
+Directory creation utilities for the llmXive project.
+This module handles the creation of the required project structure.
+"""
 import os
 from pathlib import Path
 
-def create_directories(base_path: str = None):
+def create_directories():
     """
-    Create the standard project directory structure.
+    Creates the necessary directory structure for the project.
     
-    Args:
-        base_path: Optional base path. If None, uses the current working directory.
+    Creates:
+    - code/data_acquisition/
+    - code/feature_extraction/
+    - code/analysis/
+    - code/utils/
     
     Returns:
-        None
+        list: A list of created directory paths as strings.
     """
-    if base_path is None:
-        base_path = Path.cwd()
-    else:
-        base_path = Path(base_path)
+    project_root = Path(__file__).resolve().parent.parent
+    base_code_dir = project_root / "code"
     
-    # Define directories to create
-    directories = [
-        "code",
-        "code/data_acquisition",
-        "code/feature_extraction",
-        "code/analysis",
-        "code/utils",
-        "data",
-        "data/raw",
-        "data/processed",
-        "tests",
-        "docs"
+    required_dirs = [
+        "data_acquisition",
+        "feature_extraction",
+        "analysis",
+        "utils"
     ]
     
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        os.makedirs(dir_path, exist_ok=True)
+    created_dirs = []
     
-    # Create empty checksums.yaml if data directory exists
-    checksums_file = base_path / "data" / "checksums.yaml"
-    if not checksums_file.exists():
-        checksums_file.touch()
+    for dir_name in required_dirs:
+        dir_path = base_code_dir / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    # Create empty __init__.py files in code subdirectories
-    for dir_name in ["data_acquisition", "feature_extraction", "analysis", "utils"]:
-        init_file = base_path / "code" / dir_name / "__init__.py"
-        init_file.touch()
+    # Create __init__.py files in each new directory to make them Python packages
+    for dir_name in required_dirs:
+        dir_path = base_code_dir / dir_name
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created package init: {init_file}")
+    
+    return created_dirs
+
+if __name__ == "__main__":
+    create_directories()
+    print("Directory setup complete.")
