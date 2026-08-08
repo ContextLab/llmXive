@@ -6,13 +6,6 @@ T023:
     \ the file is truncated before any generation or fallback logic. Additionally,\
     \ the required `data/fallbacks.log` file is missing. The task\u2019s fallback\
     \ mechanism and logging requirements are therefore not satisfied."
-T037:
-  c: false
-  h: 772410e35608facfd6c5b26ca3cef8ac3131cc253d44373e0a4d84519eb85808
-  r: The repository lacks the required `data/final_results.csv` file, and `code/main.py`
-    does not contain a complete CLI that parses `--run-evolution` nor does it generate
-    the specified `final_results.csv` (the file is missing and the script is truncated
-    before any such output logic). These core requirements are therefore unmet.
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

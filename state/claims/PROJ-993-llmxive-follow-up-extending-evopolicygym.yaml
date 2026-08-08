@@ -638,3 +638,288 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T18:55:34Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: Pinned library versions in requirements.txt
+  claim_id: c_a5e91a9f
+  context: Task T001c lists specific pinned versions for the project requirements.
+  evidence:
+    asserted: '0.29'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: requirements.txt includes gymnasium==0.29.1, transformers==4.36.0, scikit-learn==1.3.2,
+    statsmodels==0.14.1, radon==6.0.1, pandas==2.1.4, numpy==1.26.2, pyyaml==6.0.1,
+    pytest==7.4.3, pydantic==2.5.2, bitsandbytes==0.41.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T08:20:17Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: EvoPolicyGym registry discovery count equals 16 environments
+  claim_id: c_9258c49d
+  context: Task T013d requires dynamically discovering existing EvoPolicyGym environments
+    by querying the registry and verifying the count matches exactly 16.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST verify that the discovered count matches exactly 16 environments;
+    if not, raise a ValueError halting execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:20:36Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: TinyLlama-Chat-v1.0 4-bit quantized inference pipeline implementation
+  claim_id: c_4389697f
+  context: Task T021b specifies implementing the LLM inference pipeline using TinyLlama-Chat-v1.0
+    quantized to 4-bit.
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement lightweight, CPU-quantized LLM inference pipeline using TinyLlama-Chat-v1.0
+    (4-bit quantized via bitsandbytes).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T08:20:36Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: EvoPolicyGym registry contains exactly 16 environments
+  claim_id: c_065fbd62
+  context: Dynamically Discover the existing EvoPolicyGym environments by querying
+    the EvoPolicyGym registry. This task MUST NOT hardcode IDs but must retrieve the
+    list of available environments programmatically. It MUST verify that the discovered
+    count matches exactly 16 environments.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task MUST verify that the discovered count matches exactly 16 environments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:23:50Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: TinyLlama-Chat-v1.0 4-bit quantized LLM used for explanation generation
+  claim_id: c_5193f8d0
+  context: Implement lightweight, CPU-quantized LLM inference pipeline using TinyLlama-Chat-v1.0
+    (4-bit quantized via bitsandbytes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses TinyLlama-Chat-v1.0 (4-bit quantized via bitsandbytes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:24:09Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Specified library versions in requirements.txt
+  claim_id: c_3f36b362
+  context: 'Create requirements.txt with pinned versions: gymnasium==0.29.1, transformers==4.36.0,
+    scikit-learn==1.3.2, statsmodels==0.14.1, radon==6.0.1, pandas==2.1.4, numpy==1.26.2,
+    pyyaml==6.0.1, pytest==7.4.3, pydantic==2.5.2, bitsandbytes==0.41.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requirements list includes gymnasium==0.29.1, transformers==4.36.0,
+    scikit-learn==1.3.2, statsmodels==0.14.1, radon==6.0.1, pandas==2.1.4, numpy==1.26.2,
+    pyyaml==6.0.1, pytest==7.4.3, pydantic==2.5.2, and bitsandbytes==0.41.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:24:26Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: Implement LLM inference pipeline using TinyLlama-Chat-v1.0 4-bit quantized
+    via bitsandbytes
+  claim_id: c_7cca7cdb
+  context: T021b [US2] Implement lightweight, CPU-quantized LLM inference pipeline
+    using TinyLlama-Chat-v1.0 (4-bit quantized via bitsandbytes).
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement lightweight, CPU-quantized LLM inference pipeline using TinyLlama-Chat-v1.0
+    (4-bit quantized via bitsandbytes).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T08:27:10Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: List of pinned library versions in requirements.txt
+  claim_id: c_74dd604a
+  context: 'T001c [P] Create requirements.txt with pinned versions: gymnasium==0.29.1,
+    transformers==4.36.0, scikit-learn==1.3.2, statsmodels==0.14.1, radon==6.0.1,
+    pandas==2.1.4, numpy==1.26.2, pyyaml==6.0.1, pytest==7.4.3, pydantic==2.5.2, bitsandbytes==0.41.0,
+    evopolicygym==<specific-commit-or-version>'
+  evidence:
+    asserted: '0.29'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Requirements.txt includes gymnasium==0.29.1, transformers==4.36.0, scikit-learn==1.3.2,
+    statsmodels==0.14.1, radon==6.0.1, pandas==2.1.4, numpy==1.26.2, pyyaml==6.0.1,
+    pytest==7.4.3, pydantic==2.5.2, bitsandbytes==0.41.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T08:27:11Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Verify discovered environment count matches exactly 16
+  claim_id: c_1d587261
+  context: T013d [US1] Dynamically Discover the existing EvoPolicyGym environments
+    by querying the EvoPolicyGym registry... It MUST verify that the discovered count
+    matches exactly 16 environments; if not, raise a ValueError halting execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task MUST verify that the discovered count matches exactly 16 environments;
+    if not, raise a ValueError halting execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:27:11Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Save discovered environment list to data/discovered_envs.json
+  claim_id: c_1821b424
+  context: T013d [US1] Dynamically Discover the existing EvoPolicyGym environments...
+    The task MUST save the discovered list to data/discovered_envs.json for downstream
+    tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_discovered_environment_list_to_data/discovered_envs.jso
+  kind: entity_fact
+  raw_text: The task MUST save the discovered list to data/discovered_envs.json for
+    downstream tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:27:42Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Write derived correct_action and rule_id to data/derivation_cache.json
+  claim_id: c_c58bb3f1
+  context: 'T021a [US2] Deterministic Rule Derivation: Implement logic to derive the
+    correct_action... This task MUST write the derived correct_action and rule_id
+    to data/derivation_cache.json for the generation step.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_derived_correct_action_and_rule_id_to_data/derivation
+  kind: entity_fact
+  raw_text: The task MUST write the derived correct_action and rule_id to data/derivation_cache.json
+    for the generation step.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:28:06Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: Mixed-effects model formula models nested runs within seeds structure
+  claim_id: c_8d4f1f4a
+  context: T036 [US3] Implement mixed-effects model analysis using statsmodels with
+    formula score ~ condition + complexity + (1|seed/run_id)... This formula explicitly
+    models the nested 'runs within seeds' structure and is the sole source for statistical
+    significance testing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_models_nested_runs_within_seeds
+  kind: entity_fact
+  raw_text: The formula explicitly models the nested 'runs within seeds' structure
+    and is the sole source for statistical significance testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:28:29Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 0
+  canonical: TinyLlama-Chat-v1.0 4-bit quantized via bitsandbytes used for CPU-quantized
+    LLM inference
+  claim_id: c_80a44ac0
+  context: Task T021b specifies implementing the LLM inference pipeline using the
+    TinyLlama-Chat-v1.0 model quantized to 4-bit.
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement lightweight, CPU-quantized LLM inference pipeline using TinyLlama-Chat-v1.0
+    (4-bit quantized via bitsandbytes)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T08:29:40Z'
+- artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
+  attempts: 1
+  canonical: EvoPolicyGym registry contains exactly 16 environments
+  claim_id: c_1fde4a46
+  context: Task T013d requires dynamically discovering existing EvoPolicyGym environments
+    and verifying the count matches exactly 16 before proceeding.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task MUST verify that the discovered count matches exactly 16 environments
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T08:29:40Z'

@@ -1,17 +1,19 @@
 status: none
-intent: EvoPolicyGym python package environments dataset PyPI download latest python
+intent: EvoPolicyGym environment definitions dataset python package EvoPolicyGym python
   package dataset
 required_fields:
 - environment_id
 - environment_name
-- observation_space
-- action_space
-- reward_function
-- transition_probabilities
+- observation_space_spec
+- action_space_spec
+- initial_reward_function
+- initial_transition_matrix
 - dynamic_shift_step
-- dynamic_shift_type
+- post_shift_reward_function
+- post_shift_transition_matrix
+- shift_configuration_parameters
 - metadata_version
-- description
-cache_key: 53f1bdff86ec1db82890d4ea0b8b6973fc7db06f7936a72ef7fe26ca6f84f966
-searched_at: '2026-08-07T18:39:11.627335+00:00'
+- license
+cache_key: 4370da9405e9fb93a9d9aa5e6111ef0168782374d8cda988a81886574bf5aed3
+searched_at: '2026-08-08T08:19:11.731599+00:00'
 retry_count: 1

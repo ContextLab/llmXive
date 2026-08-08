@@ -10,14 +10,3 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2607.02440
   verified_at: '2026-08-04T22:32:03.699427Z'
-- artifact_hash: 1c7b0bbe98aeba39849574caeb306f9b03913772500633228ce24f35ef773a4e
-  artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/...@commit`
-  verification_status: mismatch
-  verified_against_url: https://github.com/...@commit
-  verified_at: '2026-08-07T19:34:15.062728Z'

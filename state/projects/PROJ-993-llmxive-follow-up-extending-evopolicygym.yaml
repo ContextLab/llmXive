@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-05T01:20:48.448383Z'
-current_stage: analyzed
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-993-llmxive-follow-up-extending-evopolicygym
-last_run_id: 526fb1fa-3851-4883-9bd4-e62af0d1a281
+last_run_id: 99dda095-42d2-4c71-83ce-67eb56c0dad0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym
 title: 'llmXive follow-up: extending "EvoPolicyGym: Evaluating Autonomous Policy Evolution
   in Interactive En"'
-updated_at: '2026-08-07T19:34:27.399935Z'
+updated_at: '2026-08-08T09:04:27.358146Z'

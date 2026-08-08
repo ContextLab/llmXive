@@ -1,63 +1,63 @@
-# Quickstart Guide: EvoPolicyGym Analysis Pipeline
+# Quickstart Guide: EvoPolicyGym Follow-up
 
-This guide explains how to run the full evolutionary analysis pipeline and generate the required data artifacts.
+This guide explains how to run the full evolutionary pipeline and generate the required data artifacts.
 
 ## Prerequisites
 
-- Python 3.9+
-- Installed dependencies (see `requirements.txt`)
-- Project root directory
+1. Ensure all dependencies are installed:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## Installation
+2. Ensure the project structure is correct (Phase 1 tasks completed).
+
+## Running the Pipeline
+
+The pipeline is controlled via `code/main.py`. You can run specific stages or the full pipeline.
+
+### Option 1: Run the Full Pipeline (Recommended)
+
+This executes shift analysis, evolution, and statistical analysis, producing `data/final_results.csv`.
 
 ```bash
 cd projects/PROJ-993-llmxive-follow-up-extending-evopolicygym
-pip install -r requirements.txt
+python code/main.py --run-full --seeds 42 --runs 5 --envs CartPole-v1 LunarLander-v2
 ```
 
-## Running the Full Pipeline
+**Arguments:**
+- `--seeds`: List of random seeds (default: 42)
+- `--runs`: Number of runs per seed (default: 5)
+- `--envs`: Specific environment IDs (optional; runs all discovered if omitted)
+- `--conditions`: Conditions to test (default: baseline, counterfactual)
 
-To execute the full pipeline (Shift Analysis -> Evolution -> Stats -> Final Results), run:
+### Option 2: Run Individual Stages
 
+**Shift Sensitivity Analysis:**
 ```bash
-python code/main.py --run-evolution --seeds 42 --runs 5 --envs GridWorld-0 GridWorld-1 --conditions baseline,counterfactual
+python code/main.py --run-shift-analysis
 ```
 
-### Arguments Explained
-
-- `--run-evolution`: Executes the full pipeline.
-- `--seeds`: List of random seeds for reproducibility (e.g., `42 123`).
-- `--runs`: Number of evolutionary runs per condition (default: 5).
-- `--envs`: List of environment IDs to test (e.g., `GridWorld-0`).
-- `--conditions`: Comma-separated list of conditions (e.g., `baseline,counterfactual`).
-
-## Running Specific Modules
-
-### Shift Sensitivity Analysis Only
-
+**Evolutionary Pipeline:**
 ```bash
-python code/main.py --run-shift-analysis --seeds 42 --envs GridWorld-0
+python code/main.py --run-evolution --seeds 42 --runs 5
 ```
-*Output: `data/shift_validation.json`*
 
-### Statistics Analysis Only
-
+**Statistical Analysis:**
 ```bash
 python code/main.py --run-stats
 ```
-*Requires `data/evolution_results.csv` to exist. Output: `data/stats_results.json`*
 
-## Expected Output Artifacts
+## Output Artifacts
 
-After a successful run of `--run-evolution`, the following files will be generated in the `data/` directory:
+Upon successful completion, the following files will be generated in the `data/` directory:
 
-1. **`data/shift_validation.json`**: Results of the dynamic shift validation (p-values, drop rates).
-2. **`data/evolution_results.csv`**: Raw metrics from the evolutionary runs (score, complexity, etc.).
-3. **`data/stats_results.json`**: Statistical analysis results (mixed-effects model p-value, effect size).
-4. **`data/final_results.csv`**: Aggregated summary metrics for the project.
+- `data/sensitivity_report.csv`: Performance drop analysis per environment.
+- `data/evolution_results.csv`: Detailed metrics for each evolutionary run.
+- `data/stats_results.json`: Statistical model results (p-values, effect sizes).
+- `data/final_results.csv`: Aggregated final results (T037 output).
 
 ## Troubleshooting
 
-- **Shift Validation Failed**: If `p-value >= 0.05`, the pipeline will abort. This indicates the shift configuration is ineffective. Adjust `shift_step` or environment parameters.
-- **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed.
-- **Import Errors**: If running directly, ensure `code/` is in your Python path or run from the project root.
+- **Missing Environments**: Ensure `data/discovered_envs.json` exists. If not, run the environment discovery script first.
+- **Import Errors**: Verify that `code/` is in your Python path or run from the project root.
+- **CUDA Errors**: The pipeline is CPU-optimized for TinyLlama. Ensure you have sufficient RAM.

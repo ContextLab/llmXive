@@ -12,11 +12,11 @@ This feature extends the `EvoPolicyGym` suite to test the hypothesis that **coun
 **Primary Dependencies**: `gymnasium` (or `EvoPolicyGym` base), `transformers` (CPU-quantized), `scikit-learn`, `statsmodels`, `radon`, `pandas`, `numpy`, `pyyaml`.  
 **Storage**: Local filesystem for logs, policies, and intermediate CSVs; no external database.  
 **Testing**: `pytest` for unit tests (environment shift logic, explanation validation); integration tests for the full evolution loop.  
-**Target Platform**: GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, no GPU).  
+**Target Platform**: GitHub Actions free-tier runner (limited CPU cores, moderate RAM, no GPU).  
 **Project Type**: Research simulation pipeline / CLI tool.  
 **Performance Goals**: Complete multiple evolutionary runs per condition (baseline vs. counterfactual) within the CI job time limit.; LLM inference must complete within 30s per failure (fallback to template on timeout).  
 **Constraints**: Must run entirely on CPU; no access to gated datasets; all random seeds must be pinned for reproducibility.  
-**Scale/Scope**: environments extended; A sufficient number of evolutionary runs total (Multiple runs × 16 envs × 2 conditions); A large number of trajectory steps simulated.
+**Scale/Scope**: environments extended; A sufficient number of evolutionary runs total (Multiple runs × multiple environments × 2 conditions); A large number of trajectory steps simulated.
 
 > **Deferred Values**: Exact number of evolutionary generations per run, specific LLM model name (to be selected based on CPU feasibility), and exact power calculations are determined in the research phase.
 
