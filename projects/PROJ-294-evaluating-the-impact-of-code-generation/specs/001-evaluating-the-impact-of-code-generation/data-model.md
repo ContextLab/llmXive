@@ -2,57 +2,54 @@
 
 ## Overview
 
-This document defines the data structures for the project, ensuring alignment with the **Constitution Principle III (Data Hygiene)** and **IV (Single Source of Truth)**. All data is stored in JSON/YAML formats for programmatic access and validation.
+This document defines the data structures used for storing metrics, artifacts, and statistical results. All data is persisted in JSON or YAML formats with strict schema validation.
 
-## Raw Data
+## Entities
 
-### HumanEval Benchmark
-- **Source**: `data/raw/humaneval.parquet`
-- **Format**: Parquet (converted to JSON for processing if needed).
-- **Fields**:
-  - `task_id`: String (e.g., "HumanEval/0")
-  - `prompt`: String (Code snippet to complete)
-  - `canonical_solution`: String (Human reference)
-  - `test`: String (Unit tests)
-  - `entry_point`: String (Function name)
+### 1. Metrics Record
+Stores calculated metrics for a single code sample (human or LLM).
 
-## Processed Data
+```yaml
+task_id: string
+model: string  # "human" or "Salesforce/codegen-mono"
+cyclomatic_complexity: integer
+halstead_volume: float
+branch_coverage_pct: float
+pass_rate: float  # 0.0 to 1.0
+generated_code: string
+checksum: string  # SHA256 of generated_code
+```
 
-### Metrics Dataset (`data/analysis/metrics.json`)
-This is the **Single Source of Truth** for all statistical analysis.
-- **Format**: JSON Array
-- **Schema**: See `contracts/metrics.schema.yaml`
-- **Key Fields**:
-  - `mutation_score`: Float (0.0 to 1.0) - Primary measure of **Testability**.
-  - `pass_rate`: Integer (0 or 1) - Measure of **Correctness**.
-  - `cyclomatic_complexity`: Integer - Static complexity.
+### 2. Statistical Result
+Stores the outcome of a hypothesis test.
 
-### Artifact Hashes (`state/artifact_hashes.yaml`)
-- **Format**: YAML
-- **Content**: SHA256 hashes of all files in `data/` and `code/`.
+```yaml
+test_name: string  # "wilcoxon", "mcnemar", etc.
+metric: string
+statistic: float
+p_value: float
+significant: boolean
+effect_size: float  # Cohen's d or similar
+confidence_interval: [float, float]
+```
 
-### Validation Results (`state/validation_results.yaml`)
-- **Format**: YAML
-- **Content**: Results of statistical tests and citation validation.
+### 3. Artifact Hash
+Tracks integrity of all generated files.
 
-### Power Analysis (`state/power_analysis.yaml`)
-- **Format**: YAML
-- **Content**: A Priori and Post-Hoc power analysis results.
+```yaml
+file_path: string
+checksum: string  # SHA256
+timestamp: string  # ISO 8601
+```
 
-## Metadata
+## Relationships
 
-### Project Metadata (`data/metadata.yaml`)
-- **Fields**:
-  - `dataset_version`: Version of HumanEval used.
-  - `model_version`: Hash/ID of the LLM used for generation.
-  - `seed`: Random seed used for generation.
-  - `timestamp`: ISO8601 timestamp of generation.
+- **Metrics Record** is derived from **Task** (HumanEval) and **Generated Code**.
+- **Statistical Result** is derived from a set of **Metrics Records**.
+- **Artifact Hash** covers all files in `data/` and `state/`.
 
-## Data Flow
+## Constraints
 
-1.  **Download**: `download_data.py` fetches HumanEval -> `data/raw/humaneval.parquet`.
-2.  **Generate**: `generate_code.py` reads raw, calls LLM, saves to `data/analysis/model_outputs/`.
-3.  **Analyze**: `analyze_metrics.py` reads raw + generated, runs Radon/Mutmut/Coverage, writes `data/analysis/metrics.json`.
-4.  **Validate**: `validate_citations.py` checks references -> `state/validation_report.yaml`.
-5.  **Stats**: `statistical_tests.py` reads `metrics.json`, writes `state/validation_results.yaml` and `state/power_analysis.yaml`.
-6.  **Report**: `report_generator.py` reads `metrics.json`, `state/validation_results.yaml`, `state/power_analysis.yaml` -> Markdown report.
+- **Non-null**: All numeric fields must be non-null.
+- **Range**: `pass_rate` and `branch_coverage_pct` must be in [0.0, 1.0].
+- **Uniqueness**: `task_id` + `model` must be unique in the metrics dataset.

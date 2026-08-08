@@ -1,250 +1,302 @@
+"""
+Generate code samples using Salesforce/codegen-350M-mono.
+
+Loads the model on CPU and generates code for all tasks in HumanEval.
+Implements retry logic with exponential backoff as mandated by FR-002.
+
+Output: data/generated/codegen_samples.json
+Dependency: T010 (HumanEval dataset)
+"""
 import os
 import json
 import logging
 import time
 import sys
 from typing import List, Dict, Any, Optional
-import hashlib
-import torch
 
-# Import shared utilities from utils.py
-from utils import setup_logging as utils_setup_logging, get_logger as utils_get_logger, set_task_id as utils_set_task_id, get_task_id as utils_get_task_id, compute_sha256
-
-# Global logger and task ID state
-_logger = None
-_task_id = None
-
-def setup_logging(task_id: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
-    """
-    Flexible logging setup compatible with all callers.
-    Accepts no args, a task_id string, or a task_id keyword argument.
-    """
-    global _logger, _task_id
-
-    # Handle positional args: setup_logging() or setup_logging(task_id)
-    if isinstance(task_id, str):
-        _task_id = task_id
-    elif task_id is None:
-        # If called with no args or keyword arg only, check if task_id was passed as kwarg
-        # (This logic handles the case where the caller might have passed it differently)
+# Import utilities from utils
+try:
+    from utils import setup_logging, get_logger, set_task_id, get_task_id
+except ImportError:
+    # Fallback for direct execution
+    def setup_logging(task_id=None):
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        return logging.getLogger(__name__)
+    
+    def get_logger(name):
+        return logging.getLogger(name)
+    
+    def set_task_id(tid):
         pass
-
-    # If task_id is still None, try to get it from environment or default
-    if _task_id is None:
-        _task_id = os.getenv("CURRENT_TASK_ID", "T028")
-
-    # Configure root logger if not already configured
-    if not _logger:
-        logging.basicConfig(
-            level=level,
-            format=f'%(asctime)s [{_task_id}] [%(levelname)s] - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S',
-            handlers=[
-                logging.StreamHandler(sys.stdout),
-                logging.FileHandler(f'logs/{_task_id}.log', mode='a')
-            ]
-        )
-        _logger = logging.getLogger(f'GEN-CODE-{_task_id}')
-        # Ensure the root logger also has the handler if needed by other modules
-        if not logging.root.handlers:
-            logging.root.setLevel(level)
-            logging.root.addHandler(logging.StreamHandler(sys.stdout))
-
-    return _logger
-
-def get_logger() -> logging.Logger:
-    global _logger
-    if _logger is None:
-        _logger = setup_logging()
-    return _logger
-
-def log_info(msg: str):
-    get_logger().info(msg)
-
-def log_error(msg: str):
-    get_logger().error(msg)
-
-def ensure_state_dir():
-    os.makedirs("state", exist_ok=True)
-
-def ensure_log_dir():
-    os.makedirs("logs", exist_ok=True)
-
-def mark_sample_missing(task_id: str, output_file: str, reason: str):
-    logger = get_logger()
-    logger.warning(f"Marking sample {task_id} as missing in {output_file} due to: {reason}")
-    # Ensure the output file exists even if empty or partial
-    if not os.path.exists(output_file):
-        with open(output_file, 'w') as f:
-            json.dump([], f)
-
-def check_local_model_availability() -> Dict[str, bool]:
-    """
-    Checks if specific models are available locally or via API.
-    Returns a dict of model_id -> availability status.
-    """
-    status = {
-        "Salesforce/codegen-350M-mono": True, # Always assume available for CPU fallback
-        "CodeLlama-7b-hf": False,
-        "CodeLlama-13b-hf": False
-    }
-
-    # Check for GPU availability for CodeLlama
-    if torch.cuda.is_available():
-        gpu_memory = torch.cuda.get_device_properties(0).total_memory / (1024**3) # GB
-        log_info(f"GPU detected with {gpu_memory:.2f} GB VRAM")
-        if gpu_memory >= 8:
-            status["CodeLlama-7b-hf"] = True
-            if gpu_memory >= 16:
-                status["CodeLlama-13b-hf"] = True
-        else:
-            log_info(f"GPU VRAM ({gpu_memory:.2f} GB) insufficient for CodeLlama-7b (requires 8GB)")
-
-    return status
-
-def write_model_availability_status(status: Dict[str, bool]):
-    ensure_state_dir()
-    with open("state/model_availability.json", 'w') as f:
-        json.dump(status, f, indent=2)
-
-def generate_code_via_hf_api(model_id: str, prompt: str, max_new_tokens: int = 256) -> Optional[str]:
-    """
-    Generates code using HuggingFace Inference API or local model.
-    For this implementation, we simulate the call structure.
-    In a real environment, this would call the HF API or load the model locally.
-    Given the constraints of this environment, we will attempt to load the model if available,
-    otherwise raise an error to trigger fallback logic in the main loop.
-    """
-    logger = get_logger()
-    logger.info(f"Attempting to generate code for task using model: {model_id}")
-
-    try:
-        if "CodeLlama" in model_id:
-            if not torch.cuda.is_available():
-                raise RuntimeError("CUDA not available for CodeLlama model.")
-            if model_id == "CodeLlama-7b-hf" and torch.cuda.get_device_properties(0).total_memory / (1024**3) < 8:
-                raise RuntimeError("Insufficient VRAM for CodeLlama-7b.")
-
-            # Placeholder for actual model loading and inference
-            # In a real run, this would be:
-            # from transformers import AutoModelForCausalLM, AutoTokenizer
-            # tokenizer = AutoTokenizer.from_pretrained(model_id)
-            # model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto")
-            # inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
-            # outputs = model.generate(**inputs, max_new_tokens=max_new_tokens)
-            # return tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-            # Simulate success for the sake of the pipeline structure if conditions are met
-            # But since we can't actually run the model in this restricted env, we raise
-            # to ensure the fallback logic in T028 is triggered and tested.
-            raise RuntimeError("Model execution not supported in this environment; triggering fallback.")
-        
-        elif "codegen-350M-mono" in model_id:
-            # CPU model fallback logic
-            # Simulate generation
-            return f"# Generated code for task using {model_id}\n{prompt}\nreturn 42"
-
-        else:
-            raise ValueError(f"Unsupported model: {model_id}")
-
-    except Exception as e:
-        logger.error(f"Generation failed for {model_id}: {e}")
+    
+    def get_task_id():
         return None
 
-def generate_code_for_task(task: Dict[str, Any], model_id: str, output_list: List[Dict]):
+TASK_ID = "T012"
+MODEL_NAME = "Salesforce/codegen-350M-mono"
+OUTPUT_PATH = "data/generated/codegen_samples.json"
+INPUT_PATH = "data/raw/humaneval.parquet"
+MAX_RETRIES = 3
+BASE_DELAY = 2
+
+def set_task_id(tid):
+    """Set the global task ID."""
+    global _task_id
+    _task_id = tid
+
+def get_task_id():
+    """Get the current global task ID."""
+    return _task_id
+
+def setup_logging(task_id: Optional[str] = None):
     """
-    Generates code for a single task and appends result to output_list.
+    Setup logging with optional task_id.
+    
+    Args:
+        task_id: Optional task ID
     """
-    logger = get_logger()
-    task_id = task.get("task_id", "unknown")
-    prompt = task.get("prompt", "")
-    
-    logger.info(f"Processing task {task_id} with model {model_id}")
-    
-    generated_code = generate_code_via_hf_api(model_id, prompt)
-    
-    result = {
+    if task_id:
+        set_task_id(task_id)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(task_id)s - %(levelname)s - %(message)s')
+    return logging.getLogger(__name__)
+
+def get_logger(name: str):
+    """Get a logger by name."""
+    return logging.getLogger(name)
+
+def log_info(logger, message: str):
+    """Log an info message."""
+    logger.info(message)
+
+def log_error(logger, message: str):
+    """Log an error message."""
+    logger.error(message)
+
+def ensure_state_dir():
+    """Ensure the state directory exists."""
+    state_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "state")
+    os.makedirs(state_dir, exist_ok=True)
+    return state_dir
+
+def ensure_log_dir():
+    """Ensure the log directory exists."""
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    return log_dir
+
+def mark_sample_missing(task_id: str, reason: str, samples: List[Dict]):
+    """Mark a sample as missing due to generation failure."""
+    samples.append({
         "task_id": task_id,
-        "source_type": "sensitivity-model" if "CodeLlama" in model_id else "codegen-350m",
-        "model_used": model_id,
-        "generated_code": generated_code,
-        "success": generated_code is not None
+        "prompt": "",
+        "generated_code": None,
+        "source_type": "codegen_350M",
+        "model_name": MODEL_NAME,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "success": False,
+        "error": reason
+    })
+
+def check_local_model_availability(model_name: str) -> bool:
+    """Check if the model is available locally."""
+    # For this implementation, we assume the model can be loaded from HuggingFace
+    # In a real scenario, this would check local cache
+    return True
+
+def write_model_availability_status(model_name: str, available: bool):
+    """Write model availability status to a file."""
+    status_dir = ensure_state_dir()
+    status_file = os.path.join(status_dir, "model_availability.json")
+    
+    status = {
+        "model_name": model_name,
+        "available": available,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    if not result["success"]:
-        log_error(f"Failed to generate code for {task_id}. Marking as missing.")
-        # In a real scenario, we might write to errors.log here
-    
-    output_list.append(result)
+    with open(status_file, "w") as f:
+        json.dump(status, f, indent=2)
 
-def generate_code_batch(tasks: List[Dict], model_id: str, output_path: str):
+def generate_code_via_hf_api(prompt: str, model_name: str) -> Optional[str]:
     """
-    Generates code for a batch of tasks and saves to output_path.
+    Generate code using HuggingFace API (fallback).
+    
+    Args:
+        prompt: Task prompt
+        model_name: Model name
+        
+    Returns:
+        Generated code or None
     """
-    logger = get_logger()
-    results = []
+    # This is a placeholder for API-based generation
+    # In practice, we would use the transformers library directly
+    return None
+
+def generate_code_for_task(task_prompt: str, model, tokenizer, max_new_tokens: int = 512) -> Optional[str]:
+    """
+    Generate code for a single task prompt.
+    
+    Args:
+        task_prompt: Task prompt
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        max_new_tokens: Maximum tokens to generate
+        
+    Returns:
+        Generated code or None
+    """
+    try:
+        inputs = tokenizer(task_prompt, return_tensors="pt")
+        
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=True,
+                temperature=0.8,
+                top_p=0.95,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id
+            )
+        
+        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # Extract code if present
+        if "```python" in generated_text:
+            start_idx = generated_text.find("```python") + len("```python")
+            end_idx = generated_text.find("```", start_idx)
+            if end_idx != -1:
+                return generated_text[start_idx:end_idx].strip()
+        
+        return generated_text.strip()
+    except Exception as e:
+        logging.error(f"Generation failed: {e}")
+        return None
+
+def generate_code_batch(tasks: List[Dict], model, tokenizer) -> List[Dict]:
+    """
+    Generate code for a batch of tasks.
+    
+    Args:
+        tasks: List of task dictionaries
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        
+    Returns:
+        List of generated samples
+    """
+    samples = []
+    errors_log = []
     
     for task in tasks:
-        generate_code_for_task(task, model_id, results)
+        task_id = task["task_id"]
+        prompt = task["prompt"]
         
-    # Save results
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        logging.info(f"Generating code for {task_id}")
+        
+        # Retry logic with exponential backoff
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                generated_code = generate_code_for_task(prompt, model, tokenizer)
+                
+                if generated_code:
+                    sample = {
+                        "task_id": task_id,
+                        "prompt": prompt,
+                        "generated_code": generated_code,
+                        "source_type": "codegen_350M",
+                        "model_name": MODEL_NAME,
+                        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "success": True
+                    }
+                    samples.append(sample)
+                    break
+                else:
+                    raise RuntimeError("Generated code is empty")
+                    
+            except Exception as e:
+                error_msg = f"Attempt {attempt} failed for {task_id}: {e}"
+                logging.warning(error_msg)
+                errors_log.append(error_msg)
+                
+                if attempt < MAX_RETRIES:
+                    delay = BASE_DELAY * (2 ** (attempt - 1))
+                    logging.info(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                else:
+                    # Mark as missing after max retries
+                    mark_sample_missing(task_id, str(e), samples)
+                    errors_log.append(f"Max retries exceeded for {task_id}")
     
-    # Compute hash for integrity
-    hash_val = compute_sha256(output_path)
-    logger.info(f"Saved {len(results)} samples to {output_path} (SHA256: {hash_val})")
+    return samples, errors_log
 
 def main():
-    logger = setup_logging(task_id="T028")
-    logger.info("Starting T028: Sensitivity Generation (7B)")
+    """Main entry point for code generation."""
+    logger = setup_logging(task_id=TASK_ID)
+    set_task_id(TASK_ID)
     
-    # Load sampled subset
-    subset_path = "data/raw/sampled_subset.json"
-    if not os.path.exists(subset_path):
-        logger.error(f"Raw HumanEval data not found. Run T010 first. Expected: {subset_path}")
+    logging.info(f"Starting CodeGen-350M code generation (Task: {TASK_ID})")
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(OUTPUT_PATH)
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Load model
+    try:
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        
+        logging.info(f"Loading model: {MODEL_NAME}")
+        
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            torch_dtype=torch.float32,
+            device_map="cpu"
+        )
+        
+        logging.info("Model loaded successfully.")
+    except Exception as e:
+        logging.error(f"Failed to load model: {e}")
         sys.exit(1)
     
-    with open(subset_path, 'r') as f:
-        tasks = json.load(f)
-    
-    logger.info(f"Loaded {len(tasks)} tasks from {subset_path}")
-    
-    # Determine model strategy
-    # Logic: Try CodeLlama-7b on GPU. If unavailable, fallback to codegen-350M-mono.
-    model_to_use = "Salesforce/codegen-350M-mono" # Default fallback
-    fallback_reason = "GPU unavailable or insufficient VRAM"
-    
-    if torch.cuda.is_available():
-        gpu_mem_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
-        if gpu_mem_gb >= 8:
-            model_to_use = "CodeLlama-7b-hf"
-            fallback_reason = None
-            logger.info(f"GPU available ({gpu_mem_gb:.2f} GB). Using CodeLlama-7b-hf.")
+    # Load HumanEval dataset
+    try:
+        from datasets import load_dataset
+        import pandas as pd
+        
+        if os.path.exists(INPUT_PATH):
+            ds = load_dataset("parquet", data_files={"test": INPUT_PATH}, split="test")
         else:
-            logger.info(f"GPU available but VRAM ({gpu_mem_gb:.2f} GB) < 8GB. Fallback to codegen-350M-mono.")
-    else:
-        logger.info("No GPU detected. Fallback to codegen-350M-mono.")
-    
-    # Output path for sensitivity samples
-    output_path = "data/generated/sensitivity_samples.json"
+            logging.warning(f"Local file {INPUT_PATH} not found. Downloading from HuggingFace.")
+            ds = load_dataset("openai/openai_humaneval", split="test")
+        
+        logging.info(f"Loaded {len(ds)} tasks from HumanEval dataset.")
+    except Exception as e:
+        logging.error(f"Failed to load HumanEval dataset: {e}")
+        sys.exit(1)
     
     # Generate code
-    # Note: In this environment, CodeLlama will fail to load, triggering the fallback logic
-    # if we were to try it. However, the task requires us to implement the logic.
-    # We will attempt the preferred model first.
+    samples, errors = generate_code_batch(ds, model, tokenizer)
     
-    if model_to_use == "CodeLlama-7b-hf":
-        try:
-            generate_code_batch(tasks, model_to_use, output_path)
-        except Exception as e:
-            logger.error(f"CodeLlama generation failed: {e}. Falling back to codegen-350M-mono.")
-            model_to_use = "Salesforce/codegen-350M-mono"
-            generate_code_batch(tasks, model_to_use, output_path)
-    else:
-        generate_code_batch(tasks, model_to_use, output_path)
+    # Save results
+    logging.info(f"Saving {len(samples)} samples to {OUTPUT_PATH}")
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+        json.dump(samples, f, indent=2, ensure_ascii=False)
     
-    logger.info(f"T028 completed. Output saved to {output_path}")
+    # Log errors
+    if errors:
+        error_log_path = os.path.join(ensure_log_dir(), "generation_errors.log")
+        with open(error_log_path, "w") as f:
+            f.write("\n".join(errors))
+        logging.warning(f"Logged {len(errors)} errors to {error_log_path}")
+    
+    success_count = sum(1 for s in samples if s["success"])
+    logging.info(f"Generation complete: {success_count}/{len(samples)} tasks succeeded")
+    logging.info(f"Code generation completed successfully (Task: {TASK_ID})")
 
 if __name__ == "__main__":
     main()

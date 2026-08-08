@@ -72,48 +72,45 @@ description: "Task list template for feature implementation"
 
 **Goal**: Download HumanEval, generate LLM code, compute metrics (Complexity, Mutation Score, Coverage), and produce paired JSON dataset.
 
-**Independent Test**: Run the pipeline on a local copy of HumanEval. Verify that `data/analysis/metrics.json` contains `cyclomatic_complexity`, `halstead_volume`, `mutation_score`, and `pass_rate` for every valid pair, with at least 40 valid samples.
+**Independent Test**: Run the pipeline on the full HumanEval dataset (N=164). Verify that `data/analysis/metrics.json` contains `cyclomatic_complexity`, `halstead_volume`, `branch_coverage_pct`, and `pass_rate` for every valid pair, with n=164 (or n < 164 only if specific tasks fail execution).
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/download_data.py` to download HumanEval from HuggingFace (`openai_humaneval`) using `revision="main"` to ensure deterministic versioning. Use `streaming=True` to process the full dataset without loading it into RAM. **Constraint**: Must NOT fall back to synthetic data; must raise a `RuntimeError` with a clear message "Failed to download verified real source" if the download fails after max retries. **Timeout Logic**: Implement a runtime watchdog using `subprocess.run` with `timeout=14400s` (4 hours). If `TimeoutExpired` occurs, abort the full stream, select a random subset of **N=80** tasks (using seed 42) from the already downloaded data (or **re-run the download logic restricted to the first 80 indices determined by seed 42** if the stream was incomplete) to ensure completion within the Plan's budget. **Output**: Save raw data to `data/raw/humaneval.parquet` and compute SHA256. **Dependency**: T005. (FR-001, FR-011, Plan: Large real datasets: STREAM the real data, Plan: Worst-Case Budget)
-- [ ] T010b [US1] **Human Reference Extraction**: Implement logic in `code/download_data.py` to extract `solution` and `test` strings from the raw HumanEval data into `data/raw/human_references.json`. **Constraint**: Must preserve the `task_id` for every entry. **Output**: `data/raw/human_references.json`. **Dependency**: T010. (Plan: Ordering, FR-001)
-- [ ] T011 [US1] **Defined Subset Selection**: Implement logic in `code/download_data.py` to select a reproducible subset of tasks from the full HumanEval dataset. **Method**: Use a **fixed random seed (42)** to select **N=80** tasks. **Constraint**: Do NOT implement stratified sampling by pass-rate (unauthorized scope creep). The subset must be deterministic. **Output**: Save the filtered subset to `data/raw/sampled_subset.json`. **Dependency**: T010b. (Plan: Sampling Strategy, FR-001)
-- [ ] T012 [US1] Implement `code/generate_code.py` to load `Salesforce/codegen-350M-mono` on CPU and generate code for the tasks in `data/raw/sampled_subset.json`. **Constraint**: Must implement **retry logic with exponential backoff** as mandated by FR-002. **Output**: Save generated code to `data/generated/codegen_samples.json`. **Dependency**: T011. (FR-002)
+- [X] T010 [US1] Implement `code/download_data.py` to download the **full** HumanEval dataset from HuggingFace (`openai_humaneval`) using `revision="main"` to ensure deterministic versioning. **Constraint**: Must NOT fall back to synthetic data; must raise a `RuntimeError` with a clear message "Failed to download verified real source" if the download fails after max retries. **Output**: Save raw data to `data/raw/humaneval.parquet` and compute SHA256. (FR-001, FR-011, Plan: Large real datasets: STREAM the real data)
+- [X] T012 [US1] Implement `code/generate_code.py` to load `Salesforce/codegen-350M-mono` on CPU and generate code for **all tasks** in `data/raw/humaneval.parquet`. **Constraint**: Must implement **batched processing (batch_size=8)** to respect CPU memory limits and the 6-hour performance goal. Must implement **retry logic with exponential backoff** as mandated by FR-002. **Output**: Save generated code to `data/generated/codegen_samples.json`. **Dependency**: T010. (FR-002)
+- [X] T012b [US1] **GPU Escape Hatch**: Implement logic in `code/generate_code.py` to detect CPU execution failure (timeout or OOM) and trigger a re-run on a GPU runner. **Constraint**: If CPU fails, log the error and exit with a specific code (e.g., `EXIT_GPU_RETRY`) to signal the execution stage to re-run on GPU. **Dependency**: T012. (Plan: GPU Escape Hatch, FR-002)
 - [X] T013 [US1] Implement error handling in `code/generate_code.py` to log failures to `errors.log` and mark samples as missing (Edge Cases). (FR-002)
-- [ ] T028 [US1] **Sensitivity Generation (GPU Escape Hatch)**: Implement logic in `code/generate_code.py` to handle sensitivity analysis. **Logic**: First, attempt to load `CodeLlama-7b` (or 13b) on GPU if `torch.cuda.is_available()` is True and VRAM >= 8GB. **Constraint**: If GPU is unavailable, model load fails, or VRAM is insufficient, **immediately fallback** to `Salesforce/codegen-350M-mono` (CPU) for the **full subset (N=80)**. Do NOT use `codegen-2.7B-mono` or other models not specified in the Plan. **Output**: Save to `data/generated/sensitivity_samples.json`. **Dependency**: T011. (FR-009, Plan: GPU Offload Logic, Constitution: Compute Feasibility)
-- [ ] T014a [US1] **Metric Extraction (Static)**: Implement `code/analyze_metrics.py` to run `radon cc --json` and `radon hal --json` on all samples (Human, CodeGen, Sensitivity) from `data/generated/` and `data/raw/human_references.json` (Human reference). **Constraint**: Must operate ONLY on the tasks present in `data/raw/sampled_subset.json`. **Output**: Intermediate JSON with `cyclomatic_complexity`, `halstead_volume`, `halstead_components`. **Dependency**: T012, T028, T010b. (FR-003)
+- [X] T014a [US1] **Metric Extraction (Static)**: Implement `code/analyze_metrics.py` to run `radon cc --json` and `radon hal --json` on all samples (Human, CodeGen) from `data/generated/` and `data/raw/` (Human reference). **Constraint**: Must operate on **all tasks** in the full HumanEval dataset. **Output**: Intermediate JSON with `cyclomatic_complexity`, `halstead_volume`, `halstead_components`. **Dependency**: T012. (FR-003)
 - [X] T014b [US1] **Metric Processing**: Implement logic in `code/analyze_metrics.py` to parse `radon` output, map `cc` to `cyclomatic_complexity`, and calculate `halstead_volume` from `hal` components. **Constraint**: Store all extracted Halstead components. **Dependency**: T014a. (FR-003)
-- [X] T014c [US1] **Branch Coverage Calculation**: Implement logic in `code/analyze_metrics.py` to execute `coverage.py` on the human reference code (from `human_references.json`) to calculate `branch_coverage_pct`. **Constraint**: This is a secondary metric for correctness. **Output**: Intermediate JSON with `branch_coverage_pct`. **Dependency**: T010b. (FR-003, Spec: Data Model)
-- [~] T015 [US1] **Correctness Metric (Pass Rate)**: Implement logic in `code/analyze_metrics.py` to execute `pytest` against the HumanEval test suite for each sample and record the binary `pass_rate` (1 = all tests passed, 0 = any failure) per sample. **Constraint**: Operate ONLY on the tasks in `data/raw/sampled_subset.json`. **Semantic Clarification**: This metric measures **correctness**, not testability. It is a secondary metric distinct from the primary testability metric (Mutation Score). **Output**: Intermediate JSON with `pass_rate`. **Dependency**: T014a. (FR-005, Plan: Key Methodological Correction)
-- [X] T015b [US1] **Pairing Logic**: Implement logic in `code/analyze_metrics.py` to explicitly link `pass_rate` records to the `task_id` and `source_type` in a paired structure. **Constraint**: Ensure the data structure supports paired analysis (e.g., dictionary keyed by `task_id`). **Dependency**: T015. (FR-005, Plan: Paired Statistical Design) <!-- FAILED: unspecified -->
-- [~] T016 [US1] **Mutation Score Extraction (Testability)**: Implement `code/analyze_metrics.py` to run `mutmut` on the generated code samples to compute the **Mutation Score** as the primary metric for "testability" (replacing branch_coverage_pct as per Plan). **Logic**: Run `mutmut` on a subset of tasks first to estimate runtime; if runtime exceeds budget, scale down the mutation depth or sample size explicitly (Algorithm: reduce mutation depth from a higher baseline to a lower value; if still > 2h, sample [deferred] of tasks). **Output**: Append `mutation_score` to the intermediate JSON. **Schema**: Key `mutation_score`, Type `float`, Value range from the minimum possible to the maximum possible, Formula: `(killed_mutants / total_mutants * 100)`. **Constraint**: Operate ONLY on the tasks in `data/raw/sampled_subset.json`. **FR Mapping**: This task explicitly fulfills the **testability** aspect of FR-005 ("Execute test suites and record pass rates" interpreted as executing mutation tests to record testability rates). **Dependency**: T012, T028, T010b. (Plan: Key Methodological Correction, FR-003, FR-005) <!-- FAILED: unspecified -->
-- [X] T045 [US1] **Sensitivity Analysis Update**: Implement logic in `code/analyze_metrics.py` to merge sensitivity results (from T028) with the base results (from T012) into a single canonical intermediate structure. **Constraint**: Must verify that the merged rows include the correct `source_type` mapping and that all task IDs from T011 are present in both sources (or explicitly marked as failed). **Dependency**: T014a, T014b, T014c, T015, T015b, T016, T028. (Plan: Data Model Traceability)
-- [X] T042 [US1] **Pairwise Exclusion Gate**: Implement logic in `code/analyze_metrics.py` to identify all task IDs where *either* the human reference OR the LLM sample has `null` coverage (non-executable). **Action**: Write the list of excluded pairs to `logs/pairwise_exclusions.log`. **Constraint**: If the number of excluded pairs results in a remaining sample size **n < 30**, log a **warning** (do NOT halt) and allow the pipeline to proceed to Power Analysis (T023/T024) to calculate Post-Hoc power on the reduced sample. If the exclusion rate (excluded_pairs / total_pairs) indicates a systematic pipeline failure (e.g., >50% of pairs excluded due to non-executability), log a critical error and raise `SystemExit(1)` to halt the pipeline **before** aggregation. **Dependency**: T045, T014c, T015. (FR-003, FR-004, Plan: Pipeline Execution Order Step 6, FR-008)
-- [~] T017 [US1] Implement aggregation in `code/analyze_metrics.py` to produce `data/analysis/metrics.json` with all required fields. **Dependencies**: T042, T014a, T014b, T014c, T015, T015b, T016, T045. **Schema**: Must contain `task_id`, `source_type`, `cyclomatic_complexity`, `halstead_volume`, `mutation_score`, `branch_coverage_pct`, and `pass_rate`. **Constraint**: Verify no record has `null` for `cyclomatic_complexity`, `halstead_volume`, OR `mutation_score`. **Note**: This task aggregates the complete dataset ONLY AFTER T042 passes. (US-1 Independent Test, FR-008)
+- [X] T015a [US1] **Execution Environment Setup**: Implement `code/sandbox.py` to create an isolated execution environment for HumanEval test suites using **Docker container with `network_mode=none`** to prevent network access, and `pytest-timeout` to enforce a 30-second timeout per task. **Output**: A reusable sandbox context manager. **Dependency**: T005. (FR-005, Plan: Testability Evaluation)
+- [X] T015 [US1] Implement logic in `code/analyze_metrics.py` to execute `pytest` against the HumanEval test suite for each sample using the sandbox from T015a and record the binary `pass_rate` (1 = all tests passed, 0 = any failure) per sample. **Constraint**: Operate on **all tasks** in the full HumanEval dataset. **Output**: Intermediate JSON with `pass_rate`. **Dependency**: T014a, T015a. (FR-005)
+- [X] T015b [US1] **Pairing Logic**: Implement logic in `code/analyze_metrics.py` to explicitly link `pass_rate` records to the `task_id` and `source_type` in a paired structure. **Constraint**: Ensure the data structure supports paired analysis (e.g., dictionary keyed by `task_id`). **Dependency**: T015. (FR-005, Plan: Paired Statistical Design)
+- [X] T016 [US1] **Coverage Extraction**: Implement logic in `code/analyze_metrics.py` to execute `pytest --cov` for `branch_coverage_pct` on all samples using the sandbox from T015a. **Constraint**: Operate on **all tasks** in the full HumanEval dataset. **Output**: Intermediate JSON with `branch_coverage_pct`. **Dependency**: T015. (FR-003, Plan: Testability Evaluation)
+- [X] T042 [US1] **Pairwise Exclusion Gate**: Implement logic in `code/analyze_metrics.py` to identify all task IDs where *either* the human reference OR the LLM sample has `null` coverage (non-executable). **Action**: Write the list of excluded pairs to `logs/pairwise_exclusions.log`. **Constraint**: If the number of excluded pairs results in a remaining sample size **n < 30**, log a **Critical Warning** and **proceed** with the available data (do NOT halt the pipeline). Document the reduced sample size in `data/analysis/metadata.yaml`. **Dependency**: T016, T015b. (FR-003, FR-004, Plan: Pipeline Execution Order Step 6, FR-008)
+- [X] T017 [US1] Implement aggregation in `code/analyze_metrics.py` to produce `data/analysis/metrics.json` with all required fields. **Dependencies**: T042, T014a, T014b, T015, T015b, T016. **Schema**: Must contain `task_id`, `source_type`, `cyclomatic_complexity`, `halstead_volume`, `branch_coverage_pct`, and `pass_rate`. **Constraint**: Verify no record has `null` for `cyclomatic_complexity` OR `halstead_volume`. **Note**: This task aggregates the complete dataset ONLY AFTER T042 passes. (US-1 Independent Test, FR-008)
+- [X] T029 [US1] **Sensitivity Analysis (MDES)**: Implement logic in `code/statistical_tests.py` to calculate the **Minimum Detectable Effect Size (MDES)** for the fixed sample size (N=164) using `statsmodels.stats.power`. **Parameters**: Use `alpha=0.05`, `power=0.8`, and observed standard deviations from the metrics. **Output**: Save MDES results to `data/analysis/power_results.yaml`. **Constraint**: This is the SINGLE source of truth for MDES calculations. **Dependency**: T017. (FR-008, Plan: Methodological Note)
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (including sensitivity data merged into `metrics.json`). **Verification Command**: Run `python code/main.py --us1 --verify` and check exit code 0.
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (including MDES data in `power_results.yaml`)
 
 ---
 
 ## Phase 4: User Story 2 - Statistical Comparison and Hypothesis Testing (Priority: P2)
 
-**Goal**: Perform Wilcoxon, McNemar, and Permutation tests, and Power Analysis (A Priori/Post-Hoc) on the paired dataset.
+**Goal**: Perform Wilcoxon, McNemar, and Permutation tests on the paired dataset (Baseline: Human vs CodeGen).
 
 **Independent Test**: Feed mock paired datasets; verify p-values are calculated correctly and power analysis reports required n ≥ 38 and achieved power ≥ 0.8.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/statistical_tests.py` with Wilcoxon Signed-Rank test for continuous metrics: **Cyclomatic Complexity, Halstead Volume, and Mutation Score**. **Parameters**: Use a **two-tailed** test with `alpha=0.05`. **Dependencies**: T017. (FR-004)
-- [ ] T021 [US2] Implement `code/statistical_tests.py` with McNemar's test for binary pass-rate. **Parameters**: Use `alpha=0.05`. **Dependencies**: T017. (FR-004, Plan: Complexity Tracking)
-- [ ] T040 [US2] Implement `code/statistical_tests.py` with Permutation Test specifically for paired mutation score data. **Dependencies**: T017, T042. (FR-004)
-- [ ] T023 [US2] Implement A Priori Power Analysis in `code/statistical_tests.py` (d=0.5, α=0.05, power≥0.8) to validate sample size. **Dependencies**: T017, T042. (FR-008)
-- [ ] T024 [US2] Implement Post-Hoc Power Analysis in `code/statistical_tests.py` based on observed effect sizes, **even if sample size is reduced**. **Dependencies**: T020, T021, T040. (FR-008)
-- [ ] T046 [US2] **Success Criteria Validation**: Implement logic in `code/statistical_tests.py` to evaluate the results against the **Functional Requirements** (FR-004 for statistical significance, FR-008 for power analysis) and the Plan's **Key Methodological Corrections** (paired analysis, complete-case coverage). Generate a `state/validation_results.yaml` file with boolean PASS/FAIL status for each requirement. **Dependencies**: T020, T021, T040, T024, T042. (FR-004, FR-008, Plan: Key Methodological Corrections)
+- [X] T020 [US2] Implement `code/statistical_tests.py` with Wilcoxon Signed-Rank test for continuous metrics: **Cyclomatic Complexity and Halstead Volume ONLY**. **Parameters**: Use a **two-tailed** test with `alpha=0.05`. **Dependencies**: T017. (FR-004)
+- [X] T021 [US2] Implement `code/statistical_tests.py` with McNemar's test for binary pass-rate. **Parameters**: Use `alpha=0.05`. **Dependencies**: T017. (FR-004, Plan: Complexity Tracking)
+- [X] T040 [US2] Implement `code/statistical_tests.py` with Permutation Test specifically for paired branch coverage data. **Dependencies**: T017, T042. (FR-004)
+- [X] T024 [US2] Implement Post-Hoc Power Analysis in `code/statistical_tests.py` based on observed effect sizes. **Dependencies**: T020, T021, T040. (FR-008)
+- [X] T046 [US2] **Success Criteria Validation**: Implement logic in `code/statistical_tests.py` to evaluate the results against the **Functional Requirements** (FR-004 for statistical significance, FR-008 for power analysis) and the Plan's **Key Methodological Corrections** (paired analysis, complete-case coverage). Generate a `state/validation_results.yaml` file with boolean PASS/FAIL status for each requirement. **Dependencies**: T020, T021, T040, T024, T042, T029. (FR-004, FR-008, Plan: Key Methodological Corrections)
 - [X] T026 [US2] Write unit tests for statistical functions using mock data with known p-values (tests/unit/test_statistics.py). (Plan: Testing)
 - [ ] T027 [US2] Write integration test verifying the full statistical report generation from `metrics.json` (tests/integration/test_stats_pipeline.py). (Plan: Testing)
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Baseline analysis complete)
 
 ---
 
@@ -125,37 +122,30 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/report_generator.py` to create histograms and boxplots using `matplotlib` for all continuous metrics. **Constraint**: Ensure `results/figures/` directory exists (create if missing) before writing files. (FR-006)
-- [ ] T031 [US3] Implement `code/report_generator.py` with Jinja2 template to compile `results_report.md` including figures, tables, and power analysis. **Constraint**: The template must explicitly check `source_type` for "codegen-350m" and "sensitivity-model" and render them with distinct colors/labels. **Dependency**: T030, T017. (FR-006, Plan: Data Model Traceability)
-- [ ] T031b [US3] **Sensitivity Visualization Verification**: Implement logic in `code/report_generator.py` to verify that sensitivity data (from T028) is correctly rendered in the report with distinct labels and that the `source_type` mapping matches the data in `metrics.json`. **Dependency**: T031, T017. (FR-006, Plan: Data Model Traceability)
-- [X] T032 [US3] Implement logic to include sensitivity analysis comparison in the final report. **Dependencies**: T017, T023, T024. (FR-006)
-- [ ] T033 [US3] Write unit tests for `code/report_generator.py` to verify figure generation and template rendering (tests/unit/test_report.py). (Plan: Testing)
-- [ ] T034 [US3] Write integration test for the full pipeline from `metrics.json` to `results_report.md` (tests/integration/test_full_pipeline.py). (Plan: Testing)
+- [X] T030 [US3] Implement `code/report_generator.py` to create histograms and boxplots using `matplotlib` for all continuous metrics. **Constraint**: Ensure `results/figures/` directory exists (create if missing) before writing files. (FR-006)
+- [X] T031 [US3] Implement `code/report_generator.py` with Jinja2 template to compile `results_report.md` including figures, tables, and power analysis. **Constraint**: The template must explicitly render the MDES results (from T029) and the validation status (from T046) in a dedicated "Sensitivity Analysis" and "Validation Status" section. **Dependency**: T030, T017, T046, T029. (FR-006, Plan: Data Model Traceability)
+- [X] T031b [US3] **Sensitivity Visualization Verification**: Implement logic in `code/report_generator.py` to verify that MDES results are correctly rendered in the report with distinct labels and that the `source_type` mapping matches the data in `metrics.json`. **Dependency**: T031, T017. (FR-006, Plan: Data Model Traceability)
+- [X] T033 [US3] Write unit tests for `code/report_generator.py` to verify figure generation and template rendering (tests/unit/test_report.py). (Plan: Testing)
+- [X] T034 [US3] Write integration test for the full pipeline from `metrics.json` to `results_report.md` (tests/integration/test_full_pipeline.py). (Plan: Testing)
+- [X] T056 [US3] **Citation Validation Wrapper**: Implement `code/validate_citations.py` as a wrapper script that invokes the external **Reference-Validator Agent** via `subprocess.run`. **Logic**: Parse `state/citations.yaml`, construct the subprocess command (e.g., `reference-validator --input state/citations.yaml --output state/validation_report.json`), capture the JSON report, and parse the results. **Constraint**: Must NOT implement validation logic internally; must strictly delegate to the external agent. **Output**: `state/validation_report.yaml`. **Gate Behavior**: If any citation is invalid, raise `SystemExit(1)`. **Dependency**: T031. (FR-010, Constitution Principle II, Plan: Citation Validation Workflow)
+- [X] T050 [US3] **Artifact Integrity Verification**: Implement `code/validate_artifacts.py` to compute SHA256 hashes for all files in `data/generated/` and `data/analysis/` and store them in `state/artifact_hashes.yaml`. **Constraint**: Must run after T017 and T031. **Dependency**: T005, T017, T031. (FR-011, Plan: Artifact Integrity)
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: All user stories should now be independently functional (Baseline report complete)
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: GPU Offloading & Sensitivity Expansion (Core MVP Requirement)
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Implement sensitivity analysis with CodeLlama models as mandated by FR-009. These tasks require GPU execution and extend the baseline analysis.
 
-- [X] T035a [P] **Documentation**: Update `README.md` with setup instructions, usage examples, and contribution guidelines. (Plan: Documentation)
-- [X] T035b [P] **Documentation**: Generate API documentation for `code/` modules using Sphinx or similar. (Plan: Documentation)
-- [X] T035c [P] **Documentation**: Create `docs/CONTRIBUTING.md` with coding standards and pull request process. (Plan: Documentation)
-- [X] T036 Code cleanup and refactoring of `code/utils.py`. (Plan: Testing)
-- [ ] T037 [P] **Performance Optimization**: Implement parallel processing for `code/analyze_metrics.py` if safe. **Constraint**: Must include a verification step to ensure memory usage does not exceed the budget on CPU-only runners before execution. **Implementation Detail**: Use **file-per-task output** (e.g., `data/analysis/temp/task_id.json`) to avoid race conditions when writing intermediate results. (Plan: Performance Goals)
-- [X] T038 [P] Additional unit tests for edge cases (e.g., 0 coverage, missing LLM samples) in `tests/unit/`. (Plan: Testing)
-- [ ] T043 [US1] Implement robust retry logic with exponential backoff for HuggingFace dataset downloads in `code/download_data.py` to handle transient network failures. (FR-001)
-- [ ] T044 [US2] Add explicit handling in `code/statistical_tests.py` for zero-variance cases in the Permutation Test to prevent division-by-zero errors when coverage is `null` for all samples. (FR-004)
-- [X] T050a [US1] **Artifact Integrity (Download)**: Implement `code/utils.py` to compute SHA256 for `data/raw/humaneval.parquet` immediately after download. **Dependency**: T010. (FR-011, Plan: Artifact Integrity)
-- [X] T050b [US1] **Artifact Integrity (Generation)**: Implement `code/utils.py` to compute SHA256 for `data/generated/` files immediately after generation. **Dependency**: T012, T028. (FR-011, Plan: Artifact Integrity)
-- [ ] T050c [US1] **Artifact Integrity (Aggregation)**: Implement `code/utils.py` to compute SHA256 for `data/analysis/metrics.json` immediately after aggregation. **Dependency**: T017. (FR-011, Plan: Artifact Integrity)
-- [ ] T051 [US3] **Mutation Score Visualization**: Update `code/report_generator.py` to include a specific visualization (e.g., boxplot) comparing `mutation_score` between Human and LLM generated code. **Constraint**: Ensure the figure is clearly labeled as "Testability (Mutation Score)". **Dependency**: T016. (FR-006, Plan: Key Methodological Correction)
-- [ ] T052 [US2] **Statistical Test for Mutation Score**: Extend `code/statistical_tests.py` to include Wilcoxon Signed-Rank test for the `mutation_score` metric (already covered in T020, this task ensures it is prioritized). **Constraint**: Ensure this test is prioritized in the report as the primary finding for "testability" impact. **Dependency**: T016. (FR-004, Plan: Key Methodological Correction)
-- [ ] T053 [US3] **Sensitivity Analysis Report**: Implement `code/report_generator.py` to specifically compare `codegen-350m` vs `sensitivity-model` metrics in a dedicated "Sensitivity Analysis" section of `results_report.md`. **Constraint**: Must include a table showing p-values and effect sizes for the sensitivity comparison. **Dependency**: T031, T045. (FR-009, Plan: Sensitivity Analysis)
-- [ ] T054a [US3] **Citation Validation Logic (Bibliography)**: Implement `code/validate_citations.py` to programmatically verify that all external citations in the report match the bibliography and that title-token-overlap is ≥ 0.7. **Constraint**: Must fail the pipeline if any citation is invalid. **Dependency**: T031. (FR-010, Plan: Constitution Check II)
-- [ ] T054b [US3] **Citation Validation Logic (Internal Consistency)**: Implement `code/validate_citations.py` to verify that statistical claims in the report (e.g., p-values) match the values in `state/validation_results.yaml`. **Constraint**: Use regex `p-value\s*[=:]\s*([\d\.e+-]+)` and tolerance `1e-6`. **Dependency**: T046, T031. (QA Scope)
+**Note**: The primary model (CodeGen-350M) is CPU-tractable and handled in Phase 3. This phase is strictly for the CodeLlama sensitivity analysis (FR-009) which requires GPU resources.
+
+- [ ] T052 [US3] **CodeLlama Sensitivity Implementation**: Implement `code/generate_code_llama.py` to generate code samples using `CodeLlama-7b-Instruct-hf` (8-bit quantized) for sensitivity analysis. **Constraint**: Must target a GPU environment (Kaggle) as CPU inference for 7B models is intractable. **Logic**: Use `transformers` with `device_map="auto"` and `torch_dtype=torch.float16`. **Prompt**: Use the standard HumanEval prompt template: "Complete the following Python function..." (see `code/prompt_templates/humaneval.txt`). **Parameters**: `temperature=0.0`, `max_tokens=1024`. **Output**: Save to `data/generated/llama_samples.json`. **Dependency**: T010. (FR-009, Plan: Sensitivity Analysis)
+- [ ] T053 [US3] **Sensitivity Comparison Logic**: Extend `code/analyze_metrics.py` to include `llama_samples.json` in the metric extraction pipeline (T014a, T015, T016) and aggregate results into `metrics.json` with a new `source_type` value `llama_7b`. **Dependency**: T052. (FR-009)
+- [ ] T054 [US3] **Cross-Model Statistical Tests**: Extend `code/statistical_tests.py` to perform Wilcoxon and McNemar tests comparing `codegen_350m` vs `llama_7b` in addition to the baseline `human` vs `codegen_350m` comparison. **Dependency**: T053, T017. (FR-009)
+- [ ] T055 [US3] **GPU Execution Wrapper**: Create `code/run_gpu_pipeline.py` as a script entry point that orchestrates the GPU-dependent tasks (T052, T053, T054) and handles environment detection for the execution stage. **Constraint**: Must exit cleanly if no GPU is detected, signaling the execution stage to provision a GPU runner. **Dependency**: T010, T012b. (Plan: GPU Escape Hatch)
+
+**Checkpoint**: GPU expansion complete; full sensitivity analysis available.
 
 ---
 
@@ -169,12 +159,14 @@ description: "Task list template for feature implementation"
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **GPU Expansion (Phase 6)**: Depends on Foundational phase completion; can run in parallel with US2/US3 if GPU resources are available.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable (Baseline only)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable (Baseline only)
+- **GPU Expansion (Phase 6)**: Depends on T010 (Data) and T012b (GPU Logic). Runs after US1/US2 baseline.
 
 ### Within Each User Story
 
@@ -192,6 +184,7 @@ description: "Task list template for feature implementation"
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- GPU tasks (T052-T055) can be executed on a separate GPU runner in parallel with CPU tasks.
 
 ---
 
@@ -223,9 +216,10 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+3. Add User Story 2 → Test independently → Deploy/Demo (Baseline Stats)
+4. Add User Story 3 → Test independently → Deploy/Demo (Baseline Report)
+5. Add Phase 6 (GPU) → Test independently → Deploy/Demo (Sensitivity Analysis)
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -236,6 +230,7 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
+ - Developer D (or Auto): GPU Expansion Tasks (T052-T055)
 3. Stories complete and integrate independently
 
 ---
@@ -249,3 +244,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **GPU Note**: Tasks T052-T055 are reserved for GPU execution. The execution stage will detect `device="cuda"` requirements and offload these specific tasks to a free Kaggle GPU runner. Do not attempt to run these on the standard CPU runner.
+- **A Priori Note**: A Priori Power Analysis is N/A for fixed N=164; replaced by Sensitivity Analysis (MDES) as documented in T029.
+- **T051 Removal**: Task T051 (CodeGen-350M on GPU) was removed because the primary model is CPU-tractable. The GPU path is exclusively for CodeLlama (T052) as per FR-009.

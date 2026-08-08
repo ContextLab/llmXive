@@ -1,49 +1,46 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: "Metrics Schema"
-description: "Schema for data/analysis/metrics.json"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Record"
+description: "Schema for the computed static and dynamic metrics for each code sample. Pass Rate is treated as binary (0 or 1) for McNemar's test."
 type: "object"
 properties:
   task_id:
     type: "string"
-    description: "Unique identifier for the HumanEval task"
-  model_name:
+    description: "Unique identifier for the task (e.g., HumanEval/0)."
+  model:
     type: "string"
-    description: "Name of the model used for generation"
-  human_complexity:
-    type: "number"
-    description: "Cyclomatic complexity of the human reference solution"
-  model_complexity:
-    type: "number"
-    description: "Cyclomatic complexity of the generated code"
-  human_halstead:
-    type: "number"
-    description: "Halstead volume of the human reference solution"
-  model_halstead:
-    type: "number"
-    description: "Halstead volume of the generated code"
-  mutation_score:
+    description: "Name of the model (e.g., 'human', 'Salesforce/codegen-mono')."
+  cyclomatic_complexity:
+    type: "integer"
+    minimum: 0
+    description: "Cyclomatic complexity computed by radon."
+  halstead_volume:
     type: "number"
     minimum: 0
-    maximum: 1
-    description: "Mutation score (testability proxy) - percentage of mutants killed."
+    description: "Halstead volume."
+  branch_coverage_pct:
+    type: "number"
+    minimum: 0.0
+    maximum: 100.0
+    description: "Branch coverage percentage (0-100)."
   pass_rate:
     type: "number"
-    description: "Pass rate of the generated code on the test suite (0.0 or 1.0)"
-  execution_error:
+    minimum: 0.0
+    maximum: 1.0
+    description: "Binary pass rate (1.0 if all tests pass, 0.0 otherwise). Treated as binary for statistical tests."
+  generated_code:
     type: "string"
-    nullable: true
-    description: "Error message if execution failed, null if successful"
+    description: "The generated code snippet."
   checksum:
     type: "string"
-    description: "SHA256 hash of the generated code snippet"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA256 checksum of the generated code."
 required:
   - task_id
-  - model_name
-  - human_complexity
-  - model_complexity
-  - human_halstead
-  - model_halstead
-  - mutation_score
+  - model
+  - cyclomatic_complexity
+  - halstead_volume
+  - branch_coverage_pct
   - pass_rate
+  - generated_code
   - checksum
 additionalProperties: false

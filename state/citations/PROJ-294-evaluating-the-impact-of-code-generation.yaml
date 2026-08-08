@@ -20,37 +20,36 @@
   verification_status: verified
   verified_against_url: https://semver.org/spec/v2.0.0.html
   verified_at: '2026-07-17T16:05:01.444552Z'
-- artifact_hash: 7918785a0a12ef47d0dedf874e5f6a6d25dc29537a45d07ce3743db378ebc276
+- artifact_hash: 2f8e4a9035aa4f285dc08dd551406156ccbc878cf138ce7a718b8d135795fb10
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "openai/openai_humaneval \xB7 Datasets at Hugging Face"
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/openai/openai_humaneval`
+  value: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/openai/openai_humaneval
-  verified_at: '2026-08-08T05:34:32.248437Z'
-- artifact_hash: 7918785a0a12ef47d0dedf874e5f6a6d25dc29537a45d07ce3743db378ebc276
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181f06/19ddd404720790f95c7d65d0c801d9024ce7a6b69ea8fae939e635418afc6cfe?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1786171492&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZjA2LzE5ZGRkNDA0NzIwNzkwZjk1YzdkNjVkMGM4MDFkOTAyNGNlN2E2YjY5ZWE4ZmFlOTM5ZTYzNTQxOGFmYzZjZmVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODYxNzE0OTJ9fX1dfQ__&Signature=MEUCIDm81F7F2zWo-dxvHnofXR51x9eAHT%7EftPStEFXkzjdGAiEA3UUK4gz1ctEWkflE7O%7EpPPoc7oZ6QMCu8hzxq0COu78_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-08T05:44:52.304729Z'
+- artifact_hash: 2f8e4a9035aa4f285dc08dd551406156ccbc878cf138ce7a718b8d135795fb10
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: "SupraLabs/LLM-self-identification \xB7 Datasets at Hugging Face"
+  fetched_title: dataset.jsonl
   kind: url
-  value: https://huggingface.co/datasets/SupraLabs/LLM-self-identification/...`
+  value: https://huggingface.co/datasets/SupraLabs/LLM-self-identification/resolve/main/dataset.jsonl
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/SupraLabs/LLM-self-identification
-  verified_at: '2026-08-08T05:34:32.248437Z'
-- artifact_hash: 7918785a0a12ef47d0dedf874e5f6a6d25dc29537a45d07ce3743db378ebc276
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/SupraLabs/LLM-self-identification/e40e4f9bb87615c7e1af34bff48d60128dce212e/dataset.jsonl?%2Fdatasets%2FSupraLabs%2FLLM-self-identification%2Fresolve%2Fmain%2Fdataset.jsonl=&etag=%22d5ba1c9eb2bf0003917a918b18fdb77c40f5da8f%22
+  verified_at: '2026-08-08T05:44:52.304729Z'
+- artifact_hash: 2f8e4a9035aa4f285dc08dd551406156ccbc878cf138ce7a718b8d135795fb10
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: "bshepp/round-reduced-sha256-learnability \xB7 Datasets at Hugging\
-    \ Face"
+  fetched_title: bounded_null.parquet
   kind: url
-  value: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/...`
+  value: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability
-  verified_at: '2026-08-08T05:34:32.248437Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a08f0091c26f2dc432a9480/ae9fa6e870a4ecbe26efb56aae9fb5a32e31b65c2a7059759a454060ee80b896?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27bounded_null.parquet%3B+filename%3D%22bounded_null.parquet%22%3B&Expires=1786171492&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEwOGYwMDkxYzI2ZjJkYzQzMmE5NDgwL2FlOWZhNmU4NzBhNGVjYmUyNmVmYjU2YWFlOWZiNWEzMmUzMWI2NWMyYTcwNTk3NTlhNDU0MDYwZWU4MGI4OTZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Ym91bmRlZF9udWxsLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJib3VuZGVkX251bGwucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg2MTcxNDkyfX19XX0_&Signature=MEQCIGpJXYNfPvO2ms5ILB1eAU7tf%7EssQNnoLqFB%7Eo4B7hiBAiAcNN7lpX7YPtxVYdqaJUF9t96zNnUyzWOfLS8OKx%7E3qQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-08T05:44:52.304729Z'
