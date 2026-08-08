@@ -1,12 +1,37 @@
-T001:
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or `__init__.py` files were presented as evidence; without
-    visible folders (`data/raw`, `data/interim`, `data/processed`, `code`, `tests/unit`,
-    `tests/integration`, `reports`) and the required `__init__.py` files, the claim
-    that the project structure was initialized cannot be verified. The implementer
-    must provide the actual file system layout or a listing showing these directories
-    and files.
+  r: "No evidence was provided that a `data/raw` directory was actually created or\
+    \ that its existence was programmatically verified; the submission contains only\
+    \ the task description and specifications without any artifact (e.g., a file system\
+    \ listing, script output, or log) confirming the directory\u2019s presence."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that a `data/interim` directory was created or that its\
+    \ existence was verified is provided; the claim lacks any concrete file\u2011\
+    system evidence. The implementer must create the directory and include a proof\
+    \ (e.g., a screenshot, command output, or script that checks `os.path.isdir('data/interim')`)."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/processed` directory (or any script/file that creates
+    and checks it) is provided; the artifact is missing, so the requirement is not
+    satisfied.
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit` and `tests/integration` directories
+    is provided, nor any script or test that checks their existence. The implementer
+    must add these directories (with at least placeholder files) and include a verification
+    step (e.g., a test or script that asserts the directories exist).
+T001g:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing a `reports` directory was provided, nor any script or log\
+    \ confirming its creation and existence. The implementer\u2019s submission contains\
+    \ only the project specification without the required directory or verification\
+    \ evidence."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,6 +46,12 @@ T005:
     \ the only artifacts described relate to data preprocessing, graph metrics, and\
     \ analysis, not a system\u2011level dependency check. The required dependency\u2011\
     check script is missing."
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The required file `specs/amendment-001-fluid-intelligence-n10.md` was not presented,
+    and no content showing the three amendment clauses was provided. Without the artifact,
+    the task cannot be considered fulfilled.
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,7 +59,13 @@ T013b:
     ds000230 is present; the provided information contains only the original feature
     specification and no concrete artifact demonstrating that ds000230 is used when
     ds000224 fails or lacks data. The task therefore remains unfulfilled.
-T014a:
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `preprocessing_stats.json` file was presented, nor any code or output showing\
+    \ the calculation of `successful_subjects / total_downloaded_subjects`. Without\
+    \ this artifact, the required success\u2011rate metric has not been produced."
+T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No artifact (script, log file, report, or dataset) was provided that demonstrates
@@ -73,21 +110,6 @@ T025:
   r: The required output file `data/processed/graph_metrics.csv` does not exist, so
     the aggregation step has not been delivered. No artifact can be inspected to verify
     correct columns or content.
-T030a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifact (e.g., an updated `stats.py` file) was presented showing the
-    added halt logic that checks for empty valid Fluid Intelligence scores after the
-    merge and raises the specified error. Without the actual file or a diff, we cannot
-    confirm the required behavior was implemented. The missing evidence must be supplied
-    for verification.
-T030d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a results summary, report, or figure) was provided that shows\
-    \ the integrated analysis with correlation coefficients listed separately from\
-    \ any regression control\u2011model outputs, as required by task T030d. The implementer\u2019\
-    s claim cannot be verified without such evidence."
 T032:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2
@@ -95,13 +117,6 @@ T032:
     \ columns could be added and the effect size calculations cannot be verified.\
     \ The implementer must generate the CSV (or ensure it exists) and append the three\
     \ specified columns with correct Cohen's\u202Fd and confidence interval values."
-T033a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No scatter plot image, script, or notebook generating the Metric\u2011vs\u2011\
-    Fluid\u2011Intelligence figure is present; the provided information contains only\
-    \ the task description and project spec, with no actual artifact to verify. The\
-    \ required output is missing."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

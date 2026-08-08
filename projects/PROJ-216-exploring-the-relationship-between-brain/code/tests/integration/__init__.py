@@ -1,1 +1,1 @@
-# Integration tests package initialization
+"""Integration tests package."""

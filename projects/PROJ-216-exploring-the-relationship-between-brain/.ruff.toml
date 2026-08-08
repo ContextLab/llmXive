@@ -1,3 +1,17 @@
-# Explicit ruff configuration file for the project
-# This file mirrors settings in pyproject.toml for IDE compatibility
-extend = "pyproject.toml"
+# Standalone Ruff configuration file (redundant with pyproject.toml but explicit for CLI)
+line-length = 88
+target-version = "py39"
+
+select = [
+    "E", "W", "F", "I", "C", "B"
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+[isort]
+known-first-party = ["code", "tests"]
+force-single-line = true
+lines-after-imports = 2

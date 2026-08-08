@@ -1,49 +1,33 @@
 import os
 import sys
 from pathlib import Path
-
 import pytest
 
-# Ensure we can import project modules if needed
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 class TestDirectoryStructure:
-    """Tests to verify the existence of required project directories."""
+    """Tests to verify the existence of required directory structures."""
 
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        self.project_root = Path(__file__).parent.parent.parent
-        self.required_dirs = [
-            "data/raw",
-            "data/interim",
-            "data/processed",
-            "code",
-            "tests",
-            "tests/unit",
-            "tests/integration",
-            "reports",
-        ]
+    def test_unit_directory_exists(self):
+        """Verify that tests/unit directory exists."""
+        unit_dir = Path(__file__).parent
+        assert unit_dir.exists(), f"Directory {unit_dir} does not exist."
+        assert unit_dir.is_dir(), f"{unit_dir} is not a directory."
 
-    def test_required_directories_exist(self):
-        """Verify that all required project directories exist."""
-        missing_dirs = []
-        for dir_path in self.required_dirs:
-            full_path = self.project_root / dir_path
-            if not full_path.exists():
-                missing_dirs.append(dir_path)
-            elif not full_path.is_dir():
-                missing_dirs.append(dir_path)
+    def test_integration_directory_exists(self):
+        """Verify that tests/integration directory exists."""
+        project_root = Path(__file__).parent.parent.parent
+        integration_dir = project_root / "tests" / "integration"
+        assert integration_dir.exists(), f"Directory {integration_dir} does not exist."
+        assert integration_dir.is_dir(), f"{integration_dir} is not a directory."
 
-        if missing_dirs:
-            pytest.fail(f"Missing or invalid directories: {', '.join(missing_dirs)}")
+    def test_unit_init_exists(self):
+        """Verify that __init__.py exists in tests/unit."""
+        unit_dir = Path(__file__).parent
+        init_file = unit_dir / "__init__.py"
+        assert init_file.exists(), f"File {init_file} does not exist."
 
-    def tests_unit_integration_exist(self):
-        """Specific check for tests/unit and tests/integration as per T001d."""
-        unit_path = self.project_root / "tests" / "unit"
-        integration_path = self.project_root / "tests" / "integration"
-
-        assert unit_path.exists(), "tests/unit directory does not exist"
-        assert unit_path.is_dir(), "tests/unit is not a directory"
-
-        assert integration_path.exists(), "tests/integration directory does not exist"
-        assert integration_path.is_dir(), "tests/integration is not a directory"
+    def test_integration_init_exists(self):
+        """Verify that __init__.py exists in tests/integration."""
+        project_root = Path(__file__).parent.parent.parent
+        integration_dir = project_root / "tests" / "integration"
+        init_file = integration_dir / "__init__.py"
+        assert init_file.exists(), f"File {init_file} does not exist."

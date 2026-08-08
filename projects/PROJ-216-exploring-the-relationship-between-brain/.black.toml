@@ -1,0 +1,18 @@
+# Black configuration file
+# Referenced by pyproject.toml but provided for IDE compatibility
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+include = "\\.pyi?$"
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

@@ -20,13 +20,40 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 1: Setup (Shared Infrastructure)
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
 
-**Purpose**: Project initialization and basic structure
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
 
-- [X] T001 [P] Initialize project directory structure (`data/raw`, `data/interim`, `data/processed`, `code`, `tests/unit`, `tests/integration`, `reports`) and create `__init__.py` files. Verification: Run `ls -R data/ code/ tests/ reports/ && find . -name __init__.py -print | wc -l`.
-- [X] T002 [P] Initialize Python project with dependencies. Artifact: `requirements.txt` with pinned versions for `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `openneuro-py`, `dipy`. Verification: Run `pip install -r requirements.txt && pip check`.
-- [X] T003 [P] Configure linting and formatting tools (ruff, black). Verification: Run `ruff check .` and `black --check .` successfully.
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
+-->
+
+## Phase 1: Setup (Shared Infrastructure & Formal Amendments)
+
+**Purpose**: Project initialization, formal amendment of conflicting specs, and creation of foundational artifacts required by the Plan.
+
+- [ ] T001 [P] **Initialize Data Directory Structure**: Create directories `data/raw`, `data/interim`, `data/processed`, `tests/unit`, `tests/integration`, and `reports`. **Verification**: Generate a log file `data/.verify_structure.log` containing a list of created paths and their timestamps. Verify `data/.verify_structure.log` exists and contains entries for all required directories.
+- [X] T002 Initialize Python project with dependencies
+
+Research Question: [Not provided in original text]
+Method: [Not provided in original text]
+References: [Not provided in original text] (`requirements.txt`: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `openneuro-py`, `dipy`)
+- [ ] T003 [P] Configure linting and formatting tools (ruff, black)
+- [ ] T008a [P] **Generate Spec Amendment Artifact**: Create `specs/amendment-template.md` if it does not exist. Then, create `specs/amendment-001-fluid-intelligence-n10.md` using the template. **Content Requirement**: The artifact MUST explicitly state: (1) FR-001 is amended to pivot to Fluid Intelligence and remove the hard halt for missing Musical Creativity; (2) SC-001 and SC-005 are amended to reflect N=10 CI feasibility baseline; (3) FR-005 and SC-004 are amended to mandate Bonferroni correction per Constitution Principle VII. **Verification**: Verify file exists and contains all three specific amendment clauses.
+- [ ] T008b [P] **Generate Success Criteria Amendment**: Create `specs/amendment-002-sc-n10-baseline.md`. **Content Requirement**: Explicitly redefine SC-001 success rate baseline to N=10 and SC-005 runtime constraint to N=10. **Verification**: Verify file exists and contains the revised N=10 baseline definitions.
+- [ ] T008c [P] **Generate Conflict Resolution Report**: Create `reports/conflict_resolution.json` documenting the Bonferroni override of Spec FR-005 (FDR) per Constitution Principle VII. **Schema**: `{"conflict": "FR-005 FDR vs Constitution Bonferroni", "resolution": "Bonferroni implemented", "rationale": "Constitution Principle VII mandates Bonferroni"}`. **Verification**: Verify JSON exists and contains all required keys and the specific rationale string.
+- [ ] T009 [P] **Implement ResourceMonitor Class**: Implement `ResourceMonitor` class in `code/utils.py` that logs RAM usage per subject to stderr and writes to `data/processed/resource_profile.json`. **Verification**: Write a unit test in `tests/unit/test_resource_monitor.py` that mocks the process to generate a sample `resource_profile.json` and verify the file is created with the correct schema. This ensures the artifact exists before integration.
 
 ---
 
@@ -36,12 +63,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **Note**: T008a must complete before T013a as it defines the configuration and amendment record required for execution.
 
-- [X] T005 [P] Implement system-level dependency check script for FSL/AFNI availability. Artifact: `scripts/check_deps.sh`. Verification: Run `bash scripts/check_deps.sh` and assert exit code 0.
-- [X] T006 [P] Setup logging and error handling infrastructure. Artifact: `code/utils.py` containing `setup_logger()` function returning a configured logger instance. Verification: See T006b.
-- [X] T006b [P] [US0] Unit test for logging infrastructure. Artifact: `tests/unit/test_utils.py` containing function `test_setup_logger`. Verification: Run `pytest tests/unit/test_utils.py::test_setup_logger` and assert it checks log output format and file rotation.
-- [X] T007 [Dep: None] Create class `Subject` and `BehavioralScore` in `code/models.py` with attributes for ID, age, gender, file paths, score_value, source_type based on `data-model.md`; verify with `pytest tests/unit/test_models.py`
-- [ ] T008a [P] Generate Spec Amendment Artifact and Conflict Resolution Report. Logic: Create `reports/spec_amendment_record.json` documenting the N=10 limit and Fluid Intelligence pivot, and `reports/conflict_resolution_report.md` detailing the Bonferroni vs. FDR conflict resolution per Constitution Principle VII. Verification: Assert `reports/spec_amendment_record.json` and `reports/conflict_resolution_report.md` exist and contain the required keys.
-- [ ] T009 [P] Implement `ResourceMonitor` class in `code/utils.py` that logs RAM usage per subject to stderr and writes to `data/processed/resource_profile.json`. Verification: Unit test `tests/unit/test_resource_monitor.py` must assert JSON schema and that RAM is logged.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+
+- [ ] T010 [P] **Configure Dataset IDs**: Create `config.yaml` with dataset IDs (ds000224 as primary, ds000230 as fallback_only) and N=10 sample limit. **Verification**: Verify YAML syntax and presence of keys.
+- [ ] T011 [P] **Implement Resource Monitoring Integration**: Modify `code/preprocess.py` to import and invoke `ResourceMonitor` (from T009) during processing. **Dependency**: Must be implemented and integrated BEFORE T015 (Preprocessing execution) to ensure RAM logging occurs during the process. **Verification**: Verify `preprocess.py` contains the import and invocation of `ResourceMonitor`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,29 +74,24 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download resting-state fMRI data from OpenNeuro ds (primary for Fluid Intelligence), validate data, and preprocess to generate clean BOLD time series.
+**Goal**: Download resting-state fMRI data from OpenNeuro ds000224 (primary for Fluid Intelligence), validate data, and preprocess to generate clean BOLD time series.
+**Amended Requirement (FR-001)**: System MUST attempt to download resting-state fMRI data from OpenNeuro datasets. It MUST validate the presence of at least one valid **Fluid Intelligence** score. If fewer than 10 subjects with valid data are found, the system MUST use all available subjects (N ≥ 1) for analysis. If NO subjects with valid data are found, the system MUST halt execution with a critical error stating 'No valid Fluid Intelligence data found in specified datasets'. (Note: Original FR-001 requirement for Musical Creativity is amended per Plan).
 
-**Validation Note**: T010-T012 are written as **failing** tests to drive implementation. T013a implements the logic. T014a validates the implementation. Only after T013a and T014a pass are T010-T012 considered "passed".
+- [ ] T012 [P] [US1] Unit test for OpenNeuro download retry logic in `tests/unit/test_download_retry.py`; validates requirements defined in T013a (retry 3x, exponential backoff).
+- [ ] T013 [P] [US1] Unit test for behavioral data validation (Fluid Intelligence check) in `tests/unit/test_download_validation.py`; validates requirements defined in T014a (presence of Fluid Intelligence scores).
+- [ ] T014 [P] [US1] Integration test for full preprocessing pipeline on 1 subject in `tests/integration/test_pipeline.py`
+- [ ] T015a [US1] Implement OpenNeuro fetch for ds000224 in `code/download.py`; enforce N=10 sample limit for CI
+- [ ] T015b [US1] **Implement Fallback for ds000230**: Implement function `fetch_fallback_dataset()` in `code/download.py` that triggers when ds000224 returns 404 or yields no valid subjects. Downloads ds000230 and writes to `data/raw/ds000230/`. **Verification**: Verify function exists and logs the fallback trigger event.
+- [ ] T015c [US1] Implement N=10 sample limit enforcement logic in `code/download.py`
+- [ ] T016a [US1] **Validate Presence of Fluid Intelligence**: Implement logic to scan downloaded subjects for valid Fluid Intelligence scores. Output: `data/processed/valid_subjects.json` with schema `{"subjects": [{"id": "str", "score": "float"},...], "count": int}`. **Verification**: Verify file exists and contains at least 1 subject. If count is 0, trigger T016c.
+- [ ] T016c [US1] **Halt on Zero Valid Subjects**: Implement critical halt logic in `download.py` if `valid_subjects.json` count is 0. **Error Message**: "No valid Fluid Intelligence data found in specified datasets". **Verification**: Verify `pytest` raises `ValueError` with exact message. Log event to `data/processed/validation_errors.log` with prefix `[VALIDATION_ERROR]`. **Dependency**: T008a.
+- [ ] T017 [US1] Implement preprocessing pipeline in `code/preprocess.py` using FSL/AFNI for motion correction, spatial normalization, and bandpass filtering (low-frequency range) as a single executable script. **Dependency**: Consumes the list of valid subjects from T016a (not the halt logic of T016c). Requires ResourceMonitor integration (from T011).
+- [ ] T018a [US1] **Implement Motion Artifact Detection**: Implement logic to detect excessive motion (Translation > 3mm OR Rotation > 2mm) on preprocessed data. Output: `data/processed/motion_exclusion_log.csv` with columns `subject_id, translation_mm, rotation_mm, excluded (bool)`. **Verification**: Verify CSV exists and contains correct columns and calculated boolean flags. **Dependency**: T017.
+- [ ] T018b [US1] **Halt on Zero Effective Subjects**: Implement halt logic in `preprocess.py` if effective N becomes 0 after motion exclusion. **Error Message**: "No valid subjects remaining after motion exclusion". **Verification**: Verify `pytest` raises `ValueError` with exact message. Log event to `data/processed/motion_exclusion.log` with prefix `[MOTION_EXCLUSION_ERROR]`. **Dependency**: T018a.
+- [ ] T019a [US1] Generate `data/processed/preprocessing_stats.json` with keys: `total_subjects`, `successful_subjects`, `success_rate_percentage`. **Verification**: Verify JSON exists and keys match schema.
+- [ ] T019b [US1] Calculate preprocessing success rate as (successful_subjects / total_downloaded_subjects) and write to `preprocessing_stats.json`.
 
-- [ ] T010 [P] [US1] Unit test for OpenNeuro download retry logic. Artifact: `tests/unit/test_download_retry.py` containing function `test_download_retry_logic`. Verification: Run `pytest tests/unit/test_download_retry.py::test_download_retry_logic` and assert it fails initially then passes after T013a.
-- [ ] T011 [P] [US1] Unit test for behavioral data validation (Fluid Intelligence check). Artifact: `tests/unit/test_download_validation.py` containing function `test_fluid_intelligence_validation`. Verification: Run `pytest tests/unit/test_download_validation.py::test_fluid_intelligence_validation` and assert it fails initially then passes after T013a.
-- [ ] T012 [P] [US1] Integration test for full preprocessing pipeline on 1 subject. Artifact: `tests/integration/test_pipeline.py` containing function `test_full_pipeline_one_subject`. Verification: Run `pytest tests/integration/test_pipeline.py::test_full_pipeline_one_subject` and assert it fails initially then passes after T013a/T015.
-- [ ] T013a [Dep: T008a] Implement OpenNeuro fetch for ds000224 (primary) and ds000230 (fallback) in `code/download.py`. Logic: 
-  1. Attempt to download ds000224. 
-  2. If ds000224 yields valid Fluid Intelligence data, use it (capped at N=10; if <10 available, use all). 
-  3. If ds000224 has NO valid Fluid Intelligence data, attempt ds000230. 
-  4. If ds000230 yields valid Fluid Intelligence data, use it (capped at N=10; if <10 available, use all). 
-  5. If neither dataset yields valid Fluid Intelligence data, halt with critical error: "No valid Fluid Intelligence data found in specified datasets". 
-  Verification: Unit tests `tests/unit/test_download.py::test_download_ds000224` and `tests/unit/test_download.py::test_download_fallback_ds000230` pass, and `data/processed/validation_report.json` is generated with N=10 limit applied.
-- [ ] T014a [Dep: T013a] Validate presence of Fluid Intelligence scores in aggregated subjects. Artifact: `data/processed/validation_report.json`. Verification: Assert `data/processed/validation_report.json` exists, status is PASS, and that T013a execution caused T010-T012 tests to pass.
-- [ ] T014b [Dep: T014a] Validate presence of age/gender metadata for subjects with Fluid Intelligence scores. Artifact: Append validation status to `data/processed/validation_report.json`. Verification: See T014d.
-- [ ] T014d [P] [US1] Unit test for age/gender validation logic. Artifact: `tests/unit/test_validation_report.py` containing function `test_age_gender_valid`. Verification: Run `pytest tests/unit/test_validation_report.py::test_age_gender_valid` and assert it checks the validation report for age/gender presence.
-- [ ] T014c [Dep: T014a] Implement halt logic if valid subject count is 0 after validation (specifically if no Fluid Intelligence scores found), raising critical error: "No valid Fluid Intelligence data found in specified datasets". Verification: Unit test `tests/unit/test_download.py::test_halt_on_missing_fluid_intel` passes.
-- [ ] T015 [Dep: T014a] Implement preprocessing pipeline in `code/preprocess.py` using FSL/AFNI for motion correction, spatial normalization, and bandpass filtering (low-frequency range) as a single executable script. Dependency: T014a (Validation) must pass.
-- [ ] T016a [Dep: T015] Implement motion artifact detection (>3mm translation) in `preprocess.py`. Artifact: `data/processed/motion_exclusions.csv`. Verification: Assert `data/processed/motion_exclusions.csv` exists and contains excluded subject IDs.
-- [ ] T016b [Dep: T016a] Implement halt logic if effective N becomes 0 after motion exclusion. Verification: Unit test `tests/unit/test_preprocess.py::test_halt_on_zero_subjects_after_motion` passes.
-- [ ] T017 [Dep: T016b] Generate `data/processed/preprocessing_stats.json` with keys: `total_subjects`, `successful_subjects`, `success_rate_percentage` (calculated as successful/total, where total is the N=10 limit or actual downloaded count)
-- [ ] T018 [Dep: T015, T009] Add resource monitoring to `preprocess.py` to log RAM usage per subject (consumes `ResourceMonitor` from T009). Verification: Run `preprocess.py` on N=10 and assert `data/processed/resource_profile.json` is updated.
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
@@ -79,33 +99,36 @@
 
 **Goal**: Compute functional connectivity matrices and derive graph theoretical metrics (global efficiency, modularity, clustering coefficient) for each preprocessed subject using the Schaefer parcellation atlas.
 
-- [ ] T019 [P] [US2] Unit test for correlation matrix generation symmetry. Artifact: `tests/unit/test_graph_metrics.py` containing function `test_correlation_matrix_symmetry`. Verification: Run `pytest tests/unit/test_graph_metrics.py::test_correlation_matrix_symmetry` and assert it fails initially then passes after T022.
-- [ ] T020 [P] [US2] Unit test for Louvain algorithm fallback (resolution sweep). Artifact: `tests/unit/test_graph_metrics.py` containing function `test_louvain_resolution_sweep`. Verification: Run `pytest tests/unit/test_graph_metrics.py::test_louvain_resolution_sweep` and assert it fails initially then passes after T024.
-- [ ] T021 [P] [US2] Integration test for graph metric aggregation. Artifact: `tests/integration/test_pipeline.py` containing class `TestUS2Pipeline` and function `test_graph_metric_aggregation`. Verification: Run `pytest tests/integration/test_pipeline.py::TestUS2Pipeline::test_graph_metric_aggregation` and assert it fails initially then passes after T025.
-- [ ] T022 [Dep: T017] Implement connectivity matrix generation using `nilearn` and a **fixed Schaefer atlas with a 200-ROI parcellation scheme** in `code/graph_metrics.py`; read preprocessed NIfTI files from `data/interim/sub-*_preprocessed.nii.gz`. Verification: Assert generated matrices are symmetric and match the 200-ROI dimension.
-- [ ] T023 [Dep: T022] Implement global efficiency and clustering coefficient calculation using `networkx` in `code/graph_metrics.py`.
-- [ ] T024 [Dep: T023] Implement modularity calculation (Louvain) with resolution parameter sweep fallback in `code/graph_metrics.py`.
-- [ ] T025 [Dep: T024] Aggregate results into `data/processed/graph_metrics.csv` with columns: subject_id, metric_name, value
-- [ ] T026 [Dep: T025] Validate numerical ranges (e.g., efficiency -1) and write anomalies to `data/processed/graph_metric_validation.log` with format: `[SUBJECT_ID] [METRIC] [VALUE] [REASON]`
+- [ ] T020 [P] [US2] Unit test for correlation matrix generation symmetry in `tests/unit/test_graph_metrics.py`
+- [ ] T021 [P] [US2] Unit test for Louvain algorithm fallback (resolution sweep) in `tests/unit/test_graph_metrics.py`
+- [ ] T022 [P] [US2] Integration test for graph metric aggregation in `tests/integration/test_pipeline.py`
+- [ ] T023 [US2] Implement connectivity matrix generation using `nilearn` and a Schaefer atlas with a variable number of ROIs in `code/graph_metrics.py`; read preprocessed NIfTI files from `data/processed/` (output of T017)
+- [ ] T024 [US2] Implement global efficiency and clustering coefficient calculation using `networkx` in `code/graph_metrics.py`
+- [ ] T025 [US2] Implement modularity calculation (Louvain) with resolution parameter sweep fallback in `code/graph_metrics.py`
+- [ ] T026 [US2] Aggregate results into `data/processed/graph_metrics.csv` with columns: subject_id, metric_name, value
+- [ ] T027 [US2] Validate numerical ranges (e.g., efficiency -1) and write anomalies to `data/processed/graph_metric_validation.log` with format: `[SUBJECT_ID] [METRIC] [VALUE] [REASON]`
 
 ---
 
 ## Phase 5: User Story 3 - Correlation Analysis and Reporting (Priority: P3)
 
 **Goal**: Perform statistical correlation analysis between graph metrics and Fluid Intelligence scores using Bonferroni correction, generating visualizations and a summary report.
+**Amended Requirement (FR-005)**: System MUST apply **Bonferroni** correction (per Constitution Principle VII) for multiple comparisons across all tested graph metrics and report effect sizes with confidence intervals. (Note: Original FR-005 requirement for FDR is amended per Plan).
 
-- [ ] T027 [P] [US3] Unit test for Bonferroni correction logic. Artifact: `tests/unit/test_stats.py` containing function `test_bonferroni_correction`. Verification: Run `pytest tests/unit/test_stats.py::test_bonferroni_correction` and assert it fails initially then passes after T031.
-- [ ] T028 [P] [US3] Unit test for Cohen's d and 95% CI calculation. Artifact: `tests/unit/test_stats.py` containing function `test_cohens_d_ci`. Verification: Run `pytest tests/unit/test_stats.py::test_cohens_d_ci` and assert it fails initially then passes after T032.
-- [ ] T029 [P] [US3] Integration test for full analysis report generation. Artifact: `tests/integration/test_pipeline.py` containing class `TestUS3Pipeline` and function `test_full_analysis_report`. Verification: Run `pytest tests/integration/test_pipeline.py::TestUS3Pipeline::test_full_analysis_report` and assert it fails initially then passes after T034.
-- [ ] T031 [Dep: T025] Implement Bonferroni correction logic (p * k) for multiple comparisons in `code/stats.py`. Verification: Unit test `tests/unit/test_stats.py::test_bonferroni_correction` passes and `reports/conflict_resolution_report.md` (from T008a) documents the override of FR-005.
-- [ ] T030a [Dep: T031] Implement critical halt logic in `stats.py` if valid Fluid Intelligence scores are empty after merge, raising error: "No valid Fluid Intelligence scores exist in the dataset". Verification: Unit test `tests/unit/test_stats.py::test_halt_on_empty_fluid_scores` passes.
-- [ ] T030b [Dep: T030a] Implement Pearson/Spearman correlation analysis between graph metrics and Fluid Intelligence scores in `code/stats.py`.
-- [ ] T030c [Dep: T030b] Implement multiple linear regression analysis (controlling for age/gender) in `code/stats.py`.
-- [ ] T030d [Dep: T030c] Integrate results; ensure correlation coefficients are reported separately from regression control model.
-- [ ] T032 [Dep: T030d] Calculate effect sizes (Cohen's d) and confidence intervals; append columns `cohens_d`, `ci_lower`, `ci_upper` to `data/processed/graph_metrics.csv`.
-- [ ] T033a [Dep: T032] Generate and save scatter plot of Metric vs Fluid Intelligence using `matplotlib`/`seaborn` with regression line and 95% CI shading. Artifact: `reports/scatter_metric_vs_fluid.png`. Verification: Verify `reports/scatter_metric_vs_fluid.png` exists, is non-empty (file size > 0KB), and contains a regression line with 95% CI shading.
-- [ ] T034 [Dep: T033a] Generate `reports/summary.pdf` containing scatter plots, regression lines, correlation coefficients, p-values, effect sizes (Cohen's d), and confidence intervals for all significant correlations. Verification: Verify `reports/summary.pdf` contains the string "Bonferroni" and at least one scatter plot image.
-- [ ] T035 [Dep: T034] Generate `data/processed/analysis_resource_profile.json` with peak RAM and total runtime for SC-005 verification. Verification: Assert JSON keys `peak_ram_gb` and `total_runtime_hours` exist and are numeric.
+- [ ] T028 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_stats.py`
+- [ ] T029 [P] [US3] Unit test for Cohen's d and 95% CI calculation in `tests/unit/test_stats.py`
+- [ ] T030 [P] [US3] Integration test for full analysis report generation in `tests/integration/test_pipeline.py`
+- [ ] T031a [US3] **Validate Presence of Fluid Intelligence for US3**: Implement logic to verify Fluid Intelligence scores exist for subjects in `graph_metrics.csv`. Output: `data/processed/us3_validation.json` with schema `{"valid_pairs": int, "missing_scores": int}`. **Verification**: Verify file exists and `valid_pairs` > 0.
+- [ ] T031b [US3] **Halt on Zero Valid Scores for US3**: Implement critical halt logic in `stats.py` if `valid_pairs` is 0. **Error Message**: "No valid Fluid Intelligence scores found for correlation analysis". **Verification**: Verify `pytest` raises `ValueError` with exact message. Log event to `data/processed/pipeline_errors.log`.
+- [ ] T031c [US3] Implement Pearson/Spearman correlation analysis between graph metrics and Fluid Intelligence scores in `code/stats.py`
+- [ ] T031d [US3] Implement multiple linear regression analysis (controlling for age/gender) in `code/stats.py`
+- [ ] T031e [US3] Integrate results; ensure correlation coefficients are reported separately from regression control model
+- [ ] T032 [US3] **Implement Bonferroni Correction**: Implement Bonferroni correction for multiple comparisons as mandated by Constitution Principle VII in `code/stats.py`. **Dependency**: Must reference conflict resolution logic from T008c. **Verification**: Verify output includes `p_adj_bonferroni` column.
+- [ ] T033 [US3] Calculate effect sizes (Cohen's d) and confidence intervals; write results to **new artifact** `data/processed/correlation_results.csv` with columns: `metric_name`, `score_type`, `correlation`, `p_value`, `p_adj_bonferroni`, `cohens_d`, `ci_lower`, `ci_upper`. **Verification**: Verify file exists and schema matches. **Note**: Do NOT append to `graph_metrics.csv` to maintain data model separation.
+- [ ] T034a [US3] Generate scatter plot of Metric vs Fluid Intelligence using `matplotlib`/`seaborn`
+- [ ] T034b [US3] Save scatter plot to `reports/scatter_metric_vs_fluid.png`
+- [ ] T035 [US3] Generate `reports/summary.pdf` containing scatter plots, regression lines, correlation coefficients, p-values, effect sizes (Cohen's d), and confidence intervals for all significant correlations
+- [ ] T036 [US3] **Generate Resource Profile**: Generate `data/processed/analysis_resource_profile.json` with keys: `peak_ram_gb` (float), `total_runtime_hours` (float). **Verification**: Verify JSON exists, keys match schema, and types are float.
 
 ---
 
@@ -113,13 +136,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `README.md` and `quickstart.md`. Verification: Add "Usage" section to `README.md` with example CLI command and run `grep -q "Usage" README.md`.
-- [ ] T037a [P] Refactor `preprocess.py` for sequential processing. Verification: Verify runtime < 6h for N=10 in `tests/integration/test_pipeline.py` and assert no parallel execution calls remain in `preprocess.py`.
-- [ ] T037b [P] Verify RAM usage < 7GB on N=10. Verification: Run `code/utils.py` resource monitor on N=10 and assert `data/processed/resource_profile.json` peak_ram_gb < 7.0.
-- [ ] T038a [P] Implement numpy vectorization for correlation matrix calculation in `code/graph_metrics.py` to replace nested loops. Verification: Run benchmark on N=10 and assert runtime reduced by >10% compared to non-vectorized version.
-- [ ] T038b [P] Verify runtime < 6h for N=10. Verification: Run full pipeline on N=10 in CI and assert total runtime < 6h.
-- [ ] T039 [P] Additional unit tests for edge cases (missing metadata, convergence failures). Verification: Add `tests/unit/test_graph_metrics.py::test_louvain_convergence_failure`, `tests/unit/test_stats.py::test_missing_metadata`.
-- [ ] T040 Run quickstart.md validation to ensure end-to-end reproducibility. Verification: Execute `bash scripts/run_quickstart.sh` and assert exit code 0 and `reports/summary.pdf` exists.
+- [ ] T037 [P] Documentation updates in `README.md` and `quickstart.md`
+- [ ] T038a [P] Refactor `preprocess.py` for sequential processing
+- [ ] T038b [P] Verify RAM usage < 7GB on N=10
+- [ ] T039a [P] Optimize matrix operations in `graph_metrics.py`
+- [ ] T039b [P] Verify runtime < 6h for N=10
+- [ ] T040 [P] Additional unit tests for edge cases (missing metadata, convergence failures)
+- [ ] T041 [P] Run quickstart.md validation to ensure end-to-end reproducibility
 
 ---
 
@@ -216,5 +239,7 @@ With multiple developers:
 - **Feasibility**: All tasks designed for N=10 subjects on CPU-only CI (A small number of cores, 7GB RAM, 6h limit).
 - **Data Integrity**: No synthetic data generation; all analysis uses real OpenNeuro data.
 - **Statistical Compliance**: Bonferroni correction used per Constitution (replacing FDR from spec).
-- **Spec Conflict Resolution**: Spec amendments for N=10 and Fluid Intelligence pivot are assumed to be completed in the `plan` stage. The tasks now rely on the `plan.md` as the active guide for these deviations.
-- **Task Order**: Validation (T014a) MUST precede Preprocessing (T015). Resource Monitoring (T009) MUST precede Preprocessing (T015). Scatter Plots (T033a) MUST precede Summary Report (T034).
+- **Spec Conflict Note**: FR-001 (Creativity Halt) and FR-005 (FDR) are amended in this artifact to reflect the Plan (Fluid Intelligence, N=10, Bonferroni).
+- **Ordering Note**: Validation (T016) and Motion Exclusion (T018) now correctly follow Preprocessing (T017) where motion metrics are derived. Resource Monitoring (T009) is implemented before integration (T011). US3 has dedicated validation (T031a) before correlation (T031c).
+- **Log Differentiation**: T016c writes to `validation_errors.log` and T018b writes to `motion_exclusion.log` to prevent ambiguous failure states.
+- **Data Model Separation**: T033 writes to `correlation_results.csv` to avoid conflating predictor data with analysis results.

@@ -1,154 +1,99 @@
+"""
+Unit tests for OpenNeuro download retry logic.
+
+Validates requirements defined in T013a:
+- Retry count: 3 attempts
+- Backoff strategy: Exponential (base 2)
+- Behavior: Should raise an exception after max retries if all attempts fail.
+"""
 import pytest
 import time
 from unittest.mock import patch, MagicMock
-import os
 import sys
-from pathlib import Path
+import os
 
-# Add project root to path to allow imports from code/
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add parent directory to path to allow importing code/download.py
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from openneuro import cli
-from openneuro.api import OpenNeuroAPI
+from download import download_dataset
 
-# Mock configuration for testing
-MOCK_DATASET_ID = "ds000224"
-MOCK_DOWNLOAD_PATH = "/tmp/mock_download"
-MAX_RETRIES = 3
-INITIAL_DELAY = 0.1  # Short delay for testing
 
 class TestDownloadRetryLogic:
-    """
-    Unit tests for OpenNeuro download retry logic.
-    Verifies that the download function retries on network failures
-    and raises an appropriate error after max retries.
-    """
+    """Tests for the retry mechanism in download_dataset."""
 
-    def test_download_succeeds_on_first_attempt(self):
-        """Test successful download without retries."""
-        with patch('openneuro.api.OpenNeuroAPI.download') as mock_download:
-            mock_download.return_value = True
-            
-            # Simulate the logic that would be in download.py
-            retries = 0
-            success = False
-            while retries <= MAX_RETRIES:
-                try:
-                    # This simulates the actual download call
-                    result = mock_download(MOCK_DATASET_ID, MOCK_DOWNLOAD_PATH)
-                    success = result
-                    break
-                except Exception:
-                    retries += 1
-            
-            assert success is True
-            assert retries == 0
-            mock_download.assert_called_once_with(MOCK_DATASET_ID, MOCK_DOWNLOAD_PATH)
+    @patch('download.time.sleep')
+    @patch('download.openneuro.download_dataset')
+    def test_retry_logic_on_failure(self, mock_download, mock_sleep):
+        """
+        Verify that the function attempts to download exactly 3 times
+        before raising an exception when the source is consistently unavailable.
+        """
+        # Configure mock to always fail
+        mock_download.side_effect = Exception("Simulated network failure")
 
-    def test_download_retries_on_transient_error(self):
-        """Test that download retries when a transient network error occurs."""
-        with patch('openneuro.api.OpenNeuroAPI.download') as mock_download:
-            # Fail twice, then succeed
-            mock_download.side_effect = [
-                ConnectionError("Network timeout"),
-                ConnectionError("Network timeout"),
-                True
-            ]
-            
-            retries = 0
-            success = False
-            last_error = None
-            
-            while retries <= MAX_RETRIES:
-                try:
-                    result = mock_download(MOCK_DATASET_ID, MOCK_DOWNLOAD_PATH)
-                    success = result
-                    break
-                except ConnectionError as e:
-                    last_error = e
-                    retries += 1
-                    # In real code, there would be a sleep here
-                    time.sleep(INITIAL_DELAY * (2 ** retries))
-            
-            assert success is True
-            assert retries == 2
-            assert mock_download.call_count == 3
-            assert "Network timeout" in str(last_error)
+        with pytest.raises(Exception) as exc_info:
+            # Call the function with a dummy dataset ID
+            download_dataset("ds000000", download_path="/tmp/test", max_retries=3)
 
-    def test_download_raises_after_max_retries(self):
-        """Test that download raises an error after exhausting retries."""
-        with patch('openneuro.api.OpenNeuroAPI.download') as mock_download:
-            # Always fail
-            mock_download.side_effect = ConnectionError("Persistent network failure")
-            
-            retries = 0
-            success = False
-            final_error = None
-            
-            try:
-                while retries <= MAX_RETRIES:
-                    try:
-                        result = mock_download(MOCK_DATASET_ID, MOCK_DOWNLOAD_PATH)
-                        success = result
-                        break
-                    except ConnectionError as e:
-                        retries += 1
-                        final_error = e
-                        if retries > MAX_RETRIES:
-                            raise RuntimeError(f"Download failed after {MAX_RETRIES} retries: {e}")
-            except RuntimeError as e:
-                final_error = e
-            
-            assert success is False
-            assert retries == MAX_RETRIES + 1
-            assert mock_download.call_count == MAX_RETRIES + 1
-            assert "failed after" in str(final_error)
+        # Verify the exception message
+        assert "Simulated network failure" in str(exc_info.value)
 
-    def test_download_handles_non_network_errors_immediately(self):
-        """Test that non-network errors (e.g., permission, disk full) are not retried."""
-        with patch('openneuro.api.OpenNeuroAPI.download') as mock_download:
-            # Raise a non-retryable error
-            mock_download.side_effect = PermissionError("No write permission")
-            
-            retries = 0
-            success = False
-            caught_error = None
-            
-            try:
-                # In real implementation, we would check error type
-                # For this test, we simulate the logic
-                result = mock_download(MOCK_DATASET_ID, MOCK_DOWNLOAD_PATH)
-                success = result
-            except PermissionError as e:
-                caught_error = e
-                retries = 0  # Should not retry
-            
-            assert success is False
-            assert retries == 0
-            assert mock_download.call_count == 1
-            assert "No write permission" in str(caught_error)
+        # Verify download was called exactly 3 times (max_retries)
+        assert mock_download.call_count == 3
 
-    def test_download_uses_correct_backoff_strategy(self):
-        """Test that the retry logic uses exponential backoff."""
-        with patch('openneuro.api.OpenNeuroAPI.download') as mock_download:
-            mock_download.side_effect = [
-                ConnectionError("Timeout 1"),
-                ConnectionError("Timeout 2"),
-                True
-            ]
-            
-            delays = []
-            current_delay = INITIAL_DELAY
-            
-            # Simulate the backoff calculation
-            for i in range(1, MAX_RETRIES + 1):
-                calculated_delay = current_delay * (2 ** i)
-                delays.append(calculated_delay)
-                current_delay = calculated_delay
-            
-            # Verify exponential growth
-            assert delays[0] < delays[1]
-            assert delays[1] < delays[2]
-            assert delays[0] == INITIAL_DELAY * 2
-            assert delays[1] == INITIAL_DELAY * 4
+        # Verify sleep was called twice (between attempts 1-2 and 2-3)
+        assert mock_sleep.call_count == 2
+
+    @patch('download.time.sleep')
+    @patch('download.openneuro.download_dataset')
+    def test_exponential_backoff_timing(self, mock_download, mock_sleep):
+        """
+        Verify that the sleep duration follows exponential backoff (2^attempt).
+        Attempt 1 fails -> sleep 2^1 = 2s
+        Attempt 2 fails -> sleep 2^2 = 4s
+        """
+        mock_download.side_effect = Exception("Fail")
+
+        with pytest.raises(Exception):
+            download_dataset("ds000000", download_path="/tmp/test", max_retries=3)
+
+        # Check sleep arguments
+        # Call 1: sleep(2)
+        # Call 2: sleep(4)
+        assert mock_sleep.call_args_list[0][0][0] == 2.0
+        assert mock_sleep.call_args_list[1][0][0] == 4.0
+
+    @patch('download.openneuro.download_dataset')
+    def test_success_on_first_attempt(self, mock_download):
+        """Verify that if the first attempt succeeds, no retries occur."""
+        mock_download.return_value = True
+
+        download_dataset("ds000000", download_path="/tmp/test")
+
+        mock_download.assert_called_once()
+
+    @patch('download.time.sleep')
+    @patch('download.openneuro.download_dataset')
+    def test_success_on_second_attempt(self, mock_download, mock_sleep):
+        """Verify that if the second attempt succeeds, only one retry occurs."""
+        # First call fails, second call succeeds
+        mock_download.side_effect = [Exception("First fail"), True]
+
+        download_dataset("ds000000", download_path="/tmp/test", max_retries=3)
+
+        # Should be called twice
+        assert mock_download.call_count == 2
+        # Should sleep once
+        assert mock_sleep.call_count == 1
+
+    @patch('download.time.sleep')
+    @patch('download.openneuro.download_dataset')
+    def test_max_retries_parameter_respected(self, mock_download, mock_sleep):
+        """Verify that the max_retries parameter limits the number of attempts."""
+        mock_download.side_effect = Exception("Always fails")
+
+        with pytest.raises(Exception):
+            download_dataset("ds000000", download_path="/tmp/test", max_retries=2)
+
+        # Should be called exactly 2 times
+        assert mock_download.call_count == 2

@@ -1,22 +1,29 @@
-# Configuration for PROJ-216: Exploring the Relationship Between Brain Network Dynamics and Musical Creativity
-# Updated per T008b and T008a
+# Configuration for Brain Network Dynamics and Fluid Intelligence Study
+# Generated for Task T008b
+# This file defines dataset priorities and sample limits.
 
 datasets:
-  # Primary dataset: ds000224 (Fluid Intelligence scores available)
-  primary: "ds000224"
-  # Fallback dataset: ds000230 (used only if primary fails or lacks data)
-  fallback_only: "ds000230"
+  primary:
+    id: ds000224
+    description: "OpenNeuro ds000224 - Primary source for Fluid Intelligence data"
+    priority: 1
+  fallback:
+    id: ds000230
+    description: "OpenNeuro ds000230 - Fallback source (used only if primary fails)"
+    priority: 2
+    usage_constraint: "fallback_only"
 
-# Sample limit as per T008a (N=10 limit for CI/execution)
-sample_limit: 10
+sampling:
+  ci_limit: 10
+  max_subjects: 50
+  strategy: "first_n"
+  description: "Limit to N=10 for CI feasibility baseline as per SC-001"
 
-# Fallback behavior
-allow_fallback: true
+analysis:
+  correction_method: "bonferroni"
+  description: "Bonferroni correction mandated by Constitution Principle VII"
 
-# Execution limits
-max_runtime_hours: 6
-max_ram_gb: 7
-
-# Statistical parameters
-bonferroni_correction: true
-alpha: 0.05
+metadata:
+  created_for_task: "T008b"
+  spec_amendment_ref: "specs/amendment-001-fluid-intelligence-n10.md"
+  conflict_resolution_ref: "reports/conflict_resolution.json"

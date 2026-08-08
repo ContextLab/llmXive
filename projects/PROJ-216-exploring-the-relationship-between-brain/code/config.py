@@ -3,74 +3,73 @@ from typing import List, Tuple, Optional
 import yaml
 from pathlib import Path
 
-CONFIG_PATH = Path("config.yaml")
+# Configuration for the llmXive project: Brain Network Dynamics and Fluid Intelligence
+# This module manages dataset selection and sample limits as per the amended spec.
 
-def get_dataset_ids() -> List[str]:
+# Primary dataset ID (OpenNeuro) focused on Fluid Intelligence
+PRIMARY_DATASET_ID = "ds000224"
+
+# Fallback dataset ID (OpenNeuro) - used only if primary fails or lacks data
+FALLBACK_DATASET_ID = "ds000230"
+
+# Sample limit for Continuous Integration (CI) runs
+# Per SC-001 and T008b: N=10 baseline
+CI_SAMPLE_LIMIT = 10
+
+# Maximum subjects for full analysis (if not in CI mode)
+# Per SC-001
+MAX_SUBJECTS = 50
+
+def get_dataset_ids() -> Tuple[str, str]:
     """
-    Reads dataset IDs from config.yaml.
-    Returns [primary_id, fallback_id]
+    Returns the primary and fallback dataset IDs.
+    
+    Returns:
+        Tuple[str, str]: (primary_dataset_id, fallback_dataset_id)
     """
-    if not CONFIG_PATH.exists():
-        raise FileNotFoundError(f"Configuration file {CONFIG_PATH} not found. "
-                                "Please create config.yaml with dataset IDs.")
-    
-    with open(CONFIG_PATH, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    datasets = config.get('datasets', {})
-    primary = datasets.get('primary')
-    fallback = datasets.get('fallback_only')
-    
-    if not primary:
-        raise ValueError("Primary dataset ID not found in config.yaml")
-    
-    if fallback:
-        return [primary, fallback]
-    return [primary]
+    return (PRIMARY_DATASET_ID, FALLBACK_DATASET_ID)
 
 def get_sample_limit() -> int:
     """
-    Reads the sample limit (N) from config.yaml.
+    Returns the sample limit for the current environment.
+    If CI environment variable is set, returns CI_SAMPLE_LIMIT (10).
+    Otherwise, returns MAX_SUBJECTS (50).
+    
+    Returns:
+        int: The maximum number of subjects to process.
     """
-    if not CONFIG_PATH.exists():
-        # Default fallback if config missing, though we expect it to exist
-        return 10
-    
-    with open(CONFIG_PATH, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    return config.get('sample_limit', 10)
-
-def get_fallback_condition() -> bool:
-    """
-    Returns True if fallback dataset usage is enabled.
-    """
-    if not CONFIG_PATH.exists():
-        return False
-    
-    with open(CONFIG_PATH, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    return config.get('allow_fallback', True)
+    if os.getenv("CI", "").lower() in ("true", "1", "yes"):
+        return CI_SAMPLE_LIMIT
+    return MAX_SUBJECTS
 
 def get_config_summary() -> dict:
     """
     Returns a summary of the current configuration.
-    """
-    if not CONFIG_PATH.exists():
-        return {"error": "config.yaml not found"}
     
-    with open(CONFIG_PATH, 'r') as f:
-        return yaml.safe_load(f)
+    Returns:
+        dict: Configuration summary including dataset IDs and limits.
+    """
+    return {
+        "primary_dataset": PRIMARY_DATASET_ID,
+        "fallback_dataset": FALLBACK_DATASET_ID,
+        "ci_limit": CI_SAMPLE_LIMIT,
+        "max_subjects": MAX_SUBJECTS,
+        "current_limit": get_sample_limit()
+    }
 
 def validate_config() -> bool:
     """
-    Validates that required config keys exist.
+    Validates that the configuration is sensible.
+    
+    Returns:
+        bool: True if valid, False otherwise.
     """
-    try:
-        get_dataset_ids()
-        get_sample_limit()
-        return True
-    except Exception as e:
-        print(f"Config validation failed: {e}")
+    if not PRIMARY_DATASET_ID or not FALLBACK_DATASET_ID:
         return False
+    if PRIMARY_DATASET_ID == FALLBACK_DATASET_ID:
+        return False
+    if CI_SAMPLE_LIMIT <= 0 or MAX_SUBJECTS <= 0:
+        return False
+    if CI_SAMPLE_LIMIT > MAX_SUBJECTS:
+        return False
+    return True

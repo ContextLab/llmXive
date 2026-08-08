@@ -1,2 +1,1 @@
-# This directory is for processed data artifacts.
-# Resource profiles and other intermediate results will be written here.
+# This file ensures the processed directory is tracked by git.

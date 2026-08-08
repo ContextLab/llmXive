@@ -26,7 +26,7 @@ The system must successfully download resting-state fMRI data from specified Ope
 
 ### User Story 2 - Graph Metric Computation (Priority: P2)
 
-The system must compute functional connectivity matrices and derive graph theoretical metrics (global efficiency, modularity, clustering coefficient) for each preprocessed subject using a standard brain atlas (e.g., Schaefer 200 ROI).
+The system must compute functional connectivity matrices and derive graph theoretical metrics (global efficiency, modularity, clustering coefficient) for each preprocessed subject using a standard brain atlas (e.g., Schaefer).
 
 **Why this priority**: This step transforms raw time series into the specific predictor variables (integration/segregation metrics) required to answer the research question. It is independent of the behavioral correlation step.
 

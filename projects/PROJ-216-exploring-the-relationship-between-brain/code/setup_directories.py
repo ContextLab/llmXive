@@ -7,80 +7,50 @@ import sys
 from pathlib import Path
 from typing import List
 
-def create_directories(root_dir: Path) -> None:
-    """
-    Creates the required directory structure for the project.
-    
-    Args:
-        root_dir: The root path of the project.
-    """
-    directories = [
+def create_directories(paths: List[str]) -> None:
+    """Create directories if they do not exist."""
+    for p in paths:
+        path_obj = Path(p)
+        path_obj.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {p}")
+
+def verify_directories(paths: List[str]) -> bool:
+    """Verify that all specified directories exist."""
+    all_exist = True
+    for p in paths:
+        path_obj = Path(p)
+        if not path_obj.is_dir():
+            print(f"ERROR: Directory missing: {p}")
+            all_exist = False
+        else:
+            print(f"Verified directory: {p}")
+    return all_exist
+
+def main() -> int:
+    """Main entry point to create and verify required data and test directories."""
+    # Define required directories based on tasks T001b, T001c, T001d, T001f, T001g
+    required_dirs = [
         "data/raw",
         "data/interim",
         "data/processed",
-        "code",
         "tests/unit",
         "tests/integration",
         "reports"
     ]
-    
-    for dir_path in directories:
-        full_path = root_dir / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
 
-def create_init_files(root_dir: Path) -> None:
-    """
-    Creates __init__.py files in all directory paths to make them Python packages.
-    
-    Args:
-        root_dir: The root path of the project.
-    """
-    init_paths = [
-        "code",
-        "tests",
-        "tests/unit",
-        "tests/integration"
-    ]
-    
-    for rel_path in init_paths:
-        file_path = root_dir / rel_path / "__init__.py"
-        # Ensure parent exists
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Write a docstring-only __init__.py
-        content = f'"""\n{rel_path} Module\n"""\n'
-        
-        # Only write if file doesn't exist or is empty (optional, but good practice)
-        if not file_path.exists() or file_path.stat().st_size == 0:
-            with open(file_path, 'w') as f:
-                f.write(content)
-            print(f"Created __init__.py: {file_path}")
-        else:
-            print(f"Skipped existing __init__.py: {file_path}")
+    # Create directories
+    print("Creating directories...")
+    create_directories(required_dirs)
 
-def main() -> int:
-    """
-    Main entry point for the directory setup script.
-    
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    # Determine project root (parent of 'code' directory)
-    current_file = Path(__file__).resolve()
-    # Assuming this script is in code/setup_directories.py
-    # Project root is two levels up
-    project_root = current_file.parent.parent
-    
-    print(f"Initializing project structure at: {project_root}")
-    
-    try:
-        create_directories(project_root)
-        create_init_files(project_root)
-        print("Project structure initialization complete.")
+    # Verify directories
+    print("\nVerifying directories...")
+    success = verify_directories(required_dirs)
+
+    if success:
+        print("\nAll required directories created and verified successfully.")
         return 0
-    except Exception as e:
-        print(f"Error during initialization: {e}", file=sys.stderr)
+    else:
+        print("\nVerification failed: Some directories are missing.")
         return 1
 
 if __name__ == "__main__":
