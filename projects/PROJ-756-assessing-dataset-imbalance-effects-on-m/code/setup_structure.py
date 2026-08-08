@@ -2,58 +2,61 @@ import os
 import sys
 from pathlib import Path
 
-def create_directories(project_root: str) -> None:
+def create_directories(base_path: Path):
     """
-    Creates the full project directory structure for PROJ-756.
-    Includes: data/, code/, tests/, artifacts/, results/, state/, logs/, logs/archive/
+    Create the full project directory structure for PROJ-756.
+    Ensures all required subdirectories exist.
     """
-    base_path = Path(project_root)
+    # Define the project root relative to the code directory or current working directory
+    # The task specifies: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/
+    project_root = base_path / "projects" / "PROJ-756-assessing-dataset-imbalance-effects-on-m"
     
-    # Define all required directories relative to the project root
-    directories = [
+    # Define required subdirectories
+    subdirs = [
         "data",
-        "code",
-        "tests",
-        "artifacts",
-        "results",
-        "state",
-        "logs",
-        "logs/archive",
-        # Subdirectories often needed by tasks
         "data/raw",
         "data/processed",
         "data/synthetic",
+        "code",
+        "tests",
+        "tests/unit",
+        "tests/contract",
+        "tests/integration",
+        "artifacts",
+        "results",
         "results/shap_analysis",
-        "figures",
+        "state",
+        "logs",
+        "logs/archive"
     ]
-
-    created = []
-    for dir_name in directories:
-        dir_path = base_path / dir_name
+    
+    created_dirs = []
+    for subdir in subdirs:
+        dir_path = project_root / subdir
         dir_path.mkdir(parents=True, exist_ok=True)
-        created.append(str(dir_path))
+        created_dirs.append(str(dir_path.relative_to(base_path)))
     
-    return created
+    return created_dirs
 
-def main() -> None:
-    """Entry point to create the directory structure."""
-    # Determine the project root based on the current working directory
-    # or a specific path if passed as an argument.
-    # For this task, we assume the script is run from the repo root.
-    project_root = Path.cwd()
+def main():
+    """
+    Entry point to create the project directory structure.
+    """
+    # Determine base path (current working directory)
+    base_path = Path.cwd()
     
-    # The task specifically asks for the structure under:
-    # projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/
-    # However, the existing files (like code/ingestion.py) are at the root level.
-    # We will create the structure at the current working directory (repo root)
-    # as per the existing file layout in the API surface provided.
+    print(f"Creating project structure in: {base_path}")
     
-    print(f"Creating directory structure at: {project_root}")
-    created_dirs = create_directories(project_root)
-    
-    print("Directories created:")
-    for d in created_dirs:
-        print(f"  - {d}")
+    try:
+        created = create_directories(base_path)
+        print("Successfully created directories:")
+        for d in created:
+            print(f"  - {d}")
+        print("Project structure setup complete.")
+        return 0
+    except Exception as e:
+        print(f"Error creating directories: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

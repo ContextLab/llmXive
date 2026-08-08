@@ -1,0 +1,6 @@
+artifact_hashes:
+  aflow.parquet: pending
+  oqmd.parquet: pending
+version: "1.0"
+last_updated: "2024-01-01T00:00:00Z"
+status: "initialized"

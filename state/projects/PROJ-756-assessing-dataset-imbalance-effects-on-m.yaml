@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-756-assessing-dataset-imbalance-effects-on-m
-last_run_id: c599f7ca-2670-4b5b-9404-18ccbc98fa1f
+last_run_id: f168cb75-2bcb-447f-a981-5edd4a17fcf3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m
 title: Assessing Dataset Imbalance Effects on Materials Property Predictions
-updated_at: '2026-08-08T05:16:30.629726Z'
+updated_at: '2026-08-08T18:59:39.472966Z'

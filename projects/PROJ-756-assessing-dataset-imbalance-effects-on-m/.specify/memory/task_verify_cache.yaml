@@ -1,26 +1,25 @@
-T001:
+T006b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory tree (`projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/`\
-    \ with subfolders `data/`, `code/`, `tests/`, `artifacts/`, `results/`, `state/`,\
-    \ `logs/`, `logs/archive/`) is provided; the response contains only a textual\
-    \ description and no actual file\u2011system artifact. The implementer must create\
-    \ and show the populated directory structure to satisfy the task."
-T006c:
+  h: a008690e5455852757b110d05be12cc1f3c169b83f501ee4f34c70fda084b4a8
+  r: "The provided `code/downloaders.py` only contains a partially\u2011implemented\
+    \ OQMD download function, lacks any AFLOW download logic, does not include fallback\
+    \ URL handling, and the required output files `data/raw/oqmd.parquet` and `data/raw/aflow.parquet`\
+    \ are absent. The implementation therefore does not meet the task specifications."
+T006d#1:
   c: false
-  h: cf589f2dc6e3d27eb14fb4f33b1ad3adc88b089613a2de570829c21aa3ff9495
-  r: "The repository lacks the required checksum files (`data/raw/oqmd.parquet.sha256`\
-    \ and `data/raw/aflow.parquet.sha256`) and the state YAML (`state/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m.yaml`)\
-    \ that should contain the `artifact_hashes` entries. Consequently the task\u2019\
-    s core deliverables are not present."
+  h: 0e96de08acd8390497b6b267481d0b8579b1f681bd936c85184777c764931bf1
+  r: "The repository does not contain `data/raw/mp.parquet`, and the shown `code/downloaders.py`\
+    \ lacks any implementation that checks for a Materials Project API key and downloads\
+    \ the MP dataset to that path (the file is truncated before any MP\u2011specific\
+    \ logic). Consequently the required dataset file is absent and the module does\
+    \ not fulfill the specified behavior."
 T008:
   c: false
-  h: 5a8346fbc8f6099eafa69555ef1f37561b1a425ad0d01d1a31137fd2624f8288
-  r: "The `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv`\
-    \ files are absent, and the provided `code/imbalance.py` is truncated before any\
-    \ logic that iterates over properties, applies the \u2265\u202F100\u2011sample\
-    \ filter, or writes the required CSV outputs. Consequently the task\u2019s output\
-    \ requirements are not met."
+  h: 91fc7b51a7264c53903fbc195449ef0029de69f6757c4c1065ebe70a03d3f227
+  r: The `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv`
+    files are absent, and the provided `code/imbalance.py` snippet ends abruptly without
+    showing the logic that computes the scores and writes them to those CSVs. Consequently,
+    the required outputs are not generated, so the task is not fully satisfied.
 T012:
   c: false
   h: a5322a39bab5d625eb6c11f185fc43858f1fcf0976b2e937caa6ae24050a0ff2
