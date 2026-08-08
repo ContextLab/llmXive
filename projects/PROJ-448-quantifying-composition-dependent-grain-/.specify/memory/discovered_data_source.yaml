@@ -1,0 +1,15 @@
+status: none
+intent: Materials Project segregation energies BCC Fe Cr dataset TCFE9 CALPHAD pycalphad
+  python package dataset
+required_fields:
+- alloy_system
+- bulk_composition
+- grain_boundary_plane
+- segregation_site
+- segregation_energy_eV
+- temperature_K
+- phase_name
+- thermodynamic_parameters
+cache_key: b3500f001747b1784376c30e112ab8d8ecf38b61ab26121561216fc5e5c483f0
+searched_at: '2026-08-08T17:15:40.646177+00:00'
+retry_count: 1

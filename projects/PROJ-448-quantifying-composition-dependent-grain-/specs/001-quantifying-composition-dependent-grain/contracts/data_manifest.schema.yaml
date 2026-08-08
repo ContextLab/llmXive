@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DataManifest
+description: Schema for the data manifest tracking all sources and checksums.
+type: object
+properties:
+  sources:
+    type: array
+    items:
+      type: object
+      properties:
+        source_type:
+          type: string
+          description: "Type of source (e.g., database, literature, synthetic_proxy, surrogate_calculated)."
+        source_id:
+          type: string
+          description: "Unique identifier for the source."
+        doi:
+          type: string
+          description: "DOI if applicable."
+        url:
+          type: string
+          description: "URL if applicable."
+        checksum:
+          type: string
+          description: "SHA256 checksum of the data or generation script."
+        content_hash:
+          type: string
+          description: "Content hash for versioning discipline."
+        is_open_proxy:
+          type: boolean
+          description: "True if this source is an open proxy for proprietary data (e.g., TCFE9)."
+      required:
+        - source_type
+        - source_id
+        - checksum
+      additionalProperties: false
+required:
+  - sources
+additionalProperties: false

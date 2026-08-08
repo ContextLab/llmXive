@@ -65,7 +65,7 @@ As a materials researcher, I want to perform k-fold cross-validation (k=5) on th
 ### Functional Requirements
 
 - **FR-001**: System MUST extract equilibrium phase compositions for Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W ternary systems at temperatures between 500K and 900K from the provided CALPHAD database files. (See US-1)
-- **FR-002**: System MUST compute segregation energies using the Quantum ESPRESSO DFT code on BCC grain boundary supercell models generated deterministically using the `pymatgen` library. The system MUST use the Materials Project bulk lattice ID 'mp-13' (BCC Fe) as the seed and generate a Σ5(310)[001] symmetric tilt grain boundary supercell. (See US-1)
+- **FR-002**: System MUST compute segregation energies using the Quantum ESPRESSO DFT code on BCC grain boundary supercell models generated deterministically using the `pymatgen` library. The system MUST use a Materials Project bulk lattice ID for BCC Fe as the seed and generate a Σ symmetric tilt grain boundary supercell. (See US-1)
 - **FR-003**: System MUST calculate equilibrium segregation profiles using the McLean isotherm model, using the DFT-derived segregation energy as the primary input parameter to predict grain boundary concentration. (See US-1)
 - **FR-004**: System MUST fit empirical composition-segregation functions using linear regression with interaction terms. The system MUST compare the predictive power (MSE) of this model against a null hypothesis (purely additive binary model) on a held-out test set, requiring a >10% MSE reduction to confirm cooperative effects. (See US-2)
 - **FR-005**: System MUST perform 5-fold cross-validation on the combined dataset of composition and temperature points across all alloy systems to assess model generalizability and report performance metrics. (See US-3)
@@ -93,8 +93,8 @@ As a materials researcher, I want to perform k-fold cross-validation (k=5) on th
 
 ## Assumptions
 
-- The open CALPHAD thermodynamic database files (e.g., TCFE9) contain all necessary interaction parameters for the Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W systems within the 500-900K temperature range; if parameters are missing for a specific temperature, linear interpolation or extrapolation will be used with a warning.
-- The pre-built BCC grain boundary supercell models generated via `pymatgen` from the Materials Project bulk lattice (mp-13) are geometrically stable and suitable for DFT calculations without requiring additional relaxation that would exceed the 6-hour compute budget.
+- The open CALPHAD thermodynamic database files (e.g., TCFE) contain all necessary interaction parameters for the Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W systems within the 500-900K temperature range; if parameters are missing for a specific temperature, linear interpolation or extrapolation will be used with a warning.
+- The pre-built BCC grain boundary supercell models generated via `pymatgen` from the Materials Project bulk lattice are geometrically stable and suitable for DFT calculations without requiring additional relaxation that would exceed the available compute budget.
 - The Quantum ESPRESSO installation on the CI runner is configured with default precision and CPU-only execution; no GPU acceleration or 8-bit quantization is used, ensuring compatibility with the free-tier hardware constraints.
 - The McLean isotherm model is a valid approximation for the grain boundary segregation behavior in these BCC systems, and deviations from this model are due to cooperative effects rather than model failure.
 - The "free CPU-only CI" environment provides sufficient RAM (≥7 GB) to hold the DFT wavefunction data and regression matrices for the specified alloy systems without requiring disk swapping.
