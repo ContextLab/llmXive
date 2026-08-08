@@ -19,38 +19,38 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…a fallback mechanism to generate synthetic cue-response pairs when…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     num_records: int…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…creates a minimal set of synthetic data (minimum 10 pairs)     b…”; 4 command(s) failed: python code/run_experiment.py --context full --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep (rc=1)
+**Summary**: 12 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…a fallback mechanism to generate synthetic cue-response pairs when…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ication for generating a synthetic dataset."""     num_records: int…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…creates a minimal set of synthetic data (minimum 10 pairs)     b…”; 4 command(s) failed: python code/run_experiment.py --context full --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi (rc=1); python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/run_experiment.py --context full --agents 5 --dataset hanabi -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
+    from .anova import (
+ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
 - python code/run_experiment.py --context limited --agents 5 --dataset hanabi -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
+    from .anova import (
+ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
 - python code/run_experiment.py --context limited --agents 5 --dataset hanabi --token-sweep -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
+    from .anova import (
+ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
 - python code/run_experiment.py --context full --agents 3,5,7 --dataset hanabi --scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 21, in <module>
-    from memory.buffer import MemoryBuffer, get_shared_buffer, reset_shared_buffer
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/__init__.py", line 5, in <module>
-    from .buffer import (
-ImportError: cannot import name 'get_shared_memory_buffer' from 'memory.buffer' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/memory/buffer.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 22, in <module>
+    from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/__init__.py", line 5, in <module>
+    from .anova import (
+ImportError: cannot import name 'compute_manual_anova' from 'analysis.anova' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/analysis/anova.py)
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -65,10 +65,9 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 16 way(s):
+### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 15 way(s):
 
-- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(
-- code/t015_generate_full_results.py: ret_eff, _ = compute_retrieval_efficiency(successful_count, total_queries, agent_count)
+- code/run_experiment.py: ret_eff, _ = compute_retrieval_efficiency(successful_retrievals, total_retrievals, config.agent_count)
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(5, 10, [0, 1, 2])
 - code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(0, 0, 3)
 - code/metrics/retrieval.py: efficiency, metrics = compute_retrieval_efficiency(successful, total, num_agents)
@@ -86,10 +85,9 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 14 way(s):
+### `compute_specialization_index` — defined in `code/metrics/specialization.py`; called 13 way(s):
 
-- code/run_experiment.py: spec_index, _ = compute_specialization_index(
-- code/t015_generate_full_results.py: spec_index, _ = compute_specialization_index(facts_per_agent, num_agents=agent_count)
+- code/run_experiment.py: spec_index, _ = compute_specialization_index(agent_contributions, num_agents=config.agent_count)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agent_skills)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([])
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index(agents=agent_skills, num_agents=2)
@@ -129,10 +127,12 @@ Make `compute_specialization_index` in `code/metrics/specialization.py` accept A
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/run_experiment.py`; called 3 way(s):
+### `simulate_one_game` — defined in `code/run_experiment.py`; called 5 way(s):
 
-- code/run_experiment.py: result = simulate_one_game(config, game_id_counter, dataset_name)
+- code/run_experiment.py: result = simulate_one_game(config, game_id, dataset_name)
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
+- code/t015_generate_full_results.py: - T011b: simulate_one_game (game simulation loop)
+- code/t015_generate_full_results.py: spec_idx, ret_eff, game_result = simulate_one_game(game_id, config)
 - code/tests/unit/test_run_experiment.py: spec_metrics, ret_metrics, result = simulate_one_game(1, config)
 
 Make `simulate_one_game` in `code/run_experiment.py` accept ALL of the above.
@@ -153,8 +153,7 @@ Make `simulate_one_game` in `code/run_experiment.py` accept ALL of the above.
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (5):
-- code/run_experiment.py: memory_buffer.reset()
+`MemoryBuffer.reset` call sites (4):
 - code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise
 - code/memory/buffer.py: self._conflict_resolver.reset()
 - code/memory/buffer.py: _SHARED_BUFFER.reset()

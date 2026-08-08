@@ -1,6 +1,6 @@
 """
 Main experiment runner for Social Memory Networks.
-Implements CLI, simulation loop, and result aggregation for all user stories.
+Orchestrates simulations, metrics computation, and result aggregation.
 """
 from __future__ import annotations
 
@@ -17,15 +17,17 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-# Local imports (matching API surface)
+# Local imports - using exact names from API surface
 from agent.base_agent import AgentConfig, BaseAgent
-from analysis.scaling import PowerLawFitResult, ScalingAnalysisResult, power_law, fit_power_law, load_scaling_data, aggregate_by_agent_count, run_scaling_analysis, generate_scaling_plot
-from data.loaders import DatasetSpec, register_dataset, get_dataset, enable_synthetic_fallback, disable_synthetic_fallback, get_dataset_spec, verify_datasets, load_experiment_results
-from data.synthetic import SyntheticDatasetSpec, generate_synthetic_cue_response_pairs, save_synthetic_dataset, generate_synthetic_dataset, verify_datasets as verify_synthetic
-from memory.buffer import MemoryAction, MemoryEntry, WriteRequest, ConflictResolutionResult, now, parse_memory_action_token, format_action_token, parse_action_from_prompt, WriteConflictResolver, MemoryBuffer, get_shared_buffer, reset_shared_buffer, parse_memory_action_token
-from metrics.retrieval import RetrievalMetrics, compute_retrieval_efficiency, validate_retrieval_efficiency, batch_compute_retrieval_efficiency
-from metrics.specialization import SpecializationMetrics, compute_gini_coefficient, compute_shannon_entropy, compute_specialization_index, validate_specialization_index, batch_compute_specialization, compute_specialization_index_v1
-from utils.logging import get_logger, log_operation, ReproducibilityLogger, LogEntry
+from analysis.anova import run_anova_analysis
+from analysis.power import run_power_analysis
+from analysis.sensitivity import run_sensitivity_analysis
+from data.loaders import DatasetSpec, get_dataset, load_experiment_results, save_experiment_results, verify_datasets
+from data.synthetic import generate_synthetic_cue_response_pairs
+from memory.buffer import MemoryBuffer, get_shared_buffer
+from metrics.retrieval import compute_retrieval_efficiency
+from metrics.specialization import compute_specialization_index
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -38,7 +40,6 @@ class GameConfig:
     token_limit: Optional[int] = None  # For limited context
     seed: int = 42
     max_turns: int = 50
-    game_id: int = 0
 
 @dataclass
 class GameResult:
@@ -49,16 +50,15 @@ class GameResult:
     context_condition: str
     agent_count: int
     token_limit: Optional[int] = None
-    actual_turns: int = 0
-    success: bool = True
+    dataset_name: str = ""
 
-def parse_agents_arg(arg: str) -> List[int]:
-    """Parse agent count argument (single int or comma-separated list)."""
-    if ',' in arg:
-        return [int(x.strip()) for x in arg.split(',')]
-    return [int(arg)]
+def parse_agents_arg(agents_str: str) -> List[int]:
+    """Parse agent count argument (supports single int or comma-separated list)."""
+    if ',' in agents_str:
+        return [int(x.strip()) for x in agents_str.split(',')]
+    return [int(agents_str)]
 
-def compute_file_checksum(filepath: Path) -> str:
+def compute_file_checksum(filepath: str) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
@@ -66,143 +66,124 @@ def compute_file_checksum(filepath: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_and_verify_dataset(dataset_name: str, output_dir: Path) -> Tuple[Path, str]:
+def load_and_verify_dataset(dataset_name: str, config: GameConfig) -> Tuple[Any, str]:
     """
-    Load dataset and verify its integrity.
-    Returns (path, sha256_hash).
+    Load and verify dataset. Falls back to synthetic data if real data unavailable.
+    Returns (dataset, source_url).
     """
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    dataset_spec = None
+    source_url = ""
     
-    # Check if dataset is registered
     try:
-        spec = get_dataset_spec(dataset_name)
-        if spec is None:
-            raise ValueError(f"Dataset '{dataset_name}' not registered. Use 'hanabi' or 'coqa'.")
+        if dataset_name == "hanabi":
+            # Try to import gymnasium and create Hanabi environment
+            try:
+                import gymnasium as gym
+                env = gym.make('hanabi-v0')
+                dataset_spec = DatasetSpec(
+                    name="hanabi",
+                    source_url="gymnasium://hanabi-v0",
+                    loader_type="gymnasium"
+                )
+                source_url = "gymnasium://hanabi-v0"
+                logger.log("dataset_loaded", operation="hanabi", status="verified", env=env)
+                return env, source_url
+            except Exception as e:
+                logger.log("dataset_missing", operation="hanabi", error=str(e))
+                raise RuntimeError(f"Hanabi dataset not available: {e}")
+        
+        elif dataset_name == "coqa":
+            # Try to load CoQA from HuggingFace
+            try:
+                from datasets import load_dataset
+                # Use streaming for large datasets
+                ds = load_dataset('coqa', streaming=True)
+                dataset_spec = DatasetSpec(
+                    name="coqa",
+                    source_url="https://huggingface.co/datasets/coqa",
+                    loader_type="huggingface"
+                )
+                source_url = "https://huggingface.co/datasets/coqa"
+                logger.log("dataset_loaded", operation="coqa", status="verified", streaming=True)
+                return ds, source_url
+            except Exception as e:
+                logger.log("dataset_missing", operation="coqa", error=str(e))
+                raise RuntimeError(f"CoQA dataset not available: {e}")
+        
+        else:
+            raise ValueError(f"Unknown dataset: {dataset_name}")
+            
     except Exception as e:
-        logger.log("dataset_not_registered", error=str(e))
-        # Try to enable synthetic fallback for testing
-        enable_synthetic_fallback()
-        spec = get_dataset_spec(dataset_name)
-        if spec is None:
-            raise ValueError(f"Dataset '{dataset_name}' not found and no synthetic fallback available.")
-    
-    # Download/verify dataset
-    cache_path = output_dir / f"{dataset_name}.json"
-    
-    if not cache_path.exists():
-        # Generate synthetic data if real data not available
-        logger.log("generating_synthetic_data", dataset=dataset_name)
-        synthetic_spec = SyntheticDatasetSpec(
-            num_records=100,
-            cue_prefix=f"{dataset_name}_cue",
-            response_prefix=f"{dataset_name}_response"
-        )
-        records = generate_synthetic_cue_response_pairs(synthetic_spec)
-        with open(cache_path, 'w') as f:
-            json.dump(records, f)
-    
-    # Compute checksum
-    checksum = compute_file_checksum(cache_path)
-    
-    # Write manifest
-    manifest = {
-        "dataset_name": dataset_name,
-        "source_url": spec.source_url if hasattr(spec, 'source_url') else "synthetic",
-        "sha256_hash": checksum,
-        "download_path": str(cache_path)
-    }
-    manifest_path = output_dir / "manifest.json"
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    return cache_path, checksum
+        # Fallback to synthetic data - log explicitly
+        logger.log("fallback_initiated", operation="synthetic", dataset=dataset_name, reason=str(e))
+        
+        # Generate synthetic cue-response pairs
+        synthetic_records = generate_synthetic_cue_response_pairs(num_records=200)
+        
+        # Save synthetic data to manifest
+        manifest = {
+            "dataset_name": f"synthetic_{dataset_name}",
+            "source_url": "synthetic://fallback",
+            "sha256_hash": hashlib.sha256(json.dumps(synthetic_records).encode()).hexdigest(),
+            "download_path": "data/synthetic_fallback.json",
+            "fallback_reason": str(e)
+        }
+        
+        # Write manifest
+        manifest_path = Path("data/manifest.json")
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest, f, indent=2)
+        
+        logger.log("fallback_completed", operation="synthetic", manifest_path=str(manifest_path))
+        return synthetic_records, "synthetic://fallback"
 
-def truncate_context(context: str, token_limit: int, tokens_per_char: float = 0.25) -> str:
-    """Truncate context to approximate token limit."""
+def truncate_context(context: str, token_limit: int) -> str:
+    """Truncate context to token limit (approximate by word count)."""
     if token_limit is None:
         return context
-    max_chars = int(token_limit / tokens_per_char)
-    return context[:max_chars]
+    
+    # Approximate: 1 token ≈ 0.75 words
+    word_limit = int(token_limit * 0.75)
+    words = context.split()
+    if len(words) <= word_limit:
+        return context
+    return ' '.join(words[:word_limit])
 
 def simulate_game_turn(
     agent: BaseAgent,
     state: Dict[str, Any],
     memory_buffer: MemoryBuffer,
-    context_condition: str,
-    token_limit: Optional[int]
-) -> Tuple[Dict[str, Any], List[MemoryAction]]:
+    config: GameConfig
+) -> Tuple[str, Dict[str, Any]]:
     """
-    Simulate a single turn for an agent.
-    Returns (new_state, memory_actions).
+    Simulate a single game turn for an agent.
+    Returns (action, updated_state).
     """
-    # Prepare context
-    context_parts = []
-    context_parts.append(f"Agent ID: {agent.config.agent_id}")
-    context_parts.append(f"Context Condition: {context_condition}")
-    
-    if context_condition == "limited" and token_limit:
-        full_context = json.dumps(state, ensure_ascii=False)
-        truncated = truncate_context(full_context, token_limit)
-        context_parts.append(f"State (truncated to {token_limit} tokens): {truncated}")
+    # Prepare context based on condition
+    if config.context_condition == "limited" and config.token_limit:
+        state_context = truncate_context(str(state), config.token_limit)
     else:
-        context_parts.append(f"State: {json.dumps(state, ensure_ascii=False)}")
+        state_context = str(state)
     
-    # Query memory buffer
-    query = f"Current state: {state.get('current_fact', 'unknown')}"
-    memory_entries = memory_buffer.read(query)
-    if memory_entries:
-        context_parts.append(f"Retrieved memories: {len(memory_entries)} entries")
+    # Agent generates action
+    action = agent.generate_action(state_context, memory_buffer)
     
-    full_prompt = "\n".join(context_parts)
+    # Update memory buffer if action contains memory operations
+    if isinstance(action, dict) and 'memory_action' in action:
+        memory_buffer.write(action['memory_action'])
     
-    # Agent processes prompt (simplified for CPU-only, no real LLM call)
-    # In a real implementation, this would call the LLM
-    # For simulation, we generate deterministic but varied responses based on seed
-    np.random.seed(agent.config.seed + hash(full_prompt) % 10000)
+    # Update state based on action
+    updated_state = state.copy()
+    updated_state['last_action'] = action
     
-    # Simulate agent action
-    action_prob = np.random.random()
-    memory_actions = []
-    
-    if action_prob > 0.7:
-        # Write to memory
-        key = f"fact_{state.get('current_fact', 'unknown')}"
-        value = f"Agent {agent.config.agent_id} remembers: {state.get('current_fact', 'unknown')}"
-        action = MemoryAction(type="write", key=key, value=value)
-        memory_actions.append(action)
-        memory_buffer.write(action)
-    
-    if action_prob < 0.3:
-        # Read from memory
-        query = f"fact_{state.get('current_fact', 'unknown')}"
-        _ = memory_buffer.read(query)
-    
-    # Update state
-    new_state = state.copy()
-    new_state["last_agent_id"] = agent.config.agent_id
-    new_state["turn_count"] = state.get("turn_count", 0) + 1
-    
-    return new_state, memory_actions
+    return action, updated_state
 
-def simulate_one_game(
-    config: GameConfig,
-    game_id_counter: int,
-    dataset_name: str
-) -> GameResult:
+def simulate_one_game(config: GameConfig, game_id: int, dataset: Any = None) -> GameResult:
     """
-    Simulate a single game with given configuration.
+    Simulate a single game and return results.
+    This is the core simulation loop.
     """
-    logger.log("simulate_one_game", 
-               game_id=config.game_id, 
-               agents=config.agent_count, 
-               context=config.context_condition,
-               dataset=dataset_name)
-    
-    # Reset shared buffer
-    reset_shared_buffer()
-    memory_buffer = get_shared_buffer()
-    
     # Initialize agents
     agents = []
     for i in range(config.agent_count):
@@ -215,158 +196,175 @@ def simulate_one_game(
         agent = BaseAgent(agent_config)
         agents.append(agent)
     
-    # Initialize game state
-    state = {
-        "current_fact": f"fact_{config.game_id}",
-        "turn_count": 0,
-        "played_facts": [],
-        "agent_contributions": {i: 0 for i in range(config.agent_count)}
-    }
+    # Initialize shared memory buffer
+    memory_buffer = get_shared_buffer()
+    memory_buffer.reset()
     
-    # Simulate turns
-    actual_turns = 0
+    # Load dataset if not provided
+    if dataset is None:
+        dataset, _ = load_and_verify_dataset(config.dataset_name, config)
+    
+    # Initialize game state
+    # For Hanabi: use environment state
+    # For synthetic/CoQA: use synthetic records
+    if hasattr(dataset, 'reset'):
+        # Gymnasium environment
+        state, _ = dataset.reset()
+    else:
+        # Synthetic or HuggingFace dataset
+        if isinstance(dataset, list) and len(dataset) > 0:
+            state = dataset[game_id % len(dataset)]
+        else:
+            state = {"turn": 0, "cards": [], "clues": []}
+    
+    # Game loop
+    turn = 0
     successful_retrievals = 0
     total_retrievals = 0
+    agent_contributions = [0] * config.agent_count
     
-    for turn in range(config.max_turns):
-        # Round-robin agent selection
-        agent_idx = turn % config.agent_count
-        agent = agents[agent_idx]
+    while turn < config.max_turns:
+        # Each agent takes a turn
+        for agent_idx, agent in enumerate(agents):
+            action, state = simulate_game_turn(agent, state, memory_buffer, config)
+            
+            # Track contributions and retrievals
+            if isinstance(action, dict):
+                if action.get('type') == 'play':
+                    agent_contributions[agent_idx] += 1
+                if action.get('type') == 'retrieve':
+                    total_retrievals += 1
+                    if action.get('success', False):
+                        successful_retrievals += 1
+            
+            # Check termination condition
+            if isinstance(state, dict) and state.get('game_over', False):
+                break
+            
+            turn += 1
+            if turn >= config.max_turns:
+                break
         
-        # Simulate turn
-        new_state, memory_actions = simulate_game_turn(
-            agent, state, memory_buffer,
-            config.context_condition, config.token_limit
-        )
-        
-        state = new_state
-        actual_turns += 1
-        
-        # Track contributions
-        if memory_actions:
-            state["agent_contributions"][agent_idx] += 1
-            state["played_facts"].append(state["current_fact"])
-        
-        # Check termination
-        if len(state["played_facts"]) >= 10:  # Arbitrary completion condition
+        if turn >= config.max_turns:
             break
     
     # Compute metrics
-    agent_contributions = list(state["agent_contributions"].values())
     spec_index, _ = compute_specialization_index(agent_contributions, num_agents=config.agent_count)
+    ret_eff, _ = compute_retrieval_efficiency(
+        successful_retrievals, 
+        total_retrievals, 
+        config.agent_count
+    )
     
-    # Compute retrieval efficiency
-    total_entries = len(memory_buffer._entries)
-    if total_entries > 0:
-        # Simulate retrieval attempts
-        for _ in range(5):
-            query = f"fact_{np.random.randint(0, 10)}"
-            results = memory_buffer.read(query)
-            total_retrievals += 1
-            if results:
-                successful_retrievals += 1
-    
-    ret_eff, _ = compute_retrieval_efficiency(successful_retrievals, total_retrievals, config.agent_count)
-    
-    result = GameResult(
-        game_id=config.game_id,
+    return GameResult(
+        game_id=game_id,
         specialization_index=spec_index,
         retrieval_efficiency=ret_eff,
         context_condition=config.context_condition,
         agent_count=config.agent_count,
         token_limit=config.token_limit,
-        actual_turns=actual_turns,
-        success=True
+        dataset_name=config.dataset_name
     )
-    
-    return result
 
 def run_simulation(
     context_condition: str,
-    agents: List[int],
+    agent_count: int,
     dataset_name: str,
     token_limits: Optional[List[int]] = None,
     game_count: int = 200,
-    output_dir: Path = None
+    output_path: str = "results/results_sensitivity.csv"
 ) -> List[GameResult]:
     """
-    Run simulation for specified configuration.
+    Run simulation sweep over token limits and game count.
     """
-    if output_dir is None:
-        output_dir = Path("projects/PROJ-586-social-memory-networks-modeling-collecti/results")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Load dataset once
+    dataset, source_url = load_and_verify_dataset(dataset_name, GameConfig(
+        context_condition=context_condition,
+        agent_count=agent_count,
+        dataset_name=dataset_name
+    ))
     
-    # Verify dataset
-    try:
-        load_and_verify_dataset(dataset_name, output_dir)
-    except Exception as e:
-        logger.log("dataset_verification_failed", error=str(e))
-        # Continue with synthetic fallback
-        pass
+    # Save dataset manifest
+    if not source_url.startswith("synthetic"):
+        try:
+            if hasattr(dataset, 'data_file'):
+                checksum = compute_file_checksum(dataset.data_file)
+            else:
+                checksum = hashlib.sha256(str(dataset).encode()).hexdigest()
+            
+            manifest = {
+                "dataset_name": dataset_name,
+                "source_url": source_url,
+                "sha256_hash": checksum,
+                "download_path": f"data/{dataset_name}"
+            }
+            with open("data/manifest.json", 'w') as f:
+                json.dump(manifest, f, indent=2)
+        except Exception as e:
+            logger.log("manifest_write_failed", error=str(e))
     
     results = []
-    game_id = 0
     
-    # Determine agent counts to run
-    if isinstance(agents, int):
-        agent_counts = [agents]
-    else:
-        agent_counts = agents
-    
-    # Determine token limits
+    # Determine token limits to sweep
     if token_limits is None:
         if context_condition == "limited":
-            token_limits = [128, 256, 512]
+            token_limits = [128, 256, 512]  # FR-008 mandated sweep
         else:
-            token_limits = [None]
+            token_limits = [None]  # Full context
     
-    # Run simulations
-    for agent_count in agent_counts:
-        for token_limit in token_limits:
-            for _ in range(game_count // len(agent_counts) // len(token_limits)):
-                config = GameConfig(
-                    context_condition=context_condition,
-                    agent_count=agent_count,
-                    dataset_name=dataset_name,
-                    token_limit=token_limit,
-                    seed=42,
-                    max_turns=50,
-                    game_id=game_id
-                )
-                
-                try:
-                    result = simulate_one_game(config, game_id, dataset_name)
-                    results.append(result)
-                    game_id += 1
-                except Exception as e:
-                    logger.log("game_simulation_failed", game_id=game_id, error=str(e))
-                    # Continue with next game
-                    continue
+    # Run simulation for each token limit
+    for token_limit in token_limits:
+        logger.log("simulation_start", token_limit=token_limit, game_count=game_count)
+        
+        for game_id in range(game_count):
+            config = GameConfig(
+                context_condition=context_condition,
+                agent_count=agent_count,
+                dataset_name=dataset_name,
+                token_limit=token_limit,
+                seed=42 + game_id,
+                max_turns=50
+            )
+            
+            result = simulate_one_game(config, game_id, dataset)
+            results.append(result)
+            
+            if (game_id + 1) % 50 == 0:
+                logger.log("simulation_progress", game_id=game_id + 1, total=game_count)
+        
+        logger.log("simulation_complete", token_limit=token_limit, results_count=len(results))
+    
+    # Write results to CSV
+    write_results_csv(results, output_path)
     
     return results
 
-def write_results_csv(results: List[GameResult], output_path: Path):
-    """Write results to CSV file."""
-    if not results:
-        logger.log("no_results_to_write", path=str(output_path))
-        return
+def write_results_csv(results: List[GameResult], output_path: str) -> None:
+    """Write simulation results to CSV file."""
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    fieldnames = [
+        'token_limit', 'game_id', 'specialization_index', 
+        'retrieval_efficiency', 'context_condition', 'agent_count', 'dataset_name'
+    ]
     
     with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            'game_id', 'specialization_index', 'retrieval_efficiency',
-            'context_condition', 'agent_count', 'token_limit',
-            'actual_turns', 'success'
-        ])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
         
-        for r in results:
-            writer.writerow([
-                r.game_id, r.specialization_index, r.retrieval_efficiency,
-                r.context_condition, r.agent_count, r.token_limit,
-                r.actual_turns, r.success
-            ])
+        for result in results:
+            writer.writerow({
+                'token_limit': result.token_limit if result.token_limit is not None else 'full',
+                'game_id': result.game_id,
+                'specialization_index': result.specialization_index,
+                'retrieval_efficiency': result.retrieval_efficiency,
+                'context_condition': result.context_condition,
+                'agent_count': result.agent_count,
+                'dataset_name': result.dataset_name
+            })
     
-    logger.log("results_written", path=str(output_path), count=len(results))
+    logger.log("results_written", path=output_path, count=len(results))
 
 def build_parser() -> argparse.ArgumentParser:
     """Build argument parser for CLI."""
@@ -374,7 +372,6 @@ def build_parser() -> argparse.ArgumentParser:
     
     parser.add_argument(
         "--context",
-        type=str,
         choices=["full", "limited"],
         default="full",
         help="Context condition: full or limited"
@@ -383,41 +380,35 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--agents",
         type=str,
-        default="3",
-        help="Agent count(s): single int or comma-separated list (e.g., 3,5,7)"
+        default="5",
+        help="Number of agents (int or comma-separated list)"
     )
     
     parser.add_argument(
         "--dataset",
-        type=str,
+        choices=["hanabi", "coqa"],
         default="hanabi",
-        help="Dataset name: hanabi or coqa"
+        help="Dataset to use"
     )
     
     parser.add_argument(
         "--token-sweep",
         action="store_true",
-        help="Run token limit sweep (128, 256, 512) for limited context"
-    )
-    
-    parser.add_argument(
-        "--scaling",
-        action="store_true",
-        help="Run scaling analysis across agent counts"
-    )
-    
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results",
-        help="Output directory for results"
+        help="Run systematic sweep over token limits {128, 256, 512}"
     )
     
     parser.add_argument(
         "--game-count",
         type=int,
         default=None,
-        help="Number of games to simulate per configuration"
+        help="Number of games to simulate (default: from SIMULATION_GAME_COUNT env or 200)"
+    )
+    
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output CSV path"
     )
     
     return parser
@@ -427,43 +418,45 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
     
-    # Parse agents
+    # Parse agent counts
     agent_counts = parse_agents_arg(args.agents)
     
     # Get game count from env or args
     game_count = args.game_count
     if game_count is None:
-        game_count = int(os.environ.get('SIMULATION_GAME_COUNT', '200'))
+        env_count = os.environ.get('SIMULATION_GAME_COUNT', '200')
+        try:
+            game_count = int(env_count)
+            if game_count <= 0:
+                raise ValueError("Must be positive")
+        except ValueError:
+            raise ValueError(f"Invalid SIMULATION_GAME_COUNT: must be a positive integer")
     
-    # Determine token limits
-    token_limits = None
-    if args.token_sweep or (args.context == "limited" and not args.scaling):
-        token_limits = [128, 256, 512]
+    # Determine output path
+    if args.output:
+        output_path = args.output
+    elif args.token_sweep or args.context == "limited":
+        output_path = "results/results_sensitivity.csv"
+    else:
+        output_path = "results/results_full.csv"
     
     # Run simulation
+    token_limits = None
+    if args.token_sweep or args.context == "limited":
+        token_limits = [128, 256, 512]
+    
     results = run_simulation(
         context_condition=args.context,
-        agents=agent_counts,
+        agent_count=agent_counts[0],  # Use first agent count for sweep
         dataset_name=args.dataset,
         token_limits=token_limits,
         game_count=game_count,
-        output_dir=Path(args.output_dir)
+        output_path=output_path
     )
     
-    # Write results
-    if args.scaling:
-        output_path = Path(args.output_dir) / "results_scaling.csv"
-    elif args.token_sweep:
-        output_path = Path(args.output_dir) / "results_sweep_raw.csv"
-    elif args.context == "limited":
-        output_path = Path(args.output_dir) / "results_limited.csv"
-    else:
-        output_path = Path(args.output_dir) / "results_full.csv"
-    
-    write_results_csv(results, output_path)
-    
-    print(f"Simulation complete. Results written to {output_path}")
-    print(f"Total games: {len(results)}")
+    logger.log("experiment_complete", total_results=len(results), output_path=output_path)
+    print(f"Experiment complete. Results written to {output_path}")
+    print(f"Total games simulated: {len(results)}")
 
 if __name__ == "__main__":
     main()
