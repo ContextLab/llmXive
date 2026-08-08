@@ -18,13 +18,12 @@ T012:
     \ Step\u202F3 is not evidenced in the artifacts."
 T013:
   c: false
-  h: 7dbe0b218e12587f561fc200f36f9cc2c404a2efc14577500078658b51b0c61a
-  r: The repository lacks the required `data/state/generation_status.json`, `data/raw/synthetic_train.csv`,
-    and `data/state/synthetic_config.json` files, and the provided `code/01_data_acquisition.py`
-    does not contain any implementation of the synthetic data generation logic described
-    in the task (the file is truncated after utility functions). Consequently, the
-    script does not read the status file, generate the CSV, or write the config JSON
-    as mandated.
+  h: 3d35ba937cf423daa83b2fb5c8d4000d695e57f8b757c8984668391d95c9fd22
+  r: "The required outputs `data/raw/synthetic_train.csv` and `data/state/synthetic_config.json`\
+    \ are not present on disk, and thus the task\u2019s core deliverables have not\
+    \ been produced. Additionally, the provided script is truncated and does not show\
+    \ the synthetic\u2011generation logic. The implementer must ensure the script\
+    \ creates both files (even empty with error logs) according to the specification."
 T018:
   c: false
   h: c358d1a397877ecc5909edd6f38f6107d05ccf578c4026ce1e930b63a3bb2e0c

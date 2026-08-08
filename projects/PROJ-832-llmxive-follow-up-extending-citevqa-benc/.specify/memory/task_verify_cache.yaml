@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `tests/`, `data/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `data/logs/`, `scripts/`) is provided; the
+    claim cannot be verified without seeing the actual filesystem.
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `venv` directory, activation scripts, or an installed `requirements.txt`
+    (or similar) is present; the claim provides only a textual statement without any
+    accompanying files or logs showing the virtual environment creation or package
+    installation.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or any related setup scripts) were presented,
+    nor any evidence that ruff and black have been integrated into the project. Without
+    these artifacts, the requirement to configure linting (ruff) and formatting (black)
+    is not satisfied.
+T005b:
+  c: false
+  h: a9bbe86c551218d07b7054c03fa21500e1d081c3307649ff166b50b2dd3e3c3c
+  r: "The required artifact `data/baseline_saa_raw.json` does not exist, so the scalar\
+    \ SAA mean value cannot be verified as documented. The task\u2019s core deliverable\
+    \ is missing."
+T007:
+  c: false
+  h: fbb3ff406ad77f341cc3d09921991ca75d8d6c82a421577d744f16867fa7d3f9
+  r: The required file `code/baseline_ref.py` is missing entirely, so there is no
+    implementation that loads the JSON or defines the specified schema. Only the JSON
+    data file exists, but without the corresponding Python module the task is not
+    fulfilled.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No environment configuration files, scripts, or documentation (e.g., `environment.yml`,\
+    \ `Dockerfile`, `requirements.txt` with CPU\u2011only flags) are present to demonstrate\
+    \ that a CPU\u2011only execution environment has been set up. The provided spec\
+    \ discusses a downstream text\u2011only pipeline but offers no concrete artifacts\
+    \ that satisfy the \u201Csetup environment configuration management for CPU\u2011\
+    only execution constraints\u201D requirement."

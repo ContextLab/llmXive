@@ -1,0 +1,99 @@
+- artifact_path: projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc/data/results/modality_comparison.md
+  attempts: 1
+  canonical: Text-Only SAA is 65.00%
+  claim_id: c_90ff9fa2
+  context: 'This report compares the performance of the Text-Only Retrieval Pipeline
+    (User Story 1) against the Visual-Only Localization Control Experiment (User Story
+    3) on the CiteVQA held-out test set. - Text-Only SAA: 65.00%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Text-Only SAA: 65.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:50:37Z'
+- artifact_path: projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc/data/results/modality_comparison.md
+  attempts: 1
+  canonical: Visual-Only SAA is 58.00%
+  claim_id: c_b293a7da
+  context: 'This report compares the performance of the Text-Only Retrieval Pipeline
+    (User Story 1) against the Visual-Only Localization Control Experiment (User Story
+    3) on the CiteVQA held-out test set. - Visual-Only SAA: 58.00%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Visual-Only SAA: 58.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:50:37Z'
+- artifact_path: projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc/data/results/modality_comparison.md
+  attempts: 1
+  canonical: Visual-Only VLA is 72.00%
+  claim_id: c_e3793101
+  context: 'This report compares the performance of the Text-Only Retrieval Pipeline
+    (User Story 1) against the Visual-Only Localization Control Experiment (User Story
+    3) on the CiteVQA held-out test set. - Visual-Only VLA: 72.00%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Visual-Only VLA: 72.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:50:37Z'
+- artifact_path: projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc/data/results/modality_comparison.md
+  attempts: 1
+  canonical: Text-Only Mean IoU is 55.00%
+  claim_id: c_ab748937
+  context: '| Metric | Text-Only | Visual-Only | Delta (Vis - Text) | | :--- | :---
+    | :--- | :--- | | **Mean IoU** | 55.00% | 60.00% | 5.00% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Text-Only Mean IoU: 55.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:50:37Z'
+- artifact_path: projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc/data/results/modality_comparison.md
+  attempts: 1
+  canonical: Visual-Only Mean IoU is 60.00%
+  claim_id: c_59530bca
+  context: '| Metric | Text-Only | Visual-Only | Delta (Vis - Text) | | :--- | :---
+    | :--- | :--- | | **Mean IoU** | 55.00% | 60.00% | 5.00% |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Visual-Only Mean IoU: 60.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:50:37Z'
+- artifact_path: projects/PROJ-832-llmxive-follow-up-extending-citevqa-benc/data/results/modality_comparison.md
+  attempts: 1
+  canonical: Text-Only Attribution Hallucination Rate is 15.00%
+  claim_id: c_47234bec
+  context: '## Attribution Hallucination Analysis **Text-Only Attribution Hallucination
+    Rate**: 15.00%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Text-Only Attribution Hallucination Rate: 15.00%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T12:50:37Z'

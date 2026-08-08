@@ -1,0 +1,23 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the required top\u2011level folders (`code/`, `data/`, `docs/`,\
+    \ `tests/`) but none are present in the provided artifact list or description.\
+    \ Without these directories the project structure specified in `plan.md` has not\
+    \ been created."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no linting or formatting configuration files (e.g.,
+    `pyproject.toml` with Black settings, `.ruff.toml` or `.flake8`), nor any evidence
+    that ruff/flake8 and Black were installed or integrated into the project workflow.
+    Consequently, the requirement to configure these tools is not satisfied. The missing
+    artifacts must be added and demonstrated (e.g., runnable lint/format commands
+    passing without errors).
+T015:
+  c: false
+  h: a8c702534aa2b0d03ac68d7c64e33a5c332f2e4a16201189d08f58dc6cdbc586
+  r: The `code/utils/motion.py` file is truncated and does not contain the logic to
+    filter subjects or write entries to `data/processed/exclusion_log.csv`. Moreover,
+    the required `exclusion_log.csv` file is absent from the repository. Both the
+    implementation and the deliverable log are missing.

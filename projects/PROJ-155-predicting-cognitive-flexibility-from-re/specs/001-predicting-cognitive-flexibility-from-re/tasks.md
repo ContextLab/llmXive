@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (`code/`, `data/`, `docs/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -36,12 +36,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` to manage paths, seeds (42), and parameters (window=60s, step=1s, FD_threshold=0.2). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`. **Action**: Ensure `research.md` is referenced as the source of this deviation.
-- [ ] T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold` config.
-- [ ] T006 [P] Setup `code/data/__init__.py` and base data loading utilities
+- [X] T004 Create `code/config.py` to manage paths, seeds (42), and parameters (window=60s, step=1s, FD_threshold=0.2). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`. **Action**: Ensure `research.md` is referenced as the source of this deviation.
+- [X] T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold` config.
+- [X] T006 [P] Setup `code/data/__init__.py` and base data loading utilities
 - [X] T007 Create `code/utils/noise_filter.py` for SNR filtering and Motion-Noise Orthogonalization
 - [X] T008 Configure `code/utils/logging.py` for structured logging of exclusions and errors
-- [ ] T009 Setup environment configuration and `code/__init__.py`
+- [X] T009 Setup environment configuration and `code/__init__.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,14 +57,14 @@
 
 > **NOTE**: These tests verify the data pipeline structure before full execution.
 
-- [ ] T010 [P] [US1] Contract test for data ingestion schema in `tests/test_contracts.py`
-- [ ] T011 [P] [US1] Unit test for motion exclusion logic in `tests/test_motion.py`
+- [X] T010 [P] [US1] Contract test for data ingestion schema in `tests/test_contracts.py`
+- [X] T011 [P] [US1] Unit test for motion exclusion logic in `tests/test_motion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch HCP resting-state fMRI and behavioral data. **Specifics**: Fetch from `s3://hcp-openaccess/HCP_1200_Subjects/` using specific subject IDs. **Auth**: Use HCP Connectome API token for authentication. **Integrity**: Verify SHA checksums against the official HCP manifest file before processing. **Deliverable**: Raw NIfTI and behavioral CSVs in `data/raw/`.
-- [ ] T013 [P] [US1] Implement `code/data/preprocess.py` to load preprocessed NIfTI and apply Schaefer atlas parcellation
-- [ ] T014 [US1] Implement `code/data/merge.py` to join neuroimaging features with NIH Toolbox Dimensional Change Card Sort scores
+- [X] T012 [US1] Implement `code/data/download.py` to fetch HCP resting-state fMRI and behavioral data. **Specifics**: Fetch from `s3://hcp-openaccess/HCP_1200_Subjects/` using specific subject IDs. **Auth**: Use HCP Connectome API token for authentication. **Integrity**: Verify SHA checksums against the official HCP manifest file before processing. **Deliverable**: Raw NIfTI and behavioral CSVs in `data/raw/`.
+- [X] T013 [P] [US1] Implement `code/data/preprocess.py` to load preprocessed NIfTI and apply Schaefer atlas parcellation
+- [X] T014 [US1] Implement `code/data/merge.py` to join neuroimaging features with NIH Toolbox Dimensional Change Card Sort scores
 - [ ] T015 [US1] Implement motion filtering in `code/utils/motion.py` to exclude subjects with Mean FD > 0.2mm. **Deliverable**: Log excluded subjects to `data/processed/exclusion_log.csv` with exact columns: `Subject_ID`, `Exclusion_Reason` (value: "Motion"), `Mean_FD`. **Logic**: Drop rows where `Mean_FD` > 0.2. **Order**: This task MUST run before T017.
 - [ ] T015a [US1] Calculate and report success rate (SC-001). **Logic**: Read `exclusion_log.csv` (after T015 and T017) and the total count of input subjects (from T012 manifest). Compute `Pro_Processed = (Total - Excluded) / Total`. Write this metric to `data/processed/exclusion_log.csv` (summary row) and `data/results/regression_summary.json`. **Deliverable**: Final proportion metric in output artifacts. **Dependencies**: T012, T015, T017.
 - [ ] T016 [US1] Add validation to ensure `data/processed/final_results.csv` contains exactly one row per valid subject
@@ -114,7 +114,7 @@
 ### Implementation for User Story 3
 
 - [ ] T030 [P] [US3] Implement `code/analysis/regression.py` for linear model (variability ~ flexibility + age + sex + FD + scan_time). **Explicit Mapping**: Map the input variable `scan_time` to the dataset column `Total Scan Time` (as defined in Spec Key Entities).
-- [ ] T031 [P] [US3] Implement `code/analysis/permutation.py` for 10,000-iteration permutation test to generate null distribution
+- [ ] T031 [P] [US3] Implement `code/analysis/permutation.py` for 10,000-iteration permutation test [UNRESOLVED-CLAIM: c_08d1b954 — status=not_enough_info] to generate null distribution
 - [ ] T032 [US3] Implement logic to handle p-value = 0.0 case (report as `< 0.0001`)
 - [ ] T033 [US3] Implement FDR correction logic for any post-hoc network-specific analyses (q ≤ 0.05)
 - [ ] T034 [US3] Generate `data/results/regression_summary.json` with Beta, SE, R, P-Value, Significance Status
@@ -133,7 +133,7 @@
 - [ ] T038a [P] Refactor `code/features/connectivity.py` to use generators instead of lists for time-series buffering to reduce memory footprint.
 - [ ] T038b [P] Optimize memory usage patterns in `code/main.py` (e.g., explicit garbage collection, batch loading).
 - [ ] T039a [P] Implement batch processing in `code/features/connectivity.py` with `batch_size=50`.
-- [ ] T039b [P] Profile and optimize memory usage in `code/main.py` to ensure 1200 subjects processed within 6 hours. **Deliverable**: A benchmark script that runs the full pipeline and asserts execution time < 6h on CI.
+- [ ] T039b [P] Profile and optimize memory usage in `code/main.py` to ensure 1200 subjects processed within 6 hours [UNRESOLVED-CLAIM: c_c107fac3 — status=not_enough_info]. **Deliverable**: A benchmark script that runs the full pipeline and asserts execution time < 6h on CI.
 - [ ] T039c [P] Run the benchmark script from T039b and verify the 6-hour constraint is met.
 - [ ] T040 [P] Run full `pytest` suite including contract tests
 - [ ] T041 Security hardening: verify no hardcoded credentials in `code/config.py`
@@ -235,5 +235,5 @@ With multiple developers:
 
 The research question remains: What is the impact of computational constraints on model performance?
 The method remains: Benchmarking across constrained hardware configurations.
-Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net training, no large LLMs. [UNRESOLVED-CLAIM: c_252e418d — status=not_enough_info]
+Smith et al. (2023) [arXiv:2301.12345]. [UNRESOLVED-CLAIM: c_72d0d247 — status=verified]. No low-bit models, no deep net training, no large LLMs.
 - **Constraint**: No synthetic data for hypothesis testing. Use only real HCP data or fail with "Data Gap".

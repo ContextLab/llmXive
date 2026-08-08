@@ -1,3 +1,2 @@
-"""
-Test suite for llmXive project.
-"""
+# Tests module initialization
+pass

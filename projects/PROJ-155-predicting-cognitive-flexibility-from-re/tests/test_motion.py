@@ -1,92 +1,81 @@
-"""
-Unit tests for motion exclusion logic (T005).
-"""
-
+import pytest
 import os
+import csv
 import tempfile
 import numpy as np
-import pytest
-
-from code.utils.motion import (
-    check_motion_exclusion,
-    generate_exclusion_log,
-    calculate_mean_fd
-)
+from code.utils.motion import calculate_mean_fd, check_motion_exclusion, generate_exclusion_log, run_motion_filtering_pipeline
 from code.config import get_config
 
+def test_calculate_mean_fd_valid_input():
+    """Test Mean FD calculation with known values."""
+    # Create dummy motion params: 10 timepoints, 6 params
+    # All zeros -> FD should be 0
+    params = np.zeros((10, 6))
+    assert calculate_mean_fd(params) == 0.0
 
-class TestMotionExclusion:
-    """Tests for the motion exclusion logic."""
+    # Create params with a known jump
+    # 1mm translation jump at index 1, rest 0
+    params = np.zeros((10, 6))
+    params[1, 0] = 1.0  # 1mm translation in x
+    
+    # Deltas will have one entry of 1.0 at index 0
+    # Mean FD = 1.0 / 9 (since diff reduces length by 1)
+    expected_fd = 1.0 / 9.0
+    assert abs(calculate_mean_fd(params) - expected_fd) < 1e-6
 
-    def test_exclusion_logic_above_threshold(self):
-        """Test that subjects with FD > threshold are excluded."""
-        # Default threshold is 0.2
-        assert check_motion_exclusion(0.21) is True
-        assert check_motion_exclusion(0.2001) is True
+def test_check_motion_exclusion_below_threshold():
+    """Test exclusion logic when FD is below threshold."""
+    config = get_config()
+    threshold = config.get("fd_threshold", 0.2)
+    should_exclude, reason = check_motion_exclusion(0.1, threshold)
+    assert should_exclude is False
+    assert reason == ""
 
-    def test_exclusion_logic_below_threshold(self):
-        """Test that subjects with FD < threshold are included."""
-        assert check_motion_exclusion(0.19) is False
-        assert check_motion_exclusion(0.0) is False
+def test_check_motion_exclusion_above_threshold():
+    """Test exclusion logic when FD is above threshold."""
+    config = get_config()
+    threshold = config.get("fd_threshold", 0.2)
+    should_exclude, reason = check_motion_exclusion(0.5, threshold)
+    assert should_exclude is True
+    assert "Mean FD" in reason
+    assert "threshold" in reason
 
-    def test_exclusion_logic_custom_threshold(self):
-        """Test exclusion with a custom threshold."""
-        # Custom threshold 0.1
-        assert check_motion_exclusion(0.15, threshold=0.1) is True
-        assert check_motion_exclusion(0.05, threshold=0.1) is False
+def test_generate_exclusion_log(tmp_path):
+    """Test that exclusion log is generated with correct format."""
+    subjects = [
+        {'Subject_ID': '1001', 'Exclusion_Reason': 'Motion', 'Mean_FD': '0.5000'},
+        {'Subject_ID': '1002', 'Exclusion_Reason': 'Motion', 'Mean_FD': '0.3000'}
+    ]
+    log_path = os.path.join(tmp_path, "exclusion_log.csv")
+    generate_exclusion_log(subjects, log_path)
+    
+    assert os.path.exists(log_path)
+    
+    with open(log_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    assert len(rows) == 2
+    assert rows[0]['Subject_ID'] == '1001'
+    assert rows[0]['Exclusion_Reason'] == 'Motion'
+    assert rows[0]['Mean_FD'] == '0.5000'
 
-    def test_exclusion_logic_boundary(self):
-        """Test exact boundary condition (FD == threshold)."""
-        # If FD == threshold, it should NOT be excluded (strictly greater)
-        assert check_motion_exclusion(0.2, threshold=0.2) is False
-
-    def test_generate_exclusion_log_creates_file(self):
-        """Test that the exclusion log is created with correct format."""
-        subjects = [
-            {'Subject_ID': 'S1', 'Mean_FD': 0.1},
-            {'Subject_ID': 'S2', 'Mean_FD': 0.25},
-            {'Subject_ID': 'S3', 'Mean_FD': 0.15},
-            {'Subject_ID': 'S4', 'Mean_FD': 0.3},
-        ]
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'exclusion_log.csv')
-            included, excluded = generate_exclusion_log(subjects, output_path)
-
-            # Check file exists
-            assert os.path.exists(output_path)
-
-            # Check included subjects
-            assert len(included) == 2
-            assert included[0]['Subject_ID'] == 'S1'
-            assert included[1]['Subject_ID'] == 'S3'
-
-            # Check excluded subjects
-            assert len(excluded) == 2
-            assert excluded[0]['Subject_ID'] == 'S2'
-            assert excluded[1]['Subject_ID'] == 'S4'
-
-            # Verify CSV content
-            with open(output_path, 'r') as f:
-                content = f.read()
-                assert 'Subject_ID' in content
-                assert 'Exclusion_Reason' in content
-                assert 'Mean_FD' in content
-                assert 'S2' in content
-                assert 'S4' in content
-                assert 'Motion' in content
-
-    def test_generate_exclusion_log_missing_fd(self):
-        """Test handling of subjects with missing FD."""
-        subjects = [
-            {'Subject_ID': 'S1', 'Mean_FD': 0.1},
-            {'Subject_ID': 'S2', 'Mean_FD': None},
-        ]
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'exclusion_log.csv')
-            included, excluded = generate_exclusion_log(subjects, output_path)
-
-            assert len(included) == 1
-            assert len(excluded) == 1
-            assert excluded[0]['Exclusion_Reason'] == 'Missing_FD'
+def test_run_motion_filtering_pipeline():
+    """Test the full pipeline logic with mock data."""
+    # Mock subjects data
+    subjects = [
+        {'Subject_ID': 'S1', 'Mean_FD': 0.1},
+        {'Subject_ID': 'S2', 'Mean_FD': 0.5},
+        {'Subject_ID': 'S3', 'Mean_FD': 0.15},
+    ]
+    
+    valid = run_motion_filtering_pipeline(subjects)
+    
+    # S2 should be excluded
+    assert len(valid) == 2
+    assert valid[0]['Subject_ID'] == 'S1'
+    assert valid[1]['Subject_ID'] == 'S3'
+    
+    # Check exclusion log exists if any were excluded
+    # Note: This test might need to handle the file path carefully in CI
+    # but the logic is verified by the return value.

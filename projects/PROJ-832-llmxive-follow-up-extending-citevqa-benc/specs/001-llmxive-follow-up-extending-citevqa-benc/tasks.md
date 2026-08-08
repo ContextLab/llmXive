@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create directory structure per implementation plan (`code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `data/logs/`, `scripts/`)
-- [ ] T001b Create `code/__init__.py`, `tests/__init__.py`, `data/.gitkeep`, `scripts/.gitkeep`
-- [ ] T002a Create `requirements.txt` with pinned versions: `torch-cpu`, `transformers`, `sentence-transformers`, `pdfplumber`, `scikit-learn`, `pandas`, `pytest`, `memory-profiler`, `numpy`, `matplotlib`
+- [X] T001b Create `code/__init__.py`, `tests/__init__.py`, `data/.gitkeep`, `scripts/.gitkeep`
+- [X] T002a Create `requirements.txt` with pinned versions: `torch-cpu`, `transformers`, `sentence-transformers`, `pdfplumber`, `scikit-learn`, `pandas`, `pytest`, `memory-profiler`, `numpy`, `matplotlib`
 - [ ] T002b Set up Python virtual environment (`python -m venv venv`) and install requirements <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -59,11 +59,11 @@
 
 - [X] T004 Implement `code/config.py` for paths, seeds, and hyperparameters
 - [X] T005a [Research] Identify and verify a real, reachable URL for the CiteVQA dataset (e.g., HuggingFace `datasets.load_dataset("citevqa")` or raw GitHub CSVs). Document the verified URL in `data/verified_sources.json`. If no verified URL is found, document the block and halt.
-- [~] T005b [Research] Read the CiteVQA paper and extract the scalar SAA mean value. Document this value in `data/baseline_saa_raw.json` with source citation. <!-- FAILED: unspecified -->
+- [ ] T005b [Research] Read the CiteVQA paper and extract the scalar SAA mean value. Document this value in `data/baseline_saa_raw.json` with source citation. <!-- FAILED: unspecified -->
 - [X] T006 [Depends T005a] Fetch the verified CiteVQA dataset using the URL from `data/verified_sources.json`. Parse PDFs with `pdfplumber` to extract text chunks and bounding boxes. Save to `data/raw/` and `data/processed/`.
-- [~] T007 [Depends T005b] Implement `code/baseline_ref.py` to load the immutable CiteVQA baseline SAA scalar from `data/baseline_saa.json` (populated from T005b output). Define the JSON schema: `{"baseline_saa": <value>, "source": "paper_ref"}`.
+- [ ] T007 [Depends T005b] Implement `code/baseline_ref.py` to load the immutable CiteVQA baseline SAA scalar from `data/baseline_saa.json` (populated from T005b output). Define the JSON schema: `{"baseline_saa": <value>, "source": "paper_ref"}`.
 - [X] T008 Implement `code/metrics.py` with core functions: `calculate_iou`, `semantic_similarity` (L2 normalized), `compute_saa` (Answer Correctness: Exact Match OR Semantic Similarity >= 0.85), `compute_vla`.
-- [~] T009 Setup environment configuration management for CPU-only execution constraints
+- [ ] T009 Setup environment configuration management for CPU-only execution constraints
 - [X] T010 [P] Create unit tests for `metrics.py` (mocked IoU and similarity calculations) in `tests/unit/test_metrics.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -136,7 +136,7 @@
 - [X] T028 [P] [US3] Implement `code/visual_control.py`: Load `microsoft/phi-3-vision-128k-instruct` (4-bit quantized). Run `python scripts/profile_vision_memory.py` to verify memory usage < 7GB. If memory exceeds limit, flag research blocker.
 - [~] T029 [US3] Implement logic to predict bounding box/chunk ID from visual input only (no text context). Compute **Visual Localization Accuracy (VLA)** and **Strict Attributed Accuracy (SAA)** for the visual-only pipeline.
 - [~] T030 [US3] Compute VLA and SAA for Visual-Only pipeline and compare against Text-Only SAA results. Clarify relationship between VLA and SAA in the report.
-- [ ] T031 [US3] Generate comparative report highlighting the performance delta between Text-Only and Visual-Only modalities in `data/results/modality_comparison.md`
+- [X] T031 [US3] Generate comparative report highlighting the performance delta between Text-Only and Visual-Only modalities in `data/results/modality_comparison.md`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,11 +146,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates in `quickstart.md` and `README.md`
-- [ ] T033 Code cleanup and refactoring to ensure no GPU imports remain in `code/`
-- [ ] T034 Performance optimization to ensure total runtime < 6 hours on CI
-- [ ] T035 [P] Additional unit tests for data loading edge cases (corrupted PDFs, malformed boxes) in `tests/unit/test_data_loader.py`
-- [ ] T036 Run `quickstart.md` validation to verify end-to-end execution
+- [~] T032 [P] Documentation updates in `quickstart.md` and `README.md`
+- [~] T033 Code cleanup and refactoring to ensure no GPU imports remain in `code/`
+- [~] T034 Performance optimization to ensure total runtime < 6 hours on CI
+- [X] T035 [P] Additional unit tests for data loading edge cases (corrupted PDFs, malformed boxes) in `tests/unit/test_data_loader.py`
+- [~] T036 Run `quickstart.md` validation to verify end-to-end execution
 
 ---
 

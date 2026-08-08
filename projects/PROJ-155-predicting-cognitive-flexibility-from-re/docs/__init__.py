@@ -1,0 +1,2 @@
+# Documentation module initialization
+pass
