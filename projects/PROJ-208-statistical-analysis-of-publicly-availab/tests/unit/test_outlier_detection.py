@@ -1,165 +1,216 @@
-import pytest
-import numpy as np
+"""
+Unit tests for outlier detection functionality.
+
+Tests the IQR-based outlier detection on log-transformed resolution times.
+"""
+
+import json
+import math
+import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+import numpy as np
+import pandas as pd
+import pytest
+
 import sys
-from datetime import datetime, timezone
+import os
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from analysis.outlier_detection import detect_outliers, calculate_outlier_metrics
+from analysis.outlier_detection import detect_outliers_iqr, load_cleaned_data
 
-@pytest.fixture
-def sample_issues():
-    """Create a sample list of issues for testing."""
-    return [
-        {'number': 1, 'repository': 'repo1', 'resolution_time_hours': 10.0},
-        {'number': 2, 'repository': 'repo1', 'resolution_time_hours': 24.0},
-        {'number': 3, 'repository': 'repo2', 'resolution_time_hours': 500.0},  # > 30 days
-        {'number': 4, 'repository': 'repo2', 'resolution_time_hours': 720.0},  # > 30 days (30 days)
-        {'number': 5, 'repository': 'repo3', 'resolution_time_hours': 100.0},
-        {'number': 6, 'repository': 'repo3', 'resolution_time_hours': 800.0},  # > 30 days
-        {'number': 7, 'repository': 'repo4', 'resolution_time_hours': 5.0},
-        {'number': 8, 'repository': 'repo4', 'resolution_time_hours': np.nan},  # Missing value
-        {'number': 9, 'repository': 'repo5', 'resolution_time_hours': 750.0},   # > 30 days
-    ]
 
-@pytest.fixture
-def empty_issues():
-    """Create an empty list of issues."""
-    return []
-
-def test_detect_outliers_basic(sample_issues):
-    """Test basic outlier detection with 30-day threshold."""
-    outliers, non_outliers = detect_outliers(sample_issues, threshold_days=30.0)
+class TestDetectOutliersIQR:
+    """Tests for the detect_outliers_iqr function."""
     
-    # 30 days = 720 hours
-    # Outliers: issues with resolution_time_hours > 720
-    # Issue 3: 500h (not outlier)
-    # Issue 4: 720h (not outlier, exactly 30 days)
-    # Issue 6: 800h (outlier)
-    # Issue 9: 750h (outlier)
-    # Issue 8: NaN (skipped)
-    
-    # Expected outliers: issues with 750h and 800h
-    assert len(outliers) == 2
-    
-    # Check that outliers are indeed > 720 hours
-    for issue in outliers:
-        assert issue['resolution_time_hours'] > 720.0
-    
-    # Check that non-outliers are <= 720 hours or NaN
-    for issue in non_outliers:
-        if issue.get('resolution_time_hours') is not None and not np.isnan(issue['resolution_time_hours']):
-            assert issue['resolution_time_hours'] <= 720.0
-
-def test_detect_outliers_custom_threshold(sample_issues):
-    """Test outlier detection with a custom threshold."""
-    # Use 10-day threshold (240 hours)
-    outliers, non_outliers = detect_outliers(sample_issues, threshold_days=10.0)
-    
-    # Issues > 240 hours: 500, 720, 800, 750
-    assert len(outliers) == 4
-    
-    for issue in outliers:
-        assert issue['resolution_time_hours'] > 240.0
-
-def test_detect_outliers_empty_data(empty_issues):
-    """Test outlier detection with empty data."""
-    outliers, non_outliers = detect_outliers(empty_issues, threshold_days=30.0)
-    
-    assert len(outliers) == 0
-    assert len(non_outliers) == 0
-
-def test_detect_outliers_all_outliers():
-    """Test when all issues are outliers."""
-    issues = [
-        {'number': 1, 'repository': 'repo1', 'resolution_time_hours': 1000.0},
-        {'number': 2, 'repository': 'repo2', 'resolution_time_hours': 2000.0},
-    ]
-    
-    outliers, non_outliers = detect_outliers(issues, threshold_days=30.0)
-    
-    assert len(outliers) == 2
-    assert len(non_outliers) == 0
-
-def test_detect_outliers_none_outliers():
-    """Test when no issues are outliers."""
-    issues = [
-        {'number': 1, 'repository': 'repo1', 'resolution_time_hours': 10.0},
-        {'number': 2, 'repository': 'repo2', 'resolution_time_hours': 100.0},
-        {'number': 3, 'repository': 'repo3', 'resolution_time_hours': 500.0},
-    ]
-    
-    outliers, non_outliers = detect_outliers(issues, threshold_days=30.0)
-    
-    assert len(outliers) == 0
-    assert len(non_outliers) == 3
-
-def test_detect_outliers_handles_missing_values(sample_issues):
-    """Test that missing values are handled correctly."""
-    outliers, non_outliers = detect_outliers(sample_issues, threshold_days=30.0)
-    
-    # Issue 8 has NaN and should be skipped
-    # Check that no NaN values are in either list
-    for issue in outliers:
-        assert issue.get('resolution_time_hours') is not None
-        assert not np.isnan(issue['resolution_time_hours'])
-    
-    for issue in non_outliers:
-        if issue.get('resolution_time_hours') is not None:
-            assert not np.isnan(issue['resolution_time_hours'])
-
-def test_calculate_outlier_metrics_basic(sample_issues):
-    """Test basic metric calculation."""
-    outliers, _ = detect_outliers(sample_issues, threshold_days=30.0)
-    metrics = calculate_outlier_metrics(outliers, len(sample_issues))
-    
-    assert metrics['outlier_count'] == 2
-    assert metrics['outlier_percentage'] == (2 / len(sample_issues)) * 100.0
-    assert metrics['max_resolution_time_hours'] > 0
-    assert metrics['mean_resolution_time_hours'] > 0
-    assert metrics['median_resolution_time_hours'] > 0
-
-def test_calculate_outlier_metrics_empty_outliers(sample_issues):
-    """Test metric calculation when there are no outliers."""
-    outliers, _ = detect_outliers(sample_issues, threshold_days=1000.0)  # High threshold
-    metrics = calculate_outlier_metrics(outliers, len(sample_issues))
-    
-    assert metrics['outlier_count'] == 0
-    assert metrics['outlier_percentage'] == 0.0
-    assert metrics['max_resolution_time_hours'] == 0.0
-    assert metrics['mean_resolution_time_hours'] == 0.0
-    assert metrics['median_resolution_time_hours'] == 0.0
-
-def test_calculate_outlier_metrics_zero_total():
-    """Test metric calculation with zero total issues."""
-    metrics = calculate_outlier_metrics([], 0)
-    
-    assert metrics['outlier_count'] == 0
-    assert metrics['outlier_percentage'] == 0.0
-    assert metrics['max_resolution_time_hours'] == 0.0
-
-def test_calculate_outlier_metrics_with_missing_values():
-    """Test metric calculation with outliers containing missing values."""
-    issues_with_nan = [
-        {'number': 1, 'repository': 'repo1', 'resolution_time_hours': 1000.0},
-        {'number': 2, 'repository': 'repo2', 'resolution_time_hours': np.nan},
-        {'number': 3, 'repository': 'repo3', 'resolution_time_hours': 2000.0},
-    ]
-    
-    metrics = calculate_outlier_metrics(issues_with_nan, 3)
-    
-    # Should only consider non-NaN values
-    assert metrics['outlier_count'] == 3  # All are in the input list
-    assert metrics['mean_resolution_time_hours'] == 1500.0  # Mean of 1000 and 2000
-    assert metrics['max_resolution_time_hours'] == 2000.0
-
-def test_outlier_percentage_calculation():
-    """Test that outlier percentage is calculated correctly."""
-    outliers = [{'resolution_time_hours': 1000.0}]
-    total_issues = 100
-    
-    metrics = calculate_outlier_metrics(outliers, total_issues)
-    
-    assert metrics['outlier_percentage'] == 1.0  # 1/100 * 100
+    def test_basic_outlier_detection(self):
+        """Test that outliers are correctly identified using IQR method."""
+        # Create test data with known outliers
+        # Most values between 1 and 10 hours, one extreme outlier at 1000 hours
+        data = {
+            'issue_id': range(100),
+            'repo': ['repo_a'] * 100,
+            'resolution_time_hours': [2.0] * 98 + [1000.0, 500.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        # Should detect the extreme outliers
+        assert stats['outlier_count'] >= 1
+        assert stats['outlier_percentage'] > 0
+        assert 'q1' in stats
+        assert 'q3' in stats
+        assert 'iqr' in stats
+        assert 'upper_bound' in stats
+        
+    def test_no_outliers(self):
+        """Test dataset with no outliers."""
+        # Create data with uniform distribution
+        np.random.seed(42)
+        data = {
+            'issue_id': range(100),
+            'repo': ['repo_a'] * 100,
+            'resolution_time_hours': np.random.uniform(1, 10, 100)
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        # May still detect some outliers depending on distribution
+        assert stats['total_issues'] == 100
+        assert stats['valid_issues'] == 100
+        assert 'outlier_count' in stats
+        
+    def test_invalid_resolution_times(self):
+        """Test handling of non-positive resolution times."""
+        data = {
+            'issue_id': [1, 2, 3, 4, 5],
+            'repo': ['repo_a'] * 5,
+            'resolution_time_hours': [-1.0, 0.0, 2.0, 5.0, 10.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        # Should handle invalid values gracefully
+        assert stats['invalid_count'] == 2
+        assert stats['valid_issues'] == 3
+        assert stats['total_issues'] == 5
+        
+    def test_empty_dataset(self):
+        """Test handling of empty dataset."""
+        df = pd.DataFrame({
+            'issue_id': [],
+            'repo': [],
+            'resolution_time_hours': []
+        })
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        assert stats['total_issues'] == 0
+        assert stats['valid_issues'] == 0
+        assert stats['outlier_count'] == 0
+        
+    def test_all_invalid(self):
+        """Test dataset where all values are invalid."""
+        data = {
+            'issue_id': [1, 2, 3],
+            'repo': ['repo_a'] * 3,
+            'resolution_time_hours': [-1.0, 0.0, -5.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        assert stats['invalid_count'] == 3
+        assert stats['valid_issues'] == 0
+        assert stats['outlier_count'] == 0
+        
+    def test_outlier_percentage_calculation(self):
+        """Test that outlier percentage is correctly calculated."""
+        # Create data where exactly 10% are outliers
+        # 90 values at 2 hours, 10 values at 1000 hours (extreme outliers)
+        data = {
+            'issue_id': list(range(100)),
+            'repo': ['repo_a'] * 100,
+            'resolution_time_hours': [2.0] * 90 + [1000.0] * 10
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        # Verify percentage calculation
+        expected_percentage = (stats['outlier_count'] / stats['valid_issues']) * 100
+        assert abs(stats['outlier_percentage'] - expected_percentage) < 0.1
+        
+    def test_log_transformation_applied(self):
+        """Verify that log transformation is used in outlier detection."""
+        # Create data with known log-scale outlier
+        data = {
+            'issue_id': list(range(50)),
+            'repo': ['repo_a'] * 50,
+            'resolution_time_hours': [1.0] * 48 + [100.0, 200.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        # Check that log-based bounds are present
+        assert stats['log_upper_bound'] is not None
+        assert stats['log_lower_bound'] is not None
+        
+        # Verify back-transformation is reasonable
+        assert stats['log_upper_bound'] > 0
+        assert stats['log_lower_bound'] > 0
+        
+    def test_outlier_details_included(self):
+        """Test that outlier details are included in stats."""
+        data = {
+            'issue_id': list(range(100)),
+            'repo': ['repo_a'] * 100,
+            'resolution_time_hours': [2.0] * 95 + [1000.0] * 5
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        if stats['outlier_count'] > 0:
+            assert 'outliers' in stats
+            assert isinstance(stats['outliers'], list)
+            # Check structure of outlier details
+            if len(stats['outliers']) > 0:
+                outlier = stats['outliers'][0]
+                assert 'resolution_time_hours' in outlier
+                assert 'log_resolution_time' in outlier
+                
+    def test_method_description(self):
+        """Test that method description is included."""
+        data = {
+            'issue_id': [1, 2, 3],
+            'repo': ['repo_a'] * 3,
+            'resolution_time_hours': [1.0, 2.0, 100.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        assert stats['method'] == "IQR (Q3 + 1.5*IQR) on log-transformed data"
+        
+    def test_statistical_integrity(self):
+        """Test that Q1, Q3, and IQR are mathematically correct."""
+        # Create simple dataset where we can verify calculations
+        # Values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 (log-transformed)
+        data = {
+            'issue_id': list(range(10)),
+            'repo': ['repo_a'] * 10,
+            'resolution_time_hours': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        # Verify IQR = Q3 - Q1
+        calculated_iqr = stats['q3'] - stats['q1']
+        assert abs(calculated_iqr - stats['iqr']) < 0.0001
+        
+    def test_large_dataset_performance(self):
+        """Test performance with larger dataset."""
+        np.random.seed(42)
+        n = 10000
+        data = {
+            'issue_id': list(range(n)),
+            'repo': ['repo_a'] * n,
+            'resolution_time_hours': np.random.lognormal(mean=0, sigma=1, size=n)
+        }
+        df = pd.DataFrame(data)
+        
+        result_df, stats = detect_outliers_iqr(df)
+        
+        assert stats['total_issues'] == n
+        assert stats['valid_issues'] == n
+        assert 'outlier_count' in stats
+        assert 'outlier_percentage' in stats

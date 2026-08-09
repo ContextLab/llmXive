@@ -1,135 +1,154 @@
 """
-Unit tests for save_cleaned_data.py functionality.
-Tests completeness validation, checksum calculation, and metadata saving.
+Unit tests for save_cleaned_data module.
 """
+
 import json
-import os
+import hashlib
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pandas as pd
+from datetime import datetime, timezone
 import pytest
 
-# Import the module functions to test
-from code.collect.save_cleaned_data import (
-    validate_completeness,
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+from collect.save_cleaned_data import (
+    load_preprocessed_issues,
     calculate_checksum,
-    save_metadata,
-    CRITICAL_FIELDS,
-    COMPLETENESS_THRESHOLD
+    validate_completeness,
+    save_metadata
 )
 
-@pytest.fixture
-def sample_dataframe():
-    """Create a sample DataFrame for testing."""
-    data = {
-        'repo_name': ['repo1', 'repo2', 'repo3', 'repo4', 'repo5'],
-        'issue_number': [1, 2, 3, 4, 5],
-        'created_at': ['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04', '2023-01-05'],
-        'closed_at': ['2023-01-02', '2023-01-04', '2023-01-05', '2023-01-06', '2023-01-07'],
-        'resolution_time_hours': [24.0, 48.0, 52.0, 26.0, 24.0],
-        'author': ['user1', 'user2', 'user3', 'user4', 'user5'],
-        'state': ['closed', 'closed', 'closed', 'closed', 'closed']
-    }
-    return pd.DataFrame(data)
 
-@pytest.fixture
-def sample_dataframe_with_missing():
-    """Create a sample DataFrame with some missing values."""
-    data = {
-        'repo_name': ['repo1', 'repo2', None, 'repo4', 'repo5'],
-        'issue_number': [1, 2, 3, None, 5],
-        'created_at': ['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04', None],
-        'closed_at': ['2023-01-02', '2023-01-04', '2023-01-05', '2023-01-06', '2023-01-07'],
-        'resolution_time_hours': [24.0, 48.0, 52.0, 26.0, 24.0],
-        'author': ['user1', 'user2', 'user3', 'user4', 'user5'],
-        'state': ['closed', 'closed', 'closed', 'closed', 'closed']
-    }
-    return pd.DataFrame(data)
+class TestCalculateChecksum:
+    def test_checksum_deterministic(self):
+        """Test that checksum is deterministic for same data."""
+        data = [{'id': 1, 'name': 'test'}, {'id': 2, 'name': 'test2'}]
+        checksum1 = calculate_checksum(data)
+        checksum2 = calculate_checksum(data)
+        assert checksum1 == checksum2
+        assert len(checksum1) == 64  # SHA256 hex length
 
-def test_validate_completeness_perfect(sample_dataframe):
-    """Test validation with 100% completeness."""
-    is_valid, completeness = validate_completeness(sample_dataframe, COMPLETENESS_THRESHOLD)
+    def test_checksum_different_data(self):
+        """Test that different data produces different checksums."""
+        data1 = [{'id': 1}]
+        data2 = [{'id': 2}]
+        assert calculate_checksum(data1) != calculate_checksum(data2)
 
-    assert is_valid is True
-    assert len(completeness) == len(CRITICAL_FIELDS)
-    for field, comp in completeness.items():
-        assert comp == 1.0
+    def test_checksum_empty_list(self):
+        """Test checksum for empty list."""
+        checksum = calculate_checksum([])
+        assert checksum == hashlib.sha256(b'[]').hexdigest()
 
-def test_validate_completeness_below_threshold(sample_dataframe_with_missing):
-    """Test validation when completeness is below threshold."""
-    # With 1 missing out of 5 rows in 3 fields, completeness is 80%
-    # which is below 95% threshold
-    is_valid, completeness = validate_completeness(sample_dataframe_with_missing, COMPLETENESS_THRESHOLD)
 
-    # Check that at least one field is below threshold
-    below_threshold = [comp for comp in completeness.values() if comp < COMPLETENESS_THRESHOLD]
-    assert len(below_threshold) > 0
-    assert is_valid is False
+class TestValidateCompleteness:
+    def test_full_completeness(self):
+        """Test validation when all columns are fully populated."""
+        data = [
+            {'created_at': '2023-01-01', 'closed_at': '2023-01-02', 'labels': 'bug', 'assignee': 'user1', 'comments_count': 5},
+            {'created_at': '2023-01-01', 'closed_at': '2023-01-02', 'labels': 'feat', 'assignee': 'user2', 'comments_count': 3}
+        ]
+        required = ['created_at', 'closed_at', 'labels', 'assignee', 'comments_count']
+        passed, details = validate_completeness(data, required, threshold=0.95)
 
-def test_validate_completeness_empty_dataframe():
-    """Test validation with empty DataFrame."""
-    df = pd.DataFrame(columns=CRITICAL_FIELDS)
-    is_valid, completeness = validate_completeness(df, COMPLETENESS_THRESHOLD)
+        assert passed is True
+        assert details['overall_passed'] is True
+        assert len(details['failed_columns']) == 0
+        for col in required:
+            assert details['completeness'][col]['ratio'] == 1.0
 
-    assert is_valid is False
-    assert len(completeness) == 0
+    def test_partial_completeness(self):
+        """Test validation when some columns have missing values."""
+        data = [
+            {'created_at': '2023-01-01', 'closed_at': '2023-01-02', 'labels': 'bug', 'assignee': 'user1', 'comments_count': 5},
+            {'created_at': '2023-01-01', 'closed_at': None, 'labels': 'feat', 'assignee': None, 'comments_count': 3},
+            {'created_at': '2023-01-01', 'closed_at': '2023-01-02', 'labels': None, 'assignee': 'user3', 'comments_count': 1}
+        ]
+        required = ['created_at', 'closed_at', 'labels', 'assignee', 'comments_count']
+        passed, details = validate_completeness(data, required, threshold=0.95)
 
-def test_validate_completeness_missing_field(sample_dataframe):
-    """Test validation when a critical field is missing."""
-    df = sample_dataframe.drop(columns=['repo_name'])
-    is_valid, completeness = validate_completeness(df, COMPLETENESS_THRESHOLD)
+        # created_at: 3/3 = 100% (pass)
+        # closed_at: 2/3 = 66.7% (fail)
+        # labels: 2/3 = 66.7% (fail)
+        # assignee: 2/3 = 66.7% (fail)
+        # comments_count: 3/3 = 100% (pass)
+        assert passed is False
+        assert len(details['failed_columns']) == 3
+        assert 'closed_at' in details['failed_columns']
+        assert 'labels' in details['failed_columns']
+        assert 'assignee' in details['failed_columns']
 
-    assert completeness.get('repo_name', -1) == 0.0
-    # Overall completeness will be lower, but might still pass depending on other fields
-    # We just check that the missing field is reported as 0.0
+    def test_empty_data(self):
+        """Test validation with empty dataset."""
+        data = []
+        required = ['created_at', 'closed_at']
+        passed, details = validate_completeness(data, required, threshold=0.95)
 
-def test_calculate_checksum():
-    """Test checksum calculation and file writing."""
-    df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
+        assert passed is False
+        assert 'error' in details
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / 'test.csv'
-        checksum = calculate_checksum(df, output_path)
+    def test_threshold_adjustment(self):
+        """Test that changing threshold affects pass/fail."""
+        data = [
+            {'created_at': '2023-01-01', 'closed_at': None},
+            {'created_at': '2023-01-01', 'closed_at': '2023-01-02'}
+        ]
+        required = ['closed_at']
 
-        # Check that file was created
-        assert output_path.exists()
+        # With 50% threshold, should pass
+        passed_low, _ = validate_completeness(data, required, threshold=0.5)
+        assert passed_low is True
 
-        # Check that checksum is a valid hex string
-        assert len(checksum) == 64  # SHA-256 hex length
-        assert all(c in '0123456789abcdef' for c in checksum)
+        # With 95% threshold, should fail
+        passed_high, _ = validate_completeness(data, required, threshold=0.95)
+        assert passed_high is False
 
-        # Verify checksum by recalculating
-        import hashlib
-        sha256_hash = hashlib.sha256()
-        with open(output_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        expected_checksum = sha256_hash.hexdigest()
+    def test_empty_string_treated_as_missing(self):
+        """Test that empty strings are treated as missing values."""
+        data = [
+            {'created_at': '2023-01-01', 'closed_at': ''},
+            {'created_at': '2023-01-01', 'closed_at': '2023-01-02'}
+        ]
+        required = ['closed_at']
+        passed, details = validate_completeness(data, required, threshold=0.95)
 
-        assert checksum == expected_checksum
+        assert passed is False
+        assert details['completeness']['closed_at']['ratio'] == 0.5
 
-def test_save_metadata():
-    """Test metadata saving functionality."""
-    checksum = "abc123def456"
-    completeness = {'field1': 0.95, 'field2': 1.0}
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / 'test.csv'
-        output_path.touch()  # Create dummy file
+class TestSaveMetadata:
+    def test_metadata_structure(self):
+        """Test that metadata has correct structure."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / 'test.csv'
+            checksum = 'abc123'
+            validation_results = {'overall_passed': True}
+            row_count = 100
 
-        metadata_path = Path(tmpdir) / 'test_metadata.json'
+            save_metadata(output_path, checksum, validation_results, row_count)
 
-        save_metadata(checksum, completeness, output_path)
+            metadata_path = Path(tmpdir) / 'test_metadata.json'
+            assert metadata_path.exists()
 
-        assert metadata_path.exists()
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
 
-        with open(metadata_path, 'r') as f:
-            metadata = json.load(f)
+            assert 'saved_at' in metadata
+            assert 'row_count' in metadata
+            assert 'checksum_sha256' in metadata
+            assert 'completeness_validation' in metadata
+            assert metadata['row_count'] == 100
+            assert metadata['checksum_sha256'] == checksum
 
-        assert metadata['checksum'] == checksum
-        assert metadata['completeness_by_field'] == completeness
-        assert 'generated_at' in metadata
-        assert 'row_count' in metadata
-        assert 'schema_version' in metadata
+    def test_metadata_timestamp_format(self):
+        """Test that timestamp is in ISO format."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / 'test.csv'
+            save_metadata(output_path, 'test', {}, 10)
+
+            metadata_path = Path(tmpdir) / 'test_metadata.json'
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+
+            # Should be parseable as ISO format
+            datetime.fromisoformat(metadata['saved_at'])
