@@ -1425,3 +1425,520 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T18:54:03Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: MP_AVAILABLE flag set to False on 403 or timeout from Materials Project
+    API
+  claim_id: c_0f28076e
+  context: If the key is missing or the probe fails (403/timeout), set a global flag
+    MP_AVAILABLE = False and log a warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T006d-MP-Check sets a global flag MP_AVAILABLE to False if the Materials
+    Project API probe fails with a 403 error or timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:39:34Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API error log rotation triggered at 100MB
+  claim_id: c_3c2aab84
+  context: Integrate size-based rotation (create new file if > 100MB) without deletion
+    to preserve raw trace.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_error_log_rotation_triggered_at_100MB
+  kind: entity_fact
+  raw_text: T004b implements log rotation to create a new file if the API error log
+    exceeds 100MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:39:51Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Combined CV constraint <= 0.30 with SMOTE
+  claim_id: c_5d7b8cc2
+  context: Enforce combined CV <= 0.30 while still keeping real-data CV <= 0.10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T023b enforces a combined CV constraint of <= 0.30 when using SMOTE for
+    regression.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:40:05Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Fallback to cost-sensitive learning if data loss > 20%
+  claim_id: c_6367292c
+  context: if > 20% data loss or empty bins occur, first switch to cost-sensitive
+    learning (class weights).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T023a triggers a fallback to cost-sensitive learning if data loss exceeds
+    20% or empty bins occur.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:40:29Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Log rotation threshold set to 100MB without deletion
+  claim_id: c_0bb2beae
+  context: 'Implement code/ingestion.py error logging: log all API errors as JSON
+    lines to logs/api_errors.log. Integrate size-based rotation (create new file if
+    > 100MB) without deletion to preserve raw trace.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_rotation_threshold_set_to_100MB_without_deletion
+  kind: entity_fact
+  raw_text: T004b implements log rotation with a threshold of 100MB, creating a new
+    file if the size exceeds this limit without deleting old files.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:43:50Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Combined CV constraint set to <= 0.30
+  claim_id: c_38cc9adc
+  context: "Implement fallback in code/resampling.py: if cost-sensitive learning also\
+    \ fails to meet the real-data CV \u2264 0.10 constraint, then switch to SMOTE\
+    \ for regression. Enforce combined CV \u2264 0.30 while still keeping real\u2011\
+    data CV \u2264 0.10."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Combined_CV_constraint_set_to_%3C=_0.30
+  kind: magnitude
+  raw_text: T023b enforces a combined CV (real + synthetic) constraint of less than
+    or equal to 0.30 when switching to SMOTE for regression.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:44:37Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Cost-sensitive learning fallback triggered if data loss > 20%
+  claim_id: c_2dfbe2fc
+  context: 'Implement fallback in code/resampling.py: if > 20% data loss or empty
+    bins occur, first switch to cost-sensitive learning (class weights).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T023a implements a fallback to cost-sensitive learning if data loss exceeds
+    20% or empty bins occur.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:45:01Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Checksum verification uses SHA-256 algorithm
+  claim_id: c_a1014523
+  context: "Implement checksum verification in code/downloaders.py using SHA\u2011\
+    256 algorithm, generating checksum files data/raw/oqmd.parquet.sha256, data/raw/aflow.parquet.sha256,\
+    \ and data/raw/mp.parquet.sha256."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T006c implements checksum verification using the SHA-256 algorithm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:45:17Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: K-Means clustering k=50 on compositional features
+  claim_id: c_0e22831c
+  context: 'Step 1: Perform K-Means clustering (k=50) on compositional features. Step
+    2: Extract cluster centroids.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: K-Means clustering (k=50) on compositional features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:50:26Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: properties with at least 100 samples
+  claim_id: c_46261f0f
+  context: Target Imbalance Score (Gini coefficient of target property values for
+    properties with >= 100 samples...)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Properties_with_at_least_100_samples
+  kind: magnitude
+  raw_text: properties with >= 100 samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:51:10Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: synthetic data percentage limit 30 percent
+  claim_id: c_82fe57b8
+  context: "FR-013 (Synthetic data \u2264 30%) and FR-003 (Combined CV \u2264 0.30)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Synthetic data \u2264 30%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:51:11Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: combined coefficient of variation limit 0.30
+  claim_id: c_fec63226
+  context: "FR-003 (Combined CV \u2264 0.30)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Combined CV \u2264 0.30"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:51:11Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: real data coefficient of variation limit 0.10
+  claim_id: c_6d574de5
+  context: "ensure real\u2011data CV \u2264 0.10."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "real-data CV \u2264 0.10"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:51:11Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: switch to cost-sensitive learning if data loss exceeds 20 percent
+  claim_id: c_17cc2963
+  context: 'Implement fallback in code/resampling.py: if > 20% data loss or empty
+    bins occur, first switch to cost-sensitive learning (class weights).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if > 20% data loss or empty bins occur, first switch to cost-sensitive
+    learning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:51:12Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: minority quantile threshold default 0.05
+  claim_id: c_d4c4d02e
+  context: bottom [deferred] (MINORITY_QUANTILE) of each target property using a quantile
+    threshold read from config.yaml (default 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:51:42Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: power analysis parameters Cohen d 0.5 power 0.8 alpha 0.05
+  claim_id: c_6d861145
+  context: "Implement power analysis in code/evaluation.py to determine the minimum\
+    \ number of random seeds required for paired t-test, Cohen's d = 0.5, power \u2265\
+    \ 0.8, \u03B1 = 0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cohen's d = 0.5, power \u2265 0.8, \u03B1 = 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:53:56Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: pipeline total runtime limit 6 hours
+  claim_id: c_9d42aa63
+  context: "ensuring total runtime \u2264 6 hours by streaming the full merged dataset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total runtime \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:53:56Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: log file size rotation threshold 100 MB
+  claim_id: c_aab029a8
+  context: Integrate size-based rotation (create new file if > 100MB) without deletion
+    to preserve raw trace.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: create new file if > 100MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:53:56Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum generation for OQMD, AFLOW, and MP parquet files
+  claim_id: c_4687034f
+  context: "T006c [P] Implement checksum verification in code/downloaders.py using\
+    \ SHA\u2011256 algorithm, generating checksum files..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate checksum files data/raw/oqmd.parquet.sha256, data/raw/aflow.parquet.sha256,\
+    \ and data/raw/mp.parquet.sha256 (if MP exists) using SHA\u2011256 algorithm."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:56:36Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: K-Means clustering with k=50 on compositional features
+  claim_id: c_2fed166d
+  context: 'T008 [P] Implement code/imbalance.py to calculate Target Imbalance Score...
+    Step 1: Perform K-Means clustering (k=50) on compositional features.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform K-Means clustering (k=50) on compositional features to extract
+    cluster centroids.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:56:55Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Gini coefficient calculation on flattened K-Means centroid array
+  claim_id: c_b9a55fc0
+  context: 'T008 [P] ...Step 4: Calculate Gini coefficient of this flattened centroid
+    array.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gini_coefficient_calculation_on_flattened_K-Means_centroid_a
+  kind: entity_fact
+  raw_text: Calculate Gini coefficient of the flattened centroid array for compositional
+    imbalance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:57:18Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Skip properties with fewer than 100 samples for imbalance score calculation
+  claim_id: c_a94c7749
+  context: T008 [P] ...Skip properties with < 100 samples.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_properties_with_fewer_than_100_samples_for_imbalance_sc
+  kind: magnitude
+  raw_text: Skip properties with fewer than 100 samples when calculating imbalance
+    scores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:57:44Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: API error log rotation threshold of 100MB
+  claim_id: c_8e8c6c8f
+  context: T004b [Serial] ...Integrate size-based rotation (create new file if > 100MB)
+    without deletion to preserve raw trace.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_error_log_rotation_threshold_of_100MB
+  kind: entity_fact
+  raw_text: Log API errors to logs/api_errors.log with size-based rotation creating
+    a new file if size exceeds 100MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:58:01Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Real-data CV constraint of 0.10
+  claim_id: c_2d1ae111
+  context: "T022 [US2] ...ensure real\u2011data CV \u2264 0.10."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real-data_CV_constraint_of_0.10
+  kind: magnitude
+  raw_text: Ensure real-data Coefficient of Variation (CV) is less than or equal to
+    0.10 during resampling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:58:36Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Combined CV constraint of 0.30 with SMOTE
+  claim_id: c_3ad51dd4
+  context: "T023b [US2] ...Enforce combined CV \u2264 0.30 while still keeping real\u2011\
+    data CV \u2264 0.10."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Combined_CV_constraint_of_0.30_with_SMOTE
+  kind: magnitude
+  raw_text: Enforce combined Coefficient of Variation (CV) to be less than or equal
+    to 0.30 when using SMOTE fallback.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:59:04Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Switch to cost-sensitive learning if data loss exceeds 20%
+  claim_id: c_6be7cddc
+  context: T023a [US2] ...if > 20% data loss or empty bins occur, first switch to
+    cost-sensitive learning...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to cost-sensitive learning if data loss exceeds 20% or empty bins
+    occur.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:59:05Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Minority subset quantile threshold of 0.05
+  claim_id: c_bcaee3c7
+  context: T026 [US2] ...using a quantile threshold read from config.yaml (default
+    0.05)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a quantile threshold of 0.05 (default) to identify the minority subset
+    for performance degradation calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:59:30Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: Cohen''s d 0.5, power 0.8, alpha 0.05'
+  claim_id: c_8b759f77
+  context: "T028 [US2] ...determine the minimum number of random seeds required for\
+    \ paired t-test, Cohen's d = 0.5, power \u2265 0.8, \u03B1 = 0.05..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Determine minimum seed count for paired t-test with Cohen's d = 0.5,\
+    \ power \u2265 0.8, and alpha = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:02:34Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime constraint of 6 hours
+  claim_id: c_f41451a5
+  context: "T047 [P] ...ensuring total runtime \u2264 6 hours..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full pipeline with a total runtime constraint of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:02:52Z'
+- artifact_path: projects/PROJ-756-assessing-dataset-imbalance-effects-on-m/specs/001-assessing-dataset-imbalance-effects-on-m/tasks.md
+  attempts: 1
+  canonical: Full dataset streaming limit of 5GB
+  claim_id: c_82577e93
+  context: T047 [P] ...streaming the full merged dataset ... up to the manageable
+    storage limit ... (up to 5GB)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_dataset_streaming_limit_of_5GB
+  kind: entity_fact
+  raw_text: Stream the full merged dataset up to a manageable storage limit (up to
+    5GB) for validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:03:34Z'

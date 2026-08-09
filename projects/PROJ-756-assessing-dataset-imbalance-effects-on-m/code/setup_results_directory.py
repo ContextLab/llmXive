@@ -2,20 +2,14 @@ import os
 import sys
 from pathlib import Path
 
-def create_results_directory(base_path: Path) -> None:
-    """
-    Creates the results directory.
-    Expected: results/
-    """
-    results_path = base_path / "results"
-    results_path.mkdir(parents=True, exist_ok=True)
-    print(f"Created results directory: {results_path}")
+def create_results_directory():
+    """Create results directory and init."""
+    Path('results').mkdir(parents=True, exist_ok=True)
+    (Path('results') / '__init__.py').touch(exist_ok=True)
+    print("Results directory created.")
 
-def main() -> None:
-    project_root = Path.cwd()
-    project_id = "PROJ-756-assessing-dataset-imbalance-effects-on-m"
-    base_path = project_root / "projects" / project_id
-    create_results_directory(base_path)
+def main():
+    create_results_directory()
 
 if __name__ == "__main__":
     main()

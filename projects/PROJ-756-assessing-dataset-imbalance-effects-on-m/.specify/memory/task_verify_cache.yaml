@@ -1,19 +1,11 @@
-T006b:
+T006c:
   c: false
-  h: a3c6c07102db75689e9d3d5ffb1c12f605a744db19c5fd30f082bb82b3ef6a2e
-  r: "The repository contains a partially shown `code/downloaders.py`, but the visible\
-    \ portion does not demonstrate that it writes the OQMD or AFLOW DataFrames to\
-    \ `data/raw/oqmd.parquet` and `data/raw/aflow.parquet`. Moreover, the required\
-    \ parquet files are absent from `data/raw/`. Without evidence that the implementation\
-    \ actually creates those files, the task\u2019s core requirement is unmet."
-T006d#1:
-  c: false
-  h: 186b8c646ec5381e235085d13fbc56a6ca90edd7ef484f78a42af7dfa6f5c98b
-  r: "The required output file `data/raw/mp.parquet` is not present, and the shown\
-    \ portion of `code/downloaders.py` does not demonstrate the logic for checking\
-    \ a Materials Project API key, downloading the dataset, and writing it to that\
-    \ exact path (or handling the fallback/skipping behavior). The missing file and\
-    \ lack of evident implementation mean the task\u2019s requirements are not satisfied."
+  h: df2665ec5b3ff5a0e791b29fbcf67ffc0789fb981c2eb6261c2b266c8fec43ff
+  r: "The repository contains only stub functions for checksum generation and the\
+    \ YAML still lists \u201Cpending\u201D values; the required checksum files (`data/raw/oqmd.parquet.sha256`,\
+    \ `aflow.parquet.sha256`, `mp.parquet.sha256`) are absent, and the state file\
+    \ has not been populated with real SHA\u2011256 hashes nor validated for correct\
+    \ structure. The task therefore remains unfinished."
 T008:
   c: false
   h: 7174580481928ef9ddaf6b836abeac0b7b6ef79f81896830be574aa6389b90a3
@@ -45,11 +37,3 @@ T051:
     SMOTE fallback events or writes the required JSON entry, and the expected `results/resampling_log.json`
     file is absent. Both the explicit logging behavior and the output artifact are
     missing.
-T052:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test script, documentation, or other artifact was provided that demonstrates\
-    \ a verification task checking for `datasets.load_dataset(..., streaming=True)`,\
-    \ online statistic accumulation, or a runtime memory check limiting in\u2011memory\
-    \ usage to \u2264\u202F7\u202FGB. The implementer supplied only the task description\
-    \ without any concrete implementation or evidence, so the requirement is not satisfied."

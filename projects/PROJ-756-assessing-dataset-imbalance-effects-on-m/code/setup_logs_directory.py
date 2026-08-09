@@ -2,25 +2,16 @@ import os
 import sys
 from pathlib import Path
 
-def create_logs_directory(base_path: Path) -> None:
-    """
-    Creates the logs directory and archive subdirectory.
-    Expected: logs/, logs/archive/
-    """
-    logs_path = base_path / "logs"
-    archive_path = logs_path / "archive"
-    
-    logs_path.mkdir(parents=True, exist_ok=True)
-    archive_path.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Created logs directory: {logs_path}")
-    print(f"Created logs/archive directory: {archive_path}")
+def create_logs_directory():
+    """Create logs directory and init."""
+    Path('logs').mkdir(parents=True, exist_ok=True)
+    Path('logs/archive').mkdir(parents=True, exist_ok=True)
+    (Path('logs') / '__init__.py').touch(exist_ok=True)
+    (Path('logs/archive') / '__init__.py').touch(exist_ok=True)
+    print("Logs directories created.")
 
-def main() -> None:
-    project_root = Path.cwd()
-    project_id = "PROJ-756-assessing-dataset-imbalance-effects-on-m"
-    base_path = project_root / "projects" / project_id
-    create_logs_directory(base_path)
+def main():
+    create_logs_directory()
 
 if __name__ == "__main__":
     main()

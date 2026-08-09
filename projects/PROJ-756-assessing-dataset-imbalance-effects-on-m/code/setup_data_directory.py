@@ -2,20 +2,16 @@ import os
 import sys
 from pathlib import Path
 
-def create_data_directories(base_path: Path) -> None:
-    """
-    Creates the data directory structure.
-    Expected: data/
-    """
-    data_path = base_path / "data"
-    data_path.mkdir(parents=True, exist_ok=True)
-    print(f"Created data directory: {data_path}")
+def create_data_directories():
+    """Create data subdirectories."""
+    data_dirs = ['data/raw', 'data/processed', 'data/synthetic']
+    for d in data_dirs:
+        Path(d).mkdir(parents=True, exist_ok=True)
+        (Path(d) / '.gitkeep').touch(exist_ok=True)
+    print("Data directories created.")
 
-def main() -> None:
-    project_root = Path.cwd()
-    project_id = "PROJ-756-assessing-dataset-imbalance-effects-on-m"
-    base_path = project_root / "projects" / project_id
-    create_data_directories(base_path)
+def main():
+    create_data_directories()
 
 if __name__ == "__main__":
     main()
