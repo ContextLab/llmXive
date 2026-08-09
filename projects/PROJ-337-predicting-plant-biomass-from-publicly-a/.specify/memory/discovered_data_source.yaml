@@ -1,0 +1,13 @@
+status: none
+intent: HyBiomass benchmark dataset download NEON hyperspectral data Python package
+  dataset
+required_fields:
+- site_id
+- latitude
+- longitude
+- acquisition_date
+- spectral_band_reflectance_*
+- biomass
+cache_key: 9f35a623b2d17257a9b952ddc14ab7a45dc4fe04737c0c46848d530904272ef5
+searched_at: '2026-08-09T11:17:48.865727+00:00'
+retry_count: 1

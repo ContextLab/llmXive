@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 8a1cca9d4438934807efe5ed02f472305eb6014a999719bcb1af677f4d1aa7c0
+  artifact_path: projects/PROJ-337-predicting-plant-biomass-from-publicly-a/specs/001-predicting-plant-biomass-from-publicly-a/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Neon_Isometric.zip
+  kind: url
+  value: https://huggingface.co/datasets/EarthnDusk/NeonIsometric/resolve/main/Neon_Isometric.zip
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/63f805582b79f7695a34bb08/c9091bce4aaa9b2e5fc15331c09d6aa0f767f59ec4cc82d867bcf0eeec80556b?response-content-type=application%2Fzip&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Neon_Isometric.zip%3B+filename%3D%22Neon_Isometric.zip%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1786278174&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjNmODA1NTgyYjc5Zjc2OTVhMzRiYjA4L2M5MDkxYmNlNGFhYTliMmU1ZmMxNTMzMWMwOWQ2YWEwZjc2N2Y1OWVjNGNjODJkODY3YmNmMGVlZWM4MDU1NmJcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN05lb25fSXNvbWV0cmljLnppcCUzQitmaWxlbmFtZSUzRCUyMk5lb25fSXNvbWV0cmljLnppcCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg2Mjc4MTc0fX19XX0_&Signature=MEYCIQCAZRWyvu6a%7EsbOiry7bA7wWq2R-2EdI0n9SeO-oqV6cQIhAOZUPQDQ1OspCAJDr4GxETx6Q6z2gCu8r0zPuGkSwuMc&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-09T11:22:54.801238Z'
+- artifact_hash: 3027ae34cb59095d77d2cac0e378b48846f07d31e2571d5946ba8f90f014f1d7
+  artifact_path: projects/PROJ-337-predicting-plant-biomass-from-publicly-a/specs/001-predicting-plant-biomass-from-publicly-a/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: pending
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-08-09T11:22:58.454173Z'

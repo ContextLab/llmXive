@@ -19,29 +19,29 @@ The researcher MUST be able to download the HyBiomass benchmark dataset and NEON
 
 1. **Given** the HyBiomass and NEON data sources are accessible, **When** the download script executes, **Then** the raw hyperspectral cubes and metadata files are stored locally with checksums verified.
 2. **Given** raw hyperspectral cubes are available, **When** the atmospheric correction module runs, **Then** the output reflectance values fall within the physically valid range [0, 1] and the processing log confirms successful completion for all scenes.
-3. **Given** preprocessed spectral data exists, **When** the ground-truth extraction script runs, **Then** a final dataset table is generated where every row has a matching biomass value and no more than 5% of rows are dropped due to missing metadata.
+3. **Given** preprocessed spectral data exists, **When** the ground-truth extraction script runs, **Then** a final dataset table is generated where every row has a matching biomass value and the exclusion rate is logged (target ≤ 5% dropped rows).
 
 ---
 
 ### User Story 2 - Baseline Model Training and Evaluation (Priority: P2)
 
-The researcher MUST be able to train a Random Forest and a TabPFN model on the prepared dataset using 5-fold cross-validation, and evaluate their performance against a null baseline (predicting the mean) using RMSE, MAE, and R².
+The researcher MUST be able to train a Random Forest and a TabPFN model on the prepared dataset using 5-fold cross-validation, and evaluate their performance against a null baseline (predicting the mean) using RMSE, MAE, and R². If TabPFN fails to run within resource constraints, the system MUST fall back to a standard Random Forest implementation.
 
 **Why this priority**: This establishes the performance ceiling and determines if the signal in the public data is sufficient for prediction. It directly addresses the core research question regarding feasibility.
 
-**Independent Test**: The modeling step can be tested independently by running the training script on a fixed random seed and verifying that the output metrics (RMSE, MAE, R²) are generated and that the TabPFN model completes within the 6-hour CPU time limit.
+**Independent Test**: The modeling step can be tested independently by running the training script on a fixed random seed and verifying that the output metrics (RMSE, MAE, R²) are generated. If TabPFN fails, the fallback Random Forest must complete within the 6-hour CPU time limit.
 
 **Acceptance Scenarios**:
 
 1. **Given** the cleaned dataset is split into train/validation/test sets, **When** the Random Forest model trains, **Then** the model converges without memory errors and produces a cross-validated R² score.
 2. **Given** the same dataset, **When** the TabPFN model trains, **Then** the inference completes on CPU without CUDA errors and produces a cross-validated R² score.
-3. **Given** the trained models, **When** the evaluation script runs, **Then** the RMSE and MAE are calculated against the test set and compared against the null baseline (mean predictor), with the results logged.
+3. **Given** the trained models (or the fallback Random Forest if TabPFN fails), **When** the evaluation script runs, **Then** the RMSE and MAE are calculated against the test set and compared against the null baseline (mean predictor), with the results logged.
 
 ---
 
 ### User Story 3 - Ablation Study and Sensitivity Analysis (Priority: P3)
 
-The researcher MUST be able to quantify the impact of atmospheric correction and structural complexity by running an ablation study (with/without correction, with/without structural features) and performing a sensitivity analysis on decision thresholds or feature inclusion criteria.
+The researcher MUST be able to quantify the impact of atmospheric correction and structural complexity by running an ablation study (with/without correction, with/without structural features) and performing a sensitivity analysis on feature importance thresholds.
 
 **Why this priority**: This addresses the "how" in the research question, isolating the specific contributions of atmospheric effects and structural complexity to prediction accuracy.
 
@@ -51,7 +51,7 @@ The researcher MUST be able to quantify the impact of atmospheric correction and
 
 1. **Given** the full model configuration, **When** the ablation study runs with "no atmospheric correction", **Then** the resulting RMSE is recorded and compared to the "with correction" baseline to quantify the penalty.
 2. **Given** the structural feature set, **When** the model is trained without structural proxies (e.g., canopy height), **Then** the change in R² is logged to quantify the contribution of structural complexity.
-3. **Given** a specific decision threshold (e.g., feature importance cutoff), **When** the sensitivity analysis sweeps the threshold over a range (e.g., 0.01, 0.05, 0.1), **Then** the false-positive and false-negative rates are reported for each step.
+3. **Given** a specific feature importance cutoff, **When** the sensitivity analysis sweeps the cutoff over a range (e.g., 0.01, 0.05, 0.1), **Then** the variation in MAE and R² stability is reported for each step.
 
 ---
 
@@ -60,6 +60,7 @@ The researcher MUST be able to quantify the impact of atmospheric correction and
 - What happens when the atmospheric correction fails for a specific scene due to cloud cover? (System should flag and exclude the scene, logging the count).
 - How does the system handle sites where ground-truth biomass data is missing or inconsistent with spectral coverage? (System should drop the row and report the exclusion rate).
 - How does the system handle memory spikes when loading full hyperspectral cubes? (System must implement chunked loading or down-sampling to stay within 7GB RAM).
+- What happens if TabPFN fails to load or run on the available CPU hardware? (System MUST automatically switch to the fallback Random Forest model and log the switch).
 
 ## Requirements
 
@@ -67,12 +68,13 @@ The researcher MUST be able to quantify the impact of atmospheric correction and
 
 - **FR-001**: The system MUST download and cache the HyBiomass and NEON datasets, verifying integrity via checksums. (See US-1)
 - **FR-002**: The system MUST apply atmospheric correction to raw hyperspectral cubes, ensuring output reflectance is within [0, 1]. (See US-1)
-- **FR-003**: The system MUST extract ground-truth biomass values from metadata, dropping rows with missing values and logging the exclusion rate. (See US-1)
+- **FR-003**: The system MUST extract ground-truth biomass values from metadata, dropping rows with missing values and logging the exclusion rate; the system MUST ensure the exclusion rate is ≤ 5%. (See US-1)
 - **FR-004**: The system MUST train Random Forest and TabPFN models using 5-fold cross-validation, ensuring execution completes within 6 hours on a CPU-only environment. (See US-2)
-- **FR-005**: The system MUST evaluate model performance using RMSE, MAE, and R², comparing results against a null baseline (mean predictor) to determine statistical significance (p < 0.05). (See US-2)
+- **FR-005**: The system MUST evaluate model performance using RMSE, MAE, and R², comparing results against a null baseline (mean predictor) using a paired t-test on the 5-fold cross-validation R² differences to determine statistical significance (p < 0.05). (See US-2)
 - **FR-006**: The system MUST perform an ablation study by toggling atmospheric correction and structural features, recording the delta in performance metrics for each configuration. (See US-3)
-- **FR-007**: The system MUST conduct a sensitivity analysis sweeping key thresholds (e.g., feature importance cutoffs) over a defined range (e.g., 0.01, 0.05, 0.1) and report the variation in false-positive/negative rates. (See US-3)
+- **FR-007**: The system MUST conduct a sensitivity analysis sweeping feature importance cutoffs over a defined range (e.g., low, moderate, and high thresholds) and report the variation in Mean Absolute Error (MAE) and R² stability for each step. (See US-3)
 - **FR-008**: The system MUST implement multiple-comparison correction (e.g., Bonferroni or FDR) when evaluating the significance of ablation study results across multiple hypotheses. (See US-3)
+- **FR-009**: The system MUST implement a fallback mechanism that automatically switches to a standard Random Forest model if the TabPFN model fails to initialize or execute within the 6-hour CPU time limit, logging the failure reason and the switch event. (See US-2)
 
 ### Key Entities
 
@@ -89,8 +91,8 @@ The researcher MUST be able to quantify the impact of atmospheric correction and
 - **SC-001**: The prediction accuracy (RMSE) is measured against the null baseline (predicting the mean biomass) to determine if the public data provides a statistically significant signal. (See US-2)
 - **SC-002**: The impact of atmospheric correction is measured by comparing the R² of models trained on corrected vs. uncorrected data. (See US-3)
 - **SC-003**: The contribution of structural complexity is measured by comparing the R² of models with and without structural proxies (e.g., canopy height). (See US-3)
-- **SC-004**: The robustness of the model to threshold selection is measured by the variance in false-positive rates across the sensitivity sweep (0.01, 0.05, 0.1). (See US-3)
-- **SC-005**: The computational feasibility is measured by ensuring the total runtime for the full pipeline (download, preprocess, train, evaluate) remains [deferred] on a standard CPU runner. (See US-2)
+- **SC-004**: The robustness of the model to feature importance threshold selection is measured by the variance in MAE across the sensitivity sweep (0.01, 0.05, 0.1). (See US-3)
+- **SC-005**: The computational feasibility is measured by ensuring the total runtime for the full pipeline (download, preprocess, train, evaluate) remains ≤ 6 hours on a standard CPU runner. (See US-2)
 
 ## Assumptions
 
@@ -98,8 +100,8 @@ The researcher MUST be able to quantify the impact of atmospheric correction and
 - The "ground-truth" biomass values provided in the dataset metadata are derived from LIDAR or field measurements and are considered the reference standard for evaluation.
 - Atmospheric correction algorithms (FLAASH/LEDAPS) are available in a Python-compatible library (e.g., `pysptools` or `atmcorr`) that can run on CPU without CUDA.
 - The dataset size, even after full hyperspectral cube loading, can be managed within 7GB RAM via chunked processing or strategic subsampling if necessary.
-- The TabPFN implementation provided in the literature precedent can be executed in a CPU-only environment without requiring 8-bit quantization or GPU acceleration.
+- The TabPFN implementation provided in the literature precedent is attempted first, but the research design includes a fallback to Random Forest if TabPFN fails to execute on CPU within the 6-hour limit.
 - The research design is observational; therefore, all findings regarding "impact" or "effect" are framed as associational correlations, not causal claims.
 - The dataset contains all necessary variables (spectral bands, biomass labels, and structural proxies) as described in the HyBiomass documentation; if a specific structural proxy (e.g., canopy height) is missing for a subset, the analysis will proceed with available data and note the limitation.
 - The multiple-comparison correction method (e.g., Bonferroni) will be applied to the set of hypothesis tests conducted in the ablation study to control family-wise error rate.
-- The sensitivity analysis will sweep the decision threshold over the absolute difference set {0.01, 0.05, 0.1} as a defensible community-standard default for this domain.
+- The sensitivity analysis will sweep the feature importance cutoff over the absolute difference set {0.01, 0.05, 0.1} as a defensible community-standard default for this domain.

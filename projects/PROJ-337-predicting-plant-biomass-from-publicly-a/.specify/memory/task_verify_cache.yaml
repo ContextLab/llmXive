@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`projects/PROJ-337-predicting-plant-biomass-from-publicly-a/data/raw`,
+    `processed`, `final`) being created is present; the implementer provided no file
+    system listing, screenshots, or script output confirming the `mkdir` command succeeded.
+    The task therefore remains undone.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only supplied a feature specification and user stories; there\
+    \ is no evidence (e.g., a directory listing, screenshots, or a manifest file)\
+    \ that the required `projects/PROJ-337-predicting-plant-biomass-from-publicly-a/code/{data,models,analysis,utils,validation}`\
+    \ directories were actually created. The task\u2019s core deliverable \u2013 the\
+    \ concrete code directory structure \u2013 is missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required test directories (`projects/PROJ-337-predicting-plant-biomass-from-publicly-a/tests/unit`,
+    `integration`, `contract`) is provided; the artifact list is empty, so the task
+    of creating those directories has not been demonstrated.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
+    with black settings) or documentation of their integration into the project were
+    provided, so the requirement to configure ruff/flake8 and black is not satisfied.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation for \u201Cchunked data loading utilities\u201D\
+    \ are present in the provided evidence; the task description contains only the\
+    \ requirement, with no artifact paths or files to inspect. Consequently, the claimed\
+    \ implementation cannot be verified. The missing artifact is the actual implementation\
+    \ (e.g., a Python module, functions, or utilities) that performs chunked loading\
+    \ of large datasets."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No checksum verification scripts, manifest files, or documentation are provided;
+    the claim lacks any tangible artifact demonstrating that utilities for computing
+    and verifying file checksums have been created. The required code or instructions
+    to perform checksum verification are missing.

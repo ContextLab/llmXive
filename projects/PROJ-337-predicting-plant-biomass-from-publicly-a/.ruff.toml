@@ -1,0 +1,27 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "E501", # line-too-long (handled by black)
+    "B008", # do-not-perform-argument-assignment-in-function-signature (common in data classes)
+    "RUF012", # mutable-class-defaults (often used in pydantic/dataclasses)
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
