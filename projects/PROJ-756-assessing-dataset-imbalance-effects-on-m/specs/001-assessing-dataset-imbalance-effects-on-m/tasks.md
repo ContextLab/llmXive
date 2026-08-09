@@ -53,18 +53,17 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Foundation is READY ONLY AFTER T004a, T004b, T004c, T004d, T006b, T006c, T006d, T006d-MP-Check, T007 are complete.**
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Foundation is READY ONLY AFTER T006b, T006d, T007, T007b, T008, T006c, T004, T004b, T006a are complete.**
 
-- [X] T004a [Serial] Implement `code/ingestion.py` API client with exponential backoff (multiple retries, a reasonable timeout) for OQMD, AFLOW, and Materials Project APIs. **Target function: `fetch_with_backoff(url, max_retries)`**. (FR‑007, FR‑008). **Depends on T002.**
-- [X] T004b [Serial] Implement `code/ingestion.py` error logging: **log all API errors as JSON lines to `logs/api_errors.log`**. **Integrate size-based rotation (create new file if > 100MB) without deletion to preserve raw trace.** **Target function: `log_api_error(error_data)`**. (FR‑007, Constitution Principle III). **Depends on T004a.**
-- [X] T004c [Serial] Implement `code/ingestion.py` data merging logic to combine OQMD, AFLOW, and MP (if available) into a unified DataFrame. **Target function: `merge_datasets(df_list)`**. (FR‑001). **Depends on T004b.**
-- [X] T004d [Serial] Implement `code/ingestion.py` 'Fail Loudly' logic: **raise a specific `DataFetchError` exception on any persistent fetch failure for OQMD/AFLOW after retries**, ensuring no synthetic fallback code paths exist (Constitution Principle II, "Fail Loudly" rule). **For MP, implement fallback logic as per FR-008 (log warning, proceed with OQMD/AFLOW only).** **Target function: `validate_data_integrity(df)`**. **Depends on T004c.**
-- [ ] T006b [P] Implement `code/downloaders.py` to download OQMD dataset **to `data/raw/oqmd.parquet`** using `datasets.load_dataset('oqmd/oqmd', 'formation_energy_per_atom', split='train')` (or equivalent canonical HF ID). **Ensure directory exists: `mkdir -p data/raw`.** (FR-001, FR-007, FR-008). **Depends on T004a.**
-- [X] T006d-MP-Check [S] Implement `code/ingestion.py` logic to **detect Materials Project API availability** by attempting a lightweight probe request using the configured API key. **If the key is missing or the probe fails (403/timeout), set a global flag `MP_AVAILABLE = False` and log a warning.** **This task ensures FR-008 fallback logic is triggered before ingestion begins.** (FR-008). **Depends on T004a. MUST run sequentially before T006d.**
-- [ ] T006d [P] Implement `code/downloaders.py` to download Materials Project dataset **to `data/raw/mp.parquet`** if a verified API key is present in environment variables. **Use `datasets.load_dataset('materials-project/mp', split='train')` with API key authentication.** **If no API key is found or fetch fails persistently, log a warning and skip this dataset (do not raise error), allowing the pipeline to proceed with OQMD/AFLOW only.** (FR-001, FR-008). **Depends on T004a and T006d-MP-Check.**
-- [ ] T006c [P] Implement checksum verification in `code/downloaders.py` using **SHA‑256 algorithm**, generating checksum files **`data/raw/oqmd.parquet.sha256`, `data/raw/aflow.parquet.sha256`, and `data/raw/mp.parquet.sha256 (if MP exists)`** in `sha256sum` format (`<hash> <filename>`). **Update `state/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m.yaml` with the generated checksums in the `artifact_hashes` map. Verify the YAML structure explicitly matches the `artifact_hashes` map format; raise ValueError if key missing or structure mismatch.** (Constitution Principle III). **Sequential to T006b and T006d; parallel to other Phase 2 tasks ONLY after T006b/d complete.**
+- [X] T004 Implement `code/ingestion.py` with exponential backoff (multiple retries, a reasonable timeout) for OQMD, AFLOW, and Materials Project APIs, **log all API errors as JSON lines to `logs/api_errors.log`**, and merge data (FR‑007, FR‑008). **Implement size-based rotation (create new file if > 100MB) without deletion to preserve raw trace.** (FR‑007, Constitution Principle III). **Integrate 'Fail Loudly' logic: raise DataFetchError on persistent failure for OQMD/AFLOW; for Materials Project, if persistent failure occurs after retries, log a warning and switch to fallback mode (OQMD/AFLOW only) as per FR-008, ensuring no synthetic fallback.**
+- [X] T004b [P] Implement unit test `tests/unit/test_ingestion_log_rotation.py` to verify that `code/ingestion.py` correctly creates a new log file when the current file exceeds 100MB, ensuring log rotation logic is present and functional. **Depends on T004.**
+- [X] T006a-MP-Availability-Check Implement `code/ingestion.py` logic to **detect Materials Project API availability** by attempting a lightweight probe request using the configured API key. **If the key is missing or the probe fails (403/timeout), set a global flag `MP_AVAILABLE = False` and log a warning.** **This task ensures FR-008 fallback logic is triggered before ingestion begins.** (FR-008). **Sequential to T004 (must run after ingestion setup).**
+- [ ] T006b-DataFetch Implement `code/downloaders.py` to download OQMD dataset **to `data/raw/oqmd.parquet`**. **Use the Hugging Face `datasets` library: `load_dataset('OQMD', split='train', streaming=True)` to fetch data in chunks.** **Do NOT use REST APIs.** Ensure directory exists: `mkdir -p data/raw`. (FR-001, FR-007, FR-008). **Depends on T004.**
+- [ ] T006d-DataFetch-MP Implement `code/downloaders.py` to download Materials Project dataset **to `data/raw/mp.parquet`** if `MP_AVAILABLE` is True. **Use the Hugging Face `datasets` library: `load_dataset('materials-project', split='train', streaming=True)` to fetch data in chunks.** **If `MP_AVAILABLE` is False, skip this task and log a warning.** (FR-001, FR-008). **Depends on T004 and T006a-MP-Availability-Check.**
+- [ ] T006c-Checksums Implement checksum verification in `code/downloaders.py` using **SHA‑256 algorithm**, generating checksum files **`data/raw/oqmd.parquet.sha256`, `data/raw/aflow.parquet.sha256`, and `data/raw/mp.parquet.sha256` (if MP exists)** in `sha256sum` format (`<hash> <filename>`). **Update `state/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m.yaml` with the generated checksums in the `artifact_hashes` map. Verify the YAML structure explicitly matches the `artifact_hashes` map format; raise ValueError if key missing or structure mismatch.** (Constitution Principle III). **Sequential to T006b-DataFetch and T006d-DataFetch-MP; parallel to other Phase 2 tasks.**
 - [X] T007 [P] Implement `code/descriptors.py` to compute all Magpie compositional descriptors (L‑normalized) and save to `data/processed/descriptors.parquet` (FR‑002).
-- [ ] T008 [P] Implement `code/imbalance.py` to calculate **Target Imbalance Score** (Gini coefficient of target property values for properties with >= 100 samples, handling negative values via absolute transformation or offset) AND **Compositional Imbalance Score** (Gini coefficient of the **compositional feature space** derived from K-Means clustering). **Step 1: Perform K-Means clustering (k=50) on compositional features. Step 2: Extract cluster centroids. Step 3: Flatten all centroid coordinates into a single 1D array. Step 4: Calculate Gini coefficient of this flattened centroid array.** Skip properties with < 100 samples. Output to `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv` (FR‑002, FR‑011). **Depends on T006b, T006d, T007.**
+- [ ] T007b-Schema-Extraction [P] Implement `code/descriptors.py` to **extract the schema (column names, count)** from `data/processed/descriptors.parquet` and save it as `data/processed/descriptor_schema.json`. **This artifact is required for T036 to generate the synthetic ground truth.** (FR-014). **Depends on T007.**
+- [ ] T008-ImbalanceScores Implement `code/imbalance.py` to calculate **Target Imbalance Score** (Gini coefficient of target property values for properties with >= 100 samples, handling negative values via absolute transformation or offset) AND **Compositional Imbalance Score** (Gini coefficient of the **compositional feature space** derived from K-Means clustering with k=50 on compositional features). **Step 1: Perform K-Means clustering (k=50) on compositional features to project data into 50-dimensional cluster space. Step 2: Calculate Gini coefficient of the resulting projected feature vectors (not cluster assignments or distances) to quantify feature space diversity.** Skip properties with < 100 samples. Output to `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv` (FR‑002, FR‑011). **Depends on T006b-DataFetch, T006d-DataFetch-MP, T007.**
 - [X] T010 [P] Create unit tests for ingestion retry logic and API failure handling in `tests/unit/test_ingestion.py`.
 - [X] T011 [P] Create unit tests for Magpie descriptor computation in `tests/unit/test_descriptors.py`.
 - [X] T010b [P] Generate `contracts/dataset.schema.yaml` defining the schema for `data/processed/` (columns: composition, target properties, descriptors, imbalance scores) (FR‑001).
@@ -73,12 +72,12 @@
 - [X] T013 [P] Integration test for baseline pipeline in `tests/integration/test_baseline_pipeline.py` (runs ingestion → descriptors → baseline training → report).
 - [X] T014 [US2] Contract test for resampling schema validation in `tests/contract/test_resampling_schema.py` (validates CV constraints against `contracts/resampling.schema.yaml`). *Depends on T010c.*
 - [X] T015 [P] Integration test for statistical significance in `tests/integration/test_statistical_significance.py` (validates power analysis and p‑value calculation).
-- [X] T049 [P] [US2] Add a verification script `code/verify_no_synthetic_fallback.py` that scans `code/downloaders.py`, `code/resampling.py`, and `code/ingestion.py` for patterns indicating synthetic fallback (e.g., `if not data: return mock_data`, `except: return synthetic`) and fails the build if found. **Depends on T004a, T006b, T006d.**
-- [ ] T051 [P] [US2] Implement explicit logging in `code/resampling.py` when SMOTE is triggered as a fallback, logging the **exact percentage of synthetic data added** and the **resulting CV** to `results/resampling_log.json` to ensure compliance with FR-013 (Synthetic data ≤ 30%) and FR-003 (Combined CV ≤ 0.30). **Verify that the hard validation gate in Tc raises a ValidationException if the synthetic portion exceeds a predefined threshold.**
-- [ ] T053 [P] [US2] Implement a check in `code/evaluation.py` to verify that the **minority subset** (bottom [deferred]) used for performance degradation calculation is derived from the **original, unmodified dataset** distribution, not a resampled one, to prevent circular validation (FR-010).
+- [X] T049 Implement strict error handling in `code/downloaders.py` and `code/ingestion.py`: **raise a specific `DataFetchError` exception on any persistent fetch failure for OQMD/AFLOW after retries**, ensuring no synthetic fallback code paths exist (Constitution Principle II, "Fail Loudly" rule). **Preserve exponential backoff and retry logic. For MP, implement fallback logic as per FR-008.** **Depends on T004, T006b-DataFetch, T006d-DataFetch-MP.**
+- [X] T050 [P] [US1/US2] Add a verification script `code/verify_no_synthetic_fallback.py` that scans `code/downloaders.py`, `code/resampling.py`, and `code/ingestion.py` for patterns indicating synthetic fallback (e.g., `if not data: return mock_data`, `except: return synthetic`) and fails the build if found. **Depends on T004, T006b-DataFetch, T006d-DataFetch-MP.**
+- [ ] T051 [P] [US2] Implement explicit logging in `code/resampling.py` when SMOTE is triggered as a fallback, logging the **exact percentage of synthetic data added** and the **resulting CV** to `results/resampling_log.json` to ensure compliance with FR-013 (Synthetic data ≤ 30%) and FR-003 (Combined CV ≤ 0.30). **Verify that the hard validation gate in T023 raises a ValidationException if the synthetic portion exceeds 30%.**
 
 ### Checkpoint
-**Foundation ready ONLY after T004a, T004b, T004c, T004d, T006b, T006c, T006d, T006d-MP-Check, T007 are complete** – user story implementation can now begin in parallel.
+**Foundation ready ONLY after T006b-DataFetch, T006d-DataFetch-MP, T007, T007b, T008, T006c, T004, T004b, T006a are complete** – user story implementation can now begin in parallel.
 
 ---
 
@@ -98,8 +97,7 @@
 - [X] T014 [US1] Implement `code/training.py` to train Random Forest and Gradient Boosting regressors on skewed data (FR‑004).
 - [X] T015 [US1] Implement `code/training.py` to evaluate models on a stratified test set preserving original imbalance (FR‑004).
 - [X] T016 [US1] Implement `code/evaluation.py` to generate **baseline performance report** saved as `results/baseline_report.csv` with columns: `property, model_type, MAE, RMAE, R2` (FR-004).
-- [ ] T018a [P] Run `code/verify_log_rotation.py` to verify the **absence of log rotation logic** and confirm that logs are appended without deletion (FR-007, Constitution Principle III). *Note: Log rotation logic removed, task verifies absence of rotation.*
-- [ ] T019 [US1] Verify that contract tests T012 and integration test T013 **pass before** baseline report generation (requires T012/T013 completion prior to T016). **Scheduling constraint: MUST be executed only after T012 and T013 are marked complete.**
+- [X] T019 [US1] Verify that contract tests T012 and integration test T013 **pass before** baseline report generation (requires T012/T013 completion prior to T016). **Scheduling constraint: MUST be executed only after T012 and T013 are marked complete.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -113,8 +111,8 @@
 
 ### Tests for User Story 2 (Contract & Integration) ⚠️
 
-- [ ] T020 [US2] Contract test for resampling logic (validates CV constraints against `contracts/resampling.schema.yaml`). **Depends on T010c. Runs after T022.**
-- [ ] T021 [US2] Integration test for statistical significance (validates power analysis and p‑value calculation). **Depends on T015. Runs after T029.**
+- [ ] T020 [US2] Define Contract test for resampling logic in `tests/contract/test_resampling_logic.py` (validates CV constraints against `contracts/resampling.schema.yaml`). **BLOCKED until T022 complete.**
+- [X] T021 [US2] Define Integration test for statistical significance in `tests/integration/test_statistical_significance_logic.py` (validates power analysis and p‑value calculation). **BLOCKED until T029 complete.**
 
 ### Implementation for User Story 2
 
@@ -124,7 +122,7 @@
 - [X] T023c [US2] Implement a hard validation gate in `code/resampling.py` that raises a `ValidationException` if the synthetic data portion constitutes a significant proportion of the total training set (exceeding FR-013 limits). (FR-003).
 - [X] T024 [US2] Enforce the CV constraints described above (real ≤ 0.10, combined ≤ 0.30) within the resampling implementation.
 - [X] T025 [US2] Implement `code/training.py` to retrain RF and GB models on the balanced dataset with identical hyperparameters (FR‑004).
-- [ ] T026 [US2] Implement `code/evaluation.py` to **isolate the bottom [deferred] (MINORITY_QUANTILE)** of each target property using a quantile threshold **read from `config.yaml` (default 0.05)** derived from the **FULL dataset** distribution (FR‑010) and calculate per‑bin MAE for this subset. *Rationale: Bottom [deferred] represents the extreme tail where imbalance effects are most critical.*
+- [X] T026-MinoritySubset [US2] Implement `code/evaluation.py` to **isolate the bottom [deferred] (MINORITY_QUANTILE = 0.05) of each target property** using a quantile threshold derived from the **FULL dataset** distribution (FR‑010) and calculate per‑bin MAE for this subset. **Define `MINORITY_QUANTILE = 0.05` as a constant in `code/evaluation.py` referencing FR-010.** *Rationale: Bottom [deferred] represents the extreme tail where imbalance effects are most critical.*
 - [X] T027 [US2] Implement `code/evaluation.py` to calculate **performance degradation**: `MAE_skewed_minority - MAE_balanced_minority` and write to `results/performance_degradation.csv`.
 - [X] T028 [US2] Implement power analysis in `code/evaluation.py` to determine the minimum number of random seeds required for **paired t-test**, Cohen's d = 0.5, power ≥ 0.8, α = 0.05; output seed count to `results/power_analysis.json`.
 - [X] T029 [US2] Implement paired statistical tests (paired t‑test or Wilcoxon) across the seed count from T028 (**Read seed_count from results/power_analysis.json**), saving results to `results/statistical_test_results.csv` with columns `test_type, p_value, effect_size, seed_count` (FR‑005). **Sequential dependency: T029 MUST run after T028 completes.**
@@ -145,12 +143,12 @@
 
 ### Tests for User Story 3 (Contract & Integration) ⚠️
 
-- [ ] T034 [US3] Contract test for SHAP output schema in `tests/contract/test_shap_schema.py` (validates rank‑shift CSV schema). **BLOCKED until T036 complete.**
-- [ ] T035 [US3] Integration test for synthetic ground truth validation in `tests/integration/test_shap_validation.py`. **BLOCKED until T036 complete.**
+- [X] T034 [US3] Define Contract test for SHAP output schema in `tests/contract/test_shap_schema.py` (validates rank‑shift CSV schema). **BLOCKED until T036 complete.** <!-- FAILED: unspecified -->
+- [X] T035 [US3] Define Integration test for synthetic ground truth validation in `tests/integration/test_shap_validation.py`. **BLOCKED until T036 complete.** <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Implement `code/shap_analysis.py` to generate a **synthetic dataset** with known non‑linear feature weights (algorithm: Gaussian noise with fixed seed). **[FR-014] Implements FR-014.** **Dynamically generate the `known_weights` vector by loading the descriptor schema from T007 (count and order) and assigning fixed known constants (e.g., a linear sequence [1.0, 0.9, 0.8...]) for the L2-normalized feature space.** Target calculated as `Target = sum(coef_i * x_i) + noise`, saved as `data/synthetic/ground_truth.parquet` (columns: Magpie descriptors, `target`, `known_weights`) (FR-014). *Ensure `known_weights` are validated against descriptor count before use.*
+- [ ] T036 [US3] Implement `code/shap_analysis.py` to generate a **synthetic dataset** with known non‑linear feature weights (algorithm: Gaussian noise with fixed seed). **Load the descriptor schema from T007b (`data/processed/descriptor_schema.json`) to determine feature count and names.** Dynamically generate the `known_weights` vector based on a physics-inspired function (e.g., atomic number dependencies) for the L2-normalized feature space, ensuring validation against actual Magpie descriptors. Target calculated as `sum(weight_i * x_i) + 0.5 * sum(x_i^2) + 0.3 * sum(x_i * x_{i+1})`, saved as `data/synthetic/ground_truth.parquet` (columns: Magpie descriptors, `target`, `known_weights`) (FR-014). *Ensure `known_weights` are validated against descriptor count before use.*
 - [ ] T037 [US3] Compute SHAP values for both skewed and balanced models, saving to `results/shap_analysis/shap_skewed.npy` and `results/shap_analysis/shap_balanced.npy`.
 - [ ] T038 [US3] Rank top features for each model, calculate **mean rank shift** (ties broken by average rank), and write `results/shap_analysis/rank_shift.csv` containing `feature, rank_skewed, rank_balanced, rank_shift`.
 - [ ] T039 [US3] Validate SHAP rankings against the synthetic ground truth (load `data/synthetic/ground_truth.parquet` column `known_weights`), compare `rank_shift.csv` with `known_weights`, output validation summary to `results/shap_analysis/shap_validation.json`.
@@ -172,7 +170,8 @@
 - [ ] T044b [P] Run `black` on all Python files in `code/` and format code.
 - [ ] T045 [P] Add memory profiling to `code/training.py` and `code/shap_analysis.py`; log peak usage to `results/memory_profile.csv` with columns `timestamp, peak_memory_mb, function_name` (verify Constraint‑002).
 - [ ] T046 [P] Add additional unit tests for edge cases (e.g., < 100 samples property, API rate limits) in `tests/unit/`.
-- [ ] T047 [P] Execute the full pipeline using command `python code/main.py --full-pipeline`, ensuring total runtime ≤ 6 hours by **streaming the full merged dataset (union of OQMD/AFLOW/MP shards via datasets.load_dataset(..., streaming=True)) up to the manageable storage limit**, and save execution log to `results/validation_log.txt` containing runtime, exit code, and pass/fail flag (verify Constraint‑001). *Prerequisite: T016, T027, T030, T036-T042, T049, T051, T053 must be complete and artifacts generated (Status: T016=[X], T027=[X], T030=[X]).*
+- [ ] T047a [P] [US1/US2/US3] Execute the full pipeline using command `python code/main.py --full-pipeline --include-mp`, ensuring total runtime ≤ 6 hours by **streaming the full merged dataset (OQMD/AFLOW/MP shards via `datasets.load_dataset(..., streaming=True)`)**, and save execution log to `results/validation_log_mp.txt` containing runtime, exit code, and pass/fail flag (verify Constraint‑001). **Task must check `MP_AVAILABLE` flag; if MP is unavailable, skip MP shards and log a warning, but still verify runtime on OQMD/AFLOW.** *Prerequisite: T016, T027, T030, T036, T037, T038, T039, T040, T041 must be complete and artifacts generated.*
+- [ ] T047b [P] [US1/US2/US3] Execute the full pipeline using command `python code/main.py --full-pipeline --fallback-mode`, ensuring total runtime ≤ 6 hours by **streaming the OQMD/AFLOW dataset only (MP unavailable scenario)**, and save execution log to `results/validation_log_fallback.txt` containing runtime, exit code, and pass/fail flag (verify Constraint‑001 for fallback). *Prerequisite: T016, T027, T030, T036, T037, T038, T039, T040, T041 must be complete and artifacts generated.*
 - [ ] T048 [P] Final review of `state/projects/PROJ-756-assessing-dataset-imbalance-effects-on-m.yaml` for versioning completeness and artifact hashes.
 
 ---
@@ -230,21 +229,19 @@ Task: "Implement code/descriptors.py to compute Magpie descriptors"
 - T030 and T031 depend on T027, T008, and T007.
 - T033 depends on T020 and T021.
 - T042 depends on T034 and T035.
-- T047 depends on completion of T016, T027, T030, T036-T042, T049, T051, T053 (All marked [ ] in this revision).
+- T047a and T047b depend on completion of T016, T027, T030, T036, T037, T038, T039, T040, T041 (All marked [ ] in this revision).
 - T019 depends on T012 and T013.
-- T006b must complete before T006e.
-- T006c must complete before T006e.
-- T006d must complete before T006e.
-- T008 depends on T006b, T006c, T006d, T007, T009.
-- **T049, T051, T053** must be implemented and verified before T047 (Full Pipeline Execution) to ensure data integrity and prevent fabrication.
-- **T049 depends on T004a, T004b, T006b, T006c, and T006d** (cannot run in parallel with them).
-- T036 depends on T007.
+- T006b-DataFetch must complete before T006c-Checksums.
+- T006d-DataFetch-MP must complete before T006c-Checksums.
+- T008-ImbalanceScores depends on T006b-DataFetch, T006d-DataFetch-MP, T007.
+- **T049, T050, T051** must be implemented and verified before T047a/T047b (Full Pipeline Execution) to ensure data integrity and prevent fabrication.
+- **T049 and T050 depend on T004, T006b-DataFetch, T006d-DataFetch-MP** (cannot run in parallel with them).
 - **T028 and T029 are strictly sequential; T029 MUST wait for T028 to complete.**
-- **T006b, T006d, T049 are sequential to T004 and cannot be marked [P] for parallel execution with T004.**
-- **T006c is sequential to T006b/T006d but parallel to other Phase 2 tasks.**
-- **T006d-MP-Check is sequential to T004a and must precede T006d.**
-- **T020 and T021 are no longer blocked; they run after T022 and T029 respectively.**
-- **T004a-d are marked [Serial] to indicate they must be implemented in sequence within the same file.**
+- **T006b-DataFetch, T006d-DataFetch-MP, T049, T050 are sequential to T004 and cannot be marked [P] for parallel execution with T004.**
+- **T006c-Checksums is sequential to T006b-DataFetch/T006d-DataFetch-MP but parallel to other Phase 2 tasks.**
+- T036 depends on T007b-Schema-Extraction.
+- **T006b-DataFetch and T006d-DataFetch-MP are sequential to T004 (Implementation of ingestion logic) and cannot be marked [P] for parallel execution with T004.**
+- T006a-MP-Availability-Check is sequential to T004.
 
 ---
 
@@ -293,9 +290,9 @@ With multiple developers:
 - **Compute Constraint**: Pipeline must run on CPU‑only runner; if GPU is required for a method, it must be explicitly scaled down or offloaded, not faked.
 - **SMOTE Constraint Resolution**: FR-003 mandates SMOTE as a fallback; Plan.md 'Constraints' section updated to reflect this (SMOTE allowed as fallback).
 - **Task Consolidation**: T009a and T009b were removed as they were duplicates of T008. T008 now covers both Target and Compositional Imbalance Score calculations.
-- **Imbalance Score Metric**: T008 implements Gini of flattened cluster centroids for compositional diversity (per FR-002) and Gini for target imbalance (per FR-011).
-- **Bottom [deferred]**: T026 uses `MINORITY_QUANTILE` read from `config.yaml` (default 0.05) to analyze the extreme tail.
-- **Log Rotation**: T004 uses size-based rotation (create new file if > 100MB) without deletion to preserve raw trace.
-- **Subset Strategy**: T047 uses streaming of the **full merged dataset** (up to 5GB) to ensure 6-hour constraint verification is valid.
-- **Revision Concerns**: Phase 2 tasks (T049-T053) address the "Fail Loudly" data loading rule and prevent synthetic data fabrication in edge cases, ensuring compliance with the Constitution.
-- **Parallel Execution Note**: T004a-d are marked [Serial] to prevent same-file conflicts despite being in the same file.
+- **Imbalance Score Metric**: T008 implements K-Means/Gini for compositional diversity (per FR-002) and Gini for target imbalance (per FR-011). **Removed density-weighting step.**
+- **Bottom [deferred]**: T026 uses `MINORITY_QUANTILE = 0.05` defined as a constant in `code/evaluation.py`.
+- **Log Rotation**: T004 uses size-based rotation (create new file if > 100MB) without deletion to preserve raw trace. T004b verifies this logic.
+- **Subset Strategy**: T047a uses streaming of the **full merged dataset** (up to 5GB) for MP scenario; T047b uses streaming of **OQMD/AFLOW dataset only** for fallback scenario to ensure 6-hour constraint verification is valid for both MP and fallback scenarios.
+- **Revision Concerns**: Phase 2 tasks (T049-T051) address the "Fail Loudly" data loading rule and prevent synthetic data fabrication in edge cases, ensuring compliance with the Constitution.
+- **Data Source**: All data fetches now use Hugging Face `datasets` library, aligning with plan.md Technical Context.

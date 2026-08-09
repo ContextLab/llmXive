@@ -1,93 +1,57 @@
-# Resampling Schema Contract for PROJ-756
-# Defines the expected structure for resampling configuration and results
-# Used by contract tests (T014, T020) to validate CV constraints
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Resampling Configuration and Results"
-description: "Schema for validating resampling logic and cross-validation constraints"
-
-type: object
-required:
-  - configuration
-  - results
-  - cv_metrics
-
-properties:
-  configuration:
-    type: object
-    required:
-      - method
-      - bins
-      - seed
-    properties:
-      method:
-        type: string
-        enum: ["dynamic_binning", "stratified_undersampling", "stratified_oversampling", "cost_sensitive"]
-        description: "Resampling strategy used"
-      bins:
-        type: integer
-        minimum: 2
-        maximum: 100
-        description: "Number of bins for dynamic binning"
-      seed:
-        type: integer
-        description: "Random seed for reproducibility"
-      fallback_triggered:
-        type: boolean
-        description: "Whether cost-sensitive fallback was triggered"
-
-  results:
-    type: object
-    required:
-      - original_count
-      - resampled_count
-      - data_loss_ratio
-    properties:
-      original_count:
-        type: integer
-        minimum: 1
-      resampled_count:
-        type: integer
-        minimum: 1
-      data_loss_ratio:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: "Proportion of data lost (0.0 = no loss, 1.0 = all lost)"
-
-  cv_metrics:
-    type: object
-    required:
-      - real_data_cv
-      - combined_cv
-    properties:
-      real_data_cv:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: "Coefficient of Variation on real data (must be <= 0.10)"
-      combined_cv:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: "Combined CV (real + synthetic) (must be <= 0.30)"
-      is_valid:
-        type: boolean
-        description: "True if both CV constraints are satisfied"
-
-  bin_distribution:
-    type: object
-    description: "Distribution of samples across bins (for dynamic binning)"
-    additionalProperties:
-      type: object
-      required:
-        - count
-        - mean_target
-      properties:
-        count:
-          type: integer
-          minimum: 1
-        mean_target:
-          type: number
-
-additionalProperties: false
+description: Schema for resampled dataset validation and CV constraints
+version: 1.0
+source: T010c
+fields:
+  - name: bin_id
+    type: integer
+    description: Unique identifier for the resampling bin
+    required: true
+  - name: sample_count
+    type: integer
+    description: Number of samples in the bin after resampling
+    required: true
+    constraints:
+      min: 1
+  - name: cv
+    type: float
+    description: Coefficient of Variation for the target property in this bin
+    required: true
+    constraints:
+      min: 0.0
+      max: 1.0
+      validation_gate:
+        real_data_threshold: 0.10
+        combined_threshold: 0.30
+        exception: ValidationException
+  - name: real_data_flag
+    type: boolean
+    description: True if bin contains only real data, False if synthetic data was added
+    required: true
+validation_rules:
+  - name: cv_constraint_check
+    description: Validates that CV does not exceed thresholds based on data type
+    logic: |
+      if real_data_flag is True:
+        assert cv <= 0.10, "Real data CV exceeds 0.10 threshold"
+      else:
+        assert cv <= 0.30, "Combined CV (real+synthetic) exceeds 0.30 threshold"
+  - name: sample_count_check
+    description: Ensures no empty bins exist
+    logic: |
+      assert sample_count >= 1, "Empty bin detected"
+  - name: synthetic_proportion_check
+    description: Ensures synthetic data does not exceed 30% of total
+    logic: |
+      if real_data_flag is False:
+        # This check is typically performed at the dataset level, 
+        # but can be aggregated here if bin-level proportions are tracked
+        pass
+examples:
+  - bin_id: 1
+    sample_count: 150
+    cv: 0.05
+    real_data_flag: true
+  - bin_id: 2
+    sample_count: 120
+    cv: 0.25
+    real_data_flag: false

@@ -1,11 +1,11 @@
 T006c:
   c: false
-  h: df2665ec5b3ff5a0e791b29fbcf67ffc0789fb981c2eb6261c2b266c8fec43ff
-  r: "The repository contains only stub functions for checksum generation and the\
-    \ YAML still lists \u201Cpending\u201D values; the required checksum files (`data/raw/oqmd.parquet.sha256`,\
-    \ `aflow.parquet.sha256`, `mp.parquet.sha256`) are absent, and the state file\
-    \ has not been populated with real SHA\u2011256 hashes nor validated for correct\
-    \ structure. The task therefore remains unfinished."
+  h: a3c6c07102db75689e9d3d5ffb1c12f605a744db19c5fd30f082bb82b3ef6a2e
+  r: "The repository contains a partially shown `code/downloaders.py`, but the visible\
+    \ portion does not demonstrate that it writes the OQMD or AFLOW DataFrames to\
+    \ `data/raw/oqmd.parquet` and `data/raw/aflow.parquet`. Moreover, the required\
+    \ parquet files are absent from `data/raw/`. Without evidence that the implementation\
+    \ actually creates those files, the task\u2019s core requirement is unmet."
 T008:
   c: false
   h: 7174580481928ef9ddaf6b836abeac0b7b6ef79f81896830be574aa6389b90a3
@@ -30,10 +30,35 @@ T016:
     `results/baseline_report.csv` path, and the expected CSV file is absent from the
     repository. Consequently the baseline performance report has not been produced
     as the task demands.
-T051:
+T020:
   c: false
-  h: 3d1611e329fc219866cb821036d7aa31ae362faf71529db2e6d890eb5ab48384
-  r: The `code/resampling.py` file is truncated and does not show any logic that logs
-    SMOTE fallback events or writes the required JSON entry, and the expected `results/resampling_log.json`
-    file is absent. Both the explicit logging behavior and the output artifact are
-    missing.
+  h: 8168f325babe199382d72f4b61ca56cc92fd3d4279ec59052584810b45c5ff4d
+  r: "The provided `tests/contract/test_resampling_logic.py` exists, but it depends\
+    \ on `contracts/resampling.schema.yaml`, which is absent from the repository.\
+    \ Without the schema file the test cannot load validation rules, so the contract\
+    \ validation cannot be performed. Additionally, the test file is truncated, indicating\
+    \ it may not fully implement the required checks. The task\u2019s core requirement\u2014\
+    defining a contract test that validates CV constraints against the schema\u2014\
+    is therefore not satisfied."
+T021:
+  c: false
+  h: 4fcee7e1a731e6be853ee2b5af6586d4e84f5c586034937ce6ecb62d964fe61a
+  r: "The required file `tests/integration/test_statistical_significance_logic.py`\
+    \ does not exist in the repository, so no integration test for power analysis\
+    \ and p\u2011value calculation has been defined. The task therefore remains unfinished."
+T035:
+  c: false
+  h: 9d0344957e6e4fe22d2c53cbe2d05679ff9f133e65464bbe5237643265bd6102
+  r: The required file `tests/integration/test_shap_validation.py` does not exist
+    in the repository, so the integration test has not been defined as requested.
+    The task remains incomplete until the file is created with the appropriate test
+    implementation.
+T036:
+  c: false
+  h: ddda8481ae83462b23fc433684801a229b072b4d65e07e475fed60be066327fb
+  r: "The repository lacks the required `data/processed/descriptor_schema.json` and\
+    \ the generated `data/synthetic/ground_truth.parquet` files, so the script cannot\
+    \ determine feature count or produce the synthetic dataset. Moreover, the provided\
+    \ `code/shap_analysis.py` is truncated and does not show the target computation\
+    \ or the write\u2011out of the parquet file. These essential artifacts must be\
+    \ added for the task to be considered complete."
