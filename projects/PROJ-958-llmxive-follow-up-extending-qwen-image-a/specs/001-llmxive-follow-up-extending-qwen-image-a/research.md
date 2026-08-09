@@ -1,118 +1,101 @@
-# Research: llmXive follow-up: extending "Qwen-Image-Agent"
+# Research: llmXive follow-up: extending "Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generation"
 
-## Objective
-
-To determine if a deterministic "Syntactic Complexity Score" can predict the necessity of agentic reasoning in image generation. Specifically, we aim to identify a "knee point" threshold where the marginal gain in "Context Fidelity" (CLIP similarity + Structural Detail Score) from using the full Qwen-Image-Agent pipeline (or Verified Proxy) becomes statistically indistinguishable from a lightweight rule-based expansion.
+## Problem Statement
+The core research question is whether a syntactic complexity metric (independent of semantic content) can predict the need for agentic reasoning in image generation, and if so, where the "knee point" lies where the marginal fidelity gain from using the full Qwen-Image-Agent pipeline becomes statistically negligible. This study extends the Qwen-Image-Agent paper by introducing a hybrid routing strategy that bypasses expensive agentic processing for low-complexity prompts, aiming to reduce computational cost without sacrificing context fidelity.
 
 ## Dataset Strategy
 
-We utilize two primary datasets for prompt ingestion. Both are verified, open-access, and programmatically downloadable via Hugging Face `datasets` library, ensuring CI feasibility.
+| Dataset | Purpose | Source (Verified URL) | Access Method | Notes |
+|---------|---------|----------------------|---------------|-------|
+| IA-Bench | Raw text prompts for complexity scoring and generation | https://huggingface.co/datasets/irl-kit/IA-Bench/resolve/main/data/agibot_world/test/metadata.jsonl | `datasets.load_dataset(..., streaming=True)` | Contains diverse prompts; will be filtered for image-generation tasks. |
+| WISE-Verified | Raw text prompts with cultural common sense verification | https://huggingface.co/datasets/Yuwei-Niu/WISE_Verified/resolve/main/cultural_common_sense_verified.json | `datasets.load_dataset(..., streaming=True)` | Provides high-quality, human-verified prompts; used for fidelity validation. |
+| MTLD | Lexical diversity reference (optional, if not computed on-the-fly) | https://huggingface.co/datasets/Abeyankar/mtl_ds_full_fin/resolve/main/metadata.json | `datasets.load_dataset(...)` | Used to calibrate MTLD calculation; MTLD will be computed via `textstat` library. |
+| CLIP (mfaq) | Reference descriptions for fidelity scoring | https://huggingface.co/datasets/clips/mfaq/resolve/main/data/cs/train.jsonl | `datasets.load_dataset(...)` | Contains image-caption pairs; used to verify CLIP model behavior on domain data. |
 
-| Dataset | Role | Source / Load Method | Verification Status |
-| :--- | :--- | :--- | :--- |
-| **IA-Bench** | Primary prompt source (agentic context) | `datasets.load_dataset("irl-kit/IA-Bench", data_files="data/agibot_world/test/metadata.jsonl")` | Verified (HF URL provided) |
-| **LAION-CC** | Secondary prompt source (general image-text pairs) | `datasets.load_dataset("laion/laion-captions", split="train", streaming=True)` (Filtered subset) | Verified (HF URL provided) |
-| **MTLD Reference** | Calibration for lexical diversity | N/A (Algorithmic calculation via `nltk`) | N/A (No external dataset needed for calculation) |
-| **Gold Standard References** | Reference text for Fidelity | **Generated** by Llama-3-70b (or GPT-4o if accessible) from prompts. | Generated (Not in source dataset) |
+**Dataset Selection Rationale**: All datasets are open, programmatically accessible via Hugging Face `datasets` library, and verified for reachability. No access-gated data is used. Streaming is enabled for large datasets to fit within 7GB RAM.
 
-**Note on Dataset Fit**:
-- **IA-Bench** and **LAION-CC** contain raw text prompts and (for LAION) associated images. They **do not** contain the "Context Fidelity" scores or "human-verified reference descriptions" in the sense of a pre-existing gold standard text.
-- **Reference Generation**: The plan explicitly includes a step to generate "gold standard" reference descriptions using a high-capacity LLM (Llama-3-70b) from the prompt text. This ensures a consistent, high-quality reference text exists for every prompt in the paired sample, addressing the data availability gap.
-- **MTLD** datasets listed in the verified block are *not* used as input data. The plan calculates MTLD algorithmically using `nltk` on the prompt text itself, as specified in FR-001.
-- **WISE-Verified**: Removed. It is a text-reasoning dataset without image pairs, unsuitable for this study.
+**Data Hygiene Plan**:
+- Each dataset fetch is followed by checksum computation (SHA-256) and storage in `data/raw/`.
+- Reference-Validator Agent will verify all dataset citations before use (Constitution Principle II).
+- **Reference Independence Check**: `02_validate_data.py` will verify that the `reference_description` field in WISE-Verified is distinct from the input `prompt` (string distance > 10% or semantic similarity < 0.8). Prompts failing this check are flagged and excluded from the Fidelity Metric calculation to prevent circular validation.
+- Derived files (complexity scores, fidelity deltas) are stored in `data/derived/` with provenance logs.
 
 ## Methodology
 
-### Phase 0: Pilot Study (FR-012)
-1.  **Sample**: Select a random sample of prompts from IA-Bench/LAION.
-2.  **Scoring**: Compute Syntactic Complexity Score for each.
-3.  **Ground Truth**: 3 human experts rate each prompt on a 1-5 scale for "Agentic Need" (Rubric: 1=Simple description, 5=Complex reasoning required).
-4.  **Validation**: Calculate Pearson correlation between Syntactic Score and Mean Human Rating.
-    -   **Success**: Correlation ≥ 0.5.
-    -   **Failure**: Adjust weights ($w_1, w_2, w_3$) and re-run pilot.
-5.  **Normalization**: Calculate Min/Max normalization parameters **only from this Pilot Study**. These parameters are **frozen** for the Main Study to prevent look-ahead bias.
-6.  **Gate**: Store correlation coefficient in `data/results/pilot_correlation.json`. The Main Study (Phase 1) **cannot proceed** without this file.
+### Phase 1: Syntactic Complexity Scoring (FR-001, FR-012)
+- **Input**: Raw prompts from IA-Bench and WISE-Verified.
+- **Features**: Parse tree depth (via `spacy`), clause count (via dependency parsing), MTLD (via `textstat`).
+- **Exclusion**: No semantic embeddings (e.g., BERT, CLIP text encoder) used in scoring.
+- **Output**: Normalized score (0.0–1.0) per prompt.
+- **Validation**: Pilot study on 200 prompts (FR-012) to correlate score with human-rated "need for agentic reasoning".
 
-### Phase 1: Syntactic Complexity Scoring (FR-001)
-1.  **Parsing**: Load prompts from IA-Bench and LAION-CC. Parse each using `spacy` (en_core_web_sm) to extract:
-    -   Parse tree depth (max depth of the dependency tree).
-    -   Clause count (number of `ROOT` nodes in subordinate clauses).
-    -   Token count.
-2.  **Lexical Diversity**: Calculate Mean Length of T-Units (MTLD) using `nltk` logic:
-    -   Segment text into T-units (independent clauses + attached modifiers).
-    -   Compute average tokens per T-unit.
-3.  **Normalization**: Normalize each metric to [0.0, 1.0] using the **frozen Min/Max parameters** from Phase 0.
-4.  **Aggregation**: Compute `Syntactic_Complexity_Score` = $w_1 \cdot \text{Depth}_{norm} + w_2 \cdot \text{Clause}_{norm} + w_3 \cdot \text{MTLD}_{norm}$.
-    -   Weights ($w_1, w_2, w_3$) are set to 1/3 unless Phase 0 suggests otherwise.
-    -   **Constraint**: No semantic embeddings (e.g., BERT, CLIP text encoder) are used in this phase.
+### Phase 2: Hybrid Routing & Counterfactual Sampling (FR-002, FR-003, FR-007, FR-008, FR-009)
+- **Routing Logic**: 
+  - Low (< 0.2): Rule-based context expansion (template-based).
+  - Medium (0.2–0.6): Rule-based context expansion.
+  - High (> 0.6): Full Qwen-Image-Agent pipeline.
+- **Counterfactual Sampling Strategy**: To enable Fidelity Delta calculation for Low/Medium prompts without executing the expensive Baseline for all prompts, a **random subset** of Low/Medium prompts is selected for **full Baseline (Qwen-Agent) execution**.
+  - **High Complexity**: All prompts execute both Baseline (for verification) and Hybrid (Agent).
+  - **Low/Medium Complexity**: 
+    - **Counterfactual Sample**: A statistically valid random sample (seeded) executes **both** Baseline (Qwen-Agent) and Hybrid (Rule-based) to calculate Delta.
+    - **Non-Sampled**: Executes **only** Hybrid (Rule-based). Delta is **undefined** for these points and they are excluded from the primary "Delta vs. Complexity" regression.
+- **Execution**: Real image generation for High and Counterfactual Sample prompts; lightweight for non-sampled Low/Medium.
+- **Logging**: Token counts, latency, routing decision, and sampling flag per prompt.
 
-### Phase 2: Stratified Sampling & Reference Generation
-1.  **Stratification**: Select a **paired sample of 600 prompts** (200 Photorealistic, 200 Abstract, 200 Illustration).
-    -   Use a pre-trained ResNet-50 classifier (`src/domain/classifier.py`) to estimate domain for a large pool, then sample to ensure balance.
-2.  **Reference Generation**: For all 600 prompts, generate a "Gold Standard" reference description using a high-capacity LLM (e.g., Llama-3-70b).
-    -   Prompt: "Describe the image that should be generated from this prompt in high detail: [Prompt]."
-    -   Store as `reference_text` in `data/processed/`. This is the dependent variable anchor.
+### Phase 3: Fidelity Measurement & Threshold Detection (FR-004, FR-005, FR-006, FR-010, FR-011)
+- **Fidelity Metric**: CLIP ViT-B/32 similarity score between generated image and human-verified reference description.
+- **Delta Calculation**: `Fidelity_Hybrid - Fidelity_Baseline`.
+  - **Defined**: For High complexity prompts AND the Counterfactual Sample of Low/Medium prompts.
+  - **Undefined**: For the Non-Sampled Low/Medium prompts. These are **excluded** from the "Delta vs. Complexity" regression.
+- **Regression Strategy**:
+  1. **Global Fidelity Curve**: "Hybrid Fidelity" vs. "Complexity Score" for **all** prompts (to show overall performance).
+  2. **Delta vs. Complexity Curve**: "Fidelity Delta" vs. "Complexity Score" for **High + Counterfactual Sample only**. This is the primary curve for knee point detection.
+- **Piecewise Linear Regression**:
+  - Fitted on the **Delta vs. Complexity** dataset.
+  - Identifies the "knee point" where the slope of the Delta curve stabilizes (approaches zero or changes sign).
+- **Statistical Validation**:
+  - F-test: Compare piecewise vs. linear model (p < 0.05 required).
+  - **Likelihood Ratio Test (LRT)**: Explicitly validate non-linear relationship (FR-005). The LRT compares the log-likelihood of the piecewise model against the linear model. A significant LRT (p < 0.05) confirms the necessity of the non-linear term.
+  - Permutation Test: 10,000 iterations to test if fidelity difference below threshold is distinguishable from zero (FR-006).
+- **Stratification**: Domain classification via ResNet-50; separate regression per domain (FR-010, FR-011).
 
-### Phase 3: Hybrid Routing & Full Paired Execution (FR-002, FR-003, FR-009)
-1.  **Routing Logic**:
-    -   `Score < 0.2` → **Low**: Route to `lightweight_expander`.
-    -   `0.2 <= Score <= 0.6` → **Medium**: Route to `lightweight_expander`.
-    -   `Score > 0.6` → **High**: Route to **REAL Agent/Proxy**.
-2.  **Execution (Paired)**:
-    -   **CRITICAL**: For **EVERY** prompt in the 600-sample, run **BOTH** paths:
-        -   **Path A (Hybrid)**: Execute the assigned path (Lightweight for Low/Med, Agent for High).
-        -   **Path B (Baseline)**: **Always** execute the **REAL Agent/Proxy** (Qwen or SDXL-Turbo) regardless of complexity.
-    -   **Engine Consistency**: The "Baseline" and "High" path use the **exact same engine** (Qwen if available, otherwise SDXL-Turbo proxy). This ensures the delta measures routing efficiency, not model capability differences.
-    -   **Logging**: Record `latency_ms` and `token_count` (or `inference_steps` for diffusion models) for both paths.
-        -   *Token Count Note*: For SDXL-Turbo (diffusion), `token_count` is N/A; `inference_steps` is logged as the valid efficiency proxy. For Qwen (LLM), actual tokens are logged.
+## Statistical Rigor & Feasibility
 
-### Phase 4: Fidelity Measurement & Statistical Analysis (FR-004, FR-005, FR-006, FR-010)
-1.  **Fidelity Metrics**:
-    -   **CLIP Score**: Compute cosine similarity between generated image and `reference_text` using frozen CLIP ViT-B/.
-    -   **Structural Detail Score**: Compute a deterministic score based on the presence of key nouns/locations from the prompt in the image caption (generated by a captioning model) to address construct validity.
-    -   **Fidelity Delta**: `Delta = Score_Baseline - Score_Hybrid`.
-2.  **Regression**: Fit a piecewise linear regression model: $y = \beta_0 + \beta_1 x + \beta_2 (x - \tau)_+$.
-    -   $x$: Syntactic Complexity Score.
-    -   $y$: Fidelity Delta.
-    -   $\tau$: Knee point threshold.
-    -   **Hypothesis**: For Low X, Delta ~ 0. For High X, Delta > 0. The "Knee Point" is where Delta starts to rise significantly.
-3.  **Model Comparison**:
-    -   Perform **F-test** comparing Piecewise vs. Linear model. Require $p < 0.05$.
-    -   Perform **Likelihood Ratio Test (LRT)** comparing Piecewise vs. Linear model. Require $p < 0.05$ (FR-005).
-4.  **Permutation Test**: Shuffle Fidelity Deltas a sufficient number of times to generate a null distribution of the slope change. Verify observed slope change is in the top 5% (alpha=0.05).
-5.  **Stratification**: Repeat regression for each visual domain (Photorealistic, Abstract, Illustration) using the domain-specific subset of the 600-sample. Apply Bonferroni correction for multiple comparisons.
+### Multiple Comparisons & Family-Wise Error
+- For stratified analysis (3 domains), apply Bonferroni correction to alpha (0.05/3 = 0.0167) for domain-specific threshold tests.
 
-## Compute Feasibility & Strategy
+### Sample Size & Power
+- Target N ≥ 2,000 prompts.
+- **Counterfactual Power**: With a random sampling of Low/Medium (e.g., 20-30%), we expect ~400-600 points in the "Delta" regression (assuming ~2000 total, ~1500 Low/Med). Power analysis deferred to pilot study; if N < 200 in the Delta set, acknowledge power limitation.
 
-### CPU-First Strategy
--   **Scoring**: `spacy` and `nltk` are CPU-native and fast. 600 prompts will take < 10 minutes.
--   **CLIP**: `CLIP ViT-B/32` is CPU-tractable for inference on a small batch.
-    -   *Optimization*: Process images in batches of a fixed size..
-    -   *Memory*: Sufficient RAM is required for ViT-B variants (approx. 1GB model + batch buffers).
-    -   *Time*: Inference on a batch of images (prompts x paths) takes a moderate amount of time on 2 cores..
--   **Regression**: `scikit-learn` and `numpy` are CPU-native. Permutation test (10k iterations) is fast on CPU for N=600.
+### Causal Inference
+- **Observational Study**: Claims are associational for the full set.
+- **Randomized Sub-Experiment**: The Counterfactual Sample provides a randomized assignment within the Low/Medium range, allowing causal inference about "agent value" for that subset.
 
-### GPU Escape Hatch
--   **Agent/Proxy Execution**: This component **requires** a GPU.
-    -   *Plan*: The `runner.py` script will detect if `CUDA` is available.
-    -   *If No GPU*: The script will trigger the **Kaggle Auto-Offload** mechanism. The plan assumes this offload is active.
-    -   *Fallback Engine*: If Qwen-Image-Agent is inaccessible, the script will automatically switch to **SDXL-Turbo** (via `diffusers`) as the "Verified Proxy" for the **REAL** execution.
-    -   *Constraint*: We will limit the generation to a feasible sample size to fit within the approximate -hour Kaggle kernel limit.
+### Measurement Validity
+- CLIP ViT-B/32: Widely validated for image-text similarity; use frozen weights.
+- Syntactic metrics: Standard NLP measures (parse depth, MTLD); validated in prior literature.
+- **Reference Independence**: Validated via string/semantic distance check (Phase 1).
 
-## Statistical Rigor & Assumptions
+### Predictor Collinearity
+- Parse depth and clause count may be correlated; report correlation matrix; if high (>0.8), use PCA or report descriptive relationship only.
 
-1.  **Multiple Comparisons**: When performing stratified regression (3 domains), we will apply a Bonferroni correction or False Discovery Rate (FDR) control to the p-values of the knee point detection.
-2.  **Power Analysis & Limitations**: The sample size (N=600, 200 per domain) is chosen to ensure power > 0.8 for detecting a medium effect size (Cohen's d=0.5) in the piecewise regression. However, if the model fails to converge or R² < 0.85, the result will be reported as "No Threshold Found" to avoid overfitting noise.
-3.  **Causal Inference**: This is an **observational** study. We cannot claim the complexity score *causes* the need for an agent. We will frame results as "association" and "predictive threshold".
-4.  **Collinearity**: Parse depth and clause count are likely correlated. We will report Variance Inflation Factors (VIF) and, if VIF > 5, combine them into a single "Structural Complexity" factor to avoid claiming independent effects.
-5.  **Measurement Validity**: CLIP ViT-B/32 is a standard proxy for image-text fidelity. We acknowledge it may not capture "artistic intent" perfectly, so we supplement with a "Structural Detail Score".
-6.  **Normalization**: Normalization parameters are **frozen** from the Pilot Study to prevent look-ahead bias.
+## Compute Feasibility
+- **CPU-First**: All steps (syntactic scoring, CLIP inference in batches, regression) are CPU-tractable.
+- **GPU Escape Hatch**: Qwen-Image-Agent execution may require GPU; offload to Kaggle free-tier if CUDA error occurs. Scaled down to a manageable subset of high-complexity prompts if the full set exceeds time limit.
+- **Streaming**: Datasets streamed to avoid RAM overflow; results accumulated in chunks.
 
-## Risks & Mitigations
+## Decision/Rationale
+- **Why Syntactic Only?** To avoid circular validation (Constitution Principle VI); semantic embeddings would confound the independence of the complexity metric.
+- **Why CLIP?** Standard, frozen, CPU-tractable metric for image-text fidelity.
+- **Why Piecewise Regression?** To identify a non-linear "knee point"; linear model insufficient for threshold detection.
+- **Why Permutation Test?** To validate statistical significance without distributional assumptions.
+- **Why Stratification?** Visual domains may have different ambiguity thresholds (Constitution Principle VII).
+- **Why Counterfactual Sampling?** To resolve the "undefined Delta" problem for Low/Medium prompts without executing the expensive Baseline for all [deferred]+ prompts. This balances feasibility with statistical rigor.
 
--   **Risk**: Qwen-Image-Agent API/Code is not accessible.
-    -   *Mitigation*: Use **SDXL-Turbo** as the Verified Proxy. The plan explicitly defines this as the fallback "REAL" execution engine. Note: This shifts the construct from "Agentic Reasoning" to "High-Capacity Generation", which is a limitation acknowledged in the final report.
--   **Risk**: CLIP inference exceeds GB RAM on the runner.
-    -   *Mitigation*: Implement streaming batch processing. Load a limited batch of images at a time.
--   **Risk**: No clear "knee point" exists (linear relationship).
-    -   *Mitigation*: The plan explicitly handles this (Edge Case: "No Threshold Found"). The output will be "No Threshold Found" with the max observed fidelity delta recorded.
+## References
+- IA-Bench: https://huggingface.co/datasets/irl-kit/IA-Bench
+- WISE-Verified: https://huggingface.co/datasets/Yuwei-Niu/WISE_Verified
+- CLIP ViT-B/32: https://huggingface.co/openai/clip-vit-base-patch32
+- Qwen-Image-Agent: [Primary paper, to be cited via Reference-Validator]
+- MTLD: https://huggingface.co/datasets/Abeyankar/mtl_ds_full_fin

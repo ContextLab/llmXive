@@ -30,7 +30,7 @@
   - Entities from data-model.md
   - Endpoints from contracts/
   
-  Tasks MUST be organized by user story so each story can be:
+  Tasks MUST be organized by user story so each story can:
   - Implemented independently
   - Tested independently
   - Delivered as an MVP increment
@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies (`pandas`, `numpy`, `scikit-learn`, `nltk`, `spacy`, `torch`, `transformers`, `statsmodels`, `textstat`) in `requirements.txt`
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`)
+- [ ] T002 Initialize Python project with dependencies (`pandas`, `numpy`, `scikit-learn`, `nltk`, `spacy`, `torch`, `transformers`, `statsmodels`, `textstat`, `datasets`, `huggingface_hub`, `matplotlib`, `seaborn`, `diffusers`, `accelerate`, `tiktoken`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,22 +55,27 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` with pinned random seeds, path configurations, and threshold constants (0.2, 0.6)
-- [ ] T005 [P] Implement `code/utils.py` with logging infrastructure, error handling wrappers, and domain stratification helpers
-- [ ] T006a [P] [US1] Setup `code/data_loader.py` to stream IA-Bench dataset (prompts + images) using `datasets.load_dataset(streaming=True)` and download real images to `data/raw/ia-bench/` with checksums
-- [ ] T006b [P] [US3] Setup `code/data_loader.py` to fetch "human-verified reference descriptions" from the dataset (IA-Bench) and save to `data/raw/ia-bench/references.jsonl` with checksums
-- [ ] T006c [P] [US1] Setup `code/data_loader.py` to download WISE-Verified dataset (prompts + images + metadata) using explicit URL/package fetch to `data/raw/wise-verified/`
-- [ ] T007 [P] [US1] Implement `code/data_loader.py` logic to fail loudly if real data fetch fails (NO synthetic fallback) for IA-Bench
-- [ ] T007b [P] [US1] Implement `code/data_loader.py` logic to fail loudly if WISE-Verified fetch fails (NO synthetic fallback) and validate WISE-Verified schema
-- [ ] T008 Implement `code/main.py` orchestration script including the `Reference-Validator` gate invocation before data loading
+- [ ] T004 Create `src/config.py` with pinned random seeds, path configurations, and threshold constants (0.2, 0.6)
+- [ ] T005 [P] Implement `src/utils.py` with logging infrastructure, error handling wrappers, and domain stratification helpers
+- [ ] T006a [P] [US1] Implement `src/utils/data_loader.py` function to fetch IA-Bench dataset (prompts + images) using `datasets.load_dataset(streaming=True)` and download real images to `data/raw/ia-bench/`. **Include internal validation**: Verify the dataset source citation in `plan.md` matches the fetched ID; raise error if mismatch.
+- [ ] T006b [P] [US1] Implement `src/utils/data_loader.py` function to validate IA-Bench schema and raise error if mismatched
+- [ ] T006c [P] [US1] Implement `src/utils/data_loader.py` function to compute and store checksum for IA-Bench raw data in `state/artifact_hashes`
+- [ ] T006d [P] [US1] Implement `src/utils/data_loader.py` function to fetch WISE-Verified dataset (prompts + images + metadata) using explicit URL/package fetch to `data/raw/wise-verified/`
+- [ ] T006e [P] [US1] Implement `src/utils/data_loader.py` function to validate WISE-Verified schema and raise error if mismatched
+- [ ] T006f [P] [US1] Implement `src/utils/data_loader.py` function to compute and store checksum for WISE-Verified raw data in `state/artifact_hashes`
+- [ ] T006g [P] [US1] Implement `src/utils/data_loader.py` function to fetch "human-verified reference descriptions" from the dataset (IA-Bench), validate schema, and save to `data/raw/ia-bench/references.jsonl`
+- [ ] T006h [P] [US1] Implement `src/utils/data_loader.py` logic to validate that `references.jsonl` contains the required 'reference_description' field and is non-empty for all rows (Schema Check)
+- [ ] T007 [P] [US1] Implement `src/utils/data_loader.py` logic to fail loudly if real data fetch fails for IA-Bench (NO synthetic fallback)
+- [ ] T007b [P] [US1] Implement `src/utils/data_loader.py` logic to fail loudly if WISE-Verified fetch fails (NO synthetic fallback)
+- [ ] T008 Implement `src/main.py` orchestration script including the `Reference-Validator` gate invocation before data loading (for citations only)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Ambiguity Scoring & Dataset Stratification (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Syntactic Complexity Scoring & Dataset Stratification (Priority: P1) 🎯 MVP
 
-**Goal**: Compute a deterministic "Ambiguity Score" (0.0–1.0) for every input prompt using only syntactic complexity and lexical diversity, explicitly excluding semantic embeddings.
+**Goal**: Compute a deterministic "Syntactic Complexity Score" (0.0–1.0) for every input prompt using only syntactic complexity and lexical diversity, explicitly excluding semantic embeddings.
 
 **Independent Test**: Run the scoring script on a known subset of prompts and verify the output CSV contains scores, syntactic features, and lexical features, with no semantic embedding vectors present.
 
@@ -78,44 +83,53 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for `code/scoring.py` in `tests/unit/test_scoring.py` verifying no semantic embeddings are used (check for absence of BERT/CLIP text encoder calls)
+- [ ] T009 [P] [US1] Unit test for `src/scoring/syntactic_features.py` in `tests/unit/test_scoring.py` verifying no semantic embeddings are used (check for absence of BERT/CLIP text encoder calls)
 - [ ] T010 [P] [US1] Unit test for malformed prompt handling in `tests/unit/test_scoring.py` (verify default 0.0 score and warning log)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/scoring.py` with syntactic complexity metrics (parse tree depth, clause count) using `nltk`/`spacy`
-- [ ] T012 [P] [US1] Implement `code/scoring.py` with lexical diversity metric (MTLD) using `textstat`
-- [ ] T013 [US1] Implement the weighted average formula in `code/scoring.py` to combine metrics into a raw score
-- [ ] T013b [US1] Implement `code/scoring.py` normalization logic to clamp raw score strictly to [0.0, 1.0] range (min-max scaling)
-- [ ] T014 [US1] Implement logic in `code/scoring.py` to handle parse failures gracefully (assign 0.0, log warning)
-- [ ] T015 [US1] Create script `code/run_scoring.py` to process the full dataset (IA-Bench + WISE-Verified) and write `data/derived/scoring_results.csv`
+- [ ] T011 [P] [US1] Implement `src/scoring/syntactic_features.py` with syntactic complexity metrics (parse tree depth, clause count) using `nltk`/`spacy`
+- [ ] T012 [P] [US1] Implement `src/scoring/syntactic_features.py` with lexical diversity metric (MTLD) using `textstat`
+- [ ] T013 [US1] Implement the weighted average formula in `src/scoring/complexity_calculator.py` to combine metrics into a raw score
+- [ ] T013b [US1] Implement `src/scoring/complexity_calculator.py` normalization logic to clamp raw score strictly to [0.0, 1.0] range (min-max scaling)
+- [ ] T014 [US1] Implement logic in `src/scoring/syntactic_features.py` to handle parse failures gracefully (assign 0.0, log warning)
+- [ ] T015 [US1] Create script `src/scoring/run_scoring.py` to process the full dataset (IA-Bench + WISE-Verified) and write `data/derived/scoring_results.csv`
 - [ ] T015b [US1] Add logic in `run_scoring.py` to output reference metadata (if available) alongside scores
-- [ ] T016 [US1] Add logging in `code/scoring.py` to confirm no semantic embeddings were used during execution
+- [ ] T016 [US1] Add logging in `src/scoring/syntactic_features.py` to confirm no semantic embeddings were used during execution
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Hybrid Routing & Execution Simulation (Priority: P2)
+## Phase 4: User Story 2 - Hybrid Routing & Real Execution (Priority: P2)
 
-**Goal**: Implement a deterministic "Router" that classifies prompts into "low," "medium," or "high" ambiguity categories and routes them to either rule-based expansion or simulated agent execution.
+**Goal**: Implement a deterministic "Router" that classifies prompts into "low," "medium," or "high" complexity categories and routes them to either rule-based expansion or the REAL Qwen-Image-Agent pipeline.
 
-**Independent Test**: Feed a mix of clearly simple and complex prompts and verify that simple prompts trigger the rule-based path (logging "Router: Low") while complex prompts trigger the agent path (logging "Router: High").
+**Independent Test**: Feed a mix of clearly simple and complex prompts and verify that simple prompts trigger the rule-based path (logging "Router: Low") while complex prompts trigger the REAL agent path (logging "Router: High"), confirming real images are generated.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for `code/router.py` in `tests/unit/test_router.py` verifying threshold logic (< 0.2, 0.2–0.6, > 0.6)
-- [ ] T018 [P] [US2] Unit test for `code/simulation.py` in `tests/unit/test_simulation.py` verifying mock generation time formula
+- [ ] T017 [P] [US2] Unit test for `src/routing/router.py` in `tests/unit/test_router.py` verifying threshold logic (< 0.2, 0.2–0.6, > 0.6)
+- [ ] T018 [P] [US2] Unit test for `src/routing/lightweight_expander.py` in `tests/unit/test_expander.py` verifying fixed template generation
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `code/router.py` with deterministic classification logic based on Ambiguity Score thresholds
-- [ ] T020 [P] [US2] Implement `code/expansion.py` with rule-based context expansion module (fixed templates) for low/medium ambiguity
-- [ ] T020b [US2] Implement `code/expansion.py` to calculate and expose "simulated token count" for the expanded text output
-- [ ] T021 [US2] Implement `code/simulation.py` with deterministic mock logic: mock generation time = 15 ms/token + 500ms overhead
-- [ ] T022 [US2] Integrate Router, Expansion, and Simulation in `code/main.py` to process the dataset and log routing decisions (FR-007)
-- [ ] T023 [US2] Add logging in `code/main.py` to record simulated token counts (from both expansion and agent paths) and latency
-- [ ] T024 [US2] Write routing logs to `data/derived/routing_decisions.csv` including input score, category, target path, and token counts
+- [ ] T019 [P] [US2] Implement `src/routing/router.py` with deterministic classification logic based on Syntactic Complexity Score thresholds
+- [ ] T020 [P] [US2] Implement `src/routing/lightweight_expander.py` with rule-based context expansion module (fixed templates) for low/medium complexity
+- [ ] T020b [US2] Implement `src/routing/lightweight_expander.py` to calculate and expose `actual_token_count` for the expanded text output using `tiktoken.get_encoding('cl100k_base').encode(text)` (used for efficiency comparison in T023)
+- [ ] T021 [US2] Implement `src/pipeline/runner.py` to dispatch "low/medium" prompts to the lightweight expander and "high" prompts to the REAL Qwen-Image-Agent pipeline (FR-009)
+- [ ] T022 [US2] Integrate Router, Expansion, and Agent execution in `src/pipeline/runner.py` to process the dataset and log routing decisions (FR-007)
+- [ ] T023 [US2] Add logging in `src/pipeline/runner.py` to record measured token counts (LLM) and latency for the agent path, and `actual_token_count` and latency for the rule-based path (FR-008)
+- [ ] T024 [US2] Write routing logs to `data/derived/routing_decisions.csv` including input score, category, target path, token counts (real), and latency
+- [ ] T024b [US2] Ensure `src/pipeline/runner.py` generates actual images for "high" complexity prompts using the REAL agent (or verified proxy) and saves them to `data/derived/images/hybrid/high/`
+- [ ] T024c [US2] Implement a separate script `src/pipeline/generate_baseline.py` to generate "baseline" (full agent) images ONLY for the "high" complexity subset (as identified in T024) and save to `data/derived/images/baseline/high/` to enable Fidelity Delta calculation for high prompts (FR-004)
+- [ ] T024e [US2] Implement a separate script `src/pipeline/generate_baseline.py` to generate "baseline" (full agent) images for a **random [deferred] sample** of the entire dataset (stratified by complexity category) and save to `data/derived/images/baseline/full_sample/`. This provides the necessary baseline for the Fidelity Delta calculation for low/medium prompts where the hybrid path uses the rule-based expander (FR-004)
+
+**Pilot Study (FR-012) - Moved to Phase 4 to ensure Agent pipeline availability**
+
+- [ ] T012a [US1/US2] Implement `src/pilot/study_runner.py` to select a random subset of 200 prompts from `data/derived/scoring_results.csv`. Execute BOTH the **Full Agent** (baseline) and **Hybrid** (rule-based for low/medium, agent for high) pipelines for these prompts. Save baseline images to `data/derived/images/pilot/baseline/` and hybrid images to `data/derived/images/pilot/hybrid/`. Input: `data/derived/scoring_results.csv`.
+- [ ] T012b [US1/US2] Implement `src/pilot/failure_rate_computer.py` to compute the **"Fidelity Delta"** (Baseline CLIP Score - Hybrid CLIP Score) for each prompt in the pilot subset. This delta serves as the proxy for "need for agentic reasoning".
+- [ ] T012c [US1/US2] Implement `src/pilot/study_runner.py` to compute the correlation coefficient (Pearson/Spearman) between the **Syntactic Complexity Score** (from `scoring_results.csv`) and the **Fidelity Delta** (from T012b). Output `data/derived/pilot_correlation.json` with the correlation coefficient and p-value (FR-012).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,25 +137,34 @@
 
 ## Phase 5: User Story 3 - Fidelity Measurement & Threshold Detection (Priority: P3)
 
-**Goal**: Compute "Context Fidelity" delta using frozen CLIP (ViT-B/32) against human-verified references and identify the "knee point" via piecewise linear regression.
+**Goal**: Compute "Context Fidelity" delta using frozen CLIP (ViT-B/32) against human-verified references and identify the "knee point" via piecewise linear regression with statistical validation.
 
-**Independent Test**: Run the regression analysis on pre-computed data and verify the output includes a calculated knee point, a plot, and a statistical justification (F-test) that the piecewise model is superior.
+**Independent Test**: Run the regression analysis on pre-computed data and verify the output includes a calculated knee point, a plot, and a statistical justification (F-test + LRT) that the piecewise model is superior.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for `code/fidelity.py` in `tests/unit/test_fidelity.py` verifying CLIP inference and error handling (skip on format mismatch)
-- [ ] T026 [P] [US3] Unit test for `code/regression.py` in `tests/unit/test_regression.py` verifying F-test and knee point detection logic
+- [ ] T025 [P] [US3] Unit test for `src/fidelity/clip_evaluator.py` in `tests/unit/test_fidelity.py` verifying CLIP inference and error handling (skip on format mismatch)
+- [ ] T026 [P] [US3] Unit test for `src/fidelity/regression_analysis.py` in `tests/unit/test_regression.py` verifying F-test and knee point detection logic
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `code/fidelity.py` with frozen CLIP (ViT-B/32) inference, CPU-batched processing, and delta calculation (Baseline vs. Hybrid) using **human-verified reference descriptions** from `data/raw/ia-bench/references.jsonl`
-- [ ] T028 [P] [US3] Implement `code/fidelity.py` to handle CLIP failures gracefully (log error, skip data point, continue)
-- [ ] T032a [US3] Implement `code/regression.py` to validate presence of "visual domain" metadata in the dataset; if missing, flag for limitation report
-- [ ] T032b [US3] Implement `code/regression.py` with stratified regression analysis by visual domain (if metadata exists) OR generate a formal "limitation report" stating inability to stratify (if metadata missing)
-- [ ] T029 [US3] Implement `code/regression.py` with piecewise linear regression to identify the "knee point" where slope change < 0.01
-- [ ] T030 [US3] Implement statistical validation in `code/regression.py` including F-test (p < 0.05) comparing piecewise vs. linear models
-- [ ] T031 [US3] Implement permutation test (A sufficient number of permutations will be conducted to ensure robust statistical inference., alpha = 0.05) in `code/regression.py` to validate significance of fidelity difference below threshold
-- [ ] T033 [US3] Create script `code/run_fidelity_analysis.py` to orchestrate CLIP scoring and regression, outputting `data/derived/regression_results.json` (including knee point, p-values, and limitation report if applicable) and plots
+- [ ] T031 [P] [US3] Implement `src/domain/classifier.py` with a pre-trained ResNet-50 classifier to determine visual domain (photorealistic, abstract, illustration) for generated images (FR-011)
+- [ ] T027 [P] [US3] Implement `src/fidelity/clip_evaluator.py` with frozen CLIP (ViT-B/32) inference, CPU-batched processing, and delta calculation (Baseline vs. Hybrid).
+    - **Inputs**: 
+        - `data/derived/images/baseline/full_sample/` (from T024e) - Baseline for all
+        - `data/derived/images/hybrid/` (from T024b) - Hybrid for high; Rule-based for low/medium
+        - `data/raw/ia-bench/references.jsonl` (from T006g)
+    - **Logic**: Calculate CLIP similarity for Baseline and Hybrid pairs. Compute **Fidelity Delta** = Baseline Score - Hybrid Score.
+    - **Output**: `data/derived/fidelity_scores.csv` containing prompt_id, complexity_score, domain, baseline_score, hybrid_score, fidelity_delta. (FR-004)
+- [ ] T028 [P] [US3] Implement `src/fidelity/clip_evaluator.py` to handle CLIP failures gracefully (log error, skip data point, continue)
+- [ ] T029 [US3] Implement `src/fidelity/regression_analysis.py` with piecewise linear regression to identify the "knee point" where slope change < 0.01
+- [ ] T030 [US3] Implement statistical validation in `src/fidelity/regression_analysis.py` including: 1) F-test (p < 0.05) AND 2) Likelihood Ratio Test (LRT) against a linear model. BOTH tests must pass to validate the 'knee point' as a statistically superior non-linear relationship. If either test fails, output "No Threshold Found" flag. Also implement a permutation test with **10,000 permutations** (FR-006) to validate the significance of fidelity difference below threshold. Output `data/derived/regression_results.json` with knee point, p-values, and LRT stats (FR-005, FR-006).
+- [ ] T032 [US3] Implement `src/fidelity/regression_analysis.py` with stratified regression analysis by visual domain using domain labels from `src/domain/classifier.py` (FR-010). **MANDATORY**: 
+    1. Perform an ANOVA or Levene's test for statistical equivalence of domain slopes.
+    2. If p > 0.05 (equivalence), proceed to global regression.
+    3. If p <= 0.05 (significant difference), **exclude** global regression, output domain-specific thresholds, and log that global aggregation is invalid (Constitution Principle VII).
+    4. If domain metadata is missing for any image, EXCLUDE that image from the stratified analysis, log a warning with the count of excluded samples, and proceed with the available data.
+- [ ] T033 [US3] Create script `src/fidelity/run_fidelity_analysis.py` to orchestrate CLIP scoring, regression, and stratified analysis, outputting `data/derived/regression_results.json` (including knee point, p-values, and stratified plots)
 - [ ] T034 [US3] Add logic to handle "No Threshold Found" case (R² < 0.85 or slope change < 0.01) and record max observed delta
 
 **Checkpoint**: All user stories should now be independently functional
@@ -152,12 +175,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035a [P] Update `docs/data_flow.md` with diagram showing data flow from raw fetch (T006a/b/c) to derived results
+- [ ] T035a [P] Update `docs/data_flow.md` with diagram showing data flow from raw fetch (T006a-g) to derived results
 - [ ] T035b [P] Update `docs/thresholds.md` with explicit definitions of routing thresholds (0.2, 0.6) and normalization logic
 - [ ] T035c [P] Update `docs/api.md` with module descriptions for `scoring.py`, `router.py`, `fidelity.py`
-- [ ] T036a [P] Refactor `code/scoring.py` to remove duplicate parsing logic and standardize error handling
-- [ ] T036b [P] Refactor `code/fidelity.py` to standardize logging format and batch processing logic
-- [ ] T037 Performance optimization for CLIP batching to fit within ~7GB RAM
+- [ ] T036a [P] Refactor `src/scoring/syntactic_features.py` to remove duplicate parsing logic and standardize error handling
+- [ ] T036b [P] Refactor `src/fidelity/clip_evaluator.py` to standardize logging format and batch processing logic
+- [ ] T037 [P] Implement dynamic batch sizing in `src/fidelity/clip_evaluator.py` to ensure peak RAM usage remains within acceptable system limits during CLIP inference; output a memory profile log to `data/derived/memory_profile.log` (Assumptions / FR-008)
 - [ ] T038 [P] Additional unit tests for edge cases (e.g., empty datasets, all-malformed prompts)
 - [ ] T039 Run `quickstart.md` validation to ensure end-to-end pipeline execution
 - [ ] T040 Verify all artifacts in `data/derived/` are reproducible with pinned seeds
@@ -178,8 +201,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. Produces `data/derived/scoring_results.csv`.
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Consumes `scoring_results.csv`. Produces `routing_decisions.csv` and simulated metrics.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Consumes `scoring_results.csv`, `routing_decisions.csv`, and **human-verified references** (from T006b). Produces `regression_results.json`.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Consumes `scoring_results.csv`. Produces `routing_decisions.csv`, generated images, and efficiency metrics. **Note**: Pilot Study (T012a-c) is now part of Phase 4 as it depends on the Agent pipeline.
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Consumes `scoring_results.csv`, `routing_decisions.csv`, generated images, and **human-verified references** (from T006g). Produces `regression_results.json`.
 
 ### Within Each User Story
 
@@ -202,12 +225,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for code/scoring.py in tests/unit/test_scoring.py"
+Task: "Unit test for src/scoring/syntactic_features.py in tests/unit/test_scoring.py"
 Task: "Unit test for malformed prompt handling in tests/unit/test_scoring.py"
 
 # Launch implementation tasks for User Story 1 together:
-Task: "Implement code/scoring.py with syntactic complexity metrics"
-Task: "Implement code/scoring.py with lexical diversity metric (MTLD)"
+Task: "Implement src/scoring/syntactic_features.py with syntactic complexity metrics"
+Task: "Implement src/scoring/syntactic_features.py with lexical diversity metric (MTLD)"
 ```
 
 ---
@@ -237,7 +260,7 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
    - Developer A: User Story 1 (Scoring)
-   - Developer B: User Story 2 (Routing/Simulation)
+   - Developer B: User Story 2 (Routing/Real Execution)
    - Developer C: User Story 3 (Fidelity/Regression)
 3. Stories complete and integrate independently
 
@@ -251,10 +274,15 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical Data Rule**: The `code/data_loader.py` MUST fail loudly if real data fetch fails. NO synthetic fallbacks allowed.
-- **Critical Scoring Rule**: `code/scoring.py` MUST NOT use any semantic embeddings (BERT, CLIP text). Only syntax/lexical.
-- **Critical Compute Rule**: CLIP inference must be CPU-batched to fit in ~7GB RAM. If GPU is needed for speed, the execution stage will auto-offload, but the code must be written for CPU-first compatibility.
-- **Critical Regression Rule**: If domain metadata is missing, do NOT aggregate or guess. Report limitation and perform global regression only (Task T032b).
-- **Critical Fidelity Rule**: Fidelity calculation (T027) MUST use **human-verified reference descriptions** (Task T006b), not raw prompts or images.
-- **Critical Normalization Rule**: Ambiguity score MUST be strictly clamped to [0.0, 1.0] (Task T013b).
-- **Critical Token Count Rule**: Rule-based expansion MUST expose token counts (Task T020b) for logging (T023).
+- **Critical Data Rule**: The `src/utils/data_loader.py` MUST fail loudly if real data fetch fails. NO synthetic fallbacks allowed.
+- **Critical Scoring Rule**: `src/scoring/syntactic_features.py` MUST NOT use any semantic embeddings (BERT, CLIP text). Only syntax/lexical.
+- **Critical Compute Rule**: CLIP inference must be CPU-batched to fit in limited RAM
+
+The research question, method, and references remain unchanged as no specific values were present in the original text to alter beyond the generalization of the memory constraint.. If GPU is needed for speed, the execution stage will auto-offload, but the code must be written for CPU-first compatibility.
+- **Critical Regression Rule**: T032 MUST perform a statistical equivalence test (ANOVA) before global regression. If domains differ significantly, global regression is forbidden.
+- **Critical Fidelity Rule**: Fidelity calculation (T027) MUST use **human-verified reference descriptions** (Task T006g), not raw prompts or images.
+- **Critical Normalization Rule**: Syntactic Complexity Score MUST be strictly clamped to [0.0, 1.0] (Task T013b).
+- **Critical Token Count Rule**: Rule-based expansion MUST expose `actual_token_count` (Task T020b) using a real tokenizer, not a proxy.
+- **Critical Real Execution Rule**: "High" complexity prompts MUST trigger the REAL Qwen-Image-Agent pipeline (T021, T024b) to generate actual images, not simulated data.
+- **Critical Baseline Rule**: T024e MUST generate baseline images for a **[deferred] sample** of the full dataset to enable valid Fidelity Delta calculation for all categories without violating the hybrid routing logic.
+- **Critical Pilot Rule**: T012a-c MUST measure **Fidelity Delta** (Baseline - Hybrid) as the proxy for "need for agentic reasoning", not failure rate.

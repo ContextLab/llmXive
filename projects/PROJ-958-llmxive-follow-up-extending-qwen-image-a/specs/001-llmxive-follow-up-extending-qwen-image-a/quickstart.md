@@ -1,81 +1,114 @@
-# Quickstart: llmXive follow-up: extending "Qwen-Image-Agent"
+# Quickstart: llmXive follow-up: extending "Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generation"
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   Access to Hugging Face (for dataset download)
--   (Optional) Kaggle account (for GPU offload if running locally)
+- Python 3.11+
+- Git
+- Hugging Face CLI (`pip install huggingface_hub`)
+- Access to GitHub Actions (for CI) or local environment with sufficient RAM for the build environment
 
 ## Installation
-
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-2.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note*: This installs `spacy`, `nltk`, `torch`, `transformers`, `scikit-learn`, `datasets`, `matplotlib`, `diffusers`.
-
-3.  **Download Models**:
-    ```bash
-    python -m spacy download en_core_web_sm
-    # CLIP, ResNet, and SDXL models will be downloaded automatically on first run
-    ```
+1. Clone the repository and navigate to the project directory.
+2. Install dependencies:
+   ```bash
+   cd code
+   pip install -r requirements.txt
+   ```
+3. Set up environment variables (optional):
+   ```bash
+   export HF_TOKEN=your_token  # If needed for gated datasets (none expected here)
+   ```
 
 ## Running the Pipeline
+The pipeline is executed in sequential steps. Each step can be run independently for debugging.
 
-### 1. Data Download
-Download the raw datasets to `data/raw/`:
+### Step 1: Fetch & Validate Data
 ```bash
-python src/pipeline/download_data.py
+python 01_fetch_data.py
+python 02_validate_data.py
 ```
-*Output*: `data/raw/ia_bench_prompts.parquet`, `data/raw/laion_cc_prompts.parquet`.
+- Downloads IA-Bench and WISE-Verified datasets to `data/raw/`.
+- Runs Reference-Validator on all datasets (T006b-2).
+- **Validates Reference Independence**: Checks that `reference_description` is distinct from `prompt`.
+- Computes checksums and logs to `data/raw/checksums.txt`.
 
-### 2. Run Pilot Study (Phase 0)
-Execute the pilot to validate scoring weights and freeze normalization:
+### Step 2: Compute Complexity Scores
 ```bash
-python src/pilot/study_runner.py
+python 03_compute_complexity.py
 ```
-*Output*: `data/processed/pilot_results.json`, `data/processed/normalization_params.json`.
+- Outputs `data/derived/complexity_scores.csv`.
+- Logs warnings for unparseable prompts.
 
-### 3. Compute Complexity Scores
-Calculate syntactic metrics for all prompts (using frozen params):
+### Step 3: Route Prompts & Sample Counterfactuals
 ```bash
-python src/pipeline/run_scoring.py
+python 04_route_prompts.py
 ```
-*Output*: `data/processed/complexity_scores.csv`.
+- Outputs `data/derived/routed_prompts.csv`.
+- **Randomly selects a subset** of Low/Medium prompts for Baseline execution (flagged as `is_counterfactual_sample=True`).
+- Logs routing decisions and sampling flags.
 
-### 4. Execute Hybrid Routing & Generation
-Run the routing logic and generate **paired** images.
-*Note*: This requires GPU access (Kaggle offload).
+### Step 4: Generate Images
 ```bash
-python src/pipeline/run_routing.py --paired-sample
+python 05_generate_images.py
 ```
-*Output*: `data/processed/routing_logs.json`, `data/processed/generated_images/`.
+- Executes Qwen-Image-Agent for **High** and **Counterfactual Sample** prompts.
+- Uses rule-based expansion for **Low/Medium Non-Sampled** prompts.
+- Saves images to `data/derived/generated_images/`.
+- Logs latency and tokens to `generation_log.jsonl`.
 
-### 5. Evaluate Fidelity
-Compute CLIP scores and perform regression analysis:
+### Step 5: Compute Fidelity
 ```bash
-python src/pipeline/run_fidelity_analysis.py
+python 06_compute_fidelity.py
 ```
-*Output*: `data/results/fidelity_metrics.csv`, `data/results/regression_stats.json`, `data/results/plots/fidelity_delta_curve.png`.
+- Uses CLIP ViT-B/32 to score image-reference pairs.
+- Calculates Delta only where Baseline exists.
+- Outputs `data/derived/fidelity_scores.csv`.
 
-## Verification
-
-Run the test suite to ensure integrity:
+### Step 6: Classify Domains
 ```bash
-pytest tests/ -v
+python 07_classify_domains.py
 ```
+- Uses ResNet-50 to classify images.
+- Outputs `data/derived/domain_labels.csv`.
+
+### Step 7: Regression & Threshold Detection
+```bash
+python 08_regression_analysis.py
+```
+- Performs piecewise regression on **High + Counterfactual Sample** data.
+- Includes LRT and Permutation Test.
+- Outputs `data/results/knee_point_analysis.json`.
+
+### Step 8: Stratified Analysis
+```bash
+python 08_regression_analysis.py --stratify
+```
+- (Integrated into Step 7) Outputs `data/results/stratified_results.json`.
+
+### Step 9: Efficiency Report
+```bash
+python 11_efficiency_report.py
+```
+- Outputs `data/results/efficiency_metrics.csv`.
+
+## Testing
+Run unit and integration tests:
+```bash
+pytest tests/unit
+pytest tests/integration
+```
+
+Run contract tests:
+```bash
+pytest tests/contract
+```
+
+## Reproducibility
+- All random seeds are set in `code/utils/config.py`.
+- Datasets are fetched from canonical sources; checksums stored in `data/raw/checksums.txt`.
+- To reproduce: run `./reproduce.sh` (provided) which executes all steps in order.
 
 ## Troubleshooting
-
--   **Memory Error**: If CLIP inference fails, reduce `BATCH_SIZE` in `config.yaml`.
--   **CUDA Not Found**: If the agent execution fails on CPU, the system will log a warning and trigger the Kaggle offload. Ensure the offload mechanism is active for full runs.
--   **Data Missing**: Re-run `download_data.py` to ensure checksums match.
+- **CLIP OOM**: Reduce batch size in `06_compute_fidelity.py`.
+- **Qwen GPU Error**: Offload to Kaggle; ensure `device="cuda"` is set.
+- **Dataset Fetch Fail**: Check Hugging Face connectivity; use `streaming=True`.
+- **Reference Independence Fail**: If many prompts fail independence check, review WISE-Verified dataset structure; may need manual curation.

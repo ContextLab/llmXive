@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Knee Point Analysis Schema"
+description: "Schema for piecewise regression results and statistical validation. Includes dataset scope description."
+type: object
+properties:
+  threshold:
+    type: number
+    description: "Identified knee point threshold (complexity score)"
+  slope_change:
+    type: number
+    description: "Change in slope at the threshold"
+  r_squared_piecewise:
+    type: number
+    description: "R-squared for piecewise linear model"
+  r_squared_linear:
+    type: number
+    description: "R-squared for linear model"
+  f_test_p_value:
+    type: number
+    description: "P-value from F-test comparing piecewise vs. linear"
+  lrt_p_value:
+    type: number
+    description: "P-value from Likelihood Ratio Test (LRT) comparing piecewise vs. linear"
+  permutation_p_value:
+    type: number
+    description: "P-value from permutation test"
+  model_comparison:
+    type: string
+    enum: ["piecewise_superior", "linear_superior", "inconclusive"]
+    description: "Result of model comparison"
+  dataset_scope:
+    type: string
+    description: "Description of the dataset used for regression (e.g., 'High + Counterfactual Sample')"
+  sample_size:
+    type: integer
+    description: "Number of data points used in the regression"
+required:
+  - threshold
+  - slope_change
+  - r_squared_piecewise
+  - r_squared_linear
+  - f_test_p_value
+  - lrt_p_value
+  - permutation_p_value
+  - model_comparison
+  - dataset_scope
+  - sample_size
+additionalProperties: false

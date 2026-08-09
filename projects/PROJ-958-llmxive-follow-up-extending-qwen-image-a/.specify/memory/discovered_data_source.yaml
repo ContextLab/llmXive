@@ -1,10 +1,9 @@
 status: none
-intent: download IA-Bench and WISE-Verified prompt datasets HuggingFace python package
-  dataset
+intent: IA-Bench prompts LAION-CC filtered subset MTLD reference python package dataset
 required_fields:
 - prompt_id
 - prompt_text
-- source
-cache_key: 7dff73dabc8cf335da8b7d9b18d43496df8f1d84474bc8c5323ab23055ddf0ab
-searched_at: '2026-08-08T02:03:11.034615+00:00'
+- source_dataset
+cache_key: 39d90bc5936bd159c581acaf7e91dc8a80b42fed22102f9e29e293f487aef4c0
+searched_at: '2026-08-09T23:32:31.121582+00:00'
 retry_count: 1

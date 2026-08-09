@@ -1,29 +1,29 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Fidelity Result Record"
-description: "Schema for the fidelity measurement and delta calculation between Baseline (Full Agent/Proxy) and Hybrid (Rule-Expanded) images. Based on REAL generated images."
+description: "Schema for the fidelity measurement and delta calculation between Baseline (Full Agent/Proxy) and Hybrid (Rule-Expanded) images. Based on REAL generated images. Includes counterfactual sampling flag."
 type: "object"
 required:
   - prompt_id
-  - baseline_image_path
   - hybrid_image_path
-  - baseline_clip_score
   - hybrid_clip_score
-  - fidelity_delta
   - domain
   - routing_category
+  - is_counterfactual_sample
+  - reference_independence_flag
 properties:
   prompt_id:
     type: "string"
     description: "Reference to the prompt ID."
   baseline_image_path:
-    type: "string"
-    description: "Relative path to the Baseline image (Full Agent/Proxy generated from original prompt)."
+    type: ["string", "null"]
+    description: "Relative path to the Baseline image (Full Agent/Proxy generated from original prompt). Nullable if not generated (non-counterfactual Low/Med)."
+    nullable: true
   hybrid_image_path:
     type: "string"
     description: "Relative path to the Hybrid image (Lightweight or Agent generated from expanded prompt)."
   baseline_clip_score:
-    type: "number"
-    description: "CLIP score for the Baseline image against the reference text."
+    type: ["number", "null"]
+    description: "CLIP score for the Baseline image against the reference text. Null if baseline not generated (non-counterfactual Low/Med)."
     minimum: 0.0
     maximum: 1.0
   hybrid_clip_score:
@@ -32,8 +32,8 @@ properties:
     minimum: 0.0
     maximum: 1.0
   fidelity_delta:
-    type: "number"
-    description: "Difference: baseline_clip_score - hybrid_clip_score. Measures fidelity loss/gain from expansion."
+    type: ["number", "null"]
+    description: "Difference: hybrid_clip_score - baseline_clip_score. Null if baseline is missing."
   domain:
     type: "string"
     description: "Visual domain for stratification."
@@ -44,15 +44,18 @@ properties:
       - "low"
       - "medium"
       - "high"
+  is_counterfactual_sample:
+    type: "boolean"
+    description: "True if this Low/Medium prompt was randomly selected for Baseline execution."
   latency_baseline:
-    type: "number"
-    description: "Latency for baseline (ms)."
+    type: ["number", "null"]
+    description: "Latency for baseline (ms). Null if not generated."
   latency_hybrid:
     type: "number"
     description: "Latency for hybrid (ms)."
   efficiency_gain:
-    type: "number"
-    description: "Percentage reduction in latency."
+    type: ["number", "null"]
+    description: "Percentage reduction in latency. Null if baseline not generated."
   token_count_baseline:
     type: ["number", "null"]
     description: "Token count for baseline. Null for diffusion models (SDXL); use inference_steps instead."
@@ -66,9 +69,12 @@ properties:
     type: ["integer", "null"]
     description: "Inference steps for hybrid (if diffusion model)."
   structural_detail_score_baseline:
-    type: "number"
+    type: ["number", "null"]
     description: "Structural detail score for baseline."
   structural_detail_score_hybrid:
     type: "number"
     description: "Structural detail score for hybrid."
+  reference_independence_flag:
+    type: "string"
+    description: "PASS or FAIL based on reference description independence check."
 additionalProperties: false

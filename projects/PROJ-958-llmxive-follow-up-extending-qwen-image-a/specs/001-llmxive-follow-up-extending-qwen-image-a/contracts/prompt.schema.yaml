@@ -1,26 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Prompt Input Schema"
-description: "Schema for raw prompt data ingested from IA-Bench and LAION-CC."
-type: "object"
+title: "Prompt Schema"
+description: "Schema for prompt data with complexity scores and routing metadata"
+type: object
 properties:
   prompt_id:
-    type: "string"
-    description: "Unique identifier for the prompt."
-  source:
-    type: "string"
-    enum:
-      - "IA-Bench"
-      - "LAION-CC"
-    description: "Source dataset of the prompt."
-  raw_text:
-    type: "string"
-    description: "The original text prompt."
-  timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of ingestion."
+    type: string
+    description: "Unique identifier for the prompt"
+  prompt_text:
+    type: string
+    description: "Raw text of the prompt"
+  complexity_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Syntactic complexity score (0.0–1.0)"
+  category:
+    type: string
+    enum: ["low", "medium", "high"]
+    description: "Complexity category based on thresholds"
+  routing_decision:
+    type: string
+    enum: ["rule_based", "qwen_agent"]
+    description: "Target execution path"
+  source_dataset:
+    type: string
+    description: "Source dataset name (e.g., IA-Bench, WISE-Verified)"
+  parse_depth:
+    type: number
+    description: "Parse tree depth"
+  clause_count:
+    type: integer
+    description: "Number of clauses"
+  mtld:
+    type: number
+    description: "Measure of Textual Lexical Diversity"
 required:
-  - "prompt_id"
-  - "source"
-  - "raw_text"
-  - "timestamp"
+  - prompt_id
+  - prompt_text
+  - complexity_score
+  - category
+  - routing_decision
+  - source_dataset
+additionalProperties: false

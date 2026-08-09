@@ -1,103 +1,89 @@
-# Data Model: llmXive follow-up: extending "Qwen-Image-Agent"
+# Data Model: llmXive follow-up: extending "Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generation"
 
 ## Overview
+This document defines the data structures used throughout the pipeline, from raw dataset ingestion to final analysis results. All derived data is immutable and checksummed.
 
-This document defines the data structures used to represent prompts, complexity scores, routing decisions, generated images, and fidelity metrics. All data is stored in `data/` as JSON/Parquet/CSV with checksums.
+## Raw Data Schemas
 
-## Entity Definitions
+### IA-Bench (metadata.jsonl)
+- `prompt_id`: string (unique identifier)
+- `text`: string (raw prompt)
+- `source`: string (dataset origin)
+- `task_type`: string (e.g., "image_generation")
 
-### 1. Prompt (Input)
-Represents a raw text prompt from IA-Bench or LAION-CC.
--   `prompt_id`: Unique identifier (UUID).
--   `source`: "IA-Bench" or "LAION-CC".
--   `raw_text`: The original prompt string.
--   `domain_label`: (Optional) Initial domain guess (if available in source).
--   `timestamp`: ISO 8601 creation time.
+### WISE-Verified (cultural_common_sense_verified.json)
+- `id`: string
+- `prompt`: string
+- `reference_description`: string (human-verified, independent of prompt)
+- `verified`: boolean
+- `domain`: string (e.g., "photorealistic", "abstract")
 
-### 2. ComplexityScore (Derived)
-Result of the syntactic analysis.
--   `prompt_id`: FK to Prompt.
--   `parse_depth`: Float (max depth of dependency tree).
--   `clause_count`: Integer.
--   `mtld`: Float (Mean Length of T-Units).
--   `complexity_score`: Float (0.0–1.0).
--   `routing_category`: "low", "medium", or "high".
--   `features_vector`: Dictionary of normalized metrics.
+### Derived: Complexity Scores (complexity_scores.csv)
+- `prompt_id`: string
+- `prompt_text`: string
+- `parse_depth`: float
+- `clause_count`: int
+- `mtld`: float
+- `complexity_score`: float (0.0–1.0)
+- `source_dataset`: string
 
-### 3. RoutingDecision (Derived)
-Log of the routing logic.
--   `prompt_id`: FK to Prompt.
--   `category`: "low", "medium", "high".
--   `target_path`: "lightweight" or "agent".
--   `threshold_applied`: The specific threshold value used (e.g., 0.2, 0.6).
--   `latency_ms`: Execution time of routing logic.
--   `token_count`: (Nullable) Actual tokens for LLM paths. For diffusion, this is null.
--   `inference_steps`: (Nullable) Steps for diffusion paths.
+### Derived: Routed Prompts (routed_prompts.csv)
+- `prompt_id`: string
+- `complexity_score`: float
+- `category`: string (low/medium/high)
+- `routing_decision`: string (rule_based/qwen_agent)
+- `is_counterfactual_sample`: boolean (True if Low/Med prompt selected for Baseline execution)
+- `timestamp`: datetime
 
-### 4. GeneratedImage (Output)
-Result of the generation step.
--   `prompt_id`: FK to Prompt.
--   `generation_method`: "lightweight" or "agent".
--   `image_path`: Relative path to the generated image file.
--   `image_hash`: SHA256 of the image file.
--   `domain_classified`: "photorealistic", "abstract", "illustration" (from ResNet-50).
--   `generation_latency_ms`: Time taken to generate.
--   `agent_token_count`: (Nullable) Tokens used if agent path. Null for diffusion.
--   `inference_steps`: (Nullable) Steps used if diffusion model.
+### Derived: Generated Images (generated_images/)
+- Directory structure: `data/derived/generated_images/{prompt_id}.png`
+- Metadata: `generation_log.jsonl` with `prompt_id`, `method`, `latency`, `tokens`, `is_baseline`
 
-### 5. FidelityMetric (Derived)
-Result of the CLIP evaluation.
--   `prompt_id`: FK to Prompt.
--   `reference_text`: The generated gold-standard reference description.
--   `clip_score_baseline`: Float (Full Agent/Proxy path).
--   `clip_score_hybrid`: Float (Hybrid path).
--   `fidelity_delta`: Float (Baseline - Hybrid).
--   `structural_detail_score`: Float (Secondary metric for construct validity).
--   `domain_stratum`: "photorealistic", "abstract", "illustration".
+### Derived: Fidelity Scores (fidelity_scores.csv)
+- `prompt_id`: string
+- `baseline_clip_score`: float (Nullable for non-counterfactual Low/Med)
+- `hybrid_clip_score`: float
+- `fidelity_delta`: float (Nullable if baseline is missing)
+- `reference_description`: string
+- `reference_independence_flag`: string (PASS/FAIL)
 
-### 6. RegressionResult (Final Output)
-Aggregated statistical findings.
--   `model_type`: "piecewise" or "linear".
--   `knee_point`: Float (complexity score).
--   `slope_change`: Float.
--   `p_value_f_test`: Float.
--   `p_value_lrt`: Float (Likelihood Ratio Test).
--   `p_value_permutation`: Float.
--   `r_squared`: Float.
--   `domain_stratum`: "overall" or specific domain.
--   `confidence_interval`: [lower, upper].
--   `model_comparison`: "piecewise_superior", "linear_sufficient", "no_threshold_found".
+### Derived: Domain Labels (domain_labels.csv)
+- `prompt_id`: string
+- `domain`: string (photorealistic/abstract/illustration)
+- `confidence`: float
 
-## Storage Layout
+## Analysis Outputs
 
-```text
-data/
-├── raw/
-│   ├── ia_bench_prompts.parquet
-│   └── laion_cc_prompts.parquet
-├── processed/
-│   ├── complexity_scores.csv
-│   ├── routing_logs.json
-│   ├── reference_texts.json
-│   └── generated_images/
-│       ├── img_001_baseline.png
-│       ├── img_001_hybrid.png
-│       └── ...
-├── results/
-│   ├── pilot_correlation.json  # Gate for Phase 1
-│   ├── fidelity_metrics.csv
-│   ├── regression_stats.json
-│   └── plots/
-│       └── fidelity_delta_curve.png
-```
+### Knee Point Analysis (knee_point_analysis.json)
+- `threshold`: float
+- `slope_change`: float
+- `r_squared_piecewise`: float
+- `r_squared_linear`: float
+- `f_test_p_value`: float
+- `lrt_p_value`: float
+- `permutation_p_value`: float
+- `model_comparison`: string (piecewise_superior/linear_superior)
+- `dataset_scope`: string (description of data used for regression, e.g., "High + Counterfactual Sample")
+
+### Stratified Results (stratified_results.json)
+- `domains`: [
+    {`domain`: string, `threshold`: float, `slope_change`: float, `p_value`: float},
+    ...
+  ]
+
+### Efficiency Metrics (efficiency_metrics.csv)
+- `prompt_id`: string
+- `method`: string
+- `latency_seconds`: float
+- `tokens_used`: int
 
 ## Data Flow
-
-1.  **Ingestion**: `IA-Bench`/`LAION-CC` → `Prompt` entities.
-2.  **Scoring**: `Prompt` → `ComplexityScore` (via `scoring` module).
-3.  **Sampling**: Select 600 prompts (stratified by domain) → `PairedSample`.
-4.  **Reference Gen**: `PairedSample` → `ReferenceText` (via LLM).
-5.  **Routing**: `ComplexityScore` → `RoutingDecision` (via `router` module).
-6.  **Generation**: `RoutingDecision` → `GeneratedImage` (via `pipeline` module, **Paired Execution**).
-7.  **Evaluation**: `GeneratedImage` + `ReferenceText` → `FidelityMetric` (via `fidelity` module).
-8.  **Analysis**: `FidelityMetric` → `RegressionResult` (via `regression_analysis` module).
+1. Fetch raw datasets → `data/raw/` (checksummed).
+2. Validate with Reference-Validator + Reference Independence Check → `data/derived/complexity_scores.csv`.
+3. Route prompts + Apply Counterfactual Sampling → `data/derived/routed_prompts.csv`.
+4. Generate images (Baseline for High + Counterfactual; Hybrid for all) → `data/derived/generated_images/`.
+5. Compute fidelity → `data/derived/fidelity_scores.csv`.
+6. Classify domains → `data/derived/domain_labels.csv`.
+7. Run regression on High + Counterfactual subset → `data/results/knee_point_analysis.json`.
+8. Stratify → `data/results/stratified_results.json`.
+9. Efficiency report → `data/results/efficiency_metrics.csv`.

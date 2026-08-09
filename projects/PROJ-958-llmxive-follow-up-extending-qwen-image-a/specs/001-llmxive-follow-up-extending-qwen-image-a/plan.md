@@ -1,119 +1,95 @@
-# Implementation Plan: llmXive follow-up: extending "Qwen-Image-Agent"
+# Implementation Plan: llmXive follow-up: extending "Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generation"
 
 **Branch**: `001-llmxive-followup` | **Date**: 2026-08-01 | **Spec**: `specs/001-llmxive-followup/spec.md`
 **Input**: Feature specification from `specs/001-llmxive-followup/spec.md`
 
 ## Summary
-
-This feature implements a hybrid image generation routing system that determines whether a text prompt requires the full computational cost of the Qwen-Image-Agent pipeline (or a Verified Proxy) or can be handled by a lightweight rule-based generator. The core innovation is a "Syntactic Complexity Score" (0.0–1.0) derived strictly from parse tree depth, clause count, and MTLD (Mean Length of T-Units), explicitly excluding semantic embeddings to prevent circular validation. The system routes "high" complexity prompts (>0.6) to the real agent/proxy and "low/medium" prompts to the lightweight path. The implementation validates this hypothesis by measuring "Context Fidelity" (CLIP similarity + Structural Detail Score against generated gold-standard references) on a **fully paired sample** (Baseline and Hybrid generated for EVERY prompt) to identify a "knee point" threshold where agentic reasoning provides no statistically significant fidelity gain.
+This project implements a hybrid image generation routing system that classifies text prompts by syntactic complexity (excluding semantic embeddings) to determine whether they require the full Qwen-Image-Agent pipeline or can be handled by a lightweight rule-based expansion. The core deliverable is the identification of a "knee point" threshold where agentic reasoning no longer provides statistically significant fidelity gains, validated via piecewise linear regression, likelihood ratio tests, and permutation tests. The implementation adheres to strict reproducibility, data hygiene, and verification gates defined in the project constitution.
 
 ## Technical Context
-
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `spacy` (syntactic parsing), `nltk` (MTLD), `torch` (CLIP ViT-B/32), `scikit-learn` (regression), `datasets` (Hugging Face loading), `numpy`, `pandas`, `matplotlib`, `seaborn`, `diffusers` (SDXL-Turbo proxy), `transformers`.  
-**Storage**: Local `data/` directory for raw and derived datasets; `data/` files are checksummed.  
-**Testing**: `pytest` for unit tests (scoring logic, routing logic); integration tests for pipeline execution on small subsets.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
+**Primary Dependencies**: `datasets` (Hugging Face), `spacy` (syntactic parsing), `scikit-learn` (regression/stats), `torch` (CPU-tractable CLIP ViT-B/32), `statsmodels` (piecewise regression/LRT), `transformers` (Qwen-Image-Agent interface), `numpy`, `pandas`.  
+**Storage**: Local `data/` directory for raw and derived datasets; `code/` for scripts; `results/` for logs and plots.  
+**Testing**: `pytest` (unit/integration), `pytest-cov` (coverage), custom contract tests against YAML schemas.  
+**Target Platform**: Linux (GitHub Actions free-tier: multiple CPUs, several GB RAM); GPU offload (Kaggle) for any CUDA-required steps (none expected for CLIP ViT-B/32 in batch mode, but Qwen execution may require it).  
 **Project Type**: Research pipeline / CLI tool.  
-**Performance Goals**: Process 600+ paired prompts within 6 hours on CPU (for scoring/CLIP); GPU offload for generation.  
-**Constraints**: No semantic embeddings in complexity scoring; strict separation of routing features and fidelity verification; all data must be downloadable without credentials; normalization parameters frozen from Pilot Study.  
-**Scale/Scope**: A substantial set of prompts for the paired analysis sample (approximately dozens per domain).
+**Performance Goals**: Process 2,000+ prompts within 6h CI window; CLIP inference batched to fit available system RAM
 
-The research question remains: Can a deterministic syntactic complexity score predict the necessity of agentic reasoning in image generation?
-The method remains: Paired execution with piecewise regression and permutation testing.
-References remain: IA-Bench, LAION-CC; pilot study of a set of prompts.
+The research question remains: How can CLIP inference be optimized for resource-constrained environments?
+The method remains: Batched inference with dynamic memory management.
+References remain: [Citation placeholders to be inserted]; piecewise regression on full dataset.  
+**Constraints**: No semantic embeddings in complexity scoring; no PII in data; all datasets must be open and programmatically fetchable; statistical tests must include LRT and permutation tests as per FR-005/FR-006.  
+**Scale/Scope**: [deferred] prompts from IA-Bench and WISE-Verified; A sufficient number of permutation iterations; visual domains.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-*Gates determined based on constitution file*
+- **I. Reproducibility**: All random seeds pinned in `code/`; datasets fetched from canonical Hugging Face URLs; `requirements.txt` pins versions.
+- **II. Verified Accuracy**: Reference-Validator Agent will run on all citations (datasets, models, papers) before data ingestion; title overlap ≥ 0.7 enforced.
+- **III. Data Hygiene**: Raw data checksummed upon fetch; derivations written to new files; PII scan run via Repository-Hygiene Agent.
+- **IV. Single Source of Truth**: All figures/stats trace to `data/` rows and `code/` blocks; no hand-typed numbers.
+- **V. Versioning**: Content hashes for all artifacts; `state/` updated on change.
+- **VI. Syntactic Ambiguity Measurement Independence**: Complexity metrics (parse depth, MTLD) computed *without* semantic embeddings; CLIP used only for fidelity (independent path).
+- **VII. Domain-Specific Fidelity Validation**: Stratified regression by visual domain (photorealistic, abstract, illustration); no aggregation without statistical equivalence test.
 
-| Principle | Status | Implementation Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | All random seeds pinned in `code/`; datasets fetched via `datasets` library from canonical HF URLs; environment pinned in `requirements.txt`. |
-| **II. Verified Accuracy** | PASS | All dataset citations in `research.md` map to the verified list provided in the spec. No fabricated URLs. |
-| **III. Data Hygiene** | PASS | Raw data stored in `data/raw/` with checksums; derived data in `data/processed/`; no in-place modifications. |
-| **IV. Single Source of Truth** | PASS | Fidelity scores and regression parameters generated by code and stored in `data/results/`; paper references these files only. |
-| **V. Versioning Discipline** | PASS | Artifact hashes tracked in `state/`; `requirements.txt` pinned to specific versions. |
-| **VI. Syntactic Ambiguity Independence** | PASS | **Enforced by: `src/scoring/syntactic_features.py`**. This file MUST exist and be verified by the 'Verified Accuracy' gate before the plan proceeds. It explicitly uses only `spacy` parse trees and `nltk` MTLD. No embedding vectors are loaded or used in this phase. |
-| **VII. Domain-Specific Fidelity Validation** | PASS | Plan includes stratified regression (FR-010) on the **paired sample** (N=200/domain). The sample is stratified by visual domain (ResNet-50, **implemented in `src/domain/classifier.py`** which MUST implement ResNet-50) before generation to ensure valid domain-specific thresholds. |
+**Violations Addressed**:
+- FR-005 LRT requirement: Explicitly included in T031b as a mandatory validation step linked to FR-005.
+- T006b Reference-Validator: Split into T006b-1 (fetch), T006b-2 (validate with Reference-Validator), T006b-3 (checksum/save).
+- T006a/T006c atomization: Split into discrete fetch, validate, checksum, save tasks.
 
 ## Project Structure
 
 ### Documentation (this feature)
-
 ```text
 specs/001-llmxive-followup/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
 ```
 
 ### Source Code (repository root)
-
 ```text
-src/
-├── scoring/
-│   ├── __init__.py
-│   ├── syntactic_features.py   # FR-001: Parse depth, clause count, MTLD (Enforces Principle VI)
-│   └── complexity_calculator.py # FR-001: Score aggregation (0.0-1.0)
-├── routing/
-│   ├── __init__.py
-│   ├── router.py               # FR-002, FR-003: Threshold logic & dispatch
-│   └── lightweight_expander.py # FR-003: Rule-based context generator
-├── fidelity/
-│   ├── __init__.py
-│   ├── clip_evaluator.py       # FR-004: CLIP ViT-B/32 scoring
-│   └── regression_analysis.py  # FR-005, FR-006: Piecewise regression, permutation test, LRT
-├── domain/
-│   ├── __init__.py
-│   └── classifier.py           # FR-011: ResNet-50 domain classification (Enforces Principle VII)
-├── pipeline/
-│   ├── __init__.py
-│   ├── runner.py               # Main orchestration (FR-009)
-│   └── logger.py               # FR-007, FR-008: Routing & efficiency logs
-├── pilot/
-│   ├── __init__.py
-│   └── study_runner.py         # FR-012: Pilot study execution & correlation
-└── utils/
-    ├── data_loader.py          # HF dataset streaming
-    └── seeds.py                # Global seed management
-
-tests/
-├── unit/
-│   ├── test_scoring.py
-│   ├── test_routing.py
-│   └── test_fidelity.py
-└── integration/
-    └── test_full_pipeline.py
+code/
+├── 01_fetch_data.py          # Fetch IA-Bench, WISE-Verified, MTLD datasets
+├── 02_validate_data.py       # Run Reference-Validator on datasets (T006b-2)
+├── 03_compute_complexity.py  # Syntactic/lexical scoring (FR-001)
+├── 04_route_prompts.py       # Hybrid routing logic (FR-002, FR-003, FR-007)
+├── 05_generate_images.py     # Execute Qwen-Agent or rule-based expansion (FR-009)
+├── 06_compute_fidelity.py    # CLIP scoring, delta calculation (FR-004)
+├── 07_classify_domains.py    # ResNet-50 domain classification (FR-011)
+├── 08_regression_analysis.py # Piecewise regression, LRT, permutation test (FR-005, FR-006, FR-010)
+├── 09_stratified_analysis.py # Domain-specific thresholds (FR-010)
+├── 10_pilot_study.py         # Correlation validation (FR-012)
+├── 11_efficiency_report.py   # Token/latency logging (FR-008)
+├── utils/
+│   ├── logging.py
+│   ├── config.py             # Seeds, thresholds, paths
+│   └── validators.py         # Schema validation helpers
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── contract/
+└── requirements.txt
 
 data/
-├── raw/                        # Downloaded datasets (checksummed)
-├── processed/                  # Scores, routed prompts, generated images, pilot results
-└── results/                    # Regression outputs, plots, stats, pilot correlation
+├── raw/                      # Raw fetched datasets (checksummed)
+├── derived/
+│   ├── complexity_scores.csv
+│   ├── routed_prompts.csv
+│   ├── generated_images/
+│   ├── fidelity_scores.csv
+│   └── domain_labels.csv
+└── results/
+    ├── knee_point_analysis.json
+    ├── stratified_results.json
+    └── efficiency_metrics.csv
 ```
 
-**Structure Decision**: Single `src/` directory structure chosen. This is a research pipeline, not a web service. Separation into `scoring`, `routing`, `fidelity`, and `domain` modules ensures strict adherence to the independence principle (Principle VI) and facilitates unit testing of each component in isolation.
+**Structure Decision**: Single-project structure selected for research pipeline cohesion. All scripts are modular, testable, and order-dependent (data fetch → score → route → generate → analyze). Tests are split into unit (logic), integration (pipeline steps), and contract (schema validation).
 
 ## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Piecewise Regression + Permutation Test + LRT** | Required to scientifically validate the "knee point" (FR-005, FR-006) and avoid false positives in threshold detection. | Simple linear regression cannot detect non-linear "knee" behavior; t-tests on binned data suffer from arbitrary binning bias and loss of power. Likelihood Ratio Test (LRT) is required by FR-005. |
-| **Stratified Domain Analysis** | Required by Principle VII to ensure fidelity metrics are not confounded by visual style. | Aggregating all images would mask domain-specific thresholds (e.g., abstract art may need less context than photorealism), invalidating the "knee point" generalization. |
-| **Lightweight Rule-Based Expander** | Required to test the hypothesis that simple prompts don't need agents (FR-003). | Using a small LLM for the "low" path would introduce semantic embeddings and cost, defeating the purpose of measuring the *syntactic* threshold. |
-| **Full Paired Execution Sample** | Required to avoid the confound of missing baselines (Methodology concern). | Running the agent only on a subset and assuming the rest creates circular validation and statistical invalidity. |
-
-## Success Criteria Alignment
-
-- **SC-001 (Syntactic Score)**: Measured via `src/scoring/syntactic_features.py` against IA-Bench/LAION-CC.
-- **SC-002 (Context Fidelity)**: Measured via `src/fidelity/clip_evaluator.py` against generated gold-standard references.
-- **SC-003 (Knee Point)**: Measured via `src/fidelity/regression_analysis.py` (Piecewise Regression).
-- **SC-004 (Statistical Significance)**: Measured via Permutation Test (sufficient iterations for convergence) and LRT.
-- **SC-005 (Efficiency)**: Measured via `token_count` (LLM) or `inference_steps` (Diffusion) + `latency_ms`. Note: For diffusion models, "Compute Steps" is the valid proxy for "Token Count".
-- **SC-006 (Domain Thresholds)**: Measured via stratified regression on domain-specific subsets.
-- **FR-012 (Pilot Study)**: Must produce `data/results/pilot_correlation.json` with correlation coefficient ≥ 0.5. This file is a hard gate for Phase 1.
+No violations identified after addressing unresolved panel concerns. All requirements are traceable to tasks, and all constraints are enforced via constitution gates.

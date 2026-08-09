@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Regression Result Schema"
-description: "Schema for the final statistical analysis results including LRT and Permutation Test."
+description: "Schema for the final statistical analysis results including LRT and Permutation Test. Explicitly tracks dataset scope."
 type: "object"
 properties:
   model_type:
@@ -10,22 +10,22 @@ properties:
       - "linear"
     description: "Type of regression model fitted."
   knee_point:
-    type: "number"
+    type: number
     description: "The identified complexity score threshold where the slope changes."
   slope_change:
-    type: "number"
+    type: number
     description: "The magnitude of the change in slope at the knee point."
   p_value_f_test:
-    type: "number"
+    type: number
     description: "P-value from the F-test comparing piecewise vs linear models."
   p_value_lrt:
-    type: "number"
+    type: number
     description: "P-value from the Likelihood Ratio Test (LRT) comparing piecewise vs linear models."
   p_value_permutation:
-    type: "number"
+    type: number
     description: "P-value from the permutation test."
   r_squared:
-    type: "number"
+    type: number
     description: "Coefficient of determination for the fitted model."
   domain_stratum:
     type: "string"
@@ -44,6 +44,9 @@ properties:
       - "piecewise_superior"
       - "linear_sufficient"
       - "no_threshold_found"
+  dataset_scope:
+    type: "string"
+    description: "Description of the dataset used (e.g., 'High + Counterfactual Sample')."
 required:
   - "model_type"
   - "knee_point"
@@ -54,3 +57,4 @@ required:
   - "r_squared"
   - "domain_stratum"
   - "model_comparison"
+  - "dataset_scope"
