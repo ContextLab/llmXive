@@ -1,188 +1,174 @@
 """
-Task T016: Validate schema of data/processed/features.csv.
-
-Validates the output of T015 (05_compute_relative_power.py) to ensure:
-1. File exists and is readable.
-2. Contains required columns (participant_id, median_rt, and band powers).
-3. No null values in critical columns.
-4. median_rt is within valid physiological range (100ms - 2000ms).
-
-Outputs:
-- Prints validation summary to stdout.
-- Exits with code 0 if valid, 1 if invalid.
-- Optionally generates a validation report log.
+T016: Validate schema of data/processed/features.csv
+Checks:
+  1. File exists
+  2. No null values in required columns
+  3. Correct column names (expected schema)
+  4. Valid RT range (median_rt between 100ms and 2000ms)
+  5. Participant IDs are unique
 """
-
 import os
 import sys
 import argparse
 import pandas as pd
+import numpy as np
 from pathlib import Path
 
-# Add parent directory to path for imports if running as script
+# Add parent directory to path to allow importing config
 sys.path.insert(0, str(Path(__file__).parent))
+from config import get_path, ensure_dirs
 
-from config import get_path, get_all_band_names, get_band_freqs
-import utils.stats_helpers as stats_helpers
-
+# Expected columns based on T015 output (relative power + CLR + behavioral)
+EXPECTED_COLUMNS = [
+    'participant_id',
+    'delta_rel', 'theta_rel', 'alpha_rel', 'beta_low_rel', 'beta_high_rel', 'gamma_rel',
+    'delta_clr', 'theta_clr', 'alpha_clr', 'beta_low_clr', 'beta_high_clr', 'gamma_clr',
+    'median_rt'
+]
 
 def validate_schema(input_path: Path) -> dict:
     """
-    Validates the schema and content of the features CSV.
+    Validates the features.csv file against the expected schema.
     
-    Args:
-        input_path: Path to the features CSV file.
-        
-    Returns:
-        dict: Validation results with 'valid' boolean and 'errors' list.
+    Returns a dict with validation results:
+    {
+        "valid": bool,
+        "errors": list of error messages,
+        "warnings": list of warning messages,
+        "stats": dict of summary stats (row count, null counts, etc.)
+    }
     """
-    errors = []
-    warnings = []
-    
+    result = {
+        "valid": True,
+        "errors": [],
+        "warnings": [],
+        "stats": {}
+    }
+
     # 1. Check file existence
     if not input_path.exists():
-        return {
-            "valid": False,
-            "errors": [f"File not found: {input_path}"],
-            "warnings": []
-        }
-    
+        result["valid"] = False
+        result["errors"].append(f"File not found: {input_path}")
+        return result
+
+    # 2. Load data
     try:
         df = pd.read_csv(input_path)
     except Exception as e:
-        return {
-            "valid": False,
-            "errors": [f"Failed to read CSV: {str(e)}"],
-            "warnings": []
-        }
-    
-    if df.empty:
-        return {
-            "valid": False,
-            "errors": ["DataFrame is empty"],
-            "warnings": []
-        }
-    
-    # 2. Check required columns
-    # Expected columns: participant_id, median_rt, and relative power bands
-    all_bands = get_all_band_names()
-    # T015 produces relative power columns, typically named 'rel_<band>' or similar
-    # Based on T015 description: "produce data/processed/features.csv" with relative power
-    # We expect columns like: participant_id, median_rt, rel_delta, rel_theta, etc.
-    required_base_cols = ["participant_id", "median_rt"]
-    required_rel_cols = [f"rel_{band}" for band in all_bands]
-    required_cols = required_base_cols + required_rel_cols
-    
-    missing_cols = [col for col in required_cols if col not in df.columns]
+        result["valid"] = False
+        result["errors"].append(f"Failed to load CSV: {str(e)}")
+        return result
+
+    result["stats"]["row_count"] = len(df)
+    result["stats"]["column_count"] = len(df.columns)
+
+    # 3. Check for expected columns
+    missing_cols = [col for col in EXPECTED_COLUMNS if col not in df.columns]
     if missing_cols:
-        errors.append(f"Missing required columns: {missing_cols}")
+        result["valid"] = False
+        result["errors"].append(f"Missing required columns: {missing_cols}")
     
-    # Check for unexpected extra columns (optional warning)
-    existing_cols = set(df.columns)
-    expected_cols_set = set(required_cols)
-    extra_cols = existing_cols - expected_cols_set
+    extra_cols = [col for col in df.columns if col not in EXPECTED_COLUMNS]
     if extra_cols:
-        warnings.append(f"Extra columns detected (ignoring): {extra_cols}")
+        result["warnings"].append(f"Extra columns found (ignored): {extra_cols}")
+
+    # 4. Check for null values in required columns
+    # We check all columns that are not participant_id (which might be string ID)
+    required_numeric_cols = [c for c in EXPECTED_COLUMNS if c != 'participant_id' and c in df.columns]
+    null_counts = {}
+    has_nulls = False
     
-    # 3. Check for nulls in critical columns
-    critical_cols = required_cols
-    null_counts = df[critical_cols].isnull().sum()
-    null_cols_with_values = null_counts[null_counts > 0]
+    for col in required_numeric_cols:
+        null_count = df[col].isna().sum()
+        null_counts[col] = null_count
+        if null_count > 0:
+            has_nulls = True
+            result["valid"] = False
+            result["errors"].append(f"Column '{col}' has {null_count} null values")
     
-    if not null_cols_with_values.empty:
-        for col, count in null_cols_with_values.items():
-            errors.append(f"Column '{col}' contains {count} null values")
-    
-    # 4. Validate RT range (100ms to 2000ms)
-    if "median_rt" in df.columns:
-        rt_min = df["median_rt"].min()
-        rt_max = df["median_rt"].max()
+    result["stats"]["null_counts"] = null_counts
+
+    # 5. Validate RT range (100ms to 2000ms)
+    if 'median_rt' in df.columns:
+        rt_min = df['median_rt'].min()
+        rt_max = df['median_rt'].max()
+        result["stats"]["rt_min"] = rt_min
+        result["stats"]["rt_max"] = rt_max
         
         if rt_min < 100:
-            outliers_low = df[df["median_rt"] < 100].shape[0]
-            errors.append(f"Found {outliers_low} participants with median RT < 100ms (physiologically impossible)")
+            result["valid"] = False
+            result["errors"].append(f"median_rt minimum ({rt_min}) is below 100ms threshold")
         
         if rt_max > 2000:
-            outliers_high = df[df["median_rt"] > 2000].shape[0]
-            errors.append(f"Found {outliers_high} participants with median RT > 2000ms (exceeds exclusion threshold)")
-    
-    # 5. Validate power values are non-negative (relative power should be 0-1)
-    for band in all_bands:
-        col_name = f"rel_{band}"
-        if col_name in df.columns:
-            if (df[col_name] < 0).any():
-                errors.append(f"Column '{col_name}' contains negative values (relative power cannot be negative)")
-            if (df[col_name] > 1).any():
-                # This might be a data issue or just a very small total power denominator
-                # But relative power > 1 is physically impossible
-                errors.append(f"Column '{col_name}' contains values > 1.0")
-    
-    return {
-        "valid": len(errors) == 0,
-        "errors": errors,
-        "warnings": warnings,
-        "row_count": len(df),
-        "column_count": len(df.columns)
-    }
+            result["valid"] = False
+            result["errors"].append(f"median_rt maximum ({rt_max}) exceeds 2000ms threshold")
 
+    # 6. Check for duplicate participant IDs
+    if 'participant_id' in df.columns:
+        dup_count = df['participant_id'].duplicated().sum()
+        if dup_count > 0:
+            result["valid"] = False
+            result["errors"].append(f"Found {dup_count} duplicate participant_ids")
+        result["stats"]["unique_participants"] = df['participant_id'].nunique()
+
+    # 7. Validate that all power values are positive (relative power should be > 0)
+    power_cols = [c for c in df.columns if c.endswith('_rel') and c != 'median_rt']
+    for col in power_cols:
+        if col in df.columns:
+            if (df[col] <= 0).any():
+                result["valid"] = False
+                result["errors"].append(f"Column '{col}' contains non-positive values (expected > 0 for relative power)")
+
+    return result
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate features.csv schema and content")
+    parser = argparse.ArgumentParser(description="Validate features.csv schema")
     parser.add_argument(
-        "--input",
-        type=str,
+        "--input", 
+        type=str, 
         default=None,
-        help="Path to features.csv. Defaults to config path."
+        help="Path to features.csv (default: from config)"
     )
-    parser.add_argument(
-        "--output-report",
-        type=str,
-        default=None,
-        help="Path to write validation report (JSON). Optional."
-    )
-    
     args = parser.parse_args()
-    
+
     # Determine input path
     if args.input:
         input_path = Path(args.input)
     else:
-        input_path = get_path("processed_features_csv")
-    
-    print(f"Validating: {input_path}")
-    
-    result = validate_schema(input_path)
-    
-    # Print results
-    if result["valid"]:
-        print("✅ Validation PASSED")
-        print(f"   - Rows: {result['row_count']}")
-        print(f"   - Columns: {result['column_count']}")
-        if result["warnings"]:
-            print("   - Warnings:")
-            for w in result["warnings"]:
-                print(f"      ⚠ {w}")
-        sys.exit(0)
-    else:
-        print("❌ Validation FAILED")
-        print(f"   - Rows: {result['row_count']}")
-        print(f"   - Columns: {result['column_count']}")
-        print("   - Errors:")
-        for e in result["errors"]:
-            print(f"      ✖ {e}")
-        if result["warnings"]:
-            print("   - Warnings:")
-            for w in result["warnings"]:
-                print(f"      ⚠ {w}")
-        
-        if args.output_report:
-            import json
-            with open(args.output_report, 'w') as f:
-                json.dump(result, f, indent=2)
-            print(f"\nDetailed report saved to: {args.output_report}")
-        
-        sys.exit(1)
+        input_path = get_path("processed", "features.csv")
 
+    print(f"Validating: {input_path}")
+    validation_result = validate_schema(input_path)
+
+    # Print results
+    print("\n=== Validation Report ===")
+    print(f"Valid: {validation_result['valid']}")
+    print(f"Rows: {validation_result['stats'].get('row_count', 'N/A')}")
+    print(f"Columns: {validation_result['stats'].get('column_count', 'N/A')}")
+    
+    if validation_result['stats'].get('unique_participants'):
+        print(f"Unique Participants: {validation_result['stats']['unique_participants']}")
+    
+    if 'rt_min' in validation_result['stats'] and 'rt_max' in validation_result['stats']:
+        print(f"RT Range: {validation_result['stats']['rt_min']:.2f}ms - {validation_result['stats']['rt_max']:.2f}ms")
+
+    if validation_result['errors']:
+        print("\nErrors:")
+        for err in validation_result['errors']:
+            print(f"  - {err}")
+
+    if validation_result['warnings']:
+        print("\nWarnings:")
+        for warn in validation_result['warnings']:
+            print(f"  - {warn}")
+
+    # Exit with error code if validation failed
+    if not validation_result['valid']:
+        print("\nValidation FAILED.")
+        sys.exit(1)
+    else:
+        print("\nValidation PASSED.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

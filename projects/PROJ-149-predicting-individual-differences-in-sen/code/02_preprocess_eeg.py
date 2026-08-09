@@ -1,256 +1,296 @@
 """
-Task T010/T010b: Preprocess EEG data (Filter, Reject, ICA).
+code/02_preprocess_eeg.py
 
-This script implements the preprocessing pipeline for PhysioNet EEG Motor Movement/Imagery data.
-It applies band-pass (1-40Hz), notch (50/60Hz) filtering, rejects channels with >3SD variance,
-applies ICA for artifact removal, and handles participant exclusion logic.
+Preprocesses raw EEG data from PhysioNet EEG Motor Movement/Imagery dataset.
+Applies band-pass filtering, notch filtering, channel variance rejection, and ICA cleaning.
+Implements participant exclusion logic based on channel rejection rates.
 
-Output: Preprocessed data saved to data/interim/preprocessed_eeg/
+Outputs cleaned EEG data to data/interim/cleaned_eeg/
 """
+
 import os
 import sys
 import glob
+import argparse
 import numpy as np
 import mne
 from pathlib import Path
-import json
+from typing import List, Tuple, Optional, Dict, Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
 
-from config import get_path, set_global_seed, ensure_dirs, get_filter_params
+from config import get_path, ensure_dirs, get_filter_params, get_seed
 from utils.eeg_helpers import bandpass_filter, notch_filter, reject_channels_by_variance, apply_ica
 
-# Configuration constants
-MIN_CHANNELS_KEEP_RATIO = 0.70  # Keep participant if >= 70% channels remain
-VARIANCE_THRESHOLD_SD = 3.0     # Reject channels > 3 SD variance
-NOTCH_FREQS = [50, 60]          # Support both 50Hz and 60Hz mains
 
-def load_physionet_eeg_data(subject_id: str) -> mne.io.BaseRaw:
+def get_subject_id_from_path(file_path: str) -> Optional[str]:
     """
-    Load raw EEG data for a subject from the downloaded PhysioNet directory.
+    Extract subject ID from PhysioNet file path.
     
     Args:
-        subject_id: String ID of the subject (e.g., '001')
+        file_path: Path to EEG data file
         
     Returns:
-        mne.io.Raw object containing the EEG data
-        
-    Raises:
-        FileNotFoundError: If the raw data files are not found
+        Subject ID string or None if not found
     """
-    raw_dir = get_path("raw_eeg")
-    if not raw_dir.exists():
-        raise FileNotFoundError(f"Raw EEG directory not found: {raw_dir}. Run T007 to download data.")
-        
-    # PhysioNet EEG Motor Movement/Imagery data structure:
-    # sub-001/ses-1/motion/EEG/001_mn_01_eeg.edf (example pattern)
-    # We look for .edf files matching the subject ID pattern
-    
-    # Search for files matching the subject pattern
-    patterns = [
-        f"sub-{subject_id}*/**/*.edf",
-        f"sub-{subject_id}*/**/*.EDF",
-        f"*{subject_id}*.edf",
-        f"*{subject_id}*.EDF"
-    ]
-    
-    found_files = []
-    for pattern in patterns:
-        found_files.extend(list(raw_dir.glob(pattern)))
-        
-    if not found_files:
-        raise FileNotFoundError(
-            f"No EEG files found for subject {subject_id} in {raw_dir}. "
-            f"Please verify T007 (download) completed successfully."
-        )
-    
-    # Use the first found file (typically the main recording)
-    raw_file = found_files[0]
-    print(f"Loading EEG data from: {raw_file}")
-    
-    # Load with MNE
-    raw = mne.io.read_raw_edf(raw_file, preload=True, verbose=False)
-    
-    # Set standard montage if not present
-    if raw.info['ch_names'] and raw.info['ch_names'][0].startswith('EEG'):
-        try:
-            mne.channels.make_standard_montage('standard_1005', ch_names=raw.ch_names)
-            raw.set_montage('standard_1005', match_case=False, match_alias=True, on_missing='ignore')
-        except Exception as e:
-            print(f"Warning: Could not set montage: {e}")
-    
-    return raw
+    path = Path(file_path)
+    # PhysioNet naming: sub-<ID>_task-<TASK>_run-<RUN>_eeg.edf
+    # Or: sub-<ID>_eeg.edf
+    if path.name.startswith('sub-'):
+        parts = path.name.split('_')
+        if len(parts) >= 2:
+            return parts[0].replace('sub-', '')
+    return None
 
-def get_subject_id_from_path(filepath: str) -> str:
-    """Extract subject ID from file path."""
-    basename = os.path.basename(filepath)
-    # Handle various naming conventions: sub-001_ses-1..., 001_mn_01..., etc.
-    if basename.startswith('sub-'):
-        parts = basename.split('_')
-        if len(parts) > 0:
-            return parts[0].replace('sub-', '').split('/')[0]
-    elif basename[0].isdigit():
-        # Extract leading digits
-        import re
-        match = re.match(r'^(\d+)', basename)
-        if match:
-            return match.group(1)
-    return basename.split('.')[0].split('_')[0]
 
-def preprocess_subject(subject_id: str, output_dir: Path) -> dict:
+def load_physionet_eeg_data(data_dir: str) -> List[Dict[str, Any]]:
+    """
+    Load all EEG files from the PhysioNet data directory.
+    
+    Args:
+        data_dir: Path to raw EEG data directory
+        
+    Returns:
+        List of dictionaries with file paths and subject IDs
+    """
+    data_path = Path(data_dir)
+    eeg_files = []
+    
+    # Look for .edf files (standard format for PhysioNet EEG)
+    edf_files = list(data_path.rglob('*.edf'))
+    edf_files += list(data_path.rglob('*.EDF'))
+    
+    for file_path in edf_files:
+        subject_id = get_subject_id_from_path(str(file_path))
+        if subject_id:
+            eeg_files.append({
+                'path': str(file_path),
+                'subject_id': subject_id,
+                'filename': file_path.name
+            })
+    
+    if not eeg_files:
+        raise FileNotFoundError(f"No EEG files found in {data_dir}")
+    
+    return eeg_files
+
+
+def preprocess_subject(
+    file_path: str,
+    subject_id: str,
+    output_dir: str,
+    no_ica: bool = False,
+    filter_params: Optional[Dict] = None,
+    variance_threshold: float = 3.0,
+    exclusion_threshold: float = 0.30
+) -> Dict[str, Any]:
     """
     Preprocess a single subject's EEG data.
     
-    Steps:
-    1. Load raw data
-    2. Apply band-pass filter (1-40 Hz)
-    3. Apply notch filter (50/60 Hz)
-    4. Reject channels with variance > 3SD
-    5. Apply ICA to remove ocular/muscle artifacts
-    6. Save preprocessed data
-    
     Args:
+        file_path: Path to the raw EEG file
         subject_id: Subject identifier
-        output_dir: Directory to save preprocessed data
+        output_dir: Directory to save cleaned data
+        no_ica: If True, skip ICA cleaning
+        filter_params: Dictionary with filter parameters (lowcut, highcut, notch_freqs)
+        variance_threshold: Channels with variance > threshold * median are rejected
+        exclusion_threshold: Exclude subject if > this fraction of channels are rejected
         
     Returns:
-        dict: Processing statistics (channels kept, rejected, etc.)
+        Dictionary with processing results and statistics
     """
-    stats = {
-        "subject_id": subject_id,
-        "status": "success",
-        "channels_initial": 0,
-        "channels_rejected": 0,
-        "channels_final": 0,
-        "ica_components_removed": 0,
-        "excluded": False,
-        "exclusion_reason": None
+    if filter_params is None:
+        filter_params = get_filter_params()
+    
+    results = {
+        'subject_id': subject_id,
+        'input_file': file_path,
+        'output_file': None,
+        'status': 'success',
+        'channels_rejected': 0,
+        'total_channels': 0,
+        'rejection_rate': 0.0,
+        'excluded': False,
+        'ica_components_removed': 0,
+        'message': ''
     }
     
     try:
-        # 1. Load raw data
-        raw = load_physionet_eeg_data(subject_id)
-        stats["channels_initial"] = len(raw.ch_names)
+        # Load raw data
+        raw = mne.io.read_raw_edf(file_path, preload=True, verbose=False)
         
-        # 2. Apply band-pass filter (1-40 Hz)
-        filter_params = get_filter_params()
-        l_freq = filter_params.get('l_freq', 1.0)
-        h_freq = filter_params.get('h_freq', 40.0)
+        # Set montage if available (standard 10-20 system)
+        try:
+            montage = mne.channels.make_standard_montage('standard_1005')
+            raw.set_montage(montage, match_case=False, match_alias=True, on_missing='ignore')
+        except Exception as e:
+            results['message'] += f"Montage setting failed: {str(e)}. "
         
-        raw_filtered = bandpass_filter(raw, l_freq=l_freq, h_freq=h_freq)
-        print(f"[{subject_id}] Applied band-pass filter: {l_freq}-{h_freq} Hz")
+        # Filter: Band-pass 1-40 Hz
+        lowcut = filter_params.get('lowcut', 1.0)
+        highcut = filter_params.get('highcut', 40.0)
+        raw = bandpass_filter(raw, lowcut, highcut, verbose=False)
         
-        # 3. Apply notch filter (50/60 Hz)
-        raw_notched = notch_filter(raw_filtered, freqs=NOTCH_FREQS)
-        print(f"[{subject_id}] Applied notch filter: {NOTCH_FREQS} Hz")
+        # Notch filter: 50 Hz or 60 Hz (depending on region)
+        # We'll apply both to be safe, or detect from file
+        notch_freqs = filter_params.get('notch_freqs', [50.0, 60.0])
+        for freq in notch_freqs:
+            raw = notch_filter(raw, freq, verbose=False)
         
-        # 4. Reject channels with variance > 3SD
-        rejected_chs, kept_chs = reject_channels_by_variance(
-            raw_notched, 
-            threshold_sd=VARIANCE_THRESHOLD_SD
+        # Store total channels before rejection
+        results['total_channels'] = len(raw.ch_names)
+        
+        # Reject channels with high variance (>3SD from median)
+        raw, rejected_indices = reject_channels_by_variance(
+            raw, threshold=variance_threshold, verbose=False
         )
-        stats["channels_rejected"] = len(rejected_chs)
-        stats["channels_final"] = len(kept_chs)
+        results['channels_rejected'] = len(rejected_indices)
         
-        if rejected_chs:
-            print(f"[{subject_id}] Rejected channels: {rejected_chs}")
+        # Calculate rejection rate
+        results['rejection_rate'] = results['channels_rejected'] / results['total_channels']
         
-        # 5. Check participant exclusion criteria
-        total_initial = stats["channels_initial"]
-        kept_ratio = len(kept_chs) / total_initial if total_initial > 0 else 0
+        # Check exclusion criteria
+        if results['rejection_rate'] > exclusion_threshold:
+            results['excluded'] = True
+            results['status'] = 'excluded'
+            results['message'] = f"Excluded: {results['rejection_rate']:.1%} channels rejected (>30% threshold)"
+            return results
         
-        if kept_ratio < MIN_CHANNELS_KEEP_RATIO:
-            stats["excluded"] = True
-            stats["exclusion_reason"] = f"Only {kept_ratio:.1%} channels kept (threshold: {MIN_CHANNELS_KEEP_RATIO:.0%})"
-            print(f"[{subject_id}] EXCLUDED: {stats['exclusion_reason']}")
-            return stats
+        # ICA cleaning (unless --no-ica flag is set)
+        if not no_ica:
+            raw, n_removed = apply_ica(raw, verbose=False)
+            results['ica_components_removed'] = n_removed
         
-        # 6. Apply ICA for artifact removal
-        raw_ica, n_removed = apply_ica(raw_notched, rejected_channels=rejected_chs)
-        stats["ica_components_removed"] = n_removed
-        stats["channels_final"] = len(raw_ica.ch_names)  # May have changed after ICA
-        print(f"[{subject_id}] ICA removed {n_removed} components")
+        # Save cleaned data
+        output_path = Path(output_dir) / f"sub-{subject_id}_cleaned.fif"
+        raw.save(str(output_path), overwrite=True, verbose=False)
+        results['output_file'] = str(output_path)
         
-        # 7. Save preprocessed data
-        output_file = output_dir / f"sub-{subject_id}_preprocessed.fif"
-        raw_ica.save(output_file, overwrite=True, verbose=False)
-        print(f"[{subject_id}] Saved preprocessed data to: {output_file}")
+        # Store channel info
+        results['final_channels'] = len(raw.ch_names)
+        results['sfreq'] = raw.info['sfreq']
+        results['ch_names'] = raw.ch_names
         
     except Exception as e:
-        stats["status"] = "failed"
-        stats["exclusion_reason"] = str(e)
-        print(f"[{subject_id}] ERROR: {e}")
-        raise
-        
-    return stats
+        results['status'] = 'error'
+        results['message'] = f"Processing error: {str(e)}"
+    
+    return results
+
 
 def main():
-    """
-    Main entry point for preprocessing pipeline.
-    Iterates over all subjects in the raw data directory and preprocesses them.
-    """
-    set_global_seed()
-    ensure_dirs()
+    """Main entry point for EEG preprocessing."""
+    parser = argparse.ArgumentParser(
+        description='Preprocess EEG data from PhysioNet dataset'
+    )
+    parser.add_argument(
+        '--data-dir',
+        type=str,
+        default=None,
+        help='Path to raw EEG data directory (default: from config)'
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default=None,
+        help='Path to output directory (default: data/interim/cleaned_eeg)'
+    )
+    parser.add_argument(
+        '--no-ica',
+        action='store_true',
+        help='Skip ICA cleaning for robustness testing'
+    )
+    parser.add_argument(
+        '--variance-threshold',
+        type=float,
+        default=3.0,
+        help='Variance threshold for channel rejection (default: 3.0)'
+    )
+    parser.add_argument(
+        '--exclusion-threshold',
+        type=float,
+        default=0.30,
+        help='Exclusion threshold for participant rejection (default: 0.30)'
+    )
+    parser.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Enable verbose output'
+    )
     
-    raw_dir = get_path("raw_eeg")
-    output_dir = get_path("interim_preprocessed")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    args = parser.parse_args()
     
-    # Find all subject directories
-    if not raw_dir.exists():
-        print("ERROR: Raw EEG directory not found. Run T007 (download) first.")
+    # Set random seed for reproducibility
+    get_seed()
+    
+    # Get paths
+    data_dir = args.data_dir or str(get_path('raw_eeg'))
+    output_dir = args.output_dir or str(get_path('cleaned_eeg'))
+    
+    # Ensure output directory exists
+    ensure_dirs([output_dir])
+    
+    print(f"Loading EEG data from: {data_dir}")
+    try:
+        eeg_files = load_physionet_eeg_data(data_dir)
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
         sys.exit(1)
-        
-    # Discover subjects by scanning for EDF files
-    subject_ids = set()
-    for edf_file in raw_dir.rglob("*.edf"):
-        sid = get_subject_id_from_path(str(edf_file))
-        if sid:
-            subject_ids.add(sid)
-    for edf_file in raw_dir.rglob("*.EDF"):
-        sid = get_subject_id_from_path(str(edf_file))
-        if sid:
-            subject_ids.add(sid)
     
-    if not subject_ids:
-        print("ERROR: No subject data found. Run T007 (download) first.")
-        sys.exit(1)
-    
-    print(f"Found {len(subject_ids)} subjects to process: {sorted(subject_ids)}")
+    print(f"Found {len(eeg_files)} EEG files")
     
     # Process each subject
-    all_stats = []
+    results = []
     excluded_count = 0
+    error_count = 0
     
-    for subject_id in sorted(subject_ids):
-        try:
-            stats = preprocess_subject(subject_id, output_dir)
-            all_stats.append(stats)
-            if stats["excluded"]:
-                excluded_count += 1
-        except Exception as e:
-            print(f"Failed to process subject {subject_id}: {e}")
-            all_stats.append({
-                "subject_id": subject_id,
-                "status": "failed",
-                "exclusion_reason": str(e)
-            })
+    for file_info in eeg_files:
+        print(f"\nProcessing subject {file_info['subject_id']}...")
+        
+        result = preprocess_subject(
+            file_path=file_info['path'],
+            subject_id=file_info['subject_id'],
+            output_dir=output_dir,
+            no_ica=args.no_ica,
+            variance_threshold=args.variance_threshold,
+            exclusion_threshold=args.exclusion_threshold
+        )
+        
+        results.append(result)
+        
+        if result['status'] == 'excluded':
+            excluded_count += 1
+            print(f"  -> EXCLUDED: {result['message']}")
+        elif result['status'] == 'error':
+            error_count += 1
+            print(f"  -> ERROR: {result['message']}")
+        else:
+            print(f"  -> SUCCESS: {result['final_channels']} channels, "
+                  f"{result['ica_components_removed']} ICA components removed")
     
-    # Write processing report
-    report_file = output_dir / "preprocessing_report.json"
-    with open(report_file, 'w') as f:
-        json.dump({
-            "total_subjects": len(subject_ids),
-            "processed": len(all_stats),
-            "excluded": excluded_count,
-            "stats": all_stats
-        }, f, indent=2)
+    # Save processing log
+    log_path = Path(output_dir) / 'preprocessing_log.json'
+    import json
+    with open(log_path, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    print(f"\nPreprocessing complete.")
-    print(f"Total subjects: {len(subject_ids)}")
-    print(f"Successfully processed: {len(all_stats) - excluded_count}")
-    print(f"Excluded: {excluded_count}")
-    print(f"Report saved to: {report_file}")
+    # Print summary
+    print(f"\n{'='*60}")
+    print("PREPROCESSING SUMMARY")
+    print(f"{'='*60}")
+    print(f"Total subjects processed: {len(results)}")
+    print(f"Successfully cleaned: {len(results) - excluded_count - error_count}")
+    print(f"Excluded (>30% channels rejected): {excluded_count}")
+    print(f"Errors: {error_count}")
+    print(f"Output directory: {output_dir}")
+    print(f"Log saved to: {log_path}")
+    
+    if excluded_count > 0:
+        print(f"\nWARNING: {excluded_count} subjects excluded due to excessive channel rejection.")
+    
+    return results
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

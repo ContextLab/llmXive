@@ -1,59 +1,39 @@
+T008a:
+  c: false
+  h: 9019438f850b31e784a8af14c877f0560a81b1fd09f98395cd05b72570f66b13
+  r: "The repository contains `code/00_feasibility_check_join.py`, but the script\
+    \ is truncated and does not implement the required join or write `data/interim/joined_metadata.csv`\
+    \ (the file is missing). Likewise, the expected `data/processed/feasibility_report.md`\
+    \ is not present. Consequently the task\u2019s output artifacts and core functionality\
+    \ are absent."
 T008b:
-  c: true
-  h: 8d23993b14835702a7e3326eef9846ecfac5ee89bc4566adbba7113ad7a837e9
-  r: "The repository contains a non\u2011empty `code/00_feasibility_check_report.py`\
-    \ that reads the join status JSON from T008a and formats a Markdown feasibility\
-    \ report intended for `data/processed/feasibility_report.md`. The required script\
-    \ is present and implements the specified behavior."
-T013:
+  c: false
+  h: 24f179ffafcde68327f7f6f56e9b0d1d479e4e7ef6467496067be823c93d4777
+  r: "The repository contains the required Python script, but the expected output\
+    \ file `data/processed/feasibility_report.md` is absent, and the shown portion\
+    \ of the script is truncated before any code that writes the markdown report.\
+    \ Without a generated report file, the task\u2019s requirement is not satisfied."
+T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or output file implementing the required behavioral parsing
-    (median RT extraction, outlier removal, participant exclusion) was provided. Consequently,
-    there is no artifact to verify that the task runs after T010b or meets the specified
-    criteria. The implementer must supply the parsing implementation and any resulting
-    data files.
-T016:
+  r: "No `.env` template file was provided or described in the evidence; the task\
+    \ required a non\u2011empty `.env` template for environment configuration, which\
+    \ is absent. The implementer needs to add a properly formatted `.env` file (e.g.,\
+    \ with placeholder variables) to satisfy T009."
+T012:
   c: false
-  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
-  r: "The required artifact `data/processed/features.csv` does not exist, so no schema\
-    \ validation (no\u2011null check, column verification, RT range check) could be\
-    \ performed. The task lacks the essential input file."
-T017:
-  c: false
-  h: 3f0b991b1439fbcb49c6ae45722800e5c08a9fefd19c5c2a6bce37250a8e8395
-  r: "The `code/04_modeling.py` file is cut off mid\u2011string (`\"a`) and does not\
-    \ contain a complete implementation (e.g., missing the rest of the results dict,\
-    \ CLI entry point, and any execution logic). Moreover, the required input `data/processed/features.csv`\
-    \ is absent from the repository. Both the script and its data dependency are missing,\
-    \ so the task is not genuinely fulfilled."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, notebook, or output files implementing LASSO regression with
-    lambda tuning and reporting RMSE are present; the only provided material is the
-    task description and specification excerpt, which does not constitute the required
-    artifact. The implementer must supply the actual implementation and its results.
-T019:
-  c: false
-  h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
-  r: "The required artifact `data/processed/model_results.json` does not exist, so\
-    \ the adjusted R\xB2 and optimal lambda have not been logged as specified. The\
-    \ task therefore remains unfinished."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, output file, or any other artifact demonstrating that a Bonferroni\
-    \ correction (0.05/6\u202F=\u202F0.0083) was applied and significant results were\
-    \ flagged is present. The claim cannot be verified because the required evidence\
-    \ is missing."
+  h: c7fdc944b1bfd8e95a81bf63ec4fb65bdc1436f7b23a5f56447fb8083eb72d73
+  r: "The required output file `data/interim/eeg_psd.csv` does not exist, and the\
+    \ provided `code/03_extract_features.py` is truncated before any band\u2011power\
+    \ aggregation or CSV writing logic, so it does not demonstrably meet the specification\
+    \ (5\u2011minute epochs, band aggregation, use of `config.OVERLAP_SECONDS`, preserving\
+    \ deferred status). The task therefore remains unfinished."
 T023:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (script, notebook, or result file) showing a post\u2011hoc power\
-    \ analysis for R\xB2\u202F=\u202F0.10 with \u2265\u202F0.80 power is present;\
-    \ the claim lacks any code, calculations, or reported sample\u2011size value required\
-    \ by FR\u2011011. The required evidence is missing."
+  h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
+  r: "The required output file `data/processed/model_results.json` is missing, so\
+    \ no post\u2011hoc power analysis results are provided. The task\u2019s core artifact\
+    \ does not exist, making the implementation incomplete."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

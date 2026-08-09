@@ -308,3 +308,151 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T00:23:47Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps p-value thresholds from 0.01 to 0.10 in steps
+    of 0.01
+  claim_id: c_2ad72aaf
+  context: 'T028 [P] [US3] Implement code/06_sensitivity_analysis.py: Sweep p-value
+    threshold across a range of common significance levels (0.01 to 0.10 in steps
+    of 0.01) and record count of significant correlations at each step (FR-009).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps p-value threshold across a range of common
+    significance levels (0.01 to 0.10 in steps of 0.01).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:58:48Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Non-linear interaction analysis uses polynomial degree 2 for alpha and
+    beta bands
+  claim_id: c_65f05613
+  context: T024 [P] [US2] Implement non-linear interaction analysis (polynomial alpha/beta,
+    degree=2) and F-test comparison (FR-012).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Non-linear interaction analysis uses polynomial alpha/beta terms of degree
+    2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:59:06Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Primary analysis uses 4-second windows for PSD computation
+  claim_id: c_7c31bad5
+  context: 'T012 [US1] Implement code/03_extract_features.py: Compute Welch''s PSD
+    on continuous 5-minute epochs using 4-second windows with overlap defined in config.OVERLAP_SECONDS
+    (preserving [deferred] status) and aggregate power into delta, theta, alpha, low-beta,
+    high-beta, and gamma bands (FR-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses 4-second windows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:59:40Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Robustness check uses 2-second windows for PSD computation
+  claim_id: c_9ff962cd
+  context: 'T026 [US3] Implement code/05_robustness_analysis.py: Re-run code/02_preprocess_eeg.py
+    with --no-ica and --window-size 2 (2-second windows as per FR-008) and code/04_modeling.py
+    to generate robustness metrics (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Robustness check uses 2-second windows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:59:59Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participants excluded if less than 70% of trials remain
+  claim_id: c_cd70305f
+  context: 'T013 [US1] Implement behavioral parsing: extract median RT, exclude outliers
+    (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_less_than_70%25_of_trials_remain
+  kind: magnitude
+  raw_text: Participants are excluded if less than 70% of trials remain after outlier
+    exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:00:35Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Reaction time outliers excluded if < 100ms or > 2000ms
+  claim_id: c_429976cf
+  context: 'T013 [US1] Implement behavioral parsing: extract median RT, exclude outliers
+    (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reaction_time_outliers_excluded_if_%3C_100ms_or_%3E_2000ms
+  kind: magnitude
+  raw_text: Outliers are excluded if reaction time is less than 100ms or greater than
+    2000ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:01:08Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Channels rejected if variance > 3 standard deviations
+  claim_id: c_91dfdbf2
+  context: 'T010 [US1] Implement code/02_preprocess_eeg.py: Apply 1-40Hz band-pass,
+    50/60Hz notch, reject channels >3SD variance, implement ICA cleaning to remove
+    ocular/muscle artifacts, and implement participant exclusion logic (drop if >30%
+    channels rejected) (FR-002, Constitution VI).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Channels are rejected if variance exceeds 3 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:01:42Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participants excluded if more than 30% of channels are rejected
+  claim_id: c_53392330
+  context: 'T010 [US1] Implement code/02_preprocess_eeg.py: Apply 1-40Hz band-pass,
+    50/60Hz notch, reject channels >3SD variance, implement ICA cleaning to remove
+    ocular/muscle artifacts, and implement participant exclusion logic (drop if >30%
+    channels rejected) (FR-002, Constitution VI).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_more_than_30%25_of_channels_are_rejec
+  kind: magnitude
+  raw_text: Participants are excluded if more than 30% of channels are rejected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:02:12Z'

@@ -1,227 +1,328 @@
-"""
-code/04_extract_behavioral_metrics.py
-
-Implements Task T013: Behavioral parsing and filtering.
-
-- Loads behavioral data (RT trials) from the raw data directory.
-- Filters outliers (<100ms, >2000ms).
-- Excludes participants with <70% valid trials remaining.
-- Computes median RT per participant.
-- Outputs `data/processed/behavioral_metrics.csv`.
-"""
 import os
 import sys
 import json
 import glob
+import argparse
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from config import get_path, ensure_dirs, get_seed, set_global_seed
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from config import get_path, ensure_dirs, set_global_seed
-
-# Constants
-MIN_RT_MS = 100.0
-MAX_RT_MS = 2000.0
-MIN_VALID_TRIAL_FRACTION = 0.70
-OUTPUT_FILE = get_path("processed", "behavioral_metrics.csv")
-LOG_FILE = get_path("processed", "behavioral_processing_log.json")
-
-
-def load_behavioral_trials(raw_data_dir: str) -> pd.DataFrame:
+def load_behavioral_trials(data_dir: str) -> pd.DataFrame:
     """
-    Load all behavioral trial files (CSV) from the raw data directory.
-    Expects files named like 'sub-<id>_task-<task>_behav.csv' or similar.
-    Returns a single DataFrame with columns: ['participant_id', 'trial_id', 'rt_ms', 'condition'].
+    Load behavioral trial data from the raw data directory.
+    
+    Expects PhysioNet EEG Motor Movement/Imagery dataset structure.
+    Searches for .mat files containing reaction time data or 
+    .csv files with trial-level data.
+    
+    Returns:
+        DataFrame with columns: participant_id, trial_id, reaction_time_ms, condition
     """
-    raw_path = Path(raw_data_dir)
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_path}")
-
-    # Search for CSV files containing 'behav' or 'rt' in the name
-    # Adjust pattern if the specific PhysioNet structure differs, 
-    # but typically behavioral data is in subfolders or specific files.
-    # For PhysioNet EEG Motor Movement/Imagery, behavioral data is often 
-    # in a separate CSV or embedded in the event info. 
-    # We assume a standard structure where behavioral CSVs exist in data/raw/behavioral/
-    # or are extracted alongside EEG.
+    # Check for CSV files first (common format for processed behavioral data)
+    csv_files = list(Path(data_dir).rglob("*.csv"))
     
-    # Strategy: Look for CSVs in data/raw/behavioral/ or data/raw/
-    # If specific file names are known from T007, use them. 
-    # Assuming a generic search for 'behav' or 'rt' files in raw_data_dir or subdirs.
+    # Check for MATLAB files (original PhysioNet format)
+    mat_files = list(Path(data_dir).rglob("*.mat"))
     
-    csv_files = []
-    for ext in ["*.csv"]:
-        csv_files.extend(raw_path.rglob(ext))
+    if not csv_files and not mat_files:
+        raise FileNotFoundError(
+            f"No behavioral data files found in {data_dir}. "
+            "Expected .csv or .mat files containing reaction time data."
+        )
     
-    if not csv_files:
-        # Fallback: check if there's a specific behavioral directory
-        behavioral_dir = raw_path / "behavioral"
-        if behavioral_dir.exists():
-            csv_files = list(behavioral_dir.rglob("*.csv"))
-        else:
-            # Try to find any CSV that might contain RT data
-            # This is a heuristic; real implementation should match T007's output structure
-            pass
-
     all_trials = []
-    found_files = 0
-
+    
+    # Try to load CSV files first
     for csv_file in csv_files:
         try:
-            # Heuristic: Skip files that are clearly not behavioral (e.g., checksums, logs)
-            if "checksum" in csv_file.name.lower() or "log" in csv_file.name.lower():
-                continue
-            
             df = pd.read_csv(csv_file)
-            
             # Normalize column names
-            cols = df.columns.str.lower().str.replace(" ", "_")
-            df.columns = cols
-
-            # Identify columns
+            df.columns = [col.lower().strip() for col in df.columns]
+            
+            # Look for reaction time column
+            rt_col = None
+            possible_rt_cols = ['reaction_time', 'reactiontime', 'rt', 'trial_rt', 'response_time']
+            for col in possible_rt_cols:
+                if col in df.columns:
+                    rt_col = col
+                    break
+            
             # Look for participant ID
             pid_col = None
-            for c in ["participant_id", "subject_id", "sub_id", "id", "subject"]:
-                if c in df.columns:
-                    pid_col = c
+            possible_pid_cols = ['participant_id', 'subject_id', 'participant', 'subject', 'id']
+            for col in possible_pid_cols:
+                if col in df.columns:
+                    pid_col = col
                     break
             
-            # Look for RT column
-            rt_col = None
-            for c in ["rt_ms", "reaction_time", "rt", "response_time"]:
-                if c in df.columns:
-                    rt_col = c
-                    break
-
-            if pid_col and rt_col:
-                # Extract relevant columns
-                sub_df = df[[pid_col, rt_col]].copy()
-                sub_df.columns = ["participant_id", "rt_ms"]
+            if rt_col and pid_col:
+                # Extract participant ID from filename if not in data
+                trials = df[[pid_col, rt_col]].copy()
+                trials.columns = ['participant_id', 'reaction_time_ms']
+                trials['trial_id'] = range(len(trials))
+                trials['condition'] = 'unknown'  # Will be refined if available
+                all_trials.append(trials)
                 
-                # Ensure RT is numeric
-                sub_df["rt_ms"] = pd.to_numeric(sub_df["rt_ms"], errors="coerce")
-                sub_df = sub_df.dropna(subset=["rt_ms"])
-                
-                # Add trial ID if not present
-                sub_df["trial_id"] = range(len(sub_df))
-                
-                # Try to extract subject ID from filename if not in data
-                # PhysioNet often uses sub-XX in path or filename
-                if "participant_id" not in sub_df.columns or sub_df["participant_id"].isna().all():
-                    # Fallback to extracting from filename
-                    # Assuming filename pattern like sub-01_task-...
-                    import re
-                    match = re.search(r"sub-(\d+)", str(csv_file))
-                    if match:
-                        sub_df["participant_id"] = int(match.group(1))
-                
-                if "participant_id" in sub_df.columns and not sub_df["participant_id"].isna().all():
-                    all_trials.append(sub_df)
-                    found_files += 1
-            
         except Exception as e:
-            # Skip problematic files
+            print(f"Warning: Could not parse {csv_file}: {e}")
             continue
-
+    
+    # Try to load MATLAB files if CSV loading didn't work well
+    if not all_trials and mat_files:
+        try:
+            import scipy.io
+            for mat_file in mat_files:
+                try:
+                    mat_data = scipy.io.loadmat(mat_file)
+                    # Look for common variable names in PhysioNet data
+                    for var_name in mat_data:
+                        if var_name.startswith('__'):
+                            continue
+                        data = mat_data[var_name]
+                        if isinstance(data, np.ndarray) and data.ndim == 2:
+                            # Try to interpret as trial data
+                            if data.shape[1] >= 2:
+                                # Assume first column is participant/trial info, second is RT
+                                trials = pd.DataFrame({
+                                    'participant_id': [int(mat_file.stem.split('_')[-1])],
+                                    'reaction_time_ms': data[:, 1],
+                                    'trial_id': range(len(data))
+                                })
+                                trials['condition'] = 'unknown'
+                                all_trials.append(trials)
+                                break
+                except Exception as e:
+                    print(f"Warning: Could not parse {mat_file}: {e}")
+                    continue
+        except ImportError:
+            print("Warning: scipy not available for MATLAB file loading")
+    
     if not all_trials:
-        raise ValueError("No valid behavioral trial data found in the raw directory.")
-
+        raise ValueError(
+            "Could not extract trial-level data from any files. "
+            "Ensure data files contain reaction time information."
+        )
+    
     combined = pd.concat(all_trials, ignore_index=True)
-    combined["participant_id"] = combined["participant_id"].astype(int)
+    
+    # Ensure numeric types
+    combined['reaction_time_ms'] = pd.to_numeric(
+        combined['reaction_time_ms'], errors='coerce'
+    )
+    combined['participant_id'] = pd.to_numeric(
+        combined['participant_id'], errors='coerce'
+    )
+    
+    # Drop rows with missing RT or participant ID
+    combined = combined.dropna(subset=['reaction_time_ms', 'participant_id'])
+    
     return combined
 
-
-def process_behavioral_data(trials_df: pd.DataFrame) -> pd.DataFrame:
+def process_behavioral_data(
+    trials_df: pd.DataFrame,
+    min_rt_ms: float = 100.0,
+    max_rt_ms: float = 2000.0,
+    min_trial_ratio: float = 0.70
+) -> tuple:
     """
-    Apply outlier filtering and participant exclusion logic.
+    Process behavioral data to compute median RT and exclusion criteria.
     
-    1. Exclude trials with RT < 100ms or RT > 2000ms.
-    2. For each participant, calculate the fraction of valid trials.
-    3. Exclude participants with < 70% valid trials.
-    4. Compute median RT for remaining participants.
+    Args:
+        trials_df: DataFrame with participant_id and reaction_time_ms
+        min_rt_ms: Minimum valid RT threshold (outliers below this are excluded)
+        max_rt_ms: Maximum valid RT threshold (outliers above this are excluded)
+        min_trial_ratio: Minimum ratio of trials required to include participant
+    
+    Returns:
+        tuple: (metrics_df, exclusion_log_df)
+            - metrics_df: One row per included participant with median RT
+            - exclusion_log_df: Log of all exclusion decisions
     """
-    # 1. Filter outliers
-    initial_count = len(trials_df)
-    valid_trials = trials_df[
-        (trials_df["rt_ms"] >= MIN_RT_MS) & 
-        (trials_df["rt_ms"] <= MAX_RT_MS)
-    ].copy()
+    # Step 1: Identify and exclude outlier trials
+    outlier_mask = (
+        (trials_df['reaction_time_ms'] < min_rt_ms) | 
+        (trials_df['reaction_time_ms'] > max_rt_ms)
+    )
     
-    outlier_count = initial_count - len(valid_trials)
+    outlier_trials = trials_df[outlier_mask].copy()
+    outlier_trials['exclusion_reason'] = 'outlier_rt'
     
-    # 2. Group by participant
-    participant_stats = valid_trials.groupby("participant_id").agg(
-        total_trials=("rt_ms", "count"),
-        median_rt=("rt_ms", "median"),
-        mean_rt=("rt_ms", "mean"),
-        std_rt=("rt_ms", "std")
-    ).reset_index()
-
-    # Calculate valid trial fraction
-    # We need to know the total trials *before* filtering to calculate the fraction
-    # However, the task says "exclude participants if <70% trials remain".
-    # This implies we compare valid_trials count to the original count per participant.
+    valid_trials = trials_df[~outlier_mask].copy()
     
-    original_counts = trials_df.groupby("participant_id").size().reset_index(name="original_trials")
-    participant_stats = participant_stats.merge(original_counts, on="participant_id")
+    # Step 2: Count trials per participant
+    trial_counts = valid_trials.groupby('participant_id').size().reset_index(name='valid_trials')
+    total_counts = trials_df.groupby('participant_id').size().reset_index(name='total_trials')
     
-    participant_stats["valid_fraction"] = participant_stats["total_trials"] / participant_stats["original_trials"]
+    # Merge to get ratios
+    counts_df = total_counts.merge(trial_counts, on='participant_id', how='left')
+    counts_df['valid_trials'] = counts_df['valid_trials'].fillna(0).astype(int)
+    counts_df['trial_ratio'] = counts_df['valid_trials'] / counts_df['total_trials']
     
-    # 3. Exclude participants with < 70% valid trials
-    kept_participants = participant_stats[participant_stats["valid_fraction"] >= MIN_VALID_TRIAL_FRACTION]
-    excluded_participants = participant_stats[participant_stats["valid_fraction"] < MIN_VALID_TRIAL_FRACTION]
+    # Step 3: Identify participants to exclude due to insufficient trials
+  # Step 3: Identify participants to exclude due to insufficient trials
+    insufficient_trials = counts_df[counts_df['trial_ratio'] < min_trial_ratio]
     
-    # 4. Select final columns
-    result = kept_participants[["participant_id", "median_rt", "total_trials", "original_trials", "valid_fraction"]]
-    result = result.rename(columns={"median_rt": "median_rt_ms"})
+    # Create exclusion log
+    exclusion_log = []
     
-    return result, {
-        "initial_total_trials": initial_count,
-        "outlier_trials": outlier_count,
-        "participants_excluded_due_to_low_trials": len(excluded_participants),
-        "participants_kept": len(kept_participants)
-    }
-
+    # Log outlier exclusions
+    for _, row in outlier_trials.iterrows():
+        exclusion_log.append({
+            'participant_id': int(row['participant_id']),
+            'trial_id': int(row['trial_id']),
+            'reaction_time_ms': float(row['reaction_time_ms']),
+            'exclusion_reason': 'outlier_rt'
+        })
+    
+    # Log participant exclusions
+    for _, row in insufficient_trials.iterrows():
+        exclusion_log.append({
+            'participant_id': int(row['participant_id']),
+            'trial_id': None,
+            'reaction_time_ms': None,
+            'exclusion_reason': f"insufficient_trials (ratio={row['trial_ratio']:.2f}, min={min_trial_ratio})"
+        })
+    
+    exclusion_log_df = pd.DataFrame(exclusion_log)
+    
+    # Step 4: Compute metrics for included participants
+    included_participants = counts_df[counts_df['trial_ratio'] >= min_trial_ratio]
+    
+    # Filter valid trials to only included participants
+    included_trials = valid_trials[
+        valid_trials['participant_id'].isin(included_participants['participant_id'])
+    ]
+    
+    # Compute median RT per participant
+    metrics = included_trials.groupby('participant_id')['reaction_time_ms'].agg([
+        ('median_rt_ms', 'median'),
+        ('mean_rt_ms', 'mean'),
+        ('std_rt_ms', 'std'),
+        ('n_valid_trials', 'count'),
+        ('n_total_trials', lambda x: total_counts[total_counts['participant_id'] == x.name]['total_trials'].values[0] if len(total_counts[total_counts['participant_id'] == x.name]) > 0 else 0)
+    ]).reset_index()
+    
+    # Add trial ratio to metrics
+    metrics = metrics.merge(
+        included_participants[['participant_id', 'trial_ratio']], 
+        on='participant_id'
+    )
+    
+    # Ensure numeric types
+    metrics['participant_id'] = metrics['participant_id'].astype(int)
+    metrics['median_rt_ms'] = metrics['median_rt_ms'].round(2)
+    metrics['mean_rt_ms'] = metrics['mean_rt_ms'].round(2)
+    metrics['std_rt_ms'] = metrics['std_rt_ms'].round(2)
+    metrics['trial_ratio'] = metrics['trial_ratio'].round(3)
+    
+    return metrics, exclusion_log_df
 
 def main():
-    """Main entry point for behavioral metric extraction."""
-    set_global_seed(42)
-    ensure_dirs()
+    """
+    Main entry point for behavioral metrics extraction.
     
-    raw_dir = get_path("raw")
+    Outputs:
+        - data/interim/behavioral_metrics.csv: One row per included participant
+        - data/interim/behavioral_exclusion_log.csv: Log of all exclusions
+    """
+    parser = argparse.ArgumentParser(
+        description='Extract behavioral metrics from trial data'
+    )
+    parser.add_argument(
+        '--data-dir',
+        type=str,
+        default=None,
+        help='Path to raw data directory (defaults to data/raw/behavioral)'
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default=None,
+        help='Path to output directory (defaults to data/interim)'
+    )
+    parser.add_argument(
+        '--min-rt',
+        type=float,
+        default=100.0,
+        help='Minimum valid reaction time in ms'
+    )
+    parser.add_argument(
+        '--max-rt',
+        type=float,
+        default=2000.0,
+        help='Maximum valid reaction time in ms'
+    )
+    parser.add_argument(
+        '--min-trial-ratio',
+        type=float,
+        default=0.70,
+        help='Minimum ratio of valid trials required'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=42,
+        help='Random seed for reproducibility'
+    )
     
-    print(f"Loading behavioral trials from {raw_dir}...")
+    args = parser.parse_args()
+    
+    # Set seed
+    set_global_seed(args.seed)
+    
+    # Determine paths
+    data_dir = args.data_dir or str(get_path('raw_behavioral'))
+    output_dir = args.output_dir or str(get_path('interim'))
+    
+    # Ensure output directory exists
+    ensure_dirs([output_dir])
+    
+    print(f"Loading behavioral data from: {data_dir}")
+    
+    # Load trial data
     try:
-        trials_df = load_behavioral_trials(raw_dir)
-        print(f"Loaded {len(trials_df)} trials from {trials_df['participant_id'].nunique()} participants.")
+        trials_df = load_behavioral_trials(data_dir)
+        print(f"Loaded {len(trials_df)} trials from {trials_df['participant_id'].nunique()} participants")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
     except Exception as e:
         print(f"Error loading behavioral data: {e}")
-        # If data is missing, we cannot proceed. 
-        # In a real pipeline, this might trigger a failure or skip.
         sys.exit(1)
+    
+    # Process data
+    print(f"Processing behavioral data (min_rt={args.min_rt}ms, max_rt={args.max_rt}ms, min_ratio={args.min_trial_ratio})")
+    metrics_df, exclusion_log_df = process_behavioral_data(
+        trials_df,
+        min_rt_ms=args.min_rt,
+        max_rt_ms=args.max_rt,
+        min_trial_ratio=args.min_trial_ratio
+    )
+    
+    # Save outputs
+    metrics_path = Path(output_dir) / 'behavioral_metrics.csv'
+    exclusion_path = Path(output_dir) / 'behavioral_exclusion_log.csv'
+    
+    metrics_df.to_csv(metrics_path, index=False)
+    exclusion_log_df.to_csv(exclusion_path, index=False)
+    
+    print(f"\nResults:")
+    print(f"  Included participants: {len(metrics_df)}")
+    print(f"  Excluded participants: {exclusion_log_df['participant_id'].nunique()}")
+    print(f"  Outlier trials: {len(exclusion_log_df[exclusion_log_df['exclusion_reason'] == 'outlier_rt'])}")
+    print(f"  Insufficient trials: {len(exclusion_log_df[exclusion_log_df['exclusion_reason'].str.contains('insufficient')])}")
+    print(f"\nOutput files:")
+    print(f"  Metrics: {metrics_path}")
+    print(f"  Exclusion log: {exclusion_path}")
+    
+    # Verify outputs exist
+    if not metrics_path.exists():
+        raise RuntimeError(f"Failed to create {metrics_path}")
+    if not exclusion_path.exists():
+        raise RuntimeError(f"Failed to create {exclusion_path}")
+    
+    print("\nBehavioral metrics extraction completed successfully.")
 
-    print(f"Processing behavioral data (outliers: {MIN_RT_MS}-{MAX_RT_MS}ms, min valid: {MIN_VALID_TRIAL_FRACTION*100}%)...")
-    metrics_df, stats_log = process_behavioral_data(trials_df)
-    
-    print(f"Processing complete. Kept {len(metrics_df)} participants.")
-    
-    # Save results
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    metrics_df.to_csv(OUTPUT_FILE, index=False)
-    print(f"Saved metrics to {OUTPUT_FILE}")
-    
-    # Save log
-    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(LOG_FILE, "w") as f:
-        json.dump(stats_log, f, indent=2)
-    print(f"Saved processing log to {LOG_FILE}")
-    
-    return metrics_df
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

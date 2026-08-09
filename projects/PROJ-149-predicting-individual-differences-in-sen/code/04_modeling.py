@@ -2,173 +2,213 @@ import os
 import sys
 import json
 import argparse
-from pathlib import Path
-from typing import Dict, Any, Tuple
-
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LinearRegression, LassoCV
-from sklearn.model_selection import KFold
+from pathlib import Path
+from typing import Dict, Any, Tuple, List
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.preprocessing import StandardScaler
+import config
+from utils.stats_helpers import calculate_sample_size_for_r2
 
-# Ensure we can import from code/
-sys.path.insert(0, str(Path(__file__).parent))
-from config import get_path, set_global_seed
+# Ensure paths are resolved relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONFIG = config.load_config()
 
-def load_features(path_str: str) -> pd.DataFrame:
-    """Load the processed features dataset."""
-    path = Path(path_str)
-    if not path.exists():
-        raise FileNotFoundError(f"Features file not found: {path}")
-    return pd.read_csv(path)
-
-def prepare_data(df: pd.DataFrame, target_col: str = "median_rt", 
-                 feature_cols: list = None) -> Tuple[np.ndarray, np.ndarray]:
+def load_features(filepath: str) -> pd.DataFrame:
     """
-    Prepare X and y for modeling.
-    Drops rows with NaNs in target or features.
+    Load the processed features dataset.
+    Expects a CSV with 'participant_id', 'median_rt', and band power columns.
     """
-    if feature_cols is None:
-        # Select relative power columns if available, otherwise all numeric except target
-        cols = [c for c in df.columns if c.startswith("rel_") and c != target_col]
-        if not cols:
-            cols = [c for c in df.select_dtypes(include=[np.number]).columns if c != target_col]
-        feature_cols = cols
-
-    data = df[feature_cols + [target_col]].dropna()
-    X = data[feature_cols].values
-    y = data[target_col].values
-    return X, y
-
-def fit_model_with_cv(X: np.ndarray, y: np.ndarray, seed: int = 42) -> Dict[str, Any]:
-    """
-    Fit Multiple Linear Regression and LASSO with 5-fold CV.
-    Returns metrics including Adjusted R² and optimal lambda.
-    """
-    set_global_seed(seed)
-    n, p = X.shape
-    results = {}
-
-    # 1. Multiple Linear Regression
-    model_lr = LinearRegression()
-    kf = KFold(n_splits=5, shuffle=True, random_state=seed)
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Feature file not found: {filepath}")
     
-    r2_scores = []
-    y_pred_lr = np.zeros_like(y)
+    df = pd.read_csv(filepath)
+    
+    # Required columns check
+    required_cols = ['participant_id', 'median_rt']
+    # Identify band columns (delta, theta, alpha, low_beta, high_beta, gamma, etc.)
+    # Based on T015 output, we expect relative/CLR transformed bands
+    band_cols = [c for c in df.columns if any(b in c.lower() for b in ['delta', 'theta', 'alpha', 'beta', 'gamma'])]
+    
+    if not all(c in df.columns for c in required_cols):
+        raise ValueError(f"Missing required columns: {required_cols}")
+    if len(band_cols) == 0:
+        raise ValueError("No band power columns found in features file.")
+    
+    return df, band_cols
 
-    for train_idx, test_idx in kf.split(X):
-        X_train, X_test = X[train_idx], X[test_idx]
+def prepare_data(df: pd.DataFrame, feature_cols: List[str], target_col: str = 'median_rt') -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Prepare X (features) and y (target) arrays.
+    Handles missing values by dropping rows (strict requirement: no nulls allowed).
+    """
+    # Drop rows with any NaN in features or target
+    clean_df = df.dropna(subset=feature_cols + [target_col])
+    
+    if clean_df.empty:
+        raise ValueError("No valid data rows remaining after dropping NaNs.")
+    
+    X = clean_df[feature_cols].values
+    y = clean_df[target_col].values
+    
+    return X, y, clean_df['participant_id'].values
+
+def fit_model_with_cv(X: np.ndarray, y: np.ndarray, n_folds: int = 5, random_state: int = 42) -> Dict[str, Any]:
+    """
+    Fit Multiple Linear Regression with K-Fold Cross-Validation.
+    Returns metrics and split indices.
+    """
+    # Initialize KFold
+    kf = KFold(n_splits=n_folds, shuffle=True, random_state=random_state)
+    
+    # Store split indices for reproducibility/debugging (T022 dependency)
+    split_indices = {
+        "folds": []
+    }
+    
+    # Store fold scores
+    fold_scores = []
+    fold_models = []
+    
+    # Scale features for consistency (though OLS is scale-invariant for R2, good practice)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
+        X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
         
-        model_lr.fit(X_train, y_train)
-        y_pred = model_lr.predict(X_test)
-        r2_scores.append(r2_score(y_test, y_pred))
-        y_pred_lr[test_idx] = y_pred
-
-    mean_r2 = np.mean(r2_scores)
-    rmse_lr = np.sqrt(mean_squared_error(y, y_pred_lr))
+        # Store indices (relative to the clean_df order)
+        split_indices["folds"].append({
+            "fold": fold_idx + 1,
+            "train_indices": train_idx.tolist(),
+            "test_indices": test_idx.tolist()
+        })
+        
+        # Fit model
+        model = LinearRegression()
+        model.fit(X_train, y_train)
+        
+        # Predict and score
+        y_pred = model.predict(X_test)
+        r2 = r2_score(y_test, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        
+        fold_scores.append({"fold": fold_idx + 1, "r2": r2, "rmse": rmse})
+        fold_models.append({
+            "coefficients": model.coef_.tolist(),
+            "intercept": float(model.intercept_)
+        })
     
-    # Calculate Adjusted R² for the full dataset (using all data for final metric reporting as per common practice in small N)
-    # Or use the CV prediction R2. We will calculate Adj R2 on the full fit for the final report.
-    model_lr_full = LinearRegression().fit(X, y)
-    r2_full = r2_score(y, model_lr_full.predict(X))
-    # Adjusted R^2 = 1 - (1 - R^2) * (n - 1) / (n - p - 1)
-    if n > p + 1:
-        adj_r2 = 1 - (1 - r2_full) * (n - 1) / (n - p - 1)
-    else:
-        adj_r2 = np.nan # Cannot calculate if p >= n-1
-
-    results["linear_regression"] = {
-        "mean_cv_r2": float(mean_r2),
-        "cv_std_r2": float(np.std(r2_scores)),
-        "rmse": float(rmse_lr),
-        "adj_r2": float(adj_r2) if not np.isnan(adj_r2) else None,
-        "coefficients": {k: float(v) for k, v in zip(
-            [c for c in df.columns if c.startswith("rel_") or (c != "median_rt" and c in df.select_dtypes(include=[np.number]).columns)], 
-            model_lr_full.coef_
-        )},
-        "intercept": float(model_lr_full.intercept_)
-    }
-
-    # 2. LASSO Regression with CV for lambda selection
-    # LassoCV handles lambda tuning internally
-    lasso_cv = LassoCV(cv=5, random_state=seed, max_iter=10000)
-    lasso_cv.fit(X, y)
+    # Aggregate metrics
+    mean_r2 = float(np.mean([f["r2"] for f in fold_scores]))
+    std_r2 = float(np.std([f["r2"] for f in fold_scores]))
+    mean_rmse = float(np.mean([f["rmse"] for f in fold_scores]))
     
-    optimal_lambda = lasso_cv.alpha_
-    y_pred_lasso = lasso_cv.predict(X)
-    r2_lasso = r2_score(y, y_pred_lasso)
-    rmse_lasso = np.sqrt(mean_squared_error(y, y_pred_lasso))
-
-    # Adjusted R2 for Lasso (using non-zero coefficients count for p)
-    non_zero_coef = np.sum(lasso_cv.coef_ != 0)
-    p_lasso = non_zero_coef
-    if n > p_lasso + 1:
-        adj_r2_lasso = 1 - (1 - r2_lasso) * (n - 1) / (n - p_lasso - 1)
-    else:
-        adj_r2_lasso = None
-
-    results["lasso"] = {
-        "optimal_lambda": float(optimal_lambda),
-        "r2": float(r2_lasso),
-        "rmse": float(rmse_lasso),
-        "adj_r2": float(adj_r2_lasso) if adj_r2_lasso is not None else None,
-        "n_nonzero_features": int(non_zero_coef),
-        "coefficients": {k: float(v) for k, v in zip(
-            [c for c in df.columns if c.startswith("rel_") or (c != "median_rt" and c in df.select_dtypes(include=[np.number]).columns)], 
-            lasso_cv.coef_
-        )}
+    # Fit final model on full data for coefficient reporting
+    final_model = LinearRegression()
+    final_model.fit(X_scaled, y)
+    
+    results = {
+        "model_type": "Multiple Linear Regression",
+        "cv_method": "K-Fold",
+        "n_folds": n_folds,
+        "n_samples": len(y),
+        "n_features": X.shape[1],
+        "metrics": {
+            "mean_r2": mean_r2,
+            "std_r2": std_r2,
+            "mean_rmse": mean_rmse,
+            "adjusted_r2": float(1 - (1 - mean_r2) * (len(y) - 1) / (len(y) - X.shape[1] - 1)) if len(y) > X.shape[1] + 1 else None
+        },
+        "fold_results": fold_scores,
+        "final_model": {
+            "coefficients": final_model.coef_.tolist(),
+            "intercept": float(final_model.intercept_)
+        },
+        "split_indices": split_indices
     }
-
+    
     return results
 
-def save_results(results: Dict[str, Any], output_path: str) -> None:
-    """Save model results to JSON."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
+def save_results(results: Dict[str, Any], output_path: str, split_path: str):
+    """
+    Save model results and split indices to JSON files.
+    """
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Save main results
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    print(f"Results saved to {output_path}")
+    
+    # Save split indices separately if requested (T022 dependency)
+    if split_path:
+        os.makedirs(os.path.dirname(split_path), exist_ok=True)
+        with open(split_path, 'w') as f:
+            json.dump(results["split_indices"], f, indent=2)
 
 def main():
-    parser = argparse.ArgumentParser(description="Fit predictive models and log results.")
-    parser.add_argument("--input", type=str, default="data/processed/features.csv", 
-                        help="Path to features CSV")
+    parser = argparse.ArgumentParser(description="Fit predictive models on EEG features.")
+    parser.add_argument("--input", type=str, default="data/processed/features.csv",
+                        help="Path to input features CSV")
     parser.add_argument("--output", type=str, default="data/processed/model_results.json",
-                        help="Path to output JSON")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+                        help="Path to output model results JSON")
+    parser.add_argument("--splits", type=str, default="data/interim/split_indices.json",
+                        help="Path to save split indices JSON")
+    parser.add_argument("--folds", type=int, default=5,
+                        help="Number of CV folds")
+    parser.add_argument("--seed", type=int, default=None,
+                        help="Random seed for reproducibility")
+    
     args = parser.parse_args()
-
-    # Load data
+    
+    # Set global seed if provided
+    if args.seed is not None:
+        config.set_global_seed(args.seed)
+        seed = args.seed
+    else:
+        seed = config.get_seed()
+    
     print(f"Loading features from {args.input}...")
-    df = load_features(args.input)
+    try:
+        df, band_cols = load_features(args.input)
+    except Exception as e:
+        print(f"ERROR: Failed to load features: {e}")
+        sys.exit(1)
     
-    # Prepare data
+    print(f"Found {len(band_cols)} band features: {band_cols}")
+    
     print("Preparing data...")
-    X, y = prepare_data(df, target_col="median_rt")
+    try:
+        X, y, pids = prepare_data(df, band_cols, target_col='median_rt')
+    except Exception as e:
+        print(f"ERROR: Failed to prepare data: {e}")
+        sys.exit(1)
     
-    if X.shape[0] == 0:
-        raise ValueError("No valid data points after cleaning.")
-
-    # Fit models
-    print("Fitting models...")
-    results = fit_model_with_cv(X, y, seed=args.seed)
+    print(f"Data shape: {X.shape}, Target shape: {y.shape}")
     
-    # Add metadata
-    results["metadata"] = {
-        "n_samples": int(len(y)),
-        "n_features": int(X.shape[1]),
-        "seed": args.seed
-    }
-
-    # Save results
-    save_results(results, args.output)
-
-    # Print summary
-    print("\n--- Model Results Summary ---")
-    print(f"Linear Regression Adjusted R²: {results['linear_regression']['adj_r2']:.4f}")
-    print(f"LASSO Optimal Lambda: {results['lasso']['optimal_lambda']:.4f}")
-    print(f"LASSO Adjusted R²: {results['lasso']['adj_r2']:.4f}")
+    print(f"Fitting Multiple Linear Regression with {args.folds}-fold CV...")
+    try:
+        results = fit_model_with_cv(X, y, n_folds=args.folds, random_state=seed)
+    except Exception as e:
+        print(f"ERROR: Model fitting failed: {e}")
+        sys.exit(1)
+    
+    print(f"Saving results to {args.output}...")
+    try:
+        save_results(results, args.output, args.splits)
+    except Exception as e:
+        print(f"ERROR: Failed to save results: {e}")
+        sys.exit(1)
+    
+    print("Modeling complete.")
+    print(f"Mean R²: {results['metrics']['mean_r2']:.4f} (+/- {results['metrics']['std_r2']:.4f})")
+    print(f"Adjusted R²: {results['metrics']['adjusted_r2']:.4f}")
+    print(f"Split indices saved to {args.splits}")
 
 if __name__ == "__main__":
     main()

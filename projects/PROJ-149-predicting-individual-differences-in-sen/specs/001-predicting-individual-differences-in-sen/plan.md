@@ -14,10 +14,10 @@ This feature implements a computational pipeline to predict individual differenc
 **Primary Dependencies**: `mne`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`  
 **Storage**: Local filesystem (`data/` for raw/derived, `data/interim/` for processed features)  
 **Testing**: `pytest` (unit tests for data hygiene, integration tests for pipeline stages)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multi-core CPU, ~7 GB RAM)  
 **Project Type**: Computational Neuroscience / Data Science Pipeline  
 **Performance Goals**: Complete full pipeline (download → preprocess → model → robustness) in ≤ 6 hours on CPU.  
-**Constraints**: No GPU usage; no large model training from scratch; data subset to fit ~7 GB RAM; all random seeds pinned.  
+**Constraints**: No GPU usage; no large model training from scratch; data subset to fit available RAM; all random seeds pinned.  
 **Scale/Scope**: Process available participants from verified datasets; handle missing data via exclusion as per spec.
 
 ## Constitution Check
@@ -114,7 +114,7 @@ data/
 *   **Output**: `data/processed/model_results.json`, `data/processed/correlations.csv`, `data/processed/non_linear_comparison.json`.
 
 ### Phase 3: Robustness & Sensitivity (FR-008, FR-009)
-*   **Action**: Re-run pipeline with 2s windows (if primary used 4s) and without ICA. Compare R² stability.
+*   **Action**: Re-run pipeline with shorter windows (if primary used longer windows) and without ICA. Compare R² stability.
 *   **Action**: Sweep p-value threshold (low to high) for correlation significance counts.
 *   **Output**: `data/processed/robustness_report.csv`, `data/processed/sensitivity_plot.png`.
 
@@ -123,4 +123,4 @@ data/
 *   **Output**: `data/processed/final_report.md`.
 
 ## Compute Feasibility Note
-The plan explicitly avoids GPU-dependent libraries. `mne` and `scikit-learn` are used in CPU-only mode. Data is processed in chunks if necessary to stay within 7 GB RAM. A large-scale permutation test is optimized using vectorized numpy operations to ensure completion within the 6-hour limit on a 2-core runner.
+The plan explicitly avoids GPU-dependent libraries. `mne` and `scikit-learn` are used in CPU-only mode. Data is processed in chunks if necessary to stay within 7 GB RAM. A large-scale permutation test is optimized using vectorized numpy operations to ensure completion within a feasible time limit on a 2-core runner..
