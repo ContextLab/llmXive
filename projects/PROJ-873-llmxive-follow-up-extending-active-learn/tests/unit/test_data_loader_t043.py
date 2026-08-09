@@ -1,157 +1,177 @@
+"""
+Unit tests for T043: Semantic Similarity Threshold Validator.
+Tests the validation logic and retry mechanisms for injected redundancy.
+"""
 import os
 import json
+import tempfile
 import pytest
 from unittest.mock import patch, MagicMock
-import sys
+import numpy as np
 
-# Add code to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from code.data_loader import (
-    inject_redundancy, 
-    prepare_injected_datasets, 
-    DataInjectionError,
-    TARGET_SIMILARITY_THRESHOLD,
-    MAX_RETRIES
+# Import the module under test
+from data_loader import (
+    validate_injected_similarity,
+    run_validation_pipeline,
+    DataInjectionFailureError,
+    TARGET_SIMILARITY_THRESHOLD
 )
 
 @pytest.fixture
-def mock_corpus():
-    """Create a mock corpus for testing."""
+def mock_injected_data():
+    """Create a mock injected dataset with known similarity values."""
     return {
-        "doc_1": "This is a sample document about information retrieval.",
-        "doc_2": "Another document discussing search algorithms.",
-        "doc_3": "A third document on natural language processing.",
-        "doc_4": "Yet another document about machine learning.",
-        "doc_5": "Final document in this small corpus."
+        "name": "test_dataset",
+        "clusters": [
+            {"cluster_id": "c1", "members": ["d1", "d2", "d3"], "avg_similarity": 0.96},
+            {"cluster_id": "c2", "members": ["d4", "d5"], "avg_similarity": 0.97},
+            {"cluster_id": "c3", "members": ["d6", "d7", "d8"], "avg_similarity": 0.94}
+        ]
     }
 
-def test_inject_redundancy_achieves_target(mock_corpus):
-    """Test that inject_redundancy achieves the target similarity or retries."""
-    # This test verifies the logic flow. 
-    # Note: Actual similarity depends on the embedding model and paraphrasing logic.
-    # We assert that the function returns a valid structure and handles the retry logic.
-    
-    result_data, achieved_sim, status = inject_redundancy(
-        "test_dataset", 
-        mock_corpus, 
-        target_similarity=0.95
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
+
+def test_validate_sim_success(temp_data_dir, mock_injected_data):
+    """Test validation when similarity threshold is met."""
+    # Save mock data
+    dataset_name = "test"
+    path = os.path.join(temp_data_dir, f"injected_{dataset_name}.json")
+    with open(path, 'w') as f:
+        json.dump(mock_injected_data, f)
+
+    # Run validation
+    result = validate_injected_similarity(
+        dataset_name=dataset_name,
+        data_dir=temp_data_dir,
+        target_threshold=0.95
     )
-    
-    assert "name" in result_data
-    assert "clusters" in result_data
-    assert "achieved_similarity" in result_data
-    assert "status" in result_data
-    
-    # The status should be either 'achieved' or 'partial' (if retries exhausted)
-    assert status in ["achieved", "partial"]
-    
-    # If partial, ensure retry count was respected (logic check)
-    if status == "partial":
-        # We expect at least one retry attempt in the real logic
-        assert achieved_sim < 0.95
 
-def test_prepare_injected_datasets_creates_files(tmp_path, mock_corpus):
-    """Test that prepare_injected_datasets writes the required artifacts."""
-    # Mock the fetch_beir_datasets to return our mock corpus
-    mock_datasets = {
-        "test_set": {
-            "corpus": mock_corpus,
-            "queries": {},
-            "path": "/tmp/fake"
-        }
+    assert result["status"] == "success"
+    assert result["dataset"] == dataset_name
+    assert result["achieved_avg_similarity"] >= 0.95
+    assert result["target_threshold"] == 0.95
+
+def test_validate_sim_partial_success(temp_data_dir, mock_injected_data):
+    """Test validation when similarity is below threshold but non-zero."""
+    # Modify mock data to have lower similarity
+    mock_injected_data["clusters"][0]["avg_similarity"] = 0.90
+    mock_injected_data["clusters"][1]["avg_similarity"] = 0.89
+    mock_injected_data["clusters"][2]["avg_similarity"] = 0.91
+
+    path = os.path.join(temp_data_dir, "injected_test.json")
+    with open(path, 'w') as f:
+        json.dump(mock_injected_data, f)
+
+    # Run validation
+    result = validate_injected_similarity(
+        dataset_name="test",
+        data_dir=temp_data_dir,
+        target_threshold=0.95
+    )
+
+    assert result["status"] == "partial_success"
+    assert result["achieved_avg_similarity"] < 0.95
+    assert "Proceeding with achieved similarity" in result["details"]["message"]
+
+def test_validate_sim_missing_file(temp_data_dir):
+    """Test validation when dataset file is missing."""
+    result = validate_injected_similarity(
+        dataset_name="nonexistent",
+        data_dir=temp_data_dir,
+        target_threshold=0.95
+    )
+
+    assert result["status"] == "failed"
+    assert "Dataset not found" in result["details"]["reason"]
+
+def test_validate_sim_empty_clusters(temp_data_dir):
+    """Test validation when clusters list is empty."""
+    path = os.path.join(temp_data_dir, "injected_test.json")
+    with open(path, 'w') as f:
+        json.dump({"name": "test", "clusters": []}, f)
+
+    result = validate_injected_similarity(
+        dataset_name="test",
+        data_dir=temp_data_dir,
+        target_threshold=0.95
+    )
+
+    assert result["status"] == "failed"
+    assert "Empty clusters list" in result["details"]["reason"]
+
+def test_run_validation_pipeline(temp_data_dir, mock_injected_data):
+    """Test the full validation pipeline for multiple datasets."""
+    # Create multiple dataset files
+    for name in ["ds1", "ds2"]:
+        path = os.path.join(temp_data_dir, f"injected_{name}.json")
+        with open(path, 'w') as f:
+            json.dump(mock_injected_data, f)
+
+    output_file = os.path.join(temp_data_dir, "validation_status.json")
+
+    # Run pipeline
+    results = run_validation_pipeline(
+        dataset_names=["ds1", "ds2"],
+        data_dir=temp_data_dir,
+        output_file=output_file,
+        target_threshold=0.95
+    )
+
+    assert "validation_timestamp" in results
+    assert "target_threshold" in results
+    assert len(results["datasets"]) == 2
+    assert os.path.exists(output_file)
+
+    # Verify file content
+    with open(output_file, 'r') as f:
+        saved_results = json.load(f)
+    assert saved_results == results
+
+def test_validation_tolerance(temp_data_dir):
+    """Test that small tolerance is handled correctly."""
+    # Create data with similarity exactly at threshold
+    mock_data = {
+        "name": "test",
+        "clusters": [
+            {"cluster_id": "c1", "members": ["d1"], "avg_similarity": 0.95}
+        ]
     }
-    
-    output_dir = str(tmp_path)
-    
-    with patch('code.data_loader.fetch_beir_datasets', return_value=mock_datasets):
-        # We need to mock the actual fetch inside prepare_injected_datasets
-        # But since we are passing the dict directly, we can call it directly
-        # However, prepare_injected_datasets expects the result of fetch_beir_datasets
-        # Let's call the internal logic directly for this unit test
-        
-        # Actually, prepare_injected_datasets takes the dict from fetch_beir_datasets
-        # So we can call it directly with our mock
-        # But it calls inject_redundancy which loads the model. 
-        # We'll rely on the integration test for the full flow and test the file writing here.
-        
-        # For unit test, we mock inject_redundancy to avoid model loading
-        with patch('code.data_loader.inject_redundancy') as mock_inject:
-            mock_inject.return_value = (
-                {
-                    "name": "test_set",
-                    "clusters": [{"id": "c1", "members": ["d1", "d2"], "center_doc_id": "d1", "avg_similarity": 0.96}],
-                    "total_documents": 10,
-                    "redundancy_ratio": 0.2,
-                    "achieved_similarity": 0.96,
-                    "status": "achieved",
-                    "target_similarity": 0.95
-                },
-                0.96,
-                "achieved"
-            )
-            
-            result = prepare_injected_datasets(mock_datasets, output_dir)
-            
-            # Check that files were written
-            validation_path = os.path.join(output_dir, "validation_status.json")
-            combined_path = os.path.join(output_dir, "injected_datasets.json")
-            
-            assert os.path.exists(validation_path), "validation_status.json should be created"
-            assert os.path.exists(combined_path), "injected_datasets.json should be created"
-            
-            # Verify content
-            with open(validation_path, 'r') as f:
-                content = json.load(f)
-                assert "datasets" in content
-                assert content["validation_summary"]["achieved_count"] == 1
-            
-            with open(combined_path, 'r') as f:
-                content = json.load(f)
-                assert "datasets" in content
-                assert len(content["datasets"]) == 1
+    path = os.path.join(temp_data_dir, "injected_test.json")
+    with open(path, 'w') as f:
+        json.dump(mock_data, f)
 
-def test_retry_logic_on_low_similarity(mock_corpus):
-    """Test that the retry logic is triggered when similarity is low."""
-    # Mock the embedding model to return low similarity
-    with patch('code.data_loader.SentenceTransformer') as MockModel:
-        mock_instance = MagicMock()
-        MockModel.return_value = mock_instance
-        
-        # Mock encode to return embeddings that result in low similarity
-        mock_embeddings = MagicMock()
-        mock_instance.encode.return_value = mock_embeddings
-        
-        # Mock cosine_similarity to return a low value
-        with patch('code.data_loader.cosine_similarity') as mock_cos:
-            mock_cos.return_value = [[0.5]] # Low similarity
-            
-            # This should trigger retries and eventually return 'partial'
-            result_data, achieved_sim, status = inject_redundancy(
-                "test_dataset",
-                mock_corpus,
-                target_similarity=0.95
-            )
-            
-            assert status == "partial"
-            assert achieved_sim == 0.5 # The mocked value
+    result = validate_injected_similarity(
+        dataset_name="test",
+        data_dir=temp_data_dir,
+        target_threshold=0.95
+    )
 
-def test_max_retries_exceeded(mock_corpus):
-    """Test that the function respects MAX_RETRIES."""
-    # Similar to above, but ensure we don't loop infinitely
-    with patch('code.data_loader.SentenceTransformer') as MockModel:
-        mock_instance = MagicMock()
-        MockModel.return_value = mock_instance
-        
-        with patch('code.data_loader.cosine_similarity') as mock_cos:
-            mock_cos.return_value = [[0.5]]
-            
-            result_data, achieved_sim, status = inject_redundancy(
-                "test_dataset",
-                mock_corpus,
-                target_similarity=0.95
-            )
-            
-            # Should have retried MAX_RETRIES times and stopped
-            assert status == "partial"
-            # The retry logic is recursive, so we just check the final state
+    # Should succeed as 0.95 >= 0.95
+    assert result["status"] == "success"
+
+def test_validation_below_threshold(temp_data_dir):
+    """Test validation with significantly below threshold."""
+    mock_data = {
+        "name": "test",
+        "clusters": [
+            {"cluster_id": "c1", "members": ["d1"], "avg_similarity": 0.80}
+        ]
+    }
+    path = os.path.join(temp_data_dir, "injected_test.json")
+    with open(path, 'w') as f:
+        json.dump(mock_data, f)
+
+    result = validate_injected_similarity(
+        dataset_name="test",
+        data_dir=temp_data_dir,
+        target_threshold=0.95
+    )
+
+    assert result["status"] == "partial_success"
+    assert result["achieved_avg_similarity"] == 0.80
+    assert result["details"]["clusters_below_threshold"] == 1
+    assert result["details"]["clusters_above_threshold"] == 0

@@ -10,9 +10,9 @@ nltk
 onnx
 onnxruntime
 transformers
-accelerate
-bitsandbytes
-tinyllama
+huggingface_hub
+llama-cpp-python
 psutil
-matplotlib
+ruff
+black
 pyyaml

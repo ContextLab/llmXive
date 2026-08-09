@@ -2473,28 +2473,832 @@
   status: not_enough_info
   updated_at: '2026-08-08T13:44:43Z'
 - artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 2
-  canonical: pipeline runtime limit 6 hours memory limit 7GB
-  claim_id: c_ae16c398
-  context: Task T004 sets default values explicitly to 6 hours and 7GB respectively.
-    Task T004a implements a watchdog to terminate the pipeline if runtime exceeds
-    6 hours or memory exceeds 7GB.
+  attempts: 1
+  canonical: MinHash-LSH threshold sweep range [0.90, 0.92, 0.94, 0.95, 0.96, 0.98]
+  claim_id: c_7b683196
+  context: 'T025b [US2] Implement and execute the parameter sweep loop for T025, running
+    the pipeline for each threshold in the specific set of representative values:
+    **[0.90, 0.92, 0.94, 0.95, 0.96, 0.98]**. **Rationale**: These values cover the
+    ''transition zone'' of the Jaccard-Cosine correlation curve as observed in preliminary
+    literature...'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The pipeline terminates if runtime exceeds 6 hours or memory exceeds 7GB.
+  raw_text: 'The parameter sweep for MinHash-LSH threshold covers the specific set
+    of representative values: [0.90, 0.92, 0.94, 0.95, 0.96, 0.98].'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-09T09:01:40Z'
+  updated_at: '2026-08-09T09:35:11Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: 5 independent runs for statistical significance analysis
+  claim_id: c_905ed053
+  context: T027 [P] [US3] Implement multi-seed execution loop in `code/run_pipeline.py`
+    for both baseline and clustering-aided variants, enforcing exactly **5 independent
+    runs** as per US-3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance analysis requires exactly 5 independent runs
+    with different random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:35:39Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Runtime limit 6 hours and memory limit 7GB enforced
+  claim_id: c_f9cb97f8
+  context: T004 [P] [Foundational] Setup configuration management in `code/config.py`
+    with a schema for `MAX_RUNTIME_HOURS` and `MAX_MEMORY_GB` allowing parameterization,
+    setting default values explicitly to **6 hours** and **7GB** respectively...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system enforces a maximum runtime limit of 6 hours and a maximum memory
+    limit of 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:36:01Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Cosine similarity > 0.95 threshold for flagging wasted calls
+  claim_id: c_9b5c5c99
+  context: T013 [US1] Implement and execute cosine similarity proxy calculation logic
+    in `code/metrics.py` using `all-MiniLM-L6-v2` to flag pairs with similarity >
+    0.95 as 'wasted', serving FR-003.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cosine_similarity_%3E_0.95_threshold_for_flagging_wasted_calls
+  kind: magnitude
+  raw_text: Pairs with cosine similarity greater than 0.95 are flagged as 'wasted'
+    calls.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:36:20Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: MinHash-LSH Jaccard similarity threshold > 0.95
+  claim_id: c_05b35bb6
+  context: T018 [P] [US2] Unit test for MinHash-LSH clustering logic with Jaccard
+    threshold > 0.95 in `tests/unit/test_clustering.py`.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MinHash-LSH_Jaccard_similarity_threshold_%3E_0.95
+  kind: magnitude
+  raw_text: The MinHash-LSH clustering algorithm groups near-duplicate passages using
+    a Jaccard similarity threshold greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:37:11Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model used for embeddings
+  claim_id: c_acc984b2
+  context: T050 [P] [Foundational] Update `code/validate_env.sh` to include a check
+    for `all-MiniLM-L6-v2` model availability and CPU compatibility, ensuring the
+    embedding model can run without GPU dependencies...
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The system uses the 'all-MiniLM-L6-v2' model for embedding calculations.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T09:37:42Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: BEIR datasets nfcorpus, scifact, and trec-covid used
+  claim_id: c_9fc3893d
+  context: T005 [P] Implement BEIR data loader in `code/data_loader.py` to fetch `nfcorpus`
+    and `scifact` via `beir` library. ... T005b [P] Implement BEIR data loader extension
+    in `code/data_loader.py` to fetch `trec-covid` dataset via `beir` library specifically
+    for FR-009 validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BEIR_datasets_nfcorpus,_scifact,_and_trec-covid_used
+  kind: entity_fact
+  raw_text: The dataset includes 'nfcorpus', 'scifact', and 'trec-covid' fetched via
+    the BEIR library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:38:08Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Sample size calculated as max of 10 or 5% of flagged count
+  claim_id: c_5d1af2d6
+  context: T013b [US1] Implement and execute sample size calculation for LLM consensus
+    validation in `code/metrics.py`. The sample size MUST be calculated as the maximum
+    of 10 or 5% of the total flagged count (read from `data/results/flagged_pairs_count.json`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for LLM consensus validation is calculated as the maximum
+    of 10 or 5% of the total flagged count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:38:29Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: GPU dependencies removed and replaced with CPU-native tools
+  claim_id: c_05858793
+  context: T002 Initialize Python project with `requirements.txt` ... **Removed heavy
+    GPU-specific dependencies (`bitsandbytes`, `tinyllama`, `accelerate`); replaced
+    with CPU-native LLM inference tools (`llama-cpp-python`) and verified absence
+    of GPU libraries.**
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GPU_dependencies_removed_and_replaced_with_CPU-native_tools
+  kind: entity_fact
+  raw_text: The pipeline removes GPU-specific dependencies like 'bitsandbytes', 'tinyllama',
+    and 'accelerate' in favor of CPU-native tools.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:38:46Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model identifier 2607.07974 arxiv
+  claim_id: c_1925a44a
+  context: Update code/validate_env.sh to include a check for all-MiniLM-L6-v2 (2607.07974,
+    https://arxiv.org/abs/2607.07974) model availability and CPU compatibility.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: The all-MiniLM-L6-v2 model is associated with the identifier 2607.07974
+    and the URL https://arxiv.org/abs/2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T09:41:38Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 memory footprint less than 2GB
+  claim_id: c_d4f2b831
+  context: Load and execute a CPU-native, quantized TinyLlama-1.1B-Chat-v1.0 model
+    (via llama-cpp-python with a GGUF quantized file, expected memory footprint <2GB)
+    to generate consensus labels.
+  evidence:
+    candidates:
+    - - ''
+      - 2.0
+    - - ''
+      - 1.0
+    - - ''
+      - -1.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/TinyLlama-1.1B-Chat-v1.0_memory_footprint_less_than_2GB
+  kind: magnitude
+  raw_text: The TinyLlama-1.1B-Chat-v1.0 model has an expected memory footprint of
+    less than 2GB when quantized and loaded via llama-cpp-python.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T09:42:26Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: project maximum runtime 6 hours maximum memory 7GB
+  claim_id: c_a15086c5
+  context: Setup configuration management in code/config.py with a schema for MAX_RUNTIME_HOURS
+    and MAX_MEMORY_GB allowing parameterization, setting default values explicitly
+    to 6 hours and 7GB respectively.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project enforces a maximum runtime limit of 6 hours and a maximum
+    memory limit of 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:43:08Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: statistical analysis requires 5 independent runs
+  claim_id: c_a731fe27
+  context: Implement multi-seed execution loop in code/run_pipeline.py for both baseline
+    and clustering-aided variants, enforcing exactly 5 independent runs as per US-3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance analysis requires exactly 5 independent runs
+    with different random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:43:08Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: LLM consensus sample size max of 10 or 5% of flagged count
+  claim_id: c_f8ac4e43
+  context: The sample size MUST be calculated as the maximum of 10 or 5% of the total
+    flagged count (read from data/results/flagged_pairs_count.json).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for LLM consensus validation is calculated as the maximum
+    of 10 or 5% of the total flagged count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:43:09Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: synthetic redundancy injection target cosine similarity greater than
+    0.95
+  claim_id: c_19df8274
+  context: Unit test for synthetic redundancy injection logic in tests/unit/test_data_loader.py::test_synthetic_injection_creates_clusters;
+    assert that injected clusters contain items with pairwise cosine similarity >
+    0.95.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_redundancy_injection_target_cosine_similarity_grea
+  kind: magnitude
+  raw_text: The synthetic redundancy injection logic targets a pairwise cosine similarity
+    greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:43:53Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: MinHash-LSH Jaccard similarity threshold greater than 0.95
+  claim_id: c_90641e6d
+  context: Implement and execute MinHash-LSH algorithm in code/clustering.py to group
+    near-duplicate passages with Jaccard similarity > 0.95.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MinHash-LSH_Jaccard_similarity_threshold_greater_than_0.95
+  kind: magnitude
+  raw_text: The MinHash-LSH algorithm is configured to group near-duplicate passages
+    with a Jaccard similarity greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:44:23Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model arxiv id 2607.07974
+  claim_id: c_31ca14e3
+  context: Update code/validate_env.sh to include a check for all-MiniLM-L6-v2 (2607.07974,
+    https://arxiv.org/abs/2607.07974) model availability and CPU compatibility.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T09:46:32Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: MinHash-LSH threshold sweep values 0.90 0.92 0.94 0.95 0.96 0.98
+  claim_id: c_c39d7918
+  context: 'T025b [US2] Implement and execute the parameter sweep loop for T025, running
+    the pipeline for each threshold in the specific set of representative values:
+    [0.90, 0.92, 0.94, 0.95, 0.96, 0.98].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold sweep range [0.90, 0.92, 0.94, 0.95, 0.96, 0.98]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:46:49Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 model memory footprint under 2GB
+  claim_id: c_6a300c95
+  context: T013e-fallback [US1] ... Load and execute a CPU-native, quantized TinyLlama-1.1B-Chat-v1.0
+    model (via llama-cpp-python with a GGUF quantized file, expected memory footprint
+    <2GB) to generate consensus labels.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TinyLlama-1.1B-Chat-v1.0 model via llama-cpp-python with a GGUF quantized
+    file, expected memory footprint <2GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:47:06Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: sample size calculation max of 10 or 5 percent
+  claim_id: c_1d929c35
+  context: T013b [US1] ... The sample size MUST be calculated as the maximum of 10
+    or 5% of the total flagged count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sample size MUST be calculated as the maximum of 10 or 5% of the total
+    flagged count
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:47:46Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: synthetic redundancy injection cosine similarity threshold 0.95
+  claim_id: c_b58134ab
+  context: T010 [P] [US1] Unit test for synthetic redundancy injection logic ... assert
+    that injected clusters contain items with pairwise cosine similarity > 0.95.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: injecting clusters contain items with pairwise cosine similarity > 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:47:46Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: wasted call classification cosine similarity threshold 0.95
+  claim_id: c_25cb96d5
+  context: T013 [US1] Implement and execute cosine similarity proxy calculation logic
+    ... to flag pairs with similarity > 0.95 as wasted.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag pairs with similarity > 0.95 as wasted
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:47:47Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: cluster integrity check 5 percent members below Jaccard 0.95
+  claim_id: c_f0b646e1
+  context: T044 [US2] ... verifies the Jaccard similarity of items within each cluster
+    ... if > 5% of cluster members have Jaccard < 0.95, log a warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify the Jaccard similarity of items within each cluster ... if > 5%
+    of cluster members have Jaccard < 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:47:48Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: MinHash-LSH primary baseline threshold 0.95
+  claim_id: c_37ee7398
+  context: T025a [US2] Implement and execute the MinHash-LSH algorithm with the specific
+    threshold of 0.95 (as per FR-001) to establish the primary baseline control.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MinHash-LSH algorithm with the specific threshold of 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:48:14Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: runtime limit 6 hours
+  claim_id: c_8022521e
+  context: T019a [P] [US2] ... Assert that the process is terminated with a non-zero
+    exit code when runtime exceeds 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: runtime exceeds 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:48:33Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: memory limit 7GB
+  claim_id: c_892bf584
+  context: T019b [P] [US2] ... Assert that the process raises a MemoryLimitExceeded
+    error or is killed when memory exceeds 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_7GB
+  kind: entity_fact
+  raw_text: memory exceeds 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:48:53Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: default MAX_RUNTIME_HOURS 6 hours MAX_MEMORY_GB 7GB
+  claim_id: c_2fde6c16
+  context: T004 [P] ... setting default values explicitly to 6 hours and 7GB respectively.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default values explicitly to 6 hours and 7GB respectively
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:49:16Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model arXiv ID 2607.07974
+  claim_id: c_decf10bd
+  context: Update code/validate_env.sh to include a check for all-MiniLM-L6-v2 (2607.07974,
+    https://arxiv.org/abs/2607.07974) model availability
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The all-MiniLM-L6-v2 model corresponds to the paper with arXiv ID 2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:54:17Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model identifier 2607.07974 arxiv.org/abs/2607.07974
+  claim_id: c_5e841239
+  context: Update code/validate_env.sh to include a check for all-MiniLM-L6-v2 (2607.07974,
+    https://arxiv.org/abs/2607.07974) model availability and CPU compatibility
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: The all-MiniLM-L6-v2 model has the identifier 2607.07974 and is available
+    at https://arxiv.org/abs/2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T09:58:23Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 arXiv ID 2607.07974
+  claim_id: c_99d70192
+  context: Update code/validate_env.sh to include a check for all-MiniLM-L6-v2 (2607.07974,
+    https://arxiv.org/abs/2607.07974) model availability and CPU compatibility
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The all-MiniLM-L6-v2 model is associated with arXiv ID 2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:59:08Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 memory footprint <2GB quantized
+  claim_id: c_8598a5bd
+  context: Load and execute a CPU-native, quantized TinyLlama-1.1B-Chat-v1.0 model
+    via llama-cpp-python with a GGUF quantized file, expected memory footprint <2GB
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TinyLlama-1.1B-Chat-v1.0_memory_footprint_%3C2GB_quantized
+  kind: magnitude
+  raw_text: The TinyLlama-1.1B-Chat-v1.0 model is expected to have a memory footprint
+    of less than 2GB when quantized.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:59:37Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: MinHash-LSH threshold sweep range 0.90 to 0.98 steps
+  claim_id: c_7204388a
+  context: 'Implement and execute the parameter sweep loop for T025, running the pipeline
+    for each threshold in the specific set of representative values: [0.90, 0.92,
+    0.94, 0.95, 0.96, 0.98]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep range for MinHash-LSH includes the specific values
+    0.90, 0.92, 0.94, 0.95, 0.96, and 0.98
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:01:48Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Statistical tests performed with 5 independent runs
+  claim_id: c_6851c361
+  context: Implement multi-seed execution loop in code/run_pipeline.py for both baseline
+    and clustering-aided variants, enforcing exactly 5 independent runs as per US-3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance tests will be performed with exactly 5 independent
+    runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:02:10Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: LLM consensus sample size max of 10 or 5% of flagged count
+  claim_id: c_80ce1d95
+  context: The sample size MUST be calculated as the maximum of 10 or 5% of the total
+    flagged count (read from data/results/flagged_pairs_count.json)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for LLM consensus validation is calculated as the maximum
+    of 10 or 5% of the total flagged count
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:02:11Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 quantized memory footprint less than 2GB
+  claim_id: c_2ae182f5
+  context: Load and execute a CPU-native, quantized TinyLlama-1.1B-Chat-v1.0 model
+    (via llama-cpp-python with a GGUF quantized file, expected memory footprint <2GB)
+  evidence:
+    candidates:
+    - - ''
+      - 1.0
+    - - ''
+      - -1.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/TinyLlama-1.1B-Chat-v1.0_quantized_memory_footprint_less_tha
+  kind: magnitude
+  raw_text: The TinyLlama-1.1B-Chat-v1.0 model has an expected memory footprint of
+    less than 2GB when quantized
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T10:02:13Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Correction factor formula Precision TP/(TP+FP) Recall TP/(TP+FN)
+  claim_id: c_b2cce635
+  context: 'Formula: Precision = TP / (TP + FP), Recall = TP / (TP + FN). Execute:
+    Write the result to data/results/correction_factor.json'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correction_factor_formula_Precision_TP/(TP+FP)_Recall_TP/(TP
+  kind: entity_fact
+  raw_text: The correction factor calculation uses the formula Precision = TP / (TP
+    + FP) and Recall = TP / (TP + FN)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:02:49Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Estimated true wasted count formula (wasted_count * precision) + (unflagged_count
+    * (1 - recall))
+  claim_id: c_fe91641f
+  context: 'Formula: estimated_true_wasted_count = (wasted_count * precision) + (unflagged_count
+    * (1 - recall)) where unflagged_count = actual_budget - wasted_count'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimated true wasted count is calculated using the formula (wasted_count
+    * precision) + (unflagged_count * (1 - recall))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:03:19Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model identifier 2607.07974
+  claim_id: c_d8b1b984
+  context: Update code/validate_env.sh to include a check for all-MiniLM-L6-v2 (2607.07974,
+    https://arxiv.org/abs/2607.07974) model availability and CPU compatibility
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The all-MiniLM-L6-v2 model is associated with the identifier 2607.07974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:03:53Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 2
+  canonical: MinHash-LSH threshold sweep values 0.90 0.92 0.94 0.95 0.96 0.98
+  claim_id: c_aa80fef5
+  context: 'Implement and execute the parameter sweep loop for T025, running the pipeline
+    for each threshold in the specific set of representative values: [0.90, 0.92,
+    0.94, 0.95, 0.96, 0.98].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep for the MinHash-LSH algorithm uses the specific values
+    0.90, 0.92, 0.94, 0.95, 0.96, and 0.98.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:03:54Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: multi-seed execution loop 5 independent runs
+  claim_id: c_5ba9852c
+  context: Implement multi-seed execution loop in code/run_pipeline.py for both baseline
+    and clustering-aided variants, enforcing exactly 5 independent runs as per US-3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The multi-seed execution loop enforces exactly 5 independent runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:04:12Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: LLM consensus sample size max of 10 or 5 percent
+  claim_id: c_2824d9ed
+  context: The sample size MUST be calculated as the maximum of 10 or 5% of the total
+    flagged count (read from data/results/flagged_pairs_count.json).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for LLM consensus validation is calculated as the maximum
+    of 10 or 5% of the total flagged count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:04:12Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 expected memory footprint less than 2GB
+  claim_id: c_a84c9c00
+  context: Load and execute a CPU-native, quantized TinyLlama-1.1B-Chat-v1.0 model
+    (via llama-cpp-python with a GGUF quantized file, expected memory footprint <2GB)
+  evidence:
+    candidates:
+    - - ''
+      - 1.0
+    - - ''
+      - -1.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/TinyLlama-1.1B-Chat-v1.0_expected_memory_footprint_less_than
+  kind: magnitude
+  raw_text: The TinyLlama-1.1B-Chat-v1.0 model has an expected memory footprint of
+    less than 2GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T10:04:44Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: pipeline terminate if runtime exceeds 6 hours
+  claim_id: c_0ea20bef
+  context: Implement watchdog/signal handler in code/utils.py to terminate the pipeline
+    if runtime exceeds 6 hours or memory exceeds 7GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must terminate if runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:05:04Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: pipeline terminate if memory usage exceeds 7GB
+  claim_id: c_e1d31dfd
+  context: Implement watchdog/signal handler in code/utils.py to terminate the pipeline
+    if runtime exceeds 6 hours or memory exceeds 7GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_terminate_if_memory_usage_exceeds_7GB
+  kind: entity_fact
+  raw_text: The pipeline must terminate if memory usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:05:24Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: cosine similarity greater than 0.95 flagged as wasted
+  claim_id: c_4ebaddcc
+  context: Implement and execute cosine similarity proxy calculation logic in code/metrics.py
+    using all-MiniLM-L6-v2 to flag pairs with similarity > 0.95 as 'wasted'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cosine_similarity_greater_than_0.95_flagged_as_wasted
+  kind: magnitude
+  raw_text: Pairs with cosine similarity greater than 0.95 are flagged as 'wasted'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T10:05:42Z'
 - artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
   attempts: 1
   canonical: injected clusters pairwise cosine similarity greater than 0.95
-  claim_id: c_e9075a5b
-  context: Task T010 unit test asserts that injected clusters contain items with pairwise
-    cosine similarity > 0.95.
+  claim_id: c_268ff74b
+  context: assert that injected clusters contain items with pairwise cosine similarity
+    > 0.95, serving FR-002.
   evidence:
     entailment_evidence: Injected clusters pairwise cosine similarity greater than
       0.
@@ -2508,714 +3312,23 @@
   source_hash: null
   source_type: external
   status: refuted
-  updated_at: '2026-08-09T09:01:57Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 2
-  canonical: LLM consensus sample size maximum of 10 or 5 percent of flagged count
-  claim_id: c_94811d2d
-  context: Task T013b states the sample size MUST be calculated as the maximum of
-    10 or 5% of the total flagged count.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sample size for LLM consensus validation is calculated as the maximum
-    of 10 or 5% of the total flagged count.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:02:17Z'
+  updated_at: '2026-08-09T10:06:00Z'
 - artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
   attempts: 1
-  canonical: distilbert-base-uncased-int8-onnx model memory footprint under 500MB
-  claim_id: c_24eba96f
-  context: Task T013e specifies loading and executing a CPU-tractable, int8-quantized
-    distilbert-base-uncased model (from huggingface.co/onnx-community/distilbert-base-uncased-int8-onnx,
-    expected memory footprint <500MB).
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Distilbert-base-uncased-int8-onnx_model_memory_footprint_und
-  kind: entity_fact
-  raw_text: The CPU-tractable model used for consensus validation is distilbert-base-uncased-int8-onnx
-    with an expected memory footprint under 500MB.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:03:14Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: MinHash-LSH Jaccard similarity threshold greater than 0.95
-  claim_id: c_0a4a0ab0
-  context: Task T020 implements MinHash-LSH to group near-duplicate passages with
-    Jaccard similarity > 0.95.
+  canonical: MinHash-LSH Jaccard similarity greater than 0.95
+  claim_id: c_85211fc3
+  context: Implement and execute MinHash-LSH algorithm in code/clustering.py to group
+    near-duplicate passages with Jaccard similarity > 0.95
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/MinHash-LSH_Jaccard_similarity_threshold_greater_than_0.95
+    source_url: https://en.wikipedia.org/wiki/MinHash-LSH_Jaccard_similarity_greater_than_0.95
   kind: magnitude
-  raw_text: MinHash-LSH clustering groups near-duplicate passages with a Jaccard similarity
+  raw_text: MinHash-LSH clustering groups near-duplicate passages with Jaccard similarity
     greater than 0.95.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-09T09:03:48Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 6
-  canonical: MinHash-LSH threshold sweep values 0.90 0.92 0.94 0.95 0.96 0.98
-  claim_id: c_ef60a5c7
-  context: 'Task T025b implements the parameter sweep loop for T025, running the pipeline
-    for each threshold in the specific set of representative values: [0.90, 0.92,
-    0.94, 0.95, 0.96, 0.98].'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The MinHash-LSH parameter sweep runs for the specific set of thresholds
-    [0.90, 0.92, 0.94, 0.95, 0.96, 0.98].
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:03:53Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: multi-seed execution loop 5 independent runs
-  claim_id: c_fe1c9ab5
-  context: Task T027 implements a multi-seed execution loop for both baseline and
-    clustering-aided variants, enforcing exactly 5 independent runs as per US-3.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The pipeline enforces exactly 5 independent runs for statistical significance
-    testing.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:04:01Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Dual-Layer Hard Kill mechanism uses psutil signals and cgroup.kill/kill
-    -9
-  claim_id: c_543e6506
-  context: T004a task description regarding watchdog/signal handler implementation.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The handler MUST implement a ''Dual-Layer Hard Kill'' mechanism: Layer
-    1 uses psutil signals; Layer 2 uses a shell wrapper writing to cgroup.kill or
-    kill -9 -<pid>.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:09Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: MinHash-LSH threshold sweep range includes 0.90, 0.92, 0.94, 0.95, 0.96,
-    0.98
-  claim_id: c_b7995bff
-  context: T025b task description regarding parameter sweep loop for MinHash-LSH.
-  evidence:
-    asserted: '0.9'
-    authority: math.pi (IEEE-754 double, Python stdlib)
-    constant: pi
-    corrected: true
-    mode: approximate
-    true_value: 3.141592653589793
-    url: https://en.wikipedia.org/wiki/Pi
-  kind: numeric
-  raw_text: 'The task MUST run the pipeline for each threshold in the specific set
-    of representative values: [0.90, 0.92, 0.94, 0.95, 0.96, 0.98].'
-  resolved_value: '3.14'
-  resolver: approximate
-  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
-  source_type: external
-  status: verified
-  updated_at: '2026-08-09T09:07:10Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: distilbert-base-uncased-int8-onnx model memory footprint is less than
-    500MB
-  claim_id: c_642e4e45
-  context: T013e task description regarding CPU-tractable LLM consensus execution.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Distilbert-base-uncased-int8-onnx_model_memory_footprint_is
-  kind: magnitude
-  raw_text: The model `distilbert-base-uncased-int8-onnx` is expected to have a memory
-    footprint <500MB.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:14Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Multi-seed execution loop enforces 5 independent runs
-  claim_id: c_255d2c96
-  context: T027 task description regarding multi-seed execution loop implementation.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The task enforces exactly 5 independent runs for both baseline and clustering-aided
-    variants.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:24Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Sample size for LLM consensus validation is max(10, 5% of flagged count)
-  claim_id: c_fbb39bed
-  context: T013b task description regarding sample size calculation.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sample size MUST be calculated as the maximum of 10 or 5% of the total
-    flagged count.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:30Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Default MAX_RUNTIME_HOURS is 6 hours
-  claim_id: c_06249b14
-  context: T004 task description regarding configuration management schema.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The default value for MAX_RUNTIME_HOURS is set explicitly to 6 hours.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:35Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Default MAX_MEMORY_GB is 7GB
-  claim_id: c_d8fc13a6
-  context: T004 task description regarding configuration management schema.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Default_MAX_MEMORY_GB_is_7GB
-  kind: entity_fact
-  raw_text: The default value for MAX_MEMORY_GB is set explicitly to 7GB.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:46Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Pipeline terminates if runtime exceeds 6 hours or memory exceeds 7GB
-  claim_id: c_bc3a1e06
-  context: T004a task description regarding watchdog/signal handler implementation.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The handler terminates the pipeline if runtime exceeds 6 hours or memory
-    exceeds 7GB.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:49Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Injected redundancy clusters require pairwise cosine similarity > 0.95
-  claim_id: c_6bbc0d85
-  context: T010 task description regarding unit test for synthetic redundancy injection.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The injected clusters must contain items with pairwise cosine similarity
-    > 0.95.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:50Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Semantic Similarity Threshold Validator checks for similarity > 0.95
-  claim_id: c_1fdf452c
-  context: T043 task description regarding injected redundancy validation.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The validator verifies the injected redundancy achieves the target similarity
-    > 0.95.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:50Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Cosine similarity > 0.95 flags pairs as wasted
-  claim_id: c_9f98d7e9
-  context: T013 task description regarding cosine similarity proxy calculation.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Pairs with cosine similarity > 0.95 are flagged as 'wasted'.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:51Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: MinHash-LSH groups passages with Jaccard similarity > 0.95
-  claim_id: c_69708e3c
-  context: T020 task description regarding MinHash-LSH algorithm implementation.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The MinHash-LSH algorithm groups near-duplicate passages with Jaccard
-    similarity > 0.95.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:51Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: MinHash-LSH integration test uses Jaccard threshold > 0.95
-  claim_id: c_d2ab5e01
-  context: T018 task description regarding unit test for clustering logic.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The integration test for MinHash-LSH clustering uses a Jaccard threshold
-    > 0.95.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:52Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Cluster integrity check triggers re-run if > 5% members have Jaccard
-    < 0.95
-  claim_id: c_d3a5ffd1
-  context: T044 task description regarding Cluster Integrity Check.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If > 5% of cluster members have Jaccard < 0.95, a warning is logged and
-    a re-run is triggered.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:52Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Budget exhaustion early exit triggers if remaining budget < 5% of total
-  claim_id: c_00bd4cc3
-  context: T045 task description regarding budget exhaustion early exit.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The budget exhaustion early exit halts if remaining budget is < 5% of
-    total.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:53Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Low budget guardrail halts if remaining budget < 5% of pool size
-  claim_id: c_a60691fd
-  context: T039 task description regarding low budget guardrail.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The low budget guardrail halts if remaining budget is < 5% of pool size.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:53Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Threshold sensitivity fallback triggers if > 10% unique docs merged incorrectly
-  claim_id: c_32463fbd
-  context: T059 task description regarding edge case resolution for clustering.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The threshold sensitivity fallback triggers if > 10% of unique documents
-    are incorrectly merged.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:54Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: 'Correction factor formula: (wasted_count * precision) + (unflagged_count
-    * (1 - recall))'
-  claim_id: c_b72078bb
-  context: T013d task description regarding aggregation of flagged pairs and budget.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The correction factor calculation uses the formula: estimated_true_wasted_count
-    = (wasted_count * precision) + (unflagged_count * (1 - recall)).'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:07:56Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Dual-Layer Hard Kill mechanism uses psutil signals and cgroup.kill or
-    kill -9
-  claim_id: c_e7e1b76c
-  context: 'T004a [P] [Dep: T004] Implement watchdog/signal handler in code/utils.py
-    to terminate the pipeline if runtime exceeds 6 hours or memory exceeds 7GB, serving
-    FR-006 enforcement. The handler MUST read the explicit constants defined in T004.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The handler MUST implement a ''Dual-Layer Hard Kill'' mechanism: Layer
-    1 uses psutil signals; Layer 2 uses a shell wrapper writing to cgroup.kill or
-    kill -9 -<pid>.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:12:26Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Sample size calculation is max of 10 or 5% of total flagged count
-  claim_id: c_c76c1c6d
-  context: T013b [US1] Implement and execute sample size calculation for LLM consensus
-    validation in code/metrics.py. The sample size MUST be calculated as the maximum
-    of 10 or 5% of the total flagged count (read from data/results/flagged_pairs_count.json).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sample size MUST be calculated as the maximum of 10 or 5% of the total
-    flagged count.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:12:26Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Multi-seed execution loop enforces 5 independent runs
-  claim_id: c_cc863855
-  context: T027 [P] [US3] Implement multi-seed execution loop in code/run_pipeline.py
-    for both baseline and clustering-aided variants, enforcing exactly 5 independent
-    runs as per US-3.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The pipeline enforces exactly 5 independent runs for statistical significance.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:13:09Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: distilbert-base-uncased-int8-onnx model expected memory footprint is
-    less than 500MB
-  claim_id: c_40e66d5a
-  context: 'T013e [US1] [Dep: T013c] LLM Consensus Execution (CPU-Compliant): Implement
-    and execute the consensus validation step in code/ranker.py on the sample defined
-    in data/results/consensus_sample.json. Constraint: Load and execute a CPU-tractable,
-    int8-quantized distilbert-base-uncased model (from huggingface.co/onnx-community/distilbert-base-uncased-int8-onnx,
-    expected memory footprint <500MB) to generate consensus labels.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Distilbert-base-uncased-int8-onnx_model_expected_memory_foot
-  kind: magnitude
-  raw_text: The model distilbert-base-uncased-int8-onnx has an expected memory footprint
-    less than 500MB.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:13:35Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Retry with increased intensity if injected similarity is less than 0.95
-  claim_id: c_720e23a8
-  context: T043 [US1] Implement and execute a Semantic Similarity Threshold Validator
-    in code/data_loader.py that verifies the injected redundancy actually achieves
-    the target similarity > 0.95 before proceeding; if the average injected similarity
-    is < 0.95, automatically retry with increased paraphrasing intensity or a lower
-    threshold (high).
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Retry_with_increased_intensity_if_injected_similarity_is_les
-  kind: magnitude
-  raw_text: If the average injected similarity is less than 0.95, the system automatically
-    retries with increased paraphrasing intensity or a lower threshold.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:14:00Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Threshold sweep values cover transition zone of Jaccard-Cosine correlation
-    curve
-  claim_id: c_d6d3aa40
-  context: 'T025b [US2] Rationale: These values cover the ''transition zone'' of the
-    Jaccard-Cosine correlation curve as observed in preliminary literature, ensuring
-    the sweep captures the sensitivity peak.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Threshold_sweep_values_cover_transition_zone_of_Jaccard-Cosi
-  kind: entity_fact
-  raw_text: The threshold sweep covers the transition zone of the Jaccard-Cosine correlation
-    curve.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:14:16Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: total_budget artifact records actual calls executed if pipeline terminates
-    early
-  claim_id: c_8d97d736
-  context: 'T013a [US1] Budget Definition: Implement and execute a task to define,
-    log, and enforce the total_budget (e.g., 100 calls as per US-1) in code/config.py
-    and write it to data/results/budget_config.json (schema: {"total_budget": int,
-    "budget_type": "LLM_calls"}). Logic: If the pipeline terminates early (e.g., due
-    to T045 budget exhaustion), the total_budget artifact MUST record the ACTUAL number
-    of calls executed, not the configured limit.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Total_budget_artifact_records_actual_calls_executed_if_pipel
-  kind: entity_fact
-  raw_text: If the pipeline terminates early, the total_budget artifact records the
-    ACTUAL number of calls executed, not the configured limit.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:14:38Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: Default runtime limit is 6 hours and memory limit is 7GB
-  claim_id: c_2d22d266
-  context: T004 [P] [Foundational] Setup configuration management in code/config.py
-    with a schema for MAX_RUNTIME_HOURS and MAX_MEMORY_GB allowing parameterization,
-    setting default values explicitly to 6 hours and 7GB respectively, serving FR-006
-    and Constitution Principle VII.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The system defaults to MAX_RUNTIME_HOURS of 6 hours and MAX_MEMORY_GB
-    of 7GB.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:14:59Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: sample size is max of 10 or 5% of flagged count
-  claim_id: c_0df13866
-  context: T013b [US1] Implement and execute sample size calculation for LLM consensus
-    validation in code/metrics.py. The sample size MUST be calculated as the maximum
-    of 10 or 5% of the total flagged count (read from data/results/flagged_pairs_count.json).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sample size MUST be calculated as the maximum of 10 or 5% of the total
-    flagged count.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:17:41Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: distilbert-base-uncased-int8-onnx expected memory footprint < 500MB
-  claim_id: c_2db14579
-  context: 'T013e [US1] [Dep: T013c] LLM Consensus Execution (CPU-Compliant): Implement
-    and execute the consensus validation step in code/ranker.py on the sample defined
-    in data/results/consensus_sample.json. Constraint: Load and execute a CPU-tractable,
-    int8-quantized distilbert-base-uncased model (from huggingface.co/onnx-community/distilbert-base-uncased-int8-onnx,
-    expected memory footprint <500MB) to generate consensus labels.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Distilbert-base-uncased-int8-onnx_expected_memory_footprint
-  kind: magnitude
-  raw_text: The model is expected to have a memory footprint of less than 500MB.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:18:17Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 2
-  canonical: MinHash-LSH threshold sweep range is 0.90, 0.92, 0.94, 0.95, 0.96, 0.98
-  claim_id: c_34c6ac73
-  context: 'T025b [US2] Implement and execute the parameter sweep loop for T025, running
-    the pipeline for each threshold in the specific set of representative values:
-    [0.90, 0.92, 0.94, 0.95, 0.96, 0.98].'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The threshold sweep range is [0.90, 0.92, 0.94, 0.95, 0.96, 0.98].
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:18:18Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: threshold sweep covers Jaccard-Cosine correlation curve transition zone
-  claim_id: c_05f5c329
-  context: 'T025b [US2] ... Rationale: These values cover the ''transition zone''
-    of the Jaccard-Cosine correlation curve as observed in preliminary literature,
-    ensuring the sweep captures the sensitivity peak.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Threshold_sweep_covers_Jaccard-Cosine_correlation_curve_tran
-  kind: entity_fact
-  raw_text: The threshold sweep covers the 'transition zone' of the Jaccard-Cosine
-    correlation curve as observed in preliminary literature.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:18:36Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: pipeline enforces 6 hour runtime and 7GB memory limit
-  claim_id: c_91946d5f
-  context: T004 [P] [Foundational] Setup configuration management in code/config.py
-    with a schema for MAX_RUNTIME_HOURS and MAX_MEMORY_GB allowing parameterization,
-    setting default values explicitly to 6 hours and 7GB respectively, serving FR-006
-    and Constitution Principle VII.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The pipeline enforces a runtime limit of 6 hours and a memory limit of
-    7GB.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:18:55Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: resource enforcement uses Dual-Layer Hard Kill mechanism
-  claim_id: c_5d3c00b8
-  context: 'T004a [P] [Dep: T004] ... Enhancement: The handler MUST implement a ''Dual-Layer
-    Hard Kill'' mechanism: Layer 1 uses psutil signals; Layer 2 uses a shell wrapper
-    writing to cgroup.kill or kill -9 -<pid>.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Resource_enforcement_uses_Dual-Layer_Hard_Kill_mechanism
-  kind: entity_fact
-  raw_text: The system uses a 'Dual-Layer Hard Kill' mechanism for resource enforcement.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:19:20Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: removed heavy ollama/transformers dependencies replaced with lighter
-    alternatives
-  claim_id: c_fe716eb8
-  context: T002 Initialize Python 3.11 project with requirements.txt (beir, sentence-transformers,
-    datasketch, scikit-learn, scipy, pandas, numpy, pytest, nltk, onnx, onnxruntime,
-    transformers, accelerate, bitsandbytes, tinyllama); Removed heavy ollama/transformers
-    dependencies; replaced with lighter alternatives (ONNX for CPU-tractable LLM tasks)
-    and added bitsandbytes for 8-bit quantization.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Removed_heavy_ollama/transformers_dependencies_replaced_with
-  kind: entity_fact
-  raw_text: The task requires removing heavy ollama/transformers dependencies and
-    replacing them with lighter alternatives.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:19:32Z'
-- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
-  attempts: 1
-  canonical: system checks for cgroups v2 availability
-  claim_id: c_011e742c
-  context: 'T004b-1 [P] [Foundational] [Dep: T004] Implement a ''Check cgroups Availability''
-    step in code/validate_env.sh to detect if cgroups v2 are available on the host.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/System_checks_for_cgroups_v2_availability
-  kind: entity_fact
-  raw_text: The system checks for cgroups v2 availability on the host.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T09:20:15Z'
+  updated_at: '2026-08-09T10:06:28Z'

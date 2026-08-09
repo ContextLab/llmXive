@@ -31,15 +31,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
     usage: data_loader.py [-h] {prepare} ...
 data_loader.py: error: unrecognized arguments: --prepare
 - python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5 -> rc=1
-    2026-08-09 08:54:03,999 - INFO - Logging initialized
-2026-08-09 08:54:03,999 - INFO - Resource monitoring started
-2026-08-09 08:54:04,000 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json
-2026-08-09 08:54:05,000 - INFO - Resource monitoring stopped
+    2026-08-09 09:29:46,875 - INFO - Logging initialized
+2026-08-09 09:29:46,876 - INFO - Resource monitoring started
+2026-08-09 09:29:46,876 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json
+2026-08-09 09:29:47,876 - INFO - Resource monitoring stopped
 - python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5 -> rc=1
-    2026-08-09 08:54:05,052 - INFO - Logging initialized
-2026-08-09 08:54:05,052 - INFO - Resource monitoring started
-2026-08-09 08:54:05,052 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json
-2026-08-09 08:54:06,053 - INFO - Resource monitoring stopped
+    2026-08-09 09:29:47,931 - INFO - Logging initialized
+2026-08-09 09:29:47,931 - INFO - Resource monitoring started
+2026-08-09 09:29:47,932 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json
+2026-08-09 09:29:48,932 - INFO - Resource monitoring stopped
 - python code/run_pipeline.py --variant unique_baseline --budgets 20 50 100 --seeds 5 -> rc=2
     usage: run_pipeline.py [-h] --variant {baseline,clustering_aided}
                        [--budgets BUDGETS [BUDGETS ...]]
@@ -63,7 +63,7 @@ run_pipeline.py: error: argument --variant: invalid choice: 'unique_baseline' (c
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `beir` to the project's `requirements.txt` and `pip install beir`.
-- **Verified**: this loads **339** real records with fields: query_id, query_text, doc_id, passage_text, relevance_score, split.
+- **Verified**: this loads **339** real records with fields: query_id, query_text, doc_id, doc_text, relevance_label.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
@@ -71,17 +71,23 @@ import os
 from beir import util
 from beir.datasets.data_loader import GenericDataLoader
 
+# Choose the BEIR dataset you want to load (e.g., scifact, nfcorpus, trec-covid)
 dataset = "scifact"
+
+# Download and unzip the dataset
 url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip"
-# Download and unzip the dataset to a local directory
-data_path = util.download_and_unzip(url, "beir_data")
-# Load the corpus, queries, and relevance judgments for the test split
-loader = GenericDataLoader(data_path)
-corpus, queries, qrels = loader.load(split="test")
-# Count the number of (query, document) relevance pairs
+out_dir = f"./{dataset}"
+data_path = util.download_and_unzip(url, out_dir)
+
+# Load the corpus, queries, and relevance judgments (qrels)
+corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
+
+# Compute the number of (query, document) relevance pairs
 record_count = sum(len(docs) for docs in qrels.values())
 print(f"RECORDS={record_count}")
-print("FIELDS=query_id,query_text,doc_id,passage_text,relevance_score,split")
+# The loaded structures provide the required fields:
+# query_id, query_text (from queries), doc_id, doc_text (from corpus), relevance_label (from qrels)
+print("FIELDS=query_id,query_text,doc_id,doc_text,relevance_label")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

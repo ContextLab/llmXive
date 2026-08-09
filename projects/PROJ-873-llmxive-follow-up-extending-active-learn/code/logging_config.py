@@ -10,185 +10,146 @@ import os
 import sys
 import time
 import threading
+from typing import Dict, Any, Optional
 from datetime import datetime
-from typing import Optional, Dict, Any, List
-from pathlib import Path
-import psutil
+from config import get_config
 
-# Configuration
-LOG_DIR = "data/processed"
-COMPARISON_LOG_FILE = os.path.join(LOG_DIR, "comparison_log.json")
-RESOURCE_LOG_FILE = os.path.join(LOG_DIR, "resource_stats.json")
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Global state for resource monitoring
-_monitoring_active = False
-_monitor_thread: Optional[threading.Thread] = None
-_resource_stats: List[Dict[str, Any]] = []
-_resource_lock = threading.Lock()
-_logger: Optional[logging.Logger] = None
+# Configuration for log paths
+DATA_DIR = "data/processed"
+COMPARISON_LOG_PATH = os.path.join(DATA_DIR, "comparison_log.json")
+RESOURCE_LOG_PATH = os.path.join(DATA_DIR, "resource_log.json")
 
-def _get_logger() -> logging.Logger:
-    """Get or create the project logger."""
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger("llmXive")
-        _logger.setLevel(logging.INFO)
-        if not _logger.handlers:
-            handler = logging.StreamHandler(sys.stdout)
-            handler.setFormatter(logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s'
-            ))
-            _logger.addHandler(handler)
-    return _logger
+# Global lock for thread-safe file writing
+_log_lock = threading.Lock()
+_resource_monitor_thread: Optional[threading.Thread] = None
+_stop_monitoring_event = threading.Event()
+
+def _get_timestamp() -> str:
+    """Return current UTC timestamp in ISO format."""
+    return datetime.utcnow().isoformat() + "Z"
 
 def init_logging():
-    """Initialize the logging infrastructure."""
-    logger = _get_logger()
+    """Initialize logging infrastructure and ensure directories exist."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    # Clear existing log if any to ensure a fresh run
+    if os.path.exists(COMPARISON_LOG_PATH):
+        os.remove(COMPARISON_LOG_PATH)
+    if os.path.exists(RESOURCE_LOG_PATH):
+        os.remove(RESOURCE_LOG_PATH)
     logger.info("Logging initialized")
-    
-    # Ensure output directory exists
-    os.makedirs(LOG_DIR, exist_ok=True)
-    
-    # Clear existing log files to start fresh
-    if os.path.exists(COMPARISON_LOG_FILE):
-        os.remove(COMPARISON_LOG_FILE)
-    
-    return logger
 
-def log_pairwise_comparison(
-    pair_id: str,
-    doc1_id: str,
-    doc2_id: str,
-    cosine_sim: float,
-    is_wasted: bool,
-    timestamp: Optional[str] = None
-):
+def get_comparison_log_path() -> str:
+    return COMPARISON_LOG_PATH
+
+def get_resource_log_path() -> str:
+    return RESOURCE_LOG_PATH
+
+def log_pairwise_comparison(pair_id: str, doc1_id: str, doc2_id: str, cosine_sim: float, is_wasted: bool):
     """
-    Log a pairwise comparison to the JSONL file.
-    
-    Args:
-        pair_id: Unique identifier for the comparison pair
-        doc1_id: ID of the first document
-        doc2_id: ID of the second document
-        cosine_sim: Cosine similarity score between the documents
-        is_wasted: Boolean indicating if this is a wasted call
-        timestamp: Optional ISO format timestamp (auto-generated if None)
-    
-    This function serves FR-003 by recording every pairwise comparison.
-    The log format is JSONL with one entry per line.
+    Append a comparison log entry to the JSONL file.
+    Format: {"pair_id": str, "doc1_id": str, "doc2_id": str, "cosine_sim": float, "is_wasted": bool, "timestamp": str}
     """
-    if timestamp is None:
-        timestamp = datetime.utcnow().isoformat() + "Z"
-    
-    log_entry = {
+    entry = {
         "pair_id": pair_id,
         "doc1_id": doc1_id,
         "doc2_id": doc2_id,
         "cosine_sim": float(cosine_sim),
         "is_wasted": bool(is_wasted),
-        "timestamp": timestamp
+        "timestamp": _get_timestamp()
     }
     
-    # Append to the log file in JSONL format
-    with open(COMPARISON_LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry) + "\n")
+    with _log_lock:
+        with open(COMPARISON_LOG_PATH, 'a') as f:
+            f.write(json.dumps(entry) + '\n')
+    
+    logger.debug(f"Logged comparison: {pair_id} (wasted={is_wasted})")
 
-def _collect_resource_stats():
-    """Collect current resource usage statistics."""
-    process = psutil.Process(os.getpid())
-    
-    stats = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "cpu_percent": process.cpu_percent(),
-        "memory_percent": process.memory_percent(),
-        "memory_mb": process.memory_info().rss / (1024 * 1024),
-        "thread_count": process.num_threads()
-    }
-    
-    with _resource_lock:
-        _resource_stats.append(stats)
+def _collect_resource_stats() -> Dict[str, Any]:
+    """Collect current CPU time and memory usage."""
+    try:
+        import resource
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return {
+            "timestamp": _get_timestamp(),
+            "max_rss_mb": usage.ru_maxrss / 1024.0,  # Convert KB to MB (Linux)
+            "user_cpu_sec": usage.ru_utime,
+            "system_cpu_sec": usage.ru_stime,
+            "voluntary_context_switches": usage.ru_nvcsw,
+            "involuntary_context_switches": usage.ru_nivcsw
+        }
+    except Exception as e:
+        logger.warning(f"Could not collect resource stats: {e}")
+        return {
+            "timestamp": _get_timestamp(),
+            "error": str(e)
+        }
 
-def start_resource_monitoring(interval_seconds: float = 5.0):
-    """
-    Start background thread to monitor resource usage.
-    
-    Args:
-        interval_seconds: How often to collect stats (default: 5 seconds)
-    """
-    global _monitoring_active, _monitor_thread
-    
-    if _monitoring_active:
+def _monitor_loop(interval_seconds: float = 60.0):
+    """Background thread to periodically collect resource stats."""
+    while not _stop_monitoring_event.is_set():
+        stats = _collect_resource_stats()
+        with _log_lock:
+            with open(RESOURCE_LOG_PATH, 'a') as f:
+                f.write(json.dumps(stats) + '\n')
+        # Wait with interruptible sleep
+        _stop_monitoring_event.wait(interval_seconds)
+
+def start_resource_monitoring(interval_seconds: float = 60.0):
+    """Start the background thread for resource monitoring."""
+    global _resource_monitor_thread
+    if _resource_monitor_thread is not None and _resource_monitor_thread.is_alive():
+        logger.warning("Resource monitoring already running")
         return
-    
-    _monitoring_active = True
-    _resource_stats.clear()
-    
-    def monitor_loop():
-        while _monitoring_active:
-            _collect_resource_stats()
-            time.sleep(interval_seconds)
-    
-    _monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
-    _monitor_thread.start()
-    
-    _get_logger().info("Resource monitoring started")
+
+    _stop_monitoring_event.clear()
+    _resource_monitor_thread = threading.Thread(
+        target=_monitor_loop, 
+        args=(interval_seconds,), 
+        daemon=True
+    )
+    _resource_monitor_thread.start()
+    logger.info("Resource monitoring started")
 
 def stop_resource_monitoring():
-    """Stop the resource monitoring thread and write stats to disk."""
-    global _monitoring_active, _monitor_thread
-    
-    _monitoring_active = False
-    if _monitor_thread is not None:
-        _monitor_thread.join(timeout=2.0)
-        _monitor_thread = None
-    
-    # Write resource stats to file
-    with _resource_lock:
-        stats_snapshot = _resource_stats.copy()
-    
-    if stats_snapshot:
-        # Calculate summary statistics
-        summary = {
-            "total_samples": len(stats_snapshot),
-            "max_memory_mb": max(s["memory_mb"] for s in stats_snapshot),
-            "avg_memory_mb": sum(s["memory_mb"] for s in stats_snapshot) / len(stats_snapshot),
-            "max_cpu_percent": max(s["cpu_percent"] for s in stats_snapshot),
-            "avg_cpu_percent": sum(s["cpu_percent"] for s in stats_snapshot) / len(stats_snapshot),
-            "samples": stats_snapshot
-        }
-        
-        with open(RESOURCE_LOG_FILE, "w", encoding="utf-8") as f:
-            json.dump(summary, f, indent=2)
-        
-        _get_logger().info(f"Resource monitoring stopped. Max memory: {summary['max_memory_mb']:.2f} MB")
+    """Stop the background monitoring thread and write final stats."""
+    global _resource_monitor_thread
+    if _resource_monitor_thread is None:
+        return
 
-def get_comparison_log_path() -> str:
-    """Return the path to the comparison log file."""
-    return COMPARISON_LOG_FILE
-
-def get_resource_log_path() -> str:
-    """Return the path to the resource stats log file."""
-    return RESOURCE_LOG_FILE
+    _stop_monitoring_event.set()
+    _resource_monitor_thread.join(timeout=5.0)
+    
+    # Write final stats
+    final_stats = _collect_resource_stats()
+    final_stats["status"] = "stopped"
+    with _log_lock:
+        with open(RESOURCE_LOG_PATH, 'a') as f:
+            f.write(json.dumps(final_stats) + '\n')
+    
+    _resource_monitor_thread = None
+    logger.info("Resource monitoring stopped")
 
 def main():
-    """Main entry point for testing the logging infrastructure."""
+    """CLI entry point for testing logging functionality."""
     init_logging()
     start_resource_monitoring(interval_seconds=1.0)
     
-    # Simulate some comparisons
+    # Simulate a few comparisons
     for i in range(5):
         log_pairwise_comparison(
-            pair_id=f"pair_{i}",
-            doc1_id=f"doc_{i}",
-            doc2_id=f"doc_{i+1}",
-            cosine_sim=0.90 + (i * 0.02),
-            is_wasted=(0.90 + (i * 0.02)) > 0.95
+            pair_id=f"test_pair_{i}",
+            doc1_id=f"doc_A_{i}",
+            doc2_id=f"doc_B_{i}",
+            cosine_sim=0.95 + (i * 0.01),
+            is_wasted=(0.95 + (i * 0.01)) > 0.95
         )
-        time.sleep(0.5)
+        time.sleep(0.1)
     
     stop_resource_monitoring()
-    print(f"Comparison log written to: {get_comparison_log_path()}")
-    print(f"Resource log written to: {get_resource_log_path()}")
+    logger.info("Test run complete. Check data/processed/comparison_log.json")
 
 if __name__ == "__main__":
     main()

@@ -5,8 +5,8 @@
   "artifacts": [],
   "failures": [
     "python code/data_loader.py --prepare -> rc=2\n    usage: data_loader.py [-h] {prepare} ...\ndata_loader.py: error: unrecognized arguments: --prepare",
-    "python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-08-09 08:54:03,999 - INFO - Logging initialized\n2026-08-09 08:54:03,999 - INFO - Resource monitoring started\n2026-08-09 08:54:04,000 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json\n2026-08-09 08:54:05,000 - INFO - Resource monitoring stopped",
-    "python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-08-09 08:54:05,052 - INFO - Logging initialized\n2026-08-09 08:54:05,052 - INFO - Resource monitoring started\n2026-08-09 08:54:05,052 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json\n2026-08-09 08:54:06,053 - INFO - Resource monitoring stopped",
+    "python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-08-09 09:29:46,875 - INFO - Logging initialized\n2026-08-09 09:29:46,876 - INFO - Resource monitoring started\n2026-08-09 09:29:46,876 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json\n2026-08-09 09:29:47,876 - INFO - Resource monitoring stopped",
+    "python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5 -> rc=1\n    2026-08-09 09:29:47,931 - INFO - Logging initialized\n2026-08-09 09:29:47,931 - INFO - Resource monitoring started\n2026-08-09 09:29:47,932 - ERROR - Pipeline execution failed: Required artifact missing: data/processed/injected_datasets.json\n2026-08-09 09:29:48,932 - INFO - Resource monitoring stopped",
     "python code/run_pipeline.py --variant unique_baseline --budgets 20 50 100 --seeds 5 -> rc=2\n    usage: run_pipeline.py [-h] --variant {baseline,clustering_aided}\n                       [--budgets BUDGETS [BUDGETS ...]]\n                       [--seeds SEEDS [SEEDS ...]] [--cross-dataset]\nrun_pipeline.py: error: argument --variant: invalid choice: 'unique_baseline' (choose from 'baseline', 'clustering_aided')"
   ],
   "fix_rounds": 6,
@@ -15,5 +15,5 @@
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-09T08:54:17Z"
+  "updated_at": "2026-08-09T09:30:00Z"
 }

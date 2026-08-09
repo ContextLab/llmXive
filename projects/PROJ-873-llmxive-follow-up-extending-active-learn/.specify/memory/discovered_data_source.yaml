@@ -8,42 +8,50 @@ access_python: 'import os
   from beir.datasets.data_loader import GenericDataLoader
 
 
+  # Choose the BEIR dataset you want to load (e.g., scifact, nfcorpus, trec-covid)
+
   dataset = "scifact"
+
+
+  # Download and unzip the dataset
 
   url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip"
 
-  # Download and unzip the dataset to a local directory
+  out_dir = f"./{dataset}"
 
-  data_path = util.download_and_unzip(url, "beir_data")
+  data_path = util.download_and_unzip(url, out_dir)
 
-  # Load the corpus, queries, and relevance judgments for the test split
 
-  loader = GenericDataLoader(data_path)
+  # Load the corpus, queries, and relevance judgments (qrels)
 
-  corpus, queries, qrels = loader.load(split="test")
+  corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
 
-  # Count the number of (query, document) relevance pairs
+
+  # Compute the number of (query, document) relevance pairs
 
   record_count = sum(len(docs) for docs in qrels.values())
 
   print(f"RECORDS={record_count}")
 
-  print("FIELDS=query_id,query_text,doc_id,passage_text,relevance_score,split")'
+  # The loaded structures provide the required fields:
+
+  # query_id, query_text (from queries), doc_id, doc_text (from corpus), relevance_label
+  (from qrels)
+
+  print("FIELDS=query_id,query_text,doc_id,doc_text,relevance_label")'
 record_count: 339
 sample_fields:
 - query_id
 - query_text
 - doc_id
-- passage_text
-- relevance_score
-- split
+- doc_text
+- relevance_label
 field_coverage: 1.0
 required_fields:
 - query_id
 - query_text
 - doc_id
-- passage_text
-- relevance_score
-- split
-intent: pip install beir dataset scifact nfcorpus trec-covid python package dataset
-cache_key: a634e0cbc1a70f532ada697943c4ad3b89216e290cb6d1c965d1bd1d60dc56be
+- doc_text
+- relevance_label
+intent: download BEIR benchmark scifact nfcorpus trec-covid python package dataset
+cache_key: 77a74802922c3c40ef1ed07e5011e576c987069b452d9aa1f51ffd13f673c544

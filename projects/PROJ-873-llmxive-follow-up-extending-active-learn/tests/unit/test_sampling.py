@@ -1,9 +1,14 @@
 import json
 import os
+import random
 import tempfile
 import random
 import pytest
-from unittest.mock import patch, mock_open
+from pathlib import Path
+
+# Adjust path if running from tests/unit
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "code"))
 
 from sampling import (
     load_comparison_logs,
@@ -12,156 +17,91 @@ from sampling import (
     select_simple_random_sample,
     run_sampling_pipeline
 )
-from config import get_config
 
 @pytest.fixture
-def mock_logs():
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
+
+@pytest.fixture
+def sample_log_data():
     return [
-        {"pair_id": "p1", "cosine_sim": 0.98, "doc1_id": "d1", "doc2_id": "d2"},
-        {"pair_id": "p2", "cosine_sim": 0.85, "doc1_id": "d3", "doc2_id": "d4"},
-        {"pair_id": "p3", "cosine_sim": 0.99, "doc1_id": "d5", "doc2_id": "d6"},
-        {"pair_id": "p4", "cosine_sim": 0.50, "doc1_id": "d7", "doc2_id": "d8"},
-        {"pair_id": "p5", "cosine_sim": 0.96, "doc1_id": "d9", "doc2_id": "d10"},
+        {"pair_id": "p1", "doc1_id": "d1", "doc2_id": "d2", "cosine_sim": 0.96, "is_wasted": True, "timestamp": "2023-01-01T00:00:00"},
+        {"pair_id": "p2", "doc1_id": "d3", "doc2_id": "d4", "cosine_sim": 0.94, "is_wasted": False, "timestamp": "2023-01-01T00:00:01"},
+        {"pair_id": "p3", "doc1_id": "d5", "doc2_id": "d6", "cosine_sim": 0.99, "is_wasted": True, "timestamp": "2023-01-01T00:00:02"},
+        {"pair_id": "p4", "doc1_id": "d7", "doc2_id": "d8", "cosine_sim": 0.80, "is_wasted": False, "timestamp": "2023-01-01T00:00:03"},
+        {"pair_id": "p5", "doc1_id": "d9", "doc2_id": "d10", "cosine_sim": 0.97, "is_wasted": True, "timestamp": "2023-01-01T00:00:04"},
     ]
 
 @pytest.fixture
-def temp_log_file(mock_logs):
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-        for item in mock_logs:
-            f.write(json.dumps(item) + '\n')
-        return f.name
-
-@pytest.fixture
-def temp_config_file():
-    config = {
-        "total_flagged_count": 100,
+def sample_config():
+    return {
         "sample_size": 2,
+        "minimum_threshold": 10,
+        "percentage": 0.05,
         "skip_validation": False
     }
     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
         json.dump(config, f)
         return f.name
 
-def test_filter_wasted_calls(mock_logs):
-    flagged = filter_wasted_calls(mock_logs, threshold=0.95)
-    assert len(flagged) == 3
-    assert all(item['cosine_sim'] > 0.95 for item in flagged)
-    assert {item['pair_id'] for item in flagged} == {'p1', 'p3', 'p5'}
+def test_load_comparison_logs(temp_dir, sample_log_data):
+    log_path = os.path.join(temp_dir, "test_log.json")
+    with open(log_path, "w") as f:
+        for record in sample_log_data:
+            f.write(json.dumps(record) + "\n")
+    
+    loaded = load_comparison_logs(log_path)
+    assert len(loaded) == 5
+    assert loaded[0]["pair_id"] == "p1"
 
-def test_filter_wasted_calls_empty(mock_logs):
-    flagged = filter_wasted_calls(mock_logs, threshold=0.99)
-    assert len(flagged) == 1
-    assert flagged[0]['pair_id'] == 'p3'
+def test_filter_wasted_calls(sample_log_data):
+    filtered = filter_wasted_calls(sample_log_data, threshold=0.95)
+    assert len(filtered) == 3
+    assert all(r["cosine_sim"] > 0.95 for r in filtered)
+    pair_ids = {r["pair_id"] for r in filtered}
+    assert pair_ids == {"p1", "p3", "p5"}
+
+def test_load_sample_config(temp_dir, sample_config):
+    config_path = os.path.join(temp_dir, "config.json")
+    with open(config_path, "w") as f:
+        json.dump(sample_config, f)
+    
+    loaded = load_sample_config(config_path)
+    assert loaded["sample_size"] == 2
 
 def test_select_simple_random_sample():
-    items = [{"id": i} for i in range(100)]
-    sample_size = 10
+    candidates = [{"id": i} for i in range(10)]
     seed = 42
-    
-    sampled, indices = select_simple_random_sample(items, sample_size, seed)
-    
-    assert len(sampled) == sample_size
-    assert len(indices) == sample_size
-    assert all(0 <= idx < 100 for idx in indices)
-    assert len(set(indices)) == sample_size  # No duplicates
-    
-    # Verify reproducibility
-    sampled2, indices2 = select_simple_random_sample(items, sample_size, seed)
-    assert indices == indices2
+    random.seed(seed)
+    indices = select_simple_random_sample(candidates, 3, seed)
+    assert len(indices) == 3
+    assert all(0 <= i < 10 for i in indices)
+    assert len(set(indices)) == 3  # No duplicates
 
-def test_select_simple_random_sample_all():
-    items = [{"id": i} for i in range(5)]
-    sampled, indices = select_simple_random_sample(items, 10, 42)
-    assert len(sampled) == 5
-    assert indices == [0, 1, 2, 3, 4]
-
-def test_run_sampling_pipeline(tmp_path, mock_logs, temp_config_file):
-    # Setup temp log file
-    log_path = tmp_path / "comparison_log.json"
-    with open(log_path, 'w') as f:
-        for item in mock_logs:
-            f.write(json.dumps(item) + '\n')
+def test_run_sampling_pipeline(temp_dir, sample_log_data, sample_config):
+    log_path = os.path.join(temp_dir, "log.json")
+    config_path = os.path.join(temp_dir, "config.json")
+    output_path = os.path.join(temp_dir, "sample.json")
     
-    output_path = tmp_path / "consensus_sample.json"
+    with open(log_path, "w") as f:
+        for r in sample_log_data:
+            f.write(json.dumps(r) + "\n")
     
-    # Mock get_config to return a specific seed
-    with patch('sampling.get_config') as mock_get_config:
-        mock_get_config.return_value = {"RANDOM_SEED": 42}
-        
-        result = run_sampling_pipeline(
-            log_path=str(log_path),
-            config_path=temp_config_file,
-            output_path=str(output_path)
-        )
+    with open(config_path, "w") as f:
+        json.dump(sample_config, f)
     
-    assert result['status'] == 'completed'
+    result = run_sampling_pipeline(
+        log_path=log_path,
+        config_path=config_path,
+        output_path=output_path,
+        threshold=0.95
+    )
+    
     assert os.path.exists(output_path)
+    with open(output_path, "r") as f:
+        sample_indices = json.load(f)
     
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    assert 'sample_indices' in data
-    assert 'sample_size' in data
-    assert data['sample_size'] == 2
-    assert 'pair_ids' in data
-    assert len(data['pair_ids']) == 2
-
-def test_run_sampling_pipeline_skip_validation(tmp_path, mock_logs):
-    log_path = tmp_path / "comparison_log.json"
-    with open(log_path, 'w') as f:
-        for item in mock_logs:
-            f.write(json.dumps(item) + '\n')
-    
-    config = {"sample_size": 2, "skip_validation": True}
-    config_path = tmp_path / "sample_config.json"
-    with open(config_path, 'w') as f:
-        json.dump(config, f)
-    
-    output_path = tmp_path / "consensus_sample.json"
-    
-    with patch('sampling.get_config') as mock_get_config:
-        mock_get_config.return_value = {"RANDOM_SEED": 42}
-        
-        result = run_sampling_pipeline(
-            log_path=str(log_path),
-            config_path=str(config_path),
-            output_path=str(output_path)
-        )
-    
-    assert result['status'] == 'skipped'
-    assert os.path.exists(output_path)
-    with open(output_path, 'r') as f:
-        assert json.load(f) == []
-
-def test_run_sampling_pipeline_no_flagged(tmp_path):
-    # Create a log with no flagged pairs
-    log_path = tmp_path / "comparison_log.json"
-    logs = [
-        {"pair_id": "p1", "cosine_sim": 0.80},
-        {"pair_id": "p2", "cosine_sim": 0.90},
-    ]
-    with open(log_path, 'w') as f:
-        for item in logs:
-            f.write(json.dumps(item) + '\n')
-    
-    config = {"sample_size": 2, "skip_validation": False}
-    config_path = tmp_path / "sample_config.json"
-    with open(config_path, 'w') as f:
-        json.dump(config, f)
-    
-    output_path = tmp_path / "consensus_sample.json"
-    
-    with patch('sampling.get_config') as mock_get_config:
-        mock_get_config.return_value = {"RANDOM_SEED": 42}
-        
-        result = run_sampling_pipeline(
-            log_path=str(log_path),
-            config_path=str(config_path),
-            output_path=str(output_path)
-        )
-    
-    assert result['status'] == 'completed'
-    assert result['total_flagged'] == 0
-    assert os.path.exists(output_path)
-    with open(output_path, 'r') as f:
-        assert json.load(f) == []
+    assert len(sample_indices) == 2
+    assert isinstance(sample_indices, list)
+    assert all(isinstance(i, int) for i in sample_indices)

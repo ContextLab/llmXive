@@ -8,173 +8,92 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.stats import wilcoxon
-import time
+import os
+import json
+import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+MODEL = None
 
-# Global model cache
-_embedding_model = None
+def get_embedding_model() -> SentenceTransformer:
+    global MODEL
+    if MODEL is None:
+        # CPU-light model as per task description
+        MODEL = SentenceTransformer('all-MiniLM-L6-v2')
+    return MODEL
 
-class StatisticalDegeneracyWarning(UserWarning):
-    """Warning raised when statistical tests encounter zero variance or degenerate inputs."""
-    pass
+def calculate_cosine_similarity_proxy(emb1: np.ndarray, emb2: np.ndarray) -> float:
+    return float(cosine_similarity([emb1], [emb2])[0][0])
 
-def get_embedding_model():
-    global _embedding_model
-    if _embedding_model is None:
-        logger.info("Loading embedding model: all-MiniLM-L6-v2")
-        _embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-    return _embedding_model
+def is_wasted_call(similarity: float, threshold: float = 0.95) -> bool:
+    return similarity > threshold
 
-def calculate_cosine_similarity(text1: str, text2: str) -> float:
-    """Calculate cosine similarity between two text strings."""
-    model = get_embedding_model()
-    embeddings = model.encode([text1, text2], convert_to_numpy=True)
-    sim = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-    return float(sim)
-
-def calculate_cosine_similarity_proxy(doc1_text: str, doc2_text: str) -> float:
-    """Wrapper for calculate_cosine_similarity to match expected signature."""
-    return calculate_cosine_similarity(doc1_text, doc2_text)
-
-def is_wasted_call(cosine_sim: float, threshold: float = 0.95) -> bool:
-    """Determine if a pair is considered 'wasted' based on cosine similarity threshold."""
-    return cosine_sim > threshold
-
-def calculate_ndcg_at_k(relevances: List[float], k: int) -> float:
-    """Calculate NDCG@k for a list of relevance scores."""
-    if not relevances or k <= 0:
+def calculate_ndcg_at_k(scores: List[float], k: int) -> float:
+    """Calculate NDCG@k."""
+    if not scores:
         return 0.0
     
-    dcg = 0.0
-    idcg = 0.0
+    def dcg(s, k):
+        dcg_val = 0.0
+        for i in range(min(k, len(s))):
+            # Assuming scores are relevance labels (integers) or can be treated as such
+            # If scores are floats, we use them directly
+            rel = s[i]
+            dcg_val += (2 ** rel - 1) / np.log2(i + 2)
+        return dcg_val
     
-    # Calculate DCG
-    for i, rel in enumerate(relevances[:k]):
-        if rel > 0:
-            dcg += rel / np.log2(i + 2)
+    idcg = dcg(sorted(scores, reverse=True), k)
+    dcg_val = dcg(scores, k)
     
-    # Calculate IDCG
-    sorted_relevances = sorted(relevances, reverse=True)
-    for i, rel in enumerate(sorted_relevances[:k]):
-        if rel > 0:
-            idcg += rel / np.log2(i + 2)
-    
-    if idcg == 0:
-        return 0.0
-    return dcg / idcg
+    return dcg_val / idcg if idcg > 0 else 0.0
 
-def calculate_ndcg_at_10(relevances: List[float]) -> float:
-    """Calculate NDCG@10."""
-    return calculate_ndcg_at_k(relevances, 10)
+def calculate_ndcg_at_10(scores: List[float]) -> float:
+    return calculate_ndcg_at_k(scores, 10)
 
-def load_beir_ground_truth(dataset_name: str, split: str = "test") -> Dict[str, Dict[str, int]]:
-    """Load BEIR ground truth (qrels) for a dataset."""
-    try:
-        from beir import util
-        from beir.datasets.data_loader import GenericDataLoader
-        
-        url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset_name}.zip"
-        data_path = util.download_and_unzip(url, "beir_data")
-        loader = GenericDataLoader(data_path)
-        _, _, qrels = loader.load(split=split)
-        return qrels
-    except Exception as e:
-        logger.error(f"Failed to load BEIR ground truth for {dataset_name}: {e}")
-        raise
+def load_beir_ground_truth(dataset_name: str) -> Dict[str, Dict[str, int]]:
+    # Placeholder for BEIR ground truth loading
+    # In a real implementation, this would load from BEIR
+    return {}
 
-def load_results_from_json(file_path: str) -> List[Dict[str, Any]]:
-    """Load results from a JSON file."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
-    with open(file_path, 'r') as f:
+def load_results_from_json(filepath: str) -> Dict:
+    import json
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-def aggregate_ndcg_scores(results: List[Dict[str, Any]]) -> Dict[str, float]:
-    """Aggregate NDCG scores from a list of results."""
+def aggregate_ndcg_scores(results: List[Dict]) -> float:
     if not results:
-        return {"mean": 0.0, "std": 0.0}
-    
-    scores = [r.get("ndcg@10", 0.0) for r in results if "ndcg@10" in r]
-    if not scores:
-        return {"mean": 0.0, "std": 0.0}
-    
-    return {
-        "mean": float(np.mean(scores)),
-        "std": float(np.std(scores))
-    }
+        return 0.0
+    return sum(r.get("ndcg_at_10", 0) for r in results) / len(results)
 
-def calculate_wasted_call_ratios(comparison_logs: List[Dict[str, Any]], threshold: float = 0.95) -> Dict[str, float]:
-    """Calculate wasted call ratios from comparison logs."""
-    if not comparison_logs:
-        return {"ratio": 0.0, "count": 0, "total": 0}
-    
-    wasted_count = sum(1 for log in comparison_logs if log.get("cosine_sim", 0) > threshold)
-    total_count = len(comparison_logs)
-    
-    return {
-        "ratio": wasted_count / total_count if total_count > 0 else 0.0,
-        "count": wasted_count,
-        "total": total_count
-    }
+def calculate_wasted_call_ratios(comparisons: List[Dict]) -> float:
+    if not comparisons:
+        return 0.0
+    wasted = sum(1 for c in comparisons if c.get("is_wasted", False))
+    return wasted / len(comparisons)
 
-def wilcoxon_signed_rank_test(group1: List[float], group2: List[float]) -> Dict[str, float]:
-    """Perform Wilcoxon signed-rank test on two groups."""
-    if len(group1) != len(group2):
-        raise ValueError("Groups must have the same length for paired test")
-    
-    if len(group1) == 0:
-        raise ValueError("Groups cannot be empty")
-    
-    # Check for zero variance
-    if len(set(group1)) == 1 and len(set(group2)) == 1:
-        logger.warning("StatisticalDegeneracyWarning: Zero variance detected in both groups.")
-        return {"statistic": 0.0, "pvalue": 1.0, "warning": "zero_variance"}
-    
+def wilcoxon_signed_rank_test(group1: List[float], group2: List[float]) -> Tuple[float, float]:
+    """Perform Wilcoxon signed-rank test."""
+    if len(group1) != len(group2) or len(group1) == 0:
+        return 0.0, 1.0
     try:
-        stat, pval = wilcoxon(group1, group2)
-        return {"statistic": float(stat), "pvalue": float(pval)}
-    except Exception as e:
-        logger.warning(f"Wilcoxon test failed: {e}. Returning degenerate result.")
-        return {"statistic": 0.0, "pvalue": 1.0, "warning": str(e)}
+        stat, p_val = wilcoxon(group1, group2)
+        return stat, p_val
+    except Exception:
+        return 0.0, 1.0
 
-def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
-    """Apply Bonferroni correction to a list of p-values."""
+def bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
     n = len(p_values)
     if n == 0:
-        return {"corrected_p_values": [], "alpha": alpha, "n_tests": 0}
-    
-    corrected_p_values = [min(p * n, 1.0) for p in p_values]
-    significant = [p < alpha for p in corrected_p_values]
-    
-    return {
-        "corrected_p_values": corrected_p_values,
-        "alpha": alpha,
-        "n_tests": n,
-        "significant": significant
-    }
+        return []
+    return [min(p * n, 1.0) for p in p_values]
 
-def calculate_dynamic_sample_size(flagged_count: int, min_threshold: int = 10, percentage: float = 0.05) -> int:
-    """
-    Calculate sample size for LLM consensus validation.
-    Sample size = max(min_threshold, percentage * flagged_count).
-    If flagged_count is 0, return 0.
-    """
-    if flagged_count <= 0:
-        return 0
-    return max(min_threshold, int(percentage * flagged_count))
+def calculate_dynamic_sample_size(total_count: int, min_size: int = 10, percentage: float = 0.05) -> int:
+    return max(min_size, int(total_count * percentage))
 
-def validate_proxy_accuracy(proxy_labels: List[bool], ground_truth_labels: List[bool]) -> Dict[str, Any]:
-    """Validate proxy accuracy against ground truth."""
-    if len(proxy_labels) != len(ground_truth_labels):
-        raise ValueError("Proxy and ground truth lists must have the same length")
-    
-    tp = sum(1 for p, g in zip(proxy_labels, ground_truth_labels) if p and g)
-    tn = sum(1 for p, g in zip(proxy_labels, ground_truth_labels) if not p and not g)
-    fp = sum(1 for p, g in zip(proxy_labels, ground_truth_labels) if p and not g)
-    fn = sum(1 for p, g in zip(proxy_labels, ground_truth_labels) if not p and g)
+def validate_proxy_accuracy(proxy_labels: List[bool], true_labels: List[bool]) -> Dict:
+    tp = sum(1 for p, t in zip(proxy_labels, true_labels) if p and t)
+    fp = sum(1 for p, t in zip(proxy_labels, true_labels) if p and not t)
+    fn = sum(1 for p, t in zip(proxy_labels, true_labels) if not p and t)
+    tn = sum(1 for p, t in zip(proxy_labels, true_labels) if not p and not t)
     
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
@@ -182,91 +101,124 @@ def validate_proxy_accuracy(proxy_labels: List[bool], ground_truth_labels: List[
     return {
         "precision": precision,
         "recall": recall,
-        "confusion_matrix": {"tp": tp, "tn": tn, "fp": fp, "fn": fn}
+        "confusion_matrix": {"tp": tp, "fp": fp, "fn": fn, "tn": tn}
     }
 
-def validate_jaccard_cosine_correlation(jaccard_scores: List[float], cosine_scores: List[float]) -> Dict[str, float]:
-    """Validate correlation between Jaccard and cosine similarity scores."""
-    if len(jaccard_scores) != len(cosine_scores) or len(jaccard_scores) == 0:
-        return {"correlation": 0.0, "pvalue": 1.0}
-    
-    corr, pval = np.corrcoef(jaccard_scores, cosine_scores)
-    return {"correlation": float(corr[0][1]), "pvalue": float(pval[0][1])}
+def validate_jaccard_cosine_correlation(jaccard_scores: List[float], cosine_scores: List[float]) -> float:
+    if not jaccard_scores or not cosine_scores or len(jaccard_scores) != len(cosine_scores):
+        return 0.0
+    return float(np.corrcoef(jaccard_scores, cosine_scores)[0, 1])
 
-def calculate_cosine_similarity_proxy_from_logs(logs: List[Dict[str, Any]], threshold: float = 0.95) -> List[Dict[str, Any]]:
-    """Extract proxy labels from comparison logs."""
-    return [
-        {
-            "pair_id": log.get("pair_id"),
-            "proxy_label": log.get("cosine_sim", 0) > threshold,
-            "cosine_sim": log.get("cosine_sim", 0)
-        }
-        for log in logs
-    ]
-
-def calculate_sample_config(flagged_count: int, min_threshold: int = 10, percentage: float = 0.05) -> Dict[str, Any]:
+def aggregate_flagged_pairs_from_log(log_path: str, output_path: str, threshold: float = 0.95) -> Dict:
     """
-    Calculate and return the sample configuration for LLM consensus validation.
-    
-    Args:
-        flagged_count: Total number of flagged pairs (cosine_sim > 0.95)
-        min_threshold: Minimum sample size (default 10)
-        percentage: Percentage of flagged count to sample (default 0.05)
-        
-    Returns:
-        Dictionary with sample_size, minimum_threshold, percentage, and skip_validation flag.
+    T013 Implementation: Aggregate flagged pairs from comparison log.
+    Reads data/processed/comparison_log.json, counts pairs with cosine_sim > threshold,
+    and writes results to data/results/flagged_pairs_count.json.
     """
-    sample_size = calculate_dynamic_sample_size(flagged_count, min_threshold, percentage)
-    skip_validation = (sample_size == 0)
+    logger = logging.getLogger(__name__)
+    logger.info(f"Reading comparison log from {log_path}")
     
-    return {
-        "sample_size": sample_size,
-        "minimum_threshold": min_threshold,
-        "percentage": percentage,
-        "skip_validation": skip_validation
+    if not os.path.exists(log_path):
+        raise FileNotFoundError(f"Comparison log not found: {log_path}. T014 must run first.")
+    
+    wasted_count = 0
+    total_pairs = 0
+    
+    with open(log_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                total_pairs += 1
+                cosine_sim = entry.get("cosine_sim", 0.0)
+                if cosine_sim > threshold:
+                    wasted_count += 1
+            except json.JSONDecodeError:
+                logger.warning(f"Skipping malformed JSON line in log: {line}")
+    
+    wasted_ratio = wasted_count / total_pairs if total_pairs > 0 else 0.0
+    
+    result = {
+        "wasted_count": wasted_count,
+        "total_pairs": total_pairs,
+        "wasted_ratio": wasted_ratio
     }
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Flagged pairs aggregation complete. Total: {total_pairs}, Wasted: {wasted_count}, Ratio: {wasted_ratio:.4f}")
+    logger.info(f"Results written to {output_path}")
+    
+    return result
 
-def run_sample_size_calculation(flagged_count_file: str, output_file: str):
+def calculate_sample_size_for_consensus(
+    input_path: str,
+    output_path: str,
+    min_size: int = 10,
+    percentage: float = 0.05
+) -> Dict:
     """
-    Execute sample size calculation for LLM consensus validation.
-    Reads flagged count from flagged_count_file and writes config to output_file.
+    T013b Implementation: Calculate sample size for LLM consensus validation.
+    
+    Reads data/results/flagged_pairs_count.json to get the total flagged count.
+    Calculates sample_size = max(min_size, int(total_count * percentage)).
+    Handles edge case: if flagged_count is 0, sets sample_size to 0 and skip_validation to true.
+    Writes result to data/results/sample_config.json.
     """
-    logger.info(f"Starting sample size calculation. Input: {flagged_count_file}, Output: {output_file}")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Calculating sample size from {input_path}")
     
-    if not os.path.exists(flagged_count_file):
-        logger.error(f"Flagged count file not found: {flagged_count_file}")
-        raise FileNotFoundError(f"Flagged count file not found: {flagged_count_file}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Flagged pairs count not found: {input_path}. T013 must run first.")
     
-    with open(flagged_count_file, 'r') as f:
+    with open(input_path, 'r') as f:
         flagged_data = json.load(f)
     
     flagged_count = flagged_data.get("wasted_count", 0)
-    logger.info(f"Total flagged count: {flagged_count}")
     
-    sample_config = calculate_sample_config(flagged_count)
+    # Handle edge case: if flagged_count is 0
+    if flagged_count == 0:
+        result = {
+            "sample_size": 0,
+            "minimum_threshold": min_size,
+            "percentage": percentage,
+            "skip_validation": True
+        }
+    else:
+        # Calculate sample size: max of min_size or 5% of total
+        calculated_size = int(flagged_count * percentage)
+        sample_size = max(min_size, calculated_size)
+        
+        result = {
+            "sample_size": sample_size,
+            "minimum_threshold": min_size,
+            "percentage": percentage,
+            "skip_validation": False
+        }
     
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(sample_config, f, indent=2)
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    logger.info(f"Sample config written to {output_file}: {sample_config}")
-    return sample_config
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Sample size calculation complete. Flagged count: {flagged_count}, Sample size: {result['sample_size']}, Skip: {result['skip_validation']}")
+    logger.info(f"Results written to {output_path}")
+    
+    return result
 
 def main():
-    parser = argparse.ArgumentParser(description="Metrics and validation utilities")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
-    # Sample size calculation command
-    sample_parser = subparsers.add_parser("calc_sample_size", help="Calculate sample size for consensus validation")
-    sample_parser.add_argument("--input", required=True, help="Path to flagged_pairs_count.json")
-    sample_parser.add_argument("--output", required=True, help="Path to write sample_config.json")
-    
-    args = parser.parse_args()
-    
-    if args.command == "calc_sample_size":
-        run_sample_size_calculation(args.input, args.output)
-    else:
-        parser.print_help()
+    """Entry point for T013b execution."""
+    logging.basicConfig(level=logging.INFO)
+    input_path = "data/results/flagged_pairs_count.json"
+    output_path = "data/results/sample_config.json"
+    calculate_sample_size_for_consensus(input_path, output_path)
 
 if __name__ == "__main__":
     main()

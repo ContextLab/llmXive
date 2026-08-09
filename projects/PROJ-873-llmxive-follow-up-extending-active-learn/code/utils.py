@@ -4,17 +4,16 @@ import sys
 import time
 import resource
 import logging
-import json
 import subprocess
-from typing import Optional, Callable
-from threading import Thread
+import json
+from typing import Optional, Callable, Any
 
 from config import get_config, PipelineConfig
 
 logger = logging.getLogger(__name__)
 
 class EnforcementVerificationError(Exception):
-    """Raised when neither cgroups nor psutil-based enforcement can be verified."""
+    """Raised when neither cgroups nor psutil/resource limits are available."""
     pass
 
 class PartialRunError(Exception):
@@ -24,51 +23,19 @@ class DataFlowViolationError(Exception):
     pass
 
 class ResourceWatchdog:
-    def __init__(self, max_runtime_hours: float, max_memory_gb: float):
+    """
+    Monitors runtime and memory usage. Implements a 'Dual-Layer Hard Kill':
+    Layer 1: Python-level signal (SIGKILL) via os.kill.
+    Layer 2: Shell-level kill via subprocess (cgroup.kill or kill -9 -<pid>).
+    """
+    def __init__(self, max_runtime_hours: float, max_memory_gb: float, pid: int = None):
         self.max_runtime_hours = max_runtime_hours
         self.max_memory_gb = max_memory_gb
         self.start_time = time.time()
         self.max_memory_bytes = max_memory_gb * 1024 * 1024 * 1024
         self.running = True
-        self.pid = os.getpid()
-        self.verification_passed = False
-
-    def _verify_enforcement_mechanisms(self):
-        """
-        Verifies that at least one enforcement mechanism (cgroups or psutil) is available.
-        If both fail, raises EnforcementVerificationError.
-        """
-        cgroups_available = False
-        psutil_available = True # We assume standard library resource module is available, but verify logic works
-
-        # Check cgroups v2
-        try:
-            with open('/sys/fs/cgroup/cgroup.controllers', 'r') as f:
-                controllers = f.read().strip()
-                if controllers:
-                    cgroups_available = True
-                    logger.info("cgroups v2 available.")
-        except FileNotFoundError:
-            logger.warning("cgroups v2 mount not found.")
-        except PermissionError:
-            logger.warning("Permission denied accessing cgroups mount.")
-
-        # Check psutil/resource module functionality
-        try:
-            # Attempt to read current memory to ensure the mechanism works
-            _ = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        except Exception as e:
-            logger.error(f"Resource monitoring (psutil/resource) failed: {e}")
-            psutil_available = False
-
-        if not cgroups_available and not psutil_available:
-            raise EnforcementVerificationError(
-                "Neither cgroups v2 nor resource monitoring (psutil) is available. "
-                "Cannot enforce FR-006 limits safely."
-            )
-        
-        self.verification_passed = True
-        return cgroups_available, psutil_available
+        self.pid = pid if pid is not None else os.getpid()
+        self._kill_group = False
 
     def check(self):
         if not self.running:
@@ -81,56 +48,63 @@ class ResourceWatchdog:
         elapsed = time.time() - self.start_time
         elapsed_hours = elapsed / 3600
 
+        # Check Runtime
         if elapsed_hours > self.max_runtime_hours:
             logger.error(f"Runtime limit exceeded: {elapsed_hours:.2f}h > {self.max_runtime_hours}h")
             self._hard_kill()
-            return
+            sys.exit(1)
 
+        # Check Memory
         try:
+            # resource.getrusage ru_maxrss is in KB on Linux, bytes on macOS.
+            # We assume Linux for cgroup context, but handle both.
             mem_usage_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-            # On Linux, ru_maxrss is in KB.
-            mem_gb = mem_usage_kb / (1024 * 1024)
+            
+            # Detect unit: If > 100GB in KB, it's likely bytes (macOS).
+            # Standard Linux maxrss is KB.
+            if mem_usage_kb > 100 * 1024 * 1024: 
+                # Likely bytes
+                mem_bytes = mem_usage_kb
+            else:
+                # Likely KB
+                mem_bytes = mem_usage_kb * 1024
+
+            mem_gb = mem_bytes / (1024 * 1024 * 1024)
             
             if mem_gb > self.max_memory_gb:
                 logger.error(f"Memory limit exceeded: {mem_gb:.2f}GB > {self.max_memory_gb}GB")
                 self._hard_kill()
+                sys.exit(1)
         except Exception as e:
             logger.warning(f"Could not check memory: {e}")
 
     def _hard_kill(self):
-        """
-        Dual-Layer Hard Kill Mechanism:
-        Layer 1: Send SIGKILL to self via psutil/resource logic (os.kill).
-        Layer 2: Attempt to write to cgroup.kill or kill the process group.
-        """
         logger.critical("Initiating Dual-Layer Hard Kill.")
         
-        # Layer 1: Standard signal to self
+        # Layer 1: Python signal
         try:
             os.kill(self.pid, signal.SIGKILL)
+            logger.critical("Layer 1 (SIGKILL) sent.")
+        except ProcessLookupError:
+            pass
         except Exception as e:
-            logger.error(f"Layer 1 (os.kill) failed: {e}")
+            logger.error(f"Layer 1 signal failed: {e}")
 
-        # Layer 2: Shell wrapper / cgroup kill
-        # Try to write to cgroup.kill if available
-        cgroup_kill_path = "/sys/fs/cgroup/cgroup.kill"
-        if os.path.exists(cgroup_kill_path):
-            try:
-                with open(cgroup_kill_path, 'w') as f:
-                    f.write('1')
-                logger.info("Layer 2 (cgroup.kill) triggered.")
-            except Exception as e:
-                logger.error(f"Layer 2 (cgroup.kill) failed: {e}")
-        
-        # Fallback Layer 2: Kill process group
+        # Layer 2: Shell wrapper kill
+        # Attempt cgroup.kill first, then kill -9 -<pid>
         try:
-            os.killpg(os.getpgid(self.pid), signal.SIGKILL)
-            logger.info("Layer 2 (kill -9 -<pgid>) triggered.")
+            cgroup_kill_path = "/sys/fs/cgroup/cgroup.kill"
+            if os.path.exists(cgroup_kill_path):
+                with open(cgroup_kill_path, "w") as f:
+                    f.write("1")
+                logger.critical("Layer 2 (cgroup.kill) triggered.")
+            else:
+                # Fallback to kill -9 on process group
+                pid_group = -self.pid
+                subprocess.run(["kill", "-9", str(pid_group)], check=False)
+                logger.critical(f"Layer 2 (kill -9 -{pid_group}) triggered.")
         except Exception as e:
-            logger.error(f"Layer 2 (killpg) failed: {e}")
-
-        # Final safety: exit immediately
-        sys.exit(1)
+            logger.error(f"Layer 2 shell kill failed: {e}")
 
     def stop(self):
         self.running = False
@@ -138,23 +112,28 @@ class ResourceWatchdog:
 def init_watchdog():
     config = get_config()
     
-    # Validate config values exist
-    if not hasattr(config, 'MAX_RUNTIME_HOURS') or not hasattr(config, 'MAX_MEMORY_GB'):
-        raise RuntimeError("Config missing MAX_RUNTIME_HOURS or MAX_MEMORY_GB. Ensure T004 is complete.")
+    # Verify enforcement capability (cgroups or psutil/resource)
+    cgroups_available = False
+    try:
+        with open('/sys/fs/cgroup/cgroup.controllers', 'r') as f:
+            cgroups_available = True
+        logger.info("cgroups v2 available.")
+    except FileNotFoundError:
+        logger.warning("cgroups v2 not available.")
+    
+    # If cgroups are not available, we rely on resource.getrusage (psutil equivalent)
+    # If resource.getrusage fails completely, we must fail loudly per T004a spec.
+    # We assume resource module is always present in standard Python, but verify logic works.
+    try:
+        resource.getrusage(resource.RUSAGE_SELF)
+    except Exception:
+        raise EnforcementVerificationError("Neither cgroups nor resource.getrusage is functional. Cannot enforce limits.")
 
     watchdog = ResourceWatchdog(
         max_runtime_hours=float(config.MAX_RUNTIME_HOURS),
         max_memory_gb=float(config.MAX_MEMORY_GB)
     )
     
-    # Run verification immediately to fail fast if environment is unsupported
-    try:
-        watchdog._verify_enforcement_mechanisms()
-    except EnforcementVerificationError as e:
-        logger.critical(str(e))
-        raise
-
-    logger.info("Watchdog initialized and verified.")
     return watchdog
 
 def check_limits_periodically(watchdog: ResourceWatchdog, interval: int = 60):
@@ -189,25 +168,11 @@ def get_config_schema_for_artifact():
     }
 
 def main():
-    """
-    Standalone execution for testing the watchdog.
-    Simulates a long-running process if needed, or just verifies initialization.
-    """
+    watchdog = init_watchdog()
     try:
-        watchdog = init_watchdog()
-        logger.info("Watchdog active. Checking limits periodically (Ctrl+C to stop).")
-        check_limits_periodically(watchdog, interval=5)
-    except EnforcementVerificationError as e:
-        print(f"FATAL: {e}")
-        sys.exit(1)
-    except KeyboardInterrupt:
-        logger.info("Watchdog stopped by user.")
-    except Exception as e:
-        logger.error(f"Watchdog error: {e}")
-        sys.exit(1)
+        check_limits_periodically(watchdog)
     finally:
-        if 'watchdog' in locals():
-            stop_watchdog(watchdog)
+        stop_watchdog(watchdog)
 
 if __name__ == "__main__":
     main()
