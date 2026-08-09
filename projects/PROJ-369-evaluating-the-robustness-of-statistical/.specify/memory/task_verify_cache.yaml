@@ -4,3 +4,29 @@ T012:
   r: Both required artifacts (`src/data/preprocessing.py` and `tests/unit/test_preprocessing.py`)
     are missing from the repository, so no unit test exists to verify the ADF logic
     or differencing loops. The task is therefore not satisfied.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, log output, or documentation was provided showing that\
+    \ datasets with fewer than 25 points are detected, skipped, and a warning is logged.\
+    \ The required artifact (implementation of the edge\u2011case handling) is missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that implement edge\u2011\
+    case handling for undeterminable unit roots, count differencing steps, or record\
+    \ them. The claim lacks any concrete artifact to verify the required functionality."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation for the edge\u2011case handling (fallback to\
+    \ variance\u2011based metric when spectral density fails) was provided; the claim\
+    \ lacks any tangible artifact to verify that the fallback logic was implemented\
+    \ and integrated. The required implementation is therefore missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data files were provided that implement the required\
+    \ logic to generate synthetic time\u2011series of the specified lengths (100,\u202F\
+    500,\u202F1\u202F000,\u202F5\u202F000,\u202F10\u202F000). Without an artifact\
+    \ showing the generation routine and its output, the task requirement is not satisfied."

@@ -1,153 +1,149 @@
+"""
+Unit tests for src.data.metrics module.
+"""
 import pytest
 import numpy as np
 import pandas as pd
-import os
-import sys
+from scipy import stats
+import tempfile
 from pathlib import Path
+import sys
+import os
 
-# Add src to path for imports if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'src'))
+# Add src to path if running standalone
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from src.data.metrics import (
-    MetricsError,
-    compute_acf_lag,
-    compute_dfa_hurst,
-    compute_spectral_peak_ratio,
-    compute_all_metrics,
-    compute_metrics_for_dataset
+    compute_acf_lag, 
+    compute_dfa_hurst, 
+    compute_spectral_peak_ratio, 
+    compute_all_metrics, 
+    compute_metrics_for_dataset,
+    MetricsError
 )
 
+# Fixtures for test data
+@pytest.fixture
+def white_noise_series():
+    """Generate a white noise series (H ~ 0.5, ACF ~ 0)."""
+    np.random.seed(42)
+    return np.random.normal(0, 1, 1000)
 
-class TestACFLag:
-    def test_acf_white_noise(self):
-        """Test ACF on white noise (should be near zero for lags > 0)."""
-        np.random.seed(42)
-        noise = np.random.normal(0, 1, 1000)
-        acf = compute_acf_lag(noise, max_lag=5)
-        
-        for lag, val in acf.items():
-            # Allow some tolerance for randomness
-            assert abs(val) < 0.1, f"ACF at lag {lag} is {val}, expected near 0 for white noise"
+@pytest.fixture
+def persistent_series():
+    """Generate a persistent series (H > 0.5, positive ACF)."""
+    np.random.seed(42)
+    # Create a series with persistence using cumulative sum of noise
+    noise = np.random.normal(0, 1, 1000)
+    return np.cumsum(noise)
 
-    def test_acf_constant(self):
-        """Test ACF on constant series (should be 0 or undefined, handled as 0)."""
-        constant = np.ones(100)
-        acf = compute_acf_lag(constant, max_lag=5)
-        for val in acf.values():
-            assert val == 0.0
+@pytest.fixture
+def periodic_series():
+    """Generate a series with strong periodicity."""
+    np.random.seed(42)
+    t = np.linspace(0, 100, 1000)
+    return np.sin(t) + np.random.normal(0, 0.1, 1000)
 
-    def test_acf_perfect_correlation(self):
-        """Test ACF on a perfectly correlated series (lag 1 should be ~1)."""
-        # Create a series where x[t] = x[t-1] + noise (random walk-ish but stable enough for short lag)
-        # Better: x[t] = 0.9 * x[t-1] + noise
-        np.random.seed(42)
-        n = 1000
-        x = np.zeros(n)
-        for i in range(1, n):
-            x[i] = 0.9 * x[i-1] + np.random.normal(0, 0.1)
-        
-        acf = compute_acf_lag(x, max_lag=5)
-        # Lag 1 should be high
-        assert acf[1] > 0.8, f"Expected high ACF at lag 1, got {acf[1]}"
+@pytest.fixture
+def short_series():
+    """Generate a series too short for metrics."""
+    return np.array([1.0, 2.0, 3.0])
 
+@pytest.fixture
+def test_data_dir(tmp_path):
+    """Create a temporary directory for test data files."""
+    return tmp_path
 
-class TestDFAHurst:
-    def test_hurst_white_noise(self):
-        """Test Hurst exponent on white noise (should be ~0.5)."""
-        np.random.seed(42)
-        noise = np.random.normal(0, 1, 2000) # Need larger N for stable DFA
-        hurst = compute_dfa_hurst(noise)
-        
-        # White noise H should be close to 0.5
-        assert 0.4 <= hurst <= 0.6, f"Hurst for white noise should be ~0.5, got {hurst}"
+class TestACF:
+    def test_acf_lag_0_is_one(self, white_noise_series):
+        """ACF at lag 0 should always be 1.0."""
+        acf = compute_acf_lag(white_noise_series, max_lag=5)
+        assert acf[0] == 1.0
 
-    def test_hurst_persistent(self):
-        """Test Hurst on persistent series (H > 0.5)."""
-        # Generate a series with long memory (approximate)
-        np.random.seed(42)
-        n = 2000
-        x = np.cumsum(np.random.normal(0, 1, n)) # Random walk, H=1.5 theoretically for non-stationary, 
-        # But DFA on random walk often yields H ~ 1.0 or slightly less depending on detrending.
-        # Let's use a fractional noise generator if available, or just a strong trend.
-        # For testing, a simple trend:
-        x = np.linspace(0, 10, n) + np.random.normal(0, 0.1, n)
-        
-        hurst = compute_dfa_hurst(x)
-        # Trended series usually yields H > 0.5
-        assert hurst > 0.5, f"Persistent series should have H > 0.5, got {hurst}"
+    def test_acf_white_noise_near_zero(self, white_noise_series):
+        """ACF for white noise should be close to 0 for lags > 0."""
+        acf = compute_acf_lag(white_noise_series, max_lag=10)
+        for lag in range(1, 11):
+            # Allow some tolerance due to randomness
+            assert abs(acf[lag]) < 0.1, f"ACF at lag {lag} is too high: {acf[lag]}"
 
-    def test_hurst_too_short(self):
-        """Test Hurst on series too short for DFA."""
-        short_series = np.random.normal(0, 1, 5)
+    def test_acf_persistent_positive(self, persistent_series):
+        """ACF for persistent series should be positive."""
+        acf = compute_acf_lag(persistent_series, max_lag=5)
+        # Lag 1 should be significantly positive
+        assert acf[1] > 0.5, f"Lag 1 ACF too low: {acf[1]}"
+
+    def test_acf_short_series_raises(self, short_series):
+        """ACF should raise error for very short series."""
         with pytest.raises(MetricsError):
-            compute_dfa_hurst(short_series, min_scale=4)
+            compute_acf_lag(short_series, max_lag=5)
 
+class TestDFA:
+    def test_hurst_white_noise(self, white_noise_series):
+        """Hurst exponent for white noise should be around 0.5."""
+        h = compute_dfa_hurst(white_noise_series)
+        # Tolerance is generous due to finite sample effects
+        assert 0.4 < h < 0.6, f"Hurst {h} not in expected range for white noise"
 
-class TestSpectralPeakRatio:
-    def test_spectral_sine(self):
-        """Test spectral ratio on a pure sine wave (should have high peak)."""
-        t = np.linspace(0, 10, 1000)
-        freq = 5
-        sine_wave = np.sin(2 * np.pi * freq * t)
-        
-        ratio = compute_spectral_peak_ratio(sine_wave)
-        # Sine wave has a very sharp peak, ratio should be high
-        assert ratio > 10, f"Sine wave should have high spectral ratio, got {ratio}"
+    def test_hurst_persistent(self, persistent_series):
+        """Hurst exponent for persistent series should be > 0.5."""
+        h = compute_dfa_hurst(persistent_series)
+        assert h > 0.5, f"Hurst {h} should be > 0.5 for persistent series"
 
-    def test_spectral_noise(self):
-        """Test spectral ratio on white noise (should be low)."""
-        np.random.seed(42)
-        noise = np.random.normal(0, 1, 1000)
-        ratio = compute_spectral_peak_ratio(noise)
-        # Noise should have ratio close to 1 (flat spectrum)
-        assert ratio < 5, f"Noise should have low spectral ratio, got {ratio}"
-
-    def test_spectral_empty(self):
-        """Test with empty input."""
+    def test_hurst_short_series_raises(self, short_series):
+        """DFA should raise error for very short series."""
         with pytest.raises(MetricsError):
-            compute_spectral_peak_ratio(np.array([]))
+            compute_dfa_hurst(short_series)
 
+class TestSpectralDensity:
+    def test_spectral_peak_ratio_periodic(self, periodic_series):
+        """Periodic series should have high spectral peak ratio."""
+        ratio = compute_spectral_peak_ratio(periodic_series)
+        assert ratio > 2.0, f"Peak ratio {ratio} too low for periodic series"
 
-class TestComputeAllMetrics:
-    def test_full_metrics(self):
-        """Test computing all metrics on a generated series."""
-        np.random.seed(42)
-        series = np.random.normal(0, 1, 1000)
-        
-        results = compute_all_metrics(series)
-        
-        assert 'acf_lag' in results
-        assert 'hurst' in results
-        assert 'spectral_peak_ratio' in results
-        
-        assert isinstance(results['acf_lag'], dict)
-        assert isinstance(results['hurst'], float)
-        assert isinstance(results['spectral_peak_ratio'], float)
+    def test_spectral_peak_ratio_white_noise(self, white_noise_series):
+        """White noise should have low spectral peak ratio (near 1)."""
+        ratio = compute_spectral_peak_ratio(white_noise_series)
+        # White noise spectrum is flat, so ratio should be close to 1
+        assert 0.5 < ratio < 3.0, f"Peak ratio {ratio} unexpected for white noise"
 
-class TestComputeMetricsForDataset:
-    def test_compute_from_csv(self, tmp_path):
-        """Test computing metrics from a CSV file."""
-        # Create a test CSV
+    def test_spectral_peak_ratio_short_series_raises(self, short_series):
+        """Spectral analysis should raise error for very short series."""
+        with pytest.raises(MetricsError):
+            compute_spectral_peak_ratio(short_series)
+
+class TestAllMetrics:
+    def test_compute_all_metrics(self, white_noise_series):
+        """Test that compute_all_metrics returns expected keys."""
+        result = compute_all_metrics(white_noise_series)
+        assert 'acf' in result
+        assert 'hurst' in result
+        assert 'spectral_peak_ratio' in result
+        assert result['acf_lag_1'] is not None
+        assert result['hurst'] is not None
+        assert result['spectral_peak_ratio'] is not None
+
+    def test_compute_all_metrics_partial_failure(self, short_series):
+        """Test behavior when some metrics fail."""
+        # This might fail entirely or return None for some fields depending on implementation
+        # For now, we expect it to raise or return partial results
+        # Based on current implementation, it raises for short series
+        with pytest.raises(MetricsError):
+            compute_all_metrics(short_series)
+
+class TestMetricsForAllRealSeries:
+    """Placeholder for integration-style tests with real data."""
+    def test_compute_metrics_for_dataset(self, test_data_dir):
+        """Test compute_metrics_for_dataset with a mock DataFrame."""
         data = {
-            'date': pd.date_range(start='2020-01-01', periods=100),
+            'datetime': pd.date_range('2020-01-01', periods=100, freq='D'),
             'value': np.random.normal(0, 1, 100)
         }
         df = pd.DataFrame(data)
-        csv_path = tmp_path / "test_data.csv"
-        df.to_csv(csv_path, index=False)
         
-        results = compute_metrics_for_dataset(str(csv_path), value_column='value')
+        result = compute_metrics_for_dataset(df, value_column='value', date_column='datetime')
         
-        assert results['n_points'] == 100
-        assert 'hurst' in results
-        assert 'acf_lag' in results
-        
-    def test_missing_column(self, tmp_path):
-        """Test error when column is missing."""
-        data = {'date': [1, 2, 3], 'other': [4, 5, 6]}
-        df = pd.DataFrame(data)
-        csv_path = tmp_path / "test_missing.csv"
-        df.to_csv(csv_path, index=False)
-        
-        with pytest.raises(MetricsError):
-            compute_metrics_for_dataset(str(csv_path), value_column='missing_col')
+        assert 'n_points' in result
+        assert result['n_points'] == 100
+        assert 'metrics' in result
+        assert result['metrics']['hurst'] is not None

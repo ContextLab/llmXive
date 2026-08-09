@@ -1,0 +1,105 @@
+# Ruff configuration for llmXive project
+# Strict linting rules (E, F, W, I, N, C, UP) with Black integration
+
+# Target Python version
+target-version = "py39"
+
+# Line length (matching Black's default)
+line-length = 88
+
+# Exclude common directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "state",
+]
+
+[lint]
+# Enable strict rule sets
+select = [
+    "E",    # pycodestyle errors
+    "F",    # Pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "N",    # pep8-naming
+    "C",    # flake8-comprehensions
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RET",  # flake8-return
+    "ARG",  # flake8-unused-arguments
+    "PTH",  # flake8-use-pathlib
+]
+
+# Ignore specific rules that conflict with Black or are too strict for this project
+ignore = [
+    "E501",  # Line too long (handled by Black)
+    "D",     # Pydocstyle (optional for now)
+]
+
+# Allow autofixes for safe rules
+fixable = ["ALL"]
+unfixable = []
+
+# Per-file ignores
+per-file-ignores = { "tests/*" = ["ARG", "S101"] }
+
+[lint.isort]
+# isort configuration to match Black
+known-first-party = ["src", "tests", "scripts"]
+known-third-party = []
+force-sort-within-sections = true
+case-sensitive = false
+lines-after-imports = 2
+no-sections = false
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+# Format configuration (Black-compatible)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint.flake8-comprehensions]
+allow-dict-calls-with-keyword-arguments = true
+
+[lint.flake8-bugbear]
+extend-immutable-calls = ["src.utils.config.get_path"]
+
+[lint.pep8-naming]
+# Allow class names that start with underscore for internal use
+ignore-names = ["_*"]
+
+[lint.pyupgrade]
+# Keep Python 3.9+ syntax
+keep-runtime-typing = false

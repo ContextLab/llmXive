@@ -42,36 +42,47 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/maurice/traffic/resolve/main/traffic.csv
   verified_at: '2026-08-04T17:06:00.756414Z'
-- artifact_hash: 71d624e112a583cf60c0f03e4d91c84c446aaed0be9fd09ab71b34f9199fd445
+- artifact_hash: 69531e036bef868cab6b38a984c029821e0799805c71e719fd026248f2430449
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.ncei.noaa.gov/access/monitoring/daily-snow/
+  value: https://www.ncei.noaa.gov/access/services/data/v1?dataset=global-summary-of-the-day`
   verification_status: unreachable
-  verified_against_url: https://www.ncei.noaa.gov/access/monitoring/daily-snow/
-  verified_at: '2026-08-09T09:32:09.818234Z'
-- artifact_hash: 71d624e112a583cf60c0f03e4d91c84c446aaed0be9fd09ab71b34f9199fd445
+  verified_against_url: https://www.ncei.noaa.gov/access/services/data/v1?dataset=global-summary-of-the-day
+  verified_at: '2026-08-09T17:00:25.350234Z'
+- artifact_hash: 69531e036bef868cab6b38a984c029821e0799805c71e719fd026248f2430449
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.nationalgrideso.com/document/174276/download
+  value: https://www.nationalgrideso.com/document/174276/download`
   verification_status: pending
   verified_against_url: https://www.nationalgrideso.com/document/174276/download
-  verified_at: '2026-08-09T09:32:09.818234Z'
-- artifact_hash: 71d624e112a583cf60c0f03e4d91c84c446aaed0be9fd09ab71b34f9199fd445
+  verified_at: '2026-08-09T17:00:25.350234Z'
+- artifact_hash: 69531e036bef868cab6b38a984c029821e0799805c71e719fd026248f2430449
   artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: UCI Machine Learning Repository
+  fetched_title: null
   kind: url
-  value: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014
-  verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014
-  verified_at: '2026-08-09T09:32:09.818234Z'
+  value: https://www.ncei.noaa.gov/access/services/data/v1?dataset=global-summary-of-the-day&stations=USW00014895`
+  verification_status: unreachable
+  verified_against_url: https://www.ncei.noaa.gov/access/services/data/v1?dataset=global-summary-of-the-day&stations=USW00014895
+  verified_at: '2026-08-09T17:00:25.350234Z'
+- artifact_hash: 69531e036bef868cab6b38a984c029821e0799805c71e719fd026248f2430449
+  artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ncei.noaa.gov/access/services/data/v1?dataset=global-summary-of-the-day&stations=USW00014833`
+  verification_status: unreachable
+  verified_against_url: https://www.ncei.noaa.gov/access/services/data/v1?dataset=global-summary-of-the-day&stations=USW00014833
+  verified_at: '2026-08-09T17:00:25.350234Z'

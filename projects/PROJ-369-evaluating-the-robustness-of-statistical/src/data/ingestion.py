@@ -1,338 +1,541 @@
+"""
+Data ingestion module for downloading and validating public time series datasets.
+
+Implements strict URL validation, checksum verification, and loud failure on download errors.
+No synthetic fallbacks are permitted.
+"""
 import os
 import hashlib
 import logging
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, field, asdict
-import json
-import time
-
-import pandas as pd
+from typing import Dict, Any, Optional, List
 import requests
-import yfinance as yf
-from requests.exceptions import RequestException, Timeout, HTTPError
+import pandas as pd
+from datetime import datetime
+import json
 
-from src.utils.logging import get_logger
+# Import project utilities
+from src.utils.config import get_path
+from src.utils.logging import get_logger, log_info, log_error, log_warning
 
 logger = get_logger(__name__)
+
 
 class IngestionError(Exception):
     """Custom exception for data ingestion failures."""
     pass
 
-@dataclass
+
 class DatasetManifest:
-    """Schema for dataset metadata in the manifest file."""
-    name: str
-    source: str
-    url: str
-    local_path: str
-    checksum: str
-    timestamp: str
-    status: str = "pending"
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    """Data class to hold dataset metadata and verification info."""
+    def __init__(
+        self,
+        dataset_id: str,
+        source_name: str,
+        source_url: str,
+        file_path: str,
+        checksum: str,
+        download_timestamp: str,
+        row_count: int,
+        column_count: int,
+        date_range: Optional[str] = None
+    ):
+        self.dataset_id = dataset_id
+        self.source_name = source_name
+        self.source_url = source_url
+        self.file_path = file_path
+        self.checksum = checksum
+        self.download_timestamp = download_timestamp
+        self.row_count = row_count
+        self.column_count = column_count
+        self.date_range = date_range
 
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        return {
+            "dataset_id": self.dataset_id,
+            "source_name": self.source_name,
+            "source_url": self.source_url,
+            "file_path": self.file_path,
+            "checksum": self.checksum,
+            "download_timestamp": self.download_timestamp,
+            "row_count": self.row_count,
+            "column_count": self.column_count,
+            "date_range": self.date_range
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'DatasetManifest':
+        return cls(**data)
+
 
 def validate_url(url: str) -> bool:
-    """Validate that a URL is well-formed and accessible."""
-    if not url.startswith(('http://', 'https://')):
-        return False
+    """
+    Validate that a URL is well-formed and accessible.
+    
+    Args:
+        url: The URL to validate
+        
+    Returns:
+        True if valid, raises IngestionError if invalid
+    """
+    if not url or not isinstance(url, str):
+        raise IngestionError("URL must be a non-empty string")
+    
+    if not (url.startswith('http://') or url.startswith('https://')):
+        raise IngestionError(f"Invalid URL scheme: {url}")
+    
     try:
-        # HEAD request to check accessibility without downloading body
         response = requests.head(url, timeout=10, allow_redirects=True)
-        # Some servers block HEAD, fallback to GET with stream
-        if response.status_code == 405:
-            response = requests.get(url, stream=True, timeout=10)
-        return response.status_code == 200
-    except RequestException:
-        return False
+        if response.status_code >= 400:
+            raise IngestionError(f"URL returned status {response.status_code}: {url}")
+        return True
+    except requests.RequestException as e:
+        raise IngestionError(f"Failed to validate URL {url}: {str(e)}")
 
-def compute_sha256(filepath: Path) -> str:
-    """Compute SHA256 checksum of a file."""
+
+def compute_sha256(file_path: Path) -> str:
+    """
+    Compute SHA256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        Hexadecimal string of the SHA256 hash
+    """
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, dest_path: Path, timeout: int = 60) -> str:
+
+def download_file(url: str, destination: Path) -> None:
     """
-    Download a file from a URL with progress and error handling.
-    Raises IngestionError on failure.
+    Download a file from URL to destination with progress logging.
+    
+    Args:
+        url: Source URL
+        destination: Local file path to save to
+        
+    Raises:
+        IngestionError: If download fails
     """
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    if not destination.parent.exists():
+        destination.parent.mkdir(parents=True, exist_ok=True)
+    
     try:
-        logger.info(f"Downloading {url} to {dest_path}")
-        response = requests.get(url, stream=True, timeout=timeout)
+        log_info(f"Downloading {url} to {destination}")
+        response = requests.get(url, stream=True, timeout=120)
         response.raise_for_status()
         
         total_size = int(response.headers.get('content-length', 0))
         downloaded = 0
         
-        with open(dest_path, 'wb') as f:
+        with open(destination, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
                     downloaded += len(chunk)
                     if total_size > 0:
-                        percent = (downloaded / total_size) * 100
-                        logger.debug(f"Download progress: {percent:.1f}%")
+                        progress = (downloaded / total_size) * 100
+                        log_info(f"Download progress: {progress:.1f}%")
+                        
+        log_info(f"Successfully downloaded {destination.name}")
         
-        logger.info(f"Download complete: {dest_path}")
-        return compute_sha256(dest_path)
+    except requests.RequestException as e:
+        raise IngestionError(f"Download failed for {url}: {str(e)}")
+    except Exception as e:
+        raise IngestionError(f"Unexpected error downloading {url}: {str(e)}")
+
+
+def load_csv_robust(file_path: Path, date_col: str = None, parse_dates: bool = True) -> pd.DataFrame:
+    """
+    Load a CSV file with robust error handling and date parsing.
+    
+    Args:
+        file_path: Path to CSV file
+        date_col: Name of the date/datetime column (optional)
+        parse_dates: Whether to parse dates
         
-    except (Timeout, RequestException, HTTPError) as e:
-        logger.error(f"Download failed for {url}: {e}")
-        raise IngestionError(f"Failed to download {url}: {e}")
-
-def load_csv_robust(filepath: Path, **kwargs) -> pd.DataFrame:
+    Returns:
+        pandas DataFrame
+        
+    Raises:
+        IngestionError: If file cannot be loaded
     """
-    Load a CSV file with robust error handling and encoding detection.
-    """
-    encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
-    last_error = None
-    
-    for encoding in encodings:
-        try:
-            df = pd.read_csv(filepath, encoding=encoding, **kwargs)
-            logger.info(f"Loaded {filepath} with encoding {encoding}")
-            return df
-        except UnicodeDecodeError as e:
-            last_error = e
-            continue
-        except Exception as e:
-            last_error = e
-            break
-    
-    raise IngestionError(f"Failed to load {filepath} with any common encoding: {last_error}")
-
-def ingest_noaa_dataset(url: str, dest_dir: Path, name: str) -> DatasetManifest:
-    """
-    Ingest a NOAA dataset from a direct CSV/TSV URL.
-    """
-    logger.info(f"Ingesting NOAA dataset: {name}")
-    local_filename = f"{name}.csv"
-    dest_path = dest_dir / local_filename
-    
-    checksum = download_file(url, dest_path)
-    df = load_csv_robust(dest_path)
-    
-    # Basic validation
-    if df.empty:
-        raise IngestionError(f"Loaded dataset {name} is empty.")
-    
-    manifest = DatasetManifest(
-        name=name,
-        source="NOAA",
-        url=url,
-        local_path=str(dest_path),
-        checksum=checksum,
-        timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        metadata={"rows": len(df), "columns": list(df.columns)}
-    )
-    return manifest
-
-def ingest_yahoo_finance(ticker: str, start: str, end: str, dest_dir: Path) -> DatasetManifest:
-    """
-    Ingest Yahoo Finance data using yfinance.
-    """
-    logger.info(f"Ingesting Yahoo Finance data: {ticker} ({start} to {end})")
-    local_filename = f"yahoo_{ticker}_{start}_{end}.csv"
-    dest_path = dest_dir / local_filename
+    if not file_path.exists():
+        raise IngestionError(f"File not found: {file_path}")
     
     try:
-        df = yf.download(ticker, start=start, end=end)
-        if df.empty:
-            raise IngestionError(f"No data retrieved for {ticker} in range {start}-{end}")
+        df = pd.read_csv(file_path, parse_dates=parse_dates)
         
-        # Flatten multi-index columns if present
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = [f"{col[0]}_{col[1]}" for col in df.columns]
+        if date_col and date_col in df.columns:
+            df[date_col] = pd.to_datetime(df[date_col])
+            df.set_index(date_col, inplace=True)
         
-        df.to_csv(dest_path, index=True)
-        checksum = compute_sha256(dest_path)
+        log_info(f"Loaded {len(df)} rows from {file_path.name}")
+        return df
         
+    except Exception as e:
+        raise IngestionError(f"Failed to load CSV {file_path}: {str(e)}")
+
+
+def ingest_noaa_dataset(station_id: str, output_dir: Optional[Path] = None) -> DatasetManifest:
+    """
+    Ingest NOAA climate data for a specific station.
+    
+    Uses NOAA's GHCN-Daily dataset via their API/FTP.
+    Station ID: USW00014895 (New York Central Park)
+    
+    Args:
+        station_id: NOAA station identifier
+        output_dir: Optional output directory
+        
+    Returns:
+        DatasetManifest with metadata
+    """
+    if output_dir is None:
+        output_dir = get_path("data", "raw", "noaa")
+        
+    # NOAA GHCN-Daily download URL pattern
+    # Using a direct FTP/HTTP endpoint for the data
+    base_url = "https://www.ncei.noaa.gov/data/global-daily-summaries/access/"
+    year = "2023"  # Use recent year for reliability
+    filename = f"{station_id}_{year}.csv"
+    local_path = output_dir / filename
+    
+    # Construct the full URL (NOAA structure)
+    # Note: This is a simplified approach; real implementation might need API key
+    download_url = f"{base_url}{year}/{filename}"
+    
+    try:
+        # Validate URL first
+        validate_url(download_url)
+        
+        # Download the file
+        download_file(download_url, local_path)
+        
+        # Compute checksum
+        checksum = compute_sha256(local_path)
+        
+        # Load and validate data
+        df = load_csv_robust(local_path, date_col='DATE')
+        
+        # Create manifest
         manifest = DatasetManifest(
-            name=f"yahoo_{ticker}",
-            source="Yahoo Finance",
-            url=f"https://finance.yahoo.com/quote/{ticker}",
-            local_path=str(dest_path),
+            dataset_id=f"noaa_{station_id}",
+            source_name="NOAA GHCN-Daily",
+            source_url=download_url,
+            file_path=str(local_path),
             checksum=checksum,
-            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            metadata={"rows": len(df), "columns": list(df.columns)}
+            download_timestamp=datetime.now().isoformat(),
+            row_count=len(df),
+            column_count=len(df.columns),
+            date_range=f"{df.index.min()} to {df.index.max()}" if hasattr(df.index, 'min') else None
         )
+        
+        log_info(f"NOAA dataset ingested: {manifest.dataset_id}")
         return manifest
         
     except Exception as e:
-        raise IngestionError(f"Failed to ingest Yahoo Finance data for {ticker}: {e}")
+        log_error(f"Failed to ingest NOAA dataset: {str(e)}")
+        raise IngestionError(f"NOAA ingestion failed: {str(e)}")
 
-def ingest_uk_grid(dest_dir: Path) -> DatasetManifest:
+
+def ingest_yahoo_finance(ticker: str, start_date: str = "2020-01-01", end_date: str = "2023-12-31") -> DatasetManifest:
     """
-    Ingest UK National Grid Load data.
-    The data is typically available via a specific CSV endpoint or API.
-    We use the ESO (Energy System Operator) public data API endpoint for half-hourly demand.
-    """
-    logger.info("Ingesting UK National Grid Load data")
-    # Using the ESO API for half-hourly demand (real source)
-    url = "https://api.nationalgrideso.com/1/demand/balancing-forecast-demand/latest"
-    # Since the API returns JSON, we adapt the download logic
+    Ingest Yahoo Finance data for a stock ticker.
     
-    local_filename = "uk_grid_demand.json"
-    dest_path = dest_dir / local_filename
+    Args:
+        ticker: Stock ticker symbol (e.g., 'AAPL', 'SPY')
+        start_date: Start date for historical data
+        end_date: End date for historical data
+        
+    Returns:
+        DatasetManifest with metadata
+    """
+    output_dir = get_path("data", "raw", "yahoo")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     try:
-        response = requests.get(url, timeout=60)
-        response.raise_for_status()
-        data = response.json()
+        import yfinance as yf
         
-        # Convert to CSV for consistency in downstream processing
-        # The API structure varies, we flatten the 'data' list if present
-        if 'data' in data and isinstance(data['data'], list):
-            df = pd.DataFrame(data['data'])
-        else:
-            df = pd.DataFrame([data])
+        log_info(f"Downloading Yahoo Finance data for {ticker}")
+        stock = yf.Ticker(ticker)
+        df = stock.history(start=start_date, end=end_date)
         
         if df.empty:
-            raise IngestionError("UK Grid API returned empty data")
+            raise IngestionError(f"No data retrieved for {ticker}")
         
-        df.to_csv(dest_path, index=False)
-        checksum = compute_sha256(dest_path)
+        # Save to CSV
+        filename = f"{ticker}_{start_date}_{end_date}.csv"
+        local_path = output_dir / filename
+        df.to_csv(local_path)
+        
+        # Compute checksum
+        checksum = compute_sha256(local_path)
         
         manifest = DatasetManifest(
-            name="uk_grid_demand",
-            source="UK National Grid ESO",
-            url=url,
-            local_path=str(dest_path),
+            dataset_id=f"yahoo_{ticker}",
+            source_name="Yahoo Finance",
+            source_url=f"https://finance.yahoo.com/quote/{ticker}/",
+            file_path=str(local_path),
             checksum=checksum,
-            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            metadata={"rows": len(df), "columns": list(df.columns)}
+            download_timestamp=datetime.now().isoformat(),
+            row_count=len(df),
+            column_count=len(df.columns),
+            date_range=f"{df.index.min()} to {df.index.max()}"
         )
+        
+        log_info(f"Yahoo Finance dataset ingested: {manifest.dataset_id}")
         return manifest
         
-    except RequestException as e:
-        raise IngestionError(f"Failed to download UK Grid data: {e}")
+    except ImportError:
+        raise IngestionError("yfinance package not installed. Please install it via requirements.txt")
+    except Exception as e:
+        log_error(f"Failed to ingest Yahoo Finance data: {str(e)}")
+        raise IngestionError(f"Yahoo Finance ingestion failed: {str(e)}")
 
-def ingest_uci_electricity(dest_dir: Path) -> DatasetManifest:
+
+def ingest_uk_grid(output_dir: Optional[Path] = None) -> DatasetManifest:
+    """
+    Ingest UK National Grid Electricity Load data.
+    
+    Source: https://www.nationalgrideso.com/document/174276/download
+    
+    Args:
+        output_dir: Optional output directory
+        
+    Returns:
+        DatasetManifest with metadata
+    """
+    if output_dir is None:
+        output_dir = get_path("data", "raw", "uk_grid")
+        
+    url = "https://www.nationalgrideso.com/document/174276/download"
+    filename = "uk_grid_load.csv"
+    local_path = output_dir / filename
+    
+    try:
+        validate_url(url)
+        download_file(url, local_path)
+        
+        checksum = compute_sha256(local_path)
+        
+        # Load data - UK grid data typically has specific format
+        df = load_csv_robust(local_path)
+        
+        manifest = DatasetManifest(
+            dataset_id="uk_grid_load",
+            source_name="UK National Grid",
+            source_url=url,
+            file_path=str(local_path),
+            checksum=checksum,
+            download_timestamp=datetime.now().isoformat(),
+            row_count=len(df),
+            column_count=len(df.columns),
+            date_range=f"{df.index.min()} to {df.index.max()}" if hasattr(df.index, 'min') else None
+        )
+        
+        log_info(f"UK Grid dataset ingested: {manifest.dataset_id}")
+        return manifest
+        
+    except Exception as e:
+        log_error(f"Failed to ingest UK Grid data: {str(e)}")
+        raise IngestionError(f"UK Grid ingestion failed: {str(e)}")
+
+
+def ingest_uci_electricity(output_dir: Optional[Path] = None) -> DatasetManifest:
     """
     Ingest UCI Electricity Load Diagrams 2011-2014 dataset.
-    The dataset is large (~1 GB). We will download the main CSV file from the UCI repository.
-    URL: https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip
+    
+    Source: https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014
+    
+    Args:
+        output_dir: Optional output directory
+        
+    Returns:
+        DatasetManifest with metadata
     """
-    logger.info("Ingesting UCI Electricity Load data")
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt.zip"
-    local_zip = dest_dir / "uci_electricity.zip"
-    local_csv = dest_dir / "uci_electricity.csv"
+    if output_dir is None:
+        output_dir = get_path("data", "raw", "uci_electricity")
+        
+    # UCI dataset URL
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00321/LD2011_2014.txt"
+    filename = "uci_electricity_load.txt"
+    local_path = output_dir / filename
     
     try:
-        # Download the zip
-        download_file(url, local_zip)
+        validate_url(url)
+        download_file(url, local_path)
         
-        # Unzip
-        import zipfile
-        with zipfile.ZipFile(local_zip, 'r') as zip_ref:
-            zip_ref.extractall(dest_dir)
+        checksum = compute_sha256(local_path)
         
-        # The main file is usually LD2011_2014.txt
-        csv_files = list(dest_dir.glob("LD2011_2014*.txt"))
-        if not csv_files:
-            raise IngestionError("Could not find extracted UCI file")
+        # Load data - UCI format is space-separated with specific structure
+        df = pd.read_csv(local_path, sep=';', index_col=0, parse_dates=True)
         
-        src_path = csv_files[0]
-        shutil.move(str(src_path), str(local_csv))
-        
-        # Clean up zip
-        local_zip.unlink()
-        
-        checksum = compute_sha256(local_csv)
+        # Save as CSV for consistency
+        csv_path = output_dir / "uci_electricity_load.csv"
+        df.to_csv(csv_path)
         
         manifest = DatasetManifest(
-            name="uci_electricity",
-            source="UCI Machine Learning Repository",
-            url=url,
-            local_path=str(local_csv),
-            checksum=checksum,
-            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            metadata={"source_file": src_path.name}
+            dataset_id="uci_electricity_load",
+            source_name="UCI Electricity Load Diagrams",
+            source_url=url,
+            file_path=str(csv_path),
+            checksum=compute_sha256(csv_path),
+            download_timestamp=datetime.now().isoformat(),
+            row_count=len(df),
+            column_count=len(df.columns),
+            date_range=f"{df.index.min()} to {df.index.max()}"
         )
+        
+        log_info(f"UCI Electricity dataset ingested: {manifest.dataset_id}")
         return manifest
         
     except Exception as e:
-        raise IngestionError(f"Failed to ingest UCI Electricity data: {e}")
+        log_error(f"Failed to ingest UCI Electricity data: {str(e)}")
+        raise IngestionError(f"UCI Electricity ingestion failed: {str(e)}")
 
-def ingest_dataset(config: Dict[str, Any], dest_dir: Path) -> DatasetManifest:
+
+def ingest_dataset(dataset_type: str, **kwargs) -> DatasetManifest:
     """
-    Generic ingestion dispatcher based on source type.
-    """
-    source = config.get("source", "").lower()
-    name = config.get("name", "unknown")
+    Generic dataset ingestion dispatcher.
     
-    if "noaa" in source:
-        return ingest_noaa_dataset(config["url"], dest_dir, name)
-    elif "yahoo" in source or "finance" in source:
-        ticker = config.get("ticker")
-        start = config.get("start", "2020-01-01")
-        end = config.get("end", "2023-01-01")
-        return ingest_yahoo_finance(ticker, start, end, dest_dir)
-    elif "uk" in source and "grid" in source:
-        return ingest_uk_grid(dest_dir)
-    elif "uci" in source and "electricity" in source:
-        return ingest_uci_electricity(dest_dir)
-    else:
-        raise IngestionError(f"Unknown source type: {source}")
+    Args:
+        dataset_type: One of 'noaa', 'yahoo', 'uk_grid', 'uci_electricity'
+        **kwargs: Type-specific arguments
+        
+    Returns:
+        DatasetManifest with metadata
+    """
+    dispatchers = {
+        'noaa': ingest_noaa_dataset,
+        'yahoo': ingest_yahoo_finance,
+        'uk_grid': ingest_uk_grid,
+        'uci_electricity': ingest_uci_electricity
+    }
+    
+    if dataset_type not in dispatchers:
+        raise IngestionError(f"Unknown dataset type: {dataset_type}")
+    
+    return dispatchers[dataset_type](**kwargs)
 
-def create_manifest(manifests: List[DatasetManifest], output_path: Path) -> None:
+
+def create_manifests(manifests: List[DatasetManifest], output_path: Optional[Path] = None) -> None:
     """
-    Write a list of DatasetManifest objects to a JSON manifest file.
+    Create a JSON manifest file for all ingested datasets.
+    
+    Args:
+        manifests: List of DatasetManifest objects
+        output_path: Optional output path (default: data/processed/manifests.json)
     """
+    if output_path is None:
+        output_path = get_path("data", "processed", "manifests.json")
+        
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    data = [m.to_dict() for m in manifests]
+    
+    manifest_data = [m.to_dict() for m in manifests]
+    
     with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Manifest written to {output_path}")
+        json.dump(manifest_data, f, indent=2, default=str)
+        
+    log_info(f"Created manifest file: {output_path}")
 
-def load_manifest(manifest_path: Path) -> List[DatasetManifest]:
+
+def load_manifest(manifest_path: Optional[Path] = None) -> List[DatasetManifest]:
     """
-    Load a manifest file and return list of DatasetManifest objects.
+    Load dataset manifests from a JSON file.
+    
+    Args:
+        manifest_path: Path to manifest file
+        
+    Returns:
+        List of DatasetManifest objects
     """
+    if manifest_path is None:
+        manifest_path = get_path("data", "processed", "manifests.json")
+        
+    if not manifest_path.exists():
+        raise IngestionError(f"Manifest file not found: {manifest_path}")
+    
     with open(manifest_path, 'r') as f:
         data = json.load(f)
-    return [DatasetManifest(**item) for item in data]
+        
+    return [DatasetManifest.from_dict(item) for item in data]
 
-def run_pipeline(config_path: Path, output_dir: Path) -> None:
+
+def run_full_ingestion_pipeline() -> List[DatasetManifest]:
     """
-    Run the full ingestion pipeline based on a config file.
-    Config file should be a JSON list of dataset configurations.
-    """
-    with open(config_path, 'r') as f:
-        configs = json.load(f)
+    Execute the full ingestion pipeline for all 5 required datasets.
     
+    Datasets:
+    1. NOAA (Station ID: USW00014895)
+    2. Yahoo Finance (AAPL)
+    3. Yahoo Finance (SPY)
+    4. UK National Grid Load
+    5. UCI Electricity Load Diagrams
+    
+    Returns:
+        List of DatasetManifest objects for all successfully ingested datasets
+        
+    Raises:
+        IngestionError: If any dataset fails to download (loud failure, no fallback)
+    """
     manifests = []
-    for cfg in configs:
-        try:
-            manifest = ingest_dataset(cfg, output_dir)
-            manifests.append(manifest)
-            logger.info(f"Successfully ingested: {manifest.name}")
-        except IngestionError as e:
-            logger.error(f"Failed to ingest {cfg.get('name')}: {e}")
-            # Fail loudly as per constraint
-            raise
     
-    manifest_path = output_dir / "manifest.json"
-    create_manifest(manifests, manifest_path)
-    logger.info("Ingestion pipeline completed successfully.")
-
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 3:
-        print("Usage: python -m src.data.ingestion <config.json> <output_dir>")
-        sys.exit(1)
+    log_info("Starting full ingestion pipeline for 5 datasets")
     
-    config_file = Path(sys.argv[1])
-    out_dir = Path(sys.argv[2])
+    # 1. NOAA Dataset (USW00014895 - New York Central Park)
+    try:
+        log_info("Ingesting NOAA dataset (USW00014895)")
+        noaa_manifest = ingest_noaa_dataset(station_id="USW00014895")
+        manifests.append(noaa_manifest)
+    except IngestionError as e:
+        log_error(f"NOAA ingestion failed: {e}")
+        raise  # Loud failure - no fallback
     
-    logging.basicConfig(level=logging.INFO)
-    run_pipeline(config_file, out_dir)
+    # 2. Yahoo Finance AAPL
+    try:
+        log_info("Ingesting Yahoo Finance AAPL")
+        aapl_manifest = ingest_yahoo_finance(ticker="AAPL")
+        manifests.append(aapl_manifest)
+    except IngestionError as e:
+        log_error(f"AAPL ingestion failed: {e}")
+        raise  # Loud failure - no fallback
+    
+    # 3. Yahoo Finance SPY
+    try:
+        log_info("Ingesting Yahoo Finance SPY")
+        spy_manifest = ingest_yahoo_finance(ticker="SPY")
+        manifests.append(spy_manifest)
+    except IngestionError as e:
+        log_error(f"SPY ingestion failed: {e}")
+        raise  # Loud failure - no fallback
+    
+    # 4. UK National Grid
+    try:
+        log_info("Ingesting UK National Grid Load")
+        uk_manifest = ingest_uk_grid()
+        manifests.append(uk_manifest)
+    except IngestionError as e:
+        log_error(f"UK Grid ingestion failed: {e}")
+        raise  # Loud failure - no fallback
+    
+    # 5. UCI Electricity Load
+    try:
+        log_info("Ingesting UCI Electricity Load Diagrams")
+        uci_manifest = ingest_uci_electricity()
+        manifests.append(uci_manifest)
+    except IngestionError as e:
+        log_error(f"UCI Electricity ingestion failed: {e}")
+        raise  # Loud failure - no fallback
+    
+    # Create manifest file
+    create_manifests(manifests)
+    
+    log_info(f"Successfully ingested {len(manifests)} datasets")
+    return manifests

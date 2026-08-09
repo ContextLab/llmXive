@@ -1,178 +1,196 @@
 """
-Structured logging utilities for the statistical robustness pipeline.
+Structured logging utilities for the llmXive research pipeline.
 
-Provides consistent log formatting, warning/error handling, and
-integration with the project's configuration settings.
+Provides a consistent logging interface with JSON formatting,
+file rotation, and level-specific helper functions.
 """
 
 import logging
+import json
 import sys
-from pathlib import Path
+import os
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any
+from pathlib import Path
+from logging.handlers import RotatingFileHandler
 
-from src.utils.config import get_path, get_project_root
-
-# Constants
-DEFAULT_LOG_LEVEL = logging.INFO
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Module-level logger instance
-_logger: Optional[logging.Logger] = None
+from src.utils.config import get_path
 
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+class StructuredFormatter(logging.Formatter):
     """
-    Get or create a logger instance with consistent configuration.
+    A custom logging formatter that outputs JSON-structured logs.
     
+    Includes timestamp, level, logger name, message, and optional
+    extra context fields.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        log_data: Dict[str, Any] = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+
+        # Add standard attributes if present
+        if hasattr(record, "module"):
+            log_data["module"] = record.module
+        if hasattr(record, "lineno"):
+            log_data["lineno"] = record.lineno
+        if hasattr(record, "funcName"):
+            log_data["function"] = record.funcName
+
+        # Include exception info if present
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+
+        # Include extra context if available
+        if hasattr(record, "extra_data") and record.extra_data:
+            log_data["context"] = record.extra_data
+
+        return json.dumps(log_data)
+
+
+def setup_logger(
+    name: str = "llmXive",
+    log_level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    max_bytes: int = 10 * 1024 * 1024,  # 10 MB
+    backup_count: int = 5,
+) -> logging.Logger:
+    """
+    Configure and return a logger with structured JSON formatting.
+
     Args:
-        name: Optional name for the logger. If None, uses project root name.
-    
-    Returns:
-        Configured logging.Logger instance.
-    """
-    global _logger
-    
-    if _logger is None:
-        _logger = logging.getLogger("llmXive")
-        _logger.setLevel(DEFAULT_LOG_LEVEL)
-        
-        # Clear existing handlers to avoid duplicates
-        _logger.handlers.clear()
-        
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(DEFAULT_LOG_LEVEL)
-        console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-        _logger.addHandler(console_handler)
-        
-        # File handler - log to results directory
-        try:
-            log_dir = get_path("results")
-            log_dir.mkdir(parents=True, exist_ok=True)
-            log_file = log_dir / "pipeline.log"
-            
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-            _logger.addHandler(file_handler)
-        except Exception:
-            # If log directory setup fails, continue with console only
-            pass
-    
-    if name:
-        return logging.getLogger(f"llmXive.{name}")
-    return _logger
+        name: Logger name.
+        log_level: Minimum log level (e.g., logging.INFO, logging.DEBUG).
+        log_file: Relative path to log file (relative to project root).
+                  If None, logs only to stderr.
+        max_bytes: Max size per log file before rotation.
+        backup_count: Number of backup files to keep.
 
-
-def log_warning(message: str, category: Optional[str] = None, module: Optional[str] = None) -> None:
-    """
-    Log a structured warning message.
-    
-    Args:
-        message: The warning message text.
-        category: Optional category (e.g., "DataQuality", "Statistical").
-        module: Optional module name where the warning originated.
-    """
-    logger = get_logger(module)
-    
-    if category:
-        structured_message = f"[{category}] {message}"
-    else:
-        structured_message = message
-    
-    logger.warning(structured_message)
-
-
-def log_error(message: str, category: Optional[str] = None, module: Optional[str] = None, 
-             exception: Optional[Exception] = None) -> None:
-    """
-    Log a structured error message.
-    
-    Args:
-        message: The error message text.
-        category: Optional category (e.g., "DataFetch", "Computation").
-        module: Optional module name where the error originated.
-        exception: Optional exception instance to include in the log.
-    """
-    logger = get_logger(module)
-    
-    if category:
-        structured_message = f"[{category}] {message}"
-    else:
-        structured_message = message
-    
-    if exception:
-        logger.error(structured_message, exc_info=True)
-    else:
-        logger.error(structured_message)
-
-
-def log_info(message: str, module: Optional[str] = None) -> None:
-    """
-    Log an informational message.
-    
-    Args:
-        message: The message text.
-        module: Optional module name.
-    """
-    logger = get_logger(module)
-    logger.info(message)
-
-
-def log_debug(message: str, module: Optional[str] = None) -> None:
-    """
-    Log a debug message.
-    
-    Args:
-        message: The message text.
-        module: Optional module name.
-    """
-    logger = get_logger(module)
-    logger.debug(message)
-
-
-def configure_logging_for_task(task_name: str) -> logging.Logger:
-    """
-    Configure and return a logger specifically for a task.
-    
-    Args:
-        task_name: Name of the task (e.g., "T005", "US1").
-    
     Returns:
         Configured logger instance.
     """
-    return get_logger(f"tasks.{task_name}")
+    logger = logging.getLogger(name)
+    logger.setLevel(log_level)
+
+    # Avoid adding handlers multiple times if called repeatedly
+    if logger.handlers:
+        return logger
+
+    # Formatter
+    formatter = StructuredFormatter()
+
+    # Console handler (stderr)
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    # File handler with rotation if log_file is provided
+    if log_file:
+        log_path = get_path(log_file)
+        log_dir = Path(log_path).parent
+        log_dir.mkdir(parents=True, exist_ok=True)
+
+        file_handler = RotatingFileHandler(
+            log_path,
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding="utf-8",
+        )
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    return logger
 
 
-def set_log_level(level: int, module: Optional[str] = None) -> None:
+def get_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Set the log level for a specific module or all loggers.
-    
+    Retrieve an existing logger or create a new one with default settings.
+
     Args:
-        level: Logging level (e.g., logging.DEBUG, logging.WARNING).
-        module: Optional module name. If None, sets for all loggers.
+        name: Logger name.
+
+    Returns:
+        Logger instance.
     """
-    if module:
-        logger = get_logger(module)
-        logger.setLevel(level)
-        for handler in logger.handlers:
-            handler.setLevel(level)
-    else:
-        global _logger
-        if _logger:
-            _logger.setLevel(level)
-            for handler in _logger.handlers:
-                handler.setLevel(level)
-        # Also update root logger
-        root_logger = logging.getLogger()
-        root_logger.setLevel(level)
-        for handler in root_logger.handlers:
-            handler.setLevel(level)
+    return logging.getLogger(name)
 
 
-# Convenience aliases
-warn = log_warning
-error = log_error
-info = log_info
-debug = log_debug
+def _log_with_level(
+    level: int,
+    message: str,
+    logger_name: str = "llmXive",
+    extra_data: Optional[Dict[str, Any]] = None,
+) -> None:
+    """
+    Internal helper to log a message at a specific level with optional context.
+
+    Args:
+        level: Logging level (e.g., logging.INFO).
+        message: Log message.
+        logger_name: Logger name.
+        extra_data: Optional dictionary of contextual data.
+    """
+    logger = get_logger(logger_name)
+    record = logger.makeRecord(
+        logger.name,
+        level,
+        "",
+        0,
+        message,
+        (),
+        None,
+    )
+    if extra_data:
+        record.extra_data = extra_data
+    logger.handle(record)
+
+
+def log_info(
+    message: str,
+    logger_name: str = "llmXive",
+    extra_data: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Log an informational message."""
+    _log_with_level(logging.INFO, message, logger_name, extra_data)
+
+
+def log_warning(
+    message: str,
+    logger_name: str = "llmXive",
+    extra_data: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Log a warning message."""
+    _log_with_level(logging.WARNING, message, logger_name, extra_data)
+
+
+def log_error(
+    message: str,
+    logger_name: str = "llmXive",
+    extra_data: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Log an error message."""
+    _log_with_level(logging.ERROR, message, logger_name, extra_data)
+
+
+def log_critical(
+    message: str,
+    logger_name: str = "llmXive",
+    extra_data: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Log a critical message."""
+    _log_with_level(logging.CRITICAL, message, logger_name, extra_data)
+
+
+def log_debug(
+    message: str,
+    logger_name: str = "llmXive",
+    extra_data: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Log a debug message."""
+    _log_with_level(logging.DEBUG, message, logger_name, extra_data)

@@ -385,3 +385,402 @@
   source_type: external
   status: verified
   updated_at: '2026-08-07T11:17:10Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic series lengths include 100, 500, 1000, 5000, and 10000
+  claim_id: c_99dc5e71
+  context: 'Phase 4: User Story 2 - Synthetic Ground-Truth Generation and Autocorrelation
+    Quantification. Task T027 specifies the lengths for the N-variation grid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate synthetic series with varying lengths for the N-variation grid:
+    {100, 500, 1000, 5000, 10000}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:31:44Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Generated series mean within 0.01 of 0 and H within 0.05 of target
+  claim_id: c_11377e14
+  context: 'Phase 4: User Story 2. Task T032 defines the accuracy constraints for
+    synthetic series generation.'
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Verify generated series mean is within 0.01 of 0 and H is within 0.05
+    of target
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T16:31:44Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline benchmark suite completes within 6 hours
+  claim_id: c_ac2cb19d
+  context: 'Phase 5b: User Story 3. Task T040c defines the performance validation
+    constraint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a full benchmark suite of the pipeline on a subset of data to validate
+    it completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:32:02Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 7 GB
+  claim_id: c_c95ea6d5
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Task T043 specifies the memory
+    efficiency constraint.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure < 7 GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:32:31Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Datasets with fewer than 25 points are skipped
+  claim_id: c_fbb63559
+  context: 'Phase 3: User Story 1. Task T020 defines the edge case handling for small
+    datasets.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_fewer_than_25_points_are_skipped
+  kind: magnitude
+  raw_text: Skip datasets < 25 points with a warning log
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:33:25Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Download 5 public datasets: NOAA, Yahoo Finance (AAPL/SPY), UK National
+    Grid Load, UCI Electricity Load, NOAA (USW00014895)'
+  claim_id: c_8e1e1f04
+  context: 'T014 [US1] Implement src/data/ingestion.py to download 5 distinct public
+    datasets... **Constraint**: Must fail loudly on download error; no synthetic fallbacks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement src/data/ingestion.py to download 5 distinct public datasets:
+    NOAA, Yahoo Finance (yfinance package for AAPL/SPY), UK National Grid Load, UCI
+    Electricity Load, and a second NOAA subset (Station ID: USW00014895).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:39:09Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Generate synthetic fGn/ARFIMA series with Hurst exponents 0.5, 0.7, 0.8,
+    0.9 and mean 0
+  claim_id: c_e2a6f039
+  context: "T026 [US2] Implement src/synthesis/generators.py to generate fractional\
+    \ Gaussian noise (fGn) or ARFIMA processes with H \u2208 {0.5, 0.7, 0.8, 0.9}\
+    \ and mean=0 (FR-007)."
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Implement src/synthesis/generators.py to generate fractional Gaussian\
+    \ noise (fGn) or ARFIMA processes with H \u2208 {0.5, 0.7, 0.8, 0.9} and mean=0."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T16:39:09Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Generate synthetic series with lengths 100, 500, 1000, 5000, 10000
+  claim_id: c_2b166e6b
+  context: 'T027 [US2] Implement logic to generate synthetic series with varying lengths
+    for the N-variation grid: {100, 500, 1000, 5000, 10000} (Plan).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement logic to generate synthetic series with varying lengths for
+    the N-variation grid: {100, 500, 1000, 5000, 10000}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:39:24Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify synthetic mean within 0.01 of 0 and Hurst exponent within 0.05
+    of target
+  claim_id: c_f6bfa764
+  context: T032 [US2] Add logic to verify generated series mean is within 0.01 of
+    0 and H is within 0.05 of target (US2-AC1..4).
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Verify generated series mean is within 0.01 of 0 and H is within 0.05
+    of target.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T16:39:24Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Calculate observed rejection rate at significance level 0.05
+  claim_id: c_762d1fa7
+  context: "T037 [US3] Implement Monte Carlo loop orchestration to run a sufficient\
+    \ number of trials per configuration to ensure statistical robustness (H, N) and\
+    \ calculate observed rejection rate at \u03B1=0.05 (US3-AC1)."
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: "Implement Monte Carlo loop orchestration to run a sufficient number of\
+    \ trials per configuration to ensure statistical robustness (H, N) and calculate\
+    \ observed rejection rate at \u03B1=0.05."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T16:39:24Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify baseline rejection rate within 95% Clopper-Pearson CI of 0.05
+  claim_id: c_67e65950
+  context: 'T025 [P] [US2] Baseline validity test: Run [deferred] trials on H=0.5
+    data and verify rejection rate is within 95% Clopper-Pearson CI of 0.05 in tests/integration/test_baseline_validity.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify rejection rate is within 95% Clopper-Pearson CI of 0.05 in baseline
+    validity test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:39:25Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours on CPU-only runner
+  claim_id: c_9df91bd1
+  context: 'Critical Compute Constraint: The full pipeline must complete within 6
+    hours on a CPU-only runner. Optimize loops and vectorize where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure pipeline completes within 6 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:39:39Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Memory usage limit 7 GB RAM
+  claim_id: c_d5a9ec1e
+  context: T043 Code cleanup and refactoring for memory efficiency (ensure < 7 GB
+    RAM usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_7_GB_RAM
+  kind: magnitude
+  raw_text: Ensure memory usage is less than 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:39:57Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Skip datasets with fewer than 25 points
+  claim_id: c_09572bdf
+  context: 'T020 [US1] Add edge case handling: skip datasets < 25 points with a warning
+    log (Edge Case 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_datasets_with_fewer_than_25_points
+  kind: magnitude
+  raw_text: Skip datasets with fewer than 25 points with a warning log.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:40:40Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Download 5 distinct public datasets including NOAA, Yahoo Finance AAPL/SPY,
+    UK National Grid Load, UCI Electricity Load, and NOAA Station USW00014895
+  claim_id: c_016cae76
+  context: 'T014 [US1] Implement src/data/ingestion.py to download 5 distinct public
+    datasets... Constraint: Must fail loudly on download error; no synthetic fallbacks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement src/data/ingestion.py to download 5 distinct public datasets:
+    NOAA, Yahoo Finance (yfinance package for AAPL/SPY), UK National Grid Load, UCI
+    Electricity Load, and a second NOAA subset (Station ID: USW00014895).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:49:01Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Generate synthetic series with lengths 100, 500, 1000, 5000, and 10000
+  claim_id: c_bdc9ad9b
+  context: 'T027 [US2] Implement logic to generate synthetic series with varying lengths
+    for the N-variation grid: {100, 500, 1000, 5000, 10000} (Plan).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate synthetic series with varying lengths for the N-variation grid:
+    {100, 500, 1000, 5000, 10000}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:49:01Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Verify synthetic series mean within 0.01 of 0 and Hurst exponent within
+    0.05 of target
+  claim_id: c_2741f317
+  context: T032 [US2] Add logic to verify generated series mean is within 0.01 of
+    0 and H is within 0.05 of target (US2-AC1..4).
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.h (CODATA 2018, exact by SI definition)
+    constant: planck
+    corrected: true
+    mode: approximate
+    true_value: 6.62607015e-34
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?h
+  kind: numeric
+  raw_text: Verify generated series mean is within 0.01 of 0 and H is within 0.05
+    of target.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2947ee0f33c8b64004b004e262a8ea3e9a1b9496056962e917f8a0745d5366a7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T16:49:01Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Calculate observed rejection rate at alpha of 0.05
+  claim_id: c_6b200c74
+  context: "T037 [US3] Implement Monte Carlo loop orchestration to run a sufficient\
+    \ number of trials per configuration to ensure statistical robustness (H, N) and\
+    \ calculate observed rejection rate at \u03B1=0.05 (US3-AC1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate observed rejection rate at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:49:22Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Ensure memory usage is less than 7 GB
+  claim_id: c_1bc15721
+  context: T043 Code cleanup and refactoring for memory efficiency (ensure < 7 GB
+    RAM usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure < 7 GB RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:49:24Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Complete full pipeline within 6 hours on CPU-only runner
+  claim_id: c_ad9b3890
+  context: 'Critical Compute Constraint: The full pipeline must complete within 6
+    hours on a CPU-only runner. Optimize loops and vectorize where possible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Complete the full pipeline within 6 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:49:41Z'
+- artifact_path: projects/PROJ-369-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: Enforce 6-hour runtime limit with automated timeout
+  claim_id: c_e5b77532
+  context: T040b [US3] Implement automated timeout or early exit mechanism in main.py
+    to programmatically enforce the 6-hour limit (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a 6-hour limit with automated timeout or early exit mechanism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T16:50:01Z'

@@ -1,406 +1,279 @@
-"""
-Preprocessing module for time series data.
-
-Implements:
-- Missing value interpolation (linear)
-- Stationarity testing (ADF)
-- Detrending (linear regression residuals)
-- Differencing
-"""
 import logging
 import numpy as np
 import pandas as pd
 from scipy import stats
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.regression.linear_model import OLS
-from typing import Union, Tuple, Optional, List, Dict, Any
-
-logger = logging.getLogger(__name__)
+from typing import Tuple, Optional, Dict, Any, Union
 
 class PreprocessingError(Exception):
     """Custom exception for preprocessing errors."""
     pass
 
-def interpolate_missing(series: Union[pd.Series, np.ndarray], method: str = 'linear') -> Union[pd.Series, np.ndarray]:
+def interpolate_missing(series: pd.Series) -> pd.Series:
     """
-    Interpolate missing values in a time series.
+    Interpolate missing values using linear interpolation.
     
     Args:
-        series: Input time series (pandas Series or numpy array)
-        method: Interpolation method (default: 'linear')
-    
+        series: Input time series with potential NaN values
+        
     Returns:
-        Interpolated series with no missing values
-    
-    Raises:
-        PreprocessingError: If interpolation fails or all values are missing
+        Series with missing values interpolated
     """
-    if isinstance(series, np.ndarray):
-        series = pd.Series(series)
-    
-    # Check if all values are missing
-    if series.isna().all():
-        raise PreprocessingError("Cannot interpolate: all values are missing")
-    
-    # Check if there are any missing values
-    if not series.isna().any():
-        logger.debug("No missing values to interpolate")
-        return series
-    
-    try:
-        # Use pandas interpolate with specified method
-        interpolated = series.interpolate(method=method, limit_direction='both')
-        
-        # Check if interpolation was successful (no remaining NaN)
-        if interpolated.isna().any():
-            # Try forward fill then backward fill for any remaining NaN at edges
-            interpolated = interpolated.ffill().bfill()
-            
-            if interpolated.isna().any():
-                raise PreprocessingError(
-                    f"Interpolation failed: {interpolated.isna().sum()} values remain missing "
-                    f"after linear interpolation and fill"
-                )
-        
-        logger.info(f"Successfully interpolated {series.isna().sum()} missing values using {method} method")
-        return interpolated
-        
-    except Exception as e:
-        raise PreprocessingError(f"Interpolation failed: {str(e)}")
+    return series.interpolate(method='linear')
 
-def check_stationarity(series: Union[pd.Series, np.ndarray], alpha: float = 0.05) -> Tuple[bool, Dict[str, Any]]:
+def check_stationarity_adf(series: pd.Series, alpha: float = 0.05) -> Tuple[bool, float]:
     """
-    Check if a time series is stationary using the Augmented Dickey-Fuller test.
+    Check stationarity using the Augmented Dickey-Fuller test.
     
     Args:
         series: Input time series
-        alpha: Significance level for the test (default: 0.05)
-    
+        alpha: Significance level for the test
+        
     Returns:
-        Tuple of (is_stationary, test_results_dict)
-    
-    Raises:
-        PreprocessingError: If the test fails or series is too short
+        Tuple of (is_stationary, p_value)
     """
-    if isinstance(series, np.ndarray):
-        series = pd.Series(series)
-    
-    # Drop NaN values
-    series = series.dropna()
-    
-    if len(series) < 10:
-        raise PreprocessingError(
-            f"Series too short for ADF test (n={len(series)}, need >= 10)"
-        )
-    
-    try:
-        result = adfuller(series, autolag='AIC')
-        
-        test_results = {
-            'statistic': result[0],
-            'pvalue': result[1],
-            'usedlag': result[2],
-            'nobs': result[3],
-            'critical_values': result[4],
-            'is_stationary': result[1] < alpha
-        }
-        
-        logger.info(
-            f"ADF test: statistic={result[0]:.4f}, p-value={result[1]:.4f}, "
-            f"stationary={test_results['is_stationary']}"
-        )
-        
-        return test_results['is_stationary'], test_results
-        
-    except Exception as e:
-        raise PreprocessingError(f"ADF test failed: {str(e)}")
+    result = adfuller(series.dropna(), autolag='AIC')
+    p_value = result[1]
+    is_stationary = p_value < alpha
+    return is_stationary, p_value
 
-def detrend_series(series: Union[pd.Series, np.ndarray]) -> Tuple[Union[pd.Series, np.ndarray], Dict[str, Any]]:
+def detrend_linear(series: pd.Series) -> pd.Series:
     """
-    Detrend a time series using linear regression residuals.
+    Detrend a series using linear regression residuals.
     
     Args:
         series: Input time series
-    
+        
     Returns:
-        Tuple of (detrended_series, regression_stats)
-    
-    Raises:
-        PreprocessingError: If detrending fails
+        Residuals from linear regression (detrended series)
     """
-    if isinstance(series, np.ndarray):
-        series = pd.Series(series)
-    
-    series = series.dropna()
     n = len(series)
+    if n < 2:
+        raise PreprocessingError("Series too short for detrending")
+        
+    x = np.arange(n).reshape(-1, 1)
+    y = series.values
     
-    if n < 3:
-        raise PreprocessingError(
-            f"Series too short for detrending (n={n}, need >= 3)"
-        )
+    model = OLS(y, x).fit()
+    residuals = model.resid
     
-    try:
-        # Create time index
-        t = np.arange(n)
-        
-        # Fit linear regression: series = beta0 + beta1*t + error
-        model = OLS(series.values, np.column_stack([np.ones(n), t])).fit()
-        
-        # Get residuals (detrended series)
-        residuals = model.resid
-        
-        regression_stats = {
-            'slope': model.params[1],
-            'intercept': model.params[0],
-            'rsquared': model.rsquared,
-            'pvalue_slope': model.pvalues[1],
-            'f_pvalue': model.f_pvalue
-        }
-        
-        logger.info(
-            f"Detrending: slope={regression_stats['slope']:.6f}, "
-            f"R²={regression_stats['rsquared']:.4f}, "
-            f"p-value={regression_stats['pvalue_slope']:.4f}"
-        )
-        
-        return pd.Series(residuals, index=series.index), regression_stats
-        
-    except Exception as e:
-        raise PreprocessingError(f"Detrending failed: {str(e)}")
+    return pd.Series(residuals, index=series.index)
 
-def difference_series(series: Union[pd.Series, np.ndarray], order: int = 1) -> Union[pd.Series, np.ndarray]:
+def difference_series(series: pd.Series, order: int = 1) -> pd.Series:
     """
-    Apply differencing to a time series.
+    Apply differencing to a series.
     
     Args:
         series: Input time series
-        order: Order of differencing (default: 1)
-    
+        order: Order of differencing
+        
     Returns:
         Differenced series
-    
-    Raises:
-        PreprocessingError: If differencing fails
     """
-    if isinstance(series, np.ndarray):
-        series = pd.Series(series)
-    
-    series = series.dropna()
-    
-    if order < 1:
-        raise PreprocessingError("Order must be >= 1")
-    
-    try:
-        for i in range(order):
-            series = series.diff().dropna()
-            
-            if len(series) == 0:
-                raise PreprocessingError(
-                    f"Differencing order {order} resulted in empty series"
-                )
-        
-        logger.info(f"Applied {order}th-order differencing, final length: {len(series)}")
-        return series
-        
-    except Exception as e:
-        raise PreprocessingError(f"Differencing failed: {str(e)}")
+    return series.diff(order).dropna()
 
 def preprocess_series(
-    series: Union[pd.Series, np.ndarray],
-    interpolate_missing_values: bool = True,
-    max_differencing_order: int = 3,
-    alpha: float = 0.05
-) -> Tuple[Union[pd.Series, np.ndarray], Dict[str, Any]]:
+    series: pd.Series,
+    max_differencing: int = 3,
+    log_counts: bool = True
+) -> Dict[str, Any]:
     """
-    Preprocess a time series: interpolate missing values, then ensure stationarity.
+    Preprocess a single time series: handle missing values, check stationarity,
+    and apply differencing or detrending as needed.
     
     Args:
         series: Input time series
-        interpolate_missing_values: Whether to interpolate missing values (default: True)
-        max_differencing_order: Maximum order of differencing to apply (default: 3)
-        alpha: Significance level for ADF test (default: 0.05)
-    
+        max_differencing: Maximum number of differencing operations allowed
+        log_counts: Whether to log the number of differencing steps
+        
     Returns:
-        Tuple of (preprocessed_series, preprocessing_log)
-    
-    Raises:
-        PreprocessingError: If preprocessing fails
+        Dictionary containing:
+            - 'processed_series': The preprocessed series
+            - 'is_stationary': Whether the series is stationary
+            - 'differencing_count': Number of differencing steps applied
+            - 'detrended': Whether detrending was applied instead of differencing
+            - 'original_length': Length of the original series
+            - 'processed_length': Length of the processed series
+            - 'adf_p_value': Final ADF p-value
     """
-    if isinstance(series, np.ndarray):
-        series = pd.Series(series)
+    logger = logging.getLogger(__name__)
     
-    preprocessing_log = {
-        'original_length': len(series),
-        'original_missing': int(series.isna().sum()),
-        'interpolated': False,
-        'stationary': False,
-        'differencing_order': 0,
-        'detrended': False,
-        'final_length': 0,
-        'steps': []
-    }
+    # Handle missing values
+    processed = interpolate_missing(series)
     
-    # Step 1: Interpolate missing values if requested
-    if interpolate_missing_values:
-        try:
-            series = interpolate_missing(series)
-            preprocessing_log['interpolated'] = True
-            preprocessing_log['steps'].append('interpolated_missing_values')
-        except PreprocessingError as e:
-            logger.warning(f"Missing value interpolation skipped: {str(e)}")
-            preprocessing_log['steps'].append(f'skipped_interpolation: {str(e)}')
+    # Check for minimum length
+    if len(processed) < 25:
+        logger.warning(f"Series has {len(processed)} points, skipping (Edge Case 1)")
+        return {
+            'processed_series': processed,
+            'is_stationary': False,
+            'differencing_count': 0,
+            'detrended': False,
+            'original_length': len(series),
+            'processed_length': len(processed),
+            'adf_p_value': None,
+            'skipped': True
+        }
     
-    # Check if series is now too short
-    series = series.dropna()
-    if len(series) < 10:
-        raise PreprocessingError(
-            f"Series too short after preprocessing (n={len(series)}, need >= 10)"
-        )
+    differencing_count = 0
+    detrended = False
+    original_processed = processed.copy()
     
-    # Step 2: Check stationarity
-    is_stationary, adf_results = check_stationarity(series, alpha)
-    preprocessing_log['stationary'] = is_stationary
-    
-    if is_stationary:
-        preprocessing_log['steps'].append('already_stationary')
-        preprocessing_log['final_length'] = len(series)
-        return series, preprocessing_log
-    
-    # Step 3: Try detrending first
-    try:
-        detrended_series, detrend_stats = detrend_series(series)
-        is_detrended_stationary, _ = check_stationarity(detrended_series, alpha)
+    # Check stationarity and apply transformations
+    while differencing_count < max_differencing:
+        is_stationary, p_value = check_stationarity_adf(processed)
         
-        if is_detrended_stationary:
-            series = detrended_series
-            preprocessing_log['detrended'] = True
-            preprocessing_log['steps'].append('detrended_and_stationary')
-            preprocessing_log['final_length'] = len(series)
-            return series, preprocessing_log
+        if is_stationary:
+            # Series is stationary, try detrending
+            try:
+                detrended_series = detrend_linear(processed)
+                is_detrended_stationary, _ = check_stationarity_adf(detrended_series)
+                
+                if is_detrended_stationary:
+                    processed = detrended_series
+                    detrended = True
+                    logger.info(f"Series detrended successfully (Edge Case 2: detrending applied)")
+                    break
+                else:
+                    # Detrending didn't work, continue with differencing
+                    logger.info("Detrending did not achieve stationarity, continuing with differencing")
+            except Exception as e:
+                logger.warning(f"Detrending failed: {e}, continuing with differencing")
         
-        logger.info("Detrending did not achieve stationarity, proceeding to differencing")
-        preprocessing_log['steps'].append('detrend_not_stationary')
+        # Apply differencing
+        processed = difference_series(processed)
+        differencing_count += 1
         
-    except PreprocessingError as e:
-        logger.warning(f"Detrending failed or not needed: {str(e)}")
-        preprocessing_log['steps'].append(f'skipped_detrend: {str(e)}')
-    
-    # Step 4: Apply differencing until stationary or max order reached
-    for order in range(1, max_differencing_order + 1):
-        try:
-            series = difference_series(series, order=order)
-            is_stationary, _ = check_stationarity(series, alpha)
-            
-            if is_stationary:
-                preprocessing_log['differencing_order'] = order
-                preprocessing_log['steps'].append(f'differenced_order_{order}_stationary')
-                preprocessing_log['final_length'] = len(series)
-                return series, preprocessing_log
-            
-            logger.info(f"Order {order} differencing not sufficient, continuing...")
-            preprocessing_log['steps'].append(f'differenced_order_{order}_not_stationary')
-            
-        except PreprocessingError as e:
-            logger.warning(f"Differencing order {order} failed: {str(e)}")
-            preprocessing_log['steps'].append(f'skipped_differencing_order_{order}: {str(e)}')
+        if len(processed) < 25:
+            logger.warning(f"Series dropped below 25 points after differencing (Edge Case 1)")
             break
     
-    # If we reach here, we couldn't achieve stationarity
-    raise PreprocessingError(
-        f"Could not achieve stationarity after max differencing order ({max_differencing_order}). "
-        f"Final series length: {len(series)}, ADF p-value: {adf_results['pvalue']:.4f}"
-    )
-
-def preprocess_dataset(
-    df: pd.DataFrame,
-    time_column: str,
-    value_column: str,
-    interpolate_missing_values: bool = True,
-    max_differencing_order: int = 3,
-    alpha: float = 0.05
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Preprocess a dataset containing time series data.
+    # Final stationarity check
+    if len(processed) >= 25:
+        final_stationary, final_p_value = check_stationarity_adf(processed)
+    else:
+        final_stationary = False
+        final_p_value = None
     
-    Args:
-        df: Input DataFrame
-        time_column: Name of the time column
-        value_column: Name of the value column
-        interpolate_missing_values: Whether to interpolate missing values
-        max_differencing_order: Maximum differencing order
-        alpha: Significance level for ADF test
-    
-    Returns:
-        Tuple of (preprocessed_df, dataset_preprocessing_log)
-    
-    Raises:
-        PreprocessingError: If preprocessing fails
-    """
-    if time_column not in df.columns or value_column not in df.columns:
-        raise PreprocessingError(
-            f"Columns '{time_column}' and/or '{value_column}' not found in DataFrame"
+    # Log edge case for unit roots that cannot be detrended (Edge Case 2)
+    if not final_stationary and differencing_count >= max_differencing:
+        logger.error(
+            f"Unit root detected that could not be resolved after {max_differencing} "
+            f"differencing steps. Series length: {len(processed)}. "
+            f"Final ADF p-value: {final_p_value}. (Edge Case 2)"
+        )
+    elif not detrended and not final_stationary and differencing_count > 0:
+        logger.info(
+            f"Series required {differencing_count} differencing steps to attempt stationarity. "
+            f"Final status: {'Stationary' if final_stationary else 'Non-stationary'}. "
+            f"Final ADF p-value: {final_p_value}. (Edge Case 2: logged differencing count)"
         )
     
-    # Set time as index
-    df = df.copy()
-    df[time_column] = pd.to_datetime(df[time_column])
-    df = df.set_index(time_column)
-    series = df[value_column]
-    
-    # Preprocess the series
-    preprocessed_series, series_log = preprocess_series(
-        series,
-        interpolate_missing_values=interpolate_missing_values,
-        max_differencing_order=max_differencing_order,
-        alpha=alpha
-    )
-    
-    # Create result DataFrame
-    result_df = pd.DataFrame({value_column: preprocessed_series})
-    
-    dataset_log = {
-        'dataset_columns': list(df.columns),
-        'value_column': value_column,
-        'series_log': series_log,
-        'final_length': len(result_df)
+    result = {
+        'processed_series': processed,
+        'is_stationary': final_stationary,
+        'differencing_count': differencing_count,
+        'detrended': detrended,
+        'original_length': len(series),
+        'processed_length': len(processed),
+        'adf_p_value': final_p_value,
+        'skipped': len(processed) < 25
     }
     
-    logger.info(
-        f"Dataset preprocessing complete: "
-        f"original={series_log['original_length']}, "
-        f"final={dataset_log['final_length']}, "
-        f"stationary={series_log['stationary']}"
-    )
+    return result
+
+def preprocess_dataset(
+    dataset: pd.DataFrame,
+    time_column: str = 'datetime',
+    value_column: str = 'value',
+    max_differencing: int = 3
+) -> pd.DataFrame:
+    """
+    Preprocess an entire dataset (multiple time series).
     
-    return result_df, dataset_log
+    Args:
+        dataset: DataFrame with time series data
+        time_column: Name of the time column
+        value_column: Name of the value column
+        max_differencing: Maximum differencing steps per series
+        
+    Returns:
+        Preprocessed DataFrame
+    """
+    logger = logging.getLogger(__name__)
+    
+    # Group by series identifier if present, otherwise treat as single series
+    if 'series_id' in dataset.columns:
+        groups = dataset.groupby('series_id')
+    else:
+        groups = [(None, dataset)]
+    
+    processed_dfs = []
+    edge_case_logs = []
+    
+    for series_id, group in groups:
+        series = group.set_index(time_column)[value_column]
+        result = preprocess_series(series, max_differencing)
+        
+        if result['skipped']:
+            logger.warning(f"Series {series_id} skipped due to insufficient length")
+            edge_case_logs.append({
+                'series_id': series_id,
+                'reason': 'insufficient_length',
+                'length': result['original_length']
+            })
+            continue
+        
+        processed_df = pd.DataFrame({
+            time_column: result['processed_series'].index,
+            value_column: result['processed_series'].values,
+            'is_stationary': result['is_stationary'],
+            'differencing_count': result['differencing_count'],
+            'detrended': result['detrended']
+        })
+        
+        if series_id is not None:
+            processed_df['series_id'] = series_id
+        
+        processed_dfs.append(processed_df)
+        
+        # Log edge case details for unit roots
+        if not result['is_stationary'] and result['differencing_count'] >= max_differencing:
+            edge_case_logs.append({
+                'series_id': series_id,
+                'reason': 'unit_root_undetermined',
+                'differencing_count': result['differencing_count'],
+                'final_adf_p_value': result['adf_p_value'],
+                'processed_length': result['processed_length']
+            })
+            logger.warning(
+                f"Edge Case 2: Series {series_id} has undetermined unit root. "
+                f"Differencing count: {result['differencing_count']}, "
+                f"Final ADF p-value: {result['adf_p_value']}"
+            )
+    
+    if not processed_dfs:
+        return pd.DataFrame()
+    
+    result_df = pd.concat(processed_dfs, ignore_index=True)
+    
+    # Log all edge cases encountered
+    if edge_case_logs:
+        logger.info(f"Encountered {len(edge_case_logs)} edge cases during preprocessing")
+        for log in edge_case_logs:
+            logger.debug(f"Edge case detail: {log}")
+    
+    return result_df
 
-# Backward compatibility aliases
-def interpolate_missing_values(series, *args, **kwargs):
-    """Alias for interpolate_missing for backward compatibility."""
-    return interpolate_missing(series, *args, **kwargs)
-
-def check_stationarity_adf(series, *args, **kwargs):
-    """Alias for check_stationarity for backward compatibility."""
-    return check_stationarity(series, *args, **kwargs)
-
-def detrend_linear(series, *args, **kwargs):
-    """Alias for detrend_series for backward compatibility."""
-    return detrend_series(series, *args, **kwargs)
-
-def difference(series, *args, **kwargs):
-    """Alias for difference_series for backward compatibility."""
-    return difference_series(series, *args, **kwargs)
-
-def preprocess(
-    series,
-    interpolate_missing_values=True,
-    max_differencing_order=3,
-    alpha=0.05
-):
-    """Alias for preprocess_series for backward compatibility."""
-    return preprocess_series(
-        series,
-        interpolate_missing_values=interpolate_missing_values,
-        max_differencing_order=max_differencing_order,
-        alpha=alpha
-    )
+def interpolate_missing_values(series: pd.Series) -> pd.Series:
+    """
+    Alias for interpolate_missing for backward compatibility.
+    
+    Args:
+        series: Input time series
+        
+    Returns:
+        Series with missing values interpolated
+    """
+    return interpolate_missing(series)

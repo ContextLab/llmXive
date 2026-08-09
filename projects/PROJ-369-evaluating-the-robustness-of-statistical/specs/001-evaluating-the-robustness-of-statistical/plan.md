@@ -17,7 +17,7 @@ This project evaluates the robustness of standard statistical tests (one-sample 
 **Project Type**: Statistical Research Pipeline / CLI Tool  
 **Performance Goals**: Complete full pipeline (ingestion, N-variation grid, Multiple synthetic trials per cell, regression) in ≤ 6 hours.  
 **Constraints**: Must run on CPU; memory usage < 7 GB; no external API keys required; datasets must be directly downloadable (no gated access).  
-**Scale/Scope**: + real datasets, Several Hurst levels spanning the range of to 0.9 will be examined. × sample sizes (100, 500, 1k, 5k, 10k), a substantial number of Monte Carlo trials per configuration. A sufficient number of shuffled null distributions per series.
+**Scale/Scope**: + real datasets, Several Hurst levels spanning a broad range of values will be examined. × sample sizes (, 500, 1k, 5k, 10k), a substantial number of Monte Carlo trials per configuration. A sufficient number of shuffled null distributions per series.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -107,7 +107,7 @@ data/
 | FR-004 | Req | `src/analysis/hypothesis_tests.py` implements one-sample t-test and F-test; excludes two-sample. |
 | FR-005 | Req | `src/analysis/regression.py` implements non-linear/GLM regression of error rate vs. H and log(N_eff); includes interaction term; excludes Max_ACF_Lag1 as predictor. |
 | FR-006 | Req | `src/viz/plots.py` generates ACF, scatter, QQ-plots, VIF curves. |
-| FR-007 | Req | `src/synthesis/generators.py` generates fGn/ARFIMA with H={0.7, 0.8, 0.9} and N={100, 500, 1k, 5k, 10k}; calculates theoretical VIF/N_eff. |
+| FR-007 | Req | `src/synthesis/generators.py` generates fGn/ARFIMA with H={, 0.8, 0.9} and N={a range of sample sizes from small to large, including 500, 1k, 5k, and 10k}; calculates theoretical VIF/N_eff. |
 | FR-008 | Req | `src/synthesis/validation.py` verifies baseline validity (H=0.5, 10k trials) before proceeding. |
 | SC-001 | Metric | Measured in `src/analysis/hypothesis_tests.py` against nominal α=0.05. |
 | SC-002 | Metric | Measured in `src/analysis/regression.py` (slope, p-value, non-linear fit). |
