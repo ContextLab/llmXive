@@ -21,7 +21,7 @@ def sample_df():
 
 def test_antibiotic_exclusion_logic(sample_df):
     """
-    Test T014: Verify samples with antibiotic_use_last_3m=True are filtered.
+    Test T010: Verify samples with antibiotic_use_last_3m=True are filtered.
     Expected:
       S1: True -> EXCLUDE
       S2: False -> KEEP

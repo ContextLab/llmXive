@@ -1,0 +1,274 @@
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 2
+  canonical: Pipeline runtime limit 6 hours on CPU-only runner with 7GB RAM constraint
+  claim_id: c_3eaa1676
+  context: Notes section detailing critical constraints for data processing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 7GB RAM and 6 hours on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:20Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Chunk size 10000 for data processing
+  claim_id: c_3bda520b
+  context: Task T020a description regarding memory efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement chunked processing with chunksize=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:28Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Chunk size 10000 for data processing
+  claim_id: c_c0cddec7
+  context: Task T015a_read description regarding memory efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement chunked processing with chunksize=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:28Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Chunk size 10000 for data processing
+  claim_id: c_cc28063f
+  context: Task T049 description regarding streaming the American Gut Project dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement chunked processing with chunksize=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:28Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Moderate correlation threshold absolute r value 0.3
+  claim_id: c_00feab9f
+  context: Task T023 description regarding flagging correlations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter samples where |r| > 0.3 to flag moderate correlations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:28Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Significant correlation threshold q-value 0.05
+  claim_id: c_32a657e0
+  context: Task T023 description regarding flagging correlations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag correlations where q-value < 0.05 as significant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:28Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Ruff rules E F W I
+  claim_id: c_af215c6e
+  context: Task T003 description regarding linting configuration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ruff_rules_E_F_W_I
+  kind: entity_fact
+  raw_text: Configure ruff rules set to ["E", "F", "W", "I"].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:48Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Black line length 88
+  claim_id: c_302368fe
+  context: Task T003 description regarding formatting configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure black line-length: 88.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:55:59Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pandas version requirement 2.0
+  claim_id: c_419f4942
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pandas>=2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:56:10Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Scikit-bio version requirement 0.5.9
+  claim_id: c_6e64f3ba
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scikit-bio>=0.5.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:56:21Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Scipy version requirement 1.10
+  claim_id: c_49ed2878
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy>=1.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:56:32Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Matplotlib version requirement 3.7
+  claim_id: c_6f81744f
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use matplotlib>=3.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:56:42Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Seaborn version requirement 0.12
+  claim_id: c_972dfb8a
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seaborn>=0.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:56:54Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Requests version requirement 2.28
+  claim_id: c_f3caa92c
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use requests>=2.28.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:57:05Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pytest version requirement 7.0
+  claim_id: c_0e485b1a
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pytest>=7.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:57:15Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pydantic version requirement 2.0
+  claim_id: c_90de0fe2
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pydantic>=2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:57:23Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Ruff version requirement 0.1.0
+  claim_id: c_ed86ae8a
+  context: Task T002 description regarding pinned dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use ruff>=0.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:57:31Z'
+- artifact_path: projects/PROJ-087-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Root logger level INFO
+  claim_id: c_f0e629d9
+  context: Task T006 description regarding logging infrastructure.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Root_logger_level_INFO
+  kind: entity_fact
+  raw_text: Configure root logger level to INFO.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T17:57:46Z'
