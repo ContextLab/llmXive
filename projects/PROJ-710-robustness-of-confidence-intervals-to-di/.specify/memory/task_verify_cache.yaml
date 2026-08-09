@@ -5,6 +5,22 @@ T001b:
     (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`). The implementer
     provided only a feature specification and no filesystem artifacts, so the task
     requirement is not satisfied.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or Black settings) or any evidence of them being set up were presented.
+    The claim lacks the required artifacts to demonstrate that ruff/flake8 and Black
+    have been configured for the project.
+T003:
+  c: false
+  h: f7221cb2947dffdfdb0c08974cbe8b367cb658b3f0f7d9adad6d0c7375d26688
+  r: "The repository contains `code/data/synthetic_pop.py`, but the required output\
+    \ file `code/data/ground_truth.json` is absent, so the ground\u2011truth parameters\
+    \ are not provided as the task specifies. Additionally, without this JSON file\
+    \ the generated populations cannot be verified against known parameters. The next\
+    \ implementer must create and populate `code/data/ground_truth.json` with the\
+    \ true means, variances, and regression coefficients for all three synthetic populations."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

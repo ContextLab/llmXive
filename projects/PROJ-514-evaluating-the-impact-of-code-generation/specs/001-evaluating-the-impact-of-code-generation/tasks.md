@@ -193,7 +193,7 @@
  - **Metrics**: Calculate effect sizes (Cohen's d or equivalent for permutation tests).
  - **Output**: Save results to `data/intermediate/stat_results.json`.
  - **Constraint**: Must use the repository ID from `manifest.csv` as the blocking variable.
-- [ ] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
+- [X] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
  - **Sweep**: **Sweep thresholds for ALL four code smell categories** (Long Method, Duplicated Code, Feature Envy, Long Parameter List).
  - **Ranges**: Define specific, documented ranges for each (e.g., Long Method: 20-100 lines; Duplicated Code: 5-20 blocks).
  - **Stability Metric**: Define "stability" as **p-value variance < 0.01** across the sweep and **effect size direction consistency**.

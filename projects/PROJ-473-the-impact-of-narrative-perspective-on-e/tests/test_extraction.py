@@ -1,96 +1,83 @@
-"""
-Unit tests for perspective extraction functions.
-"""
 import pytest
-from code.extraction import calculate_pronoun_density, calculate_narrator_distance_score, extract_perspective_features
+import os
+import tempfile
+import json
+from extraction import extract_perspective_features, calculate_pronoun_density
 
-class TestPronounDensity:
-    def test_empty_text(self):
-        """Test handling of empty text."""
-        result = calculate_pronoun_density("")
-        assert result["first_person_density"] == 0.0
-        assert result["third_person_density"] == 0.0
-        assert result["first_person_count"] == 0
+def test_neutral_omniscient_flagging():
+    """
+    T017 Test: Verify that texts with 0.0 first-person density are flagged as 'is_neutral_omniscient'.
+    """
+    # Create a temporary file with a third-person heavy text (omniscient style)
+    third_person_text = """
+    The old man walked down the street. He looked at the sky. The sky was blue. 
+    She watched him from the window. It was a cold day. They did not speak to each other.
+    The dog barked at the mailman. It was a lonely afternoon in the city.
+    """
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as f:
+        f.write(third_person_text)
+        temp_path = f.name
 
-    def test_none_text(self):
-        """Test handling of None text."""
-        result = calculate_pronoun_density(None)
-        assert result["first_person_density"] == 0.0
+    try:
+        result = extract_perspective_features(temp_path)
+        
+        assert result is not None, "Extraction should not return None for valid English text"
+        assert result['pronoun_density_1st'] == 0.0, "First person density should be 0.0 for this text"
+        assert result['is_neutral_omniscient'] is True, "Text with 0.0 first-person density must be flagged as neutral/omniscient"
+        assert result['pronoun_density_3rd'] > 0.0, "Third person density should be > 0.0"
+    finally:
+        os.unlink(temp_path)
 
-    def test_first_person_pronouns(self):
-        """Test detection of first-person pronouns."""
-        text = "I went to the store. We saw him there. My friend was with us."
-        result = calculate_pronoun_density(text)
-        assert result["first_person_count"] >= 3  # I, We, My, us
-        assert result["first_person_density"] > 0
+def test_first_person_not_flagged():
+    """
+    T017 Test: Verify that texts with non-zero first-person density are NOT flagged.
+    """
+    first_person_text = """
+    I walked down the street. I looked at the sky. The sky was blue. 
+    I watched the man from the window. It was a cold day. I did not speak to him.
+    My dog barked at the mailman. It was a lonely afternoon for me.
+    """
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as f:
+        f.write(first_person_text)
+        temp_path = f.name
 
-    def test_third_person_pronouns(self):
-        """Test detection of third-person pronouns."""
-        text = "He went to the store. She saw it there. Their friend was with them."
-        result = calculate_pronoun_density(text)
-        assert result["third_person_count"] >= 4  # He, She, it, Their, them
-        assert result["third_person_density"] > 0
+    try:
+        result = extract_perspective_features(temp_path)
+        
+        assert result is not None, "Extraction should not return None for valid English text"
+        assert result['pronoun_density_1st'] > 0.0, "First person density should be > 0.0"
+        assert result['is_neutral_omniscient'] is False, "Text with > 0.0 first-person density must NOT be flagged"
+    finally:
+        os.unlink(temp_path)
 
-    def test_mixed_pronouns(self):
-        """Test text with both first and third person."""
-        text = "I saw him walking. She told me about it."
-        result = calculate_pronoun_density(text)
-        assert result["first_person_count"] >= 2  # I, me
-        assert result["third_person_count"] >= 3  # him, She, it
+def test_edge_case_empty_text():
+    """
+    T017 Test: Verify behavior on empty text.
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as f:
+        f.write("")
+        temp_path = f.name
 
-    def test_non_english_text(self):
-        """Test that non-English text returns zeros."""
-        text = "Bonjour, je suis content. Comment allez-vous?"
-        result = calculate_pronoun_density(text)
-        assert result.get("skipped", False) or result["first_person_density"] == 0.0
+    try:
+        result = extract_perspective_features(temp_path)
+        assert result is None, "Empty text should return None"
+    finally:
+        os.unlink(temp_path)
 
-    def test_realistic_story(self):
-        """Test with a realistic short story excerpt."""
-        text = """
-        I walked through the forest, wondering what lay ahead. The trees whispered secrets
-        to me, and I felt a strange connection to the land. He had told me stories about
-        this place, but I never believed them until now. She would have been proud to see
-        me here, standing alone in the moonlight.
-        """
-        result = calculate_pronoun_density(text)
-        assert result["first_person_count"] > result["third_person_count"]
-        assert result["first_person_density"] > 0.05
+def test_language_detection_skip():
+    """
+    T017 Test: Verify non-English text is skipped.
+    """
+    spanish_text = "Hola, cómo estás? El cielo está azul."
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False, encoding='utf-8') as f:
+        f.write(spanish_text)
+        temp_path = f.name
 
-class TestNarratorDistance:
-    def test_close_distance(self):
-        """Test that first-person text has low distance score."""
-        text = "I walked down the street. I felt happy. My heart was full."
-        score = calculate_narrator_distance_score(text)
-        assert score < 0.5
-
-    def test_far_distance(self):
-        """Test that third-person text has high distance score."""
-        text = "He walked down the street. She felt happy. Their hearts were full."
-        score = calculate_narrator_distance_score(text)
-        assert score > 0.5
-
-    def test_empty_text(self):
-        """Test empty text returns neutral score."""
-        score = calculate_narrator_distance_score("")
-        assert score == 0.5
-
-class TestExtractPerspectiveFeatures:
-    def test_short_text(self):
-        """Test that very short text returns error."""
-        result = extract_perspective_features("Too short")
-        assert result["error"] == "text_too_short"
-
-    def test_normal_text(self):
-        """Test normal text extraction."""
-        text = "I walked down the street. I felt happy. My heart was full of joy."
-        result = extract_perspective_features(text)
-        assert result["error"] is None
-        assert result["perspective_type"] == "first_person"
-        assert result["narrator_distance_score"] is not None
-
-    def test_edge_case_50_chars(self):
-        """Test text exactly at the 50 character boundary."""
-        text = "A" * 50
-        result = extract_perspective_features(text)
-        # Should not error but may have zero pronouns
-        assert "error" not in result or result["error"] != "text_too_short"
+    try:
+        result = extract_perspective_features(temp_path)
+        assert result is None, "Non-English text should return None"
+    finally:
+        os.unlink(temp_path)

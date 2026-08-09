@@ -3,29 +3,20 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "narrative-perspective-empathy"
+name = "llmxive-narrative-perspective"
 version = "0.1.0"
-description = "Research pipeline for analyzing narrative perspective impact on empathy"
+description = "Impact of Narrative Perspective on Empathy and Moral Judgement"
 requires-python = ">=3.11"
 dependencies = [
-    "spaCy>=3.7.0",
-    "scikit-learn>=1.4.0",
-    "pandas>=2.2.0",
-    "numpy>=1.26.0",
-    "matplotlib>=3.8.0",
-    "statsmodels>=0.14.0",
-    "langdetect>=1.0.9",
-    "pyyaml>=6.0.1",
-    "requests>=2.31.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "black>=24.1.0",
-    "flake8>=7.0.0",
-    "isort>=5.13.0",
-    "pytest>=8.0.0",
-    "pytest-cov>=4.1.0",
+    "spacy",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "statsmodels",
+    "langdetect",
+    "pyyaml",
+    "requests",
 ]
 
 [tool.black]
@@ -35,41 +26,23 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | venv
-    | .eggs
-    | \.egg-info
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["config", "data_loader", "extraction", "main", "matching", "models", "utils", "setup_project"]
-skip = [
-    ".git",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "venv",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info"
-]
+known_first_party = ["config", "data_loader", "extraction", "main", "matching", "models", "utils"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-]

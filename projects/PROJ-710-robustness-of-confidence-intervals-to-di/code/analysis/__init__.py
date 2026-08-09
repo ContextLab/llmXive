@@ -1,3 +1,3 @@
 """
-Statistical analysis, simulation logic, and visualization modules.
+Analysis and statistical methods module.
 """

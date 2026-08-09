@@ -1,87 +1,77 @@
 """
-T006: Setup data directory structure.
-
-Creates the required directory hierarchy for raw, intermediate, processed data,
-reference sets, and reports as specified in the project plan.
-
-This script must be executed to ensure all data paths are writable and exist
-before data collection or analysis tasks begin.
+Script to setup the data directory structure for the project.
+This script creates the necessary directories for storing raw, intermediate,
+processed data, as well as reports and reference sets.
 """
 import os
 import sys
 from pathlib import Path
-
-# Import from existing project utilities as per API surface
 from utils.logger import get_logger
 from utils.config import get_project_root
 
-# Define the relative paths to be created under the project root's 'data' and 'reports' directories
-# These paths match the requirements in tasks.md for T006 and T001
-REQUIRED_DIRS = [
-    "data/raw/human_samples",
-    "data/raw/llm_samples",
-    "data/intermediate",
-    "data/processed",
-    "data/raw/reference_set",
-    "reports",
-]
+logger = get_logger(__name__)
 
 def setup_data_directories():
     """
-    Create all required data directories.
+    Creates the required data directory structure relative to the project root.
     
-    Returns:
-        bool: True if all directories were created or already exist and are writable,
-              False if any directory creation failed or is not writable.
+    Directories created:
+    - data/raw/human_samples
+    - data/raw/llm_samples
+    - data/raw/reference_set
+    - data/intermediate
+    - data/processed
+    - reports
     """
-    logger = get_logger(__name__)
     project_root = get_project_root()
+    data_root = project_root / "data"
     
-    if not project_root:
-        logger.error("Could not determine project root. Aborting directory setup.")
-        return False
+    # Define the directory structure to create
+    directories = [
+        data_root / "raw" / "human_samples",
+        data_root / "raw" / "llm_samples",
+        data_root / "raw" / "reference_set",
+        data_root / "intermediate",
+        data_root / "processed",
+        project_root / "reports",
+    ]
     
-    base_path = Path(project_root)
-    success = True
+    created_count = 0
+    existing_count = 0
     
-    for dir_name in REQUIRED_DIRS:
-        target_dir = base_path / dir_name
-        
+    for directory in directories:
         try:
-            # Create directories if they don't exist, including parents
-            target_dir.mkdir(parents=True, exist_ok=True)
+            # Create directory with parents if they don't exist
+            directory.mkdir(parents=True, exist_ok=True)
             
-            # Verify writability by attempting to create a temporary marker file
-            # This ensures the user has permissions and the path is valid
-            marker_file = target_dir / ".write_test_marker"
+            # Verify the directory is writable
+            test_file = directory / ".write_test"
             try:
-                marker_file.touch()
-                marker_file.unlink()  # Remove the marker immediately
+                test_file.touch()
+                test_file.unlink()
+                created_count += 1
+                logger.info(f"Successfully created and verified writable: {directory}")
             except (OSError, PermissionError) as e:
-                logger.error(f"Directory {target_dir} exists but is not writable: {e}")
-                success = False
-                continue
-            
-            logger.info(f"Verified directory: {target_dir}")
-            
-        except OSError as e:
-            logger.error(f"Failed to create directory {target_dir}: {e}")
-            success = False
+                logger.error(f"Directory {directory} created but not writable: {e}")
+                # Don't count as successfully created if not writable
+                if directory.exists():
+                    directory.rmdir() # Clean up empty directory
+        except Exception as e:
+            logger.error(f"Failed to create directory {directory}: {e}")
     
-    return success
+    logger.info(f"Data directory setup complete. Created: {created_count}, Existing: {existing_count}")
+    return created_count == len(directories)
 
 def main():
-    """Entry point for the script."""
-    logger = get_logger(__name__)
-    logger.info("Starting data directory setup (Task T006)...")
+    """Main entry point for the script."""
+    logger.info("Starting data directory setup...")
+    success = setup_data_directories()
     
-    if setup_data_directories():
-        logger.info("All data directories created and verified successfully.")
-        print("SUCCESS: Data directory structure is ready.")
+    if success:
+        logger.info("Data directory structure is ready.")
         sys.exit(0)
     else:
-        logger.error("Data directory setup failed. Check logs for details.")
-        print("FAILURE: Data directory setup failed.")
+        logger.error("Data directory setup failed. Please check permissions.")
         sys.exit(1)
 
 if __name__ == "__main__":

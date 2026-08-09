@@ -3400,3 +3400,101 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T03:47:31Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Generate synthetic populations with known ground truth parameters for
+    UCI Adult, UCI Iris, and UCI Wine Quality distributions
+  claim_id: c_8a89c3f4
+  context: T003 [P] Implement code/data/synthetic_pop.py to generate N=1,000,000 synthetic
+    populations for UCI Adult, UCI Iris, and UCI Wine Quality distributions. The generation
+    MUST create a population with known parameters (mean, variance, coefficients)
+    to serve as ground truth.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_populations_with_known_ground_truth_param
+  kind: entity_fact
+  raw_text: The generation MUST create a population with known parameters (mean, variance,
+    coefficients) to serve as ground truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T03:48:42Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Set simulation count N_sim to 1000
+  claim_id: c_b64c2a76
+  context: T002 [P] Implement code/config.py with hyperparameters, random seeds, artifact
+    paths, and nominal_coverage_target (default a high confidence threshold). Set
+    N_sim = 1000 to match plan feasibility check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T03:49:04Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: 'Implement Bias-Correction formula for mean: mu_hat_adj = x_bar - (sigma^2
+    / 2n) citing Covington et al. 2021'
+  claim_id: c_00ddb439
+  context: 'Formulas to implement: Bias-Correction (Mean): mu_hat_adj = x_bar - sigma^2/2n
+    (or as per Covington et al. 2021)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Bias-Correction (Mean): mu_hat_adj = x_bar - (sigma^2 / 2n) (or as per
+    Covington et al. 2021)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T03:50:22Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: 'Implement Variance-Inflation formula for regression: SE_adj = SE * sqrt(1
+    + lambda/n) citing Karwa & Vadhan 2017'
+  claim_id: c_c09a5300
+  context: 'Formulas to implement: Variance-Inflation (Regression): SE_adj = SE *
+    sqrt(1 + lambda/n) (or as per Karwa & Vadhan 2017)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Variance-Inflation (Regression): SE_adj = SE * sqrt(1 + lambda/n) (or
+    as per Karwa & Vadhan 2017)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T03:51:56Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Verify standard error of coverage is less than 0.5% across multiple seeds
+  claim_id: c_692f8ec7
+  context: T033 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5%25_across_m
+  kind: magnitude
+  raw_text: Run simulation with multiple seeds and verify standard error of coverage
+    < 0.5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T03:52:48Z'

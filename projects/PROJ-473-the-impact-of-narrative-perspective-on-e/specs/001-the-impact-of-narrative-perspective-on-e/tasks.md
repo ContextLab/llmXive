@@ -55,7 +55,7 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [US1] Validation test: Process a manually annotated gold-standard subset of **50 stories** and verify that the computed "first-person density" scores correlate ≥ 0.8 with human annotations, satisfying SC-001. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T010 [US1] Validation test: Process a manually annotated gold-standard subset of **50 stories** and verify that the computed "first-person density" scores correlate ≥ 0.8 with human annotations, satisfying SC-001. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T011 [P] [US1] Unit test for language detection and skipping non-English text in `tests/test_extraction.py` (logic verification on small sample)
 - [X] T012 [P] [US1] Integration test for full pipeline on a sample of 10 stories in `tests/integration/test_extraction_flow.py`
 
@@ -64,7 +64,7 @@
 - [X] T013 [P] [US1] Implement `code/extraction.py` function `calculate_pronoun_density(text)` using spaCy (FR-001)
 - [X] T014 [US1] Implement `code/extraction.py` function `calculate_narrator_distance_score(text)` (FR-001)
 - [X] T015 [US1] Implement `code/extraction.py` function `extract_perspective_features(file_path)` handling edge cases (<50 words, mixed language)
-- [ ] T016 [US1] Create `code/main.py` entry point to run extraction on the `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`
+- [X] T016 [US1] Create `code/main.py` entry point to run extraction on the `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`
 - [ ] T017 [US1] Add validation logic to flag "neutral/omniscient" texts where `pronoun_density_1st` is 0.0
 - [ ] T018 [US1] Add logging for extraction quality warnings (e.g., "data_quality_insufficient")
 
@@ -105,8 +105,8 @@
 
 ### Tests for User Story 4
 
-- [ ] T028 [P] [US4] Unit test for attention check validation logic in `tests/test_data_collection.py`
-- [ ] T029 [P] [US4] Unit test for IRI scale aggregation in `tests/test_data_collection.py`
+- [X] T028 [P] [US4] Unit test for attention check validation logic in `tests/test_data_collection.py`
+- [X] T029 [P] [US4] Unit test for IRI scale aggregation in `tests/test_data_collection.py`
 
 ### Implementation for User Story 4
 
@@ -124,7 +124,7 @@
 
 **Goal**: Run linear regression and t-tests on the dataset containing reader-response data (from US4) to determine if first-person perspective predicts higher deontological moral judgement scores.
 
-**Independent Test**: The analysis can be tested by running it on a synthetic dataset with a known, hardcoded correlation (slope = 0.5), verifying that the regression recovers the slope within a 5% margin of error.
+**Independent Test**: The analysis can be tested by running it on a synthetic dataset with a known, hardcoded correlation (slope = 0.5), verifying that the regression recovers the slope within a 5% margin of error. [UNRESOLVED-CLAIM: c_63010d9b — status=not_enough_info]
 
 ### Tests for User Story 3
 

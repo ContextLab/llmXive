@@ -1,49 +1,11 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented that the required directories (`code/`, `data/`, `tests/`,\
-    \ `artifacts/`) actually exist in the project repository; the response contains\
-    \ only the task description without any file\u2011system listing or screenshots.\
-    \ The implementer must provide a directory tree or similar proof that the specified\
-    \ structure has been created."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black settings, or a pre\u2011commit hook) are present in the provided\
-    \ evidence, so the claim that linting/formatting tools have been configured cannot\
-    \ be verified. The required artifacts are missing."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI configuration file (e.g., a GitHub Actions workflow YAML) or any other\
-    \ artifact specifying a CPU\u2011only environment with a 7\u202FGB RAM limit was\
-    \ presented. Without such a file, the claim of having set up the CI environment\
-    \ cannot be verified. The required artifact is missing."
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only the task description; there is no actual artifact such\
-    \ as a processed set of 50 manually annotated stories, the resulting \u201Cfirst\u2011\
-    person density\u201D scores, or a reported correlation \u2265\u202F0.8 with human\
-    \ annotations. Without these concrete data files or results, the requirement is\
-    \ not satisfied."
 T016:
-  c: false
-  h: befe4a484a6a44542ee99e5eda3a27c05b00cbb34a295afc13cd73e9e798b8d6
-  r: "The repository contains a `code/main.py` that implements the required entry\
-    \ point, but the expected output artifact `data/processed/perspective_features.json`\
-    \ is missing, so the pipeline\u2019s result has not been produced. The task is\
-    \ not fully satisfied until that JSON file exists with the extracted records."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data artifact was provided that adds the required validation\
-    \ logic to flag \u201Cneutral/omniscient\u201D texts when `pronoun_density_1st`\
-    \ is 0.0. The implementer\u2019s claim is unsupported; the repository contains\
-    \ no new files, functions, or test results demonstrating the requested feature.\
-    \ The missing artifact is the implementation (e.g., updated extraction script)\
-    \ and evidence (e.g., JSON output, unit test) showing the flagging behavior."
+  c: true
+  h: 0e7618d75730ab33c224a1439b4ff7be8c9d6cd08f479431efbaa972265688d1
+  r: "The repository contains a `code/main.py` (3.5\u202FKB) that defines a CLI entry\
+    \ point, runs the extraction on `data/raw/` files, and writes the results to `data/processed/perspective_features.json`\
+    \ as specified. The script\u2019s `_run_extraction` function creates the output\
+    \ directory, processes all `.txt` files, and dumps the JSON records to the required\
+    \ path."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,9 +17,23 @@ T018:
     \ the corresponding artifact."
 T025:
   c: false
-  h: 2dc5ffa4c9b16b189fd344eac89c15ce598cc033945ce93fa07880bbf1030cf9
-  r: "The repository contains a `code/main.py`, but it implements a perspective\u2011\
-    feature extraction pipeline and writes `perspective_features.json`, not a sub\u2011\
-    command for matching validation. Moreover, the required output file `data/processed/matching_results.json`\
-    \ is absent. Both the correct script behavior and the expected output artifact\
-    \ are missing."
+  h: f79f27052a4dd6bfaf8cb3fd3794aac53c051a6b4d25634859871f66d7f6f8f2
+  r: "The repository contains `code/main.py` with a \u201Cmatch\u201D sub\u2011command,\
+    \ but the implementation is truncated and never creates the required `data/processed/matching_results.json`\
+    \ (the file is absent). Without the output file, the task\u2019s core requirement\
+    \ is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided to demonstrate that the similarity\u2011\
+    threshold check (excluding stories with similarity\u202F<\u202F0.3) and the corresponding\
+    \ \u201Cunmatched\u201D logging were actually implemented. Without concrete artifacts,\
+    \ the requirement cannot be confirmed as met."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the deterministic tie\u2011breaking\
+    \ rule (selecting the highest raw score) is present; the claim lacks any concrete\
+    \ artifact (e.g., function, unit test, or example output) to demonstrate that\
+    \ the rule has been added to the similarity matcher. The required implementation\
+    \ is therefore missing."

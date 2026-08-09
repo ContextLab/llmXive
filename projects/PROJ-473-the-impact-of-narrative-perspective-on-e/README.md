@@ -1,32 +1,40 @@
-# The Impact of Narrative Perspective on Empathy and Moral Judgement
+# llmXive: The Impact of Narrative Perspective on Empathy and Moral Judgement
 
-This project investigates whether first-person or third-person narration influences reader empathy and moral judgement.
+## Setup Linting and Formatting
 
-## Setup
+This project uses `black` for code formatting, `flake8` for linting, and `isort` for import sorting.
+Pre-commit hooks are configured to run these tools automatically before commits.
 
-1. Ensure Python 3.11 is installed.
-2. Create a virtual environment:
- ```bash
- python3.11 -m venv venv
- source venv/bin/activate
- ```
-3. Install dependencies:
+### Installation
+
+1. Install dependencies:
  ```bash
  pip install -r requirements.txt
+ pip install pre-commit black flake8 isort
  ```
-4. Download the required spaCy model:
+
+2. Install pre-commit hooks:
  ```bash
- python -m spacy download en_core_web_sm
+ pre-commit install
  ```
 
-## Project Structure
+### Manual Usage
 
-- `code/`: Source code for data loading, extraction, analysis, and utilities.
-- `data/`: Raw and processed data files.
-- `tests/`: Unit and integration tests.
-- `artifacts/`: Final analysis outputs (plots, reports).
-- `specs/`: Research design documents.
+Run formatters and linters manually:
 
-## Running the Pipeline
+```bash
+# Format code
+black code/ tests/
 
-Refer to `code/main.py` for entry points to the extraction, matching, and analysis pipelines.
+# Sort imports
+isort code/ tests/
+
+# Check linting
+flake8 code/ tests/
+```
+
+### Configuration Files
+
+- `.flake8`: Linting rules and exclusions
+- `pyproject.toml`: Black, isort, and pytest configuration
+- `.pre-commit-config.yaml`: Pre-commit hook definitions

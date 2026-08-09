@@ -701,3 +701,79 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T07:26:20Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 0
+  canonical: first-person density scores correlate >= 0.8 with human annotations on
+    10 story sample
+  claim_id: c_d2c7120c
+  context: Independent Test for User Story 1 perspective feature extraction pipeline.
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The pipeline can be tested by processing a small, manually annotated\
+    \ sample of 10 stories and verifying that the computed 'first-person density'\
+    \ scores correlate \u2265 0.8 with human annotations of perspective type."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T04:48:51Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: text similarity matching precision >= 0.9 on 50 item gold standard
+  claim_id: c_e880f645
+  context: Independent Test for User Story 2 text-similarity matching algorithm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The matching logic can be tested by running it against a 'gold standard'\
+    \ subset of 50 manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:49:46Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: linear regression recovers slope of 0.5 within 5% margin of error on
+    synthetic data
+  claim_id: c_63010d9b
+  context: Independent Test for User Story 3 statistical association analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis can be tested by running it on a synthetic dataset with a
+    known, hardcoded correlation (slope = 0.5), verifying that the regression recovers
+    the slope within a 5% margin of error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:50:07Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time < 45 minutes and memory < 6 GB on GitHub
+    Actions
+  claim_id: c_4ac2f60f
+  context: Post-Run Automation task T053 in Phase 7.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline end-to-end on the GitHub Actions runner to verify execution
+    time < 45 minutes and memory < 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:50:08Z'

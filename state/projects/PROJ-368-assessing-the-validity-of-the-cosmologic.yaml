@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T17:39:26.225813Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-368-assessing-the-validity-of-the-cosmologic
-last_run_id: 0d581e8b-91fc-437c-bd9b-acfe595606dd
+last_run_id: 29ba3934-6258-44a6-9613-0ba4a688eb07
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic
 title: Assessing the Validity of the Cosmological Principle with Public CMB Data
-updated_at: '2026-08-07T07:31:31.291449Z'
+updated_at: '2026-08-09T03:59:17.482440Z'

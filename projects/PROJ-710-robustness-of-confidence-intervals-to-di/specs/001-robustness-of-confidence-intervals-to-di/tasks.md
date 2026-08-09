@@ -26,8 +26,8 @@
 
 - [X] T001a [P] Create `code/utils/init_dirs.py` script that atomically creates all required project directories: `code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`, `artifacts/`. **(Replaces T001a-T001f)**
 - [ ] T001b [P] Create `__init__.py` files in all Python package directories (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`) **(Depends on T001a)**
-- [ ] T001c [P] Create `code/config.py` skeleton with placeholders for hyperparameters, random seeds, and artifact paths
-- [ ] T001d [P] Create `requirements.txt` with pinned versions for `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `pytest`, `ruff`, `black`
+- [X] T001c [P] Create `code/config.py` skeleton with placeholders for hyperparameters, random seeds, and artifact paths
+- [X] T001d [P] Create `requirements.txt` with pinned versions for `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `pytest`, `ruff`, `black`
 - [ ] T001e [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -38,11 +38,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 [P] Implement `code/config.py` with hyperparameters, random seeds, artifact paths, and `nominal_coverage_target` (default a high confidence threshold). **Set `N_sim = 1000`** to match plan feasibility check.
+- [X] T002 [P] Implement `code/config.py` with hyperparameters, random seeds, artifact paths, and `nominal_coverage_target` (default a high confidence threshold). **Set `N_sim = 1000`** to match plan feasibility check.
 - [ ] T003 [P] Implement `code/data/synthetic_pop.py` to generate N=1,000,000 synthetic populations for **UCI Adult**, **UCI Iris**, and **UCI Wine Quality** distributions. The generation MUST create a population with **known parameters** (mean, variance, coefficients) to serve as ground truth. **Output to `code/data/ground_truth.json`** containing these known parameters for each population. **Note**: This task generates data from scratch; no real dataset fetch is required for the population itself. If real datasets are used for validation, they must be fetched separately and the fetch must fail loudly (see T038). **(Artifacts: `code/data/ground_truth.json`)**
-- [ ] T004 [P] Implement `code/data/dp_noise.py` for calibrated Laplace and Gaussian noise injection (CPU-only, no 8-bit quantization)
-- [ ] T005 [P] Create `code/utils/update_state.py` for post-run artifact hashing and state updates
-- [ ] T006 [P] Implement `code/data/__init__.py` and `code/utils/__init__.py` package initializers
+- [X] T004 [P] Implement `code/data/dp_noise.py` for calibrated Laplace and Gaussian noise injection (CPU-only, no 8-bit quantization)
+- [X] T005 [P] Create `code/utils/update_state.py` for post-run artifact hashing and state updates
+- [X] T006 [P] Implement `code/data/__init__.py` and `code/utils/__init__.py` package initializers
 - [ ] T014a [P] [US1] Implement `code/analysis/edge_cases.py` function `clamp_noise_scale` to handle cases where noise scale exceeds data range (small $\epsilon$). **(Creates module for T013a)**
 - [ ] T014b [P] [US1] Implement `code/analysis/edge_cases.py` function `detect_collinearity` to handle collinear predictors in regression, dropping one and logging the action. **(Creates module for T013a)**
 - [ ] T014c [P] [US1] Implement `code/analysis/edge_cases.py` function `enforce_min_sample_size` to enforce minimum sample size for valid bootstrap (n < 10 check). **(Creates module for T013a)**

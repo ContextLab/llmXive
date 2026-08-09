@@ -1,89 +1,84 @@
 """
-Setup script for linting and formatting tools (ruff/black).
-This script ensures dependencies are installed and configuration files are created.
+Script to verify and ensure linting configuration is correct.
+This script is a placeholder for verification purposes; the actual configuration
+is defined in pyproject.toml.
 """
 import os
 import sys
 import subprocess
 from pathlib import Path
 import logging
-
 from utils.logger import get_logger
-from utils.config import get_project_root
-
-logger = get_logger(__name__)
 
 def ensure_requirements():
     """Ensure ruff and black are installed."""
-    logger.info("Checking for ruff and black installation...")
-    
+    logger = get_logger(__name__)
     try:
-        subprocess.run([sys.executable, "-m", "pip", "install", "-r", "code/requirements.txt"], check=True)
-        logger.info("Dependencies installed successfully.")
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to install dependencies: {e}")
-        raise
+        import ruff
+        import black
+        logger.info("Linting tools (ruff, black) are available.")
+        return True
+    except ImportError:
+        logger.error("Linting tools not found. Please run: pip install -e .[dev]")
+        return False
 
 def create_ruff_config():
-    """Create ruff configuration in pyproject.toml if not present."""
-    project_root = get_project_root()
-    pyproject_path = project_root / "pyproject.toml"
+    """
+    Verify ruff configuration exists in pyproject.toml.
+    Since we use pyproject.toml, this function checks its presence.
+    """
+    logger = get_logger(__name__)
+    root = Path(__file__).parent.parent
+    pyproject = root / "pyproject.toml"
+    if not pyproject.exists():
+        logger.error("pyproject.toml not found at project root.")
+        return False
     
-    # Check if ruff section already exists
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.ruff]" in content:
-            logger.info("Ruff configuration already exists in pyproject.toml")
-            return
+    content = pyproject.read_text()
+    if "[tool.ruff]" not in content:
+        logger.error("[tool.ruff] section missing in pyproject.toml.")
+        return False
     
-    # Create or update pyproject.toml
-    if not pyproject_path.exists():
-        pyproject_path.write_text("[build-system]\nrequires = [\"setuptools>=61.0\"]\nbuild-backend = \"setuptools.build_meta\"\n")
-    
-    logger.info("Ruff configuration created/updated in pyproject.toml")
+    logger.info("Ruff configuration found in pyproject.toml.")
+    return True
 
 def create_black_config():
-    """Create black configuration in pyproject.toml if not present."""
-    project_root = get_project_root()
-    pyproject_path = project_root / "pyproject.toml"
+    """
+    Verify black configuration exists in pyproject.toml.
+    Since we use pyproject.toml, this function checks its presence.
+    """
+    logger = get_logger(__name__)
+    root = Path(__file__).parent.parent
+    pyproject = root / "pyproject.toml"
+    if not pyproject.exists():
+        logger.error("pyproject.toml not found at project root.")
+        return False
     
-    # Check if black section already exists
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.black]" in content:
-            logger.info("Black configuration already exists in pyproject.toml")
-            return
+    content = pyproject.read_text()
+    if "[tool.black]" not in content:
+        logger.error("[tool.black] section missing in pyproject.toml.")
+        return False
     
-    logger.info("Black configuration created/updated in pyproject.toml")
+    logger.info("Black configuration found in pyproject.toml.")
+    return True
 
 def main():
-    """Main entry point for setup_linting."""
-    logger.info("Starting linting setup...")
+    """Main entry point for linting setup verification."""
+    logger = get_logger(__name__)
+    logger.info("Verifying linting configuration...")
     
-    try:
-        ensure_requirements()
-        create_ruff_config()
-        create_black_config()
-        
-        # Run ruff check to verify configuration
-        logger.info("Running ruff check to verify configuration...")
-        result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "."],
-            cwd=get_project_root(),
-            capture_output=True,
-            text=True
-        )
-        
-        if result.returncode == 0:
-            logger.info("Ruff check passed successfully.")
-        else:
-            logger.warning(f"Ruff check found issues (non-zero exit code): {result.stdout}")
-            # This is not a failure of the setup, just informational
-        
-        logger.info("Linting setup completed.")
-    except Exception as e:
-        logger.error(f"Linting setup failed: {e}")
-        raise
+    if not ensure_requirements():
+        sys.exit(1)
+    
+    if not create_ruff_config():
+        sys.exit(1)
+    
+    if not create_black_config():
+        sys.exit(1)
+    
+    logger.info("Linting configuration verified successfully.")
+    logger.info("Run 'ruff check .' to check for linting errors.")
+    logger.info("Run 'black --check .' to check formatting.")
 
 if __name__ == "__main__":
     main()
