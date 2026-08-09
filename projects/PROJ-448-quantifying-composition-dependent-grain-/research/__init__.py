@@ -1,0 +1,3 @@
+"""
+Research notes and documentation.
+"""

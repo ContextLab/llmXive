@@ -1,0 +1,26 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/models/` directory or any schema files for `SegregationProfile`, `AlloySystem`,\
+    \ or `RegressionModel` are present in the provided evidence; the task\u2019s core\
+    \ deliverable is missing."
+T010:
+  c: false
+  h: 3606952983627e0ead819890fe893b919d5c09c14580d54aff21887c1ab0e2cc
+  r: The required file `tests/unit/test_mclean.py` does not exist in the repository,
+    so no unit test for the McLean isotherm calculation is present. The implementer
+    must add this test file with appropriate test cases.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation artifact was presented showing that equilibrium\
+    \ concentrations are capped at\u202F1.0 or that \u201Csaturation\u201D flags are\
+    \ logged. The required validation logic and logging behavior are therefore not\
+    \ demonstrated."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or documentation showing that logging was added to the
+    US1 operations (energy extraction and McLean application) was provided. The claim
+    lacks any tangible artifact (e.g., modified source files, log configuration, example
+    log output) to verify that the required logging functionality exists.

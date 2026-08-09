@@ -1,0 +1,57 @@
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Ternary parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Cr-W missing or incomplete
+    in pycalphad TCFE9
+  claim_id: c_4e5864db
+  context: Binary parameters for Fe-Cr, Fe-Mo, Fe-V, Fe-W are present in TCFE9. Ternary
+    parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Cr-W are **MISSING** or incomplete in the
+    open proxy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ternary_parameters_for_Fe-Cr-Mo,_Fe-Cr-V,_Fe-Cr-W_missing_or
+  kind: entity_fact
+  raw_text: Ternary parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Cr-W are missing or incomplete
+    in the open proxy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T12:48:08Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: No ternary APT dataset found for Fe-Cr-Mo at NIST
+  claim_id: c_0b0c8717
+  context: Fe-Cr-Mo | N/A | Not Found | No ternary APT dataset found. Fallback to
+    binary analysis.
+  evidence:
+    entailment_evidence: No ternary APT dataset found for Fe-Cr-Mo at NIST
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/No_ternary_APT_dataset_found_for_Fe-Cr-Mo_at_NIST
+  kind: entity_fact
+  raw_text: No ternary APT dataset found for Fe-Cr-Mo.
+  resolved_value: No ternary APT dataset found for Fe-Cr-Mo at NIST
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T12:48:10Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: No ternary APT dataset found for Fe-Cr-V at NIST
+  claim_id: c_7582babe
+  context: Fe-Cr-V | N/A | Not Found | No ternary APT dataset found. Fallback to binary
+    analysis.
+  evidence:
+    entailment_evidence: No ternary APT dataset found for Fe-Cr-V at NIST
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/No_ternary_APT_dataset_found_for_Fe-Cr-V_at_NIST
+  kind: entity_fact
+  raw_text: No ternary APT dataset found for Fe-Cr-V.
+  resolved_value: No ternary APT dataset found for Fe-Cr-V at NIST
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T12:48:12Z'

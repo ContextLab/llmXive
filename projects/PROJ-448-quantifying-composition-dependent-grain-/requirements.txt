@@ -1,0 +1,14 @@
+pymatgen
+ase
+numpy
+scipy
+pandas
+scikit-learn
+pycalphad
+pyyaml
+requests
+memory_profiler
+ruff
+black
+pytest
+pytest-cov
