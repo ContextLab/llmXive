@@ -1,3 +1,3 @@
 """
-Test suite for the Gut Microbiome and Sleep Architecture Correlation Study.
+Test suite for PROJ-340: Investigating the Correlation Between Gut Microbiome Composition and Sleep Architecture.
 """

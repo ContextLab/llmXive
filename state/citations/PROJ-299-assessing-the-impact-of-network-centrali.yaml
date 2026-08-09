@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 0344d1b44cec7ddbe850696bd295a48ed3dd8ab7d0090a0656257da3a583135e
+  artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: MS-DOS - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q47604
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q47604
+  verified_at: '2026-08-09T01:06:55.626237Z'

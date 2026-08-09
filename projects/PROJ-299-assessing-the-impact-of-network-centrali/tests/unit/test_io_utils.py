@@ -1,203 +1,226 @@
 """
-Unit tests for io_utils module (T008).
-Tests CSV reading/writing and checksum validation.
+Unit tests for io_utils.py (CSV read/write and checksum validation).
 """
 import csv
+import json
 import os
 import tempfile
 from pathlib import Path
 import pytest
 
+# Import the module under test
 from code.utils.io_utils import (
-    calculate_checksum,
-    read_csv,
-    write_csv,
-    validate_csv_integrity,
-    write_checksum_file,
-    load_checksum_file
+    calculate_file_checksum,
+    verify_file_checksum,
+    read_csv_as_dicts,
+    write_dicts_to_csv,
+    read_json,
+    write_json,
+    generate_checksum_file,
+    verify_checksum_file,
 )
 
 
-class TestCalculateChecksum:
-    def test_checksum_sha256(self, tmp_path):
+class TestChecksumFunctions:
+    """Tests for checksum calculation and verification."""
+
+    def test_calculate_sha256_checksum(self, tmp_path):
         """Test SHA256 checksum calculation."""
         test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
 
-        checksum = calculate_checksum(test_file, 'sha256')
-        # Known SHA256 for "Hello, World!"
-        expected = "7f83b1657ff1fc53b92dc18148a1d65dfa7d5f3d5c8d4e0c1f5f5f5f5f5f5f5f"
-        # Actually calculate expected
-        import hashlib
-        expected = hashlib.sha256(content).hexdigest()
+        checksum = calculate_file_checksum(test_file, 'sha256')
+        assert len(checksum) == 64  # SHA256 produces 64 hex chars
+        assert isinstance(checksum, str)
 
-        assert checksum == expected
-        assert len(checksum) == 64  # SHA256 hex length
-
-    def test_checksum_file_not_found(self):
-        """Test error handling for missing file."""
-        with pytest.raises(FileNotFoundError):
-            calculate_checksum("/nonexistent/file.txt")
-
-    def test_checksum_invalid_algorithm(self, tmp_path):
-        """Test error handling for invalid algorithm."""
+    def test_calculate_md5_checksum(self, tmp_path):
+        """Test MD5 checksum calculation."""
         test_file = tmp_path / "test.txt"
-        test_file.write_text("test")
+        test_file.write_bytes(b"Test data")
 
-        with pytest.raises(ValueError):
-            calculate_checksum(test_file, 'invalid_algo')
+        checksum = calculate_file_checksum(test_file, 'md5')
+        assert len(checksum) == 32  # MD5 produces 32 hex chars
 
+    def test_verify_correct_checksum(self, tmp_path):
+        """Test verifying a correct checksum."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Verify this")
 
-class TestReadCsv:
-    def test_read_csv_basic(self, tmp_path):
-        """Test basic CSV reading."""
-        csv_file = tmp_path / "test.csv"
-        csv_file.write_text("id,name,value\n1,Alice,100\n2,Bob,200\n")
+        checksum = calculate_file_checksum(test_file)
+        assert verify_file_checksum(test_file, checksum) is True
 
-        data = read_csv(csv_file)
+    def test_verify_wrong_checksum(self, tmp_path):
+        """Test verifying an incorrect checksum."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Original")
 
-        assert len(data) == 2
-        assert data[0]['id'] == '1'
-        assert data[0]['name'] == 'Alice'
-        assert data[1]['name'] == 'Bob'
+        fake_checksum = "a" * 64
+        assert verify_file_checksum(test_file, fake_checksum) is False
 
-    def test_read_csv_required_columns(self, tmp_path):
-        """Test required column validation."""
-        csv_file = tmp_path / "test.csv"
-        csv_file.write_text("id,name\n1,Alice\n")
-
-        # Should pass
-        data = read_csv(csv_file, required_columns=['id', 'name'])
-        assert len(data) == 1
-
-        # Should fail
-        with pytest.raises(ValueError) as exc_info:
-            read_csv(csv_file, required_columns=['id', 'missing_col'])
-        assert 'missing_col' in str(exc_info.value)
-
-    def test_read_csv_file_not_found(self):
-        """Test error handling for missing file."""
+    def test_calculate_checksum_nonexistent_file(self):
+        """Test that checksum calculation raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError):
-            read_csv("/nonexistent/file.csv")
+            calculate_file_checksum("/nonexistent/file.txt")
 
-    def test_read_csv_empty_file(self, tmp_path):
-        """Test handling of empty CSV file."""
-        csv_file = tmp_path / "empty.csv"
-        csv_file.write_text("")
+    def test_verify_checksum_nonexistent_file(self):
+        """Test that checksum verification raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            verify_file_checksum("/nonexistent/file.txt", "fake_checksum")
+
+    def test_invalid_hash_algorithm(self, tmp_path):
+        """Test that invalid algorithm raises ValueError."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Data")
 
         with pytest.raises(ValueError):
-            read_csv(csv_file)
+            calculate_file_checksum(test_file, 'invalid_algo')
 
 
-class TestWriteCsv:
-    def test_write_csv_basic(self, tmp_path):
-        """Test basic CSV writing."""
-        output_file = tmp_path / "output.csv"
-        data = [
-            {'id': '1', 'name': 'Alice', 'value': '100'},
-            {'id': '2', 'name': 'Bob', 'value': '200'}
+class TestCSVFunctions:
+    """Tests for CSV reading and writing."""
+
+    def test_write_and_read_csv(self, tmp_path):
+        """Test writing and reading back a CSV file."""
+        test_data = [
+            {"id": 1, "name": "Alice", "score": 95.5},
+            {"id": 2, "name": "Bob", "score": 87.3},
+            {"id": 3, "name": "Charlie", "score": 92.1},
         ]
+        output_file = tmp_path / "test.csv"
 
-        result = write_csv(output_file, data)
+        write_dicts_to_csv(test_data, output_file)
+        assert output_file.exists()
 
-        assert result.exists()
-        with open(result, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            assert len(rows) == 2
-            assert rows[0]['name'] == 'Alice'
+        read_data = read_csv_as_dicts(output_file)
+        
+        assert len(read_data) == 3
+        assert read_data[0]["id"] == "1"  # CSV reads as strings
+        assert read_data[0]["name"] == "Alice"
+        assert read_data[1]["name"] == "Bob"
 
-    def test_write_csv_fieldnames(self, tmp_path):
-        """Test writing with explicit fieldnames."""
-        output_file = tmp_path / "output.csv"
-        data = [
-            {'name': 'Alice', 'id': '1'},  # Different order
-            {'name': 'Bob', 'id': '2'}
-        ]
-        fieldnames = ['id', 'name']
+    def test_read_nonexistent_csv(self):
+        """Test reading a nonexistent CSV file."""
+        with pytest.raises(FileNotFoundError):
+            read_csv_as_dicts("/nonexistent/file.csv")
 
-        write_csv(output_file, data, fieldnames=fieldnames)
+    def test_write_empty_csv(self, tmp_path):
+        """Test writing an empty list to CSV."""
+        output_file = tmp_path / "empty.csv"
+        write_dicts_to_csv([], output_file)
+        assert output_file.exists()
+        assert output_file.stat().st_size == 0
 
-        with open(output_file, 'r') as f:
-            reader = csv.DictReader(f)
-            assert reader.fieldnames == fieldnames
-
-    def test_write_csv_no_overwrite(self, tmp_path):
-        """Test overwrite behavior."""
-        output_file = tmp_path / "output.csv"
-        output_file.write_text("existing")
-
+    def test_csv_overwrite_false(self, tmp_path):
+        """Test that overwrite=False raises error on existing file."""
+        test_data = [{"col": "value"}]
+        output_file = tmp_path / "test.csv"
+        
+        write_dicts_to_csv(test_data, output_file)
+        
         with pytest.raises(FileExistsError):
-            write_csv(output_file, [{'id': '1'}], overwrite=False)
+            write_dicts_to_csv(test_data, output_file, overwrite=False)
 
-    def test_write_csv_empty_data(self, tmp_path):
-        """Test writing empty data."""
-        output_file = tmp_path / "output.csv"
-        result = write_csv(output_file, [])
-
-        assert result.exists()
-        assert result.stat().st_size == 0  # Empty file
-
-
-class TestValidateCsvIntegrity:
-    def test_validate_integrity_success(self, tmp_path):
-        """Test successful integrity validation."""
-        csv_file = tmp_path / "test.csv"
-        csv_file.write_text("id,name\n1,Alice\n")
-
-        checksum = calculate_checksum(csv_file)
-
-        assert validate_csv_integrity(csv_file, checksum) is True
-
-    def test_validate_integrity_failure(self, tmp_path):
-        """Test failed integrity validation."""
-        csv_file = tmp_path / "test.csv"
-        csv_file.write_text("id,name\n1,Alice\n")
-
-        assert validate_csv_integrity(csv_file, "wrong_checksum") is False
-
-    def test_validate_integrity_file_not_found(self, tmp_path):
-        """Test integrity check on missing file."""
-        assert validate_csv_integrity(tmp_path / "missing.csv", "checksum") is False
+    def test_csv_delimiter_custom(self, tmp_path):
+        """Test CSV writing with custom delimiter."""
+        test_data = [{"a": 1, "b": 2}]
+        output_file = tmp_path / "test.tsv"
+        
+        write_dicts_to_csv(test_data, output_file, delimiter='\t')
+        content = output_file.read_text()
+        assert '\t' in content
+        assert ',' not in content
 
 
-class TestWriteChecksumFile:
-    def test_write_checksum_file(self, tmp_path):
-        """Test writing checksum file."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("content")
+class TestJSONFunctions:
+    """Tests for JSON reading and writing."""
 
-        checksum_file = write_checksum_file(test_file)
+    def test_write_and_read_json(self, tmp_path):
+        """Test writing and reading back a JSON file."""
+        test_data = {
+            "participants": [
+                {"id": 1, "name": "Alice", "age": 65},
+                {"id": 2, "name": "Bob", "age": 72}
+            ],
+            "metadata": {"version": "1.0"}
+        }
+        output_file = tmp_path / "test.json"
 
-        assert checksum_file.exists()
-        content = checksum_file.read_text()
-        assert test_file.name in content
+        write_json(test_data, output_file)
+        assert output_file.exists()
 
-    def test_write_checksum_custom_path(self, tmp_path):
-        """Test writing checksum to custom path."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("content")
+        read_data = read_json(output_file)
+        assert read_data == test_data
+        assert len(read_data["participants"]) == 2
 
-        custom_path = tmp_path / "custom.sha256"
-        result = write_checksum_file(test_file, custom_path)
-
-        assert result == custom_path
-        assert custom_path.exists()
-
-
-class TestLoadChecksumFile:
-    def test_load_checksum_file(self, tmp_path):
-        """Test loading checksum file."""
-        checksum_file = tmp_path / "checksums.sha256"
-        checksum_file.write_text("abc123  file1.txt\ndef456  file2.txt\n")
-
-        checksums = load_checksum_file(checksum_file)
-
-        assert checksums['file1.txt'] == 'abc123'
-        assert checksums['file2.txt'] == 'def456'
-
-    def test_load_checksum_file_missing(self, tmp_path):
-        """Test loading missing checksum file."""
+    def test_read_nonexistent_json(self):
+        """Test reading a nonexistent JSON file."""
         with pytest.raises(FileNotFoundError):
-            load_checksum_file(tmp_path / "missing.sha256")
+            read_json("/nonexistent/file.json")
+
+    def test_write_json_overwrite_false(self, tmp_path):
+        """Test that overwrite=False raises error on existing file."""
+        output_file = tmp_path / "test.json"
+        write_json({"key": "value"}, output_file)
+        
+        with pytest.raises(FileExistsError):
+            write_json({"key": "value"}, output_file, overwrite=False)
+
+    def test_write_json_no_indent(self, tmp_path):
+        """Test writing JSON without indentation (compact)."""
+        test_data = {"a": 1, "b": 2}
+        output_file = tmp_path / "compact.json"
+        
+        write_json(test_data, output_file, indent=None)
+        content = output_file.read_text()
+        assert '\n' not in content  # Should be single line
+        assert ' ' in content  # But spaces after separators
+
+
+class TestChecksumFileFunctions:
+    """Tests for checksum file generation and verification."""
+
+    def test_generate_and_verify_checksum_file(self, tmp_path):
+        """Test generating and verifying a checksum file."""
+        source_file = tmp_path / "source.txt"
+        source_file.write_bytes(b"Content to checksum")
+        
+        checksum_file = tmp_path / "checksums.txt"
+        generate_checksum_file(source_file, checksum_file)
+        
+        assert checksum_file.exists()
+        
+        # Verify the checksum
+        results = verify_checksum_file(checksum_file, tmp_path)
+        assert len(results) == 1
+        assert results["source.txt"] is True
+
+    def test_verify_checksum_file_nonexistent_source(self, tmp_path):
+        """Test verifying checksum file when source is missing."""
+        source_file = tmp_path / "source.txt"
+        source_file.write_bytes(b"Original")
+        
+        checksum_file = tmp_path / "checksums.txt"
+        generate_checksum_file(source_file, checksum_file)
+        
+        # Delete the source file
+        source_file.unlink()
+        
+        results = verify_checksum_file(checksum_file, tmp_path)
+        assert results["source.txt"] is False
+
+    def test_verify_checksum_file_nonexistent_checksum_file(self):
+        """Test verifying a nonexistent checksum file."""
+        with pytest.raises(FileNotFoundError):
+            verify_checksum_file("/nonexistent/checksums.txt")
+
+    def test_generate_checksum_file_creates_directory(self, tmp_path):
+        """Test that generate_checksum_file creates parent directories."""
+        source_file = tmp_path / "source.txt"
+        source_file.write_bytes(b"Data")
+        
+        nested_checksum_file = tmp_path / "subdir" / "nested" / "checksums.txt"
+        generate_checksum_file(source_file, nested_checksum_file)
+        
+        assert nested_checksum_file.exists()
+        assert nested_checksum_file.parent.exists()

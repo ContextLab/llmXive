@@ -1,104 +1,150 @@
+"""
+Tests for environment configuration management.
+"""
 import os
-import pytest
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from config.env_config import (
+import pytest
+from code.utils.env_config import (
     load_environment,
     validate_adni_credentials,
     get_config,
     check_env,
-    REQUIRED_ADNI_KEYS,
-    ENV_FILE_PATH
+    REQUIRED_ENV_KEYS,
+    OPTIONAL_ENV_KEYS
 )
 
-class TestLoadEnvironment:
-    def test_load_environment_success(self, tmp_path):
-        """Test that load_environment returns True when .env exists."""
-        env_file = tmp_path / ".env"
-        env_file.write_text("FOO=bar\n")
-        
-        with patch("config.env_config.ENV_FILE_PATH", env_file):
-            with patch("config.env_config.load_dotenv") as mock_load:
-                result = load_environment()
-                assert result is True
-                mock_load.assert_called_once()
 
-    def test_load_environment_missing(self, tmp_path):
-        """Test that load_environment returns False when .env is missing."""
-        missing_env = tmp_path / "nonexistent.env"
-        
-        with patch("config.env_config.ENV_FILE_PATH", missing_env):
-            with patch("config.env_config.load_dotenv") as mock_load:
-                result = load_environment()
-                assert result is False
-                mock_load.assert_not_called()
+class TestEnvConfig:
+    """Test suite for environment configuration functions."""
 
-class TestValidateAdniCredentials:
-    def test_validate_missing_keys(self):
+    def test_load_environment_with_valid_file(self):
+        """Test loading environment from a valid .env file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
+            f.write("ADNI_USERNAME=test_user\n")
+            f.write("ADNI_PASSWORD=test_pass\n")
+            f.write("ADNI_PROJECT_ID=test_project\n")
+            f.write("LONI_IDGK_URL=https://test.loni.usc.edu\n")
+            env_path = Path(f.name)
+
+        try:
+            result = load_environment(env_path)
+            assert result is True
+            assert os.getenv("ADNI_USERNAME") == "test_user"
+            assert os.getenv("ADNI_PASSWORD") == "test_pass"
+        finally:
+            env_path.unlink()
+
+    def test_load_environment_missing_file(self):
+        """Test loading environment when file doesn't exist."""
+        with pytest.raises(FileNotFoundError):
+            load_environment(Path("/nonexistent/.env"))
+
+    def test_validate_adni_credentials_missing_keys(self):
         """Test validation fails when required keys are missing."""
-        # Ensure keys are not set in the current process env for this test
-        with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(ValueError) as excinfo:
-                validate_adni_credentials()
-            
-            assert "Missing required ADNI environment variables" in str(excinfo.value)
-            for key in REQUIRED_ADNI_KEYS:
-                assert key in str(excinfo.value)
+        # Clear all required keys
+        for key in REQUIRED_ENV_KEYS:
+            os.environ.pop(key, None)
 
-    def test_validate_empty_keys(self):
-        """Test validation fails when keys are present but empty."""
-        env_vars = {key: "" for key in REQUIRED_ADNI_KEYS}
-        
-        with patch.dict(os.environ, env_vars, clear=False):
-            with pytest.raises(ValueError) as excinfo:
-                validate_adni_credentials()
-            
-            assert "Missing required ADNI environment variables" in str(excinfo.value)
+        with pytest.raises(ValueError) as excinfo:
+            validate_adni_credentials()
 
-    def test_validate_success(self):
-        """Test validation succeeds when all keys are present and non-empty."""
-        env_vars = {key: "valid_value" for key in REQUIRED_ADNI_KEYS}
-        
-        with patch.dict(os.environ, env_vars, clear=False):
+        assert "Missing required ADNI environment variables" in str(excinfo.value)
+
+    def test_validate_adni_credentials_empty_keys(self):
+        """Test validation fails when required keys are empty."""
+        # Set all required keys to empty
+        for key in REQUIRED_ENV_KEYS:
+            os.environ[key] = ""
+
+        with pytest.raises(ValueError) as excinfo:
+            validate_adni_credentials()
+
+        assert "Empty ADNI environment variables" in str(excinfo.value)
+
+    def test_validate_adni_credentials_valid(self):
+        """Test validation passes when all required keys are present and non-empty."""
+        # Set valid values for all required keys
+        for key in REQUIRED_ENV_KEYS:
+            os.environ[key] = "test_value"
+
+        try:
             result = validate_adni_credentials()
+            assert result is True
+        finally:
+            # Clean up
+            for key in REQUIRED_ENV_KEYS:
+                os.environ.pop(key, None)
+
+    def test_get_config(self):
+        """Test retrieving configuration values."""
+        # Set valid values
+        for key in REQUIRED_ENV_KEYS:
+            os.environ[key] = "test_value"
+        os.environ["ADNI_DATA_DIR"] = "/custom/path"
+
+        try:
+            config = get_config()
             
+            # Check required keys
+            for key in REQUIRED_ENV_KEYS:
+                assert key in config
+                assert config[key] == "test_value"
+            
+            # Check optional key with custom value
+            assert config["ADNI_DATA_DIR"] == "/custom/path"
+            
+            # Check optional key with default value
+            assert config["LOG_LEVEL"] == "INFO"
+        finally:
+            # Clean up
+            for key in REQUIRED_ENV_KEYS:
+                os.environ.pop(key, None)
+            os.environ.pop("ADNI_DATA_DIR", None)
+
+    def test_check_env_missing_keys(self):
+        """Test check_env when required keys are missing."""
+        # Clear all required keys
+        for key in REQUIRED_ENV_KEYS:
+            os.environ.pop(key, None)
+
+        result = check_env()
+
+        assert result["valid"] is False
+        assert len(result["missing"]) == len(REQUIRED_ENV_KEYS)
+        assert len(result["empty"]) == 0
+
+    def test_check_env_empty_keys(self):
+        """Test check_env when required keys are empty."""
+        # Set all required keys to empty
+        for key in REQUIRED_ENV_KEYS:
+            os.environ[key] = ""
+
+        try:
+            result = check_env()
+
+            assert result["valid"] is False
+            assert len(result["missing"]) == 0
+            assert len(result["empty"]) == len(REQUIRED_ENV_KEYS)
+        finally:
+            # Clean up
+            for key in REQUIRED_ENV_KEYS:
+                os.environ.pop(key, None)
+
+    def test_check_env_valid(self):
+        """Test check_env when all required keys are present."""
+        # Set valid values
+        for key in REQUIRED_ENV_KEYS:
+            os.environ[key] = "test_value"
+
+        try:
+            result = check_env()
+
             assert result["valid"] is True
-            assert result["missing"] == []
-            assert len(result["values"]) == len(REQUIRED_ADNI_KEYS)
-            # Check masking logic
-            for val in result["values"].values():
-                assert "****" in val or "***" in val
-
-class TestGetConfig:
-    def test_get_config_existing(self):
-        """Test retrieving an existing config value."""
-        with patch.dict(os.environ, {"TEST_KEY": "test_value"}):
-            assert get_config("TEST_KEY") == "test_value"
-
-    def test_get_config_missing_default(self):
-        """Test retrieving a missing config value with default."""
-        assert get_config("NON_EXISTENT_KEY", "default_fallback") == "default_fallback"
-
-    def test_get_config_missing_no_default(self):
-        """Test retrieving a missing config value without default."""
-        assert get_config("NON_EXISTENT_KEY") is None
-
-class TestCheckEnv:
-    def test_check_env_success(self):
-        """Test check_env passes when environment is valid."""
-        env_vars = {key: "valid_value" for key in REQUIRED_ADNI_KEYS}
-        
-        with patch.dict(os.environ, env_vars, clear=False):
-            # Should not raise
-            check_env()
-
-    def test_check_env_failure(self):
-        """Test check_env raises ValueError when environment is invalid."""
-        with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(ValueError):
-                check_env()
+            assert len(result["missing"]) == 0
+            assert len(result["empty"]) == 0
+            assert len(result["loaded_keys"]) >= len(REQUIRED_ENV_KEYS)
+        finally:
+            # Clean up
+            for key in REQUIRED_ENV_KEYS:
+                os.environ.pop(key, None)

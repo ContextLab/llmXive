@@ -603,3 +603,64 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T17:57:13Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: current implementation scoped to N < 1000 per Assumption-001
+  claim_id: c_ebbcc089
+  context: 'Register the checksum for data/processed/filtered_data.parquet in state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml
+    per Constitution Principle III. **DEPENDS ON T014b.** **Note**: Future work may
+    include streaming support for large datasets, but current implementation is scoped
+    to N < 1000 per Assumption-001 and does not support streaming.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Future work may include streaming support for large datasets, but current
+    implementation is scoped to N < 1000 per Assumption-001 and does not support streaming.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:32:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: stability_status STABLE if percentage change < 10%
+  claim_id: c_4b814dfb
+  context: 'Output: `data/results/sensitivity_analysis.json` with percentage change
+    in significant findings for each threshold and a `stability_status` field. **Addresses
+    FR-005 and SC-002.** **Metric**: The `stability_status` must be ''STABLE'' if
+    the percentage change is < 10% for all thresholds, and ''UNSTABLE'' otherwise.
+    This <10% threshold is the defined pass/fail criterion for SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `stability_status` must be 'STABLE' if the percentage change is <
+    10% for all thresholds, and 'UNSTABLE' otherwise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:32:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: flags for VIF > 5
+  claim_id: c_d5b595ec
+  context: 'Implement Variance Inflation Factor (VIF) calculation in `code/diagnostics.py`
+    for all predictors *excluding* those flagged as ''Perfect Multicollinearity''
+    in `data/metadata/static_collinearity_map.json` (output of T021f_new). **Output**:
+    `data/results/vif_report.json` with VIF values and flags for VIF > 5. **Addresses
+    FR-006 and SC-003.** **DEPENDS ON T021f_new.**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Variance Inflation Factor (VIF) calculation in `code/diagnostics.py`
+    for all predictors *excluding* those flagged as ''Perfect Multicollinearity''
+    in `data/metadata/static_collinearity_map.json` (output of T021f_new). **Output**:
+    `data/results/vif_report.json` with VIF values and flags for VIF > 5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:33:15Z'

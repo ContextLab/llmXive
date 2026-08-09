@@ -74,10 +74,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data_ingestion.py` to fetch issues, PRs, and comments for a sample of projects (FR-001) <!-- FAILED: unspecified -->
-- [ ] T011 [US1] Implement bot-exclusion logic in `code/data_ingestion.py` (filter names ending in '[bot]' or GitHub Apps) (FR-002) <!-- FAILED: unspecified -->
+- [X] T010 [US1] Implement `code/data_ingestion.py` to fetch issues, PRs, and comments for a sample of projects (FR-001) <!-- FAILED: unspecified -->
+- [X] T011 [US1] Implement bot-exclusion logic in `code/data_ingestion.py` (filter names ending in '[bot]' or GitHub Apps) (FR-002) <!-- FAILED: unspecified -->
 - [X] T012a [US1] Implement Contributor Pair identification and metric calculation in `code/metrics.py`: identify pairs as any two distinct authors who have exchanged at least one message (excluding self-replies and internal bot events), calculate inter-arrival times, `response_time_variance`, and `mean_delay` (FR-002)
-- [ ] T014 [US1] Implement project-level filtering for insufficient data (< min_events) in `code/data_ingestion.py` (FR-001)
+- [X] T014 [US1] Implement project-level filtering for insufficient data (< min_events) in `code/data_ingestion.py` (FR-001)
 - [ ] T015 [US1] Aggregate pair-level variances to a project-level metric using the **weighted mean** (per plan.md Complexity Tracking) to address statistical instability (FR-010)
 - [ ] T015a [US1] Persist intermediate timestamp-derived features to `data/derived/timestamp_features.parquet` to enforce Constitution Principle VI (Modality Separation) (FR-002, Const VI) 👉 **Handoff to US2**
 - [ ] T016 [US1] Add error handling for API rate limits and large datasets (chunking if >100k events) to prevent OOM (FR-001)
@@ -99,11 +99,11 @@
 - [X] T019 [US2] Implement VADER sentiment analysis for English-only text in `code/sentiment.py` (FR-003)
 - [X] T020 [US2] Implement project-level `cohesion_proxy_score` aggregation (weighted average of compound scores) in `code/sentiment.py` (FR-003)
 - [X] T021 [US2] Handle edge case: projects with no text content (assign 0 or flag "no_text_data") in `code/sentiment.py`
-- [~] T022 [US2] Implement logic to select a representative sample of comments per project for manual coding and prepare the request file (schema and sampling list) for external human annotation (FR-009)
+- [ ] T022 [US2] Implement logic to select a representative sample of comments per project for manual coding and prepare the request file (schema and sampling list) for external human annotation (FR-009)
 - [ ] T022b [US2] Implement ingestion of the external human-annotated CSV at `data/validation/manual_ground_truth.csv` (columns: `project_id`, `comment_id`, `manual_cohesion_score`) (FR-009)
 - [ ] T023 [US2] Implement multi-modal validation logic (preparation) to align VADER scores with the manual ground truth data (FR-009)
 - [ ] T023a [US2] Calculate Spearman correlation (ρ) between VADER scores and manual scores; output pass/fail against threshold ρ ≥ 0.5 (SC-005)
-- [ ] T024 [US2] Calculate and log the exclusion rate for non-English text **per project** in `code/utils/logger.py` (FR-011); Log a JSON line for each project with fields: `project_id`, `total_comments`, `excluded_count`, `exclusion_rate`
+- [X] T024 [US2] Calculate and log the exclusion rate for non-English text **per project** in `code/utils/logger.py` (FR-011); Log a JSON line for each project with fields: `project_id`, `total_comments`, `excluded_count`, `exclusion_rate`
 - [ ] T025 [US2] Unit test for sentiment score correlation with manual annotations in `tests/unit/test_sentiment.py` (FR-009)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

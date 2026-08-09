@@ -1,82 +1,113 @@
+"""
+Metrics Calculation Module.
+Identifies contributor pairs and calculates response time variance and mean delay.
+"""
 from datetime import datetime, timedelta
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
 import statistics
+import logging
 
-from models import Event, ContributorPair, EventType, Project
+from models import Event, ContributorPair, EventType, Project, PairMetric
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def identify_pairs_and_calculate_metrics(events: List[Event]) -> List[Dict]:
+def identify_pairs_and_calculate_metrics(project: Project) -> Tuple[List[PairMetric], Dict[str, float]]:
     """
-    Identify contributor pairs and calculate inter-arrival times,
-    response_time_variance, and mean_delay.
+    Identifies pairs of contributors who exchanged messages and calculates metrics.
+    Returns a list of PairMetrics and a project-level summary dict.
     """
-    # Group events by project and sort by timestamp
-    project_events = defaultdict(list)
-    for e in events:
-        project_events[e.project_id].append(e)
-
-    results = []
-    for project_id, evts in project_events.items():
-        evts.sort(key=lambda x: x.timestamp)
-        
-        # Build pairs: any two distinct authors who exchanged messages
-        pair_events = defaultdict(list)
-        for i in range(len(evts) - 1):
-            author_a = evts[i].author
-            author_b = evts[i+1].author
-            if author_a != author_b:
-                # Sort pair alphabetically to ensure consistent key
-                pair_key = tuple(sorted([author_a, author_b]))
-                pair_events[pair_key].append((evts[i], evts[i+1]))
-
-        for pair_key, exchanges in pair_events.items():
-            delays = []
-            for e1, e2 in exchanges:
-                delta = (e2.timestamp - e1.timestamp).total_seconds()
-                if delta > 0:
-                    delays.append(delta)
-            
-            if delays:
-                mean_delay = statistics.mean(delays)
-                variance = statistics.variance(delays) if len(delays) > 1 else 0.0
-                results.append({
-                    "project_id": project_id,
-                    "pair_key": f"{pair_key[0]}-{pair_key[1]}",
-                    "mean_delay": mean_delay,
-                    "response_time_variance": variance
-                })
+    events = sorted(project.events, key=lambda e: e.created_at)
     
-    return results
-
-def calculate_project_level_metrics(pair_metrics: List[Dict]) -> Dict[str, float]:
-    """
-    Aggregate pair-level variances to project-level using weighted mean.
-    Weight is based on the number of events (proxied by mean_delay inverse or count).
-    For simplicity, we use a simple weighted mean based on delay magnitude here,
-    but in a full implementation, event count would be the weight.
-    """
-    project_weights = defaultdict(list)
-    project_variances = defaultdict(list)
-    
-    for m in pair_metrics:
-        pid = m["project_id"]
-        # Weight by 1/mean_delay as a proxy for interaction frequency
-        weight = 1.0 / m["mean_delay"] if m["mean_delay"] > 0 else 0.0
-        project_weights[pid].append(weight)
-        project_variances[pid].append(m["response_time_variance"])
-
-    project_results = {}
-    for pid in project_weights:
-        weights = project_weights[pid]
-        variances = project_variances[pid]
-        total_weight = sum(weights)
-        if total_weight > 0:
-            weighted_mean = sum(w * v for w, v in zip(weights, variances)) / total_weight
+    # Group events by conversation thread (parent_id or issue_id)
+    # For simplicity, we group by issue/PR ID (the root event ID)
+    threads: Dict[str, List[Event]] = defaultdict(list)
+    for event in events:
+        # If it's a comment, it belongs to its parent. If it's an issue/PR, it's its own thread.
+        if event.type == EventType.COMMENT and event.parent_id:
+            # Extract root ID from comment ID (e.g., "repo#123#comment-456" -> "repo#123")
+            root_id = event.parent_id
         else:
-            weighted_mean = 0.0
-        project_results[pid] = weighted_mean
+            root_id = event.id
+        threads[root_id].append(event)
 
-    return project_results
+    pair_delays: Dict[Tuple[str, str], List[float]] = defaultdict(list)
+
+    for thread_id, thread_events in threads.items():
+        # Sort thread events by time
+        thread_events.sort(key=lambda e: e.created_at)
+        
+        # Calculate inter-arrival times between distinct authors
+        for i in range(1, len(thread_events)):
+            prev_event = thread_events[i-1]
+            curr_event = thread_events[i]
+            
+            if prev_event.author == curr_event.author:
+                continue # Skip self-replies
+            
+            # Create a canonical pair key (sorted tuple)
+            pair_key = tuple(sorted([prev_event.author, curr_event.author]))
+            
+            delay_seconds = (curr_event.created_at - prev_event.created_at).total_seconds()
+            if delay_seconds >= 0:
+                pair_delays[pair_key].append(delay_seconds)
+
+    pair_metrics = []
+    total_variances = []
+    total_counts = []
+
+    for (author_a, author_b), delays in pair_delays.items():
+        if not delays:
+            continue
+        
+        mean_delay = statistics.mean(delays)
+        variance = statistics.variance(delays) if len(delays) > 1 else 0.0
+        count = len(delays)
+        
+        pair_metric = PairMetric(
+            pair=ContributorPair(author_a=author_a, author_b=author_b),
+            mean_delay=mean_delay,
+            response_time_variance=variance,
+            count=count
+        )
+        pair_metrics.append(pair_metric)
+        
+        # For weighted mean calculation at project level
+        total_variances.append(variance)
+        total_counts.append(count)
+
+    # Calculate project-level weighted mean variance
+    # Weighted mean variance = sum(variance_i * count_i) / sum(count_i)
+    if total_counts:
+        weighted_variance = sum(v * c for v, c in zip(total_variances, total_counts)) / sum(total_counts)
+        project_mean_delay = statistics.mean([p.mean_delay for p in pair_metrics]) if pair_metrics else 0.0
+    else:
+        weighted_variance = 0.0
+        project_mean_delay = 0.0
+
+    project_metrics = {
+        "mean_delay": project_mean_delay,
+        "weighted_variance": weighted_variance
+    }
+
+    return pair_metrics, project_metrics
+
+def calculate_project_level_metrics(pair_metrics: List[PairMetric]) -> Dict[str, float]:
+    """
+    Aggregates pair-level metrics to project level.
+    Specifically calculates the weighted mean of variances.
+    """
+    if not pair_metrics:
+        return {"mean_delay": 0.0, "weighted_variance": 0.0}
+    
+    total_variances = [p.response_time_variance for p in pair_metrics]
+    total_counts = [p.count for p in pair_metrics]
+    
+    weighted_variance = sum(v * c for v, c in zip(total_variances, total_counts)) / sum(total_counts)
+    mean_delay = sum(p.mean_delay for p in pair_metrics) / len(pair_metrics)
+    
+    return {
+        "mean_delay": mean_delay,
+        "weighted_variance": weighted_variance
+    }

@@ -1,0 +1,2 @@
+# Metadata directory
+pass

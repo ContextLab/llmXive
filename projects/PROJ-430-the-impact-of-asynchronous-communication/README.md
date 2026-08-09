@@ -1,14 +1,19 @@
 # PROJ-430: The Impact of Asynchronous Communication Delays on Team Cohesion
 
-## Project Structure
-- `code/`: Source code modules
-- `data/`: Data storage (raw, derived, validation)
-- `requirements.txt`: Python dependencies
+## Overview
+This project investigates the correlation between asynchronous communication delays (response time variance) and team cohesion proxies in open-source software development.
 
-## Setup
+## Structure
+- `code/`: Source code for data ingestion, metrics calculation, sentiment analysis, and visualization.
+- `data/`: Raw, derived, and validation data artifacts.
+- `tests/`: Unit and integration tests.
+- `specs/`: Research specifications and design documents.
+
+## Prerequisites
+- Python 3.11+
+- Dependencies listed in `requirements.txt` (pandas, scikit-learn, nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx)
+
+## Quick Start
 1. Install dependencies: `pip install -r requirements.txt`
-2. Run linting setup: `python code/setup_linting.py`
-3. Ensure directories: `python -c "from config import ensure_directories_exist; ensure_directories_exist()"`
-
-## Usage
-See individual module docstrings for specific usage instructions.
+2. Configure paths in `code/config.py`.
+3. Run the pipeline: `python code/pipeline.py`

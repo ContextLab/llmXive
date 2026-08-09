@@ -1,66 +1,75 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
-$py.class
-
-# C extensions
+*$py.class
 *.so
-
-# Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
+.Python
 build/
-bdist.*/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-coverage.xml
-*.cover
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv/
-env/
+# Virtual Environments
 venv/
 ENV/
+env/
+.venv/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific data
-data/raw/
-data/processed/
-data/analysis/
-outputs/
+# Logs
+logs/*.log
 logs/
-*.nii
-*.nii.gz
-*.csv
-*.json (analysis outputs only)
 
-# Reports
-outputs/*.pdf
-outputs/*.png
-outputs/*.jpg
+# Data - Raw (Large files, never commit)
+data/raw/**/*.nii
+data/raw/**/*.nii.gz
+data/raw/**/*.csv
+data/raw/**/*.zip
+data/raw/**/*.tar
+data/raw/**/*.gz
 
-# Linting/Formatting cache
-.ruff_cache/
-.mypy_cache/
+# Data - Processed (Large files)
+data/processed/**/*.nii
+data/processed/**/*.nii.gz
+data/processed/**/*.csv
+
+# Data - Analysis (Large results)
+data/analysis/**/*.csv
+data/analysis/**/*.json
+data/analysis/**/*.pkl
+
+# Outputs (Reports and Figures)
+outputs/**/*.pdf
+outputs/**/*.png
+outputs/**/*.jpg
+outputs/**/*.svg
+
+# Environment Variables
+.env
+.env.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp

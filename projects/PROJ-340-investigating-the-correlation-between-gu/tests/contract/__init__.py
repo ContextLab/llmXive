@@ -1,3 +1,3 @@
 """
-Contract tests verifying API schemas and interface definitions.
+Contract tests: Verify that code adheres to specified schemas and interfaces.
 """

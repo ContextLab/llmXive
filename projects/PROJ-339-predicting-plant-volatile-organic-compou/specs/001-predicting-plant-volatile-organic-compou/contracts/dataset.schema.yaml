@@ -1,150 +1,208 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Plant VOC Genomic Dataset Schema
-description: >
-  Base schema for the merged genomic and environmental dataset used to predict
-  plant volatile organic compound (VOC) emission profiles. This schema defines
-  the expected structure for `data/processed/merged_dataset.csv` and intermediate
-  artifacts.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Plant VOC and Genomic Dataset Schema"
+description: "Base data schema for the Predicting Plant VOC Emission Profiles pipeline. Defines the structure for raw, processed, and merged datasets used in training and validation."
 type: object
+required:
+  - version
+  - fields
+  - metadata
 properties:
-  meta:
+  version:
+    type: string
+    description: "Schema version identifier (e.g., '1.0.0')"
+    const: "1.0.0"
+  
+  fields:
     type: object
-    description: Metadata about the dataset generation
-    properties:
-      source:
-        type: string
-        description: Source of the data (e.g., 'synthetic', 'NCBI_GEO', 'Metabolomics_Workbench')
-      version:
-        type: string
-        description: Schema version
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation
-      sample_count:
-        type: integer
-        minimum: 1
-        description: Total number of samples in the dataset
-      feature_count:
-        type: integer
-        minimum: 1
-        description: Total number of feature columns (genes/pathways + environmental)
+    description: "Definition of all fields in the dataset"
     required:
-      - source
-      - version
-      - generated_at
-      - sample_count
-      - feature_count
-
-  columns:
-    type: array
-    description: Definition of each column in the dataset
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Column name as it appears in the CSV
-        type:
-          type: string
-          enum:
-            - sample_id
-            - gene_expression_tpm
-            - pathway_aggregate
-            - environmental_continuous
-            - environmental_categorical
-            - voc_target
-            - metadata
-          description: Semantic type of the column
-        required:
-          type: boolean
-          description: Whether the column must be present and non-null
-        description:
-          type: string
-          description: Human-readable description of the column
-        unit:
-          type: string
-          nullable: true
-          description: Physical unit (e.g., 'TPM', '°C', 'µmol/m²/s', 'ppb')
-      required:
-        - name
-        - type
-        - required
-        - description
-    minItems: 1
-
-  constraints:
-    type: object
-    description: Business logic constraints enforced during validation
+      - genomic
+      - environmental
+      - voc_targets
+      - metadata
     properties:
-      min_replicates:
-        type: integer
-        default: 3
-        description: Minimum biological replicates required per condition (FR-011)
-      required_environmental_fields:
+      genomic:
         type: array
+        description: "Gene expression features (TPM normalized)"
         items:
-          type: string
-        default:
-          - temperature
-          - light_intensity
-        description: Environmental fields that must be present for inclusion (FR-012)
+          type: object
+          required:
+            - name
+            - type
+            - description
+          properties:
+            name:
+              type: string
+              pattern: "^AT\\d+G\\d+$"
+              description: "Arabidopsis thaliana gene identifier (e.g., AT1G01010)"
+            type:
+              type: string
+              enum: ["numeric", "continuous"]
+              default: "numeric"
+            description:
+              type: string
+              description: "Gene symbol or functional description"
+            unit:
+              type: string
+              enum: ["TPM"]
+              default: "TPM"
+            source:
+              type: string
+              description: "Source database (e.g., 'NCBI GEO', 'Synthetic')"
+      
+      environmental:
+        type: array
+        description: "Environmental condition metadata"
+        items:
+          type: object
+          required:
+            - name
+            - type
+            - description
+          properties:
+            name:
+              type: string
+              description: "Environmental variable name"
+            type:
+              type: string
+              enum: ["numeric", "categorical", "continuous"]
+            description:
+              type: string
+              description: "Detailed description of the variable"
+            unit:
+              type: string
+              description: "Unit of measurement (e.g., '°C', 'µmol/m²/s')"
+            required:
+              type: boolean
+              default: false
+              description: "Whether this field is required for model training (FR-012)"
+      
       voc_targets:
         type: array
+        description: "Volatile Organic Compound emission targets"
+        items:
+          type: object
+          required:
+            - name
+            - type
+            - description
+          properties:
+            name:
+              type: string
+              description: "VOC compound name or identifier"
+            type:
+              type: string
+              enum: ["numeric", "continuous"]
+              default: "numeric"
+            description:
+              type: string
+              description: "Chemical description (e.g., 'Limonene', 'Green Leaf Volatiles')"
+            unit:
+              type: string
+              description: "Emission unit (e.g., 'ng/g/h', 'pptv')"
+      
+      metadata:
+        type: array
+        description: "Sample-level metadata and identifiers"
+        items:
+          type: object
+          required:
+            - name
+            - type
+            - description
+          properties:
+            name:
+              type: string
+              description: "Metadata field name"
+            type:
+              type: string
+              enum: ["string", "integer", "categorical"]
+            description:
+              type: string
+              description: "Description of the metadata field"
+            required:
+              type: boolean
+              default: true
+              description: "Whether this field is required for sample identification"
+  
+  metadata:
+    type: object
+    description: "Global dataset metadata"
+    required:
+      - dataset_name
+      - organism
+      - schema_author
+      - creation_date
+      - license
+    properties:
+      dataset_name:
+        type: string
+        description: "Name of the dataset"
+      organism:
+        type: string
+        enum: ["Arabidopsis thaliana"]
+        default: "Arabidopsis thaliana"
+        description: "Target organism"
+      schema_author:
+        type: string
+        description: "Author or organization defining the schema"
+      creation_date:
+        type: string
+        format: date
+        description: "Date of schema creation (ISO 8601)"
+      license:
+        type: string
+        description: "License for the data and schema"
+      source_references:
+        type: array
+        description: "List of data source references"
         items:
           type: string
-        description: List of valid VOC target column names
-      gene_expression_threshold:
-        type: number
-        default: 0.0
-        description: Minimum TPM value considered valid (non-negative)
-    required:
-      - min_replicates
-      - required_environmental_fields
-      - voc_targets
-
-  examples:
-    type: object
-    description: Example rows conforming to the schema
-    properties:
-      sample_row:
+      constraints:
         type: object
-        description: A single representative row of data
+        description: "Data quality and processing constraints"
         properties:
-          sample_id:
+          min_replicates:
+            type: integer
+            minimum: 1
+            default: 3
+            description: "Minimum biological replicates required (FR-011)"
+          required_environmental_fields:
+            type: array
+            description: "Environmental fields required for inclusion (FR-012)"
+            items:
+              type: string
+              enum: ["temperature", "light_intensity"]
+          normalization_method:
             type: string
-            example: "AT_STRESS_001"
-          gene_At1g01010_tpm:
-            type: number
-            example: 12.5
-          pathway_terpene_tpm:
-            type: number
-            example: 45.2
-          temperature:
-            type: number
-            example: 22.5
-          light_intensity:
-            type: number
-            example: 150.0
-          stress_condition:
+            enum: ["TPM"]
+            default: "TPM"
+            description: "Normalization method applied to genomic data"
+          imputation_strategy:
             type: string
-            example: "drought"
-          monoterpenes_ppb:
-            type: number
-            example: 10.5
-          sesquiterpenes_ppb:
-            type: number
-            example: 2.1
-        required:
-          - sample_id
-          - temperature
-          - light_intensity
-          - stress_condition
-    required:
-      - sample_row
-
-required:
-  - meta
-  - columns
-  - constraints
-  - examples
+            enum: ["median", "knn"]
+            description: "Strategy for handling missing values in non-critical fields"
+  
+  examples:
+    type: array
+    description: "Example records conforming to the schema"
+    items:
+      type: object
+      required:
+        - sample_id
+        - genomic
+        - environmental
+        - voc_targets
+      properties:
+        sample_id:
+          type: string
+          description: "Unique sample identifier"
+        genomic:
+          type: object
+          description: "Gene expression values"
+        environmental:
+          type: object
+          description: "Environmental conditions"
+        voc_targets:
+          type: object
+          description: "VOC emission measurements"

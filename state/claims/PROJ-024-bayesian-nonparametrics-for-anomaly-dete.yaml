@@ -19954,3 +19954,62 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T10:26:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Theorem DB 1210.4347 arXiv 1210.4347
+  claim_id: c_188efdda
+  context: 'Create code/src/models/dpgmm.py implementing stick-breaking DP-GMM using
+    PyMC 4 and ADVI variational inference. Constraint: {{claim:c_fdab4b27}} (Theorem
+    DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying
+    prior'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T00:31:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: sweep cutoffs over significance thresholds including 0.05 arXiv 1905.08726
+  claim_id: c_3825a8ef
+  context: Implement code/src/evaluation/threshold_sweep.py to Implement code/src/evaluation/threshold_sweep.py
+    to sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726) on normalized reconstruction
+    error
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:31:45Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: arXiv 2109.05633 reject dataset if insufficient size
+  claim_id: c_173789df
+  context: Create code/src/data/download_datasets.py fetching verified NAB/PhysioNet
+    subsets or UCI Electricity Load Diagrams and Traffic via ucimlrepo or verified
+    URLs. 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient
+    size (FR-001).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient
+    size
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:32:06Z'

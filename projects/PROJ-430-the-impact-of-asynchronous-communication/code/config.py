@@ -1,27 +1,54 @@
+"""
+Configuration management for the project.
+"""
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
+import json
 
-PROJECT_ROOT = Path(__file__).parent.parent
+# Base paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_ROOT = PROJECT_ROOT / "data"
-OUTPUT_ROOT = PROJECT_ROOT / "output"
-LOGS_ROOT = PROJECT_ROOT / "logs"
+RAW_PATH = DATA_ROOT / "raw"
+DERIVED_PATH = DATA_ROOT / "derived"
+VALIDATION_PATH = DATA_ROOT / "validation"
 
-# Configuration for deferred thresholds
-SAMPLE_SIZE = 100
-MIN_EVENTS = 10
+# Default configuration
+DEFAULT_CONFIG = {
+    "sample_projects": [
+        "python/cpython",
+        "numpy/numpy",
+        "pandas-dev/pandas",
+        "scikit-learn/scikit-learn",
+        "matplotlib/matplotlib"
+    ],
+    "min_events": 10,
+    "sample_size": 100,
+    "deferred_threshold": 5.0,
+    "data_raw_path": str(RAW_PATH),
+    "data_derived_path": str(DERIVED_PATH),
+    "data_validation_path": str(VALIDATION_PATH)
+}
+
+_config: Optional[Dict[str, Any]] = None
+
+def get_config() -> Dict[str, Any]:
+    global _config
+    if _config is None:
+        # Try to load from a config file if it exists, otherwise use defaults
+        config_file = PROJECT_ROOT / "config.json"
+        if config_file.exists():
+            with open(config_file, 'r') as f:
+                _config = json.load(f)
+        else:
+            _config = DEFAULT_CONFIG.copy()
+    return _config
 
 def ensure_directories_exist():
-    """Create necessary directory structure."""
-    for d in [DATA_ROOT, OUTPUT_ROOT, LOGS_ROOT]:
-        d.mkdir(parents=True, exist_ok=True)
-    (DATA_ROOT / "raw").mkdir(exist_ok=True)
-    (DATA_ROOT / "derived").mkdir(exist_ok=True)
-    (DATA_ROOT / "validation").mkdir(exist_ok=True)
+    """Creates the necessary data directories if they don't exist."""
+    for path in [RAW_PATH, DERIVED_PATH, VALIDATION_PATH]:
+        path.mkdir(parents=True, exist_ok=True)
 
-def get_config_summary() -> dict:
-    return {
-        "project_root": str(PROJECT_ROOT),
-        "sample_size": SAMPLE_SIZE,
-        "min_events": MIN_EVENTS
-    }
+def get_config_summary() -> str:
+    cfg = get_config()
+    return f"Config: min_events={cfg.get('min_events')}, projects={len(cfg.get('sample_projects', []))}"

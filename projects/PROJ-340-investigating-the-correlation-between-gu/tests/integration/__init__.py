@@ -1,3 +1,3 @@
 """
-Integration tests verifying component interactions and data flow.
+Integration tests: Verify interactions between multiple components.
 """

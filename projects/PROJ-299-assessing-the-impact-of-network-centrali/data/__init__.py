@@ -1,3 +1,3 @@
 """
-Data directory for raw, processed, and analysis artifacts.
+Data storage module
 """

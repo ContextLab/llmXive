@@ -1,8 +1,0 @@
-T060:
-  c: false
-  h: 5c249e32f52dadd42c4e8e1819ca1991491769c97aba94c8d342d5a8e053dd37
-  r: The required source file `projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml`
-    is missing, so the migration script could not move the `dataset_stats`, `inference_results`,
-    and `simulation_metrics` keys. Consequently no actual migration occurred and the
-    size check on the intended config file cannot be performed. The existing `code/config.yaml`
-    is unrelated to the task.

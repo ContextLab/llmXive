@@ -1,3 +1,3 @@
 """
-Documentation artifacts.
+Documentation module
 """

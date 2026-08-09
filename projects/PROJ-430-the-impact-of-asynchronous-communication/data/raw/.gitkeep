@@ -1,0 +1,2 @@
+# This file ensures the raw data directory is tracked by Git.
+# Place downloaded raw data files here (e.g., GitHub API responses).

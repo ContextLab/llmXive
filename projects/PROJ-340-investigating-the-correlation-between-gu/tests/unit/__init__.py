@@ -1,3 +1,3 @@
 """
-Unit tests for individual functions and logic blocks.
+Unit tests: Verify individual functions and classes in isolation.
 """

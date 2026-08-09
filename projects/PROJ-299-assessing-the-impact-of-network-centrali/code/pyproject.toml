@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adni-network-centrality"
+version = "0.1.0"
+description = "Assessing the Impact of Network Centrality on Age-Related Cognitive Decline"
+requires-python = ">=3.10"
+dependencies = [
+    "nibabel",
+    "nilearn",
+    "networkx",
+    "pandas",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "reportlab",
+    "python-dotenv",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-single-line = true

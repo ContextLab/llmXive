@@ -2,62 +2,80 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
-.Python
 
-# Environment and virtualenv
-venv/
-ENV/
-env/
-.venv/
+# Distribution / packaging
+.eggs/
 *.egg-info/
-dist/
-build/
+*.egg
+MANIFEST
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+# PyInstaller
+*.manifest
+*.spec
 
-# OS
-.DS_Store
-Thumbs.db
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Project specific data (raw, processed, results)
-# Raw data is often large and should be ignored unless explicitly added
-data/raw/*.csv
-data/raw/*.tsv
-data/raw/*.parquet
-# Processed data
-data/processed/*.parquet
-data/processed/*.csv
-# Results
-data/results/*.json
-data/results/*.md
-data/results/*.csv
-# Metadata
-data/metadata/*.json
-data/metadata/*.yaml
-
-# State and configuration
-state/
-.env
-.env.local
-
-# Logs
-*.log
-logs/
-
-# Test coverage
-.coverage
+# Unit test / coverage reports
 htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 .pytest_cache/
 
-# Jupyter
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# Jupyter Notebook
 .ipynb_checkpoints
 
-# Temporary files
-tmp/
-temp/
+# pyenv
+.python-version
+
+# Cython debug symbols
+cython_debug/
+
+# Project specific
+data/raw/*.csv
+data/raw/*.parquet
+data/processed/*.parquet
+data/results/*.json
+data/results/*.md
+data/metadata/*.json
+data/config/*.yaml
+data/citations/*.yaml
+data/state/*.yaml
+state/
+logs/
+*.log
+.DS_Store
+Thumbs.db

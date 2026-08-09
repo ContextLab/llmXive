@@ -1,0 +1,2 @@
+# This file ensures the validation data directory is tracked by Git.
+# Place ground truth and manual annotation files here.

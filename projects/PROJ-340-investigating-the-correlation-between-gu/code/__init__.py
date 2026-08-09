@@ -1,20 +1,38 @@
 """
-llmXive Automated Science Pipeline: Gut Microbiome & Sleep Architecture Analysis.
+llmXive Research Pipeline: Gut Microbiome and Sleep Architecture Correlation Study
 
-This package contains the core logic for ingesting, validating, analyzing,
-and reporting on the correlation between gut microbiome composition and
+This package contains the implementation of the automated science pipeline
+for investigating the correlation between gut microbiome composition and
 sleep architecture.
+
+Modules:
+- ingest: Data loading, validation, and preprocessing
+- analysis: Statistical correlation analysis and method selection
+- diagnostics: Collinearity, VIF, power, and sensitivity analysis
+- report: Report generation with associational framing
+- config: Configuration management
+- reference_validator: Citation verification and validation logic
+- constitution_checker: Integrity and checksum validation
 """
 
-__version__ = "0.1.0"
-__author__ = "llmXive Research Team"
+__version__ = "1.0.0"
+__project__ = "PROJ-340-investigating-the-correlation-between-gu"
 
-# Ensure the code directory is treated as a package for relative imports
-# where necessary, though absolute imports from sibling modules are preferred
-# as per the project API surface.
+# Ensure all submodules are importable from the package root
+from . import ingest
+from . import analysis
+from . import diagnostics
+from . import report
+from . import config
+from . import reference_validator
+from . import constitution_checker
 
-# Import key public APIs for convenience if needed, though main entry points
-# are usually scripts in this directory.
-# from .ingest import load_data, validate_variables
-# from .analysis import run_correlation_analysis, benjamini_hochberg_fdr
-# from .main import main
+__all__ = [
+    "ingest",
+    "analysis",
+    "diagnostics",
+    "report",
+    "config",
+    "reference_validator",
+    "constitution_checker",
+]
