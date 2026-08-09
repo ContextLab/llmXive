@@ -1,2 +1,2 @@
-# This directory stores generated datasets, trajectories, and analysis results.
-# Do not commit large data files to git.
+# This directory is for generated data artifacts.
+# Do not commit generated data files.

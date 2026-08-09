@@ -1,325 +1,249 @@
 """
-Unit tests for the code cleanup and refactoring module (T035).
-
-These tests verify that the cleanup process correctly identifies and
-fixes common code quality issues without breaking valid code.
+Unit tests for cleanup and refactoring module (T036).
 """
 
-import ast
-import os
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
 import pytest
-
-# Import the module under test
+import tempfile
+import os
+from pathlib import Path
 import sys
+
+# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from cleanup_refactor import (
+    extract_imports_from_file,
     analyze_file_for_cleanup,
     refactor_file,
-    extract_imports_from_file,
-    CodeCleanupError,
-    TODO_PATTERN,
-    DEBUG_PATTERN,
-    DEAD_CODE_PATTERN
+    validate_apis,
+    run_cleanup,
+    CodeCleanupError
 )
 
-
-class TestPatternMatching:
-    """Tests for regex pattern matching in cleanup."""
-
-    def test_todo_pattern_matches_todo(self):
-        """TODO comments should be detected."""
-        assert TODO_PATTERN.search("# TODO: fix this") is not None
-        assert TODO_PATTERN.search("# TODO: implement feature") is not None
-        assert TODO_PATTERN.search("# FIXME: broken") is not None
-        assert TODO_PATTERN.search("# XXX: temporary") is not None
-
-    def test_todo_pattern_ignores_normal_comments(self):
-        """Normal comments should not be matched."""
-        assert TODO_PATTERN.search("# This is a normal comment") is None
-        assert TODO_PATTERN.search("# TODO is just a word") is None
-
-    def test_debug_pattern_matches_print(self):
-        """Print statements should be detected."""
-        assert DEBUG_PATTERN.search("print('debug')") is not None
-        assert DEBUG_PATTERN.search("print(x)") is not None
-
-    def test_debug_pattern_matches_pdb(self):
-        """Pdb breakpoints should be detected."""
-        assert DEBUG_PATTERN.search("pdb.set_trace()") is not None
-        assert DEBUG_PATTERN.search("breakpoint()") is not None
-
-    def test_dead_code_pattern_matches(self):
-        """Dead code blocks should be detected."""
-        assert DEAD_CODE_PATTERN.search("if False:") is not None
-        assert DEAD_CODE_PATTERN.search("if 0:") is not None
-        assert DEAD_CODE_PATTERN.search("pass  # dead code") is not None
-
-
 class TestExtractImports:
-    """Tests for import extraction."""
+    """Tests for extract_imports_from_file function."""
 
-    def test_extract_simple_import(self):
-        """Should extract simple import statements."""
-        code = "import numpy\nimport pandas as pd"
+    def test_extract_imports_simple(self):
+        """Test extracting simple imports."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import os\nimport sys\n")
+            temp_path = Path(f.name)
+        
         try:
-            imports, lines = extract_imports_from_file(filepath)
-            assert 'numpy' in imports
-            assert 'pandas' in imports
-            assert len(imports) == 2
+            imports = extract_imports_from_file(temp_path)
+            assert "import os" in imports
+            assert "import sys" in imports
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_extract_from_import(self):
-        """Should extract from imports."""
-        code = "from scipy import stats\nfrom utils.exceptions import AnalysisError"
+    def test_extract_imports_from(self):
+        """Test extracting from imports."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("from numpy import array\nfrom scipy.stats import ks_2samp\n")
+            temp_path = Path(f.name)
+        
         try:
-            imports, lines = extract_imports_from_file(filepath)
-            assert 'scipy' in imports
-            assert 'utils' in imports
+            imports = extract_imports_from_file(temp_path)
+            assert any("from numpy import" in imp for imp in imports)
+            assert any("from scipy.stats import" in imp for imp in imports)
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_syntax_error_raises(self):
-        """Syntax errors should raise CodeCleanupError."""
-        code = "def broken("  # Invalid syntax
+    def test_extract_imports_invalid_syntax(self):
+        """Test that invalid syntax raises an error."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import os\nimport sys\nthis is not valid python\n")
+            temp_path = Path(f.name)
+        
         try:
             with pytest.raises(CodeCleanupError):
-                extract_imports_from_file(filepath)
+                extract_imports_from_file(temp_path)
         finally:
-            filepath.unlink()
-
+            os.unlink(temp_path)
 
 class TestAnalyzeFile:
-    """Tests for file analysis."""
+    """Tests for analyze_file_for_cleanup function."""
 
-    def test_analyze_file_with_todo(self):
-        """Files with TODO comments should be flagged."""
-        code = """
-        # TODO: implement this
-        def my_function():
-            pass
-        """
+    def test_analyze_blank_lines(self):
+        """Test counting of blank lines."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import os\n\nimport sys\n\n")
+            temp_path = Path(f.name)
+        
         try:
-            logger = MagicMock()
-            results = analyze_file_for_cleanup(filepath, logger)
-
-            assert results['lines_analyzed'] > 0
-            assert any(issue['type'] == 'todo_comment' for issue in results['issues_found'])
+            analysis = analyze_file_for_cleanup(temp_path)
+            assert analysis['blank_lines'] == 2
+            assert analysis['lines'] == 4
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_analyze_file_with_debug(self):
-        """Files with debug code should be flagged."""
-        code = """
-        def my_function():
-            print('debug')
-            return True
-        """
+    def test_analyze_comments(self):
+        """Test counting of comment lines."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("# This is a comment\nimport os\n# Another comment\n")
+            temp_path = Path(f.name)
+        
         try:
-            logger = MagicMock()
-            results = analyze_file_for_cleanup(filepath, logger)
-
-            assert any(issue['type'] == 'debug_artifact' for issue in results['issues_found'])
+            analysis = analyze_file_for_cleanup(temp_path)
+            assert analysis['comment_lines'] == 2
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_analyze_non_python_file(self):
-        """Non-Python files should be skipped."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
-            f.write("Not Python code")
-            f.flush()
-            filepath = Path(f.name)
-
+    def test_analyze_todo_comments(self):
+        """Test detection of TODO comments."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write("import os\n# TODO: Fix this\nimport sys\n")
+            temp_path = Path(f.name)
+        
         try:
-            logger = MagicMock()
-            results = analyze_file_for_cleanup(filepath, logger)
-
-            assert results['skipped'] is True
+            analysis = analyze_file_for_cleanup(temp_path)
+            todo_issues = [i for i in analysis['issues'] if i['type'] == 'TODO/FIXME']
+            assert len(todo_issues) == 1
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
+    def test_analyze_long_lines(self):
+        """Test detection of long lines."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write("import os\n" + "x" * 130 + "\n")
+            temp_path = Path(f.name)
+        
+        try:
+            analysis = analyze_file_for_cleanup(temp_path)
+            long_line_issues = [i for i in analysis['issues'] if i['type'] == 'line_length']
+            assert len(long_line_issues) == 1
+        finally:
+            os.unlink(temp_path)
+
+    def test_analyze_print_statements(self):
+        """Test detection of print statements."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write("import os\nprint('hello')\n")
+            temp_path = Path(f.name)
+        
+        try:
+            analysis = analyze_file_for_cleanup(temp_path)
+            print_issues = [i for i in analysis['issues'] if i['type'] == 'print_statement']
+            assert len(print_issues) == 1
+        finally:
+            os.unlink(temp_path)
 
 class TestRefactorFile:
-    """Tests for file refactoring."""
+    """Tests for refactor_file function."""
 
-    def test_refactor_removes_todo(self):
-        """TODO comments should be removed."""
-        code = """
-        # TODO: fix this
-        def my_function():
-            pass
-        """
+    def test_refactor_trailing_whitespace(self):
+        """Test removal of trailing whitespace."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import os   \nimport sys\n")
+            temp_path = Path(f.name)
+        
         try:
-            logger = MagicMock()
-            results = refactor_file(filepath, logger)
-
-            with open(filepath, 'r') as f:
-                new_content = f.read()
-
-            assert '# TODO' not in new_content
-            assert 'def my_function()' in new_content
+            result = refactor_file(temp_path, dry_run=False)
+            assert result['changes_made'] is True
+            
+            with open(temp_path, 'r') as f:
+                content = f.read()
+                assert '   \n' not in content
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_refactor_removes_debug(self):
-        """Debug code should be removed."""
-        code = """
-        def my_function():
-            print('debug')
-            return True
-        """
+    def test_refactor_dry_run(self):
+        """Test dry run mode."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import os   \nimport sys\n")
+            temp_path = Path(f.name)
+            original_content = f.read()
+        
         try:
-            logger = MagicMock()
-            results = refactor_file(filepath, logger)
-
-            with open(filepath, 'r') as f:
-                new_content = f.read()
-
-            assert 'print(' not in new_content
-            assert 'def my_function()' in new_content
+            result = refactor_file(temp_path, dry_run=True)
+            assert result['changes_made'] is True
+            
+            # File should not be modified in dry run
+            with open(temp_path, 'r') as f:
+                assert f.read() == original_content
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_refactor_no_changes_needed(self):
-        """Files without issues should report no changes."""
-        code = """
-        def my_function():
-            \"\"\"A proper function.\"\"\"
-            return True
-        """
+    def test_refactor_print_to_logging(self):
+        """Test conversion of print to logging."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import logging\nlogger = logging.getLogger()\nprint('hello')\n")
+            temp_path = Path(f.name)
+        
         try:
-            logger = MagicMock()
-            results = refactor_file(filepath, logger)
-
-            assert results['actions_taken'] == ['No changes needed']
+            result = refactor_file(temp_path, dry_run=False)
+            assert result['changes_made'] is True
+            
+            with open(temp_path, 'r') as f:
+                content = f.read()
+                assert "logger.info('hello')" in content
+                assert "print('hello')" not in content
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_refactor_handles_syntax_error(self):
-        """Syntax errors should be caught and reported."""
-        code = "def broken("  # Invalid syntax
+class TestValidateAPIs:
+    """Tests for validate_apis function."""
+
+    def test_validate_valid_imports(self):
+        """Test validation with valid imports."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import os\nimport sys\nfrom numpy import array\n")
+            temp_path = Path(f.name)
+        
         try:
-            logger = MagicMock()
-            results = refactor_file(filepath, logger)
-
-            assert len(results['errors']) > 0
+            errors = validate_apis(temp_path)
+            # Should not have errors for known modules
+            assert len(errors) == 0
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-
-class TestCleanupIntegration:
-    """Integration tests for the cleanup process."""
-
-    def test_cleanup_preserves_valid_code(self):
-        """Cleanup should not break valid code."""
-        code = '''
-        """Module docstring."""
-        import numpy as np
-        from scipy import stats
-
-        def calculate_mean(data):
-            """Calculate the mean of data."""
-            return np.mean(data)
-
-        if __name__ == '__main__':
-            print(calculate_mean([1, 2, 3]))
-        '''
+    def test_validate_syntax_error(self):
+        """Test validation with syntax error."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
-
+            f.write("import os\nthis is invalid\n")
+            temp_path = Path(f.name)
+        
         try:
-            logger = MagicMock()
-            # Analyze first
-            analysis = analyze_file_for_cleanup(filepath, logger)
-
-            # Refactor
-            refactor_file(filepath, logger)
-
-            # Verify file is still valid Python
-            with open(filepath, 'r') as f:
-                new_content = f.read()
-
-            ast.parse(new_content)  # Should not raise
-
-            # Verify key elements preserved
-            assert 'import numpy' in new_content
-            assert 'def calculate_mean' in new_content
-            assert '"""Module docstring."""' in new_content
+            errors = validate_apis(temp_path)
+            assert len(errors) > 0
+            assert any("Syntax error" in e for e in errors)
         finally:
-            filepath.unlink()
+            os.unlink(temp_path)
 
-    def test_cleanup_normalizes_line_endings(self):
-        """Cleanup should normalize line endings to Unix style."""
-        code = "def test():\r\n    pass\r\n"
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            filepath = Path(f.name)
+class TestRunCleanup:
+    """Tests for run_cleanup function."""
 
-        try:
-            logger = MagicMock()
-            refactor_file(filepath, logger)
+    def test_run_cleanup_on_temp_dir(self):
+        """Test running cleanup on a temporary directory."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            
+            # Create a test file
+            test_file = tmp_path / "test.py"
+            test_file.write_text("import os\nprint('hello')\n")
+            
+            results = run_cleanup(tmp_path, dry_run=True)
+            
+            assert results['files_processed'] == 1
+            assert results['dry_run'] is True
+            assert len(results['files']) == 1
 
-            with open(filepath, 'r') as f:
-                new_content = f.read()
-
-            assert '\r\n' not in new_content
-            assert '\n' in new_content
-        finally:
-            filepath.unlink()
-
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    def test_run_cleanup_skips_cache(self):
+        """Test that cleanup skips __pycache__ directories."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            
+            # Create __pycache__ directory with a file
+            cache_dir = tmp_path / "__pycache__"
+            cache_dir.mkdir()
+            cache_file = cache_dir / "test.cpython-311.pyc"
+            cache_file.write_text("fake")
+            
+            # Create a regular file
+            test_file = tmp_path / "test.py"
+            test_file.write_text("import os\n")
+            
+            results = run_cleanup(tmp_path, dry_run=True)
+            
+            # Should only process the regular file, not the cache
+            assert results['files_processed'] == 1

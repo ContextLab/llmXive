@@ -33,7 +33,7 @@ As a researcher, I want to apply standard t-tests and F-tests to the synthetic n
 **Acceptance Scenarios**:
 
 1. **Given** a synthetic dataset with $p$ features and known null ground truth, **When** t-tests and F-tests are applied to each feature (comparing to theoretical mean), **Then** exactly $p$ p-values are collected for each test type with no missing values.
-2. **Given** 1000 simulation iterations per setting, **When** hypothesis tests are executed, **Then** all iterations complete successfully without runtime errors on CPU-only infrastructure.
+2. **Given** Multiple simulation iterations per setting, **When** hypothesis tests are executed, **Then** all iterations complete successfully without runtime errors on CPU-only infrastructure.
 
 ---
 

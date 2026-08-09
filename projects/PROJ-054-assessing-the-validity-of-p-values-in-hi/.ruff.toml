@@ -1,35 +1,22 @@
-# Standalone ruff config for compatibility with older runners
-# This file mirrors settings in pyproject.toml
-
+# Explicit ruff configuration for immediate tool discovery
+# This file mirrors settings in pyproject.toml for tools that prefer standalone config
 line-length = 88
 target-version = "py311"
-
 select = [
     "E",
     "W",
     "F",
     "I",
-    "C",
     "B",
+    "C4",
+    "UP",
 ]
-
-ignore = [
-    "E501",
-    "B008",
+ignore = ["E501", "B008"]
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "data",
 ]
-
-[isort]
-known-first-party = [
-    "utils",
-    "generate_data",
-    "run_tests",
-    "collect_pvalues",
-    "analyze_pvalues",
-    "bootstrap_ci",
-    "plot_qq",
-    "sensitivity_analysis",
-    "integrate_pipeline",
-    "profile_simulation",
-    "cleanup_refactor",
-]
-force-sort-within-sections = true

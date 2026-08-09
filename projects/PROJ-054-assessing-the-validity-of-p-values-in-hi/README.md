@@ -1,42 +1,33 @@
-# PROJ-054: Assessing the Validity of p-Values in High-Dimensional Data
-
-## Linting and Formatting
-
-This project uses **Ruff** for linting and **Black** for code formatting.
-
-### Setup
-
-Ensure dependencies are installed:
-```bash
-pip install -r requirements.txt
-```
-
-### Usage
-
-**Format code:**
-```bash
-black code/ tests/
-```
-
-**Lint code:**
-```bash
-ruff check code/ tests/
-```
-
-**Fix linting issues automatically (where safe):**
-```bash
-ruff check --fix code/ tests/
-```
-
-**Run pre-commit checks (if configured):**
-```bash
-pre-commit run --all-files
-```
+# Assessing the Validity of p-Values in High-Dimensional Data
 
 ## Project Structure
 
-- `code/`: Source code for the research pipeline
-- `tests/`: Unit and integration tests
-- `data/`: Generated datasets and results
-- `docs/`: Documentation
-- `specs/`: Feature specifications and design documents
+This project follows a standard Python research pipeline structure:
+
+- `code/`: Source code for data generation, hypothesis testing, and analysis.
+- `data/`: Generated datasets, p-value trajectories, and analysis results.
+- `tests/`: Unit and integration tests.
+- `docs/`: Methodology documentation and generated plots.
+- `specs/`: Feature specifications and design documents.
+
+## Setup
+
+1. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate
+ ```
+
+2. Install dependencies:
+ ```bash
+ pip install -e.
+ ```
+
+3. Run tests:
+ ```bash
+ pytest
+ ```
+
+## Execution
+
+Refer to `quickstart.md` for the specific execution order of the simulation pipeline.

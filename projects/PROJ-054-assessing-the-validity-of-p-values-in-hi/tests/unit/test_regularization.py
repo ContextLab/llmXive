@@ -1,112 +1,104 @@
 """
 Unit tests for covariance regularization utilities.
+Tests for code/utils/regularization.py
 """
-
 import numpy as np
 import pytest
-
-from code.utils.regularization import (
-    compute_condition_number,
-    regularize_covariance,
-    safe_inverse,
-    DEFAULT_CONDITION_THRESHOLD
-)
-from code.utils.exceptions import HighDimensionalInstabilityError
+from utils.regularization import is_condition_number_acceptable, regularize_covariance
+from utils.exceptions import HighDimensionalInstabilityError
 
 
-def test_compute_condition_number_well_conditioned():
-    """Test condition number calculation on a well-conditioned matrix."""
-    # Identity matrix has condition number 1
-    I = np.eye(10)
-    assert np.isclose(compute_condition_number(I), 1.0)
+class TestConditionNumberCheck:
+    def test_well_conditioned_matrix(self):
+        """Test that a well-conditioned identity matrix passes."""
+        matrix = np.eye(10)
+        assert is_condition_number_acceptable(matrix) is True
 
-    # Random positive definite matrix
-    A = np.random.randn(10, 10)
-    pos_def = A @ A.T
-    cond = compute_condition_number(pos_def)
-    assert cond >= 1.0
+    def test_moderately_conditioned_matrix(self):
+        """Test a matrix with moderate condition number."""
+        # Create a matrix with known condition number ~100
+        matrix = np.diag([100] + [1] * 9)
+        assert is_condition_number_acceptable(matrix) is True
 
+    def test_highly_conditioned_matrix(self):
+        """Test a matrix that exceeds the threshold (10^12)."""
+        # Create a matrix with very high condition number
+        matrix = np.diag([1e13] + [1] * 9)
+        assert is_condition_number_acceptable(matrix) is False
 
-def test_compute_condition_number_singular():
-    """Test condition number calculation on a singular matrix."""
-    # Matrix with a row of zeros
-    A = np.zeros((5, 5))
-    A[0, 0] = 1.0
-    cond = compute_condition_number(A)
-    assert np.isinf(cond)
-
-
-def test_regularize_covariance_no_regularization_needed():
-    """Test that well-conditioned matrices are returned unchanged."""
-    cov = np.eye(5) * 2.0
-    reg_cov, was_reg, cond = regularize_covariance(cov)
-
-    assert not was_reg
-    assert cond <= DEFAULT_CONDITION_THRESHOLD
-    np.testing.assert_array_equal(reg_cov, cov)
+    def test_singular_matrix(self):
+        """Test a singular matrix (condition number = infinity)."""
+        matrix = np.zeros((10, 10))
+        assert is_condition_number_acceptable(matrix) is False
 
 
-def test_regularize_covariance_applies_regularization():
-    """Test that ill-conditioned matrices are regularized."""
-    # Create a nearly singular matrix
-    n = 10
-    A = np.random.randn(n, n)
-    # Make it rank deficient
-    A[:, -1] = A[:, 0] + A[:, 1]
-    cov = A @ A.T
+class TestRegularizeCovariance:
+    def test_identity_matrix_unchanged(self):
+        """Test that identity matrix is returned unchanged when already acceptable."""
+        matrix = np.eye(5)
+        regularized = regularize_covariance(matrix)
+        np.testing.assert_array_almost_equal(regularized, matrix)
 
-    # Ensure it's actually ill-conditioned
-    assert compute_condition_number(cov) > DEFAULT_CONDITION_THRESHOLD
+    def test_regularization_adds_diagonal(self):
+        """Test that regularization adds a small value to the diagonal."""
+        # Create a nearly singular matrix
+        matrix = np.array([[1.0, 0.99], [0.99, 1.0]])
+        regularized = regularize_covariance(matrix)
 
-    reg_cov, was_reg, cond = regularize_covariance(cov, threshold=DEFAULT_CONDITION_THRESHOLD)
+        # Check that diagonal elements increased
+        assert regularized[0, 0] > matrix[0, 0]
+        assert regularized[1, 1] > matrix[1, 1]
 
-    assert was_reg
-    assert reg_cov.shape == cov.shape
+        # Check that off-diagonal elements unchanged
+        assert regularized[0, 1] == matrix[0, 1]
+        assert regularized[1, 0] == matrix[1, 0]
 
-    # Check that diagonal elements increased
-    original_diag = np.diag(cov)
-    reg_diag = np.diag(reg_cov)
-    assert np.all(reg_diag >= original_diag)
+    def test_high_dimensional_instability_raises(self):
+        """Test that extremely ill-conditioned matrices raise an error."""
+        # Create a matrix that cannot be regularized within tolerance
+        matrix = np.diag([1e20] + [1] * 9)
+        with pytest.raises(HighDimensionalInstabilityError):
+            regularize_covariance(matrix)
 
+    def test_output_is_symmetric(self):
+        """Test that the output matrix is symmetric."""
+        matrix = np.random.rand(10, 10)
+        matrix = matrix @ matrix.T  # Make it symmetric positive semi-definite
+        regularized = regularize_covariance(matrix)
 
-def test_safe_inverse_well_conditioned():
-    """Test safe inverse on a well-conditioned matrix."""
-    A = np.random.randn(5, 5)
-    M = A @ A.T + np.eye(5) # Ensure positive definite
+        np.testing.assert_array_almost_equal(regularized, regularized.T)
 
-    inv_M, was_reg = safe_inverse(M)
+    def test_output_is_positive_definite(self):
+        """Test that the output matrix is positive definite."""
+        matrix = np.random.rand(5, 5)
+        matrix = matrix @ matrix.T
+        # Make it nearly singular
+        matrix[0, 0] = 1e-15
 
-    assert not was_reg
-    # Check inverse property: M * M^-1 = I
-    product = M @ inv_M
-    np.testing.assert_array_almost_equal(product, np.eye(5))
+        regularized = regularize_covariance(matrix)
 
+        # Check eigenvalues are positive
+        eigenvalues = np.linalg.eigvalsh(regularized)
+        assert np.all(eigenvalues > 0)
 
-def test_safe_inverse_ill_conditioned():
-    """Test safe inverse on an ill-conditioned matrix."""
-    n = 10
-    A = np.random.randn(n, n)
-    A[:, -1] = A[:, 0] + A[:, 1] # Make rank deficient
-    M = A @ A.T
+    def test_different_regularization_strengths(self):
+        """Test that different lambda values produce different results."""
+        matrix = np.array([[1.0, 0.99], [0.99, 1.0]])
 
-    # This should not raise an error because safe_inverse regularizes
-    try:
-        inv_M, was_reg = safe_inverse(M)
-        assert was_reg
-        # Verify it's actually an inverse (approximately)
-        product = M @ inv_M
-        # Since M is singular, M * inv(M) won't be exactly I, but should be stable
-        # The regularization makes M_reg invertible, so M_reg * inv_M = I
-        # We are testing that the function returns a matrix without crashing
-    except HighDimensionalInstabilityError:
-        pytest.fail("safe_inverse raised an unexpected HighDimensionalInstabilityError")
+        reg_weak = regularize_covariance(matrix, lambda_min=1e-6)
+        reg_strong = regularize_covariance(matrix, lambda_min=1e-3)
 
+        # Stronger regularization should add more to diagonal
+        assert reg_strong[0, 0] - matrix[0, 0] > reg_weak[0, 0] - matrix[0, 0]
 
-def test_safe_inverse_fails_on_unfixable():
-    """Test that safe_inverse fails if regularization cannot fix the matrix."""
-    # A truly zero matrix cannot be inverted even with small diagonal loading
-    # unless the loading factor is large enough, but our default is small.
-    # However, diagonal loading *always* makes a matrix invertible if the factor > 0.
-    # So this test might need to check for specific edge cases or large condition numbers.
-    # For now, we trust the logic that diagonal loading fixes singularity.
-    pass
+def test_condition_number_threshold_boundary():
+    """Test behavior exactly at the threshold boundary."""
+    # Create matrix with condition number exactly at 10^12
+    # This tests the boundary condition
+    matrix = np.diag([1e12] + [1] * 9)
+    # Should be acceptable (threshold is > 10^12)
+    assert is_condition_number_acceptable(matrix) is True
+
+    # Slightly above threshold
+    matrix_above = np.diag([1e12 + 1] + [1] * 9)
+    assert is_condition_number_acceptable(matrix_above) is False

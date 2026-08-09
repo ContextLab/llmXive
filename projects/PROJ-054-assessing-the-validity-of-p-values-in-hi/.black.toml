@@ -1,11 +1,11 @@
-[tool.black]
-line-length = 100
-target-version = ['py311']
-include = '\.pyi?$'
+# Explicit black configuration
+# Mirrors pyproject.toml settings
+line-length = 88
+target-version = ["py311"]
+include = "\\.pyi?$"
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox

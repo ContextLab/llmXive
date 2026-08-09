@@ -1,464 +1,485 @@
 """
-Code cleanup and refactoring utility for the llmXive p-value validity pipeline.
+Code cleanup and refactoring utility for the p-value validity project.
 
-This module provides functions to:
-1. Analyze Python files for common code quality issues (unused imports, duplicate code, long functions).
-2. Refactor files to improve readability and maintainability.
-3. Validate that public APIs match the expected interface.
-4. Run a full cleanup sweep across the project's code directory.
+This module provides tools to analyze Python files for code quality issues,
+refactor them according to best practices, and validate API consistency.
 """
 import ast
 import os
 import re
 import sys
-from pathlib import Path
-from typing import Dict, List, Set, Tuple, Optional, Any
 import logging
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple, Set
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-
+# Custom exception for cleanup operations
 class CodeCleanupError(Exception):
-    """Custom exception for code cleanup operations."""
+    """Exception raised when code cleanup or refactoring fails."""
     pass
 
+def setup_logging() -> logging.Logger:
+    """Configure and return the project logger."""
+    logger = logging.getLogger("cleanup_refactor")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+    return logger
 
-def setup_logging(log_level: str = "INFO") -> None:
-    """Configure logging for the cleanup process."""
-    level = getattr(logging, log_level.upper(), logging.INFO)
-    logging.getLogger().setLevel(level)
-
-
-def extract_imports_from_file(file_path: Path) -> Tuple[Set[str], Set[str]]:
+def extract_imports_from_file(file_path: Path) -> Dict[str, List[str]]:
     """
     Extract all imports from a Python file.
 
-    Returns:
-        Tuple of (standard_library_imports, third_party_imports)
-    """
-    if not file_path.exists():
-        raise CodeCleanupError(f"File not found: {file_path}")
+    Args:
+        file_path: Path to the Python file.
 
-    with open(file_path, 'r', encoding='utf-8') as f:
-        source = f.read()
+    Returns:
+        Dictionary with keys:
+            - 'standard': List of standard library imports
+            - 'third_party': List of third-party imports
+            - 'local': List of local imports (relative or project-specific)
+    """
+    logger = logging.getLogger("cleanup_refactor")
+    standard_libs = {
+        'abc', 'argparse', 'ast', 'asyncio', 'base64', 'bisect', 'builtins',
+        'calendar', 'collections', 'concurrent', 'contextlib', 'copy', 'csv',
+        'dataclasses', 'datetime', 'decimal', 'difflib', 'dis', 'email',
+        'enum', 'errno', 'faulthandler', 'fcntl', 'fileinput', 'fnmatch',
+        'fractions', 'ftplib', 'functools', 'gc', 'getopt', 'getpass',
+        'gettext', 'glob', 'grp', 'gzip', 'hashlib', 'heapq', 'hmac',
+        'html', 'http', 'imaplib', 'importlib', 'inspect', 'io', 'ipaddress',
+        'itertools', 'json', 'keyword', 'linecache', 'locale', 'logging',
+        'lzma', 'mailbox', 'math', 'mimetypes', 'mmap', 'modulefinder',
+        'multiprocessing', 'netrc', 'nis', 'nntplib', 'numbers', 'operator',
+        'optparse', 'os', 'ossaudiodev', 'pathlib', 'pdb', 'pickle', 'pickletools',
+        'pipes', 'pkgutil', 'platform', 'plistlib', 'poplib', 'posix', 'posixpath',
+        'pprint', 'profile', 'pstats', 'pty', 'pwd', 'py_compile', 'pyclbr',
+        'pydoc', 'queue', 'quopri', 'random', 're', 'readline', 'reprlib',
+        'resource', 'rlcompleter', 'runpy', 'sched', 'secrets', 'select',
+        'selectors', 'shelve', 'shlex', 'shutil', 'signal', 'site', 'smtpd',
+        'smtplib', 'sndhdr', 'socket', 'socketserver', 'spwd', 'sqlite3',
+        'ssl', 'stat', 'statistics', 'string', 'stringprep', 'struct',
+        'subprocess', 'sunau', 'symtable', 'sys', 'sysconfig', 'syslog',
+        'tabnanny', 'tarfile', 'telnetlib', 'tempfile', 'termios', 'test',
+        'textwrap', 'threading', 'time', 'timeit', 'tkinter', 'token',
+        'tokenize', 'trace', 'traceback', 'tracemalloc', 'tty', 'turtle',
+        'types', 'typing', 'unicodedata', 'unittest', 'urllib', 'uu', 'uuid',
+        'venv', 'warnings', 'wave', 'weakref', 'webbrowser', 'winreg',
+        'winsound', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc', 'zipapp', 'zipfile',
+        'zipimport', 'zlib', '_thread', 'typing_extensions'
+    }
+
+    imports = {'standard': [], 'third_party': [], 'local': []}
 
     try:
-        tree = ast.parse(source)
+        with open(file_path, 'r', encoding='utf-8') as f:
+            source = f.read()
+        tree = ast.parse(source, filename=str(file_path))
     except SyntaxError as e:
         raise CodeCleanupError(f"Syntax error in {file_path}: {e}")
-
-    standard_lib = set()
-    third_party = set()
-
-    # Known standard library modules (comprehensive list)
-    stdlib_modules = {
-        'abc', 'aifc', 'argparse', 'array', 'ast', 'asynchat', 'asyncio',
-        'asyncore', 'atexit', 'audioop', 'base64', 'bdb', 'binascii',
-        'binhex', 'bisect', 'builtins', 'bz2', 'calendar', 'cgi', 'cgitb',
-        'chunk', 'cmath', 'cmd', 'code', 'codecs', 'codeop', 'collections',
-        'colorsys', 'compileall', 'concurrent', 'configparser', 'contextlib',
-        'contextvars', 'copy', 'copyreg', 'cProfile', 'crypt', 'csv',
-        'ctypes', 'curses', 'dataclasses', 'datetime', 'dbm', 'decimal',
-        'difflib', 'dis', 'distutils', 'doctest', 'email', 'encodings',
-        'enum', 'errno', 'faulthandler', 'fcntl', 'filecmp', 'fileinput',
-        'fnmatch', 'fractions', 'ftplib', 'functools', 'gc', 'getopt',
-        'getpass', 'gettext', 'glob', 'graphlib', 'grp', 'gzip', 'hashlib',
-        'heapq', 'hmac', 'html', 'http', 'imaplib', 'imghdr', 'imp',
-        'importlib', 'inspect', 'io', 'ipaddress', 'itertools', 'json',
-        'keyword', 'lib2to3', 'linecache', 'locale', 'logging', 'lzma',
-        'mailbox', 'mailcap', 'marshal', 'math', 'mimetypes', 'mmap',
-        'modulefinder', 'multiprocessing', 'netrc', 'nis', 'nntplib',
-        'numbers', 'operator', 'optparse', 'os', 'ossaudiodev', 'pathlib',
-        'pdb', 'pickle', 'pickletools', 'pipes', 'pkgutil', 'platform',
-        'plistlib', 'poplib', 'posix', 'posixpath', 'pprint', 'profile',
-        'pstats', 'pty', 'pwd', 'py_compile', 'pyclbr', 'pydoc', 'queue',
-        'quopri', 'random', 're', 'readline', 'reprlib', 'resource',
-        'rlcompleter', 'runpy', 'sched', 'secrets', 'select', 'selectors',
-        'shelve', 'shlex', 'shutil', 'signal', 'site', 'smtpd', 'smtplib',
-        'sndhdr', 'socket', 'socketserver', 'spwd', 'sqlite3', 'ssl',
-        'stat', 'statistics', 'string', 'stringprep', 'struct', 'subprocess',
-        'sunau', 'symtable', 'sys', 'sysconfig', 'syslog', 'tabnanny',
-        'tarfile', 'telnetlib', 'tempfile', 'termios', 'test', 'textwrap',
-        'threading', 'time', 'timeit', 'tkinter', 'token', 'tokenize',
-        'trace', 'traceback', 'tracemalloc', 'tty', 'turtle', 'turtledemo',
-        'types', 'typing', 'unicodedata', 'unittest', 'urllib', 'uu',
-        'uuid', 'venv', 'warnings', 'wave', 'weakref', 'webbrowser',
-        'winreg', 'winsound', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc',
-        'zipapp', 'zipfile', 'zipimport', 'zlib', '_thread'
-    }
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 module_name = alias.name.split('.')[0]
-                if module_name in stdlib_modules:
-                    standard_lib.add(alias.name)
+                if module_name in standard_libs:
+                    imports['standard'].append(alias.name)
+                elif module_name.startswith('utils') or module_name in ['numpy', 'scipy', 'matplotlib', 'pandas', 'pytest']:
+                    imports['local'].append(alias.name)
                 else:
-                    third_party.add(alias.name)
+                    imports['third_party'].append(alias.name)
+
         elif isinstance(node, ast.ImportFrom):
             if node.module:
                 module_name = node.module.split('.')[0]
-                if module_name in stdlib_modules:
-                    standard_lib.add(node.module)
+                if node.level > 0:  # Relative import
+                    imports['local'].append(f"{'.' * node.level}{node.module}")
+                elif module_name in standard_libs:
+                    imports['standard'].append(node.module)
+                elif module_name.startswith('utils') or module_name in ['numpy', 'scipy', 'matplotlib', 'pandas', 'pytest']:
+                    imports['local'].append(node.module)
                 else:
-                    third_party.add(node.module)
+                    imports['third_party'].append(node.module)
+            else:
+                # from X import Y where X is empty (unlikely but handled)
+                for alias in node.names:
+                    imports['local'].append(alias.name)
 
-    return standard_lib, third_party
-
+    return imports
 
 def analyze_file_for_cleanup(file_path: Path) -> Dict[str, Any]:
     """
-    Analyze a Python file for common code quality issues.
+    Analyze a Python file for common cleanup opportunities.
 
-    Returns a dictionary with:
-    - unused_imports: list of unused imports
-    - long_functions: list of functions with > 50 lines
-    - duplicate_code: list of potentially duplicated code blocks
-    - complexity_score: estimated cyclomatic complexity
+    Args:
+        file_path: Path to the Python file.
+
+    Returns:
+        Dictionary containing analysis results:
+            - 'unused_imports': List of potentially unused imports
+            - 'long_lines': List of lines exceeding 100 characters
+            - 'duplicate_imports': List of duplicate import statements
+            - 'missing_docstrings': List of functions/classes missing docstrings
+            - 'complex_functions': List of functions with high cyclomatic complexity
     """
-    if not file_path.exists():
-        raise CodeCleanupError(f"File not found: {file_path}")
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        source = f.read()
-        lines = source.splitlines()
+    logger = logging.getLogger("cleanup_refactor")
+    analysis = {
+        'unused_imports': [],
+        'long_lines': [],
+        'duplicate_imports': [],
+        'missing_docstrings': [],
+        'complex_functions': [],
+        'total_lines': 0,
+        'code_lines': 0,
+        'comment_lines': 0,
+        'blank_lines': 0
+    }
 
     try:
-        tree = ast.parse(source)
-    except SyntaxError as e:
-        return {
-            'error': f"Syntax error: {e}",
-            'unused_imports': [],
-            'long_functions': [],
-            'duplicate_code': [],
-            'complexity_score': 0
-        }
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            source = ''.join(lines)
+    except Exception as e:
+        raise CodeCleanupError(f"Failed to read {file_path}: {e}")
 
-    # Extract all names defined and used in the file
+    analysis['total_lines'] = len(lines)
+
+    # Count line types
+    in_multiline_string = False
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            analysis['blank_lines'] += 1
+        elif stripped.startswith('"""') or stripped.startswith("'''"):
+            in_multiline_string = not in_multiline_string
+            if not in_multiline_string:
+                analysis['code_lines'] += 1
+            else:
+                analysis['comment_lines'] += 1
+        elif in_multiline_string:
+            analysis['comment_lines'] += 1
+        elif stripped.startswith('#'):
+            analysis['comment_lines'] += 1
+        else:
+            analysis['code_lines'] += 1
+
+        # Check for long lines
+        if len(line.rstrip()) > 100:
+            analysis['long_lines'].append({
+                'line_num': len(analysis['long_lines']) + 1,
+                'length': len(line.rstrip()),
+                'content': line.rstrip()[:50] + '...'
+            })
+
+    # Parse AST for deeper analysis
+    try:
+        tree = ast.parse(source, filename=str(file_path))
+    except SyntaxError as e:
+        raise CodeCleanupError(f"Syntax error in {file_path}: {e}")
+
+    # Extract all names defined and used
     defined_names = set()
     used_names = set()
 
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
             defined_names.add(node.name)
+            if not ast.get_docstring(node):
+                analysis['missing_docstrings'].append({
+                    'type': 'function',
+                    'name': node.name,
+                    'line': node.lineno
+                })
+
+            # Simple complexity check (count branches)
+            complexity = 1
+            for child in ast.walk(node):
+                if isinstance(child, (ast.If, ast.For, ast.While, ast.ExceptHandler,
+                                      ast.With, ast.Assert, ast.comprehension)):
+                    complexity += 1
+            if complexity > 10:
+                analysis['complex_functions'].append({
+                    'name': node.name,
+                    'complexity': complexity,
+                    'line': node.lineno
+                })
+
         elif isinstance(node, ast.ClassDef):
             defined_names.add(node.name)
-        elif isinstance(node, ast.Import):
-            for alias in node.names:
-                name = alias.asname if alias.asname else alias.name.split('.')[-1]
-                defined_names.add(name)
-        elif isinstance(node, ast.ImportFrom):
-            for alias in node.names:
-                name = alias.asname if alias.asname else alias.name
-                defined_names.add(name)
+            if not ast.get_docstring(node):
+                analysis['missing_docstrings'].append({
+                    'type': 'class',
+                    'name': node.name,
+                    'line': node.lineno
+                })
+
         elif isinstance(node, ast.Name):
             used_names.add(node.id)
 
-    # Find unused imports
-    unused_imports = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
+        elif isinstance(node, ast.Import):
             for alias in node.names:
-                name = alias.asname if alias.asname else alias.name.split('.')[-1]
-                if name not in used_names:
-                    unused_imports.append(alias.name)
+                name = alias.asname if alias.asname else alias.name.split('.')[0]
+                defined_names.add(name)
+
         elif isinstance(node, ast.ImportFrom):
             for alias in node.names:
                 name = alias.asname if alias.asname else alias.name
-                if name not in used_names:
-                    unused_imports.append(f"{node.module}.{name}" if node.module else name)
+                defined_names.add(name)
 
-    # Find long functions
-    long_functions = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
-            # Calculate function length
-            start_line = node.lineno
-            end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line
-            length = end_line - start_line + 1
-            if length > 50:
-                long_functions.append({
-                    'name': node.name,
-                    'lines': length,
-                    'start': start_line,
-                    'end': end_line
-                })
-
-    # Calculate cyclomatic complexity
-    complexity_score = 1
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.If, ast.While, ast.For, ast.ExceptHandler,
-                             ast.With, ast.Assert, ast.comprehension)):
-            complexity_score += 1
-        elif isinstance(node, ast.BoolOp):
-            complexity_score += len(node.values) - 1
-
-    # Simple duplicate code detection (exact line matches)
-    line_counts = {}
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped and not stripped.startswith('#'):
-            if stripped in line_counts:
-                line_counts[stripped].append(i)
-            else:
-                line_counts[stripped] = [i]
-
-    duplicate_code = []
-    for line_content, line_numbers in line_counts.items():
-        if len(line_numbers) > 3 and len(line_content) > 20:
-            duplicate_code.append({
-                'content': line_content[:50] + '...',
-                'occurrences': len(line_numbers),
-                'lines': line_numbers
+    # Check for unused imports (simplified check)
+    imports = extract_imports_from_file(file_path)
+    for imp in imports['standard'] + imports['third_party'] + imports['local']:
+        name = imp.split('.')[0].split('.')[-1]
+        if name.startswith('_'):
+            continue  # Ignore private imports
+        if name not in used_names:
+            analysis['unused_imports'].append({
+                'name': imp,
+                'line': 0  # Would need more precise tracking
             })
 
-    return {
-        'unused_imports': unused_imports,
-        'long_functions': long_functions,
-        'duplicate_code': duplicate_code,
-        'complexity_score': complexity_score,
-        'total_lines': len(lines),
-        'code_lines': len([l for l in lines if l.strip() and not l.strip().startswith('#')])
-    }
+    # Check for duplicate imports
+    all_imports = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                all_imports.append(alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                all_imports.append(node.module)
 
+    seen = set()
+    for imp in all_imports:
+        if imp in seen:
+            analysis['duplicate_imports'].append(imp)
+        seen.add(imp)
+
+    return analysis
 
 def refactor_file(file_path: Path, analysis: Dict[str, Any]) -> bool:
     """
-    Refactor a file based on analysis results.
+    Apply refactoring suggestions to a file.
 
-    Currently implements:
-    - Removing unused imports
-    - Splitting long functions (placeholder for future implementation)
+    Args:
+        file_path: Path to the Python file.
+        analysis: Analysis results from analyze_file_for_cleanup.
 
-    Returns True if changes were made, False otherwise.
+    Returns:
+        True if refactoring was successful, False otherwise.
     """
-    if 'error' in analysis:
-        logger.warning(f"Skipping refactor due to error: {analysis['error']}")
-        return False
+    logger = logging.getLogger("cleanup_refactor")
 
-    if not analysis['unused_imports']:
-        return False
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-
-    # Remove unused imports
-    unused_set = set(analysis['unused_imports'])
-    modified_lines = []
-    changed = False
-
-    for line in lines:
-        # Check if this line is an import that should be removed
-        is_unused_import = False
-        stripped = line.strip()
-
-        if stripped.startswith('import '):
-            module = stripped[7:].split(',')[0].strip()
-            if module in unused_set:
-                is_unused_import = True
-        elif stripped.startswith('from '):
-            parts = stripped.split()
-            if len(parts) >= 4:
-                module = parts[1]
-                imports = parts[3].split(',')
-                for imp in imports:
-                    imp_name = imp.strip()
-                    if imp_name in unused_set:
-                        is_unused_import = True
-                        break
-
-        if is_unused_import:
-            logger.info(f"Removing unused import: {stripped}")
-            changed = True
-        else:
-            modified_lines.append(line)
-
-    if changed:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.writelines(modified_lines)
-        logger.info(f"Refactored {file_path}: removed {len(unused_set)} unused imports")
-
-    return changed
-
-
-def validate_apis(file_path: Path, expected_apis: Set[str]) -> List[str]:
-    """
-    Validate that a file exports the expected public APIs.
-
-    Returns a list of missing APIs.
-    """
-    if not file_path.exists():
-        raise CodeCleanupError(f"File not found: {file_path}")
-
-    with open(file_path, 'r', encoding='utf-8') as f:
-        source = f.read()
+    if not analysis['unused_imports'] and not analysis['long_lines']:
+        logger.info(f"No refactoring needed for {file_path}")
+        return True
 
     try:
-        tree = ast.parse(source)
-    except SyntaxError as e:
-        raise CodeCleanupError(f"Syntax error in {file_path}: {e}")
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except Exception as e:
+        logger.error(f"Failed to read {file_path}: {e}")
+        return False
 
-    # Find all public names (not starting with _)
-    public_names = set()
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            if not node.name.startswith('_'):
-                public_names.add(node.name)
-        elif isinstance(node, ast.Assign):
-            for target in node.targets:
-                if isinstance(target, ast.Name) and not target.id.startswith('_'):
-                    public_names.add(target.id)
+    # Remove unused imports (simplified)
+    unused_names = {item['name'] for item in analysis['unused_imports']}
+    new_lines = []
+    for i, line in enumerate(lines):
+        skip_line = False
+        for unused in unused_names:
+            if f"import {unused}" in line or f"from {unused}" in line:
+                skip_line = True
+                logger.info(f"Removing unused import: {unused} at line {i+1}")
+                break
+        if not skip_line:
+            new_lines.append(line)
 
-    missing_apis = []
-    for api in expected_apis:
-        if api not in public_names:
-            missing_apis.append(api)
+    # Write back if changes were made
+    if len(new_lines) != len(lines):
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.writelines(new_lines)
+            logger.info(f"Refactored {file_path}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to write {file_path}: {e}")
+            return False
 
-    return missing_apis
+    return True
 
-
-def run_cleanup(project_root: Path, code_dir: str = "code") -> Dict[str, Any]:
+def validate_apis(project_root: Path) -> Dict[str, List[str]]:
     """
-    Run cleanup and refactoring across all Python files in the project.
+    Validate that all public APIs in the project are consistent.
 
-    Returns a summary of actions taken.
+    Args:
+        project_root: Root directory of the project.
+
+    Returns:
+        Dictionary with keys:
+            - 'missing': List of missing API definitions
+            - 'inconsistent': List of inconsistent API definitions
+            - 'valid': List of valid API definitions
     """
-    code_path = project_root / code_dir
-    if not code_path.exists():
-        raise CodeCleanupError(f"Code directory not found: {code_path}")
+    logger = logging.getLogger("cleanup_refactor")
+    results = {'missing': [], 'inconsistent': [], 'valid': []}
 
-    results = {
-        'files_analyzed': 0,
-        'files_refactored': 0,
-        'issues_found': [],
-        'apis_validated': 0,
-        'missing_apis': []
+    # Define expected public APIs based on project structure
+    expected_apis = {
+        'code/utils/exceptions.py': ['HighDimensionalInstabilityError', 'SimulationError',
+                                     'DataGenerationError', 'HypothesisTestError', 'AnalysisError'],
+        'code/utils/regularization.py': ['is_condition_number_acceptable', 'regularize_covariance'],
+        'code/utils/simulation.py': ['SimulationConfig', 'SyntheticDataset', 'MemoryMonitor',
+                                     'SimulationOrchestrator', 'main'],
+        'code/generate_data.py': ['generate_correlated_data', 'generate_distribution_violations',
+                                  'write_dataset_metadata', 'main'],
+        'code/run_tests.py': ['run_hypothesis_tests', 'run_hypothesis_tests_batch', 'main'],
+        'code/analyze_pvalues.py': ['generate_permutation_reference', 'calculate_ks_statistic', 'main'],
+        'code/bootstrap_ci.py': ['calculate_bootstrap_ci', 'load_trajectory_data',
+                                 'run_bootstrap_analysis', 'main'],
+        'code/cleanup_refactor.py': ['CodeCleanupError', 'setup_logging', 'extract_imports_from_file',
+                                     'analyze_file_for_cleanup', 'refactor_file', 'validate_apis',
+                                     'run_cleanup', 'main'],
+        'code/collect_pvalues.py': ['collect_pvalues', 'aggregate_pvalues', 'write_trajectory_snapshot', 'main'],
+        'code/plot_qq.py': ['load_pvalue_trajectories', 'aggregate_pvalues', 'generate_qq_plot', 'main'],
+        'code/sensitivity_analysis.py': ['load_trajectories_for_rho', 'calculate_ks_statistic_for_rho',
+                                         'run_sensitivity_analysis', 'main'],
+        'code/store_trajectories.py': ['compute_trajectory_hash', 'write_trajectory_file', 'main'],
+        'code/integrate_pipeline.py': ['load_simulation_configs', 'run_integration_pipeline', 'main'],
+        'code/docs_generator.py': ['generate_methodology_doc', 'generate_data_generation_doc',
+                                   'generate_analysis_doc', 'generate_readme', 'write_documentation_files', 'main'],
+        'code/profile_simulation.py': ['get_memory_usage_mb', 'run_profiled_sweep', 'write_profile_report', 'main']
     }
 
-    # Define expected APIs for known modules
-    expected_apis_map = {
-        'analyze_pvalues.py': {'generate_permutation_reference', 'calculate_ks_statistic', 'main'},
-        'bootstrap_ci.py': {'calculate_bootstrap_ci', 'load_trajectory_data', 'run_bootstrap_analysis', 'main'},
-        'cleanup_refactor.py': {'CodeCleanupError', 'setup_logging', 'extract_imports_from_file',
-                                'analyze_file_for_cleanup', 'refactor_file', 'run_cleanup',
-                                'validate_apis', 'main'},
-        'collect_pvalues.py': {'collect_pvalues', 'aggregate_pvalues', 'write_trajectory_snapshot', 'main'},
-        'generate_data.py': {'generate_correlated_data', 'generate_distribution_violations',
-                             'write_dataset_metadata', 'main'},
-        'integrate_pipeline.py': {'load_simulation_configs', 'run_integration_pipeline', 'main'},
-        'plot_qq.py': {'load_pvalue_trajectories', 'aggregate_pvalues', 'generate_qq_plot', 'main'},
-        'profile_simulation.py': {'get_memory_usage_mb', 'run_profiled_sweep', 'write_profile_report', 'main'},
-        'run_tests.py': {'run_hypothesis_tests', 'run_hypothesis_tests_batch', 'main'},
-        'sensitivity_analysis.py': {'load_trajectories_for_rho', 'calculate_ks_statistic_for_rho',
-                                    'run_sensitivity_analysis', 'main'},
-        'store_trajectories.py': {'compute_trajectory_hash', 'write_trajectory_file', 'main'},
-    }
-
-    py_files = list(code_path.rglob("*.py"))
-
-    for py_file in py_files:
-        logger.info(f"Analyzing {py_file}")
-        results['files_analyzed'] += 1
+    for rel_path, expected_names in expected_apis.items():
+        file_path = project_root / rel_path
+        if not file_path.exists():
+            results['missing'].append(f"{rel_path} (file missing)")
+            continue
 
         try:
-            analysis = analyze_file_for_cleanup(py_file)
+            with open(file_path, 'r', encoding='utf-8') as f:
+                source = f.read()
+            tree = ast.parse(source, filename=str(file_path))
+        except Exception as e:
+            results['missing'].append(f"{rel_path} (parse error: {e})")
+            continue
 
-            # Log issues
-            if analysis['unused_imports']:
-                results['issues_found'].append({
-                    'file': str(py_file.relative_to(project_root)),
-                    'issue': 'unused_imports',
-                    'details': analysis['unused_imports']
-                })
+        # Extract public names
+        public_names = set()
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.AsyncFunctionDef)):
+                if not node.name.startswith('_'):
+                    public_names.add(node.name)
+            elif isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and not target.id.startswith('_'):
+                        public_names.add(target.id)
 
-            if analysis['long_functions']:
-                results['issues_found'].append({
-                    'file': str(py_file.relative_to(project_root)),
-                    'issue': 'long_functions',
-                    'details': [f"{f['name']} ({f['lines']} lines)" for f in analysis['long_functions']]
-                })
+        # Check for missing or extra
+        missing = set(expected_names) - public_names
+        extra = public_names - set(expected_names)
 
-            if analysis['complexity_score'] > 15:
-                results['issues_found'].append({
-                    'file': str(py_file.relative_to(project_root)),
-                    'issue': 'high_complexity',
-                    'details': f"Cyclomatic complexity: {analysis['complexity_score']}"
-                })
-
-            # Attempt refactor
-            if analyze_file_for_cleanup(py_file)['unused_imports']:
-                if refactor_file(py_file, analysis):
-                    results['files_refactored'] += 1
-
-            # Validate APIs
-            filename = py_file.name
-            if filename in expected_apis_map:
-                missing = validate_apis(py_file, expected_apis_map[filename])
-                results['apis_validated'] += 1
-                if missing:
-                    results['missing_apis'].append({
-                        'file': str(py_file.relative_to(project_root)),
-                        'missing': missing
-                    })
-
-        except CodeCleanupError as e:
-            logger.error(f"Error processing {py_file}: {e}")
-            results['issues_found'].append({
-                'file': str(py_file.relative_to(project_root)),
-                'issue': 'error',
-                'details': str(e)
-            })
+        if missing:
+            results['missing'].append(f"{rel_path}: missing {list(missing)}")
+        elif extra:
+            results['inconsistent'].append(f"{rel_path}: extra {list(extra)}")
+        else:
+            results['valid'].append(rel_path)
 
     return results
 
+def run_cleanup(project_root: Path, dry_run: bool = False) -> Dict[str, Any]:
+    """
+    Run cleanup and refactoring on all Python files in the project.
+
+    Args:
+        project_root: Root directory of the project.
+        dry_run: If True, only analyze without modifying files.
+
+    Returns:
+        Dictionary containing cleanup results.
+    """
+    logger = logging.getLogger("cleanup_refactor")
+    results = {
+        'files_analyzed': 0,
+        'files_refactored': 0,
+        'issues_found': 0,
+        'api_validation': {},
+        'details': []
+    }
+
+    # Find all Python files
+    py_files = list(project_root.glob('code/**/*.py'))
+
+    for file_path in py_files:
+        results['files_analyzed'] += 1
+        logger.info(f"Analyzing {file_path}")
+
+        try:
+            analysis = analyze_file_for_cleanup(file_path)
+            total_issues = (
+                len(analysis['unused_imports']) +
+                len(analysis['long_lines']) +
+                len(analysis['duplicate_imports']) +
+                len(analysis['missing_docstrings']) +
+                len(analysis['complex_functions'])
+            )
+
+            if total_issues > 0:
+                results['issues_found'] += total_issues
+                results['details'].append({
+                    'file': str(file_path.relative_to(project_root)),
+                    'issues': {
+                        'unused_imports': len(analysis['unused_imports']),
+                        'long_lines': len(analysis['long_lines']),
+                        'duplicate_imports': len(analysis['duplicate_imports']),
+                        'missing_docstrings': len(analysis['missing_docstrings']),
+                        'complex_functions': len(analysis['complex_functions'])
+                    }
+                })
+
+                if not dry_run:
+                    if refactor_file(file_path, analysis):
+                        results['files_refactored'] += 1
+        except CodeCleanupError as e:
+            logger.error(f"Error analyzing {file_path}: {e}")
+            results['details'].append({
+                'file': str(file_path.relative_to(project_root)),
+                'error': str(e)
+            })
+
+    # Validate APIs
+    logger.info("Validating APIs...")
+    results['api_validation'] = validate_apis(project_root)
+
+    return results
 
 def main():
-    """Main entry point for the cleanup script."""
-    import argparse
+    """Main entry point for the cleanup and refactoring script."""
+    logger = setup_logging()
+    logger.info("Starting code cleanup and refactoring...")
 
-    parser = argparse.ArgumentParser(description='Code cleanup and refactoring tool')
-    parser.add_argument('--project-root', type=Path, default=Path('.'),
-                        help='Project root directory')
-    parser.add_argument('--code-dir', type=str, default='code',
-                        help='Code directory relative to project root')
-    parser.add_argument('--log-level', type=str, default='INFO',
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-                        help='Logging level')
+    project_root = Path(__file__).resolve().parent.parent
+    dry_run = '--dry-run' in sys.argv
 
-    args = parser.parse_args()
+    results = run_cleanup(project_root, dry_run=dry_run)
 
-    setup_logging(args.log_level)
+    logger.info(f"Analysis complete. Files analyzed: {results['files_analyzed']}")
+    logger.info(f"Issues found: {results['issues_found']}")
+    logger.info(f"Files refactored: {results['files_refactored']}")
 
-    try:
-        results = run_cleanup(args.project_root, args.code_dir)
+    if results['api_validation']['missing']:
+        logger.warning(f"Missing APIs: {results['api_validation']['missing']}")
+    if results['api_validation']['inconsistent']:
+        logger.warning(f"Inconsistent APIs: {results['api_validation']['inconsistent']}")
+    logger.info(f"Valid APIs: {len(results['api_validation']['valid'])}")
 
-        logger.info(f"\nCleanup Summary:")
-        logger.info(f"  Files analyzed: {results['files_analyzed']}")
-        logger.info(f"  Files refactored: {results['files_refactored']}")
-        logger.info(f"  Issues found: {len(results['issues_found'])}")
-        logger.info(f"  APIs validated: {results['apis_validated']}")
+    if dry_run:
+        logger.info("Dry run mode - no files were modified.")
 
-        if results['missing_apis']:
-            logger.warning("Missing APIs detected:")
-            for missing in results['missing_apis']:
-                logger.warning(f"  {missing['file']}: {missing['missing']}")
-
-        if results['issues_found']:
-            logger.info("Issues found:")
-            for issue in results['issues_found'][:10]:  # Show first 10
-                logger.info(f"  {issue['file']}: {issue['issue']}")
-            if len(results['issues_found']) > 10:
-                logger.info(f"  ... and {len(results['issues_found']) - 10} more")
-
-    except CodeCleanupError as e:
-        logger.error(f"Cleanup failed: {e}")
-        sys.exit(1)
-
+    return 0 if results['issues_found'] == 0 else 1
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

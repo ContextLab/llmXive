@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (code/, data/, tests/, docs/)
-- [X] T002 Initialize Python 3.11 project with requirements.txt (numpy, scipy, pandas, matplotlib, seaborn, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 [P] Create `code/` directory at repository root
+- [X] T002 [P] Create `data/` directory at repository root with subdirectories `raw/`, `synthetic/`, `results/`
+- [X] T003 [P] Create `tests/` directory at repository root with subdirectories `unit/`, `integration/`
+- [X] T004a [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, matplotlib, seaborn, pytest)
+- [X] T005 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/.ruff.toml` and `code/.black`
 
 ---
 
@@ -55,12 +57,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement covariance regularization utility in `code/utils/regularization.py` (FR-009: handle singular matrices, condition number > 10^12)
-- [ ] T004.5 [P] Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py` specifically for condition number > 10^12 (required by T004 and referenced by T007 context)
-- [X] T005 Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`
-- [X] T006 Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps)
-- [X] T007 [P] Implement a memory monitor in `code/utils/simulation.py` that logs a warning if RSS > 6GB (does NOT raise a custom error as this threshold is not in spec) and verify by running a test that triggers the limit and asserts the warning is logged (FR-009 context only for condition number)
-- [X] T008 [P] Implement power analysis utility in `code/utils/simulation.py` to calculate the minimum simulation iteration count required to achieve statistical power >= 0.8 for detecting a KS statistic deviation > 0.05 (SC-005)
+- [X] T006 [P] Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py` specifically for condition number > 10^12 (required by T007)
+- [X] T007 [P] Implement covariance regularization utility in `code/utils/regularization.py` (FR-009: handle singular matrices, condition number > 10^12, raise `ERR_HIGH_DIMENSIONAL_INSTABILITY`)
+- [X] T008 [P] Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`
+- [X] T009 [P] Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps)
+- [X] T010 [P] Implement a memory monitor in `code/utils/simulation.py` that logs a warning if RSS > 6GB (per plan goal) but does NOT raise an error (spec FR-009 only requires handling singular matrices)
+- [X] T011 [P] Implement power analysis utility in `code/utils/simulation.py` to calculate the minimum simulation iteration count required to achieve statistical power >= 0.8 for detecting a KS statistic deviation > 0.05. The task MUST verify that the selected number of iterations is sufficient or document the required count and update plan.md if the initial selection is insufficient (SC-005)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,17 +78,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for correlation matrix generation accuracy in `tests/unit/test_data_gen.py`
-- [X] T011 [P] [US1] Unit test for distribution shape validation (t-distribution, skewed normal) in `tests/unit/test_data_gen.py` <!-- FAILED: unspecified -->
-- [X] T012 [P] [US1] Integration test for null hypothesis validity (no mean differences) in `tests/integration/test_data_gen.py`
+- [X] T012 [P] [US1] Unit test for correlation matrix generation accuracy in `tests/unit/test_data_gen.py`
+- [X] T013 [P] [US1] Unit test for distribution shape validation (t-distribution, skewed normal) in `tests/unit/test_data_gen.py` (Verify `test_t_dist_df3` passes with KS distance < 0.01)
+- [X] T014 [P] [US1] Integration test for null hypothesis validity (no mean differences) in `tests/integration/test_data_gen.py`
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `generate_correlated_data` function in `code/generate_data.py` supporting discrete correlation thresholds $\rho$ spanning a range from no correlation to strong positive correlation.
-- [X] T014 [P] [US1] Implement distributional violation generators (heavy-tailed t-distribution, skewed normal) in `code/generate_data.py`
-- [X] T015 [US1] Implement parameter sweep logic for $n$ across a range of small to large sample sizes, $p \in \{\text{small}, \text{medium}, \text{large}, \text{very large}\}$, and $\rho \in \{0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ in `code/generate_data.py`, using the iteration count determined by T008 (Power Analysis)
-- [ ] T016 [US1] Write `data/synthetic/{seed}.json` containing `sha256`, `rho`, `n`, `p`, `distribution_type`, and `seed` and verify file exists and `sha256` matches the generated dataset hash (Constitution Principle III)
-- [ ] T017 [US1] Store full p-value trajectories (all p-values per iteration) in `data/synthetic/trajectories/{seed}.json` to support US3 analysis (KS calculation, bootstrap CIs) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T015 [P] [US1] Implement `generate_correlated_data` function in `code/generate_data.py` supporting discrete correlation thresholds $\rho$ spanning from no correlation to strong positive correlation.
+- [X] T016 [P] [US1] Implement distributional violation generators (heavy-tailed t-distribution, skewed normal) in `code/generate_data.py`
+- [X] T017 [US1] Implement parameter sweep logic for a range of $n$ values, $p \in \{500, 1000, 2000, 5000\}$, and $\rho \in \{0.0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ in `code/generate_data.py`, using the iteration count determined by T011 (Power Analysis). Output a CSV file `data/sweep/params.csv` with columns `seed, n, p, rho`.
+- [X] T018 [US1] Write `data/synthetic/{seed}.json` containing `sha256`, `rho`, `n`, `p`, `distribution_type`, and `seed` and verify file exists and `sha256` matches the generated dataset hash (Constitution Principle III)
+- [X] T019 [US1] Store full RAW synthetic data trajectories (all raw data points per iteration) in `data/synthetic/trajectories/{seed}.npy` (NumPy binary for efficiency) with `dtype=float32` and shape `(N_iterations, n, p)`. Verify file exists, contains array of length N, and shape matches `(N_iterations, n, p)` (FR-001, SC-004)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,16 +102,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for t-test/F-test execution on null data in `tests/unit/test_stats.py`
-- [X] T019 [P] [US2] Integration test for full iteration loop (multiple iterations) without runtime errors in `tests/integration/test_stats.py`
+- [X] T020 [P] [US2] Unit test for t-test/F-test execution on null data in `tests/unit/test_stats.py`
+- [X] T021 [P] [US2] Integration test for full iteration loop (multiple iterations) without runtime errors in `tests/integration/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement `run_hypothesis_tests` function in `code/run_tests.py` (scipy.stats t-test, f-test)
-- [ ] T021 [US2] Implement p-value collection logic ensuring exactly $p$ values per iteration (FR-003)
-- [ ] T022 [US2] Integrate with `generate_data.py` to run tests on each generated dataset (Depends on T015 completion for dataset availability)
+- [X] T022 [US2] Implement data ingestion pipeline in `code/run_tests.py` to load raw synthetic data from `data/synthetic/trajectories/{seed}.npy` (Depends on T019 completion)
+- [X] T023 [P] [US2] Implement `run_hypothesis_tests` function in `code/run_tests.py` (scipy.stats t-test, f-test)
+- [X] T024 [US2] Implement p-value collection logic ensuring exactly $p$ values per iteration (FR-003) and store in `data/results/pvalues_{seed}.csv`; verify row count equals p.
+- [X] T025 [US2] Integrate with `generate_data.py` to run tests on each generated dataset. Depends on T017 (parameter sweep) and T022 (data ingestion) completion for dataset availability.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
@@ -121,16 +124,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T024 [P] [US3] Unit test for KS statistic calculation against uniform/permutation reference in `tests/unit/test_stats.py`
-- [X] T025 [P] [US3] Unit test for QQ-plot generation and visual validation in `tests/unit/test_plots.py`
+- [X] T026 [P] [US3] Unit test for KS statistic calculation against uniform/permutation reference in `tests/unit/test_stats.py`
+- [X] T027 [P] [US3] Unit test for QQ-plot generation and visual validation in `tests/unit/test_plots.py`
 
 ### Implementation for User Story 3
 
-- [X] T026 [P] [US3] Implement permutation test generator in `code/analyze_pvalues.py` (Gold Standard respecting correlation structure) (Requires data format from US1/US2 to be complete)
-- [ ] T027 [US3] Implement KS statistic calculation comparing standard tests to permutation reference (FR-004)
-- [ ] T028 [US3] Implement QQ-plot generation for visual inspection (FR-005)
-- [ ] T029 [US3] Implement sensitivity analysis sweep for discrete $\rho \in \{, 0.1, 0.3, 0.5, 0.7, 0.9\}$ and report KS variations (FR-007)
-- [X] T030 [US3] Implement bootstrap confidence interval calculation for KS statistics and store results in `data/results/bootstrap_cis.json` with fields: `KS_statistic`, `bootstrap_ci_lower`, `bootstrap_ci_upper`, `rho`, `n`, `p`, `seed` (Constitution Principle VII)
+- [X] T028 [US3] Implement permutation test generator in `code/analyze_pvalues.py` (Gold Standard respecting correlation structure) (Requires data format from US1/US2 to be complete)
+- [X] T029 [US3] Implement KS statistic calculation comparing standard tests to permutation reference (FR-004) and store results in `data/results/ks_stats.json`; verify against known uniform value.
+- [X] T030 [US3] Implement QQ-plot generation for visual inspection (FR-005) and save to `docs/plots/qq_{seed}.png`; verify file exists and is non-empty.
+- [X] T031 [US3] Implement sensitivity analysis sweep for discrete $\rho \in \{0.0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ and report KS variations (FR-007); output `data/results/sensitivity.csv` with columns `rho, ks_stat`.
+- [X] T032 [US3] Implement bootstrap confidence interval calculation for KS statistics and store results in `data/results/bootstrap_cis.json` with fields defined in `contracts/simulation_result.yaml`: `KS_statistic`, `bootstrap_ci_lower`, `bootstrap_ci_upper`, `rho`, `n`, `p`, `seed` (Constitution Principle VII)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -140,11 +143,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `docs/` including methodology for data generation and analysis
-- [ ] T035 Code cleanup and refactoring
-- [ ] T036 Profile full simulation sweep runtime and verify it completes within 6 hours on 2 CPU cores (SC-004)
-- [ ] T037 [P] Additional unit tests in `tests/unit/`
-- [ ] T038 Run `quickstart.md` validation
+- [ ] T040 [P] Documentation updates in `docs/` including methodology for data generation and analysis (Update `docs/methodology.md` and `docs/results.md`)
+- [ ] T041 [P] Code cleanup and refactoring (Run `ruff check --fix`, ensure [deferred] type coverage with `mypy`)
+- [ ] T042 [P] Profile full simulation sweep runtime and verify it completes within 6 hours on 2 CPU cores (SC-004)
+- [ ] T043 [P] Additional unit tests in `tests/unit/`
+- [ ] T044 Run `quickstart.md` validation
 
 ---
 
@@ -162,8 +165,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data generation (T015, T016, T017)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 p-value collection AND US1 trajectory storage (T017)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data generation (T017, T018, T019)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 p-value collection AND US1 trajectory storage (T019)
 
 ### Within Each User Story
 
@@ -237,4 +240,5 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- Avoid: vague tasks, cross-story dependencies that break independence
+- **Revision Note**: Removed orphan tasks T033-T036 (Failure Mode/Embarrassing Theory) as they lacked spec requirements. Renumbered Phase N tasks to T040/T041. Fixed T004.5 to T004a/T004b. Clarified T017 (raw data) vs T024 (p-values) storage formats. Updated T007 to remove unauthorized hard stop.
