@@ -1,23 +1,11 @@
-- artifact_hash: 05cbc7d752e53616b59eb1634fac6710e9f70da7b88542af6c2e4e72ab896844
-  artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/quickstart.md
+- artifact_hash: 9bee0cb80e0a0a53fbab7c633fa7c0b89d75813cf5cd930ad290d52d23b3acb5
+  artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/your-org/llmxive.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive
-  verified_at: '2026-07-23T13:31:29.065024Z'
-- artifact_hash: 7c39f39a3106f54170a77feeba5c4e9d70032dd8ddf4d941e94ee87fdae0853c
-  artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2605.22529] Stabilising Explainability Fragility in Cybersecurity
-    AI: The Impact and Mitigation of Multicollinearity in Public Benchmark Datasets'
-  kind: url
-  value: https://arxiv.org/abs/2605.22529
+  value: https://huggingface.co/datasets/MSD-Team/msd-10k`
   verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2605.22529
-  verified_at: '2026-07-31T13:26:18.164969Z'
+  verified_against_url: https://huggingface.co/datasets/MSD-Team/msd-10k
+  verified_at: '2026-08-09T08:32:35.679161Z'

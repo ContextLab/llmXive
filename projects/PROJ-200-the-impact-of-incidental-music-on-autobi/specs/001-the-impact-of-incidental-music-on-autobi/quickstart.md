@@ -3,96 +3,73 @@
 ## Prerequisites
 
 - Python 3.11+
-- `git`
-- Access to the project repository
+- `pip` or `conda`
 
 ## Installation
 
 1. **Clone the repository**:
- ```bash
- git clone
- cd projects/PROJ-200-the-impact-of-incidental-music-on-autobi
- ```
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-200-the-impact-of-incidental-music-on-autobi
+   ```
 
 2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
 3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
-
- *Note: `requirements.txt` pins exact versions to ensure reproducibility (Constitution Principle I).*
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Running the Pipeline
 
-The pipeline is executed in sequential stages. Each stage produces intermediate artifacts.
-
-### Step 1: Data Download & Ingestion
+### 1. Download Data
+Fetch the MSD track metadata (streamed) and generate simulated AMT data.
 ```bash
-python code/01_download_data.py
+python code/main.py --step download
 ```
-- Downloads the simulated datasets (mock MSD/AMT) to `data/raw/`.
-- Computes checksums and records them in `state.yaml`.
+*Output*: `data/raw/msd_tracks.jsonl`, `data/simulated_amt_data.parquet` (generated).
 
-### Step 2: Preprocessing & Matching
+### 2. Ingest & Aggregate
+Parse data, match cues, calculate exposure ratios, and filter.
 ```bash
-python code/02_preprocess.py
+python code/main.py --step ingest
 ```
-- Cleans data, handles missing values.
-- Performs Levenshtein matching for cue-text to track-name.
-- Filters low-confidence matches (logs warnings if match rate < 80% per SC-004).
-- Outputs: `data/processed/ingested_cohort.parquet`.
+*Output*: `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`.
 
-### Step 3: Aggregation & Exposure Calculation
+### 3. Run Analysis
+Fit the LMM, run sensitivity analysis, and perform permutation tests.
 ```bash
-python code/03_aggregate.py
-python code/04_exposure.py
+python code/main.py --step analyze
 ```
-- Aggregates data to User-Track Pair level.
-- Calculates `adolescent_exposure_ratio` (FR-001).
-- Checks for missing birth years (>50%) and triggers exclusion logic (FR-008, EC-001).
-- Filters by `total_listens` >= 3 (FR-009).
-- Outputs: `data/processed/user_track_pairs.parquet`.
+*Output*: `data/final/regression_summary.csv`, `data/final/sensitivity_analysis.csv`, `data/final/permutation_results.csv`, `data/final/plots/`.
 
-### Step 4: Modeling & Sensitivity Analysis
+### 4. Update State
+Verify checksums and update `state.yaml`.
 ```bash
-python code/05_model.py
-python code/06_sensitivity.py
+python code/main.py --step verify
 ```
-- Fits LMM for each Levenshtein threshold (1-5). **Aggregation is re-run for each threshold.**
-- Checks VIF (EC-003).
-- Performs parametric bootstrap (replaces block-permutation).
-- Outputs: `data/final/regression_summary.csv`, `data/final/bootstrap_results.csv`, `data/final/sensitivity_analysis.csv`.
 
-### Step 5: Selection Bias Correction
+## Full Run (Single Command)
+To run the entire pipeline from scratch:
 ```bash
-python code/07_selection_correction.py
+python code/main.py --full-run
 ```
-- Applies Heckman correction to account for non-random cue selection.
-- Outputs: `data/final/selection_correction.csv`.
 
-### Step 6: Visualization
-```bash
-python code/08_visualize.py
-```
-- Generates diagnostic plots (residuals, QQ plots).
-- Outputs: `data/final/plots/`.
+## Expected Outputs
 
-## Validation
-
-Run the test suite to verify the pipeline logic:
-```bash
-pytest tests/
-```
-- **Unit Tests**: Verify exposure calculation, fallback logic, and VIF checks.
-- **Integration Tests**: Run the full pipeline on a small mock dataset to ensure end-to-end flow.
+- `data/processed/user_track_pairs.parquet`: The core analysis dataset.
+- `data/final/regression_summary.csv`: Primary results (coefficient for `logit_ratio`).
+- `data/final/plots/residuals.png`: Diagnostic plot.
+- `state.yaml`: Updated with artifact hashes.
 
 ## Troubleshooting
 
-- **Missing Birth Years**: If users are excluded, check `data/processed/user_track_pairs.parquet` for the `is_excluded_from_primary` flag.
-- **Low Match Rate**: If the warning is logged, review `data/processed/ingested_cohort.parquet` for the distribution of Levenshtein scores.
-- **Multicollinearity**: If VIF > 5, review `data/final/regression_summary.csv` and consider removing the correlated predictor.
+- **Missing Birth Years**: If >50% of birth years are missing, the pipeline will log a warning and use the "Global Exposure" fallback for sensitivity analysis only.
+- **Low Match Rate**: If match rate < 80%, a warning is logged, but the pipeline proceeds.
+- **Memory Error**: Ensure `streaming=True` is used in `datasets` (handled automatically by `download.py`).
+- **Ratio Instability**: Users with `total_listens < 3` are excluded from the primary analysis.
+- **Missing Output Files**: If `data/processed/*.parquet` files are missing, ensure the `ingest` step completed successfully. The pipeline validates their existence before analysis.

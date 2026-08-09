@@ -1,101 +1,89 @@
 # Data Model: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-## 1. Entity Relationship Overview
+## 1. Data Flow Diagram
 
-The data model is designed to support the User-Track Pair aggregation (FR-004) and the subsequent mixed-effects modeling (FR-005).
+```mermaid
+graph TD
+    A[Raw MSD JSONL] -->|Stream & Parse| B(ingested_cohort.parquet)
+    C[AMT Simulated Data] -->|Generate| B
+    B -->|Match Cues| D{Matched Pairs}
+    D -->|Aggregate| E(user_track_pairs.parquet)
+    E -->|Model & Test| F[regression_summary.csv]
+    E -->|Sensitivity Loop| G[sensitivity_analysis.csv]
+    E -->|Permutation| H[permutation_results.csv]
+    E -->|Plots| I[plots/]
+```
 
-### Core Entities
+## 2. Schema Definitions
 
-1.  **User**: Represents an individual participant.
-    -   Attributes: `user_id`, `birth_year` (nullable), `birth_decade` (derived).
-2.  **Track**: Represents a music track.
-    -   Attributes: `track_id`, `track_name`, `release_date`, `popularity`, `artist_id`.
-3.  **ListenEvent**: A single listening instance.
-    -   Attributes: `user_id`, `track_id`, `listen_timestamp`.
-4.  **MemoryCue**: A memory association between a user and a track.
-    -   Attributes: `user_id`, `track_id`, `cue_text`, `vividness`, `valence`, `match_confidence` (Levenshtein score).
+### 2.1 `ingested_cohort.parquet`
+*Intermediate dataset combining MSD metadata and simulated AMT cues.*
 
-## 2. Aggregated Data Model (User-Track Pair)
-
-The primary analysis dataset is the **User-Track Pair** (FR-004).
-
-### Schema: `user_track_pair`
-
-| Column | Type | Description | Source |
-|--------|------|-------------|--------|
-| `user_id` | string | Unique user identifier | ListenEvent |
-| `track_id` | string | Unique track identifier | ListenEvent, MemoryCue |
-| `birth_year` | int | User's birth year (nullable) | User |
-| `adolescent_exposure_ratio` | float | Ratio of listens during adolescence (0-15) to total listens | Calculated (FR-001) |
-| `total_listens` | int | Total number of listens for this user-track pair | ListenEvent |
-| `mean_vividness` | float | Average vividness rating (1-7 scale) | MemoryCue |
-| `mean_valence` | float | Average valence rating (-3 to +3 scale) | MemoryCue |
-| `n_cues` | int | Number of memory cues for this pair | MemoryCue |
-| `popularity` | float | Track popularity score (0-100) | Track |
-| `match_threshold` | int | Levenshtein threshold used for matching (1-5) | Config |
-| `global_exposure_proxy` | float | Global exposure metric if birth_year is missing (FR-008) | Calculated |
-| `is_excluded_from_primary` | boolean | True if user has missing birth year and is excluded from primary LMM | Derived |
-| `is_simulated` | boolean | True if data is generated for prototype validation | Config |
-
-### Derived Variables
-
--   **`adolescent_exposure_ratio`**:
-    -   Calculation: `count(listens where listen_year in [birth_year, birth_year+15]) / count(all listens)`
-    -   Fallback: If `birth_year` is missing, `adolescent_exposure_ratio` is set to `NaN` and `is_excluded_from_primary` is set to `True`.
--   **`birth_decade`**: `floor(birth_year / 10) * 10` (used for fallback grouping).
--   **`global_exposure_proxy`**:
-    -   Calculation: Mean `adolescent_exposure_ratio` across all tracks in the user's birth decade (for users with missing birth year).
-    -   Usage: **Descriptive only**. Not used as a predictor in the primary LMM.
-
-## 3. Intermediate Data Models
-
-### Ingested Cohort (`ingested_cohort`)
-Raw data after initial cleaning and matching.
--   Contains `user_id`, `track_id`, `listen_timestamp`, `birth_year`, `cue_text`, `vividness`, `valence`, `match_score`.
--   Used to validate data quality (US-002, SC-004).
-
-### Sensitivity Analysis Dataset
-A collection of `user_track_pair` datasets, one for each Levenshtein threshold (1-5).
--   Stored as a list of DataFrames or separate Parquet files.
-
-## 4. Output Data Models
-
-### Regression Summary (`regression_summary.csv`)
 | Column | Type | Description |
-|--------|------|-------------|
-| `threshold` | int | Levenshtein threshold used |
-| `coef_adolescent_exposure` | float | Coefficient for `adolescent_exposure_ratio` |
-| `std_err` | float | Standard error of the coefficient |
-| `t_stat` | float | T-statistic |
-| `p_value` | float | P-value from LMM |
-| `vif_exposure` | float | VIF for exposure variable |
-| `vif_popularity` | float | VIF for popularity variable |
-| `n_observations` | int | Number of User-Track pairs |
-| `n_users` | int | Number of users |
-| `is_simulated` | boolean | True if data is simulated |
+| :--- | :--- | :--- |
+| `user_id` | string | Unique user identifier. |
+| `track_id` | string | Unique track identifier (from MSD). |
+| `birth_year` | int | User's birth year (may be null). |
+| `cue_text` | string | Free-text memory cue from AMT. |
+| `vividness` | int | Rating 1-7. |
+| `valence` | int | Rating 1-7. |
+| `track_release_year` | int | Year track was released. |
+| `popularity` | float | Track popularity score. |
+| `listen_timestamp` | datetime | Simulated listen timestamp. |
+| `is_adolescent_listen` | bool | True if listen occurred between `birth_year` and `birth_year + 15`. |
 
-### Bootstrap Results (`bootstrap_results.csv`)
+### 2.2 `user_track_pairs.parquet`
+*Final analysis dataset (One row per User-Track Pair).*
+
 | Column | Type | Description |
-|--------|------|-------------|
-| `threshold` | int | Levenshtein threshold used |
-| `observed_coef` | float | Observed coefficient from original model |
-| `bootstrap_coef_mean` | float | Mean of bootstrap distribution |
-| `bootstrap_coef_std` | float | Std dev of bootstrap distribution |
-| `p_value_bootstrap` | float | Bootstrap p-value |
-| `n_bootstraps` | int | Number of bootstraps (1000) |
+| :--- | :--- | :--- |
+| `user_id` | string | User identifier. |
+| `track_id` | string | Track identifier. |
+| `total_listens` | int | Total listens for this pair. |
+| `adolescent_listens` | int | Listens during adolescence. |
+| `adolescent_exposure_ratio` | float | `adolescent_listens / total_listens`. |
+| `logit_ratio` | float | Logit transformation of `adolescent_exposure_ratio`. |
+| `mean_vividness` | float | Average vividness rating. |
+| `mean_valence` | float | Average valence rating. |
+| `track_popularity` | float | Popularity score (control). |
+| `match_threshold_used` | int | Levenshtein threshold used for matching. |
+| `n_cues` | int | Number of memory cues for this pair. |
+| `global_exposure_proxy` | float | Population-level proxy for missing birth years (used in sensitivity only). |
 
-### Selection Correction Results (`selection_correction.csv`)
+### 2.3 `regression_summary.csv`
+*Model coefficients and statistics.*
+
 | Column | Type | Description |
-|--------|------|-------------|
-| `threshold` | int | Levenshtein threshold used |
-| `coef_adolescent_exposure_corrected` | float | Coefficient after Heckman correction |
-| `inverted_mills_ratio_coef` | float | Coefficient for the inverse Mills ratio |
-| `p_value_corrected` | float | P-value after correction |
+| :--- | :--- | :--- |
+| `term` | string | Variable name (e.g., `logit_ratio`). |
+| `estimate` | float | Coefficient estimate. |
+| `std_error` | float | Standard error. |
+| `t_value` | float | t-statistic. |
+| `p_value` | float | P-value (from permutation test). |
+| `vif` | float | Variance Inflation Factor. |
 
-## 5. Data Quality Constraints
+### 2.4 `sensitivity_analysis.csv`
+*Results across matching thresholds.*
 
--   **Missing Birth Year**: If `birth_year` is null, `adolescent_exposure_ratio` is set to `NaN` and `is_excluded_from_primary` is set to `True`.
--   **Zero Variance**: Tracks with `n_cues` = 0 are filtered out (EC-002).
--   **Minimum Listens**: `total_listens` < 3 are filtered out (FR-009).
--   **Match Rate**: If match rate < 80%, a warning is logged (SC-004).
--   **Simulation Flag**: `is_simulated` is set to `True` for the prototype run.
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `threshold` | int | Levenshtein threshold (1-5). |
+| `match_rate` | float | Percentage of cues matched. |
+| `coef_estimate` | float | Coefficient for `logit_ratio`. |
+| `p_value` | float | P-value. |
+
+### 2.5 `permutation_results.csv`
+*Null distribution and observed statistic.*
+
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `iteration` | int | Permutation iteration ID. |
+| `coef_null` | float | Coefficient from permuted data. |
+| `coef_observed` | float | (Repeated) Observed coefficient. |
+
+## 3. Data Hygiene & Versioning
+
+- **Checksums**: All parquet and CSV files are checksummed (SHA-256) upon creation.
+- **State Tracking**: `state.yaml` maintains `artifact_hashes` for all generated files.
+- **Immutability**: Raw data in `data/raw/` is never modified. All transformations produce new files in `data/processed/` or `data/final/`.
+- **File Existence**: The pipeline explicitly writes `data/processed/ingested_cohort.parquet` and `data/processed/user_track_pairs.parquet` to these exact paths. A validation step (T050) verifies their existence and non-empty status before proceeding.

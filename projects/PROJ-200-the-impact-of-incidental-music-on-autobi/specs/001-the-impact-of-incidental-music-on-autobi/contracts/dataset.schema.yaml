@@ -1,62 +1,64 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "User-Track Pair Dataset Schema"
-description: "Schema for the aggregated analysis dataset at the User-Track Pair level. Matches FR-001 (adolescent_exposure_ratio) and FR-004 (User-Track Pair)."
-type: "object"
+title: "User-Track Pair Analysis Dataset"
+description: "Schema for data/processed/user_track_pairs.parquet"
+type: object
 properties:
   user_id:
-    type: "string"
-    description: "Unique identifier for the user."
+    type: string
+    description: "Unique user identifier"
   track_id:
-    type: "string"
-    description: "Unique identifier for the track."
+    type: string
+    description: "Unique track identifier"
+  total_listens:
+    type: integer
+    description: "Total listens for this pair"
+    minimum: 3
+  adolescent_listens:
+    type: integer
+    description: "Listens during adolescence"
+    minimum: 0
+  adolescent_exposure_ratio:
+    type: number
+    description: "Ratio of adolescent listens to total listens"
+    minimum: 0.0
+    maximum: 1.0
+  logit_ratio:
+    type: number
+    description: "Logit transformation of adolescent_exposure_ratio"
   mean_vividness:
-    type: "number"
-    description: "Average vividness rating for the user-track pair."
+    type: number
+    description: "Average vividness rating (1-7)"
     minimum: 1.0
     maximum: 7.0
   mean_valence:
-    type: "number"
-    description: "Average valence rating for the user-track pair."
-  adolescent_exposure_ratio:
-    type: "number"
-    description: "Raw ratio of listens during adolescence (birth year to birth year + 15) to total listens. (FR-001)."
-  log_odds_preference:
-    type: "number"
-    description: "Log-odds of adolescent preference (Valid Metric)."
-  popularity:
-    type: "number"
-    description: "Overall popularity score of the track."
+    type: number
+    description: "Average valence rating (1-7)"
+    minimum: 1.0
+    maximum: 7.0
+  track_popularity:
+    type: number
+    description: "Track popularity score"
+  match_threshold_used:
+    type: integer
+    description: "Levenshtein threshold used"
+    enum: [1, 2, 3, 4, 5]
   n_cues:
-    type: "integer"
-    description: "Number of memory cues matched for this pair."
+    type: integer
+    description: "Number of memory cues"
     minimum: 1
-  total_listens:
-    type: "integer"
-    description: "Total number of listens for this user-track pair."
-    minimum: 3
-  birth_year:
-    type:
-      - "integer"
-      - "null"
-    description: "User's birth year. May be null."
   global_exposure_proxy:
-    type:
-      - "number"
-      - "null"
-    description: "Global exposure metric if birth_year is missing (FR-008). Used for descriptive analysis only."
-  is_excluded_from_primary:
-    type: "boolean"
-    description: "True if user has missing birth year and is excluded from primary LMM."
-  is_simulated:
-    type: "boolean"
-    description: "True if data is generated for prototype validation."
+    type: number
+    description: "Population-level proxy for missing birth years"
 required:
   - user_id
   - track_id
-  - mean_vividness
-  - adolescent_exposure_ratio
-  - popularity
-  - n_cues
   - total_listens
-  - match_threshold
+  - adolescent_listens
+  - adolescent_exposure_ratio
+  - logit_ratio
+  - mean_vividness
+  - mean_valence
+  - track_popularity
+  - match_threshold_used
+  - n_cues
 additionalProperties: false

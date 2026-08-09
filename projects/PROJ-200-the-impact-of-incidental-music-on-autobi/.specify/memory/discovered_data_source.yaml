@@ -1,11 +1,11 @@
 status: none
-intent: download Last.fm 1K users dataset and MusicBrainz metadata python package
-  dataset
+intent: last.fm taste profile dataset user listening logs with timestamps and user
+  birth year plus million song dataset python package dataset
 required_fields:
 - user_id
+- birth_year
 - track_id
 - listen_timestamp
-- user_birth_year
-cache_key: 1dcc8789f129b0aca9dc4b6ff69319c8d43fed8208add32d7ed92dec5d4aaf39
-searched_at: '2026-07-31T12:44:50.366275+00:00'
+cache_key: 45621f20f3c5153bd4b22beb61d9e9fc162e6ab30faf68608019b3cf47763415
+searched_at: '2026-08-09T08:20:42.387873+00:00'
 retry_count: 1

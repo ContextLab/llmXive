@@ -13,7 +13,7 @@ properties:
           description: "Levenshtein threshold."
         coef_adolescent_exposure:
           type: number
-          description: "Coefficient for adolescent_exposure_ratio."
+          description: "Coefficient for logit(adolescent_exposure_ratio)."
         std_err:
           type: number
           description: "Standard error."

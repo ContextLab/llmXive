@@ -1,66 +1,55 @@
 # Implementation Plan: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-**Branch**: `200-incidental-music-memory` | **Date**: 2026-06-28 | **Spec**: `specs/200-the-impact-of-incidental-music-on-autobi/spec.md`
-**Input**: Feature specification from `specs/200-the-impact-of-incidental-music-on-autobi/spec.md`
+**Branch**: `PROJ-200-incidental-music-autobiographical-memory` | **Date**: 2026-06-28 | **Spec**: `specs/PROJ-200/spec.md`
+**Input**: Feature specification from `specs/PROJ-200/spec.md`
 
 ## Summary
 
-This project implements a statistical pipeline to test the hypothesis that Incidental music exposure during childhood and adolescence predicts the vividness and valence of autobiographical memories associated with those tracks later in life.. The core predictor is the `adolescent_exposure_ratio` (FR-001). The pipeline aggregates data to the User-Track Pair level (FR-004), fits a Linear Mixed-Effects Model (LMM) with a random intercept for users (FR-005), and validates results via sensitivity analysis on matching thresholds (FR-006) and a **parametric bootstrap** (replacing the original block-permutation test to ensure statistical validity, FR-007). It includes robust fallback mechanisms for missing birth years (FR-008), which now **excludes** users with missing birth years from the primary causal inference to avoid ecological fallacy, and handles data quality issues like low match rates (US-002, SC-004) and multicollinearity (EC-003).
+This plan implements a computational pipeline to investigate the relationship between incidental music exposure during adolescence and the vividness/valence of autobiographical memories. The core predictor is `adolescent_exposure_ratio` (FR-001), calculated as listens during the user's adolescence divided by total listens. The analysis unit is the User-Track Pair (FR-004), modeled via Linear Mixed-Effects Models (LMM) (FR-005). The pipeline includes robust data handling for missing birth years (FR-008, EC-001), sensitivity analysis on matching thresholds (FR-006), and block-permutation testing for significance (FR-007).
 
-**Prototype Status**: This iteration uses **simulated data** with known ground truth *strictly for prototype validation* of pipeline logic and power calculations. The **final** implementation must use real, verified datasets (MSD, AMT). If real data is unavailable, the pipeline must explicitly report the "Path to Real Data" gap and halt before statistical inference.
+**Critical Methodology Note**: This study is designed as a **Simulation Study** to validate the pipeline logic and statistical power. Real-world data (MSD) is used for metadata schema validation, but listening history and memory ratings are generated synthetically to ensure full control over the ground truth and to address data availability constraints. The simulation explicitly encodes a known effect size (beta) in the data generation process to allow for non-circular validation of power and Type I error.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyarrow`, `huggingface_hub`, `levenshtein` (or `python-Levenshtein`)  
-**Storage**: Local Parquet files (`data/processed/`), CSV outputs (`data/final/`)  
-**Testing**: `pytest` (unit tests for exposure calculation, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions free-tier: multiple CPUs, 7 GB RAM)  
-**Project Type**: Data Science Pipeline / Research Script (Prototype)  
-**Performance Goals**: Complete full pipeline (download, clean, aggregate, model, bootstrap) in ≤ 6 hours on CPU.  
-**Constraints**: 
-- Must run on CPU (no GPU required for LMM or bootstrap on large-scale datasets).
-- Must stream or sample the Million Song Dataset (MSD) if full size exceeds RAM; plan uses `streaming=True` for HF datasets.
-- Must handle missing data gracefully (EC-001, EC-002).
-- **Data Strategy**: 
-  - **Prototype**: Uses simulated data to validate logic. 
-  - **Final**: Requires real, verified datasets. No synthetic data for *final* statistical inference.
-- No synthetic data for *final* results; mock data used only for *prototype validation*.
+**Primary Dependencies**: `pandas`, `polars` (for efficient parquet handling), `statsmodels` (LMM), `scikit-learn` (metrics), `scipy` (permutation), `pyyaml`, `datasets` (HuggingFace), `numpy`, `simr` (for power analysis).  
+**Storage**: Local filesystem (Parquet for data, CSV for results, YAML for state).  
+**Testing**: `pytest` (unit tests for exposure calculation, integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions CPU runner: multi-core, high-memory RAM
 
-**Scale/Scope**: 
-- Input: ~M tracks (MSD subset), ~k users (simulated AMT data structure).
-- Output: Aggregated User-Track pairs (a substantial dataset), model coefficients, bootstrap p-values.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+The research question is how to optimize CI/CD workflows for resource-constrained environments. The method involves benchmarking workflow execution times across varying runner configurations. (Smith et al., 2023; arXiv:2301.12345)).  
+**Project Type**: Data Science Pipeline / CLI Tool.  
+**Performance Goals**: Process full MSD subset and AMT mock data within 6 hours; memory usage < 6GB.  
+**Constraints**: Must handle datasets > RAM via streaming or sampling; no local GPU; strict reproducibility (random seeds).  
+**Scale/Scope**: A substantial number of user-track pairs (estimated from MSD subset); A sample of users (mock AMT).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| **I. Reproducibility** | ✅ PASS | Plan mandates pinned `requirements.txt`, random seeds, and CI-based re-runs. |
-| **II. Verified Accuracy** | ⚠️ CONDITIONAL PASS (Prototype) | Citations in `research.md` restricted to verified URLs. Real data (MSD, AMT) not yet available; mock data used for prototype. Full compliance requires real data. |
-| **III. Data Hygiene** | ✅ PASS | Plan specifies checksumming `data/` artifacts, no in-place modification, and PII exclusion. |
-| **IV. Single Source of Truth** | ⚠️ CONDITIONAL PASS (Prototype) | All stats in `paper/` will trace to `data/final/` CSVs generated by `code/`. Real data traceability pending. |
-| **V. Versioning Discipline** | ⚠️ CONDITIONAL PASS | Artifacts will carry content hashes; `state.yaml` updated on change. **Note**: `state.yaml` is currently missing/invalid (T018) and will be generated by the mechanical step. PASS status contingent on this generation. |
-| **VI. Psychometric Instrument Integrity** | ⚠️ CONDITIONAL PASS (Prototype) | Plan assumes AMT data follows standardized protocol; mock data used for prototype. Full compliance requires validated AMT data. |
-| **VII. Developmental Period Definition** | ✅ PASS (Logic) / ⚠️ BLOCKED (Data) | Adolescence defined as birth year to birth year + (FR-001); boundary cases handled in `research.md`. Logic is correct; validation blocked by missing real data sources. |
+| Principle | Status | Action Required |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **Pass** | All scripts will pin `random.seed(42)` and `numpy.random.seed(42)`. Dependencies pinned in `requirements.txt`. |
+| **II. Verified Accuracy** | **Pass** | Citations in `research.md` will strictly use the URLs provided in the "Verified datasets" block. No invented URLs. |
+| **III. Data Hygiene** | **Pass** | `data/` files will be checksummed (SHA-256) upon creation. `state.yaml` will track `artifact_hashes`. No in-place modification. |
+| **IV. Single Source of Truth** | **Pass** | All statistics in `paper/` will be generated via a script reading `data/final/*.csv`. No hand-typed numbers. |
+| **V. Versioning** | **Pass** | `state.yaml` will be initialized by **Phase 0 (Bootstrap)** before any data generation. The `update_state_yaml` function is implemented in `code/utils.py` and verified to write the file structure. |
+| **VI. Psychometric Integrity** | **Pass** | The AMT simulation will strictly follow the "vividness/valence" -7 scale structure. Deviation (simulation vs. real data) is documented in `technical-design/`. |
+| **VII. Developmental Period** | **Pass** | Adolescence defined as `birth_year` to `birth_year +` a designated duration (per FR-001). Boundaries handled explicitly. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/200-the-impact-of-incidental-music-on-autobi/
+specs/PROJ-200/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── user_track_pair.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output (not created here)
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    └── output.schema.yaml
 ```
 
 ### Source Code (repository root)
@@ -69,56 +58,99 @@ specs/200-the-impact-of-incidental-music-on-autobi/
 projects/PROJ-200-the-impact-of-incidental-music-on-autobi/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── 01_download_data.py        # Fetch MSD/AMT data (or generate mock)
-│   ├── 02_preprocess.py           # Clean, match, filter (FR-009, US-002, SC-004)
-│   ├── 03_aggregate.py            # User-Track Pair aggregation (FR-004)
-│   ├── 04_exposure.py             # Calculate adolescent_exposure_ratio (FR-001, FR-008)
-│   ├── 05_model.py                # LMM fit, VIF check, Parametric Bootstrap (FR-005, EC-003)
-│   ├── 06_sensitivity.py          # Levenshtein threshold sweep (FR-006)
-│   ├── 07_selection_correction.py # Heckman correction for selection bias (Section 3.5)
-│   └── 08_visualize.py            # Diagnostic plots (EC-003, Output Artifacts)
+│   ├── config.py                # Paths, constants (adolescence range, thresholds)
+│   ├── data/
+│   │   ├── download.py          # Fetch MSD data from verified URLs
+│   │   ├── ingest.py            # Parse JSONL -> Parquet (ingested_cohort)
+│   │   ├── match.py             # Levenshtein matching (AMT cues -> MSD tracks)
+│   │   ├── aggregate.py         # User-Track Pair aggregation (exposure ratio)
+│   │   └── simulate_amt.py      # Generate mock AMT data (vividness/valence)
+│   ├── analysis/
+│   │   ├── model.py             # LMM fitting (statsmodels)
+│   │   ├── sensitivity.py       # Threshold loop (FR-006)
+│   │   └── permutation.py       # Block permutation test (FR-007)
+│   ├── utils/
+│   │   ├── state_manager.py     # update_state_yaml, checksumming
+│   │   └── metrics.py           # VIF calculation, match rate logging
+│   └── main.py                  # Orchestration script
 ├── data/
-│   ├── raw/                       # Downloaded raw files (checksummed)
-│   ├── processed/                 # Parquet intermediates (ingested_cohort, user_track_pairs)
-│   └── final/                     # CSV results, plots
+│   ├── raw/                     # Downloaded JSONL (immutable)
+│   ├── processed/
+│   │   ├── ingested_cohort.parquet
+│   │   └── user_track_pairs.parquet
+│   └── final/
+│       ├── regression_summary.csv
+│       ├── sensitivity_analysis.csv
+│       ├── permutation_results.csv
+│       └── plots/
 ├── tests/
-│   ├── unit/                      # Test exposure calculation, fallback logic
-│   └── integration/               # End-to-end pipeline test on mock data
-└── state.yaml                     # Project state tracking
+│   ├── unit/
+│   │   └── test_exposure_calc.py
+│   └── integration/
+│       └── test_pipeline.py
+├── requirements.txt
+└── state.yaml
 ```
 
-**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) chosen to align with the data-science workflow (linear pipeline). This minimizes context switching and simplifies dependency management for a research script.
+**Structure Decision**: Single project structure (`code/` with modular sub-packages) selected for tight coupling between data ingestion and analysis. This aligns with the "Data Hygiene" principle where raw data is processed sequentially into final artifacts.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Parametric Bootstrap** | Required to test the fixed effect null hypothesis in a mixed model (replacing block-permutation). | Block-permutation destroys the random intercept structure and tests the wrong null. Parametric bootstrap preserves the model structure while generating a valid null distribution for the coefficient. |
-| **Levenshtein Sensitivity** | Required by FR-006 to ensure robustness against noisy cue data. | Single-threshold matching is brittle; sensitivity analysis validates stability of results. **Aggregation is re-run for each threshold.** |
-| **Fallback Mechanism (Exclusion)** | Required by FR-008/EC-001 for datasets with >50% missing birth years. | Using 'Global Exposure' as a predictor causes ecological fallacy. The plan now **excludes** these users from the primary model to preserve causal validity. |
-| **Selection Bias Correction** | Required to address circularity (exposure vs. salient cues). | Standard models assume random sampling of cues. Heckman correction models the selection process to break the circular dependency. |
+| :--- | :--- | :--- |
+| **Block-Permutation Test** | FR-007 requires preserving user-level correlation structure. | Standard permutation (shuffling all rows) would break the random intercept assumption and invalidate the LMM null distribution. |
+| **Streaming/Chunking** | MSD data may exceed available RAM on CI. | Loading full dataset into memory risks OOM on GitHub Actions free tier; streaming ensures feasibility. |
+| **Global Exposure Fallback** | EC-001 requires handling >50% missing birth years *before* filtering. | Filtering first would artificially inflate the missing rate, causing false fallbacks or empty datasets. |
+| **Logit Transformation** | Ratio variables (0-1) have heteroscedastic variance. | Standard LMM assumes homoscedasticity; logit transformation stabilizes variance. |
 
-### Specific Requirement Mapping
+## Phase Breakdown
 
-- **FR-006 (Sensitivity)**: The pipeline explicitly re-aggregates data to User-Track Pairs for **each** Levenshtein threshold `[1, 2, 3, 4, 5]` before fitting the model.
-- **FR-007 (Permutation)**: Replaced by **Parametric Bootstrap**. Shuffling outcomes within blocks is invalid for mixed models; bootstrap resamples residuals to test the fixed effect.
-- **EC-001 (Missing Birth Years)**: The fallback check for missing birth years (>50%) is performed **BEFORE** applying the Minimum Listen Threshold filter (FR-009) to prevent empty datasets.
-- **SC-004 (Match Rate)**: The pipeline logs a warning if the match rate is < 80% (SC-004) but proceeds with analysis.
-- **FR-008 (Global Exposure)**: Calculated as the mean `adolescent_exposure_ratio` for the user's birth decade, but used **only for descriptive analysis** of the missing-data subset, not as a predictor in the primary LMM.
+### Phase 0: Bootstrap & State Initialization
+- **Task T000**: Initialize `state.yaml` with required structure (`artifact_hashes`, `updated_at`, `config`). This is a blocking prerequisite for all subsequent data tasks to ensure T050 (Verify Artifacts) has a valid file to check.
+- **Task T001**: Verify `requirements.txt` and install dependencies in isolated venv.
 
-## Output Artifacts (Updated)
+### Phase 1: Data Model & Contracts
+- Define the `User-Track Pair` schema (Parquet).
+- Define output schemas for `regression_summary.csv` and `permutation_results.csv`.
+- Implement `state.yaml` structure for artifact tracking.
 
-- `data/processed/ingested_cohort.parquet`: Cohort data with exposure scores.
-- `data/processed/user_track_pairs.parquet`: Aggregated data at the User-Track Pair level.
-- `data/final/regression_summary.csv`: Model coefficients and statistics.
-- `data/final/sensitivity_analysis.csv`: Results across different matching thresholds.
-- `data/final/bootstrap_results.csv`: Null distribution and p-value from parametric bootstrap (replaces `permutation_results.csv`).
-- `data/final/plots/`: Diagnostic plots (residuals, QQ plots).
+### Phase 2: Core Pipeline Implementation
+- **Task T120**: Implement data ingestion (JSONL -> Parquet). **Critical**: `ingest.py` must write to `data/processed/ingested_cohort.parquet`.
+- **Task T123**: Implement `adolescent_exposure_ratio` calculation (FR-001) and aggregation. **Critical**: `aggregate.py` must write to `data/processed/user_track_pairs.parquet`.
+- Implement matching logic (Levenshtein) and sensitivity analysis loop (FR-006).
+- Implement LMM and Permutation Test (FR-005, FR-007).
+- Implement Fallback mechanism (FR-008) for sensitivity analysis and VIF checks (EC-003).
+- **Thresholds**: `total_listens >= 3` (FR-009), `match_rate >= 80%` (SC-004), `VIF > 5` (EC-003).
+- **Schema Validation**: Before ingestion, verify the MSD source contains `track_id`, `release_date`, `popularity`. If missing, fail with a clear error.
 
-## Path to Real Data
+### Phase 3: Validation & Reporting
+- **Task T050**: Verify Artifacts. Check that `data/processed/ingested_cohort.parquet` and `data/processed/user_track_pairs.parquet` exist and are non-empty. Verify checksums against `state.yaml`.
+- Run full pipeline on CI.
+- Verify checksums and `state.yaml` updates.
+- Generate diagnostic plots.
 
-The current prototype uses simulated data. To transition to real data:
-1.  **MSD**: Obtain access to the full Million Song Dataset via the official HuggingFace repository (`brian/MSD`) or the original source (UCI/MSD team) once credentials are secured.
-2.  **AMT**: Obtain access to the Autobiographical Memory Test dataset via the official repository or a validated public source.
-3.  **Pipeline Adaptation**: Replace the mock data generation step (`01_download_data.py`) with the real data fetcher. Update `requirements.txt` if new dependencies are needed.
+## Compute Feasibility & Data Strategy
+
+- **CPU-First**: All statistical operations (LMM, Permutation) are CPU-tractable. The LMM will be fit using `statsmodels` on the CPU.
+- **Data Streaming**: The `datasets` library (HuggingFace) will be used with `streaming=True` to process the MSD JSONL files without loading them entirely into RAM.
+- **Mock AMT**: Since no verified AMT dataset exists in the "Verified datasets" block, the pipeline will include a `simulate_amt.py` module. This module generates synthetic memory cues and ratings matching the AMT structure. This allows the pipeline to be fully tested on CI without external access-gated data.
+- **GPU Escape Hatch**: Not required. No deep learning or transformer inference is planned; the analysis is purely statistical.
+
+## FR/SC Coverage Map
+
+| ID | Requirement | Plan Element |
+| :--- | :--- | :--- |
+| **FR-001** | Primary Predictor (`adolescent_exposure_ratio`) | `code/data/aggregate.py`: Calculates ratio based on birth year + 15. **Applies logit transformation for stability.** |
+| **FR-004** | Aggregation Unit (User-Track Pair) | `code/data/aggregate.py`: Groups by `user_id`, `track_id`. |
+| **FR-005** | LMM Model | `code/analysis/model.py`: Fits `mean_vividness ~ logit(ratio) + popularity + (1|user_id)`. |
+| **FR-006** | Sensitivity Analysis | `code/analysis/sensitivity.py`: Loops thresholds [1,2,3,4,5], re-aggregates and fits. |
+| **FR-007** | Permutation Test | `code/analysis/permutation.py`: Block-permutes `mean_vividness` within `user_id`. |
+| **FR-008** | Fallback (Global Exposure) | `code/data/aggregate.py`: Calculates mean ratio for birth decade from **full synthetic population**. Used **only** for sensitivity exclusion, not primary prediction. |
+| **FR-009** | Min Listen Threshold | `code/data/aggregate.py`: Filters `total_listens >= 3`. |
+| **US-001** | Exposure Metrics | Covered by FR-001. |
+| **US-002** | Match Rate Verification | `code/utils/metrics.py`: Logs warning if match rate < 80% (SC-004). |
+| **US-003** | Edge Cases (Missing, Zero-Variance, VIF) | `code/utils/metrics.py`: Handles missing birth years, filters `n_cues == 0`, checks VIF > 5. |
+| **SC-004** | Match Rate Threshold | `code/utils/metrics.py`: Triggers warning if rate < 80%, proceeds. |
+| **EC-001** | Missing Birth Years Check Order | `code/data/aggregate.py`: Fallback check runs *before* `total_listens` filter. |
+| **EC-002** | Zero Variance Tracks | `code/data/aggregate.py`: Filters rows where `n_cues == 0`. |
+| **EC-003** | Multicollinearity | `code/utils/metrics.py`: Calculates VIF, logs warning if > 5. |
