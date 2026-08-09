@@ -28677,7 +28677,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-08-09T00:16:12.690266+00:00",
+  "generated_at": "2026-08-09T00:20:29.950537+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -154201,7 +154201,7 @@
       },
       "authors": [
         {
-          "contributions": 1931,
+          "contributions": 1921,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -154245,83 +154245,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 4.613393,
-          "ended_at": "2026-08-09T00:15:37.486296Z",
+          "duration_s": 0.806659,
+          "ended_at": "2026-08-08T23:12:57.409229Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:15:32.872903Z"
+          "started_at": "2026-08-08T23:12:56.602570Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.953763,
-          "ended_at": "2026-08-09T00:15:32.798861Z",
+          "duration_s": 0.751555,
+          "ended_at": "2026-08-08T23:12:56.527925Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:15:27.845098Z"
+          "started_at": "2026-08-08T23:12:55.776370Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 9.839967,
-          "ended_at": "2026-08-09T00:15:27.770673Z",
+          "duration_s": 0.681894,
+          "ended_at": "2026-08-08T23:12:55.702058Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:15:17.930706Z"
+          "started_at": "2026-08-08T23:12:55.020164Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 7.281396,
-          "ended_at": "2026-08-09T00:15:17.857484Z",
+          "duration_s": 0.738953,
+          "ended_at": "2026-08-08T23:12:54.945718Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:15:10.576088Z"
+          "started_at": "2026-08-08T23:12:54.206765Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 8.099789,
-          "ended_at": "2026-08-09T00:15:10.481559Z",
+          "duration_s": 0.81697,
+          "ended_at": "2026-08-08T23:12:54.132594Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:15:02.381770Z"
+          "started_at": "2026-08-08T23:12:53.315624Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 6.793565,
-          "ended_at": "2026-08-09T00:15:02.305630Z",
+          "duration_s": 0.990292,
+          "ended_at": "2026-08-08T23:12:53.241788Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:14:55.512065Z"
+          "started_at": "2026-08-08T23:12:52.251496Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 6.795815,
-          "ended_at": "2026-08-09T00:14:55.430406Z",
+          "duration_s": 0.841876,
+          "ended_at": "2026-08-08T23:12:52.169909Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:14:48.634591Z"
+          "started_at": "2026-08-08T23:12:51.328033Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.078996,
-          "ended_at": "2026-08-09T00:14:48.488761Z",
+          "duration_s": 0.915325,
+          "ended_at": "2026-08-08T23:12:51.187422Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:14:45.409765Z"
+          "started_at": "2026-08-08T23:12:50.272097Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 6.978555,
-          "ended_at": "2026-08-09T00:14:45.332675Z",
+          "duration_s": 5.397055,
+          "ended_at": "2026-08-08T23:12:50.194038Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:14:38.354120Z"
+          "started_at": "2026-08-08T23:12:44.796983Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 10.140679,
-          "ended_at": "2026-08-09T00:14:38.272589Z",
+          "duration_s": 11.720225,
+          "ended_at": "2026-08-08T23:12:44.716032Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-09T00:14:28.131910Z"
+          "started_at": "2026-08-08T23:12:32.995807Z"
         }
       ],
       "paper_status": null,
@@ -157825,6 +157825,294 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "clarifier",
+      "duration_s": 141.8345,
+      "ended_at": "2026-08-08T23:22:22.862076Z",
+      "failure_reason": "StagePanelKickback: spec panel did not converge: 5 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'science'. Routing to 'flesh_out_in_progress' with ",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
+      "project_stage": "specified",
+      "severity": "soft",
+      "started_at": "2026-08-08T23:20:01.027576Z"
+    },
+    {
+      "agent": "specifier",
+      "duration_s": 61.899195,
+      "ended_at": "2026-08-08T23:20:00.973234Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
+      "project_stage": "specified",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:18:59.074039Z"
+    },
+    {
+      "agent": "project_initializer",
+      "duration_s": 17.957478,
+      "ended_at": "2026-08-08T23:18:59.020701Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
+      "project_stage": "specified",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:18:41.063223Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 8.250478,
+      "ended_at": "2026-08-08T23:18:40.964096Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
+      "project_stage": "specified",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:18:32.713618Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 60.433608,
+      "ended_at": "2026-08-08T23:18:32.613573Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
+      "project_stage": "specified",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:17:32.179965Z"
+    },
+    {
+      "agent": "clarifier",
+      "duration_s": 337.090522,
+      "ended_at": "2026-08-08T23:17:31.987663Z",
+      "failure_reason": "StagePanelKickback: spec panel did not converge: 2 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'science'. Routing to 'flesh_out_in_progress' with ",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
+      "project_stage": "specified",
+      "severity": "soft",
+      "started_at": "2026-08-08T23:11:54.897141Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1305.576042,
+      "ended_at": "2026-08-08T23:16:28.280331Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-283-statistical-analysis-of-publicly-availab",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T22:54:42.704289Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.761382,
+      "ended_at": "2026-08-08T23:13:00.394452Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:59.633070Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.658846,
+      "ended_at": "2026-08-08T23:12:59.576978Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:58.918132Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.708655,
+      "ended_at": "2026-08-08T23:12:58.861935Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:58.153280Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.665854,
+      "ended_at": "2026-08-08T23:12:58.096828Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:57.430974Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.806659,
+      "ended_at": "2026-08-08T23:12:57.409229Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:56.602570Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.659106,
+      "ended_at": "2026-08-08T23:12:57.375004Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:56.715898Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.74166,
+      "ended_at": "2026-08-08T23:12:56.655748Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:55.914088Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.751555,
+      "ended_at": "2026-08-08T23:12:56.527925Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:55.776370Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.626544,
+      "ended_at": "2026-08-08T23:12:55.857505Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:55.230961Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.681894,
+      "ended_at": "2026-08-08T23:12:55.702058Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:55.020164Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.758234,
+      "ended_at": "2026-08-08T23:12:55.101196Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:54.342962Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.738953,
+      "ended_at": "2026-08-08T23:12:54.945718Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:54.206765Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.831326,
+      "ended_at": "2026-08-08T23:12:54.287142Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:53.455816Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.81697,
+      "ended_at": "2026-08-08T23:12:54.132594Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:53.315624Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.107979,
+      "ended_at": "2026-08-08T23:12:53.348395Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:40.240416Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.990292,
+      "ended_at": "2026-08-08T23:12:53.241788Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:52.251496Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.841876,
+      "ended_at": "2026-08-08T23:12:52.169909Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T23:12:51.328033Z"
+    },
     {
       "agent": "implementer",
       "duration_s": 2.442376,
@@ -163824,6 +164112,246 @@
       "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-08-08T18:24:17.283501Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 23.526493,
+      "ended_at": "2026-08-08T18:24:17.279639Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:23:53.753146Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 63.054866,
+      "ended_at": "2026-08-08T18:23:52.382707Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:22:49.327841Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 46.647648,
+      "ended_at": "2026-08-08T18:22:49.324347Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:22:02.676699Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.882111,
+      "ended_at": "2026-08-08T18:22:02.673299Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:21:39.791188Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 61.158541,
+      "ended_at": "2026-08-08T18:21:39.787761Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:20:38.629220Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 454.432016,
+      "ended_at": "2026-08-08T18:21:36.014825Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:14:01.582809Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 51.722998,
+      "ended_at": "2026-08-08T18:20:38.625751Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:19:46.902753Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 59.667659,
+      "ended_at": "2026-08-08T18:19:46.899339Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:18:47.231680Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 18.036913,
+      "ended_at": "2026-08-08T18:18:47.228197Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:18:29.191284Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 24.288051,
+      "ended_at": "2026-08-08T18:18:29.187869Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:18:04.899818Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 14.140231,
+      "ended_at": "2026-08-08T18:18:04.896393Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:17:50.756162Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.895046,
+      "ended_at": "2026-08-08T18:17:50.752650Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-593-the-binding-problem-in-llms-implementing",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:17:44.857604Z"
+    },
+    {
+      "agent": "specifier",
+      "duration_s": 31.155012,
+      "ended_at": "2026-08-08T18:17:43.206291Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
+      "project_stage": "specified",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:17:12.051279Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1583.292882,
+      "ended_at": "2026-08-08T18:17:26.112052Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-264-assessing-the-stability-of-statistical-m",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-08-08T17:51:02.819170Z"
+    },
+    {
+      "agent": "project_initializer",
+      "duration_s": 19.077142,
+      "ended_at": "2026-08-08T18:17:10.328328Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-318-evaluating-the-impact-of-code-generation",
+      "project_stage": "project_initialized",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:16:51.251186Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 26.185795,
+      "ended_at": "2026-08-08T18:14:01.579220Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:13:35.393425Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 29.139735,
+      "ended_at": "2026-08-08T18:13:35.389654Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:13:06.249919Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 38.885375,
+      "ended_at": "2026-08-08T18:13:06.246288Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:12:27.360913Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 19.63392,
+      "ended_at": "2026-08-08T18:12:27.357092Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-756-assessing-dataset-imbalance-effects-on-m",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:12:07.723172Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.70708,
+      "ended_at": "2026-08-08T18:12:07.978604Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-08T18:12:07.271524Z"
     }
   ],
   "reviewed_preprints": [
