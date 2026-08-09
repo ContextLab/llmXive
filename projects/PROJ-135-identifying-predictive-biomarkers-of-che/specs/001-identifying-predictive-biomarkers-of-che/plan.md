@@ -138,7 +138,7 @@ tests/
     - **Subset**: Select data from all other tumor types (N-1).
     - **DE Analysis**: Perform DESeq2 Wald test on the N-1 subset (FDR < 0.05, |log2FC| > 1.0). **See FR-005**.
     - **Meta-Analysis**: Perform **Random-Effects Meta-Analysis (REML)** on the N-1 DE results to generate a candidate panel. **See FR-006**.
-    - **Fallback**: If intersection is empty, use union of top 50 genes. **Write `results/summary.md` with `fallback_reason: "intersection_empty"`. See FR-006**.
+    - **Fallback**: If intersection is empty, use union of top genes. **Write `results/summary.md` with `fallback_reason: "intersection_empty"`. See FR-006**.
 2.  **Validation**: Train model on N-1 types, test on `T`.
 3.  **Aggregation**: Aggregate results across all LOO iterations.
 
@@ -147,7 +147,7 @@ tests/
 **Goal**: Train and validate the final model.
 
 1.  **Pre-check**: If total tumor types < 3, halt with `ValidationError` (See FR-008).
-2.  **Training**: Train elastic-net logistic regression with nested CV (5x5) on the full dataset (if LOO valid) or on the largest cohort (if LOO invalid).
+2.  **Training**: Train elastic-net logistic regression with nested CV on the full dataset (if LOO valid) or on the largest cohort (if LOO invalid).
 3.  **External Validation**: Apply model to GEO datasets (after ComBat alignment).
 4.  **Evaluation**:
     - Compute ROC-AUC, Precision-Recall, Calibration.

@@ -1,5 +1,5 @@
 """
-Unit tests for the data splitting functionality in preprocessing.py
+Unit tests for the data splitting logic in src/preprocessing.py (T020).
 """
 import pytest
 import pandas as pd
@@ -8,20 +8,18 @@ from pathlib import Path
 import tempfile
 import os
 
-from code.src.preprocessing import split_data_stratified, save_split_data, process_tumor_type_split
+from src.preprocessing import split_data_stratified, process_tumor_type_split, load_processed_data, save_processed_data
 
 @pytest.fixture
 def sample_data():
-    """Create a sample dataframe with stratifiable response labels."""
+    """Create a sample DataFrame with stratification column."""
     np.random.seed(42)
     n_samples = 100
     data = {
-        'sample_id': [f'S{i}' for i in range(n_samples)],
-        'tumor_type': ['BRCA'] * n_samples,
-        'response_label': np.random.choice(['Responder', 'NonResponder'], n_samples, p=[0.3, 0.7]),
-        'GENE_A': np.random.randn(n_samples),
-        'GENE_B': np.random.randn(n_samples),
-        'GENE_C': np.random.randn(n_samples)
+        'gene_A': np.random.randn(n_samples),
+        'gene_B': np.random.randn(n_samples),
+        'gene_C': np.random.randn(n_samples),
+        'response_label': np.random.choice(['Responder', 'NonResponder'], n_samples, p=[0.4, 0.6])
     }
     return pd.DataFrame(data)
 
@@ -29,126 +27,110 @@ def sample_data():
 def temp_output_dir():
     """Create a temporary directory for output files."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+        yield tmpdir
 
 def test_split_data_stratified_balanced(sample_data):
-    """Test that stratified split maintains class distribution."""
+    """Test stratified split with balanced-ish classes."""
     discovery, training = split_data_stratified(
         sample_data, 
-        strata_col='response_label', 
-        test_size=0.2, 
+        strata_column='response_label', 
+        test_size=0.3, 
         random_state=42
     )
     
     # Check sizes
-    assert len(discovery) == 20  # 20% of 100
-    assert len(training) == 80
+    assert len(discovery) + len(training) == len(sample_data)
+    assert abs(len(discovery) - len(sample_data) * 0.3) <= 2  # Allow small rounding error
     
     # Check stratification (proportions should be similar)
     disc_prop = discovery['response_label'].value_counts(normalize=True)
     train_prop = training['response_label'].value_counts(normalize=True)
+    original_prop = sample_data['response_label'].value_counts(normalize=True)
     
     # Allow some tolerance for small sample sizes
-    for label in ['Responder', 'NonResponder']:
-        assert abs(disc_prop.get(label, 0) - train_prop.get(label, 0)) < 0.1
+    for label in original_prop.index:
+        assert abs(disc_prop.get(label, 0) - original_prop[label]) < 0.1
+        assert abs(train_prop.get(label, 0) - original_prop[label]) < 0.1
 
-def test_split_data_stratified_imbalanced(sample_data):
-    """Test split with imbalanced classes."""
-    # Create highly imbalanced data
-    data = sample_data.copy()
-    data['response_label'] = ['Responder'] * 5 + ['NonResponder'] * 95
+def test_split_data_stratified_imbalanced():
+    """Test stratified split with highly imbalanced classes."""
+    n_samples = 200
+    data = {
+        'gene_A': np.random.randn(n_samples),
+        'response_label': ['Responder'] * 20 + ['NonResponder'] * 180  # 10% responders
+    }
+    df = pd.DataFrame(data)
     
     discovery, training = split_data_stratified(
-        data, 
-        strata_col='response_label', 
-        test_size=0.2, 
+        df, 
+        strata_column='response_label', 
+        test_size=0.3, 
         random_state=42
     )
     
-    # Check sizes
-    assert len(discovery) == 20
-    assert len(training) == 80
-    
-    # Check that both classes are present in both splits (if possible)
-    assert 'Responder' in discovery['response_label'].values
-    assert 'Responder' in training['response_label'].values
+    # Check that both sets have responders
+    assert discovery['response_label'].sum() > 0
+    assert training['response_label'].sum() > 0
 
 def test_split_data_missing_strata_column(sample_data):
-    """Test that split fails gracefully with missing stratification column."""
+    """Test that split fails gracefully if stratification column is missing."""
     with pytest.raises(ValueError, match="Stratification column"):
         split_data_stratified(
             sample_data, 
-            strata_col='non_existent_column', 
-            test_size=0.2
+            strata_column='non_existent_column', 
+            test_size=0.3
         )
 
-def test_save_split_data(sample_data, temp_output_dir):
-    """Test that save_split_data creates files correctly."""
-    discovery, training = split_data_stratified(
-        sample_data, 
-        strata_col='response_label', 
-        test_size=0.2
-    )
+def test_save_split_data(temp_output_dir, sample_data):
+    """Test saving split data to CSV."""
+    output_path = os.path.join(temp_output_dir, "test_split.csv")
+    save_processed_data(sample_data, output_path)
     
-    save_split_data(discovery, training, 'BRCA', temp_output_dir)
-    
-    # Check files exist
-    assert (temp_output_dir / 'BRCA_discovery_set.csv').exists()
-    assert (temp_output_dir / 'BRCA_training_set.csv').exists()
-    
-    # Check content
-    disc_df = pd.read_csv(temp_output_dir / 'BRCA_discovery_set.csv')
-    train_df = pd.read_csv(temp_output_dir / 'BRCA_training_set.csv')
-    
-    assert len(disc_df) == 20
-    assert len(train_df) == 80
-    assert 'response_label' in disc_df.columns
-    assert 'response_label' in train_df.columns
+    assert os.path.exists(output_path)
+    loaded_df = load_processed_data(output_path)
+    assert len(loaded_df) == len(sample_data)
+    assert list(loaded_df.columns) == list(sample_data.columns)
 
-def test_process_tumor_type_split(sample_data, temp_output_dir):
-    """Test the full pipeline for a single tumor type."""
-    # Save input file
-    input_file = temp_output_dir / 'BRCA_processed.csv'
-    sample_data.to_csv(input_file, index=False)
+def test_process_tumor_type_split(temp_output_dir, sample_data):
+    """Test the full process_tumor_type_split function."""
+    # Create a mock input file
+    input_file = os.path.join(temp_output_dir, "BRCA_batch_corrected.csv")
+    save_processed_data(sample_data, input_file)
     
-    # Process
-    tumor_type, n_disc, n_train = process_tumor_type_split(
-        input_file, 
-        temp_output_dir, 
-        discovery_ratio=0.2
-    )
-    
-    # Check results
-    assert tumor_type == 'BRCA'
-    assert n_disc == 20
-    assert n_train == 80
-    
-    # Check output files
-    assert (temp_output_dir / 'BRCA_discovery_set.csv').exists()
-    assert (temp_output_dir / 'BRCA_training_set.csv').exists()
-
-def test_split_data_small_classes(sample_data):
-    """Test split with very small class sizes (edge case)."""
-    # Create data with only 2 responders
-    data = sample_data.copy()
-    data.loc[:1, 'response_label'] = 'Responder'
-    data.loc[2:, 'response_label'] = 'NonResponder'
-    
-    # Should not raise, but might warn
-    discovery, training = split_data_stratified(
-        data, 
-        strata_col='response_label', 
-        test_size=0.2, 
+    # Run the split function
+    result = process_tumor_type_split(
+        tumor_type="BRCA",
+        input_path=input_file,
+        output_dir=temp_output_dir,
+        strata_column='response_label',
+        test_size=0.3,
         random_state=42
     )
     
-    # Check sizes
-    assert len(discovery) == 20
-    assert len(training) == 80
+    # Check results
+    assert result['tumor_type'] == 'BRCA'
+    assert result['total_samples'] == len(sample_data)
+    assert os.path.exists(result['discovery_path'])
+    assert os.path.exists(result['training_path'])
     
-    # Check that responders are distributed (if possible)
-    # With only 2 responders and 80/20 split, it's possible one goes to each
-    disc_responders = (discovery['response_label'] == 'Responder').sum()
-    train_responders = (training['response_label'] == 'Responder').sum()
+    # Verify files are not empty
+    disc_df = load_processed_data(result['discovery_path'])
+    train_df = load_processed_data(result['training_path'])
+    assert len(disc_df) > 0
+    assert len(train_df) > 0
+
+def test_split_data_small_classes():
+    """Test that split fails if a class has only 1 sample."""
+    n_samples = 10
+    data = {
+        'gene_A': np.random.randn(n_samples),
+        'response_label': ['Responder'] * 1 + ['NonResponder'] * 9  # Only 1 responder
+    }
+    df = pd.DataFrame(data)
     
-    assert disc_responders + train_responders == 2
+    with pytest.raises(RuntimeError, match="Stratified split failed"):
+        split_data_stratified(
+            df, 
+            strata_column='response_label', 
+            test_size=0.3
+        )

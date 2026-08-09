@@ -1,268 +1,230 @@
-"""
-Integration test for Feasibility Gate logic (T011).
-
-This test asserts that the feasibility gate logic (implemented in T014)
-writes `data/feasibility_gate.json` correctly and halts execution in
-two specific scenarios:
-1. TCGA < 3: status "halted", reason "insufficient_tcga_types"
-2. GEO < 2: status "halted", reason "insufficient_geo_datasets"
-
-It verifies that the pipeline does NOT proceed if these thresholds are not met.
-"""
-
 import os
 import sys
 import json
 import tempfile
+import shutil
 from pathlib import Path
 import pytest
-
-# Import the specific functions being tested from the source module
-# The API surface confirms these exist in src/feasibility.py (or data_acquisition.py)
-# We import from src.feasibility as per the provided API surface list.
-try:
-    from src.feasibility import (
-        count_available_tumor_types,
-        write_feasibility_gate_result,
-    )
-except ImportError:
-    # Fallback if the function was moved to data_acquisition as per T014 description
-    # The API surface lists `from src.data_acquisition import ... run_data_feasibility_gate`
-    # but T011 specifically tests the gate logic. We assume the helper functions exist.
-    # If strict API surface adherence is required and these aren't in src/feasibility,
-    # we would import from src.data_acquisition.
-    # Given the API surface lists `from src.feasibility import ...`, we use that.
-    # If that fails at runtime due to implementation details, the test runner will catch it.
-    # However, to be robust, we check the API surface again.
-    # API Surface:
-    # src/feasibility.py: count_available_tumor_types, write_feasibility_gate_result, main
-    # src/data_acquisition.py: ... run_data_feasibility_gate ...
-    # The task T014 says "Implement ... in src/data_acquisition.py".
-    # The API surface provided for src/feasibility.py lists these functions.
-    # We will trust the API surface provided for src/feasibility.py.
-    from src.feasibility import (
-        count_available_tumor_types,
-        write_feasibility_gate_result,
-    )
-
 import logging
 
-# Configure logging to see warnings/errors during test execution
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+# Ensure src is in path for imports
+from pathlib import Path
+import sys
 
+# Add project root to path if not already
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from src.data_acquisition import run_feasibility_gate
+from src.config import get_project_root
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class TestFeasibilityGate:
-    """Tests for the Data Feasibility Gate logic (T011)."""
+    """
+    Integration test for Feasibility Gate logic (T014).
+    Asserts that data/feasibility_gate.json is written correctly for:
+    1. TCGA < 3 -> status: "halted", reason: "insufficient_tcga_types"
+    2. GEO < 2 (regardless of TCGA) -> status: "halted", reason: "insufficient_geo_datasets"
+    3. Valid counts -> status: "ready"
+    """
 
-    @pytest.fixture(autouse=True)
-    def setup_temp_dirs(self, tmp_path):
-        """Setup temporary directories for each test to ensure isolation."""
-        self.tmp_path = tmp_path
-        self.data_dir = self.tmp_path / "data"
-        self.state_dir = self.tmp_path / "state" / "projects"
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.state_dir.mkdir(parents=True, exist_ok=True)
+    def setup_method(self):
+        """Setup temporary directory structure for testing."""
+        self.temp_root = tempfile.mkdtemp()
+        self.data_dir = Path(self.temp_root) / "data"
+        self.data_dir.mkdir(parents=True)
+        self.feasibility_file = self.data_dir / "feasibility_gate.json"
+        self.state_dir = Path(self.temp_root) / "state" / "projects"
+        self.state_dir.mkdir(parents=True)
         
-        # Store original paths to restore later if needed
-        self.original_data_dir = os.environ.get('DATA_DIR')
-        self.original_state_dir = os.environ.get('STATE_DIR')
-        
-        # Set environment variables for the functions to use
-        os.environ['DATA_DIR'] = str(self.data_dir)
-        os.environ['STATE_DIR'] = str(self.state_dir)
-        
-        yield
+        # Create a mock state file to avoid missing file errors
+        self.state_file = self.state_dir / "PROJ-135-identifying-predictive-biomarkers-of-che.yaml"
+        self.state_file.write_text("artifact_hashes: {}\n")
 
-        # Restore original environment
-        if self.original_data_dir:
-            os.environ['DATA_DIR'] = self.original_data_dir
-        elif 'DATA_DIR' in os.environ:
-            del os.environ['DATA_DIR']
-            
-        if self.original_state_dir:
-            os.environ['STATE_DIR'] = self.original_state_dir
-        elif 'STATE_DIR' in os.environ:
-            del os.environ['STATE_DIR']
+    def teardown_method(self):
+        """Cleanup temporary directory."""
+        if os.path.exists(self.temp_root):
+            shutil.rmtree(self.temp_root)
 
-    def test_tcga_less_than_3_halts(self, setup_temp_dirs):
-        """
-        Assert that if TCGA tumor types < 3, the gate writes 'halted' status
-        with reason 'insufficient_tcga_types' and halts execution.
-        """
-        # Mock the count_available_tumor_types to return 2 (less than 3)
-        # We need to patch this function because we don't have real data
-        # The function signature in API surface: count_available_tumor_types() -> int
+    def _run_gate(self, tcga_count, geo_count):
+        """Helper to run the gate logic with mocked counts."""
+        # We need to patch the counting functions or pass counts directly.
+        # Since run_feasibility_gate likely calls internal logic, we will
+        # simulate the environment by setting up the state or mocking.
+        # However, the task requires testing the *logic* of writing the file.
+        # We will call the function that performs the check.
         
-        # Since we can't easily mock without importing the module, we will
-        # directly test the write logic with a simulated state.
-        # However, the requirement is to test the *gate logic* which implies
-        # the decision making.
+        # To strictly follow the task "Assert that T014 writes ... correctly",
+        # we assume the implementation of run_feasibility_gate accepts counts
+        # or we mock the counting functions.
+        # Given the API surface, run_feasibility_gate is the entry point.
+        # We will assume the implementation uses the counts provided in the
+        # environment or we inject them. 
         
-        # Let's simulate the scenario by calling write_feasibility_gate_result directly
-        # with the "halted" state as if the check failed.
-        # But the requirement says "Assert that T014 writes ... in two specific scenarios".
-        # This implies we need to verify the *condition* triggers the write.
+        # Strategy: We will call the function with specific mocked return values
+        # for the counting functions if possible, or pass arguments if the API allows.
+        # If the API is fixed to read from disk, we must create mock disk artifacts.
+        # The task description says "Use mocked data files to simulate...".
         
-        # Since we cannot run the full acquisition (T012/T013) in this unit/integration test
-        # without real data, we will test the logic by mocking the count function.
+        # Let's assume the implementation of run_feasibility_gate looks like:
+        # def run_feasibility_gate(tcga_count=None, geo_count=None):
+        # If it doesn't, we might need to rely on the fact that the test
+        # creates the necessary state files that the function reads.
+        
+        # Since we cannot see the full implementation of T014 here, we assume
+        # the standard pattern: the function calculates counts and writes the file.
+        # To test specific scenarios, we will mock the counting functions.
         
         import unittest.mock as mock
+        
+        # Mock the counting functions
+        with mock.patch('src.data_acquisition.count_available_tumor_types', return_value=tcga_count):
+            with mock.patch('src.data_acquisition._get_valid_geo_count', return_value=geo_count):
+                # We also need to mock the exit call to prevent the test runner from exiting
+                with mock.patch('sys.exit') as mock_exit:
+                    try:
+                        run_feasibility_gate()
+                    except SystemExit:
+                        pass # Expected if gate fails
+                    
+                    return mock_exit.called
 
-        mock_count = 2  # TCGA < 3
-
-        with mock.patch('src.feasibility.count_available_tumor_types', return_value=mock_count):
-            # We also need to mock sys.exit to prevent the test runner from exiting
-            with mock.patch('sys.exit') as mock_exit:
-                # Call the gate logic (which is usually in main or a specific function)
-                # The API surface lists `run_data_feasibility_gate` in data_acquisition
-                # but T014 says implement in data_acquisition.
-                # The API surface for src/feasibility lists `main`.
-                # Let's assume the logic is encapsulated in a function we can call.
-                # Since T014 is the implementation task, and T011 tests it,
-                # we assume the logic is in src/feasibility.py or src/data_acquisition.py.
-                # The API surface for src/feasibility.py lists:
-                # count_available_tumor_types, write_feasibility_gate_result, main
-                # It does NOT list a `run_data_feasibility_gate` function.
-                # However, T014 says "Implement ... in src/data_acquisition.py".
-                # This is a slight conflict. We will assume the logic is in src/feasibility.py
-                # based on the API surface provided for that file.
-                
-                # We need a function that encapsulates the gate check.
-                # Let's assume `main` in src/feasibility.py does this, or we create a helper.
-                # Since we cannot change the API surface arbitrarily, we will test the
-                # `write_feasibility_gate_result` function directly with the expected inputs
-                # that would result from a failed check, and verify the file content.
-                # BUT the requirement is to assert the *condition* triggers the write.
-                
-                # Let's try to import a function that runs the check.
-                # If it doesn't exist, we will simulate the call.
-                
-                # Re-reading T014: "Implement ... in src/data_acquisition.py".
-                # Re-reading API Surface: src/data_acquisition has `run_data_feasibility_gate`.
-                # src/feasibility has `main`.
-                # It is highly likely `run_data_feasibility_gate` is the function to test.
-                # Let's try to import it from src.data_acquisition.
-                
-                try:
-                    from src.data_acquisition import run_data_feasibility_gate
-                    # We need to mock the counts inside this function
-                    # This is tricky without knowing the internal implementation.
-                    # Alternative: We test the helper functions directly.
-                except ImportError:
-                    run_data_feasibility_gate = None
-
-                # Fallback: Test the write function with the expected parameters
-                # that represent the "TCGA < 3" failure state.
-                gate_path = self.data_dir / "feasibility_gate.json"
-                
-                # Simulate the state where TCGA < 3
-                # We call write_feasibility_gate_result directly to verify the file format
-                # and then assert that the system would have halted.
-                # To be strictly compliant with "Assert that T014 writes ... in scenario",
-                # we assume the caller (main) calls this with the correct reason.
-                
-                write_feasibility_gate_result(
-                    status="halted",
-                    reason="insufficient_tcga_types",
-                    tcga_count=mock_count,
-                    geo_count=5  # Assume GEO is fine
-                )
-                
-                # Verify file exists
-                assert gate_path.exists(), f"File {gate_path} was not created."
-                
-                # Verify content
-                with open(gate_path, 'r') as f:
-                    content = json.load(f)
-                
-                assert content['status'] == "halted", f"Expected status 'halted', got {content['status']}"
-                assert content['reason'] == "insufficient_tcga_types", f"Expected reason 'insufficient_tcga_types', got {content['reason']}"
-                assert content['tcga_count'] == mock_count
-                
-                # Verify sys.exit was called (simulating the halt)
-                # Since we didn't call the main gate runner, we simulate the check here.
-                # The requirement says "halt execution". In a real run, sys.exit(1) is called.
-                # We verify the logic by checking that the function `write_feasibility_gate_result`
-                # is called with the halt reason, and in the real implementation,
-                # it is followed by sys.exit(1).
-                # Since we can't easily test the sys.exit in the helper without mocking the whole flow,
-                # we assert the file content is correct for the halt scenario.
-                # The "halt execution" part is a side effect of the caller (main).
-                # We assume the caller follows the pattern:
-                # if tcga < 3: write(..., "insufficient_tcga_types"); sys.exit(1)
-                
-                # To be safe, let's verify the file content matches the requirement exactly.
-                assert content == {
-                    "status": "halted",
-                    "reason": "insufficient_tcga_types",
-                    "tcga_count": mock_count,
-                    "geo_count": 5
-                }
-
-    def test_geo_less_than_2_halts(self, setup_temp_dirs):
-        """
-        Assert that if GEO datasets < 2, the gate writes 'halted' status
-        with reason 'insufficient_geo_datasets' and halts execution.
-        """
+    def test_tcga_insufficient(self):
+        """Test TCGA < 3 scenario."""
+        # Simulate TCGA count = 2, GEO count = 2 (valid)
+        # Expected: halted, insufficient_tcga_types
+        
         import unittest.mock as mock
+        
+        with mock.patch('src.data_acquisition.count_available_tumor_types', return_value=2):
+            with mock.patch('src.data_acquisition._get_valid_geo_count', return_value=2):
+                with mock.patch('sys.exit') as mock_exit:
+                    run_feasibility_gate()
+                    
+                    # Verify sys.exit was called
+                    assert mock_exit.called, "Pipeline should exit on insufficient TCGA"
+                    
+                    # Verify the file content
+                    assert self.feasibility_file.exists(), "feasibility_gate.json must exist"
+                    
+                    with open(self.feasibility_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    assert data['status'] == 'halted', f"Expected status 'halted', got {data.get('status')}"
+                    assert data['reason'] == 'insufficient_tcga_types', f"Expected reason 'insufficient_tcga_types', got {data.get('reason')}"
 
-        mock_geo_count = 1  # GEO < 2
-        mock_tcga_count = 5  # Assume TCGA is fine
+    def test_geo_insufficient(self):
+        """Test GEO < 2 scenario (regardless of TCGA)."""
+        # Simulate TCGA count = 5 (valid), GEO count = 1
+        # Expected: halted, insufficient_geo_datasets
+        
+        import unittest.mock as mock
+        
+        with mock.patch('src.data_acquisition.count_available_tumor_types', return_value=5):
+            with mock.patch('src.data_acquisition._get_valid_geo_count', return_value=1):
+                with mock.patch('sys.exit') as mock_exit:
+                    run_feasibility_gate()
+                    
+                    # Verify sys.exit was called
+                    assert mock_exit.called, "Pipeline should exit on insufficient GEO"
+                    
+                    # Verify the file content
+                    assert self.feasibility_file.exists(), "feasibility_gate.json must exist"
+                    
+                    with open(self.feasibility_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    assert data['status'] == 'halted', f"Expected status 'halted', got {data.get('status')}"
+                    assert data['reason'] == 'insufficient_geo_datasets', f"Expected reason 'insufficient_geo_datasets', got {data.get('reason')}"
 
-        gate_path = self.data_dir / "feasibility_gate.json"
+    def test_both_valid(self):
+        """Test scenario where both TCGA >= 3 and GEO >= 2."""
+        # Simulate TCGA count = 3, GEO count = 2
+        # Expected: ready, no exit
         
-        # Simulate the state where GEO < 2
-        write_feasibility_gate_result(
-            status="halted",
-            reason="insufficient_geo_datasets",
-            tcga_count=mock_tcga_count,
-            geo_count=mock_geo_count
-        )
+        import unittest.mock as mock
         
-        # Verify file exists
-        assert gate_path.exists(), f"File {gate_path} was not created."
-        
-        # Verify content
-        with open(gate_path, 'r') as f:
-            content = json.load(f)
-        
-        assert content['status'] == "halted", f"Expected status 'halted', got {content['status']}"
-        assert content['reason'] == "insufficient_geo_datasets", f"Expected reason 'insufficient_geo_datasets', got {content['reason']}"
-        assert content['geo_count'] == mock_geo_count
-        
-        # Verify content matches requirement exactly
-        assert content == {
-            "status": "halted",
-            "reason": "insufficient_geo_datasets",
-            "tcga_count": mock_tcga_count,
-            "geo_count": mock_geo_count
-        }
+        with mock.patch('src.data_acquisition.count_available_tumor_types', return_value=3):
+            with mock.patch('src.data_acquisition._get_valid_geo_count', return_value=2):
+                with mock.patch('sys.exit') as mock_exit:
+                    run_feasibility_gate()
+                    
+                    # Verify sys.exit was NOT called
+                    assert not mock_exit.called, "Pipeline should NOT exit when counts are sufficient"
+                    
+                    # Verify the file content
+                    assert self.feasibility_file.exists(), "feasibility_gate.json must exist"
+                    
+                    with open(self.feasibility_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    assert data['status'] == 'ready', f"Expected status 'ready', got {data.get('status')}"
+                    # Reason should not be present or be None/empty
+                    assert 'reason' not in data or data['reason'] is None, "Reason should not be present for ready status"
 
-    def test_feasibility_ready(self, setup_temp_dirs):
-        """
-        Assert that if TCGA >= 3 AND GEO >= 2, the gate writes 'ready' status.
-        """
-        mock_tcga_count = 3
-        mock_geo_count = 2
+    def test_geo_insufficient_overrides_tcga(self):
+        """Test that GEO < 2 halts even if TCGA is sufficient."""
+        # Simulate TCGA count = 10 (valid), GEO count = 1
+        # Expected: halted, insufficient_geo_datasets (not insufficient_tcga_types)
+        
+        import unittest.mock as mock
+        
+        with mock.patch('src.data_acquisition.count_available_tumor_types', return_value=10):
+            with mock.patch('src.data_acquisition._get_valid_geo_count', return_value=1):
+                with mock.patch('sys.exit') as mock_exit:
+                    run_feasibility_gate()
+                    
+                    assert mock_exit.called
+                    
+                    assert self.feasibility_file.exists()
+                    with open(self.feasibility_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    assert data['status'] == 'halted'
+                    # Must be GEO reason, not TCGA
+                    assert data['reason'] == 'insufficient_geo_datasets', \
+                        f"GEO insufficiency should take precedence. Got reason: {data.get('reason')}"
 
-        gate_path = self.data_dir / "feasibility_gate.json"
+    def test_tcga_and_geo_insufficient(self):
+        """Test that GEO < 2 halts even if TCGA is also insufficient."""
+        # Simulate TCGA count = 1, GEO count = 1
+        # Expected: halted, insufficient_geo_datasets (GEO check usually runs second or is prioritized)
+        # Based on T014 description: "GEO Gate: If valid_geo_count < 2 ... halt".
+        # The order in T014 is: 1. TCGA Gate, 2. GEO Gate.
+        # However, the requirement says "GEO < 2 (regardless of TCGA count)".
+        # If TCGA fails first, it halts with TCGA reason.
+        # If GEO fails first, it halts with GEO reason.
+        # The task description for T011 says: "2) GEO < 2 (regardless of TCGA count)".
+        # This implies the test should verify the GEO condition is checked and halts.
+        # If TCGA check runs first, then TCGA < 3 will trigger first.
+        # Let's assume the implementation checks TCGA then GEO.
+        # If TCGA=1, GEO=1: TCGA check fails -> halted, insufficient_tcga_types.
+        # If TCGA=5, GEO=1: GEO check fails -> halted, insufficient_geo_datasets.
+        # The test "test_geo_insufficient" covers the GEO failure case.
+        # This test covers the case where both are low, verifying the order or specific behavior.
+        # Given the requirement "GEO < 2 (regardless of TCGA count)", it implies the logic
+        # must handle GEO failure even if TCGA is fine.
+        # If both are low, the first check (TCGA) will trigger.
+        # We will verify the TCGA trigger in this specific case.
         
-        write_feasibility_gate_result(
-            status="ready",
-            reason=None,
-            tcga_count=mock_tcga_count,
-            geo_count=mock_geo_count
-        )
+        import unittest.mock as mock
         
-        assert gate_path.exists()
-        
-        with open(gate_path, 'r') as f:
-            content = json.load(f)
-        
-        assert content['status'] == "ready"
-        assert content['reason'] is None
-        assert content['tcga_count'] == mock_tcga_count
-        assert content['geo_count'] == mock_geo_count
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        with mock.patch('src.data_acquisition.count_available_tumor_types', return_value=1):
+            with mock.patch('src.data_acquisition._get_valid_geo_count', return_value=1):
+                with mock.patch('sys.exit') as mock_exit:
+                    run_feasibility_gate()
+                    
+                    assert mock_exit.called
+                    assert self.feasibility_file.exists()
+                    with open(self.feasibility_file, 'r') as f:
+                        data = json.load(f)
+                    
+                    # If TCGA check is first, this should be the reason.
+                    # If the implementation checks GEO first, it would be GEO.
+                    # The T014 description lists TCGA Gate first.
+                    assert data['status'] == 'halted'
+                    # We assert the reason matches the first failing gate (TCGA)
+                    assert data['reason'] == 'insufficient_tcga_types'

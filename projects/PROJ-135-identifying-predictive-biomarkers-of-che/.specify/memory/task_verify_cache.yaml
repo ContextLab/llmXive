@@ -5,13 +5,15 @@ T008:
     and no contract test harness for validating a YAML schema are present in the provided
     evidence. The claim only contains a feature specification unrelated to setting
     up pytest or YAML schema tests, so the required artifacts are missing.
-T011:
+T015:
   c: false
-  h: 0c2e2ca5745ddb9ea75c1f742c8fd3e4e1bffa9fd46888ea5d99bbccc64ad034
-  r: "The provided `tests/integration/test_feasibility_gate.py` file is truncated,\
-    \ so we cannot verify that it contains assertions for both the \u201CTCGA\u202F\
-    <\u202F3\u201D and \u201CGEO\u202F<\u202F2\u201D scenarios and that it checks\
-    \ the exact JSON content and halting behavior. Without seeing those assertions,\
-    \ we cannot confirm the test meets the stated requirement. The missing `data/feasibility_gate.json`\
-    \ is expected to be generated at runtime, but the test itself must explicitly\
-    \ validate its contents, which is not demonstrable from the evidence."
+  h: 67afb3c2780a39ad8f75adb58ae201139c4731fbda5927b8f74adf21edf9a194
+  r: "The required file `src/preprocessing.py` does not exist, so no implementation\
+    \ of the harmonization logic, coverage check, or error handling is present. The\
+    \ task\u2019s core functionality is entirely missing."
+T023a:
+  c: false
+  h: c0b0d3eb2b3753381adec57d2f8f437f53f497112a6d850a667336d25785f0ea
+  r: "The required source file `src/differential_expression.py` does not exist, so\
+    \ no code was provided to run the DESeq2 Wald test or generate the expected CSV\
+    \ output files. Consequently, the task\u2019s core deliverable is missing."

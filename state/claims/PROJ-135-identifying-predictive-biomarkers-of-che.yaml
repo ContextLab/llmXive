@@ -33,3 +33,551 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T13:20:53Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: download TCGA data for at least 3 tumor types
+  claim_id: c_e4e26358
+  context: Task T012 requires implementing data acquisition for TCGA with a requirement
+    to dynamically discover available tumor types and ensure at least 3 are processed.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_TCGA_data_for_at_least_3_tumor_types
+  kind: magnitude
+  raw_text: "Download TCGA RNA-seq HTSeq-Counts and clinical metadata for \u22653\
+    \ tumor types via TCGAbiolinks"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:06:12Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: halt execution if fewer than 2 valid GEO datasets found
+  claim_id: c_9d003041
+  context: Task T013 specifies that if the count of valid GEO datasets with response
+    labels is less than 2, the pipeline must halt with exit code 1.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_fewer_than_2_valid_GEO_datasets_found
+  kind: magnitude
+  raw_text: If valid_geo_count < 2, halt execution with exit code 1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:06:40Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: filter genes with CPM less than 1 in more than 80% of samples
+  claim_id: c_9fb0cbbd
+  context: Task T017 requires filtering low-expression genes based on a threshold
+    of CPM < 1 in more than 80% of samples after harmonization.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_genes_with_CPM_less_than_1_in_more_than_80%25_of_sample
+  kind: magnitude
+  raw_text: Filter low-expression genes if CPM < 1 in > 80% samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:07:17Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: apply DESeq2 VST normalization
+  claim_id: c_eebc7fac
+  context: Task T017 mandates the application of DESeq2 Variance-Stabilizing Transformation
+    via rpy2 for data normalization.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_DESeq2_VST_normalization
+  kind: entity_fact
+  raw_text: Apply DESeq2 Variance-Stabilizing Transformation (VST)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:07:35Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: intersect significant genes across at least 2 tumor types
+  claim_id: c_c0b508fb
+  context: Task T024c and T025 require aggregating LOO results and computing the intersection
+    of significant genes across at least two tumor types.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Intersect_significant_genes_across_at_least_2_tumor_types
+  kind: magnitude
+  raw_text: "Compute the intersection of significant genes across \u22652 tumor types"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:07:55Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: fallback to union of top 50 genes if intersection empty
+  claim_id: c_30637250
+  context: Task T024c and T026 specify that if the intersection of significant genes
+    is empty, the pipeline must fallback to the union of the top-ranked genes, limited
+    to 50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fallback to union of top-ranked genes (\u226450) if intersection is empty"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:07:55Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: DESeq2 Wald test with FDR less than 0.05 and absolute log2FC greater
+    than 1.0
+  claim_id: c_a9403d83
+  context: Task T023b defines the parameters for the LOO-Blind DE Analysis, requiring
+    an FDR threshold of less than 0.05 and an absolute log2 fold change greater than
+    1.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DESeq2_Wald_test_with_FDR_less_than_0.05_and_absolute_log2FC
+  kind: magnitude
+  raw_text: Run DESeq2 Wald test with FDR < 0.05 and |log2FC| > 1.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:08:20Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: use REML for meta-analysis overriding Stouffer's method
+  claim_id: c_fdd7a974
+  context: Task T027 explicitly requires implementing Random-Effects Meta-Analysis
+    (REML) to account for correlation between tumor types, overriding the Spec's mention
+    of Stouffer's method.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_REML_for_meta-analysis_overriding_Stouffer%27s_method
+  kind: entity_fact
+  raw_text: Implement Random-Effects Meta-Analysis (REML) instead of Stouffer's method
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:08:46Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: halt LOO validation if fewer than 3 tumor types available
+  claim_id: c_70bb204d
+  context: Task T033 requires a pre-check to terminate execution with exit code 1
+    if the number of distinct tumor types is less than 3, ensuring at least 2 remain
+    for hold-out.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_LOO_validation_if_fewer_than_3_tumor_types_available
+  kind: magnitude
+  raw_text: Terminate execution if number of distinct tumor types (N) < 3 for LOO
+    validation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:09:31Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: calibration deviation within 10 percent for deciles with at least 20
+    samples
+  claim_id: c_11b70ae8
+  context: "Task T035 mandates that for calibration deciles containing at least 20\
+    \ samples, the deviation must be less than or equal to \xB110%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_deviation_within_10_percent_for_deciles_with_at
+  kind: magnitude
+  raw_text: "Ensure deviation \u2264 \xB110% for deciles with \u226520 samples"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:10:04Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected p-value less than 0.01
+  claim_id: c_8575fb96
+  context: Task T038 specifies that the adjusted p-value for Bonferroni correction
+    must be less than 0.01.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_corrected_p-value_less_than_0.01
+  kind: magnitude
+  raw_text: Apply Bonferroni correction with adjusted p-value < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:10:40Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: enforce 6 hour timeout and 7GB memory limit
+  claim_id: c_82de52e0
+  context: "Notes section mentions FR-012 compliance requires optimization for GitHub\
+    \ Actions runner constraints of \u22646 hours and \u22647GB RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce runtime timeout of 6 hours and memory limit of 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:10:58Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: enforce 7GB memory limit
+  claim_id: c_68dd588b
+  context: "Notes section mentions FR-012 compliance requires optimization for GitHub\
+    \ Actions runner constraints of \u22646 hours and \u22647GB RAM."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_7GB_memory_limit
+  kind: entity_fact
+  raw_text: Enforce memory limit of 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:11:41Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: pipeline halts if valid GEO datasets < 2
+  claim_id: c_61cd09a8
+  context: 'Constraint: The pipeline MUST halt if <2 valid GEO datasets are found,
+    as per Spec Edge Cases and Plan Phase 0.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/pipeline_halts_if_valid_GEO_datasets_%3C_2
+  kind: magnitude
+  raw_text: The pipeline must halt if less than 2 valid GEO datasets are found.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:24:10Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: pipeline terminates if valid TCGA tumor types < 3
+  claim_id: c_24a0f67b
+  context: 'TCGA Gate: If the count of valid TCGA tumor types is < 3, Terminate execution
+    with exit code 1 and write data/feasibility_gate.json with status: halted and
+    reason: insufficient_tcga_types.'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must terminate if the count of valid TCGA tumor types is
+    less than 3.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T06:24:10Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: LOO validation requires N >= 3 tumor types
+  claim_id: c_41b963f8
+  context: 'Pre-Check: Count distinct tumor types (N) present in the loaded training
+    sets. If N < 3, Terminate execution immediately with exit code 1, raise a RuntimeError
+    with a clear message ''LOO validation requires at least 3 tumor types; found N
+    types''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LOO_validation_requires_N_%3E=_3_tumor_types
+  kind: magnitude
+  raw_text: LOO validation requires at least 3 tumor types to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:24:28Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: fallback union of top-ranked genes limited to 50
+  claim_id: c_b679d4ae
+  context: "Fallback: If intersection is empty, compute the union of top-ranked genes\
+    \ (\u226450)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final gene panel fallback to union of top-ranked genes is limited
+    to 50 genes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:24:43Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: filter low-expression genes if CPM < 1 in > 80% samples
+  claim_id: c_14e390b5
+  context: "Implement src/preprocessing.py: Filter low\u2011expression genes (CPM\
+    \ < 1 in > 80% samples) after harmonization and apply DESeq2 Variance\u2011Stabilizing\
+    \ Transformation (VST) via rpy2 (FR\u2011004)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/filter_low-expression_genes_if_CPM_%3C_1_in_%3E_80%25_samples
+  kind: magnitude
+  raw_text: Low-expression genes are filtered if CPM < 1 in more than 80% of samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:25:09Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: harmonization coverage >= 95% required
+  claim_id: c_f40d1fab
+  context: "Implement src/preprocessing.py: Harmonize Ensembl/Entrez to HGNC symbols\
+    \ using mygene/biomaRt; filter if coverage <95% (FR\u2011003). Requirement: If\
+    \ coverage drops below [deferred], halt execution with exit code 1 and log a critical\
+    \ error."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/harmonization_coverage_%3E=_95%25_required
+  kind: magnitude
+  raw_text: Harmonization coverage must be at least 95% to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:25:37Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: DE analysis FDR < 0.05 and |log2FC| > 1.0
+  claim_id: c_2aef5bb2
+  context: 'DE Analysis: Run DESeq2 Wald test on this N-1 subset (FDR < 0.05, |log2FC|
+    > 1.0). Constraint: DO NOT include the held-out type T in this analysis.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 1.0'
+    relation: log2FC
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/DE_analysis_FDR_%3C_0.05_and_log2FC_%3E_1.0
+    source_value: https://en.wikipedia.org/wiki/DE_analysis_FDR_<_0.05_and_log2FC_>_1.0
+    subject: DE analysis FDR < 0.05 and
+  kind: relational
+  raw_text: DE analysis uses FDR < 0.05 and |log2FC| > 1.0 thresholds.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:26:19Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: calibration deviation <= 10% for deciles with >= 20 samples
+  claim_id: c_5d899e6f
+  context: "For deciles with \u226520 samples, ensure deviation \u2264 \xB110%; otherwise\
+    \ report CI and flag as 'underpowered'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/calibration_deviation_%3C=_10%25_for_deciles_with_%3E=_20_samples
+  kind: magnitude
+  raw_text: "Calibration deviation must be within \xB110% for deciles with at least\
+    \ 20 samples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:26:36Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: cost-sensitive learning if responder ratio < 20%
+  claim_id: c_306adfa0
+  context: "Handle class imbalance: use stratified k\u2011fold for ALL cases; apply\
+    \ cost-sensitive learning only if responder ratio <20% (Edge Cases)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/cost-sensitive_learning_if_responder_ratio_%3C_20%25
+  kind: magnitude
+  raw_text: Cost-sensitive learning is applied only if the responder ratio is less
+    than 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:27:05Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: adjusted p-value < 0.01 for Bonferroni correction
+  claim_id: c_e21ff7cb
+  context: "Threshold: Adjusted p\u2011value must be < 0.01 (FR\u2011010). Explicitly\
+    \ implement both distinct m calculations, ensuring m_meta is derived from the\
+    \ final panel size regardless of whether it came from intersection or union."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/adjusted_p-value_%3C_0.01_for_Bonferroni_correction
+  kind: magnitude
+  raw_text: Adjusted p-value for Bonferroni correction must be less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:27:38Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: independent test requires >= 100 samples per tumor type
+  claim_id: c_b58537e1
+  context: "Independent Test: Run acquisition on a subset of cancer types; verify\
+    \ data/processed/ contains \u2265100 samples per type, harmonized HGNC symbols,\
+    \ variance-stabilized values, and distinct discovery/training splits."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/independent_test_requires_%3E=_100_samples_per_tumor_type
+  kind: magnitude
+  raw_text: The independent test for User Story 1 requires at least 100 samples per
+    tumor type in the processed data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:28:12Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: independent test requires validation on >= 2 GEO datasets
+  claim_id: c_bfe24c9e
+  context: "Independent Test: Train tumor\u2011specific models; run k\u2011fold nested\
+    \ CV on training set; validate on \u22652 GEO datasets; verify AUC \u22650.75\
+    \ and calibration."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/independent_test_requires_validation_on_%3E=_2_GEO_datasets
+  kind: magnitude
+  raw_text: The independent test for User Story 3 requires validation on at least
+    2 GEO datasets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:28:35Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: independent test requires AUC >= 0.75
+  claim_id: c_083bd241
+  context: "Independent Test: Train tumor\u2011specific models; run k\u2011fold nested\
+    \ CV on training set; validate on \u22652 GEO datasets; verify AUC \u22650.75\
+    \ and calibration."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/independent_test_requires_AUC_%3E=_0.75
+  kind: magnitude
+  raw_text: The independent test for User Story 3 requires an AUC of at least 0.75.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:29:10Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: data acquisition must cover >= 3 tumor types
+  claim_id: c_2a8ab881
+  context: "Implement src/data_acquisition.py: Download TCGA RNA-seq HTSeq-Counts\
+    \ and clinical metadata for \u22653 tumor types via TCGAbiolinks (FR\u2011001)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/data_acquisition_must_cover_%3E=_3_tumor_types
+  kind: magnitude
+  raw_text: Data acquisition must cover at least 3 tumor types.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:29:36Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: meta-analysis uses REML instead of Stouffer's method
+  claim_id: c_7c38b840
+  context: 'Requirement: Explicitly implement REML (e.g., using metafor or statsmodels)
+    to account for correlation between tumor types. Override Note: This overrides
+    Spec FR-006''s mention of Stouffer''s method to comply with Plan Constraints and
+    Constitution Principle VII (Statistical Rigor).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Meta-analysis_uses_REML_instead_of_Stouffer%27s_method
+  kind: entity_fact
+  raw_text: The meta-analysis uses Random-Effects Meta-Analysis (REML) instead of
+    Stouffer's method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:30:01Z'
+- artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/tasks.md
+  attempts: 1
+  canonical: pipeline halts if download size > 5 GB
+  claim_id: c_5c187b4c
+  context: "Logging: Explicitly log a warning if total download size > 5 GB as specified\
+    \ in Spec FR\u2011001 before proceeding."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must halt if total download size exceeds 5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:30:23Z'
