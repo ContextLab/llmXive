@@ -68,7 +68,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - **FR-005**: System MUST perform statistical testing (paired t-test or Wilcoxon signed-rank) to compare success rates of approximation strategies against the baseline with a significance threshold of $p < 0.05$. (See US-3)
 - **FR-006**: System MUST enforce the Benjamini-Hochberg procedure for multiple-comparison correction when evaluating the set of primary hypothesis tests (comparing the 3 approximation strategies against the baseline) and the sensitivity analysis sweeps defined in SC-004, to control the False Discovery Rate (FDR). (See US-3)
 - **FR-007**: System MUST validate the "text-weight alignment" assumption by calculating the Pearson correlation coefficient between text-space cosine distances and weight-space cosine distances for a held-out set of known task pairs; the correlation must be $\ge 0.6$ for the retrieval mechanism to be considered valid. (See US-2)
-- **FR-008**: System MUST execute $N \ge 5$ independent runs for every task in the evaluation set to establish a stable success probability (mean of binary outcomes) before performing statistical tests. (See US-3)
+- **FR-008**: System MUST execute multiple independent runs for every task in the evaluation set to establish a stable success probability (mean of binary outcomes) before performing statistical tests. (See US-3)
 
 ### Key Entities
 
@@ -85,14 +85,14 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 
 - **SC-001**: Task success rate for retrieval/interpolation methods is measured against the **standard fine-tuned baseline** success rate; the method is considered acceptable if the degradation is **no more than 10% lower** than the baseline. (See US-3)
 - **SC-002**: Statistical significance of the performance difference between approximation strategies and the baseline is measured against the $p < 0.05$ threshold using a paired t-test or Wilcoxon signed-rank test, with Benjamini-Hochberg correction applied to all primary comparisons and sensitivity sweeps. (See US-3)
-- **SC-003**: Wall-clock latency for skill selection (retrieval vs. hypernetwork inference) is measured against the 2-core CPU runner limit to quantify computational savings. (See US-2)
-- **SC-004**: Sensitivity of the retrieval performance is measured against varying top-$k$ values ($k \in \{1, 3, 5\}$) to determine if the linear approximation is robust to the number of neighbors used. (See US-2)
+- **SC-003**: Wall-clock latency for skill selection (retrieval vs. hypernetwork inference) is measured against a multi-core CPU runner limit to quantify computational savings. (See US-2)
+- **SC-004**: Sensitivity of the retrieval performance is measured against varying top-$k$ values to determine if the linear approximation is robust to the number of neighbors used. (See US-2)
 - **SC-005**: The validity of the "linearity" assumption is measured against the **geometric reconstruction error** (cosine distance) between synthesized weights and true weights for known composite tasks; if the error rate exceeds **0.05**, the latent space is deemed non-linear for this purpose. (See US-2)
 
 ## Assumptions
 
 - The original LatentSkill repository (arXiv:2606.06087) provides downloadable LoRA weight files (A and B matrices) and corresponding task descriptions in a format compatible with standard PyTorch/NumPy loading.
-- The base LLM (e.g., LlamaB) can be run in a quantized mode (e.g., 4-bit or 8-bit via `bitsandbytes` or similar CPU-optimized quantization) within the 7 GB RAM limit of the GitHub Actions free runner.
+- The base LLM (e.g., LlamaB) can be run in a quantized mode (e.g., low-bit or higher-precision via `bitsandbytes` or similar CPU-optimized quantization) within the 7 GB RAM limit of the GitHub Actions free runner.
 - The "environment's internal logic" for ALFWorld and Search-QA is accessible as a deterministic simulation or script that returns a binary success/failure flag independent of the LLM's internal state, provided the action sequence is correct.
 - The sentence-transformer `all-MiniLM-L6-v2` is small enough to be loaded and executed on the CPU-only runner without exceeding memory constraints.
 - **Scientific Premise**: The latent space geometry of LoRA adapters is assumed to be consistent across different base models if the same fine-tuning protocol is used; any deviation in base model architecture is treated as a confounding variable to be controlled.
@@ -105,7 +105,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - The quantization method used for the base LLM (e.g., 4-bit) does not introduce significant noise that would confound the comparison between retrieval and baseline methods.
 - The frozen sentence-transformer model is assumed to provide a valid semantic representation of the task descriptions, such that cosine similarity in text space correlates with proximity in weight space.
 - The "environment's internal logic" is assumed to be a reliable and deterministic measure of task success, without stochastic elements that would require multiple runs per task to establish a ground truth (addressed by FR-008).
-- The GitHub Actions free runner (2 CPU, 7 GB RAM) is capable of handling the memory footprint of the flattened LoRA vectors, the sentence-transformer, and the quantized base LLM simultaneously.
+- The GitHub Actions free runner (multiple CPUs, sufficient RAM) is capable of handling the memory footprint of the flattened LoRA vectors, the sentence-transformer, and the quantized base LLM simultaneously.
 - The original LatentSkill hypernetwork weights are either available for direct comparison or a standard fine-tuned baseline can be used as a proxy if the hypernetwork is not accessible.
 - The composite tasks used for evaluation are generated by combining existing skills in a way that is semantically meaningful and not trivially solvable by a single existing skill.
 - The statistical tests (t-test/Wilcoxon) are appropriate for the distribution of the success rates; if normality assumptions fail, the non-parametric alternative will be used.

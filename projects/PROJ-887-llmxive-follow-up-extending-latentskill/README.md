@@ -1,135 +1,135 @@
-# llmXive: Extending "LatentSkill"
+# llmXive: Extending LatentSkill
 
-This project implements an automated pipeline to transform in-context textual skills into in-weight latent skills. It ingests pre-trained LoRA adapters, constructs a high-dimensional skill vector database, retrieves and interpolates skills based on natural language queries, and validates the synthesized adapters via environment logic.
+An automated science pipeline for transforming in-context textual skills into in-weight latent skills. This project implements the retrieval, interpolation, and evaluation of LoRA adapters based on task descriptions.
 
-## Features
+## Project Overview
 
-- **Skill Vector Database**: Ingests LoRA A/B matrices from ALFWorld and Search-QA benchmarks, flattens them into normalized high-dimensional vectors, and builds a static CPU-compatible index.
-- **Retrieval & Interpolation**: Queries the skill database using text embeddings (`all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)`) and synthesizes new LoRA adapters via unweighted mean or cosine-weighted averaging.
-- **Validation**: Evaluates synthesized adapters on composite tasks using environment logic (ALFWorld/Search-QA)and performs statistical analysis (Benjamini-Hochberg correction).
-- **Reproducibility**: Full pipeline reproducibility with pinned dependencies and deterministic seed handling.
+llmXive investigates the linearity of skill spaces by:
+1. Ingesting pre-trained LoRA adapters (A and B matrices) from ALFWorld and Search-QA benchmarks.
+2. Flattening and normalizing these weights into a high-dimensional skill vector database.
+3. Retrieving nearest neighbors based on text embeddings of task descriptions.
+4. Synthesizing new adapters via interpolation strategies (unweighted mean, cosine-weighted averaging).
+5. Validating performance on composite tasks using a CPU-optimized TinyLlama model.
+
+## Prerequisites
+
+- Python 3.11+
+- CPU-only environment (Max 7GB RAM for inference)
+- `llama-cpp-python` support
 
 ## Installation
 
-### Prerequisites
-
-- Python 3.11+
-- Git
-- CPU with at least 7GB RAM (for inference)
-
-### Setup
-
-1. Clone the repository:
+1. **Clone the repository**:
  ```bash
  git clone <repository-url>
- cd llmxive-follow-up-extending-latentskill
+ cd llmXive-follow-up-extending-latentskill
  ```
 
-2. Install dependencies:
+2. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
+ *Note: `faiss-cpu` is intentionally excluded as per project constraints.*
 
-3. (Optional) Download the base model for evaluation:
- - Place `llama-2-7b-q4_0.gguf` in `data/models/`.
- - The model can be downloaded from HuggingFace or other official sources.
+3. **Setup Data Directories**:
+ Ensure the following directories exist (created via `T001c`):
+ - `data/raw/`
+ - `data/processed/`
+ - `data/results/`
+ - `artifacts/synthesized_adapters/`
+ - `specs/001-lattentskill-retrieval-geometry/contracts/`
 
 ## Data Sources
 
-The project relies on the following real data sources:
+The project relies on specific HuggingFace datasets for LoRA weights. If real weights are unavailable, the system falls back to a documented proxy generation method (T012).
 
-- **LoRA Weights**:
- - HuggingFace Dataset: `latent-skills/alfworld-weights`
- - HuggingFace Dataset: `latent-skills/searchqa-weights`
- - These datasets contain the pre-trained LoRA adapters (A and B matrices) for ALFWorld and Search-QA benchmarks.
+- **ALFWorld Weights**: `latent-skills/alfworld-weights` (Path: `weights/alfworld/*.npz`)
+- **Search-QA Weights**: `latent-skills/searchqa-weights` (Path: `weights/searchqa/*.npz`)
 
-- **Base Model**:
- - `llama-2-7b-q4_0.gguf` (placed in `data/models/`)
-
-- **Benchmark Data**:
- - ALFWorld and Search-QA environment logic and test cases are accessed programmatically during evaluation.
-
-See `data_sources.yaml` for canonical URLs and IDs.
+**Verification**:
+Run the citation check script to verify source availability before ingestion:
+```bash
+python code/src/validate/citation_check.py
+```
 
 ## Usage
 
-### 1. Ingest and Build Skill Index
+### 1. Ingest and Flatten Weights (User Story 1)
 
-Run the ingestion pipeline to download weights, flatten them, and build the skill vector database:
+Download weights (or generate proxies) and build the skill vector index.
 
 ```bash
+# Download weights (T012)
 python code/src/ingestion/download_weights.py
+
+# Flatten and normalize (T013)
 python code/src/ingestion/flatten_lora.py
-python code/src/retrieval/vector_db.py
+
+# Build the static index (T014b)
+python code/scripts/run_t014b.py
 ```
+*Output*: `data/processed/skill_index.npz`
 
-**Output**: `data/processed/skill_index.npz`
+### 2. Retrieve and Synthesize Adapters (User Story 2)
 
-### 2. Query and Synthesize Adapters
-
-Given a natural language task description, retrieve relevant skills and synthesize a new LoRA adapter:
+Query the database with a task description and synthesize a new adapter.
 
 ```bash
-python code/src/retrieval/query.py --query "Your task description here"
+# Run the full synthesis pipeline (T019, T022a, T022b)
+python code/scripts/run_t022b.py
 ```
+*Output*: Synthesized adapters in `artifacts/synthesized_adapters/`
 
-**Output**: Synthesized LoRA adapter files in `artifacts/synthesized_adapters/`.
+### 3. Evaluation (User Story 3)
 
-### 3. Evaluate Synthesized Adapters
-
-Evaluate the synthesized adapters on composite tasks:
+Evaluate synthesized adapters on the TinyLlama model.
 
 ```bash
+# Ensure base model is downloaded and quantized (T026a)
+python code/scripts/download_and_quantize_model.py
+
+# Run evaluation (T026)
 python code/src/evaluation/runner.py
 ```
-
-**Output**: Success/failure logs and statistical reports in `data/results/`.
-
-### 4. Generate Final Report
-
-Compile all results into a final statistical report:
-
-```bash
-python code/src/evaluation/report_generator.py
-```
-
-**Output**: `data/results/stats_report.json`
+*Output*: Statistical report in `data/results/stats_report.json`
 
 ## Project Structure
 
-```
+```text
 .
 ├── code/
 │ ├── src/
-│ │ ├── ingestion/ # Data ingestion and preprocessing
-│ │ ├── retrieval/ # Vector database and retrieval strategies
-│ │ ├── evaluation/ # Evaluation and statistical analysis
-│ │ ├── validation/ # Validation and reconstruction error checks
-│ │ └── utils/ # Utilities (config, versioning)
-│ └── validate/ # Citation and data source validation
+│ │ ├── ingestion/ # Weight download and flattening
+│ │ ├── retrieval/ # Vector DB, query, and synthesis strategies
+│ │ ├── evaluation/ # Runner, stats, and report generation
+│ │ ├── validate/ # Citation and schema checks
+│ │ └── utils/ # Config and versioning
+│ └── scripts/ # Execution wrappers for specific tasks
 ├── data/
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed data (e.g., skill_index.npz)
-│ ├── results/ # Evaluation results and reports
-│ └── models/ # Base LLM models
+│ ├── raw/ # Raw weights (real or proxy)
+│ ├── processed/ # Flattened vectors, indices, ground truth
+│ └── results/ # Final statistical reports
 ├── artifacts/
-│ └── synthesized_adapters/ # Synthesized LoRA adapters
+│ └── synthesized_adapters/ # Generated LoRA files
+├── tests/ # Unit, integration, and contract tests
 ├── specs/ # Design documents and contracts
-├── tests/ # Unit and integration tests
-├── requirements.txt # Python dependencies
+├── requirements.txt
 └── README.md
 ```
 
-## Validation
+## Validation & Testing
 
-- **Data Source Verification**: Run `python code/src/validate/citation_check.py` to verify dataset URLs.
-- **Linearity Check**: Run `python code/src/validation/linearity_check.py` to validate the linearity assumption between text-space and weight-space distances.
-- **Reconstruction Error**: Run `python code/src/validation/reconstruction_error.py` to measure the cosine distance between synthesized and true weights.
+Run the full test suite to ensure pipeline integrity:
 
-## Contributing
+```bash
+pytest tests/
+```
 
-Contributions are welcome! Please follow the project's coding standards (Black, Ruff) and ensure all tests pass before submitting a pull request.
+Specific validation steps:
+- **Linearity Check**: `data/results/linearity_check.json` (T030)
+- **Reconstruction Error**: `data/results/reconstruction_error.json` (T022d)
+- **Statistical Report**: `data/results/stats_report.json` (T032)
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+[Insert License Information]

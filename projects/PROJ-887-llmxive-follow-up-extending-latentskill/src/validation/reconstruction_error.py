@@ -1,171 +1,176 @@
 """
-Reconstruction Error Calculator (Task T022b).
+Reconstruction Error Calculator (Task T022d)
 
-Calculates the cosine distance (reconstruction error) between synthesized
-LoRA weights and the true weights of a known composite task.
+Calculates the cosine distance (reconstruction error) between synthesized LoRA weights
+(from T022b) and the ground truth composite weights (from T022c).
+
+Outputs the error value to data/results/reconstruction_error.json.
 """
 
-import json
 import os
-import time
+import sys
+import json
+import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, Any, Tuple, Optional
 
 import numpy as np
-import torch
-from sentence_transformers import SentenceTransformer
 
-from src.utils.config import get_project_root, get_config
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Configuration
-PROJECT_ROOT = get_project_root()
-CONFIG = get_config()
-SYNTHESIZED_DIR = PROJECT_ROOT / "artifacts" / "synthesized_adapters"
-TRUE_WEIGHTS_DIR = PROJECT_ROOT / "artifacts" / "true_weights"  # Assumed location for ground truth
-OUTPUT_PATH = PROJECT_ROOT / "data" / "results" / "reconstruction_error.json"
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+ARTIFACTS_DIR = PROJECT_ROOT / "artifacts" / "synthesized_adapters"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
-# Ensure output directory exists
-OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+# Input paths (defined by dependencies T022b and T022c)
+SYNTHESIZED_ADAPTER_PATH = ARTIFACTS_DIR / "composite_task_adapter.npz"
+GROUND_TRUTH_PATH = PROCESSED_DIR / "composite_ground_truth.npz"
+OUTPUT_PATH = DATA_RESULTS_DIR / "reconstruction_error.json"
 
 
-def load_lora_weights(path: Path) -> Dict[str, np.ndarray]:
-    """
-    Loads LoRA A/B matrices from a .npz file.
-    Expected structure: {'layer_name_A': array, 'layer_name_B': array}
-    """
+def load_npz_safe(path: Path) -> Dict[str, np.ndarray]:
+    """Load an NPZ file and return a dictionary of arrays."""
     if not path.exists():
-        raise FileNotFoundError(f"Weight file not found: {path}")
+        raise FileNotFoundError(f"Required input file not found: {path}")
+    
+    try:
+        data = np.load(path, allow_pickle=True)
+        return {key: data[key] for key in data.files}
+    except Exception as e:
+        raise RuntimeError(f"Failed to load {path}: {e}")
 
-    data = np.load(path)
-    weights = {}
-    for key in data.files:
-        weights[key] = data[key]
-    return weights
 
-
-def flatten_weights(weights: Dict[str, np.ndarray]) -> np.ndarray:
+def calculate_cosine_distance(vec1: np.ndarray, vec2: np.ndarray) -> float:
     """
-    Flattens all A and B matrices into a single 1D vector for comparison.
+    Calculate cosine distance between two vectors.
+    Cosine Distance = 1 - Cosine Similarity
     """
-    vectors = []
-    for key in sorted(weights.keys()):
-        vec = weights[key].flatten()
-        vectors.append(vec)
-    return np.concatenate(vectors)
+    if vec1.shape != vec2.shape:
+        raise ValueError(f"Shape mismatch: {vec1.shape} vs {vec2.shape}")
+    
+    norm1 = np.linalg.norm(vec1)
+    norm2 = np.linalg.norm(vec2)
+    
+    if norm1 == 0 or norm2 == 0:
+        logger.warning("One of the vectors has zero norm. Returning distance 1.0.")
+        return 1.0
+    
+    dot_product = np.dot(vec1, vec2)
+    cosine_similarity = dot_product / (norm1 * norm2)
+    
+    # Clamp to [-1, 1] to avoid numerical issues with arccos or direct subtraction
+    cosine_similarity = np.clip(cosine_similarity, -1.0, 1.0)
+    
+    cosine_distance = 1.0 - cosine_similarity
+    return float(cosine_distance)
 
 
-def calculate_cosine_distance(v1: np.ndarray, v2: np.ndarray) -> float:
+def flatten_matrices(data: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calculates cosine distance: 1 - cosine_similarity.
+    Flatten A and B matrices from the loaded data into single vectors.
+    Expects keys 'A' and 'B' or similar structure.
     """
-    norm_v1 = np.linalg.norm(v1)
-    norm_v2 = np.linalg.norm(v2)
+    # Identify A and B keys
+    a_keys = [k for k in data.keys() if k.lower() == 'a']
+    b_keys = [k for k in data.keys() if k.lower() == 'b']
+    
+    if not a_keys or not b_keys:
+        # Fallback: assume first key is A, second is B if not explicitly named
+        keys = sorted(data.keys())
+        if len(keys) >= 2:
+            a_key, b_key = keys[0], keys[1]
+        else:
+            raise ValueError(f"Could not identify A and B matrices in {data.keys()}")
+    else:
+        a_key, b_key = a_keys[0], b_keys[0]
+    
+    mat_a = data[a_key]
+    mat_b = data[b_key]
+    
+    # Flatten and concatenate
+    vec_a = mat_a.flatten()
+    vec_b = mat_b.flatten()
+    
+    return np.concatenate([vec_a, vec_b]), np.concatenate([vec_a, vec_b])
 
-    if norm_v1 == 0 or norm_v2 == 0:
-        return 1.0  # Maximum distance if one vector is zero
 
-    similarity = np.dot(v1, v2) / (norm_v1 * norm_v2)
-    # Clip to avoid numerical errors
-    similarity = np.clip(similarity, -1.0, 1.0)
-    return float(1.0 - similarity)
-
-
-def run_reconstruction_error_analysis():
+def compute_reconstruction_error(
+    synthesized_path: Path,
+    ground_truth_path: Path
+) -> Dict[str, Any]:
     """
-    Main execution function for T022b.
-    1. Loads synthesized weights from artifacts/synthesized_adapters/
-    2. Loads corresponding true weights from artifacts/true_weights/
-    3. Calculates cosine distance.
-    4. Saves result to data/results/reconstruction_error.json.
+    Main logic to compute reconstruction error.
     """
-    start_time = time.time()
-    results = []
-
-    # Identify pairs to compare
-    # We assume naming convention: <task_id>_synthesized.npz and <task_id>_true.npz
-    synthesized_files = list(SYNTHESIZED_DIR.glob("*_synthesized.npz"))
-
-    if not synthesized_files:
-        print(f"Warning: No synthesized weights found in {SYNTHESIZED_DIR}")
-        # Write empty result to indicate no data processed
-        result_data = {
-            "status": "no_data",
-            "message": "No synthesized weights found to compare.",
-            "results": [],
-            "execution_time_seconds": 0.0
-        }
-        with open(OUTPUT_PATH, 'w') as f:
-            json.dump(result_data, f, indent=2)
-        return
-
-    for syn_file in synthesized_files:
-        task_id = syn_file.stem.replace("_synthesized", "")
-        true_file = PROJECT_ROOT / "artifacts" / "true_weights" / f"{task_id}_true.npz"
-
-        if not true_file.exists():
-            print(f"Warning: True weights not found for {task_id} at {true_file}. Skipping.")
-            continue
-
-        try:
-            # Load weights
-            syn_weights = load_lora_weights(syn_file)
-            true_weights = load_lora_weights(true_file)
-
-            # Flatten
-            syn_vec = flatten_weights(syn_weights)
-            true_vec = flatten_weights(true_weights)
-
-            # Ensure dimensions match
-            if syn_vec.shape != true_vec.shape:
-                raise ValueError(f"Dimension mismatch for {task_id}: "
-                                 f"syn={syn_vec.shape}, true={true_vec.shape}")
-
-            # Calculate error
-            error = calculate_cosine_distance(syn_vec, true_vec)
-
-            results.append({
-                "task_id": task_id,
-                "synthesized_file": str(syn_file.relative_to(PROJECT_ROOT)),
-                "true_file": str(true_file.relative_to(PROJECT_ROOT)),
-                "reconstruction_error_cosine_distance": error,
-                "vector_dimension": int(syn_vec.shape[0])
-            })
-            print(f"Computed error for {task_id}: {error:.6f}")
-
-        except Exception as e:
-            print(f"Error processing {task_id}: {e}")
-            results.append({
-                "task_id": task_id,
-                "status": "failed",
-                "error_message": str(e)
-            })
-
-    end_time = time.time()
-    execution_time = end_time - start_time
-
-    # Aggregate result
-    final_output = {
-        "status": "completed",
-        "execution_time_seconds": round(execution_time, 3),
-        "results": results,
-        "summary": {
-            "total_tasks_processed": len(results),
-            "successful_calculations": sum(1 for r in results if "reconstruction_error_cosine_distance" in r),
-            "failed_calculations": sum(1 for r in results if r.get("status") == "failed")
-        }
+    logger.info(f"Loading synthesized adapter from: {synthesized_path}")
+    syn_data = load_npz_safe(synthesized_path)
+    
+    logger.info(f"Loading ground truth from: {ground_truth_path}")
+    gt_data = load_npz_safe(ground_truth_path)
+    
+    # Flatten both
+    syn_vec = np.concatenate([syn_data[k].flatten() for k in syn_data.keys()])
+    gt_vec = np.concatenate([gt_data[k].flatten() for k in gt_data.keys()])
+    
+    logger.info(f"Synthesized vector shape: {syn_vec.shape}")
+    logger.info(f"Ground truth vector shape: {gt_vec.shape}")
+    
+    # Calculate error
+    error = calculate_cosine_distance(syn_vec, gt_vec)
+    
+    return {
+        "reconstruction_error": error,
+        "synthesized_path": str(synthesized_path),
+        "ground_truth_path": str(ground_truth_path),
+        "metric": "cosine_distance",
+        "vector_dimension": int(syn_vec.shape[0])
     }
 
-    # Calculate mean error if possible
-    errors = [r["reconstruction_error_cosine_distance"] for r in results if "reconstruction_error_cosine_distance" in r]
-    if errors:
-        final_output["summary"]["mean_reconstruction_error"] = round(np.mean(errors), 6)
 
-    # Write to disk
-    with open(OUTPUT_PATH, 'w') as f:
-        json.dump(final_output, f, indent=2)
-
-    print(f"Reconstruction error analysis complete. Results saved to: {OUTPUT_PATH}")
+def main():
+    """
+    Entry point for T022d.
+    Ensures output directory exists, computes error, and saves JSON.
+    """
+    # Ensure output directory exists
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        # Check inputs exist
+        if not SYNTHESIZED_ADAPTER_PATH.exists():
+            raise FileNotFoundError(
+                f"Synthesized adapter not found. "
+                f"Expected at: {SYNTHESIZED_ADAPTER_PATH}. "
+                f"Ensure T022b has run successfully."
+            )
+        if not GROUND_TRUTH_PATH.exists():
+            raise FileNotFoundError(
+                f"Ground truth not found. "
+                f"Expected at: {GROUND_TRUTH_PATH}. "
+                f"Ensure T022c has run successfully."
+            )
+        
+        result = compute_reconstruction_error(SYNTHESIZED_ADAPTER_PATH, GROUND_TRUTH_PATH)
+        
+        # Save result
+        with open(OUTPUT_PATH, 'w') as f:
+            json.dump(result, f, indent=2)
+        
+        logger.info(f"Reconstruction error calculated: {result['reconstruction_error']:.6f}")
+        logger.info(f"Result saved to: {OUTPUT_PATH}")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Failed to compute reconstruction error: {e}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":
-    run_reconstruction_error_analysis()
+    main()

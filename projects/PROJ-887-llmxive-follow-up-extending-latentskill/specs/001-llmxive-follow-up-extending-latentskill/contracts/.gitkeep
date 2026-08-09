@@ -1,1 +1,2 @@
-# Placeholder to ensure this directory is tracked by git
+# This directory stores schema contracts for validation.
+# Defines the expected structure for data and results.

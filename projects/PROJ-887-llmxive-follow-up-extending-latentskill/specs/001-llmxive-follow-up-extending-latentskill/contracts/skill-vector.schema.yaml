@@ -1,97 +1,94 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Skill Vector Schema
 description: >
-  Defines the structure of a flattened, normalized LoRA skill vector
-  extracted from A/B matrices. Used for ingestion and indexing.
+  Defines the structure for flattened and normalized LoRA skill vectors
+  used in the retrieval index. This schema validates the contents of
+  `data/processed/skill_index.npz` when converted to JSON/YAML for
+  contract testing.
 type: object
 required:
-  - skill_id
-  - source
-  - task_name
-  - vector_data
-  - shape_info
-  - normalization
+  - vectors
   - metadata
+  - index_info
 properties:
-  skill_id:
-    type: string
-    description: Unique identifier for the skill (e.g., 'alfworld_peg_insert_same')
-    pattern: '^[a-z0-9_]+$'
-  source:
-    type: string
-    description: Origin dataset or repository (e.g., 'latent-skills/alfworld-weights')
-    enum:
-      - latent-skills/alfworld-weights
-      - latent-skills/searchqa-weights
-      - synthetic-proxy
-  task_name:
-    type: string
-    description: Human-readable name of the task the skill represents
-  vector_data:
+  vectors:
     type: array
+    description: List of flattened, L2-normalized skill vectors.
     items:
-      type: number
-      format: float
-    description: >
-      The flattened, L2-normalized 1D array of weight parameters.
-      Values should be float32 equivalents.
-  shape_info:
-    type: object
-    required:
-      - original_shape
-      - flattened_dim
-      - matrix_type
-    properties:
-      original_shape:
-        type: array
-        items:
-          type: integer
-        description: Tuple of (rows, cols) for the original matrix (A or B)
-      flattened_dim:
-        type: integer
-        description: Total number of elements (rows * cols)
-      matrix_type:
-        type: string
-        description: Which LoRA matrix was flattened
-        enum:
-          - lora_A
-          - lora_B
-  normalization:
-    type: object
-    required:
-      - method
-      - epsilon
-    properties:
-      method:
-        type: string
-        description: Normalization method used
-        enum:
-          - L2
-      epsilon:
-        type: number
-        format: float
-        description: Small constant added to denominator to avoid division by zero
-        default: 1e-8
+      type: object
+      required:
+        - id
+        - vector
+        - source
+        - task
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the skill (e.g., 'alfworld-cook_egg').
+        vector:
+          type: array
+          items:
+            type: number
+          description: 1D array of float32 values representing the flattened LoRA weights.
+        source:
+          type: string
+          enum:
+            - alfworld
+            - searchqa
+          description: The benchmark dataset source.
+        task:
+          type: string
+          description: Human-readable task name.
+        original_shape:
+          type: array
+          items:
+            type: integer
+          description: Original shape of the A/B matrices before flattening [A_dim, B_dim].
+        norm:
+          type: number
+          description: L2 norm of the vector (should be ~1.0).
   metadata:
     type: object
+    description: Global metadata about the index generation.
     required:
-      - is_proxy
-      - base_model
-      - r
-      - alpha
+      - generated_at
+      - total_vectors
+      - vector_dimension
     properties:
-      is_proxy:
-        type: boolean
-        description: True if weights were generated via proxy (numpy.random)
-      base_model:
+      generated_at:
         type: string
-        description: Base model architecture (e.g., 'llama-2-7b')
-      r:
+        format: date-time
+        description: ISO 8601 timestamp of index creation.
+      total_vectors:
         type: integer
-        description: LoRA rank
-      alpha:
+        description: Total number of skill vectors in the index.
+      vector_dimension:
         type: integer
-        description: LoRA scaling factor
-      hash:
+        description: Dimensionality of each flattened vector (A * B).
+      normalization_method:
         type: string
-        description: SHA256 hash of the raw weight bytes for versioning
+        enum:
+          - l2
+        description: Method used for normalization.
+      source_datasets:
+        type: array
+        items:
+          type: string
+        description: List of source dataset IDs used.
+  index_info:
+    type: object
+    description: Information about the index structure (e.g., if FAISS or similar was used, though CPU-only).
+    required:
+      - index_type
+    properties:
+      index_type:
+        type: string
+        enum:
+          - flat_cpu
+        description: Type of index structure.
+      distance_metric:
+        type: string
+        enum:
+          - cosine
+        description: Metric used for similarity search.
+additionalProperties: false

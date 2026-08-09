@@ -1,4 +1,3 @@
 """
-Validate module for llmXive.
-Handles pre-execution checks (e.g., citation verification).
+Validation utilities for data source verification and citation checking.
 """

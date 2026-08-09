@@ -24,17 +24,12 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001b1 [P] Create `src/ingestion/__init__.py` (empty file or minimal docstring)
-- [ ] T001b2 [P] Create `src/retrieval/__init__.py` (empty file or minimal docstring)
-- [ ] T001b3 [P] Create `src/evaluation/__init__.py` (empty file or minimal docstring)
-- [ ] T001b4 [P] Create `src/validation/__init__.py` (empty file or minimal docstring)
-- [ ] T001b5 [P] Create `src/validate/__init__.py` (empty file or minimal docstring)
-- [ ] T001b6 [P] Create `src/utils/__init__.py` (empty file or minimal docstring)
-- [ ] T001c [P] Create `.gitkeep` files in `data/raw/`, `data/processed/`, `data/results/`, `artifacts/synthesized_adapters/`, `specs/001-lattentskill-retrieval-geometry/contracts/`
+- [ ] T001b [P] Create all `__init__.py` files for the following exact paths: `src/ingestion/__init__.py`, `src/retrieval/__init__.py`, `src/evaluation/__init__.py`, `src/validation/__init__.py`, `src/validate/__init__.py`, `src/utils/__init__.py`. (Empty or minimal docstring)
+- [ ] T001c [P] Create `.gitkeep` files in the following exact paths: `data/raw/`, `data/processed/`, `data/results/`, `artifacts/synthesized_adapters/`, `specs/001-lattentskill-retrieval-geometry/contracts/`
 - [X] T002a Create `requirements.txt` with pinned versions for: `torch`, `numpy`, `scikit-learn`, `sentence-transformers`, `transformers`, `pandas`, `scipy`, `llama-cpp-python`, `pytest`. **REMOVE** `faiss-cpu` as it is not in the plan's approved dependencies.
 - [X] T002b Run `pip install -r requirements.txt` to verify dependency resolution
 - [X] T003a [P] Create `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections (line-length=88, target-version=py311)
-- [ ] T003b [P] Create `.ruff.toml` with specific ignore rules and line-length settings
+- [ ] T003b [P] Create `.ruff.toml` with `line-length = 88` and `ignore = ["E501", "W293"]`
 
 ---
 
@@ -47,11 +42,16 @@
 - [X] T004 Setup `src/utils/config.py` for seed pinning, path resolution, and environment variable loading
 - [X] T005 [P] Implement `src/utils/versioning.py` to compute SHA256 hashes for artifacts and update `state/projects/...yaml`
 - [X] T006a [P] Create `data_sources.yaml` defining the canonical URLs/IDs for NAB, UCI, HuggingFace, and LatentSkill repo datasets to serve as the source of truth for validation.
-- [X] T006 Create `src/validate/citation_check.py` to verify dataset URLs listed in `data_sources.yaml`. **Implementation**: Create the script to perform HTTP 200 checks and metadata schema validation against the URLs defined in `data_sources.yaml`. (Depends on T006a, T004)
-- [ ] T007 Create `specs/001-lattentskill-retrieval-geometry/contracts/skill-vector.schema.yaml` and `evaluation-result.schema.yaml`
+- [X] T006 Create `src/validate/citation_check.py` to verify dataset URLs listed in `data_sources.yaml`. **Implementation**: Create the script to perform HTTP 200 checks AND validate the specific existence of weight files within the dataset (not just URL reachability). **Handle Fallback**: If the primary HF dataset is missing, the script must validate the existence of the arXiv source and prepare for fallback. (Depends on T006a, T004)
+- [ ] T012 [US1] Implement `src/ingestion/download_weights.py` to fetch real LoRA weights from the **HuggingFace dataset 'latent-skills/alfworld-weights'** (path: `weights/alfworld/*.npz`) and **'latent-skills/searchqa-weights'** (path: `weights/searchqa/*.npz`) for ALFWorld and Search-QA benchmarks. **Execute** citation check (T006) **first** to verify the source. **If real weights are unavailable, FAIL LOUDLY** with an exception. **DO NOT** generate proxy data. **Expected Dimensions**: If real data is found, verify shapes match `in_features=4096, out_features=1024` (or log mismatch). **Output**: Save real weights to `data/raw/alfworld_weights.npz` and `data/raw/searchqa_weights.npz`. Log the exact resolved URL/ID used. (Depends on T006, T004)
+- [ ] T007a [P] Create `specs/001-lattentskill-retrieval-geometry/contracts/skill-vector.schema.yaml` and `evaluation-result.schema.yaml` with the following content:
+  - `skill-vector.schema.yaml`: JSON Schema for `{"id": str, "task_desc": str, "vector": list[float], "metadata": dict}`.
+  - `evaluation-result.schema.yaml`: JSON Schema for `{"task_id": str, "strategy": str, "success": bool, "latency_ms": float}`.
 - [X] T008 Setup `tests/contract/test_schemas.py` to validate JSON/YAML outputs against contracts
 - [X] T009 Configure `src/ingestion/__init__.py` and `src/retrieval/__init__.py` package structures
-- [X] T012 [US1] Implement `src/ingestion/download_weights.py` to fetch real LoRA weights from the **HuggingFace dataset 'latent-skills/alfworld-weights'** and **'latent-skills/searchqa-weights'** for ALFWorld and Search-QA benchmarks. **Execute** `src/validate/citation_check.py` (T006) **first** to verify the source. **If real weights are unavailable**, generate a documented proxy using `numpy.random.normal` with shape matching the expected A/B matrices and `dtype=float32`, ensuring structural identity. Mark metadata with `is_proxy=true`. **NEVER** fall back to random data without this specific generation method; the proxy must preserve matrix dimensions. Raise an exception only if the proxy generation logic itself fails. Log the exact resolved URL/ID used. (Depends on T006, T004)
+
+### Data Generation for Linearity Check (Prerequisite for US2/US3)
+- [ ] T022c [US2] Implement `src/validation/generate_ground_truth.py` to load **REAL** composite task weights from the dataset (e.g., `task_a_id='alfworld_clean'`, `task_b_id='searchqa_qa'`, `composite_task_id='alfworld_searchqa'`). **DO NOT** generate synthetic weights. **Output**: Save to `data/processed/composite_ground_truth.npz` AND generate `data/processed/pairs.yaml` with schema: `[{task_a_id, task_b_id, composite_task_id, expected_correlation}]`. **FAIL LOUDLY** if real composite weights are not found. (Depends on T012)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -65,15 +65,16 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `src/ingestion/flatten_lora.py` (FR-001) to load A/B matrices, flatten to 1D, and apply L2 normalization
-- [ ] T014 [US1] Implement `src/retrieval/vector_db.py` (FR-001) to construct and save the static index to `data/processed/skill_index.npz`
-- [X] T015 [US1] Add validation in `src/ingestion/flatten_lora.py` to ensure consistent dimensions across all adapters
-- [X] T016 [US1] Add logging for ingestion metrics (vectors processed, index size) in `src/ingestion/flatten_lora.py`
+- [ ] T013 [US1] Implement `src/ingestion/flatten_lora.py` (FR-001) to load A/B matrices from `data/raw/`, flatten to 1D, and apply L2 normalization. **Input**: Real weights from T012. (Depends on T012)
+- [ ] T014a [US1] Implement logic in `src/retrieval/vector_db.py` (FR-001) to load flattened vectors from T013, compute the index structure, and prepare data for serialization. (Depends on T013)
+- [ ] T014b [US1] Execute `src/retrieval/vector_db.py` to construct and save the static index to `data/processed/skill_index.npz`. **Output**: Verify file existence and integrity. (Depends on T014a)
+- [ ] T015 [US1] Add validation in `src/ingestion/flatten_lora.py` to ensure consistent dimensions across all adapters
+- [ ] T016 [US1] Add logging for ingestion metrics (vectors processed, index size) in `src/ingestion/flatten_lora.py`
 
 ### Tests for User Story 1
 
-- [X] T010 [P] [US1] Unit test for `src/ingestion/flatten_lora.py` to verify vector dimensionality matches A*B product in `tests/unit/test_ingestion.py`. (Depends on T013 completion)
-- [X] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` verifying index generation on CPU. (Depends on T013 completion)
+- [ ] T010 [P] [US1] Unit test for `src/ingestion/flatten_lora.py` to verify vector dimensionality matches A*B product in `tests/unit/test_ingestion.py`. (Depends on T013 completion)
+- [ ] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` verifying index generation on CPU. (Depends on T013 completion)
 
 **Checkpoint**: Skill Vector Database is generated and ready for retrieval.
 
@@ -87,21 +88,21 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement `src/retrieval/query.py` (FR-002) to generate query vectors using `all-MiniLM-L6-v2`. **Include** logic to measure and log wall-clock latency for text embedding generation to satisfy SC-003. (Depends on T014)
-- [X] T020 [US2] Implement `src/retrieval/strategies.py` (FR-003) for: (1) Single Nearest Neighbor, (2) Unweighted Arithmetic Mean (k-top), (3) Cosine-Weighted Averaging. **Include** logic to measure and log wall-clock latency for retrieval/interpolation to satisfy SC-003.
-- [X] T021 [US2] Implement `src/retrieval/strategies.py` to handle edge cases (out-of-distribution queries, identical similarity scores)
-- [X] T022 [US2] Implement `src/retrieval/strategies.py` to synthesize and **save** the LoRA adapter file (A/B matrices) to `artifacts/synthesized_adapters/` based on query results; explicitly **DO NOT** apply the adapter to a model or run inference in this task (application logic is deferred to T026/US3).
-- [ ] T022b [US2] Implement `src/validation/reconstruction_error.py` to calculate the cosine distance (reconstruction error) between the synthesized LoRA weights and the true weights of a known composite task. **Output** the error value to `data/results/reconstruction_error.json`. (Depends on T022)
-- [X] T023 [US2] Add logging for retrieval latency (SC-003) and similarity scores in `src/retrieval/query.py`
+- [ ] T019 [US2] Implement `src/retrieval/query.py` (FR-002) to generate query vectors using `all-MiniLM-L6-v2`. **Include** logic to measure and log wall-clock latency for text embedding generation to satisfy SC-003. (Depends on T014b)
+- [ ] T022a [US2] Implement synthesis logic in `src/retrieval/strategies.py` (FR-003) for: (1) Single Nearest Neighbor, (2) Unweighted Arithmetic Mean (k-top), (3) Cosine-Weighted Averaging. **Include** logic to measure and log wall-clock latency for retrieval/interpolation to satisfy SC-003. (Depends on T014b, T019)
+- [ ] T022b [US2] Implement serialization logic in `src/retrieval/strategies.py` to save synthesized A/B matrices to `artifacts/synthesized_adapters/` based on query results. **Output**: Verify file structure (correct dimensions, non-NaN). Explicitly **DO NOT** apply the adapter to a model or run inference in this task (application logic is deferred to T026/US3). (Depends on T022a)
+- [ ] T022d [US2] Implement `src/validation/reconstruction_error.py` to calculate the cosine distance (reconstruction error) between the synthesized LoRA weights (from T022b serialization) and the true weights of a known composite task (from T022c). **Output** the error value to `data/results/reconstruction_error.json`. (Depends on T022b serialization, T022c)
+- [ ] T021 [US2] Implement `src/retrieval/strategies.py` to handle edge cases (out-of-distribution queries, identical similarity scores)
+- [ ] T023 [US2] Add logging for retrieval latency (SC-003) and similarity scores in `src/retrieval/query.py`
 
 ### Validation for User Story 2 (Blocking Gate for US3)
 
-- [ ] T030 [US2] Implement `src/validation/linearity_check.py` ([FR-007]) to calculate Pearson correlation between text-space and weight-space distances for a held-out set of known task pairs. **Output** the correlation value and a validity flag (True if >= 0.6, False otherwise) to `data/results/linearity_check.json`. **DO NOT** raise an error if the threshold is not met; the experiment must proceed to measure the impact of non-linearity. (Depends on T014, T019)
+- [ ] T030 [US2] Implement `src/validation/linearity_check.py` ([FR-007]) to calculate Pearson correlation between text-space and weight-space distances for the held-out set of known task pairs stored in `data/processed/pairs.yaml` (generated by T022c). **Output** the correlation value and a `validity_flag` (True if >= 0.6, False otherwise) to `data/results/linearity_check.json`. **DO NOT** raise an error if the threshold is not met; the experiment must proceed to measure the impact of non-linearity. Ensure downstream tasks consume this flag. (Depends on T014b, T019, T022c)
 
 ### Tests for User Story 2
 
-- [X] T017 [P] [US2] Unit test for `src/retrieval/strategies.py` verifying unweighted and weighted averaging math in `tests/unit/test_strategies.py`
-- [X] T018 [P] [US2] Contract test for `src/retrieval/query.py` output format in `tests/contract/test_schemas.py`
+- [ ] T017 [P] [US2] Unit test for `src/retrieval/strategies.py` verifying unweighted and weighted averaging math in `tests/unit/test_strategies.py`
+- [ ] T018 [P] [US2] Contract test for `src/retrieval/query.py` output format in `tests/contract/test_schemas.py`
 
 **Checkpoint**: Retrieval and interpolation mechanisms produce valid synthesized adapters; linearity assumption validated (or measured).
 
@@ -115,18 +116,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `src/evaluation/runner.py` (FR-004) to apply adapters (from T022) to a frozen base LLM (via `llama-cpp-python` GGUF, model path: `data/models/llama-2-7b-q4_0.gguf`, quantization: q4_0) and execute environment logic (ALFWorld/Search-QA). (Depends on T022, T030, T014, T019) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T026b [US3] Implement memory validation and streaming/chunking logic in `src/evaluation/runner.py` to ensure the base LLM inference fits within 7GB RAM. Explicitly log memory usage during the first run and fail loudly if it exceeds **6.5 GB**. (Depends on T026)
-- [X] T027 [US3] Implement `src/evaluation/runner.py` loop to execute **N >= 5** independent runs per task (FR-008) and record binary outcomes, calculating the **mean of these binary outcomes** to establish a stable success probability. (Depends on T026b)
-- [X] T028 [US3] Implement `src/evaluation/stats.py` (FR-005) to perform paired t-test or Wilcoxon signed-rank test on success rates between strategies and baseline. (Depends on T027)
-- [X] T029 [US3] Implement `src/evaluation/stats.py` (FR-006) to apply Benjamini-Hochberg correction for multiple comparisons across all primary strategies and **sensitivity sweeps** (T031). (Depends on T028, T031)
-- [ ] T031 [US3] Implement sensitivity analysis logic (SC-004) for **k in {1, 3, 5}** in `src/retrieval/strategies.py` and `src/evaluation/runner.py`. **Output** results to `data/results/stats_report.json` under the key `sensitivity_analysis`. (Depends on T020, T026) <!-- FAILED: unspecified -->
-- [ ] T032 [US3] Generate final report in `data/results/stats_report.json` including p-values, BH-adjusted q-values, reconstruction errors (SC-005, from T022b), and linearity correlation (from T030). (Depends on T031, T029, T022b, T030)
+- [ ] T026a [US3] Download and convert the base LLM to GGUF format. **Action**: Use `llama.cpp` to download `TinyLlama-1.1B-Chat-v1.0` and quantize to `q4_0`, saving to `data/models/tinyllama-1.1b-q4_0.gguf`. **Also download** the standard fine-tuned baseline LoRA adapters from the LatentSkill repo. **Constraint**: Ensure file size fits within 7GB RAM limit during inference. **Validate**: This task explicitly addresses the 'Assumptions' section regarding the 7GB RAM limit. (Depends on T004)
+- [ ] T026 [US3] Implement `src/evaluation/runner.py` (FR-004) to apply adapters (from T022b) to a frozen base LLM (via `llama-cpp-python` GGUF, model path: `data/models/tinyllama-1.1b-q4_0.gguf`, quantization: q4_0) and execute environment logic (ALFWorld/Search-QA). (Depends on T022b, T026a)
+- [ ] T026b [US3] Implement memory validation and streaming/chunking logic in `src/evaluation/runner.py` to ensure the base LLM inference fits within 7GB RAM. Explicitly log memory usage during the first run and fail loudly if it exceeds **6.5 GB**. (Depends on T026)
+- [ ] T027 [US3] Implement `src/evaluation/runner.py` loop to execute **N >= 5** independent runs per task (FR-008) and record binary outcomes, calculating the **mean of these binary outcomes** to establish a stable success probability. (Depends on T026b)
+- [ ] T031 [US3] Implement sensitivity analysis logic (SC-004) for **k in {1, 3, 5, 10}** in `src/retrieval/strategies.py` and `src/evaluation/runner.py`. **Input**: The specific list of task descriptions/IDs: `['alfworld_clean', 'searchqa_qa', 'alfworld_searchqa']`. **Output** results to `data/results/stats_report.json` under the key `sensitivity_analysis`. **Mandate**: Report specific performance degradation thresholds to make the analysis measurable. (Depends on T022a, T026a)
+- [ ] T028 [US3] Implement `src/evaluation/stats.py` (FR-005) to perform paired t-test or Wilcoxon signed-rank test on success rates between strategies and baseline. (Depends on T027)
+- [ ] T029 [US3] Implement `src/evaluation/stats.py` (FR-006) to apply Benjamini-Hochberg correction for multiple comparisons across all primary strategies and **sensitivity sweeps** (results from T031). **Output**: Append corrected q-values to `data/results/stats_report.json`. (Depends on T028, T031)
+- [ ] T032 [US3] Generate final report in `data/results/stats_report.json` including p-values, BH-adjusted q-values, reconstruction errors (SC-005, from T022d), and linearity correlation (from T030). (Depends on T031, T029, T022d, T030)
 
 ### Tests for User Story 3
 
-- [X] T024 [P] [US3] Contract test for `src/evaluation/stats.py` output schema in `tests/contract/test_schemas.py`
-- [X] T025 [P] [US3] Integration test for full evaluation loop in `tests/integration/test_pipeline.py`
+- [ ] T024 [P] [US3] Contract test for `src/evaluation/stats.py` output schema in `tests/contract/test_schemas.py`
+- [ ] T025 [P] [US3] Integration test for full evaluation loop in `tests/integration/test_pipeline.py`
 
 **Checkpoint**: Evaluation complete with statistical validation.
 
@@ -136,14 +138,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T033a Update `README.md` with installation instructions, usage examples, and data source details
-- [ ] T033b Create `docs/api.md` with function signatures and module descriptions
-- [ ] T034 Code cleanup and refactoring of `src/retrieval/strategies.py`
+- [ ] T033a Update `README.md` with sections: 'Installation', 'Usage', 'Data Sources', and 'Results' containing the specific content defined in the plan.
+- [X] T033b Create `docs/api.md` with function signatures and module descriptions
+- [X] T034 Code cleanup and refactoring of `src/retrieval/strategies.py`
 - [ ] T036 [P] Additional unit tests for edge cases in `tests/unit/`
-- [ ] T037 Run `src/validate/citation_check.py` to verify all dataset sources
-- [ ] T038 Run `quickstart.md` validation to ensure full pipeline reproducibility
-
-**Removed Tasks**: T035a, T035b1, T035b2 (FAISS/PQ optimization) removed as they constitute scope creep and violate the CPU-only standard library constraint. Latency benchmarking (SC-003) is now integrated into T019 and T020.
+- [X] T037 Run `src/validate/citation_check.py` to verify all dataset sources
+- [ ] T038 Run `docs/quickstart.md` validation: Execute the pipeline script referenced in `docs/quickstart.md` and save the output log to `data/results/quickstart_validation.log`. (Depends on T007b)
 
 ---
 
@@ -161,8 +161,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T014 (Index generation)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T022 (Synthesis) and T026 (Runner setup)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T014b (Index generation)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T022b (Synthesis) and T026a (Base Model)
 
 ### Within Each User Story
 
@@ -236,9 +236,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **Constraint**: All tasks MUST run on CPU-only free-tier CI (limited cores, 7GB RAM). No `bitsandbytes` CUDA usage. Use `llama-cpp-python` (GGUF) for inference.
-- **Data**: No fabrication. All datasets must be fetched from real sources (specifically the LatentSkill repository for weights). If real weights are unavailable, use a documented proxy with `is_proxy=true` flag, generated via `numpy.random.normal` with matching shapes.
-- **Critical Data Hygiene**: `src/ingestion/download_weights.py` (T012) MUST raise an exception only if the proxy generation logic fails; otherwise, it must log the unavailability and proceed with the proxy.
-- **Memory Management**: T012 and T013 must stream or chunk the LoRA weight loading to ensure the 7GB RAM limit is not exceeded during ingestion of large adapters. T026b must explicitly validate memory during inference with a 6.5 GB threshold.
+- **Data**: No fabrication. All datasets must be fetched from real sources (specifically the LatentSkill repository for weights). If real weights are unavailable, **FAIL LOUDLY**. Do NOT generate proxy data.
+- **Critical Data Hygiene**: `src/ingestion/download_weights.py` (T012) MUST raise an exception if the real fetch fails.
+- **Memory Management**: T012 and T013 must stream or chunk the LoRA weight loading to ensure the 7GB RAM limit is not exceeded during ingestion of large adapters. Tb must explicitly validate memory during inference with a 6.5 GB threshold.
 - **Statistical Rigor**: T030 must output the correlation value and validity flag to the report, not halt execution.
-- **Sensitivity Analysis**: T031 must use k in {1, 3, 5} per SC-004.
+- **Sensitivity Analysis**: T031 must use k in {1, 3, 5, 10} per SC-004 and report performance degradation thresholds.
 - **Latency Reporting**: Latency logging is integrated into T019 and T020 to satisfy SC-003.
+- **Ground Truth Generation**: T022c must generate REAL composite weights (not synthetic) to serve as ground truth for T022d and T030.
+- **Base Model Provisioning**: T026a must download and quantize the base model (TinyLlama-1.1B) AND the baseline adapters before T026 executes.

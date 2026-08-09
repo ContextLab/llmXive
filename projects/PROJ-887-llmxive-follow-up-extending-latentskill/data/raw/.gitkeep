@@ -1,1 +1,2 @@
-# Placeholder to ensure this directory is tracked by git
+# This directory stores raw, unprocessed dataset files.
+# Do not modify files here; they are the source of truth.

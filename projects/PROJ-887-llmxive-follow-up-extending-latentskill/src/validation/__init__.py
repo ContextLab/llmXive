@@ -1,4 +1,3 @@
 """
-Validation module for llmXive.
-Handles linearity checks and metric validation.
+Validation module for ground truth generation and reconstruction error analysis.
 """

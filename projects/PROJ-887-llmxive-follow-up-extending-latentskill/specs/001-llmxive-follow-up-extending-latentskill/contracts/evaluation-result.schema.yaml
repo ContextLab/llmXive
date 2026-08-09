@@ -1,83 +1,84 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Evaluation Result Schema
 description: >
-  Defines the structure of the statistical evaluation report
-  generated after running the evaluation pipeline (User Story 3).
+  Defines the structure for the final evaluation results, including
+  success rates, statistical tests, and sensitivity analysis.
+  This validates `data/results/stats_report.json`.
 type: object
 required:
-  - experiment_id
-  - timestamp
-  - configuration
-  - results
+  - experiment_metadata
+  - primary_results
   - statistical_analysis
   - sensitivity_analysis
+  - linearity_check
+  - reconstruction_error
 properties:
-  experiment_id:
-    type: string
-    description: Unique identifier for the experiment run
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the run
-  configuration:
+  experiment_metadata:
     type: object
     required:
-      - base_model_path
-      - strategies_used
-      - k_values
+      - run_id
+      - timestamp
+      - model_config
     properties:
-      base_model_path:
+      run_id:
         type: string
-        description: Path to the GGUF model used
-      strategies_used:
-        type: array
-        items:
-          type: string
-        description: List of retrieval strategies tested (e.g., 'nearest_neighbor', 'cosine_weighted')
-      k_values:
-        type: array
-        items:
-          type: integer
-        description: List of k values used for sensitivity analysis
-      seed:
-        type: integer
-        description: Random seed used for reproducibility
-  results:
-    type: object
-    description: >
-      Map of task names to their success metrics.
-      Structure: { task_name: { strategy: { mean_success: float, trials: int, outcomes: [bool] } } }
-    additionalProperties:
-      type: object
-      additionalProperties:
+        description: Unique identifier for this experiment run.
+      timestamp:
+        type: string
+        format: date-time
+      model_config:
         type: object
-        required:
-          - mean_success
-          - trials
-          - outcomes
         properties:
-          mean_success:
-            type: number
-            format: float
-            description: Mean of binary outcomes (0.0 to 1.0)
-          trials:
+          base_model:
+            type: string
+            description: e.g., "TinyLlama-1.1B-Chat-v1.0"
+          quantization:
+            type: string
+            description: e.g., "q4_0"
+          lora_rank:
             type: integer
-            description: Number of independent runs (N >= 5)
-          outcomes:
-            type: array
-            items:
-              type: boolean
-            description: List of binary success/failure results
+          alpha:
+            type: number
+
+  primary_results:
+    type: object
+    description: Success rates for different strategies (Single, Mean, Weighted).
+    required:
+      - strategies
+    properties:
+      strategies:
+        type: array
+        items:
+          type: object
+          required:
+            - strategy_name
+            - success_rate
+            - trials
+            - successes
+          properties:
+            strategy_name:
+              type: string
+              enum:
+                - single_nearest_neighbor
+                - unweighted_mean
+                - cosine_weighted_average
+            success_rate:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+            trials:
+              type: integer
+              minimum: 5
+            successes:
+              type: integer
+
   statistical_analysis:
     type: object
+    description: Results of paired t-tests and Benjamini-Hochberg correction.
     required:
-      - method
       - comparisons
-      - bh_correction
+      - bh_corrected
     properties:
-      method:
-        type: string
-        description: Statistical test used (e.g., 'paired_t_test', 'wilcoxon')
       comparisons:
         type: array
         items:
@@ -86,7 +87,7 @@ properties:
             - strategy_a
             - strategy_b
             - p_value
-            - significant
+            - test_type
           properties:
             strategy_a:
               type: string
@@ -94,63 +95,98 @@ properties:
               type: string
             p_value:
               type: number
-              format: float
-            significant:
-              type: boolean
-      bh_correction:
+            test_type:
+              type: string
+              enum:
+                - paired_ttest
+                - wilcoxon_signed_rank
+      bh_corrected:
         type: array
         items:
           type: object
           required:
-            - comparison_id
-            - q_value
+            - strategy_pair
+            - adjusted_q_value
             - significant
           properties:
-            comparison_id:
+            strategy_pair:
               type: string
-            q_value:
+            adjusted_q_value:
               type: number
-              format: float
             significant:
               type: boolean
+
   sensitivity_analysis:
     type: object
-    description: >
-      Results of varying k (number of neighbors) in {1, 3, 5}.
-      Structure: { k: { strategy: { mean_success: float } } }
-    additionalProperties:
-      type: object
-      additionalProperties:
+    description: Performance degradation across different k values.
+    required:
+      - k_values
+      - results
+    properties:
+      k_values:
+        type: array
+        items:
+          type: integer
+        description: List of k values tested (e.g., [1, 3, 5, 10]).
+      results:
         type: object
-        required:
-          - mean_success
-        properties:
-          mean_success:
-            type: number
-            format: float
+        additionalProperties:
+          type: object
+          required:
+            - k
+            - success_rate
+            - latency_ms
+          properties:
+            k:
+              type: integer
+            success_rate:
+              type: number
+            latency_ms:
+              type: number
+
   linearity_check:
     type: object
-    description: >
-      Optional field if linearity check (T030) was performed.
+    description: Pearson correlation between text-space and weight-space distances.
     required:
       - correlation
-      - is_valid
+      - validity_flag
     properties:
       correlation:
         type: number
-        format: float
-        description: Pearson correlation between text-space and weight-space distances
-      is_valid:
+        description: Pearson correlation coefficient.
+      validity_flag:
         type: boolean
-        description: True if correlation >= 0.6
+        description: True if correlation >= 0.6.
+      pairs_tested:
+        type: integer
+        description: Number of task pairs evaluated.
+
   reconstruction_error:
     type: object
-    description: >
-      Optional field if reconstruction error (T022b) was computed.
+    description: Cosine distance between synthesized and ground truth weights.
     required:
-      - cosine_distance
+      - mean_error
+      - std_error
+      - composite_tasks
     properties:
-      cosine_distance:
+      mean_error:
         type: number
-        format: float
-        description: Cosine distance between synthesized and true weights
+      std_error:
+        type: number
+      composite_tasks:
+        type: array
+        items:
+          type: object
+          required:
+            - task_name
+            - alpha
+            - error
+          properties:
+            task_name:
+              type: string
+            alpha:
+              type: number
+            error:
+              type: number
+
+additionalProperties: false

@@ -1,3 +1,35 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `__init__.py` files in any of the listed `src/*`
+    directories is provided; without file listings or contents we cannot confirm they
+    exist or contain even minimal docstrings. The implementer must add and show these
+    files.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that `.gitkeep` files exist in the required\
+    \ directories (`data/raw/`, `data/processed/`, `data/results/`, `artifacts/synthesized_adapters/`,\
+    \ `specs/001-lattentskill-retrieval-geometry/contracts/`). Without confirming\
+    \ the presence and non\u2011emptiness of these files, the task cannot be considered\
+    \ completed."
+T012:
+  c: false
+  h: 84dc57baa27f3f49e0645a83bd4e5efa84cc6aacaf0b84cd667bc85df278fa0d
+  r: "The `download_weights.py` script is present, but it does not create the required\
+    \ `data/raw/proxy_alfworld_weights.npz` and `data/raw/proxy_searchqa_weights.npz`\
+    \ files (both are missing). Moreover, the proxy generation uses a fixed scale\
+    \ of\u202F0.02 and does not set `seed=42` or a standard deviation of\u202F1 as\
+    \ specified, and it saves individual `.npy` files in `data/processed/proxy_weights`\
+    \ instead of a single `.npz` in `data/raw`. The task\u2019s output requirements\
+    \ are therefore not met."
+T014b:
+  c: false
+  h: 9764885934907e3db50e56b0e983f9f63fef2d3ec3248d4c7e29281d40a3bf77
+  r: The repository contains the `src/retrieval/vector_db.py` script, but the required
+    output file `data/processed/skill_index.npz` is absent, and there is no evidence
+    (logs, checksums, or verification steps) that the script was run and the index
+    was successfully created and validated. The task therefore remains unfinished.
 T022b:
   c: false
   h: 021df1d3f20ea2ff5b8b7eb2aafc69f14460731120f37c8f2362f960365b3874
@@ -5,33 +37,47 @@ T022b:
     \ with \u201Cw\u201D) and never reaches the code that writes the JSON result.\
     \ Consequently, `data/results/reconstruction_error.json` does not exist, so the\
     \ required output file is missing. The task is not fully implemented."
-T026:
+T022c:
   c: false
-  h: 32dc9bf825c35271952ac812936b8cb4256fd022c5e4d6d845ba02b64f244168
-  r: "The provided `src/evaluation/runner.py` contains only stubbed logic with comments\
-    \ like \u201Cimplementation deferred to T026\u201D and does not actually load\
-    \ the GGUF model or apply LoRA adapters via `llama-cpp-python`. Moreover, the\
-    \ required model file `data/models/llama-2-7b-q4_0.gguf` is absent. Hence the\
-    \ task\u2019s core requirement is not fulfilled."
-T030:
+  h: c665b50595a8b4b572bbd07055f80273248006b28e5552f41d07135013e12a8a
+  r: "The repository contains a partially\u2011written `generate_ground_truth.py`\
+    \ that is truncated and does not include the full interpolation logic nor the\
+    \ code to save the result. Moreover, the required output file `data/processed/composite_ground_truth.npz`\
+    \ is absent. The task\u2019s core requirement\u2014generating and persisting the\
+    \ synthetic ground\u2011truth weights\u2014is therefore not fulfilled."
+T022d:
   c: false
-  h: fc015b616c77f38a1c66434465810fae544d8d7631f14169865dd6764f599cc8
-  r: The provided `src/validation/linearity_check.py` is truncated (ends with an incomplete
-    line `if l`) and does not contain the full logic to compute the correlation, write
-    the JSON with the required fields, or handle the threshold without raising an
-    error. Additionally, the expected output file `data/results/linearity_check.json`
-    is absent. The task therefore remains unfinished.
+  h: 76566c227b2de0f66e1a1b9aac57cd708a9c73f9fe5bf1df1db781ce7805e7f9
+  r: The provided `src/validation/reconstruction_error.py` is incomplete (the `flatten_matrices`
+    function is cut off and there is no code that actually loads the inputs, computes
+    the cosine distance, and writes the result to `data/results/reconstruction_error.json`).
+    Moreover, the required output file `data/results/reconstruction_error.json` does
+    not exist. The task therefore remains unfinished.
 T031:
   c: false
-  h: 915ede7ec89b76875b6247666939fc2ddd800c578f535a72326da608988c1968
-  r: "The provided `strategies.py` and `runner.py` files contain retrieval and evaluation\
-    \ scaffolding but show no implementation of sensitivity\u2011analysis loops for\
-    \ k\u202F=\u202F1,\u202F3,\u202F5, nor any code that writes a `sensitivity_analysis`\
-    \ entry to `data/results/stats_report.json`. Moreover, the required `stats_report.json`\
-    \ file is missing entirely. The task\u2019s core requirement is therefore unmet."
+  h: 98b2ce71b433ef59428af0a80c623bb6b5966eff145771ac1bb6fcf0d3d44663
+  r: "The repository lacks the required `data/results/stats_report.json` file, and\
+    \ the provided excerpts of `src/retrieval/strategies.py` and `src/evaluation/runner.py`\
+    \ do not show any implemented sensitivity\u2011analysis logic for the k values\
+    \ {1,\u202F3,\u202F5,\u202F10} nor code that writes a `sensitivity_analysis` key\
+    \ to the JSON report. These essential artifacts are missing, so the task is not\
+    \ fulfilled."
 T033a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a modified `README.md` is provided; the claim lacks the actual
     file showing installation instructions, usage examples, and data source details.
     The required documentation update is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No new or modified test files are present in `tests/unit/`, and no evidence\
+    \ of additional edge\u2011case unit tests is provided. The required artifact (the\
+    \ extra unit tests) is missing, so the task is not satisfied."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run is present\u2014there are no\
+    \ logs, output files, or a report confirming that the quickstart instructions\
+    \ were executed and reproduced the full pipeline. The required artifact (validation\
+    \ results) is missing."
