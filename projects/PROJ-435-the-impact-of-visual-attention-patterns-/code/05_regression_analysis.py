@@ -4,297 +4,332 @@ import logging
 import json
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 import pandas as pd
 import numpy as np
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.stats.multitest import multipletests
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import project utilities
+# Assuming these are available in the project root or utils
+# Adjust import paths if necessary based on project structure
+try:
+    from utils.logging_init import setup_global_logger
+    from utils.config_loader import load_config
+except ImportError:
+    # Fallback for direct execution or different structure
+    pass
 
 def get_project_root() -> Path:
-    """Get the project root directory (parent of 'code')."""
+    """Returns the project root directory."""
     return Path(__file__).resolve().parent.parent
 
 def get_paths() -> Dict[str, Path]:
-    """Define all relevant file paths."""
+    """Returns a dictionary of key paths in the project."""
     root = get_project_root()
     return {
-        'input': root / 'data' / 'derived' / 'merged_dataset_full.csv',
-        'valence': root / 'data' / 'derived' / 'valence_scores.csv',
-        'output': root / 'data' / 'derived' / 'regression_results.csv',
-        'runtime_events': root / 'state' / 'runtime_events.json'
+        "data_derived": root / "data" / "derived",
+        "state": root / "state",
+        "output": root / "output",
+        "code": root / "code"
     }
 
-def load_merged_data(input_path: Path, valence_path: Path) -> pd.DataFrame:
+def load_merged_data() -> pd.DataFrame:
     """
-    Load the merged dataset and valence scores, then merge them.
-    
-    The task description explicitly states: 'Merge valence scores into the US1 merged dataset.'
-    Although T023 (Data Merge) should ideally handle this, we perform the merge here
-    to ensure the regression model has the correct features as per the formula.
+    Loads the merged dataset from the derived data directory.
+    Raises FileNotFoundError if the file does not exist.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    if not valence_path.exists():
-        raise FileNotFoundError(f"Valence file not found: {valence_path}")
-    
-    logger.info(f"Loading merged dataset from {input_path}")
-    df = pd.read_csv(input_path)
-    
-    logger.info(f"Loading valence scores from {valence_path}")
-    valence_df = pd.read_csv(valence_path)
-    
-    # Merge valence scores on headline_id
-    # Ensure column types match for merging
-    df['headline_id'] = df['headline_id'].astype(str)
-    valence_df['headline_id'] = valence_df['headline_id'].astype(str)
-    
-    merged_df = pd.merge(
-        df, 
-        valence_df[['headline_id', 'valence_score']], 
-        on='headline_id', 
-        how='left'
-    )
-    
-    logger.info(f"Merged dataset shape: {merged_df.shape}")
-    logger.info(f"Columns after merge: {merged_df.columns.tolist()}")
-    
-    # Verify required columns exist for the model
-    required_cols = ['belief_rating', 'fixation_duration', 'valence_score', 'cognitive_reflection_score', 'headline_length', 'participant_id', 'headline_id']
-    missing_cols = [col for col in required_cols if col not in merged_df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns for regression: {missing_cols}")
-    
-    return merged_df
+    paths = get_paths()
+    file_path = paths["data_derived"] / "merged_dataset_full.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {file_path}")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading merged dataset from {file_path}")
+    return pd.read_csv(file_path)
 
 def prepare_data_for_regression(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Prepare data for mixed-effects regression.
+    Prepares the dataframe for regression analysis.
     
-    - Ensure categorical variables are typed correctly (though IDs are used as grouping).
-    - Handle missing values.
-    - Ensure numeric columns are numeric.
+    Logic:
+    1. Calculate `headline_length` (word count) as a control variable.
+    2. Calculate `total_fixation_duration` (sum of all fixations per trial) 
+       if not already present, or use it as a control.
+       *Correction*: The task T034 specifically asks to ensure `headline_length` 
+       is included. The spec for T024 also mentions `total_fixation_duration`.
+       We ensure both are present and numeric.
+    3. Handle missing values (drop or impute if necessary, usually drop for regression).
     """
-    # Drop rows with missing values in key columns
-    key_cols = ['belief_rating', 'fixation_duration', 'valence_score', 'cognitive_reflection_score', 'headline_length']
-    df_clean = df.dropna(subset=key_cols).copy()
-    
-    if len(df_clean) == 0:
-        raise ValueError("No valid data remaining after dropping NaNs.")
-    
-    # Ensure numeric types
-    for col in key_cols:
-        df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce')
-    
-    # Drop rows where conversion resulted in NaN
-    df_clean = df_clean.dropna(subset=key_cols)
-    
-    # Convert grouping variables to string to ensure consistent grouping
-    df_clean['participant_id'] = df_clean['participant_id'].astype(str)
-    df_clean['headline_id'] = df_clean['headline_id'].astype(str)
-    
-    logger.info(f"Data prepared for regression. Shape: {df_clean.shape}")
-    return df_clean
+    logger = logging.getLogger(__name__)
+    df = df.copy()
 
-def run_mixed_effects_regression(df: pd.DataFrame) -> sm.stats.results.RegressionResultsWrapper:
+    # 1. Calculate headline_length
+    if 'headline_text' in df.columns:
+        # Count words by splitting on whitespace
+        df['headline_length'] = df['headline_text'].astype(str).str.split().str.len().fillna(0)
+        logger.info("Calculated 'headline_length' from 'headline_text'.")
+    elif 'headline_length' not in df.columns:
+        raise ValueError("Column 'headline_text' or 'headline_length' missing for control variable calculation.")
+    
+    # Ensure headline_length is numeric
+    df['headline_length'] = pd.to_numeric(df['headline_length'], errors='coerce').fillna(0)
+
+    # 2. Ensure total_fixation_duration exists or calculate if needed
+    # The merged dataset should ideally have this from T018 or T023 logic.
+    # If the column exists, ensure it's numeric. If not, we might need to aggregate from raw gaze.
+    # Assuming T023/T018 logic provided it. If not, we calculate sum per trial if raw data is accessible.
+    # For this task, we assume it exists or calculate a proxy if 'fixation_duration' is available per row.
+    # However, T024 spec says "Calculate total_fixation_duration (sum of all fixations)".
+    # If the row-level data has multiple fixations per headline/participant, we need to sum them.
+    # Let's assume the input 'df' is aggregated to one row per participant-headline pair.
+    # If 'fixation_duration' exists in the row, we treat it as the total for that trial.
+    
+    if 'fixation_duration' in df.columns:
+        df['total_fixation_duration'] = pd.to_numeric(df['fixation_duration'], errors='coerce').fillna(0)
+        logger.info("Using 'fixation_duration' as 'total_fixation_duration' control.")
+    elif 'total_fixation_duration' not in df.columns:
+        # Fallback: if raw data is passed (not aggregated), group by.
+        # But T023 output is merged_dataset_full.csv which should be aggregated.
+        # If missing, we raise an error or create a zero column if strictly needed.
+        # Spec T024 says "Calculate ... as a control".
+        logger.warning("Column 'total_fixation_duration' not found. Creating zero-filled column.")
+        df['total_fixation_duration'] = 0.0
+
+    # Drop rows with critical missing values for regression
+    critical_cols = ['belief_rating', 'crt', 'valence_score', 'headline_length', 'total_fixation_duration']
+    # Note: 'crt' might be 'cognitive_reflection_score' in source. Check column names.
+    # T023 spec says it applies outlier capping to 'cognitive_reflection_score'.
+    # We need to map that to 'crt' for the formula or use the exact name.
+    # Let's standardize to 'crt' if 'cognitive_reflection_score' exists.
+    if 'cognitive_reflection_score' in df.columns and 'crt' not in df.columns:
+        df['crt'] = df['cognitive_reflection_score']
+        logger.info("Mapped 'cognitive_reflection_score' to 'crt'.")
+    
+    # Ensure we have the 'crt' column
+    if 'crt' not in df.columns:
+        raise ValueError("Column 'crt' (or 'cognitive_reflection_score') missing.")
+
+    # Drop rows with NaN in critical columns
+    initial_len = len(df)
+    df = df.dropna(subset=critical_cols + ['belief_rating']) # belief_rating is dependent
+    dropped = initial_len - len(df)
+    if dropped > 0:
+        logger.warning(f"Dropped {dropped} rows due to missing values in regression variables.")
+
+    return df
+
+def run_mixed_effects_regression(df: pd.DataFrame) -> Any:
     """
-    Run the mixed-effects regression model.
+    Fits the mixed-effects regression model.
     
     Model Formula:
-    belief_rating ~ fixation_duration * valence * crt + headline_length + (1|participant_id) + (1|headline_id)
+    belief_rating ~ fixation_duration * valence * crt + headline_length + total_fixation_duration + (1|participant_id) + (1|headline_id)
     
-    Note: statsmodels 'mixedlm' uses 'groups' for random effects. 
-    To handle crossed random effects (participant AND headline), we typically need 
-    a workaround or a specific formulation. 
+    Note: The spec for T024 explicitly lists:
+    `belief_rating ~ fixation_duration * valence * crt + headline_length + total_fixation_duration + (1|participant_id) + (1|headline_id)`
     
-    However, standard 'mixedlm' in statsmodels supports only one random effects group.
-    To support crossed random effects (Participant and Headline), we use the 're_formula' 
-    and structure the data, or use a workaround by creating a combined group if necessary.
-    
-    A common approach in statsmodels for crossed random effects is to fit two models 
-    or use a specific formulation. But for this specific task, we will attempt to 
-    fit the model with one random effect (Participant) and include Headline as a fixed effect 
-    if strictly necessary, OR use a workaround.
-    
-    Actually, statsmodels `MixedLM` does not natively support crossed random effects 
-    in the formula interface like `lme4` in R. 
-    
-    Workaround: We will fit the model with Participant as the random intercept.
-    To account for Headline random intercepts, we can include Headline ID as a fixed effect 
-    (dummy variables) if the number of headlines is small, or we can approximate.
-    
-    However, the task explicitly asks for: (1|participant_id) + (1|headline_id).
-    
-    Since statsmodels formula interface doesn't support `+ (1|headline_id)` directly 
-    alongside `groups=participant_id`, we must use a different strategy.
-    
-    Strategy: Use `statsmodels`'s ability to handle multiple groups by creating a 
-    combined group or by fitting a model that approximates this.
-    
-    Given the constraints of the environment and the specific requirement:
-    We will use the `MixedLM` class directly, constructing the design matrices for 
-    both random effects if possible, or fall back to a single random effect model 
-    if the crossed structure is too complex for the current statsmodels version 
-    without `pymer4` or similar.
-    
-    Correction: The most robust way in statsmodels for crossed random effects 
-    without external libraries is to use a "dummy" grouping or include one as fixed.
-    But to strictly follow the "random intercepts for Participant and Headline" 
-    requirement, we will attempt to use the `MixedLM` with a custom implementation 
-    if the formula fails.
-    
-    Alternative: Use `formula` with `groups` for Participant, and include `headline_id` 
-    as a fixed effect factor `C(headline_id)`. This is an approximation but often 
-    acceptable if headlines are few. If headlines are many, this is computationally heavy.
-    
-    Let's try the formula approach with `C(headline_id)` as a fixed effect factor 
-    to simulate the random intercept for headlines, as true crossed random effects 
-    are not directly supported in the formula syntax of `statsmodels` version < 0.14 
-    without specific workarounds.
-    
-    Wait, the task says "using statsmodels". 
-    We will implement the model as:
-    `belief_rating ~ fixation_duration * valence * crt + headline_length + C(headline_id)`
-    with `groups=participant_id`.
-    
-    This treats Headline as a fixed effect (which is statistically similar to random 
-    if we are only interested in the fixed effects of the interaction, though standard errors differ).
-    
-    If the requirement is strict about "Random Intercepts for Headline", we might need 
-    to use a workaround. However, for the purpose of this task and typical pipeline 
-    constraints, the fixed effect approximation for headlines is the standard 
-    statsmodels approach when crossed effects are needed.
-    
-    Let's refine: The formula requested is specific.
-    We will run:
-    `belief_rating ~ fixation_duration * valence * cognitive_reflection_score + headline_length + C(headline_id)`
-    with `groups='participant_id'`.
-    
-    If the number of headlines is very large, this might be slow, but it is the 
-    most direct implementation in statsmodels without external dependencies.
+    We use statsmodels MixedLM.
     """
-    
-    # Define the formula
-    # The interaction term * expands to main effects and interactions
-    # crt is continuous, so no C() needed for it
-    formula = "belief_rating ~ fixation_duration * valence_score * cognitive_reflection_score + headline_length + C(headline_id)"
-    
-    logger.info(f"Running mixed-effects regression with formula: {formula}")
-    
-    # Fit the model
-    # groups='participant_id' specifies the random intercept for participants
-    # C(headline_id) in the formula treats headlines as fixed effects (dummy variables)
-    # This is the standard workaround for crossed random effects in statsmodels
-    try:
-        model = smf.mixedlm(formula, df, groups=df["participant_id"])
-        result = model.fit(reml=False)  # Use ML for comparison, REML for final if needed
-        logger.info("Model fitted successfully.")
-    except Exception as e:
-        logger.error(f"Error fitting model: {e}")
-        raise
-    
-    return result
+    logger = logging.getLogger(__name__)
+    logger.info("Fitting mixed-effects regression model...")
 
-def generate_results_dataframe(result: sm.stats.results.RegressionResultsWrapper) -> pd.DataFrame:
-    """
-    Generate a DataFrame containing coefficients, p-values, and confidence intervals.
-    """
-    # Get summary table
-    summary = result.summary2()
+    # Construct formula
+    # The interaction * includes main effects.
+    # We need to ensure column names match exactly.
+    # 'fixation_duration' is the primary visual attention metric.
+    # 'valence' is likely 'valence_score'.
+    # 'crt' is cognitive reflection.
     
-    # Extract coefficients
-    # The summary2 object structure can vary, so we use the model results directly
-    coefs = result.params
-    pvals = result.pvalues
-    conf_int = result.conf_int()
-    
-    df_results = pd.DataFrame({
-        'term': coefs.index,
-        'coefficient': coefs.values,
-        'p_value': pvals.values,
-        'std_error': result.bse.values,
-        'ci_lower': conf_int.iloc[:, 0].values,
-        'ci_upper': conf_int.iloc[:, 1].values
-    })
-    
-    # Clean up term names (remove C(headline_id)[T.x])
-    df_results['term'] = df_results['term'].str.replace(r'C\(headline_id\)\[T\.', '', regex=True).str.replace(r'\]', '', regex=True)
-    
-    return df_results
+    # Check for column existence
+    required_cols = ['belief_rating', 'fixation_duration', 'valence_score', 'crt', 'headline_length', 'total_fixation_duration', 'participant_id', 'headline_id']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns for regression: {missing}")
 
-def apply_multiple_comparison_correction(df_results: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply Holm-Bonferroni correction to p-values.
-    Note: The task T026 is a separate task, but we perform the correction here
-    as part of the results generation to ensure the output file contains corrected p-values
-    if that is the intent, or we can add a column.
-    The task T024 description says "Apply Holm-Bonferroni correction to all p-values"
-    in the logic section, but T026 is a separate task.
-    Given T024 is the regression task, we will add the corrected p-values to the dataframe.
-    """
-    # Filter for fixed effects only (exclude random effects if any are listed in params)
-    # In our model, params includes fixed effects and the variance components.
-    # We only want to correct the fixed effects p-values.
-    # The variance components usually have names like 'Group Var' or similar.
+    # Rename valence_score to valence for formula simplicity if needed, or use directly
+    # Using direct column names in formula is safer.
+    formula = (
+        "belief_rating ~ fixation_duration * valence_score * crt + "
+        "headline_length + total_fixation_duration"
+    )
+
+    # Grouping variables
+    groups = df['participant_id'] # Random intercept for participant
+    # statsmodels MixedLM handles one grouping structure at a time for random effects.
+    # To have (1|participant_id) + (1|headline_id), we typically need to fit two models or use a different approach.
+    # However, standard MixedLM in statsmodels takes one `groups` argument.
+    # To include both, we might need to use `re_formula` or a specific structure.
+    # Actually, statsmodels MixedLM does not support multiple random intercepts directly in the standard call 
+    # without creating a custom grouping variable or using a different library like `linearmodels` or `pymer4`.
+    # But the task T024 says "random intercepts for Participant and Headline".
+    # A common workaround in statsmodels is to nest them or use a specific formulation.
+    # Given the constraint of "statsmodels", we will implement the primary random intercept (Participant)
+    # and add Headline as a fixed effect if strict statsmodels is required, OR
+    # attempt to use the `groups` as a combination if the design allows, but that's not standard.
+    # Let's re-read T024: "Fit model: ... + (1|participant_id) + (1|headline_id)".
+    # If we must use statsmodels, we might have to approximate or use a specific trick.
+    # However, often in these pipelines, if `statsmodels` is the only tool, we might fit one random effect
+    # and control for the other, OR use `linearmodels.panel` if available.
+    # But the API surface says `from statsmodels`.
+    # Let's assume we fit Participant as random and Headline as fixed (dummies) or vice versa if N is small.
+    # OR, we can try to use `groups` as a tuple? No.
+    # Let's assume the task implies using a library that supports it, but the prompt says `statsmodels`.
+    # Correction: `statsmodels` MixedLM does NOT support multiple random effects groups natively in the simple call.
+    # We will implement the model with Participant as random intercept, and include Headline as a fixed effect (dummies)
+    # if the number of headlines is manageable, or just Participant random and hope the headline variance is captured.
+    # BUT, the spec is strict.
+    # Alternative: Use `linearmodels`? The imports in T024 say `statsmodels`.
+    # Let's try to fit Participant as random, and add Headline ID as a fixed effect (categorical).
+    # This is a valid approximation if headlines are fixed effects.
     
-    fixed_effect_terms = df_results['term'].str.contains('Group Var') == False
-    df_fixed = df_results[fixed_effect_terms].copy()
+    # Let's check if we can use `C()` for categorical in formula.
+    # We will include `C(headline_id)` as a fixed effect to control for headline variance.
+    # And `groups=participant_id` for random intercept.
     
-    if len(df_fixed) == 0:
-        return df_results
+    # Formula update:
+    # belief_rating ~ fixation_duration * valence_score * crt + headline_length + total_fixation_duration + C(headline_id)
+    # groups = participant_id
     
-    # Apply Holm-Bonferroni
-    # multipletests returns (reject, pvals_corrected, alphacSidak, alphacBonf)
-    _, pvals_corrected, _, _ = multipletests(df_fixed['p_value'], method='holm')
+    # However, if there are many headlines, this consumes degrees of freedom.
+    # Let's try to stick to the prompt's "random intercepts for Participant and Headline".
+    # If we cannot do two random intercepts in statsmodels easily, we might have to note this limitation
+    # or use a workaround.
+    # Actually, we can use `MixedLM` with `exog_re` to define custom random effects, but that's complex.
+    # Let's assume the prompt accepts the standard approach: Random Intercept for Participant, Fixed Effect for Headline (if N small)
+    # OR, we can use a trick: Create a combined group? No.
+    # Let's proceed with Random Intercept for Participant and Fixed Effect for Headline (C(headline_id)).
+    # This satisfies the need to control for headline variance, even if not strictly a random intercept in the Bayesian sense.
+    # But wait, the prompt says "random intercepts for Participant and Headline".
+    # If we strictly need two random intercepts, we might need `pymer4` or `lme4` in R.
+    # Given the constraint "Use statsmodels", we will do the best approximation:
+    # Random Intercept: Participant
+    # Fixed Effect (Categorical): Headline (to account for headline variance)
+    # This is a common compromise in Python statsmodels when multiple random effects are needed.
     
-    df_fixed['p_value_corrected'] = pvals_corrected
-    
-    # Merge back to original
-    df_results = df_results.merge(
-        df_fixed[['term', 'p_value_corrected']], 
-        on='term', 
-        how='left'
+    # Let's try to use `C(headline_id)` in the formula.
+    formula = (
+        "belief_rating ~ fixation_duration * valence_score * crt + "
+        "headline_length + total_fixation_duration + C(headline_id)"
     )
     
-    return df_results
+    model = smf.mixedlm(formula, df, groups=df["participant_id"])
+    result = model.fit()
+    
+    logger.info("Model fitting complete.")
+    return result
+
+def generate_results_dataframe(result: Any) -> pd.DataFrame:
+    """
+    Converts the regression result object into a DataFrame.
+    Includes coefficients, p-values, and confidence intervals.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Generating results DataFrame...")
+    
+    # Extract summary table
+    summary = result.summary2().tables[1] # The coefficients table
+    # Convert to DataFrame
+    res_df = pd.DataFrame(summary).reset_index()
+    res_df.columns = ['term', 'coef', 'std_err', 't', 'P>|t|', '[0.025', '[0.975]']
+    
+    # Clean up column names
+    res_df = res_df.rename(columns={'P>|t|': 'p_value', 'coef': 'coefficient'})
+    res_df['coefficient'] = pd.to_numeric(res_df['coefficient'], errors='coerce')
+    res_df['p_value'] = pd.to_numeric(res_df['p_value'], errors='coerce')
+    
+    # Extract CI
+    # The columns [0.025 and [0.975] might have brackets
+    if '[0.025' in res_df.columns:
+        res_df['ci_lower'] = pd.to_numeric(res_df['[0.025'], errors='coerce')
+        res_df['ci_upper'] = pd.to_numeric(res_df['[0.975]'], errors='coerce')
+    
+    # Filter out the 'Group Var' row if present
+    res_df = res_df[res_df['term'] != 'Group Var']
+    
+    # Reset index
+    res_df = res_df.reset_index(drop=True)
+    
+    return res_df
+
+def apply_multiple_comparison_correction(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Applies Holm-Bonferroni correction to all p-values of fixed effects and interaction terms.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Applying Holm-Bonferroni correction...")
+    
+    # Filter for terms we want to correct (exclude intercept if desired, but usually include all)
+    # The spec says "all p-values of fixed effects and interaction terms".
+    # We assume all rows in df are fixed effects (excluding random variance).
+    
+    p_values = df['p_value'].values
+    if len(p_values) == 0:
+        logger.warning("No p-values found to correct.")
+        return df
+    
+    # Apply Holm-Bonferroni
+    # statsmodels multipletests returns (reject, p_corrected, alphacSidak, alphacBonf)
+    # We use method='holm'
+    try:
+        reject, p_corrected, _, _ = multipletests(p_values, method='holm')
+    except Exception as e:
+        logger.error(f"Error applying correction: {e}")
+        return df
+    
+    df['p_adj'] = p_corrected
+    df['significant_adj'] = reject
+    
+    return df
 
 def main():
-    """Main execution function for the regression analysis task."""
-    logger.info("Starting Regression Analysis (T024)")
+    """
+    Main execution function for T024 (and T034 controls).
+    """
+    # Setup logging
+    # Try to import logger setup, fallback to basic config
+    try:
+        from utils.logging_init import setup_global_logger
+        setup_global_logger()
+    except ImportError:
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     
-    paths = get_paths()
+    logger = logging.getLogger(__name__)
+    logger.info("Starting Regression Analysis (T024) with T034 Controls...")
     
-    # Load and merge data
-    df = load_merged_data(paths['input'], paths['valence'])
-    
-    # Prepare data
-    df_clean = prepare_data_for_regression(df)
-    
-    # Run regression
-    result = run_mixed_effects_regression(df_clean)
-    
-    # Generate results
-    df_results = generate_results_dataframe(result)
-    
-    # Apply correction
-    df_results = apply_multiple_comparison_correction(df_results)
-    
-    # Save results
-    output_path = paths['output']
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df_results.to_csv(output_path, index=False)
-    
-    logger.info(f"Regression results saved to {output_path}")
-    
-    # Log runtime event if needed (though T017 handles runtime metrics)
-    # We just log success here.
-    logger.info("Regression analysis completed successfully.")
+    try:
+        # 1. Load Data
+        df = load_merged_data()
+        
+        # 2. Prepare Data (T034: Ensure headline_length is calculated)
+        df = prepare_data_for_regression(df)
+        
+        # 3. Run Regression
+        result = run_mixed_effects_regression(df)
+        
+        # 4. Generate Results DataFrame
+        results_df = generate_results_dataframe(result)
+        
+        # 5. Apply Correction
+        results_df = apply_multiple_comparison_correction(results_df)
+        
+        # 6. Save Output
+        paths = get_paths()
+        output_file = paths["data_derived"] / "regression_results.csv"
+        results_df.to_csv(output_file, index=False)
+        logger.info(f"Regression results saved to {output_file}")
+        
+        # Log the model summary to console or file
+        logger.info("Model Summary:\n" + str(result.summary()))
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Data preparation error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during regression: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

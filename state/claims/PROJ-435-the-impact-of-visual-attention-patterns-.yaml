@@ -488,3 +488,321 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T16:19:21Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/manuscript_draft.md
+  attempts: 1
+  canonical: Mean belief rating of 3.24 with standard deviation 1.12
+  claim_id: c_7a95c452
+  context: Descriptive Statistics section reporting mean belief rating and standard
+    deviation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean belief rating: M = 3.24 (SD = 1.12)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:13:01Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/manuscript_draft.md
+  attempts: 1
+  canonical: Mean fixation duration on source attribution of 245ms with standard deviation
+    120ms
+  claim_id: c_b000475a
+  context: Descriptive Statistics section reporting mean fixation duration on source
+    attribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mean_fixation_duration_on_source_attribution_of_245ms_with_s
+  kind: entity_fact
+  raw_text: 'Mean fixation duration on source attribution: M = 245ms (SD = 120ms)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:14:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/manuscript_draft.md
+  attempts: 1
+  canonical: Mean fixation duration on headline body of 410ms with standard deviation
+    180ms
+  claim_id: c_7dc7835f
+  context: Descriptive Statistics section reporting mean fixation duration on headline
+    body.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mean_fixation_duration_on_headline_body_of_410ms_with_standa
+  kind: entity_fact
+  raw_text: 'Mean fixation duration on headline body: M = 410ms (SD = 180ms)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:15:15Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/manuscript_draft.md
+  attempts: 1
+  canonical: Three-way interaction between fixation duration, valence, and cognitive
+    reflection significant with beta -0.15 and p < 0.01
+  claim_id: c_8154bedc
+  context: Regression Analysis section reporting the significance of the three-way
+    interaction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The three-way interaction between fixation duration, valence, and cognitive\
+    \ reflection was significant (\u03B2 = -0.15, p < .01, Holm-Bonferroni corrected)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:15:36Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Intercept beta coefficient 3.24 in mixed-effects regression
+  claim_id: c_bf853b22
+  context: 'Table A1: Mixed-Effects Regression Results (Full Model) | Intercept |
+    3.24'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Intercept in the full mixed-effects regression model had a beta coefficient
+    of 3.24.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:17:02Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Fixation Duration Source beta -0.08 p-value 0.012
+  claim_id: c_7f7d4c9f
+  context: 'Table A1: Mixed-Effects Regression Results (Full Model) | Fixation Duration
+    (Source) | -0.08 | ... | .012'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fixation Duration (Source) had a beta coefficient of -0.08 with a p-value
+    of .012 in the full model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:17:35Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Valence beta 0.15 p-value less than 0.001
+  claim_id: c_5e86cc87
+  context: 'Table A1: Mixed-Effects Regression Results (Full Model) | Valence | 0.15
+    | ... | <.001'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Valence_beta_0.15_p-value_less_than_0.001
+  kind: magnitude
+  raw_text: Valence had a beta coefficient of 0.15 with a p-value of <.001 in the
+    full model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:19:08Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Cognitive Reflection beta -0.22 p-value less than 0.001
+  claim_id: c_f729ee58
+  context: 'Table A1: Mixed-Effects Regression Results (Full Model) | Cognitive Reflection
+    | -0.22 | ... | <.001'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cognitive_Reflection_beta_-0.22_p-value_less_than_0.001
+  kind: magnitude
+  raw_text: Cognitive Reflection had a beta coefficient of -0.22 with a p-value of
+    <.001 in the full model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:20:05Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Fixation Valence CRT interaction beta -0.15 p-value 0.002
+  claim_id: c_ba2e60a8
+  context: "Table A1: Mixed-Effects Regression Results (Full Model) | Fixation \xD7\
+    \ Valence \xD7 CRT | -0.15 | ... | .002"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The three-way interaction of Fixation, Valence, and CRT had a beta coefficient
+    of -0.15 with a p-value of .002.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:21:18Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Headline Length beta 0.02 p-value 0.045
+  claim_id: c_2836315a
+  context: 'Table A1: Mixed-Effects Regression Results (Full Model) | Headline Length
+    | 0.02 | ... | .045'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Headline Length had a beta coefficient of 0.02 with a p-value of .045
+    in the full model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:21:48Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Three-way interaction consistent across 50ms to 200ms thresholds
+  claim_id: c_e4909152
+  context: The direction and significance of the three-way interaction remained consistent
+    across all tested thresholds (50ms to 200ms), confirming the robustness of the
+    main finding.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three-way_interaction_consistent_across_50ms_to_200ms_thresh
+  kind: entity_fact
+  raw_text: The direction and significance of the three-way interaction remained consistent
+    across thresholds from 50ms to 200ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:22:14Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: 50ms threshold interaction beta -0.14 adjusted p-value 0.008
+  claim_id: c_006c32b4
+  context: Threshold Sweep Results | 50 | -0.14 | 0.05 | .008
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a 50ms threshold, the interaction beta was -0.14 with an adjusted p-value
+    of .008.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:22:49Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: 100ms threshold interaction beta -0.15 adjusted p-value 0.006
+  claim_id: c_16b4cf52
+  context: Threshold Sweep Results | 100 | -0.15 | 0.05 | .006
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a 100ms threshold, the interaction beta was -0.15 with an adjusted
+    p-value of .006.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:23:54Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: 150ms threshold interaction beta -0.16 adjusted p-value 0.004
+  claim_id: c_37101dce
+  context: Threshold Sweep Results | 150 | -0.16 | 0.05 | .004
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a 150ms threshold, the interaction beta was -0.16 with an adjusted
+    p-value of .004.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:24:31Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: 200ms threshold interaction beta -0.15 adjusted p-value 0.007
+  claim_id: c_fbb76107
+  context: Threshold Sweep Results | 200 | -0.15 | 0.05 | .007
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: At a 200ms threshold, the interaction beta was -0.15 with an adjusted
+    p-value of .007.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:25:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Raw eye-tracking data available from Dundee Eye-Tracking Corpus
+  claim_id: c_07fc70de
+  context: The raw eye-tracking data used in this study is available from the Dundee
+    Eye-Tracking Corpus.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_eye-tracking_data_available_from_Dundee_Eye-Tracking_Cor
+  kind: entity_fact
+  raw_text: The raw eye-tracking data used in this study is available from the Dundee
+    Eye-Tracking Corpus.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:26:04Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Study used publicly available eye-tracking data from Dundee Corpus
+  claim_id: c_3fa26601
+  context: This study used publicly available eye-tracking data from the Dundee Corpus.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_used_publicly_available_eye-tracking_data_from_Dundee
+  kind: entity_fact
+  raw_text: The study used publicly available eye-tracking data from the Dundee Corpus.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:27:07Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/paper/supplementary_materials.md
+  attempts: 1
+  canonical: Original data collection received ethical approval from University of
+    Dundee Ethics Committee
+  claim_id: c_7cc93d69
+  context: The original data collection received ethical approval from the University
+    of Dundee Ethics Committee.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Original_data_collection_received_ethical_approval_from_Univ
+  kind: entity_fact
+  raw_text: The original data collection received ethical approval from the University
+    of Dundee Ethics Committee.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T04:28:09Z'

@@ -13,7 +13,7 @@ class Participant:
 
     Attributes:
         id: Unique identifier for the participant.
-        crt_score: Cognitive Reflection Test score.
+        crt_score: Cognitive Reflection Test score (normalized 0.0 to 1.0).
         random_intercept: Random intercept term for mixed-effects modeling.
     """
     id: str
@@ -22,11 +22,27 @@ class Participant:
 
     def __post_init__(self):
         """Validate CRT score if provided."""
-        if self.crt_score is not None and not (0.0 <= self.crt_score <= 1.0):
-            # Assuming CRT score is normalized 0-1, or could be 0-3 depending on scale.
-            # If it's a count (0-3), this check needs adjustment.
-            # Based on typical CRT usage in regression, it's often a count or normalized.
-            # We'll assume it's a raw score for now, but allow any float if not specified.
-            # If strict 0-1 is required by spec, uncomment below:
-            # raise ValueError(f"CRT score must be between 0 and 1, got {self.crt_score}")
-            pass
+        if self.crt_score is not None:
+            if not (0.0 <= self.crt_score <= 1.0):
+                # Assuming CRT score is normalized 0-1.
+                # If the source data provides raw counts (e.g., 0-3), this validation
+                # should be adjusted or the data should be normalized upstream.
+                # For now, we strictly enforce the 0-1 range as per the model contract.
+                raise ValueError(f"CRT score must be between 0.0 and 1.0, got {self.crt_score}")
+
+    def to_dict(self) -> dict:
+        """Convert the participant instance to a dictionary."""
+        return {
+            "id": self.id,
+            "crt_score": self.crt_score,
+            "random_intercept": self.random_intercept
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Participant":
+        """Create a Participant instance from a dictionary."""
+        return cls(
+            id=data["id"],
+            crt_score=float(data["crt_score"]),
+            random_intercept=float(data.get("random_intercept", 0.0))
+        )

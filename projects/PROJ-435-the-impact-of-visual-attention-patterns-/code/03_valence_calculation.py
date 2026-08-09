@@ -5,309 +5,299 @@ import json
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
+
 import pandas as pd
-import numpy as np
+import nltk
+from nltk.corpus import wordnet as wn
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+from nltk import download
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-# Import NLTK data handling
+# Attempt to download necessary NLTK data
 try:
-    import nltk
-    from nltk.corpus import sentiwordnet as swn
-    from nltk.sentiment import SentimentIntensityAnalyzer
-    from nltk.tokenize import word_tokenize
-    from nltk.corpus import words
-    nltk_available = True
-except ImportError:
-    nltk_available = False
+    download('punkt', quiet=True)
+    download('wordnet', quiet=True)
+    download('averaged_perceptron_tagger', quiet=True)
+except Exception:
+    pass
 
-# Import VADER if available (bundled with nltk.sentiment)
-try:
-    from nltk.sentiment.vader import SentimentIntensityAnalyzer
-    VADER_AVAILABLE = True
-except ImportError:
-    VADER_AVAILABLE = False
-
-# Constants
-NRC_LEXICON_URL = "https://saifmohammad.com/WebDocs/NRC-Emotion-Lexicon-Wordlevel-v8.zip"
-NRC_LEXICON_NAME = "NRC-Emotion-Lexicon-Wordlevel-v8.txt"
-NRC_LEXICON_LOCAL = "nrc_lexicon.txt"
-
-logger = logging.getLogger(__name__)
+class ValenceCalculationError(Exception):
+    """Custom exception for valence calculation errors."""
+    pass
 
 def get_project_root() -> Path:
-    """Return the project root directory."""
-    return Path(__file__).resolve().parent.parent
+    """Returns the project root directory."""
+    current_file = Path(__file__).resolve()
+    # Assuming standard structure: code/03_valence_calculation.py
+    # Project root is parent of 'code'
+    return current_file.parent.parent
 
-def setup_logger(name: str = "valence_calc") -> logging.Logger:
-    """Setup a logger for this module."""
-    log_path = get_project_root() / "output" / "valence_calc.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+def setup_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
+    """Sets up a logger with console and optional file handler."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+
+    if not logger.handlers:
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+        if log_file:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+
+    return logger
+
+def load_nrc_lexicon() -> Dict[str, Dict[str, int]]:
+    """
+    Loads the NRC Emotion Lexicon.
+    Since we cannot rely on external files not in the repo, we construct a minimal
+    representative lexicon or attempt to download it via NLTK if available in the environment.
+    For this implementation, we will use a robust fallback strategy:
+    1. Try to load from a local file if it exists (as per typical pipeline setup).
+    2. If not, we will construct a small, deterministic subset of NRC-like mappings
+       to demonstrate the logic, but primarily rely on VADER if the "real" NRC
+       is not present. However, the task requires calculating coverage against NRC.
     
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_path),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return logging.getLogger(name)
-
-def load_nrc_lexicon() -> Optional[Dict[str, Dict[str, int]]]:
-    """
-    Load the NRC Emotion Lexicon.
-    Returns a dict: {word: {emotion: score}}
-    Scores are typically 0 or 1.
-    """
-    # Try to load from local cache first
-    local_path = get_project_root() / "data" / "raw" / NRC_LEXICON_LOCAL
-    if local_path.exists():
-        logger.info(f"Loading NRC lexicon from local cache: {local_path}")
-        lexicon = {}
-        with open(local_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                parts = line.strip().split('\t')
-                if len(parts) >= 3:
-                    word, emotion, score = parts[0].lower(), parts[1], int(parts[2])
-                    if word not in lexicon:
-                        lexicon[word] = {}
-                    lexicon[word][emotion] = score
-        return lexicon
+    To satisfy the "Real Data" constraint without a specific file path in the prompt:
+    We will attempt to load 'NRC-Emotion-Lexicon-Wordlevel-v0.92.txt' from data/raw or similar.
+    If that fails, we will simulate the *structure* but mark coverage as low to trigger VADER,
+    UNLESS we can find a pip-installable source.
     
-    # If not local, we assume it was downloaded in a previous step or will be downloaded
-    # For this implementation, we attempt to load a standard NRC format if available
-    # In a real pipeline, T005 would ensure this file exists.
-    logger.warning("NRC lexicon not found locally. Attempting to load from standard location if available.")
-    return None
+    Since no specific NRC file is provided in the 'Existing project API surface' or 'Full contents',
+    and we cannot fabricate data, we will implement the loader to expect the file at:
+    data/raw/NRC-Emotion-Lexicon-Wordlevel-v0.92.txt
+    If it's missing, we raise an error or return an empty lexicon (which triggers VADER).
+    
+    However, the prompt says "Use NRC... with fallback".
+    Let's try to load it. If not found, we return an empty dict, which results in 0% coverage,
+    triggering the VADER fallback immediately. This is a valid execution path.
+    """
+    project_root = get_project_root()
+    # Common locations for NRC
+    possible_paths = [
+        project_root / "data" / "raw" / "NRC-Emotion-Lexicon-Wordlevel-v0.92.txt",
+        project_root / "data" / "raw" / "nrc_lexicon.txt",
+        project_root / "code" / "data" / "NRC-Emotion-Lexicon-Wordlevel-v0.92.txt",
+    ]
 
-def load_vader_lexicon() -> bool:
-    """
-    Verify VADER is available.
-    """
-    return VADER_AVAILABLE and nltk_available
+    lexicon = {}
+    found = False
+
+    for path in possible_paths:
+        if path.exists():
+            found = True
+            with open(path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    parts = line.split('\t')
+                    if len(parts) >= 2:
+                        word = parts[0].lower()
+                        # NRC format: word, emotion, value (0 or 1)
+                        # We want valence: positive/negative.
+                        # NRC has "positive" and "negative" columns effectively.
+                        # We'll store valence: 1 for positive, -1 for negative, 0 for neutral
+                        # But for coverage, we just need to know if the word is in the lexicon.
+                        lexicon[word] = lexicon.get(word, {})
+                        if len(parts) >= 3:
+                            val = int(parts[2])
+                            emotion = parts[1].lower()
+                            lexicon[word][emotion] = val
+            break
+    
+    if not found:
+        logging.warning("NRC Lexicon file not found. Coverage will be 0%. Falling back to VADER.")
+        return {}
+
+    return lexicon
+
+def load_vader_lexicon() -> SentimentIntensityAnalyzer:
+    """Initializes the VADER sentiment analyzer."""
+    return SentimentIntensityAnalyzer()
 
 def tokenize(text: str) -> List[str]:
-    """
-    Tokenize text into lowercase words, removing punctuation.
-    """
-    if not nltk_available:
-        # Fallback simple tokenization
-        text = text.lower()
-        words = re.findall(r'\b[a-z]+\b', text)
-        return words
-    
-    try:
-        # Ensure punkt is downloaded
-        try:
-            word_tokenize("test")
-        except LookupError:
-            nltk.download('punkt', quiet=True)
-        return word_tokenize(text.lower())
-    except Exception as e:
-        logger.warning(f"NLTK tokenization failed: {e}. Using regex fallback.")
-        text = text.lower()
-        return re.findall(r'\b[a-z]+\b', text)
+    """Tokenizes text into words, lowercasing and removing punctuation."""
+    text = text.lower()
+    # Simple regex tokenization
+    tokens = re.findall(r'\b[a-z]+\b', text)
+    return tokens
 
-def calculate_nrc_coverage(text: str, lexicon: Dict[str, Dict[str, int]]) -> float:
+def calculate_nrc_coverage(headlines: List[str], nrc_lexicon: Dict[str, Dict]) -> Tuple[float, List[float]]:
     """
-    Calculate NRC coverage: percentage of unique words in headline matching the lexicon.
+    Calculates the percentage of unique words in headlines that match the NRC lexicon.
+    Returns global average coverage and list of individual coverages.
     """
-    if not lexicon:
-        return 0.0
-    
-    words = set(tokenize(text))
-    if not words:
-        return 0.0
-    
-    matching_words = sum(1 for word in words if word in lexicon)
-    return (matching_words / len(words)) * 100.0
+    if not nrc_lexicon:
+        return 0.0, [0.0] * len(headlines)
 
-def get_nrc_valence(text: str, lexicon: Dict[str, Dict[str, int]]) -> float:
+    total_coverage = 0.0
+    individual_coverages = []
+
+    for headline in headlines:
+        tokens = tokenize(headline)
+        if not tokens:
+            individual_coverages.append(0.0)
+            continue
+
+        unique_words = set(tokens)
+        matched_words = sum(1 for word in unique_words if word in nrc_lexicon)
+        coverage = (matched_words / len(unique_words)) * 100.0
+        individual_coverages.append(coverage)
+        total_coverage += coverage
+
+    global_avg = total_coverage / len(headlines) if headlines else 0.0
+    return global_avg, individual_coverages
+
+def get_nrc_valence(text: str, nrc_lexicon: Dict[str, Dict]) -> float:
     """
-    Calculate NRC valence score for a text.
-    NRC doesn't have a direct 'valence' column in all versions, but often 'positive' and 'negative' are present.
-    We compute valence as (positive_count - negative_count) / total_matches.
+    Calculates valence score based on NRC lexicon.
+    Returns a score between -1 (negative) and 1 (positive).
     """
-    if not lexicon:
+    if not nrc_lexicon:
         return 0.0
-    
-    words = tokenize(text)
-    pos_scores = []
-    neg_scores = []
-    
-    for word in words:
-        if word in lexicon:
-            emotions = lexicon[word]
-            if 'positive' in emotions:
-                pos_scores.append(emotions['positive'])
-            if 'negative' in emotions:
-                neg_scores.append(emotions['negative'])
-    
-    if not pos_scores and not neg_scores:
-        return 0.0
-    
-    total_pos = sum(pos_scores)
-    total_neg = sum(neg_scores)
-    total = total_pos + total_neg
-    
+
+    tokens = tokenize(text)
+    pos_count = 0
+    neg_count = 0
+
+    for token in tokens:
+        if token in nrc_lexicon:
+            # NRC has 'positive' and 'negative' keys usually
+            entry = nrc_lexicon[token]
+            if entry.get('positive', 0) == 1:
+                pos_count += 1
+            if entry.get('negative', 0) == 1:
+                neg_count += 1
+
+    total = pos_count + neg_count
     if total == 0:
         return 0.0
     
-    return (total_pos - total_neg) / total
+    return (pos_count - neg_count) / total
 
-def get_vader_valence(text: str) -> float:
+def get_vader_valence(text: str, analyzer: SentimentIntensityAnalyzer) -> float:
     """
-    Calculate VADER compound score.
-    Returns a value between -1 (most negative) and 1 (most positive).
+    Calculates valence score using VADER.
+    Returns compound score between -1 and 1.
     """
-    if not VADER_AVAILABLE or not nltk_available:
-        raise RuntimeError("VADER not available")
-    
-    try:
-        sia = SentimentIntensityAnalyzer()
-        scores = sia.polarity_scores(text)
-        return scores['compound']
-    except Exception as e:
-        logger.error(f"VADER scoring failed: {e}")
-        return 0.0
+    scores = analyzer.polarity_scores(text)
+    return scores['compound']
 
-def log_lexicon_switch(coverage: float, from_lexicon: str, to_lexicon: str) -> None:
+def log_lexicon_switch(from_lex: str, to_lex: str, coverage: float, state_dir: Path):
     """
-    Log a lexicon switch event to state/runtime_events.json.
+    Logs a lexicon switch event to state/runtime_events.json.
     """
-    project_root = get_project_root()
-    state_dir = project_root / "state"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    
     events_file = state_dir / "runtime_events.json"
     
-    event_record = {
-        "event": "lexicon_switch",
-        "from": from_lexicon,
-        "to": to_lexicon,
-        "coverage": coverage
-    }
-    
-    existing_events = []
+    events = []
     if events_file.exists():
         try:
             with open(events_file, 'r', encoding='utf-8') as f:
                 content = f.read().strip()
                 if content:
-                    # Handle JSON array or single object (though spec implies appending objects)
-                    # Spec says: "append a single JSON object". This usually implies a list of events.
-                    # If it's a single object, we might need to parse and convert to list.
-                    # Assuming it's a list of events for robustness.
-                    existing_events = json.loads(content)
-                    if not isinstance(existing_events, list):
-                        existing_events = [existing_events]
+                    events = json.loads(content)
+                if not isinstance(events, list):
+                    events = [events]
         except json.JSONDecodeError:
-            logger.warning("Existing runtime_events.json is not valid JSON. Starting fresh.")
-            existing_events = []
-    
-    existing_events.append(event_record)
-    
+            events = []
+
+    events.append({
+        "event": "lexicon_switch",
+        "from": from_lex,
+        "to": to_lex,
+        "coverage": round(coverage, 4)
+    })
+
+    state_dir.mkdir(parents=True, exist_ok=True)
     with open(events_file, 'w', encoding='utf-8') as f:
-        json.dump(existing_events, f, indent=2)
-    
-    logger.info(f"Logged lexicon switch event: {event_record}")
+        json.dump(events, f, indent=2)
 
 def main():
-    """
-    Main entry point for valence calculation.
-    Input: data/derived/empirical_outcomes.csv
-    Output: data/derived/valence_scores.csv
-    """
-    logger.info("Starting valence calculation pipeline.")
-    
+    """Main execution function for T021."""
+    logger = setup_logger("valence_calculation")
     project_root = get_project_root()
+
+    # Paths
     input_path = project_root / "data" / "derived" / "empirical_outcomes.csv"
     output_path = project_root / "data" / "derived" / "valence_scores.csv"
-    
-    # Verify input exists
+    state_dir = project_root / "state"
+
     if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-    
-    # Load data
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load input data: {e}")
-        sys.exit(1)
-    
+        raise FileNotFoundError(f"Input file not found: {input_path}. "
+                                "Ensure T004b has completed successfully.")
+
+    logger.info(f"Loading empirical outcomes from {input_path}")
+    df = pd.read_csv(input_path)
+
     required_cols = ['headline_text']
     for col in required_cols:
         if col not in df.columns:
-            logger.error(f"Missing required column in input: {col}")
-            sys.exit(1)
-    
-    # Load NRC Lexicon
+            raise ValenceCalculationError(f"Required column '{col}' missing in {input_path}")
+
+    logger.info(f"Loaded {len(df)} rows.")
+
+    # Load Lexicons
+    logger.info("Loading NRC Lexicon...")
     nrc_lexicon = load_nrc_lexicon()
     
-    # Calculate coverage for each headline
-    logger.info("Calculating NRC coverage for all headlines.")
-    df['nrc_coverage'] = df['headline_text'].apply(
-        lambda x: calculate_nrc_coverage(str(x), nrc_lexicon) if pd.notna(x) else 0.0
-    )
-    
-    # Calculate global average coverage
-    global_avg_coverage = df['nrc_coverage'].mean()
-    logger.info(f"Global average NRC coverage: {global_avg_coverage:.2f}%")
-    
-    # Determine which lexicon to use
+    logger.info("Loading VADER Analyzer...")
+    vader_analyzer = load_vader_lexicon()
+
+    # Calculate Coverage
+    logger.info("Calculating NRC coverage...")
+    headlines = df['headline_text'].tolist()
+    global_coverage, _ = calculate_nrc_coverage(headlines, nrc_lexicon)
+    logger.info(f"Global NRC Coverage: {global_coverage:.2f}%")
+
     use_vader = False
-    if nrc_lexicon is None or global_avg_coverage < 50.0:
+    if global_coverage < 50.0:
+        logger.warning(f"Coverage ({global_coverage:.2f}%) is below 50%. Switching to VADER for all headlines.")
         use_vader = True
-        logger.warning(f"Global coverage ({global_avg_coverage:.2f}%) < 50% or NRC missing. Switching to VADER.")
-        
-        if not load_vader_lexicon():
-            logger.error("VADER is not available and NRC coverage is insufficient. Cannot proceed.")
-            sys.exit(1)
-        
-        # Log the switch
-        log_lexicon_switch(global_avg_coverage, "NRC", "VADER")
-    
-    # Calculate valence scores
-    logger.info("Calculating valence scores.")
+        log_lexicon_switch("NRC", "VADER", global_coverage, state_dir)
+    else:
+        logger.info("Coverage is sufficient. Using NRC.")
+
+    # Calculate Valence
     valence_scores = []
-    
-    for idx, row in df.iterrows():
-        text = str(row['headline_text']) if pd.notna(row['headline_text']) else ""
-        if not text.strip():
-            valence_scores.append(0.0)
-            continue
-        
+    for text in headlines:
         if use_vader:
-            try:
-                score = get_vader_valence(text)
-            except Exception as e:
-                logger.warning(f"VADER failed for row {idx}: {e}. Setting to 0.")
-                score = 0.0
+            score = get_vader_valence(text, vader_analyzer)
         else:
-            # Use NRC
             score = get_nrc_valence(text, nrc_lexicon)
-        
         valence_scores.append(score)
+
+    # Create Output DataFrame
+    # Schema: headline_id, valence_score (based on T023 requirements)
+    # Note: empirical_outcomes.csv has participant_id, headline_id, belief_rating, headline_text
+    # We need to output valence per headline_id. If multiple rows per headline_id exist,
+    # we should probably take the mean or just map it.
+    # T023 expects: valence_scores.csv (headline_id, valence_score)
     
-    df['valence_score'] = valence_scores
-    
-    # Prepare output
-    # Select relevant columns: participant_id, headline_id (if present), headline_text, valence_score
-    output_cols = [c for c in df.columns if c in ['participant_id', 'headline_id', 'headline_text', 'valence_score']]
-    # Ensure valence_score is last
-    if 'valence_score' in output_cols:
-        output_cols.remove('valence_score')
-        output_cols.append('valence_score')
-    
-    output_df = df[output_cols]
-    
-    # Write output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_df = pd.DataFrame({
+        'headline_id': df['headline_id'],
+        'valence_score': valence_scores
+    })
+
+    # If there are duplicate headline_ids, we might need to aggregate or keep unique.
+    # T023 expects a merge on headline_id. Usually valence is per stimulus (headline), not per participant.
+    # So we should deduplicate by headline_id, taking the mean score if multiple participants saw the same headline.
+    if output_df['headline_id'].duplicated().any():
+        logger.info("Deduplicating valence scores by headline_id (taking mean).")
+        output_df = output_df.groupby('headline_id', as_index=False)['valence_score'].mean()
+
+    output_df = output_df.sort_values('headline_id').reset_index(drop=True)
+
+    # Write Output
+    state_dir.mkdir(parents=True, exist_ok=True)
     output_df.to_csv(output_path, index=False)
-    
-    logger.info(f"Valence calculation complete. Output written to: {output_path}")
-    logger.info(f"Lexicon used: {'VADER' if use_vader else 'NRC'}")
-    
+    logger.info(f"Valence scores written to {output_path}")
+
     return 0
 
 if __name__ == "__main__":
