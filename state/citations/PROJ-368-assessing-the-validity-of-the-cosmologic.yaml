@@ -9,3 +9,14 @@
   verification_status: unreachable
   verified_against_url: https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_CMB_MRL_SMICA_Nside2048_R2.01.fits**
   verified_at: '2026-07-01T16:12:01.418877Z'
+- artifact_hash: 5e493c5d83497232349d6d59be0f70b54ddbbf38e5a8b2a1652c8b96c100e816
+  artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_Mask_R3.011_CMB.fits`
+  verification_status: mismatch
+  verified_against_url: https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_Mask_R3.011_CMB.fits
+  verified_at: '2026-08-09T22:54:38.220955Z'

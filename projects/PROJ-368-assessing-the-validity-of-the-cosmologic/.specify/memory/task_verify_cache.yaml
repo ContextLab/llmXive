@@ -1,14 +1,22 @@
-T008:
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a Git repository being initialized or a `.gitignore` file containing\
-    \ the required entries (`data/`, `__pycache__/`, `*.pyc`) was provided. The implementer\
-    \ must supply the repository (e.g., a `.git` folder) and a non\u2011empty `.gitignore`\
-    \ with the specified patterns."
-T015:
+  r: No directory listing (`ls -R`) or any other evidence of the required folder hierarchy
+    (`code`, `tests`, `data/raw`, `data/processed`, `data/simulations`, `data/reports`,
+    `docs`) was provided, so we cannot verify that the specified project structure
+    actually exists. The implementer must supply the recursive directory listing showing
+    the exact tree.
+T016:
   c: false
-  h: 698d577d7768a8320e4786ee25c7f4384a4616db468aad2e2087c685e8f9ed42
-  r: "The repository lacks an `apply_galactic_mask()` implementation in `code/data_loader.py`\
-    \ (the file is truncated and does not contain such a function), and the required\
-    \ output file `data/processed/mask_stats.json` is missing. Consequently the mask\u2011\
-    statistics logging and the 95\u202F% sky\u2011retention check are not present."
+  h: 0e622e8c095c3b3e2a4e9b2186b8c232624794ea103d7fe10ee23762a0a6cf00
+  r: The repository lacks the required `downgrade_resolution()` implementation in
+    `code/data_loader.py` (the file shows no such function, and the displayed code
+    is truncated before any such logic). Additionally, the source FITS file `data/processed/masked_n2048.fits`
+    does not exist, so the function could not be exercised or verified. Both the necessary
+    code and input data are missing.
+T024:
+  c: false
+  h: 8c1abaf32cc6a4ac407a661e51d49048df55598a674f3139220a3343887ba00a
+  r: "The repository contains a `compute_full_sky_cl` function in `code/harmonics.py`\
+    \ that computes C\u2097 from a\u2097m, but the required output file `data/reports/full_sky_cl.npy`\
+    \ does not exist, so the deliverable of saving the spectrum is missing."

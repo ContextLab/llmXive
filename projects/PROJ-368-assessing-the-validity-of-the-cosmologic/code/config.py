@@ -1,55 +1,40 @@
 import os
 from pathlib import Path
 
-# Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project root
+PROJECT_ROOT = Path(__file__).parent.parent
 
 # Directories
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
-TESTS_DIR = PROJECT_ROOT / "tests"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_SIMULATIONS_DIR = PROJECT_ROOT / "data" / "simulations"
+DATA_REPORTS_DIR = PROJECT_ROOT / "data" / "reports"
 DOCS_DIR = PROJECT_ROOT / "docs"
 
-# Data Subdirectories
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-SIMULATIONS_DIR = DATA_DIR / "simulations"
-REPORTS_DIR = DATA_DIR / "reports"
-FIGURES_DIR = DATA_DIR / "figures"
-
-# Simulation Subdirectories
-SIMULATED_MAPS_DIR = SIMULATIONS_DIR / "maps"
-SIMULATED_CL_DIR = SIMULATIONS_DIR / "cl"
-
-# Configuration Constants
-RANDOM_SEED = 42
-NSIDE_ORIGINAL = 2048
-NSIDE_TARGET = 128
-L_MIN = 2
-L_MAX = 3 * NSIDE_TARGET - 1
-L_MAX_ANALYSIS = L_MAX
-N_SIMULATIONS = 1000
-N_POWER_VALIDATION = 100
-MIN_SKY_FRACTION = 0.95
-
-# Output Files
-MASK_STATS_FILE = PROCESSED_DATA_DIR / "mask_stats.json"
-POWER_VALIDATION_REPORT = REPORTS_DIR / "power_validation.json"
-
+# Ensure directories exist
 def ensure_directories():
-    """Create all required directories if they do not exist."""
-    dirs = [
-        CODE_DIR,
-        DATA_DIR,
-        TESTS_DIR,
-        DOCS_DIR,
-        RAW_DATA_DIR,
-        PROCESSED_DATA_DIR,
-        SIMULATIONS_DIR,
-        REPORTS_DIR,
-        FIGURES_DIR,
-        SIMULATED_MAPS_DIR,
-        SIMULATED_CL_DIR,
-    ]
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
+    """Create all necessary data directories if they don't exist."""
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_SIMULATIONS_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Configuration constants
+RANDOM_SEED = 42
+NSIDE_HIGH = 2048
+NSIDE_LOW = 128
+N_SIMULATIONS = 1000
+L_MIN = 2
+L_MAX = 128
+
+# Filename constants
+PROCESSED_MAP_FILENAME = "processed_n128.fits"
+MASK_STATS_FILENAME = "mask_stats.json"
+MASK_VALIDATION_FILENAME = "mask_validation_report.json"
+FULL_SKY_CL_FILENAME = "full_sky_cl.npy"
+HEMISPHERE_CL_FILENAME = "hemisphere_cl.npy"
+NULL_DISTRIBUTION_FILENAME = "null_distribution.npy"
+FINAL_RESULTS_FILENAME = "final_results.json"
+SENSITIVITY_REPORT_FILENAME = "sensitivity_report.json"
+POWER_VALIDATION_FILENAME = "power_validation.json"

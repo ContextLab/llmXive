@@ -15,7 +15,7 @@ This feature implements a statistical pipeline to test the Cosmological Principl
 **Primary Dependencies**: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`  
 **Storage**: Local filesystem (`data/` for raw/processed maps, `code/` for scripts)  
 **Testing**: `pytest` (unit tests for data loading, mask application, and statistical functions)  
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7 GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions runner: minimal CPU, 7 GB RAM, no GPU)  
 **Project Type**: Scientific CLI/Data Analysis Pipeline  
 **Performance Goals**: Complete analysis (download → simulation → stats) within 60 minutes on CPU; memory usage < 7 GB.  
 **Constraints**: No GPU; default float64 precision only; download Nside=2048 (per FR-001); **analysis resolution limited to Nside=128** to fit CI constraints; no circular validation (simulations use fixed external ΛCDM parameters, with systematic uncertainty acknowledged).  
@@ -35,7 +35,7 @@ This feature implements a statistical pipeline to test the Cosmological Principl
 | **IV. Single Source of Truth** | ✅ Pass | Figures/stats in paper generated via scripts from `data/`; no hand-typed numbers. |
 | **V. Versioning Discipline** | ✅ Pass | Content hashes tracked in `state/projects/PROJ-368-assessing-the-validity-of-the-cosmologic.yaml` under `artifact_hashes` map; `updated_at` timestamps managed by Advancement-Evaluator Agent as per Constitution Principle V. |
 | **VI. Simulation Determinism** | ✅ Pass | Monte Carlo seed fixed; simulation count (N) is a documented constant; null distribution reproducible. |
-| **VII. Public CMB Data Provenance** | ✅ Pass | Source explicitly identified as Planck 2018 SMICA; provenance metadata recorded in `data/` headers. |
+| **VII. Public CMB Data Provenance** | ✅ Pass | Source explicitly identified as Planck SMICA; provenance metadata recorded in `data/` headers. |
 
 ## Project Structure
 

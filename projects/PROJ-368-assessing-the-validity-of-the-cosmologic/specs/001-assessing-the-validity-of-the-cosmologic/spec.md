@@ -23,7 +23,7 @@ This project validates the Cosmological Principle (isotropy and homogeneity) usi
 **So that** I can quantify power distribution across the sky and hemispheres.
 
 **Acceptance Criteria:**
-1. `a_lm` coefficients computed for l ∈ [2, 128].
+1. `a_lm` coefficients computed for a range of low to high angular momenta.
 2. Full-sky C_l spectrum derived.
 3. Hemispherical splits (N/S, E/W) generated with masks.
 4. Pseudo-C_l spectra computed using MASTER algorithm for corrections.
@@ -34,7 +34,7 @@ This project validates the Cosmological Principle (isotropy and homogeneity) usi
 **So that** I can determine if observed asymmetries are statistically significant.
 
 **Acceptance Criteria:**
-1. Isotropic Gaussian simulations generated using Planck 2018 best-fit C_l.
+1. Isotropic Gaussian simulations generated using Planck best-fit C_l.
 2. Hemispherical variance computed for observed and simulated maps.
 3. Maximum Statistic approach applied: p-value = max(N/S asymmetry, E/W asymmetry).
 4. **Acceptance Scenario 3**: If the Maximum Statistic p-value < 0.05, we reject the null hypothesis of isotropy. The Benjamini-Hochberg correction is NOT used; instead, the Maximum Statistic approach controls the family-wise error rate by construction.
@@ -46,7 +46,7 @@ This project validates the Cosmological Principle (isotropy and homogeneity) usi
 
 **Acceptance Criteria:**
 1. Code versions and dependencies pinned in `requirements.txt`.
-2. Sensitivity sweep over thresholds {2.5σ, 3.0σ, 3.5σ} documented.
+2. Sensitivity sweep over thresholds documented.
 3. README includes installation, usage, and data provenance.
 
 ## Data Model

@@ -1,33 +1,26 @@
-"""
-Directory setup module for the cosmological principle assessment pipeline.
-Creates the required project directory structure.
-"""
 import os
 import sys
 from pathlib import Path
 
-
 def create_directories():
     """
-    Creates the required project directories if they do not already exist.
+    Create the project directory structure as defined in T004.
     
-    Creates:
-        - code/
-        - tests/
-        - data/raw/
-        - data/processed/
-        - data/simulations/
-        - data/reports/
-        - docs/
-        
+    Required directories:
+    - code/
+    - tests/
+    - data/raw
+    - data/processed
+    - data/simulations
+    - data/reports
+    - docs/
+    
     Returns:
-        list: A list of absolute paths (as strings) of the created directories.
-        
-    Raises:
-        OSError: If a directory cannot be created due to permissions or other OS errors.
+        bool: True if all directories were created successfully, False otherwise.
     """
-    # Define relative paths based on the project root
-    relative_paths = [
+    project_root = Path(__file__).resolve().parent.parent
+    
+    directories = [
         "code",
         "tests",
         "data/raw",
@@ -37,29 +30,26 @@ def create_directories():
         "docs"
     ]
     
-    # Determine the project root. 
-    # If this file is run as a script, __file__ is relative to the script location.
-    # We assume the project root is the parent of the 'code' directory.
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
+    created = []
+    failed = []
     
-    created_dirs = []
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
+        except Exception as e:
+            failed.append((dir_name, str(e)))
+            print(f"Failed to create directory {dir_name}: {e}", file=sys.stderr)
     
-    for rel_path in relative_paths:
-        full_path = project_root / rel_path
-        
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-        
-        created_dirs.append(str(full_path))
-        
-    return created_dirs
-
+    if failed:
+        print(f"\nSummary: {len(created)} directories created, {len(failed)} failed.", file=sys.stderr)
+        return False
+    
+    print(f"\nSuccessfully created {len(created)} directories.")
+    return True
 
 if __name__ == "__main__":
-    # Execute directory creation when run directly
-    dirs = create_directories()
-    print(f"Project structure ready. Directories: {dirs}")
+    success = create_directories()
+    sys.exit(0 if success else 1)

@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-368-assessing-the-validity-of-the-cosmologic
-last_run_id: 29ba3934-6258-44a6-9613-0ba4a688eb07
+last_run_id: 6df2080e-d1b6-4ae8-b532-838ea1dc8016
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic
 title: Assessing the Validity of the Cosmological Principle with Public CMB Data
-updated_at: '2026-08-09T03:59:17.482440Z'
+updated_at: '2026-08-09T22:54:55.394137Z'
