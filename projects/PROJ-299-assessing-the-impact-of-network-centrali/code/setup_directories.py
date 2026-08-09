@@ -1,146 +1,152 @@
 """
-T007: Setup directory structure for data/raw/, data/processed/, data/analysis/, outputs/
-and ensure .gitignore rules are in place.
+Directory Structure Setup for llmXive Project.
 
-This script is idempotent and can be run multiple times safely.
-It creates the necessary directories and placeholder .gitkeep files
-to ensure the directory structure is preserved in version control.
+This script creates the required directory structure for the project,
+including data/raw, data/processed, data/analysis, and outputs directories.
+It also generates a .gitignore file with rules for large files.
 """
 import os
 import sys
 from pathlib import Path
 
-def ensure_directory_structure():
-    """Create the required directory structure and .gitkeep files."""
-    project_root = Path(__file__).resolve().parent.parent
-    
-    # Define the required directories
-    directories = [
+
+def ensure_directory_structure(root_dir: Path) -> None:
+    """
+    Create the required directory structure relative to the project root.
+
+    Args:
+        root_dir: The project root directory path.
+    """
+    # Define required directories relative to root
+    required_dirs = [
         "data/raw",
         "data/processed",
         "data/analysis",
-        "outputs"
+        "outputs",
+        "outputs/viz",
+        "outputs/reports",
+        "logs",
+        "code/download",
+        "code/preprocess",
+        "code/centrality",
+        "code/analysis",
+        "code/viz",
+        "code/config",
+        "code/utils",
+        "tests/unit",
+        "tests/integration",
+        "docs",
+        "specs",
     ]
-    
-    created_dirs = []
-    
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-            # Create a .gitkeep file to ensure the directory is tracked
-            keep_file = full_path / ".gitkeep"
-            if not keep_file.exists():
-                keep_file.write_text(
-                    "# This file ensures the directory is tracked by git.\n"
-                    "# Do not place actual data files here.\n"
-                )
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    # Verify .gitignore exists and contains large file rules
-    gitignore_path = project_root / ".gitignore"
-    if not gitignore_path.exists():
-        print("Warning: .gitignore not found. Creating a basic one.")
-        create_gitignore(project_root)
-    else:
-        print(f".gitignore exists at: {gitignore_path}")
-    
-    if created_dirs:
-        print(f"\nSuccessfully created {len(created_dirs)} directories.")
-        print("Directory structure is ready for the pipeline.")
-    else:
-        print("\nNo new directories were created. Structure already exists.")
 
-def create_gitignore(root_path: Path):
-    """Create a .gitignore file with rules for large files."""
-    gitignore_content = """# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+    for dir_path in required_dirs:
+        full_path = root_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created/Verified: {full_path}")
 
-# Virtual Environments
-venv/
-ENV/
-env/
-.venv/
 
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+def create_gitignore(root_dir: Path) -> None:
+    """
+    Create a .gitignore file with rules for large files and project artifacts.
 
-# OS
-.DS_Store
-Thumbs.db
+    Args:
+        root_dir: The project root directory path.
+    """
+    gitignore_path = root_dir / ".gitignore"
 
-# Logs
-logs/*.log
-logs/
+    # Content for .gitignore
+    gitignore_content = """
+    # Python
+    __pycache__/
+    *.py[cod]
+    *$py.class
+    *.so
+    .Python
+    build/
+    develop-eggs/
+    dist/
+    downloads/
+    eggs/
+    .eggs/
+    lib/
+    lib64/
+    parts/
+    sdist/
+    var/
+    wheels/
+    *.egg-info/
+    .installed.cfg
+    *.egg
 
-# Data - Raw (Large files, never commit)
-data/raw/**/*.nii
-data/raw/**/*.nii.gz
-data/raw/**/*.csv
-data/raw/**/*.zip
-data/raw/**/*.tar
-data/raw/**/*.gz
+    # Virtual Environments
+    venv/
+    ENV/
+    .env
 
-# Data - Processed (Large files)
-data/processed/**/*.nii
-data/processed/**/*.nii.gz
-data/processed/**/*.csv
+    # IDE
+    .idea/
+    .vscode/
+    *.swp
+    *.swo
+    *~
 
-# Data - Analysis (Large results)
-data/analysis/**/*.csv
-data/analysis/**/*.json
-data/analysis/**/*.pkl
+    # Data Files (Large)
+    data/raw/*.nii
+    data/raw/*.nii.gz
+    data/raw/*.csv
+    data/processed/*.nii
+    data/processed/*.nii.gz
+    data/analysis/*.csv
+    data/analysis/*.json
+    data/analysis/*.parquet
+    data/analysis/*.pkl
 
-# Outputs (Reports and Figures)
-outputs/**/*.pdf
-outputs/**/*.png
-outputs/**/*.jpg
-outputs/**/*.svg
+    # Outputs
+    outputs/*.pdf
+    outputs/*.png
+    outputs/*.jpg
+    outputs/*.svg
+    outputs/viz/*
+    outputs/reports/*
 
-# Environment Variables
-.env
-.env.local
+    # Logs
+    logs/*.log
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-"""
-    gitignore_path = root_path / ".gitignore"
-    gitignore_path.write_text(gitignore_content)
-    print(f"Created .gitignore at: {gitignore_path}")
+    # OS
+    .DS_Store
+    Thumbs.db
 
-def main():
-    """Entry point for the directory setup script."""
-    print("Setting up project directory structure...")
-    ensure_directory_structure()
-    print("Setup complete.")
+    # Jupyter
+    .ipynb_checkpoints
+
+    # Temporary files
+    *.tmp
+    *.bak
+    """
+
+    # Write the .gitignore file
+    with open(gitignore_path, "w", encoding="utf-8") as f:
+        f.write(gitignore_content.strip())
+        f.write("\n")
+
+    print(f"Created/Updated: {gitignore_path}")
+
+
+def main() -> None:
+    """Main entry point for directory setup."""
+    # Determine project root (parent of 'code' directory)
+    current_file = Path(__file__).resolve()
+    # Assuming this script is at code/setup_directories.py
+    project_root = current_file.parent.parent
+
+    print(f"Project Root: {project_root}")
+    print("Setting up directory structure...")
+
+    ensure_directory_structure(project_root)
+    create_gitignore(project_root)
+
+    print("Directory setup complete.")
+
 
 if __name__ == "__main__":
     main()

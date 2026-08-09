@@ -1,12 +1,11 @@
 T012:
   c: false
-  h: 190f2091aedadfdba084c203023161764ca6565ce47e79cd015bdd1469c92156
-  r: "The provided `clustering.py` is truncated and does not contain code that saves\
-    \ the computed cluster centers to `data/routing_cache/cluster_centers.json` nor\
-    \ logic that handles the null\u2011hypothesis case (k\u202F<\u202F2 or silhouette\u202F\
-    <\u202F0.25) by falling back to a global average vector. Moreover, the required\
-    \ `cluster_centers.json` file is absent. The task\u2019s verification steps are\
-    \ therefore not satisfied."
+  h: b52c4e9d5da78fdf80501bd8deb986719ae67132afd04588eeb1efb9bed357d9
+  r: "The repository contains a partially\u2011implemented `clustering.py` (the file\
+    \ is truncated and does not show saving of cluster centers or handling of the\
+    \ null\u2011hypothesis case), and the required output file `data/routing_cache/cluster_centers.json`\
+    \ is missing. The task\u2019s verification step (saving JSON and printing the\
+    \ silhouette score) is therefore not fulfilled."
 T013:
   c: false
   h: 003ffd7fea0b0d34d58099de37107b3120e7a2d50febd78ab1b61cae5fd2a02c
@@ -30,14 +29,35 @@ T017:
     functional code that computes and asserts FID on dummy samples.
 T018:
   c: false
-  h: 8ceb8aa0ffa3ccccdef6c8f2013a6fdb58e6b188b650b6452efd86cd6dafb740
-  r: The required `code/src/static_model.py` file does not exist, and the dependent
-    artifact `data/routing_cache/canonical_map.json` is also missing, so the model
-    cannot be instantiated or verified as described.
-T037:
+  h: 818867cf9f9d5c9101c1bbf3ead4230f5c2faeda2b29fc9cc66c3cd9d51a6782
+  r: "The `static_model.py` file exists but the required `data/routing_cache/canonical_map.json`\
+    \ is missing, so the class cannot load the static routing map. Moreover, the implementation\
+    \ is truncated and does not show a complete injection of static routing or removal\
+    \ of the per\u2011timestep softmax, preventing verification that the model can\
+    \ be instantiated and run without dynamic routing. The missing JSON file and incomplete\
+    \ code must be provided to satisfy the task."
+T019:
   c: false
-  h: 0b6740802decca809d87e0a94d6a7134acdef36c0aa661753a4e5daf61cda49c
-  r: "The required artifact `src/tracing.py` does not exist in the repository, so\
-    \ no refactored code, batch\u2011size handling, or memory\u2011peak logging can\
-    \ be verified. The task cannot be considered completed until the file is present\
-    \ and contains the specified functionality."
+  h: 07c01515f97ea56666e71dbace1ac9f3aee94b31ed842e2f740bb39cba304192
+  r: "The provided `benchmark.py` is incomplete (truncated) and depends on a missing\
+    \ `src/metrics.py`. Moreover, the required output files `data/results/benchmark_results.csv`\
+    \ and `data/results/benchmark_results.json` are absent, and there is no evidence\
+    \ that the script writes the specified columns or handles high\u2011FID degradation\
+    \ as described. The task requirements are therefore not met."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or test artifacts were provided that demonstrate error\
+    \ handling for FID degradation >\u202F0.5. The claim lacks any implementation\
+    \ file, unit test, or documentation showing that such high\u2011FID cases are\
+    \ caught and reported as a negative result without halting, so the requirement\
+    \ is not satisfied."
+T025:
+  c: false
+  h: 9415cfeb28213ddbcb93ef9309d23db8fb7aca7ace720b1ea508b72c4246cd1d
+  r: The repository contains a partially implemented `stats_analysis.py`, but the
+    required output file `data/results/statistical_analysis.json` is missing, and
+    the script does not demonstrably run the benchmark five times, collect static/dynamic
+    FID scores, compute paired differences, and write a JSON with the keys `mean`,
+    `std`, and `bootstrap_results`. The implementer must add the execution logic and
+    generate the specified JSON file.

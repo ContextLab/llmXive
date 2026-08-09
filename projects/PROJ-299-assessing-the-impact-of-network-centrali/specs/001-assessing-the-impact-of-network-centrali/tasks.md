@@ -82,7 +82,7 @@ could not find expected ':'
 - [X] T012 [US1] Implement centrality metric calculation in `code/centrality/metrics.py` (FR-004)
  - Calculate degree, betweenness, and closeness centrality for every ROI using `networkx`.
  - Store raw ROI-level metrics.
-- [ ] T013 [US1] Implement main US1 orchestration script `code/main_us1.py`
+- [X] T013 [US1] Implement main US1 orchestration script `code/main_us1.py`
  - **Dependency**: Waits for completion of T009, T010, T011, and T012.
  - Chain: Download -> QC/Preprocess -> Connectivity -> Centrality.
  - Enforce SC-001 (≥90% complete tables) and SC-002 (valid matrices).
@@ -114,14 +114,14 @@ could not find expected ':'
  - **Mapping**: Explicitly load DMN and FPN ROI lists from `code/config/network_rois.json` to calculate per-network means.
  - Calculate per-network means (DMN, FPN) and global means for each metric.
  - **Output Schema**: **Append** per-network mean columns (e.g., `degree_DMN`, `degree_FPN`) to the existing `data/analysis/centrality_metrics.csv` (or create a derived file if schema separation is preferred, but must preserve raw data).
- - Fit separate linear models for each (Centrality Metric × Cognitive Domain) pair (3×3=9 models) [UNRESOLVED-CLAIM: c_be63b249 — status=not_enough_info].
+ - Fit separate linear models for each (Centrality Metric × Cognitive Domain) pair (3×3=9 models) [UNRESOLVED-CLAIM: c_82a05cc0 — status=not_enough_info].
  - Control for covariates.
  - Calculate β, SE, p-values, partial-r, and VIF.
  - Compute Pearson correlation matrix among centrality metrics.
 - [ ] T017 [US2] Implement statistical diagnostics and FDR correction in `code/analysis/diagnostics.py` (FR-008, FR-009, FR-015)
  - Apply Benjamini-Hochberg FDR correction to the p-values; output q-values.
  - Check assumptions: Linearity, Normality (Shapiro-Wilk), Homoscedasticity (Breusch-Pagan), Independence.
- - Flag VIF > 5 [UNRESOLVED-CLAIM: c_2bfd122b — status=not_enough_info] and assumption violations (warnings only, do not halt).
+ - Flag VIF > 5 (warnings only, do not halt) [UNRESOLVED-CLAIM: c_39f39f5e — status=not_enough_info].
 - [ ] T018 [US2] Implement main US2 orchestration script `code/main_us2.py`
  - Chain: QC Validation (T014) -> Merge (T015) -> Regression (T016) -> Diagnostics (T017).
  - Generate `data/analysis/regression_results.csv` and `data/analysis/diagnostics.json`.
@@ -145,7 +145,7 @@ could not find expected ':'
 - [ ] T020 [US3] Implement report generator in `code/viz/report_generator.py` (FR-010)
  - Assemble plots and tables into a PDF using `reportlab` or `matplotlib` + `PIL`.
  - Include QC summary (exclusions, sample size).
- - Ensure file size ≤ 5 MB [UNRESOLVED-CLAIM: c_ec959f15 — status=not_enough_info] (SC-004).
+ - Ensure file size ≤ 5 MB [UNRESOLVED-CLAIM: c_949ce51e — status=not_enough_info] (SC-004).
  - Handle missing backend errors gracefully (FR-010 scenario 2).
 - [ ] T021 [US3] Implement main US3 orchestration script `code/main_us3.py`
  - Trigger report generation upon completion of US2.
@@ -165,7 +165,7 @@ could not find expected ':'
 - [ ] T025a [P] Refactor `code/preprocess/fMRI_pipeline.py` to reduce cyclomatic complexity to < 10.
 - [ ] T025b [P] Remove all TODO comments from `code/`.
 - [ ] T026a [P] Optimize connectivity matrix calculation to use chunked processing for memory efficiency.
-- [ ] T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json` to verify < 4 hour constraint.
+- [ ] T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json` to verify < 4 hour constraint [UNRESOLVED-CLAIM: c_c30aec24 — status=not_enough_info].
 - [ ] T027 [P] Documentation updates: Add `quickstart.md` and update `README.md` with execution instructions
 
 ---

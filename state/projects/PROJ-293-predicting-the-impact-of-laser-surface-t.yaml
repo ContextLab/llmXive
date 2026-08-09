@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T05:11:24.754103Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-293-predicting-the-impact-of-laser-surface-t
-last_run_id: 532e695d-709b-4ecb-b0b3-238493a007d6
+last_run_id: 2ee17aba-04d7-429d-bd79-42f6f45e549f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting the Impact of Laser Surface Texturing on Wear Resistance
-updated_at: '2026-07-26T07:31:09.539746Z'
+updated_at: '2026-08-09T18:17:31.097132Z'

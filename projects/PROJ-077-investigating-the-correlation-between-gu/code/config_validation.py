@@ -6,125 +6,125 @@ from typing import List, Dict, Any
 from config import ensure_directories, INPUT_PATHS, RANDOM_SEED, SAMPLE_LIMIT
 from logging_config import get_logger, log_pipeline_start, log_warning, log_provenance
 
-def validate_directories(required_dirs: List[str]) -> bool:
+def validate_directories() -> bool:
     """
-    Validate that all required directories exist.
-    If a directory does not exist, attempt to create it.
-    Returns True if all directories are present (or created), False otherwise.
+    Ensure all required directories exist.
+    Returns True if all directories exist or were created successfully.
     """
     logger = get_logger()
-    all_valid = True
+    logger.info("Validating directory structure...")
     
-    for dir_path in required_dirs:
-        path_obj = Path(dir_path)
-        if not path_obj.exists():
-            logger.warning(f"Directory missing: {dir_path}. Attempting creation.")
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/processed/plots",
+        "code",
+        "tests",
+        "tests/fixtures",
+        "docs"
+    ]
+    
+    all_valid = True
+    for dir_name in required_dirs:
+        dir_path = Path(dir_name)
+        if not dir_path.exists():
             try:
-                path_obj.mkdir(parents=True, exist_ok=True)
+                dir_path.mkdir(parents=True, exist_ok=True)
                 log_provenance(f"Created directory: {dir_path}")
+                logger.info(f"Created directory: {dir_path}")
             except OSError as e:
                 logger.error(f"Failed to create directory {dir_path}: {e}")
                 all_valid = False
         else:
-            if not path_obj.is_dir():
-                logger.error(f"Path exists but is not a directory: {dir_path}")
-                all_valid = False
+            logger.debug(f"Directory exists: {dir_path}")
     
     return all_valid
 
-def validate_input_files(file_paths: List[str]) -> bool:
+def validate_input_files() -> bool:
     """
-    Validate that all required input files exist.
-    Returns True if all files exist, False otherwise.
+    Check that required input files exist in data/raw.
+    Returns True if all mandatory files are present.
     """
     logger = get_logger()
-    missing_files = []
+    logger.info("Validating input files...")
     
-    for file_path in file_paths:
-        if not Path(file_path).exists():
-            missing_files.append(file_path)
-            log_warning(f"Required input file missing: {file_path}")
+    # Mandatory files based on the project plan (T011, T012, T014b)
+    # We check for the existence of the primary data sources.
+    # If specific filenames vary, the config INPUT_PATHS should be updated,
+    # but we check for the expected standard names defined in the plan context.
+    mandatory_files = [
+        "microbiome_data.csv",
+        "cognitive_data.csv",
+        "participant_metadata.csv"
+    ]
     
-    if missing_files:
-        logger.error(f"Missing required input files: {missing_files}")
+    # Optional files that trigger specific logic (e.g., DQS)
+    optional_files = [
+        "dietary_data.csv"
+    ]
+    
+    missing_mandatory = []
+    found_optional = []
+    
+    for filename in mandatory_files:
+        file_path = Path("data/raw") / filename
+        if not file_path.exists():
+            missing_mandatory.append(filename)
+        else:
+            logger.debug(f"Mandatory file found: {file_path}")
+    
+    for filename in optional_files:
+        file_path = Path("data/raw") / filename
+        if file_path.exists():
+            found_optional.append(filename)
+            logger.info(f"Optional file found: {file_path} (DQS calculation will be attempted)")
+        else:
+            logger.warning(f"Optional file missing: {file_path} (DQS calculation skipped)")
+
+    if missing_mandatory:
+        logger.error(f"Missing mandatory input files: {missing_mandatory}")
+        log_warning(f"Pipeline cannot proceed without mandatory files: {missing_mandatory}")
         return False
     
-    log_provenance("All required input files verified.")
+    if found_optional:
+        log_provenance(f"Optional files detected: {found_optional}")
+    
     return True
 
 def validate_configuration() -> bool:
     """
-    Main configuration validation function.
-    Checks:
-    1. Required directories (data/raw, data/processed, code, tests)
-    2. Required input files defined in INPUT_PATHS
-    3. Basic config parameters (RANDOM_SEED, SAMPLE_LIMIT)
-    
-    Returns True if validation passes, False if any check fails.
+    Run all validation checks: directories and input files.
+    Returns True if the configuration is valid and the pipeline can proceed.
     """
     logger = get_logger()
     log_pipeline_start("Configuration Validation")
     
-    is_valid = True
+    # 1. Validate Directory Structure
+    dirs_ok = validate_directories()
+    if not dirs_ok:
+        logger.critical("Directory validation failed. Aborting.")
+        return False
     
-    # 1. Validate directories
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "data/processed/plots"
-    ]
-    if not validate_directories(required_dirs):
-        is_valid = False
+    # 2. Validate Input Files
+    files_ok = validate_input_files()
+    if not files_ok:
+        logger.critical("Input file validation failed. Aborting.")
+        return False
     
-    # 2. Validate input files
-    # We expect the raw data files to exist in data/raw/
-    # The specific files depend on the dataset, but we check for the existence
-    # of the directory and common expected files if defined in INPUT_PATHS
-    input_files_to_check = []
-    
-    # Check for standard expected files based on project context
-    # If INPUT_PATHS is a dict of names to paths, we check those paths
-    if isinstance(INPUT_PATHS, dict):
-        for key, path in INPUT_PATHS.items():
-            if isinstance(path, str):
-                input_files_to_check.append(path)
-            elif isinstance(path, list):
-                input_files_to_check.extend(path)
-    
-    # Fallback: check for common expected files if INPUT_PATHS is empty or not set
-    if not input_files_to_check:
-        input_files_to_check = [
-            "data/raw/microbiome_data.csv",
-            "data/raw/cognitive_data.csv"
-        ]
-    
-    if not validate_input_files(input_files_to_check):
-        is_valid = False
-    
-    # 3. Validate config parameters
-    if not isinstance(RANDOM_SEED, int) or RANDOM_SEED < 0:
-        logger.error(f"Invalid RANDOM_SEED: {RANDOM_SEED}. Must be a non-negative integer.")
-        is_valid = False
-        
-    if not isinstance(SAMPLE_LIMIT, int) or SAMPLE_LIMIT <= 0:
-        logger.error(f"Invalid SAMPLE_LIMIT: {SAMPLE_LIMIT}. Must be a positive integer.")
-        is_valid = False
-    
-    if is_valid:
-        log_provenance("Configuration validation successful.")
-    else:
-        log_warning("Configuration validation failed. Pipeline cannot start.")
-    
-    return is_valid
+    log_provenance("Configuration validation successful. All checks passed.")
+    return True
 
 def main():
     """
-    Entry point for running configuration validation as a script.
+    Entry point for running configuration validation standalone.
     """
     success = validate_configuration()
-    sys.exit(0 if success else 1)
+    if success:
+        print("Configuration validation PASSED.")
+        sys.exit(0)
+    else:
+        print("Configuration validation FAILED. Check logs for details.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

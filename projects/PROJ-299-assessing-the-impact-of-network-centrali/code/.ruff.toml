@@ -1,24 +1,23 @@
 [lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line-too-long (handled by black)
 ]
+target-version = "py310"
 
 [lint.isort]
 known-first-party = ["code"]
-force-single-line = true
+force-single-line = false
+lines-between-types = 0
 
 [format]
 line-length = 88
-indent-style = "space"
-quote-style = "double"
-skip-magic-trailing-comma = false
+target-version = "py310"

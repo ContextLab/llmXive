@@ -1,4 +1,4 @@
-- artifact_hash: 0344d1b44cec7ddbe850696bd295a48ed3dd8ab7d0090a0656257da3a583135e
+- artifact_hash: d5cb4aecbfb25811df45688ab88d3d6374324dbdc0560fdf407e40ad6fcc3a11
   artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q47604
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q47604
-  verified_at: '2026-08-09T01:06:55.626237Z'
+  verified_at: '2026-08-09T18:39:53.539868Z'

@@ -84,12 +84,12 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Unit test for latency measurement logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_benchmark.py` (verify timing accuracy)
-- [ ] T017 [P] [US2] Integration test for FID comparison in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/integration/test_fid_comparison.py` (verify FID calculation on dummy samples)
+- [X] T017 [P] [US2] Integration test for FID comparison in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/integration/test_fid_comparison.py` (verify FID calculation on dummy samples)
 
 ### Implementation for User Story 2
 
 - [ ] T018 [US2] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/static_model.py`: Create a modified model class that injects the static routing map (from T013) and removes per-timestep softmax overhead. **Dependency**: Must load `data/routing_cache/canonical_map.json` (Artifact from T013). **Verification**: Verify the model can be instantiated and runs without computing routing weights dynamically.
-- [~] T019 [US2] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/benchmark.py`: Run inference for both dynamic (original) and static models on **40** disjoint ImageNet validation images (specifically images 101-140, i.e., indices 100 to 139 from the validation split, to ensure disjointness from T011); measure time-to-solution for a representative number of timesteps; generate samples. **Logic**: Include FID comparison using `src/metrics.py`. **Error Handling**: Must report high FID degradation (> 0.5) as a valid negative result **by appending the result to `data/results/benchmark_results.csv` and `.json`** without halting. **Verification**: Verify `data/results/benchmark_results.csv` and `data/results/benchmark_results.json` are generated with columns [latency, fid, seed, model_type].
+- [ ] T019 [US2] Implement `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/src/benchmark.py`: Run inference for both dynamic (original) and static models on **40** disjoint ImageNet validation images (specifically images 101-140, i.e., indices 100 to 139 from the validation split, to ensure disjointness from T011); measure time-to-solution for a representative number of timesteps; generate samples. **Logic**: Include FID comparison using `src/metrics.py`. **Error Handling**: Must report high FID degradation (> 0.5) as a valid negative result **by appending the result to `data/results/benchmark_results.csv` and `.json`** without halting. **Verification**: Verify `data/results/benchmark_results.csv` and `data/results/benchmark_results.json` are generated with columns [latency, fid, seed, model_type].
 - [ ] T021 [US2] Save benchmark results (latency, FID, reduction %) to `data/results/benchmark_results.csv` and `data/results/benchmark_results.json`
 - [ ] T022 [US2] Add error handling to report high FID degradation (> 0.5) as a valid negative result without halting (Merged into T019)
 
@@ -105,8 +105,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for bootstrap significance test in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_stats.py` (verify non-parametric bootstrap implementation)
-- [ ] T024 [P] [US3] Unit test for sensitivity sweep logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_sensitivity.py`
+- [X] T023 [P] [US3] Unit test for bootstrap significance test in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_stats.py` (verify non-parametric bootstrap implementation)
+- [X] T024 [P] [US3] Unit test for sensitivity sweep logic in `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 

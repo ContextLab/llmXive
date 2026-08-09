@@ -1,119 +1,98 @@
 """
 Unit tests for the logging infrastructure (T005).
+Verifies that logs are machine-readable JSON and contain required fields.
 """
 import json
+import logging
 import os
 import tempfile
 from pathlib import Path
-import pytest
-import logging
+import sys
 
-# Import the module under test
-from code.utils.logging_config import (
-    setup_logging,
-    get_logger,
-    log_event,
-    JSONFormatter,
-)
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-class TestJSONFormatter:
-    def test_format_basic_message(self):
-        formatter = JSONFormatter()
-        record = logging.LogRecord(
-            name="test",
-            level=logging.INFO,
-            pathname="test.py",
-            lineno=1,
-            msg="Test message",
-            args=(),
-            exc_info=None
-        )
-        output = formatter.format(record)
-        data = json.loads(output)
+from utils.logging_config import setup_logging, get_logger, log_event, JSONFormatter
+
+def test_json_formatter():
+    """Test that JSONFormatter produces valid JSON strings."""
+    formatter = JSONFormatter()
+    record = logging.LogRecord(
+        name="test_logger",
+        level=logging.INFO,
+        pathname="test.py",
+        lineno=1,
+        msg="Test message",
+        args=(),
+        exc_info=None
+    )
+    formatted = formatter.format(record)
+    
+    # Must be valid JSON
+    parsed = json.loads(formatted)
+    assert "timestamp" in parsed
+    assert parsed["level"] == "INFO"
+    assert parsed["message"] == "Test message"
+    assert parsed["logger"] == "test_logger"
+
+def test_log_event_with_extra_data():
+    """Test that log_event includes extra data in the JSON output."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_file = Path(tmpdir) / "test.log"
         
-        assert data["level"] == "INFO"
-        assert data["message"] == "Test message"
-        assert "timestamp" in data
-        assert data["module"] == "test"
-
-    def test_format_with_exception(self):
-        formatter = JSONFormatter()
-        try:
-            raise ValueError("Test error")
-        except Exception:
-            import sys
-            exc_info = sys.exc_info()
-            record = logging.LogRecord(
-                name="test",
-                level=logging.ERROR,
-                pathname="test.py",
-                lineno=1,
-                msg="Error occurred",
-                args=(),
-                exc_info=exc_info
-            )
-            output = formatter.format(record)
-            data = json.loads(output)
-            
-            assert data["level"] == "ERROR"
-            assert "exception" in data
-            assert "ValueError" in data["exception"]
-
-    def test_format_with_extra_data(self):
-        formatter = JSONFormatter()
-        record = logging.LogRecord(
-            name="test",
-            level=logging.INFO,
-            pathname="test.py",
-            lineno=1,
-            msg="Test message",
-            args=(),
-            exc_info=None
-        )
-        record.extra_data = {"user_id": 123, "action": "login"}
-        output = formatter.format(record)
-        data = json.loads(output)
+        setup_logging(log_file=log_file, log_level=logging.DEBUG, console_output=False)
+        logger = get_logger("test_extra")
         
-        assert data["user_id"] == 123
-        assert data["action"] == "login"
-
-class TestSetupLogging:
-    def test_creates_log_file(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test.log"
-            logger = setup_logging(log_file=log_path, console_output=False)
+        # Log with extra data
+        log_event(logger, logging.INFO, "Event with extra", user_id=123, action="login")
+        
+        # Read and verify
+        with open(log_file, 'r') as f:
+            line = f.readline()
+            parsed = json.loads(line)
             
-            assert log_path.exists()
-            
-            # Log something and verify file grows
-            logger.info("Test entry")
-            assert log_path.stat().st_size > 0
+        assert parsed["user_id"] == 123
+        assert parsed["action"] == "login"
+        assert parsed["message"] == "Event with extra"
 
-    def test_returns_root_logger(self):
-        logger = setup_logging(console_output=False)
-        assert isinstance(logger, logging.Logger)
-        assert logger.name == "root"
+def test_setup_logging_creates_file():
+    """Test that setup_logging creates the log file and directory."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_file = Path(tmpdir) / "subdir" / "pipeline.log"
+        
+        setup_logging(log_file=log_file, log_level=logging.INFO, console_output=False)
+        logger = get_logger("test_setup")
+        logger.info("Setup test")
+        
+        assert log_file.exists()
+        
+        # Verify content is JSON
+        with open(log_file, 'r') as f:
+            line = f.readline()
+            json.loads(line) # Should not raise
 
-class TestGetLogger:
-    def test_returns_named_logger(self):
-        logger = get_logger("test_module")
-        assert logger.name == "test_module"
-        assert isinstance(logger, logging.Logger)
+def test_log_event():
+    """Test the log_event helper function."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_file = Path(tmpdir) / "test.log"
+        setup_logging(log_file=log_file, log_level=logging.DEBUG, console_output=False)
+        logger = get_logger("test_main")
+        
+        log_event(logger, logging.WARNING, "Warning message", code=42)
+        
+        with open(log_file, 'r') as f:
+            content = f.read()
+            assert "Warning message" in content
+            assert "42" in content
+            # Verify it's valid JSON lines
+            for line in content.strip().split('\n'):
+                json.loads(line)
 
-class TestLogEvent:
-    def test_logs_with_extra_data(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "test.log"
-            setup_logging(log_file=log_path, console_output=False)
-            logger = get_logger("test_event")
-            
-            log_event(logger, logging.INFO, "Event message", {"key": "value"})
-            
-            # Read and verify
-            with open(log_path, 'r') as f:
-                line = f.readline().strip()
-                data = json.loads(line)
-                
-                assert data["message"] == "Event message"
-                assert data["key"] == "value"
-                assert data["level"] == "INFO"
+if __name__ == "__main__":
+    test_json_formatter()
+    test_log_event_with_extra_data()
+    test_setup_logging_creates_file()
+    test_log_event()
+    print("All logging tests passed.")

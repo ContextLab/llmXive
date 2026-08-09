@@ -1,110 +1,104 @@
-"""
-Task T015: Save cleaned dataset to data/processed/cleaned_data.csv.
-
-This script assumes the ingestion pipeline (T013, T014a, T014b) has run
-and produced a cleaned DataFrame in memory or via a temporary state.
-However, since the pipeline is modular, this script acts as the final
-step to persist the result of the ingestion process defined in data_ingestion.py.
-
-It loads the raw data, performs the necessary merging, filtering, and imputation
-(reusing logic from data_ingestion), and saves the final result to the
-specified output path with a header containing column definitions.
-"""
 import os
 import sys
 import pandas as pd
 from pathlib import Path
-
-# Add project root to path if running as script
-if 'code' in os.getcwd():
-    sys.path.insert(0, os.getcwd())
-else:
-    project_root = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(project_root / 'code'))
-
 from config import ensure_directories, INPUT_PATHS, SAMPLE_LIMIT
 from logging_config import get_logger, log_provenance, log_warning
-from data_ingestion import run_ingestion_pipeline
 
-def save_cleaned_dataset(output_path: str, df: pd.DataFrame):
+logger = get_logger(__name__)
+
+def save_cleaned_dataset(df: pd.DataFrame, output_path: str) -> None:
     """
-    Saves the cleaned DataFrame to CSV with a header containing column definitions.
+    Save the cleaned dataset to a CSV file with a header containing column definitions.
     
     Args:
-        output_path: Full path to the output CSV file.
-        df: The cleaned DataFrame.
+        df: The cleaned pandas DataFrame to save.
+        output_path: The path where the cleaned CSV should be saved.
+        
+    Raises:
+        ValueError: If the DataFrame is empty.
+        FileNotFoundError: If the output directory does not exist.
+    """
+    if df.empty:
+        msg = "Cannot save cleaned dataset: DataFrame is empty."
+        logger.error(msg)
+        raise ValueError(msg)
+
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        msg = f"Output directory {output_dir} does not exist. Creating it."
+        logger.warning(msg)
+        os.makedirs(output_dir, exist_ok=True)
+
+    # Construct header with column definitions
+    # Format: # Column Definitions:
+    # # <column_name>: <dtype>
+    header_lines = ["# Column Definitions:"]
+    for col in df.columns:
+        dtype = str(df[col].dtype)
+        header_lines.append(f"# {col}: {dtype}")
+    
+    header_text = "\n".join(header_lines)
+
+    # Write the file with the custom header
+    # We use a temporary approach: write header, then data without header
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(header_text + "\n")
+        df.to_csv(f, index=False)
+
+    log_provenance(f"Saved cleaned dataset to {output_path}")
+    logger.info(f"Successfully saved cleaned dataset to {output_path} with {len(df)} rows.")
+
+def main() -> None:
+    """
+    Main entry point for the save_cleaned_data script.
+    Expects the cleaned data to be available in memory or a temporary location
+    (in a real pipeline, this would be passed from the ingestion pipeline).
+    
+    For this implementation, we assume the cleaned data is the output of the 
+    data ingestion pipeline. Since T012-T014 are marked as completed but their 
+    implementation details might vary, we simulate the pipeline execution flow
+    by calling the ingestion functions directly if available, or loading from 
+    a known intermediate state if the pipeline has already run.
+    
+    In a full pipeline, this script would be called after data_ingestion.py 
+    completes its processing.
     """
     ensure_directories()
     
-    if df.empty:
-        log_warning("Attempted to save an empty dataset. Creating file with headers only.")
-        df.to_csv(output_path, index=False)
-        return
-
-    # Create column definitions comment
-    # We infer types or use a standard schema description based on project requirements
-    columns = df.columns.tolist()
-    dtypes = df.dtypes.astype(str).to_dict()
+    logger.info("Starting save_cleaned_data pipeline.")
     
-    header_comment = "# Column Definitions:\n"
-    header_comment += "# Format: # column_name | type | description\n"
-    for col in columns:
-        desc = "Derived from ingestion pipeline"
-        if col in ['participant_id', 'sex']:
-            desc = "Participant ID / Sex (M/F)"
-        elif col in ['age', 'bmi', 'dqs']:
-            desc = "Continuous covariate"
-        elif col in ['alpha_diversity', 'shannon_index']:
-            desc = "Alpha diversity metric (Shannon)"
-        elif col in ['fluid_intelligence']:
-            desc = "Cognitive performance score"
-        
-        header_comment += f"# {col} | {dtypes[col]} | {desc}\n"
+    # Import ingestion functions to get the cleaned data
+    # This assumes T011-T014 have been executed and the data is ready
+    try:
+        from data_ingestion import run_ingestion_pipeline
+        logger.info("Running data ingestion pipeline to obtain cleaned data.")
+        cleaned_df = run_ingestion_pipeline()
+    except Exception as e:
+        # Fallback: try to load from a standard intermediate path if ingestion failed
+        # This handles cases where ingestion was run separately
+        intermediate_path = INPUT_PATHS.get('processed', {}).get('intermediate', 'data/processed/intermediate_cleaned.csv')
+        if os.path.exists(intermediate_path):
+            logger.warning(f"Ingestion pipeline failed ({e}). Loading from intermediate file: {intermediate_path}")
+            cleaned_df = pd.read_csv(intermediate_path)
+        else:
+            logger.error("Could not obtain cleaned data. Neither ingestion pipeline nor intermediate file available.")
+            sys.exit(1)
 
-    # Write to file
-    with open(output_path, 'w') as f:
-        f.write(header_comment)
-        df.to_csv(f, index=False)
+    if cleaned_df is None or cleaned_df.empty:
+        logger.error("Cleaned data is empty. Cannot proceed with saving.")
+        sys.exit(1)
 
-    log_provenance(f"Saved cleaned dataset to {output_path} with {len(df)} rows.")
-
-def main():
-    logger = get_logger()
-    logger.info("Starting T015: Save Cleaned Data")
-
-    # Ensure output directories exist
-    ensure_directories()
-    
-    # Define output path as per task specification
-    output_path = "data/processed/cleaned_data.csv"
-    
-    # Check if data already exists from a previous pipeline run
-    # In a real pipeline, this would be passed from the previous step.
-    # For this standalone script, we re-run the ingestion logic to ensure
-    # we have the data, as the previous tasks (T013, T014) were logic implementations.
-    # We assume the raw data files are present in data/raw/ as per T001/T002.
+    output_path = INPUT_PATHS.get('processed', {}).get('cleaned', 'data/processed/cleaned_data.csv')
     
     try:
-        # Run the ingestion pipeline to get the cleaned DataFrame
-        # This re-executes the logic from T011-T014 to ensure data is ready
-        cleaned_df = run_ingestion_pipeline()
-        
-        if cleaned_df is None or cleaned_df.empty:
-            log_warning("Ingestion pipeline returned empty or None data. Saving empty file.")
-            # Create file with headers only if empty
-            save_cleaned_dataset(output_path, pd.DataFrame())
-        else:
-            save_cleaned_dataset(output_path, cleaned_df)
-            
-        logger.info(f"T015 Complete. Output saved to {output_path}")
-        
-    except FileNotFoundError as e:
-        log_warning(f"Raw data files not found. Cannot generate cleaned_data.csv. Error: {e}")
-        # Create an empty file with headers to indicate status
-        save_cleaned_dataset(output_path, pd.DataFrame())
+        save_cleaned_dataset(cleaned_df, output_path)
     except Exception as e:
-        logger.error(f"Error during T015: {e}")
-        raise
+        logger.error(f"Failed to save cleaned dataset: {e}")
+        sys.exit(1)
+
+    logger.info("save_cleaned_data pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

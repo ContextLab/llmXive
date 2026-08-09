@@ -78,9 +78,9 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these failing test stubs FIRST**
 
-- [ ] T009 [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. Use fixture file `tests/fixtures/sample_imputation.csv` containing a sample with majority 'M', minority 'F', and one NaN. Expect output 'F' for NaN.
+- [X] T009 [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. Use fixture file `tests/fixtures/sample_imputation.csv` containing a sample with majority 'M', minority 'F', and one NaN. Expect output 'F' for NaN.
 
-- [ ] T010 [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. Input a small sample with null 'fluid_intelligence' values; expect a reduced output row count. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T010 [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. Input a small sample with null 'fluid_intelligence' values; expect a reduced output row count. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 3, column 3:
  - **File Modified**: `tests/unit/t...
  ^
@@ -93,17 +93,17 @@ expected alphabetic or numeric character, but found '*'
 
 - [X] T011 [User Story 1] Implement `code/data_ingestion.py` to load raw microbiome and cognitive data from `data/raw/` and merge by participant ID column `participant_id` (FR-001).
 
-- [~] T012 [User Story 1] Implement filtering logic to exclude participants with null alpha diversity, fluid intelligence, or DQS (User Story 1, FR-001). **Dependency**: Must verify T014b (DQS availability check) is passed.
+- [ ] T012 [User Story 1] Implement filtering logic to exclude participants with null alpha diversity, fluid intelligence, or DQS (User Story 1, FR-001). **Dependency**: Must verify T014b (DQS availability check) is passed.
 
-- [~] T013 [User Story 1] Implement imputation logic: Median for Age, BMI, DQS; Mode for Sex. **Reference**: This task implements the logic defined in Spec Override Task T047 (replacing FR-007). Log imputation strategy to `provenance.log` (Data Hygiene Principle III).
+- [ ] T013 [User Story 1] Implement imputation logic: Median for Age, BMI, DQS; Mode for Sex. **Reference**: This task implements the logic defined in Spec Override Task T047 (replacing FR-007). Log imputation strategy to `provenance.log` (Data Hygiene Principle III).
 
-- [~] T014a [User Story 1] Implement DQS calculation logic in `code/data_ingestion.py` if raw dietary data is present. **Trigger**: Check for existence of `data/raw/dietary_data.csv` or required columns (e.g., 'fruit', 'vegetable'). Use **HEI-2015** standard formula (FR-008).
+- [ ] T014a [User Story 1] Implement DQS calculation logic in `code/data_ingestion.py` if raw dietary data is present. **Trigger**: Check for existence of `data/raw/dietary_data.csv` or required columns (e.g., 'fruit', 'vegetable'). Use **HEI-2015** standard formula (FR-008).
 
-- [~] T014b [User Story 1] Implement DQS failure handling: If DQS is required (per FR-008) but raw dietary data is missing, raise a fatal error and halt the pipeline. This ensures the 'MUST' in FR-008 is respected by failing explicitly rather than silently skipping.
+- [ ] T014b [User Story 1] Implement DQS failure handling: If DQS is required (per FR-008) but raw dietary data is missing, raise a fatal error and halt the pipeline. This ensures the 'MUST' in FR-008 is respected by failing explicitly rather than silently skipping.
 
 - [ ] T015 [User Story 1] Save cleaned dataset to `data/processed/cleaned_data.csv` with a header containing column definitions.
 
-- [~] T016 [User Story 1] Add error handling for missing files and empty datasets (edge case: zero participants).
+- [ ] T016 [User Story 1] Add error handling for missing files and empty datasets (edge case: zero participants).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -155,9 +155,9 @@ expected alphabetic or numeric character, but found '*'
 
 ### Success Criteria Validation (User Story 2)
 
-- [ ] T028 [User Story 2] Implement validation script `code/validate_sc001.py`: Read `correlation_results.csv`, verify `r_value` is a float and `p_value < 0.05`. **Reference**: Validates Plan-corrected Raw Shannon against Spec Override T046 (replacing SC-001).
+- [X] T028 [User Story 2] Implement validation script `code/validate_sc001.py`: Read `correlation_results.csv`, verify `r_value` is a float and `p_value < 0.05`. **Reference**: Validates Plan-corrected Raw Shannon against Spec Override T046 (replacing SC-001).
 
-- [ ] T029 [User Story 2] Implement validation script `code/validate_sc002.py`: Read `regression_results.csv`, verify `coefficient` is a float and `p-value < 0.05` for the Shannon predictor. **Reference**: Validates Plan-corrected Raw Shannon regression against Spec Override T046 (replacing SC-002).
+- [X] T029 [User Story 2] Implement validation script `code/validate_sc002.py`: Read `regression_results.csv`, verify `coefficient` is a float and `p-value < 0.05` for the Shannon predictor. **Reference**: Validates Plan-corrected Raw Shannon regression against Spec Override T046 (replacing SC-002).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -171,9 +171,9 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [User Story 3] Write failing test stub `test_fdr_correction_qvalue_calc` in `tests/unit/test_analysis.py`. Input p-values `[0.01, 0.02, 0.03, 0.04, 0.05]`. Expect corresponding q-values calculated via Benjamini-Hochberg.
+- [X] T030 [P] [User Story 3] Write failing test stub `test_fdr_correction_qvalue_calc` in `tests/unit/test_analysis.py`. Input p-values `[0.01, 0.02, 0.03, 0.04, 0.05]`. Expect corresponding q-values calculated via Benjamini-Hochberg.
 
-- [ ] T031 [P] [User Story 3] Write failing test stub `test_visualization_png_generation` in `tests/integration/test_visualization.py`. Generate mock data using `np.random` and save to `tests/fixtures/mock_plot_data.csv`. Expect output file `scatter_shannon_fi.png` exists and is > 1KB.
+- [X] T031 [P] [User Story 3] Write failing test stub `test_visualization_png_generation` in `tests/integration/test_visualization.py`. Generate mock data using `np.random` and save to `tests/fixtures/mock_plot_data.csv`. Expect output file `scatter_shannon_fi.png` exists and is > 1KB.
 
 ### Implementation for User Story 3
 

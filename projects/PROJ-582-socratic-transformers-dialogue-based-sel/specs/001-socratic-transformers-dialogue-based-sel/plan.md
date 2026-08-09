@@ -29,7 +29,7 @@ This project implements a selectionist framework for improving LLM reasoning, re
 
 - **I. Reproducibility**: 
   - `requirements.txt` pins all dependencies.
-  - `random.seed(42)` and `numpy.random.seed(42)` enforced in `src/utils/config.py`.
+  - `random.seed(None)` and `numpy.random.seed()` enforced in `src/utils/config.py`.
   - Data checksums recorded in `state/` manifest.
 - **II. Verified Accuracy**: 
   - All dataset URLs sourced strictly from the `# Verified datasets` block (GSMK: `openai/gsm8k`, MATH: `hendrycks/math`).

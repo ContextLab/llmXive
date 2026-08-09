@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:34:36.384921Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-582-socratic-transformers-dialogue-based-sel
-last_run_id: 0607ae60-99f4-49ff-bb94-c0d5ad0aab87
+last_run_id: 308c7f3b-7653-473c-90d1-d354302474ac
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel
 title: 'Socratic Transformers: Dialogue-Based Self-Teaching Through Adversarial Questioning'
-updated_at: '2026-08-09T04:38:54.306095Z'
+updated_at: '2026-08-09T19:09:27.647151Z'

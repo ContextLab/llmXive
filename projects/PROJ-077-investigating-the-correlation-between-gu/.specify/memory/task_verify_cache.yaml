@@ -1,0 +1,41 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No filtering script, code snippet, or resulting dataset was provided, and there
+    is no evidence that the dependency T014b was checked. Without an artifact showing
+    participants with null alpha diversity, fluid intelligence, or DQS are excluded,
+    the task requirement is not satisfied.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file implementing the required imputation (median for\
+    \ Age, BMI, DQS; mode for Sex) is present, nor any evidence that the strategy\
+    \ was logged to `provenance.log`. Without these artifacts, the task\u2019s core\
+    \ requirement is not satisfied."
+T014a:
+  c: false
+  h: 45fe04709913e1a2d5ecb4a8b5084b191a3ef42b00956a6462a8749d8b4395ac
+  r: "The `code/data_ingestion.py` file exists and includes a `check_dqs_availability`\
+    \ function, but the `calculate_dqs` implementation is a simplified placeholder\
+    \ (\u201CSum of normalized fruit, vegetable, grain, dairy, protein scores\u201D\
+    ) and explicitly notes that the real HEI\u20112015 logic is not implemented. The\
+    \ task required using the HEI\u20112015 standard formula, which is not fulfilled.\
+    \ The missing real scoring logic must be added for the task to be complete."
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file was provided that checks for the presence\
+    \ of raw dietary data when DQS is required and raises a fatal error if it is missing.\
+    \ Consequently, the required failure\u2011handling behavior is not demonstrated.\
+    \ The implementer must add the appropriate validation logic and supply the updated\
+    \ artifact."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test artifacts were provided that demonstrate added error\
+    \ handling for missing input files or for the case of an empty dataset (zero participants).\
+    \ Without concrete files showing try/except blocks, file\u2011existence checks,\
+    \ or logic that gracefully handles a dataset with no rows, the requirement cannot\
+    \ be verified as met. The implementer must supply the updated preprocessing script\
+    \ (or relevant module) and evidence (e.g., unit tests or example runs) showing\
+    \ the new error handling in action."

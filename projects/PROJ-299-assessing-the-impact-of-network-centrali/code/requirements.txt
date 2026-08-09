@@ -8,5 +8,5 @@ matplotlib
 seaborn
 reportlab
 python-dotenv
-ruff
-black
+requests
+toml
