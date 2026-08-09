@@ -1,1 +1,3 @@
-"""Data module root."""
+"""
+Data module: Storage for raw and processed data.
+"""

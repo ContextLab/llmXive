@@ -1,1 +1,3 @@
-"""Simulation module for Discrete-Event Simulation (DES) modeling."""
+"""
+Simulation module: Discrete-event simulation and calibration.
+"""

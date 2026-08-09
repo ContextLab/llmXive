@@ -1,1 +1,3 @@
-"""Contract tests for schema and API validation."""
+"""
+Contract tests: Schema and API contract validation.
+"""

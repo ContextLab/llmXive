@@ -1,1 +1,3 @@
-"""Tests package root."""
+"""
+Tests module: Unit, integration, and contract tests.
+"""

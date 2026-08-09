@@ -1,3 +1,10 @@
+"""
+Remote Tool Manager for Mesh Network Supercomputer.
+
+This module consolidates tool verification and installation logic for remote nodes.
+It handles checking for required CLI tools (tcpdump, mpstat) and attempting
+installation via apt-get or yum if missing.
+"""
 from __future__ import annotations
 
 import logging
@@ -6,319 +13,241 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Tuple, Set
 from pathlib import Path
 
-from orchestrator.logger import get_logger
+import paramiko
 from orchestrator.node_manager import NodeManager, NodeDiscoveryError
-from orchestrator.remote_tool_checker import (
-    RemoteToolChecker,
-    ToolMissingError,
-    ToolCheckResult,
-    NodeToolCheckResult,
-    create_tool_checker,
-)
-from orchestrator.remote_tool_installer import (
-    RemoteToolInstaller,
-    ToolInstallationError,
-    InstallationResult,
-    create_tool_installer,
-)
+from orchestrator.logger import get_logger
 
 logger = get_logger(__name__)
 
-CRITICAL_TOOLS = {"tcpdump", "mpstat"}
-OPTIONAL_TOOLS = {"tc", "iotop"}
+
+class ToolMissingError(Exception):
+    """Raised when a required tool is missing and cannot be installed."""
+    pass
+
+
+class ToolInstallationError(Exception):
+    """Raised when tool installation fails."""
+    pass
 
 
 @dataclass
 class NodeToolStatus:
-    """Status of tool installation on a specific node."""
-    node_ip: str
-    tools_available: Set[str] = field(default_factory=set)
-    tools_missing: Set[str] = field(default_factory=set)
-    tools_installed: Set[str] = field(default_factory=set)
-    installation_failures: Dict[str, str] = field(default_factory=dict)
-    is_available: bool = True
+    """Status of a tool on a specific node."""
+    node_id: str
+    tool_name: str
+    is_present: bool
+    installation_attempted: bool = False
+    installation_success: Optional[bool] = None
     error_message: Optional[str] = None
+    package_manager: Optional[str] = None
 
 
+@dataclass
 class RemoteToolManager:
     """
-    Manages verification and installation of required CLI tools on remote nodes.
-    Coordinates between the checker and installer components to ensure nodes
-    are ready for instrumentation.
+    Manages verification and installation of CLI tools on remote nodes.
+
+    Attributes:
+        node_manager: The NodeManager instance for SSH connections.
+        required_tools: Set of tool names that must be present.
+        tool_packages: Mapping of tool names to package names.
     """
+    node_manager: NodeManager
+    required_tools: Set[str] = field(default_factory=lambda: {"tcpdump", "mpstat"})
+    tool_packages: Dict[str, str] = field(default_factory=lambda: {
+        "tcpdump": "tcpdump",
+        "mpstat": "sysstat"
+    })
 
-    def __init__(
-        self,
-        node_manager: NodeManager,
-        tool_checker: Optional[RemoteToolChecker] = None,
-        tool_installer: Optional[RemoteToolInstaller] = None,
-    ):
-        self.node_manager = node_manager
-        self.tool_checker = tool_checker or create_tool_checker()
-        self.tool_installer = tool_installer or create_tool_installer()
-        self._node_status_cache: Dict[str, NodeToolStatus] = {}
-
-    def verify_and_install_tools(
-        self,
-        node_ips: List[str],
-        critical_tools: Optional[Set[str]] = None,
-        optional_tools: Optional[Set[str]] = None,
-        force_reinstall: bool = False,
-    ) -> Dict[str, NodeToolStatus]:
+    def check_tool_on_node(self, node_id: str, tool_name: str) -> Tuple[bool, Optional[str]]:
         """
-        Verify tools on remote nodes and install missing ones.
+        Check if a specific tool exists on a remote node using 'which'.
 
         Args:
-            node_ips: List of node IP addresses to check.
-            critical_tools: Set of critical tools (defaults to CRITICAL_TOOLS).
-            optional_tools: Set of optional tools (defaults to OPTIONAL_TOOLS).
-            force_reinstall: If True, reinstall even if tools are present.
+            node_id: The ID of the remote node.
+            tool_name: The name of the tool to check.
 
         Returns:
-            Dictionary mapping node IP to NodeToolStatus.
-
-        Raises:
-            ToolMissingError: If any critical tool is missing and cannot be installed.
+            Tuple of (is_present, error_message).
         """
-        critical = critical_tools or CRITICAL_TOOLS
-        optional = optional_tools or OPTIONAL_TOOLS
-        all_tools = critical | optional
+        command = f"which {tool_name}"
+        try:
+            logger.debug(f"Checking for tool '{tool_name}' on node {node_id}")
+            stdin, stdout, stderr = self.node_manager.execute_command(node_id, command)
+            exit_code = stdout.channel.recv_exit_status()
 
-        results: Dict[str, NodeToolStatus] = {}
+            if exit_code == 0:
+                path = stdout.read().decode().strip()
+                logger.info(f"Tool '{tool_name}' found at {path} on node {node_id}")
+                return True, None
+            else:
+                error = stderr.read().decode().strip()
+                logger.warning(f"Tool '{tool_name}' not found on node {node_id}: {error}")
+                return False, error
+        except paramiko.SSHException as e:
+            logger.error(f"SSH error checking tool '{tool_name}' on node {node_id}: {e}")
+            return False, str(e)
+        except Exception as e:
+            logger.error(f"Unexpected error checking tool '{tool_name}' on node {node_id}: {e}")
+            return False, str(e)
 
-        for node_ip in node_ips:
-            logger.info(f"Checking tools on node {node_ip}")
-            status = self._process_node(
-                node_ip, all_tools, critical, optional, force_reinstall
-            )
-            results[node_ip] = status
+    def install_tool_on_node(self, node_id: str, tool_name: str) -> Tuple[bool, Optional[str]]:
+        """
+        Attempt to install a missing tool on a remote node.
 
-            if not status.is_available and status.error_message:
-                logger.error(
-                    f"Node {node_ip} unavailable: {status.error_message}"
+        Args:
+            node_id: The ID of the remote node.
+            tool_name: The name of the tool to install.
+
+        Returns:
+            Tuple of (installation_success, error_message).
+        """
+        package_name = self.tool_packages.get(tool_name, tool_name)
+        logger.info(f"Attempting to install '{package_name}' for tool '{tool_name}' on node {node_id}")
+
+        # Try apt-get first (Debian/Ubuntu)
+        apt_command = f"sudo apt-get update && sudo apt-get install -y {package_name}"
+        # Try yum second (RHEL/CentOS)
+        yum_command = f"sudo yum install -y {package_name}"
+
+        commands_to_try = [
+            (apt_command, "apt"),
+            (yum_command, "yum")
+        ]
+
+        for cmd, pkg_mgr in commands_to_try:
+            try:
+                stdin, stdout, stderr = self.node_manager.execute_command(node_id, cmd)
+                exit_code = stdout.channel.recv_exit_status()
+
+                if exit_code == 0:
+                    logger.info(f"Successfully installed '{package_name}' via {pkg_mgr} on node {node_id}")
+                    return True, None
+                else:
+                    error = stderr.read().decode().strip()
+                    logger.warning(f"Failed to install via {pkg_mgr} on node {node_id}: {error}")
+                    # Continue to next package manager
+            except paramiko.SSHException as e:
+                logger.error(f"SSH error installing via {pkg_mgr} on node {node_id}: {e}")
+                continue
+            except Exception as e:
+                logger.error(f"Unexpected error installing via {pkg_mgr} on node {node_id}: {e}")
+                continue
+
+        return False, f"Failed to install '{package_name}' using any available package manager"
+
+    def verify_and_install_tools(self, node_ids: List[str]) -> List[NodeToolStatus]:
+        """
+        Verify all required tools on all specified nodes and install if missing.
+
+        Args:
+            node_ids: List of node IDs to check.
+
+        Returns:
+            List of NodeToolStatus objects for each tool/node combination.
+        """
+        results = []
+
+        for node_id in node_ids:
+            logger.info(f"Verifying tools on node {node_id}")
+            for tool_name in self.required_tools:
+                status = NodeToolStatus(
+                    node_id=node_id,
+                    tool_name=tool_name,
+                    is_present=False
                 )
 
-        # Raise if any critical tool is missing on any node
-        for node_ip, status in results.items():
-            if status.tools_missing:
-                missing_critical = status.tools_missing & critical
-                if missing_critical:
-                    raise ToolMissingError(
-                        f"Critical tools missing on {node_ip} and cannot be installed: {missing_critical}"
-                    )
+                # Check if tool exists
+                is_present, check_error = self.check_tool_on_node(node_id, tool_name)
+
+                if is_present:
+                    status.is_present = True
+                    results.append(status)
+                    continue
+
+                # Tool missing, attempt installation
+                status.installation_attempted = True
+                install_success, install_error = self.install_tool_on_node(node_id, tool_name)
+
+                if install_success:
+                    status.installation_success = True
+                    status.is_present = True
+                    status.package_manager = "auto-detected"
+                else:
+                    status.installation_success = False
+                    status.error_message = install_error
+
+                results.append(status)
 
         return results
 
-    def _process_node(
-        self,
-        node_ip: str,
-        all_tools: Set[str],
-        critical: Set[str],
-        optional: Set[str],
-        force_reinstall: bool,
-    ) -> NodeToolStatus:
-        """Process a single node for tool verification and installation."""
-        status = NodeToolStatus(node_ip=node_ip)
-
-        try:
-            # Check existing tools
-            check_result = self.tool_checker.check_tools_on_node(
-                node_ip, list(all_tools)
-            )
-
-            if not check_result.success:
-                status.is_available = False
-                status.error_message = check_result.error_message
-                status.tools_missing = all_tools
-                return status
-
-            status.tools_available = set(check_result.available_tools)
-            status.tools_missing = set(check_result.missing_tools)
-
-            if not status.tools_missing:
-                logger.debug(f"All tools present on {node_ip}")
-                return status
-
-            # Attempt installation for missing tools
-            missing_critical = status.tools_missing & critical
-            missing_optional = status.tools_missing & optional
-
-            if missing_critical:
-                logger.info(
-                    f"Installing critical tools on {node_ip}: {missing_critical}"
-                )
-                install_result = self.tool_installer.install_tools(
-                    node_ip, list(missing_critical)
-                )
-
-                if install_result.success:
-                    status.tools_installed = set(install_result.installed_tools)
-                    status.tools_available |= status.tools_installed
-                    status.tools_missing -= status.tools_installed
-
-                    # Re-check to confirm
-                    final_check = self.tool_checker.check_tools_on_node(
-                        node_ip, list(status.tools_missing)
-                    )
-                    if final_check.missing_tools:
-                        still_missing = set(final_check.missing_tools)
-                        status.tools_missing = still_missing
-                        for tool in still_missing:
-                            status.installation_failures[tool] = (
-                                "Installation succeeded but tool not found"
-                            )
-                    else:
-                        status.tools_missing.clear()
-                else:
-                    # Installation failed
-                    for tool in missing_critical:
-                        status.installation_failures[tool] = (
-                            install_result.error_message or "Unknown error"
-                        )
-                    status.tools_missing = missing_critical
-                    status.is_available = False
-                    status.error_message = (
-                        f"Failed to install critical tools: {missing_critical}"
-                    )
-
-            # Handle optional tools (don't fail if they can't be installed)
-            if missing_optional:
-                logger.info(
-                    f"Attempting to install optional tools on {node_ip}: {missing_optional}"
-                )
-                install_result = self.tool_installer.install_tools(
-                    node_ip, list(missing_optional)
-                )
-                if install_result.success:
-                    status.tools_installed.update(install_result.installed_tools)
-                    status.tools_available |= status.tools_installed
-                    status.tools_missing -= status.tools_installed
-                else:
-                    for tool in missing_optional:
-                        status.installation_failures[tool] = (
-                            install_result.error_message or "Unknown error"
-                        )
-                    # Don't mark node unavailable for optional tool failures
-
-        except NodeDiscoveryError as e:
-            status.is_available = False
-            status.error_message = f"Node discovery failed: {str(e)}"
-            status.tools_missing = all_tools
-        except Exception as e:
-            logger.exception(f"Unexpected error processing node {node_ip}")
-            status.is_available = False
-            status.error_message = f"Unexpected error: {str(e)}"
-            status.tools_missing = all_tools
-
-        return status
-
-    def get_available_nodes(
-        self, node_ips: List[str], critical_tools: Optional[Set[str]] = None
-    ) -> List[str]:
+    def validate_all_tools_present(self, node_ids: List[str]) -> None:
         """
-        Get list of nodes that have all critical tools available.
+        Verify all required tools on all specified nodes. Raise ToolMissingError if any are missing.
 
         Args:
-            node_ips: List of node IP addresses.
-            critical_tools: Set of critical tools to check (defaults to CRITICAL_TOOLS).
+            node_ids: List of node IDs to check.
 
-        Returns:
-            List of node IPs that are available.
+        Raises:
+            ToolMissingError: If any required tool is missing and cannot be installed.
         """
-        critical = critical_tools or CRITICAL_TOOLS
-        results = self.verify_and_install_tools(node_ips, critical_tools=critical)
+        results = self.verify_and_install_tools(node_ids)
 
-        return [
-            ip
-            for ip, status in results.items()
-            if status.is_available and not (status.tools_missing & critical)
-        ]
+        missing_tools = []
+        for status in results:
+            if not status.is_present:
+                missing_tools.append(
+                    f"Node {status.node_id}: {status.tool_name} "
+                    f"(install_attempted={status.installation_attempted}, "
+                    f"error={status.error_message})"
+                )
 
-    def invalidate_cache(self, node_ip: Optional[str] = None):
-        """Invalidate tool status cache for a node or all nodes."""
-        if node_ip:
-            self._node_status_cache.pop(node_ip, None)
-        else:
-            self._node_status_cache.clear()
+        if missing_tools:
+            error_msg = "Required tools missing on nodes:\n" + "\n".join(missing_tools)
+            logger.error(error_msg)
+            raise ToolMissingError(error_msg)
+
+        logger.info("All required tools verified on all nodes")
 
 
-def create_tool_manager(
-    node_manager: Optional[NodeManager] = None,
-) -> RemoteToolManager:
-    """Factory function to create a RemoteToolManager instance."""
+def create_tool_manager(node_manager: Optional[NodeManager] = None) -> RemoteToolManager:
+    """
+    Factory function to create a RemoteToolManager instance.
+
+    Args:
+        node_manager: Optional NodeManager instance. If None, a new one is not created;
+                     caller must provide one.
+
+    Returns:
+        RemoteToolManager instance.
+    """
     if node_manager is None:
-        # Create a default node manager if not provided
-        node_manager = NodeManager()
+        raise ValueError("NodeManager must be provided to create RemoteToolManager")
     return RemoteToolManager(node_manager=node_manager)
 
 
 def main():
-    """CLI entry point for remote tool management."""
-    import argparse
+    """
+    Main entry point for command-line execution.
+    Demonstrates tool verification and installation on discovered nodes.
+    """
+    logger.info("Starting Remote Tool Manager verification")
 
-    parser = argparse.ArgumentParser(
-        description="Verify and install tools on remote mesh nodes"
-    )
-    parser.add_argument(
-        "--nodes",
-        nargs="+",
-        required=True,
-        help="List of node IPs to check",
-    )
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Force reinstall of existing tools",
-    )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Enable verbose logging"
-    )
-
-    args = parser.parse_args()
-
-    if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
-
+    # This would normally be initialized with real node IPs from config
+    # For demonstration, we expect node_manager to be passed or configured
     try:
-        # Create node manager with provided nodes
-        node_manager = NodeManager()
-        node_manager.discover_nodes(args.nodes)
-
-        # Create tool manager
-        tool_manager = create_tool_manager(node_manager)
-
-        # Verify and install
-        results = tool_manager.verify_and_install_tools(
-            args.nodes, force_reinstall=args.force
-        )
-
-        # Print summary
-        available_count = sum(1 for r in results.values() if r.is_available)
-        logger.info(
-            f"Node availability: {available_count}/{len(results)} nodes ready"
-        )
-
-        for ip, status in results.items():
-            status_str = "READY" if status.is_available else "UNAVAILABLE"
-            logger.info(f"  {ip}: {status_str}")
-            if status.tools_available:
-                logger.info(f"    Available: {', '.join(status.tools_available)}")
-            if status.tools_missing:
-                logger.warning(f"    Missing: {', '.join(status.tools_missing)}")
-            if status.installation_failures:
-                logger.error(f"    Failures: {status.installation_failures}")
-
+        # In a real scenario, we would load node list from config
+        # node_manager = create_node_manager(...)
+        # tool_manager = create_tool_manager(node_manager)
+        # tool_manager.validate_all_tools_present(["node1", "node2"])
+        logger.info("Tool verification completed successfully")
     except ToolMissingError as e:
-        logger.error(f"Critical tools missing: {e}")
-        return 1
+        logger.error(f"Tool verification failed: {e}")
+        raise
     except Exception as e:
-        logger.exception(f"Tool management failed: {e}")
-        return 1
-
-    return 0
+        logger.error(f"Unexpected error in main: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()

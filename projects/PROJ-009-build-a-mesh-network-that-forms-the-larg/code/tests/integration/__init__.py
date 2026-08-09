@@ -1,1 +1,3 @@
-"""Integration tests for component interaction verification."""
+"""
+Integration tests: Component interaction testing.
+"""

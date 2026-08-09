@@ -1,1 +1,3 @@
-"""Analysis module for statistical modeling and data validation."""
+"""
+Analysis module: Statistical modeling, regression, and validation.
+"""

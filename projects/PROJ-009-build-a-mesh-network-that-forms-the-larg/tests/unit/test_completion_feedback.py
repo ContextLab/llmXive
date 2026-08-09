@@ -1,145 +1,133 @@
 """
-Unit tests for CompletionFeedbackManager (T013b).
-
-Tests the feedback loop logic: receiving status, validating enums, and updating state.
+Unit tests for the Completion Feedback Module (T013b).
 """
+
 import pytest
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
+
+from orchestrator.models import TaskStatus, ExecutionRun, TaskChunk
 from orchestrator.completion_feedback import (
     CompletionFeedbackManager,
+    create_feedback_manager,
     TaskFeedback,
     FeedbackError,
     StateUpdateError,
-    InvalidStatusError,
-    create_feedback_manager
+    InvalidStatusError
 )
-from orchestrator.models import TaskStatus
-from orchestrator.node_manager import NodeManager
 
 
 class TestTaskFeedback:
     """Tests for the TaskFeedback dataclass."""
 
-    def test_creation(self):
-        feedback = TaskFeedback(
+    def test_task_feedback_creation(self):
+        fb = TaskFeedback(
             node_id="node_1",
-            task_id="task_123",
+            task_id="task_1",
             status=TaskStatus.COMPLETED,
-            timestamp=datetime.now(timezone.utc)
+            payload={"key": "value"}
         )
-        assert feedback.node_id == "node_1"
-        assert feedback.task_id == "task_123"
-        assert feedback.status == TaskStatus.COMPLETED
-        assert feedback.timestamp.tzinfo == timezone.utc
+        assert fb.node_id == "node_1"
+        assert fb.task_id == "task_1"
+        assert fb.status == TaskStatus.COMPLETED
+        assert fb.payload == {"key": "value"}
+        assert fb.timestamp is not None
 
-    def test_timestamp_default_utc(self):
-        # Test that if we didn't set tzinfo, it would be handled, 
-        # but here we explicitly pass it.
-        dt = datetime.now(timezone.utc)
-        feedback = TaskFeedback(
+    def test_task_feedback_to_dict(self):
+        fb = TaskFeedback(
             node_id="node_1",
-            task_id="task_123",
-            status=TaskStatus.RUNNING,
-            timestamp=dt
+            task_id="task_1",
+            status=TaskStatus.COMPLETED
         )
-        assert feedback.timestamp == dt
+        d = fb.to_dict()
+        assert d["node_id"] == "node_1"
+        assert d["task_id"] == "task_1"
+        assert d["status"] == "completed"
+        assert "timestamp" in d
 
 
 class TestCompletionFeedbackManager:
     """Tests for the CompletionFeedbackManager class."""
 
     @pytest.fixture
-    def mock_node_manager(self):
-        """Create a mock NodeManager."""
-        mock = MagicMock(spec=NodeManager)
-        mock.is_node_registered.return_value = True
-        return mock
+    def mock_state_accessor(self):
+        run = ExecutionRun(
+            run_id="run_1",
+            created_at=datetime.now(timezone.utc),
+            status="running",
+            task_chunks=[
+                TaskChunk(
+                    task_id="run_1_task_1",
+                    node_id="node_1",
+                    status=TaskStatus.PENDING,
+                    iterations=100
+                )
+            ]
+        )
+        def accessor(run_id: str):
+            if run_id == "run_1":
+                return run
+            return None
+        return accessor
 
     @pytest.fixture
-    def manager(self, mock_node_manager):
-        """Create a FeedbackManager with the mock node manager."""
-        return CompletionFeedbackManager(mock_node_manager)
+    def mock_state_mutator(self):
+        def mutator(run: ExecutionRun) -> bool:
+            return True
+        return mutator
 
-    def test_init_with_none_node_manager(self):
-        with pytest.raises(ValueError, match="node_manager cannot be None"):
-            CompletionFeedbackManager(None)
+    def test_init(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
+        assert isinstance(manager, CompletionFeedbackManager)
 
-    def test_receive_task_status_valid(self, manager):
-        feedback = manager.receive_task_status("node_1", "task_1", "COMPLETED")
-        
-        assert feedback.node_id == "node_1"
-        assert feedback.task_id == "task_1"
-        assert feedback.status == TaskStatus.COMPLETED
-        assert len(manager.get_feedback_history()) == 1
+    def test_receive_task_status_valid(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
+        fb = manager.receive_task_status("node_1", "run_1_task_1", "completed")
+        assert fb.node_id == "node_1"
+        assert fb.task_id == "run_1_task_1"
+        assert fb.status == TaskStatus.COMPLETED
 
-    def test_receive_task_status_case_insensitive(self, manager):
-        # Test that "completed" works same as "COMPLETED"
-        feedback = manager.receive_task_status("node_1", "task_1", "completed")
-        assert feedback.status == TaskStatus.COMPLETED
-
-    def test_receive_task_status_invalid(self, manager):
+    def test_receive_task_status_invalid(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
         with pytest.raises(InvalidStatusError):
-            manager.receive_task_status("node_1", "task_1", "INVALID_STATUS")
+            manager.receive_task_status("node_1", "run_1_task_1", "zombie")
 
-    def test_update_scheduler_state_no_callbacks(self, manager):
-        # No callbacks registered
-        result = manager.update_scheduler_state("task_1", TaskStatus.COMPLETED)
-        assert result is False
-
-    def test_update_scheduler_state_success(self, manager):
-        # Register a mock callback
-        mock_callback = MagicMock()
-        manager.register_state_callback(mock_callback)
-
-        result = manager.update_scheduler_state("task_1", TaskStatus.COMPLETED)
-        
+    def test_update_scheduler_state_success(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
+        fb = manager.receive_task_status("node_1", "run_1_task_1", "completed")
+        result = manager.update_scheduler_state(fb)
         assert result is True
-        mock_callback.assert_called_once_with("task_1", TaskStatus.COMPLETED)
 
-    def test_update_scheduler_state_failure(self, manager):
-        # Register a callback that raises an exception
-        def failing_callback(task_id, status):
-            raise RuntimeError("Update failed")
-        
-        manager.register_state_callback(failing_callback)
+        # Verify the run was updated
+        run = mock_state_accessor("run_1")
+        assert run.task_chunks[0].status == TaskStatus.COMPLETED
 
+    def test_update_scheduler_state_run_not_found(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
+        fb = manager.receive_task_status("node_1", "run_1_task_999", "completed")
         with pytest.raises(StateUpdateError):
-            manager.update_scheduler_state("task_1", TaskStatus.COMPLETED)
+            manager.update_scheduler_state(fb)
 
-    def test_process_feedback(self, manager):
-        mock_callback = MagicMock()
-        manager.register_state_callback(mock_callback)
+    def test_update_scheduler_state_task_not_found(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
+        fb = manager.receive_task_status("node_1", "run_1_task_999", "completed")
+        with pytest.raises(StateUpdateError):
+            manager.update_scheduler_state(fb)
 
-        manager.process_feedback("node_1", "task_1", "COMPLETED")
+    def test_infer_run_id(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
+        # Test valid pattern
+        run_id = manager._infer_run_id("run_1_task_1")
+        assert run_id == "run_1"
+        # Test invalid pattern
+        run_id = manager._infer_run_id("invalid_task_1")
+        assert run_id is None
 
-        # Verify feedback was logged
-        assert len(manager.get_feedback_history()) == 1
-        # Verify callback was called
-        mock_callback.assert_called_once_with("task_1", TaskStatus.COMPLETED)
+    def test_process_feedback_batch(self, mock_state_accessor, mock_state_mutator):
+        manager = create_feedback_manager(mock_state_accessor, mock_state_mutator)
+        fb1 = manager.receive_task_status("node_1", "run_1_task_1", "completed")
+        fb2 = manager.receive_task_status("node_1", "run_1_task_1", "invalid") # Will fail on update
 
-    def test_process_feedback_invalid_status(self, manager):
-        with pytest.raises(InvalidStatusError):
-            manager.process_feedback("node_1", "task_1", "BAD_STATUS")
-
-    def test_register_multiple_callbacks(self, manager):
-        cb1 = MagicMock()
-        cb2 = MagicMock()
-        manager.register_state_callback(cb1)
-        manager.register_state_callback(cb2)
-
-        manager.update_scheduler_state("task_1", TaskStatus.RUNNING)
-
-        cb1.assert_called_once_with("task_1", TaskStatus.RUNNING)
-        cb2.assert_called_once_with("task_1", TaskStatus.RUNNING)
-
-
-class TestFactoryFunction:
-    """Tests for create_feedback_manager."""
-
-    def test_create_feedback_manager(self):
-        mock_nm = MagicMock(spec=NodeManager)
-        fm = create_feedback_manager(mock_nm)
-        
-        assert isinstance(fm, CompletionFeedbackManager)
-        assert fm.node_manager == mock_nm
+        results = manager.process_feedback_batch([fb1, fb2])
+        assert results[0] is True
+        assert results[1] is False

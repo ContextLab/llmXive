@@ -1,231 +1,266 @@
 """
-Unit Tests for Remote Wall Clock Timer Module.
+Unit tests for RemoteWallClockTimer.
+
+These tests verify the functionality of the wall-clock timer implementation
+using mock SSH connections and node managers.
 """
 
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timezone
 import time
-import paramiko
+import socket
 
 from orchestrator.remote_wall_clock_timer import (
     RemoteWallClockTimer,
     RemoteTimerSession,
     WallClockResult,
+    WallClockTimerError,
     RemoteTimerStartError,
     RemoteTimerStopError,
-    RemoteTimerReadError
+    RemoteTimerReadError,
+    create_remote_wall_clock_timer
 )
-from orchestrator.node_manager import NodeManager
-
-
-@pytest.fixture
-def mock_manager():
-    """Create a mock NodeManager with a mock node."""
-    manager = Mock(spec=NodeManager)
-    manager.get_node_info = Mock(return_value=Mock(
-        ip_address="192.168.1.100",
-        username="testuser",
-        ssh_key_path="/tmp/key.pem"
-    ))
-    return manager
-
-
-@pytest.fixture
-def mock_ssh_client():
-    """Create a mock SSH client."""
-    client = Mock(spec=paramiko.SSHClient)
-    transport = Mock()
-    transport.is_active = Mock(return_value=True)
-    client.get_transport = Mock(return_value=transport)
-    return client
-
-
-@pytest.fixture
-def mock_channel():
-    """Create a mock SSH channel for command execution."""
-    channel = Mock()
-    channel.recv_exit_status = Mock(return_value=0)
-    return channel
-
-
-@pytest.fixture
-def mock_stdout():
-    """Create a mock stdout with specific output."""
-    stdout = Mock()
-    stdout.channel = Mock()
-    stdout.read = Mock(return_value=b"ID:START\n1678886400.123456\nID:STOP\n1678886410.654321")
-    return stdout
-
-
-@pytest.fixture
-def mock_stderr():
-    """Create a mock stderr."""
-    stderr = Mock()
-    stderr.read = Mock(return_value=b"")
-    return stderr
-
-
-class TestRemoteTimerSession:
-    def test_init(self, mock_manager):
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        assert session.node_id == "node-1"
-        assert session._session_active is False
-
-    @patch('orchestrator.remote_wall_clock_timer.paramiko.SSHClient')
-    def test_start_timer_success(self, mock_ssh_class, mock_manager, mock_ssh_client, mock_channel, mock_stdout, mock_stderr):
-        mock_ssh_class.return_value = mock_ssh_client
-        mock_ssh_client.exec_command = Mock(return_value=(Mock(), mock_stdout, mock_stderr))
-        
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        
-        start_time = session.start_timer()
-        
-        assert start_time is not None
-        assert session._session_active is True
-        mock_ssh_client.connect.assert_called_once()
-
-    @patch('orchestrator.remote_wall_clock_timer.paramiko.SSHClient')
-    def test_start_timer_connection_failure(self, mock_ssh_class, mock_manager):
-        mock_ssh_class.return_value = Mock()
-        mock_ssh_class.return_value.connect = Mock(side_effect=Exception("Connection refused"))
-        
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        
-        with pytest.raises(RemoteTimerStartError):
-            session.start_timer()
-
-    @patch('orchestrator.remote_wall_clock_timer.paramiko.SSHClient')
-    def test_stop_timer_success(self, mock_ssh_class, mock_manager, mock_ssh_client, mock_channel, mock_stdout, mock_stderr):
-        mock_ssh_class.return_value = mock_ssh_client
-        mock_ssh_client.exec_command = Mock(return_value=(Mock(), mock_stdout, mock_stderr))
-        
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        session._session_active = True
-        session._start_time_utc = datetime.now(timezone.utc)
-        
-        stop_time = session.stop_timer()
-        
-        assert stop_time is not None
-        assert session._session_active is False
-
-    @patch('orchestrator.remote_wall_clock_timer.paramiko.SSHClient')
-    def test_stop_timer_not_active(self, mock_ssh_class, mock_manager):
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        
-        with pytest.raises(RemoteTimerStopError):
-            session.stop_timer()
-
-    @patch('orchestrator.remote_wall_clock_timer.paramiko.SSHClient')
-    def test_get_elapsed_time_success(self, mock_ssh_class, mock_manager, mock_ssh_client, mock_channel, mock_stdout, mock_stderr):
-        mock_ssh_class.return_value = mock_ssh_client
-        mock_ssh_client.exec_command = Mock(return_value=(Mock(), mock_stdout, mock_stderr))
-        
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        session._session_active = True
-        
-        elapsed = session.get_elapsed_time()
-        
-        assert elapsed == pytest.approx(10.530865, abs=0.000001)
-
-    @patch('orchestrator.remote_wall_clock_timer.paramiko.SSHClient')
-    def test_get_elapsed_time_incomplete_data(self, mock_ssh_class, mock_manager, mock_ssh_client, mock_channel, mock_stderr):
-        # Mock stdout that returns incomplete data
-        mock_stdout = Mock()
-        mock_stdout.channel = Mock()
-        mock_stdout.read = Mock(return_value=b"ID:START\n1678886400.123456") # Missing STOP
-        
-        mock_ssh_class.return_value = mock_ssh_client
-        mock_ssh_client.exec_command = Mock(return_value=(Mock(), mock_stdout, mock_stderr))
-        
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        session._session_active = True
-        
-        with pytest.raises(RemoteTimerReadError):
-            session.get_elapsed_time()
-
-    @patch('orchestrator.remote_wall_clock_timer.paramiko.SSHClient')
-    def test_close(self, mock_ssh_class, mock_manager, mock_ssh_client):
-        mock_ssh_class.return_value = mock_ssh_client
-        
-        session = RemoteTimerSession(node_id="node-1", manager=mock_manager)
-        session._ssh_client = mock_ssh_client
-        
-        session.close()
-        
-        mock_ssh_client.close.assert_called_once()
-        assert session._ssh_client is None
+from orchestrator.node_manager import NodeManager, NodeDiscoveryError
+from tests.unit.mock_nodes import MockNodeManager
 
 
 class TestRemoteWallClockTimer:
-    def test_init(self, mock_manager):
-        timer = RemoteWallClockTimer(mock_manager)
-        assert timer.manager == mock_manager
-        assert len(timer.sessions) == 0
+    """Test suite for RemoteWallClockTimer class."""
 
-    def test_create_session(self, mock_manager):
-        timer = RemoteWallClockTimer(mock_manager)
-        session = timer.create_session("node-1")
-        
-        assert "node-1" in timer.sessions
-        assert timer.sessions["node-1"] is session
+    @pytest.fixture
+    def mock_node_manager(self):
+        """Create a mock NodeManager for testing."""
+        manager = Mock(spec=NodeManager)
+        manager.get_ssh_client = Mock()
+        return manager
 
-    @patch('orchestrator.remote_wall_clock_timer.RemoteTimerSession.start_timer')
-    def test_start_all_success(self, mock_start, mock_manager):
-        mock_start.return_value = datetime.now(timezone.utc)
-        timer = RemoteWallClockTimer(mock_manager)
-        
-        results = timer.start_all(["node-1", "node-2"])
-        
+    @pytest.fixture
+    def mock_ssh_client(self):
+        """Create a mock SSH client."""
+        client = Mock()
+        # Mock the exec_command method
+        stdin = Mock()
+        stdout = Mock()
+        stderr = Mock()
+        stdout.read = Mock(return_value=b"")
+        stderr.read = Mock(return_value=b"")
+        stdout.channel = Mock()
+        stdout.channel.recv_exit_status = Mock(return_value=0)
+
+        client.exec_command = Mock(return_value=(stdin, stdout, stderr))
+        return client
+
+    def test_create_remote_wall_clock_timer(self, mock_node_manager):
+        """Test factory function creates timer instance."""
+        timer = create_remote_wall_clock_timer(mock_node_manager)
+        assert isinstance(timer, RemoteWallClockTimer)
+        assert timer.node_manager == mock_node_manager
+
+    def test_start_timer_success(self, mock_node_manager, mock_ssh_client):
+        """Test successful timer start."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+        session = timer.start_timer("node_001", task_id="test_task")
+
+        assert isinstance(session, RemoteTimerSession)
+        assert session.node_id == "node_001"
+        assert session.session_id.startswith("node_001_test_task_")
+        assert isinstance(session.start_time, datetime)
+        assert session.ssh_client == mock_ssh_client
+        assert len(timer._active_sessions) == 1
+
+    def test_start_timer_no_ssh_connection(self, mock_node_manager):
+        """Test timer start fails when no SSH connection available."""
+        mock_node_manager.get_ssh_client.return_value = None
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+
+        with pytest.raises(RemoteTimerStartError) as exc_info:
+            timer.start_timer("node_001", task_id="test_task")
+
+        assert "Failed to get SSH connection" in str(exc_info.value)
+
+    def test_start_timer_ssh_failure(self, mock_node_manager, mock_ssh_client):
+        """Test timer start fails on SSH command failure."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+
+        # Simulate SSH command failure
+        mock_ssh_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 1
+        mock_ssh_client.exec_command.return_value[2].read.return_value = b"Command failed"
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+
+        with pytest.raises(RemoteTimerStartError) as exc_info:
+            timer.start_timer("node_001", task_id="test_task")
+
+        assert "Failed to start timer" in str(exc_info.value)
+
+    def test_stop_timer_success(self, mock_node_manager, mock_ssh_client):
+        """Test successful timer stop."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+        session = timer.start_timer("node_001", task_id="test_task")
+
+        # Small delay to ensure duration > 0
+        time.sleep(0.01)
+
+        result = timer.stop_timer(session)
+
+        assert isinstance(result, WallClockResult)
+        assert result.node_id == "node_001"
+        assert result.success is True
+        assert result.duration_seconds > 0
+        assert result.error_message is None
+        assert len(timer._active_sessions) == 0  # Session cleaned up
+
+    def test_stop_timer_ssh_failure(self, mock_node_manager, mock_ssh_client):
+        """Test timer stop fails on SSH command failure."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+        session = timer.start_timer("node_001", task_id="test_task")
+
+        # Simulate SSH command failure
+        mock_ssh_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 1
+        mock_ssh_client.exec_command.return_value[2].read.return_value = b"Command failed"
+
+        result = timer.stop_timer(session)
+
+        assert isinstance(result, WallClockResult)
+        assert result.success is False
+        assert "Failed to stop timer" in result.error_message
+
+    def test_stop_all_timers(self, mock_node_manager, mock_ssh_client):
+        """Test stopping all active timers."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+
+        # Start multiple timers
+        session1 = timer.start_timer("node_001", task_id="task1")
+        session2 = timer.start_timer("node_002", task_id="task2")
+
+        assert len(timer._active_sessions) == 2
+
+        results = timer.stop_all_timers()
+
         assert len(results) == 2
-        assert all(r.success for r in results.values())
+        assert all(r.success for r in results)
+        assert len(timer._active_sessions) == 0
 
-    @patch('orchestrator.remote_wall_clock_timer.RemoteTimerSession.stop_timer')
-    def test_stop_all_success(self, mock_stop, mock_manager):
-        mock_stop.return_value = datetime.now(timezone.utc)
-        timer = RemoteWallClockTimer(mock_manager)
-        timer.create_session("node-1")
-        timer.create_session("node-2")
-        
-        results = timer.stop_all(["node-1", "node-2"])
-        
-        assert len(results) == 2
-        assert all(r.success for r in results.values())
+    def test_read_timer_file_success(self, mock_node_manager, mock_ssh_client):
+        """Test reading timer file from remote node."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
 
-    @patch('orchestrator.remote_wall_clock_timer.RemoteTimerSession.get_elapsed_time')
-    def test_read_all_success(self, mock_read, mock_manager):
-        mock_read.return_value = 10.5
-        timer = RemoteWallClockTimer(mock_manager)
-        timer.create_session("node-1")
-        
-        results = timer.read_all(["node-1"])
-        
-        assert len(results) == 1
-        assert results["node-1"].success is True
-        assert results["node-1"].elapsed_seconds == 10.5
+        # Mock successful file read
+        mock_ssh_client.exec_command.return_value[1].read.return_value = (
+            b"session123_START 1234567890.123456789\n"
+            b"session123_END 1234567895.123456789\n"
+        )
+        mock_ssh_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
 
-    @patch('orchestrator.remote_wall_clock_timer.time.sleep')
-    @patch('orchestrator.remote_wall_clock_timer.RemoteWallClockTimer.start_all')
-    @patch('orchestrator.remote_wall_clock_timer.RemoteWallClockTimer.stop_all')
-    @patch('orchestrator.remote_wall_clock_timer.RemoteWallClockTimer.read_all')
-    def test_run_timing_session(self, mock_read, mock_stop, mock_start, mock_sleep, mock_manager):
-        mock_read.return_value = {"node-1": WallClockResult(node_id="node-1", success=True, elapsed_seconds=5.0)}
-        
-        timer = RemoteWallClockTimer(mock_manager)
-        results = timer.run_timing_session(["node-1"], task_duration_seconds=1.0)
-        
-        mock_start.assert_called_once_with(["node-1"])
-        mock_sleep.assert_called_once_with(1.0)
-        mock_stop.assert_called_once_with(["node-1"])
-        mock_read.assert_called_once_with(["node-1"])
-        assert results["node-1"].elapsed_seconds == 5.0
+        timer = RemoteWallClockTimer(mock_node_manager)
+        start_ts, end_ts = timer.read_timer_file("node_001", "session123")
 
-    def test_cleanup(self, mock_manager):
-        timer = RemoteWallClockTimer(mock_manager)
-        session_mock = Mock()
-        timer.sessions["node-1"] = session_mock
-        
-        timer.cleanup()
-        
-        session_mock.close.assert_called_once()
-        assert len(timer.sessions) == 0
+        assert start_ts == 1234567890.123456789
+        assert end_ts == 1234567895.123456789
+
+    def test_read_timer_file_not_found(self, mock_node_manager, mock_ssh_client):
+        """Test reading non-existent timer file."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+
+        mock_ssh_client.exec_command.return_value[1].read.return_value = b"FILE_NOT_FOUND"
+        mock_ssh_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+        start_ts, end_ts = timer.read_timer_file("node_001", "nonexistent")
+
+        assert start_ts is None
+        assert end_ts is None
+
+    def test_cleanup_remote_files_success(self, mock_node_manager, mock_ssh_client):
+        """Test successful cleanup of remote files."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+        mock_ssh_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+        result = timer.cleanup_remote_files("node_001", "session123")
+
+        assert result is True
+
+    def test_cleanup_remote_files_failure(self, mock_node_manager, mock_ssh_client):
+        """Test cleanup failure when SSH command fails."""
+        mock_node_manager.get_ssh_client.return_value = mock_ssh_client
+        mock_ssh_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 1
+
+        timer = RemoteWallClockTimer(mock_node_manager)
+        result = timer.cleanup_remote_files("node_001", "session123")
+
+        assert result is False
+
+    def test_wall_clock_result_to_dict(self):
+        """Test WallClockResult serialization."""
+        start_time = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+        end_time = datetime(2024, 1, 1, 12, 0, 5, tzinfo=timezone.utc)
+
+        result = WallClockResult(
+            node_id="node_001",
+            start_time=start_time,
+            end_time=end_time,
+            duration_seconds=5.0,
+            success=True
+        )
+
+        result_dict = result.to_dict()
+
+        assert result_dict["node_id"] == "node_001"
+        assert result_dict["duration_seconds"] == 5.0
+        assert result_dict["success"] is True
+        assert "start_time" in result_dict
+        assert "end_time" in result_dict
+
+    def test_wall_clock_result_with_error(self):
+        """Test WallClockResult with error state."""
+        start_time = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+        end_time = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+
+        result = WallClockResult(
+            node_id="node_001",
+            start_time=start_time,
+            end_time=end_time,
+            duration_seconds=0.0,
+            success=False,
+            error_message="Connection lost"
+        )
+
+        assert result.success is False
+        assert result.error_message == "Connection lost"
+
+
+class TestRemoteWallClockTimerWithMockNodes:
+    """Integration tests using MockNodeManager."""
+
+    @pytest.fixture
+    def mock_node_manager_instance(self):
+        """Create a real MockNodeManager instance."""
+        return MockNodeManager()
+
+    def test_timer_with_mock_nodes(self, mock_node_manager_instance):
+        """Test timer operations with mock nodes."""
+        # Discover mock nodes
+        nodes = mock_node_manager_instance.discover_nodes(["mock_node_1"])
+        assert len(nodes) > 0
+
+        timer = RemoteWallClockTimer(mock_node_manager_instance)
+
+        # Start timer on mock node
+        session = timer.start_timer("mock_node_1", task_id="test_integration")
+        assert session is not None
+
+        # Stop timer
+        result = timer.stop_timer(session)
+        assert result.success is True
+        assert result.duration_seconds >= 0
