@@ -1,231 +1,316 @@
 """
 Probe Generator Service for ArcANE.
 
-Implements logic to generate 'Out-of-World' scenario prompts based on character axes.
-Includes regeneration loops, semantic validation, and error handling for generation limits.
+This module handles the generation of 'Out-of-World' scenario probes based on
+character axes. It implements semantic distance checks to ensure probes are
+distinct from the source text corpus.
 """
+
 import json
+import math
+import re
 import logging
-import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-# Import from local project structure
-from src.lib.utils import get_logger
+# Import project configuration and utilities
 from src.lib.config import get_config
-from src.services.axis_generator import load_sentence_model_cached
-from src.cli.axis_input import calculate_semantic_similarity
-
-# Configure logging
-logger = get_logger(__name__)
+from src.lib.utils import get_logger
 
 # Constants
-MIN_VALID_PROBES = 50
+SIMILARITY_THRESHOLD = 0.3
 MAX_GENERATION_ATTEMPTS = 150
-SEMANTIC_SIMILARITY_THRESHOLD = 0.3
-SIMILARITY_MODEL_NAME = "all-MiniLM-L6-v2"
+MIN_VALID_PROBES = 50
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
-def generate_single_probe_prompt(character_name: str, coarse_axis: str, fine_axis: str, attempt: int) -> str:
-    """
-    Generates a single prompt for probe generation.
-    In a real implementation, this would call an LLM API.
-    For this implementation, we simulate the generation logic with a deterministic
-    structure that can be replaced by an actual model call.
-    """
-    # Placeholder for actual LLM call logic
-    # In production, this would be: response = llm_model.generate(prompt)
-    prompt = (
-        f"Character: {character_name}\n"
-        f"Coarse Axis: {coarse_axis}\n"
-        f"Fine Axis: {fine_axis}\n"
-        f"Attempt: {attempt}\n"
-        "Task: Generate an 'Out-of-World' scenario where this character faces a situation "
-        "completely unrelated to their original narrative context. The scenario should "
-        "test the psychological axes defined above."
-    )
-    return prompt
+# Global cache for the embedding model
+_model_cache: Optional[SentenceTransformer] = None
+_logger: Optional[logging.Logger] = None
 
-def validate_probe_against_source(probe_text: str, source_corpus: List[str]) -> bool:
+
+def _get_logger() -> logging.Logger:
+    """Get or initialize the module logger."""
+    global _logger
+    if _logger is None:
+        _logger = get_logger(__name__)
+    return _logger
+
+
+def load_sentence_model_cached() -> SentenceTransformer:
     """
-    Validates that a generated probe is semantically distant from the source text.
-    Returns True if valid (similarity < threshold), False otherwise.
+    Load the sentence-transformer model, caching it in memory for subsequent calls.
+    This prevents reloading the model for every probe generation batch.
+    """
+    global _model_cache
+    if _model_cache is None:
+        logger = _get_logger()
+        logger.info(f"Loading sentence transformer model: {MODEL_NAME}")
+        try:
+            _model_cache = SentenceTransformer(MODEL_NAME)
+            logger.info("Model loaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to load sentence transformer model: {e}")
+            raise
+    return _model_cache
+
+
+def calculate_lexical_overlap(text1: str, text2: str) -> float:
+    """
+    Calculate the Jaccard index of word sets between two texts.
+    Returns a value between 0.0 (no overlap) and 1.0 (identical word sets).
+    """
+    if not text1 or not text2:
+        return 0.0
+
+    # Normalize and tokenize
+    set1 = set(re.findall(r'\w+', text1.lower()))
+    set2 = set(re.findall(r'\w+', text2.lower()))
+
+    if not set1 or not set2:
+        return 0.0
+
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
+
+    return intersection / union if union > 0 else 0.0
+
+
+def calculate_semantic_similarity(text1: str, text2: str, model: SentenceTransformer) -> float:
+    """
+    Calculate cosine similarity between two text embeddings.
+    Returns a value between -1.0 and 1.0.
+    """
+    if not text1 or not text2:
+        return 0.0
+
+    try:
+        embeddings = model.encode([text1, text2], convert_to_numpy=True, show_progress_bar=False)
+        vec1, vec2 = embeddings[0], embeddings[1]
+
+        # Normalize vectors
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+
+        cosine_sim = np.dot(vec1, vec2) / (norm1 * norm2)
+        return float(cosine_sim)
+    except Exception as e:
+        _get_logger().error(f"Error calculating semantic similarity: {e}")
+        return 0.0
+
+
+def validate_probe_semantic_distance(
+    probe_text: str,
+    source_corpus: List[str],
+    model: SentenceTransformer,
+    threshold: float = SIMILARITY_THRESHOLD
+) -> Tuple[bool, float]:
+    """
+    Validate that a probe is semantically distant from the source text corpus.
+
+    Args:
+        probe_text: The generated probe scenario text.
+        source_corpus: A list of text segments from the source material (e.g., character arcs, context).
+        model: The loaded sentence-transformer model.
+        threshold: Maximum allowed cosine similarity (default 0.3).
+
+    Returns:
+        Tuple of (is_valid, max_similarity_found).
+        is_valid is True if the probe's similarity to ALL source segments is < threshold.
     """
     if not source_corpus:
-        return True
+        # If no source corpus is provided, we cannot validate distance.
+        # We assume valid to allow generation in isolation, but log a warning.
+        _get_logger().warning("Source corpus is empty. Skipping semantic distance validation.")
+        return True, 0.0
 
-    model = load_sentence_model_cached(SIMILARITY_MODEL_NAME)
-    
-    # Calculate average similarity against source corpus
-    probe_embedding = model.encode([probe_text], convert_to_tensor=True)
-    source_embeddings = model.encode(source_corpus, convert_to_tensor=True)
-    
-    similarities = []
-    for src_emb in source_embeddings:
-        sim = np.dot(probe_embedding[0].cpu().numpy(), src_emb.cpu().numpy()) / (
-            np.linalg.norm(probe_embedding[0].cpu().numpy()) * np.linalg.norm(src_emb.cpu().numpy())
-        )
-        similarities.append(sim)
-    
-    avg_similarity = np.mean(similarities)
-    is_valid = avg_similarity < SEMANTIC_SIMILARITY_THRESHOLD
-    
-    if not is_valid:
-        logger.debug(f"Probe rejected: similarity {avg_similarity:.4f} >= {SEMANTIC_SIMILARITY_THRESHOLD}")
-    
-    return is_valid
-
-def generate_probe_batch(
-    character_name: str,
-    coarse_axis: str,
-    fine_axis: str,
-    source_corpus: List[str],
-    max_attempts: int = MAX_GENERATION_ATTEMPTS,
-    min_valid: int = MIN_VALID_PROBES
-) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    """
-    Generates a batch of validated probes with regeneration logic.
-    
-    Args:
-        character_name: Name of the character
-        coarse_axis: Coarse psychological axis definition
-        fine_axis: Fine psychological axis definition
-        source_corpus: List of source text segments to avoid
-        max_attempts: Maximum generation attempts before giving up
-        min_valid: Minimum number of valid probes required
-        
-    Returns:
-        Tuple of (list of valid probes, metadata dict)
-    """
-    valid_probes = []
-    attempts = 0
-    discarded_count = 0
-    start_time = time.time()
-    
-    logger.info(f"Starting probe generation for '{character_name}' (min={min_valid}, max_attempts={max_attempts})")
-    
-    while len(valid_probes) < min_valid and attempts < max_attempts:
-        attempts += 1
-        try:
-            # Generate candidate probe
-            # In a real scenario, this would involve calling an LLM with temperature
-            # For this implementation, we simulate a candidate
-            candidate_text = f"Scenario for {character_name}: {coarse_axis} vs {fine_axis} in a {attempts}-dimensional space."
-            
-            # Validate against source text
-            if validate_probe_against_source(candidate_text, source_corpus):
-                probe_record = {
-                    "character": character_name,
-                    "coarse_axis": coarse_axis,
-                    "fine_axis": fine_axis,
-                    "probe_text": candidate_text,
-                    "attempt_number": attempts,
-                    "timestamp": time.time()
-                }
-                valid_probes.append(probe_record)
-                logger.debug(f"Valid probe #{len(valid_probes)} generated on attempt {attempts}")
-            else:
-                discarded_count += 1
-                logger.debug(f"Probe discarded on attempt {attempts} (semantic similarity too high)")
-                
-        except Exception as e:
-            logger.error(f"Error generating probe on attempt {attempts}: {e}")
-            discarded_count += 1
+    max_sim = 0.0
+    for source_segment in source_corpus:
+        if not source_segment.strip():
             continue
-    
-    elapsed_time = time.time() - start_time
-    
-    # Determine final status
-    status = "success" if len(valid_probes) >= min_valid else "limit_exceeded"
-    
-    if len(valid_probes) < min_valid:
-        logger.error(
-            f"Generation Limit Exceeded for '{character_name}'. "
-            f"Generated {len(valid_probes)} valid probes after {attempts} attempts. "
-            f"Required: {min_valid}. Proceeding with available probes."
-        )
-        if attempts > MAX_GENERATION_ATTEMPTS:
-            logger.warning(f"Character '{character_name}' marked as invalid due to exceeding {MAX_GENERATION_ATTEMPTS} attempts.")
-            status = "invalid"
-    
-    metadata = {
-        "character": character_name,
-        "total_attempts": attempts,
-        "valid_count": len(valid_probes),
-        "discarded_count": discarded_count,
-        "status": status,
-        "elapsed_seconds": elapsed_time,
-        "min_required": min_valid
-    }
-    
-    return valid_probes, metadata
 
-def run_probe_generation_workflow(
-    character_data: Dict[str, Any],
-    source_corpus: List[str]
-) -> List[Dict[str, Any]]:
+        sim = calculate_semantic_similarity(probe_text, source_segment, model)
+        if sim > max_sim:
+            max_sim = sim
+
+        if max_sim >= threshold:
+            _get_logger().debug(f"Probe rejected. Similarity {max_sim:.4f} >= {threshold} to source segment.")
+            return False, max_sim
+
+    _get_logger().debug(f"Probe accepted. Max similarity {max_sim:.4f} < {threshold}.")
+    return True, max_sim
+
+
+def generate_probe_from_axes(
+    character_name: str,
+    coarse_axes: Dict[str, Any],
+    fine_axes: Dict[str, Any],
+    model_context: Optional[str] = None
+) -> str:
     """
-    Main workflow to generate probes for a character.
-    Handles the full lifecycle including logging and error handling.
+    Generates a single probe text based on character axes.
+    In a real implementation, this would call an LLM.
+    For this task, we simulate the generation logic structure.
     """
-    character_name = character_data.get("character", "Unknown")
-    coarse_axis = character_data.get("coarse_axis", "")
-    fine_axis = character_data.get("fine_axis", "")
+    # Placeholder logic to construct a prompt for an LLM
+    # In the full pipeline, this would be: response = llm.generate(prompt)
+    # Since we are implementing the validation logic (T018), we return a string
+    # that represents what the LLM *would* generate.
     
-    if not coarse_axis or not fine_axis:
-        logger.error(f"Missing axis definitions for character '{character_name}'")
-        return []
+    coarse_desc = coarse_axes.get("description", "")
+    fine_desc = fine_axes.get("description", "")
     
-    valid_probes, metadata = generate_probe_batch(
-        character_name=character_name,
-        coarse_axis=coarse_axis,
-        fine_axis=fine_axis,
-        source_corpus=source_corpus
+    # Construct a deterministic "generated" probe for validation testing
+    # In a real run, this string would come from the LLM response.
+    # We include the character name and axis details to ensure it has semantic content.
+    probe_text = (
+        f"Scenario for {character_name}: "
+        f"Given the coarse trait '{coarse_desc}' and the fine nuance '{fine_desc}', "
+        f"imagine a situation completely outside their known narrative context. "
+        f"The character is placed in a neutral, out-of-world setting where they must make a decision."
     )
     
-    # Log final status
-    if metadata["status"] == "limit_exceeded":
-        logger.warning(
-            f"PROBE GENERATION WARNING: '{character_name}' - "
-            f"Generation Limit Exceeded. Proceeding with {metadata['valid_count']} valid probes."
-        )
-    elif metadata["status"] == "invalid":
-        logger.error(
-            f"PROBE GENERATION ERROR: '{character_name}' - "
-            f"Marked as invalid. Attempts exceeded {MAX_GENERATION_ATTEMPTS}."
-        )
+    return probe_text
+
+
+def generate_probes_batch(
+    character_name: str,
+    coarse_axes: Dict[str, Any],
+    fine_axes: Dict[str, Any],
+    source_corpus: List[str],
+    target_count: int = MIN_VALID_PROBES,
+    max_attempts: int = MAX_GENERATION_ATTEMPTS
+) -> List[Dict[str, Any]]:
+    """
+    Generates a batch of validated probes.
+    
+    Implements the regeneration loop: attempts to generate probes until `target_count`
+    valid ones are found or `max_attempts` is reached.
+    """
+    logger = _get_logger()
+    model = load_sentence_model_cached()
+    valid_probes = []
+    attempts = 0
+
+    logger.info(f"Starting probe generation for {character_name}. Target: {target_count}, Max Attempts: {max_attempts}")
+
+    while len(valid_probes) < target_count and attempts < max_attempts:
+        attempts += 1
+        
+        # In a real system, this would call the LLM. 
+        # Here we simulate the generation step.
+        probe_text = generate_probe_from_axes(character_name, coarse_axes, fine_axes)
+        
+        # Add some variation to simulate real LLM output for testing validation
+        # (In real code, the LLM provides natural variation)
+        probe_text = f"{probe_text} (Attempt {attempts})"
+
+        # Validate against source corpus (T018 core logic)
+        is_valid, similarity = validate_probe_semantic_distance(probe_text, source_corpus, model)
+
+        if is_valid:
+            valid_probes.append({
+                "character": character_name,
+                "probe_id": f"{character_name}_{len(valid_probes)+1}",
+                "text": probe_text,
+                "source_similarity": similarity,
+                "status": "valid"
+            })
+        else:
+            logger.debug(f"Probe {attempts} rejected due to similarity {similarity:.4f}.")
+
+    if len(valid_probes) < target_count:
+        logger.warning(f"Generation Limit Exceeded for {character_name}. "
+                     f"Generated {len(valid_probes)} valid probes out of {max_attempts} attempts.")
     
     return valid_probes
 
+
+def run_probe_generation_pipeline(
+    axes_file_path: str,
+    source_corpus_path: str,
+    output_path: str
+) -> None:
+    """
+    Main entry point to run the probe generation pipeline.
+    Reads axes, loads source corpus, generates probes, and writes results.
+    """
+    logger = _get_logger()
+    logger.info("Starting Probe Generation Pipeline")
+
+    # Load Axes
+    axes_path = Path(axes_file_path)
+    if not axes_path.exists():
+        raise FileNotFoundError(f"Axes file not found: {axes_file_path}")
+    
+    with open(axes_path, 'r', encoding='utf-8') as f:
+        axes_data = [json.loads(line) for line in f]
+
+    # Load Source Corpus (Simulated: reading from a text file or list of strings)
+    # In a real scenario, this might be the raw narrative text.
+    source_corpus = []
+    source_path = Path(source_corpus_path)
+    if source_path.exists():
+        with open(source_path, 'r', encoding='utf-8') as f:
+            source_corpus = [line.strip() for line in f if line.strip()]
+    else:
+        # Fallback to empty corpus if not found (validation will pass, but with warning)
+        logger.warning(f"Source corpus file not found: {source_corpus_path}. Proceeding without semantic filtering.")
+
+    # Ensure output directory exists
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    all_probes = []
+
+    for axes_entry in axes_data:
+        char_name = axes_entry.get("character", "Unknown")
+        coarse = axes_entry.get("coarse", {})
+        fine = axes_entry.get("fine", {})
+        
+        probes = generate_probes_batch(
+            character_name=char_name,
+            coarse_axes=coarse,
+            fine_axes=fine,
+            source_corpus=source_corpus
+        )
+        all_probes.extend(probes)
+
+    # Write results
+    with open(output_file, 'w', encoding='utf-8') as f:
+        for probe in all_probes:
+            f.write(json.dumps(probe) + '\n')
+
+    logger.info(f"Pipeline complete. Wrote {len(all_probes)} probes to {output_path}")
+
+
 def main():
-    """
-    Entry point for testing the probe generation logic.
-    """
-    # Sample data for demonstration
-    sample_character = {
-        "character": "TestHero",
-        "coarse_axis": "Optimism vs Pessimism",
-        "fine_axis": "Specific behavioral response to failure"
+    """CLI entry point for testing the probe generator."""
+    # Default paths for local testing
+    args = {
+        "axes": "data/derived/axes.jsonl",
+        "source": "data/raw/source_corpus.txt",
+        "output": "data/derived/probes.jsonl"
     }
     
-    sample_corpus = [
-        "The hero faced the dragon with courage.",
-        "The village celebrated the victory.",
-        "The dark forces gathered at the edge of the forest."
-    ]
-    
-    logger.info("Running probe generation workflow demo...")
-    results = run_probe_generation_workflow(sample_character, sample_corpus)
-    
-    logger.info(f"Generated {len(results)} valid probes.")
-    for i, probe in enumerate(results[:3]):  # Show first 3
-        logger.info(f"Probe {i+1}: {probe['probe_text'][:100]}...")
-    
-    if results:
-        logger.info("Probe generation completed successfully.")
-    else:
-        logger.warning("No valid probes generated.")
+    try:
+        run_probe_generation_pipeline(
+            args["axes"],
+            args["source"],
+            args["output"]
+        )
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Ensure data/derived/axes.jsonl exists. Source corpus is optional for this demo.")
+    except Exception as e:
+        print(f"Pipeline failed: {e}")
+        raise
+
 
 if __name__ == "__main__":
     main()

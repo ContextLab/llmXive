@@ -17,7 +17,7 @@ This feature implements a rigorous experimental pipeline to validate the "Hybrid
 **Project Type**: Data Science / Experimental Research Pipeline  
 **Performance Goals**: Complete full experiment (3 chars × 50 probes × 3 conditions) within 6 hours on CPU.  
 **Constraints**: No GPU access (CPU-only); models must be quantized (low-bit) to fit constrained RAM resources.  
-**Scale/Scope**: Several public-domain characters, ~150 probes total, ~450 model generations, 1 statistical test.
+**Scale/Scope**: Several public-domain characters, a set of probes, ~450 model generations, 1 statistical test.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

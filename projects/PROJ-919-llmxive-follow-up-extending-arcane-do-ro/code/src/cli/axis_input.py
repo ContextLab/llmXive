@@ -1,271 +1,251 @@
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
-from typing import Optional, Tuple
-
+from typing import Optional, Tuple, List
 import numpy as np
 from sentence_transformers import SentenceTransformer
+from src.lib.utils import get_logger
+from src.lib.config import get_config
 
-# Constants for validation thresholds (FR-001)
+# Initialize logger
+logger = get_logger(__name__)
+
+# Constants for semantic thresholds (from T012 implementation context)
 LEXICAL_OVERLAP_THRESHOLD = 0.4
 SEMANTIC_SIMILARITY_THRESHOLD = 0.3
-SOURCE_TEXT_SIMILARITY_THRESHOLD = 0.5  # Fine axis must be distinct from source text
 
-# Singleton model cache
-_model_cache: Optional[SentenceTransformer] = None
-
-
-def load_sentence_model() -> SentenceTransformer:
-    """Load the sentence transformer model, caching it for reuse."""
-    global _model_cache
-    if _model_cache is None:
-        # Using a lightweight model suitable for CPU execution
-        _model_cache = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model_cache
-
+def load_sentence_model_cached() -> SentenceTransformer:
+    """Load the sentence transformer model with caching logic."""
+    model_name = "all-MiniLM-L6-v2"
+    logger.info(f"Loading sentence transformer model: {model_name}")
+    model = SentenceTransformer(model_name)
+    logger.info("Model loaded successfully")
+    return model
 
 def calculate_lexical_overlap(text1: str, text2: str) -> float:
-    """
-    Calculate the Jaccard index (lexical overlap) between two texts.
-    Returns a value between 0.0 and 1.0.
-    """
-    set1 = set(text1.lower().split())
-    set2 = set(text2.lower().split())
-    if not set1 or not set2:
+    """Calculate Jaccard similarity between token sets of two texts."""
+    if not text1 or not text2:
         return 0.0
-    intersection = set1.intersection(set2)
-    union = set1.union(set2)
-    return len(intersection) / len(union) if union else 0.0
-
+    
+    # Simple tokenization: lowercase and split on whitespace/punctuation
+    tokens1 = set(text1.lower().split())
+    tokens2 = set(text2.lower().split())
+    
+    if not tokens1 or not tokens2:
+        return 0.0
+    
+    intersection = len(tokens1.intersection(tokens2))
+    union = len(tokens1.union(tokens2))
+    
+    return intersection / union if union > 0 else 0.0
 
 def calculate_semantic_similarity(text1: str, text2: str, model: SentenceTransformer) -> float:
+    """Calculate cosine similarity between sentence embeddings."""
+    if not text1 or not text2:
+        return 0.0
+    
+    embeddings = model.encode([text1, text2], convert_to_numpy=True)
+    similarity = np.dot(embeddings[0], embeddings[1]) / (
+        np.linalg.norm(embeddings[0]) * np.linalg.norm(embeddings[1])
+    )
+    return float(similarity)
+
+def validate_coarse_fine_independence(coarse: str, fine: str, model: SentenceTransformer) -> Tuple[bool, dict]:
     """
-    Calculate cosine similarity between two texts using embeddings.
-    Returns a value between -1.0 and 1.0.
+    Validate that Coarse and Fine axes are semantically distinct.
+    Returns (is_valid, details_dict).
     """
-    embeddings = model.encode([text1, text2], convert_to_tensor=True)
-    # Normalize embeddings
-    norm1 = embeddings[0] / torch.norm(embeddings[0])
-    norm2 = embeddings[1] / torch.norm(embeddings[1])
-    # Cosine similarity
-    similarity = torch.dot(norm1, norm2).item()
-    return similarity
-
-
-def validate_coarse_fine_independence(coarse: str, fine: str) -> Tuple[bool, str, float, float]:
-    """
-    Validate that Fine axis is independent of Coarse axis.
-    Checks:
-    1. Lexical overlap < 0.4
-    2. Semantic similarity < 0.3 (distance > 0.7)
-    Returns (is_valid, message, overlap_score, similarity_score)
-    """
-    model = load_sentence_model()
-
-    # 1. Check Lexical Overlap
-    overlap = calculate_lexical_overlap(coarse, fine)
-    overlap_valid = overlap < LEXICAL_OVERLAP_THRESHOLD
-
-    # 2. Check Semantic Similarity
-    # Note: Lower similarity means more independent (further apart)
-    # We want semantic distance to be high, so similarity should be LOW
-    similarity = calculate_semantic_similarity(coarse, fine, model)
-    # If similarity is < 0.3, they are semantically distinct enough
-    similarity_valid = similarity < SEMANTIC_SIMILARITY_THRESHOLD
-
-    is_valid = overlap_valid and similarity_valid
-
-    if not is_valid:
-        reasons = []
-        if not overlap_valid:
-            reasons.append(f"Lexical overlap ({overlap:.2f}) exceeds threshold ({LEXICAL_OVERLAP_THRESHOLD})")
-        if not similarity_valid:
-            reasons.append(f"Semantic similarity ({similarity:.2f}) exceeds threshold ({SEMANTIC_SIMILARITY_THRESHOLD}) - axes too similar")
-        return False, "; ".join(reasons), overlap, similarity
-
-    return True, "Coarse and Fine axes are sufficiently independent.", overlap, similarity
-
-
-def validate_fine_independence_from_source(fine: str, source_text: str) -> Tuple[bool, str, float]:
-    """
-    Validate that the Fine axis originates from independent narrative observations
-    and is not a direct paraphrase of the source text segment provided.
-    Per FR-001: Fine axes must be derived from independent observations, not just
-    restating the source. We enforce a maximum similarity threshold to ensure
-    the Fine axis adds new analytical value rather than echoing the source.
-
-    Returns (is_valid, message, similarity_score)
-    """
-    if not source_text.strip():
-        # If no source text provided, we cannot validate against it.
-        # However, per FR-001, source text is required for validation.
-        # We treat missing source as a validation failure to enforce the requirement.
-        return False, "Source text segment is required to verify independence of Fine axis.", 0.0
-
-    model = load_sentence_model()
-
-    # Calculate semantic similarity between Fine axis and Source Text
-    similarity = calculate_semantic_similarity(fine, source_text, model)
-
-    # If similarity is too high (> threshold), the Fine axis is likely just
-    # a restatement of the source, violating the "independent observation" requirement.
-    # We require the Fine axis to be distinct (similarity < threshold).
-    is_valid = similarity < SOURCE_TEXT_SIMILARITY_THRESHOLD
-
-    if not is_valid:
-        return (
-            False,
-            f"Fine axis is too similar to source text (similarity: {similarity:.2f} > {SOURCE_TEXT_SIMILARITY_THRESHOLD}). "
-            "Please ensure the Fine axis represents an independent analytical observation, not a restatement of the source.",
-            similarity
-        )
-
-    return True, f"Fine axis is independent of source text (similarity: {similarity:.2f}).", similarity
-
-
-def read_input() -> Tuple[Optional[str], Optional[str], Optional[str]]:
-    """
-    Read Coarse, Fine, and Source Text inputs from stdin or arguments.
-    Returns (coarse, fine, source_text) or None if input is incomplete.
-    """
-    # Check for direct arguments first (for scripting)
-    if len(sys.argv) >= 4:
-        return sys.argv[1], sys.argv[2], sys.argv[3]
-
-    # Interactive mode
-    print("=== ArcANE Axis Input Validator ===")
-    print("Please provide the following inputs. Press Enter on an empty line to skip (not recommended for Source).")
-
-    print("\n--- Coarse Axis Definition ---")
-    coarse_lines = []
-    print("Enter Coarse axis definition (end with a single dot '.' on a new line):")
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            break
-        if line.strip() == '.':
-            break
-        coarse_lines.append(line.rstrip('\n'))
-    coarse = '\n'.join(coarse_lines).strip()
-
-    if not coarse:
-        print("Error: Coarse axis definition is required.")
-        return None, None, None
-
-    print("\n--- Fine Axis Definition ---")
-    fine_lines = []
-    print("Enter Fine axis definition (end with a single dot '.' on a new line):")
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            break
-        if line.strip() == '.':
-            break
-        fine_lines.append(line.rstrip('\n'))
-    fine = '\n'.join(fine_lines).strip()
-
-    if not fine:
-        print("Error: Fine axis definition is required.")
-        return None, None, None
-
-    print("\n--- Source Text Segment (for Independence Verification) ---")
-    source_lines = []
-    print("Enter the source narrative segment used to derive the Fine axis (end with a single dot '.' on a new line):")
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            break
-        if line.strip() == '.':
-            break
-        source_lines.append(line.rstrip('\n'))
-    source_text = '\n'.join(source_lines).strip()
-
-    if not source_text:
-        print("Warning: No source text provided. Independence from source cannot be verified.")
-
-    return coarse, fine, source_text
-
-
-def process_input(coarse: str, fine: str, source_text: Optional[str]) -> dict:
-    """
-    Process the input: validate Coarse vs Fine, and Fine vs Source.
-    Returns a result dictionary with validation status and metrics.
-    """
-    # 1. Validate Coarse vs Fine Independence
-    cf_valid, cf_msg, cf_overlap, cf_sim = validate_coarse_fine_independence(coarse, fine)
-
-    # 2. Validate Fine vs Source Independence (FR-001)
-    fs_valid = True
-    fs_msg = "No source text provided for validation."
-    fs_sim = 0.0
-    if source_text:
-        fs_valid, fs_msg, fs_sim = validate_fine_independence_from_source(fine, source_text)
-    else:
-        # If source is missing, we fail the FR-001 requirement strictly
-        fs_valid = False
-        fs_msg = "Source text segment is missing. FR-001 requires verification against source text."
-
-    is_overall_valid = cf_valid and fs_valid
-
-    return {
-        "coarse": coarse,
-        "fine": fine,
-        "source_text": source_text,
-        "validation": {
-            "coarse_fine_independent": cf_valid,
-            "coarse_fine_message": cf_msg,
-            "coarse_fine_overlap": cf_overlap,
-            "coarse_fine_similarity": cf_sim,
-            "fine_source_independent": fs_valid,
-            "fine_source_message": fs_msg,
-            "fine_source_similarity": fs_sim,
-            "overall_valid": is_overall_valid
-        }
+    details = {
+        "coarse_length": len(coarse),
+        "fine_length": len(fine),
+        "lexical_overlap": 0.0,
+        "semantic_similarity": 0.0,
+        "lexical_valid": True,
+        "semantic_valid": True,
+        "errors": []
     }
 
+    # Lexical overlap check
+    overlap = calculate_lexical_overlap(coarse, fine)
+    details["lexical_overlap"] = overlap
+    if overlap > LEXICAL_OVERLAP_THRESHOLD:
+        details["lexical_valid"] = False
+        details["errors"].append(f"Lexical overlap {overlap:.2f} exceeds threshold {LEXICAL_OVERLAP_THRESHOLD}")
+
+    # Semantic similarity check
+    similarity = calculate_semantic_similarity(coarse, fine, model)
+    details["semantic_similarity"] = similarity
+    if similarity > SEMANTIC_SIMILARITY_THRESHOLD:
+        details["semantic_valid"] = False
+        details["errors"].append(f"Semantic similarity {similarity:.2f} exceeds threshold {SEMANTIC_SIMILARITY_THRESHOLD}")
+
+    is_valid = details["lexical_valid"] and details["semantic_valid"]
+    return is_valid, details
+
+def validate_fine_independence_from_source(fine: str, source_text: str, model: SentenceTransformer) -> Tuple[bool, dict]:
+    """
+    Validate that Fine axes originate from independent narrative observations.
+    This is a heuristic check to ensure the Fine axis isn't just a copy of the source.
+    """
+    details = {
+        "source_length": len(source_text),
+        "fine_length": len(fine),
+        "lexical_overlap": 0.0,
+        "semantic_similarity": 0.0,
+        "is_independent": True,
+        "errors": []
+    }
+
+    if not source_text:
+        details["errors"].append("No source text provided for comparison")
+        return False, details
+
+    overlap = calculate_lexical_overlap(fine, source_text)
+    details["lexical_overlap"] = overlap
+    
+    similarity = calculate_semantic_similarity(fine, source_text, model)
+    details["semantic_similarity"] = similarity
+
+    # If fine axis is too similar to source, it might not be an independent observation
+    # We use a stricter threshold for source comparison to ensure independence
+    if similarity > 0.8 or overlap > 0.6:
+        details["is_independent"] = False
+        details["errors"].append("Fine axis appears too similar to source text; may not be independent")
+
+    return details["is_independent"], details
+
+def read_input(prompt: str) -> str:
+    """Read input from user with a prompt."""
+    try:
+        return input(prompt).strip()
+    except EOFError:
+        logger.error("EOF encountered during input")
+        return ""
+
+def process_input(coarse_text: str, fine_text: str, source_text: Optional[str] = None) -> Tuple[bool, dict]:
+    """
+    Process and validate axis inputs.
+    Returns (is_valid, validation_details).
+    """
+    model = load_sentence_model_cached()
+    
+    validation_result = {
+        "coarse_fine_validation": {},
+        "source_independence_validation": {},
+        "overall_valid": True,
+        "errors": []
+    }
+
+    # Validate Coarse vs Fine independence
+    is_coarse_fine_valid, coarse_fine_details = validate_coarse_fine_independence(
+        coarse_text, fine_text, model
+    )
+    validation_result["coarse_fine_validation"] = coarse_fine_details
+    
+    if not is_coarse_fine_valid:
+        validation_result["overall_valid"] = False
+        validation_result["errors"].extend(coarse_fine_details["errors"])
+
+    # Validate Fine independence from source if source is provided
+    if source_text:
+        is_source_valid, source_details = validate_fine_independence_from_source(
+            fine_text, source_text, model
+        )
+        validation_result["source_independence_validation"] = source_details
+        
+        if not is_source_valid:
+            validation_result["overall_valid"] = False
+            validation_result["errors"].extend(source_details["errors"])
+
+    return validation_result["overall_valid"], validation_result
+
+def verify_manual_independence_confirmation() -> bool:
+    """
+    Verify that the researcher has manually confirmed the independence of input data.
+    This implements FR-001 by requiring explicit human confirmation.
+    """
+    print("\n" + "="*70)
+    print("INDEPENDENCE VERIFICATION REQUIRED (FR-001)")
+    print("="*70)
+    print("To ensure the validity of your experiment:")
+    print("1. The Coarse axis must be derived from high-level character traits.")
+    print("2. The Fine axis must be derived from specific, independent narrative observations.")
+    print("3. The Fine axis must NOT be a direct copy or trivial paraphrase of the Coarse axis.")
+    print("4. The Fine axis must NOT be a direct copy of the source text.")
+    print("-"*70)
+    
+    confirmation = read_input(
+        "Have you manually confirmed that the Fine axis originates from independent "
+        "narrative observations and is not derived from the Coarse axis or source text? "
+        "Type 'yes' to confirm: "
+    ).lower()
+    
+    if confirmation == 'yes':
+        logger.info("Researcher manually confirmed independence of inputs")
+        return True
+    else:
+        logger.warning("Researcher did not confirm independence of inputs")
+        return False
 
 def main():
-    """Main entry point for CLI axis input and validation."""
-    parser = argparse.ArgumentParser(description="ArcANE Axis Input & Validation (FR-001)")
-    parser.add_argument("--coarse", type=str, help="Coarse axis definition")
-    parser.add_argument("--fine", type=str, help="Fine axis definition")
-    parser.add_argument("--source", type=str, help="Source text segment for independence check")
-    parser.add_argument("--output", type=str, help="Output JSON file path (optional)")
-
+    """
+    Main entry point for axis input validation and verification.
+    Implements T012a: Manual researcher confirmation for independence.
+    """
+    parser = argparse.ArgumentParser(
+        description="Input and validate character axes with independence verification"
+    )
+    parser.add_argument("--character", type=str, required=True, help="Character name")
+    parser.add_argument("--coarse", type=str, required=True, help="Coarse axis definition")
+    parser.add_argument("--fine", type=str, required=True, help="Fine axis definition")
+    parser.add_argument("--source", type=str, required=False, help="Source text for comparison")
+    parser.add_argument("--output", type=str, required=False, help="Output file path for validation results")
+    
     args = parser.parse_args()
-
-    # Determine inputs
-    if args.coarse and args.fine:
-        coarse = args.coarse
-        fine = args.fine
-        source = args.source
-    else:
-        coarse, fine, source = read_input()
-        if coarse is None:
-            sys.exit(1)
-
-    # Process and validate
-    result = process_input(coarse, fine, source)
-
-    # Output results
-    output_str = json.dumps(result, indent=2)
-    print("\n--- Validation Results ---")
-    print(output_str)
-
+    
+    logger.info(f"Processing axis input for character: {args.character}")
+    
+    # Step 1: Manual independence confirmation (T012a core requirement)
+    if not verify_manual_independence_confirmation():
+        print("\n❌ Independence confirmation failed. Aborting.")
+        sys.exit(1)
+    
+    # Step 2: Automated validation checks
+    is_valid, details = process_input(args.coarse, args.fine, args.source)
+    
+    if not is_valid:
+        print("\n❌ Automated validation failed:")
+        for error in details["errors"]:
+            print(f"   - {error}")
+        sys.exit(1)
+    
+    # Step 3: Success output
+    print("\n✅ Validation successful!")
+    print(f"   Character: {args.character}")
+    print(f"   Coarse axis length: {details['coarse_fine_validation']['coarse_length']}")
+    print(f"   Fine axis length: {details['coarse_fine_validation']['fine_length']}")
+    print(f"   Lexical overlap: {details['coarse_fine_validation']['lexical_overlap']:.4f}")
+    print(f"   Semantic similarity: {details['coarse_fine_validation']['semantic_similarity']:.4f}")
+    
+    if args.source:
+        print(f"   Source independence: {details['source_independence_validation']['is_independent']}")
+    
+    # Write results to output file if specified
     if args.output:
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w') as f:
-            f.write(output_str)
-        print(f"\nResults saved to {args.output}")
-
-    # Exit with error code if validation failed
-    if not result["validation"]["overall_valid"]:
-        sys.exit(1)
-
-    sys.exit(0)
-
+            json.dump({
+                "character": args.character,
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "validation_passed": True,
+                "details": details
+            }, f, indent=2)
+        logger.info(f"Validation results written to {args.output}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

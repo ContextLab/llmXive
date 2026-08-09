@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: HumanAnnotation
+description: Schema for human calibration annotations used to validate the Judge model.
+type: object
+required:
+  - character
+  - scenario
+  - ground_truth_score
+  - ground_truth_phase
+properties:
+  character:
+    type: string
+    description: The name of the character being evaluated.
+    minLength: 1
+  scenario:
+    type: string
+    description: The out-of-world scenario prompt presented to the character.
+    minLength: 1
+  ground_truth_score:
+    type: integer
+    description: The human-annotated consistency score on a Likert scale (1-5).
+    minimum: 1
+    maximum: 5
+  ground_truth_phase:
+    type: string
+    description: The narrative phase the scenario belongs to (e.g., 'Inciting Incident', 'Climax').
+    enum:
+      - Inciting Incident
+      - Rising Action
+      - Climax
+      - Falling Action
+      - Resolution
+      - Unknown
+additionalProperties: false

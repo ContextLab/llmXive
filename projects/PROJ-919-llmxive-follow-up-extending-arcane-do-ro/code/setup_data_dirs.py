@@ -1,55 +1,64 @@
-"""
-Setup script for llmXive data directory structure.
-Creates the required directories for raw, derived, gold standard data and artifacts.
-"""
 import os
 from pathlib import Path
 import sys
 
 def setup_directories():
     """
-    Creates the standard data directory structure for the project.
+    Creates the required data directory structure for the llmXive project.
     Directories created:
       - data/raw/
       - data/derived/
       - data/gold_standard/
       - artifacts/
     
-    Returns:
-        dict: Mapping of directory names to their Path objects.
+    This ensures the project has the necessary folder hierarchy before
+    data processing or experiment execution begins.
     """
-    base_path = Path.cwd()
+    # Determine project root (assuming script is in code/ or code/scripts/)
+    # We look for the 'data' directory relative to the script location or root
+    script_path = Path(__file__).resolve()
+    # If the script is in code/, go up one level to project root
+    if script_path.name == 'setup_data_dirs.py' and script_path.parent.name == 'code':
+        project_root = script_path.parent.parent
+    else:
+        # Fallback: assume current directory is project root or parent
+        project_root = script_path.parent.parent if script_path.parent.name == 'code' else script_path.parent
     
-    # Define required directories relative to project root
-    data_dirs = [
-        base_path / "data" / "raw",
-        base_path / "data" / "derived",
-        base_path / "data" / "gold_standard",
-        base_path / "artifacts"
+    # If we are running from 'code/scripts/', project_root might be 'code'
+    # Let's ensure we are at the root where 'data' and 'artifacts' belong
+    # Standard convention: data/ and artifacts/ are at project root
+    
+    # Check if we are in a nested structure like code/scripts/
+    if script_path.parent.name == 'scripts':
+        project_root = script_path.parent.parent.parent
+    elif script_path.parent.name == 'code':
+        project_root = script_path.parent.parent
+    
+    data_root = project_root / "data"
+    artifacts_root = project_root / "artifacts"
+    
+    directories = [
+        data_root / "raw",
+        data_root / "derived",
+        data_root / "gold_standard",
+        artifacts_root
     ]
     
-    created_dirs = []
-    for dir_path in data_dirs:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+            created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {directory}")
     
-    # Verify all directories exist
-    missing_dirs = [str(d) for d in data_dirs if not d.exists()]
-    if missing_dirs:
-        print(f"ERROR: Failed to create directories: {missing_dirs}")
-        sys.exit(1)
+    if created_count == 0:
+        print("All required directories already exist.")
+    else:
+        print(f"Successfully created {created_count} new directories.")
     
-    print(f"\nSuccessfully set up {len(created_dirs)} directories.")
-    return {
-        "raw": data_dirs[0],
-        "derived": data_dirs[1],
-        "gold_standard": data_dirs[2],
-        "artifacts": data_dirs[3]
-    }
+    return True
 
 if __name__ == "__main__":
     setup_directories()

@@ -1,39 +1,26 @@
-"""
-CLI entry point for initializing character axes.
-
-This module provides the command-line interface to initialize axes for a given character
-by orchestrating the input validation, axis generation, and serialization steps.
-
-Usage:
-    python -m src.cli.run_experiment --character "Hamlet"
-"""
-
 import argparse
-import json
 import sys
-import logging
+import json
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Import from project modules
-from src.cli.axis_input import read_input, validate_coarse_fine_independence, validate_fine_independence_from_source
-from src.services.axis_generator import generate_axes_from_input, validate_axes_semantic_overlap, serialize_axes_to_jsonl
-from src.lib.utils import setup_logging, log_experiment_state
-from src.lib.config import load_config
+# Import existing services and utilities from the project API surface
+from src.lib.utils import get_logger
+from src.lib.config import get_config
+from src.lib.state_tracker import log_experiment_state, generate_run_id, hash_parameters
+from src.cli.axis_input import read_input, process_input, verify_manual_independence_confirmation
+from src.services.axis_generator import generate_axes_from_input, validate_axes_semantic_overlap
+from src.services.axes_writer import write_axes_to_jsonl, ensure_derived_directory
 
-# Configure logging
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 def display_axis_output(coarse: Dict[str, Any], fine: Dict[str, Any]) -> None:
     """
     Display the generated Coarse and Fine axis objects to the console.
-    
-    Args:
-        coarse: The validated Coarse axis definition
-        fine: The validated Fine axis definition
+    This satisfies the US-1 requirement to print two distinct JSON objects.
     """
     print("\n" + "="*60)
-    print("GENERATED CHARACTER AXES")
+    print("GENERATED AXIS DEFINITIONS")
     print("="*60)
     
     print("\n[COARSE AXIS]")
@@ -42,186 +29,156 @@ def display_axis_output(coarse: Dict[str, Any], fine: Dict[str, Any]) -> None:
     print("\n[FINE AXIS]")
     print(json.dumps(fine, indent=2))
     
-    print("\n" + "="*60)
-    
-def initialize_axes(character_name: str, 
-                    coarse_input: Optional[str] = None,
-                    fine_input: Optional[str] = None,
-                    source_text: Optional[str] = None,
-                    output_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Initialize axes for a given character.
-    
-    This function orchestrates the full axis initialization pipeline:
-    1. Read/validate input (or use provided inputs)
-    2. Generate axes from input
-    3. Validate semantic overlap constraints
-    4. Serialize to JSONL file
-    5. Display output
-    
-    Args:
-        character_name: Name of the character to initialize axes for
-        coarse_input: Optional pre-provided coarse axis text
-        fine_input: Optional pre-provided fine axis text
-        source_text: Optional source text segment for independence validation
-        output_path: Optional custom output path (defaults to config)
-        
-    Returns:
-        Dictionary containing the generated axes and metadata
-    """
-    config = load_config()
-    output_file = Path(output_path) if output_path else Path(config["paths"]["derived"]) / "axes.jsonl"
-    
-    # Ensure output directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Step 1: Get and validate inputs
-    logger.info(f"Starting axis initialization for character: {character_name}")
-    
-    if coarse_input is None or fine_input is None:
-        # Interactive input mode
-        coarse_input, fine_input, source_text = read_input(character_name)
-    
-    # Validate independence
-    logger.debug("Validating coarse/fine independence...")
-    is_coarse_fine_valid = validate_coarse_fine_independence(coarse_input, fine_input)
-    if not is_coarse_fine_valid:
-        raise ValueError("Coarse and Fine axes failed independence validation")
-    
-    if source_text:
-        logger.debug("Validating Fine axis independence from source text...")
-        is_fine_source_valid = validate_fine_independence_from_source(fine_input, source_text)
-        if not is_fine_source_valid:
-            raise ValueError("Fine axis failed independence validation against source text")
-    
-    # Step 2: Generate axes
-    logger.info("Generating axes from input...")
-    axes_data = generate_axes_from_input(
-        character_name=character_name,
-        coarse_text=coarse_input,
-        fine_text=fine_input,
-        source_text=source_text
-    )
-    
-    # Step 3: Validate semantic overlap
-    logger.info("Validating semantic overlap constraints...")
-    is_semantic_valid = validate_axes_semantic_overlap(
-        axes_data["coarse"], 
-        axes_data["fine"]
-    )
-    
-    if not is_semantic_valid:
-        # Log warning but proceed - the axes are generated but may need manual review
-        logger.warning("Axes failed semantic overlap constraints. Manual review recommended.")
-    
-    # Step 4: Serialize to JSONL
-    logger.info(f"Writing axes to {output_file}")
-    serialize_axes_to_jsonl(axes_data, output_file)
-    
-    # Step 5: Display output
-    display_axis_output(axes_data["coarse"], axes_data["fine"])
-    
-    # Step 6: Log experiment state
-    log_experiment_state(
-        experiment_type="axis_initialization",
-        character=character_name,
-        parameters={
-            "coarse_length": len(coarse_input),
-            "fine_length": len(fine_input),
-            "source_length": len(source_text) if source_text else 0,
-            "semantic_valid": is_semantic_valid
-        }
-    )
-    
-    logger.info(f"Axis initialization complete for {character_name}")
-    
-    return axes_data
+    print("\n" + "="*60 + "\n")
 
-def main():
-    """Main CLI entry point."""
+def initialize_axes_for_character(character_name: str, config: Dict[str, Any]) -> bool:
+    """
+    Initialize axes for a given character name.
+    
+    This function orchestrates the full US1 workflow:
+    1. Reads input (simulating manual researcher input for CLI context)
+    2. Validates independence
+    3. Generates axes
+    4. Validates semantic overlap
+    5. Writes to data/derived/axes.jsonl
+    6. Displays output
+    
+    Returns True if successful, False otherwise.
+    """
+    logger.info(f"Initializing axes for character: {character_name}")
+    
+    # Generate a run ID for this specific initialization
+    run_id = generate_run_id()
+    logger.info(f"Run ID: {run_id}")
+    
+    # Log experiment state start
+    state_params = {
+        "character": character_name,
+        "task": "initialize_axes",
+        "config_hash": hash_parameters(config)
+    }
+    log_experiment_state(run_id, "started", state_params)
+    
+    try:
+        # Step 1: Read input (in a real CLI, this would be interactive)
+        # For the CLI entry point, we expect the user to have provided input via args or stdin
+        # We'll use the axis_input module's read_input function
+        logger.info("Reading axis input...")
+        coarse_input, fine_input = read_input(character_name)
+        
+        if not coarse_input or not fine_input:
+            logger.error("Failed to read axis input.")
+            log_experiment_state(run_id, "failed", {"error": "No input provided"})
+            return False
+        
+        # Step 2: Verify manual independence confirmation
+        logger.info("Verifying manual independence confirmation...")
+        if not verify_manual_independence_confirmation():
+            logger.error("Manual independence confirmation not provided.")
+            log_experiment_state(run_id, "failed", {"error": "Independence not confirmed"})
+            return False
+        
+        # Step 3: Process input into structured format
+        logger.info("Processing input...")
+        processed_coarse, processed_fine = process_input(coarse_input, fine_input)
+        
+        # Step 4: Generate axes
+        logger.info("Generating axes from input...")
+        coarse_axis, fine_axis = generate_axes_from_input(processed_coarse, processed_fine)
+        
+        # Step 5: Validate semantic overlap
+        logger.info("Validating semantic overlap...")
+        is_valid, overlap_score, distance_score = validate_axes_semantic_overlap(
+            coarse_axis, fine_axis
+        )
+        
+        if not is_valid:
+            logger.warning(f"Semiatic validation failed: overlap={overlap_score}, distance={distance_score}")
+            log_experiment_state(run_id, "failed", {
+                "error": "Semantic validation failed",
+                "overlap": overlap_score,
+                "distance": distance_score
+            })
+            return False
+        
+        # Step 6: Ensure output directory exists
+        ensure_derived_directory()
+        
+        # Step 7: Write axes to JSONL
+        logger.info("Writing axes to data/derived/axes.jsonl...")
+        axes_record = {
+            "character": character_name,
+            "run_id": run_id,
+            "coarse": coarse_axis,
+            "fine": fine_axis,
+            "validation": {
+                "overlap_score": overlap_score,
+                "distance_score": distance_score,
+                "is_valid": is_valid
+            }
+        }
+        
+        write_axes_to_jsonl(axes_record)
+        
+        # Step 8: Display output
+        display_axis_output(coarse_axis, fine_axis)
+        
+        # Log success
+        log_experiment_state(run_id, "completed", {
+            "character": character_name,
+            "overlap_score": overlap_score,
+            "distance_score": distance_score
+        })
+        
+        logger.info(f"Successfully initialized axes for {character_name}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error initializing axes: {e}", exc_info=True)
+        log_experiment_state(run_id, "failed", {"error": str(e)})
+        return False
+
+def main() -> int:
+    """
+    CLI entry point to initialize axes for a given character.
+    
+    Usage:
+        python -m src.cli.run_experiment --character "Sherlock Holmes"
+    
+    Returns:
+        0 on success, 1 on failure.
+    """
     parser = argparse.ArgumentParser(
-        description="Initialize character axes for ArcANE analysis",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-        Examples:
-          # Interactive mode
-          python -m src.cli.run_experiment --character "Hamlet"
-          
-          # Non-interactive mode with inputs
-          python -m src.cli.run_experiment --character "Macbeth" \\
-            --coarse "Ambition and power dynamics" \\
-            --fine "Obsessive guilt manifested through hallucinations" \\
-            --source "The text segment from Act 2, Scene 2..."
-        """
+        description="Initialize Coarse and Fine psychological axes for a character."
     )
-    
     parser.add_argument(
-        "--character", 
-        type=str, 
+        "--character", "-c",
+        type=str,
         required=True,
-        help="Name of the character to initialize axes for"
+        help="Name of the character to initialize axes for."
     )
-    
     parser.add_argument(
-        "--coarse",
+        "--config",
         type=str,
         default=None,
-        help="Coarse axis definition text (optional, interactive if not provided)"
-    )
-    
-    parser.add_argument(
-        "--fine",
-        type=str,
-        default=None,
-        help="Fine axis definition text (optional, interactive if not provided)"
-    )
-    
-    parser.add_argument(
-        "--source",
-        type=str,
-        default=None,
-        help="Source text segment for independence validation (optional)"
-    )
-    
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=None,
-        help="Custom output path for axes.jsonl (optional)"
-    )
-    
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
+        help="Path to optional configuration file."
     )
     
     args = parser.parse_args()
     
-    # Setup logging
-    if args.verbose:
-        setup_logging(level="DEBUG")
-    else:
-        setup_logging(level="INFO")
+    # Load configuration
+    config = get_config()
+    if args.config:
+        try:
+            with open(args.config, 'r') as f:
+                custom_config = json.load(f)
+                config.update(custom_config)
+        except Exception as e:
+            logger.warning(f"Failed to load custom config: {e}")
     
-    try:
-        result = initialize_axes(
-            character_name=args.character,
-            coarse_input=args.coarse,
-            fine_input=args.fine,
-            source_text=args.source,
-            output_path=args.output
-        )
-        
-        # Exit with success
-        sys.exit(0)
-        
-    except Exception as e:
-        logger.error(f"Axis initialization failed: {str(e)}")
-        if args.verbose:
-            import traceback
-            traceback.print_exc()
-        sys.exit(1)
+    success = initialize_axes_for_character(args.character, config)
+    
+    return 0 if success else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
