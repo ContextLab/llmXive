@@ -3408,3 +3408,721 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T06:24:02Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: censored data defined by missing_data flags not zero relevant lines
+  claim_id: c_8ff2252c
+  context: 'T030a [P] Analyze Tie Distribution & Justify Threshold - Censored Definition:
+    Explicitly checks for missing_data flags in logs, NOT relevant_lines == 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T030a: Censored data defined by missing_data flags, not relevant_lines
+    == 0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:14:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: statistical test routed to permutation if tie proportion exceeds 0.50
+  claim_id: c_4bbaffe1
+  context: 'T030b [P] Route Statistical Test - If tie_proportion > config.TIE_THRESHOLD
+    (0.50) OR any censored entries exist: write statistical_routing.json with PERMUTATION.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T030b: Routes to PERMUTATION test if tie_proportion exceeds 0.50.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:14:14Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: ties counted as paired absolute differences equal to zero
+  claim_id: c_5ab12796
+  context: T030a [P] Analyze Tie Distribution & Justify Threshold - Counts ties as
+    paired absolute differences equal to zero.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ties_counted_as_paired_absolute_differences_equal_to_zero
+  kind: entity_fact
+  raw_text: 'T030a: Counts ties as paired absolute differences equal to zero.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:14:50Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: turn limit sweep runs agent for each limit in TURN_LIMITS
+  claim_id: c_e9dffef1
+  context: "T024b [P] Turn\u2011Limit Sweep - Run iterative agent for each turn limit\
+    \ in TURN_LIMITS."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Turn_limit_sweep_runs_agent_for_each_limit_in_TURN_LIMITS
+  kind: entity_fact
+  raw_text: 'T024b: Runs iterative agent for each turn limit in TURN_LIMITS.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:15:06Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Set line-length 88 and target-version py310 for ruff and black
+  claim_id: c_a0dfb826
+  context: 'Specific Config: Set line-length = 88 and target-version = "py310" for
+    both tools to ensure deterministic generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set line-length = 88 and target-version = 'py310' for both ruff and black
+    tools.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:17:59Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Model loaded in 8-bit precision
+  claim_id: c_24669ef5
+  context: 'Strategy: Load in 8-bit precision (load_in_8bit=True) on device=''cpu''
+    as defined in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model is loaded in 8-bit precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:18:13Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Memory offload triggered if usage exceeds 6 GB
+  claim_id: c_e9335d64
+  context: 'Memory Check: Use psutil to check process memory. Offload Logic: If memory
+    > 6 GB, DO NOT raise a hard error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory usage exceeds 6 GB, the system writes a gpu_offload_request.json
+    flag.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:18:22Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Fetch bench.final.public.jsonl from HuggingFace
+  claim_id: c_92f5d1f8
+  context: code/data/download.py uses datasets.load_dataset(..., streaming=True) to
+    fetch bench.final.public.jsonl from HuggingFace.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_bench.final.public.jsonl_from_HuggingFace
+  kind: entity_fact
+  raw_text: The data fetcher retrieves the file bench.final.public.jsonl from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:18:44Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Iterative agent loop detection compares current query against previous
+    two
+  claim_id: c_4ed229fb
+  context: 'Create the core loop detection logic in code/agent/iterative.py that compares
+    the current query against the previous two; if identical, sets termination_reason:
+    "loop_detected".'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Iterative_agent_loop_detection_compares_current_query_agains
+  kind: entity_fact
+  raw_text: The iterative agent compares the current query against the previous two
+    queries to detect loops.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:19:33Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Statistical routing switches to permutation test if tie proportion exceeds
+    0.50
+  claim_id: c_558c1075
+  context: 'If tie_proportion > config.TIE_THRESHOLD (0.50) OR any censored entries
+    (missing data) exist: write statistical_routing.json with "PERMUTATION".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical routing logic switches to a permutation test if tie proportion
+    exceeds 0.50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:19:51Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn-limit sweep runs for turn limits 1, 2, and 3
+  claim_id: c_727f9b52
+  context: Run iterative agent for each turn limit in TURN_LIMITS.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The turn-limit sweep runs the iterative agent for turn limits of 1, 2,
+    and 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:20:12Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Sensitivity check runs sweep on subset of N=5
+  claim_id: c_6b828e03
+  context: Add a task to run the sweep on a small subset (N=5) to verify the TURN_LIMITS
+    configuration before full execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A sensitivity check runs the sweep on a small subset of N=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:20:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: ruff and black configured with line-length 88 and target-version py310
+  claim_id: c_8f96db0c
+  context: 'Create `code/pyproject.toml` containing ruff and black configuration.
+    Specific Config: Set `line-length = 88` and `target-version = "py310"` for both
+    tools to ensure deterministic generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set line-length = 88 and target-version = 'py310' for both ruff and black
+    tools.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:21:27Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: model precision set to 8-bit
+  claim_id: c_0559215e
+  context: MODEL_PRECISION = '8-bit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MODEL_PRECISION is set to '8-bit'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:21:46Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: quantized model loaded in 8-bit precision on cpu
+  claim_id: c_233fe3de
+  context: 'Strategy: Load in 8-bit precision (`load_in_8bit=True`) on `device=''cpu''`
+    as defined in `config.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The quantized model is loaded in 8-bit precision on device='cpu'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:21:59Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: memory offload triggered if usage exceeds 6 GB
+  claim_id: c_4993f205
+  context: If memory > 6 GB, DO NOT raise a hard error. Instead, write a `gpu_offload_request.json`
+    flag to `data/results/` and exit gracefully.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory check triggers offload logic if memory usage exceeds 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:22:16Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: data fetcher streams bench.final.public.jsonl from HuggingFace
+  claim_id: c_fa401b00
+  context: '`code/data/download.py` uses `datasets.load_dataset(..., streaming=True)`
+    to fetch `bench.final.public.jsonl` from HuggingFace.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetcher_streams_bench.final.public.jsonl_from_HuggingFa
+  kind: entity_fact
+  raw_text: The data fetcher uses streaming to fetch `bench.final.public.jsonl` from
+    HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:22:37Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: ground truth derivation uses streaming to stay under 7 GB RAM
+  claim_id: c_4e8dbca5
+  context: Uses streaming to stay <7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ground truth derivation uses streaming to stay under 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:22:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: loop detection compares current query against previous two queries
+  claim_id: c_d61e78a0
+  context: 'Create the core loop detection logic in `code/agent/iterative.py` that
+    compares the current query against the previous two; if identical, sets `termination_reason:
+    "loop_detected"`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Loop_detection_compares_current_query_against_previous_two_q
+  kind: entity_fact
+  raw_text: The iterative agent compares the current query against the previous two
+    for loop detection.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:23:16Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: statistical routing uses permutation if tie proportion exceeds 0.50 or
+    censored entries exist
+  claim_id: c_fc97663e
+  context: 'If `tie_proportion > config.TIE_THRESHOLD` (0.50) OR any censored entries
+    (missing data) exist: write `statistical_routing.json` with "PERMUTATION".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical routing logic routes to PERMUTATION if tie_proportion
+    exceeds 0.50 or if censored entries exist.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:23:32Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: power analysis calculates minimum detectable effect size for SWEEP_SAMPLE_SIZE
+  claim_id: c_c154a7e8
+  context: Ensure `code/analysis/power_analysis.py` (T024a) explicitly calculates
+    the minimum detectable effect size for the chosen `SWEEP_SAMPLE_SIZE`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_calculates_minimum_detectable_effect_size_for
+  kind: entity_fact
+  raw_text: The power analysis calculates the minimum detectable effect size for the
+    chosen SWEEP_SAMPLE_SIZE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:24:05Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: small subset of N=5 used to verify turn limits
+  claim_id: c_27f92a12
+  context: Add a task to run the sweep on a small subset (N=5) to verify the `TURN_LIMITS`
+    configuration before full execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A small subset of N=5 is used to verify the TURN_LIMITS configuration
+    before full execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:24:26Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Set line-length 88 and target-version py310 for ruff and black
+  claim_id: c_c25f1e6c
+  context: 'Create code/pyproject.toml containing ruff and black configuration. Specific
+    Config: Set line-length = 88 and target-version = ''py310'' for both tools to
+    ensure deterministic generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set line-length = 88 and target-version = 'py310' for both ruff and black
+    tools to ensure deterministic generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:25:25Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Model precision set to 8-bit
+  claim_id: c_7e098266
+  context: MODEL_PRECISION = '8-bit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MODEL_PRECISION is set to '8-bit'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:25:26Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Load model in 8-bit precision on cpu
+  claim_id: c_f906bc15
+  context: 'Strategy: Load in 8-bit precision (load_in_8bit=True) on device=''cpu''
+    as defined in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model is loaded in 8-bit precision on device='cpu'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:25:37Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Offload to GPU if memory exceeds 6 GB
+  claim_id: c_f28d6d25
+  context: 'Offload Logic: If memory > 6 GB, DO NOT raise a hard error. Instead, write
+    a gpu_offload_request.json flag to data/results/ and exit gracefully.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory usage exceeds 6 GB, the system writes a gpu_offload_request.json
+    flag and exits gracefully.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:25:46Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 2
+  canonical: Ground truth derivation uses streaming to stay under 7 GB RAM
+  claim_id: c_2a70186a
+  context: Uses streaming to stay <7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth derivation process uses streaming to stay under 7 GB
+    RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:25:46Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Turn limits set to 1, 2, and 3
+  claim_id: c_634cca5e
+  context: TURN_LIMITS = [1, 2, 3]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TURN_LIMITS are configured as [1, 2, 3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:26:03Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: line-length set to 88 and target-version to py310 for deterministic generation
+  claim_id: c_1cb6044f
+  context: 'Create code/pyproject.toml containing ruff and black configuration. Specific
+    Config: Set line-length = 88 and target-version = ''py310'' for both tools to
+    ensure deterministic generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set line-length = 88 and target-version = 'py310' for both tools to ensure
+    deterministic generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:27:20Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: sweep seed set to 42
+  claim_id: c_bb21b2d6
+  context: Implement code/config.py with paths, seeds, model config, and placeholder
+    values for deferred parameters. SWEEP_SEED = 42
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SWEEP_SEED = 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:27:38Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: tie threshold set to 0.50
+  claim_id: c_ba0e5b2d
+  context: 'TIE_THRESHOLD = 0.50 # Concrete threshold for statistical routing (FR-006)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TIE_THRESHOLD = 0.50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:28:13Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: maximum runtime hours set to 6
+  claim_id: c_617d0afd
+  context: MAX_RUNTIME_HOURS = 6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_RUNTIME_HOURS = 6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:28:33Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: turn limits set to 1, 2, and 3
+  claim_id: c_721c78b3
+  context: TURN_LIMITS = [1, 2, 3]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Turn limits are [1, 2, 3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:28:51Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: model loaded in 8-bit precision on cpu
+  claim_id: c_f1d194c4
+  context: 'Strategy: Load in 8-bit precision (load_in_8bit=True) on device=''cpu''
+    as defined in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load in 8-bit precision (load_in_8bit=True) on device='cpu'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:29:11Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: memory check threshold set to 6 GB
+  claim_id: c_316a63f7
+  context: 'Memory Check: Use psutil to check process memory. Offload Logic: If memory
+    > 6 GB, DO NOT raise a hard error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory > 6 GB, DO NOT raise a hard error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:29:12Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: ground truth derivation uses streaming to stay under 7 GB RAM
+  claim_id: c_95e8ccdc
+  context: Implement Ground Truth Derivation with Streaming. Uses streaming to stay
+    <7 GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Uses streaming to stay <7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:29:12Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: ties counted as paired absolute differences equal to zero
+  claim_id: c_327c1457
+  context: Reads baseline_onshot_logs.jsonl (from T022a) and iterative_logs.jsonl
+    (from T023). Counts ties as paired absolute differences equal to zero.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P646: /m/027y0k'
+      source_id: Q1424533
+      url: https://www.wikidata.org/wiki/Q1424533
+      value: '0'
+    filled: true
+  kind: entity_fact
+  raw_text: Counts ties as paired absolute differences equal to zero.
+  resolved_value: '0'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T06:29:20Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: censored definition checks for missing_data flags not relevant_lines
+    equal to zero
+  claim_id: c_aa160cd4
+  context: 'Censored Definition: Explicitly checks for missing_data flags in logs,
+    NOT relevant_lines == 0. Zero coverage is a valid metric, not censored data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly checks for missing_data flags in logs, NOT relevant_lines ==
+    0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:29:38Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: statistical routing switches to permutation if tie proportion exceeds
+    0.50 or censored data exists
+  claim_id: c_3c59bcf5
+  context: 'Logic: If tie_proportion > config.TIE_THRESHOLD (0.50) OR any censored
+    entries (missing data) exist: write statistical_routing.json with ''PERMUTATION''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If tie_proportion > config.TIE_THRESHOLD (0.50) OR any censored entries
+    exist, route to PERMUTATION.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:29:55Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: bonferroni correction applied to coverage and ranking p-values
+  claim_id: c_b0fc0fa7
+  context: Apply Bonferroni correction to both coverage and ranking p-values (SC-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_coverage_and_ranking_p-valu
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to both coverage and ranking p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:30:23Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: pipeline writes fail status if runtime exceeds max runtime hours
+  claim_id: c_d04105e0
+  context: 'Constraint: If runtime exceeds MAX_RUNTIME_HOURS, the run logs the partial
+    runtime and writes a FAIL status to data/results/feasibility_report.md with the
+    exact runtime value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_writes_fail_status_if_runtime_exceeds_max_runtime_h
+  kind: entity_fact
+  raw_text: If runtime exceeds MAX_RUNTIME_HOURS, the run logs the partial runtime
+    and writes a FAIL status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:30:41Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: sweep run on small subset of 5 items to verify turn limits
+  claim_id: c_f1bbbf07
+  context: Add a task to run the sweep on a small subset (N=5) to verify the TURN_LIMITS
+    configuration before full execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a task to run the sweep on a small subset (N=5) to verify the TURN_LIMITS
+    configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T06:31:15Z'

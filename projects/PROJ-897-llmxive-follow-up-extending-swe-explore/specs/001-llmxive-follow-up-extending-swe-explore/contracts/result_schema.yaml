@@ -1,85 +1,75 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Result Metrics Schema
-description: Schema for the final aggregated metrics and statistical test results.
+title: Final Results Schema
+description: Schema for the aggregated final metrics and statistical test results.
 type: object
 required:
-  - baseline_metrics
-  - iterative_metrics
-  - statistical_test
-  - tie_analysis
+  - experiment_id
+  - coverage_comparison
+  - ranking_comparison
+  - statistical_test_method
 properties:
-  baseline_metrics:
+  experiment_id:
+    type: string
+    description: Unique identifier for this experiment run.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of result generation.
+  coverage_comparison:
     type: object
-    description: Aggregated metrics for the baseline agent.
+    description: Statistical comparison of coverage metrics.
     properties:
-      mean_coverage:
+      baseline_mean:
         type: number
         format: float
-      median_coverage:
+      iterative_mean:
         type: number
         format: float
-      mean_ranking:
+      p_value:
         type: number
         format: float
-      median_ranking:
+      adjusted_p_value:
         type: number
         format: float
-      success_rate:
-        type: number
-        format: float
-  iterative_metrics:
-    type: object
-    description: Aggregated metrics for the iterative agent.
-    properties:
-      mean_coverage:
-        type: number
-        format: float
-      median_coverage:
-        type: number
-        format: float
-      mean_ranking:
-        type: number
-        format: float
-      median_ranking:
-        type: number
-        format: float
-      success_rate:
-        type: number
-        format: float
-  statistical_test:
-    type: object
-    description: Results of the statistical test (Wilcoxon or Permutation).
-    properties:
-      test_type:
-        type: string
-        enum:
-          - wilcoxon
-          - permutation
-        description: Type of statistical test performed.
-      coverage_p_value:
-        type: number
-        format: float
-      coverage_statistic:
-        type: number
-        format: float
-      ranking_p_value:
-        type: number
-        format: float
-      ranking_statistic:
-        type: number
-        format: float
-      bonferroni_adjusted_coverage_p:
-        type: number
-        format: float
-      bonferroni_adjusted_ranking_p:
+        description: Bonferroni corrected p-value.
+      effect_size:
         type: number
         format: float
       conclusion:
         type: string
-        description: Interpretation of the results using associational language.
+        description: Textual conclusion using associational language.
+  ranking_comparison:
+    type: object
+    description: Statistical comparison of ranking metrics.
+    properties:
+      baseline_mean:
+        type: number
+        format: float
+      iterative_mean:
+        type: number
+        format: float
+      p_value:
+        type: number
+        format: float
+      adjusted_p_value:
+        type: number
+        format: float
+        description: Bonferroni corrected p-value.
+      effect_size:
+        type: number
+        format: float
+      conclusion:
+        type: string
+        description: Textual conclusion using associational language.
+  statistical_test_method:
+    type: string
+    enum:
+      - "Wilcoxon Signed-Rank"
+      - "Exact Permutation"
+    description: The statistical test method used.
   tie_analysis:
     type: object
-    description: Analysis of ties in the paired differences.
+    description: Summary of tie distribution and censored data.
     properties:
       tie_proportion:
         type: number
@@ -88,31 +78,28 @@ properties:
         type: integer
       justification:
         type: string
-        description: Justification for the chosen statistical test based on tie analysis.
   sweep_results:
-    type: object
-    description: Results from the turn-limit sensitivity sweep (optional).
-    properties:
-      turn_limits:
-        type: array
-        items:
+    type: array
+    description: Results from the turn-limit sensitivity sweep.
+    items:
+      type: object
+      properties:
+        turn_limit:
           type: integer
-      coverage_by_turn:
-        type: object
-        additionalProperties:
+        mean_coverage:
           type: number
           format: float
-      ranking_by_turn:
-        type: object
-        additionalProperties:
+        mean_ranking:
           type: number
           format: float
-  generated_at:
+  feasibility_status:
     type: string
-    format: date-time
-    description: Timestamp of report generation.
-  config_summary:
-    type: object
-    description: Summary of configuration parameters used.
-    additionalProperties: true
+    enum:
+      - "PASS"
+      - "FAIL"
+    description: Whether the pipeline completed within the time budget.
+  runtime_hours:
+    type: number
+    format: float
+    description: Total runtime in hours.
 additionalProperties: true

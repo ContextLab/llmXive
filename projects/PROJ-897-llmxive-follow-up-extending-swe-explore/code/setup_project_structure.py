@@ -3,52 +3,44 @@ import sys
 from pathlib import Path
 from typing import List
 
-def create_directories() -> bool:
+def create_directories() -> None:
     """
-    Creates the required project directory structure.
-    Returns True if all directories were created or already exist.
-    Returns False if any directory creation failed.
+    Create the standard project directory structure.
+    Ensures all required directories for code, data, tests, and specs exist.
     """
     base_path = Path(__file__).resolve().parent.parent
-    directories = [
-        "code",
-        "data/raw",
-        "data/curated",
-        "data/results",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "specs/001-llmxive-follow-up-extending-swe-explore/contracts",
-        "state",
-        "docs",
-        "figures",
-        "paper"
+    
+    # Define relative paths as per T001a specification
+    directories: List[Path] = [
+        base_path / "code",
+        base_path / "data" / "raw",
+        base_path / "data" / "curated",
+        base_path / "data" / "results",
+        base_path / "tests" / "unit",
+        base_path / "tests" / "integration",
+        base_path / "tests" / "contract",
+        base_path / "specs" / "001-llmxive-follow-up-extending-swe-explore" / "contracts",
     ]
 
-    success = True
-    for dir_name in directories:
-        full_path = base_path / dir_name
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            if full_path.is_dir():
-                print(f"Directory created/exists: {full_path}")
-            else:
-                print(f"ERROR: Failed to create directory: {full_path}")
-                success = False
-        except OSError as e:
-            print(f"ERROR: OSError while creating {full_path}: {e}")
-            success = False
+    created_count = 0
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory exists: {dir_path}")
 
-    return success
-
-def main():
-    print("Creating project structure for llmXive follow-up...")
-    if create_directories():
-        print("Project structure created successfully.")
-        return 0
+    if created_count > 0:
+        print(f"Successfully created {created_count} directories.")
     else:
-        print("Project structure creation failed.")
-        return 1
+        print("All directories already existed.")
+
+def main() -> None:
+    """Entry point for the project structure setup."""
+    print("Starting project structure creation...")
+    create_directories()
+    print("Project structure creation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

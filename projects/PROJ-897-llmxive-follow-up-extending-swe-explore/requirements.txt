@@ -1,14 +1,24 @@
+# Core dependencies
 datasets>=2.14.0
-pandas>=2.0.0
-numpy>=1.24.0
-matplotlib>=3.7.0
-jinja2>=3.1.0
+transformers>=4.30.0
+bitsandbytes>=0.39.0
+accelerate>=0.20.0
+libcst>=0.4.0
 pyyaml>=6.0
-libcst>=1.0.0
-pytest>=7.0.0
-ruff>=0.1.0
-black>=23.0.0
+jinja2>=3.1.0
+matplotlib>=3.7.0
+numpy>=1.24.0
+pandas>=2.0.0
 psutil>=5.9.0
-transformers>=4.35.0
-bitsandbytes>=0.41.0
-scipy>=1.11.0
+scikit-learn>=1.3.0
+scipy>=1.10.0
+
+# Linting and Formatting (T001b)
+ruff>=0.0.280
+black>=23.3.0
+
+# Testing
+pytest>=7.3.0
+
+# Statistical Analysis
+lifelines>=0.27.0

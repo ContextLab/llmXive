@@ -1,59 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: SWE-Explore Dataset Schema
-description: Schema for the raw and curated SWE-Explore benchmark datasets.
+description: Schema for the raw and curated SWE-Explore benchmark dataset entries.
 type: object
 required:
   - issue_id
   - repo_name
-  - repo_path
-  - base_commit
   - instance_id
-  - question
-  - solution
-  - patches
-  - ground_truth_lines
+  - problem_statement
+  - patch
+  - base_commit
 properties:
   issue_id:
     type: string
-    description: Unique identifier for the issue.
+    description: Unique identifier for the GitHub issue.
   repo_name:
     type: string
-    description: Name of the repository.
-  repo_path:
-    type: string
-    description: Path to the repository.
-  base_commit:
-    type: string
-    description: The base commit hash.
+    description: Repository name in format 'owner/repo'.
   instance_id:
     type: string
-    description: Instance identifier.
-  question:
+    description: Unique instance identifier for this benchmark run.
+  problem_statement:
     type: string
-    description: The problem statement or question.
-  solution:
+    description: The text of the issue or bug report.
+  patch:
     type: string
-    description: The solution code or patch.
-  patches:
-    type: array
-    description: List of patches applied.
-    items:
-      type: string
+    description: The ground truth patch (solution) for the issue.
+  base_commit:
+    type: string
+    description: The commit hash where the issue exists.
   ground_truth_lines:
     type: array
-    description: List of line numbers that are part of the ground truth solution.
     items:
       type: integer
-  coverage_score:
+    description: Line numbers in the file that are modified by the patch.
+  initial_coverage:
     type: number
     format: float
-    description: The coverage score for the instance (optional, added in curated phase).
-  complexity_score:
-    type: number
-    format: float
-    description: Cyclomatic complexity score (optional, added in curated phase).
+    description: The initial code coverage score before any agent intervention.
+  files_changed:
+    type: array
+    items:
+      type: string
+    description: List of file paths modified in the patch.
   metadata:
     type: object
-    description: Additional metadata for the instance.
-    additionalProperties: true
+    description: Additional metadata fields (e.g., complexity, difficulty).
+    properties:
+      cyclomatic_complexity:
+        type: integer
+      language:
+        type: string
 additionalProperties: true
