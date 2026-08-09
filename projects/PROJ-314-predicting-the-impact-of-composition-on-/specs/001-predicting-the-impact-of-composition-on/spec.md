@@ -82,9 +82,9 @@ As a domain expert, I want to extract SHAP (SHapley Additive exPlanations) value
 
 - **SC-001**: The Mean Absolute Error (MAE) of the best-performing model is measured against a baseline of predicting the global mean Weibull modulus, and the model's MAE must be at least 10% lower than the baseline MAE. (See FR-004, FR-005)
 - **SC-002**: The stability of the top 5 feature importance scores is measured by the Coefficient of Variation (CV) across folds, and the CV must be <= 0.2 for the top 5 features. (See FR-009)
-- **SC-003**: The collinearity diagnostic (VIF) for all predictor pairs is measured against a threshold of 5.0 to ensure no high multicollinearity invalidates the feature ranking. (See FR-007)
-- **SC-004**: The total dataset size (N) is measured against the minimum requirement of 30 valid entries to ensure sufficient power. If N >= 50, 5-fold CV is used; if 30 <= N < 50, hold-out validation is used. (See FR-003, FR-004)
-- **SC-005**: The runtime of the full pipeline (ingestion to SHAP analysis) is measured against the 6-hour limit on a 2-CPU, 7GB RAM runner. (See FR-004)
+- **SC-003**: The collinearity diagnostic (VIF) for all predictor pairs is measured against a threshold to ensure no high multicollinearity invalidates the feature ranking. (See FR-007)
+- **SC-004**: The total dataset size (N) is measured against the minimum requirement of a sufficient number of valid entries to ensure sufficient power. If N >= 50, 5-fold CV is used; if 30 <= N < 50, hold-out validation is used. (See FR-003, FR-004)
+- **SC-005**: The runtime of the full pipeline (ingestion to SHAP analysis) is measured against the specified time limit on a multi-CPU, limited RAM runner. (See FR-004)
 
 ## Assumptions
 

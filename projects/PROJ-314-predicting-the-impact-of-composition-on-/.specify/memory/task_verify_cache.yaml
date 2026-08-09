@@ -1,3 +1,29 @@
+T010b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `logs/citation_validation.log` file was provided, nor any output\
+    \ showing it was created or contains entries. The required artifact is missing,\
+    \ so the task\u2019s verification requirement is not satisfied."
+T016a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file was presented in `specs/001-predict-weibull-modulus/`,\
+    \ nor any excerpt of its contents. The required step\u2011by\u2011step setup,\
+    \ data fetch, and pipeline execution instructions are therefore absent, so the\
+    \ task is not satisfied."
+T016b:
+  c: true
+  h: 0dd78ed1206dba6c7cce0c22c93d0e125199fa540889897c76b82c58ad263e34
+  r: "The `docs/data_gap_protocol.md` file exists (\u22484\u202FKB) and contains the\
+    \ detailed protocol steps, halting logic, and the JSON schema for `data/reports/data_availability_report.json`\
+    \ as required. No other artifacts are needed for this task."
+T016c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/001-predict-weibull-modulus/data-model.md` file (or its contents) was
+    provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
+    entities, their relationships, and validation rules is missing. The task is not
+    satisfied.
 T017b:
   c: false
   h: f89227315978e063dba592e815f32baf6d6112c4a7a0b5077e341a9788d8ede3
@@ -7,6 +33,31 @@ T017b:
     function is called with a placeholder `total_sources=0`, which may not meet the
     intended semantics. The required output file is missing, so the task is not fully
     satisfied.
+T018c:
+  c: false
+  h: 4747667a93cb4887725a45ab83e2b1fccc133833d059c2e9b1faacfcb2ddb55d
+  r: "The repository lacks a `fetch_materials_project_data()` implementation (no such\
+    \ function appears in `code/ingestion.py`) and the existing `fetch_data` is a\
+    \ stub returning a dummy DataFrame. Moreover, the required output file `data/raw/materials_project_raw.json`\
+    \ does not exist. The task\u2019s requirements for real API calls, authentication,\
+    \ pagination, and writing raw data are therefore unmet."
+T018d:
+  c: false
+  h: 9acef07d719c9a28803ac807edee70f4ef21d8990c5e10b07338730de6a4049d
+  r: "The repository lacks a `fetch_nist_data()` implementation (the file only contains\
+    \ placeholder helpers and a dummy `fetch_data` that returns a hard\u2011coded\
+    \ DataFrame). Moreover, the required output file `data/raw/nist_raw.json` does\
+    \ not exist. The task\u2019s core requirement\u2014real API/scraping logic, pagination,\
+    \ authentication, and writing the fetched raw data to the specified path\u2014\
+    is therefore not satisfied."
+T018e:
+  c: false
+  h: 9e3a97ca4aa326f05bf766fea4a8f34ea497aa6ebc228f5c3c3d21d2d124042a
+  r: "The repository lacks a `fetch_arxiv_data()` function; the only data\u2011fetching\
+    \ stub is `fetch_data()` which returns a dummy DataFrame and does not write any\
+    \ file. Moreover, the required output file `data/raw/arxiv_raw.json` is missing.\
+    \ The task\u2019s core requirement\u2014to implement real arXiv scraping/API logic\
+    \ and produce the raw JSON/CSV\u2014is not satisfied."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,10 +107,11 @@ T041:
     \ CSV/TSV). No such artifacts are present, nor is any placeholder or generated\
     \ output provided. Consequently the required SHAP visualizations and ranking tables\
     \ have not been delivered."
-T042:
+T044:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation showing that the conclusion text was modified\
-    \ to append \u201Cstatistical associations only\u201D and remove the word \u201C\
-    cause\u201D was provided. Without any artifact to inspect, we cannot confirm the\
-    \ disclaimer logic was implemented. The required change is therefore unverified."
+  h: e2b0c1d4fdf570584ce7b7fc65343bce91cd175ebf5c69f0771a16289e50ac67
+  r: The required state file `state/projects/PROJ-314-predicting-the-impact-of-composition-on-.yaml`
+    does not exist, so the hashes were never written. The presence of `code/hash_artifacts.py`
+    alone is insufficient; the task demanded execution of the script and the resulting
+    updated YAML file, which is missing. The next implementer must run the script
+    and ensure the YAML file is created with the `data_hashes` and `code_hashes` entries.
