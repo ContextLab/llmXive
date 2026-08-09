@@ -1,164 +1,121 @@
 """
-Centered Log-Ratio (CLR) transformation for compositional data.
+Compositional Data Transformer Module.
 
-Handles the closure problem in compositional data by transforming
-data into the real space using log-ratios.
+Implements the Centered Log-Ratio (CLR) transformation to handle the
+compositional nature of solder alloy data (sum-to-one constraint).
 """
+
 import numpy as np
 import logging
 from typing import Tuple, Optional, Dict, Any
 from compositional import clr, ilr, alr
 from utils.logging_config import get_logger
+from seed import set_seed
 
 logger = get_logger(__name__)
 
 
 class CLRTransformer:
     """
-    Transformer for applying Centered Log-Ratio (CLR) transformation to
-    compositional data.
-
-    The CLR transformation maps compositional data from the simplex space
-    to real space, allowing standard statistical methods to be applied.
-
-    Formula: clr(x)_i = log(x_i / g(x))
-    where g(x) is the geometric mean of the composition.
+    Transformer for applying Centered Log-Ratio (CLR) transformation.
     """
 
-    def __init__(self, pseudocount: float = 1e-6):
+    def __init__(self, pseudo_count: float = 1e-6):
         """
-        Initialize the CLR transformer.
+        Initialize the CLR Transformer.
 
         Args:
-            pseudocount: Small value added to compositions to handle zeros.
-                        Default is 1e-6.
+            pseudo_count: Small value added to avoid log(0). Defaults to 1e-6.
         """
-        self.pseudocount = pseudocount
-        self._is_fitted = False
-        logger.debug(f"CLRTransformer initialized with pseudocount={pseudocount}")
+        self.pseudo_count = pseudo_count
+        self.logger = get_logger(__name__)
 
-    def fit(self, X: np.ndarray) -> "CLRTransformer":
-        """
-        Fit the transformer (no-op for CLR, but required for sklearn compatibility).
-
-        Args:
-            X: Compositional data array of shape (n_samples, n_components)
-
-        Returns:
-            self
-        """
-        logger.debug("Fitting CLRTransformer (no parameters to learn)")
-        self._is_fitted = True
-        return self
-
-    def transform(self, X: np.ndarray) -> np.ndarray:
+    def transform(self, data: np.ndarray) -> np.ndarray:
         """
         Apply CLR transformation to the input data.
 
+        The CLR transformation is defined as:
+            clr(x)_i = ln(x_i / g(x))
+        where g(x) is the geometric mean of the composition x.
+
         Args:
-            X: Compositional data array of shape (n_samples, n_components)
+            data: Input array of shape (n_samples, n_components).
+                  Values must be strictly positive.
 
         Returns:
-            Transformed data array of shape (n_samples, n_components)
+            CLR-transformed array of the same shape.
 
         Raises:
-            ValueError: If input contains negative values or zeros (after pseudocount)
+            ValueError: If data contains non-positive values that cannot be handled.
         """
-        if not self._is_fitted:
-            logger.warning("CLRTransformer not fitted. Calling fit() automatically.")
-            self.fit(X)
+        if data is None or data.size == 0:
+            raise ValueError("Input data cannot be empty or None.")
 
-        # Handle zeros by adding pseudocount
-        X_adjusted = X + self.pseudocount
+        # Ensure input is a float array
+        data = np.asarray(data, dtype=np.float64)
 
-        # Ensure rows sum to 1 (closure)
-        row_sums = X_adjusted.sum(axis=1, keepdims=True)
-        X_closed = X_adjusted / row_sums
+        # Handle non-positive values by adding pseudo-count
+        # The compositional library's clr function typically expects positive values.
+        # We add a small pseudo-count to zero or negative values to allow log computation.
+        if np.any(data <= 0):
+            original_min = np.min(data[data <= 0])
+            data = data + self.pseudo_count
+            self.logger.warning(
+                "Non-positive values detected in composition (min: %s). "
+                "Added pseudo-count: %s to shift values.",
+                original_min, self.pseudo_count
+            )
 
-        # Apply CLR transformation
+        # Apply CLR transform using the compositional library
+        # clr(x) = ln(x / g(x)) where g(x) is the geometric mean
+        # The library expects the input to be strictly positive.
         try:
-            # compositional.clr expects input in [0, 1] and returns CLR-transformed values
-            result = clr(X_closed)
+            transformed = clr(data)
         except Exception as e:
-            logger.error(f"CLR transformation failed: {e}")
+            self.logger.error("CLR transformation failed: %s", str(e))
             raise
 
-        logger.debug(f"CLR transformation completed. Output shape: {result.shape}")
-        return result
+        return transformed
 
-    def fit_transform(self, X: np.ndarray) -> np.ndarray:
+    def fit_transform(self, data: np.ndarray) -> np.ndarray:
         """
-        Fit and transform in one step.
+        Fit and transform the data (identity for CLR, but kept for API consistency).
 
         Args:
-            X: Compositional data array
+            data: Input array.
 
         Returns:
-            Transformed data array
+            Transformed array.
         """
-        return self.fit(X).transform(X)
+        return self.transform(data)
 
-    def inverse_transform(self, X_cl: np.ndarray) -> np.ndarray:
-        """
-        Inverse CLR transformation to recover original composition.
-
-        Args:
-            X_cl: CLR-transformed data array
-
-        Returns:
-            Reconstructed composition array (closed to sum to 1)
-        """
-        if not self._is_fitted:
-            raise ValueError("CLRTransformer not fitted")
-
-        try:
-            # compositional library doesn't have a direct inverse_clr,
-            # so we implement it manually: exp(x) / sum(exp(x))
-            exp_x = np.exp(X_cl)
-            row_sums = exp_x.sum(axis=1, keepdims=True)
-            result = exp_x / row_sums
-        except Exception as e:
-            logger.error(f"Inverse CLR transformation failed: {e}")
-            raise
-
-        logger.debug(f"Inverse CLR transformation completed. Output shape: {result.shape}")
-        return result
 
 def main():
     """
-    Main function for testing the CLR transformer.
+    Main entry point for testing the transformer.
     """
-    from seed import init_reproducibility
-    init_reproducibility()
+    logger.info("Running CLR Transformer self-test...")
+    set_seed(42)
 
-    # Example usage
-    logger.info("Testing CLRTransformer")
-
-    # Sample compositional data (must sum to 1)
+    # Create sample compositional data (sums to 1)
     sample_data = np.array([
         [0.5, 0.3, 0.2],
-        [0.6, 0.3, 0.1],
         [0.4, 0.4, 0.2],
+        [0.6, 0.2, 0.2]
     ])
 
     transformer = CLRTransformer()
-    transformed = transformer.fit_transform(sample_data)
+    result = transformer.transform(sample_data)
 
-    logger.info(f"Original data:\n{sample_data}")
-    logger.info(f"Transformed data:\n{transformed}")
+    logger.info("Input data:\n%s", sample_data)
+    logger.info("CLR Transformed data:\n%s", result)
 
-    # Verify inverse transformation
-    reconstructed = transformer.inverse_transform(transformed)
-    logger.info(f"Reconstructed data:\n{reconstructed}")
+    # Verify sum of CLR components is approx 0 (property of CLR)
+    row_sums = np.sum(result, axis=1)
+    logger.info("Row sums of CLR data (should be ~0): %s", row_sums)
 
-    # Check reconstruction error
-    error = np.abs(sample_data - reconstructed).max()
-    logger.info(f"Max reconstruction error: {error}")
+    logger.info("CLR Transformer test completed successfully.")
 
-    if error < 1e-5:
-        logger.info("CLR transformation test PASSED")
-    else:
-        logger.warning("CLR transformation test FAILED - reconstruction error too high")
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,6 @@
 """
-Citation Tracker: Tracks data sources and citations.
+Citation tracking module for the ingestion pipeline.
+Provides functionality to register, track, and save data source citations.
 """
 import logging
 from pathlib import Path
@@ -8,58 +9,145 @@ from datetime import datetime
 import json
 import csv
 
-from seed import init_reproducibility
+from config import get_data_processed_dir
 from utils.logging_config import get_logger
 
-logger = get_logger(__name__)
+CITATION_LOG_FILE = "data/processed/citations.json"
+CITATION_CSV_FILE = "data/processed/citations.csv"
 
 
 class CitationTracker:
     """
-    Tracks citations for data sources used in the pipeline.
+    Tracks and manages data source citations for the ingestion pipeline.
     """
-
+    
     def __init__(self):
-        init_reproducibility()
-        self.citations = []
-
-    def add_citation(self, source: str, url: str, description: str):
+        self.citations: dict = {}
+        self.processed_dir = get_data_processed_dir()
+        self.citation_file = self.processed_dir / CITATION_LOG_FILE
+        self.citation_csv_file = self.processed_dir / CITATION_CSV_FILE
+        self.logger = get_logger("ingestion")
+    
+    def add_citation(self, source_name: str, citation_info: dict):
         """
-        Adds a citation for a data source.
+        Add a citation for a data source.
+        
+        Args:
+            source_name: Unique identifier for the source
+            citation_info: Dictionary with citation metadata (authors, year, title, url, etc.)
         """
-        citation = {
-            "source": source,
-            "url": url,
-            "description": description,
-            "timestamp": datetime.now().isoformat()
+        citation_info['_added_at'] = datetime.now().isoformat()
+        citation_info['_source_name'] = source_name
+        self.citations[source_name] = citation_info
+        self.logger.debug(f"Citation added for source: {source_name}")
+    
+    def save_to_file(self):
+        """Save all citations to both JSON and CSV files."""
+        if not self.processed_dir.exists():
+            self.processed_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save as JSON
+        with open(self.citation_file, 'w', encoding='utf-8') as f:
+            json.dump(self.citations, f, indent=2, default=str)
+        
+        # Save as CSV for easier inspection
+        self._save_to_csv()
+        
+        self.logger.info(f"CITATIONS_SAVED | Total citations: {len(self.citations)} | File: {self.citation_file}")
+    
+    def _save_to_csv(self):
+        """Save citations to a CSV file."""
+        if not self.citations:
+            return
+        
+        fieldnames = ['source_name', 'authors', 'year', 'title', 'url', 'type', '_added_at']
+        
+        with open(self.citation_csv_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+            writer.writeheader()
+            
+            for source_name, info in self.citations.items():
+                row = {'source_name': source_name}
+                row.update(info)
+                writer.writerow(row)
+        
+        self.logger.debug(f"Citations saved to CSV: {self.citation_csv_file}")
+    
+    def get_summary(self) -> dict:
+        """
+        Get a summary of all citations (excluding internal fields).
+        
+        Returns:
+            Dictionary with source names and their public citation metadata
+        """
+        return {
+            source: {
+                k: v for k, v in info.items() 
+                if not k.startswith('_')
+            }
+            for source, info in self.citations.items()
         }
-        self.citations.append(citation)
-        logger.info(f"Added citation for {source}")
-
-    def get_citations(self) -> List[Dict[str, Any]]:
+    
+    def load_from_file(self) -> bool:
         """
-        Returns the list of citations.
+        Load citations from the JSON file if it exists.
+        
+        Returns:
+            True if loaded successfully, False otherwise
         """
-        return self.citations
-
-    def save_citations(self, output_path: Path):
+        if not self.citation_file.exists():
+            self.logger.debug("No existing citation file found")
+            return False
+        
+        try:
+            with open(self.citation_file, 'r', encoding='utf-8') as f:
+                self.citations = json.load(f)
+            self.logger.info(f"Citations loaded from file: {len(self.citations)} sources")
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to load citations: {e}")
+            return False
+    
+    def get_citation_string(self, source_name: str) -> Optional[str]:
         """
-        Saves citations to a JSON file.
+        Get a formatted citation string for a specific source.
+        
+        Args:
+            source_name: The source identifier
+        
+        Returns:
+            Formatted citation string or None if not found
         """
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(self.citations, f, indent=2)
-        logger.info(f"Saved citations to {output_path}")
+        if source_name not in self.citations:
+            return None
+        
+        info = self.citations[source_name]
+        authors = info.get('authors', ['Unknown'])
+        year = info.get('year', 'n.d.')
+        title = info.get('title', 'Untitled')
+        
+        return f"{', '.join(authors)} ({year}). {title}."
+    
+    def get_all_citation_strings(self) -> List[str]:
+        """
+        Get formatted citation strings for all sources.
+        
+        Returns:
+            List of formatted citation strings
+        """
+        return [
+            self.get_citation_string(name) 
+            for name in self.citations.keys()
+            if self.get_citation_string(name)
+        ]
 
 
-# Singleton pattern for global tracking
-_tracker_instance = None
+# Global tracker instance
+_tracker_instance: Optional[CitationTracker] = None
 
 
 def get_tracker() -> CitationTracker:
-    """
-    Returns the singleton CitationTracker instance.
-    """
+    """Get the global citation tracker instance."""
     global _tracker_instance
     if _tracker_instance is None:
         _tracker_instance = CitationTracker()
@@ -67,17 +155,54 @@ def get_tracker() -> CitationTracker:
 
 
 def reset_tracker():
-    """
-    Resets the singleton CitationTracker instance.
-    """
+    """Reset the global citation tracker instance."""
     global _tracker_instance
     _tracker_instance = CitationTracker()
 
+
 def main():
     """
-    Entry point for the citation tracker.
+    Main entry point for testing the citation tracker.
     """
-    logger.info("Citation Tracker module loaded.")
+    tracker = get_tracker()
+    
+    # Add test citations
+    tracker.add_citation(
+        "Materials Project",
+        {
+            "authors": ["Jain, A.", "Ong, S.P.", "Hautier, G.", "Chen, W.", "Richie, V.D."],
+            "year": 2013,
+            "title": "Commentary: The Materials Project: A materials genome approach to accelerating materials innovation",
+            "url": "https://doi.org/10.1063/1.4812323",
+            "type": "journal"
+        }
+    )
+    
+    tracker.add_citation(
+        "NIST",
+        {
+            "authors": ["National Institute of Standards and Technology"],
+            "year": 2023,
+            "title": "NIST Solder Alloy Database",
+            "url": "https://www.nist.gov/",
+            "type": "database"
+        }
+    )
+    
+    tracker.save_to_file()
+    
+    print("Citation Tracker Test")
+    print("=" * 50)
+    print("Summary:")
+    for source, info in tracker.get_summary().items():
+        print(f"  {source}: {info.get('title', 'N/A')}")
+    
+    print("\nFormatted Citations:")
+    for citation in tracker.get_all_citation_strings():
+        print(f"  {citation}")
+    
+    print("\nTest completed successfully.")
+
 
 if __name__ == "__main__":
     main()

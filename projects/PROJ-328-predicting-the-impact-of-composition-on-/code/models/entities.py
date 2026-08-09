@@ -1,209 +1,146 @@
 """
-Base data models and entities for the solder hardness prediction pipeline.
+Core data models/entities for solder alloy composition and derived descriptors.
 
-This module defines the core data structures for representing solder compositions
-and their derived compositional descriptors.
+These dataclasses define the schema for raw composition data and the
+engineered features used in the regression models.
 """
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from decimal import Decimal
 import json
 import math
 import logging
 
 from seed import set_seed
+from utils.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
 
 @dataclass
 class SolderComposition:
     """
-    Represents a single solder alloy composition with its elemental breakdown
-    and measured Vickers hardness.
-    
+    Represents a single solder alloy composition with its measured properties.
+
     Attributes:
-        alloy_id: Unique identifier for this alloy composition
-        elements: Dictionary mapping element symbols to their weight percentages
-        hardness_hv: Measured Vickers hardness value
-        temperature_c: Measurement temperature in Celsius (default 25.0)
-        source: Citation or source identifier for this data point
-        notes: Optional notes or comments about the measurement
+        alloy_id: Unique identifier for the alloy record.
+        elements: Dictionary mapping element symbol (e.g., 'Sn') to weight fraction (0.0-1.0).
+        vickers_hardness: Measured Vickers hardness (HV).
+        measurement_temp_c: Temperature at which hardness was measured (°C).
+        source_id: Identifier for the data source (e.g., 'NIST-123', 'MP-456').
+        notes: Optional free-text notes or caveats.
     """
     alloy_id: str
     elements: Dict[str, float]
-    hardness_hv: float
-    temperature_c: float = 25.0
-    source: str = "unknown"
+    vickers_hardness: Optional[float] = None
+    measurement_temp_c: Optional[float] = None
+    source_id: Optional[str] = None
     notes: Optional[str] = None
-    
+
     def __post_init__(self):
-        """Validate the composition after initialization."""
-        if not self.alloy_id:
-            raise ValueError("alloy_id cannot be empty")
-        
+        """Validate the composition data upon initialization."""
         if not self.elements:
-            raise ValueError("elements dictionary cannot be empty")
-        
-        if self.hardness_hv is None or self.hardness_hv < 0:
-            raise ValueError("hardness_hv must be a non-negative number")
-        
-        # Validate element percentages
-        total_composition = sum(self.elements.values())
-        if total_composition <= 0:
-            raise ValueError("Total composition must be positive")
-        
-        # Log validation info
-        logger.debug(f"Initialized SolderComposition {self.alloy_id} with {len(self.elements)} elements, "
-                     f"total composition: {total_composition:.4f}, hardness: {self.hardness_hv} HV")
-    
+            raise ValueError(f"SolderComposition {self.alloy_id}: Elements dictionary cannot be empty.")
+
+        # Validate element values are between 0 and 1
+        for elem, frac in self.elements.items():
+            if not (0.0 <= frac <= 1.0):
+                raise ValueError(
+                    f"SolderComposition {self.alloy_id}: Element {elem} fraction {frac} "
+                    "must be between 0.0 and 1.0."
+                )
+
+        # Validate sum of fractions is approximately 1.0 (allowing for small floating point errors)
+        total = sum(self.elements.values())
+        if not (0.95 <= total <= 1.05):
+            logger.warning(
+                f"SolderComposition {self.alloy_id}: Element fractions sum to {total:.4f}, "
+                "which is outside expected range [0.95, 1.05]. Data may be incomplete."
+            )
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the composition to a dictionary representation."""
+        """Convert the object to a dictionary for serialization."""
         return {
             "alloy_id": self.alloy_id,
             "elements": self.elements,
-            "hardness_hv": self.hardness_hv,
-            "temperature_c": self.temperature_c,
-            "source": self.source,
+            "vickers_hardness": self.vickers_hardness,
+            "measurement_temp_c": self.measurement_temp_c,
+            "source_id": self.source_id,
             "notes": self.notes
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "SolderComposition":
         """Create a SolderComposition instance from a dictionary."""
         return cls(
-            alloy_id=data["alloy_id"],
-            elements=data["elements"],
-            hardness_hv=data["hardness_hv"],
-            temperature_c=data.get("temperature_c", 25.0),
-            source=data.get("source", "unknown"),
+            alloy_id=data.get("alloy_id", ""),
+            elements=data.get("elements", {}),
+            vickers_hardness=data.get("vickers_hardness"),
+            measurement_temp_c=data.get("measurement_temp_c"),
+            source_id=data.get("source_id"),
             notes=data.get("notes")
         )
-    
-    def to_json(self) -> str:
-        """Serialize the composition to a JSON string."""
-        return json.dumps(self.to_dict(), indent=2)
-    
-    @classmethod
-    def from_json(cls, json_str: str) -> "SolderComposition":
-        """Deserialize a SolderComposition from a JSON string."""
-        data = json.loads(json_str)
-        return cls.from_dict(data)
-    
-    def get_element_count(self) -> int:
-        """Return the number of elements in the composition."""
-        return len(self.elements)
-    
-    def get_total_composition(self) -> float:
-        """Return the sum of all element percentages."""
-        return sum(self.elements.values())
-    
-    def is_closed(self, threshold: float = 1.0) -> bool:
-        """
-        Check if the composition is properly closed (sums to ~100% or 1.0).
-        
-        Args:
-            threshold: Acceptable deviation from perfect closure (default 1.0%)
-        
-        Returns:
-            True if the composition is within the threshold, False otherwise.
-        """
-        total = self.get_total_composition()
-        # Assuming percentages sum to 100, check if within threshold
-        return abs(total - 100.0) <= threshold or abs(total - 1.0) <= threshold / 100.0
 
 
 @dataclass
 class CompositionalDescriptor:
     """
-    Represents a derived descriptor vector for a solder composition.
-    
-    These descriptors are computed from the elemental composition using
-    compositional data analysis techniques (e.g., CLR transformation)
-    and elemental property weighting.
-    
+    Represents engineered features (descriptors) derived from a SolderComposition.
+
+    These descriptors are calculated based on elemental properties (atomic mass,
+    electronegativity, etc.) weighted by the composition fractions.
+
     Attributes:
-        alloy_id: Reference to the source SolderComposition
-        clr_weights: Dictionary of CLR transformation weights for each element
-        descriptors: Dictionary of computed descriptor values
-        descriptor_names: List of descriptor names in the same order as values
+        alloy_id: Reference to the source alloy.
+        weighted_mean_atomic_mass: Weighted average of atomic masses of constituent elements.
+        electronegativity_variance: Variance of electronegativity values weighted by composition.
+        atomic_radius_variance: Variance of atomic radii values weighted by composition.
+        weighted_avg_melting_point: Weighted average melting point of constituent elements.
+        valence_electron_concentration: Average valence electron count per atom.
+        clr_transformed_features: The vector of descriptors after CLR transformation.
     """
     alloy_id: str
-    clr_weights: Dict[str, float]
-    descriptors: Dict[str, float]
-    descriptor_names: List[str] = field(default_factory=list)
-    
-    def __post_init__(self):
-        """Validate the descriptor after initialization."""
-        if not self.alloy_id:
-            raise ValueError("alloy_id cannot be empty")
-        
-        if not self.clr_weights:
-            raise ValueError("clr_weights cannot be empty")
-        
-        if not self.descriptors:
-            raise ValueError("descriptors cannot be empty")
-        
-        # If descriptor_names provided, validate length matches descriptors
-        if self.descriptor_names:
-            if len(self.descriptor_names) != len(self.descriptors):
-                raise ValueError("descriptor_names length must match descriptors length")
-        
-        logger.debug(f"Initialized CompositionalDescriptor {self.alloy_id} with {len(self.descriptors)} descriptors")
-    
+    weighted_mean_atomic_mass: float = 0.0
+    electronegativity_variance: float = 0.0
+    atomic_radius_variance: float = 0.0
+    weighted_avg_melting_point: float = 0.0
+    valence_electron_concentration: float = 0.0
+    clr_transformed_features: Optional[List[float]] = None
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the descriptor to a dictionary representation."""
+        """Convert the object to a dictionary for serialization."""
         return {
             "alloy_id": self.alloy_id,
-            "clr_weights": self.clr_weights,
-            "descriptors": self.descriptors,
-            "descriptor_names": self.descriptor_names
+            "weighted_mean_atomic_mass": self.weighted_mean_atomic_mass,
+            "electronegativity_variance": self.electronegativity_variance,
+            "atomic_radius_variance": self.atomic_radius_variance,
+            "weighted_avg_melting_point": self.weighted_avg_melting_point,
+            "valence_electron_concentration": self.valence_electron_concentration,
+            "clr_transformed_features": self.clr_transformed_features
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "CompositionalDescriptor":
         """Create a CompositionalDescriptor instance from a dictionary."""
         return cls(
-            alloy_id=data["alloy_id"],
-            clr_weights=data["clr_weights"],
-            descriptors=data["descriptors"],
-            descriptor_names=data.get("descriptor_names", [])
+            alloy_id=data.get("alloy_id", ""),
+            weighted_mean_atomic_mass=data.get("weighted_mean_atomic_mass", 0.0),
+            electronegativity_variance=data.get("electronegativity_variance", 0.0),
+            atomic_radius_variance=data.get("atomic_radius_variance", 0.0),
+            weighted_avg_melting_point=data.get("weighted_avg_melting_point", 0.0),
+            valence_electron_concentration=data.get("valence_electron_concentration", 0.0),
+            clr_transformed_features=data.get("clr_transformed_features")
         )
-    
-    def to_json(self) -> str:
-        """Serialize the descriptor to a JSON string."""
-        return json.dumps(self.to_dict(), indent=2)
-    
-    @classmethod
-    def from_json(cls, json_str: str) -> "CompositionalDescriptor":
-        """Deserialize a CompositionalDescriptor from a JSON string."""
-        data = json.loads(json_str)
-        return cls.from_dict(data)
-    
-    def get_descriptor_vector(self) -> List[float]:
+
+    def get_feature_vector(self) -> List[float]:
         """
-        Return the descriptor values as a list.
-        
-        If descriptor_names are provided, values are ordered accordingly.
-        Otherwise, returns values in arbitrary order (dictionary iteration).
+        Returns the raw feature vector before CLR transformation.
+        Used for VIF calculation and diagnostic purposes.
         """
-        if self.descriptor_names:
-            return [self.descriptors[name] for name in self.descriptor_names]
-        return list(self.descriptors.values())
-    
-    def get_descriptor_names(self) -> List[str]:
-        """
-        Return the list of descriptor names.
-        
-        If not explicitly set, generates names from descriptor keys.
-        """
-        if self.descriptor_names:
-            return self.descriptor_names
-        return list(self.descriptors.keys())
-    
-    def get_element_count(self) -> int:
-        """Return the number of elements used in the CLR weights."""
-        return len(self.clr_weights)
-    
-    def get_descriptor_count(self) -> int:
-        """Return the number of descriptors."""
-        return len(self.descriptors)
+        return [
+            self.weighted_mean_atomic_mass,
+            self.electronegativity_variance,
+            self.atomic_radius_variance,
+            self.weighted_avg_melting_point,
+            self.valence_electron_concentration
+        ]

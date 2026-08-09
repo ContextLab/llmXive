@@ -1,195 +1,193 @@
 """
-Collinearity detection and Variance Inflation Factor (VIF) calculation.
+Collinearity Analysis Module.
 
-Provides tools for detecting multicollinearity in feature sets
-and removing highly correlated features.
+Computes Variance Inflation Factors (VIF) to detect multicollinearity.
+This module implements T022: Flag predictors with VIF ≥ 5.
 """
+
 import numpy as np
 import pandas as pd
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+import yaml
+from pathlib import Path
+
+# Import project configuration
+from config import get_vif_threshold, get_data_processed_dir, get_models_dir
 from utils.logging_config import get_logger
-from config import get_vif_threshold
 
 logger = get_logger(__name__)
 
-
-def calculate_vif(X: pd.DataFrame, threshold: Optional[float] = None) -> Dict[str, float]:
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-
-    VIF measures how much the variance of an estimated regression coefficient
-    increases if your predictors are correlated.
+    Calculate VIF for a list of features.
 
     Args:
-        X: DataFrame with features (no target variable)
-        threshold: Optional threshold for flagging high VIF. If None, uses config.
+        df: DataFrame containing the features.
+        feature_cols: List of column names to analyze.
 
     Returns:
-        Dictionary mapping feature names to their VIF scores
+        Dictionary mapping feature names to their VIF scores.
     """
-    if threshold is None:
-        threshold = get_vif_threshold()
-
-    logger.debug(f"Calculating VIF with threshold={threshold}")
-
-    # Handle constant columns
-    for col in X.columns:
-        if X[col].std() == 0:
-            logger.warning(f"Column {col} has zero variance, removing from VIF calculation")
-
-    # Filter out constant columns
-    X_clean = X.loc[:, X.std() > 0]
-
-    if X_clean.empty:
-        logger.warning("All columns have zero variance")
+    if not feature_cols:
+        logger.warning("No features provided for VIF calculation.")
         return {}
 
-    vif_scores = {}
-    for i, col in enumerate(X_clean.columns):
+    # Ensure columns exist
+    missing_cols = [col for col in feature_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
+
+    X = df[feature_cols].values.astype(float)
+
+    # Handle constant columns which cause singular matrix errors
+    if np.all(X == X[0, :], axis=0).any():
+        logger.warning("Constant columns detected. Removing them for VIF calculation.")
+        mask = ~np.all(X == X[0, :], axis=0)
+        feature_cols = [c for i, c in enumerate(feature_cols) if mask[i]]
+        if not feature_cols:
+            return {}
+        X = df[feature_cols].values.astype(float)
+
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
+
+    vif_data = {}
+    for i, col in enumerate(feature_cols):
         try:
-            # Calculate VIF for this column
-            vif = variance_inflation_factor(X_clean.values, i)
-            vif_scores[col] = vif
+            # i + 1 because index 0 is the constant
+            vif = variance_inflation_factor(X_with_const, i + 1)
+            vif_data[col] = float(vif)
         except Exception as e:
             logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_scores[col] = np.inf
+            vif_data[col] = np.nan
 
-    # Log results
-    high_vif_features = [k for k, v in vif_scores.items() if v >= threshold]
-    if high_vif_features:
-        logger.warning(f"Found {len(high_vif_features)} features with VIF >= {threshold}: {high_vif_features}")
-
-    return vif_scores
+    return vif_data
 
 
-def get_collinear_features(vif_scores: Dict[str, float], threshold: Optional[float] = None) -> List[str]:
+def get_collinear_features(vif_results: Dict[str, float], threshold: Optional[float] = None) -> List[str]:
     """
-    Get list of features with VIF above threshold.
+    Identify features with VIF above a threshold.
 
     Args:
-        vif_scores: Dictionary of VIF scores from calculate_vif
-        threshold: Optional threshold. If None, uses config.
+        vif_results: Dictionary of VIF scores.
+        threshold: VIF threshold for flagging. If None, reads from config.
 
     Returns:
-        List of feature names with VIF >= threshold
+        List of feature names with high collinearity.
     """
     if threshold is None:
         threshold = get_vif_threshold()
 
-    collinear = [k for k, v in vif_scores.items() if v >= threshold]
-    logger.info(f"Found {len(collinear)} collinear features with VIF >= {threshold}")
-    return collinear
+    return [feat for feat, vif in vif_results.items() if not np.isnan(vif) and vif >= threshold]
 
 
-def remove_collinear_features(
-    X: pd.DataFrame,
-    threshold: Optional[float] = None,
-    verbose: bool = True
-) -> Tuple[pd.DataFrame, List[str]]:
+def remove_collinear_features(df: pd.DataFrame, vif_results: Dict[str, float], threshold: Optional[float] = None) -> pd.DataFrame:
     """
-    Remove features with VIF above threshold.
-
-    Iteratively removes the feature with the highest VIF until
-    all remaining features are below the threshold.
+    Remove features with high VIF from the dataframe.
 
     Args:
-        X: DataFrame with features
-        threshold: Optional threshold. If None, uses config.
-        verbose: Whether to log removal steps
+        df: Input DataFrame.
+        vif_results: VIF scores.
+        threshold: Threshold for removal.
 
     Returns:
-        Tuple of (cleaned DataFrame, list of removed feature names)
+        DataFrame with collinear features removed.
     """
-    if threshold is None:
-        threshold = get_vif_threshold()
+    cols_to_drop = get_collinear_features(vif_results, threshold)
+    if cols_to_drop:
+        logger.info("Removing collinear features: %s", cols_to_drop)
+        return df.drop(columns=cols_to_drop, errors='ignore')
+    return df
 
-    X_clean = X.copy()
-    removed_features = []
 
-    while True:
-        vif_scores = calculate_vif(X_clean, threshold)
-        if not vif_scores:
-            break
+def save_vif_report(vif_results: Dict[str, float], collinear_features: List[str], output_path: Path) -> None:
+    """
+    Save VIF analysis results to a YAML file.
 
-        max_vif_feature = max(vif_scores, key=vif_scores.get)
-        max_vif = vif_scores[max_vif_feature]
+    Args:
+        vif_results: Dictionary of VIF scores.
+        collinear_features: List of features exceeding the threshold.
+        output_path: Path to save the report.
+    """
+    report = {
+        "vif_scores": vif_results,
+        "threshold": get_vif_threshold(),
+        "collinear_features": collinear_features,
+        "total_features_analyzed": len(vif_results),
+        "features_flagged": len(collinear_features)
+    }
 
-        if max_vif < threshold:
-            break
-
-        if verbose:
-            logger.info(f"Removing {max_vif_feature} (VIF={max_vif:.2f})")
-
-        X_clean = X_clean.drop(columns=[max_vif_feature])
-        removed_features.append(max_vif_feature)
-
-        # Safety check: don't remove all features
-        if X_clean.empty:
-            logger.error("Removed all features, stopping")
-            break
-
-    if verbose:
-        logger.info(f"Removed {len(removed_features)} collinear features: {removed_features}")
-
-    return X_clean, removed_features
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        yaml.dump(report, f, default_flow_style=False)
+    logger.info("VIF report saved to %s", output_path)
 
 
 def main():
     """
-    Main function for testing collinearity detection.
+    Main entry point for T022: Run VIF calculation on the validated dataset
+    generated by T021 (descriptor_engine.py) and save results.
     """
-    from seed import init_reproducibility
-    init_reproducibility()
+    logger.info("Starting VIF Analysis (T022)...")
 
-    logger.info("Testing collinearity detection")
+    # Load the processed dataset containing CLR-transformed descriptors
+    # The path is derived from the validated dataset name with a feature suffix
+    data_dir = get_data_processed_dir()
+    input_file = Path(data_dir) / "solder_hardness_validated.csv"
 
-    # Create sample data with some collinearity
-    np.random.seed(42)
-    n_samples = 100
+    if not input_file.exists():
+        logger.error("Input file not found: %s. T016/T021 must be run first.", input_file)
+        raise FileNotFoundError(f"Required input file missing: {input_file}")
 
-    # Independent features
-    X1 = np.random.normal(0, 1, n_samples)
-    X2 = np.random.normal(0, 1, n_samples)
+    logger.info("Loading data from %s", input_file)
+    df = pd.read_csv(input_file)
 
-    # Collinear features
-    X3 = X1 * 2 + np.random.normal(0, 0.1, n_samples)  # Highly correlated with X1
-    X4 = X2 * 1.5 + np.random.normal(0, 0.1, n_samples)  # Highly correlated with X2
-    X5 = np.random.normal(0, 1, n_samples)  # Independent
+    # Identify feature columns. T021 outputs CLR-transformed descriptors.
+    # We assume the target is 'hardness_hv' and features are all other numeric columns
+    # excluding metadata like 'alloy_id' or 'citation'.
+    # In a robust pipeline, we would read a feature list from a config, but here we infer.
+    target_col = 'hardness_hv'
+    if target_col not in df.columns:
+        logger.error("Target column '%s' not found in dataset.", target_col)
+        raise ValueError(f"Target column {target_col} not found")
 
-    df = pd.DataFrame({
-        'X1': X1,
-        'X2': X2,
-        'X3': X3,
-        'X4': X4,
-        'X5': X5,
-    })
+    # Filter for numeric columns that are not the target
+    feature_cols = [col for col in df.select_dtypes(include=[np.number]).columns if col != target_col]
+
+    if not feature_cols:
+        logger.warning("No numeric feature columns found for VIF analysis.")
+        return
+
+    logger.info("Analyzing %d features: %s", len(feature_cols), feature_cols)
 
     # Calculate VIF
-    vif_scores = calculate_vif(df)
-    logger.info(f"VIF scores: {vif_scores}")
+    vif_results = calculate_vif(df, feature_cols)
+
+    # Log results
+    for feat, vif in vif_results.items():
+        status = "HIGH" if vif >= get_vif_threshold() else "OK"
+        logger.info(f"VIF[{feat}] = {vif:.2f} [{status}]")
 
     # Identify collinear features
-    threshold = get_vif_threshold()
-    collinear = get_collinear_features(vif_scores, threshold)
-    logger.info(f"Collinear features (VIF >= {threshold}): {collinear}")
+    collinear = get_collinear_features(vif_results)
+    logger.info("Features with VIF >= %s: %s", get_vif_threshold(), collinear)
 
-    # Remove collinear features
-    df_clean, removed = remove_collinear_features(df, threshold)
-    logger.info(f"Removed features: {removed}")
-    logger.info(f"Remaining features: {list(df_clean.columns)}")
+    # Save report to models directory as per T030 requirements
+    models_dir = get_models_dir()
+    output_path = Path(models_dir) / "vif_analysis.yaml"
+    save_vif_report(vif_results, collinear, output_path)
 
-    # Verify remaining features are below threshold
-    vif_clean = calculate_vif(df_clean)
-    logger.info(f"VIF after cleaning: {vif_clean}")
+    # Save a CSV summary for easy inspection
+    csv_path = Path(data_dir) / "vif_scores.csv"
+    summary_df = pd.DataFrame(list(vif_results.items()), columns=['feature', 'vif_score'])
+    summary_df.to_csv(csv_path, index=False)
+    logger.info("VIF scores CSV saved to %s", csv_path)
 
-    all_below = all(v < threshold for v in vif_clean.values())
-    if all_below:
-        logger.info("✓ All remaining features have VIF < threshold")
-    else:
-        logger.warning("✗ Some features still have high VIF")
+    logger.info("VIF Analysis (T022) completed successfully.")
+
 
 if __name__ == "__main__":
     main()

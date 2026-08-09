@@ -1,9 +1,10 @@
 """
-Descriptor engineering module for compositional data analysis.
+Feature Engineering Module for Solder Hardness Prediction.
 
-This module provides tools for transforming compositional data and
-engineering descriptors for machine learning models.
+This module contains utilities for descriptor engineering,
+compositional data transformation, and collinearity analysis.
 """
+
 from features.transformer import CLRTransformer
 from features.descriptor_engine import DescriptorEngine
 from features.collinearity import calculate_vif, get_collinear_features, remove_collinear_features
@@ -13,5 +14,5 @@ __all__ = [
     "DescriptorEngine",
     "calculate_vif",
     "get_collinear_features",
-    "remove_collinear_features",
+    "remove_collinear_features"
 ]

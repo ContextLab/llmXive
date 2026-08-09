@@ -1,73 +1,101 @@
 """
-Logging configuration and utilities for the Solder Hardness Prediction Pipeline.
+Logging configuration for the Solder Hardness Prediction Pipeline.
 
-Provides centralized logging setup to ensure consistent formatting and log levels
-across all modules.
+This module provides centralized logging setup to ensure consistent
+log formatting, levels, and output destinations across the entire pipeline.
 """
 import logging
 import sys
 import os
 from pathlib import Path
 from typing import Optional
+
 from config import get_log_level, get_log_format
 
 
-def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+# Global logger instance
+_logger: Optional[logging.Logger] = None
+
+
+def setup_logging(
+    log_level: Optional[str] = None,
+    log_format: Optional[str] = None,
+    log_file: Optional[str] = None,
+    project_root: Optional[Path] = None
+) -> logging.Logger:
     """
-    Configure the root logger with console and optional file handlers.
+    Configure the root logger for the pipeline.
     
     Args:
-        log_file: Optional path to a log file. If provided, logs are written to disk.
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+                   If None, reads from config.
+        log_format: Log format string. If None, reads from config.
+        log_file: Optional file path to append logs. If None, logs to console only.
+        project_root: Optional project root path for relative file paths.
     
     Returns:
-        The configured root logger instance.
+        The configured root logger.
     """
-    log_level = get_log_level()
-    log_format = get_log_format()
+    global _logger
     
-    # Create formatter
-    formatter = logging.Formatter(log_format)
+    if _logger is not None:
+        return _logger
+    
+    # Determine log level
+    level_str = log_level or get_log_level()
+    try:
+        level = getattr(logging, level_str.upper(), logging.INFO)
+    except AttributeError:
+        level = logging.INFO
+    
+    # Determine format
+    fmt_str = log_format or get_log_format()
+    formatter = logging.Formatter(fmt_str)
+    
+    # Root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    
+    # Clear existing handlers
+    root_logger.handlers = []
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
+    console_handler.setLevel(level)
     console_handler.setFormatter(formatter)
-    
-    # Root logger configuration
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-    
-    # Avoid adding duplicate handlers if called multiple times
-    if not root_logger.handlers:
-        root_logger.addHandler(console_handler)
+    root_logger.addHandler(console_handler)
     
     # File handler (optional)
     if log_file:
-        log_path = Path(log_file)
+        if project_root:
+            log_path = project_root / log_file
+        else:
+            log_path = Path(log_file)
+        
+        # Ensure directory exists
         log_path.parent.mkdir(parents=True, exist_ok=True)
         
-        file_handler = logging.FileHandler(log_path)
-        file_handler.setLevel(log_level)
+        file_handler = logging.FileHandler(log_path, mode='a')
+        file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
     
+    _logger = root_logger
     return root_logger
 
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str = "solder_pipeline") -> logging.Logger:
     """
-    Get a logger instance with the specified name.
+    Get a named logger configured with the global settings.
     
     Args:
-        name: The name of the logger (typically __name__ of the calling module).
-              If None, returns the root logger.
+        name: Logger name (usually __name__ of the calling module).
     
     Returns:
-        A configured logger instance.
+        Configured logger instance.
     """
-    logger = logging.getLogger(name)
-    # Ensure the logger inherits the configuration from the root
-    if not logger.handlers and not logger.propagate:
-        # If no handlers and not propagating, ensure it propagates to root
-        logger.propagate = True
-    return logger
+    if _logger is None:
+        # Auto-initialize if not explicitly set up
+        setup_logging()
+    
+    return logging.getLogger(name)

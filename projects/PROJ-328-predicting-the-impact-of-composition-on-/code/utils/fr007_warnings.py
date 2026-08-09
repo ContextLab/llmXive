@@ -1,12 +1,8 @@
 """
-FR-007 Implementation: Associational Framing Warnings.
+FR-007 Associational Framing Warning Utilities.
 
-This module provides utilities to append mandatory associational framing warnings
-to all model outputs, visualizations, and the final report.
-
-Per FR-007: "All model outputs, visualizations, and the final report MUST include
-a prominent warning that the model identifies associations, not causation, and
-that predictions are valid only within the domain of the training data."
+This module provides utilities to inject mandatory associational warnings
+into various output formats (JSON, YAML, text) to comply with FR-007.
 """
 import logging
 import json
@@ -17,131 +13,147 @@ from datetime import datetime
 
 from utils.logging_config import get_logger
 
-logger = get_logger(__name__)
-
-# The canonical warning text mandated by FR-007
+# Standard warning text for FR-007 compliance
 ASSOCIATIONAL_WARNING_TEXT = (
-  "⚠️ ASSOCIATIONAL FRAMING WARNING (FR-007):\n"
-  "This model identifies statistical associations between solder composition and Vickers hardness.\n"
-  "It DOES NOT establish causal relationships. Predictions are valid ONLY within the domain\n"
-  "of the training data (composition space, measurement conditions). Extrapolation outside\n"
-  "this domain is unsupported and may be invalid."
+    "NOTE: Results are associational, not causal. "
+    "Correlations observed in this analysis do not imply causation."
 )
 
+
 def get_warning_header() -> str:
-    """Returns the standard warning header string."""
-    return ASSOCIATIONAL_WARNING_TEXT
+    """Return a formatted header for associational warnings."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return f"[FR-007 WARNING] ({timestamp}) {ASSOCIATIONAL_WARNING_TEXT}"
 
-def inject_warning_into_json_output(output_path: Path, warning_text: Optional[str] = None) -> None:
+
+def inject_warning_into_json_output(
+    data: Dict[str, Any],
+    field_name: str = "warning",
+    overwrite: bool = False
+) -> Dict[str, Any]:
     """
-    Reads a JSON file, injects the warning into a dedicated 'warnings' key, and saves it.
-    If the key already exists, it appends the warning to the list.
+    Inject the FR-007 warning into a JSON-serializable dictionary.
+    
+    Args:
+        data: The dictionary to modify.
+        field_name: Key under which to store the warning.
+        overwrite: If True, overwrite existing field; else skip if exists.
+    
+    Returns:
+        Modified dictionary.
     """
-    if warning_text is None:
-        warning_text = get_warning_header()
+    logger = get_logger(__name__)
     
-    try:
-        with open(output_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        logger.warning(f"File {output_path} not found. Skipping warning injection.")
-        return
-    except json.JSONDecodeError:
-        logger.error(f"File {output_path} is not valid JSON. Cannot inject warning.")
-        return
+    if field_name in data and not overwrite:
+        logger.debug(f"Warning field '{field_name}' already exists; skipping.")
+        return data
+    
+    data[field_name] = {
+        "code": "FR-007",
+        "message": ASSOCIATIONAL_WARNING_TEXT,
+        "timestamp": datetime.now().isoformat()
+    }
+    logger.debug(f"Injected FR-007 warning into '{field_name}'.")
+    return data
 
-    if 'warnings' not in data:
-        data['warnings'] = []
-    
-    # Ensure uniqueness
-    if warning_text not in data['warnings']:
-        data['warnings'].append(warning_text)
-    
-    # Add metadata about when the warning was injected
-    data['fr007_warning_injected_at'] = datetime.utcnow().isoformat()
 
+def inject_warning_into_yaml_output(
+    data: Dict[str, Any],
+    output_path: Path,
+    field_name: str = "warning"
+) -> None:
+    """
+    Inject the FR-007 warning into a YAML file.
+    
+    Args:
+        data: Dictionary to save with warning.
+        output_path: Path to the output YAML file.
+        field_name: Key under which to store the warning.
+    """
+    logger = get_logger(__name__)
+    
+    inject_warning_into_json_output(data, field_name, overwrite=True)
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
     
-    logger.info(f"FR-007 Warning injected into {output_path}")
+    logger.info(f"Saved YAML output with FR-007 warning to {output_path}")
 
-def inject_warning_into_yaml_output(output_path: Path, warning_text: Optional[str] = None) -> None:
+
+def add_warning_to_text_file(
+    text_content: str,
+    output_path: Path,
+    position: str = "top"
+) -> None:
     """
-    Reads a YAML file, injects the warning into a dedicated 'warnings' key, and saves it.
+    Add the FR-007 warning to a text file.
+    
+    Args:
+        text_content: Original text content.
+        output_path: Path to the output file.
+        position: Where to insert warning ('top' or 'bottom').
     """
-    if warning_text is None:
-        warning_text = get_warning_header()
-
-    try:
-        with open(output_path, 'r', encoding='utf-8') as f:
-            data = yaml.safe_load(f) or {}
-    except FileNotFoundError:
-        logger.warning(f"File {output_path} not found. Skipping warning injection.")
-        return
-    except yaml.YAMLError:
-        logger.error(f"File {output_path} is not valid YAML. Cannot inject warning.")
-        return
-
-    if 'warnings' not in data:
-        data['warnings'] = []
+    logger = get_logger(__name__)
     
-    if warning_text not in data['warnings']:
-        data['warnings'].append(warning_text)
+    warning_header = get_warning_header()
     
-    data['fr007_warning_injected_at'] = datetime.utcnow().isoformat()
-
+    if position == "top":
+        final_content = f"{warning_header}\n\n{text_content}"
+    else:
+        final_content = f"{text_content}\n\n{warning_header}"
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+        f.write(final_content)
     
-    logger.info(f"FR-007 Warning injected into {output_path}")
+    logger.info(f"Saved text output with FR-007 warning to {output_path}")
 
-def add_warning_to_text_file(output_path: Path, warning_text: Optional[str] = None) -> None:
-    """
-    Appends the warning to the end of a text file (e.g., report.txt, README).
-    """
-    if warning_text is None:
-        warning_text = get_warning_header()
-
-    with open(output_path, 'a', encoding='utf-8') as f:
-        f.write("\n\n" + "="*80 + "\n")
-        f.write(warning_text + "\n")
-        f.write("="*80 + "\n")
-    
-    logger.info(f"FR-007 Warning appended to {output_path}")
 
 def main():
-    """
-    Example runner to demonstrate FR-007 injection on standard outputs.
-    This function is called by the pipeline after model training and reporting.
-    """
-    # Define paths based on typical project structure
-    # Note: These paths assume the script is run from the project root or code/
-    base_path = Path(__file__).parent.parent
-    models_dir = base_path / "models"
-    data_processed_dir = base_path / "data" / "processed"
+    """Run self-tests for FR-007 warning injection."""
+    logger = get_logger(__name__)
+    logger.info("Running FR-007 warning utility tests...")
     
-    # List of files to update (relative to project root)
-    files_to_update = [
-        (models_dir / "xgboost_model_results.json", "json"),
-        (models_dir / "linear_model_results.json", "json"),
-        (models_dir / "comparison_report.json", "json"),
-        (data_processed_dir / "sensitivity_analysis.yaml", "yaml"),
-        (models_dir / "shap_analysis.json", "json"),
-        # If a text report exists:
-        # (base_path / "report.md", "text"), 
-    ]
+    # Test JSON injection
+    test_data = {"metric": 0.85, "model": "XGBoost"}
+    result = inject_warning_into_json_output(test_data)
+    assert "warning" in result
+    assert result["warning"]["code"] == "FR-007"
+    logger.info("JSON injection test passed.")
+    
+    # Test YAML injection
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    
+    inject_warning_into_yaml_output(test_data, tmp_path)
+    assert tmp_path.exists()
+    with open(tmp_path, 'r') as f:
+        loaded = yaml.safe_load(f)
+    assert "warning" in loaded
+    logger.info("YAML injection test passed.")
+    
+    # Cleanup
+    tmp_path.unlink()
+    
+    # Test Text injection
+    with tempfile.NamedTemporaryFile(suffix='.txt', delete=False, mode='w') as tmp:
+        tmp_path = Path(tmp.name)
+        tmp.write("Sample report content.")
+    
+    add_warning_to_text_file("Sample report content.", tmp_path)
+    assert tmp_path.exists()
+    with open(tmp_path, 'r') as f:
+        content = f.read()
+    assert ASSOCIATIONAL_WARNING_TEXT in content
+    logger.info("Text injection test passed.")
+    
+    # Cleanup
+    tmp_path.unlink()
+    
+    logger.info("All FR-007 warning utility tests passed.")
 
-    for file_path, file_type in files_to_update:
-        full_path = base_path / file_path if not file_path.is_absolute() else file_path
-        if full_path.exists():
-            if file_type == "json":
-                inject_warning_into_json_output(full_path)
-            elif file_type == "yaml":
-                inject_warning_into_yaml_output(full_path)
-            elif file_type == "text":
-                add_warning_to_text_file(full_path)
-        else:
-            logger.info(f"Skipping {file_path} as it does not exist yet.")
 
 if __name__ == "__main__":
     main()

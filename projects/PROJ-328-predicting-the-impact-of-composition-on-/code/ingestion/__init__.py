@@ -1,25 +1,26 @@
 """
-Ingestion module for solder hardness data aggregation and processing.
+Ingestion module for solder hardness data pipeline.
+
+This package handles:
+- Data aggregation from multiple sources (T012)
+- Data cleaning and standardization (T013)
+- Validation logic (T014)
+- Scaffolding and directory setup (T005)
 """
-from .aggregator import LiteratureAggregator, main
-from .cleaner import DataCleaner, main as clean_main
-from .validator import DataValidator, main as validate_main
-from .saver import calculate_md5, save_raw_data_with_checksums, save_validated_data, main as save_main
-from .citation_tracker import CitationTracker, get_tracker, reset_tracker, main as citation_main
+from .aggregator import LiteratureAggregator
+from .cleaner import DataCleaner
+from .validator import DataValidator, DataInsufficientError
+from .saver import save_raw_data_with_checksums, save_validated_data
+from .scaffold import setup_directories
 from .pipeline_runner import run_pipeline
 
 __all__ = [
     "LiteratureAggregator",
     "DataCleaner",
     "DataValidator",
-    "calculate_md5",
+    "DataInsufficientError",
     "save_raw_data_with_checksums",
     "save_validated_data",
-    "CitationTracker",
+    "setup_directories",
     "run_pipeline",
-    "main",
-    "clean_main",
-    "validate_main",
-    "save_main",
-    "citation_main"
 ]

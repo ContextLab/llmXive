@@ -1,8 +1,9 @@
 """
 Custom exception classes for the Solder Hardness Prediction Pipeline.
 
-This module defines a hierarchy of exceptions to provide structured error handling
-across the ingestion, feature engineering, and modeling stages.
+This module defines a hierarchy of exceptions to handle specific error scenarios
+encountered during data ingestion, model training, and configuration management.
+All exceptions inherit from a base SolderPipelineError to allow unified handling.
 """
 from typing import Optional, Dict, Any
 
@@ -17,26 +18,25 @@ class SolderPipelineError(Exception):
     
     def __str__(self) -> str:
         if self.context:
-            context_str = ", ".join(f"{k}={v}" for k, v in self.context.items())
-            return f"{self.message} (Context: {context_str})"
+            return f"{self.message} (Context: {self.context})"
         return self.message
 
 
+class ConfigurationError(SolderPipelineError):
+    """Raised when configuration loading or validation fails."""
+    pass
+
+
 class DataValidationError(SolderPipelineError):
-    """Raised when data validation checks fail (e.g., composition sum, missing values)."""
+    """Raised when data fails validation checks (e.g., missing values, sum constraints)."""
     pass
 
 
 class IngestionError(SolderPipelineError):
-    """Raised when data ingestion from external sources fails."""
+    """Raised when data ingestion from a source fails."""
     pass
 
 
 class ModelTrainingError(SolderPipelineError):
     """Raised when model training or evaluation fails."""
-    pass
-
-
-class ConfigurationError(SolderPipelineError):
-    """Raised when configuration loading or validation fails."""
     pass

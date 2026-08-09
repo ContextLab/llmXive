@@ -4,65 +4,70 @@ from pathlib import Path
 
 def main():
     """
-    Creates the project directory structure for PROJ-328.
-    
-    Creates the following directories relative to the project root:
-    - projects/PROJ-328-predicting-the-impact-of-composition-on-/data/
-    - projects/PROJ-328-predicting-the-impact-of-composition-on-/code/
-    - projects/PROJ-328-predicting-the-impact-of-composition-on-/tests/
-    - projects/PROJ-328-predicting-the-impact-of-composition-on-/models/
-    
-    Also creates subdirectories for data organization:
-    - data/raw
-    - data/processed
-    - data/outputs
-    - data/checksums
+    Create the project directory structure for PROJ-328.
+    Ensures all required folders exist relative to the project root.
     """
-    # Define the project root relative to this script's location
-    # Assuming this script is at projects/PROJ-328-predicting-the-impact-of-composition-on-/code/setup_project_structure.py
+    # Determine project root based on where this script is located
+    # Assuming this script is at: code/setup_project_structure.py
     current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-    
-    # Ensure we are in the correct project directory
-    expected_project_name = "PROJ-328-predicting-the-impact-of-composition-on-"
-    if project_root.name != expected_project_name:
-        print(f"Warning: Expected project directory name '{expected_project_name}', found '{project_root.name}'")
-        print(f"Proceeding with directory creation in: {project_root}")
-    
-    # Define the directories to create
-    directories = [
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+
+    # Define the project-specific root directory name
+    project_name = "PROJ-328-predicting-the-impact-of-composition-on-"
+    project_specific_root = project_root / project_name
+
+    # Define required directories
+    required_dirs = [
         "data",
         "data/raw",
         "data/processed",
         "data/outputs",
+        "data/config",
         "data/checksums",
         "code",
         "tests",
         "models",
+        "docs",
+        "specs",
     ]
-    
-    created_count = 0
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
+
+    print(f"Ensuring project structure at: {project_specific_root}")
+
+    for dir_name in required_dirs:
+        dir_path = project_specific_root / dir_name
+        try:
             dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
+            print(f"  [OK] Created/Verified: {dir_path}")
+        except OSError as e:
+            print(f"  [ERROR] Failed to create {dir_path}: {e}")
+            sys.exit(1)
+
+    # Create placeholder __init__.py files to make them packages where appropriate
+    # We treat 'code' and 'tests' as Python packages
+    init_files = [
+        project_specific_root / "code" / "__init__.py",
+        project_specific_root / "tests" / "__init__.py",
+        project_specific_root / "models" / "__init__.py",
+    ]
+
+    for init_file in init_files:
+        if not init_file.exists():
+            init_file.touch()
+            print(f"  [OK] Created placeholder: {init_file}")
         else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
-    print(f"Project root: {project_root}")
-    
-    # Verify structure
-    print("\nVerifying directory structure:")
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        if dir_path.exists():
-            print(f"  [OK] {dir_path}")
-        else:
-            print(f"  [MISSING] {dir_path}")
-    
+            print(f"  [SKIP] Exists: {init_file}")
+
+    # Create a .gitkeep in data directories to ensure they are tracked by git
+    # even if empty
+    data_subdirs = ["raw", "processed", "outputs", "config", "checksums"]
+    for subdir in data_subdirs:
+        keep_file = project_specific_root / "data" / subdir / ".gitkeep"
+        if not keep_file.exists():
+            keep_file.touch()
+            print(f"  [OK] Created .gitkeep: {keep_file}")
+
+    print("\nProject structure setup complete.")
     return 0
 
 if __name__ == "__main__":

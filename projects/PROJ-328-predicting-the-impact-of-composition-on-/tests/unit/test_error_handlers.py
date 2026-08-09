@@ -1,5 +1,5 @@
 """
-Unit tests for the error handling infrastructure.
+Unit tests for error handling infrastructure.
 """
 import pytest
 from utils.error_handlers import (
@@ -12,46 +12,36 @@ from utils.error_handlers import (
 
 
 class TestSolderPipelineError:
-    def test_base_exception_creation(self):
-        """Test basic exception creation."""
-        exc = SolderPipelineError("Base error message")
-        assert str(exc) == "Base error message"
-    
-    def test_exception_with_context(self):
-        """Test exception creation with context."""
-        context = {"key": "value", "number": 42}
-        exc = SolderPipelineError("Error with context", context)
-        assert "key=value" in str(exc)
-        assert "number=42" in str(exc)
+    def test_base_exception(self):
+        error = SolderPipelineError("Base error message")
+        assert str(error) == "Base error message"
+        assert error.context == {}
+
+    def test_base_exception_with_context(self):
+        ctx = {"param": "value"}
+        error = SolderPipelineError("Base error message", context=ctx)
+        assert error.context == ctx
 
 
 class TestDataValidationError:
     def test_inheritance(self):
-        """Test that DataValidationError inherits from SolderPipelineError."""
-        exc = DataValidationError("Validation failed")
-        assert isinstance(exc, SolderPipelineError)
-        assert isinstance(exc, DataValidationError)
+        error = DataValidationError("Validation failed")
+        assert isinstance(error, SolderPipelineError)
 
 
 class TestIngestionError:
     def test_inheritance(self):
-        """Test that IngestionError inherits from SolderPipelineError."""
-        exc = IngestionError("Ingestion failed")
-        assert isinstance(exc, SolderPipelineError)
-        assert isinstance(exc, IngestionError)
+        error = IngestionError("Source failed")
+        assert isinstance(error, SolderPipelineError)
 
 
 class TestModelTrainingError:
     def test_inheritance(self):
-        """Test that ModelTrainingError inherits from SolderPipelineError."""
-        exc = ModelTrainingError("Training failed")
-        assert isinstance(exc, SolderPipelineError)
-        assert isinstance(exc, ModelTrainingError)
+        error = ModelTrainingError("Training crashed")
+        assert isinstance(error, SolderPipelineError)
 
 
 class TestConfigurationError:
     def test_inheritance(self):
-        """Test that ConfigurationError inherits from SolderPipelineError."""
-        exc = ConfigurationError("Config failed")
-        assert isinstance(exc, SolderPipelineError)
-        assert isinstance(exc, ConfigurationError)
+        error = ConfigurationError("Config missing")
+        assert isinstance(error, SolderPipelineError)

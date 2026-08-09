@@ -1,6 +1,33 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solder-hardness-pipeline"
+version = "0.1.0"
+description = "Predicting the Impact of Composition on the Vickers Hardness of Solder Alloys"
+requires-python = ">=3.8"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "xgboost",
+    "shap",
+    "numpy",
+    "matplotlib",
+    "pyyaml",
+    "requests",
+    "compositional==0.2.0",
+    "pdfplumber",
+    "pytest",
+    "flake8",
+    "black",
+    "statsmodels",
+    "pydantic"
+]
+
 [tool.black]
 line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
+target-version = ['py38', 'py39', 'py310']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -15,10 +42,27 @@ exclude = '''
     | dist
     | data
     | models
+    | tests
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", "data", "models"]
+known_first_party = ["config", "seed", "utils", "models", "features", "ingestion", "evaluation", "visualization"]
+known_third_party = ["pandas", "numpy", "sklearn", "xgboost", "shap", "matplotlib", "yaml", "requests", "compositional", "pdfplumber", "pytest", "statsmodels", "pydantic"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["code"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/setup.py"
+]

@@ -1,7 +1,8 @@
 """
-Saver module for the solder hardness ingestion pipeline.
+Saver module for ingestion pipeline.
 Handles saving raw and validated datasets with checksums.
 """
+
 import os
 import csv
 import hashlib
@@ -9,9 +10,10 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
+from seed import init_reproducibility
 from config import get_data_raw_dir, get_data_processed_dir
 from utils.logging_config import get_logger
-from seed import init_reproducibility
+from utils.error_handlers import DataValidationError
 
 logger = get_logger(__name__)
 
@@ -27,83 +29,98 @@ def calculate_md5(file_path: Path) -> str:
 
 def save_raw_data_with_checksums(
     data: List[Dict[str, Any]],
-    output_path: Path,
-    checksums_path: Path
-) -> None:
+    output_filename: str = "solder_hardness_raw.csv"
+) -> Path:
     """
-    Save raw data to CSV and generate MD5 checksums.
+    Save raw data to CSV and generate checksum.
 
     Args:
-        data: List of dictionaries representing raw solder composition records.
-        output_path: Path to save the raw CSV file.
-        checksums_path: Path to save the checksums text file.
+        data: List of dictionaries representing raw records
+        output_filename: Name of the output file
+
+    Returns:
+        Path to the saved file
     """
     if not data:
-        logger.warning("No data to save for raw dataset.")
-        return
+        raise DataValidationError("Cannot save empty raw dataset")
 
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    init_reproducibility()
+    output_dir = get_data_raw_dir()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / output_filename
+
+    logger.info(f"Saving {len(data)} raw records to {output_path}")
 
     # Write CSV
-    fieldnames = list(data[0].keys())
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+    if data:
+        fieldnames = list(data[0].keys())
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(data)
 
-    logger.info(f"Saved raw data to {output_path} ({len(data)} records)")
-
-    # Calculate and save checksum
+    # Calculate checksum
     checksum = calculate_md5(output_path)
-    checksums_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(checksums_path, 'w', encoding='utf-8') as f:
-        f.write(f"{output_path.name}: {checksum}\n")
+    checksum_path = output_dir.parent / "checksums.txt"
     
-    logger.info(f"Saved checksum to {checksums_path}")
+    with open(checksum_path, 'a', encoding='utf-8') as f:
+        f.write(f"{output_filename}:{checksum}\n")
+
+    logger.info(f"Raw data saved with checksum: {checksum}")
+    return output_path
 
 
 def save_validated_data(
     data: List[Dict[str, Any]],
-    output_path: Path
-) -> None:
+    status_info: Optional[Dict[str, Any]] = None,
+    output_filename: str = "solder_hardness_validated.csv"
+) -> Path:
     """
-    Save validated dataset to CSV.
+    Save validated data to CSV.
+    Also updates the ingestion status file if provided.
 
     Args:
-        data: List of dictionaries representing validated solder composition records.
-        output_path: Path to save the validated CSV file.
+        data: List of dictionaries representing validated records
+        status_info: Optional dictionary containing ingestion status
+        output_filename: Name of the output file
+
+    Returns:
+        Path to the saved file
     """
     if not data:
-        logger.warning("No data to save for validated dataset.")
-        return
+        raise DataValidationError("Cannot save empty validated dataset")
 
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    init_reproducibility()
+    output_dir = get_data_processed_dir()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / output_filename
+
+    logger.info(f"Saving {len(data)} validated records to {output_path}")
 
     # Write CSV
-    fieldnames = list(data[0].keys())
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+    if data:
+        fieldnames = list(data[0].keys())
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(data)
 
-    logger.info(f"Saved validated data to {output_path} ({len(data)} records)")
+    # Update status file if provided
+    if status_info:
+        status_path = output_dir / ".ingestion_status.json"
+        import json
+        with open(status_path, 'w', encoding='utf-8') as f:
+            json.dump(status_info, f, indent=2)
+        logger.info(f"Updated ingestion status at {status_path}")
+
+    logger.info(f"Validated data saved successfully")
+    return output_path
 
 
-def main() -> None:
+def main():
     """
-    Main entry point for saving validated data.
-    This script expects the validated data to be available from the ingestion pipeline.
-    For T016, this function is called by the pipeline runner after validation.
+    Main entry point for the saver module.
+    This is a utility module; actual saving is done by the pipeline runner.
     """
-    init_reproducibility()
-    
-    # This is a stub for the direct execution context.
-    # The actual saving logic is invoked by the pipeline_runner or unit tests.
-    # If run directly, it assumes data has been processed and passed to save_validated_data.
-    logger.info("Saver module initialized. Use save_validated_data() to persist results.")
-
-
-if __name__ == "__main__":
-    main()
+    logger.info("Saver module loaded. Use save_raw_data_with_checksums or save_validated_data.")
+    return 0

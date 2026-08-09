@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directory structure per implementation plan: `projects/PROJ-328-predicting-the-impact-of-composition-on-/data/`, `code/`, `tests/`, and `models/`
-- [X] T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/` with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional`, `pdfplumber`, `pytest`, `flake8`, `black`
+- [X] T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/` with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional==0.2.0`, `pdfplumber`, `pytest`, `flake8`, `black`
 - [ ] T003 Configure linting (flake8/black) and formatting tools (must run after T001)
 
 ---
@@ -56,11 +56,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `code/seed.py` to pin random seeds for reproducibility (numpy, random, xgboost)
-- [ ] T005 [P] Implement data ingestion scaffolding in `code/ingestion/` with placeholder for literature aggregator
-- [ ] T006 [P] Setup `code/features/` directory structure for descriptor engineering
 - [ ] T007 Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`
+- [ ] T005 [US1] Implement data ingestion scaffolding in `code/ingestion/` with placeholder for literature aggregator (Depends on T007 completion for model imports)
+- [ ] T006 [P] Setup `code/features/` directory structure for descriptor engineering
 - [ ] T008 Configure error handling and logging infrastructure in `code/utils/`
-- [X] T009 Setup environment configuration management for paths and thresholds in `code/config.py`
+- [X] T009 Setup environment configuration management for paths and thresholds in `code/config.py`, including `MAX_ELEMENTS` (default 5), `R2_THRESHOLDS` (default a range of values including 0.5, 0.6, and 0.7), `ROOM_TEMP_THRESHOLD_C` (default a predetermined threshold), `ROOM_TEMP_TOLERANCE_C` (default a predefined threshold), and `COMPOSITION_SUM_THRESHOLD` (default high confidence). **CRITICAL**: Create `data/config/sources.yaml` template listing required data sources (Materials Project API key, NIST URLs, and specific PDF URLs from `research.md` to be populated).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,23 +72,27 @@
 
 **Independent Test**: Execute ingestion pipeline on GitHub Actions free-tier runner and verify output dataset contains ≥100 unique compositions with non-null hardness values and complete elemental breakdowns. If 50 ≤ N < 100, verify warning is emitted.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Test-First: User Story 1 (OPTIONAL - only if tests requested) ⚠️
+*Note: These tasks define contracts for T012-T017 and must be written before implementation code exists.*
 
 - [X] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_schema.py`
 - [X] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/ingestion/aggregator.py` to fetch data from the 'Verified Literature Corpus' (specific PDF URLs: [list from research.md] and database endpoints: Materials Project, NIST, OpenAlloy) using `pdfplumber` and `requests` <!-- FAILED: unspecified -->
+- [ ] T012 [US1] Implement `code/ingestion/aggregator.py` to fetch data from verified sources: 1) Materials Project API, 2) NIST/UCI repositories, 3) Direct URLs from `data/config/sources.yaml`, and 4) **Published Literature** via PDF scraping using `pdfplumber`. **CRITICAL**: If `sources.yaml` is missing or empty, raise a `ConfigError` immediately. **CRITICAL**: If a specific source fails, log connectivity status to `data/processed/ingestion_log.txt` (non-blocking) and aggregate whatever partial data was successfully retrieved from other sources. Do NOT crash on a single failure. Instead, check the total count N: if N < 100 but >= 50, proceed and flag for warning; if N < 50, flag for critical error (to be handled by T014). **Includes full fallback logic for partial data aggregation (previously T047).** <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement data cleaning and filtering logic in `code/ingestion/cleaner.py` to:
- - Exclude alloys with >5 elements
+ - Exclude alloys with >5 elements (read threshold from `code/config.py` `MAX_ELEMENTS`)
  - Standardize hardness to HV units
- - Filter for room-temperature measurements only
- - Validate elemental composition sums to a threshold read from `code/config.py` (default 0.95, marked as provisional per spec.md FR-002 deferred status)
- - Implement random sampling logic with fixed seed (from T004) if dataset exceeds RAM limits (per FR-011)
-- [X] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition, emitting power limitation warning if 50 ≤ N < 100
+ - Filter for room-temperature measurements only: verify column `measurement_temp_c` exists in raw data; filter where `abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C) <= config.ROOM_TEMP_TOLERANCE_C`.
+ - Validate elemental composition sums to `config.COMPOSITION_SUM_THRESHOLD` (default 0.95).
+ - **Record Validation**: Log the specific records that failed the composition sum check to `data/processed/validation_logs/filtered_records.csv` with reason codes.
+ - **CRITICAL**: Write the intermediate validation status (total N, filtered count, threshold_status) to a temporary state file `data/processed/.ingestion_status.json` to ensure downstream tasks can read the exact counts.
+ - Implement streaming or chunked processing for large datasets to stay within available memory constraints, using `itertools.islice` or `pandas.read_csv(chunksize=...)` if necessary.
+- [ ] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition. **CRITICAL**: If total N < 50, raise `DataInsufficientError` with a clear message to halt the pipeline. If 50 <= N < 100, proceed but flag the dataset for the power limitation report. **CRITICAL**: Explicitly write the `threshold_status` ('N>=100', '50<=N<100', 'N<50') and the exact `warning_text` string to `data/processed/.ingestion_status.json` to ensure T016b can generate a valid report.
 - [ ] T015 [US1] Save raw immutable data to `data/raw/solder_hardness_raw.csv` with checksums in `data/checksums.txt`
-- [ ] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv`
+- [ ] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv` (must run after T014)
+- [ ] T016b [US1] **Generate Validation Report**: Create `data/processed/validation_report.yaml` that explicitly records: 1) Total N, 2) Confirmation if N >= 100, 3) If 50 <= N < 100, the exact text of the "statistical power limitation" warning to be used in final outputs. **CRITICAL**: This task MUST read the `threshold_status` and `warning_text` from `data/processed/.ingestion_status.json` generated by T013/T014 to ensure data consistency. (Must run after T014).
 - [ ] T017 [US1] Add logging for ingestion operations and data source citations in `code/ingestion/`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -108,18 +112,22 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement CLR transform in `code/features/transformer.py` using `compositional` library to handle closure problem; output both the transformed vector and the weight coefficients for downstream use
-- [X] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration by: 1) Applying CLR to raw composition vector, 2) Using the resulting CLR coefficients to weight the original raw elemental property tables (NOT computing properties on log-ratios)
-- [X] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
-- [X] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
-- [X] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
-- [X] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
-- [X] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
-- [X] T027 [US2] Implement paired t-test comparison on CV folds in `code/evaluation/model_comparison.py`
-- [X] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`
-- [ ] T029 [US2] Implement sensitivity analysis in `code/evaluation/sensitivity.py` sweeping R² thresholds over the specific set {0.3, 0.5, 0.6, 0.7} and saving the fraction of bootstrap samples exceeding each threshold to `data/processed/sensitivity_analysis.yaml` as per SC-005
+- [X] T020 [US2] Implement CLR transform utility in `code/features/transformer.py` using `compositional` library to handle closure problem. **Output**: A function to apply CLR to a vector of values.
+- [X] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration. **Method**:
+ 1. Use the **original raw composition fractions** (from the input dataset) as weights to compute weighted means/variances of elemental properties.
+ 2. **Apply the CLR transform** (from T020) to the resulting vector of computed descriptors to map them to Euclidean space and address the compositional closure problem.
+ 3. **The resulting CLR-transformed descriptor vector IS the feature vector for the model.**
+ 4. Ensure the output is a clean, tabular feature matrix ready for T022 (VIF) and T023 (Training). **Do NOT use raw fractions directly as model input.**
+- [X] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5 (requires output from T021)
+- [ ] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
+- [ ] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
+- [ ] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py` (requires T023/T024)
+- [ ] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
+- [ ] T027 [US2] Implement **Bootstrap Model Comparison** methodology in `code/evaluation/model_comparison.py` to compare XGBoost vs Linear Regression performance distributions using bootstrap resampling (replaces rejected paired t-test per plan.md Complexity Tracking)
+- [ ] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`
+- [ ] T029 [US2] Implement sensitivity analysis in `code/evaluation/sensitivity.py` sweeping R² thresholds read from `code/config.py` (default a range of values including 0.5, 0.6, and 0.7) and saving the fraction of bootstrap samples exceeding each threshold to `data/processed/sensitivity_analysis.yaml` as per SC-005 (requires T026)
 - [ ] T030 [US2] Save model artifacts, metrics, and diagnostics to `models/` and `data/processed/`
-- [ ] T031 [US2] Add associational framing warnings in ALL model outputs, visualizations, and the final report per FR-007
+- [ ] T031 [US2] Add associational framing warnings in ALL model outputs, visualizations, and the final report per FR-007. **Specific Deliverables**: 1) Append "NOTE: Results are associational, not causal" to the header of `data/processed/report.yaml`, 2) Add a footer to all plots in `data/outputs/` stating "Associational Analysis Only", 3) Include a prominent disclaimer in the `README.md` and the generated paper draft (T051).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,9 +135,9 @@
 
 ## Phase 5: User Story 3 - Generate interpretable visualizations and partial dependence plots (Priority: P3)
 
-**Goal**: Generate scatter plot of predicted vs. measured hardness with error bars and partial dependence plots for top 3 features.
+**Goal**: Generate scatter plot of predicted vs. measured hardness with error bars and partial dependence plots for top features.
 
-**Independent Test**: Execute visualization pipeline and verify output files (scatter plot, 3 partial dependence plots) are generated with correct axis labels and units.
+**Independent Test**: Execute visualization pipeline and verify output files (scatter plot, partial dependence plots) are generated with correct axis labels and units.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -138,11 +146,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement scatter plot generation in `code/visualization/scatter.py` with 95% CI error bars
-- [X] T035 [US3] Implement partial dependence plot generation in `code/visualization/pdp.py` for top 3 SHAP-ranked features
-- [X] T036 [US3] Implement sensitivity analysis plot in `code/visualization/sensitivity_plot.py`
+- [ ] T051 [US3] **Generate Paper Draft**: Create `docs/paper_draft.md` containing the methodology, results, and discussion sections based on the generated metrics and reports. (Prerequisite for T031's disclaimer insertion).
+- [ ] T034 [US3] Implement scatter plot generation in `code/visualization/scatter.py` with % CI error bars (requires T023/T024 predictions)
+- [ ] T035 [US3] Implement partial dependence plot generation in `code/visualization/pdp.py` for top-ranked SHAP features (requires T028 output)
+- [ ] T036 [US3] Implement sensitivity analysis plot in `code/visualization/sensitivity_plot.py` (requires T029 output)
 - [ ] T037 [US3] Save all plots to `data/outputs/` with correct labels and units
-- [ ] T038 [US3] Add axis labels, titles, and legends to all visualizations
+- [ ] T038 [US3] Add axis labels, titles, and legends to all visualizations, including associational warnings as defined in T031
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,7 +167,10 @@
 - [ ] T042 [P] Additional unit tests in `tests/unit/`
 - [ ] T043 Run quickstart.md validation
 - [ ] T044 Verify all tasks respect CPU-only constraints (no CUDA, no GPU, no 8-bit quantization)
-- [ ] T045 Verify dataset size handling (sampling logic implemented in T013)
+- [ ] T045 Verify dataset size handling (streaming/sampling logic implemented in T013)
+- [ ] T046 [P] Verify all data loading tasks fail loudly on missing sources (no synthetic fallbacks) but handle partial data gracefully per T012
+- [ ] T049 [P] [US2] Ensure `code/features/descriptor_engine.py` explicitly handles the case where the input dataset has N < 50 by raising a specific `DataInsufficientError` with a clear message, preventing downstream model training on statistically invalid data. (Note: This logic is now primarily enforced in T014, but this task ensures robustness in the feature engine if called independently).
+- [ ] T050 [P] [US2] Add a "Model Performance Sanity Check" in `code/evaluation/model_comparison.py` to verify that the bootstrap R² distribution is not degenerate (e.g., all values identical or NaN) before reporting results, flagging potential data or model issues
 
 ---
 
@@ -189,8 +201,8 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel (except T003 which depends on T001)
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Setup tasks marked [P] can run in parallel (except T003 which depends on T001, T005 depends on T007)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2, except T005 depends on T007)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -245,11 +257,16 @@ With multiple developers:
 
 ## Notes
 
-- [P] tasks = different files, no dependencies (except T003 which depends on T001)
+- [P] tasks = different files, no dependencies (except T003 which depends on T001, T005 depends on T007)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data must be real (no fabrication); all models must run on CPU-only; all datasets must be sampled if needed to fit available system memory
+- **CRITICAL**: All data must be real (no fabrication); all models must run on CPU-only; all datasets must be sampled or streamed if needed to fit available system memory; data loaders MUST fail loudly on missing sources but handle partial data gracefully per FR-001.
+- **CRITICAL**: T012 requires `data/config/sources.yaml` to be populated before execution.
+- **CRITICAL**: T014 enforces N >= 50 threshold; T016b generates the required power limitation report.
+- **CRITICAL**: T021 logic corrected: Raw fractions are used for physical weighting, then CLR is applied to the resulting descriptor vector for the model input, ensuring compliance with FR-014.
+- **CRITICAL**: T013 now explicitly logs failed records to `filtered_records.csv` for verifiability.
+- **Note**: Tasks T047 and T048 have been removed. T047 logic is fully consolidated into T012. T048 logic (non-blocking logging) is now part of T012.

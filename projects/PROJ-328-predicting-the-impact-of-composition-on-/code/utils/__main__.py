@@ -1,12 +1,10 @@
 """
-Main entry point for the utils package.
-
-This script serves as a demonstration and validation runner for the
-error handling and logging infrastructure.
+CLI entry point for utility module testing and configuration.
 """
 import sys
 import logging
 from pathlib import Path
+
 from utils.logging_config import setup_logging, get_logger
 from utils.error_handlers import (
     SolderPipelineError,
@@ -16,57 +14,58 @@ from utils.error_handlers import (
     ConfigurationError
 )
 from utils.fr007_warnings import main as run_warning_tests
-from utils.__init__ import * # Import all public names
+
+
+def test_error_handling():
+    """Test that custom exceptions work as expected."""
+    logger = get_logger("utils_test")
+    
+    logger.info("Testing custom exception hierarchy...")
+    
+    try:
+        try:
+            raise ConfigurationError("Missing config key", {"key": "API_KEY"})
+        except ConfigurationError as e:
+            logger.warning(f"Caught ConfigurationError: {e}")
+        
+        try:
+            raise DataValidationError("Invalid composition sum", {"sum": 0.9, "expected": 1.0})
+        except DataValidationError as e:
+            logger.warning(f"Caught DataValidationError: {e}")
+        
+        try:
+            raise IngestionError("Failed to fetch from NIST", {"source": "NIST", "status": 404})
+        except IngestionError as e:
+            logger.warning(f"Caught IngestionError: {e}")
+        
+        try:
+            raise ModelTrainingError("XGBoost failed to converge", {"iterations": 1000})
+        except ModelTrainingError as e:
+            logger.warning(f"Caught ModelTrainingError: {e}")
+        
+        logger.info("All exception tests passed.")
+    
+    except Exception as e:
+        logger.error(f"Unexpected error during test: {e}")
+        raise
 
 
 def main():
-    """
-    Main entry point for validating the utility infrastructure.
-    """
-    # Setup logging
-    log_path = "data/outputs/utils_validation.log"
-    logger = setup_logging(log_path)
-    logger = get_logger(__name__)
+    """Main entry point for utility module."""
+    # Initialize logging
+    project_root = Path(__file__).resolve().parent.parent.parent
+    setup_logging(project_root=project_root)
+    logger = get_logger("utils_main")
     
-    logger.info("Starting validation of error handling and logging infrastructure...")
+    logger.info("Starting utility module CLI...")
     
-    # Test 1: Exception hierarchy
-    try:
-        raise DataValidationError("Test validation error", {"field": "hardness"})
-    except SolderPipelineError as e:
-        logger.info(f"Caught expected SolderPipelineError: {e}")
-    except Exception as e:
-        logger.error(f"Unexpected exception type: {type(e)}, {e}")
+    # Run tests
+    test_error_handling()
     
-    try:
-        raise IngestionError("Test ingestion error")
-    except SolderPipelineError as e:
-        logger.info(f"Caught expected IngestionError: {e}")
-    
-    try:
-        raise ModelTrainingError("Test model error")
-    except SolderPipelineError as e:
-        logger.info(f"Caught expected ModelTrainingError: {e}")
-    
-    try:
-        raise ConfigurationError("Test config error")
-    except SolderPipelineError as e:
-        logger.info(f"Caught expected ConfigurationError: {e}")
-    
-    # Test 2: Logger functionality
-    test_logger = get_logger("test.module")
-    test_logger.debug("Debug message")
-    test_logger.info("Info message")
-    test_logger.warning("Warning message")
-    test_logger.error("Error message")
-    
-    # Test 3: FR-007 Warnings
-    logger.info("Running FR-007 warning tests...")
+    # Run FR007 warning tests
     run_warning_tests()
     
-    logger.info("Validation of error handling and logging infrastructure completed successfully.")
-    
-    print(f"Validation log written to: {log_path}")
+    logger.info("Utility module CLI completed successfully.")
 
 
 if __name__ == "__main__":

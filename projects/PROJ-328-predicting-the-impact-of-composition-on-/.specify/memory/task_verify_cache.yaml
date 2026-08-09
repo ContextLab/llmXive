@@ -1,10 +1,59 @@
-T008:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided information contains only the feature specification for the solder
-    hardness prediction pipeline; there is no evidence of any files or code under
-    `code/utils/` that implement error handling or logging infrastructure. Consequently,
-    the required artifact is missing.
+  r: No directory listings or file paths were provided showing that the required folders
+    (`projects/PROJ-328-predicting-the-impact-of-composition-on-/data/`, `code/`,
+    `tests/`, `models/`) actually exist; without concrete evidence the claim cannot
+    be verified. The implementer must supply a directory tree or screenshots confirming
+    the creation of these directories.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are presented, nor any CI steps\
+    \ showing flake8/black execution after T001. Without these artifacts the requirement\
+    \ to configure and run the tools is not satisfied."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/ingestion/` directory or any scaffolding files was provided,
+    nor any placeholder for a literature aggregator. The required artifact is missing,
+    so the task is not satisfied.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `code/features/` directory or any files within it was provided;\
+    \ the claim lacks the required artifact showing the descriptor\u2011engineering\
+    \ directory structure. The implementer must add the directory and populate it\
+    \ with the expected scaffold (e.g., placeholder modules, README, or subfolders\
+    \ for specific feature generators)."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The repository does not contain a `code/models/` directory with definitions for
+    `SolderComposition` and `CompositionalDescriptor`; no code files were presented
+    showing these entities. The required data model files are missing, so the task
+    is not satisfied.
+T012:
+  c: false
+  h: fbc16f8df61356175a9824f2137d09f75ac71dc3aa1e36962b60df71a7b80d98
+  r: "The provided `aggregator.py` contains only stubbed/placeholder logic (e.g.,\
+    \ a comment \u201CPlaceholder for actual API call logic\u201D) and does not implement\
+    \ fetching from NIST, direct URLs, or PDF scraping with `pdfplumber`, nor does\
+    \ it include the required total\u2011count (`N`) checks and warning/critical flagging.\
+    \ Additionally, the expected `data/processed/ingestion_log.txt` does not exist\
+    \ (the code would create it only when run). These missing implementations mean\
+    \ the task\u2019s critical requirements are not satisfied."
+T014:
+  c: false
+  h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
+  r: "The repository contains `code/ingestion/validator.py`, but the shown content\
+    \ is truncated and does not demonstrate the required sample\u2011size checks,\
+    \ raising of `DataInsufficientError` for N\u202F<\u202F50, flagging for 50\u202F\
+    \u2264\u202FN\u202F<\u202F100, nor writing of `threshold_status` and `warning_text`\
+    \ to `data/processed/.ingestion_status.json`. Moreover, the required `.ingestion_status.json`\
+    \ file is absent. The implementer must add the missing validation logic and ensure\
+    \ the status JSON is created with the exact fields."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

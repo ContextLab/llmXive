@@ -1,0 +1,27 @@
+# Configuration for data sources for T012
+# This file MUST be populated before running the ingestion pipeline.
+# If missing or empty, the aggregator will raise a ConfigError.
+
+sources:
+  materials_project:
+    enabled: true
+    api_key_env: MATERIALS_PROJECT_API_KEY
+    endpoint: "https://materialsproject.org/rest/v2/materials"
+    # Note: Actual API usage requires a valid key and specific query parameters for solder alloys
+  
+  nist:
+    enabled: true
+    urls:
+      - "https://www.nist.gov/pml/solder-alloy-database"
+      # Add specific NIST dataset URLs here
+  
+  direct_urls:
+    # Add direct CSV/JSON URLs for solder hardness data here
+    - "https://example.com/solder_data.csv"
+  
+  literature:
+    enabled: true
+    pdfs:
+      - "path/to/local/paper1.pdf"
+      # Add specific PDF paths or URLs to scrape
+# CRITICAL: Ensure this file is populated with real URLs/keys before running T012.
