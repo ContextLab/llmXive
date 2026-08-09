@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Convergence Result"
+description: "Schema for the aggregated output of a single simulation run (Static or CAP)."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique ID for the run (e.g., 'static_seed_001')."
+    minLength: 1
+  variant:
+    type: "string"
+    description: "The variant type: 'static' or 'cap'."
+    enum:
+      - static
+      - cap
+  seed:
+    type: "integer"
+    description: "Random seed used for this run."
+  cycles_to_target:
+    type:
+      - integer
+      - "null"
+    description: "Cycles required to reach target accuracy. Null if not reached."
+    minimum: 0
+  final_accuracy:
+    type: "number"
+    description: "Accuracy on held-out test data at max cycles."
+    minimum: 0.0
+    maximum: 1.0
+  avg_prompt_length:
+    type: "number"
+    description: "Mean prompt length across all cycles."
+    minimum: 0.0
+  cycle_difference:
+    type:
+      - number
+      - "null"
+    description: "Difference in cycles vs. baseline (for SC-001). Null if not computed."
+  cycles_variance:
+    type:
+      - number
+      - "null"
+    description: "Variance of cycles across seeds (for SC-002). Null if not computed."
+  mid_train_avg_prompt_length:
+    type:
+      - number
+      - "null"
+    description: "Average prompt length during mid-training (interval [0.25*target, 0.75*target]) (for SC-005). Null if not computed."
+required:
+  - run_id
+  - variant
+  - seed
+  - cycles_to_target
+  - final_accuracy
+  - avg_prompt_length
+additionalProperties: false

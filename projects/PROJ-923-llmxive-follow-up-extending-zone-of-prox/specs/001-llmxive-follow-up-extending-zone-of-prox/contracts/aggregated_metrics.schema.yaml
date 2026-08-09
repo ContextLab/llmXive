@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Metrics Schema"
+description: "Schema for the aggregated results CSV file."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Identifier for the task"
+  seed:
+    type: "integer"
+    description: "Random seed used for the run"
+  variant:
+    type: "string"
+    enum:
+      - "static"
+      - "cap"
+    description: "Simulation variant"
+  aucc:
+    type: "number"
+    description: "Area Under the Convergence Curve"
+  final_accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Final accuracy on held-out test data"
+  avg_prompt_length_mid:
+    type: "number"
+    description: "Average number of candidates in prompt during cycles 20-40"
+required:
+  - task_id
+  - seed
+  - variant
+  - aucc
+  - final_accuracy
+  - avg_prompt_length_mid
+additionalProperties: false

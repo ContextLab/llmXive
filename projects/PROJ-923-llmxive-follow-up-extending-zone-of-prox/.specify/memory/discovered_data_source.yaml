@@ -1,0 +1,16 @@
+status: none
+intent: OpenAI RLHF rollout dataset student model responses confidence scores LLM
+  VLM python package dataset
+required_fields:
+- task_id
+- modality
+- model_name
+- response_text
+- confidence_score
+- reward
+- timestamp
+- rollout_cycle
+- task_type
+cache_key: 8416f53350359051b8dc5a7660bacd25273160d7faae5a27e6bd81a45f490626
+searched_at: '2026-08-09T03:17:10.920120+00:00'
+retry_count: 1
