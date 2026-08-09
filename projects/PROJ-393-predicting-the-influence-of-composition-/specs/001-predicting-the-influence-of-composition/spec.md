@@ -100,5 +100,5 @@ A research team needs to validate model performance against a null hypothesis, a
 - All required elemental properties (electronegativity, atomic radii, valence electrons) are available in standard periodic table databases for the elements commonly found in Heusler alloys (Mn, Co, Fe, Ga, Al, etc.).
 - The relationship between composition and hysteresis parameters can be reasonably approximated by classical regression models without requiring deep learning or GPU-accelerated computation.
 - Published experimental measurements use consistent units for hysteresis parameters that can be standardized to Oe and emu/g without ambiguity or loss of precision.
-- The GitHub Actions free-tier environment provides sufficient disk space (~14 GB) to store the aggregated dataset, intermediate feature sets, and model artifacts without exceeding limits.
+- The GitHub Actions free-tier environment provides sufficient disk space to store the aggregated dataset, intermediate feature sets, and model artifacts without exceeding limits.
 - If fewer than 50 experimental data points are available, the statistical power of the study will be reduced, and results should be interpreted with caution.

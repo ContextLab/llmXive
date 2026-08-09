@@ -4885,3 +4885,495 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T15:55:44Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Elemental properties file contains Pyykko 1988 data for 20 elements
+  claim_id: c_93583e17
+  context: 'T006 [P] Create `data/raw/elemental_properties.csv` with fixed periodic
+    table data for all elements likely found in Heusler alloys... **Source**: Pyykko
+    and standard references.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:00:39Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manganese electronegativity 1.55, atomic radii 127, valence electrons
+    7 per Pyykko 1988
+  claim_id: c_6d8a046e
+  context: 'CSV row: Mn,1.55,127,7,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:00:57Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Cobalt electronegativity 1.88, atomic radii 125, valence electrons 9
+    per Pyykko 1988
+  claim_id: c_99394fed
+  context: 'CSV row: Co,1.88,125,9,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:00:58Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Iron electronegativity 1.83, atomic radii 126, valence electrons 8 per
+    Pyykko 1988
+  claim_id: c_60b1cb78
+  context: 'CSV row: Fe,1.83,126,8,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:00:59Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Gallium electronegativity 1.81, atomic radii 135, valence electrons 3
+    per Pyykko 1988
+  claim_id: c_ad588565
+  context: 'CSV row: Ga,1.81,135,3,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:00Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Aluminum electronegativity 1.61, atomic radii 143, valence electrons
+    3 per Pyykko 1988
+  claim_id: c_899cbfa4
+  context: 'CSV row: Al,1.61,143,3,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:00Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Nickel electronegativity 1.91, atomic radii 124, valence electrons 10
+    per Pyykko 1988
+  claim_id: c_6027b632
+  context: 'CSV row: Ni,1.91,124,10,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:01Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Copper electronegativity 1.90, atomic radii 128, valence electrons 11
+    per Pyykko 1988
+  claim_id: c_02491bb3
+  context: 'CSV row: Cu,1.90,128,11,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:02Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Tin electronegativity 1.96, atomic radii 145, valence electrons 4 per
+    Pyykko 1988
+  claim_id: c_79ab3b47
+  context: 'CSV row: Sn,1.96,145,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:03Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Indium electronegativity 1.78, atomic radii 167, valence electrons 3
+    per Pyykko 1988
+  claim_id: c_b9bcb9e1
+  context: 'CSV row: In,1.78,167,3,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:04Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Titanium electronegativity 1.54, atomic radii 147, valence electrons
+    4 per Pyykko 1988
+  claim_id: c_5504e032
+  context: 'CSV row: Ti,1.54,147,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:05Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Vanadium electronegativity 1.63, atomic radii 134, valence electrons
+    5 per Pyykko 1988
+  claim_id: c_84f9fc32
+  context: 'CSV row: V,1.63,134,5,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:06Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Zinc electronegativity 1.65, atomic radii 134, valence electrons 12 per
+    Pyykko 1988
+  claim_id: c_88accbe2
+  context: 'CSV row: Zn,1.65,134,12,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:07Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Silicon electronegativity 1.90, atomic radii 111, valence electrons 4
+    per Pyykko 1988
+  claim_id: c_0b21c8e7
+  context: 'CSV row: Si,1.90,111,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:08Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Germanium electronegativity 2.01, atomic radii 122, valence electrons
+    4 per Pyykko 1988
+  claim_id: c_b5c9f1b5
+  context: 'CSV row: Ge,2.01,122,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:09Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Antimony electronegativity 2.05, atomic radii 140, valence electrons
+    5 per Pyykko 1988
+  claim_id: c_96dda4bd
+  context: 'CSV row: Sb,2.05,140,5,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Lead electronegativity 2.33, atomic radii 175, valence electrons 4 per
+    Pyykko 1988
+  claim_id: c_edfdd811
+  context: 'CSV row: Pb,2.33,175,4,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Magnesium electronegativity 1.31, atomic radii 160, valence electrons
+    2 per Pyykko 1988
+  claim_id: c_263f4b3a
+  context: 'CSV row: Mg,1.31,160,2,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:11Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Chromium electronegativity 1.66, atomic radii 128, valence electrons
+    6 per Pyykko 1988
+  claim_id: c_0ce5f7f3
+  context: 'CSV row: Cr,1.66,128,6,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:12Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Niobium electronegativity 1.60, atomic radii 146, valence electrons 5
+    per Pyykko 1988
+  claim_id: c_97ffd4b4
+  context: 'CSV row: Nb,1.60,146,5,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:13Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Tantalum electronegativity 1.50, atomic radii 146, valence electrons
+    5 per Pyykko 1988
+  claim_id: c_079099a2
+  context: 'CSV row: Ta,1.50,146,5,Pyykko 1988'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pyykko 1988
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:14Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI pipeline memory limit 7GB
+  claim_id: c_0fa80708
+  context: "Constraint: Must enforce \u22647GB RAM and \u2264360 minutes (6h) timeout."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_pipeline_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The pipeline must fail if memory exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:29Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI pipeline timeout 360 minutes
+  claim_id: c_95ec1a1b
+  context: "Constraint: Must enforce \u22647GB RAM and \u2264360 minutes (6h) timeout."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must fail if execution time exceeds 360 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:51Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Citation validation title overlap threshold 0.7
+  claim_id: c_1925bf87
+  context: "Implement `code/src/utils/citation_validator.py` to verify fetched citations\
+    \ against primary sources (DOI/URL) with title-overlap check \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Title overlap check must be \u2265 0.7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:52Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation strategy switches at 15 percent missing rate
+  claim_id: c_859df341
+  context: 'Test Logic: Implement a function `test_imputation_logic_switches_at_15_percent`
+    that calls the imputation logic with a missing rate of 0.14 and asserts `mean_imputation`
+    is used, then calls with 0.16 and asserts `listwise_deletion` is used.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Imputation switches to listwise deletion if missing rate > 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:53Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Data scarcity warning threshold 50 rows
+  claim_id: c_8f1777bc
+  context: Count rows in `data/processed/alloys_raw.csv` after T021 filtering. If
+    `N < 50`, write `data/.scarcity_warning`...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scarcity warning is generated if N < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:01:54Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrap validation minimum 1000 resamples
+  claim_id: c_fee480db
+  context: "Implement `code/src/validation/bootstrap_validation.py` to compute a confidence\
+    \ interval for R\xB2 using 1000 resamples. **Verification**: Ensure `n_resamples\
+    \ >= 1000`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_validation_minimum_1000_resamples
+  kind: magnitude
+  raw_text: Bootstrapping must use at least 1000 resamples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:02:19Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours
+  claim_id: c_20f32984
+  context: Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU
+    (SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_limit_6_hours
+  kind: magnitude
+  raw_text: Pipeline execution time must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:02:44Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Pipeline memory limit 7 GB
+  claim_id: c_d9db6c8a
+  context: Verify pipeline execution time < 6 hours and memory < 7 GB on local CPU
+    (SC-005).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_limit_7_GB
+  kind: magnitude
+  raw_text: Pipeline memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:03:02Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Citation validation uses Jaccard similarity
+  claim_id: c_3fd35455
+  context: '**Algorithm**: Use Jaccard similarity on tokenized titles (lowercase,
+    split by non-alphanumeric).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_validation_uses_Jaccard_similarity
+  kind: entity_fact
+  raw_text: Jaccard similarity is used for title overlap check.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T14:03:20Z'

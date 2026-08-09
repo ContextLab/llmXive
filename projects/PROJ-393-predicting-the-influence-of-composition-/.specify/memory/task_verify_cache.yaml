@@ -7,17 +7,8 @@ T012:
     \ artifact is absent."
 T018:
   c: true
-  h: 7e265118f107f76b2a3b6c766f4b8d741d35adf85c4135f52381cea2f4d7b2f3
-  r: "The `manual_curator.py` file defines `load_manual_curated_data` that checks\
-    \ for `data/raw/manual_curated.csv`, logs a warning when it is absent, and returns\
-    \ an empty DataFrame, fulfilling the graceful\u2011degradation requirement. The\
-    \ required artifact is present and implements the specified behavior."
-T028b:
-  c: false
-  h: 13ceee65977a9b32efa09f441387de6d20f154aed21f3c5444fb8f7cf0a7cde8
-  r: "The required data file `data/processed/alloys_raw.csv` is missing, so the checker\
-    \ cannot count rows, and the script only logs an error (not a critical error)\
-    \ when the file is absent. Moreover, the implementation is truncated/incomplete,\
-    \ does not correctly call `check_and_warn` with the required arguments, and writes\
-    \ a flag file containing extra fields instead of the exact `{\"n\": N, \"threshold\"\
-    : 50}` JSON. These issues prevent the task\u2019s specifications from being satisfied."
+  h: f2a610f2109ba07ab064e8b5e1e52490de0792431f1a3acd0c62e8feb43bc580
+  r: The `code/src/ingestion/manual_curator.py` script exists, contains logic to load
+    `data/raw/manual_curated.csv`, logs a warning and proceeds with zero entries when
+    the file is missing, and always writes (or creates) `data/raw/manual_curated.csv`
+    via `save_manual_curated_data`. The required behavior is fully implemented.

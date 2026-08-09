@@ -1,53 +1,103 @@
+"""
+Scarcity Warning Module for T028b.
+
+Implements the logic to count rows in the preprocessed dataset and write
+a flag file (data/.scarcity_warning) if the count is below the threshold (50).
+"""
 import logging
+import json
+import sys
 from pathlib import Path
 from typing import Optional
-from src.utils.logging_config import setup_logging, create_logger
-import sys
+import pandas as pd
 
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from src.utils.logging_config import setup_logging, create_logger
+
+# Constants
+SCARCITY_THRESHOLD = 50
+INPUT_FILE = Path("data/processed/alloys_raw.csv")
+OUTPUT_FILE = Path("data/.scarcity_warning")
 
 logger = create_logger(__name__)
-WARNING_DOC = project_root / "docs" / "reports" / "data_scarcity_warning.md"
 
-def check_and_warn():
+
+def load_processed_data() -> pd.DataFrame:
+    """Load the preprocessed alloys dataset."""
+    if not INPUT_FILE.exists():
+        logger.error(f"Input file not found: {INPUT_FILE}")
+        raise FileNotFoundError(f"Input file not found: {INPUT_FILE}")
+    
+    try:
+        df = pd.read_csv(INPUT_FILE)
+        logger.info(f"Loaded {len(df)} rows from {INPUT_FILE}")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load {INPUT_FILE}: {e}")
+        raise
+
+
+def check_and_warn() -> dict:
     """
-    Generates the data scarcity warning document if triggered.
+    Count rows in the preprocessed dataset and generate a scarcity warning.
+    
+    Returns:
+        dict: Status report containing 'n' (count), 'threshold', and 'warning_generated'.
     """
-    logger.warning("Generating Data Scarcity Warning (FR-008)...")
+    df = load_processed_data()
+    n = len(df)
     
-    WARNING_DOC.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Row count check: N={n}, Threshold={SCARCITY_THRESHOLD}")
     
-    content = """# Data Scarcity Warning (FR-008)
-
-## Warning Generated
-
-**Reason**: The dataset contains fewer than 50 data points.
-
-**Implications**:
-1. **Reduced Statistical Power**: With N < 50, the model's ability to detect true effects is limited.
-2. **Overfitting Risk**: High risk of overfitting, especially with complex models like Random Forest.
-3. **Generalizability**: Results may not generalize well to unseen Heusler alloys.
-
-**Recommendation**:
-- Interpret model performance metrics (R², MAE) with caution.
-- Consider using simpler models or regularization.
-- Prioritize data collection from additional sources.
-
-**Reference**: Spec FR-008.
-"""
+    warning_content = {}
+    warning_generated = False
     
-    with open(WARNING_DOC, 'w') as f:
-        f.write(content)
+    if n < SCARCITY_THRESHOLD:
+        warning_content = {
+            "n": n,
+            "threshold": SCARCITY_THRESHOLD
+        }
+        warning_generated = True
+        logger.warning(f"DATA SCARCITY DETECTED: N={n} < {SCARCITY_THRESHOLD}. Generating warning flag.")
+    else:
+        logger.info(f"Data volume sufficient: N={n} >= {SCARCITY_THRESHOLD}. No warning generated.")
     
-    logger.info(f"Data scarcity warning saved to {WARNING_DOC}")
+    # Write the output file
+    try:
+        # Ensure the data directory exists
+        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(OUTPUT_FILE, 'w') as f:
+            if warning_generated:
+                json.dump(warning_content, f, indent=2)
+            else:
+                # Write an empty file if no warning is needed
+                f.write("")
+        
+        logger.info(f"Scarcity check result written to {OUTPUT_FILE}")
+        
+    except Exception as e:
+        logger.error(f"Failed to write scarcity warning file: {e}")
+        raise
+    
+    return {
+        "n": n,
+        "threshold": SCARCITY_THRESHOLD,
+        "warning_generated": warning_generated,
+        "warning_content": warning_content if warning_generated else None
+    }
+
 
 def main():
+    """Entry point for the script."""
     setup_logging()
-    logger.info("Scarcity Warning Main Entry")
-    check_and_warn()
-    return 0
+    try:
+        result = check_and_warn()
+        logger.info(f"Task T028b completed successfully: {result}")
+        return 0
+    except Exception as e:
+        logger.error(f"Task T028b failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
