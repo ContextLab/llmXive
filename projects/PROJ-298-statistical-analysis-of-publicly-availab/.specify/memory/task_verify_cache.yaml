@@ -1,17 +1,18 @@
-T001a:
+T007:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `projects/PROJ-298-statistical-analysis-of-publicly-availab/`\
-    \ directory being created is provided; the implementer only supplied textual description\
-    \ without any file system artifact. The task\u2019s core requirement\u2014a non\u2011\
-    empty root directory\u2014remains unmet."
-T018:
+  h: eee54c9bb29a5ad6d5f43520ed3e43e4b81a79ee4211eda85c4734dc991c2104
+  r: "The `survey_2023.json` only lists tags without the required category mapping,\
+    \ and `reference_calendar.json` is an empty array instead of containing parsed\
+    \ release\u2011log events with dates. No evidence of actually fetching the HuggingFace\
+    \ dataset or processing release logs is present. The task\u2019s core requirements\
+    \ are therefore unmet."
+T015:
   c: false
-  h: 8fe78323c19898f2b3271adf52009d2425c5288d5348e73a34e886fb77fd87a3
-  r: The required output file `data/processed/trend_results.json` does not exist on
-    disk, so the aggregation and finalization step cannot be verified as completed.
-    The missing artifact must be created and populated with the expected trend analysis
-    results.
+  h: a8aa02fcff122e5f8a54e4d65fc25ae65b4d7a89a4d0fa4b5ee2b1b1df7f48e0
+  r: The `code/analysis/mapping.py` file is present and contains substantial mapping
+    logic, but the required input file `data/processed/external_metrics.json` is missing,
+    so the module cannot actually perform the mapping as specified. Without this data
+    the implementation cannot be verified as functional.
 T030:
   c: false
   h: 2f56a0ce1aee02017613f437a30ed604b7e986766986fe679a2fbe4c12bf423a

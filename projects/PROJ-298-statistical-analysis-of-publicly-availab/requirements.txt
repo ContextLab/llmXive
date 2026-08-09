@@ -1,3 +1,5 @@
+datasets
+requests
 pandas
 scipy
 statsmodels
@@ -6,6 +8,4 @@ matplotlib
 seaborn
 pyyaml
 nbformat
-requests
-datasets
-numpy
+psutil

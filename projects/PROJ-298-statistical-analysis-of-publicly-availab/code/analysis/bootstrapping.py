@@ -5,36 +5,48 @@ import random
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-# Ensure we can import from the project root if run as a module
-# The API surface indicates this file is at code/analysis/bootstrapping.py
-# and imports should be relative to the project structure or standard lib.
+import numpy as np
 
-def load_processed_data(filepath: str = "data/processed/tag_frequencies.json") -> Dict[str, Any]:
-    """Load the preprocessed tag frequency data."""
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Processed data file not found: {filepath}")
-    with open(path, 'r', encoding='utf-8') as f:
+# Constants
+BOOTSTRAP_ITERATIONS = 1000
+BLOCK_LENGTH = 12  # 12 months to preserve annual seasonality as per Plan.md
+RANDOM_SEED = 42
+CONFIDENCE_LEVEL = 0.95
+
+def load_processed_data() -> Dict[str, Any]:
+    """Load the preprocessed monthly frequency data."""
+    data_path = Path("data/processed/monthly_frequencies.json")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Required data file not found: {data_path}")
+    
+    with open(data_path, 'r') as f:
         return json.load(f)
 
-def load_trend_results(filepath: str = "data/processed/trend_intermediate.json") -> Dict[str, Any]:
-    """Load the trend analysis intermediate results."""
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Trend results file not found: {filepath}")
-    with open(path, 'r', encoding='utf-8') as f:
+def load_trend_results() -> Dict[str, Any]:
+    """Load the trend analysis results containing Theil-Sen slopes."""
+    data_path = Path("data/processed/trend_intermediate.json")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Required data file not found: {data_path}")
+    
+    with open(data_path, 'r') as f:
         return json.load(f)
 
-def theil_sen_slope(x: List[float], y: List[float]) -> float:
+def theil_sen_slope(x: np.ndarray, y: np.ndarray) -> float:
     """
-    Calculate the Theil-Sen estimator for slope.
-    This is the median of all pairwise slopes.
+    Calculate the Theil-Sen estimator for the slope of a linear trend.
+    
+    Args:
+        x: Independent variable (time indices)
+        y: Dependent variable (frequencies)
+    
+    Returns:
+        The median of all slopes between pairs of points.
     """
-    if len(x) != len(y) or len(x) < 2:
-        raise ValueError("Need at least 2 points with matching x and y lengths.")
+    n = len(x)
+    if n < 2:
+        return 0.0
     
     slopes = []
-    n = len(x)
     for i in range(n):
         for j in range(i + 1, n):
             if x[j] != x[i]:
@@ -44,225 +56,210 @@ def theil_sen_slope(x: List[float], y: List[float]) -> float:
     if not slopes:
         return 0.0
     
-    slopes.sort()
-    mid = len(slopes) // 2
-    if len(slopes) % 2 == 0:
-        return (slopes[mid - 1] + slopes[mid]) / 2.0
-    else:
-        return slopes[mid]
+    return float(np.median(slopes))
+
+def block_bootstrap_sample(time_series: np.ndarray, block_length: int, rng: np.random.Generator) -> np.ndarray:
+    """
+    Generate a bootstrap sample using the block bootstrap method.
+    
+    This preserves temporal autocorrelation by sampling contiguous blocks of data.
+    The block length of 12 months is chosen to preserve annual seasonality patterns.
+    
+    Args:
+        time_series: The original time series data.
+        block_length: Length of each block (12 months).
+        rng: Random number generator.
+    
+    Returns:
+        A bootstrap sample of the same length as the input.
+    """
+    n = len(time_series)
+    if n < block_length:
+        raise ValueError(f"Time series length ({n}) must be >= block_length ({block_length})")
+    
+    # Calculate number of blocks needed
+    num_blocks = math.ceil(n / block_length)
+    
+    # Sample blocks with replacement
+    sampled_blocks = []
+    for _ in range(num_blocks):
+        start_idx = rng.integers(0, n - block_length + 1)
+        block = time_series[start_idx : start_idx + block_length]
+        sampled_blocks.append(block)
+    
+    # Concatenate blocks and truncate to original length
+    bootstrap_sample = np.concatenate(sampled_blocks)[:n]
+    return bootstrap_sample
 
 def bootstrap_theil_sen(
-    x: List[float], 
-    y: List[float], 
-    n_iterations: int = 1000, 
-    seed: int = 42,
-    sample_fraction: float = 0.8
+    time_series: np.ndarray,
+    n_iterations: int = BOOTSTRAP_ITERATIONS,
+    block_length: int = BLOCK_LENGTH,
+    random_seed: int = RANDOM_SEED
 ) -> Tuple[float, float, float]:
     """
-    Calculate bootstrap confidence intervals for the Theil-Sen slope.
+    Calculate confidence intervals for Theil-Sen slope using block bootstrap.
     
     Args:
-        x: Independent variable values (e.g., time indices)
-        y: Dependent variable values (e.g., frequencies)
-        n_iterations: Number of bootstrap iterations
-        seed: Random seed for reproducibility
-        sample_fraction: Fraction of data to sample in each iteration
-        
+        time_series: The time series data to bootstrap.
+        n_iterations: Number of bootstrap iterations.
+        block_length: Length of blocks for block bootstrap (12 months).
+        random_seed: Seed for reproducibility.
+    
     Returns:
-        Tuple of (slope_estimate, lower_ci, upper_ci)
+        Tuple of (median_slope, lower_ci, upper_ci) for 95% confidence interval.
     """
-    if len(x) != len(y):
-        raise ValueError("x and y must have the same length")
+    rng = np.random.default_rng(random_seed)
+    n = len(time_series)
+    x = np.arange(n)
     
-    random.seed(seed)
-    n = len(x)
-    sample_size = max(2, int(n * sample_fraction))
-    
-    bootstrap_slopes = []
-    
+    slopes = []
     for _ in range(n_iterations):
-        # Resample with replacement
-        indices = [random.randint(0, n - 1) for _ in range(sample_size)]
-        x_sample = [x[i] for i in indices]
-        y_sample = [y[i] for i in indices]
+        # Generate bootstrap sample
+        bootstrap_sample = block_bootstrap_sample(time_series, block_length, rng)
         
         # Calculate Theil-Sen slope for this sample
-        try:
-            slope = theil_sen_slope(x_sample, y_sample)
-            bootstrap_slopes.append(slope)
-        except ValueError:
-            # Skip if sample doesn't have enough variance
-            continue
+        slope = theil_sen_slope(x, bootstrap_sample)
+        slopes.append(slope)
     
-    if not bootstrap_slopes:
-        raise RuntimeError("Bootstrap failed: no valid slopes calculated.")
+    slopes = np.array(slopes)
+    median_slope = float(np.median(slopes))
     
-    bootstrap_slopes.sort()
+    # Calculate confidence intervals
+    alpha = 1 - CONFIDENCE_LEVEL
+    lower_idx = int((alpha / 2) * n_iterations)
+    upper_idx = int((1 - alpha / 2) * n_iterations)
     
-    # Calculate 95% CI (2.5th and 97.5th percentiles)
-    lower_idx = int(0.025 * len(bootstrap_slopes))
-    upper_idx = int(0.975 * len(bootstrap_slopes))
+    lower_ci = float(np.percentile(slopes, (alpha / 2) * 100))
+    upper_ci = float(np.percentile(slopes, (1 - alpha / 2) * 100))
     
-    lower_ci = bootstrap_slopes[lower_idx]
-    upper_ci = bootstrap_slopes[upper_idx]
-    
-    # Calculate median slope from bootstrap distribution
-    mid = len(bootstrap_slopes) // 2
-    if len(bootstrap_slopes) % 2 == 0:
-        slope_estimate = (bootstrap_slopes[mid - 1] + bootstrap_slopes[mid]) / 2.0
-    else:
-        slope_estimate = bootstrap_slopes[mid]
-    
-    return slope_estimate, lower_ci, upper_ci
+    return median_slope, lower_ci, upper_ci
 
 def save_confidence_intervals(
-    results: Dict[str, Any], 
-    filepath: str = "data/processed/confidence_interval.json"
+    results: Dict[str, Any],
+    output_path: str = "data/processed/confidence_interval.json"
 ) -> None:
-    """Save confidence interval results to a JSON file."""
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, default=str)
-
-def run_bootstrapping_analysis(
-    data: Dict[str, Any], 
-    trend_results: Dict[str, Any],
-    n_iterations: int = 1000,
-    seed: int = 42
-) -> Dict[str, Any]:
     """
-    Run the full bootstrapping analysis for all tags in the trend results.
+    Save confidence interval results to a JSON file.
     
     Args:
-        data: Preprocessed tag frequency data
-        trend_results: Intermediate trend analysis results
-        n_iterations: Number of bootstrap iterations
-        seed: Random seed
-        
+        results: Dictionary containing confidence interval results.
+        output_path: Path to the output file.
+    """
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+
+def run_bootstrapping_analysis(
+    data: Dict[str, Any],
+    trend_results: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Run the bootstrapping analysis for all tags in the dataset.
+    
+    Args:
+        data: Preprocessed monthly frequency data.
+        trend_results: Trend analysis results containing Theil-Sen slopes.
+    
     Returns:
-        Dictionary containing confidence interval results for all tags
+        Dictionary containing confidence interval results for all tags.
     """
     results = {
         "metadata": {
-            "n_iterations": n_iterations,
-            "seed": seed,
-            "confidence_level": 0.95,
-            "method": "Bootstrap Theil-Sen"
+            "bootstrap_iterations": BOOTSTRAP_ITERATIONS,
+            "block_length_months": BLOCK_LENGTH,
+            "confidence_level": CONFIDENCE_LEVEL,
+            "random_seed": RANDOM_SEED,
+            "description": "Block bootstrap confidence intervals for Theil-Sen slopes. "
+                           "Block length of 12 months preserves annual seasonality patterns."
         },
-        "tags": {}
+        "tag_results": {}
     }
     
-    # Get the tags from trend results
-    tags_to_analyze = trend_results.get("tags", {})
+    # Get list of tags from trend results
+    tags = trend_results.get("tags", [])
     
-    for tag_name, tag_data in tags_to_analyze.items():
-        # Extract time series data
-        # The data structure from preprocess should have 'monthly_data' or similar
-        # We need to map this to x (time) and y (frequency)
-        
-        # Assuming structure: { "monthly_data": { "2020-01": 100, "2020-02": 105, ... } }
-        monthly_data = tag_data.get("monthly_data", {})
-        
-        if not monthly_data:
-            # Try alternative key names
-            monthly_data = tag_data.get("data", {})
-        
-        if not monthly_data:
-            # Skip if no data found
+    for tag_info in tags:
+        tag_name = tag_info.get("tag")
+        if not tag_name or tag_name not in data.get("tags", {}):
             continue
         
-        # Convert to sorted lists
-        sorted_months = sorted(monthly_data.keys())
-        x_values = list(range(len(sorted_months)))  # Time indices
-        y_values = [monthly_data[month] for month in sorted_months]
+        time_series = np.array(data["tags"][tag_name]["monthly_frequencies"])
         
-        # Need at least 2 points
-        if len(x_values) < 2:
+        if len(time_series) < BLOCK_LENGTH:
+            results["tag_results"][tag_name] = {
+                "tag": tag_name,
+                "status": "insufficient_data",
+                "reason": f"Time series length ({len(time_series)}) < block length ({BLOCK_LENGTH})"
+            }
             continue
         
         try:
-            slope_estimate, lower_ci, upper_ci = bootstrap_theil_sen(
-                x_values, y_values, n_iterations, seed
-            )
+            median_slope, lower_ci, upper_ci = bootstrap_theil_sen(time_series)
             
-            results["tags"][tag_name] = {
-                "slope_estimate": slope_estimate,
-                "ci_lower": lower_ci,
-                "ci_upper": upper_ci,
-                "n_iterations_used": len(y_values),
-                "n_months": len(sorted_months)
+            results["tag_results"][tag_name] = {
+                "tag": tag_name,
+                "theil_sen_slope": median_slope,
+                "confidence_interval": {
+                    "lower": lower_ci,
+                    "upper": upper_ci,
+                    "level": CONFIDENCE_LEVEL
+                },
+                "status": "success"
             }
         except Exception as e:
-            # Log error but continue with other tags
-            results["tags"][tag_name] = {
-                "error": str(e),
-                "status": "failed"
+            results["tag_results"][tag_name] = {
+                "tag": tag_name,
+                "status": "error",
+                "error_message": str(e)
             }
     
     return results
 
-def main():
+def main() -> None:
     """Main entry point for the bootstrapping analysis."""
-    # Define paths relative to project root
-    base_path = Path(__file__).parent.parent.parent
-    data_path = base_path / "data"
-    
-    processed_data_file = data_path / "processed" / "tag_frequencies.json"
-    trend_results_file = data_path / "processed" / "trend_intermediate.json"
-    output_file = data_path / "processed" / "confidence_interval.json"
-    
-    print(f"Loading processed data from: {processed_data_file}")
-    if not processed_data_file.exists():
-        # Try alternative path if running from different directory
-        processed_data_file = Path("data/processed/tag_frequencies.json")
-    
-    if not processed_data_file.exists():
-        print(f"Error: Processed data file not found at {processed_data_file}")
-        print("Please ensure T013 (preprocess) has been completed.")
-        return 1
-    
-    print(f"Loading trend results from: {trend_results_file}")
-    if not trend_results_file.exists():
-        trend_results_file = Path("data/processed/trend_intermediate.json")
-    
-    if not trend_results_file.exists():
-        print(f"Error: Trend results file not found at {trend_results_file}")
-        print("Please ensure T014 (trends) has been completed.")
-        return 1
+    print("Starting bootstrapping analysis for Theil-Sen slope confidence intervals...")
+    print(f"Using {BOOTSTRAP_ITERATIONS} iterations with block length of {BLOCK_LENGTH} months")
+    print("(Block length chosen to preserve annual seasonality patterns)")
     
     try:
-        data = load_processed_data(str(processed_data_file))
-        trend_results = load_trend_results(str(trend_results_file))
+        # Load data
+        print("Loading preprocessed data...")
+        data = load_processed_data()
+        print(f"Loaded data for {len(data.get('tags', {}))} tags")
         
-        print(f"Running bootstrapping analysis with 1000 iterations...")
-        results = run_bootstrapping_analysis(data, trend_results, n_iterations=1000, seed=42)
+        print("Loading trend results...")
+        trend_results = load_trend_results()
+        print(f"Loaded trend results for {len(trend_results.get('tags', []))} tags")
         
-        print(f"Saving results to: {output_file}")
-        save_confidence_intervals(results, str(output_file))
+        # Run analysis
+        print("Running bootstrapping analysis...")
+        results = run_bootstrapping_analysis(data, trend_results)
         
-        # Verify the file was created and is valid
-        if Path(output_file).exists():
-            with open(output_file, 'r') as f:
-                check_results = json.load(f)
-            
-            if "tags" in check_results and len(check_results["tags"]) > 0:
-                print(f"Successfully calculated confidence intervals for {len(check_results['tags'])} tags.")
-                print("Verification: data/processed/confidence_interval.json exists and contains valid data.")
-                return 0
-            else:
-                print("Warning: Output file created but contains no tag results.")
-                return 1
+        # Save results
+        output_path = "data/processed/confidence_interval.json"
+        print(f"Saving results to {output_path}...")
+        save_confidence_intervals(results, output_path)
+        
+        # Verify output
+        if Path(output_path).exists():
+            with open(output_path, 'r') as f:
+                verify_data = json.load(f)
+            print(f"Successfully saved confidence intervals for {len(verify_data.get('tag_results', {}))} tags")
+            print("Verification: File exists and contains valid 95% CI bounds.")
         else:
-            print("Error: Failed to create output file.")
-            return 1
-            
+            raise RuntimeError(f"Failed to create output file: {output_path}")
+        
+        print("Bootstrapping analysis completed successfully.")
+        
+    except FileNotFoundError as e:
+        print(f"ERROR: Required data file not found: {e}")
+        raise
     except Exception as e:
-        print(f"Error during bootstrapping analysis: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+        print(f"ERROR: Analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

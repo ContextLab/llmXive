@@ -1,201 +1,186 @@
-"""
-Unit tests for the bootstrapping module (T016).
-Tests the Theil-Sen slope calculation and bootstrap confidence intervals.
-"""
-import sys
 import json
 import math
+import numpy as np
 from pathlib import Path
 import pytest
 
-# Add the code directory to the path
-code_dir = Path(__file__).parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
+# Import functions to test
 from analysis.bootstrapping import (
     theil_sen_slope,
+    block_bootstrap_sample,
     bootstrap_theil_sen,
-    load_trend_results,
+    run_bootstrapping_analysis,
     load_processed_data,
-    save_confidence_intervals,
-    run_bootstrapping_analysis
+    load_trend_results,
+    save_confidence_intervals
 )
 
 class TestTheilSenSlope:
-    """Tests for the Theil-Sen slope estimator."""
-
-    def test_perfect_linear_increase(self):
-        """Test with a perfect linear increasing series."""
-        x = [1, 2, 3, 4, 5]
-        y = [2, 4, 6, 8, 10]  # y = 2x
+    def test_linear_trend_positive(self):
+        """Test Theil-Sen slope with a perfect positive linear trend."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
         slope = theil_sen_slope(x, y)
-        assert math.isclose(slope, 2.0, abs_tol=1e-6)
+        assert math.isclose(slope, 2.0, rel_tol=1e-6)
 
-    def test_perfect_linear_decrease(self):
-        """Test with a perfect linear decreasing series."""
-        x = [1, 2, 3, 4, 5]
-        y = [10, 8, 6, 4, 2]  # y = -2x + 12
+    def test_linear_trend_negative(self):
+        """Test Theil-Sen slope with a perfect negative linear trend."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([10, 8, 6, 4, 2])
         slope = theil_sen_slope(x, y)
-        assert math.isclose(slope, -2.0, abs_tol=1e-6)
+        assert math.isclose(slope, -2.0, rel_tol=1e-6)
 
-    def test_constant_series(self):
-        """Test with a constant series (slope should be 0)."""
-        x = [1, 2, 3, 4, 5]
-        y = [5, 5, 5, 5, 5]
+    def test_no_trend(self):
+        """Test Theil-Sen slope with no trend (constant values)."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([5, 5, 5, 5, 5])
         slope = theil_sen_slope(x, y)
-        assert math.isclose(slope, 0.0, abs_tol=1e-6)
+        assert math.isclose(slope, 0.0, rel_tol=1e-6)
 
-    def test_noisy_series(self):
-        """Test with a noisy series."""
-        x = [1, 2, 3, 4, 5]
-        y = [2.1, 3.9, 6.2, 7.8, 10.1]  # Roughly y = 2x
+    def test_single_pair(self):
+        """Test Theil-Sen slope with minimal data."""
+        x = np.array([1, 2])
+        y = np.array([1, 3])
         slope = theil_sen_slope(x, y)
-        # Should be close to 2.0
-        assert 1.5 < slope < 2.5
+        assert math.isclose(slope, 2.0, rel_tol=1e-6)
 
-    def test_insufficient_data(self):
-        """Test with insufficient data points."""
-        x = [1]
-        y = [2]
+class TestBlockBootstrap:
+    def test_block_bootstrap_preserves_length(self):
+        """Test that bootstrap sample has same length as input."""
+        time_series = np.random.rand(100)
+        block_length = 12
+        rng = np.random.default_rng(42)
+        
+        sample = block_bootstrap_sample(time_series, block_length, rng)
+        assert len(sample) == len(time_series)
+
+    def test_block_bootstrap_with_small_series(self):
+        """Test block bootstrap with series equal to block length."""
+        time_series = np.random.rand(12)
+        block_length = 12
+        rng = np.random.default_rng(42)
+        
+        sample = block_bootstrap_sample(time_series, block_length, rng)
+        assert len(sample) == 12
+
+    def test_block_bootstrap_too_short(self):
+        """Test that block bootstrap raises error for series shorter than block."""
+        time_series = np.random.rand(5)
+        block_length = 12
+        rng = np.random.default_rng(42)
+        
         with pytest.raises(ValueError):
-            theil_sen_slope(x, y)
+            block_bootstrap_sample(time_series, block_length, rng)
 
 class TestBootstrapTheilSen:
-    """Tests for the bootstrap confidence interval calculation."""
+    def test_bootstrap_returns_confidence_interval(self):
+        """Test that bootstrap returns valid confidence intervals."""
+        # Create a simple time series with a known trend
+        n = 24
+        x = np.arange(n)
+        y = 2 * x + np.random.normal(0, 1, n)
+        
+        median_slope, lower_ci, upper_ci = bootstrap_theil_sen(y, n_iterations=100, random_seed=42)
+        
+        assert isinstance(median_slope, float)
+        assert isinstance(lower_ci, float)
+        assert isinstance(upper_ci, float)
+        assert lower_ci <= median_slope <= upper_ci
 
     def test_bootstrap_reproducibility(self):
-        """Test that bootstrap results are reproducible with the same seed."""
-        x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        y = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+        """Test that bootstrap results are reproducible with same seed."""
+        n = 24
+        y = np.random.rand(n) * 10 + np.arange(n) * 2
         
-        slope1, lower1, upper1 = bootstrap_theil_sen(x, y, n_iterations=100, seed=42)
-        slope2, lower2, upper2 = bootstrap_theil_sen(x, y, n_iterations=100, seed=42)
+        slope1, lower1, upper1 = bootstrap_theil_sen(y, n_iterations=100, random_seed=42)
+        slope2, lower2, upper2 = bootstrap_theil_sen(y, n_iterations=100, random_seed=42)
         
-        assert math.isclose(slope1, slope2)
-        assert math.isclose(lower1, lower2)
-        assert math.isclose(upper1, upper2)
-
-    def test_bootstrap_ci_bounds(self):
-        """Test that CI lower bound is less than upper bound."""
-        x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        y = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-        
-        slope, lower, upper = bootstrap_theil_sen(x, y, n_iterations=100, seed=42)
-        
-        assert lower <= slope <= upper
-
-    def test_bootstrap_with_noise(self):
-        """Test bootstrap with noisy data."""
-        x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        y = [2.1, 3.8, 6.3, 7.9, 10.2, 11.8, 14.1, 15.9, 18.2, 19.8]
-        
-        slope, lower, upper = bootstrap_theil_sen(x, y, n_iterations=100, seed=42)
-        
-        # Slope should be positive
-        assert slope > 0
-        # CI should be reasonable
-        assert lower < upper
+        assert math.isclose(slope1, slope2, rel_tol=1e-10)
+        assert math.isclose(lower1, lower2, rel_tol=1e-10)
+        assert math.isclose(upper1, upper2, rel_tol=1e-10)
 
 class TestRunBootstrappingAnalysis:
-    """Tests for the full bootstrapping analysis pipeline."""
-
-    def test_run_analysis_structure(self):
-        """Test that the analysis produces the expected output structure."""
+    def test_analysis_with_valid_data(self, tmp_path):
+        """Test full analysis pipeline with valid mock data."""
         # Create mock data
         mock_data = {
             "tags": {
                 "python": {
-                    "monthly_data": {
-                        "2020-01": 100,
-                        "2020-02": 105,
-                        "2020-03": 110,
-                        "2020-04": 115,
-                        "2020-05": 120
-                    }
+                    "monthly_frequencies": [10, 12, 15, 18, 20, 22, 25, 28, 30, 32, 35, 38, 40]
                 },
                 "javascript": {
-                    "monthly_data": {
-                        "2020-01": 200,
-                        "2020-02": 205,
-                        "2020-03": 210,
-                        "2020-04": 215,
-                        "2020-05": 220
-                    }
+                    "monthly_frequencies": [20, 22, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50]
                 }
             }
         }
         
         mock_trend_results = {
-            "tags": {
-                "python": mock_data["tags"]["python"],
-                "javascript": mock_data["tags"]["javascript"]
-            }
+            "tags": [
+                {"tag": "python"},
+                {"tag": "javascript"}
+            ]
         }
         
-        results = run_bootstrapping_analysis(mock_data, mock_trend_results, n_iterations=50, seed=42)
+        # Run analysis
+        results = run_bootstrapping_analysis(mock_data, mock_trend_results)
         
+        # Verify structure
         assert "metadata" in results
-        assert "tags" in results
-        assert "python" in results["tags"]
-        assert "javascript" in results["tags"]
+        assert "tag_results" in results
+        assert "python" in results["tag_results"]
+        assert "javascript" in results["tag_results"]
         
-        # Check that results contain expected keys
+        # Verify results have expected fields
         for tag in ["python", "javascript"]:
-            tag_result = results["tags"][tag]
-            assert "slope_estimate" in tag_result
-            assert "ci_lower" in tag_result
-            assert "ci_upper" in tag_result
-            assert "n_iterations_used" in tag_result
-            assert "n_months" in tag_result
+            tag_result = results["tag_results"][tag]
+            assert "status" in tag_result
+            assert tag_result["status"] == "success"
+            assert "theil_sen_slope" in tag_result
+            assert "confidence_interval" in tag_result
+            assert "lower" in tag_result["confidence_interval"]
+            assert "upper" in tag_result["confidence_interval"]
 
-    def test_run_analysis_with_insufficient_data(self):
-        """Test that the analysis handles tags with insufficient data gracefully."""
+    def test_analysis_with_insufficient_data(self, tmp_path):
+        """Test analysis with time series shorter than block length."""
         mock_data = {
             "tags": {
-                "small_tag": {
-                    "monthly_data": {
-                        "2020-01": 10
-                    }
+                "short_tag": {
+                    "monthly_frequencies": [1, 2, 3, 4, 5]  # Only 5 points, block length is 12
                 }
             }
         }
         
         mock_trend_results = {
-            "tags": mock_data["tags"]
+            "tags": [
+                {"tag": "short_tag"}
+            ]
         }
         
-        # Should not raise an error, just skip the tag
-        results = run_bootstrapping_analysis(mock_data, mock_trend_results, n_iterations=50, seed=42)
+        results = run_bootstrapping_analysis(mock_data, mock_trend_results)
         
-        # The tag should be skipped or have an error
-        assert "small_tag" not in results["tags"] or "error" in results["tags"]["small_tag"]
+        assert results["tag_results"]["short_tag"]["status"] == "insufficient_data"
+        assert "reason" in results["tag_results"]["short_tag"]
 
-class TestSaveAndLoad:
-    """Tests for save and load functions."""
-
-    def test_save_and_load_confidence_intervals(self, tmp_path):
-        """Test saving and loading confidence interval results."""
+class TestSaveConfidenceIntervals:
+    def test_save_and_load(self, tmp_path):
+        """Test that results can be saved and loaded correctly."""
+        output_file = tmp_path / "test_confidence_interval.json"
+        
         test_results = {
-            "metadata": {"n_iterations": 100},
-            "tags": {
+            "metadata": {"test": "value"},
+            "tag_results": {
                 "test_tag": {
-                    "slope_estimate": 1.5,
-                    "ci_lower": 1.2,
-                    "ci_upper": 1.8
+                    "theil_sen_slope": 1.5,
+                    "confidence_interval": {"lower": 1.0, "upper": 2.0}
                 }
             }
         }
         
-        output_file = tmp_path / "test_confidence_interval.json"
         save_confidence_intervals(test_results, str(output_file))
         
         assert output_file.exists()
         
         with open(output_file, 'r') as f:
-            loaded = json.load(f)
+            loaded_results = json.load(f)
         
-        assert loaded == test_results
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        assert loaded_results == test_results

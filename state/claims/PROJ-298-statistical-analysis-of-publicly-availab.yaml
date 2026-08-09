@@ -16,3 +16,475 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T20:19:47Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 available on HuggingFace as stack-exchange/stackoverflow-survey
+  claim_id: c_0ac7715d
+  context: T007 requires fetching the Stack Overflow Developer Survey 2023 JSON from
+    the canonical HuggingFace dataset stack-exchange/stackoverflow-survey to extract
+    Tech Stack categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download and parse the Stack Overflow Developer Survey 2023 JSON from
+    the canonical HuggingFace dataset stack-exchange/stackoverflow-survey
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:27:05Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: PostsTags dataset available on HuggingFace at https://huggingface.co/datasets/stack-exchange/stackoverflow-tags
+  claim_id: c_3115a5e9
+  context: T012 specifies fetching PostsTags from the Stack Overflow dump or using
+    the HuggingFace fallback URL https://huggingface.co/datasets/stack-exchange/stackoverflow-tags.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PostsTags_dataset_available_on_HuggingFace_at_https://huggin
+  kind: entity_fact
+  raw_text: 'Fetch PostsTags from Stack Overflow dump (canonical URL: [missing]) or
+    HuggingFace fallback (https://huggingface.co/datasets/stack-exchange/stackoverflow-tags)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:27:27Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 available on HuggingFace dataset
+    stack-exchange/stackoverflow-survey
+  claim_id: c_8df82fb6
+  context: 'T007: Download and parse the Stack Overflow Developer Survey 2023 JSON
+    from the canonical HuggingFace dataset stack-exchange/stackoverflow-survey (using
+    datasets.load_dataset) to extract the ''Tech Stack'' categories...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download and parse the Stack Overflow Developer Survey 2023 JSON from
+    the canonical HuggingFace dataset stack-exchange/stackoverflow-survey
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:31:25Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: PostsTags data available on Stack Overflow dump archive.org and HuggingFace
+    stack-exchange/stackoverflow-tags
+  claim_id: c_9bd7c9ac
+  context: 'T012: Implement code/data/download.py to fetch PostsTags from Stack Overflow
+    dump (canonical URL: https://archive.org/details/stackexchange) or HuggingFace
+    fallback (https://huggingface.co/datasets/stack-exchange/stackoverflow-tags)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PostsTags_data_available_on_Stack_Overflow_dump_archive.org
+  kind: entity_fact
+  raw_text: 'Fetch PostsTags from Stack Overflow dump (canonical URL: https://archive.org/details/stackexchange)
+    or HuggingFace fallback (https://huggingface.co/datasets/stack-exchange/stackoverflow-tags)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:31:29Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GitHub star counts and NPM download numbers available via GitHub Search
+    API and NPM Search API
+  claim_id: c_f7d8e4ac
+  context: 'T039: Implement code/data/external.py to fetch actual GitHub star counts
+    and NPM download numbers for the Top 50 Tags... MUST attempt mapping via GitHub
+    Search API (topic) and NPM Search API (keyword)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch actual GitHub star counts and NPM download numbers for the Top 50
+    Tags
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:31:44Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MDES calculation uses Monte Carlo with 1000 iterations and random seed
+    42
+  claim_id: c_c144fe31
+  context: 'T014: MUST calculate MDES via Monte Carlo (1000 iterations, random seed
+    42) by injecting linear trends of varying slopes into the pre-whitened residuals
+    of the top 50 tags...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate MDES via Monte Carlo (1000 iterations, random seed 42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:32:01Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MDES detects slope magnitude at 80% power with alpha 0.05
+  claim_id: c_0823eb18
+  context: 'T014: ...to determine the slope magnitude detectable at 80% power with
+    alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate MDES to determine the slope magnitude detectable at 80% power
+    with alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:32:18Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Confidence intervals for Theil-Sen slopes calculated via 1000 iterations
+    block bootstrap with 12 month block length
+  claim_id: c_3156a97b
+  context: 'T016: Implement bootstrapping logic to calculate confidence intervals
+    for Theil-Sen trend slopes (1000 iterations) using block bootstrap (block length
+    = 12 months) to preserve temporal autocorrelation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrapping logic to calculate confidence intervals for Theil-Sen
+    trend slopes (1000 iterations) using block bootstrap (block length = 12 months)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:33:12Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cluster Label Alignment Score threshold is 0.8
+  claim_id: c_ee683553
+  context: 'T030: MUST calculate Cluster Label Alignment Score and verify it is >=
+    0.8. This threshold is derived from Spec US-3 acceptance criteria.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Cluster Label Alignment Score is >= 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:33:46Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching for tag alignment uses Levenshtein distance threshold
+    of 2
+  claim_id: c_5d900a66
+  context: 'T030: MUST use Levenshtein distance <= 2 for fuzzy matching, as derived
+    from Plan.md complexity tracking for aligning tags to ''Tech Stack'' categories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Levenshtein distance <= 2 for fuzzy matching
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:33:51Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint is below 7GB
+  claim_id: c_c13f0572
+  context: 'T035: MUST verify memory usage stays below 7GB; if usage exceeds 6GB,
+    reduce chunk size to [deferred] rows and re-run.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constraint_is_below_7GB
+  kind: entity_fact
+  raw_text: Verify memory usage stays below 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:33:58Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory trigger threshold for chunk size reduction is 6GB
+  claim_id: c_e2f69218
+  context: 'T035: ...if usage exceeds 6GB, reduce chunk size to [deferred] rows and
+    re-run.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_trigger_threshold_for_chunk_size_reduction_is_6GB
+  kind: entity_fact
+  raw_text: Reduce chunk size if memory usage exceeds 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:34:05Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 available on HuggingFace as stack-exchange/stackoverflow-survey
+  claim_id: c_5e4aeadb
+  context: T007 requires downloading and parsing the Stack Overflow Developer Survey
+    2023 JSON from the canonical HuggingFace dataset stack-exchange/stackoverflow-survey
+    to extract Tech Stack categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download and parse the Stack Overflow Developer Survey 2023 JSON from
+    the canonical HuggingFace dataset stack-exchange/stackoverflow-survey
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:35:26Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 hosted on HuggingFace
+  claim_id: c_ee221d8f
+  context: Task T007 specifies fetching the Stack Overflow Developer Survey 2023 JSON
+    from the canonical HuggingFace dataset stack-exchange/stackoverflow-survey.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Stack Overflow Developer Survey 2023 dataset is hosted on HuggingFace
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:35:57Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 available on HuggingFace dataset
+    stack-exchange/stackoverflow-survey
+  claim_id: c_8423d3fc
+  context: T007 requires downloading and parsing the Stack Overflow Developer Survey
+    2023 JSON from the canonical HuggingFace dataset stack-exchange/stackoverflow-survey
+    (using datasets.load_dataset) to extract the 'Tech Stack' categories and map them
+    to tag categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download and parse the Stack Overflow Developer Survey 2023 JSON from
+    the canonical HuggingFace dataset stack-exchange/stackoverflow-survey
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:37:24Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MDES calculated via Monte Carlo with 1000 iterations, seed 42, 80% power,
+    alpha 0.05
+  claim_id: c_ed29eb51
+  context: T014 must calculate MDES via Monte Carlo (1000 iterations, random seed
+    42) by injecting linear trends of varying slopes into the pre-whitened residuals
+    of the top 50 tags to determine the slope magnitude detectable at 80% power with
+    alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate MDES via Monte Carlo (1000 iterations, random seed 42) by injecting
+    linear trends of varying slopes into the pre-whitened residuals of the top 50
+    tags to determine the slope magnitude detectable at 80% power with alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:37:53Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Block bootstrap using 12-month block length
+  claim_id: c_c0b8ac17
+  context: T016 must implement bootstrapping logic to calculate confidence intervals
+    for Theil-Sen trend slopes (1000 iterations) using block bootstrap (block length
+    = 12 months) to preserve temporal autocorrelation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use block bootstrap with block length of 12 months to preserve temporal
+    autocorrelation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:37:58Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cluster Label Alignment Score threshold of 0.8
+  claim_id: c_2d9d3858
+  context: "T030 must calculate Cluster Label Alignment Score and verify it is \u2265\
+    \ 0.8. This threshold is derived from Spec US-3 acceptance criteria."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify Cluster Label Alignment Score is \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:37:59Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching using Levenshtein distance threshold of 2
+  claim_id: c_c3e302e9
+  context: "T030 must use Levenshtein distance \u2264 2 for fuzzy matching, as derived\
+    \ from Plan.md complexity tracking for aligning tags to 'Tech Stack' categories."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use Levenshtein distance \u2264 2 for fuzzy matching"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:37:59Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint of 7GB
+  claim_id: c_101bf655
+  context: T035 must verify memory usage stays below 7GB; if usage exceeds 6GB, reduce
+    chunk size to [deferred] rows and re-run.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constraint_of_7GB
+  kind: entity_fact
+  raw_text: Verify memory usage stays below 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:38:00Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory trigger threshold of 6GB for chunk size reduction
+  claim_id: c_fdedd185
+  context: T035 must verify memory usage stays below 7GB; if usage exceeds 6GB, reduce
+    chunk size to [deferred] rows and re-run.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_trigger_threshold_of_6GB_for_chunk_size_reduction
+  kind: entity_fact
+  raw_text: If memory usage exceeds 6GB, reduce chunk size
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:38:02Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Execution time limit of 6 hours for quickstart.md
+  claim_id: c_23c76077
+  context: T037b must record total execution time to verify SC-005 (<=6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute quickstart.md scripts on CPU-only runner within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:38:04Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Download and parse Stack Overflow Developer Survey 2023 JSON from HuggingFace
+    dataset stack-exchange/stackoverflow-survey
+  claim_id: c_9cfbec56
+  context: Download and parse the Stack Overflow Developer Survey 2023 JSON from the
+    canonical HuggingFace dataset stack-exchange/stackoverflow-survey (using datasets.load_dataset)
+    to extract the 'Tech Stack' categories and map them to tag categories, and parse
+    official release logs from  (or fallback to a direct URL to the raw JSON if the
+    dataset ID is not found) to generate data/taxonomy/survey_2023.json and data/events/reference_calendar.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task MUST explicitly fetch the source data, parse it into the required
+    JSON structure (mapping tags to categories and events to dates), and write the
+    files to disk.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:39:23Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Calculate MDES via Monte Carlo 1000 iterations with random seed 42 for
+    80% power at alpha 0.05
+  claim_id: c_3899dea0
+  context: MUST calculate MDES via Monte Carlo (1000 iterations, random seed 42) by
+    injecting linear trends of varying slopes into the pre-whitened residuals of the
+    top 50 tags to determine the slope magnitude detectable at 80% power with alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST calculate MDES via Monte Carlo (1000 iterations, random seed 42)
+    by injecting linear trends of varying slopes into the pre-whitened residuals of
+    the top 50 tags to determine the slope magnitude detectable at 80% power with
+    alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:39:38Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Calculate Cluster Label Alignment Score and verify it is >= 0.8
+  claim_id: c_67dfdbab
+  context: "MUST calculate Cluster Label Alignment Score and verify it is \u2265 0.8.\
+    \ This threshold is derived from Spec US-3 acceptance criteria."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MUST calculate Cluster Label Alignment Score and verify it is \u2265\
+    \ 0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:39:38Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Use Levenshtein distance <= 2 for fuzzy matching tags to Tech Stack categories
+  claim_id: c_5f94c803
+  context: "MUST use Levenshtein distance \u2264 2 for fuzzy matching, as derived\
+    \ from Plan.md complexity tracking for aligning tags to 'Tech Stack' categories."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MUST use Levenshtein distance \u2264 2 for fuzzy matching, as derived\
+    \ from Plan.md complexity tracking for aligning tags to 'Tech Stack' categories."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:39:38Z'

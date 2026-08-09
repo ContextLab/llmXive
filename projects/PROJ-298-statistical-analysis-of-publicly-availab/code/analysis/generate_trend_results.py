@@ -3,198 +3,208 @@ import hashlib
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
+import os
 
-# Import hygiene utilities for SHA-256 and state management
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
 from utils.hygiene import calculate_sha256, load_state, save_state, update_artifact_checksums
 
-# Project root relative to this script (assuming code/analysis/generate_trend_results.py)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
-
-def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file safely, returning None if it doesn't exist or is invalid."""
+def load_json_safe(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON file safely, raising an error if it doesn't exist or is invalid."""
     if not file_path.exists():
-        print(f"Error: Required file not found: {file_path}")
-        return None
+        raise FileNotFoundError(f"Required artifact not found: {file_path}")
+    
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in {file_path}: {e}")
-        return None
-    except Exception as e:
-        print(f"Error reading {file_path}: {e}")
-        return None
+        raise ValueError(f"Invalid JSON in {file_path}: {e}")
 
 def aggregate_trend_data() -> Dict[str, Any]:
     """
-    Aggregate data from intermediate trend files into the final trend_results.json.
+    Aggregate and finalize trend results by merging data from:
+    - data/processed/trend_intermediate.json (T014)
+    - data/processed/confidence_interval.json (T016)
+    - data/processed/correlation_results.json (T040)
     
-    Sources:
-    - data/processed/trend_intermediate.json (from T014)
-    - data/processed/confidence_interval.json (from T016)
-    - data/processed/correlation_results.json (from T040)
-    
-    Returns:
-        Dictionary containing the merged results.
+    Returns the merged dictionary.
     """
-    # Define paths
-    intermediate_path = DATA_PROCESSED_DIR / "trend_intermediate.json"
-    ci_path = DATA_PROCESSED_DIR / "confidence_interval.json"
-    corr_path = DATA_PROCESSED_DIR / "correlation_results.json"
+    processed_dir = project_root / "data" / "processed"
+    
+    # Define paths to upstream artifacts
+    intermediate_path = processed_dir / "trend_intermediate.json"
+    ci_path = processed_dir / "confidence_interval.json"
+    correlation_path = processed_dir / "correlation_results.json"
     
     # Load upstream artifacts
+    print(f"Loading {intermediate_path}...")
     intermediate_data = load_json_safe(intermediate_path)
+    
+    print(f"Loading {ci_path}...")
     ci_data = load_json_safe(ci_path)
-    corr_data = load_json_safe(corr_path)
     
-    # Verify all upstream artifacts exist
-    if intermediate_data is None:
-        raise FileNotFoundError(f"Upstream artifact missing: {intermediate_path}")
-    if ci_data is None:
-        raise FileNotFoundError(f"Upstream artifact missing: {ci_path}")
-    if corr_data is None:
-        raise FileNotFoundError(f"Upstream artifact missing: {corr_path}")
+    print(f"Loading {correlation_path}...")
+    correlation_data = load_json_safe(correlation_path)
     
-    # Merge data structures
-    # Assuming all sources use a common key (e.g., 'tags' or 'results') or are list-based dicts
-    # We will merge by tag name if possible, or simply combine top-level keys if structure allows.
-    # Based on typical analysis outputs, we expect a list of tag results or a dict keyed by tag.
-    
+    # Initialize the final results structure
     final_results = {
         "metadata": {
-            "generated_by": "T018_Aggregation",
-            "source_files": [
-                str(intermediate_path.relative_to(PROJECT_ROOT)),
-                str(ci_path.relative_to(PROJECT_ROOT)),
-                str(corr_path.relative_to(PROJECT_ROOT))
-            ],
-            "description": "Aggregated trend analysis results including Mann-Kendall statistics, Theil-Sen slopes, confidence intervals, and external correlation metrics."
+            "source": "T018_Aggregation",
+            "description": "Aggregated trend analysis results including Mann-Kendall tests, Theil-Sen slopes, confidence intervals, and external correlations."
         },
-        "results": []
+        "tags": []
     }
     
-    # Helper to find tag index by name in a list of dicts
-    def find_tag_index(tag_list, tag_name):
-        for i, item in enumerate(tag_list):
-            if isinstance(item, dict) and item.get("tag_name") == tag_name:
-                return i
-        return -1
+    # We assume the data is keyed by tag name or has a list of tags
+    # Let's inspect the structure and merge accordingly
+    # Expected structure for intermediate: { "tags": [ { "tag": "python", "slope": ..., "p_value": ..., ... }, ... ] }
+    # Expected structure for ci: { "tags": [ { "tag": "python", "ci_lower": ..., "ci_upper": ... }, ... ] }
+    # Expected structure for correlation: { "tags": [ { "tag": "python", "correlation": ..., "magnitude": ... }, ... ] }
+    
+    # Helper to find an entry by tag name
+    def find_entry(tag_list, tag_name):
+        for entry in tag_list:
+            if entry.get("tag") == tag_name:
+                return entry
+        return None
 
-    # Process intermediate data (likely the primary structure)
-    if isinstance(intermediate_data, list):
-        final_results["results"] = list(intermediate_data)
-    elif isinstance(intermediate_data, dict) and "results" in intermediate_data:
-        final_results["results"] = intermediate_data["results"]
-    else:
-        # Fallback: treat as single result or error
-        final_results["results"] = [intermediate_data] if isinstance(intermediate_data, dict) else []
-
-    # Merge Confidence Intervals
-    ci_entries = ci_data.get("results", []) if isinstance(ci_data, dict) else (ci_data if isinstance(ci_data, list) else [])
-    for ci_entry in ci_entries:
-        tag_name = ci_entry.get("tag_name")
+    # Get the list of tags from the intermediate data (source of truth for trends)
+    if "tags" not in intermediate_data:
+        raise ValueError("trend_intermediate.json must contain a 'tags' list")
+    
+    trend_tags = intermediate_data["tags"]
+    
+    # Retrieve CI and Correlation data for lookup
+    ci_tags_list = ci_data.get("tags", [])
+    corr_tags_list = correlation_data.get("tags", [])
+    
+    # Merge data
+    for trend_entry in trend_tags:
+        tag_name = trend_entry.get("tag")
         if not tag_name:
             continue
-        idx = find_tag_index(final_results["results"], tag_name)
-        if idx != -1:
-            final_results["results"][idx]["confidence_interval"] = {
-                "lower_bound": ci_entry.get("lower_bound"),
-                "upper_bound": ci_entry.get("upper_bound"),
-                "confidence_level": ci_entry.get("confidence_level", 0.95)
+        
+        # Find corresponding CI and Correlation entries
+        ci_entry = find_entry(ci_tags_list, tag_name)
+        corr_entry = find_entry(corr_tags_list, tag_name)
+        
+        merged_entry = {
+            "tag": tag_name,
+            "trend_analysis": {
+                "slope": trend_entry.get("slope"),
+                "mann_kendall_statistic": trend_entry.get("mann_kendall_statistic"),
+                "raw_p_value": trend_entry.get("raw_p_value"),
+                "adjusted_p_value": trend_entry.get("adjusted_p_value"),
+                "classification": trend_entry.get("classification"),
+                "power": trend_entry.get("power"),
+                "mdes": trend_entry.get("mdes")
+            },
+            "confidence_interval": {
+                "lower_bound": ci_entry.get("ci_lower") if ci_entry else None,
+                "upper_bound": ci_entry.get("ci_upper") if ci_entry else None,
+                "confidence_level": 0.95,
+                "method": "block_bootstrap"
+            } if ci_entry else {
+                "lower_bound": None,
+                "upper_bound": None,
+                "confidence_level": 0.95,
+                "method": "block_bootstrap",
+                "note": "No CI data available for this tag"
+            },
+            "external_correlation": {
+                "correlation_coefficient": corr_entry.get("correlation") if corr_entry else None,
+                "magnitude": corr_entry.get("magnitude") if corr_entry else None,
+                "p_value": corr_entry.get("p_value") if corr_entry else None,
+                "external_metrics_source": "GitHub/NPM"
+            } if corr_entry else {
+                "correlation_coefficient": None,
+                "magnitude": None,
+                "p_value": None,
+                "external_metrics_source": "None",
+                "note": "No correlation data available for this tag"
             }
-        else:
-            # If tag exists in CI but not in main results, add it
-            final_results["results"].append({
-                "tag_name": tag_name,
-                "confidence_interval": {
-                    "lower_bound": ci_entry.get("lower_bound"),
-                    "upper_bound": ci_entry.get("upper_bound"),
-                    "confidence_level": ci_entry.get("confidence_level", 0.95)
-                }
-            })
-
-    # Merge Correlation Results
-    corr_entries = corr_data.get("results", []) if isinstance(corr_data, dict) else (corr_data if isinstance(corr_data, list) else [])
-    for corr_entry in corr_entries:
-        tag_name = corr_entry.get("tag_name")
-        if not tag_name:
-            continue
-        idx = find_tag_index(final_results["results"], tag_name)
-        if idx != -1:
-            final_results["results"][idx]["correlation"] = {
-                "external_metric_source": corr_entry.get("source"),
-                "correlation_coefficient": corr_entry.get("coefficient"),
-                "magnitude_interpretation": corr_entry.get("magnitude"),
-                "p_value": corr_entry.get("p_value")
-            }
-        else:
-            final_results["results"].append({
-                "tag_name": tag_name,
-                "correlation": {
-                    "external_metric_source": corr_entry.get("source"),
-                    "correlation_coefficient": corr_entry.get("coefficient"),
-                    "magnitude_interpretation": corr_entry.get("magnitude"),
-                    "p_value": corr_entry.get("p_value")
-                }
-            })
-
+        }
+        
+        final_results["tags"].append(merged_entry)
+    
+    # Add summary statistics if available in intermediate
+    if "summary" in intermediate_data:
+        final_results["summary"] = intermediate_data["summary"]
+    
     return final_results
 
-def update_state_file(artifact_path: Path, state_path: Path):
+def update_state_file(final_results_path: Path, ci_path: Path):
     """
-    Calculate SHA-256 hash for the artifact and update the project state file.
+    Calculate SHA-256 hashes for the final results and CI files,
+    and update the state file.
     """
-    if not artifact_path.exists():
-        raise FileNotFoundError(f"Artifact not found for hashing: {artifact_path}")
+    state_path = project_root / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
     
-    file_hash = calculate_sha256(artifact_path)
+    if not state_path.exists():
+        print(f"Warning: State file not found at {state_path}. Creating new state file.")
+        # Initialize a basic state if it doesn't exist (though T009 should have done this)
+        state_data = {"artifacts": {}}
+    else:
+        state_data = load_state(state_path)
     
-    # Load state
-    state = load_state(state_path)
+    # Calculate hashes
+    final_hash = calculate_sha256(final_results_path)
+    ci_hash = calculate_sha256(ci_path)
     
     # Update checksums
-    update_artifact_checksums(state, str(artifact_path.relative_to(PROJECT_ROOT)), file_hash)
+    updated_state = update_artifact_checksums(
+        state_data, 
+        {
+            str(final_results_path.relative_to(project_root)): final_hash,
+            str(ci_path.relative_to(project_root)): ci_hash
+        }
+    )
     
-    # Save state
-    save_state(state, state_path)
-    print(f"State file updated: {state_path}")
-    print(f"  Artifact: {artifact_path.name} -> SHA-256: {file_hash}")
+    # Save updated state
+    save_state(updated_state, state_path)
+    print(f"State file updated at {state_path}")
 
 def main():
     """Main entry point for T018: Aggregate and finalize trend results."""
-    print("Starting T018: Aggregating Trend Results...")
+    print("Starting T018: Aggregate and finalize trend results...")
+    
+    processed_dir = project_root / "data" / "processed"
+    output_path = processed_dir / "trend_results.json"
+    ci_path = processed_dir / "confidence_interval.json"
+    
+    # Verify upstream artifacts exist (redundant with load_json_safe but explicit)
+    required_files = [
+        processed_dir / "trend_intermediate.json",
+        ci_path,
+        processed_dir / "correlation_results.json"
+    ]
+    
+    for f in required_files:
+        if not f.exists():
+            print(f"ERROR: Required upstream artifact missing: {f}")
+            print("T018 cannot proceed. Please ensure T014, T016, and T040 have completed successfully.")
+            sys.exit(1)
     
     try:
-        # 1. Aggregate data
-        aggregated_data = aggregate_trend_data()
+        # Aggregate data
+        final_results = aggregate_trend_data()
         
-        # 2. Define output path
-        output_path = DATA_PROCESSED_DIR / "trend_results.json"
-        
-        # 3. Write final JSON
+        # Write final results
         with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(aggregated_data, f, indent=2, default=str)
+            json.dump(final_results, f, indent=2)
         
-        print(f"Successfully wrote aggregated results to: {output_path}")
+        print(f"Successfully wrote aggregated results to {output_path}")
         
-        # 4. Update state file (FR-012)
-        update_state_file(output_path, STATE_FILE)
-        
-        # 5. Also update CI file hash if it exists (FR-012 requirement mentions both)
-        ci_path = DATA_PROCESSED_DIR / "confidence_interval.json"
-        if ci_path.exists():
-            update_state_file(ci_path, STATE_FILE)
+        # Update state file with checksums
+        update_state_file(output_path, ci_path)
         
         print("T018 completed successfully.")
         return 0
         
-    except FileNotFoundError as e:
-        print(f"Critical Error: {e}")
-        return 1
     except Exception as e:
-        print(f"Unexpected error during aggregation: {e}")
+        print(f"ERROR during T018 execution: {e}")
         import traceback
         traceback.print_exc()
         return 1
