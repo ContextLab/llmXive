@@ -1,0 +1,65 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Aggregated Metrics Schema
+description: >
+  Schema for storing aggregated performance metrics across multiple runs
+  or for a single run summary. Includes AUCC, final accuracy, and statistical
+  measures.
+type: object
+required:
+  - run_id
+  - aucc
+  - final_accuracy
+  - average_prompt_length
+  - total_samples
+properties:
+  run_id:
+    type: string
+    description: Unique identifier for the training run
+    pattern: "^[a-zA-Z0-9_-]+$"
+  aucc:
+    type: number
+    description: Area Under the Convergence Curve
+    minimum: 0.0
+  final_accuracy:
+    type: number
+    description: Accuracy on the held-out test set after final cycle
+    minimum: 0.0
+    maximum: 1.0
+  average_prompt_length:
+    type: number
+    description: Average number of tokens/words in the prompt during training
+    minimum: 0.0
+  total_samples:
+    type: integer
+    description: Total number of samples processed
+    minimum: 1
+  std_aucc:
+    type: number
+    description: Standard deviation of AUCC (if aggregated from multiple runs)
+    minimum: 0.0
+  p_value:
+    type: number
+    description: P-value from statistical comparison (e.g., t-test)
+    minimum: 0.0
+    maximum: 1.0
+  comparison_baseline_run_id:
+    type: string
+    description: Run ID of the baseline used for comparison
+  metrics_by_cycle:
+    type: array
+    description: Detailed metrics per cycle (optional)
+    items:
+      type: object
+      properties:
+        cycle_id:
+          type: integer
+        accuracy:
+          type: number
+        prompt_length:
+          type: integer
+        pruned_candidates:
+          type: integer
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of aggregation

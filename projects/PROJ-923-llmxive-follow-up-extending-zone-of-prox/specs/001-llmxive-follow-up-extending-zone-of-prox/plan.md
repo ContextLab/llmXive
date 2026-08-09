@@ -13,11 +13,11 @@ This project implements a simulation to evaluate **Confidence-Adaptive Pruning (
 **Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `tqdm`, `pyyaml`, `datasets` (for MMLU loading), `pytest`  
 **Storage**: In-memory DataFrames (pandas) and local JSON/Parquet artifacts in `data/` (no external DB).  
 **Testing**: `pytest` with contract tests against YAML schemas and unit tests for CAP logic.  
-**Target Platform**: Linux server (GitHub Actions free-tier: 2 CPU, ~7 GB RAM).  
+**Target Platform**: Linux server (GitHub Actions free-tier: CPU, ~7 GB RAM).  
 **Project Type**: Computational research simulation / CLI tool.  
 **Performance Goals**: Complete 100 simulation runs (10 tasks x 10 seeds) within 6 hours on CPU.  
 **Constraints**: Must run on CPU-only; no GPU acceleration; synthetic data generation must be deterministic via seeds; must handle edge cases (empty prompts) gracefully.  
-**Scale/Scope**: 10 tasks (LLM/VLM mix), 50 buffer cycles per run, 100 total runs.
+**Scale/Scope**: A mix of LLM and VLM tasks, a buffer of multiple cycles per run, 100 total runs.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Run Metadata Schema
+description: >
+  Schema for capturing high-level metadata about a specific ZPPO training run.
+  Includes configuration snapshots, environment details, and aggregate statistics.
+type: object
+required:
+  - run_id
+  - start_time
+  - end_time
+  - config_snapshot
+  - seed
+  - total_cycles
+  - version
+properties:
+  run_id:
+    type: string
+    description: Unique identifier for the training run
+    pattern: "^[a-zA-Z0-9_-]+$"
+  start_time:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the run started
+  end_time:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the run completed
+  config_snapshot:
+    type: object
+    description: Snapshot of the configuration used for this run
+    properties:
+      seed:
+        type: integer
+      threshold:
+        type: object
+        properties:
+          rejection_threshold:
+            type: number
+          acceptance_threshold:
+            type: number
+      simulation:
+        type: object
+        properties:
+          num_cycles:
+            type: integer
+          noise_sigma:
+            type: number
+      paths:
+        type: object
+        additionalProperties: true
+  seed:
+    type: integer
+    description: Random seed used for reproducibility
+  total_cycles:
+    type: integer
+    description: Total number of buffer cycles executed
+    minimum: 1
+  version:
+    type: string
+    description: Version of the codebase used (e.g., git commit hash)
+  environment:
+    type: object
+    description: Environment details
+    properties:
+      python_version:
+        type: string
+      platform:
+        type: string
+      dependencies:
+        type: object
+        additionalProperties: true
+  notes:
+    type: string
+    description: Optional notes about the run

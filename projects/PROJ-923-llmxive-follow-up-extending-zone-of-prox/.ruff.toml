@@ -1,0 +1,7 @@
+# Ruff configuration file for llmXive project
+# This file extends the settings in pyproject.toml if needed
+# Currently using pyproject.toml for all settings
+
+# Example overrides if specific rules need tuning per file
+# [tool.ruff]
+# select = ["E", "F", "W", "I"]

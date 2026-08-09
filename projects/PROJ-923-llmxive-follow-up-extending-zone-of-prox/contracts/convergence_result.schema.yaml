@@ -1,0 +1,71 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Convergence Result Schema
+description: >
+  Schema for the detailed convergence curve data points.
+  Used to plot accuracy vs. cycles and calculate AUCC.
+type: object
+required:
+  - run_id
+  - curve_data
+properties:
+  run_id:
+    type: string
+    description: Unique identifier for the training run
+    pattern: "^[a-zA-Z0-9_-]+$"
+  curve_data:
+    type: array
+    description: List of data points for the convergence curve
+    items:
+      type: object
+      required:
+        - cycle_id
+        - accuracy
+        - prompt_length
+        - num_candidates
+      properties:
+        cycle_id:
+          type: integer
+          description: The cycle number
+          minimum: 0
+        accuracy:
+          type: number
+          description: Accuracy at this cycle
+          minimum: 0.0
+          maximum: 1.0
+        prompt_length:
+          type: integer
+          description: Number of candidates in the prompt
+          minimum: 1
+        num_candidates:
+          type: integer
+          description: Total negative candidates available
+          minimum: 0
+        pruned_count:
+          type: integer
+          description: Number of candidates pruned by CAP
+          minimum: 0
+        confidence_mean:
+          type: number
+          description: Mean confidence score at this cycle
+          minimum: 0.0
+          maximum: 1.0
+        confidence_std:
+          type: number
+          description: Standard deviation of confidence scores
+          minimum: 0.0
+  metadata:
+    type: object
+    description: Additional context for the convergence result
+    properties:
+      method:
+        type: string
+        enum:
+          - static_zppo
+          - cap_zppo
+      config_hash:
+        type: string
+        description: Hash of the configuration used
+  generated_at:
+    type: string
+    format: date-time
+    description: When this result was generated

@@ -1,0 +1,2 @@
+# This file ensures the state directory is tracked by git.
+# Actual state files are generated during execution.
