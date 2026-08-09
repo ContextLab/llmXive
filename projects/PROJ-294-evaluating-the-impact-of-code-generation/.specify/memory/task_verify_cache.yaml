@@ -1,35 +1,33 @@
-T010:
+T001a:
   c: false
-  h: 7bdef9ce11ac2d32cbed7a9052d6a40a483fcc351d9368da314c28532fbdf38f
-  r: "The repository lacks the required `data/raw/humaneval.parquet` file, and the\
-    \ provided `code/download_data.py` is incomplete (the `download_humaneval` function\
-    \ is truncated and does not show the required retry, timeout watchdog, subset\u2011\
-    selection on timeout, saving to Parquet, or SHA256 verification). The task\u2019\
-    s core functionality is therefore not fulfilled."
-T010b:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other proof is provided showing that `projects/PROJ-294-evaluating-the-impact-of-code-generation/`
+    and its required subfolders (`code/`, `data/`, `state/`, `results/`, `tests/`,
+    `docs/`) actually exist; the claim is unsubstantiated. The implementer must supply
+    concrete evidence (e.g., a file tree dump or screenshots) that the directory structure
+    has been created.
+T001b:
   c: false
-  h: a167c8b8a031788477bf16c66769a7e4fc0e8533552bd45eb17e65255e956325
-  r: The required output file `data/raw/human_references.json` does not exist, and
-    the provided `code/download_data.py` snippet ends abruptly without any logic that
-    extracts `solution` and `test` strings or writes them to that JSON file. The implementation
-    needed to fulfill US1 is therefore missing.
-T011:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that `__init__.py` files actually exist in `code/`,
+    `tests/`, `tests/unit/`, or `tests/integration/`. Without file listings or contents,
+    we cannot confirm the required artifacts are present. The implementer must add
+    the missing `__init__.py` files (or provide proof they exist).
+T003:
   c: false
-  h: b59f5b052c87d379c62d3628cba557f9d85b10079ea82c959586a444bbfd323d
-  r: "The repository lacks the required `data/raw/sampled_subset.json` file, and the\
-    \ shown `code/download_data.py` is truncated before any sampling logic is implemented\
-    \ (it ends mid\u2011line at `ds = load_d`). Consequently, no deterministic subset\
-    \ of 80 tasks is created or saved, so the task\u2019s requirement is not satisfied."
-T012:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present in the provided\
+    \ evidence, nor any documentation showing that flake8/black have been set up and\
+    \ integrated into the project. Without such artifacts, the requirement to configure\
+    \ linting and formatting tools is not satisfied."
+T008:
   c: false
-  h: c7960f75a0757ae281e6d9696d2fa02b7166f66f3ee283c744316d6248d65abc
-  r: "The required input `data/raw/sampled_subset.json` and the expected output `data/generated/codegen_samples.json`\
-    \ are both absent, so the script cannot be verified to read tasks or write generated\
-    \ code. Moreover, the provided portion of `code/generate_code.py` shows only logging\
-    \ utilities and a stub for model availability; there is no visible code that loads\
-    \ the `Salesforce/codegen-350M-mono` model, performs generation on CPU, or implements\
-    \ exponential\u2011backoff retry logic. The task\u2019s core functionality is\
-    \ therefore not demonstrated."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/generated/`, `data/analysis/`)\
+    \ is provided; the claim lacks any artifact listing or file\u2011system snapshot\
+    \ confirming their existence. The implementer must create and show these three\
+    \ directories (and ideally populate them) to satisfy the task."
 T014a:
   c: false
   h: cbbd6ab9a28e6e63cd9b681e5abac7aa8782d40d9efaee59a08852e2eafcd830
@@ -46,14 +44,6 @@ T017:
     \ provided `code/analyze_metrics.py` is incomplete (truncated) with no evidence\
     \ that it writes the JSON or enforces the non\u2011null constraints. The task\u2019\
     s core deliverable is missing."
-T028:
-  c: false
-  h: 5d36a8a9562b03f512ccf3bd487d97e657bf5c0c4211145a19e4d3571b31f6f4
-  r: "The repository lacks the required `data/generated/sensitivity_samples.json`\
-    \ file, and the provided `code/generate_code.py` snippet does not show the full\
-    \ GPU\u2011check, VRAM\u2011check, model\u2011loading, and fallback logic nor\
-    \ the code that writes the 80\u2011sample JSON output. Both the essential output\
-    \ artifact and the complete implementation are missing."
 T046:
   c: false
   h: 77d3d316ac0b5f1c1dc853a7adcfa99192e475df4b2ff4b1dfd6c5f25bc973d2

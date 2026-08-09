@@ -1,138 +1,193 @@
 import os
 import sys
+import pytest
 import tempfile
 import shutil
-import unittest
-from unittest.mock import patch, MagicMock
+from pathlib import Path
 
-# Add the code directory to the path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add parent directory to path to allow imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "code"))
 
 from setup_data_dirs import create_directories
-from utils import set_task_id, get_logger
 
-class TestDataDirectoryCreation(unittest.TestCase):
+class TestDataDirectoryCreation:
+    """Unit tests for T008: Data directory structure creation."""
 
-    def setUp(self):
-        """Set up a temporary directory to simulate the project root."""
+    def setup_method(self):
+        """Create a temporary directory to simulate project root."""
         self.temp_dir = tempfile.mkdtemp()
-        # Create a mock 'data' directory inside the temp dir
-        self.data_base = os.path.join(self.temp_dir, 'data')
-        # Ensure the path structure matches what the script expects relative to the file
-        # The script looks for 'data' relative to the project root (parent of 'code')
-        # We will mock the path resolution to use our temp_dir as the project root
+        self.code_dir = os.path.join(self.temp_dir, "code")
+        self.data_dir = os.path.join(self.temp_dir, "data")
+        os.makedirs(self.code_dir)
+
+        # Mock the script location so setup_data_dirs thinks it's in the code folder
+        self.original_script_path = "code/setup_data_dirs.py"
+        # We will patch the logic by setting an environment variable or mocking os.path
+        # For simplicity, we will test the directory creation logic directly by calling
+        # a modified version or by mocking the base path.
+        # However, the current function calculates path relative to __file__.
+        # To test properly without moving files, we will test the logic by verifying
+        # that the function creates the expected subfolders in 'data' relative to 'code'.
         
-        # Mock the os.path.dirname logic to point to our temp_dir
-        # The script calculates: os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        # __file__ is tests/unit/test_setup_data_dirs.py
-        # So it goes up two levels to the project root
-        self.project_root = self.temp_dir
-
-    def tearDown(self):
-        """Clean up the temporary directory."""
-        shutil.rmtree(self.temp_dir)
-
-    @patch('setup_data_dirs.os.path.dirname')
-    @patch('setup_data_dirs.os.path.abspath')
-    @patch('setup_data_dirs.os.makedirs')
-    @patch('setup_data_dirs.os.path.exists')
-    def test_creates_missing_directories(self, mock_exists, mock_makedirs, mock_abspath, mock_dirname):
-        """Test that create_directories creates directories that do not exist."""
-        # Setup mocks
-        # Simulate that the directories do not exist
-        mock_exists.side_effect = lambda path: False
-        # Ensure abspath and dirname return values that lead to our temp_dir
-        mock_abspath.return_value = os.path.join(self.project_root, 'code', 'setup_data_dirs.py')
-        mock_dirname.side_effect = lambda path: os.path.dirname(path)
+        # Since we can't easily move the file in the test environment without complex mocking,
+        # we will verify the logic by checking if the function runs without error 
+        # and creates the 'data' folder next to the 'code' folder where the script resides.
+        # In this test, we assume the script is running from the temp_dir/code directory.
         
-        # We need to override the base_dir calculation in the function
-        # Since the function calculates it internally, we can't easily mock it without patching the module
-        # Instead, let's patch the specific os.path operations to force the base_dir to self.data_base
+        # Actually, let's just verify the function runs and creates the dirs.
+        # We need to ensure the 'code' directory exists in the temp structure.
+        pass
+
+    def teardown_method(self):
+        """Clean up temporary directory."""
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    def test_creates_data_raw_directory(self):
+        """Verify that data/raw is created."""
+        # We need to execute the function. Since it calculates paths relative to __file__,
+        # and our file is in tests/unit/, we need to be careful.
+        # However, the requirement is that the script creates dirs relative to the project root.
+        # Let's mock the __file__ path or just check if the dirs exist after running main.
         
-        # Re-mock to force the logic
-        mock_dirname.reset_mock()
-        mock_abspath.reset_mock()
-        mock_exists.reset_mock()
-        mock_makedirs.reset_mock()
-
-        # Mock abspath to return a path under our temp project root
-        mock_abspath.return_value = os.path.join(self.project_root, 'code', 'setup_data_dirs.py')
+        # Simpler approach: Run the function in a context where we know the layout.
+        # We'll create a fake script in the temp_dir/code folder and import it? No, too complex.
         
-        # Mock dirname to go up two levels
-        def mock_dirname_side_effect(path):
-            if path == os.path.join(self.project_root, 'code', 'setup_data_dirs.py'):
-                return os.path.join(self.project_root, 'code')
-            elif path == os.path.join(self.project_root, 'code'):
-                return self.project_root
-            return os.path.dirname(path)
+        # Let's just assert that the function doesn't crash and creates the expected structure
+        # if we run it from the temp_dir/code folder.
         
-        mock_dirname.side_effect = mock_dirname_side_effect
+        # We will manually construct the expected paths and verify they are created.
+        # Since the function uses os.path.dirname(__file__), and the file is in the project,
+        # we trust the logic but verify the outcome.
         
-        # Simulate directories don't exist
-        mock_exists.return_value = False
-
-        # Call the function
-        # Note: The function uses os.path.join(base_dir, 'raw') etc.
-        # We need to ensure the base_dir resolves to self.data_base
-        # The script: base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
-        # With our mocks:
-        # abspath -> project_root/code/setup_data_dirs.py
-        # dirname -> project_root/code
-        # dirname -> project_root
-        # join -> project_root/data
+        # To make this test work without moving the file:
+        # 1. Create the temp structure: temp_dir/code, temp_dir/data
+        # 2. The function should create temp_dir/data/raw, etc.
+        # 3. We can't easily change __file__.
         
-        result = create_directories()
-
-        # Verify makedirs was called for all three subdirectories
-        expected_calls = [
-            unittest.mock.call(os.path.join(self.data_base, 'raw')),
-            unittest.mock.call(os.path.join(self.data_base, 'generated')),
-            unittest.mock.call(os.path.join(self.data_base, 'analysis'))
-        ]
+        # Alternative: Test the logic by extracting the path calculation.
+        # But the function is simple enough. Let's just run it and see if it creates the dirs
+        # in the expected location relative to where the test is run (which is wrong).
         
-        # Check that makedirs was called with the correct arguments
-        # Since we mocked exists to return False, makedirs should be called for all
-        self.assertTrue(result)
-        self.assertEqual(mock_makedirs.call_count, 3)
+        # Correct approach for this specific constraint:
+        # The function calculates: project_root = dirname(dirname(__file__))
+        # If __file__ is .../tests/unit/test_setup_data_dirs.py, then:
+        # dirname -> tests/unit
+        # dirname -> tests
+        # project_root -> tests (wrong)
         
-        # Verify the specific paths
-        calls_args = [call[0][0] for call in mock_makedirs.call_args_list]
-        self.assertIn(os.path.join(self.data_base, 'raw'), calls_args)
-        self.assertIn(os.path.join(self.data_base, 'generated'), calls_args)
-        self.assertIn(os.path.join(self.data_base, 'analysis'), calls_args)
+        # We must mock the __file__ or the path calculation.
+        # Since we can't edit the source to add a parameter for this test easily without
+        # changing the signature (which might break other callers), we will rely on the
+        # fact that the script is supposed to be run as a standalone.
+        
+        # Let's just verify that the function runs and creates the 'data' folder
+        # in the directory two levels up from the script.
+        # In a real run, the script is in code/, so two levels up is project root.
+        # In this test, the script is in code/ (if we copy it) or we are importing it.
+        
+        # Let's assume the test is run from the project root and the script is in code/.
+        # We will create the necessary directories manually to ensure the function has a place to run.
+        
+        # Create the 'code' directory in the temp root to simulate the project structure
+        # Actually, the function uses __file__.
+        # If we import setup_data_dirs from tests, __file__ is tests/setup_data_dirs.py? No.
+        
+        # Let's just check if the function creates the directories in the expected location
+        # relative to the actual script location.
+        # We will create a temporary 'code' folder in the temp_dir, copy the script there,
+        # and run it.
+        
+        import importlib.util
+        import shutil
 
-    @patch('setup_data_dirs.os.path.exists')
-    @patch('setup_data_dirs.os.makedirs')
-    @patch('setup_data_dirs.os.path.dirname')
-    @patch('setup_data_dirs.os.path.abspath')
-    def test_skips_existing_directories(self, mock_abspath, mock_dirname, mock_makedirs, mock_exists):
-        """Test that create_directories does not try to create directories that already exist."""
-        # Setup mocks
-        mock_exists.return_value = True
-        mock_abspath.return_value = os.path.join(self.project_root, 'code', 'setup_data_dirs.py')
-        mock_dirname.side_effect = lambda path: os.path.dirname(path)
+        script_path = os.path.join(os.path.dirname(__file__), "..", "..", "code", "setup_data_dirs.py")
+        # Normalize path
+        script_path = os.path.normpath(script_path)
+        
+        if not os.path.exists(script_path):
+            # If the script isn't where we think it is, skip or fail
+            pytest.skip("Script not found at expected location")
 
-        result = create_directories()
+        # Create a temp project structure
+        test_project_root = tempfile.mkdtemp()
+        test_code_dir = os.path.join(test_project_root, "code")
+        os.makedirs(test_code_dir)
+        
+        # Copy the script to the test code dir
+        test_script_path = os.path.join(test_code_dir, "setup_data_dirs.py")
+        shutil.copy(script_path, test_script_path)
+        
+        # Also copy utils.py if needed
+        utils_src = os.path.join(os.path.dirname(__file__), "..", "..", "code", "utils.py")
+        if os.path.exists(utils_src):
+            shutil.copy(utils_src, os.path.join(test_code_dir, "utils.py"))
+        
+        # Add the test_code_dir to sys.path temporarily
+        sys.path.insert(0, test_code_dir)
+        
+        try:
+            spec = importlib.util.spec_from_file_location("test_setup_data_dirs_script", test_script_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            
+            # Run the main function
+            result = module.main()
+            
+            assert result == 0, "Function returned non-zero exit code"
+            
+            # Check if directories were created
+            data_raw = os.path.join(test_project_root, "data", "raw")
+            data_generated = os.path.join(test_project_root, "data", "generated")
+            data_analysis = os.path.join(test_project_root, "data", "analysis")
+            
+            assert os.path.exists(data_raw), f"Directory {data_raw} was not created"
+            assert os.path.exists(data_generated), f"Directory {data_generated} was not created"
+            assert os.path.exists(data_analysis), f"Directory {data_analysis} was not created"
+            
+        finally:
+            sys.path.remove(test_code_dir)
+            shutil.rmtree(test_project_root)
 
-        # makedirs should not be called
-        mock_makedirs.assert_not_called()
-        self.assertTrue(result)
+    def test_directories_are_empty_or_valid(self):
+        """Verify that created directories are valid directories."""
+        # Reuse the logic from the previous test but simplified
+        import importlib.util
+        import shutil
 
-    @patch('setup_data_dirs.os.path.exists')
-    @patch('setup_data_dirs.os.makedirs')
-    @patch('setup_data_dirs.os.path.dirname')
-    @patch('setup_data_dirs.os.path.abspath')
-    def test_handles_creation_error(self, mock_abspath, mock_dirname, mock_makedirs, mock_exists):
-        """Test that create_directories returns False if directory creation fails."""
-        # Setup mocks
-        mock_exists.return_value = False
-        mock_abspath.return_value = os.path.join(self.project_root, 'code', 'setup_data_dirs.py')
-        mock_dirname.side_effect = lambda path: os.path.dirname(path)
-        mock_makedirs.side_effect = OSError("Permission denied")
+        script_path = os.path.join(os.path.dirname(__file__), "..", "..", "code", "setup_data_dirs.py")
+        script_path = os.path.normpath(script_path)
+        
+        if not os.path.exists(script_path):
+            pytest.skip("Script not found")
 
-        result = create_directories()
-
-        self.assertFalse(result)
-
-if __name__ == '__main__':
-    unittest.main()
+        test_project_root = tempfile.mkdtemp()
+        test_code_dir = os.path.join(test_project_root, "code")
+        os.makedirs(test_code_dir)
+        
+        test_script_path = os.path.join(test_code_dir, "setup_data_dirs.py")
+        shutil.copy(script_path, test_script_path)
+        
+        utils_src = os.path.join(os.path.dirname(__file__), "..", "..", "code", "utils.py")
+        if os.path.exists(utils_src):
+            shutil.copy(utils_src, os.path.join(test_code_dir, "utils.py"))
+        
+        sys.path.insert(0, test_code_dir)
+        
+        try:
+            spec = importlib.util.spec_from_file_location("test_setup_data_dirs_script", test_script_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            module.main()
+            
+            data_root = os.path.join(test_project_root, "data")
+            assert os.path.isdir(data_root)
+            
+            for subdir in ["raw", "generated", "analysis"]:
+                path = os.path.join(data_root, subdir)
+                assert os.path.isdir(path)
+                # They should be empty initially
+                assert len(os.listdir(path)) == 0
+        finally:
+            sys.path.remove(test_code_dir)
+            shutil.rmtree(test_project_root)

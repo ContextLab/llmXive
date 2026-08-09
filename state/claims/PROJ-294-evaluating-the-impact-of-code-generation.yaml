@@ -260,3 +260,235 @@
   source_type: external
   status: verified
   updated_at: '2026-07-19T15:51:49Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset size is 164 tasks
+  claim_id: c_8e4bfb0c
+  context: 'Independent Test: Run the pipeline on the full HumanEval dataset (N=164).
+    Verify that data/analysis/metrics.json contains cyclomatic_complexity, halstead_volume,
+    branch_coverage_pct, and pass_rate for every valid pair, with n=164 (or n < 164
+    only if specific tasks fail execution).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the pipeline on the full HumanEval dataset (N=164).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:05:37Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset uses revision main for deterministic versioning
+  claim_id: c_003a9d32
+  context: Implement code/download_data.py to download the full HumanEval dataset
+    from HuggingFace (openai_humaneval) using revision="main" to ensure deterministic
+    versioning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_uses_revision_main_for_deterministic_versi
+  kind: entity_fact
+  raw_text: Use revision='main' to ensure deterministic versioning for the openai_humaneval
+    dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:06:47Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: MDES calculated for fixed sample size N=164
+  claim_id: c_d8865279
+  context: Implement logic in code/statistical_tests.py to calculate the Minimum Detectable
+    Effect Size (MDES) for the fixed sample size (N=164) using statsmodels.stats.power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum detectable effect size (MDES) is calculated for a fixed sample
+    size of N=164.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:07:08Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: MDES parameters alpha 0.05 power 0.8
+  claim_id: c_5b1a9365
+  context: 'Parameters: Use alpha=0.05, power=0.8, and observed standard deviations
+    from the metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical tests use alpha=0.05 and power=0.8 for MDES calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:07:26Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if sample size n < 30 after exclusion
+  claim_id: c_30d18291
+  context: 'Action: If the number of excluded pairs results in a remaining sample
+    size n < 30, log a Critical Error and ABORT the pipeline with SystemExit(1).'
+  evidence:
+    asserted: '30.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline aborts if the remaining sample size after pairwise exclusion
+    is n < 30.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T07:07:26Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Wilcoxon Signed-Rank test two-tailed alpha 0.05
+  claim_id: c_6a9e58c9
+  context: 'Implement code/statistical_tests.py with Wilcoxon Signed-Rank test for
+    continuous metrics: Cyclomatic Complexity and Halstead Volume ONLY. Parameters:
+    Use a two-tailed test with alpha=0.05.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_Signed-Rank_test_two-tailed_alpha_0.05
+  kind: entity_fact
+  raw_text: The Wilcoxon Signed-Rank test is a two-tailed test with alpha=0.05.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:08:07Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: McNemar test alpha 0.05
+  claim_id: c_95b59b12
+  context: 'Implement code/statistical_tests.py with McNemar''s test for binary pass-rate.
+    Parameters: Use alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McNemar's test uses alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:08:22Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fisher Exact Test alpha 0.05
+  claim_id: c_1611bb00
+  context: 'Implement code/statistical_tests.py with Fisher''s Exact Test for binary
+    pass-rate (as an alternative to McNemar for small samples). Parameters: Use alpha=0.05.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "classic value of 0.05. Holm\u2019s sequential procedure"
+      source_id: '2104.14209'
+      url: https://arxiv.org/abs/2104.14209
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Fisher's Exact Test uses alpha=0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T07:08:50Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sandbox enforces 30-second timeout per task
+  claim_id: c_73acc450
+  context: Implement code/sandbox.py to create an isolated execution environment for
+    HumanEval test suites using Docker container with network_mode=none to prevent
+    network access, and pytest-timeout to enforce a 30-second timeout per task.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sandbox enforces a 30-second timeout per task using pytest-timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:09:05Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B uses 8-bit quantization
+  claim_id: c_b4f40c95
+  context: Implement code/generate_code_llama.py to generate code samples using CodeLlama-Instruct-hf
+    (8-bit quantized) for sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-7B inference uses 8-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:09:20Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama generation temperature 0.0 max_tokens 1024
+  claim_id: c_2441b061
+  context: 'Parameters: temperature=0.0, max_tokens=1024.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama generation uses temperature=0.0 and max_tokens=1024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:09:34Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeGen-350M batch size 8
+  claim_id: c_5ce163e9
+  context: Implement batched processing (batch_size=8) to respect CPU memory limits
+    and the -hour performance goal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CodeGen-350M model is run with batch_size=8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:09:52Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: GPU escape hatch exit code 184
+  claim_id: c_e0181a34
+  context: If CPU fails, log the error and exit with a specific code (e.g., EXIT_GPU_RETRY
+    = 184) to signal the execution stage to re-run on GPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GPU escape hatch exit code is 184.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:10:06Z'

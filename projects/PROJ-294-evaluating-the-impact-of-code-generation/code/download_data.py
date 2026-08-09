@@ -1,188 +1,224 @@
 """
-Download HumanEval dataset from HuggingFace.
+T010: Download HumanEval dataset from HuggingFace.
 
-Downloads the full HumanEval dataset and saves it to data/raw/humaneval.parquet.
-Computes SHA256 checksum for verification.
+Downloads the full HumanEval dataset (openai/openai_humaneval) using revision="main".
+Saves raw data to data/raw/humaneval.parquet and computes SHA256 checksum.
 
-Output: data/raw/humaneval.parquet
+Constraints:
+- Must NOT fall back to synthetic data.
+- Must raise RuntimeError with message "Failed to download verified real source" on failure.
+- Must stream the real data if large (though HumanEval is small, we use the streaming pattern for consistency).
 """
 import os
 import sys
-import hashlib
 import json
 import time
 import logging
-from typing import Optional
+import hashlib
+from typing import Optional, Dict, Any, List
 
-# Import utilities from utils
+# Import shared utilities from utils.py
+# Note: utils.py is expected to exist in the same directory (code/)
 try:
-    from utils import setup_logging, get_logger, set_task_id, get_task_id, compute_sha256, ensure_directory
+    from utils import setup_logging, get_logger, set_task_id, get_task_id, compute_sha256
 except ImportError:
-    # Fallback for direct execution
-    def setup_logging(task_id=None):
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-        return logging.getLogger(__name__)
-    
-    def get_logger(name):
-        return logging.getLogger(name)
-    
-    def set_task_id(tid):
+    # Fallback if utils is not importable (e.g., running directly)
+    import logging
+    import hashlib
+    import uuid
+    from datetime import datetime
+
+    def setup_logging(task_id: Optional[str] = None) -> logging.Logger:
+        logger = logging.getLogger(f"T010_{task_id or 'download'}")
+        logger.setLevel(logging.INFO)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] [%(name)s] - %(message)s'))
+            logger.addHandler(handler)
+        return logger
+
+    def get_logger() -> logging.Logger:
+        return logging.getLogger("T010")
+
+    def set_task_id(tid: str) -> None:
         pass
-    
-    def get_task_id():
-        return None
-    
-    def compute_sha256(file_path):
+
+    def get_task_id() -> str:
+        return "T010"
+
+    def compute_sha256(file_path: str) -> str:
         sha256_hash = hashlib.sha256()
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
-    
-    def ensure_directory(dir_path):
-        os.makedirs(dir_path, exist_ok=True)
-        return dir_path
 
-TASK_ID = "T010"
+# Constants
 DATASET_NAME = "openai/openai_humaneval"
-OUTPUT_PATH = "data/raw/humaneval.parquet"
+REVISION = "main"
+OUTPUT_DIR = "data/raw"
+OUTPUT_FILE_NAME = "humaneval.parquet"
 MAX_RETRIES = 3
-RETRY_DELAY = 5
+RETRY_DELAY = 5  # seconds
 
-def get_file_path():
-    """Get the output file path."""
-    return OUTPUT_PATH
+def ensure_output_dir() -> None:
+    """Ensure the output directory exists."""
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def verify_file_integrity(file_path: str, expected_checksum: Optional[str] = None) -> bool:
+def download_humaneval(logger: logging.Logger) -> Optional[List[Dict[str, Any]]]:
     """
-    Verify file integrity using SHA256.
+    Download the HumanEval dataset from HuggingFace Hub.
     
-    Args:
-        file_path: Path to the file
-        expected_checksum: Optional expected checksum
-        
-    Returns:
-        True if file exists and checksum matches (if provided)
-    """
-    if not os.path.exists(file_path):
-        return False
-    
-    actual_checksum = compute_sha256(file_path)
-    logging.info(f"Computed SHA256 for {file_path}: {actual_checksum}")
-    
-    if expected_checksum:
-        return actual_checksum == expected_checksum
-    return True
-
-def download_humaneval():
-    """
-    Download the HumanEval dataset from HuggingFace.
-    
-    Uses streaming to handle large datasets efficiently.
-    Saves to data/raw/humaneval.parquet.
+    Uses the `datasets` library to load the dataset and streams it to avoid memory issues.
+    Returns the data as a list of dictionaries, or None if download fails.
     
     Raises:
-        RuntimeError: If download fails after max retries
+        RuntimeError: If download fails after max retries.
     """
-    from datasets import load_dataset
+    logger.info(f"Attempting to download dataset: {DATASET_NAME} (revision={REVISION})")
     
-    logging.info(f"Starting download of {DATASET_NAME}")
-    
-    for attempt in range(1, MAX_RETRIES + 1):
+    retries = 0
+    last_exception = None
+
+    while retries < MAX_RETRIES:
         try:
-            # Load dataset with streaming to handle large size
-            logging.info(f"Attempt {attempt}/{MAX_RETRIES}")
+            # Import here to avoid dependency issues if datasets is not installed
+            from datasets import load_dataset
             
-            ds = load_dataset(DATASET_NAME, split="test", streaming=True)
+            # Load the dataset with streaming to handle potential large sizes gracefully
+            # Although HumanEval is small, this follows the "streaming" constraint.
+            ds = load_dataset(DATASET_NAME, split="test", revision=REVISION, streaming=True)
             
-            # Convert to list to ensure we have all data
-            # For HumanEval (164 tasks), this is manageable in memory
-            records = list(ds)
+            # Convert to list of dicts. Since HumanEval is small (~164 items),
+            # we can safely materialize it.
+            data = list(ds)
             
-            logging.info(f"Downloaded {len(records)} records")
+            if not data:
+                logger.error("Downloaded dataset is empty.")
+                raise RuntimeError("Downloaded dataset is empty.")
             
-            if len(records) == 0:
-                raise RuntimeError("Downloaded dataset is empty")
+            logger.info(f"Successfully downloaded {len(data)} records.")
+            logger.info(f"Fields: {data[0].keys()}")
             
-            # Save to parquet
-            output_dir = os.path.dirname(OUTPUT_PATH)
-            ensure_directory(output_dir)
-            
-            logging.info(f"Saving to {OUTPUT_PATH}")
-            # Use pandas to save as parquet
-            try:
-                import pandas as pd
-                df = pd.DataFrame(records)
-                df.to_parquet(OUTPUT_PATH, index=False)
-            except ImportError:
-                # Fallback to JSON if pandas not available
-                logging.warning("pandas not available, saving as JSON instead")
-                json_path = OUTPUT_PATH.replace(".parquet", ".json")
-                with open(json_path, "w", encoding="utf-8") as f:
-                    json.dump(records, f, indent=2, ensure_ascii=False)
-                # Update path for checksum
-                return json_path
-            
-            # Verify integrity
-            if verify_file_integrity(OUTPUT_PATH):
-                checksum = compute_sha256(OUTPUT_PATH)
-                logging.info(f"Download complete. SHA256: {checksum}")
-                return OUTPUT_PATH
-            else:
-                raise RuntimeError("Checksum verification failed")
-                
+            return data
+
         except Exception as e:
-            logging.error(f"Download attempt {attempt} failed: {e}")
-            if attempt < MAX_RETRIES:
-                logging.info(f"Retrying in {RETRY_DELAY} seconds...")
+            last_exception = e
+            retries += 1
+            logger.warning(f"Download attempt {retries}/{MAX_RETRIES} failed: {e}")
+            if retries < MAX_RETRIES:
+                logger.info(f"Retrying in {RETRY_DELAY} seconds...")
                 time.sleep(RETRY_DELAY)
             else:
-                raise RuntimeError(f"Failed to download verified real source after {MAX_RETRIES} attempts")
-    
-    raise RuntimeError("Failed to download verified real source")
+                logger.error(f"Failed to download verified real source after {MAX_RETRIES} retries.")
+                raise RuntimeError("Failed to download verified real source") from e
 
-def calculate_quartile_boundaries(data: list) -> dict:
+    # Should not reach here, but just in case
+    raise RuntimeError("Failed to download verified real source") from last_exception
+
+def save_to_parquet(data: List[Dict[str, Any]], output_path: str, logger: logging.Logger) -> None:
     """
-    Calculate quartile boundaries for a list of values.
+    Save the downloaded data to a Parquet file.
     
     Args:
-        data: List of numeric values
-        
-    Returns:
-        Dictionary with Q1, Q2, Q3
+        data: List of dictionaries containing the dataset records.
+        output_path: Path to the output Parquet file.
+        logger: Logger instance.
     """
-    if not data:
-        return {"Q1": 0, "Q2": 0, "Q3": 0}
-    
-    sorted_data = sorted(data)
-    n = len(sorted_data)
-    
-    Q2 = sorted_data[n // 2]
-    Q1 = sorted_data[n // 4]
-    Q3 = sorted_data[3 * n // 4]
-    
-    return {"Q1": Q1, "Q2": Q2, "Q3": Q3}
-
-def main():
-    """Main entry point for data download."""
-    logger = setup_logging(task_id=TASK_ID)
-    set_task_id(TASK_ID)
-    
-    logging.info(f"Starting HumanEval download (Task: {TASK_ID})")
+    logger.info(f"Saving data to {output_path}")
     
     try:
-        output_path = download_humaneval()
-        logging.info(f"Data download successful: {output_path}")
-        
-        # Compute and log checksum
-        checksum = compute_sha256(output_path)
-        logging.info(f"Final checksum: {checksum}")
-        
+        import pandas as pd
+        df = pd.DataFrame(data)
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Saved {len(df)} records to {output_path}")
+    except ImportError:
+        logger.error("pandas and pyarrow are required to save Parquet files. Install with: pip install pandas pyarrow")
+        raise
     except Exception as e:
-        logging.error(f"Data download failed: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to save Parquet file: {e}")
+        raise
+
+def save_to_jsonl(data: List[Dict[str, Any]], output_path: str, logger: logging.Logger) -> None:
+    """
+    Save the downloaded data to a JSONL file as a fallback or alternative format.
     
-    logging.info(f"HumanEval download completed successfully (Task: {TASK_ID})")
+    Args:
+        data: List of dictionaries containing the dataset records.
+        output_path: Path to the output JSONL file.
+        logger: Logger instance.
+    """
+    logger.info(f"Saving data to {output_path}")
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            for record in data:
+                f.write(json.dumps(record) + '\n')
+        logger.info(f"Saved {len(data)} records to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save JSONL file: {e}")
+        raise
+
+def verify_file_integrity(file_path: str, logger: logging.Logger) -> str:
+    """
+    Compute and log the SHA256 checksum of the output file.
+    
+    Args:
+        file_path: Path to the file.
+        logger: Logger instance.
+        
+    Returns:
+        The SHA256 checksum string.
+    """
+    checksum = compute_sha256(file_path)
+    logger.info(f"SHA256 checksum of {file_path}: {checksum}")
+    
+    # Save checksum to a sidecar file
+    checksum_path = file_path + ".sha256"
+    with open(checksum_path, 'w') as f:
+        f.write(checksum)
+    logger.info(f"Saved checksum to {checksum_path}")
+    
+    return checksum
+
+def main() -> None:
+    """Main entry point for T010."""
+    task_id = get_task_id() or "T010"
+    logger = setup_logging(task_id=task_id)
+    set_task_id(task_id)
+    
+    logger.info("Starting T010: Download HumanEval Dataset")
+    
+    try:
+        # Ensure output directory exists
+        ensure_output_dir()
+        
+        # Download data
+        data = download_humaneval(logger)
+        
+        if data is None:
+            logger.error("Download returned no data.")
+            sys.exit(1)
+        
+        # Save to Parquet
+        parquet_path = os.path.join(OUTPUT_DIR, OUTPUT_FILE_NAME)
+        save_to_parquet(data, parquet_path, logger)
+        
+        # Also save to JSONL for compatibility with other scripts that might expect it
+        jsonl_path = os.path.join(OUTPUT_DIR, "humaneval_test.jsonl")
+        save_to_jsonl(data, jsonl_path, logger)
+        
+        # Verify integrity
+        verify_file_integrity(parquet_path, logger)
+        
+        logger.info("T010 completed successfully.")
+        
+    except RuntimeError as e:
+        logger.error(f"Critical error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.exception(f"Unexpected error in T010: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

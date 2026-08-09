@@ -5,67 +5,61 @@ from utils import get_logger, set_task_id, get_task_id
 
 def create_directories():
     """
-    Creates the required data directory structure:
-    - data/raw/
-    - data/generated/
-    - data/analysis/
-
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Creates the required data directory structure for the project.
+    Implements Task T008.
     """
-    task_id = get_task_id()
-    logger = get_logger()
-    logger.info(f"[{task_id}] Starting directory creation for data structure.")
-
-    # Define the base data directory relative to the project root
-    # We assume the script is run from the project root or code/ directory
-    # The paths must be relative to the project root as per constraints
-    base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+    # Define the project root based on the current file location
+    # The script is in code/, so project root is parent of code/
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir)
     
+    data_root = os.path.join(project_root, "data")
+    
+    # Define the specific directories required by T008
     directories = [
-        os.path.join(base_dir, 'raw'),
-        os.path.join(base_dir, 'generated'),
-        os.path.join(base_dir, 'analysis')
+        os.path.join(data_root, "raw"),
+        os.path.join(data_root, "generated"),
+        os.path.join(data_root, "analysis")
     ]
-
-    success = True
+    
+    # Ensure the main data root exists
+    os.makedirs(data_root, exist_ok=True)
+    
+    created_count = 0
     for directory in directories:
         try:
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-                logger.info(f"[{task_id}] Created directory: {directory}")
-            else:
-                logger.info(f"[{task_id}] Directory already exists: {directory}")
+            os.makedirs(directory, exist_ok=True)
+            created_count += 1
+            # Log only if we are in the main execution context
+            # Avoid spamming logs if imported multiple times
+            if "main" in sys.argv[0]:
+                logger = get_logger()
+                if logger:
+                    logger.info(f"Created directory: {directory}")
         except OSError as e:
-            logger.error(f"[{task_id}] Failed to create directory {directory}: {e}")
-            success = False
+            logger = get_logger()
+            if logger:
+                logger.error(f"Failed to create directory {directory}: {e}")
+            raise
 
-    if success:
-        logger.info(f"[{task_id}] Data directory structure creation completed successfully.")
-    else:
-        logger.error(f"[{task_id}] Data directory structure creation failed.")
-
-    return success
+    return created_count
 
 def main():
-    """
-    Entry point for the script.
-    Sets up logging and executes directory creation.
-    """
-    set_task_id('T008')
-    setup_logging()
+    """Entry point for T008 execution."""
+    set_task_id("T008")
     logger = get_logger()
+    if logger:
+        logger.info("Starting T008: Create data directory structure")
     
     try:
-        if create_directories():
-            logger.info("Task T008 completed successfully.")
-            sys.exit(0)
-        else:
-            logger.error("Task T008 failed due to directory creation errors.")
-            sys.exit(1)
+        count = create_directories()
+        if logger:
+            logger.info(f"T008 completed successfully. Created {count} directories.")
+        return 0
     except Exception as e:
-        logger.critical(f"Unexpected error in T008: {e}")
-        sys.exit(1)
+        if logger:
+            logger.error(f"T008 failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
