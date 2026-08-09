@@ -1,51 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Interaction Log Schema"
-description: "Schema for anonymized participant interaction logs used in bug localization study."
-type: object
+description: "Schema for anonymized participant interaction logs."
+type: "object"
 properties:
   participant_id:
-    type: string
-    description: "Anonymized participant identifier (e.g., 'P001')."
-    pattern: "^P\\d{3}$"
+    type: "string"
+    description: "Anonymized participant ID."
+    pattern: "^P[0-9]{3}$"
   task_id:
-    type: string
-    description: "Unique task identifier."
+    type: "string"
+    description: "Unique task instance ID."
   condition:
-    type: string
-    description: "Experimental condition."
+    type: "string"
+    description: "Summary condition."
     enum:
-      - baseline
-      - llm_sim
-      - rule
+      - "baseline"
+      - "llm"
+      - "rule"
   timestamp_ms:
-    type: integer
-    description: "Time elapsed from task display to click in milliseconds."
+    type: "integer"
+    description: "Time from task display to click (ms)."
     minimum: 0
   selected_line:
-    type: integer
-    description: "Line number selected by the participant."
+    type: "integer"
+    description: "Line number clicked by participant."
     minimum: 1
   ground_truth_line:
-    type: integer
-    description: "Ground truth buggy line number from Defects4J."
+    type: "integer"
+    description: "Actual buggy line number."
     minimum: 1
-  accuracy_exact:
-    type: boolean
-    description: "Whether the selected line matches the ground truth exactly."
-  accuracy_top5:
-    type: boolean
-    description: "Whether the selected line is within 5 lines of the ground truth (proximity)."
-  latency_calibrated:
-    type: boolean
-    description: "Whether the startup latency calibration test passed for this session."
+  is_correct:
+    type: "boolean"
+    description: "Whether the selected line matches the ground truth."
 required:
-  - participant_id
-  - task_id
-  - condition
-  - timestamp_ms
-  - selected_line
-  - ground_truth_line
-  - accuracy_exact
-  - accuracy_top5
-  - latency_calibrated
+  - "participant_id"
+  - "task_id"
+  - "condition"
+  - "timestamp_ms"
+  - "selected_line"
+  - "ground_truth_line"
+  - "is_correct"
 additionalProperties: false

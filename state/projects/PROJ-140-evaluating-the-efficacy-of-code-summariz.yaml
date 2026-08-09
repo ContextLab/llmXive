@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T10:25:42.709825Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-140-evaluating-the-efficacy-of-code-summariz
-last_run_id: b2305c30-6389-42cf-abc6-c19fdf61e126
+last_run_id: ed1c9808-d309-429a-a4d4-99f80d5ba21e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz
 title: Evaluating the Efficacy of Code Summarization Techniques for Bug Localization
-updated_at: '2026-08-07T21:54:34.018801Z'
+updated_at: '2026-08-09T20:05:14.071212Z'

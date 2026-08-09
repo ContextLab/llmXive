@@ -1,62 +1,66 @@
-# Data Model: Evaluating Code Summarization Techniques for Bug Localization
+# Data Model: Evaluating the Efficacy of Code Summarization Techniques for Bug Localization
 
-## Overview
+## 1. Overview
 
-This document defines the data structures used in the research pipeline, ensuring alignment with the project's Constitution (Data Hygiene, Single Source of Truth).
+This document defines the data structures used in the project, ensuring alignment with the `spec.md` and the `contracts/` schemas. Data flows from raw Defects4J extraction → summary generation → simulated interaction logs → statistical results.
 
-## Entities
+## 2. Entity Definitions
 
-### 1. Participant
-Represents a study participant.
-- **participant_id**: `str` (Anonymized, e.g., "P001")
-- **condition_sequence**: `list[str]` (Order of conditions: e.g., ["baseline", "llm", "rule"])
-- **dropout_status**: `bool` (True if incomplete data)
+### 2.1. Defects4J Method (Source)
+- **Source**: `data/raw/defects4j/defects4j.parquet`
+- **Fields**:
+  - `method_id` (str): Unique identifier for the buggy method.
+  - `project` (str): Project name (e.g., "Chart", "Time").
+  - `code` (str): Source code of the method.
+  - `buggy_line` (int): 1-based line number of the bug.
 
-### 2. Task
-Represents a single bug localization instance.
-- **task_id**: `str` (Unique identifier, e.g., "T001")
-- **buggy_method_id**: `str` (Reference to Defects4J method)
-- **ground_truth_line**: `int` (Line number of the bug)
-- **project_type**: `str` (Chart, Time, Math)
-- **source_code**: `str` (Truncated source for context)
+### 2.2. Summary (Derived)
+- **Source**: `data/processed/summaries/`
+- **Fields**:
+  - `summary_id` (str): UUID.
+  - `method_id` (str): Foreign key to method.
+  - `type` (str): Enum["none", "llm", "rule"].
+  - `text` (str): The summary text (or empty string for "none").
 
-### 3. Summary
-Represents a generated summary for a task.
-- **summary_id**: `str`
-- **task_id**: `str`
-- **summary_type**: `str` (enum: "baseline", "llm_sim", "rule")
-- **summary_text**: `str` (The summary content. Empty for "baseline")
-- **generation_status**: `str` (enum: "success", "fallback", "mock")
+### 2.3. Interaction Log (Simulated)
+- **Source**: `data/interaction_logs/anonymized_logs.csv`
+- **Fields**:
+  - `participant_id` (str): Anonymized ID (e.g., "P001").
+  - `task_id` (str): Unique task instance (method + condition).
+  - `condition` (str): Enum["baseline", "llm", "rule"].
+  - `timestamp_ms` (int): Time from task start to click.
+  - `selected_line` (int): Line number clicked by participant.
+  - `ground_truth_line` (int): The actual buggy line.
+  - `is_correct` (bool): `selected_line == ground_truth_line`.
 
-### 4. InteractionLog
-The raw record of a participant's action.
-- **participant_id**: `str`
-- **task_id**: `str`
-- **condition**: `str` (baseline, llm_sim, rule)
-- **timestamp_ms**: `int` (Time from task display to click)
-- **selected_line**: `int` (Line clicked by participant)
-- **ground_truth_line**: `int` (Copied from Task for join)
-- **accuracy_exact**: `bool` (Derived: `selected_line == ground_truth_line`)
-- **accuracy_top5**: `bool` (Derived: `ground_truth_line` in top 5 of sorted selections if multiple, or 1 if within 5 lines of ground truth? *Correction*: Usually Top-K implies the participant selects a ranked list. If the participant selects one line, Top-K is not applicable unless they select K lines. *Revised*: The metric is "Is the selected line within 5 lines of the ground truth?" OR "Did the participant identify the buggy method?" *Decision*: We will use **Top-5 Line Proximity**: 1 if `abs(selected_line - ground_truth_line) <= 5`, else 0. This is a common proxy in bug localization.)
-- **latency_calibrated**: `bool` (True if startup latency test passed)
+### 2.4. Analysis Result (Output)
+- **Source**: `data/analysis_results/final_results.csv`
+- **Fields**:
+  - `comparison` (str): e.g., "baseline_vs_llm_accuracy".
+  - `test_type` (str): "McNemar" or "LME".
+  - `p_value` (float): Raw p-value.
+  - `p_value_corrected` (float): Holm-Bonferroni corrected p-value.
+  - `effect_size` (float): OR or Cohen's d.
+  - `ci_lower` (float): 95% CI lower bound.
+  - `ci_upper` (float): 95% CI upper bound.
 
-### 5. AnalysisResult
-The output of the statistical pipeline.
-- **comparison_pair**: `str` (e.g., "baseline_vs_llm_accuracy_top5")
-- **test_type**: `str` (McNemar, LME)
-- **p_value**: `float`
-- **effect_size**: `float` (Odds Ratio or Cohen's d)
-- **ci_lower**: `float`
-- **ci_upper**: `float`
-- **correction_applied**: `str` (Holm-Bonferroni)
-- **is_significant**: `bool`
-- **metric_used**: `str` (e.g., "top5_proximity", "exact_match")
+## 3. Data Flow Diagram
 
-## Data Flow
+```mermaid
+graph TD
+    A[Defects4J Parquet] -->|Extract| B(Methods Table)
+    B -->|Summarize| C[LLM/Rule Summaries]
+    C -->|Combine| D[Task Pool]
+    D -->|Assign Latin-Square| E[Participant Sessions]
+    E -->|Simulate Clicks| F[Raw Logs CSV]
+    F -->|Anonymize| G[Anonymized Logs CSV]
+    G -->|Stats Engine| H[Analysis Results]
+    H -->|CI Check| I[Reproducibility Package]
+```
 
-1. **Ingestion**: `download_defects4j.py` fetches data from HuggingFace -> `data/defects4j/`.
-2. **Generation**: `generate_summaries.py` creates `data/summaries/` (LLM-Sim and Rule-based).
-3. **Collection**: Human participants generate `data/interaction_logs/raw_logs.csv`.
-4. **Anonymization**: Script strips PII -> `data/interaction_logs/anonymized_logs.csv`.
-5. **Analysis**: `run_statistics.py` reads anonymized logs + summaries -> `data/analysis_results/results.csv`.
-6. **Output**: `results.csv` is the Single Source of Truth for the paper.
+## 4. Constraints & Validations
+
+- **Anonymization**: `participant_id` in `G` must not map to real names. Original consent data is in `data/consent/` (excluded from VCS).
+- **Integrity**: `ground_truth_line` in `G` must match `buggy_line` in `B` for the corresponding `method_id`.
+- **Completeness**: Every `task_id` in `G` must have a corresponding `summary` in `C` (or fallback).
+- **Reproducibility**: All random seeds (for simulation and bootstrapping) are stored in `code/utils/config.py`.

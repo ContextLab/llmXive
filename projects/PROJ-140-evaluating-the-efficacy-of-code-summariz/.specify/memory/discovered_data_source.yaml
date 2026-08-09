@@ -1,0 +1,12 @@
+status: none
+intent: download Defects4J v2.0 Java bug dataset with ground truth lines python package
+  dataset
+required_fields:
+- bug_id
+- project
+- source_code
+- ground_truth_line
+- first_comment_block
+cache_key: efcb1f39d655c94623b9a329abd35e4d6f4e264956caf267624771059992a056
+searched_at: '2026-08-09T19:40:34.999523+00:00'
+retry_count: 1

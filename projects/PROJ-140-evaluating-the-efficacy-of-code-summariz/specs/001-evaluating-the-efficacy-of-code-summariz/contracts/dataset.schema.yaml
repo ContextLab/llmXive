@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Defects4J Method Schema"
+description: "Schema for the extracted Defects4J buggy methods."
+type: "object"
+properties:
+  method_id:
+    type: "string"
+    description: "Unique identifier for the buggy method."
+  project:
+    type: "string"
+    description: "Project name (e.g., Chart, Time, Math)."
+    enum:
+      - "Chart"
+      - "Time"
+      - "Math"
+      - "Lang"
+      - "Closure"
+      - "Groovy"
+      - "Joda"
+  code:
+    type: "string"
+    description: "Source code of the method."
+  buggy_line:
+    type: "integer"
+    description: "1-based line number of the bug."
+    minimum: 1
+required:
+  - "method_id"
+  - "project"
+  - "code"
+  - "buggy_line"
+additionalProperties: false

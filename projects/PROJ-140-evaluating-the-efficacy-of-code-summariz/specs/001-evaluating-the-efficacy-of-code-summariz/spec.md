@@ -34,7 +34,7 @@ As a researcher, I need to run McNemar's tests for accuracy and Linear Mixed-Eff
 **Acceptance Scenarios**:
 
 1. **Given** a complete CSV with 12 participants × 30 tasks each, **When** the statistical analysis pipeline runs, **Then** McNemar's tests produce p-values for accuracy comparisons and LME models produce p-values for speed comparisons.
-2. **Given** the statistical test results, **When** effect sizes are computed, **Then** Odds Ratios (for accuracy) and Cohen's d (for speed) with 95% confidence intervals via bootstrapping (1,000 resamples, fixed seed) are generated for each comparison.
+2. **Given** the statistical test results, **When** effect sizes are computed, **Then** Odds Ratios (for accuracy) and Cohen's d (for speed) with 95% confidence intervals via bootstrapping (multiple resamples, fixed seed) are generated for each comparison.
 3. **Given** multiple hypothesis tests are performed, **When** the analysis completes, **Then** a multiple-comparison correction (e.g., Bonferroni or Holm-Bonferroni) is applied to control family-wise error rate at α=0.05.
 
 ---
@@ -45,7 +45,7 @@ As a researcher, I need to publish all analysis scripts (Python 3.11, pandas, sc
 
 **Why this priority**: This ensures long-term research integrity and enables peer review. It depends on P1 and P2 being complete (data + analysis exist). This is P3 because the core research question can be answered without the reproducibility package, though it's required for publication.
 
-**Independent Test**: Can be fully tested by cloning the OSF repository, running the analysis script in a GitHub Actions free-tier runner, and verifying the output matches the original results within a 5% numerical tolerance.
+**Independent Test**: Can be fully tested by cloning the OSF repository, running the analysis script in a GitHub Actions free-tier runner, and verifying the output matches the original results within a reasonable numerical tolerance.
 
 **Acceptance Scenarios**:
 
@@ -68,11 +68,11 @@ As a researcher, I need to publish all analysis scripts (Python 3.11, pandas, sc
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download Defects4J v2.0 dataset and extract a stratified sample of buggy methods across Java projects (Chart, Time, Math), storing the ground-truth buggy line for each method (See US-1).
+- **FR-001**: System MUST download DefectsJ v2.0 dataset and extract a stratified sample of buggy methods across Java projects (Chart, Time, Math), storing the ground-truth buggy line for each method (See US-1).
 - **FR-002**: System MUST generate three summary variants per buggy method: (a) no summary (baseline), (b) LLM-generated summary via HuggingFace `codellama/CodeLlama-7b-hf` with 8-bit quantization, (c) rule-based summary via srcML comment extractor. If LLM generation fails (timeout >30 seconds, empty output, or non-text), the system MUST log the error and automatically fall back to the rule-based summary for that task (See US-1).
 - **FR-003**: System MUST record participant interaction data in a CSV file with columns: participant_id, task_id, condition (baseline/LLM/rule), timestamp_ms, selected_line, ground_truth_line. The system MUST perform a local loopback latency test at startup to verify the timestamp recording mechanism achieves ≤100ms precision (See US-1).
 - **FR-004**: System MUST perform McNemar's tests for accuracy (binary outcome) and Linear Mixed-Effects (LME) models with random intercepts for participants for speed (time-to-decision), comparing baseline vs. LLM and baseline vs. rule-based, with significance threshold α=0.05 (See US-2).
-- **FR-005**: System MUST compute effect sizes (Odds Ratio for McNemar's, Cohen's d for LME) and 95% confidence intervals via bootstrapping with a sufficient number of resamples and a fixed random seed for all four comparison pairs (See US-2).
+- **FR-005**: System MUST compute effect sizes (Odds Ratio for McNemar's, Cohen's d for LME) and confidence intervals via bootstrapping with a sufficient number of resamples and a fixed random seed for all four comparison pairs (See US-2).
 - **FR-006**: System MUST apply multiple-comparison correction (Bonferroni or Holm-Bonferroni) to control family-wise error rate at α=0.05 when >1 hypothesis test is performed (See US-2).
 - **FR-007**: System MUST generate a reproducibility package containing all Python 3.11 scripts (pandas, scikit-learn, requests, statsmodels), anonymized interaction logs, and a README. The analysis script MUST complete within 6 hours on a standard GitHub Actions free-tier runner (≤7GB RAM, NO GPU) and include a CI test procedure to verify this constraint (See US-3).
 
@@ -96,7 +96,7 @@ As a researcher, I need to publish all analysis scripts (Python 3.11, pandas, sc
 - **SC-001**: Median time-to-decision is measured against the baseline (no summary) condition to evaluate speed improvement (See US-2).
 - **SC-002**: Correct-first-line identification rate is measured against the baseline (no summary) condition to evaluate accuracy improvement (See US-2).
 - **SC-003**: Statistical significance (p<0.05) is measured against the McNemar's test and LME model results for each comparison pair to evaluate hypothesis support (See US-2).
-- **SC-004**: Reproducibility is measured against the original analysis output by verifying that rerun results (p-values, effect sizes, confidence intervals) match within a 5% numerical tolerance using a fixed random seed (See US-3).
+- **SC-004**: Reproducibility is measured against the original analysis output by verifying that rerun results (p-values, effect sizes, confidence intervals) match within a reasonable numerical tolerance using a fixed random seed (See US-3).
 - **SC-005**: Compute feasibility is measured against the GitHub Actions free-tier constraint (≤6h runtime, ≤7GB RAM, NO GPU) to validate analysis runs in CI (See US-3).
 
 ---
@@ -107,7 +107,7 @@ As a researcher, I need to publish all analysis scripts (Python 3.11, pandas, sc
 - The DefectsJ dataset contains all required variables: buggy method source code, ground-truth buggy line numbers, and official bug report text for all sampled methods.
 - LLM summary generation via HuggingFace `codellama/CodeLlama-7b-hf` with 8-bit quantization completes within 30 seconds per method on CPU; if exceeded, the task falls back to rule-based summary.
 - The study uses a Latin-square design to control order effects; 12 participants × 30 tasks each = 360 total task observations.
-- Statistical analysis runs on CPU-only GitHub Actions free-tier (limited core allocation, ~7GB RAM, ~14GB disk); no GPU, CUDA, or 8-bit quantization is used for the *analysis* (only for LLM inference).
+- Statistical analysis runs on CPU-only GitHub Actions free-tier (limited core allocation, constrained RAM, and limited disk space); no GPU, CUDA, or 8-bit quantization is used for the *analysis* (only for LLM inference).
 - Multiple-comparison correction uses Holm-Bonferroni method (family-wise error rate controlled at α=0.05 across 4 tests).
 - Sensitivity analysis sweeps the statistical significance threshold over a range of standard cutoffs and reports how the headline p-values vary across these levels.
 - Participant dropout rate is assumed ≤15% (≤2 participants); partial data from dropouts is excluded from paired analyses.
