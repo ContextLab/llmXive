@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T020` (rejected 1x): The repository contains a partially implemented `code/metrics/extract.py`, but it does not include code that walks `data/training/` and `data/held_out/`, computes the three metrics for each trace, and writes them to `data/processed/feature_matrix.csv`. Moreover, the required CSV file is absent. The task’s primary deliverable is therefore missing.
+- `T035b` (rejected 1x): The repository contains `code/evaluation/calculate_deltas.py` which implements the required calculations, but the required output file `data/processed/accuracy_deltas.csv` is absent, so the deliverable has not been produced. The missing CSV means the task’s primary requirement is not satisfied.
 
 ## Required change
 

@@ -19,45 +19,47 @@ T012:
     incomplete (truncated) and contains no logic to write `session_{uuid}.json` files
     with the required `exact_tool_sequence` and `raw_arg_variance` fields, nor does
     it enforce a fixed random seed by default. These essential deliverables are missing.
-T027a:
+T020:
   c: false
-  h: 6af67f1096a2741695341446f6883e3d8f149e16f444d1cd77139d42a2bd6da3
-  r: "The provided `sweep_thresholds.py` is incomplete (truncated) and does not contain\
-    \ logic to iterate over thresholds, write multiple rule\u2011set files to `data/processed/rules/sweeps/`,\
-    \ or generate the required `data/processed/sweep_config.json` (which is missing).\
-    \ Consequently the deliverables specified in the task are not present."
-T027b:
-  c: false
-  h: 664f2d99e7700fe7f7c4221e5b8e243a0d5e6fb8b98a6ff9cc942a760009e8d3
-  r: "The repository contains `code/evaluation/calculate_compression_ratio.py`, but\
-    \ the file is truncated and does not show logic that writes the required `data/processed/trade_off_curve.csv`.\
-    \ Moreover, the CSV file itself is absent from the project directory. Without\
-    \ the generated CSV (or evidence that the script produces it), the task\u2019\
-    s deliverable is not satisfied."
+  h: 57d06c6603ccb2e55f2818f338d2b8ce23d6dc732429ed51821e8120a88866e0
+  r: "The repository contains a partially\u2011implemented `code/metrics/extract.py`\
+    \ (truncated, no code that iterates over `data/training/` and `data/held_out/`,\
+    \ writes `data/processed/feature_matrix.csv`, or records its SHA\u2011256 hash).\
+    \ The required `feature_matrix.csv` file is absent, so the task\u2019s deliverable\
+    \ is not satisfied."
 T031:
   c: false
   h: f1a91175f13356520b4880816491db887dcad3d6f3df1a86ca589405c4857b62
   r: The `code/agents/compressed.py` file is incomplete (truncated at the end of the
     `_apply_rules` method) and the required `data/processed/rules/global_rules.json`
     does not exist, so the agent cannot load the global rule set as the task demands.
-T033:
+T035:
+  c: false
+  h: c4843f76c5f00d84cca3f40b0bd8a9cee9a1edc6238878020cf21d4787368b31
+  r: The provided `code/evaluation/stats.py` is truncated and contains a syntax error
+    (`rais`), so it does not constitute a complete implementation. Moreover, the required
+    input files `data/processed/accuracy_deltas.csv` and `data/processed/feature_matrix.csv`
+    are absent. Both the script and the necessary data are missing, so the task is
+    not satisfied.
+T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact containing the measured Edit Accuracy values (or a script/report
-    that computes them) was provided. The claim lacks any data, code, or results showing
-    the fraction of edits matching ground truth for the two agents, so the requirement
-    is not satisfied.
-T034:
+  r: "No code, notebook, script, data file, or result figure showing a Spearman correlation\
+    \ between the structural metrics and per\u2011trace Compressibility Score is present.\
+    \ Without any artifact demonstrating that the analysis was performed and its output\
+    \ recorded, the task requirement is not satisfied."
+T037a:
+  c: false
+  h: af2168b8c1afb50806724f4c33733315eb19b200f7607fcd953b7ef1e01c97a0
+  r: "The provided `sweep_thresholds.py` is incomplete (truncated, no entry\u2011\
+    point) and does not demonstrate saving rule sets to `data/processed/rules/sweeps/`.\
+    \ Moreover, the required metadata file `data/processed/sweep_config.json` is missing.\
+    \ The task\u2019s deliverables are therefore not satisfied."
+T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a high\u2011level feature specification and user\
-    \ stories; there is no concrete artifact (e.g., latency logs, CSV/table, benchmark\
-    \ report) showing the measured \u201Ctime to context\u2011ready\u201D for either\
-    \ agent. Consequently the required retrieval\u2011latency data is missing."
-T035b:
-  c: false
-  h: fd8cdac9f7774781ef068146690c31c7f12d1b5535913eba516229f6b60862ff
-  r: The repository contains a partially shown `code/evaluation/calculate_deltas.py`,
-    but the file is truncated and does not demonstrate that it writes `data/processed/accuracy_deltas.csv`.
-    Moreover, the required CSV file is absent from the project. The deliverable is
-    therefore not present.
+  r: "The implementer supplied only the feature specification and user stories; there\
+    \ is no artifact showing that the `quickstart.md` document was actually executed\
+    \ or validated (e.g., command output, validation logs, or a confirmed pass/fail\
+    \ report). Consequently, the required evidence for completing the \u201CRun `quickstart.md`\
+    \ validation\u201D task is missing."
