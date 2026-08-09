@@ -1,0 +1,15 @@
+status: none
+intent: download SubseasonalRodeo benchmark dataset and NOAA GFS ensemble forecasts
+  python package dataset
+required_fields:
+- date
+- lead_time
+- grid_latitude
+- grid_longitude
+- forecast_probability
+- observed_value
+- variable_name
+- forecast_ensemble_member
+cache_key: 100f74b540349c9d0765780f3e790882977c50b8a29b22b79e1282cbd7743c33
+searched_at: '2026-08-09T04:50:09.196609+00:00'
+retry_count: 1

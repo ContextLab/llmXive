@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Recalibrator Model Metadata
+description: Schema for metadata about fitted recalibration models.
+type: object
+properties:
+  method_type:
+    type: string
+    enum: ["isotonic", "bayesian"]
+    description: Type of recalibration method.
+  lead_time:
+    type: integer
+    description: Lead time the model was fitted for.
+  parameters:
+    type: object
+    description: Serialized model parameters (knots for isotonic, coefficients for Bayesian).
+  training_sample_size:
+    type: integer
+    minimum: 1
+    description: Number of samples used for training.
+  fitted_date:
+    type: string
+    format: date-time
+    description: Timestamp when the model was fitted.
+required:
+  - method_type
+  - lead_time
+  - parameters
+  - training_sample_size
+  - fitted_date
+additionalProperties: false
