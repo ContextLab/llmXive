@@ -1,1 +1,22 @@
-[]
+- artifact_hash: ad1d89868b55f2beab836bae080d8fddf4fa19b88bc541f8417e2bfb0e0f9fb3
+  artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: b27a1856-83b5-44bf-914e-c73a39340f64.json.gz
+  kind: url
+  value: https://huggingface.co/datasets/Csplk/hipcam/resolve/main/b27a1856-83b5-44bf-914e-c73a39340f64.json.gz`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64a940fd03835e13f9706bbd/be8baff31f795c7c04c82ae52edbfd21587603679d0de74ac617d9097c203cce?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27b27a1856-83b5-44bf-914e-c73a39340f64.json.gz%3B+filename%3D%22b27a1856-83b5-44bf-914e-c73a39340f64.json.gz%22%3B&user_id=public&response-content-type=application%2Fgzip&X-Xet-Cas-Uid=public&Expires=1786239484&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRhOTQwZmQwMzgzNWUxM2Y5NzA2YmJkL2JlOGJhZmYzMWY3OTVjN2MwNGM4MmFlNTJlZGJmZDIxNTg3NjAzNjc5ZDBkZTc0YWM2MTdkOTA5N2MyMDNjY2VcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YjI3YTE4NTYtODNiNS00NGJmLTkxNGUtYzczYTM5MzQwZjY0Lmpzb24uZ3olM0IrZmlsZW5hbWUlM0QlMjJiMjdhMTg1Ni04M2I1LTQ0YmYtOTE0ZS1jNzNhMzkzNDBmNjQuanNvbi5neiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZnemlwJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODYyMzk0ODR9fX1dfQ__&Signature=MEQCIHZQ9kTk5N9uextNsr3FBDqyfTwWGdkdPfy0EWAN2vc4AiASnk11eALK9MgqzDXX1SrGfwx8OIQ3qUi9EmSBWbcgOw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-09T00:38:04.585889Z'
+- artifact_hash: ad1d89868b55f2beab836bae080d8fddf4fa19b88bc541f8417e2bfb0e0f9fb3
+  artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: merged.csv
+  kind: url
+  value: https://huggingface.co/datasets/MichiganNLP/scalable_vlm_probing/resolve/main/merged.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/648e97d67377576b62a9b464/6ef700c496660570409891c7024a421d4334a088d75a71ca9ee5e2d8f280f489?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27merged.csv%3B+filename%3D%22merged.csv%22%3B&response-content-type=text%2Fcsv&user_id=public&Expires=1786239509&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ4ZTk3ZDY3Mzc3NTc2YjYyYTliNDY0LzZlZjcwMGM0OTY2NjA1NzA0MDk4OTFjNzAyNGE0MjFkNDMzNGEwODhkNzVhNzFjYTllZTVlMmQ4ZjI4MGY0ODlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3bWVyZ2VkLmNzdiUzQitmaWxlbmFtZSUzRCUyMm1lcmdlZC5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjIzOTUwOX19fV19&Signature=MEYCIQDHt5X2A2UdFPe2tMjNFPJ2%7EYueaRKF-WC2Twmv4ff8HwIhAMMKxOhCFIW1y6z1NuR7nxt8BMRPQacvtCB%7ELO9pcm5L&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-09T00:38:04.585889Z'

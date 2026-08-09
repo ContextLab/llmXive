@@ -1,0 +1,17 @@
+status: none
+intent: download S-Agent-300K 3D scene dataset python package dataset
+required_fields:
+- scene_id
+- object_id
+- object_type
+- position_x
+- position_y
+- position_z
+- rotation_x
+- rotation_y
+- rotation_z
+- relation_type
+- related_object_id
+cache_key: 23a3cc8ad720d2c55bee862d95ad509e8879daf804a35c0a3e6d9f15054e9216
+searched_at: '2026-08-09T00:21:00.295544+00:00'
+retry_count: 1

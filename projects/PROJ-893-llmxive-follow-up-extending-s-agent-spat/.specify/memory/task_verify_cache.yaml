@@ -1,0 +1,29 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`code/`, `data/raw/`, `data/derived/`, `data/results/`,
+    `specs/`, `tests/`) is present in the provided artifacts; the claim lacks any
+    tangible evidence that the required folders were created.
+T004:
+  c: false
+  h: d141df1467d7417e045bf293ece2790bdd5adff15b4e68ec4b3ac0aa34c71a71
+  r: The `code/hygiene.py` file is truncated (e.g., `load_state_yaml` ends with a
+    typo and the script never writes the computed hashes back to the YAML), and the
+    required state file `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
+    does not exist at all. Both the implementation and the target artifact are missing/incomplete.
+T010:
+  c: false
+  h: 8b0f714cd1d8ac2852fab4e396751d20f9979cb510d471f77ebeee57292f4531
+  r: The repository contains `code/data/extract_geometry.py`, but the file is truncated
+    and does not show a complete implementation of parsing, validation, exclusion
+    logging, and writing to `data/derived/constraints.jsonl`. Moreover, the required
+    output file `data/derived/constraints.jsonl` is absent. Both the artifact and
+    its expected result are missing or incomplete.
+T012:
+  c: false
+  h: 8313672a231c0d1c9a918f498f3e0126df4487f024b694edb720a13abec950fd
+  r: "The repository contains a `run_solver.py` file, but the required output files\
+    \ `data/derived/predictions.jsonl` and `data/derived/latency_log.jsonl` are absent,\
+    \ and the script lacks a complete execution flow (e.g., no main entry point, placeholder\
+    \ logic). Consequently the task of batch\u2011processing 1,000 scenes and writing\
+    \ the two JSONL files is not fulfilled."

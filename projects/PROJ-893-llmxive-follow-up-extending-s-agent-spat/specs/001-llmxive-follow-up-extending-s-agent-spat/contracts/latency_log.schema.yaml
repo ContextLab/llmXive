@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Latency Log Schema
+description: >-
+  Schema for the JSONL file recording per-scene latency metrics.
+  Each line in the file represents a single record conforming to this schema.
+type: object
+required:
+  - scene_id
+  - component
+  - duration_ms
+  - timestamp
+properties:
+  scene_id:
+    type: string
+    description: The ID of the scene being processed.
+  component:
+    type: string
+    enum:
+      - extraction
+      - solving
+      - total_pipeline
+    description: The stage of the pipeline being measured.
+  duration_ms:
+    type: number
+    minimum: 0
+    description: Duration of the component execution in milliseconds.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the measurement.
+  cpu_usage_percent:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: Optional CPU usage during execution.
+  memory_mb:
+    type: number
+    minimum: 0
+    description: Optional peak memory usage in MB.
+additionalProperties: false

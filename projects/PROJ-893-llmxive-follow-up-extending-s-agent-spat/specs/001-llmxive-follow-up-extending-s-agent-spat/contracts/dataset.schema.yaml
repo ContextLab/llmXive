@@ -1,0 +1,102 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: S-Agent-300K Dataset Schema
+description: >-
+  Schema for the raw and derived dataset records used in the symbolic spatial
+  reasoning pipeline. Defines the structure of scenes extracted from the
+  S-Agent-300K HuggingFace dataset.
+type: object
+required:
+  - scene_id
+  - prompt
+  - ground_truth
+  - objects
+  - spatial_constraints
+properties:
+  scene_id:
+    type: string
+    description: Unique identifier for the scene (e.g., "scene_0001").
+    pattern: "^scene_\\d{4}$"
+  prompt:
+    type: string
+    description: The natural language question or task description.
+  ground_truth:
+    type: object
+    description: The verified correct answer for the scene.
+    required:
+      - answer
+      - answer_type
+    properties:
+      answer:
+        oneOf:
+          - type: integer
+          - type: string
+          - type: boolean
+        description: The exact ground truth value.
+      answer_type:
+        type: string
+        enum:
+          - counting
+          - positioning
+          - orientation
+        description: The category of the spatial reasoning task.
+  objects:
+    type: array
+    description: List of objects present in the scene with their attributes.
+    items:
+      type: object
+      required:
+        - id
+        - type
+        - position
+      properties:
+        id:
+          type: string
+          description: Unique object identifier within the scene.
+        type:
+          type: string
+          description: Semantic class of the object (e.g., "cube", "sphere").
+        position:
+          type: array
+          description: 3D coordinates [x, y, z].
+          items:
+            type: number
+          minItems: 3
+          maxItems: 3
+        dimensions:
+          type: array
+          description: Optional bounding box dimensions [dx, dy, dz].
+          items:
+            type: number
+          minItems: 3
+          maxItems: 3
+  spatial_constraints:
+    type: array
+    description: Explicit geometric constraints derived from the prompt.
+    items:
+      type: object
+      required:
+        - relation
+        - entities
+      properties:
+        relation:
+          type: string
+          description: The spatial relation (e.g., "left_of", "above", "inside").
+        entities:
+          type: array
+          description: IDs of the objects involved in the relation.
+          items:
+            type: string
+          minItems: 2
+  metadata:
+    type: object
+    description: Optional metadata about the scene source.
+    properties:
+      source_split:
+        type: string
+        enum:
+          - train
+          - validation
+          - test
+      difficulty:
+        type: string
+additionalProperties: false

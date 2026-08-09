@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Benchmark Result Schema
+description: >-
+  Schema for the final benchmark results comparing the symbolic solver
+  against the VLM baseline and ground truth.
+type: object
+required:
+  - scene_id
+  - ground_truth
+  - solver_prediction
+  - vlm_prediction
+  - solver_correct
+  - vlm_correct
+  - match_type
+properties:
+  scene_id:
+    type: string
+    description: Unique identifier for the scene.
+  ground_truth:
+    oneOf:
+      - type: integer
+      - type: string
+      - type: boolean
+    description: The correct answer.
+  solver_prediction:
+    oneOf:
+      - type: integer
+      - type: string
+      - type: boolean
+      - type: "null"
+    description: The answer predicted by the symbolic solver.
+  vlm_prediction:
+    oneOf:
+      - type: integer
+      - type: string
+      - type: boolean
+      - type: "null"
+    description: The answer predicted by the VLM baseline.
+  solver_correct:
+    type: boolean
+    description: True if solver_prediction matches ground_truth.
+  vlm_correct:
+    type: boolean
+    description: True if vlm_prediction matches ground_truth.
+  match_type:
+    type: string
+    enum:
+      - both_correct
+      - both_wrong
+      - solver_only
+      - vlm_only
+      - both_missing
+    description: Classification of the prediction agreement.
+  failure_category:
+    type: string
+    enum:
+      - geometric_ambiguity
+      - semantic_gap
+      - none
+    description: Assigned during failure analysis (Phase 5).
+  solver_latency_ms:
+    type: number
+    description: Latency of the solver for this scene.
+  vlm_latency_ms:
+    type: number
+    description: Latency of the VLM baseline for this scene.
+additionalProperties: false
