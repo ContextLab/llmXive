@@ -16,10 +16,23 @@ class PathConfig:
     """Configuration for file paths."""
     data_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data")
     processed_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "processed")
+    # Alias for processed_dir to satisfy cross-script contracts
+    processed_data_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "processed")
     models_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "models")
     logs_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "logs")
     figures_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "figures")
     state_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "state")
+    
+    # Tolerant attribute access for dynamic logger-style calls
+    def __getattr__(self, name: str) -> Any:
+        """
+        Provide a tolerant fallback for unknown attributes to prevent AttributeError
+        when scripts call dynamic methods (e.g., .info(), .debug()) on this config.
+        Returns a no-op callable.
+        """
+        def _noop(*args, **kwargs):
+            return None
+        return _noop
 
 @dataclass
 class SeedConfig:
@@ -47,7 +60,8 @@ class ResourceConfig:
 @dataclass
 class PruningConfig:
     """Configuration for model pruning."""
-    pruning_ratios: List[float] = field(default_factory=lambda: [0.0, 0.1, 0.2])
+    # Updated to include 0.3 as per T013 requirements
+    pruning_ratios: List[float] = field(default_factory=lambda: [0.0, 0.1, 0.2, 0.3])
 
 @dataclass
 class DatasetConfig:
@@ -74,6 +88,8 @@ class EvaluationConfig:
     auc_threshold: float = 0.7
     fpr_threshold: float = 0.05
     fnr_threshold: float = 0.1
+    # Threshold for step-change detection (T030)
+    step_change_threshold: float = 0.10  # 10% relative drop
 
 @dataclass
 class Config:

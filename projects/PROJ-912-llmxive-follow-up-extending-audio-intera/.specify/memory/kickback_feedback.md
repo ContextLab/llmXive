@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T030` (rejected 1x): The provided `robustness_curve.py` only loads a CSV, extracts metadata, and builds a correlation list; it never reads `correlation_data.json`, performs the >10 % AUC drop detection, or writes `data/processed/breaking_point.json`. Moreover, the required `breaking_point.json` file is absent. The task’s core functionality is therefore not implemented.
-- `T032` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/robustness_curve.png, data/processed/sensitivity_report.csv
+- `T020` (rejected 1x): The required `data/processed/class_config.yaml` (providing `subtle_classes` and `control_classes`) does not exist, and the expected output file `data/processed/subtle_cue_subset.parquet` (with its checksum) is also missing. Consequently the loader cannot read class definitions, stream‑filter, or verify the generated file as the task demands.
 
 ## Required change
 

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-912-llmxive-follow-up-extending-audio-intera",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/inference/logging_utils.py: self-declared fabricated metric \u2014 \u201c\u2026latency = 100.0 + (i * 10)  # Simulated latency                  batch_log =\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/models/compress.py  --teacher facebook/wav2vec2-base-960h  --configs int,int4  --pruning-ratios,0.2  --distill  --calibration-data data/processed/subtle_cue_manifest.json; 4 command(s) failed: python code/inference/runner.py  --model-dir models/checkpoints/  --testbed data/processed/subtle_cue_manifest.json  --thresholds,0.05,0.1 (rc=1); python code/analysis/robustness_curve.py --input results/metrics.csv --output results/robustness_curve.png (rc=1); python code/analysis/sensitivity.py --input results/metrics.csv --output results/sensitivity_report.json (rc=1); 5 declared deliverable(s) absent: data/processed/ablation_logits.parquet; data/processed/breaking_point.json; data/processed/robustness_curve.png",
+  "artifacts": [],
+  "failures": [
+    "python code/models/compress.py  --teacher facebook/wav2vec2-base-960h  --configs int,int4  --pruning-ratios,0.2  --distill  --calibration-data data/processed/subtle_cue_manifest.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/models/compress.py': [Errno 2] No such file or directory",
+    "python code/inference/runner.py  --model-dir models/checkpoints/  --testbed data/processed/subtle_cue_manifest.json  --thresholds,0.05,0.1 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/inference/runner.py\", line 15, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
+    "python code/analysis/robustness_curve.py --input results/metrics.csv --output results/robustness_curve.png -> rc=1\n    xtending-audio-intera/data/processed/correlation_data.json\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/analysis/robustness_curve.py\", line 261, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/analysis/robustness_curve.py\", line 253, in main\n    result = run_analysis()\n             ^^^^^^^^^^^^^^\n  Fil",
+    "python code/analysis/sensitivity.py --input results/metrics.csv --output results/sensitivity_report.json -> rc=1\n    s.csv\"\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'PathConfig' object has no attribute 'processed_data_dir'\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/analysis/sensitivity.py\", line 200, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/analysis/sensitivity.py\", line 183, in main\n    re",
+    "python code/analysis/ablation.py --input results/metrics.csv --output results/ablation_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-912-llmxive-follow-up-extending-audio-intera/code/analysis/ablation.py\", line 15, in <module>\n    from models.student import clone_model, freeze_attention_heads, prune_ffn_layers\nModuleNotFoundError: No module named 'models'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-09T12:48:53Z"
+}

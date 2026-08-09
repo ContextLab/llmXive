@@ -18,13 +18,23 @@ T008b:
     variables for resource limits were provided. The only artifacts shown relate to
     audio model compression and evaluation, not to the required CI runner setup. The
     task therefore lacks the necessary artifact.
-T020:
+T014a:
   c: false
-  h: 49df5a539eaed60eb27a5d246ffe9d8341c6a97be32e3c35f6a1215e6dbbe099
-  r: "The repository lacks the required `data/processed/class_config.yaml` that the\
-    \ loader must read, and the expected output file `data/processed/subtle_cue_subset.parquet`\
-    \ (with its checksum) is not present. Without these artifacts the loader cannot\
-    \ fulfill the task\u2019s specifications."
+  h: bb2704dc995e310fbfea2d318b53071d7451f28f5b6e0773ddcadd4215106e47
+  r: "The provided `compress.py` only contains utility functions (quantization, pruning)\
+    \ and does not implement the required knowledge\u2011distillation training loop,\
+    \ nor does it load the teacher or student models, stream the parquet dataset,\
+    \ compute a KD loss, or write `distillation_loss_curve_quant.csv`. Additionally,\
+    \ the required data file `data/processed/subtle_cue_subset.parquet` is missing.\
+    \ These essential artifacts are absent, so the task is not satisfied."
+T021a:
+  c: false
+  h: b42c0f5da7800a1f29f83adf09888ae2d70af1ae6b1fdfd70c9cddc959abcef0
+  r: "The provided `subtle_cue_builder.py` is truncated and does not contain the full\
+    \ logic for computing STFT peaks, RMS, classifying \u201CSubtle Cue\u201D vs \u201C\
+    Control Set\u201D, or writing the required `data/processed/class_config.yaml`.\
+    \ Moreover, the expected output YAML file is absent. The implementation is therefore\
+    \ incomplete."
 T029:
   c: false
   h: d98c2878caf681e408b6d921acdb4cbc6e6b9067bd0b4933bcf528b4258315a7

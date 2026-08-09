@@ -1,17 +1,11 @@
 status: none
-intent: pip install DeSTA2.5-Audio pretrained audio-language model weights for distillation
-  python package dataset
+intent: download audio-language paired dataset with transcripts for distillation python
+  package dataset
 required_fields:
-- model_name
-- model_version
-- architecture
-- pretrained_weights_url
-- license
-- supported_quantization
-- pruning_capabilities
-- audio_feature_dim
-- language_coverage
-- checksum
-cache_key: 9c9319fb6d39875cfadc5ef22bfa5fee38e042df57297cf765b82d96daa8432a
-searched_at: '2026-07-31T16:43:54.046647+00:00'
+- audio_filepath
+- transcript
+- language
+- duration
+cache_key: 0a6fc7f65c9ddd2b89ba87f2dac94d746c9062d1fa9daa22dff3c453a6c339da
+searched_at: '2026-08-09T12:49:42.313706+00:00'
 retry_count: 1
