@@ -6,7 +6,7 @@ Writes: data/dataset_filtered.csv
 
 Filters out records where:
 1. SMILES is missing or invalid (empty string, NaN, or None)
-2. CAPE (Corrected Atomic Packing Efficiency) is invalid (NaN, inf, or <= 0)
+2. CAPE (Composition-Adjusted Packing Efficiency) is invalid (NaN, inf, or <= 0)
 3. Raw Packing Coefficient (PC) is invalid (NaN, inf, or <= 0)
 
 This task ensures only high-quality, complete records proceed to downstream

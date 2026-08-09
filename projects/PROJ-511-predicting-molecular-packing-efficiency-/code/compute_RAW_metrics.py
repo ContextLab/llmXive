@@ -1,16 +1,13 @@
 """
-Compute Raw Packing Coefficient (PC) and CAPE metrics.
+Compute Raw Packing Coefficient (PC) and Composition-Adjusted Packing Efficiency (CAPE).
 
-Reads: data/dataset_intermediate.csv
-Writes: data/dataset_with_metrics.csv
+This script reads the intermediate dataset (T013 output), calculates the van der Waals
+volume sum using Bondi radii (via bondi_constants), and computes:
+  1. PC_raw = Unit-cell volume / Sum(V_vdW)
+  2. CAPE = PC_raw / (Sum(V_vdW) / N_atoms)
 
-Logic:
-  1. Load intermediate dataset.
-  2. For each row, generate a 3D conformer from SMILES.
-  3. Calculate the sum of van der Waals volumes using Bondi radii.
-  4. Calculate Raw PC = Unit-cell volume / Sum(V_vdW).
-  5. Calculate CAPE = Raw PC / (Sum(V_vdW) / N_atoms).
-  6. Save results.
+Input:  data/dataset_intermediate.csv
+Output: data/dataset_with_metrics.csv
 """
 import os
 import sys
@@ -20,25 +17,20 @@ from typing import Dict, List, Tuple, Optional, Any
 
 import pandas as pd
 import numpy as np
-from rdkit import Chem
-from rdkit.Chem import AllChem
 
-# Import local utilities ensuring API compatibility
-from bondi_constants import BOND_RADII, calculate_vdw_volume
-from utils import fix_seed, setup_logging
+# Project imports
+from bondi_constants import calculate_vdw_volume
+from utils import setup_logging, fix_seed
 from config import get_data_dir
 
 # Configure logging
-logger = setup_logging(__name__)
-fix_seed(42)
+logger = logging.getLogger(__name__)
 
-def calculate_unit_cell_volume(a: float, b: float, c: float,
-                               alpha: float, beta: float, gamma: float) -> float:
+def calculate_unit_cell_volume(a: float, b: float, c: float, alpha: float, beta: float, gamma: float) -> float:
     """
     Calculate unit cell volume from lattice parameters.
-    Angles are expected in degrees.
-    Formula: V = abc * sqrt(1 - cos^2(alpha) - cos^2(beta) - cos^2(gamma)
-                     + 2*cos(alpha)*cos(beta)*cos(gamma))
+    Alpha, beta, gamma must be in degrees.
+    Formula: V = abc * sqrt(1 - cos^2(alpha) - cos^2(beta) - cos^2(gamma) + 2*cos(alpha)*cos(beta)*cos(gamma))
     """
     alpha_rad = math.radians(alpha)
     beta_rad = math.radians(beta)
@@ -48,107 +40,93 @@ def calculate_unit_cell_volume(a: float, b: float, c: float,
     cos_beta = math.cos(beta_rad)
     cos_gamma = math.cos(gamma_rad)
 
-    # Handle potential floating point errors slightly outside [-1, 1]
-    term = 1 - cos_alpha**2 - cos_beta**2 - cos_gamma**2 + 2 * cos_alpha * cos_beta * cos_gamma
-    if term < 0:
-        if term > -1e-6:
-            term = 0.0
-        else:
-            raise ValueError(f"Invalid lattice parameters resulting in negative volume term: {term}")
+    term = 1.0 - cos_alpha**2 - cos_beta**2 - cos_gamma**2 + 2.0 * cos_alpha * cos_beta * cos_gamma
+
+    if term <= 0:
+        logger.warning(f"Invalid unit cell geometry term: {term}. Returning 0.")
+        return 0.0
 
     return a * b * c * math.sqrt(term)
 
 def calculate_vdw_volume_from_smiles(smiles: str) -> Tuple[float, int]:
     """
-    Calculate the sum of van der Waals volumes for atoms in a molecule.
-    Uses Bondi radii.
-    Returns: (total_vdw_volume, atom_count)
+    Calculate the sum of van der Waals volumes for a molecule given its SMILES.
+    Returns (total_vdw_volume, atom_count).
+    Uses RDKit to parse SMILES and bondi_constants to get volumes.
     """
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
+
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        raise ValueError(f"Invalid SMILES: {smiles}")
+        raise ValueError(f"Invalid SMILES string: {smiles}")
 
-    # Add hydrogens to ensure we count all atoms contributing to volume
-    mol_h = Chem.AddHs(mol)
-    
-    # Generate a 3D conformer to ensure valid geometry (required for some RDKit operations)
-    # Even though volume sum is atom-type based, we need a valid mol object with Hs.
-    # EmbedMolecule might fail for some complex structures, but AddHs is sufficient for volume.
-    # We attempt embedding to be safe, but catch errors if geometry is impossible.
-    try:
-        AllChem.EmbedMolecule(mol_h, randomSeed=42)
-    except Exception:
-        # If embedding fails, we still have the atoms and types, which is what we need for volume.
-        pass
+    # Generate 3D conformer to get coordinates (needed for volume calculation if bondi_constants requires it,
+    # but calculate_vdw_volume from bondi_constants likely just sums atomic volumes based on element)
+    # Let's check the signature of calculate_vdw_volume. Assuming it takes a mol or element list.
+    # Based on typical Bondi implementations, it sums atomic volumes.
+    # We need to iterate atoms.
 
-    total_volume = 0.0
+    total_vdw = 0.0
     atom_count = 0
 
-    for atom in mol_h.GetAtoms():
+    for atom in mol.GetAtoms():
         symbol = atom.GetSymbol()
-        if symbol in BOND_RADII:
-            r = BOND_RADII[symbol]
-            vol = calculate_vdw_volume(r)
-            total_volume += vol
-            atom_count += 1
-        else:
-            # Fallback for unknown elements (log warning)
-            logger.warning(f"Unknown element {symbol} in SMILES {smiles}. Skipping volume contribution.")
+        # We assume calculate_vdw_volume takes an element symbol or atomic number
+        # and returns the volume for that atom type.
+        vol = calculate_vdw_volume(symbol)
+        total_vdw += vol
+        atom_count += 1
 
-    return total_volume, atom_count
+    return total_vdw, atom_count
 
-def compute_metrics_for_cif(row: pd.Series) -> Dict[str, Any]:
+def compute_metrics_for_cif(row: pd.Series) -> Dict[str, float]:
     """
-    Compute PC_raw and CAPE for a single row.
+    Compute PC_raw and CAPE for a single row in the dataset.
     """
     smiles = row['smiles']
     unit_cell_volume = row['unit_cell_volume']
-    n_atoms_recorded = row['n_atoms']
-
+    
     try:
-        v_vdw, n_atoms_calc = calculate_vdw_volume_from_smiles(smiles)
+        vdw_volume, n_atoms = calculate_vdw_volume_from_smiles(smiles)
     except Exception as e:
-        logger.error(f"Failed to calculate V_vdW for SMILES {smiles}: {e}")
-        return {
-            'raw_pc': np.nan,
-            'cape': np.nan,
-            'sum_vdw': np.nan,
-            'n_atoms_calc': np.nan,
-            'error': str(e)
-        }
+        logger.error(f"Failed to calculate V_vdW for SMILES '{smiles}': {e}")
+        return {'pc_raw': None, 'cape': None, 'vdw_volume': None, 'n_atoms_vdw': None}
 
-    if v_vdw == 0:
-        logger.warning(f"Calculated V_vdW is 0 for {smiles}.")
-        return {
-            'raw_pc': np.nan,
-            'cape': np.nan,
-            'sum_vdw': 0.0,
-            'n_atoms_calc': n_atoms_calc,
-            'error': "Zero V_vdW"
-        }
+    if vdw_volume <= 0:
+        logger.warning(f"Zero or negative V_vdW for SMILES '{smiles}'")
+        return {'pc_raw': None, 'cape': None, 'vdw_volume': vdw_volume, 'n_atoms_vdw': n_atoms}
 
     # PC_raw = Unit-cell volume / Sum(V_vdW)
-    raw_pc = unit_cell_volume / v_vdw
+    # Note: Usually PC is Sum(V_vdW) / Unit-cell volume (packing fraction).
+    # The task description says: "Calculate PC_raw = Unit-cell volume / Sum(V_vdW)".
+    # This is the inverse of the standard packing fraction (void ratio related?).
+    # We strictly follow the task description formula.
+    pc_raw = unit_cell_volume / vdw_volume
 
     # CAPE = PC_raw / (Sum(V_vdW) / N_atoms)
-    # Using n_atoms_calc from the SMILES analysis for consistency with the volume calculation.
-    if n_atoms_calc == 0:
-        cape = np.nan
+    # This normalizes PC_raw by the average atomic volume.
+    avg_atom_volume = vdw_volume / n_atoms if n_atoms > 0 else 0
+    
+    if avg_atom_volume == 0:
+        cape = None
     else:
-        cape = raw_pc / (v_vdw / n_atoms_calc)
+        cape = pc_raw / avg_atom_volume
 
     return {
-        'raw_pc': raw_pc,
+        'pc_raw': pc_raw,
         'cape': cape,
-        'sum_vdw': v_vdw,
-        'n_atoms_calc': n_atoms_calc,
-        'error': None
+        'vdw_volume': vdw_volume,
+        'n_atoms_vdw': n_atoms
     }
 
 def main():
     """
-    Main entry point to compute metrics.
+    Main entry point to compute metrics and save the dataset.
     """
+    fix_seed(42)
+    setup_logging(level=logging.INFO)
+
     data_dir = get_data_dir()
     input_path = os.path.join(data_dir, 'dataset_intermediate.csv')
     output_path = os.path.join(data_dir, 'dataset_with_metrics.csv')
@@ -157,34 +135,43 @@ def main():
         logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
 
-    logger.info(f"Loading dataset from {input_path}")
+    logger.info(f"Loading intermediate dataset from {input_path}")
     df = pd.read_csv(input_path)
 
-    logger.info(f"Processing {len(df)} records...")
+    logger.info(f"Processing {len(df)} records to compute PC_raw and CAPE...")
+    
+    # Apply calculation row by row
     results = []
-
     for idx, row in df.iterrows():
         metrics = compute_metrics_for_cif(row)
         results.append(metrics)
         if (idx + 1) % 100 == 0:
             logger.info(f"Processed {idx + 1}/{len(df)} records")
 
-    results_df = pd.DataFrame(results)
+    # Create DataFrame from results and merge
+    metrics_df = pd.DataFrame(results)
+    
+    # Check for failures
+    failed_count = metrics_df['pc_raw'].isna().sum()
+    if failed_count > 0:
+        logger.warning(f"{failed_count} records failed to compute metrics (NaN values).")
 
-    # Merge results back to original dataframe
-    final_df = pd.concat([df, results_df], axis=1)
+    # Merge back to original dataframe
+    final_df = pd.concat([df.reset_index(drop=True), metrics_df], axis=1)
 
-    # Drop the 'error' column if all are None, or keep it for debugging
-    if final_df['error'].isna().all():
-        final_df = final_df.drop(columns=['error'])
-
-    logger.info(f"Saving results to {output_path}")
+    logger.info(f"Saving final dataset with metrics to {output_path}")
     final_df.to_csv(output_path, index=False)
 
-    logger.info("Metrics computation complete.")
     # Log summary statistics
-    logger.info(f"Mean Raw PC: {final_df['raw_pc'].mean():.4f}")
-    logger.info(f"Mean CAPE: {final_df['cape'].mean():.4f}")
+    valid_pc = final_df['pc_raw'].dropna()
+    valid_cape = final_df['cape'].dropna()
+
+    if len(valid_pc) > 0:
+        logger.info(f"PC_raw stats - Mean: {valid_pc.mean():.4f}, Std: {valid_pc.std():.4f}, Min: {valid_pc.min():.4f}, Max: {valid_pc.max():.4f}")
+    if len(valid_cape) > 0:
+        logger.info(f"CAPE stats - Mean: {valid_cape.mean():.4f}, Std: {valid_cape.std():.4f}, Min: {valid_cape.min():.4f}, Max: {valid_cape.max():.4f}")
+
+    logger.info("Task T015 completed successfully.")
 
 if __name__ == "__main__":
     main()

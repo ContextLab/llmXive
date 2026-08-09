@@ -1,18 +1,20 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file content or path was provided in the evidence, so we cannot
-    confirm that a file exists and contains the required exclusions (`data/raw_cif/`,
-    `*.pt`, `*.csv`, `__pycache__`, `.env`). The implementer must supply the actual
-    `.gitignore` artifact with those entries.
 T015:
   c: false
-  h: e5ef0a4858f6ca4411793feda896943b9a9593714b7dca9fce8e47528c6b750e
-  r: "The `code/compute_RAW_metrics.py` file is present but truncated (ends mid\u2011\
-    function) and does not contain a complete implementation. Moreover, the required\
-    \ input file `data/dataset_intermediate.csv` and the expected output `data/dataset_with_metrics.csv`\
-    \ are missing from the repository. Without a full script and the necessary data\
-    \ files, the task\u2019s requirements are not satisfied."
+  h: 3a4e0915e0874e4e7930c47c217869fd84a5bd780aaaf62fc5267b91122c663a
+  r: "The provided `code/compute_RAW_metrics.py` is truncated (e.g., `compute_metrics_for_cif`\
+    \ ends abruptly) and lacks the logic to read `data/dataset_intermediate.csv` and\
+    \ write `data/dataset_with_metrics.csv`. Moreover, both required CSV files are\
+    \ absent from the repository. The task\u2019s core output files and a complete\
+    \ implementation are missing."
+T016:
+  c: false
+  h: cdb5f7f1f95e7d17e35901f6fbe160f259324858ef03358980811056a2dc2b64
+  r: The repository contains a partially shown `code/filter_dataset.py`, but the file
+    is truncated (e.g., the `keep_mask` logic is incomplete) and there is no `data/dataset_with_metrics.csv`
+    or the resulting `data/dataset_filtered.csv`. Without the input data and a complete,
+    runnable script, the required filtering cannot be verified. The implementer must
+    provide the full script and the necessary CSV files (or generate them) so the
+    filter can be executed and produce the filtered output.
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

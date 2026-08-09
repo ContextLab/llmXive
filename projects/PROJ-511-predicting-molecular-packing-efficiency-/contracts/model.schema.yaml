@@ -1,25 +1,23 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: Schema for the trained model metadata and configuration stored alongside model.pt
+description: Schema for the trained model metadata and configuration stored alongside the model artifact.
 type: object
 required:
   - model_type
   - architecture
   - hyperparameters
   - training_config
-  - feature_config
-  - metrics
-  - timestamp
-  - version
+  - input_features
+  - target_variable
 properties:
   model_type:
     type: string
-    description: Type of model (e.g., "mlp")
+    description: Type of model used (e.g., "MLP").
     enum:
-      - mlp
+      - MLP
   architecture:
     type: object
-    description: Description of the neural network architecture
+    description: Description of the neural network architecture.
     required:
       - layers
       - activation
@@ -28,58 +26,41 @@ properties:
       layers:
         type: array
         items:
-          type: object
-          required:
-            - in_features
-            - out_features
-            - activation
-          properties:
-            in_features:
-              type: integer
-            out_features:
-              type: integer
-            activation:
-              type: string
-              enum:
-                - ReLU
-                - LeakyReLU
-                - Tanh
-                - None
-      dropout_rate:
+          type: integer
+        description: List of layer sizes (input, hidden, output).
+      activation:
+        type: string
+        description: Activation function used in hidden layers.
+      dropout:
         type: number
-        minimum: 0.0
-        maximum: 1.0
+        description: Dropout rate applied to hidden layers.
   hyperparameters:
     type: object
-    description: Training hyperparameters used
+    description: Hyperparameters used during training.
     required:
       - learning_rate
       - batch_size
-      - epochs
       - optimizer
     properties:
       learning_rate:
         type: number
-        minimum: 0.0
       batch_size:
         type: integer
-        minimum: 1
-      epochs:
-        type: integer
-        minimum: 1
       optimizer:
         type: string
       weight_decay:
         type: number
-        minimum: 0.0
+        default: 0
+      epochs:
+        type: integer
   training_config:
     type: object
-    description: Configuration related to the training process
+    description: Configuration details of the training run.
     required:
       - seed
       - device
-      - train_split_ratio
-      - val_split_ratio
+      - train_split
+      - val_split
     properties:
       seed:
         type: integer
@@ -88,57 +69,28 @@ properties:
         enum:
           - cpu
           - cuda
-      train_split_ratio:
+      train_split:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-      val_split_ratio:
+        description: Fraction of data used for training.
+      val_split:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-  feature_config:
-    type: object
-    description: Configuration of input features
-    required:
-      - embedding_model
-      - embedding_dim
-      - descriptors
-      - confounders
-    properties:
-      embedding_model:
-        type: string
-      embedding_dim:
-        type: integer
-      descriptors:
-        type: array
-        items:
-          type: string
-      confounders:
-        type: array
-        items:
-          type: string
-  metrics:
-    type: object
-    description: Final training metrics
-    required:
-      - train_loss
-      - val_loss
-      - best_val_loss
-    properties:
-      train_loss:
-        type: number
-      val_loss:
-        type: number
-      best_val_loss:
-        type: number
-      total_parameters:
-        type: integer
-        description: Total trainable parameters (must be <= 100k per FR-005)
+        description: Fraction of data used for validation.
+  input_features:
+    type: array
+    description: List of feature names used as input to the model.
+    items:
+      type: string
+  target_variable:
+    type: string
+    description: Name of the target variable being predicted.
+  parameter_count:
+    type: integer
+    description: Total number of trainable parameters in the model.
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of model creation
+    description: ISO 8601 timestamp of when the model was trained.
   version:
     type: string
-    description: Version string of the model (e.g., "1.0.0")
-additionalProperties: false
+    description: Version of the model schema.
+    default: "1.0.0"

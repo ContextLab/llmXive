@@ -1,55 +1,39 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Molecular Packing Efficiency Dataset Schema
 description: >
-  Schema for the dataset containing SMILES representations, packing coefficients (PC, CAPE),
-  3D descriptors, and confounder fields derived from crystal structures.
-  This schema is used by T019 (validate_dataset.py) to ensure data integrity.
+  Schema for the final dataset (data/dataset.csv) containing SMILES representations,
+  3D descriptors, packing metrics, and confounders for organic crystal structures.
+  Used for training and validating the packing efficiency prediction model.
 type: object
 required:
-  - cod_id
-  - smiles
-  - smiles_source
-  - unit_cell_volume
-  - n_atoms
-  - lattice_system
-  - temperature_K
-  - has_solvent
-  - radius_of_gyration
-  - asphericity
-  - principal_moments
-  - cape
-  - raw_pc
+  - properties
+  - type
 properties:
   cod_id:
     type: string
-    description: "Unique identifier from the Crystallography Open Database (COD)."
+    description: Unique identifier from the Crystallography Open Database (COD).
     pattern: "^[0-9]+$"
-
   smiles:
     type: string
-    description: "SMILES string representing the molecular connectivity."
+    description: Canonical SMILES string representing the molecular structure.
     minLength: 1
-
   smiles_source:
     type: string
-    description: "Source of the SMILES string."
+    description: Source of the SMILES string.
     enum:
       - "extracted_from_cif"
       - "generated_from_geometry"
-
   unit_cell_volume:
     type: number
-    description: "Unit cell volume in cubic Angstroms."
+    description: Unit cell volume in cubic angstroms (Å³).
     minimum: 0
-
   n_atoms:
     type: integer
-    description: "Number of non-hydrogen atoms in the asymmetric unit."
+    description: Total number of non-hydrogen atoms in the asymmetric unit.
     minimum: 1
-
   lattice_system:
     type: string
-    description: "Crystal lattice system derived from symmetry space group."
+    description: Crystal lattice system derived from symmetry information.
     enum:
       - "triclinic"
       - "monoclinic"
@@ -59,43 +43,34 @@ properties:
       - "hexagonal"
       - "cubic"
       - "unknown"
-
   temperature_K:
     type: number
-    description: "Temperature at which the crystal structure was determined, in Kelvin."
+    description: Temperature in Kelvin at which the crystal structure was determined.
     minimum: 0
-
   has_solvent:
     type: boolean
-    description: "Flag indicating if solvent molecules are present in the structure."
-
-  # 3D Descriptors (computed from CIF coordinates)
+    description: Flag indicating if solvent molecules are present in the unit cell.
   radius_of_gyration:
     type: number
-    description: "Radius of gyration of the molecular structure in Angstroms."
+    description: Radius of gyration (Å) calculated from the gas-phase minimized conformer.
     minimum: 0
-
   asphericity:
     type: number
-    description: "Asphericity parameter describing the deviation from spherical symmetry."
+    description: Asphericity parameter (dimensionless) describing molecular shape anisotropy.
     minimum: 0
-
+    maximum: 1
   principal_moments:
     type: string
-    description: "Comma-separated string of principal moments of inertia (I1, I2, I3)."
-    pattern: "^[0-9.]+,[0-9.]+,[0-9.]+$"
-
-  # Packing Metrics
-  raw_pc:
-    type: number
-    description: "Raw Packing Coefficient (Unit-cell volume / Sum(V_vdW)). Diagnostic only."
-    minimum: 0
-    maximum: 1.5
-
+    description: Comma-separated string of the three principal moments of inertia (amu·Å²).
+    pattern: "^[0-9]+\\.[0-9]+,[0-9]+\\.[0-9]+,[0-9]+\\.[0-9]+$"
   cape:
     type: number
-    description: "Corrected Atomic Packing Efficiency (CAPE). Target variable."
+    description: Composition-Adjusted Packing Efficiency (CAPE). Target variable.
     minimum: 0
-    maximum: 2.0
-
+    maximum: 2
+  raw_pc:
+    type: number
+    description: Raw Packing Coefficient (PC_raw). Diagnostic metric.
+    minimum: 0
+    maximum: 2
 additionalProperties: false

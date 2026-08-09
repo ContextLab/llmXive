@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -41,7 +41,7 @@
 - [X] T006 Create `code/utils.py` with seed fixing, logging setup, and Bondi radii constants (FR-018)
 - [X] T007 [P] Create `code/cif_parsing.py` with robust CIF parsing utilities. **Logic**: Use `pymatgen` to parse CIF files (as RDKit does not natively parse CIFs) to extract unit cell and atomic coordinates. This is an allowed exception to the `rdkit`-first rule for the specific step of file parsing. Pass extracted coordinates to RDKit for SMILES generation if needed. Implement explicit error handling for corrupt files (log specific error, raise exception, **never** fall back to synthetic data). (FR-001, FR-002)
 - [X] T008 [P] Create `code/config.py` for environment configuration (COD URL, HuggingFace model path, random seeds). **Logic**: Load from `.env` or default to verified constants. (FR-017)
-- [X] T009 [P] Create `code/bondi_constants.py` containing the exact Bondi radii values from Bondi (1964) (FR-018) and utility functions for volume calculation. (FR-003, FR-011)
+- [ ] T009 [P] Create `code/bondi_constants.py` containing the exact Bondi (1964) radii values and utility functions for volume calculation (FR-018, FR-003, FR-011).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +71,7 @@
 - [ ] T015 [US1] Implement `code/compute_RAW_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **Composition-Adjusted Packing Efficiency (CAPE)** (target) using Bondi radii (FR-003, FR-011, FR-018). **Logic**: Calculate PC_raw = Unit-cell volume / Sum(V_vdW). Calculate CAPE using the explicit formula from FR-011: `CAPE = PC_raw / (Sum(V_vdW) / N_atoms)`. This normalizes for molecular size. **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`.** (FR-003, FR-011)
 - [ ] T016 [US1] Implement `code/filter_dataset.py` to filter records with missing SMILES, invalid CAPE, or invalid Raw PC from `data/dataset_with_metrics.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001). Explicitly ensure CAPE is valid before filtering.
 - [ ] T017 [US1] Add logging for download statistics, parsing failures, and filtering counts (FR-001, FR-017). **Specific Logic**: Log the results of T016 filtering (counts of removed records and reasons) to ensure traceability.
-- [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, principal moments) using **gas-phase minimized conformations**. **Logic**: Read `cod_id` from `data/dataset_filtered.csv`. Re-load the original CIF file from `data/raw_cif/` using `pymatgen`. **Verify existence and validity of CIF file for each cod_id; raise FileNotFoundError if missing.** Generate a gas-phase minimized conformer using RDKit's ETKDG algorithm followed by **MMFF94 minimization** to remove crystal packing forces. **Compute descriptors (radius of gyration, asphericity, principal moments) from the minimized gas-phase structure (NOT the raw CIF coordinates)** to prevent data leakage. **Reads `data/dataset_filtered.csv` to get `cod_id` and merges 3D descriptors to produce final `data/dataset.csv`.** **Output columns must include**: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`, `radius_of_gyration`, `asphericity`, `principal_moments`, `cape`, `raw_pc`. (FR-004, FR-012, FR-017)
+- [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, principal moments) using **gas-phase minimized conformations**. **Logic**: Read `cod_id` from `data/dataset_filtered.csv`. Re-load the original CIF file from `data/raw_cif/` using `pymatgen`. **Verify existence and validity of CIF file for each cod_id; raise FileNotFoundError if missing.** Generate a gas-phase minimized conformer using RDKit's ETKDG algorithm followed by **MMFF94 minimization** to remove crystal packing forces. **Verify energy convergence of minimization to ensure no data leakage.** Compute descriptors (radius of gyration, asphericity, principal moments) from the minimized gas-phase structure (NOT the raw CIF coordinates) to prevent data leakage. **Note**: While descriptors are derived from gas-phase geometries to avoid leakage (Plan strategy), environmental covariates (temperature, lattice system) are preserved from the CIF metadata as required by FR-013 to model the experimental context. **Reads `data/dataset_filtered.csv` to get `cod_id` and merges 3D descriptors to produce final `data/dataset.csv`.** **Output columns must include**: `cod_id`, `smiles`, `smiles_source`, `unit_cell_volume`, `n_atoms`, `lattice_system`, `temperature_K`, `has_solvent`, `radius_of_gyration`, `asphericity`, `principal_moments`, `cape`, `raw_pc`. (FR-004, FR-012, FR-017)
 - [ ] T019 [US1] Implement `code/validate_dataset.py` to check `data/dataset.csv` against `contracts/dataset.schema.yaml` (SC-001). **Includes**: 1) Cross-referencing COD IDs in the CSV against the list of downloaded CIF files to ensure data integrity per FR-017. 2) Explicitly recording and verifying the COD source URL and version identifier used for the download (FR-017). (FR-017)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -91,12 +91,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `code/feature_assembly.py` to encode SMILES using frozen `seyonec/PubChem10M_SMILES_BPE_60k` (CPU) and **assemble the final feature matrix**. **Inputs**: `data/dataset.csv`. **Features**: `smiles_transformer_embedding` + `radius_of_gyration`, `asphericity`, `principal_moments` + confounders (`lattice_system`, `temperature_K`, `has_solvent`). **Output**: `data/features_matrix.npy` and `data/targets.npy`. (FR-004, FR-013)
-- [ ] T025 [US2] Implement `code/train.py` to train a **multi-layer perceptron** (Input -> Hidden -> Hidden -> Output) to predict CAPE. **Architecture**: Two hidden layers with 32 units each, ReLU activation, Dropout 0.1. **Optimizer**: Adam (lr=1e-3), Batch Size 32. **Inputs**: `data/features_matrix.npy`, `data/targets.npy`. **Outputs**: `models/mlp.pt`. **Constraint**: Total trainable parameters must be ≤ 100k. (FR-005)
+- [ ] T024 [US2] Implement `code/feature_assembly.py` to encode SMILES using frozen `seyonec/PubChem10M_SMILES_BPE_60k` (CPU) and **assemble the final feature matrix**. **Inputs**: `data/dataset.csv`. **Features**: `smiles_transformer_embedding` + `radius_of_gyration`, `asphericity`, `principal_moments` + confounders (`lattice_system`, `temperature_K`, `has_solvent`). **Logic**: Use **mean pooling over token embeddings** to produce a fixed-length vector from the variable-length SMILES input. **Critical Dependency**: Use ONLY the gas-phase minimized 3D descriptors produced by T018; do not use raw CIF coordinates to prevent data leakage. **Output**: `data/features_matrix.npy` and `data/targets.npy`. (FR-004, FR-013)
+- [ ] T025 [US2] Implement `code/train.py` to train a **multi-layer perceptron** (Input -> Hidden -> Hidden -> Output) to predict CAPE. **Architecture**: Two hidden layers with 32 units each, ReLU activation, Dropout 0.1. **Constraint**: Total trainable parameters must be ≤ 100k as per FR-005. **Optimizer**: Adam (lr=1e-3), Batch Size 32. **Inputs**: `data/features_matrix.npy`, `data/targets.npy`. **Outputs**: `models/mlp.pt`. (FR-005)
 - [ ] T026 [US2] Implement `code/evaluate.py` to compute MAE, Pearson r, Spearman ρ on validation set. (FR-006, FR-015)
 - [ ] T027 [US2] Implement `code/evaluate.py` to run a **fixed two-sided permutation test** with **10,000 shuffles** (FR-006, FR-016). **Logic**: Shuffle labels [deferred] times, compute correlation for each, calculate the two-sided p-value as the fraction of shuffled correlations with absolute value ≥ observed absolute correlation. **Output**: Final p-value and total shuffle count in `results/validation_report.json`. (FR-016, SC-005)
 - [ ] T028 [US2] Implement `code/evaluate.py` to perform VIF diagnostics on **ALL predictor variables** (fingerprint dimensions, 3D descriptors, confounders) as mandated by FR-009. **Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on the full feature matrix. Do NOT omit any raw dimensions.** (FR-009)
-- [ ] T029 [US2] Implement `code/evaluate.py` to compute **all evaluation metrics** and write a single `results/validation_report.json`. **Primary Metrics**: `pearson_r`, `spearman_rho`, `mae`. **Diagnostics**: `shapiro_wilk_p`, `partial_corr_r`, `partial_corr_p` (partial correlation controlling for atom-type composition as per FR-014), `vif_flags`, `permutation_p_value`. **Output**: Complete JSON object with all keys listed above, ensuring schema compliance with `contracts/validation_report.schema.yaml`. (FR-006, FR-014, FR-015, FR-009, FR-016)
+- [ ] T029 [US2] Implement `code/evaluate.py` to compute **all evaluation metrics** and write a single `results/validation_report.json`. **Primary Metrics**: `pearson_r`, `spearman_rho`, `mae`. **Diagnostics**: `shapiro_wilk_p` (Perform Shapiro-Wilk test on CAPE residuals), `partial_corr_r`, `partial_corr_p` (partial correlation controlling for atom-type composition as per FR-014), `vif_flags`, `permutation_p_value` (computed with [deferred] shuffles). **Output**: Complete JSON object with all keys listed above, ensuring schema compliance with `contracts/validation_report.schema.yaml`. (FR-006, FR-014, FR-015, FR-009, FR-016)
 - [ ] T030 [US2] Implement `code/generate_report.py` to produce `results/report.html` validated against schema (FR-010, FR-019)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -122,12 +122,12 @@
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours (SC-005)
-- [ ] T052c [P] **Compute Feasibility**: Verify that the pipeline (download → report) completes within the time budget on the free-tier runner. Log any steps exceeding hour. (SC-005)
+- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours (SC-005). **Logic**: If runtime exceeds a predefined threshold, detect timeout, reduce permutation count to a lower baseline (with logging of deviation), and continue to ensure the pipeline completes within the budget while maintaining statistical validity. (SC-005)
+- [ ] T052c [P] **Compute Feasibility**: Verify that the pipeline (download → report) completes within the time budget on the free-tier runner. Log any steps exceeding hours. (SC-005)
 - [ ] T053 [P] Performance optimization: parallelize permutation test shuffles if needed (within CPU limits)
 - [ ] T054 [P] Additional unit tests for feature extraction logic in `tests/unit/`
 - [ ] T057 [US1, US2, US3] Validate SC-004 for the single model by checking the variation in r across thresholds.
@@ -225,7 +225,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Revision Note**: Tasks T034 and T035 (which were in Phase 4 and Phase 5 respectively) have been removed as they introduced unapproved scope (conformational ensemble descriptors, diffraction validation) not authorized by the spec.
-- **Critical Revision Note**: T018 now correctly uses gas-phase minimized conformations (ETKDG + MMFF94) to prevent data leakage.
-- **Critical Revision Note**: T025 now correctly implements a 2-layer MLP (2 hidden layers) as per FR-005.
-- **Critical Revision Note**: T027 now correctly mandates [deferred] shuffles as per FR-016.
+- **Critical Revision Note**: Phase 6 (T040-T045) has been **REMOVED** as it implemented features (H-bonding capacity, conformational ensembles, diffraction validation, simple rule analysis) explicitly requested by simulated reviewers but not authorized by the spec.md, violating Constitution Principle IV (Single Source of Truth).
+- **Critical Revision Note**: T018 now correctly uses gas-phase minimized conformations (ETKDG + MMFF94) to prevent data leakage, with added energy convergence verification, while preserving environmental covariates (temperature, lattice system) as required by FR-013. **Note**: This task follows the Plan's leakage-avoidance strategy, which is a necessary deviation from the literal text of FR-004 ("derived from the CIF coordinates") to prevent data leakage. The spec FR-004 should be updated to reflect the gas-phase requirement in a future iteration.
+- **Critical Revision Note**: T025 now correctly implements a 2-layer MLP (2 hidden layers) with explicit constraints: 'two hidden layers with 32 units each' and 'total parameters ≤ 100k' as per FR-005, removing reliance on unresolved claims.
+- **Critical Revision Note**: T027 and T029 now correctly mandate '[deferred] shuffles' as per FR-016, replacing all placeholder claims.
+- **Critical Revision Note**: T024 now explicitly mandates sourcing 3D descriptors ONLY from T018's gas-phase minimized output to prevent data leakage.
+- **Critical Revision Note**: T051 and T052c now include a specific mechanism to handle runtime timeouts (reduce permutations, log deviation) as per the spec's 'deferred' clause.
+- **Critical Revision Note**: T009 description has been corrected to remove copy-paste errors and unresolved claims.
+- **Critical Revision Note**: T015 now explicitly quotes the CAPE formula from FR-011 to ensure deterministic implementation.
