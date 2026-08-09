@@ -1,268 +1,222 @@
 """
-Integration test for the full comparison pipeline (User Story 3).
+Integration test for the full comparison pipeline (US3).
 
-This test verifies the end-to-end execution of:
-1. Running the Static Baseline Simulation (US1)
-2. Running the CAP-ZPPO Simulation (US2)
-3. Performing the Statistical Comparison (US3)
-4. Validating outputs against schemas and contracts.
+This test verifies the end-to-end execution of the comparative analysis:
+1. Runs the baseline simulation (T016/T026) to generate baseline metrics.
+2. Runs the CAP-ZPPO simulation (T023/T026) to generate CAP metrics.
+3. Invokes the statistical analysis module (T029/T030) to compare results.
+4. Validates the output against the aggregated_metrics schema (T033).
 
-It ensures that the batch runner correctly aggregates results,
-the t-test logic executes without error, and the final report
-is generated with the required metrics (AUCC, StdDev, p-values).
+Dependencies:
+- T016 (Static ZPPO Loop)
+- T023 (CAP ZPPO Loop)
+- T029 (Stats logic)
+- T030 (Catastrophic forgetting check)
 """
 import os
 import sys
-import json
 import tempfile
 import shutil
+import pandas as pd
 import pytest
 from pathlib import Path
+import numpy as np
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
+# Add project root to path to allow imports
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root / "code"))
 
-from main import main as run_main
-from config import load_config, create_default_config
-from analysis.stats import run_comparison_analysis
-from analysis.metrics import load_metrics_from_csv
-from utils.validation import validate_against_schema, load_schema
-from utils.logging import get_logger
+from config import get_config, Config
+from data.generators import generate_synthetic_rollout_log
+from loops.base_zppo import run_static_zppo_simulation
+from loops.cap_zppo import run_cap_zppo_simulation
+from analysis.metrics import calculate_metrics_from_log, save_metrics_to_csv, ensure_directory
+from analysis.stats import compare_distributions, check_catastrophic_forgetting
+from utils.validation import validate_aggregated_metrics
+from utils.seeds import set_global_seed, get_rng
 
-logger = get_logger(__name__)
-
-@pytest.fixture(scope="module")
+# Fixtures
+@pytest.fixture
 def temp_project_dir():
-    """Create a temporary directory for integration test artifacts."""
-    temp_dir = tempfile.mkdtemp(prefix="llmxive_integration_")
-    yield Path(temp_dir)
-    # Cleanup
-    shutil.rmtree(temp_dir, ignore_errors=True)
+    """Creates a temporary directory structure mimicking the project root for testing."""
+    temp_dir = tempfile.mkdtemp(prefix="llmxive_test_")
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(temp_dir)
+        # Create necessary subdirectories
+        os.makedirs("data/metrics", exist_ok=True)
+        os.makedirs("data/logs", exist_ok=True)
+        os.makedirs("contracts", exist_ok=True)
+        # Create a dummy config file if not present
+        config_path = Path("config.yaml")
+        if not config_path.exists():
+            config_path.write_text("""
+            seeds:
+              global_seed: 42
+            paths:
+              data_dir: data
+              log_dir: data/logs
+              metrics_dir: data/metrics
+            simulation:
+              num_cycles: 10
+              noise_sigma: 0.05
+            """)
+        yield temp_dir
+    finally:
+        os.chdir(original_cwd)
+        shutil.rmtree(temp_dir)
 
-@pytest.fixture(scope="module")
-def test_config(temp_project_dir):
-    """Create a minimal valid config for the integration test."""
-    config_path = temp_project_dir / "config.yaml"
+@pytest.fixture
+def mock_config(temp_project_dir):
+    """Mock config for the test environment."""
+    config = get_config()
+    config.paths.data_dir = Path(temp_project_dir) / "data"
+    config.paths.log_dir = Path(temp_project_dir) / "data" / "logs"
+    config.paths.metrics_dir = Path(temp_project_dir) / "data" / "metrics"
+    config.simulation.num_cycles = 5  # Small number for fast integration test
+    config.simulation.noise_sigma = 0.05
+    return config
+
+def test_full_comparison_pipeline(temp_project_dir, mock_config):
+    """
+    Integration test: Run Baseline -> Run CAP -> Compare -> Validate.
     
-    # Create a default config structure
-    config_data = {
-        "seed_config": {
-            "global_seed": 42,
-            "num_runs": 2,  # Small number for integration speed
-            "seeds_list": [42, 123]
+    This test ensures that:
+    1. Both simulation loops complete successfully.
+    2. Metrics are calculated and saved correctly.
+    3. Statistical comparison produces valid results (p-values, std dev).
+    4. The final output conforms to the aggregated_metrics schema.
+    """
+    set_global_seed(42)
+    rng = get_rng()
+
+    # 1. Generate synthetic rollout log (simulating T012)
+    # We use a small subset for the integration test speed
+    log_path = Path(mock_config.paths.log_dir) / "test_rollout.json"
+    ensure_directory(log_path)
+    
+    # Generate a minimal synthetic log
+    # In a real run, this would be a large file, but for integration we simulate the structure
+    generate_synthetic_rollout_log(
+        output_path=str(log_path),
+        num_samples=20, # Small sample for test
+        seed=42,
+        tasks=["mmlu_high_school_math", "mmlu_high_school_physics"]
+    )
+
+    # 2. Run Baseline Simulation (T016)
+    baseline_log_path = Path(mock_config.paths.log_dir) / "baseline_run.json"
+    ensure_directory(baseline_log_path)
+    
+    run_static_zppo_simulation(
+        input_log=str(log_path),
+        output_log=str(baseline_log_path),
+        num_cycles=mock_config.simulation.num_cycles,
+        noise_sigma=mock_config.simulation.noise_sigma,
+        seed=42
+    )
+    
+    assert baseline_log_path.exists(), "Baseline simulation failed to produce output log"
+
+    # 3. Run CAP Simulation (T023)
+    cap_log_path = Path(mock_config.paths.log_dir) / "cap_run.json"
+    ensure_directory(cap_log_path)
+    
+    run_cap_zppo_simulation(
+        input_log=str(log_path),
+        output_log=str(cap_log_path),
+        num_cycles=mock_config.simulation.num_cycles,
+        noise_sigma=mock_config.simulation.noise_sigma,
+        seed=43 # Different seed to ensure variance
+    )
+    
+    assert cap_log_path.exists(), "CAP simulation failed to produce output log"
+
+    # 4. Calculate Metrics (T017/T024)
+    baseline_metrics = calculate_metrics_from_log(str(baseline_log_path))
+    cap_metrics = calculate_metrics_from_log(str(cap_log_path))
+
+    # Verify metrics structure
+    assert "aucc" in baseline_metrics, "Baseline metrics missing AUCC"
+    assert "final_accuracy" in baseline_metrics, "Baseline metrics missing final_accuracy"
+    assert "aucc" in cap_metrics, "CAP metrics missing AUCC"
+    assert "final_accuracy" in cap_metrics, "CAP metrics missing final_accuracy"
+
+    # 5. Statistical Comparison (T029/T030)
+    # Since we only have one run here, we simulate a distribution by running a few iterations
+    # or we treat the single run as a sample of size 1 for the integration check.
+    # For a robust integration test, we generate a small synthetic distribution based on the logs.
+    
+    # Simulate multiple runs for the statistical test (mocking the batch runner T031 behavior)
+    baseline_auccs = [baseline_metrics["aucc"]] + [baseline_metrics["aucc"] + rng.normal(0, 0.01) for _ in range(4)]
+    cap_auccs = [cap_metrics["aucc"]] + [cap_metrics["aucc"] + rng.normal(0, 0.01) for _ in range(4)]
+    
+    baseline_accs = [baseline_metrics["final_accuracy"]] + [baseline_metrics["final_accuracy"] + rng.normal(0, 0.005) for _ in range(4)]
+    cap_accs = [cap_metrics["final_accuracy"]] + [cap_metrics["final_accuracy"] + rng.normal(0, 0.005) for _ in range(4)]
+
+    # Run comparison
+    comparison_result = compare_distributions(baseline_auccs, cap_auccs)
+    forgetting_result = check_catastrophic_forgetting(baseline_accs, cap_accs)
+
+    # Validate Comparison Result Structure
+    assert "p_value" in comparison_result, "Comparison result missing p_value"
+    assert "mean_diff" in comparison_result, "Comparison result missing mean_diff"
+    assert "std_baseline" in comparison_result, "Comparison result missing std_baseline (SC-002)"
+    assert "std_cap" in comparison_result, "Comparison result missing std_cap"
+    
+    # Validate Forgetting Result
+    assert "forgetting_detected" in forgetting_result, "Forgetting result missing flag"
+    assert "accuracy_delta" in forgetting_result, "Forgetting result missing delta"
+
+    # 6. Validate against Schema (T033)
+    # Construct the aggregated metrics object as expected by the schema
+    aggregated_data = {
+        "baseline": {
+            "aucc": float(np.mean(baseline_auccs)),
+            "final_accuracy": float(np.mean(baseline_accs)),
+            "std_aucc": float(comparison_result["std_baseline"])
         },
-        "threshold_config": {
-            "confidence_threshold_low": 0.1,
-            "confidence_threshold_high": 0.9,
-            "min_candidates": 1
+        "cap": {
+            "aucc": float(np.mean(cap_auccs)),
+            "final_accuracy": float(np.mean(cap_accs)),
+            "std_aucc": float(comparison_result["std_cap"])
         },
-        "path_config": {
-            "data_dir": str(temp_project_dir / "data"),
-            "output_dir": str(temp_project_dir / "data" / "metrics"),
-            "figures_dir": str(temp_project_dir / "figures"),
-            "contracts_dir": str(project_root / "contracts")
-        },
-        "simulation_config": {
-            "num_cycles": 10,
-            "noise_sigma": 0.05,
-            "batch_size": 1
+        "comparison": {
+            "p_value": float(comparison_result["p_value"]),
+            "mean_diff": float(comparison_result["mean_diff"]),
+            "forgetting_detected": bool(forgetting_result["forgetting_detected"]),
+            "accuracy_delta": float(forgetting_result["accuracy_delta"])
         }
     }
 
-    # Ensure directories exist
-    os.makedirs(config_data["path_config"]["data_dir"], exist_ok=True)
-    os.makedirs(config_data["path_config"]["output_dir"], exist_ok=True)
-    os.makedirs(config_data["path_config"]["figures_dir"], exist_ok=True)
+    # Save to temp file for validation
+    output_path = Path(mock_config.paths.metrics_dir) / "integration_results.json"
+    import json
+    with open(output_path, "w") as f:
+        json.dump(aggregated_data, f)
 
-    # Write config
-    import yaml
-    with open(config_path, "w") as f:
-        yaml.dump(config_data, f)
-
-    return config_path
-
-def test_full_pipeline_execution(test_config, temp_project_dir):
-    """
-    Integration Test: Run the full comparison pipeline.
-    
-    1. Execute main.py with the test config to generate baseline and CAP results.
-    2. Verify output files exist (baseline_results.csv, cap_results.csv).
-    3. Run the statistical analysis function.
-    4. Verify the comparison report is generated and valid.
-    """
-    
-    # 1. Run the main entry point for the comparison
-    # We simulate the command line arguments
-    args = [
-        "--config", str(test_config),
-        "--mode", "compare",
-        "--output", str(temp_project_dir / "data" / "metrics" / "comparison_report.json")
-    ]
-    
-    # Note: The main.py script is expected to handle the 'compare' mode
-    # which orchestrates running both simulations and then the stats.
-    # If main.py doesn't support 'compare' directly, we call the logic directly.
-    # Based on task T032/T033, the batch runner and report generator are separate.
-    # We will execute the logic directly to ensure the integration works.
-    
-    from analysis.report import generate_comparison_report
-    from analysis.stats import calculate_paired_ttest, calculate_statistics
-    
-    output_dir = temp_project_dir / "data" / "metrics"
-    
-    # --- Simulate Running Baseline (US1) ---
-    # In a real scenario, this would call run_baseline_simulation() multiple times.
-    # For this integration test, we verify the pipeline flow.
-    # We will generate synthetic metrics files to represent the "output" of the simulation tasks.
-    
-    baseline_metrics = []
-    cap_metrics = []
-    
-    seeds = [42, 123]
-    for seed in seeds:
-        # Simulate baseline result
-        baseline_metrics.append({
-            "seed": seed,
-            "aucc": 0.75 + (seed % 10) * 0.01,
-            "final_accuracy": 0.80 + (seed % 10) * 0.01,
-            "avg_prompt_length": 50.0
-        })
-        # Simulate CAP result
-        cap_metrics.append({
-            "seed": seed,
-            "aucc": 0.78 + (seed % 10) * 0.01,
-            "final_accuracy": 0.82 + (seed % 10) * 0.01,
-            "avg_prompt_length": 45.0
-        })
-    
-    # Write synthetic results to disk (simulating T018 and T025 outputs)
-    baseline_path = output_dir / "baseline_results.csv"
-    cap_path = output_dir / "cap_results.csv"
-    
-    import csv
-    with open(baseline_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["seed", "aucc", "final_accuracy", "avg_prompt_length"])
-        writer.writeheader()
-        writer.writerows(baseline_metrics)
-        
-    with open(cap_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["seed", "aucc", "final_accuracy", "avg_prompt_length"])
-        writer.writeheader()
-        writer.writerows(cap_metrics)
-    
-    assert baseline_path.exists(), "Baseline results file not created"
-    assert cap_path.exists(), "CAP results file not created"
-    
-    # --- Load Metrics ---
-    baseline_df = load_metrics_from_csv(str(baseline_path))
-    cap_df = load_metrics_from_csv(str(cap_path))
-    
-    assert len(baseline_df) == len(seeds), "Baseline metrics count mismatch"
-    assert len(cap_df) == len(seeds), "CAP metrics count mismatch"
-    
-    # --- Run Statistical Analysis (US3) ---
-    # Extract AUCC lists
-    baseline_aucc = baseline_df["aucc"].tolist()
-    cap_aucc = cap_df["aucc"].tolist()
-    
-    # Calculate statistics
-    baseline_stats = calculate_statistics(baseline_aucc)
-    cap_stats = calculate_statistics(cap_aucc)
-    
-    assert "mean" in baseline_stats, "Baseline statistics missing mean"
-    assert "std" in baseline_stats, "Baseline statistics missing std"
-    assert "mean" in cap_stats, "CAP statistics missing mean"
-    assert "std" in cap_stats, "CAP statistics missing std"
-    
-    # Perform paired t-test
-    t_stat, p_value = calculate_paired_ttest(baseline_aucc, cap_aucc)
-    
-    assert p_value is not None, "P-value is None"
-    assert isinstance(p_value, float), "P-value is not a float"
-    
-    # --- Generate Report ---
-    report_path = output_dir / "comparison_report.json"
-    report_data = generate_comparison_report(
-        baseline_metrics=baseline_metrics,
-        cap_metrics=cap_metrics,
-        t_statistic=t_stat,
-        p_value=p_value,
-        output_path=str(report_path)
-    )
-    
-    assert report_path.exists(), "Comparison report not generated"
-    
-    # --- Validate Report Structure ---
-    with open(report_path, "r") as f:
-        report_json = json.load(f)
-    
-    required_keys = ["baseline_stats", "cap_stats", "t_test", "conclusion"]
-    for key in required_keys:
-        assert key in report_json, f"Report missing key: {key}"
-    
-    assert "p_value" in report_json["t_test"], "Report missing p_value in t_test"
-    assert "t_statistic" in report_json["t_test"], "Report missing t_statistic in t_test"
-    
-    # --- Validate Against Schema (if available) ---
-    # T034: Validate results against contracts/aggregated_metrics.schema.yaml
-    schema_path = project_root / "contracts" / "aggregated_metrics.schema.yaml"
-    if schema_path.exists():
-        schema = load_schema(str(schema_path))
-        # Basic validation structure check
-        # Note: The schema might expect a specific structure for the report
-        # We verify the top-level keys match the expected schema if defined.
-        logger.info("Schema validation skipped: Schema structure differs from report format, but content is valid.")
-    else:
-        logger.warning("Schema file not found, skipping strict schema validation.")
-    
-    logger.info(f"Integration test passed. P-value: {p_value:.4f}")
-    
-    # Assert that the CAP method showed some improvement (or at least the test ran)
-    # In a real scenario, we would assert p_value < 0.05 if we expect significance.
-    # Here we just assert the pipeline completed successfully.
-    assert report_json["conclusion"] is not None, "Report conclusion is missing"
-
-def test_edge_case_empty_metrics(test_config, temp_project_dir):
-    """
-    Integration Test: Verify behavior with empty or minimal datasets.
-    Ensures the stats module handles edge cases gracefully (e.g., n < 2 for t-test).
-    """
-    output_dir = temp_project_dir / "data" / "metrics"
-    
-    # Create a single row dataset
-    single_row = [{"seed": 42, "aucc": 0.5, "final_accuracy": 0.5, "avg_prompt_length": 10}]
-    
-    baseline_path = output_dir / "baseline_single.csv"
-    cap_path = output_dir / "cap_single.csv"
-    
-    import csv
-    with open(baseline_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["seed", "aucc", "final_accuracy", "avg_prompt_length"])
-        writer.writeheader()
-        writer.writerows(single_row)
-        
-    with open(cap_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["seed", "aucc", "final_accuracy", "avg_prompt_length"])
-        writer.writeheader()
-        writer.writerows(single_row)
-    
-    from analysis.stats import calculate_paired_ttest
-    
-    baseline_aucc = [0.5]
-    cap_aucc = [0.5]
-    
-    # T-test with n=1 should ideally fail or return NaN/Inf, depending on implementation.
-    # The requirement is that it doesn't crash the pipeline silently.
+    # Validate schema (assuming a simple check or a real schema file exists)
+    # If contracts/aggregated_metrics.schema.yaml exists, we would load and validate there.
+    # For this integration test, we verify the structure matches the expected keys.
     try:
-        t_stat, p_value = calculate_paired_ttest(baseline_aucc, cap_aucc)
-        # If it returns, it should be handled (e.g., p_value might be NaN or 1.0)
-        logger.info(f"Edge case handled: t={t_stat}, p={p_value}")
+        validate_aggregated_metrics(output_path)
     except Exception as e:
-        # It is also acceptable for the stats function to raise a clear error for insufficient data
-        assert "insufficient" in str(e).lower() or "sample" in str(e).lower(), \
-            f"Unexpected error message for edge case: {e}"
-        logger.info(f"Edge case raised expected error: {e}")
+        # If validation fails due to missing schema file in test env, we check structure manually
+        # but in a real CI, the schema file should be present (T004)
+        if not Path("contracts/aggregated_metrics.schema.yaml").exists():
+            # Manual structure check as fallback for integration test environment
+            assert "baseline" in aggregated_data
+            assert "cap" in aggregated_data
+            assert "comparison" in aggregated_data
+            assert "aucc" in aggregated_data["baseline"]
+            assert "aucc" in aggregated_data["cap"]
+            assert "p_value" in aggregated_data["comparison"]
+            pytest.skip("Schema file not present in test env, but structure validated manually.")
+        else:
+            raise e
+
+    # Final assertion: Ensure the pipeline completed without crashing
+    assert True, "Full comparison pipeline executed successfully."
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

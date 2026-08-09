@@ -1,28 +1,23 @@
 T018:
   c: false
-  h: fe66208b3c6c7b3fb7a514c3d3f62d783752048b001b05cf23a4ac044d74cf0a
-  r: "The repository contains a `code/main.py` file, but it is incomplete (truncated)\
-    \ and contains a clear bug (`res` undefined) and no code that writes `data/metrics/baseline_results.csv`.\
-    \ Moreover, the required output file `data/metrics/baseline_results.csv` does\
-    \ not exist. The task\u2019s requirement of an entry\u2011point script that actually\
-    \ produces the baseline results CSV is therefore not met."
+  h: 216a2c39677481752c6ecdf146ad4e9ef16033ca31a065bd27d1f00c2476ef7b
+  r: "The provided `code/main.py` is a batch\u2011runner that executes both baseline\
+    \ and CAP simulations and writes `data/metrics/batch_results.csv`; it does not\
+    \ serve as a simple entry\u2011point that runs only the baseline simulation and\
+    \ writes `data/metrics/baseline_results.csv`. Moreover, the required `data/metrics/baseline_results.csv`\
+    \ file is missing. The task\u2019s core requirement is therefore not satisfied."
 T025:
-  c: true
-  h: 022219ebe4c158497d12784112b91997036ef48a9ca79676c5608abde5c4f6c4
-  r: "The `code/main.py` file exists, is non\u2011empty, and its documentation and\
-    \ imports show it is an entry\u2011point script that runs the CAP simulation and\
-    \ writes results to `data/metrics/cap_results.csv`. The missing CSV is expected\
-    \ output, not a required artifact."
-T034:
+  c: false
+  h: 2428b4b0e9f8848318e0fc8328863282d78a32164b9786450db2b21e52e2e138
+  r: "The provided `code/main.py` is a batch\u2011runner that executes both baseline\
+    \ and CAP simulations and writes `data/metrics/batch_results.csv`; it does not\
+    \ serve as a simple entry\u2011point script that runs only the CAP simulation\
+    \ and writes `data/metrics/cap_results.csv`. Moreover, the required `data/metrics/cap_results.csv`\
+    \ file is absent. The task\u2019s core requirement\u2014an entry point that runs\
+    \ the CAP simulation and produces the specified CSV\u2014is therefore not satisfied."
+T033:
   c: false
   h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
   r: The required schema file `contracts/aggregated_metrics.schema.yaml` (or `schema.yaml`)
     is missing, so no validation of results against the contract could be performed.
-    Without the schema and corresponding validation output, the task is not satisfied.
-T035:
-  c: false
-  h: d111c58fdf9d016468a202b9d0c50205b1e9a52b6196dbfdb023f63ec2a6164c
-  r: The `code/versioning.py` script is present, but the required state file `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml`
-    does not exist, and there is no evidence that the script was executed to generate
-    checksums and update that YAML. The core requirement of updating the project state
-    is unmet.
+    Without the schema, the task cannot be considered fulfilled.

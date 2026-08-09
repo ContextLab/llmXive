@@ -1,3 +1,1 @@
-"""
-llmXive ZPPO Extension Code Package
-"""
+# Code package for llmXive Follow-up

@@ -1,59 +1,28 @@
 # llmXive Follow-up: Extending "Zone of Proximal Policy Optimization"
 
-This project implements the follow-up research on extending the Zone of Proximal Policy Optimization (ZPPO) method, focusing on "Teacher in Prompts, Not Gradient".
+**Project ID**: PROJ-923-llmxive-follow-up-extending-zone-of-prox
+**Status**: Active Research Pipeline
 
-## Setup
+## Overview
+This project implements a follow-up study to "Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradient".
+The core extension is **Confidence-Adaptive Pruning (CAP)**, a mechanism that dynamically prunes negative candidates
+from the NCQ prompt based on the student model's historical confidence scores.
 
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+## Structure
+- `code/`: Source code for loaders, models, loops, and analysis.
+- `data/`: Generated datasets, metrics, and intermediate artifacts.
+- `tests/`: Unit, contract, and integration tests.
+- `contracts/`: JSON Schema definitions for data validation.
+- `specs/`: Design documents and requirements.
 
-2. Install dependencies:
- ```bash
- pip install -e.
- ```
+## Prerequisites
+- Python 3.9+
+- `pip install -r requirements.txt`
 
-3. Run tests:
- ```bash
- pytest
- ```
-
-## Formatting and Linting
-
-This project uses `black` for formatting and `ruff` for linting.
-
-To format code:
-```bash
-black.
-```
-
-To check linting:
-```bash
-ruff check.
-```
-
-To fix linting issues automatically:
-```bash
-ruff check. --fix
-```
-
-## Project Structure
-
-- `code/`: Source code
-- `data/`: Data files and outputs
-- `tests/`: Test suites
-- `contracts/`: Schema definitions
-- `specs/`: Design documents
-- `data/models/`: Data models and state stores
-- `data/loops/`: Training loop implementations
-- `data/analysis/`: Metrics and statistical analysis
-
-## Configuration
-
-Configuration is managed via YAML files in the `config/` directory (if present) or via the `config.py` module.
+## Quick Start
+1. **Generate Baseline**: `python code/main.py --mode baseline`
+2. **Run CAP Simulation**: `python code/main.py --mode cap`
+3. **Statistical Analysis**: `python code/main.py --mode compare`
 
 ## License
-
-Research code - see LICENSE file for details.
+Research Use Only.

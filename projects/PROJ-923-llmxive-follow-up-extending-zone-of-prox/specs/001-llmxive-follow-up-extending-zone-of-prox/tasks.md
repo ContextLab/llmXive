@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -58,7 +58,7 @@
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py`
 - [X] T007 Create base validation helpers in `code/utils/validation.py` (imports from `contracts/`)
 - [ ] T008 Setup deterministic random seed management for all generators
-- [X] T009 [P] Define in-memory buffer state schema and storage class in `code/models/state_store.py` (Explicitly defines the data structure for 'historical buffer cycles' including confidence history, prompt lengths, and cycle IDs; REQUIRED for T021 to function)
+- [X] T013 [P] Implement MMLU held-out data loader in `code/data/loaders.py` (using `datasets.load_dataset` with streaming; MUST fail loudly with clear error message if REAL training data is missing; NO synthetic fallback for training data; however, for held-out test data generation, if the specific MMLU subset is unavailable, MUST fall back to a synthetic expert distribution as per spec Assumptions to ensure simulation resilience)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,11 +79,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement synthetic rollout log generator in `code/data/generators.py` (seeded by spec, includes LLM/VLM tasks based on `data-model.md` schema for VLM, confidence scores, ground truth)
-- [X] T013 [US1] Implement MMLU held-out data loader in `code/data/loaders.py` (load MMLU dataset schema and synthetically generate negative candidates based on the task schema to ensure no data leakage; MUST fail loudly if MMLU schema is missing; generate synthetic labels/candidates as per Spec Assumptions)
+- [X] T012 [P] [US1] Implement synthetic rollout log generator in `code/data/generators.py` (seeded by spec, includes LLM/VLM tasks, confidence scores, ground truth)
 - [X] T014 [US1] Implement static NCQ generator in `code/loops/base_zppo.py` (includes all known failure modes for every step)
 - [X] T015 [US1] Implement simulated student model in `code/models/student_sim.py` (confidence update logic based on expert gap)
-- [X] T016 [US1] Implement static ZPPO training loop in `code/loops/base_zppo.py` (A fixed number of buffer cycles, records accuracy per cycle; MUST utilize T009 state_store to record cycle history)
+- [X] T016 [US1] Implement static ZPPO training loop in `code/loops/base_zppo.py` (A fixed number of buffer cycles, records accuracy per cycle; MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026)
 - [X] T017 [US1] Implement metrics calculation for baseline in `code/analysis/metrics.py` (AUCC, final accuracy on held-out data)
 - [ ] T018 [US1] Create entry point script to run baseline simulation in `code/main.py` (outputting `data/metrics/baseline_results.csv`)
 
@@ -99,18 +98,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Unit test for CAP classification logic (thresholds / high confidence thresholds / high confidence) in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/unit/test_cap_logic.py`
+- [X] T019 [P] [US2] Unit test for CAP classification logic (thresholds /0.9) in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/unit/test_cap_logic.py`
 - [X] T020 [P] [US2] Unit test for edge cases: specifically verify that if ALL candidates are pruned (due to high confidence), the system defaults to the full set (or minimal set) to avoid empty prompts; also test empty prompt fallback generally in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/unit/test_cap_logic.py`
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement CAP classifier in `code/models/cap_classifier.py` (calculates mean/variance of confidence from T009 state_store, classifies as rejected (<0.1), fluctuating ([0.1, 0.9]), or accepted (>0.9); MUST explicitly exclude 'consistently accepted' (mastered) candidates from the prompt as per FR-003 and Constitution Principle VI; DEPENDS ON T009 (schema) AND T016/T023 (data generation); CANNOT run in parallel with loop tasks)
-- [X] T022 [US2] Implement dynamic NCQ generator in `code/loops/cap_zppo.py` (filters candidates based on CAP output; MUST enforce FR-007 min threshold; MUST implement specific fallback to full set if pruning results in zero candidates)
-- [X] T023 [US2] Implement CAP-ZPPO training loop in `code/loops/cap_zppo.py` (updates student confidence using attention-weighted rule, records prompt length per cycle; MUST utilize T009 state_store to record cycle history)
+- [X] T021 [P] [US2] Implement CAP classifier in `code/models/cap_classifier.py` (calculates mean/variance of confidence, classifies as rejected (<0.1), fluctuating ([0.1, 0.9]), or accepted (>0.9); MUST explicitly exclude BOTH 'consistently rejected' (<0.1) AND 'consistently accepted' (>0.9) candidates from the prompt as per FR-003 and Constitution Principle VI, retaining only 'fluctuating' candidates; MUST implement fallback to full set if resulting set is empty per FR-007)
+- [X] T022 [US2] Implement dynamic NCQ generator in `code/loops/cap_zppo.py` (filters candidates based on CAP output; MUST enforce FR-007 min threshold; MUST implement specific fallback to full set if pruning results in zero candidates; REQUIRES T021 logic to be implemented first; depends on T021 output)
+- [X] T023 [US2] Implement CAP-ZPPO training loop in `code/loops/cap_zppo.py` (updates student confidence using attention-weighted rule, records prompt length per cycle; MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026)
 - [X] T024 [US2] Implement metrics calculation for CAP in `code/analysis/metrics.py` (AUCC, final accuracy, average prompt length mid-training)
-- [X] T025 [US2] Create entry point script to run CAP simulation in `code/main.py` (outputting `data/metrics/cap_results.csv`)
-- [X] T026 [US1/US2] Implement synthetic rollout log generator (initial state only) in `code/data/generators.py` (seeded random state; NO per-step noise here; only initial seed setup)
-- [X] T027 [US1/US2] Implement per-step Gaussian noise injection (σ=0.05) into confidence scores within the training loops (`code/loops/cap_zppo.py` and `code/loops/base_zppo.py`) at each buffer cycle to ensure statistical variance per FR-008 (must execute after T016 and T023)
+- [ ] T025 [US2] Create entry point script to run CAP simulation in `code/main.py` (outputting `data/metrics/cap_results.csv`)
+- [X] T026 [P] [US1/US2] Implement per-step Gaussian noise injection (σ=0.05) into confidence scores within the training loops (`code/loops/base_zppo.py` and `code/loops/cap_zppo.py`) at each buffer cycle to ensure statistical variance per FR-008; this task defines the noise logic used by T016 and T023; MUST apply to both baseline and CAP loops to ensure valid statistical comparison.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,16 +122,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Unit test for paired t-test implementation in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/unit/test_stats.py`
-- [X] T029 [P] [US3] Integration test for full comparison pipeline in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/integration/test_full_loop.py`
+- [X] T027 [P] [US3] Unit test for paired t-test implementation in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/unit/test_stats.py`
+- [X] T028 [P] [US3] Integration test for full comparison pipeline in `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/tests/integration/test_full_loop.py`
 
 ### Implementation for User Story 3
 
-- [X] T030 [P] [US3] Implement paired t-test logic in `code/analysis/stats.py` (comparing AUCC distributions; MUST calculate and return the Standard Deviation of the AUCC distribution as per SC-002)
-- [X] T031 [US3] Implement catastrophic forgetting check in `code/analysis/stats.py` (comparing final accuracy on held-out data)
-- [X] T032 [US3] Create batch runner script in `code/main.py` to execute multiple independent simulation runs (multiple tasks x multiple seeds), each running for a fixed number of buffer cycles, and aggregate the resulting AUCC values for the paired t-test per FR-008
-- [X] T033 [US3] Generate comparative report in `code/analysis/report.py` (p-values, AUCC difference, Standard Deviation of AUCC distribution, average prompt length specifically for mid-training cycles, plots)
-- [ ] T034 [US3] Validate results against `contracts/aggregated_metrics.schema.yaml`
+- [X] T029 [P] [US3] Implement paired t-test logic in `code/analysis/stats.py` (comparing AUCC distributions; MUST calculate and return the Standard Deviation of the AUCC distribution as per SC-002)
+- [X] T030 [US3] Implement catastrophic forgetting check in `code/analysis/stats.py` (comparing final accuracy on held-out data)
+- [X] T031 [US3] Create batch runner script in `code/main.py` to execute 100 runs (10 tasks x 10 seeds) with distinct random seeds per FR-008; MUST select the 10 tasks deterministically (first 10 subjects alphabetically from MMLU, or random sample with seed=42 if order is non-deterministic)
+- [X] T032 [US3] Generate comparative report in `code/analysis/report.py` (p-values, AUCC difference, Standard Deviation of AUCC distribution, prompt length reduction, plots)
+- [ ] T033 [US3] Validate results against `contracts/aggregated_metrics.schema.yaml`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -143,13 +141,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and ensure compliance with Constitution Principles
 
-- [ ] T035 [P] Run versioning script in `code/versioning.py` to checksum `data/` and update `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml` (Principle V)
-- [ ] T036a [P] Refactor `code/loops/` modules to extract common ZPPO logic into a shared base class, reducing cyclomatic complexity of `cap_zppo.py` and `base_zppo.py` to < 15
-- [ ] T036b [P] Refactor `code/analysis/` to separate metric calculation from reporting logic, ensuring `metrics.py` contains no plotting code
-- [ ] T036c [P] Update `code/main.py` to modularize batch execution flow, reducing file length to < 200 lines
-- [ ] T037 Verify all data loaders fail loudly on missing real data (no synthetic fallbacks) per Principle III
-- [ ] T038 [P] Additional unit tests for noise injection and seed reproducibility
-- [ ] T039 Run quickstart.md validation to ensure full pipeline execution
+- [X] T034 [P] Run versioning script in `code/versioning.py` to checksum `data/` and update `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml` (Principle V)
+- [ ] T035b [P] Refactor `code/analysis/` to separate metric calculation from reporting logic, ensuring `metrics.py` contains no plotting code
+- [ ] T035c [P] Update `code/main.py` to modularize batch execution flow, reducing file length to < 200 lines
+- [ ] T036 Verify all data loaders fail loudly on missing real data (no synthetic fallbacks) per Principle III
+- [ ] T037 [P] Additional unit tests for noise injection and seed reproducibility
+- [ ] T038 Run quickstart.md validation to ensure full pipeline execution
 
 ---
 
@@ -231,9 +228,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together (including T009)
 2. Once Foundational is done:
- - Developer A: User Story 1 (T012-T018)
- - Developer B: User Story 2 (T022-T025) - *T021 must be assigned to Developer B but executed AFTER T016/T023 data is available or after T009 is ready if mocking data for logic tests*
- - Developer C: User Story 3 (T030-T034)
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -247,9 +244,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Integrity**: All data loaders must use real sources (MMLU via `datasets`, synthetic via seeded generators). For held-out sets, generate synthetic candidates from real MMLU schema as per Spec Assumptions.
+- **Data Integrity**: All data loaders must use real sources (MMLU via `datasets`, synthetic via seeded generators). NO synthetic fallbacks for training data; synthetic expert fallback allowed for held-out test data per spec Assumptions.
 - **Compute Constraints**: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM). Use streaming for MMLU if needed.
-- **Noise Injection**: Per-step noise (FR-008) is handled in T027 within the loop, not T026 (initial generation).
-- **CAP Logic**: T021/T022 explicitly handle exclusion of 'consistently accepted' (>0.9) and 'all pruned' fallback.
-- **State Management**: T009 defines the buffer history structure required by T021. T021 is NOT parallel with T016/T023.
-- **Data Model**: Ensure `data-model.md` is finalized before T012 and T013 execution.
+- **Noise Injection**: Per-step noise (FR-008) is handled in T026 within the loops, applied to both baseline and CAP variants.
+- **CAP Logic**: T021/T022 explicitly handle exclusion of 'consistently accepted' (>0.9) and 'consistently rejected' (<0.1), and 'all pruned' fallback.

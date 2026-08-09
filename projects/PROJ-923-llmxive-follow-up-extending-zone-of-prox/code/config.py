@@ -1,82 +1,56 @@
-"""
-Configuration loader and dataclasses.
-"""
 import os
 import yaml
-from typing import Dict, Any, Optional, List, Union
-from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from utils.logging import get_logger
+from typing import Any, Dict, Optional
 
-logger = get_logger(__name__)
+CONFIG_PATH = Path(__file__).parent.parent / "config.yaml"
 
-@dataclass
-class SeedConfig:
-    seed: int = 42
-
-@dataclass
-class ThresholdConfig:
-    cap_threshold_low: float = 0.1
-    cap_threshold_high: float = 0.9
-    min_candidates: int = 2
-
-@dataclass
-class PathConfig:
-    data_dir: str = "data"
-    output_dir: str = "data/metrics"
-    config_path: str = "config.yaml"
-
-@dataclass
-class SimulationConfig:
-    num_cycles: int = 50
-    learning_rate: float = 0.01
-    noise_sigma: float = 0.05
-
-@dataclass
 class Config:
-    seed: SeedConfig = field(default_factory=SeedConfig)
-    thresholds: ThresholdConfig = field(default_factory=ThresholdConfig)
-    paths: PathConfig = field(default_factory=PathConfig)
-    simulation: SimulationConfig = field(default_factory=SimulationConfig)
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+    def __init__(self, data: Dict[str, Any]):
+        self.data = data
+        self.project = data.get("project", {})
+        self.paths = data.get("paths", {})
+        self.simulation = data.get("simulation", {})
+        self.mmlu = data.get("mmlu", {})
+        self.logging = data.get("logging", {})
 
-def load_yaml_config(path: str) -> Dict[str, Any]:
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Config file not found: {path}")
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
+    @property
+    def seed(self) -> int:
+        return self.project.get("seed", 42)
 
-def create_default_config() -> Config:
-    return Config()
+    @property
+    def data_dir(self) -> Path:
+        return Path(self.paths.get("data_dir", "data"))
 
-def save_default_config(path: str):
-    config = create_default_config()
-    with open(path, 'w') as f:
-        yaml.dump(asdict(config), f)
+    @property
+    def output_dir(self) -> Path:
+        return Path(self.paths.get("output_dir", "data/metrics"))
 
-def load_config(path: Optional[str] = None) -> Dict[str, Any]:
-    if path is None:
-        path = "config.yaml"
-    return load_yaml_config(path)
+    @property
+    def figures_dir(self) -> Path:
+        return Path(self.paths.get("figures_dir", "data/figures"))
 
-def get_config_paths() -> Dict[str, str]:
-    return {
-        "data": "data",
-        "output": "data/metrics"
-    }
+    @property
+    def buffer_cycles(self) -> int:
+        return self.simulation.get("buffer_cycles", 100)
 
-def validate_config(config: Dict[str, Any]) -> bool:
-    # Basic validation
-    required = ['seed', 'simulation']
-    for key in required:
-        if key not in config:
-            logger.error(f"Missing config key: {key}")
-            return False
-    return True
+    @property
+    def noise_sigma(self) -> float:
+        return self.simulation.get("noise_sigma", 0.05)
 
-def get_config(path: Optional[str] = None) -> Config:
-    raw = load_config(path)
-    # Map raw dict to dataclass if needed, or return dict
-    return raw
+_config: Optional[Config] = None
+
+def get_config() -> Config:
+    global _config
+    if _config is None:
+        _config = reload_config()
+    return _config
+
+def reload_config() -> Config:
+    global _config
+    if not CONFIG_PATH.exists():
+        raise FileNotFoundError(f"Config file not found at {CONFIG_PATH}")
+    with open(CONFIG_PATH, "r") as f:
+        data = yaml.safe_load(f)
+    _config = Config(data)
+    return _config

@@ -1,0 +1,246 @@
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Simulation runtime limit 6 hours on 2 cores 7GB RAM
+  claim_id: c_085adedb
+  context: '**Compute Constraints**: Simulation must complete within 6 hours on CPU
+    (2 cores, 7GB RAM). Use streaming for MMLU if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:27:54Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Paired t-test on AUCC data from multiple runs generates report with p-values
+  claim_id: c_2460ce6f
+  context: '**Independent Test**: The system executes a paired t-test on the AUCC
+    data from Multiple runs (multiple tasks x multiple seeds) and generates a report
+    with p-values and difference metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_on_AUCC_data_from_multiple_runs_generates_repo
+  kind: entity_fact
+  raw_text: The system executes a paired t-test on the AUCC data from Multiple runs
+    (multiple tasks x multiple seeds) and generates a report with p-values and difference
+    metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:28:25Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: 10 tasks selected deterministically from MMLU or with seed 42
+  claim_id: c_5d7ee5cd
+  context: '- [ ] T031 [US3] Create batch runner script in `code/main.py` to execute
+    100 runs (10 tasks x 10 seeds) with distinct random seeds per FR-008; MUST select
+    the 10 tasks deterministically (first 10 subjects alphabetically from MMLU, or
+    random sample with seed=42 if order is non-deterministic)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner selects 10 tasks deterministically (first 10 subjects
+    alphabetically from MMLU, or random sample with seed=42 if order is non-deterministic).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:28:54Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Candidate classification thresholds rejected less than 0.1 fluctuating
+    0.1 to 0.9 accepted greater than 0.9
+  claim_id: c_0521dcfd
+  context: '- [ ] T021 [P] [US2] Implement CAP classifier in `code/models/cap_classifier.py`
+    (calculates mean/variance of confidence, classifies as rejected (<0.1), fluctuating
+    ([0.1, 0.9]), or accepted (>0.9); MUST explicitly exclude BOTH ''consistently
+    rejected'' (<0.1) AND ''consistently accepted'' (>0.9) candidates from the prompt
+    as per FR-003 and Constitution Principle VI, retaining only ''fluctuating'' candidates;
+    MUST implement fallback to full set if resulting set is empty per FR-007)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Candidate_classification_thresholds_rejected_less_than_0.1_f
+  kind: magnitude
+  raw_text: The system classifies candidates as rejected (<0.1), fluctuating ([0.1,
+    0.9]), or accepted (>0.9).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:29:23Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Exclusion of consistently rejected less than 0.1 and consistently accepted
+    greater than 0.9 candidates
+  claim_id: c_365c4932
+  context: '- [ ] T021 [P] [US2] Implement CAP classifier in `code/models/cap_classifier.py`
+    (calculates mean/variance of confidence, classifies as rejected (<0.1), fluctuating
+    ([0.1, 0.9]), or accepted (>0.9); MUST explicitly exclude BOTH ''consistently
+    rejected'' (<0.1) AND ''consistently accepted'' (>0.9) candidates from the prompt
+    as per FR-003 and Constitution Principle VI, retaining only ''fluctuating'' candidates;
+    MUST implement fallback to full set if resulting set is empty per FR-007)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclusion_of_consistently_rejected_less_than_0.1_and_consist
+  kind: magnitude
+  raw_text: The system excludes both 'consistently rejected' (<0.1) and 'consistently
+    accepted' (>0.9) candidates from the prompt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:30:10Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Fallback to full set if resulting candidate set is empty
+  claim_id: c_ba46b9a9
+  context: '- [ ] T021 [P] [US2] Implement CAP classifier in `code/models/cap_classifier.py`
+    (calculates mean/variance of confidence, classifies as rejected (<0.1), fluctuating
+    ([0.1, 0.9]), or accepted (>0.9); MUST explicitly exclude BOTH ''consistently
+    rejected'' (<0.1) AND ''consistently accepted'' (>0.9) candidates from the prompt
+    as per FR-003 and Constitution Principle VI, retaining only ''fluctuating'' candidates;
+    MUST implement fallback to full set if resulting set is empty per FR-007)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_full_set_if_resulting_candidate_set_is_empty
+  kind: entity_fact
+  raw_text: The CAP classifier implements a fallback to the full set if the resulting
+    set of candidates is empty.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:30:37Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Simulation runtime limit 6 hours on 2 CPU cores 7GB RAM
+  claim_id: c_6753151f
+  context: 'Compute Constraints: Simulation must complete within 6 hours on CPU (2
+    cores, 7GB RAM). Use streaming for MMLU if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:35:22Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Execute 100 runs with 10 tasks and 10 seeds
+  claim_id: c_93bf59a4
+  context: T031 [US3] Create batch runner script in code/main.py to execute 100 runs
+    (10 tasks x 10 seeds) with distinct random seeds per FR-008
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must execute 100 runs (10 tasks x 10 seeds) with distinct random
+    seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:35:52Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Gaussian noise injection sigma 0.05 into confidence scores
+  claim_id: c_8a5e981d
+  context: "MUST include per-step Gaussian noise injection (\u03C3=0.05) into confidence\
+    \ scores as defined in T026"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per-step Gaussian noise injection with sigma=0.05 is applied into confidence
+    scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:36:12Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Confidence scores greater than 0.9 classified as consistently accepted
+  claim_id: c_03fa954b
+  context: classifies as rejected (<0.1), fluctuating ([0.1, 0.9]), or accepted (>0.9)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Confidence_scores_greater_than_0.9_classified_as_consistentl
+  kind: magnitude
+  raw_text: Candidates with confidence scores greater than 0.9 are classified as consistently
+    accepted.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:36:41Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Confidence scores less than 0.1 classified as consistently rejected
+  claim_id: c_a8c4d220
+  context: classifies as rejected (<0.1), fluctuating ([0.1, 0.9]), or accepted (>0.9)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Confidence_scores_less_than_0.1_classified_as_consistently_r
+  kind: magnitude
+  raw_text: Candidates with confidence scores less than 0.1 are classified as consistently
+    rejected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:37:09Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Select 10 tasks as first 10 MMLU subjects alphabetically
+  claim_id: c_63d662cf
+  context: MUST select the 10 tasks deterministically (first 10 subjects alphabetically
+    from MMLU, or random sample with seed=42 if order is non-deterministic)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner selects 10 tasks deterministically as the first 10 subjects
+    alphabetically from MMLU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:37:31Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Use random seed 42 for non-deterministic MMLU task selection
+  claim_id: c_5fbff15f
+  context: MUST select the 10 tasks deterministically (first 10 subjects alphabetically
+    from MMLU, or random sample with seed=42 if order is non-deterministic)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner uses random seed 42 if MMLU task order is non-deterministic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:37:54Z'

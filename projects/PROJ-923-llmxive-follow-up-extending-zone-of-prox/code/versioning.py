@@ -1,243 +1,247 @@
 """
-Versioning script for llmXive project.
-Computes checksums for all data files and updates the project state YAML.
-Implements Constitution Principle V: Data Integrity and Reproducibility.
+Versioning module for llmXive pipeline.
+Implements Principle V: Data Integrity and Reproducibility.
+
+This module provides functionality to:
+1. Generate checksums for all files in the data directory
+2. Update the project state YAML with versioning information
+3. Ensure data integrity across pipeline runs
 """
-import os
-import sys
 import hashlib
-import json
+import os
 import yaml
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from utils.logging import get_logger
+from typing import Dict, Any, List, Optional
+from datetime import datetime
+import json
+
+from utils.logging import get_logger, info, debug, warning, error
+from config import get_config
+from utils.validation import ensure_directory, validate_file_exists
 
 logger = get_logger(__name__)
 
-def compute_file_checksum(filepath: Path, algorithm: str = "sha256") -> str:
+
+def compute_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
     """
-    Compute a cryptographic checksum for a single file.
+    Compute SHA-256 checksum of a file.
     
     Args:
-        filepath: Path to the file
+        file_path: Path to the file to checksum
         algorithm: Hash algorithm to use (default: sha256)
-    
+        
     Returns:
-        Hex digest string of the file checksum
-    
+        Hex digest of the file hash
+        
     Raises:
         FileNotFoundError: If the file does not exist
-        PermissionError: If the file cannot be read
+        IOError: If the file cannot be read
     """
-    if not filepath.exists():
-        raise FileNotFoundError(f"File not found: {filepath}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
     
-    hasher = hashlib.new(algorithm)
-    with open(filepath, "rb") as f:
+    hash_func = hashlib.new(algorithm)
+    
+    with open(file_path, 'rb') as f:
         # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_func.update(chunk)
     
-    return hasher.hexdigest()
+    return hash_func.hexdigest()
+
 
 def get_all_data_files(data_dir: Path) -> List[Path]:
     """
-    Recursively find all data files in the data directory.
+    Recursively get all files in the data directory.
     
     Args:
         data_dir: Path to the data directory
-    
+        
     Returns:
-        List of Path objects for all files found
+        List of Path objects for all files
     """
     if not data_dir.exists():
-        logger.warning(f"Data directory does not exist: {data_dir}")
+        warning(f"Data directory does not exist: {data_dir}")
         return []
     
-    data_files = []
-    for root, _, files in os.walk(data_dir):
-        for file in files:
-            # Skip hidden files and common non-data files
-            if file.startswith('.') or file.endswith(('.pyc', '.pyo', '__pycache__')):
-                continue
-            data_files.append(Path(root) / file)
+    files = []
+    for root, _, filenames in os.walk(data_dir):
+        for filename in filenames:
+            file_path = Path(root) / filename
+            # Skip hidden files and temporary files
+            if not filename.startswith('.') and not filename.endswith('.tmp'):
+                files.append(file_path)
     
-    return sorted(data_files)
+    return sorted(files)
 
-def checksum_data_directory(data_dir: Path) -> Dict[str, str]:
+
+def generate_data_manifest(data_dir: Path) -> Dict[str, Any]:
     """
-    Compute checksums for all files in the data directory.
+    Generate a manifest of all data files with their checksums.
     
     Args:
         data_dir: Path to the data directory
-    
+        
     Returns:
-        Dictionary mapping relative file paths to their checksums
+        Dictionary containing manifest information
     """
-    checksums = {}
-    data_files = get_all_data_files(data_dir)
+    files = get_all_data_files(data_dir)
     
-    logger.info(f"Found {len(data_files)} files in {data_dir}")
+    manifest = {
+        'data_directory': str(data_dir),
+        'generated_at': datetime.utcnow().isoformat(),
+        'total_files': len(files),
+        'total_size_bytes': 0,
+        'files': []
+    }
     
-    for filepath in data_files:
+    for file_path in files:
         try:
-            rel_path = filepath.relative_to(data_dir)
-            checksum = compute_file_checksum(filepath)
-            checksums[str(rel_path)] = checksum
-            logger.debug(f"Checksummed: {rel_path} -> {checksum[:16]}...")
+            checksum = compute_file_checksum(file_path)
+            file_size = file_path.stat().st_size
+            manifest['total_size_bytes'] += file_size
+            
+            file_info = {
+                'path': str(file_path.relative_to(data_dir)),
+                'checksum': checksum,
+                'size_bytes': file_size,
+                'last_modified': datetime.fromtimestamp(
+                    file_path.stat().st_mtime
+                ).isoformat()
+            }
+            manifest['files'].append(file_info)
+            
+            debug(f"Checksummed: {file_path} -> {checksum[:16]}...")
+            
         except Exception as e:
-            logger.error(f"Failed to checksum {filepath}: {e}")
-            raise
+            error(f"Failed to checksum {file_path}: {e}")
+            # Continue with other files
+            continue
     
-    return checksums
+    return manifest
 
-def load_project_state(state_file: Path) -> Dict[str, Any]:
+
+def update_state_file(state_path: Path, manifest: Dict[str, Any]) -> None:
     """
-    Load the project state YAML file.
+    Update the project state YAML file with versioning information.
     
     Args:
-        state_file: Path to the state YAML file
-    
-    Returns:
-        Dictionary containing the project state
+        state_path: Path to the state YAML file
+        manifest: Data manifest to store in state
     """
-    if not state_file.exists():
-        logger.info(f"State file does not exist, creating new one: {state_file}")
-        return {
-            "project_id": "PROJ-923-llmxive-follow-up-extending-zone-of-prox",
-            "version": "1.0.0",
-            "last_updated": None,
-            "data_checksums": {},
-            "metadata": {
-                "created_by": "versioning.py",
-                "created_at": None
-            }
+    ensure_directory(state_path.parent)
+    
+    # Load existing state if it exists
+    if state_path.exists():
+        try:
+            with open(state_path, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
+        except Exception as e:
+            warning(f"Failed to load existing state file: {e}")
+            state_data = {}
+    else:
+        state_data = {}
+    
+    # Update with new versioning information
+    state_data['versioning'] = {
+        'last_checksum': datetime.utcnow().isoformat(),
+        'data_manifest': manifest
+    }
+    
+    # Ensure project metadata exists
+    if 'project' not in state_data:
+        state_data['project'] = {
+            'id': 'PROJ-923-llmxive-follow-up-extending-zone-of-prox',
+            'name': 'llmXive Follow-up: Extending Zone of Proximal Policy Optimization'
         }
     
-    with open(state_file, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    # Write updated state
+    with open(state_path, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+    
+    info(f"State file updated: {state_path}")
 
-def save_project_state(state_file: Path, state: Dict[str, Any]) -> None:
+
+def run_versioning(data_dir: Optional[Path] = None, 
+                  state_dir: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Save the project state to a YAML file.
+    Main versioning function that checksums data and updates state.
     
     Args:
-        state_file: Path to the state YAML file
-        state: Dictionary containing the project state
-    """
-    # Ensure directory exists
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_file, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    
-    logger.info(f"Project state saved to: {state_file}")
-
-def update_project_state(
-    state_file: Path,
-    data_dir: Path,
-    project_id: str = "PROJ-923-llmxive-follow-up-extending-zone-of-prox"
-) -> Dict[str, Any]:
-    """
-    Update the project state with new data checksums.
-    
-    Args:
-        state_file: Path to the state YAML file
-        data_dir: Path to the data directory
-        project_id: Project identifier
-    
+        data_dir: Path to data directory (uses config if not provided)
+        state_dir: Path to state directory (uses config if not provided)
+        
     Returns:
-        Updated project state dictionary
+        Dictionary with versioning results
     """
-    # Load existing state or create new
-    state = load_project_state(state_file)
+    config = get_config()
     
-    # Update project ID if not set
-    if "project_id" not in state:
-        state["project_id"] = project_id
+    # Use provided paths or fall back to config
+    if data_dir is None:
+        data_dir = Path(config.data_dir)
     
-    # Compute new checksums
-    logger.info(f"Computing checksums for data directory: {data_dir}")
-    new_checksums = checksum_data_directory(data_dir)
+    if state_dir is None:
+        state_dir = Path(config.state_dir)
     
-    # Update state
-    state["data_checksums"] = new_checksums
-    state["last_updated"] = datetime.utcnow().isoformat()
+    # Validate data directory
+    if not data_dir.exists():
+        error(f"Data directory does not exist: {data_dir}")
+        return {
+            'success': False,
+            'error': f"Data directory does not exist: {data_dir}",
+            'data_dir': str(data_dir)
+        }
     
-    if "metadata" not in state:
-        state["metadata"] = {}
-    state["metadata"]["last_versioned_at"] = datetime.utcnow().isoformat()
-    state["metadata"]["last_versioned_by"] = "versioning.py"
-    
-    # Save updated state
-    save_project_state(state_file, state)
-    
-    logger.info(f"Updated {len(new_checksums)} file checksums in project state")
-    return state
-
-def main():
-    """
-    Main entry point for the versioning script.
-    
-    Usage:
-        python code/versioning.py [--data-dir <path>] [--state-file <path>]
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(
-        description="Versioning script: checksum data and update project state"
-    )
-    parser.add_argument(
-        "--data-dir",
-        type=str,
-        default="data",
-        help="Path to the data directory (default: data)"
-    )
-    parser.add_argument(
-        "--state-file",
-        type=str,
-        default="state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml",
-        help="Path to the project state YAML file"
-    )
-    parser.add_argument(
-        "--project-id",
-        type=str,
-        default="PROJ-923-llmxive-follow-up-extending-zone-of-prox",
-        help="Project identifier (default: PROJ-923-llmxive-follow-up-extending-zone-of-prox)"
-    )
-    
-    args = parser.parse_args()
-    
-    # Resolve paths relative to project root
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / args.data_dir
-    state_file = project_root / args.state_file
-    
-    logger.info(f"Starting versioning process")
-    logger.info(f"Data directory: {data_dir}")
-    logger.info(f"State file: {state_file}")
-    logger.info(f"Project ID: {args.project_id}")
+    info(f"Starting versioning process for data directory: {data_dir}")
     
     try:
-        # Update project state with new checksums
-        state = update_project_state(
-            state_file=state_file,
-            data_dir=data_dir,
-            project_id=args.project_id
-        )
+        # Generate manifest
+        manifest = generate_data_manifest(data_dir)
         
-        # Print summary
-        logger.info("Versioning completed successfully!")
-        logger.info(f"Files checksummed: {len(state.get('data_checksums', {}))}")
-        logger.info(f"Last updated: {state.get('last_updated', 'N/A')}")
+        # Update state file
+        project_id = config.project_id
+        state_path = state_dir / 'projects' / f"{project_id}.yaml"
         
-        # Return success
-        return 0
+        update_state_file(state_path, manifest)
+        
+        info(f"Versioning complete. Processed {manifest['total_files']} files "
+             f"({manifest['total_size_bytes']:,} bytes)")
+        
+        return {
+            'success': True,
+            'data_dir': str(data_dir),
+            'state_file': str(state_path),
+            'total_files': manifest['total_files'],
+            'total_size_bytes': manifest['total_size_bytes'],
+            'checksum_timestamp': manifest['generated_at']
+        }
         
     except Exception as e:
-        logger.error(f"Versioning failed: {e}")
-        raise
+        error(f"Versioning failed: {e}")
+        return {
+            'success': False,
+            'error': str(e),
+            'data_dir': str(data_dir)
+        }
 
-if __name__ == "__main__":
+
+def main():
+    """Entry point for versioning script."""
+    info("Running versioning script...")
+    
+    result = run_versioning()
+    
+    if result['success']:
+        info("Versioning completed successfully")
+        print(json.dumps(result, indent=2))
+    else:
+        error(f"Versioning failed: {result.get('error', 'Unknown error')}")
+        print(json.dumps(result, indent=2))
+        return 1
+    
+    return 0
+
+
+if __name__ == '__main__':
+    import sys
     sys.exit(main())

@@ -1,0 +1,30 @@
+# Project Configuration
+project:
+  name: "llmxive-follow-up-extending-zone-of-prox"
+  version: "1.0.0"
+  seed: 42
+
+paths:
+  data_dir: "data"
+  code_dir: "code"
+  output_dir: "data/metrics"
+  figures_dir: "data/figures"
+  contracts_dir: "contracts"
+
+simulation:
+  buffer_cycles: 100
+  batch_size: 32
+  noise_sigma: 0.05
+  confidence_thresholds:
+    rejected: 0.1
+    accepted: 0.9
+  min_prompt_candidates: 1
+
+mmlu:
+  dataset_name: "cais/mmlu"
+  held_out_subset: "high_school_mathematics"
+  streaming: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

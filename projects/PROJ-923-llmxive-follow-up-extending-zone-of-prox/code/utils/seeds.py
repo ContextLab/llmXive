@@ -1,53 +1,106 @@
-"""
-Seed management utilities.
-Ensures deterministic behavior for all random number generators.
-"""
 import random
 import os
-from typing import Optional
+from typing import Optional, Dict, Any, Generator
+from pathlib import Path
 import numpy as np
+from utils.logging import get_logger, info, debug
 
-def set_global_seed(seed: int):
-    """Sets seed for random, numpy, and os.environ if needed."""
+_global_seed: Optional[int] = None
+_is_deterministic: bool = False
+_logger = get_logger(__name__)
+
+def set_global_seed(seed: Optional[int] = None, deterministic: bool = False) -> int:
+    """
+    Sets the global random seed for Python, NumPy, and (if available) PyTorch.
+    If seed is None, generates one based on system time or environment variable.
+    """
+    global _global_seed, _is_deterministic
+
+    if seed is None:
+        seed = int(os.environ.get("LLMXIVE_SEED", "42"))
+
+    _global_seed = seed
+    _is_deterministic = deterministic
+
+    # Set Python random seed
     random.seed(seed)
+
+    # Set NumPy seed
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
 
-def get_seed(config_seed: Optional[int] = None) -> int:
-    """Retrieves seed from config or environment, defaults to 42."""
-    if config_seed is not None:
-        return config_seed
-    env_seed = os.environ.get('SEED')
-    if env_seed:
-        return int(env_seed)
-    return 42
+    # Set PyTorch seed if available (optional dependency)
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if deterministic:
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+            os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+        debug("PyTorch seed set.")
+    except ImportError:
+        debug("PyTorch not installed; skipping torch seed.")
 
-def reset_to_default():
-    """Resets seeds to default (42)."""
-    set_global_seed(42)
+    info(f"Global seed set to {seed} (deterministic={deterministic})")
+    return seed
 
-def get_seed_or_default(seed: Optional[int] = None) -> int:
-    """Returns seed or default if None."""
-    return seed if seed is not None else 42
+def get_global_seed() -> Optional[int]:
+    """Returns the currently set global seed."""
+    return _global_seed
+
+def is_deterministic() -> bool:
+    """Returns whether the current run is in deterministic mode."""
+    return _is_deterministic
 
 def generate_seed() -> int:
-    """Generates a new random seed."""
-    return random.randint(0, 2**32 - 1)
+    """Generates a new random seed based on current time."""
+    import time
+    return int(time.time() * 1000) % (2**32)
 
-def seed_context(seed: int):
-    """Context manager for temporary seed setting."""
-    class SeedContext:
-        def __enter__(self):
-            self.old_state = random.getstate()
-            self.old_np_state = np.random.get_state()
-            set_global_seed(seed)
-            return self
-        
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            random.setstate(self.old_state)
-            np.random.set_state(self.old_np_state)
-    return SeedContext()
+def ensure_seed_set() -> int:
+    """Ensures a global seed is set; if not, generates and sets one."""
+    if _global_seed is None:
+        new_seed = generate_seed()
+        set_global_seed(new_seed)
+    return _global_seed
 
-def initialize_project_seed(seed: int):
-    """Initializes all seeds for the project run."""
-    set_global_seed(seed)
+def get_rng(seed: Optional[int] = None) -> Generator[np.random.Generator, None, None]:
+    """
+    Returns a new NumPy random Generator instance seeded with the provided seed
+    or the global seed. This allows for isolated randomness per function call
+    while maintaining reproducibility.
+    """
+    if seed is None:
+        seed = _global_seed
+    if seed is None:
+        seed = generate_seed()
+    rng = np.random.default_rng(seed)
+    return rng
+
+def reset_to_global_seed() -> None:
+    """Resets all random states to the global seed."""
+    if _global_seed is not None:
+        set_global_seed(_global_seed, _is_deterministic)
+
+class SeedContext:
+    """
+    Context manager to temporarily set a seed, then restore the previous state.
+    Useful for unit tests or specific stochastic operations.
+    """
+    def __init__(self, seed: Optional[int] = None):
+        self.seed = seed
+        self.prev_seed = _global_seed
+        self.prev_deterministic = _is_deterministic
+
+    def __enter__(self):
+        if self.seed is not None:
+            set_global_seed(self.seed)
+        else:
+            set_global_seed(generate_seed())
+        return _global_seed
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.prev_seed is not None:
+            set_global_seed(self.prev_seed, self.prev_deterministic)
+        else:
+            reset_to_global_seed()
+        return False

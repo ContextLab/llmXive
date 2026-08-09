@@ -1,3 +1,1 @@
-"""
-Training loop implementations
-"""
+# Loops package

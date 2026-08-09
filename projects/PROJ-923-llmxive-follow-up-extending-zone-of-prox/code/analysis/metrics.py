@@ -1,17 +1,21 @@
 """
-Metrics calculation for CAP-ZPPO simulation.
+Metrics calculation module for ZPPO and CAP simulations.
 
-Calculates Area Under the Convergence Curve (AUCC), final accuracy,
-and average prompt length during mid-training cycles.
+This module provides functions to calculate key performance metrics including:
+- Area Under the Convergence Curve (AUCC)
+- Final accuracy
+- Average prompt length (specifically for CAP)
+- Aggregated metrics from simulation logs
 """
-import os
-import json
-import numpy as np
-from typing import List, Dict, Any, Optional, Tuple, Union
-from pathlib import Path
 
-from utils.logging import get_logger
-from utils.seeds import get_seed
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple, Union
+import json
+
+from utils.logging import get_logger, info, debug, warning
+from utils.seeds import get_rng
 
 logger = get_logger(__name__)
 
@@ -19,200 +23,198 @@ logger = get_logger(__name__)
 def calculate_aucc(accuracies: List[float], cycles: Optional[List[int]] = None) -> float:
     """
     Calculate the Area Under the Convergence Curve (AUCC) using the trapezoidal rule.
-    
+
     Args:
         accuracies: List of accuracy values per cycle.
-        cycles: Optional list of cycle indices. If None, assumes [0, 1, 2, ...].
-    
+        cycles: Optional list of cycle indices. If None, assumes sequential 0..N-1.
+
     Returns:
-        The calculated AUCC value.
+        AUCC value (float).
     """
     if not accuracies:
-        logger.warning("Empty accuracy list provided to calculate_aucc. Returning 0.0.")
+        warning("Empty accuracies list provided to calculate_aucc. Returning 0.0.")
         return 0.0
 
+    y = np.array(accuracies)
     if cycles is None:
-        cycles = list(range(len(accuracies)))
-    
-    if len(accuracies) != len(cycles):
-        raise ValueError(f"Length mismatch: accuracies ({len(accuracies)}) vs cycles ({len(cycles)})")
-    
-    if len(accuracies) < 2:
-        # If only one point, area is 0 (or could be considered a single point with 0 width)
-        return 0.0
+        x = np.arange(len(y))
+    else:
+        x = np.array(cycles)
 
-    # Normalize cycles to 0..1 range for standard AUCC interpretation if needed,
-    # but typically raw trapezoidal integration is fine for comparison.
-    # Here we use raw values.
-    x = np.array(cycles, dtype=float)
-    y = np.array(accuracies, dtype=float)
+    if len(x) != len(y):
+        raise ValueError(f"Length mismatch: cycles ({len(x)}) != accuracies ({len(y)})")
 
     # Trapezoidal integration
-    area = np.trapz(y, x)
+    aucc = np.trapz(y, x)
     
-    logger.info(f"AUCC calculated: {area:.6f} from {len(accuracies)} points.")
-    return float(area)
+    # Normalize by the range of x to get an average accuracy-like metric if needed,
+    # but typically AUCC is the raw integral. We return the raw integral here.
+    # If normalization is required by downstream, it can be done there.
+    # However, for comparison, sometimes normalized AUCC (mean accuracy) is preferred.
+    # Let's return the raw integral as per standard definition, but note that
+    # if cycles are 0..N, the max possible area is N * 1.0.
+    
+    debug(f"AUCC calculated: {aucc:.4f} for {len(accuracies)} cycles.")
+    return float(aucc)
 
 
 def calculate_final_accuracy(accuracies: List[float]) -> float:
     """
-    Calculate the final accuracy from the last cycle.
-    
+    Calculate the final accuracy (last value in the sequence).
+
     Args:
         accuracies: List of accuracy values per cycle.
-    
+
     Returns:
-        The accuracy of the last cycle.
+        Final accuracy value (float).
     """
     if not accuracies:
-        logger.warning("Empty accuracy list provided to calculate_final_accuracy. Returning 0.0.")
+        warning("Empty accuracies list provided to calculate_final_accuracy. Returning 0.0.")
         return 0.0
-    
-    final_acc = accuracies[-1]
-    logger.info(f"Final accuracy: {final_acc:.6f}")
-    return float(final_acc)
+
+    final_acc = float(accuracies[-1])
+    debug(f"Final accuracy calculated: {final_acc:.4f}")
+    return final_acc
 
 
-def calculate_average_mid_training_prompt_length(
-    prompt_lengths: List[int], 
-    total_cycles: int, 
-    mid_start_ratio: float = 0.25, 
-    mid_end_ratio: float = 0.75
-) -> float:
+def calculate_average_prompt_length(prompt_lengths: List[int]) -> float:
     """
-    Calculate the average prompt length during the mid-training phase.
-    
-    The mid-training phase is defined as the period between `mid_start_ratio` 
-    and `mid_end_ratio` of the total training cycles.
-    
+    Calculate the average prompt length.
+
+    For CAP-ZPPO, this is specifically the average number of negative candidates
+    included in the prompt across all cycles.
+
     Args:
-        prompt_lengths: List of prompt lengths per cycle.
-        total_cycles: Total number of training cycles.
-        mid_start_ratio: Start of mid-training as a fraction of total cycles (0.0-1.0).
-        mid_end_ratio: End of mid-training as a fraction of total cycles (0.0-1.0).
-    
+        prompt_lengths: List of prompt lengths (number of candidates) per cycle.
+
     Returns:
-        The average prompt length in the mid-training window.
+        Average prompt length (float).
     """
     if not prompt_lengths:
-        logger.warning("Empty prompt_lengths list. Returning 0.0.")
+        warning("Empty prompt_lengths list provided to calculate_average_prompt_length. Returning 0.0.")
         return 0.0
 
-    if len(prompt_lengths) != total_cycles:
-        # Handle case where prompt_lengths might be shorter than expected total_cycles
-        # or if total_cycles is just a parameter and we use len(prompt_lengths)
-        logger.warning(f"Length mismatch: prompt_lengths ({len(prompt_lengths)}) vs total_cycles ({total_cycles}). Using len(prompt_lengths).")
-        total_cycles = len(prompt_lengths)
-
-    start_idx = int(total_cycles * mid_start_ratio)
-    end_idx = int(total_cycles * mid_end_ratio)
-    
-    # Ensure bounds
-    start_idx = max(0, start_idx)
-    end_idx = max(start_idx + 1, min(total_cycles, end_idx))
-    
-    mid_lengths = prompt_lengths[start_idx:end_idx]
-    
-    if not mid_lengths:
-        logger.warning("No prompt lengths found in mid-training window. Returning 0.0.")
-        return 0.0
-
-    avg_length = float(np.mean(mid_lengths))
-    logger.info(f"Average prompt length (cycles {start_idx} to {end_idx}): {avg_length:.2f}")
-    return avg_length
+    avg_len = float(np.mean(prompt_lengths))
+    debug(f"Average prompt length calculated: {avg_len:.2f}")
+    return avg_len
 
 
-def calculate_metrics(
-    accuracies: List[float],
-    prompt_lengths: Optional[List[int]] = None,
-    total_cycles: Optional[int] = None
+def calculate_metrics_from_log(
+    log_data: List[Dict[str, Any]],
+    metric_type: str = "cap"
 ) -> Dict[str, float]:
     """
-    Calculate all relevant metrics for a simulation run.
-    
+    Calculate metrics from a simulation log (list of cycle records).
+
     Args:
-        accuracies: List of accuracy values per cycle.
-        prompt_lengths: Optional list of prompt lengths per cycle (for CAP runs).
-        total_cycles: Optional total cycle count (defaults to len(accuracies)).
-    
+        log_data: List of dictionaries, each representing a cycle's results.
+                Expected keys: 'cycle', 'accuracy', 'prompt_length' (for CAP).
+        metric_type: Type of simulation ('cap' or 'baseline').
+                    'baseline' ignores prompt_length as it's constant.
+
     Returns:
-        Dictionary containing:
-            - 'aucc': Area Under Convergence Curve
-            - 'final_accuracy': Accuracy at the last cycle
-            - 'avg_mid_prompt_length': Average prompt length in mid-training (if prompt_lengths provided)
+        Dictionary containing calculated metrics.
     """
-    metrics = {}
-    
-    # AUCC
-    metrics['aucc'] = calculate_aucc(accuracies)
-    
-    # Final Accuracy
-    metrics['final_accuracy'] = calculate_final_accuracy(accuracies)
-    
-    # Mid-training Prompt Length (only if data provided)
-    if prompt_lengths is not None:
-        if total_cycles is None:
-            total_cycles = len(accuracies)
-        metrics['avg_mid_prompt_length'] = calculate_average_mid_training_prompt_length(
-            prompt_lengths, total_cycles
-        )
+    if not log_data:
+        raise ValueError("Empty log_data provided to calculate_metrics_from_log.")
+
+    accuracies = []
+    prompt_lengths = []
+    cycles = []
+
+    for record in log_data:
+        cycles.append(record.get('cycle', 0))
+        accuracies.append(record.get('accuracy', 0.0))
+        
+        if metric_type == "cap":
+            # For CAP, we expect prompt_length to be present
+            pl = record.get('prompt_length')
+            if pl is None:
+                warning(f"Missing 'prompt_length' in cycle {record.get('cycle')}. Using 0.")
+                pl = 0
+            prompt_lengths.append(pl)
+        else:
+            # For baseline, prompt length is conceptually constant or not tracked per cycle
+            # We skip adding to prompt_lengths list to avoid confusion
+            pass
+
+    metrics = {
+        "aucc": calculate_aucc(accuracies, cycles),
+        "final_accuracy": calculate_final_accuracy(accuracies)
+    }
+
+    if metric_type == "cap" and prompt_lengths:
+        metrics["average_prompt_length"] = calculate_average_prompt_length(prompt_lengths)
     else:
-        metrics['avg_mid_prompt_length'] = None
-        logger.info("Prompt lengths not provided; skipping mid-training prompt length calculation.")
-    
+        # Baseline or missing prompt lengths
+        metrics["average_prompt_length"] = None
+
     return metrics
 
 
-def save_metrics_to_csv(
-    metrics: Dict[str, float],
-    output_path: str,
-    run_metadata: Optional[Dict[str, Any]] = None
-) -> None:
+def save_metrics_to_csv(metrics: Dict[str, Any], output_path: str) -> None:
     """
-    Save metrics to a CSV file.
-    
+    Save metrics dictionary to a CSV file.
+
     Args:
-        metrics: Dictionary of metric names to values.
+        metrics: Dictionary of metrics to save.
         output_path: Path to the output CSV file.
-        run_metadata: Optional dictionary of metadata to include as columns.
     """
-    import csv
-    
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    # Combine metadata and metrics
-    row_data = {}
-    if run_metadata:
-        row_data.update(run_metadata)
-    row_data.update(metrics)
-    
-    # Determine headers (metadata keys first, then metric keys)
-    headers = list(row_data.keys())
-    
-    with open(output_path, mode='w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=headers)
-        writer.writeheader()
-        writer.writerow(row_data)
-    
-    logger.info(f"Metrics saved to {output_path}")
+    output_path = Path(output_path)
+    ensure_directory(output_path.parent)
+
+    # Flatten nested metrics if any, though we expect a flat dict here
+    df = pd.DataFrame([metrics])
+    df.to_csv(output_path, index=False)
+    info(f"Metrics saved to {output_path}")
 
 
-def load_metrics_from_csv(input_path: str) -> List[Dict[str, Any]]:
+def ensure_directory(dir_path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True, exist_ok=True)
+        debug(f"Created directory: {dir_path}")
+
+
+def calculate_baseline_metrics(log_path: str) -> Dict[str, Any]:
     """
-    Load metrics from a CSV file.
-    
+    Calculate metrics for a baseline (static NCQ) simulation.
+
     Args:
-        input_path: Path to the input CSV file.
-    
+        log_path: Path to the baseline simulation log file (JSON).
+
     Returns:
-        List of dictionaries, one per row.
+        Dictionary containing AUCC, final_accuracy.
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Metrics file not found: {input_path}")
-    
-    with open(input_path, mode='r') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+    log_path = Path(log_path)
+    if not log_path.exists():
+        raise FileNotFoundError(f"Baseline log file not found: {log_path}")
+
+    with open(log_path, 'r') as f:
+        log_data = json.load(f)
+
+    metrics = calculate_metrics_from_log(log_data, metric_type="baseline")
+    info(f"Baseline metrics calculated: {metrics}")
+    return metrics
+
+
+def calculate_cap_metrics(log_path: str) -> Dict[str, Any]:
+    """
+    Calculate metrics for a CAP (Confidence-Adaptive Pruning) simulation.
+
+    Args:
+        log_path: Path to the CAP simulation log file (JSON).
+
+    Returns:
+        Dictionary containing AUCC, final_accuracy, average_prompt_length.
+    """
+    log_path = Path(log_path)
+    if not log_path.exists():
+        raise FileNotFoundError(f"CAP log file not found: {log_path}")
+
+    with open(log_path, 'r') as f:
+        log_data = json.load(f)
+
+    metrics = calculate_metrics_from_log(log_data, metric_type="cap")
+    info(f"CAP metrics calculated: {metrics}")
+    return metrics

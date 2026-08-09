@@ -1,3 +1,1 @@
-"""
-Model definitions (Student, State Store, etc.)
-"""
+# Models package

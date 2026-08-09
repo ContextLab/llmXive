@@ -1,185 +1,160 @@
-import os
+"""
+Base ZPPO (Zero-shot Policy Prompt Optimization) Implementation.
+Implements the static NCQ generation and training loop with Gaussian noise injection.
+"""
 import json
-from typing import List, Dict, Any, Optional, Tuple
+import random
 import numpy as np
-from utils.logging import get_logger, log_metric
-from utils.seeds import get_seed
-from models.state_store import StateStore, CycleRecord
-from models.student_sim import SimulatedStudent
-from data.loaders import load_mmlu_held_out_set
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
+
+from data.generators import generate_synthetic_rollout_log
+from utils.logging import get_logger, info, debug, warning
+from utils.seeds import get_rng
 from config import get_config
 
 logger = get_logger(__name__)
 
+# Constants for noise injection (FR-008)
+NOISE_SIGMA = 0.05
+
 class StaticNCQGenerator:
-    """Generates static Negative Candidate-included Question prompts."""
+    """Generates static Negative Candidate-included Questions."""
 
-    def __init__(self, held_out_data: List[Dict], config: Dict):
-        self.held_out_data = held_out_data
+    def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.negative_candidates = config.get('negative_candidates', [])
-        logger.info(f"Initialized StaticNCQGenerator with {len(held_out_data)} questions and {len(self.negative_candidates)} negative candidates.")
+        self.logger = get_logger(__name__)
 
-    def generate_prompt(self, question_idx: int, cycle_id: int) -> Dict[str, Any]:
+    def generate_ncq(self, question_data: Dict[str, Any], buffer_cycle: int) -> str:
         """
-        Generates a prompt for a specific question and cycle.
-        In the static baseline, the negative candidates are always included.
+        Generates an NCQ prompt for a given question and buffer cycle.
+        Includes all known failure modes (negative candidates) for every step.
         """
-        if question_idx >= len(self.held_out_data):
-            raise IndexError(f"Question index {question_idx} out of range for held-out data.")
+        prompt_template = self.config.get("ncq_template", "Question: {question}\nOptions: {options}\nNegative Candidates: {negatives}\nAnswer:")
+        
+        question = question_data.get("question", "")
+        options = ", ".join(question_data.get("options", []))
+        
+        # In static mode, negatives are fixed based on the dataset or generated once
+        negatives = question_data.get("negative_candidates", ["Distractor A", "Distractor B", "Distractor C"])
+        negatives_str = ", ".join(negatives)
 
-        item = self.held_out_data[question_idx]
-        question_text = item.get('question', '')
-        correct_answer = item.get('answer', '')
-        
-        # Static: Always include all negative candidates
-        candidates = self.negative_candidates.copy()
-        
-        prompt_content = {
-            "question": question_text,
-            "correct_answer": correct_answer,
-            "negative_candidates": candidates,
-            "cycle_id": cycle_id,
-            "prompt_type": "static_ncq"
-        }
-        
-        return prompt_content
+        return prompt_template.format(
+            question=question,
+            options=options,
+            negatives=negatives_str
+        )
 
 class StaticZPPOLoop:
     """
     Implements the static ZPPO training loop.
-    Simulates a student model learning from a static NCQ prompt.
+    Runs for a fixed number of buffer cycles, recording accuracy per cycle.
+    Injects Gaussian noise into confidence scores at each step (FR-008).
     """
 
-    def __init__(self, config: Dict, state_store: StateStore):
+    def __init__(self, config: Dict[str, Any], student_model, ncq_generator: StaticNCQGenerator):
         self.config = config
-        self.state_store = state_store
-        self.student = SimulatedStudent(config)
-        self.ncq_generator = None
-        self.held_out_data = None
-        self.num_cycles = config.get('simulation', {}).get('num_cycles', 10)
-        self.noise_sigma = config.get('simulation', {}).get('noise_sigma', 0.05)
-        
-        logger.info(f"Initialized StaticZPPOLoop for {self.num_cycles} cycles.")
+        self.student_model = student_model
+        self.ncq_generator = ncq_generator
+        self.logger = get_logger(__name__)
+        self.results_log = []
 
-    def initialize(self, held_out_data: List[Dict]):
-        """Initialize the loop with held-out data."""
-        self.held_out_data = held_out_data
-        self.ncq_generator = StaticNCQGenerator(held_out_data, self.config)
-        self.student.reset()
-        logger.info("StaticZPPOLoop initialized with held-out data.")
-
-    def run_one_cycle(self, cycle_id: int) -> Dict[str, Any]:
+    def _inject_noise(self, confidence: float) -> float:
         """
-        Executes a single training cycle.
-        1. Generate prompt (Static NCQ)
-        2. Simulate student response and confidence
-        3. Inject Gaussian noise into confidence (FR-008)
-        4. Update student state
-        5. Record metrics
+        Injects Gaussian noise (sigma=0.05) into the confidence score.
+        Clamps result to [0.0, 1.0].
         """
-        if self.ncq_generator is None or self.held_out_data is None:
-            raise RuntimeError("Loop not initialized. Call initialize() first.")
+        rng = get_rng()
+        noise = rng.normal(0, NOISE_SIGMA)
+        noisy_confidence = confidence + noise
+        return max(0.0, min(1.0, noisy_confidence))
 
-        # Select a random question for this cycle (or iterate sequentially)
-        # For simulation, we'll iterate or sample. Let's sample for statistical variance.
-        question_idx = np.random.randint(0, len(self.held_out_data))
+    def run_cycle(self, cycle_idx: int, rollout_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Executes a single buffer cycle.
+        1. Generates NCQ prompt.
+        2. Simulates student response (with noise).
+        3. Updates student confidence.
+        4. Records metrics.
+        """
+        info(f"Running buffer cycle {cycle_idx}")
         
-        # 1. Generate Prompt
-        prompt_data = self.ncq_generator.generate_prompt(question_idx, cycle_id)
+        cycle_results = []
         
-        # 2. Simulate Student Response
-        # Get base confidence from student model based on question difficulty and current state
-        base_confidence = self.student.predict_confidence(prompt_data)
-        
-        # 3. Inject Gaussian Noise (FR-008)
-        # Add noise to the confidence score to ensure statistical variance
-        noise = np.random.normal(0, self.noise_sigma)
-        noisy_confidence = base_confidence + noise
-        # Clip to valid probability range [0, 1]
-        noisy_confidence = np.clip(noisy_confidence, 0.0, 1.0)
-        
-        logger.debug(f"Cycle {cycle_id}: Base Confidence={base_confidence:.4f}, Noise={noise:.4f}, Noisy={noisy_confidence:.4f}")
+        for item in rollout_data:
+            # 1. Generate NCQ
+            ncq_prompt = self.ncq_generator.generate_ncq(item, cycle_idx)
+            
+            # 2. Simulate Student Response (Get raw confidence from model)
+            raw_confidence = self.student_model.predict_confidence(ncq_prompt, item)
+            
+            # 3. Inject Noise (FR-008)
+            noisy_confidence = self._inject_noise(raw_confidence)
+            
+            # 4. Update Student Model (Simplified update logic)
+            # In a real loop, this would update internal state based on the noisy confidence
+            # For simulation, we just record the noisy confidence as the "observed" confidence
+            self.student_model.update_confidence(item["id"], noisy_confidence)
+            
+            cycle_results.append({
+                "step_id": item["id"],
+                "cycle": cycle_idx,
+                "raw_confidence": raw_confidence,
+                "noisy_confidence": noisy_confidence,
+                "prompt_length": len(ncq_prompt),
+                "is_correct": item.get("is_correct", False)
+            })
 
-        # 4. Update Student State
-        # In a real loop, this would update weights. Here we update the internal state for tracking.
-        self.student.update_state(noisy_confidence, prompt_data)
-        
-        # 5. Record Metrics
-        is_correct = (noisy_confidence > 0.5) # Simplified correctness metric for simulation
-        
-        record = CycleRecord(
-            cycle_id=cycle_id,
-            prompt_length=len(str(prompt_data)),
-            confidence_score=noisy_confidence,
-            is_correct=is_correct,
-            prompt_type="static_ncq",
-            candidates_count=len(prompt_data.get('negative_candidates', [])),
-            timestamp=None # Handled by record creation
-        )
-        
-        self.state_store.add_record(record)
-        
-        return {
-            "cycle_id": cycle_id,
-            "confidence": noisy_confidence,
-            "correct": is_correct,
-            "prompt_length": record.prompt_length
+        # Calculate cycle metrics
+        correct_count = sum(1 for r in cycle_results if r["is_correct"])
+        total_count = len(cycle_results)
+        accuracy = correct_count / total_count if total_count > 0 else 0.0
+        avg_confidence = np.mean([r["noisy_confidence"] for r in cycle_results])
+
+        cycle_summary = {
+            "cycle": cycle_idx,
+            "accuracy": accuracy,
+            "avg_confidence": avg_confidence,
+            "steps_processed": total_count
         }
 
-    def run(self) -> List[Dict[str, Any]]:
-        """
-        Runs the full training loop for the configured number of cycles.
-        """
-        logger.info(f"Starting StaticZPPO simulation for {self.num_cycles} cycles.")
-        results = []
-        
-        for cycle_id in range(self.num_cycles):
-            try:
-                result = self.run_one_cycle(cycle_id)
-                results.append(result)
-                log_metric("static_confidence", result["confidence"], cycle_id)
-                log_metric("static_correct", 1 if result["correct"] else 0, cycle_id)
-            except Exception as e:
-                logger.error(f"Error in cycle {cycle_id}: {e}", exc_info=True)
-                break
-                
-        logger.info(f"StaticZPPO simulation completed. Total cycles: {len(results)}")
-        return results
+        self.results_log.append(cycle_summary)
+        info(f"Cycle {cycle_idx} complete. Accuracy: {accuracy:.4f}, Avg Confidence: {avg_confidence:.4f}")
 
-def run_baseline_simulation(config_path: Optional[str] = None) -> List[Dict[str, Any]]:
+        return cycle_summary
+
+    def run(self, num_cycles: int, rollout_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Runs the full training loop for the specified number of cycles.
+        """
+        info(f"Starting Static ZPPO simulation for {num_cycles} cycles")
+        
+        for cycle in range(num_cycles):
+            self.run_cycle(cycle, rollout_data)
+
+        return self.results_log
+
+def run_static_zppo_simulation(config_path: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Entry point to run the baseline static ZPPO simulation.
+    Entry point for running the static ZPPO simulation.
+    Loads config, generates data, runs loop, and returns results.
     """
     config = get_config(config_path)
-    seed_config = config.get('seed', {})
-    np.random.seed(seed_config.get('seed', 42))
     
-    logger.info("Starting Baseline Simulation (Static ZPPO)")
-    
-    # Initialize State Store
-    state_store = StateStore()
-    
-    # Load Held-out Data
-    # For this simulation, we use the synthetic loader as per T013
-    from data.loaders import load_mmlu_held_out_set
-    try:
-        held_out_data = load_mmlu_held_out_set(config)
-    except Exception as e:
-        logger.error(f"Failed to load held-out data: {e}")
-        # Fallback to synthetic if real data is unavailable for simulation context
-        # Note: In production, this should fail loudly as per constraints, 
-        # but for the simulation runner in this specific project context, 
-        # we assume T013 handles the fallback logic or data availability.
-        # If T013 is strictly real-data only, this would raise.
-        # Assuming T013 provides the data structure here.
-        raise e
+    # Initialize components
+    student_model = config.get("student_model_instance") # Assuming this is passed or mocked in real run
+    if student_model is None:
+        from models.student_sim import SimulatedStudent
+        student_model = SimulatedStudent(config)
 
-    # Initialize Loop
-    loop = StaticZPPOLoop(config, state_store)
-    loop.initialize(held_out_data)
-    
-    # Run
-    results = loop.run()
-    
+    ncq_generator = StaticNCQGenerator(config)
+    loop = StaticZPPOLoop(config, student_model, ncq_generator)
+
+    # Generate or load rollout data
+    # For this simulation, we generate synthetic data as per T012
+    rollout_data = generate_synthetic_rollout_log(config)
+
+    # Run simulation
+    results = loop.run(num_cycles=config.get("num_buffer_cycles", 10), rollout_data=rollout_data)
+
     return results

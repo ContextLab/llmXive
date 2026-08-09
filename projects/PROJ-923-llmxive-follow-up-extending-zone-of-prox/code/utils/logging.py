@@ -1,66 +1,55 @@
-"""
-Logging infrastructure.
-Configures logging to stdout and file with JSON formatting.
-"""
 import logging
 import os
 import sys
-import json
-from datetime import datetime
+from pathlib import Path
 from typing import Optional, Dict, Any
+from config import get_config, Config
 
-class JsonFormatter(logging.Formatter):
-    def format(self, record):
-        log_obj = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName
-        }
-        if hasattr(record, 'metric_name'):
-            log_obj["metric_name"] = record.metric_name
-            log_obj["metric_value"] = record.metric_value
-        return json.dumps(log_obj)
-
-def configure_logging(log_file: Optional[str] = None, level: int = logging.INFO):
-    """Configures the root logger."""
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Clear existing handlers
-    root_logger.handlers = []
-    
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    ch.setFormatter(JsonFormatter())
-    root_logger.addHandler(ch)
-    
-    # File handler if specified
-    if log_file:
-        os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else '.', exist_ok=True)
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
-        fh.setFormatter(JsonFormatter())
-        root_logger.addHandler(fh)
+_logger_registry: Dict[str, logging.Logger] = {}
 
 def get_logger(name: str) -> logging.Logger:
-    """Gets a logger with the given name."""
-    return logging.getLogger(name)
+    if name not in _logger_registry:
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        _logger_registry[name] = logger
+    return _logger_registry[name]
 
-def log_metric(name: str, value: float, step: Optional[int] = None):
-    """Logs a metric to the logger."""
-    logger = get_logger("metrics")
-    record = logger.makeRecord(
-        logger.name, logging.INFO, "", 0, "", (), None
-    )
-    record.metric_name = name
-    record.metric_value = value
-    record.step = step
-    logger.handle(record)
+def initialize_logging(level: Optional[str] = None):
+    config = get_config()
+    log_level = level or config.logging.get("level", "INFO")
+    set_log_level(log_level)
 
-def log_run_metadata(metadata: Dict[str, Any]):
-    """Logs run metadata."""
-    logger = get_logger("metadata")
-    logger.info(json.dumps(metadata))
+def set_log_level(level: str):
+    numeric_level = getattr(logging, level.upper(), logging.INFO)
+    for logger in _logger_registry.values():
+        logger.setLevel(numeric_level)
+
+def configure_logger(name: str, level: str, file_path: Optional[str] = None):
+    logger = get_logger(name)
+    numeric_level = getattr(logging, level.upper(), logging.INFO)
+    logger.setLevel(numeric_level)
+    if file_path:
+        handler = logging.FileHandler(file_path)
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+def debug(msg: str, logger_name: str = "root"):
+    get_logger(logger_name).debug(msg)
+
+def info(msg: str, logger_name: str = "root"):
+    get_logger(logger_name).info(msg)
+
+def warning(msg: str, logger_name: str = "root"):
+    get_logger(logger_name).warning(msg)
+
+def error(msg: str, logger_name: str = "root"):
+    get_logger(logger_name).error(msg)
+
+def critical(msg: str, logger_name: str = "root"):
+    get_logger(logger_name).critical(msg)
