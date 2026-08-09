@@ -1,5 +1,6 @@
 """
 Logging utilities for the project.
+Provides centralized logging configuration and helper functions.
 """
 import logging
 import json
@@ -9,129 +10,154 @@ from typing import Optional, List, Dict, Any
 
 from .config import get_project_root
 
-def setup_logging(log_file: str = None, level: int = logging.INFO) -> logging.Logger:
-    """
-    Sets up the root logger with console and file handlers.
-    """
-    logger = logging.getLogger()
-    logger.setLevel(level)
+# Global logger instance
+_logger: Optional[logging.Logger] = None
 
-    # Clear existing handlers
-    logger.handlers.clear()
-
+def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
+    """
+    Setup the root logger for the project.
+    
+    Args:
+        log_level: Logging level (default: INFO)
+        log_file: Optional path to log file. If None, logs to console only.
+    
+    Returns:
+        logging.Logger: The configured root logger
+    """
+    global _logger
+    
+    if _logger is not None:
+        return _logger
+    
+    _logger = logging.getLogger("llmXive")
+    _logger.setLevel(log_level)
+    
+    # Prevent duplicate handlers
+    if _logger.handlers:
+        _logger.handlers.clear()
+    
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-
-    # File handler
+    console_handler.setLevel(log_level)
+    console_format = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(console_format)
+    _logger.addHandler(console_handler)
+    
+    # File handler if specified
     if log_file:
-        log_path = Path(log_file)
+        project_root = get_project_root()
+        log_path = project_root / log_file
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
-
-    return logger
-
-def get_logger(name: str = None) -> logging.Logger:
-    """
-    Gets a logger instance, optionally setting up logging if not already done.
-    """
-    if name is None:
-        name = "llmXive"
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        # Setup default logging if no handlers exist
-        setup_logging(level=logging.INFO)
-    return logger
-
-def get_logger_level(level_str: str) -> int:
-    """Converts a string level to logging level."""
-    levels = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL
-    }
-    return levels.get(level_str.upper(), logging.INFO)
-
-def log_excluded_molecules(count: int, smiles_list: List[str], logger: logging.Logger = None):
-    """
-    Logs excluded molecules to a JSON file and logger.
-    """
-    if logger is None:
-        logger = get_logger()
+        
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setLevel(log_level)
+        file_format = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(file_format)
+        _logger.addHandler(file_handler)
     
-    log_entry = {
-        "type": "excluded_molecules",
-        "count": count,
-        "smiles_list": smiles_list
-    }
+    return _logger
+
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger instance for the project.
     
-    logger.warning(f"Excluded {count} molecules due to validation errors.")
+    Args:
+        name: Optional name for the logger (creates a child logger)
     
-    # Write to log file
-    log_file = get_project_root() / "logs" / "excluded_molecules.log"
+    Returns:
+        logging.Logger: Logger instance
+    """
+    if _logger is None:
+        setup_logging()
+    
+    if name:
+        return _logger.getChild(name)
+    return _logger
+
+def get_logger_level(name: Optional[str] = None) -> int:
+    """
+    Get the logging level for a specific logger.
+    
+    Args:
+        name: Optional name for the logger
+    
+    Returns:
+        int: The logging level
+    """
+    logger = get_logger(name)
+    return logger.level
+
+def log_excluded_molecules(count: int, smiles_list: List[str]) -> None:
+    """
+    Log information about excluded molecules.
+    
+    Args:
+        count: Number of excluded molecules
+        smiles_list: List of SMILES strings for excluded molecules
+    """
+    logger = get_logger(__name__)
+    if count > 0:
+        logger.warning(f"Excluded {count} molecules due to filter criteria")
+        # Log first few for debugging
+        if smiles_list:
+            logger.debug(f"Sample excluded SMILES: {smiles_list[:5]}")
+    
+    # Also write to a dedicated log file for audit trail
+    project_root = get_project_root()
+    log_file = project_root / "logs" / "excluded_molecules.log"
     log_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(log_file, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
+    with open(log_file, "a", encoding="utf-8") as f:
+        entry = {
+            "count": count,
+            "timestamp": logging.Formatter("%Y-%m-%d %H:%M:%S").format(logging.LogRecord("", 0, "", 0, "", (), None)),
+            "smiles_sample": smiles_list[:10] if len(smiles_list) > 10 else smiles_list
+        }
+        f.write(json.dumps(entry) + "\n")
 
-def log_errors(errors: List[Dict[str, Any]], logger: logging.Logger = None):
+def log_errors(errors: List[Exception]) -> None:
     """
-    Logs ingestion errors to a JSON file and logger.
+    Log a list of exceptions to the error log file.
+    
+    Args:
+        errors: List of exception objects
     """
-    if logger is None:
-        logger = get_logger()
+    logger = get_logger(__name__)
     
-    log_entry = {
-        "type": "ingestion_errors",
-        "errors": errors
-    }
-    
-    logger.error(f"Logged {len(errors)} ingestion errors.")
-    
-    # Write to log file
-    log_file = get_project_root() / "logs" / "ingestion_errors.log"
+    project_root = get_project_root()
+    log_file = project_root / "logs" / "ingestion_errors.log"
     log_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(log_file, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
+    with open(log_file, "a", encoding="utf-8") as f:
+        for error in errors:
+            entry = {
+                "error_type": type(error).__name__,
+                "message": str(error),
+                "timestamp": logging.Formatter("%Y-%m-%d %H:%M:%S").format(logging.LogRecord("", 0, "", 0, "", (), None))
+            }
+            f.write(json.dumps(entry) + "\n")
+            logger.error(f"Error: {type(error).__name__}: {error}")
 
-def log_dataset_statistics(stats: Dict[str, Any], logger: logging.Logger = None):
+def log_dataset_statistics(stats: Dict[str, Any]) -> None:
     """
-    Logs dataset statistics.
+    Log dataset statistics.
+    
+    Args:
+        stats: Dictionary containing dataset statistics
     """
-    if logger is None:
-        logger = get_logger()
-    
-    logger.info(f"Dataset Statistics: {json.dumps(stats, indent=2)}")
-    
-    # Write to log file
-    log_file = get_project_root() / "logs" / "dataset_statistics.log"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(log_file, 'w') as f:
-        f.write(json.dumps(stats, indent=2))
+    logger = get_logger(__name__)
+    logger.info(f"Dataset statistics: {json.dumps(stats, indent=2)}")
 
-def log_split_statistics(split_info: Dict[str, Any], logger: logging.Logger = None):
+def log_split_statistics(split_stats: Dict[str, Any]) -> None:
     """
-    Logs split statistics.
+    Log data split statistics.
+    
+    Args:
+        split_stats: Dictionary containing split statistics
     """
-    if logger is None:
-        logger = get_logger()
-    
-    logger.info(f"Split Statistics: {json.dumps(split_info, indent=2)}")
-    
-    # Write to log file
-    log_file = get_project_root() / "logs" / "split_statistics.log"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(log_file, 'w') as f:
-        f.write(json.dumps(split_info, indent=2))
+    logger = get_logger(__name__)
+    logger.info(f"Split statistics: {json.dumps(split_stats, indent=2)}")

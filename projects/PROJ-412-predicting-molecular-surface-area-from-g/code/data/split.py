@@ -11,11 +11,18 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 
-from utils.logging import get_logger
-from utils.seed import set_seed
-from utils.config import get_data_dir
+# Project root resolution
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+SPLITS_DIR = DATA_DIR / "splits"
+PROCESSED_DIR = DATA_DIR / "processed"
+LOGS_DIR = PROJECT_ROOT / "logs"
 
-logger = get_logger(__name__)
+# Ensure directories exist
+SPLITS_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class SplitResult:
@@ -27,219 +34,200 @@ class SplitResult:
     test_mw_mean: float
     train_mw_std: float
     test_mw_std: float
-    train_size: int
-    test_size: int
 
 def load_processed_data() -> pd.DataFrame:
     """
-    Loads the processed dataset containing SMILES, molecular_weight, and SASA.
-    Expects the file at data/processed/graphs_with_features.parquet.
+    Loads the processed dataset containing SMILES, molecular_weight, and surface_area.
+    Expects: data/processed/paired_dataset.parquet
     """
-    data_dir = get_data_dir()
-    input_path = data_dir / "processed" / "graphs_with_features.parquet"
-    
+    input_path = PROCESSED_DIR / "paired_dataset.parquet"
     if not input_path.exists():
         raise FileNotFoundError(
-            f"Required input file not found: {input_path}. "
-            "Please run T014 (preprocess) to generate molecular weights "
-            "and T015 (conformer generation) to generate SASA before running split."
+            f"Input file not found: {input_path}. "
+            "Ensure T015 has completed successfully."
         )
     
     logger.info(f"Loading processed data from {input_path}")
     df = pd.read_parquet(input_path)
     
-    required_cols = ['smiles', 'molecular_weight', 'sasa']
+    required_cols = ['smiles', 'molecular_weight', 'surface_area']
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
-        raise ValueError(f"Input data missing required columns: {missing_cols}")
+        raise ValueError(f"Missing required columns in input data: {missing_cols}")
     
-    # Drop rows with missing MW or SASA
-    initial_count = len(df)
+    # Drop rows with any NaN in critical columns to ensure clean split
     df = df.dropna(subset=required_cols)
-    dropped = initial_count - len(df)
-    if dropped > 0:
-        logger.warning(f"Dropped {dropped} rows due to missing MW or SASA values.")
     
-    logger.info(f"Loaded {len(df)} molecules for splitting.")
+    logger.info(f"Loaded {len(df)} valid molecules for splitting.")
     return df
 
 def calculate_mw_stats(df: pd.DataFrame) -> Dict[str, float]:
-    """Calculate basic statistics for molecular weight."""
+    """Calculate basic statistics for Molecular Weight."""
     mw = df['molecular_weight']
     return {
         'mean': float(mw.mean()),
         'std': float(mw.std()),
         'min': float(mw.min()),
-        'max': float(mw.max()),
-        'median': float(mw.median())
+        'max': float(mw.max())
     }
 
 def stratified_split_by_mw(
     df: pd.DataFrame, 
     test_ratio: float = 0.2, 
-    n_bins: int = 10, 
-    random_state: int = 42
-) -> SplitResult:
+    random_seed: int = 42
+) -> Tuple[List[int], List[int]]:
     """
     Performs a stratified split based on Molecular Weight bins.
-    Ensures the distribution of MW in train and test sets is similar.
+    
+    Strategy:
+    1. Bin the molecular_weight column into quantiles (e.g., 10 bins) to ensure
+       distribution coverage across the range.
+    2. Stratify the split based on these bins.
+    3. Return indices corresponding to the original dataframe.
     """
-    set_seed(random_state)
+    n = len(df)
+    n_test = int(n * test_ratio)
     
-    logger.info(f"Performing stratified split by Molecular Weight (test_ratio={test_ratio}, bins={n_bins})")
+    # Create bins based on quantiles to ensure even distribution
+    # Using 10 bins is a standard approach for continuous variables
+    n_bins = 10
+    df_copy = df.copy()
+    df_copy['mw_bin'] = pd.qcut(df_copy['molecular_weight'], q=n_bins, duplicates='drop')
     
-    mw = df['molecular_weight'].values
+    # Reset index to keep track of original row positions
+    df_copy = df_copy.reset_index(drop=False)
     
-    # Create bins based on MW distribution
-    # Using quantile-based binning to ensure roughly equal numbers per bin
-    # This helps stratification work better on skewed distributions
-    try:
-        bins = np.percentile(mw, np.linspace(0, 100, n_bins + 1))
-        # Ensure unique bins if data is too uniform
-        bins = np.unique(bins)
-        if len(bins) < 2:
-            logger.warning("MW distribution is too uniform for binning. Using uniform split.")
-            bins = np.array([mw.min(), mw.max()])
-    except Exception as e:
-        logger.error(f"Error creating MW bins: {e}")
-        raise
-    
-    # Assign bin labels
-    bin_labels = np.digitize(mw, bins[1:-1])
-    
-    # Stratified split
+    # Perform stratified split
     train_indices = []
     test_indices = []
     
-    # We need to keep track of original indices
-    original_indices = df.index.tolist()
-    
-    for bin_id in range(len(bins) - 1):
-        # Get indices for this bin
-        bin_mask = bin_labels == bin_id
-        bin_indices = [original_indices[i] for i, val in enumerate(bin_mask) if val]
+    for _, group in df_copy.groupby('mw_bin'):
+        group_indices = group['index'].tolist()
+        np.random.seed(random_seed)
+        np.random.shuffle(group_indices)
         
-        if not bin_indices:
-            continue
-        
-        # Shuffle within bin
-        np.random.shuffle(bin_indices)
-        
-        # Split
-        split_point = int(len(bin_indices) * (1 - test_ratio))
-        train_indices.extend(bin_indices[:split_point])
-        test_indices.extend(bin_indices[split_point:])
+        n_group_test = max(1, int(len(group_indices) * test_ratio))
+        test_indices.extend(group_indices[:n_group_test])
+        train_indices.extend(group_indices[n_group_test:])
     
-    # Create DataFrames for KS test
-    train_df = df.loc[train_indices]
-    test_df = df.loc[test_indices]
-    
-    # Kolmogorov-Smirnov test
-    ks_stat, ks_p = stats.ks_2samp(train_df['molecular_weight'], test_df['molecular_weight'])
-    
-    logger.info(f"KS Test: Statistic={ks_stat:.4f}, P-value={ks_p:.4f}")
-    
-    if ks_p <= 0.05:
-        error_msg = (
-            f"Split failed KS test (p={ks_p:.4f} <= 0.05). "
-            "The training and test sets have significantly different MW distributions."
-        )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    stats_result = SplitResult(
-        train_indices=train_indices,
-        test_indices=test_indices,
-        ks_statistic=ks_stat,
-        ks_p_value=ks_p,
-        train_mw_mean=float(train_df['molecular_weight'].mean()),
-        test_mw_mean=float(test_df['molecular_weight'].mean()),
-        train_mw_std=float(train_df['molecular_weight'].std()),
-        test_mw_std=float(test_df['molecular_weight'].std()),
-        train_size=len(train_indices),
-        test_size=len(test_indices)
-    )
-    
-    logger.info(f"Split successful. Train: {len(train_indices)}, Test: {len(test_indices)}")
-    logger.info(f"Train MW: mean={stats_result.train_mw_mean:.2f}, std={stats_result.train_mw_std:.2f}")
-    logger.info(f"Test MW: mean={stats_result.test_mw_mean:.2f}, std={stats_result.test_mw_std:.2f}")
-    
-    return stats_result
+    return train_indices, test_indices
 
-def validate_split_distribution(train_df: pd.DataFrame, test_df: pd.DataFrame) -> bool:
+def validate_split_distribution(
+    train_df: pd.DataFrame, 
+    test_df: pd.DataFrame
+) -> Tuple[float, float]:
     """
-    Additional validation to ensure no data leakage and reasonable distribution overlap.
+    Performs the Kolmogorov-Smirnov test to compare MW distributions.
+    Returns (statistic, p_value).
     """
-    # Check for index overlap (should be impossible with our logic, but safety check)
-    if set(train_df.index) & set(test_df.index):
-        logger.error("Data leakage detected: indices overlap between train and test.")
-        return False
+    train_mw = train_df['molecular_weight'].values
+    test_mw = test_df['molecular_weight'].values
     
-    return True
+    statistic, p_value = stats.ks_2samp(train_mw, test_mw)
+    return statistic, p_value
 
-def save_indices_to_csv(indices: List[int], filepath: Path) -> None:
+def save_indices_to_csv(
+    indices: List[int], 
+    filepath: Path
+) -> None:
     """Saves a list of indices to a CSV file."""
-    filepath.parent.mkdir(parents=True, exist_ok=True)
     with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['index'])
         for idx in indices:
             writer.writerow([idx])
-    logger.info(f"Saved indices to {filepath} ({len(indices)} rows)")
+    logger.info(f"Saved {len(indices)} indices to {filepath}")
 
 def main():
     """
-    Main entry point for the data splitting task.
-    Generates train_indices.csv, test_indices.csv, and split_report.json.
+    Main execution function for T016.
+    
+    1. Loads paired_dataset.parquet.
+    2. Stratified split by Molecular Weight.
+    3. Performs KS test.
+    4. Generates split_report.json and split_error_report.json (if needed).
+    5. Saves train/test indices to CSV.
     """
-    logger.info("Starting T016: Data Splitting")
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(LOGS_DIR / "split_execution.log"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
     
-    # 1. Load data
-    df = load_processed_data()
-    
-    # 2. Perform stratified split
     try:
-        split_result = stratified_split_by_mw(df)
-    except ValueError as e:
-        logger.critical(str(e))
+        # 1. Load Data
+        df = load_processed_data()
+        
+        # 2. Split Data
+        logger.info("Performing stratified split by Molecular Weight...")
+        train_indices, test_indices = stratified_split_by_mw(df, test_ratio=0.2, random_seed=42)
+        
+        # Create subsets for analysis
+        train_df = df.iloc[train_indices]
+        test_df = df.iloc[test_indices]
+        
+        # 3. Calculate Statistics & KS Test
+        logger.info("Calculating distribution statistics and running KS test...")
+        train_stats = calculate_mw_stats(train_df)
+        test_stats = calculate_mw_stats(test_df)
+        
+        ks_stat, ks_p = validate_split_distribution(train_df, test_df)
+        
+        logger.info(f"KS Statistic: {ks_stat:.4f}, KS P-Value: {ks_p:.4f}")
+        
+        # 4. Generate Reports
+        split_report = {
+            "ks_statistic": float(ks_stat),
+            "ks_p_value": float(ks_p),
+            "train_size": len(train_indices),
+            "test_size": len(test_indices),
+            "train_mw_stats": train_stats,
+            "test_mw_stats": test_stats,
+            "random_seed": 42,
+            "split_ratio": 0.2
+        }
+        
+        split_report_path = SPLITS_DIR / "split_report.json"
+        with open(split_report_path, 'w') as f:
+            json.dump(split_report, f, indent=2)
+        logger.info(f"Saved split report to {split_report_path}")
+        
+        # 5. Handle Failure Condition (p <= 0.05)
+        if ks_p <= 0.05:
+            error_report = {
+                "status": "failed_distribution_match",
+                "message": "The molecular weight distributions of train and test sets are significantly different (p <= 0.05).",
+                "ks_statistic": float(ks_stat),
+                "ks_p_value": float(ks_p),
+                "threshold": 0.05,
+                "recommendation": "Consider re-running with a different random seed or adjusting the stratification bins."
+            }
+            error_report_path = SPLITS_DIR / "split_error_report.json"
+            with open(error_report_path, 'w') as f:
+                json.dump(error_report, f, indent=2)
+            logger.warning(f"Generated error report: {error_report_path}. Split distribution mismatch detected.")
+        else:
+            logger.info("Split distribution check passed (p > 0.05).")
+        
+        # 6. Save Indices
+        train_csv_path = SPLITS_DIR / "train_indices.csv"
+        test_csv_path = SPLITS_DIR / "test_indices.csv"
+        
+        save_indices_to_csv(train_indices, train_csv_path)
+        save_indices_to_csv(test_indices, test_csv_path)
+        
+        logger.info("T016 completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Critical file missing: {e}")
         sys.exit(1)
-    
-    # 3. Save indices
-    splits_dir = get_data_dir() / "splits"
-    splits_dir.mkdir(parents=True, exist_ok=True)
-    
-    train_path = splits_dir / "train_indices.csv"
-    test_path = splits_dir / "test_indices.csv"
-    
-    save_indices_to_csv(split_result.train_indices, train_path)
-    save_indices_to_csv(split_result.test_indices, test_path)
-    
-    # 4. Generate and save report
-    report = {
-        "ks_statistic": split_result.ks_statistic,
-        "ks_p_value": split_result.ks_p_value,
-        "train_size": split_result.train_size,
-        "test_size": split_result.test_size,
-        "train_mw_stats": {
-            "mean": split_result.train_mw_mean,
-            "std": split_result.train_mw_std
-        },
-        "test_mw_stats": {
-            "mean": split_result.test_mw_mean,
-            "std": split_result.test_mw_std
-        },
-        "split_ratio": split_result.test_size / (split_result.train_size + split_result.test_size),
-        "status": "success"
-    }
-    
-    report_path = splits_dir / "split_report.json"
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Split report saved to {report_path}")
-    logger.info("T016 completed successfully.")
-    
-    return report
+    except Exception as e:
+        logger.error(f"Unexpected error during split: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

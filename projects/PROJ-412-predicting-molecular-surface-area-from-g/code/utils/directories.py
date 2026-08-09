@@ -1,25 +1,28 @@
+"""
+Directory management utilities for the project.
+Handles creation and organization of project folders.
+"""
 import os
-from pathlib import Path
 import logging
+from pathlib import Path
 from typing import List
+
 from .config import get_project_root
 from .logging import get_logger
 
-def create_all_directories(project_root: Optional[Path] = None) -> Path:
+def create_all_directories():
     """
-    Create the full project directory structure including code, data, tests,
-    results, and logs with all required subdirectories.
+    Create all required project directories.
     
-    Args:
-        project_root: Optional custom project root. If None, uses get_project_root().
-        
-    Returns:
-        Path to the project root.
+    Creates the following directory structure:
+    - code/, code/data/, code/models/, code/eval/, code/utils/
+    - data/raw/, data/processed/, data/splits/, data/schemas/
+    - tests/contract/, tests/unit/, tests/integration/
+    - results/reports/, results/plots/, results/baseline/, results/predictions/
+    - logs/
     """
-    if project_root is None:
-        project_root = get_project_root()
-    
     logger = get_logger(__name__)
+    project_root = get_project_root()
     
     # Define all required directories relative to project root
     directories = [
@@ -36,98 +39,88 @@ def create_all_directories(project_root: Optional[Path] = None) -> Path:
         "data/splits",
         "data/schemas",
         
-        # Tests structure
+        # Test structure
         "tests/contract",
         "tests/unit",
         "tests/integration",
         
-        # Results structure (Task T001d)
+        # Results structure
         "results/reports",
         "results/plots",
         "results/baseline",
         "results/predictions",
         
-        # Logs structure
-        "logs",
+        # Logs
+        "logs"
     ]
     
     created_count = 0
     for dir_path in directories:
         full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            logger.debug(f"Directory already exists: {full_path}")
+        try:
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
+                logger.debug(f"Created directory: {full_path}")
+                created_count += 1
+            else:
+                logger.debug(f"Directory already exists: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
     
-    logger.info(f"Directory setup complete. Created {created_count} new directories.")
-    return project_root
+    logger.info(f"Directory structure initialization complete. Created {created_count} new directories.")
+    return created_count
 
-def create_results_directories(project_root: Optional[Path] = None) -> Path:
+def create_results_directories():
     """
-    Specifically create the results directory structure as required by T001d.
+    Create only the results-related directories.
     
-    Args:
-        project_root: Optional custom project root.
-        
-    Returns:
-        Path to the project root.
+    Creates:
+    - results/reports/
+    - results/plots/
+    - results/baseline/
+    - results/predictions/
     """
-    if project_root is None:
-        project_root = get_project_root()
-        
     logger = get_logger(__name__)
+    project_root = get_project_root()
     
     results_dirs = [
-        "results",
         "results/reports",
         "results/plots",
         "results/baseline",
-        "results/predictions",
+        "results/predictions"
     ]
     
     created_count = 0
     for dir_path in results_dirs:
         full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created results directory: {full_path}")
-            created_count += 1
+        try:
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
+                logger.debug(f"Created results directory: {full_path}")
+                created_count += 1
+        except OSError as e:
+            logger.error(f"Failed to create results directory {full_path}: {e}")
+            raise
     
-    logger.info(f"Results structure complete. Created {created_count} directories.")
-    return project_root
+    logger.info(f"Created {created_count} results directories.")
+    return created_count
+
+def setup_logging():
+    """
+    Setup logging configuration for the directory setup process.
+    
+    Returns:
+        logging.Logger: Configured logger instance
+    """
+    logger = get_logger(__name__)
+    return logger
 
 def main():
-    """Main entry point for directory creation."""
-    import sys
-    
-    # Setup logging
-    setup_logging()
-    logger = get_logger(__name__)
-    
-    logger.info("Starting directory structure creation...")
-    
-    try:
-        project_root = create_all_directories()
-        logger.info(f"Successfully created directory structure at: {project_root}")
-        
-        # Verify results structure specifically for T001d
-        results_path = project_root / "results"
-        subdirs = ["reports", "plots", "baseline", "predictions"]
-        
-        for subdir in subdirs:
-            path = results_path / subdir
-            if not path.exists():
-                logger.error(f"Required directory missing: {path}")
-                sys.exit(1)
-                return
-            
-        logger.info("All required results directories verified.")
-        
-    except Exception as e:
-        logger.error(f"Failed to create directory structure: {e}")
-        sys.exit(1)
+    """Entry point for directory structure creation."""
+    create_all_directories()
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

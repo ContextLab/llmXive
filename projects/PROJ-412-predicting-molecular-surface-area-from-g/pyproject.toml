@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "llmxive-molecular-sasa"
 version = "0.1.0"
 description = "Predicting Molecular Surface Area from Graph Convolutional Networks"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "rdkit",
@@ -14,14 +15,14 @@ dependencies = [
     "pyyaml",
     "numpy",
     "pytest",
-    "ruff",
-    "black",
     "datasets",
     "huggingface_hub",
+    "torch",
+    "torch-geometric",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
@@ -35,8 +36,14 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
+    | results
 )/
 '''
 
-[tool.setuptools]
-packages = ["code"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

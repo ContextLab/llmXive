@@ -1,5 +1,9 @@
-import pytest
+"""
+Unit tests for the base data models (Molecule, Graph, EvaluationResult).
+"""
 import numpy as np
+import json
+import pytest
 from code.models.molecule import Molecule
 from code.models.graph import Graph
 from code.models.evaluation_result import EvaluationResult
@@ -7,205 +11,225 @@ from code.models.evaluation_result import EvaluationResult
 
 class TestMolecule:
     def test_molecule_creation(self):
-        mol = Molecule(
-            smiles="CCO",
-            atom_count=3,
-            molecular_weight=46.07
-        )
+        """Test basic molecule creation."""
+        mol = Molecule(smiles="CCO", mol_id="test_001")
         assert mol.smiles == "CCO"
-        assert mol.atom_count == 3
-        assert mol.molecular_weight == 46.07
+        assert mol.mol_id == "test_001"
+        assert mol.atom_count == 0
+        assert mol.molecular_weight is None
 
     def test_molecule_with_features(self):
-        node_features = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+        """Test molecule with node and edge features."""
+        node_features = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        edge_features = np.array([[1, 0], [0, 1]])
+        
         mol = Molecule(
             smiles="CCO",
             atom_count=3,
-            node_features=node_features
+            node_features=node_features,
+            edge_features=edge_features,
+            molecular_weight=46.07
         )
+        
+        assert mol.atom_count == 3
         assert np.array_equal(mol.node_features, node_features)
+        assert np.array_equal(mol.edge_features, edge_features)
+        assert mol.molecular_weight == 46.07
 
     def test_molecule_to_dict(self):
-        mol = Molecule(
-            smiles="CCO",
-            atom_count=3,
-            molecular_weight=46.07,
-            surface_area=50.0
-        )
+        """Test serialization to dictionary."""
+        mol = Molecule(smiles="CCO", atom_count=3, molecular_weight=46.07)
         data = mol.to_dict()
+        
         assert data["smiles"] == "CCO"
-        assert data["surface_area"] == 50.0
+        assert data["atom_count"] == 3
+        assert data["molecular_weight"] == 46.07
 
-    def test_molecule_roundtrip(self):
-        mol = Molecule(
-            smiles="C1=CC=CC=C1",
-            atom_count=6,
-            molecular_weight=78.11,
-            surface_area=100.5
-        )
+    def test_molecule_to_dict_with_arrays(self):
+        """Test serialization with numpy arrays."""
+        node_features = np.array([[1, 0], [0, 1]])
+        mol = Molecule(smiles="CCO", node_features=node_features)
+        data = mol.to_dict()
+        
+        assert isinstance(data["node_features"], list)
+        assert data["node_features"] == [[1, 0], [0, 1]]
+
+    def test_molecule_from_dict(self):
+        """Test deserialization from dictionary."""
+        data = {
+            "smiles": "CCO",
+            "mol_id": "test_001",
+            "atom_count": 3,
+            "molecular_weight": 46.07,
+            "node_features": [[1, 0], [0, 1]],
+            "edge_features": [[1]],
+            "metadata": {"source": "test"}
+        }
+        
+        mol = Molecule.from_dict(data)
+        
+        assert mol.smiles == "CCO"
+        assert mol.mol_id == "test_001"
+        assert mol.atom_count == 3
+        assert mol.molecular_weight == 46.07
+        assert np.array_equal(mol.node_features, np.array([[1, 0], [0, 1]]))
+        assert np.array_equal(mol.edge_features, np.array([[1]]))
+
+    def test_molecule_json_roundtrip(self):
+        """Test JSON serialization and deserialization."""
+        mol = Molecule(smiles="CCO", atom_count=3, molecular_weight=46.07)
         json_str = mol.to_json()
         mol_restored = Molecule.from_json(json_str)
+        
         assert mol_restored.smiles == mol.smiles
         assert mol_restored.atom_count == mol.atom_count
-        assert mol_restored.surface_area == mol.surface_area
-
-    def test_molecule_invalid_atom_count(self):
-        with pytest.raises(ValueError):
-            Molecule(smiles="C", atom_count=0)
+        assert mol_restored.molecular_weight == mol.molecular_weight
 
 
 class TestGraph:
     def test_graph_creation(self):
-        node_features = np.array([[1.0, 0.0], [0.0, 1.0]])
-        edge_features = np.array([[1.0]])
-        edge_index = np.array([[0, 1], [1, 0]])
-        
-        g = Graph(
-            smiles="CC",
-            num_nodes=2,
-            num_edges=2,
-            node_features=node_features,
-            edge_features=edge_features,
-            edge_index=edge_index,
-            surface_area=40.0
-        )
-        assert g.smiles == "CC"
-        assert g.num_nodes == 2
-        assert g.surface_area == 40.0
+        """Test basic graph creation."""
+        graph = Graph(mol_id="test_001")
+        assert graph.mol_id == "test_001"
+        assert graph.num_nodes == 0
+        assert graph.num_edges == 0
 
-    def test_graph_dimension_mismatch(self):
-        node_features = np.array([[1.0, 0.0]])
-        edge_features = np.array([[1.0]])
-        edge_index = np.array([[0, 1], [1, 0]])
+    def test_graph_with_features(self):
+        """Test graph with node and edge features."""
+        x = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+        edge_index = np.array([[0, 1, 1, 2], [1, 0, 2, 1]])
+        edge_attr = np.array([[1], [1], [1], [1]])
         
-        with pytest.raises(ValueError):
-            Graph(
-                smiles="CC",
-                num_nodes=2,
-                num_edges=2,
-                node_features=node_features,
-                edge_features=edge_features,
-                edge_index=edge_index
-            )
+        graph = Graph(
+            mol_id="test_001",
+            x=x,
+            edge_index=edge_index,
+            edge_attr=edge_attr,
+            y=10.5
+        )
+        
+        assert graph.num_nodes == 3
+        assert graph.num_edges == 4
+        assert np.array_equal(graph.x, x)
+        assert np.array_equal(graph.edge_index, edge_index)
+        assert graph.y == 10.5
 
     def test_graph_to_dict(self):
-        node_features = np.array([[1.0, 0.0], [0.0, 1.0]])
-        edge_features = np.array([[1.0]])
-        edge_index = np.array([[0, 1], [1, 0]])
+        """Test serialization to dictionary."""
+        graph = Graph(mol_id="test_001", num_nodes=3, num_edges=4, y=10.5)
+        data = graph.to_dict()
         
-        g = Graph(
-            smiles="CC",
-            num_nodes=2,
-            num_edges=2,
-            node_features=node_features,
-            edge_features=edge_features,
-            edge_index=edge_index
-        )
-        data = g.to_dict()
-        assert data["num_nodes"] == 2
-        assert data["smiles"] == "CC"
+        assert data["mol_id"] == "test_001"
+        assert data["num_nodes"] == 3
+        assert data["y"] == 10.5
 
-    def test_graph_roundtrip(self):
-        node_features = np.array([[1.0, 0.0], [0.0, 1.0]])
-        edge_features = np.array([[1.0]])
-        edge_index = np.array([[0, 1], [1, 0]])
+    def test_graph_from_dict(self):
+        """Test deserialization from dictionary."""
+        data = {
+            "mol_id": "test_001",
+            "num_nodes": 2,
+            "num_edges": 1,
+            "y": 5.0,
+            "x": [[1, 0], [0, 1]],
+            "edge_index": [[0], [1]],
+            "edge_attr": [[1]]
+        }
         
-        g = Graph(
-            smiles="CC",
-            num_nodes=2,
-            num_edges=2,
-            node_features=node_features,
-            edge_features=edge_features,
-            edge_index=edge_index,
-            molecular_weight=30.07
-        )
-        json_str = g.to_json()
-        g_restored = Graph.from_json(json_str)
-        assert g_restored.smiles == g.smiles
-        assert np.array_equal(g_restored.node_features, g.node_features)
+        graph = Graph.from_dict(data)
+        
+        assert graph.mol_id == "test_001"
+        assert graph.num_nodes == 2
+        assert graph.y == 5.0
+        assert np.array_equal(graph.x, np.array([[1, 0], [0, 1]]))
 
 
 class TestEvaluationResult:
     def test_evaluation_result_creation(self):
-        preds = np.array([10.0, 20.0, 30.0])
-        targets = np.array([11.0, 19.0, 31.0])
-        smiles = ["C", "CC", "CCC"]
-        errors = preds - targets
-        
-        res = EvaluationResult(
-            model_type="GCN",
-            mae=1.0,
-            rmse=1.0,
-            r2=0.99,
-            predictions=preds,
-            targets=targets,
-            smiles_list=smiles,
-            errors=errors
+        """Test basic evaluation result creation."""
+        result = EvaluationResult(
+            model_name="GCN",
+            dataset_name="ZINC15_subset"
         )
         
-        assert res.model_type == "GCN"
-        assert len(res.smiles_list) == 3
+        assert result.model_name == "GCN"
+        assert result.dataset_name == "ZINC15_subset"
+        assert result.mae is None
+
+    def test_evaluation_result_with_metrics(self):
+        """Test evaluation result with metrics."""
+        result = EvaluationResult(
+            model_name="GCN",
+            dataset_name="ZINC15_subset",
+            mae=0.5,
+            rmse=0.8,
+            r2=0.92
+        )
+        
+        assert result.mae == 0.5
+        assert result.rmse == 0.8
+        assert result.r2 == 0.92
+
+    def test_evaluation_result_with_arrays(self):
+        """Test evaluation result with prediction arrays."""
+        predictions = np.array([1.0, 2.0, 3.0])
+        targets = np.array([1.1, 2.2, 2.9])
+        
+        result = EvaluationResult(
+            model_name="GCN",
+            dataset_name="ZINC15_subset",
+            predictions=predictions,
+            targets=targets
+        )
+        
+        assert result.mae is None  # Not calculated automatically in __post_init__
+        assert np.array_equal(result.errors, predictions - targets)
 
     def test_evaluation_result_to_dict(self):
-        preds = np.array([10.0])
-        targets = np.array([11.0])
-        errors = np.array([-1.0])
-        
-        res = EvaluationResult(
-            model_type="Baseline",
-            mae=1.0,
-            rmse=1.0,
-            r2=0.5,
-            predictions=preds,
-            targets=targets,
-            smiles_list=["C"],
-            errors=errors
+        """Test serialization to dictionary."""
+        result = EvaluationResult(
+            model_name="GCN",
+            dataset_name="ZINC15_subset",
+            mae=0.5,
+            metadata={"epoch": 10}
         )
+        data = result.to_dict()
         
-        data = res.to_dict()
-        assert data["mae"] == 1.0
-        assert isinstance(data["predictions"], list)
+        assert data["model_name"] == "GCN"
+        assert data["mae"] == 0.5
+        assert data["metadata"]["epoch"] == 10
 
-    def test_evaluation_result_roundtrip(self):
-        preds = np.array([10.0, 20.0])
-        targets = np.array([11.0, 19.0])
-        errors = np.array([-1.0, 1.0])
+    def test_evaluation_result_from_dict(self):
+        """Test deserialization from dictionary."""
+        data = {
+            "model_name": "GCN",
+            "dataset_name": "ZINC15_subset",
+            "mae": 0.5,
+            "rmse": 0.8,
+            "r2": 0.92,
+            "predictions": [1.0, 2.0, 3.0],
+            "targets": [1.1, 2.2, 2.9],
+            "metadata": {"seed": 42}
+        }
         
-        res = EvaluationResult(
-            model_type="GCN",
-            mae=1.0,
-            rmse=1.0,
-            r2=0.9,
-            predictions=preds,
-            targets=targets,
-            smiles_list=["C", "CC"],
-            errors=errors,
-            hyperparameters={"lr": 0.01}
-        )
+        result = EvaluationResult.from_dict(data)
         
-        json_str = res.to_json()
-        res_restored = EvaluationResult.from_json(json_str)
-        
-        assert res_restored.model_type == res.model_type
-        assert np.allclose(res_restored.predictions, res.predictions)
-        assert res_restored.hyperparameters["lr"] == 0.01
+        assert result.model_name == "GCN"
+        assert result.mae == 0.5
+        assert np.array_equal(result.predictions, np.array([1.0, 2.0, 3.0]))
+        assert result.metadata["seed"] == 42
 
-    def test_evaluation_result_summary(self):
-        preds = np.array([10.0])
-        targets = np.array([11.0])
-        errors = np.array([-1.0])
-        
-        res = EvaluationResult(
-            model_type="GCN",
-            mae=1.0,
-            rmse=1.0,
-            r2=0.9,
-            predictions=preds,
-            targets=targets,
-            smiles_list=["C"],
-            errors=errors
+    def test_evaluation_result_json_roundtrip(self):
+        """Test JSON serialization and deserialization."""
+        result = EvaluationResult(
+            model_name="GCN",
+            dataset_name="ZINC15_subset",
+            mae=0.5,
+            rmse=0.8,
+            r2=0.92
         )
+        json_str = result.to_json()
+        result_restored = EvaluationResult.from_json(json_str)
         
-        summary = res.summary()
-        assert "GCN" in summary
-        assert "MAE" in summary
+        assert result_restored.model_name == result.model_name
+        assert result_restored.mae == result.mae
+        assert result_restored.r2 == result.r2

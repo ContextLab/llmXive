@@ -7,9 +7,18 @@ from typing import Tuple, Optional
 from .logging import get_logger
 from .config import get_project_root
 
-def check_huggingface_connection(timeout: int = 10) -> Tuple[bool, Optional[str]]:
+# ZINC15 is hosted on HuggingFace Datasets.
+# The canonical source for ZINC15 in the `datasets` library is 'moleculenet/zinc'.
+# We verify connectivity by attempting to list this specific dataset metadata.
+ZINC15_DATASET_ID = "moleculenet/zinc"
+ZINC15_TIMEOUT = 15
+
+def check_huggingface_connection(timeout: int = ZINC15_TIMEOUT) -> Tuple[bool, Optional[str]]:
     """
-    Check connectivity to HuggingFace datasets (specifically for ZINC15 access).
+    Check connectivity to HuggingFace datasets, specifically verifying access to ZINC15.
+    
+    This function attempts to load the metadata for the ZINC15 dataset.
+    If the connection fails or the dataset is unreachable, it returns False.
     
     Args:
         timeout: Connection timeout in seconds.
@@ -20,10 +29,9 @@ def check_huggingface_connection(timeout: int = 10) -> Tuple[bool, Optional[str]
     try:
         from huggingface_hub import HfApi
         api = HfApi()
-        # Try to list a small public dataset to verify connectivity
-        # Using a generic search to avoid specific dataset dependency issues
-        # We search for "zinc" to ensure the ZINC15 source is reachable
-        api.list_datasets(search="zinc", limit=1)
+        
+        # Attempt to fetch info for the specific ZINC15 dataset to ensure it exists and is reachable
+        api.dataset_info(ZINC15_DATASET_ID)
         return True, None
     except Exception as e:
         return False, str(e)
@@ -81,12 +89,27 @@ def main() -> None:
     """
     Main entry point for network checks.
     Runs before any ingestion tasks to verify access to data sources.
-    Exits with code 1 if any check fails.
+    If the connection to ZINC15 fails or the URL is unreachable, 
+    this function raises a ConnectionError immediately and halts the pipeline.
     """
     hf_ok, pubchem_ok, message = run_network_checks()
     print(message)
-    if not (hf_ok and pubchem_ok):
-        sys.exit(1)
+    
+    # T049 Requirement: Fail loudly if ZINC15 is unreachable.
+    if not hf_ok:
+        raise ConnectionError(f"Critical Failure: Unable to connect to ZINC15 source. Pipeline halted. Error: {message}")
+    
+    # Optional: Warn if PubChem is down, but ZINC15 is the primary dependency for this task
+    if not pubchem_ok:
+        logging.warning(f"PubChem check failed, but ZINC15 is available. Warning: {message}")
+        
+    if hf_ok and pubchem_ok:
+        sys.exit(0)
+    else:
+        # This point is reached if PubChem failed but ZINC15 passed (handled above)
+        # or if ZINC15 failed (handled by raise).
+        # If we are here, ZINC15 passed.
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

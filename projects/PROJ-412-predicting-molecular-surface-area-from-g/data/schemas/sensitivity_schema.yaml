@@ -125,4 +125,4 @@ properties:
         type: string
         description: "Textual justification for the selection"
 
-additionalProperties: false
+  additionalProperties: false

@@ -30,7 +30,8 @@ properties:
 
   node_features:
     type: array
-    description: List of feature vectors for each atom in the molecule.
+    description: |
+      List of feature vectors for each atom in the molecule.
       Each inner array represents the feature vector for a single atom.
       Features typically include: atom type, hybridization, degree, formal charge, etc.
     items:
@@ -44,7 +45,8 @@ properties:
 
   edge_features:
     type: array
-    description: List of feature vectors for each bond in the molecule.
+    description: |
+      List of feature vectors for each bond in the molecule.
       Each inner array represents the feature vector for a single bond.
       Features typically include: bond type, conjugation, ring membership, etc.
     items:
@@ -58,14 +60,16 @@ properties:
 
   surface_area:
     type: number
-    description: Solvent Accessible Surface Area (SASA) in Angstroms squared (Å²).
+    description: |
+      Solvent Accessible Surface Area (SASA) in Angstroms squared (Å²).
       Calculated using 3D conformer generation and the Lee & Richards algorithm.
     minimum: 0
     exclusiveMinimum: false
 
   molecular_weight:
     type: number
-    description: Molecular weight in Daltons (g/mol).
+    description: |
+      Molecular weight in Daltons (g/mol).
       Calculated from the atomic composition of the molecule.
     minimum: 0
     exclusiveMinimum: false

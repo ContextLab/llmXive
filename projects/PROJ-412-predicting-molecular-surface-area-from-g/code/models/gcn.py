@@ -1,8 +1,6 @@
 """
-Lightweight GCN Model for Molecular Surface Area Prediction.
-
-Implements a CPU-tractable Graph Convolutional Network using PyTorch Geometric.
-Designed to predict molecular surface area (SASA) from 2D molecular graphs.
+Graph Convolutional Network (GCN) model for predicting molecular surface area.
+Implements a lightweight, CPU-tractable GCN architecture using PyTorch Geometric.
 """
 import torch
 import torch.nn.functional as F
@@ -11,238 +9,165 @@ from torch_geometric.data import Data
 from typing import Optional, Tuple, List
 import logging
 
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class GCNModel(torch.nn.Module):
     """
-    Graph Convolutional Network for predicting molecular surface area.
-    
+    Lightweight Graph Convolutional Network for molecular property prediction.
+
+    This model takes graph-structured molecular data (node features, edge indices)
+    and predicts a scalar value (surface area) using a series of GCN layers
+    followed by a global pooling operation and a readout MLP.
+
     Architecture:
-    - 2 GCN layers with hidden dimension 64
-    - ReLU activations
+    - 2 GCN layers with ReLU activation and dropout
     - Global mean pooling to aggregate node features
-    - Single linear output layer for regression
-    
-    Attributes:
-        conv1: First graph convolutional layer
-        conv2: Second graph convolutional layer
-        lin: Output linear layer
-        hidden_dim: Dimension of hidden layers (default: 64)
+    - Fully connected readout layer to produce scalar output
+
+    Args:
+        input_dim (int): Dimensionality of input node features.
+        hidden_dim (int, optional): Dimensionality of hidden layers. Defaults to 64.
+        output_dim (int, optional): Dimensionality of output. Defaults to 1 (scalar).
+        dropout (float, optional): Dropout probability. Defaults to 0.1.
     """
-    
-    def __init__(self, input_dim: int, hidden_dim: int = 64, dropout: float = 0.1):
-        """
-        Initialize the GCN model.
-        
-        Args:
-            input_dim: Number of input features per node (from 2D graph extraction)
-            hidden_dim: Dimension of hidden layers
-            dropout: Dropout probability for regularization
-        """
+
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int = 64,
+        output_dim: int = 1,
+        dropout: float = 0.1
+    ):
         super(GCNModel, self).__init__()
-        
+
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
-        
-        # Graph convolutional layers
+        self.output_dim = output_dim
+        self.dropout = dropout
+
+        # GCN Layers
         self.conv1 = GCNConv(input_dim, hidden_dim)
         self.conv2 = GCNConv(hidden_dim, hidden_dim)
-        
-        # Output layer
-        self.lin = torch.nn.Linear(hidden_dim, 1)
-        
-        # Dropout for regularization
-        self.dropout = dropout
-        
-        logger.info(f"Initialized GCNModel: input_dim={input_dim}, hidden_dim={hidden_dim}, dropout={dropout}")
-    
-    def forward(self, input_tensor: Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]) -> torch.Tensor:
+
+        # Readout layers
+        self.lin1 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.lin2 = torch.nn.Linear(hidden_dim, output_dim)
+
+        self._init_weights()
+        logger.info(f"Initialized GCNModel: input={input_dim}, hidden={hidden_dim}, output={output_dim}")
+
+    def _init_weights(self):
+        """Initialize weights with Xavier/Glorot initialization."""
+        for conv in [self.conv1, self.conv2]:
+            torch.nn.init.xavier_uniform_(conv.lin.weight)
+            if conv.lin.bias is not None:
+                torch.nn.init.zeros_(conv.lin.bias)
+
+        for lin in [self.lin1, self.lin2]:
+            torch.nn.init.xavier_uniform_(lin.weight)
+            if lin.bias is not None:
+                torch.nn.init.zeros_(lin.bias)
+
+    def forward(self, input_tensor: torch.Tensor, edge_index: torch.Tensor,
+                batch: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
-        Forward pass through the GCN network.
-        
+        Forward pass of the GCN model.
+
         Args:
-            input_tensor: Tuple containing:
-                - x: Node feature matrix of shape [num_nodes, input_dim]
-                - edge_index: Graph connectivity in COO format of shape [2, num_edges]
-                - batch: Batch vector of shape [num_nodes] mapping nodes to their respective graphs
-                - edge_weight: Optional edge weights of shape [num_edges] (default: None)
-        
+            input_tensor (torch.Tensor): Node features of shape [num_nodes, input_dim].
+            edge_index (torch.Tensor): Graph connectivity of shape [2, num_edges].
+            batch (torch.Tensor, optional): Vector of node-to-graph assignments.
+                If None, assumes a single graph. Defaults to None.
+
         Returns:
-            predictions: Tensor of shape [num_graphs] containing predicted SASA values
+            torch.Tensor: Predicted surface area values of shape [num_graphs, 1].
         """
-        x, edge_index, batch, edge_weight = input_tensor
-        
+        # Ensure input is float
+        x = input_tensor.float()
+
         # First GCN layer
-        x = self.conv1(x, edge_index, edge_attr=edge_weight)
+        x = self.conv1(x, edge_index)
         x = F.relu(x)
         x = F.dropout(x, p=self.dropout, training=self.training)
-        
+
         # Second GCN layer
-        x = self.conv2(x, edge_index, edge_attr=edge_weight)
+        x = self.conv2(x, edge_index)
         x = F.relu(x)
         x = F.dropout(x, p=self.dropout, training=self.training)
-        
-        # Global mean pooling to get graph-level representation
-        x = global_mean_pool(x, batch)
-        
-        # Output layer
-        predictions = self.lin(x)
-        
-        return predictions
-    
-    def predict(self, data: Data) -> torch.Tensor:
-        """
-        Convenience method to predict on a single Data object.
-        
-        Args:
-            data: PyTorch Geometric Data object containing node features, edge index, etc.
-        
-        Returns:
-            prediction: Tensor of shape [1] containing the predicted SASA value
-        """
-        # Prepare input tuple
-        x = data.x
-        edge_index = data.edge_index
-        batch = torch.zeros(x.size(0), dtype=torch.long, device=x.device)
-        edge_weight = data.edge_attr if hasattr(data, 'edge_attr') else None
-        
-        # Forward pass
-        with torch.no_grad():
-            prediction = self.forward((x, edge_index, batch, edge_weight))
-        
-        return prediction
-    
+
+        # Global pooling
+        if batch is None:
+            # If no batch vector, assume single graph
+            x = global_mean_pool(x, torch.zeros(x.size(0), dtype=torch.long, device=x.device))
+        else:
+            x = global_mean_pool(x, batch)
+
+        # Readout MLP
+        x = F.relu(self.lin1(x))
+        x = F.dropout(x, p=self.dropout, training=self.training)
+        out = self.lin2(x)
+
+        return out
+
     def get_config(self) -> dict:
-        """
-        Get the model configuration as a dictionary.
-        
-        Returns:
-            config: Dictionary containing model hyperparameters
-        """
+        """Return model configuration as a dictionary."""
         return {
-            'input_dim': self.input_dim,
-            'hidden_dim': self.hidden_dim,
-            'dropout': self.dropout,
-            'num_layers': 2,
-            'pooling': 'mean'
+            "model_type": "GCNModel",
+            "input_dim": self.input_dim,
+            "hidden_dim": self.hidden_dim,
+            "output_dim": self.output_dim,
+            "dropout": self.dropout
         }
-    
-    def save(self, path: str) -> None:
-        """
-        Save the model to disk.
-        
-        Args:
-            path: Path to save the model checkpoint
-        """
-        import os
-        from pathlib import Path
-        
-        # Ensure directory exists
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        
-        torch.save({
-            'model_state_dict': self.state_dict(),
-            'config': self.get_config()
-        }, path)
-        
-        logger.info(f"Model saved to {path}")
-    
-    @classmethod
-    def load(cls, path: str, device: Optional[torch.device] = None) -> 'GCNModel':
-        """
-        Load a model from disk.
-        
-        Args:
-            path: Path to the model checkpoint
-            device: Device to load the model on (default: CPU)
-        
-        Returns:
-            model: Loaded GCNModel instance
-        """
-        if device is None:
-            device = torch.device('cpu')
-        
-        checkpoint = torch.load(path, map_location=device)
-        config = checkpoint['config']
-        
-        # Create model instance
-        model = cls(
-            input_dim=config['input_dim'],
-            hidden_dim=config['hidden_dim'],
-            dropout=config['dropout']
-        )
-        
-        # Load state dict
-        model.load_state_dict(checkpoint['model_state_dict'])
-        model.to(device)
-        model.eval()
-        
-        logger.info(f"Model loaded from {path}")
-        return model
 
 
 def create_model_from_processed_data(
     processed_data_path: str,
     hidden_dim: int = 64,
     dropout: float = 0.1
-) -> GCNModel:
+) -> Tuple[GCNModel, int]:
     """
-    Create a GCNModel instance based on the feature dimension of processed data.
-    
+    Create a GCNModel instance by inspecting the input data to determine feature dimension.
+
+    This function loads a sample of the processed data to infer the number of input
+    features, then instantiates the model with the correct input dimension.
+
     Args:
-        processed_data_path: Path to the processed data file (Parquet)
-        hidden_dim: Hidden dimension for the model
-        dropout: Dropout probability
-    
+        processed_data_path (str): Path to the processed parquet file containing
+            molecular graphs.
+        hidden_dim (int, optional): Hidden layer dimension. Defaults to 64.
+        dropout (float, optional): Dropout probability. Defaults to 0.1.
+
     Returns:
-        model: Initialized GCNModel instance
+        Tuple[GCNModel, int]: The instantiated GCNModel and the inferred input dimension.
     """
     import pandas as pd
-    
-    # Load processed data to determine input dimension
+
+    logger.info(f"Inspecting data at {processed_data_path} to determine input dimension...")
+
+    # Load just the first row to infer dimensions
     df = pd.read_parquet(processed_data_path)
-    
-    # Assuming node features are stored as a list or array in a column
-    # We need to determine the feature dimension
-    # This is a simplified approach - in practice, you'd need to inspect the data structure
-    if 'node_features' in df.columns:
-        # Get the first non-null entry to determine dimension
-        sample_features = df['node_features'].dropna().iloc[0]
-        if isinstance(sample_features, list):
-            input_dim = len(sample_features)
+    first_row = df.iloc[0]
+
+    # Determine input dimension from node_features
+    if 'node_features' in first_row.index:
+        node_features = first_row['node_features']
+        if isinstance(node_features, list):
+            input_dim = len(node_features)
+        elif hasattr(node_features, 'shape'):
+            input_dim = node_features.shape[1] if len(node_features.shape) > 1 else node_features.shape[0]
         else:
-            # Try to infer from array
-            import numpy as np
-            input_dim = len(np.array(sample_features))
+            raise ValueError(f"Unable to determine input dimension from node_features type: {type(node_features)}")
     else:
-        # Default to a reasonable dimension if not found
-        # This should be updated based on actual data structure
-        input_dim = 64
-        logger.warning(f"Could not determine input dimension from {processed_data_path}, using default {input_dim}")
-    
-    logger.info(f"Creating GCNModel with input_dim={input_dim}")
-    return GCNModel(input_dim=input_dim, hidden_dim=hidden_dim, dropout=dropout)
+        # Fallback: try to infer from the schema or raise error
+        raise ValueError("Column 'node_features' not found in processed data. Cannot determine input dimension.")
 
+    logger.info(f"Inferred input dimension: {input_dim}")
 
-if __name__ == "__main__":
-    # Simple test to verify the model can be instantiated and run a forward pass
-    logger.info("Testing GCNModel initialization and forward pass...")
-    
-    # Create a dummy model
-    model = GCNModel(input_dim=10, hidden_dim=32)
-    
-    # Create dummy input
-    x = torch.randn(100, 10)  # 100 nodes, 10 features
-    edge_index = torch.randint(0, 100, (2, 200))  # 200 edges
-    batch = torch.zeros(100, dtype=torch.long)  # All nodes in one graph
-    edge_weight = None
-    
-    # Forward pass
-    output = model((x, edge_index, batch, edge_weight))
-    
-    logger.info(f"Model output shape: {output.shape}")
-    logger.info(f"Sample prediction: {output[0].item():.4f}")
-    logger.info("GCNModel test passed successfully!")
+    model = GCNModel(
+        input_dim=input_dim,
+        hidden_dim=hidden_dim,
+        dropout=dropout
+    )
+
+    return model, input_dim

@@ -1,41 +1,70 @@
 """
 Configuration utilities for the project.
+Handles project root detection and directory path resolution.
 """
 import os
 from pathlib import Path
-import yaml
 
 def get_project_root() -> Path:
     """
-    Returns the absolute path to the project root directory.
-    Assumes the code is run from the project root or a subdirectory.
+    Get the project root directory.
+    
+    The project root is determined by looking for the .git directory
+    or by traversing up from the current file's location.
+    
+    Returns:
+        Path: The project root directory
     """
-    # Look for a marker file or assume the parent of 'code' is root
-    current = Path(__file__).resolve()
-    # Traverse up until we find a directory that looks like root
-    # A simple heuristic: the directory containing 'code', 'data', 'tests'
-    parent = current.parent.parent
-    if (parent / "code").exists() and (parent / "data").exists() and (parent / "tests").exists():
-        return parent
-    # Fallback to current working directory
-    return Path.cwd()
+    # Start from the current file's directory
+    current_file = Path(__file__).resolve()
+    current_dir = current_file.parent.parent.parent  # Go up to project root
+    
+    # Traverse up until we find a .git directory or reach filesystem root
+    while current_dir != current_dir.parent:
+        if (current_dir / ".git").exists():
+            return current_dir
+        current_dir = current_dir.parent
+    
+    # Fallback: return the directory where the script is located
+    return Path(__file__).resolve().parent.parent.parent
 
 def get_data_dir() -> Path:
-    """Returns the path to the data directory."""
+    """
+    Get the data directory path.
+    
+    Returns:
+        Path: Path to the data directory
+    """
     return get_project_root() / "data"
 
 def get_results_dir() -> Path:
-    """Returns the path to the results directory."""
+    """
+    Get the results directory path.
+    
+    Returns:
+        Path: Path to the results directory
+    """
     return get_project_root() / "results"
 
-def load_env_config(config_path: str = None):
+def load_env_config() -> dict:
     """
-    Loads configuration from a YAML file or environment variables.
-    """
-    if config_path is None:
-        config_path = get_project_root() / "config.yaml"
+    Load configuration from environment variables.
     
-    if Path(config_path).exists():
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    return {}
+    Returns:
+        dict: Dictionary of environment configuration values
+    """
+    config = {}
+    # Example environment variables that might be used
+    env_vars = [
+        "TIME_BUDGET",
+        "MAX_RAM_GB",
+        "SENSITIVITY_THRESHOLDS",
+        "DATA_SOURCE_OVERRIDE"
+    ]
+    
+    for var in env_vars:
+        value = os.environ.get(var)
+        if value is not None:
+            config[var] = value
+    
+    return config

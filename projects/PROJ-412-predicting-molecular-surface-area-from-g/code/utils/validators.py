@@ -4,6 +4,10 @@ SMILES Validation Utility.
 This module provides functions to validate SMILES strings using RDKit.
 It is used by the ingestion pipeline (T048) and preprocessing (T014)
 to ensure data integrity before processing.
+
+The primary entry point is `validate_smiles(smiles_list)`, which returns
+a list of invalid SMILES strings. This allows downstream tasks to filter
+or log excluded molecules without raising exceptions for bad input.
 """
 
 import logging
@@ -168,7 +172,6 @@ def main():
     Simple CLI test for the validator.
     """
     import sys
-    import json
 
     # Example test cases
     test_data = [

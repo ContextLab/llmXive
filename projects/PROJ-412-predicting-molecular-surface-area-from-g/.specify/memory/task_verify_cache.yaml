@@ -1,31 +1,16 @@
-T001a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system snapshots were provided, so there is no\
-    \ evidence that the required `code/`, `data/`, `tests/`, `results/`, and `logs/`\
-    \ hierarchies (including all sub\u2011folders) actually exist or contain any files.\
-    \ The implementer must supply a concrete view of the repository (e.g., a tree\
-    \ output or screenshots) showing the full directory tree."
-T001b:
+  r: The claim provides no evidence that the listed directories (`code/`, `code/data/`,
+    `code/models/`, etc.) were actually created; no directory tree, script output,
+    or screenshot is supplied. Without concrete artifacts showing the required folder
+    structure exists, the task requirement is not verified.
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/` directory or its subfolders (`raw`, `processed`, `splits`,
-    `schemas`) is present; the implementer provided no file system listing, screenshots,
-    or code that creates these directories. The required artifact is missing, so the
-    task is not satisfied.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory or its subfolders (`contract`, `unit`, `integration`)
-    was provided; without visible files or directory listings, we cannot confirm the
-    required structure exists. The implementer must add the specified test directories
-    to the repository.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `results/` directory or its subfolders (`reports/`, `plots/`,
-    `baseline/`, `predictions/`) was provided; without actual filesystem artifacts,
-    the requirement cannot be confirmed as satisfied.
+  h: c4012a3eeaaece7bc05584f38884d8fa17397780caaa16f2c18d4ff41d79de8d
+  r: The repository contains a valid `pyproject.toml`, but the required `.ruff.toml`
+    file is absent, so the linting configuration is incomplete. The missing `.ruff.toml`
+    must be added to satisfy the task.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,12 +19,6 @@ T007:
     that the base data models exist cannot be verified. The implementer must add the
     three model classes in the `code/models/` directory and ensure they contain the
     appropriate fields and methods.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files were provided under `code/models/`, and there is no evidence that
-    classes named `Molecule`, `Graph`, or `EvaluationResult` have been created. The
-    required artifact is missing, so the task is not satisfied.
 T011:
   c: false
   h: 557089656345f3ce41fd9efdc1ef18286508a05e2a023ba839ebc4b187b87e33
@@ -49,21 +28,20 @@ T011:
     test code.
 T014:
   c: false
-  h: 5aea2672154aab8c7c6304c8d22b04c8b6dc6cc2237da6cd417d835d838e5492
-  r: "The `code/data/preprocess.py` file exists and contains the 2D feature extraction\
-    \ and molecular weight calculation, but it does not log excluded molecules nor\
-    \ does it produce the required `data/processed/graphs_with_features.parquet` file\
-    \ (the file is missing). Consequently the task\u2019s output and logging requirements\
-    \ are not met."
+  h: 3995bc4ec68e5cf7668a6e44aca63c71e6927bda1c35962356bf66c0229f510f
+  r: "The provided `code/data/preprocess.py` does not contain any implementation of\
+    \ 2\u2011D graph feature extraction, molecular\u2011weight calculation, the >100\u2011\
+    atom filter, or logging of excluded molecules, and the required output file `data/processed/graphs_with_features.parquet`\
+    \ is absent. Consequently the task\u2019s core requirements are not met."
 T015:
   c: false
-  h: 658fccdc89017f412591cded056527b6b62f137a5dfd958bcb4f2988353dde8d
-  r: "The repository lacks the required output files `data/processed/conformer_params.json`\
-    \ and `data/processed/failure_report.csv`, so the logging of RDKit parameters\
-    \ and the failure\u2011rate report are not implemented. Additionally, the shown\
-    \ portion of `code/data/preprocess.py` does not demonstrate chunked processing,\
-    \ SASA calculation, or the critical\u2011error halt on >10\u202F% failure, indicating\
-    \ the core task requirements are unmet."
+  h: 0339cd25837f15ecee6579fd8582884917caa61f088d498d8086ec626713c4ec
+  r: "The repository lacks the required output artifacts: `data/processed/conformer_params.json`,\
+    \ `data/processed/failure_report.csv`, and `data/processed/paired_dataset.parquet`\
+    \ are all missing. Moreover, the shown `preprocess.py` is truncated and does not\
+    \ contain code that writes these files, computes the SHA\u2011256 hash, or merges\
+    \ SASA values into the Parquet dataset. The task\u2019s core requirements are\
+    \ therefore not satisfied."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -79,6 +57,20 @@ T018:
     or dataset statistics were provided. The claim lacks any artifact (e.g., updated
     scripts, log output, or documentation) demonstrating that the required logging
     behavior has been added.
+T021b:
+  c: false
+  h: 3dd9ced618ae4aa17cb4af1979ce5b217f477e4934502337be75d867e3782f27
+  r: "The required output artifacts `results/baseline/baseline_model_2d.pkl` and `results/predictions/baseline_2d_predictions.parquet`\
+    \ are not present, so the baseline model was never trained or saved as specified.\
+    \ Consequently the task\u2019s deliverables are missing."
+T021c:
+  c: false
+  h: a7ef158c1e2d1bb63ed8e53a06e7e6cef49f2bed2cf4ffd8ee38234037b662c1
+  r: "The required output artifacts `results/baseline/baseline_model_geometry.pkl`\
+    \ and `results/predictions/baseline_geometry_predictions.parquet` are missing,\
+    \ and there is no evidence that a model was trained or predictions were generated.\
+    \ The presence of only the source code does not satisfy the task\u2019s requirement\
+    \ for trained model and prediction files."
 T026:
   c: false
   h: 1adedc87a47e6d40b5692eb897d44644a857a36cd57f967855668e46a9c965db
@@ -86,6 +78,15 @@ T026:
     are missing, so no contract test or schema validation exists to meet the task.
     The implementer must add both artifacts with appropriate test code and schema
     definition.
+T045:
+  c: false
+  h: 925d705340249b7b14c551ff5b4fe3d15748720363a693a00aa00596dd1fa976
+  r: "The `code/utils/memory_monitor.py` file exists and defines a `MemoryMonitor`\
+    \ class, but the required `code/config.py` (which should provide `MAX_RAM_GB`)\
+    \ is missing, so the wrapper cannot obtain the RAM limit as specified. Additionally,\
+    \ the truncated source prevents confirming that the class logs per\u2011epoch\
+    \ peaks and triggers an early exit. The missing config file must be added (defining\
+    \ `MAX_RAM_GB`) and the monitor\u2019s behavior verified."
 T048:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -94,3 +95,11 @@ T048:
     \ demonstrating SMILES ingestion with streaming, fallback to OpenDataPubChem,\
     \ or the >100\u2011atom filter. Consequently, the required implementation and\
     \ output artifacts are missing."
+T057:
+  c: false
+  h: 55b29d77f77706474ee144e9a5cdb57c68df953cedab95c5b53f45a7fb6653ea
+  r: "The `code/data/ingest.py` file exists but only defines a generic `calculate_checksum`\
+    \ for strings and imports checksum utilities; there is no code that computes SHA\u2011\
+    256 hashes for each downloaded chunk, compares them to a manifest, or writes them\
+    \ to `data/raw/checksums.json`. Moreover, the required `data/raw/checksums.json`\
+    \ file is missing. The task\u2019s core requirement is therefore not satisfied."
