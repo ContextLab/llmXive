@@ -1,3 +1,48 @@
+T006:
+  c: false
+  h: f620660963d0be5f4c54c5a82ba3bb8b7c4b0e7733022c4a973c3f06c2b42957
+  r: "The provided `code/logging_config.py` defines the JSONL pairwise\u2011comparison\
+    \ logger with the correct fields and path, but the resource\u2011usage\u2011stats\
+    \ portion is truncated and never writes to `resource_stats.json`. Moreover, the\
+    \ required log file `data/processed/comparison_log.json` does not exist (no entries\
+    \ have been written). The implementation therefore does not fully satisfy the\
+    \ task\u2019s requirement to log both pairwise comparisons **and** resource usage\
+    \ stats."
+T012:
+  c: false
+  h: d4e9a8873207cea2f928b0f9442fc5ee29cd23c1dfb327fb05584ebee4578934
+  r: "The repository contains a partially\u2011implemented `code/data_loader.py` that\
+    \ stops mid\u2011function (truncated synonym logic) and does not show any code\
+    \ that actually performs the required redundancy injection, synonym replacement,\
+    \ or sentence shuffling. Moreover, the required output files `data/processed/injected_datasets.json`\
+    \ and `data/processed/injected_trec_covid.json` are absent. Consequently the task\u2019\
+    s deliverables are not present."
+T013:
+  c: false
+  h: f4381e9234b1f0084135b69f08c4ed612667a3abea492b2ebd85ff400902cf9a
+  r: "The required input `data/processed/comparison_log_full.json` and the expected\
+    \ output `data/results/flagged_pairs_count.json` are absent. Moreover, while `code/metrics.py`\
+    \ defines similarity functions, it does not contain code that reads the comparison\
+    \ log, aggregates the wasted\u2011call count, computes the ratio, and writes the\
+    \ JSON result as specified. The task\u2019s execution step is therefore not fulfilled."
+T013b:
+  c: false
+  h: 292e825c821831577ca7fcbb27d78231c15fd8fe7690a5a1aac21baf62d1e07f
+  r: "The repository lacks the required `data/results/flagged_pairs_count.json` file,\
+    \ so the code cannot read the flagged count. `code/metrics.py` does not contain\
+    \ any logic that reads this JSON, computes `max(10, 0.05 * flagged_count)`, handles\
+    \ the zero\u2011flagged edge case, or writes the specified `sample_config.json`\
+    \ schema. Moreover, the existing `sample_config.json` has unrelated fields (`total_flagged_count`,\
+    \ `max_limit`, `calculation_method`) and omits the required `minimum_threshold`,\
+    \ `percentage`, and `skip_validation` entries."
+T013c:
+  c: false
+  h: 87fec29f36396444921a3db62f9664068a8d5d5e243c68bd336121b7900e2ced
+  r: "The required input file `data/processed/comparison_log_full.json` is missing,\
+    \ and the output file `data/results/consensus_sample.json` does not exist. Moreover,\
+    \ `code/config.py` does not define a `RANDOM_SEED` nor contain any code that performs\
+    \ the filtering, sampling, and writing steps. The task\u2019s core functionality\
+    \ is therefore not implemented."
 T019:
   c: false
   h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
@@ -32,3 +77,10 @@ T036:
     reproduced results, or a validation report) is provided; the implementer supplied
     only the feature specification excerpt, which does not address the required quickstart
     reproducibility check.
+T043:
+  c: false
+  h: 8c4615bb2f3cb6fafea0adce15abe96a75a92e2821e2f7041b0e9fd5b578ae67
+  r: "The provided `code/data_loader.py` ends abruptly and contains no implementation\
+    \ of the \u201CSemantic Similarity Threshold Validator\u201D, nor any code that\
+    \ writes `data/processed/validation_status.json`. The required JSON file is absent,\
+    \ so the task\u2019s execution and output requirements are not satisfied."

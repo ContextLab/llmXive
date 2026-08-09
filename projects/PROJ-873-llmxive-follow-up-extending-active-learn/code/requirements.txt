@@ -11,3 +11,4 @@ pyyaml
 tabulate
 torch  # auto-added: imported by run-book but missing from venv
 requests  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv

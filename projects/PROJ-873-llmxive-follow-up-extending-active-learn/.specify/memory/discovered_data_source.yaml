@@ -1,42 +1,49 @@
 status: verified
 kind: pypi_package
 ref: beir
-access_python: "import os\nfrom beir import util\nfrom beir.datasets.data_loader import\
-  \ GenericDataLoader\n\n# Define dataset and download location\ndataset = \"scifact\"\
-  \nurl = f\"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip\"\
-  \nout_dir = \"beir_data\"\n\n# Download and unzip the dataset\ndata_path = util.download_and_unzip(url,\
-  \ out_dir)\n\n# Load the full corpus, queries, and qrels for the test split\ncorpus,\
-  \ queries, qrels = GenericDataLoader(data_path).load(split=\"test\")\n\nrecords\
-  \ = []\nfor qid, doc_dict in qrels.items():\n    # BEIR may store query as a plain\
-  \ string or as a dict with a \"text\" field\n    query_entry = queries[qid]\n  \
-  \  query_text = query_entry[\"text\"] if isinstance(query_entry, dict) else str(query_entry)\n\
-  \n    for doc_id, rel in doc_dict.items():\n        # Corpus entries can be dicts\
-  \ with \"text\" (and optionally \"title\") or plain strings\n        doc_entry =\
-  \ corpus[doc_id]\n        doc_text = (\n            doc_entry[\"text\"]\n      \
-  \      if isinstance(doc_entry, dict) and \"text\" in doc_entry\n            else\
-  \ str(doc_entry)\n        )\n        records.append(\n            {\n          \
-  \      \"query_id\": qid,\n                \"query_text\": query_text,\n       \
-  \         \"doc_id\": doc_id,\n                \"doc_text\": doc_text,\n       \
-  \         \"relevance_label\": rel,\n                \"split\": \"test\",\n    \
-  \        }\n        )\n\nif not records:\n    raise RuntimeError(\"No records loaded;\
-  \ dataset may be empty or split name incorrect.\")\n\nprint(f\"RECORDS={len(records)}\"\
-  )\nprint(\"FIELDS=query_id,query_text,doc_id,doc_text,relevance_label,split\")"
+access_python: 'import os
+
+  from beir import util
+
+  from beir.datasets.data_loader import GenericDataLoader
+
+
+  dataset = "scifact"
+
+  url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip"
+
+  # Download and unzip the dataset to a local directory
+
+  data_path = util.download_and_unzip(url, "beir_data")
+
+  # Load the corpus, queries, and relevance judgments for the test split
+
+  loader = GenericDataLoader(data_path)
+
+  corpus, queries, qrels = loader.load(split="test")
+
+  # Count the number of (query, document) relevance pairs
+
+  record_count = sum(len(docs) for docs in qrels.values())
+
+  print(f"RECORDS={record_count}")
+
+  print("FIELDS=query_id,query_text,doc_id,passage_text,relevance_score,split")'
 record_count: 339
 sample_fields:
 - query_id
 - query_text
 - doc_id
-- doc_text
-- relevance_label
+- passage_text
+- relevance_score
 - split
 field_coverage: 1.0
 required_fields:
 - query_id
 - query_text
 - doc_id
-- doc_text
-- relevance_label
+- passage_text
+- relevance_score
 - split
-intent: BEIR benchmark scifact nfcorpus trec-covid retrieval dataset python package
-  dataset
-cache_key: fb99b81f86878911bf06cd89aa8c3d9bb9167e1009a300868679604c985e4469
+intent: pip install beir dataset scifact nfcorpus trec-covid python package dataset
+cache_key: a634e0cbc1a70f532ada697943c4ad3b89216e290cb6d1c965d1bd1d60dc56be

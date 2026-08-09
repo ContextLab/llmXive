@@ -1,0 +1,6 @@
+{
+  "total_budget": 100,
+  "budget_type": "LLM_calls",
+  "calls_executed": 0,
+  "is_budget_exhausted": false
+}

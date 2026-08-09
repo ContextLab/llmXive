@@ -1,77 +1,112 @@
-# Quickstart Guide for llmXive Follow-up Project
+# llmXive Quickstart Guide
 
-This guide provides the commands to run the full pipeline and verify the proxy validation chain.
+This guide provides the commands to run the llmXive research pipeline end-to-end.
 
 ## Prerequisites
 
 - Python 3.11+
 - Install dependencies: `pip install -r requirements.txt`
 
-## 1. Data Preparation
+## Running the Pipeline
 
-Fetch BEIR datasets and prepare injected redundancy datasets.
+### 1. Data Preparation
+
+Prepare the BEIR datasets and inject synthetic redundancy:
 
 ```bash
 python code/data_loader.py prepare
 ```
 
 This command:
-- Downloads `nfcorpus`, `scifact`, and `trec-covid` from BEIR.
-- Generates synthetic redundancy clusters.
-- Writes `data/processed/injected_datasets.json`.
+- Downloads BEIR datasets (nfcorpus, scifact, trec-covid)
+- Injects synthetic redundancy (T012)
+- Validates the injection (T043)
+- Writes `data/processed/injected_datasets.json` and `data/processed/validation_status.json`
 
-## 2. Run Pipeline (Baseline & Clustering-Aided)
+### 2. Baseline Execution
 
-Execute the full active learning pipeline with resource limits.
-
-```bash
-# Baseline variant (unique subset only)
-python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5
-
-# Clustering-aided variant (MinHash-LSH pre-filtering)
-python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5
-```
-
-**Note**: The `--variant` argument must be either `baseline` or `clustering_aided`.
-The `--budgets` argument accepts multiple integer values.
-The `--seeds` argument specifies the number of random seeds for statistical robustness.
-
-## 3. Verify Proxy Validation Chain (T069)
-
-Execute the dry-run of the proxy validation chain (T013 -> T013e -> T013f -> T013d)
-to confirm artifact integrity and data flow.
+Run the baseline active ranker on the full redundant list:
 
 ```bash
-python code/verify_proxy_chain.py --data-dir data --results-dir data/results
+python code/run_pipeline.py --variant baseline --budgets 100 --seeds 1
 ```
 
 This command:
-- Reads `consensus_sample.json` (from T013c).
-- Runs T013e (Consensus Validation) -> writes `consensus_ground_truth.json`.
-- Runs T013f (Correction Factor) -> writes `correction_factor.json`.
-- Runs T013d (Final Ratio) -> writes `us1_efficiency_ratio.json`.
-- Outputs a summary to `data/results/t069_chain_verification.json`.
+- Processes the full redundant list (T014-Baseline)
+- Generates `data/processed/comparison_log_full.json`
+- Calculates flagged pairs (T013)
+- Writes `data/results/flagged_pairs_count.json`
 
-## 4. Statistical Analysis
+### 3. Sample Size Calculation (T013b)
 
-Run statistical tests on the results.
+Calculate the sample size for LLM consensus validation:
+
+```bash
+python code/scripts/run_t013b.py
+```
+
+This command:
+- Reads `data/results/flagged_pairs_count.json`
+- Calculates sample size (max of 10 or 5% of flagged count)
+- Writes `data/results/sample_config.json`
+
+### 4. Unique Subset Baseline
+
+Run the baseline on the unique subset:
+
+```bash
+python code/run_baseline_unique.py
+```
+
+This command:
+- Generates unique subset (T014-UniqueBaseline)
+- Runs baseline on unique subset
+- Writes `data/results/us1_baseline_metrics.json`
+
+### 5. Clustering-Aided Variant
+
+Run the clustering-aided variant:
+
+```bash
+python code/run_pipeline.py --variant clustering_aided --budgets 100 --seeds 1
+```
+
+This command:
+- Applies MinHash-LSH clustering (T020)
+- Filters candidates (T021)
+- Writes `data/processed/clusters.json`
+
+### 6. Statistical Analysis
+
+Run statistical significance tests:
 
 ```bash
 python code/confirm_statistical_robustness.py
-python code/generate_statistical_report.py
 ```
 
-## 5. Validation & Auditing
+This command:
+- Performs Wilcoxon signed-rank tests (T028, T029)
+- Applies Bonferroni correction (T030)
+- Generates final report (T031)
 
-Validate the Constitution compliance and data integrity.
+## Verification
+
+Validate the complete pipeline:
 
 ```bash
-python code/audit/validate_constitution.py
 python code/quickstart_validator.py
 ```
 
-## Troubleshooting
+This command checks that all required artifacts are present and valid.
 
-- **Missing Artifacts**: Ensure `code/data_loader.py prepare` has been run successfully before running the pipeline.
-- **Resource Limits**: If the pipeline terminates early, check `data/processed/resource_log.json` for memory or timeout violations.
-- **Data Flow Errors**: If `DataFlowViolationError` is raised, verify that all prerequisite artifacts (e.g., `injected_datasets.json`, `clusters.json`) exist in `data/processed/`.
+## Output Artifacts
+
+The pipeline produces the following key artifacts:
+
+- `data/processed/injected_datasets.json` - Synthetic redundancy data
+- `data/processed/comparison_log_full.json` - Full pairwise comparison log
+- `data/results/flagged_pairs_count.json` - Count of wasted calls
+- `data/results/sample_config.json` - Sample size configuration (T013b)
+- `data/results/us1_baseline_metrics.json` - Baseline NDCG metrics
+- `data/results/us1_efficiency_ratio.json` - Corrected wasted call ratio
+- `data/results/statistical_report.md` - Final statistical analysis

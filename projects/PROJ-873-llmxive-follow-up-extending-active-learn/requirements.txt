@@ -12,8 +12,7 @@ onnxruntime
 transformers
 accelerate
 bitsandbytes
+tinyllama
 psutil
-pyyaml
 matplotlib
-ruff
-black
+pyyaml
