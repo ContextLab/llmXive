@@ -4,117 +4,114 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Expected valid ranges for graph metrics based on graph theory properties
-VALID_RANGES = {
-    "global_efficiency": (0.0, 1.0),
-    "clustering_coefficient": (0.0, 1.0),
-    "modularity": (0.0, 1.0),  # Louvain modularity typically in [0, 1]
-    "characteristic_path_length": (0.0, float("inf")),  # Must be positive
-    "average_clustering_coefficient": (0.0, 1.0),
-    "transitivity": (0.0, 1.0),
-}
+# Constants for validation thresholds based on graph theory constraints
+# Global Efficiency: Theoretically (0, 1] for connected graphs, but can be 0 if disconnected.
+# In practice, we expect > 0.
+EFFICIENCY_MIN = 0.0
+EFFICIENCY_MAX = 1.0
 
-def load_graph_metrics(csv_path: str) -> List[Dict[str, Any]]:
-    """Load graph metrics from CSV file."""
-    metrics = []
-    path = Path(csv_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Graph metrics file not found: {csv_path}")
+# Clustering Coefficient: [0, 1]
+CLUSTERING_MIN = 0.0
+CLUSTERING_MAX = 1.0
+
+# Modularity: Typically [-0.5, 1.0], often positive. We set a safe lower bound.
+MODULARITY_MIN = -1.0
+MODULARITY_MAX = 1.0
+
+# Input/Output paths
+INPUT_CSV_PATH = Path("data/processed/graph_metrics.csv")
+OUTPUT_LOG_PATH = Path("data/processed/graph_metric_validation.log")
+
+def load_graph_metrics(csv_path: Path) -> List[Dict[str, Any]]:
+    """Load graph metrics from the aggregated CSV file."""
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Input file not found: {csv_path}")
     
-    with open(path, "r", newline="", encoding="utf-8") as f:
+    metrics = []
+    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            metrics.append(row)
+            try:
+                metrics.append({
+                    'subject_id': row['subject_id'],
+                    'metric_name': row['metric_name'],
+                    'value': float(row['value'])
+                })
+            except (ValueError, KeyError) as e:
+                # Log parsing errors but continue or fail loudly depending on strictness
+                # For this task, we treat parsing errors as anomalies
+                raise ValueError(f"Error parsing row in {csv_path}: {e}")
     return metrics
 
-def validate_metric_value(subject_id: str, metric_name: str, value_str: str) -> Tuple[bool, str]:
+def validate_metric_value(metric_name: str, value: float) -> Tuple[bool, str]:
     """
-    Validate a single metric value against expected ranges.
+    Validate a metric value against expected numerical ranges.
+    Returns (is_valid, reason_string).
+    """
+    if metric_name == 'global_efficiency':
+        if not (EFFICIENCY_MIN <= value <= EFFICIENCY_MAX):
+            return False, f"Value {value} out of range [{EFFICIENCY_MIN}, {EFFICIENCY_MAX}]"
+    elif metric_name == 'clustering_coefficient':
+        if not (CLUSTERING_MIN <= value <= CLUSTERING_MAX):
+            return False, f"Value {value} out of range [{CLUSTERING_MIN}, {CLUSTERING_MAX}]"
+    elif metric_name == 'modularity':
+        if not (MODULARITY_MIN <= value <= MODULARITY_MAX):
+            return False, f"Value {value} out of range [{MODULARITY_MIN}, {MODULARITY_MAX}]"
+    elif metric_name == 'average_path_length':
+        # Path length is non-negative. Upper bound is hard to define but usually < N.
+        if value < 0:
+            return False, f"Value {value} is negative"
+    else:
+        # Generic check for NaN or Inf
+        import math
+        if math.isnan(value) or math.isinf(value):
+            return False, f"Value is NaN or Inf"
     
-    Returns:
-        Tuple of (is_valid, reason_string)
-        If valid: (True, "")
-        If invalid: (False, "REASON: <description>")
-    """
-    try:
-        value = float(value_str)
-    except (ValueError, TypeError):
-        return False, "REASON: Value is not a valid number"
+    return True, "OK"
 
-    if metric_name not in VALID_RANGES:
-        # Unknown metric - skip validation but log as info if needed
-        return True, ""
-
-    min_val, max_val = VALID_RANGES[metric_name]
-
-    if value < min_val:
-        return False, f"REASON: Value {value} is below minimum {min_val}"
+def write_anomalies(anomalies: List[Tuple[str, str, float, str]], log_path: Path):
+    """Write anomalies to the log file in the specified format."""
+    # Ensure directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    if max_val != float("inf") and value > max_val:
-        return False, f"REASON: Value {value} exceeds maximum {max_val}"
-
-    return True, ""
-
-def write_anomalies(anomalies: List[Tuple[str, str, str, str]], log_path: str):
-    """
-    Write anomalies to a log file with format:
-    [SUBJECT_ID] [METRIC] [VALUE] [REASON]
-    """
-    log_file = Path(log_path)
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(log_file, "w", encoding="utf-8") as f:
+    with open(log_path, 'w', encoding='utf-8') as f:
         for subject_id, metric, value, reason in anomalies:
-            f.write(f"[{subject_id}] [{metric}] [{value}] [{reason}]\n")
+            # Format: [SUBJECT_ID] [METRIC] [VALUE] [REASON]
+            line = f"[{subject_id}] [{metric}] [{value}] [{reason}]\n"
+            f.write(line)
 
 def main():
-    """Main entry point for graph metrics validation."""
-    # Paths relative to project root
-    csv_path = "data/processed/graph_metrics.csv"
-    log_path = "data/processed/graph_metric_validation.log"
-
-    print(f"Loading graph metrics from {csv_path}...")
-    try:
-        metrics = load_graph_metrics(csv_path)
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
+    """Main entry point for validation."""
+    print(f"Validating graph metrics from {INPUT_CSV_PATH}...")
+    
+    if not INPUT_CSV_PATH.exists():
+        print(f"Error: Input file {INPUT_CSV_PATH} does not exist. "
+              f"Please ensure T026 (Aggregate Graph Metrics) has been run successfully.")
         sys.exit(1)
 
-    if not metrics:
-        print("WARNING: No metrics found in CSV file.", file=sys.stderr)
-        # Write empty log file to indicate completion
-        write_anomalies([], log_path)
-        print(f"Validation log written to {log_path} (empty).")
-        return
+    try:
+        data = load_graph_metrics(INPUT_CSV_PATH)
+    except Exception as e:
+        print(f"Error loading metrics: {e}")
+        sys.exit(1)
 
     anomalies = []
-    valid_count = 0
-
-    for row in metrics:
-        subject_id = row.get("subject_id", "UNKNOWN")
-        metric_name = row.get("metric_name", "UNKNOWN")
-        value_str = row.get("value", "")
-
-        is_valid, reason = validate_metric_value(subject_id, metric_name, value_str)
-        
+    for row in data:
+        is_valid, reason = validate_metric_value(row['metric_name'], row['value'])
         if not is_valid:
-            anomalies.append((subject_id, metric_name, value_str, reason))
-        else:
-            valid_count += 1
+            anomalies.append((row['subject_id'], row['metric_name'], row['value'], reason))
 
-    # Write anomalies
-    write_anomalies(anomalies, log_path)
+    # Write anomalies (even if empty, the file should be created to show completion)
+    write_anomalies(anomalies, OUTPUT_LOG_PATH)
+    
+    print(f"Validation complete. Found {len(anomalies)} anomalies.")
+    print(f"Anomalies written to {OUTPUT_LOG_PATH}")
 
-    print(f"Validation complete.")
-    print(f"  Total entries processed: {len(metrics)}")
-    print(f"  Valid entries: {valid_count}")
-    print(f"  Anomalies detected: {len(anomalies)}")
-    print(f"  Anomaly log written to: {log_path}")
-
-    if anomalies:
-        print("WARNING: Anomalies detected. Check validation log for details.")
-        # Do not exit with error code to allow pipeline to continue, 
-        # but the log file serves as the record of issues.
+    if len(anomalies) > 0:
+        # Optional: Print first few anomalies for quick inspection
+        print("Sample anomalies:")
+        for a in anomalies[:5]:
+            print(f"  {a}")
 
 if __name__ == "__main__":
     main()

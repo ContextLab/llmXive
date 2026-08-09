@@ -65,3 +65,148 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T05:12:23Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000224 selected as primary dataset for Fluid Intelligence
+  claim_id: c_a1bc3b12
+  context: 'Goal: Download resting-state fMRI data from OpenNeuro ds000224 (primary
+    for Fluid Intelligence), validate data, and preprocess to generate clean BOLD
+    time series.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000224_selected_as_primary_dataset_for_Fluid_Int
+  kind: entity_fact
+  raw_text: The primary dataset selected for Fluid Intelligence analysis is OpenNeuro
+    ds000224.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:24:29Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000230 selected as fallback dataset
+  claim_id: c_4b1867e4
+  context: Implement `fetch_openneuro_data()` in `code/download.py` to download ds000224
+    (primary) and ds000230 (fallback).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000230_selected_as_fallback_dataset
+  kind: entity_fact
+  raw_text: The secondary dataset designated as a fallback is OpenNeuro ds000230.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:24:54Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Sample limit set to N=10
+  claim_id: c_c2ea73e7
+  context: Create `config.yaml` with dataset IDs and N=10 sample limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study enforces a sample limit of N=10 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:25:40Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas with 200 ROIs used for graph metrics
+  claim_id: c_209a3740
+  context: Implement connectivity matrix generation using `nilearn` and the **200-ROI
+    Schaefer atlas** (fixed, per FR-003) in `code/graph_metrics.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The graph theoretical analysis uses the Schaefer parcellation atlas with
+    200 ROIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:26:35Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for multiple comparisons
+  claim_id: c_cbb37fb8
+  context: System MUST apply **Bonferroni** correction (per Constitution Principle
+    VII) for multiple comparisons across all tested graph metrics and report effect
+    sizes with confidence intervals.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_for_multiple_comparisons
+  kind: entity_fact
+  raw_text: Bonferroni correction is applied for multiple comparisons across all tested
+    graph metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:27:02Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Minimum 1 subject with valid Fluid Intelligence data required
+  claim_id: c_bbc1a51c
+  context: "If fewer than 10 subjects with valid data are found, the system MUST use\
+    \ all available subjects (N \u2265 1) for analysis."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_1_subject_with_valid_Fluid_Intelligence_data_require
+  kind: magnitude
+  raw_text: The system requires at least one subject with valid Fluid Intelligence
+    data to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:27:34Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'Motion artifact thresholds: Translation > 3mm or Rotation > 2mm'
+  claim_id: c_3d85f71f
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_artifact_thresholds:_Translation_%3E_3mm_or_Rotation_%3E_
+  kind: entity_fact
+  raw_text: Motion artifacts are detected using thresholds of Translation > 3mm OR
+    Rotation > 2mm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:27:54Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'Analysis constraints: CPU-only, 7GB RAM, 6h limit'
+  claim_id: c_c965ee4a
+  context: All tasks designed for N=10 subjects on CPU-only CI (A small number of
+    cores, 7GB RAM, 6h limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis is designed to run on a CPU-only CI environment with 7GB
+    RAM and a 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T18:28:11Z'

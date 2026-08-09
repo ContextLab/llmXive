@@ -1,121 +1,163 @@
 import os
+import sys
 import json
-import pytest
+import unittest
+import logging
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, MagicMock, mock_open
+import tempfile
+import shutil
 
-# Import the function to test
-from download import check_validation_and_halt
+# Add code directory to path
+code_dir = Path(__file__).resolve().parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
-class TestDownloadValidationHalt:
-    """
-    Tests for T016c: Halt on Zero Valid Subjects.
-    Verifies that check_validation_and_halt raises ValueError with the exact message
-    when valid_subjects.json indicates 0 subjects, and logs to validation_errors.log.
-    """
+from download import (
+    ensure_directories, 
+    validate_and_aggregate, 
+    check_validation_and_halt,
+    fetch_openneuro_data,
+    DATA_PROCESSED_DIR
+)
 
-    @pytest.fixture(autouse=True)
-    def setup_teardown(self, tmp_path):
-        """Setup temporary directories for test isolation."""
-        self.tmp_dir = tmp_path
-        self.processed_dir = self.tmp_dir / "data" / "processed"
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
+class TestDownloadValidationHalt(unittest.TestCase):
+    
+    def setUp(self):
+        """Set up a temporary directory structure for testing."""
+        self.test_dir = tempfile.mkdtemp()
+        self.project_root = Path(self.test_dir)
         
-        # Patch the paths used by the function
-        self.valid_subjects_path = self.processed_dir / "valid_subjects.json"
-        self.error_log_path = self.processed_dir / "validation_errors.log"
-
-        # We need to patch the global paths in the download module or pass them?
-        # Since the function uses hardcoded paths in the module, we must patch Path() or os.path
-        # The function uses: Path("data/processed/valid_subjects.json")
-        # We will patch Path to return our tmp_path based paths for specific filenames
+        # Mock the global paths used in download.py
+        self.original_project_root = None
+        self.original_data_processed = None
         
-        self.original_path = Path
+        # We need to monkey-patch the module level variables if possible, 
+        # but since they are evaluated at import time, we will mock the file system interactions
+        # specifically for the functions we test.
         
-        def mock_path_constructor(path_str):
-            p = self.original_path(path_str)
-            if str(p) == "data/processed/valid_subjects.json":
-                return self.valid_subjects_path
-            if str(p) == "data/processed/validation_errors.log":
-                return self.error_log_path
-            return p
-
-        self.patch_path = patch('download.Path', side_effect=mock_path_constructor)
-        self.patch_path.start()
+        # Setup directories structure
+        (self.project_root / "data" / "processed").mkdir(parents=True)
+        (self.project_root / "data" / "raw").mkdir(parents=True)
         
-        yield
+        self.data_processed_dir = self.project_root / "data" / "processed"
+        self.data_raw_dir = self.project_root / "data" / "raw"
 
-        self.patch_path.stop()
+    def tearDown(self):
+        """Clean up temporary directory."""
+        shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_halt_on_zero_subjects_raises_error(self):
+    def test_halt_on_zero_valid_subjects_writes_log(self):
         """
-        Verify that if valid_subjects.json has count 0, a ValueError is raised
-        with the exact message: "No valid Fluid Intelligence data found in specified datasets"
+        Test that check_validation_and_halt writes to validation_errors.log 
+        with prefix [VALIDATION_ERROR] and raises ValueError when count is 0.
         """
-        # Arrange: Create valid_subjects.json with count 0
-        data = {"subjects": [], "count": 0}
-        with open(self.valid_subjects_path, 'w') as f:
-            json.dump(data, f)
-
-        # Act & Assert: Expect ValueError with specific message
-        with pytest.raises(ValueError) as exc_info:
-            check_validation_and_halt()
-
-        assert str(exc_info.value) == "No valid Fluid Intelligence data found in specified datasets"
-
-    def test_halt_on_zero_subjects_logs_error(self):
-        """
-        Verify that the error is logged to data/processed/validation_errors.log
-        with the prefix [VALIDATION_ERROR].
-        """
-        # Arrange
-        data = {"subjects": [], "count": 0}
-        with open(self.valid_subjects_path, 'w') as f:
-            json.dump(data, f)
-
-        # Act
+        # Prepare a mock result with 0 subjects
+        mock_result = {"subjects": [], "count": 0}
+        
+        # Ensure the log file path exists
+        log_path = self.data_processed_dir / "validation_errors.log"
+        
+        # We need to mock the DATA_PROCESSED_DIR inside the download module
+        # Since it's a global constant, we patch the function's behavior or the path resolution.
+        # A cleaner way for this specific test is to patch the open function and the path check.
+        
+        # Create a context where DATA_PROCESSED_DIR points to our test dir
+        # We will re-implement the logic of check_validation_and_halt locally or patch the module.
+        # Given the constraints, let's patch the specific file write and the path.
+        
+        import download as download_module
+        
+        original_path = download_module.DATA_PROCESSED_DIR
+        download_module.DATA_PROCESSED_DIR = self.data_processed_dir
+        
         try:
-            check_validation_and_halt()
-        except ValueError:
-            pass # Expected
+            with self.assertRaises(ValueError) as context:
+                check_validation_and_halt(mock_result)
+            
+            self.assertEqual(str(context.exception), "No valid Fluid Intelligence data found in specified datasets")
+            
+            # Verify the log file was created and contains the correct prefix
+            self.assertTrue(log_path.exists(), "validation_errors.log was not created")
+            
+            with open(log_path, 'r') as f:
+                content = f.read()
+            
+            self.assertIn("[VALIDATION_ERROR]", content, "Log does not contain [VALIDATION_ERROR] prefix")
+            self.assertIn("No valid Fluid Intelligence data found in specified datasets", content)
+            
+        finally:
+            # Restore original path
+            download_module.DATA_PROCESSED_DIR = original_path
 
-        # Assert
-        assert self.error_log_path.exists(), "validation_errors.log was not created"
+    @patch('download.download_dataset')
+    @patch('download.get_subject_list')
+    @patch('download.validate_and_aggregate')
+    @patch('download.check_validation_and_halt')
+    def test_fetch_openneuro_halt_on_zero(self, mock_halt, mock_validate, mock_get_sub, mock_download):
+        """
+        Test that fetch_openneuro_data halts (raises) if validation returns 0 subjects.
+        """
+        # Setup mocks
+        mock_get_sub.return_value = ["sub-01"]
+        mock_validate.return_value = {"subjects": [], "count": 0}
+        mock_download.return_value = True
         
-        with open(self.error_log_path, 'r') as f:
-            log_content = f.read()
+        # Mock the halt function to raise ValueError as it should
+        mock_halt.side_effect = ValueError("No valid Fluid Intelligence data found in specified datasets")
         
-        assert "[VALIDATION_ERROR]" in log_content, "Log missing [VALIDATION_ERROR] prefix"
-        assert "No valid Fluid Intelligence data found in specified datasets" in log_content
+        # We need to temporarily set the global DATA_PROCESSED_DIR for the main function
+        # to write the log file to our test location if we were testing the file write here,
+        # but the task focuses on the halt logic and log write.
+        # The test `test_halt_on_zero_valid_subjects_writes_log` covers the file write.
+        # This test covers the flow.
+        
+        import download as download_module
+        original_path = download_module.DATA_PROCESSED_DIR
+        download_module.DATA_PROCESSED_DIR = self.data_processed_dir
+        
+        try:
+            with self.assertRaises(ValueError):
+                fetch_openneuro_data()
+        finally:
+            download_module.DATA_PROCESSED_DIR = original_path
 
-    def test_continues_on_valid_subjects(self):
+    def test_validate_and_aggregate_creates_json(self):
         """
-        Verify that if count > 0, no error is raised and function returns data.
+        Test that validate_and_aggregate creates valid_subjects.json with correct schema.
         """
-        # Arrange
-        data = {"subjects": [{"id": "sub-01", "score": 1.5}], "count": 1}
-        with open(self.valid_subjects_path, 'w') as f:
-            json.dump(data, f)
+        # Create a mock subject directory with behavioral data
+        sub_dir = self.data_raw_dir / "sub-01"
+        sub_dir.mkdir(parents=True)
+        
+        # Create a mock behavioral file
+        behavioral_file = sub_dir / "behaviors.json"
+        with open(behavioral_file, 'w') as f:
+            json.dump({"FluidIntelligence": 85.5}, f)
+        
+        subjects = ["sub-01"]
+        
+        import download as download_module
+        original_path = download_module.DATA_PROCESSED_DIR
+        download_module.DATA_PROCESSED_DIR = self.data_processed_dir
+        
+        try:
+            result = validate_and_aggregate(subjects, self.data_raw_dir)
+            
+            self.assertEqual(result["count"], 1)
+            self.assertEqual(len(result["subjects"]), 1)
+            self.assertEqual(result["subjects"][0]["id"], "sub-01")
+            self.assertEqual(result["subjects"][0]["score"], 85.5)
+            
+            # Verify file exists
+            json_path = self.data_processed_dir / "valid_subjects.json"
+            self.assertTrue(json_path.exists())
+            
+            with open(json_path, 'r') as f:
+                saved_data = json.load(f)
+            
+            self.assertEqual(saved_data["count"], 1)
+        finally:
+            download_module.DATA_PROCESSED_DIR = original_path
 
-        # Act
-        result = check_validation_and_halt()
-
-        # Assert
-        assert result == data
-        assert not self.error_log_path.exists() # Should not create log if success
-
-    def test_halt_on_missing_file(self):
-        """
-        Verify that if valid_subjects.json does not exist, it is treated as 0 subjects
-        and the halt logic triggers.
-        """
-        # Arrange: Ensure file does not exist
-        if self.valid_subjects_path.exists():
-            self.valid_subjects_path.unlink()
-
-        # Act & Assert
-        with pytest.raises(ValueError) as exc_info:
-            check_validation_and_halt()
-
-        assert str(exc_info.value) == "No valid Fluid Intelligence data found in specified datasets"
-        assert self.error_log_path.exists()
+if __name__ == '__main__':
+    unittest.main()

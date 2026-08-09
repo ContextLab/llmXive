@@ -1,80 +1,116 @@
 import json
 import os
-import pytest
-from pathlib import Path
 import sys
+import tempfile
+import shutil
+from pathlib import Path
+import pytest
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add the code directory to the path so we can import the module
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from generate_preprocessing_stats import load_subject_logs, calculate_stats, main
 
 class TestGeneratePreprocessingStats:
-    
-    def test_calculate_stats_normal_case(self):
-        """Test calculation with normal numbers"""
-        stats = calculate_stats(10, 8)
-        assert stats["total_subjects"] == 10
-        assert stats["successful_subjects"] == 8
-        assert stats["success_rate_percentage"] == 80.0
+    def test_load_subject_logs_empty_dir(self, tmp_path):
+        """Test loading logs from an empty directory."""
+        logs = load_subject_logs(tmp_path)
+        assert logs == []
 
-    def test_calculate_stats_zero_total(self):
-        """Test calculation when total is 0 to avoid division by zero"""
-        stats = calculate_stats(0, 0)
-        assert stats["total_subjects"] == 0
-        assert stats["successful_subjects"] == 0
-        assert stats["success_rate_percentage"] == 0.0
+    def test_load_subject_logs_with_valid_json(self, tmp_path):
+        """Test loading logs from a directory with valid JSON log files."""
+        log_file = tmp_path / 'subject_001_preprocess.json'
+        log_data = {
+            'subject_id': '001',
+            'status': 'success',
+            'runtime_seconds': 120.5,
+            'peak_ram_gb': 2.1
+        }
+        with open(log_file, 'w') as f:
+            json.dump(log_data, f)
+        
+        logs = load_subject_logs(tmp_path)
+        assert len(logs) == 1
+        assert logs[0]['subject_id'] == '001'
+        assert logs[0]['status'] == 'success'
 
-    def test_calculate_stats_100_percent(self):
-        """Test 100% success rate"""
-        stats = calculate_stats(5, 5)
-        assert stats["success_rate_percentage"] == 100.0
+    def test_load_subject_logs_with_invalid_json(self, tmp_path):
+        """Test loading logs ignores invalid JSON files."""
+        log_file = tmp_path / 'subject_001_preprocess.json'
+        with open(log_file, 'w') as f:
+            f.write('{ invalid json }')
+        
+        logs = load_subject_logs(tmp_path)
+        # Should return empty or skip invalid
+        assert len(logs) == 0
 
-    def test_load_subject_logs_missing_files(self, tmp_path):
-        """Test behavior when input files are missing"""
-        # Create a temporary directory structure to simulate missing files
-        # We need to temporarily redirect the paths in the function or mock them.
-        # Since load_subject_logs uses hardcoded paths "data/processed/...",
-        # we will test the calculation logic primarily, or ensure the function
-        # handles missing files gracefully (which it does by returning 0,0).
-        
-        # Note: The function load_subject_logs currently uses hardcoded relative paths.
-        # In a real integration test, we would set up the data/processed directory.
-        # For this unit test, we verify the fallback behavior by checking the return values
-        # if we assume the files don't exist in the current working directory.
-        
-        # To properly test this, we would need to mock the file existence checks
-        # or run this in an isolated environment. For now, we trust the logic
-        # handles missing files by returning 0.
-        total, successful = load_subject_logs(Path("non_existent"))
-        # If files are missing, it should return 0, 0
-        assert total == 0
-        assert successful == 0
+    def test_calculate_stats_success(self):
+        """Test calculating stats with successful subjects."""
+        logs = [
+            {'subject_id': '001', 'status': 'success'},
+            {'subject_id': '002', 'status': 'success'},
+            {'subject_id': '003', 'status': 'failed'}
+        ]
+        stats = calculate_stats(logs)
+        assert stats['total_subjects'] == 3
+        assert stats['successful_subjects'] == 2
+        assert stats['success_rate_percentage'] == pytest.approx(66.67, rel=0.1)
 
-    def test_main_creates_output_file(self, tmp_path, monkeypatch, capsys):
-        """Test that main() creates the output JSON file with correct schema"""
-        # Setup: Create dummy input files in tmp_path/data/processed
-        data_dir = tmp_path / "data" / "processed"
-        data_dir.mkdir(parents=True)
-        
-        valid_subjects_path = data_dir / "valid_subjects.json"
-        valid_subjects_path.write_text(json.dumps({"count": 10, "subjects": []}))
-        
-        motion_log_path = data_dir / "motion_exclusion_log.csv"
-        motion_log_path.write_text("subject_id,translation_mm,rotation_mm,excluded\nsub-01,1.0,0.5,False\nsub-02,4.0,2.5,True\n")
-        
-        output_path = data_dir / "preprocessing_stats.json"
-        
-        # Monkeypatch the paths in the module to use tmp_path
-        # This is tricky because the paths are hardcoded inside the function.
-        # A better approach for a pure unit test is to test calculate_stats directly,
-        # which we did above. 
-        # However, to satisfy the "artifact must be real" constraint, we assume
-        # the environment will have the files or we test the logic flow.
-        
-        # Let's just verify the calculation logic which is the core of the task.
-        # The file I/O is standard.
-        pass
+    def test_calculate_stats_no_logs(self):
+        """Test calculating stats with no logs."""
+        logs = []
+        stats = calculate_stats(logs, total_expected=10)
+        assert stats['total_subjects'] == 10 # Fallback to expected
+        assert stats['successful_subjects'] == 0
+        assert stats['success_rate_percentage'] == 0.0
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_main_generates_artifact(self, tmp_path):
+        """Test that main() generates the preprocessing_stats.json artifact."""
+        # Setup a temporary processed directory with a mock log
+        processed_dir = tmp_path / 'data' / 'processed'
+        processed_dir.mkdir(parents=True)
+        
+        log_file = processed_dir / 'subject_001_preprocess.json'
+        log_data = {'subject_id': '001', 'status': 'success'}
+        with open(log_file, 'w') as f:
+            json.dump(log_data, f)
+        
+        # Temporarily change the working directory or mock the path
+        # Since main() uses hardcoded 'data/processed', we need to run it in a context
+        # where 'data/processed' points to our tmp_path.
+        # We will monkeypatch the Path or run the function in a subprocess.
+        # For simplicity in unit test, we will mock the internal calls or change cwd.
+        
+        original_cwd = os.getcwd()
+        try:
+            # Create a temp dir structure that mimics the project root
+            project_root = tmp_path / 'project'
+            project_root.mkdir()
+            os.chdir(project_root)
+            
+            # Create data/processed
+            (project_root / 'data' / 'processed').mkdir(parents=True)
+            
+            # Copy the mock log
+            src_log = processed_dir / 'subject_001_preprocess.json'
+            dst_log = project_root / 'data' / 'processed' / 'subject_001_preprocess.json'
+            shutil.copy(src_log, dst_log)
+            
+            # Run main
+            main()
+            
+            # Verify artifact exists
+            stats_path = project_root / 'data' / 'processed' / 'preprocessing_stats.json'
+            assert stats_path.exists()
+            
+            with open(stats_path, 'r') as f:
+                stats = json.load(f)
+            
+            assert 'total_subjects' in stats
+            assert 'successful_subjects' in stats
+            assert 'success_rate_percentage' in stats
+            assert stats['successful_subjects'] == 1
+            assert stats['total_subjects'] == 1
+            assert stats['success_rate_percentage'] == 100.0
+        finally:
+            os.chdir(original_cwd)

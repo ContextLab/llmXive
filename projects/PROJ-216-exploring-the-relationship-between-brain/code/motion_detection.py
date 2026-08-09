@@ -4,15 +4,14 @@ import csv
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Any, Tuple
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stderr),
-        logging.FileHandler('data/processed/motion_exclusion.log', mode='a')
+        logging.StreamHandler(sys.stderr)
     ]
 )
 logger = logging.getLogger(__name__)
@@ -21,144 +20,168 @@ logger = logging.getLogger(__name__)
 TRANSLATION_THRESHOLD_MM = 3.0
 ROTATION_THRESHOLD_MM = 2.0
 
-def load_motion_metrics(preprocessed_dir: Path) -> List[Dict[str, Any]]:
+def load_motion_metrics(subject_logs_dir: Path) -> List[Dict[str, Any]]:
     """
-    Load motion metrics from preprocessed subject logs.
-    Expects logs in data/processed/ containing JSON files with motion data,
-    or a consolidated log from preprocessing.
-    
-    For this implementation, we assume preprocessing (T017) generates
-    a motion_metrics.json or individual subject logs with motion data.
-    We will look for a file named 'motion_metrics.json' in the processed dir,
-    or scan for subject-specific logs if that doesn't exist.
+    Load motion metrics from preprocessing logs or JSON files.
+    Expected format in logs: 'Motion Translation: X mm', 'Motion Rotation: Y mm'
+    or a JSON file per subject with keys 'translation_mm', 'rotation_mm'.
     """
-    motion_data = []
-    motion_json_path = preprocessed_dir / "motion_metrics.json"
-    
-    if motion_json_path.exists():
-        logger.info(f"Loading motion metrics from {motion_json_path}")
-        with open(motion_json_path, 'r') as f:
-            data = json.load(f)
-            # Normalize to list of dicts
-            if isinstance(data, list):
-                motion_data = data
-            elif isinstance(data, dict) and 'subjects' in data:
-                motion_data = data['subjects']
-            else:
-                # Assume single subject or raw dict
-                motion_data = [data] if isinstance(data, dict) else []
-    else:
-        # Fallback: scan for individual subject motion logs
-        logger.warning(f"No central motion_metrics.json found. Scanning {preprocessed_dir} for subject logs.")
-        subject_files = list(preprocessed_dir.glob("subject_*_motion.json"))
-        for sf in sorted(subject_files):
+    metrics = []
+    if not subject_logs_dir.exists():
+        logger.warning(f"Subject logs directory not found: {subject_logs_dir}")
+        return metrics
+
+    # Try to find JSON logs first (preferred structured format)
+    json_files = list(subject_logs_dir.glob("*.json"))
+    for json_file in json_files:
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+                subject_id = data.get('subject_id', json_file.stem)
+                translation = data.get('translation_mm')
+                rotation = data.get('rotation_mm')
+                
+                if translation is not None and rotation is not None:
+                    metrics.append({
+                        'subject_id': subject_id,
+                        'translation_mm': float(translation),
+                        'rotation_mm': float(rotation),
+                        'source_file': str(json_file)
+                    })
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.warning(f"Could not parse motion metrics from {json_file}: {e}")
+
+    # Fallback: Parse text logs if no JSON found
+    log_files = list(subject_logs_dir.glob("*.log"))
+    if not metrics and log_files:
+        for log_file in log_files:
             try:
-                with open(sf, 'r') as f:
-                    motion_data.append(json.load(f))
+                with open(log_file, 'r') as f:
+                    content = f.read()
+                    # Simple regex-like parsing for expected log format
+                    import re
+                    trans_match = re.search(r'Motion Translation:\s*([\d.]+)\s*mm', content)
+                    rot_match = re.search(r'Motion Rotation:\s*([\d.]+)\s*mm', content)
+                    
+                    if trans_match and rot_match:
+                        subject_id = log_file.stem
+                        metrics.append({
+                            'subject_id': subject_id,
+                            'translation_mm': float(trans_match.group(1)),
+                            'rotation_mm': float(rot_match.group(1)),
+                            'source_file': str(log_file)
+                        })
             except Exception as e:
-                logger.error(f"Failed to read {sf}: {e}")
-    
-    if not motion_data:
-        logger.warning("No motion metrics found. Returning empty list.")
-    
-    return motion_data
+                logger.warning(f"Could not parse motion metrics from {log_file}: {e}")
 
-def get_valid_subjects(motion_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    return metrics
+
+def get_valid_subjects(motion_metrics: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Filter subjects based on motion thresholds.
-    Returns subjects where translation <= 3mm AND rotation <= 2mm.
+    Filter subjects that have valid motion metrics (non-null values).
     """
-    valid = []
-    for subject in motion_data:
-        sub_id = subject.get('subject_id', 'unknown')
-        trans = subject.get('translation_mm', 0.0)
-        rot = subject.get('rotation_mm', 0.0)
+    return [
+        m for m in motion_metrics 
+        if m.get('translation_mm') is not None and m.get('rotation_mm') is not None
+    ]
+
+def detect_motion_artifacts(motion_metrics: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Detect subjects with excessive motion based on thresholds.
+    Returns list of subjects with exclusion flag.
+    """
+    results = []
+    for metric in motion_metrics:
+        translation = metric['translation_mm']
+        rotation = metric['rotation_mm']
         
-        # Check thresholds
-        is_excluded = (trans > TRANSLATION_THRESHOLD_MM) or (rot > ROTATION_THRESHOLD_MM)
+        # Exclude if Translation > 3mm OR Rotation > 2mm
+        excluded = (translation > TRANSLATION_THRESHOLD_MM) or (rotation > ROTATION_THRESHOLD_MM)
         
-        subject['excluded'] = is_excluded
-        valid.append(subject)
+        results.append({
+            'subject_id': metric['subject_id'],
+            'translation_mm': translation,
+            'rotation_mm': rotation,
+            'excluded': excluded
+        })
         
-        if is_excluded:
-            logger.info(f"Subject {sub_id} EXCLUDED: trans={trans:.2f}mm, rot={rot:.2f}mm")
+        if excluded:
+            logger.warning(
+                f"Subject {metric['subject_id']} excluded due to excessive motion: "
+                f"Translation={translation}mm (>{TRANSLATION_THRESHOLD_MM}mm) or "
+                f"Rotation={rotation}mm (>{ROTATION_THRESHOLD_MM}mm)"
+            )
         else:
-            logger.info(f"Subject {sub_id} INCLUDED: trans={trans:.2f}mm, rot={rot:.2f}mm")
+            logger.info(
+                f"Subject {metric['subject_id']} passed motion check: "
+                f"Translation={translation}mm, Rotation={rotation}mm"
+            )
     
-    return valid
+    return results
 
-def detect_motion_artifacts(motion_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def write_motion_exclusion_log(results: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Detect motion artifacts and flag subjects for exclusion.
-    This is an alias for get_valid_subjects but kept for API clarity.
-    """
-    return get_valid_subjects(motion_data)
-
-def write_motion_exclusion_log(processed_data: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Write the motion exclusion log to CSV.
+    Write motion exclusion results to CSV file.
     Columns: subject_id, translation_mm, rotation_mm, excluded (bool)
     """
-    if not processed_data:
-        logger.warning("No data to write to motion exclusion log.")
-        # Create empty file with headers
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['subject_id', 'translation_mm', 'rotation_mm', 'excluded'])
-        return
-
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['subject_id', 'translation_mm', 'rotation_mm', 'excluded'])
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', newline='') as csvfile:
+        fieldnames = ['subject_id', 'translation_mm', 'rotation_mm', 'excluded']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
-        for row in processed_data:
-            sub_id = row.get('subject_id', 'unknown')
-            trans = row.get('translation_mm', 0.0)
-            rot = row.get('rotation_mm', 0.0)
-            excluded = row.get('excluded', False)
-            
-            writer.writerow([sub_id, f"{trans:.4f}", f"{rot:.4f}", excluded])
+        writer.writeheader()
+        for result in results:
+            writer.writerow({
+                'subject_id': result['subject_id'],
+                'translation_mm': f"{result['translation_mm']:.4f}",
+                'rotation_mm': f"{result['rotation_mm']:.4f}",
+                'excluded': result['excluded']
+            })
     
     logger.info(f"Motion exclusion log written to {output_path}")
+    logger.info(f"Total subjects processed: {len(results)}")
+    logger.info(f"Subjects excluded: {sum(1 for r in results if r['excluded'])}")
+    logger.info(f"Subjects retained: {sum(1 for r in results if not r['excluded'])}")
 
 def main():
     """
-    Main entry point for T018a: Motion Artifact Detection.
-    1. Load motion metrics from preprocessed data.
-    2. Detect artifacts (exclusion logic).
-    3. Write CSV output.
+    Main entry point for motion artifact detection.
+    Reads preprocessing logs, detects motion artifacts, and writes exclusion log.
     """
-    base_dir = Path("data")
-    processed_dir = base_dir / "processed"
-    output_file = processed_dir / "motion_exclusion_log.csv"
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
+    subject_logs_dir = project_root / "data" / "processed"
+    output_csv = project_root / "data" / "processed" / "motion_exclusion_log.csv"
     
-    # Ensure output directory exists
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Starting motion artifact detection...")
     
-    logger.info("Starting Motion Artifact Detection (T018a)...")
+    # Load motion metrics from preprocessing outputs
+    motion_metrics = load_motion_metrics(subject_logs_dir)
     
-    # Load data
-    motion_data = load_motion_metrics(processed_dir)
-    
-    if not motion_data:
-        logger.error("No motion data found. Cannot proceed with exclusion.")
-        # Write empty log with headers
-        write_motion_exclusion_log([], output_file)
+    if not motion_metrics:
+        logger.warning("No motion metrics found. Creating empty exclusion log.")
+        # Create empty CSV with headers
+        write_motion_exclusion_log([], output_csv)
         return
     
-    # Detect artifacts / filter
-    processed_data = detect_motion_artifacts(motion_data)
+    # Filter to valid subjects
+    valid_subjects = get_valid_subjects(motion_metrics)
     
-    # Write output
-    write_motion_exclusion_log(processed_data, output_file)
+    if not valid_subjects:
+        logger.warning("No valid subjects with motion metrics found.")
+        write_motion_exclusion_log([], output_csv)
+        return
     
-    # Summary
-    total = len(processed_data)
-    excluded_count = sum(1 for d in processed_data if d.get('excluded', False))
-    included_count = total - excluded_count
+    logger.info(f"Found {len(valid_subjects)} subjects with motion metrics")
     
-    logger.info(f"Motion Detection Complete. Total: {total}, Included: {included_count}, Excluded: {excluded_count}")
-    logger.info(f"Output saved to: {output_file}")
+    # Detect motion artifacts
+    exclusion_results = detect_motion_artifacts(valid_subjects)
+    
+    # Write results to CSV
+    write_motion_exclusion_log(exclusion_results, output_csv)
+    
+    logger.info("Motion artifact detection completed successfully.")
 
 if __name__ == "__main__":
     main()

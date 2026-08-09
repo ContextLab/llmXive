@@ -5,9 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-brain-intelligence"
 version = "0.1.0"
-description = "Automated science pipeline: Exploring the relationship between brain network dynamics and fluid intelligence"
-readme = "README.md"
-requires-python = ">=3.9"
+description = "Exploring the Relationship Between Brain Network Dynamics and Fluid Intelligence"
+requires-python = ">=3.11"
 dependencies = [
     "nibabel",
     "nilearn",
@@ -16,84 +15,15 @@ dependencies = [
     "pandas",
     "numpy",
     "openneuro-py",
-    "dipy",
-    "pytest",
-    "matplotlib",
-    "seaborn",
-    "pyyaml",
-    "requests"
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest-cov"
+    "dipy"
 ]
 
 [tool.black]
-line-length = 100
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.git
-    | \.venv
-    | venv
-    | \.mypy_cache
-    | \.pytest_cache
-    | __pycache__
-    | data
-    | reports
-)/
-'''
+line-length = 88
+target-version = ['py311']
 
 [tool.ruff]
-# Same line length as black
-line-length = 100
-target-version = "py39"
-
-# Exclude directories
-exclude = [
-    ".git",
-    ".venv",
-    "venv",
-    ".mypy_cache",
-    ".pytest_cache",
-    "__pycache__",
-    "data",
-    "reports",
-    "build",
-    "dist"
-]
-
-[tool.ruff.lint]
-# Enable specific rule sets
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-    "C901", # Too complex (allow for now in scientific code)
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
-force-single-line = false
-lines-after-imports = 2
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --tb=short"
-
-[tool.setuptools]
-packages = ["code", "code.utils", "code.tests"]
+select = ['E', 'F', 'W']
+ignore = []
+line-length = 88
+target-version = 'py311'

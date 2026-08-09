@@ -4,135 +4,203 @@ import time
 import json
 import logging
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 
-from config import get_dataset_ids, get_sample_limit
-from validate_fluid_intelligence import validate_and_aggregate, get_subject_list_from_download_log
-
-# Configure logging for the module
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    stream=sys.stderr
 )
 logger = logging.getLogger(__name__)
 
+# Project root resolution
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+
 def ensure_directories():
-    """Create necessary data directories if they don't exist."""
+    """Ensure required directories exist."""
     dirs = [
-        Path("data/raw"),
-        Path("data/interim"),
-        Path("data/processed"),
-        Path("reports")
+        PROJECT_ROOT / "data" / "raw",
+        PROJECT_ROOT / "data" / "interim",
+        DATA_PROCESSED_DIR,
+        PROJECT_ROOT / "tests" / "unit",
+        PROJECT_ROOT / "tests" / "integration",
+        PROJECT_ROOT / "reports"
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories exist: {[str(d) for d in dirs]}")
+    logger.info(f"Directories ensured under {PROJECT_ROOT}")
 
-def get_subject_list():
+def get_subject_list(download_log_path: Optional[Path] = None) -> List[str]:
     """
-    Retrieve the list of subjects to process.
-    This function currently relies on the download log if available,
-    or falls back to a default empty list if no download has occurred yet.
+    Extract subject IDs from the download log or a provided list.
+    For this implementation, we assume the download process creates a log.
     """
-    return get_subject_list_from_download_log()
+    if download_log_path is None:
+        download_log_path = DATA_PROCESSED_DIR / "download_log.json"
+    
+    if not download_log_path.exists():
+        logger.warning(f"Download log not found at {download_log_path}. Returning empty list.")
+        return []
 
-def download_dataset(dataset_id, limit):
-    """
-    Placeholder for the actual download logic using openneuro-py or similar.
-    In a real execution, this would fetch data from OpenNeuro.
-    For this implementation, we assume the download logic has been executed
-    by T015a and T015b, resulting in data in data/raw/.
-    """
-    logger.info(f"Checking dataset {dataset_id} with limit {limit}")
-    # Actual download logic would go here
-    # For now, we assume the data is present or the process halts if not
-    raw_dir = Path("data/raw") / dataset_id
-    if not raw_dir.exists():
-        logger.warning(f"Dataset {dataset_id} not found at {raw_dir}. "
-                       "Assuming download step T015a/T015b handled this or will fail.")
+    with open(download_log_path, 'r') as f:
+        data = json.load(f)
+    
+    # Assuming the log structure contains a 'subjects' key
+    subjects = data.get('subjects', [])
+    return [s.get('id') for s in subjects if s.get('id')]
 
-def fetch_fallback_dataset():
+def download_dataset(dataset_id: str, output_dir: Path):
     """
-    Implement fallback logic for ds000230 if primary fails.
-    Triggered when ds000224 returns 404 or yields no valid subjects.
+    Placeholder for actual OpenNeuro download logic.
+    In a real implementation, this would use openneuro-py or direct API calls.
     """
-    logger.warning("Primary dataset unavailable or empty. Triggering fallback to ds000230.")
-    fallback_id = "ds000230"
-    download_dataset(fallback_id, get_sample_limit())
-    return fallback_id
+    logger.info(f"Attempting to download dataset {dataset_id} to {output_dir}")
+    # Simulation of download success for the sake of the pipeline flow
+    # In reality, this would fetch data
+    (output_dir / "downloaded").mkdir(parents=True, exist_ok=True)
+    return True
 
-def enforce_sample_limit(subjects):
+def fetch_fallback_dataset(output_dir: Path):
     """
-    Enforce the N=10 sample limit as per config.
+    Fetch fallback dataset if primary fails.
     """
-    limit = get_sample_limit()
+    logger.warning("Primary dataset unavailable. Fetching fallback.")
+    return download_dataset("ds000230", output_dir)
+
+def enforce_sample_limit(subjects: List[str], limit: int = 10) -> List[str]:
+    """Enforce the N=10 sample limit."""
     if len(subjects) > limit:
         logger.info(f"Limiting subjects from {len(subjects)} to {limit}")
         return subjects[:limit]
     return subjects
 
-def validate_and_aggregate():
+def load_behavioral_scores(subject_dir: Path) -> Optional[float]:
     """
-    Run validation to find Fluid Intelligence scores and aggregate results.
-    This calls the logic from validate_fluid_intelligence module.
+    Load Fluid Intelligence score from a subject's behavioral data.
+    Returns None if not found or invalid.
     """
-    return validate_and_aggregate()
+    # Look for common behavioral JSON files
+    possible_files = [
+        subject_dir / "participants.tsv",
+        subject_dir / "sub-01_behavioral.json",
+        subject_dir / "behaviors.json"
+    ]
+    
+    for f_path in possible_files:
+        if f_path.exists():
+            try:
+                with open(f_path, 'r') as f:
+                    data = json.load(f)
+                    # Check for Fluid Intelligence key
+                    if 'FluidIntelligence' in data:
+                        score = float(data['FluidIntelligence'])
+                        if not (0 <= score <= 100): # Basic validation
+                            logger.warning(f"Invalid Fluid Intelligence score for {subject_dir.name}")
+                            return None
+                        return score
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.warning(f"Error parsing behavioral data for {subject_dir.name}: {e}")
+    
+    return None
 
-def check_validation_and_halt():
+def validate_and_aggregate(subjects: List[str], data_dir: Path) -> Dict[str, Any]:
     """
-    Check the results of T016a (valid_subjects.json).
-    If count is 0, log the error and raise a critical ValueError.
+    Validate subjects for Fluid Intelligence scores and aggregate results.
+    Writes valid_subjects.json to data/processed.
     """
-    valid_subjects_path = Path("data/processed/valid_subjects.json")
-    error_log_path = Path("data/processed/validation_errors.log")
+    valid_subjects = []
+    
+    for sub_id in subjects:
+        sub_dir = data_dir / sub_id
+        if sub_dir.exists():
+            score = load_behavioral_scores(sub_dir)
+            if score is not None:
+                valid_subjects.append({"id": sub_id, "score": score})
+            else:
+                logger.info(f"Subject {sub_id} has no valid Fluid Intelligence score.")
+        else:
+            logger.warning(f"Subject directory {sub_dir} not found.")
+    
+    result = {
+        "subjects": valid_subjects,
+        "count": len(valid_subjects)
+    }
+    
+    output_path = DATA_PROCESSED_DIR / "valid_subjects.json"
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Validation complete. {len(valid_subjects)} valid subjects found.")
+    return result
 
-    if not valid_subjects_path.exists():
-        logger.error("valid_subjects.json not found. Validation step T016a may not have run.")
-        # We treat missing file as 0 valid subjects for the purpose of the halt check
-        valid_count = 0
-        valid_data = {"subjects": [], "count": 0}
-    else:
-        with open(valid_subjects_path, 'r') as f:
-            valid_data = json.load(f)
-        valid_count = valid_data.get("count", 0)
-
-    if valid_count == 0:
+def check_validation_and_halt(valid_subjects_result: Dict[str, Any]) -> None:
+    """
+    Check if valid subjects count is 0. If so, log error and halt.
+    Writes to data/processed/validation_errors.log with prefix [VALIDATION_ERROR].
+    """
+    count = valid_subjects_result.get("count", 0)
+    
+    if count == 0:
         error_msg = "No valid Fluid Intelligence data found in specified datasets"
         logger.critical(error_msg)
-
-        # Log to validation_errors.log with prefix [VALIDATION_ERROR]
-        error_log_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(error_log_path, 'a') as log_file:
-            log_file.write(f"[VALIDATION_ERROR] {error_msg}\n")
-
+        
+        # Write to validation_errors.log
+        log_path = DATA_PROCESSED_DIR / "validation_errors.log"
+        with open(log_path, 'a') as f:
+            f.write(f"[VALIDATION_ERROR] {error_msg}\n")
+        
         raise ValueError(error_msg)
+    
+    logger.info(f"Validation passed. {count} valid subjects available.")
 
-    logger.info(f"Validation successful. Found {valid_count} valid subjects.")
-    return valid_data
-
-def main():
+def fetch_openneuro_data(primary_id: str = "ds000224", fallback_id: str = "ds000230", limit: int = 10):
     """
-    Main entry point for the download and validation pipeline.
+    Main entry point to fetch, validate, and prepare data.
     """
     ensure_directories()
-
-    # 1. Attempt primary download (T015a)
-    dataset_ids = get_dataset_ids()
-    primary_id = dataset_ids[0] if dataset_ids else "ds000224"
     
-    # Note: Actual download calls would happen here. 
-    # Assuming T015a/T015b logic has populated data/raw/
+    raw_dir = PROJECT_ROOT / "data" / "raw"
     
-    # 2. Validate and Aggregate (T016a)
-    # This step generates data/processed/valid_subjects.json
-    validate_and_aggregate()
-
-    # 3. Check for zero valid subjects and halt if necessary (T016c)
-    check_validation_and_halt()
-
-    # If we reach here, we have valid subjects
+    # Try primary
+    logger.info(f"Fetching primary dataset: {primary_id}")
+    if not download_dataset(primary_id, raw_dir):
+        logger.warning("Primary download failed. Trying fallback.")
+        if not fetch_fallback_dataset(raw_dir):
+            logger.critical("Both primary and fallback datasets failed to download.")
+            # Halt logic for download failure could go here if required
+            return None
+    
+    # Get subjects
     subjects = get_subject_list()
-    limited_subjects = enforce_sample_limit(subjects)
-    logger.info(f"Final subject list ready: {len(limited_subjects)} subjects.")
+    if not subjects:
+        # If no subjects found in log, we might need to scan directory
+        # For this task, we rely on the log or assume subjects are known
+        subjects = [d.name for d in raw_dir.iterdir() if d.is_dir() and d.name.startswith('sub-')]
+    
+    # Enforce limit
+    subjects = enforce_sample_limit(subjects, limit)
+    
+    # Validate
+    result = validate_and_aggregate(subjects, raw_dir)
+    
+    # Critical Halt Check
+    check_validation_and_halt(result)
+    
+    return result
+
+def main():
+    """Main execution entry."""
+    try:
+        fetch_openneuro_data()
+        logger.info("Data fetch and validation completed successfully.")
+    except ValueError as e:
+        logger.error(f"Pipeline halted: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

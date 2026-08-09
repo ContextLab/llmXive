@@ -6,6 +6,8 @@ pandas
 numpy
 openneuro-py
 dipy
+python-louvain
 pytest
 matplotlib
 seaborn
+pyyaml

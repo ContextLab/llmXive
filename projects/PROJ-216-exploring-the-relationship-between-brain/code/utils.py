@@ -98,15 +98,15 @@ class ResourceMonitor:
                     subject_peaks[s.subject_id] = max(subject_peaks[s.subject_id], s.ram_gb)
             
             profile = {
-                "peak_ram_gb": peak_ram,
-                "total_runtime_hours": total_runtime,
+                "peak_ram_gb": float(peak_ram),
+                "total_runtime_hours": float(total_runtime),
                 "subject_count": len(subject_peaks),
-                "subject_peak_ram_gb": subject_peaks,
+                "subject_peak_ram_gb": {k: float(v) for k, v in subject_peaks.items()},
                 "snapshots": [
                     {
                         "subject_id": s.subject_id,
-                        "ram_gb": s.ram_gb,
-                        "timestamp": s.timestamp
+                        "ram_gb": float(s.ram_gb),
+                        "timestamp": float(s.timestamp)
                     }
                     for s in self.snapshots
                 ]

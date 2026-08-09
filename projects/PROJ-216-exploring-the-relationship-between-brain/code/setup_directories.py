@@ -3,69 +3,62 @@ import sys
 import time
 from pathlib import Path
 from typing import List
+import datetime
 
-def create_directories(base_path: Path, directories: List[str]) -> List[Path]:
-    """
-    Create a list of directories relative to the base_path.
-    Returns a list of the created Path objects.
-    """
-    created_paths = []
-    for dir_name in directories:
-        full_path = base_path / dir_name
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(full_path)
-    return created_paths
+def create_directories(base_paths: List[str]) -> None:
+    """Create the required directory structure."""
+    for p in base_paths:
+        os.makedirs(p, exist_ok=True)
 
-def verify_directories(paths: List[Path]) -> bool:
-    """
-    Verify that all provided paths exist and are directories.
-    """
-    return all(p.exists() and p.is_dir() for p in paths)
+def verify_directories(base_paths: List[str]) -> bool:
+    """Verify that all required directories exist."""
+    for p in base_paths:
+        if not os.path.isdir(p):
+            return False
+    return True
 
-def generate_verification_log(paths: List[Path], log_path: Path) -> None:
-    """
-    Generate a log file containing the list of created paths and their timestamps.
-    """
-    with open(log_path, 'w') as f:
-        f.write("Directory Verification Log\n")
-        f.write(f"Generated at: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write("-" * 40 + "\n")
-        for p in paths:
-            f.write(f"Path: {p}\n")
-            f.write(f"Exists: {p.exists()}\n")
-            f.write(f"Is Directory: {p.is_dir()}\n")
-            f.write("-" * 20 + "\n")
-
-def main():
-    """
-    Main entry point for T001: Initialize Data Directory Structure.
-    Creates required directories and generates the verification log.
-    """
-    project_root = Path(__file__).resolve().parent.parent
+def generate_verification_log(base_paths: List[str], log_path: str) -> None:
+    """Write a verification log with timestamps for each directory."""
+    entries = []
+    for p in base_paths:
+        # Ensure the directory exists before logging (idempotent)
+        os.makedirs(p, exist_ok=True)
+        timestamp = datetime.datetime.now().isoformat()
+        entries.append(f"{p}:{timestamp}")
     
-    # Define required directories
-    required_dirs = [
-        "data/raw",
-        "data/interim",
-        "data/processed",
-        "tests/unit",
-        "tests/integration",
-        "reports"
+    # Ensure the data directory exists before writing the log file
+    log_dir = os.path.dirname(log_path)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+    
+    with open(log_path, 'w') as f:
+        f.write('\n'.join(entries))
+
+def main() -> int:
+    """Main entry point for directory initialization."""
+    paths = [
+        'data/raw',
+        'data/interim',
+        'data/processed',
+        'tests/unit',
+        'tests/integration',
+        'reports'
     ]
     
     # Create directories
-    created_paths = create_directories(project_root, required_dirs)
+    create_directories(paths)
     
     # Verify creation
-    if not verify_directories(created_paths):
-        print("Error: Failed to create one or more required directories.", file=sys.stderr)
-        sys.exit(1)
+    if not verify_directories(paths):
+        print("ERROR: Failed to create all required directories.", file=sys.stderr)
+        return 1
     
     # Generate verification log
-    log_path = project_root / "data" / ".verify_structure.log"
-    generate_verification_log(created_paths, log_path)
+    log_path = 'data/.verify_structure.log'
+    generate_verification_log(paths, log_path)
     
-    print(f"Successfully created directories and log at: {log_path}")
+    print(f"Successfully created directories and verification log: {log_path}")
+    return 0
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

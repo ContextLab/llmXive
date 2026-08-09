@@ -2,94 +2,95 @@ import os
 import sys
 import csv
 import json
-import pytest
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.aggregate_graph_metrics import (
-    load_preprocessed_subjects,
-    aggregate_metrics_to_csv,
-    main,
-)
+from aggregate_graph_metrics import load_preprocessed_subjects, aggregate_metrics_to_csv, main
 
-
-class TestLoadPreprocessedSubjects:
-    def test_load_preprocessed_subjects_found(self, tmp_path):
-        # Create mock directory structure
-        sub_dir = tmp_path / "sub-01"
-        sub_dir.mkdir()
-        nifti = sub_dir / "preprocessed.nii.gz"
-        nifti.touch()
-
-        subjects = load_preprocessed_subjects(tmp_path, ["sub-01"])
-        assert len(subjects) == 1
-        assert subjects[0]["subject_id"] == "sub-01"
-        assert subjects[0]["nifti_path"] == str(nifti)
-
-    def test_load_preprocessed_subjects_missing(self, tmp_path, capsys):
-        # Create directory but no file
-        sub_dir = tmp_path / "sub-02"
-        sub_dir.mkdir()
-
-        subjects = load_preprocessed_subjects(tmp_path, ["sub-02"])
-        captured = capsys.readouterr()
-        assert "Warning" in captured.out
-        assert len(subjects) == 0
-
-
-class TestAggregateMetricsToCsv:
-    def test_aggregate_metrics_to_csv(self, tmp_path):
-        # Mock subjects
-        subjects = [
-            {"subject_id": "sub-01", "nifti_path": str(tmp_path / "fake.nii.gz")}
+class TestAggregateGraphMetrics:
+    def test_aggregate_metrics_to_csv_creates_file(self, tmp_path):
+        """Test that aggregate_metrics_to_csv creates a valid CSV file."""
+        metrics = [
+            {"subject_id": "sub-001", "metric_name": "global_efficiency", "value": 0.45},
+            {"subject_id": "sub-001", "metric_name": "clustering_coefficient", "value": 0.32},
+            {"subject_id": "sub-002", "metric_name": "global_efficiency", "value": 0.48},
         ]
+        
+        output_path = tmp_path / "test_metrics.csv"
+        aggregate_metrics_to_csv(metrics, output_path)
+        
+        assert output_path.exists(), "CSV file was not created"
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+        assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"
+        assert rows[0]['subject_id'] == 'sub-001'
+        assert rows[0]['metric_name'] == 'global_efficiency'
+        assert float(rows[0]['value']) == 0.45
+        
+        assert rows[1]['metric_name'] == 'clustering_coefficient'
+        assert rows[2]['subject_id'] == 'sub-002'
 
-        # Mock compute_graph_metrics
-        with patch("code.aggregate_graph_metrics.compute_graph_metrics") as mock_compute:
-            mock_compute.return_value = {
-                "global_efficiency": 0.5,
-                "clustering_coefficient": 0.3,
-                "modularity": 0.4,
-            }
+    def test_aggregate_metrics_empty_list(self, tmp_path):
+        """Test handling of empty metrics list."""
+        output_path = tmp_path / "empty_metrics.csv"
+        aggregate_metrics_to_csv([], output_path)
+        
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            content = f.read()
+        assert "subject_id,metric_name,value" in content
+        assert len(content.strip().split('\n')) == 1  # Only header
 
-            output_path = tmp_path / "output.csv"
-            aggregate_metrics_to_csv(subjects, output_path)
+    def test_load_preprocessed_subjects_no_directory(self, tmp_path):
+        """Test loading when processed directory does not exist."""
+        nonexistent_dir = tmp_path / "nonexistent"
+        subjects = load_preprocessed_subjects(nonexistent_dir)
+        assert subjects == []
 
-            assert output_path.exists()
+    def test_load_preprocessed_subjects_filters_correctly(self, tmp_path):
+        """Test that load_preprocessed_subjects correctly identifies subject directories."""
+        # Create mock subject directories
+        sub1 = tmp_path / "sub-001"
+        sub1.mkdir()
+        (sub1 / "sub-001_desc-preproc_bold.nii.gz").touch()
+        
+        sub2 = tmp_path / "sub-002"
+        sub2.mkdir()
+        (sub2 / "sub-002_desc-preproc_bold.nii.gz").touch()
+        
+        # Create a non-subject directory
+        other = tmp_path / "logs"
+        other.mkdir()
+        
+        subjects = load_preprocessed_subjects(tmp_path, max_subjects=10)
+        
+        assert len(subjects) == 2
+        assert subjects[0]['subject_id'] == 'sub-001'
+        assert subjects[1]['subject_id'] == 'sub-002'
+        
+        # Verify file paths exist
+        assert Path(subjects[0]['file_path']).exists()
+        assert Path(subjects[1]['file_path']).exists()
 
-            with open(output_path, "r") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-
-            assert len(rows) == 3
-            assert rows[0]["subject_id"] == "sub-01"
-            assert rows[0]["metric_name"] == "global_efficiency"
-            assert rows[0]["value"] == "0.5"
-
-
-class TestMain:
-    @patch("code.aggregate_graph_metrics.load_preprocessed_subjects")
-    @patch("code.aggregate_graph_metrics.aggregate_metrics_to_csv")
-    @patch("code.aggregate_graph_metrics.get_sample_limit")
-    def test_main_success(
-        self, mock_get_limit, mock_agg, mock_load, tmp_path, monkeypatch
-    ):
-        # Setup mocks
-        mock_get_limit.return_value = {"n": 10}
-        mock_load.return_value = [{"subject_id": "sub-01", "nifti_path": "fake.nii"}]
-
-        # Change to tmp_dir for file writing
-        monkeypatch.chdir(tmp_path)
-
-        # Create necessary dirs
-        (tmp_path / "data" / "processed").mkdir(parents=True)
-
-        # Run main
-        main()
-
-        mock_load.assert_called_once()
-        mock_agg.assert_called_once()
+    def test_load_preprocessed_subjects_respects_limit(self, tmp_path):
+        """Test that max_subjects limit is respected."""
+        for i in range(1, 6):
+            sub_dir = tmp_path / f"sub-{i:03d}"
+            sub_dir.mkdir()
+            (sub_dir / f"sub-{i:03d}_desc-preproc_bold.nii.gz").touch()
+        
+        # Request only 3 subjects
+        subjects = load_preprocessed_subjects(tmp_path, max_subjects=3)
+        assert len(subjects) == 3
+        assert subjects[2]['subject_id'] == 'sub-003'
+        
+        # Request all
+        subjects = load_preprocessed_subjects(tmp_path, max_subjects=10)
+        assert len(subjects) == 5
