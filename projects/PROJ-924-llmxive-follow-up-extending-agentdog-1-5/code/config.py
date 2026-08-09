@@ -1,8 +1,8 @@
 """
 Configuration management for the llmXive Drift Detection pipeline.
 
-This module centralizes project-wide settings including random seeds,
-memory limits, batch sizes, and path resolution.
+This module centralizes random seeds, path configurations, and batch sizes
+to ensure reproducibility and consistent resource management across the project.
 """
 import os
 import random
@@ -16,44 +16,28 @@ RANDOM_SEED = 42
 MAX_RAM_GB = 7
 BATCH_SIZE = 64
 
-# --- Project Root Resolution ---
-# Determine the project root based on the current working directory structure.
-# We assume the code runs from the project root or a subdirectory.
-def _get_project_root() -> Path:
-    """
-    Locate the project root directory.
-    
-    Strategy:
-    1. If running from 'projects/PROJ-.../code', go up two levels.
-    2. If running from 'projects/PROJ-...', go up one level.
-    3. Default to current working directory if not found.
-    """
-    cwd = Path.cwd()
-    
-    # Check if we are deep in the project structure
-    if cwd.name == 'code' and cwd.parent.name.startswith('PROJ-924'):
-        return cwd.parent.parent
-    
-    if cwd.name.startswith('PROJ-924'):
-        return cwd
-        
-    return cwd
+# --- Project Paths ---
+# Base directory is the project root
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-PROJECT_ROOT = _get_project_root()
-
-# --- Global State ---
+# --- Internal State ---
 _config: Dict[str, Any] = {
     "random_seed": RANDOM_SEED,
     "max_ram_gb": MAX_RAM_GB,
     "batch_size": BATCH_SIZE,
-    "project_root": PROJECT_ROOT,
+    "project_root": _PROJECT_ROOT,
+    "data_raw_dir": _PROJECT_ROOT / "data" / "raw",
+    "data_processed_dir": _PROJECT_ROOT / "data" / "processed",
+    "data_test_dir": _PROJECT_ROOT / "data" / "test",
+    "code_dir": _PROJECT_ROOT / "code",
+    "specs_dir": _PROJECT_ROOT / "specs",
+    "docs_dir": _PROJECT_ROOT / "docs",
 }
 
-# --- Helper Functions ---
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set the random seed for reproducibility across numpy, random, and torch (if available).
+    Set the random seed for reproducibility across numpy, python random, and torch (if available).
     
     Args:
         seed: The seed value. Defaults to RANDOM_SEED if None.
@@ -64,22 +48,28 @@ def set_seed(seed: Optional[int] = None) -> None:
     random.seed(seed)
     np.random.seed(seed)
     
+    # Update internal config
+    _config["random_seed"] = seed
+    
+    # Attempt to set torch seed if available
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
     except ImportError:
-        pass  # PyTorch not installed, skip
+        pass
+
 
 def get_config() -> Dict[str, Any]:
     """
-    Return the current configuration dictionary.
+    Get the current configuration dictionary.
     
     Returns:
-        A copy of the configuration dictionary.
+        A copy of the current configuration.
     """
     return _config.copy()
+
 
 def update_config(key: str, value: Any) -> None:
     """
@@ -91,56 +81,81 @@ def update_config(key: str, value: Any) -> None:
     """
     _config[key] = value
 
+
 def get_config_summary() -> str:
     """
-    Generate a human-readable summary of the current configuration.
+    Get a human-readable summary of the configuration.
     
     Returns:
-        A formatted string of key configuration values.
+        A string containing key configuration values.
     """
-    lines = [
-        f"Configuration Summary:",
-        f"  Random Seed: {_config['random_seed']}",
-        f"  Max RAM (GB): {_config['max_ram_gb']}",
-        f"  Batch Size: {_config['batch_size']}",
-        f"  Project Root: {_config['project_root']}",
+    return (
+        f"Random Seed: {_config['random_seed']}\n"
+        f"Max RAM (GB): {_config['max_ram_gb']}\n"
+        f"Batch Size: {_config['batch_size']}\n"
+        f"Project Root: {_config['project_root']}"
+    )
+
+
+def get_path(relative_path: Optional[str] = None) -> Path:
+    """
+    Resolve a path relative to the project root or a specific directory.
+    
+    Args:
+        relative_path: Optional relative path string. If None, returns project root.
+        
+    Returns:
+        A resolved Path object.
+    """
+    if relative_path is None:
+        return _config["project_root"]
+    
+    return _config["project_root"] / relative_path
+
+
+def get_output_path(output_type: str, filename: str) -> Path:
+    """
+    Get the output path for a specific type of artifact.
+    
+    Args:
+        output_type: Type of output (e.g., 'raw', 'processed', 'test').
+        filename: Name of the file.
+        
+    Returns:
+        Resolved Path to the output file.
+        
+    Raises:
+        ValueError: If the output_type is not recognized.
+    """
+    path_map = {
+        "raw": _config["data_raw_dir"],
+        "processed": _config["data_processed_dir"],
+        "test": _config["data_test_dir"],
+    }
+    
+    if output_type not in path_map:
+        raise ValueError(f"Unknown output type: {output_type}. Valid types: {list(path_map.keys())}")
+        
+    return path_map[output_type] / filename
+
+
+def ensure_directories() -> None:
+    """
+    Ensure all required directories exist in the project structure.
+    Creates them if they do not exist.
+    """
+    dirs_to_create = [
+        _config["data_raw_dir"],
+        _config["data_processed_dir"],
+        _config["data_test_dir"],
+        _config["code_dir"],
+        _config["specs_dir"],
+        _config["docs_dir"],
     ]
-    return "\n".join(lines)
-
-def get_path(relative_path: str) -> Path:
-    """
-    Resolve a relative path against the project root.
     
-    Args:
-        relative_path: Path relative to the project root.
-        
-    Returns:
-        An absolute Path object.
-    """
-    return _config['project_root'] / relative_path
+    for dir_path in dirs_to_create:
+        dir_path.mkdir(parents=True, exist_ok=True)
 
-def get_output_path(relative_path: str) -> Path:
-    """
-    Resolve an output path relative to the project root.
-    
-    Args:
-        relative_path: Path relative to the project root.
-        
-    Returns:
-        An absolute Path object.
-    """
-    return get_path(relative_path)
-
-def ensure_directories(paths: List[str]) -> None:
-    """
-    Ensure that the specified directories exist.
-    
-    Args:
-        paths: List of relative paths to ensure exist.
-    """
-    for path_str in paths:
-        full_path = get_path(path_str)
-        full_path.mkdir(parents=True, exist_ok=True)
 
 def get_batch_size() -> int:
     """
@@ -149,26 +164,28 @@ def get_batch_size() -> int:
     Returns:
         The batch size integer.
     """
-    return _config['batch_size']
+    return _config["batch_size"]
+
 
 def get_max_memory_gb() -> int:
     """
-    Get the configured maximum RAM limit in GB.
+    Get the configured maximum RAM in GB.
     
     Returns:
         The max RAM integer.
     """
-    return _config['max_ram_gb']
+    return _config["max_ram_gb"]
+
 
 def get_drift_threshold() -> float:
     """
     Get the default drift threshold.
-    Currently defaults to 0.5, but can be configured.
     
     Returns:
-        The threshold float.
+        The drift threshold float.
     """
-    return 0.5
+    return 0.8
+
 
 def get_centroid_model() -> str:
     """
@@ -179,14 +196,12 @@ def get_centroid_model() -> str:
     """
     return "sentence-transformers/all-MiniLM-L6-v2"
 
+
 def get_baseline_model() -> str:
     """
-    Get the default baseline model name (Flan-T5).
+    Get the default baseline model name.
     
     Returns:
         The model name string.
     """
     return "google/flan-t5-small"
-
-# Initialize seed on module load
-set_seed()

@@ -1,84 +1,123 @@
 """
-Directory creation and verification utility for llmXive project.
-Creates the required project structure and verifies existence.
+Module to initialize the project directory structure for llmXive Follow-up.
+Creates all required directories as defined in T001a.
 """
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 
-def ensure_directories(
-    base_path: Optional[Path] = None,
-    directories: Optional[List[str]] = None
-) -> List[Path]:
+def ensure_directories(root_path: str = None) -> List[str]:
     """
-    Ensure a list of directories exist under the base path.
-    Creates them if they don't exist and verifies creation.
+    Creates the required directory structure for the project.
 
     Args:
-        base_path: Root directory for the project (defaults to project root).
-        directories: List of relative directory paths to create.
+        root_path: The base path for the project. Defaults to the current directory
+                   if None, but typically should be the project root.
 
     Returns:
-        List of created/verified Path objects.
-
-    Raises:
-        OSError: If a directory cannot be created or verified.
+        A list of created directory paths.
     """
-    if base_path is None:
-        base_path = Path(__file__).resolve().parent.parent
+    if root_path is None:
+        root_path = Path.cwd()
+    else:
+        root_path = Path(root_path)
 
-    if directories is None:
-        # Default project structure based on tasks.md
-        directories = [
-            "code",
-            "tests",
-            "data/raw",
-            "data/processed",
-            "data/test",
-            "specs",
-            "docs",
-            "specs/001-llmxive-drift-detection"
-        ]
+    # Define relative paths based on T001a requirements
+    # Note: The task specifies paths relative to the project root, but since this
+    # script might be run from the root, we construct them relative to the root_path.
+    # The task lists:
+    # projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/
+    # tests/
+    # data/raw/
+    # data/processed/
+    # data/test/
+    # specs/
+    # docs/
+    # specs/001-llmxive-drift-detection/
+
+    # Based on the task description, the project root is `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/`
+    # However, the task says "Initialize project directory structure: Create ... `projects/.../code/`".
+    # This implies the script might be run from a parent directory, or the paths are relative to the repo root.
+    # Given the "Path Conventions" section: "Paths shown below assume single project structure per plan.md"
+    # and the task explicitly lists the full path `projects/PROJ-.../code/`, we will create these relative to the provided root.
+    # If root_path is the repo root, we create the project folder.
+    # If root_path is the project folder, we create the subfolders.
+    # To be safe and match the task literal requirement "Create ... `projects/.../code/`", we assume root_path is the repo root.
+    
+    # Let's assume the script is run from the repo root (or passed the repo root).
+    # The task requires:
+    # `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`
+    # `tests/` (relative to project root? or repo root? T001b test_directories_exist suggests relative to project root usually, but T001a lists full path)
+    # Looking at T001a: "Create and verify directories `projects/.../code/`, `tests/`, `data/raw/`..."
+    # The mix of full path and relative paths suggests `tests/`, `data/`, `specs/`, `docs/` are relative to the project root.
+    # So:
+    # Project Root = `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/`
+    # We need to create:
+    # 1. `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/` (This is Project Root + code)
+    # 2. `tests/` (Relative to Project Root)
+    # 3. `data/raw/`
+    # 4. `data/processed/`
+    # 5. `data/test/`
+    # 6. `specs/`
+    # 7. `docs/`
+    # 8. `specs/001-llmxive-drift-detection/`
+
+    # To make this robust, we will assume the `root_path` passed is the REPO ROOT.
+    # Then the project directory is `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5`.
+    
+    project_name = "PROJ-924-llmxive-follow-up-extending-agentdog-1-5"
+    project_dir = root_path / "projects" / project_name
+    
+    # Ensure the project directory exists first
+    project_dir.mkdir(parents=True, exist_ok=True)
+    
+    relative_dirs = [
+        "code",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "data/test",
+        "specs",
+        "docs",
+        "specs/001-llmxive-drift-detection"
+    ]
 
     created_paths = []
-
-    for dir_path in directories:
-        full_path = base_path / dir_path
-
-        # Create directory if it doesn't exist
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-
-        # Verify creation
-        if not full_path.exists():
-            raise OSError(f"Failed to create directory: {full_path}")
-
-        if not full_path.is_dir():
-            raise OSError(f"Path exists but is not a directory: {full_path}")
-
-        created_paths.append(full_path)
-
+    for rel_dir in relative_dirs:
+        dir_path = project_dir / rel_dir
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(str(dir_path))
+    
     return created_paths
 
-
 def main():
-    """Main entry point for directory creation script."""
-    import sys
-
-    project_root = Path(__file__).resolve().parent.parent
-    print(f"Project root: {project_root}")
-
-    try:
-        created = ensure_directories(project_root)
-        print(f"Successfully created/verified {len(created)} directories:")
-        for path in created:
-            print(f"  - {path.relative_to(project_root)}")
-        return 0
-    except OSError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
-
+    """Entry point for creating directory structure."""
+    # Default to current working directory as the repo root
+    root = Path.cwd()
+    print(f"Creating directory structure in: {root}")
+    
+    created = ensure_directories(root)
+    
+    print("Successfully created directories:")
+    for p in created:
+        print(f"  - {p}")
+    
+    # Verify existence (Acceptance Criteria)
+    print("\nVerifying existence...")
+    all_exist = True
+    for p in created:
+        if not os.path.exists(p):
+            print(f"  ERROR: {p} does not exist!")
+            all_exist = False
+        else:
+            print(f"  OK: {p}")
+    
+    if all_exist:
+        print("\nAll directories verified successfully.")
+    else:
+        print("\nVerification failed.")
+        exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

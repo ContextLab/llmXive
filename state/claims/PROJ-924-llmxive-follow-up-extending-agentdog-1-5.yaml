@@ -4651,3 +4651,1240 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T16:41:55Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Flan-T5 baseline proxy AUC must be greater than 0.70
+  claim_id: c_4acac674
+  context: 'Action: Run Flan-T5 on a small subset (e.g., 100 logs) and compare against
+    the proxy labels. Output: data/processed/flan_proxy_validation.json. Acceptance
+    Criteria: The proxy AUC must be > 0.70 to be considered a valid baseline substitute.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flan-T5_baseline_proxy_AUC_must_be_greater_than_0.70
+  kind: magnitude
+  raw_text: The proxy AUC must be > 0.70 to be considered a valid baseline substitute.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:14:51Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Kappa threshold for human annotation validation is 0.6
+  claim_id: c_76028222
+  context: '3. Threshold: Kappa > 0.6. IF Kappa < 0.6, raise a ValueError, write kappa_failed.json
+    artifact with error details, update state/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5.yaml
+    to set current_stage: unproven, and DO NOT proceed with data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If Kappa < 0.6, raise a ValueError, write kappa_failed.json artifact
+    with error details, update state/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5.yaml
+    to set current_stage: unproven, and DO NOT proceed with data.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:14:52Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Performance benchmark run on 10000 logs
+  claim_id: c_10df7e24
+  context: 'Action: Execute benchmark script on a subset (e.g., 10k logs) to measure
+    performance. Output: Raw performance metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the benchmark on a subset (e.g., 10k logs) to measure performance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:15:22Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Bootstrap iteration outputs timeout_limited flag if time limit reached
+  claim_id: c_f0ba9129
+  context: 'Iterations: A sufficient number of bootstrap iterations OR until standard
+    deviation of AUC-ROC < 0.01 for Multiple consecutive runs OR until a substantial
+    portion of the available CPU time has elapsed (to respect the time limit). Metric:
+    AUC-ROC. Method: Stratified bootstrap sampling. Timeout Handling: If the time
+    limit is reached, output the current best estimate with a timeout_limited: true
+    flag.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_iteration_outputs_timeout_limited_flag_if_time_lim
+  kind: magnitude
+  raw_text: 'If the time limit is reached, output the current best estimate with a
+    timeout_limited: true flag.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:15:52Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Taxonomy centroid generation peak RAM limit is 7GB
+  claim_id: c_d3d31a8f
+  context: 'Implement runtime memory monitoring logic in taxonomy_builder.py using
+    tracemalloc to profile centroid generation and enforce a strict peak RAM limit
+    of < 7GB; raise an exception if exceeded. Acceptance Criteria: Logic raises MemoryError
+    if peak RAM > 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Taxonomy_centroid_generation_peak_RAM_limit_is_7GB
+  kind: entity_fact
+  raw_text: Enforce a strict peak RAM limit of < 7GB; raise an exception if exceeded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:16:24Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Batch log processing must handle datasets within 7GB RAM
+  claim_id: c_5e30fefb
+  context: Implement batch_process_logs function in drift_scoring.py to handle large
+    datasets within 7GB RAM. DEPENDS ON T016c.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_log_processing_must_handle_datasets_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Implement batch_process_logs function in drift_scoring.py to handle large
+    datasets within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:16:45Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Integration test asserts peak memory less than 7GB
+  claim_id: c_c1073052
+  context: Implement test_batch_memory_limit_7gb in projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/integration/test_end_to_end.py
+    using a dataset of logs and asserting peak_memory < 7GB. DEPENDS ON T021b.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_asserts_peak_memory_less_than_7GB
+  kind: magnitude
+  raw_text: Implement test_batch_memory_limit_7gb in projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/integration/test_end_to_end.py
+    using a dataset of logs and asserting peak_memory < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:17:25Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: UUID generation uses deterministic hashing based on namespace and input
+    string
+  claim_id: c_7efc032d
+  context: 'UUID Strategy: Use a deterministic hashing method based on a namespace
+    and input string for generating unique identifiers.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UUID_generation_uses_deterministic_hashing_based_on_namespac
+  kind: entity_fact
+  raw_text: Use a deterministic hashing method based on a namespace and input string
+    for generating unique identifiers.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:17:40Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: fetch_taxonomy function executes network request to canonical raw GitHub
+    URL
+  claim_id: c_550f01d3
+  context: 'Execution Mechanism: The function MUST execute a network request to this
+    URL. If successful, it MUST write the downloaded content to data/raw/taxonomy_agentdog.json.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://www.url.edu'
+      source_id: Q24576
+      url: https://www.wikidata.org/wiki/Q24576
+      value: https://www.url.edu
+    filled: true
+  kind: entity_fact
+  raw_text: The function MUST execute a network request to this URL.
+  resolved_value: https://www.url.edu
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T20:17:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: fetch_taxonomy raises FileNotFoundError if URL returns non-200 status
+  claim_id: c_aee06f25
+  context: 'Constraint: If the URL is unreachable or returns a non-200 status, the
+    function MUST raise FileNotFoundError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the URL is unreachable or returns a non-200 status, the function MUST
+    raise FileNotFoundError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:18:02Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Model output mapping for zero-shot classifier
+  claim_id: c_971c49c6
+  context: 'Output Mapping: Map model outputs ''Yes'', ''novel'', ''1'' to ''novel'';
+    ''No'', ''benign'', ''0'' to ''benign''; anything else to ''unknown'' (exclude
+    from AUC).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Map model outputs 'Yes', 'novel', '1' to 'novel'; 'No', 'benign', '0'
+    to 'benign'; anything else to 'unknown' (exclude from AUC).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:18:36Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Leetspeak edge case test asserts drift score greater than 0.8
+  claim_id: c_49337760
+  context: Implement unit test test_leetspeak_drift_score in projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/unit/test_edge_cases.py
+    using data/test/leetspeak_samples.json; assert drift score > 0.8.
+  evidence:
+    entailment_evidence: Leetspeak edge case test asserts drift score greater than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Leetspeak_edge_case_test_asserts_drift_score_greater_than_0.
+  kind: magnitude
+  raw_text: Assert drift score > 0.8 for leetspeak samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T20:18:53Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Obfuscation edge case test asserts drift score greater than 0.8
+  claim_id: c_d755e1d2
+  context: Implement unit test test_obfuscation_drift_score in projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/unit/test_edge_cases.py
+    using data/test/obfuscated_samples.json; assert drift score > 0.8.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Obfuscation_edge_case_test_asserts_drift_score_greater_than
+  kind: magnitude
+  raw_text: Assert drift score > 0.8 for obfuscated samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:19:14Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Empty log drift score assigned as theoretical maximum, typically 2.0
+  claim_id: c_c4f9644d
+  context: Implement handle_empty_logs function in drift_scoring.py to assign a Drift
+    Score equal to the theoretical maximum cosine distance for the specific embedding
+    model (calculated dynamically based on model normalization properties, typically
+    2.0) and set review_flag to true for empty/whitespace logs.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Assign a Drift Score equal to the theoretical maximum cosine distance
+    for the specific embedding model (calculated dynamically based on model normalization
+    properties, typically 2.0) and set review_flag to true for empty/whitespace logs.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T20:19:15Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Memory monitoring raises MemoryError if peak RAM exceeds 7GB
+  claim_id: c_9e3c49ed
+  context: 'Acceptance Criteria: Logic raises MemoryError if peak RAM > 7GB. Run pytest
+    to confirm test_memory.py passes. (DEPENDS ON T016a execution)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_monitoring_raises_MemoryError_if_peak_RAM_exceeds_7GB
+  kind: entity_fact
+  raw_text: 'Acceptance Criteria: Logic raises MemoryError if peak RAM > 7GB.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:19:37Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Large-scale log dataset fetched from mlfoundations/agent_logs train split
+  claim_id: c_864d6784
+  context: 'Source: Use datasets.load_dataset(''mlfoundations/agent_logs'', split=''train'',
+    streaming=False). Action: Save to data/raw/agent_logs_100k.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Large-scale_log_dataset_fetched_from_mlfoundations/agent_log
+  kind: entity_fact
+  raw_text: Use datasets.load_dataset('mlfoundations/agent_logs', split='train', streaming=False).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:20:08Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Large-scale log dataset saved to agent_logs_100k.csv
+  claim_id: c_b62ab5db
+  context: 'Action: Save to data/raw/agent_logs_100k.csv. Constraint: This file is
+    required for T045a.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Large-scale_log_dataset_saved_to_agent_logs_100k.csv
+  kind: entity_fact
+  raw_text: Save to data/raw/agent_logs_100k.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:20:32Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Centroid embeddings generated using all-MiniLM-L-v2 model
+  claim_id: c_5fbcfe4c
+  context: 'Implement taxonomy_builder.py in projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/
+    to generate centroid embeddings using all-MiniLM-L-v2 (CPU-first, dynamic batching
+    to fit <7GB RAM) using the taxonomy loaded by T012d-fixed (input: data/raw/taxonomy_agentdog.json).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Centroid_embeddings_generated_using_all-MiniLM-L-v2_model
+  kind: entity_fact
+  raw_text: Use 'all-MiniLM-L-v2' (CPU-first, dynamic batching to fit <7GB RAM) using
+    the taxonomy loaded by T012d-fixed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:20:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Config file sets random seed 42, max RAM 7GB, batch size 64
+  claim_id: c_0a9a5874
+  context: 'Create config.py in projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/
+    to manage random seeds, paths, and batch sizes. Acceptance Criteria: File exists,
+    contains RANDOM_SEED=42, MAX_RAM_GB=7, and BATCH_SIZE=64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RANDOM_SEED=42, MAX_RAM_GB=7, and BATCH_SIZE=64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:21:10Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Black formatter line length set to 88
+  claim_id: c_fd7c3506
+  context: 'Create pyproject.toml with EXACT content (including project metadata):
+    [tool.black] line-length = 88 target-version = [''py311'']'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:21:33Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Black formatter target version set to py311
+  claim_id: c_3bbc9616
+  context: 'Create pyproject.toml with EXACT content (including project metadata):
+    [tool.black] line-length = 88 target-version = [''py311'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Black_formatter_target_version_set_to_py311
+  kind: entity_fact
+  raw_text: target-version = ['py311']
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:21:42Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Project version set to 0.1.0
+  claim_id: c_f2ff4073
+  context: 'Create pyproject.toml with EXACT content (including project metadata):
+    [project] name = ''agentdog-drift'' version = ''0.1.0'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: version = '0.1.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:21:57Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Wikidata Q24576 AgentDoG safety taxonomy
+  claim_id: c_b99688ed
+  context: Task T012d-fixed requires implementing fetch_taxonomy function to load
+    the fixed AgentDoG safety taxonomy from a canonical source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q24576_AgentDoG_safety_taxonomy
+  kind: entity_fact
+  raw_text: 'Fetch from canonical raw GitHub URL . **Execution Mechanism**: {{claim:c_550f01d3}}
+    (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:22:56Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Fetch large-scale log dataset from mlfoundations/agent_logs train split
+  claim_id: c_4117df01
+  context: 'T012f [S] Fetch the large-scale log dataset for performance benchmarking.
+    Source: Use datasets.load_dataset(''mlfoundations/agent_logs'', split=''train'',
+    streaming=False).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_large-scale_log_dataset_from_mlfoundations/agent_logs
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is fetched using
+    datasets.load_dataset('mlfoundations/agent_logs', split='train', streaming=False).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:24:19Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG safety taxonomy source is Wikidata Q24576
+  claim_id: c_8831070b
+  context: 'T012d-fixed[S] [CRITICAL FIX] Implement fetch_taxonomy function in data_loader.py
+    to load the fixed AgentDoG safety taxonomy. Source: Fetch from canonical raw GitHub
+    URL. (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_source_is_Wikidata_Q24576
+  kind: entity_fact
+  raw_text: The fixed AgentDoG safety taxonomy is sourced from Wikidata Q24576.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:24:33Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Config sets random seed 42, max RAM 7GB, batch size 64
+  claim_id: c_834f01ce
+  context: 'T011 [S] Create config.py... Acceptance Criteria: File exists, contains
+    RANDOM_SEED=42, MAX_RAM_GB=7, and BATCH_SIZE=64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project configuration sets RANDOM_SEED to 42, MAX_RAM_GB to 7, and
+    BATCH_SIZE to 64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:24:46Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Baseline model substitution uses google/flan-t5-small
+  claim_id: c_d2089158
+  context: 'T000-ScopeAmend [S] [US3] Update Spec for Model Substitution: Amend spec.md
+    to replace the requirement for gpto-mini with google/flan-t5-small in User Story
+    03.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_substitution_uses_google/flan-t5-small
+  kind: entity_fact
+  raw_text: The baseline model substitution uses google/flan-t5-small instead of gpto-mini.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:25:01Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Flan-T5 proxy AUC must be greater than 0.70
+  claim_id: c_ef9cd20f
+  context: 'T039-proxy-validation [S] [US3] ... Acceptance Criteria: The proxy AUC
+    must be > 0.70 to be considered a valid baseline substitute.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flan-T5_proxy_AUC_must_be_greater_than_0.70
+  kind: magnitude
+  raw_text: The baseline AUC proxy validation requires a value greater than 0.70 to
+    be considered valid.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:25:43Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Human annotation Kappa threshold is greater than 0.6
+  claim_id: c_bf7a507a
+  context: 'T035-real [S] [US2] ... Threshold: Kappa > 0.6. IF Kappa < 0.6, raise
+    a ValueError...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_annotation_Kappa_threshold_is_greater_than_0.6
+  kind: magnitude
+  raw_text: The human annotation agreement threshold requires a Cohen's Kappa greater
+    than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:26:24Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: MVP statistical validation requires p < 0.05 and Cohen's d >= 0.5
+  claim_id: c_747505d5
+  context: "The system can be tested by... verifying that the 'Drift Score' distribution\
+    \ is statistically distinguishable between the two groups with p < 0.05 and an\
+    \ effect size (Cohen's d) \u2265 0.5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MVP_statistical_validation_requires_p_%3C_0.05_and_Cohen's_d_%3E
+  kind: magnitude
+  raw_text: The MVP statistical validation requires a p-value less than 0.05 and Cohen's
+    d effect size greater than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:28:26Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Large-scale log benchmark completion time must be under 30 minutes
+  claim_id: c_b4a1ea8f
+  context: "T045a [S] ... run a large-scale log benchmark on data/raw/agent_logs_k.csv\
+    \ ... and assert completion time \u2264 30 minutes (SC-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The large-scale log benchmark must complete within 30 minutes on a GitHub
+    Actions runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:28:43Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Empty log drift score is theoretical maximum cosine distance (typically
+    2.0)
+  claim_id: c_67807bdc
+  context: T021c [S] ... Implement handle_empty_logs function ... to assign a Drift
+    Score equal to the theoretical maximum cosine distance ... typically 2.0...
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The drift score for empty or whitespace logs is assigned the theoretical
+    maximum cosine distance, typically 2.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T20:28:44Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Drift Score AUC must be within 0.10 of Baseline AUC
+  claim_id: c_59ff48b3
+  context: 'T041-final [S] ... Acceptance Criteria: ... the Drift Score AUC must be
+    within 0.10 of the Baseline AUC.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline comparison final acceptance criteria requires the Drift Score
+    AUC to be within 0.10 of the Baseline AUC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:28:57Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: fetch mlfoundations/agent_logs train split streaming false
+  claim_id: c_a564acd9
+  context: 'T016f: Fetch the large-scale log dataset for performance benchmarking.
+    Source: Use datasets.load_dataset("mlfoundations/agent_logs", split="train", streaming=False).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_mlfoundations/agent_logs_train_split_streaming_false
+  kind: entity_fact
+  raw_text: Use datasets.load_dataset("mlfoundations/agent_logs", split="train", streaming=False)
+    to fetch the large-scale log dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:29:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: agentdog safety taxonomy wikidata q24576
+  claim_id: c_edfd9981
+  context: 'T012d-fixed: Implement fetch_taxonomy function in data_loader.py to load
+    the fixed AgentDoG safety taxonomy. Source: Fetch from canonical raw GitHub URL.
+    Execution Mechanism: {{claim:c_550f01d3}} (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Agentdog_safety_taxonomy_wikidata_q24576
+  kind: entity_fact
+  raw_text: The fixed AgentDoG safety taxonomy corresponds to Wikidata Q24576.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T20:30:04Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: peak ram limit 7gb for batch processing
+  claim_id: c_a4a62bca
+  context: 'T016a: Implement taxonomy_builder.py... using all-MiniLM-L-v2 (CPU-first,
+    dynamic batching to fit <7GB RAM)... T016b: Implement runtime memory monitoring
+    logic... enforce a strict peak RAM limit of < 7GB'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_ram_limit_7gb_for_batch_processing
+  kind: entity_fact
+  raw_text: The optimal batch size strategy must ensure peak RAM usage remains below
+    7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:30:40Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: benchmark completion time 30 minutes
+  claim_id: c_1b7754bb
+  context: "T045a: Run a large-scale log benchmark... and assert completion time \u2264\
+    \ 30 minutes (SC-003). ... If the direct run exceeds 30 minutes, the build MUST\
+    \ fail"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark execution on a subset of logs must complete in 30 minutes
+    or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:30:57Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: kappa threshold 0.6 for human annotation
+  claim_id: c_1344f868
+  context: 'T035-real: Threshold: Kappa > 0.6. IF Kappa < 0.6, raise a ValueError...
+    and DO NOT proceed with data.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kappa_threshold_0.6_for_human_annotation
+  kind: magnitude
+  raw_text: The Kappa statistic threshold for proceeding with human annotation data
+    is greater than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:31:17Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: drift score auc within 0.10 of baseline auc
+  claim_id: c_c921dbc5
+  context: 'T041-final: Acceptance Criteria: The Baseline (Flan-T5) AUC must be statistically
+    significant (p < 0.05) and the Drift Score AUC must be within 0.10 of the Baseline
+    AUC.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Drift Score AUC must be within 0.10 of the Baseline AUC for the final
+    comparison report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:31:31Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: p-value less than 0.05 for statistical validation
+  claim_id: c_ea57047a
+  context: 'Phase 3: Independent Test... verifying that the "Drift Score" distribution
+    is statistically distinguishable between the two groups with p < 0.05'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+        which he called "tests of significance", in his publication Statistical Methods
+        for Research Workers. Fisher suggested a probability of one in twenty (0.05)
+        as a convenient cutoff level to reject the null hypothesis. In a 1933 paper,
+        Jerzy Neyman and Egon Pearson called this cutoff the significance level, which
+        they named
+      source_id: Statistical significance
+      url: https://en.wikipedia.org/wiki/Statistical_significance
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: The statistical validation requires a p-value less than 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T20:31:41Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: cohen's d greater than or equal to 0.5
+  claim_id: c_ae91b77f
+  context: "Phase 3: Independent Test... verifying that the \"Drift Score\" distribution\
+    \ is statistically distinguishable between the two groups with p < 0.05 and an\
+    \ effect size (Cohen's d) \u2265 0.5."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Cohen%27s_d_greater_than_or_equal_to_0.5
+  kind: magnitude
+  raw_text: The statistical validation requires an effect size (Cohen's d) greater
+    than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T20:33:40Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: empty log drift score 2.0
+  claim_id: c_5b0f465f
+  context: 'T021c: Implement handle_empty_logs function... to assign a Drift Score
+    equal to the theoretical maximum cosine distance... (calculated dynamically...
+    typically 2.0)'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Drift Score for empty logs is set to the theoretical maximum cosine
+    distance, typically 2.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T20:33:41Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: use google flan-t5-small for zero-shot classifier
+  claim_id: c_334f4719
+  context: 'T039-scope-change-doc: Explicitly state that gpto-mini was deemed infeasible...
+    Justify flan-t5-small as a CPU-tractable proxy... T039-gpt-setup: Use google/flan-t5-small
+    as per the scope change'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_google_flan-t5-small_for_zero-shot_classifier
+  kind: entity_fact
+  raw_text: The project uses the google/flan-t5-small model for the zero-shot LLM
+    classifier baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:34:03Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG safety taxonomy source is Wikidata Q24576
+  claim_id: c_313b11e0
+  context: 'T012d-fixed [S] [CRITICAL FIX] Implement `fetch_taxonomy` function in
+    `data_loader.py` to load the **fixed AgentDoG safety taxonomy**. **Source**: Fetch
+    from canonical raw GitHub URL `. **Execution Mechanism**: {{claim:c_550f01d3}}
+    (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_source_is_Wikidata_Q24576
+  kind: entity_fact
+  raw_text: The project uses the fixed AgentDoG safety taxonomy from Wikidata Q24576
+    (https://www.wikidata.org/wiki/Q24576).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T20:35:11Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Statistical validation requires p < 0.05 and Cohen's d >= 0.5
+  claim_id: c_889afdff
+  context: "verifying that the \"Drift Score\" distribution is statistically distinguishable\
+    \ between the two groups with p < 0.05 (Wikipedia: Statistical significance, https://en.wikipedia.org/wiki/Statistical_significance)\
+    \ and an effect size (Cohen's d) \u2265 0.5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_validation_requires_p_%3C_0.05_and_Cohen's_d_%3E=_0.
+  kind: magnitude
+  raw_text: The statistical validation requires a p-value less than 0.05 and an effect
+    size (Cohen's d) greater than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:37:14Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Large-scale log benchmark completion time limit is 30 minutes
+  claim_id: c_ec70295a
+  context: "and assert completion time \u2264 30 minutes (SC-003). **Action**: Use\
+    \ the `optimal_batch_size` from `data/processed/optimization_report.json`. **Timeout\
+    \ Logic**: Wrap execution in a timer; raise `TimeoutError` if > 30m."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must complete a large-scale log benchmark on a GitHub Actions
+    runner (limited RAM, 2 cores) in 30 minutes or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:37:25Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Drift Score AUC must be within 0.10 of Baseline AUC
+  claim_id: c_d4d0d1b0
+  context: '**Acceptance Criteria**: The Baseline (Flan-T5) AUC must be statistically
+    significant (p < 0.05) and the Drift Score AUC must be within 0.10 of the Baseline
+    AUC.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Drift Score AUC must be within 0.10 of the Baseline AUC in the final
+    comparison report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:37:26Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Kappa statistic success threshold is 0.6
+  claim_id: c_5ed5e4c6
+  context: '3. **Threshold**: Kappa > 0.6. **IF Kappa < 0.6, raise a ValueError, write
+    `kappa_failed.json` artifact with error details, update `state/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5.yaml`
+    to set `current_stage: unproven`, and DO NOT proceed with data.**'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kappa_statistic_success_threshold_is_0.6
+  kind: magnitude
+  raw_text: The Kappa statistic threshold for real multi-annotator interface success
+    is greater than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:37:41Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Zero-shot classification uses google/flan-t5-small model
+  claim_id: c_f2037f98
+  context: '**Model Substitution**: Use `google/flan-t5-small` as per the scope change
+    documented in `docs/scope_changes.md`. **Action**: Load model, cache tokenizer,
+    and prepare the prompt template.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zero-shot_classification_uses_google/flan-t5-small_model
+  kind: entity_fact
+  raw_text: The project uses the `google/flan-t5-small` model as a CPU-tractable proxy
+    for zero-shot classification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:38:00Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Centroid embeddings use all-MiniLM-L-v2 model
+  claim_id: c_5c61504c
+  context: Implement `taxonomy_builder.py` ... to generate centroid embeddings using
+    `all-MiniLM-L-v2` (CPU-first, dynamic batching to fit <7GB RAM)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Centroid_embeddings_use_all-MiniLM-L-v2_model
+  kind: entity_fact
+  raw_text: The project uses the `all-MiniLM-L-v2` model for generating centroid embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:38:15Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Theoretical maximum cosine distance is 2.0
+  claim_id: c_45479860
+  context: assign a Drift Score equal to the **theoretical maximum cosine distance**
+    for the specific embedding model (calculated dynamically based on model normalization
+    properties, typically 2.0) and set `review_flag` to true for empty/whitespace
+    logs.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The theoretical maximum cosine distance for empty/whitespace logs is typically
+    2.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T20:38:16Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Dataset mlfoundations/agent_logs split=train fetched
+  claim_id: c_bb45be04
+  context: 'Fetch the large-scale log dataset for performance benchmarking. **Source**:
+    Use `datasets.load_dataset("mlfoundations/agent_logs", split="train", streaming=False)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_mlfoundations/agent_logs_split=train_fetched
+  kind: entity_fact
+  raw_text: The benchmark dataset `mlfoundations/agent_logs` is fetched with split=train.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:38:29Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Peak RAM limit is 7GB
+  claim_id: c_b8dc48c8
+  context: generate centroid embeddings using `all-MiniLM-L-v2` (CPU-first, dynamic
+    batching to fit <7GB RAM)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_limit_is_7GB
+  kind: magnitude
+  raw_text: The project requires a peak RAM limit of less than 7GB for centroid generation
+    and batch processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:39:18Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Random seed is 42
+  claim_id: c_6df21cb0
+  context: 'Create `config.py` ... to manage random seeds, paths, and batch sizes.
+    **Acceptance Criteria**: File exists, contains `RANDOM_SEED=42`, `MAX_RAM_GB=7`,
+    and `BATCH_SIZE=64`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:39:36Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Batch size is 64
+  claim_id: c_f32c4b6b
+  context: 'Create `config.py` ... to manage random seeds, paths, and batch sizes.
+    **Acceptance Criteria**: File exists, contains `RANDOM_SEED=42`, `MAX_RAM_GB=7`,
+    and `BATCH_SIZE=64`.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: descent. arXiv preprint arXiv:1710.06451, 2017.
+      source_id: '2410.21676'
+      url: https://arxiv.org/abs/2410.21676
+      value: '64'
+    filled: true
+  kind: numeric
+  raw_text: The project uses a batch size of 64.
+  resolved_value: '64'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T20:39:56Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Max RAM limit is 7GB
+  claim_id: c_2b0697f2
+  context: 'Create `config.py` ... to manage random seeds, paths, and batch sizes.
+    **Acceptance Criteria**: File exists, contains `RANDOM_SEED=42`, `MAX_RAM_GB=7`,
+    and `BATCH_SIZE=64`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Max_RAM_limit_is_7GB
+  kind: entity_fact
+  raw_text: The project uses a maximum RAM limit of 7GB in configuration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:40:16Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Black formatting line length is 88
+  claim_id: c_bb029636
+  context: '2. Create `pyproject.toml` with EXACT content (including project metadata):
+    ... [tool.black] line-length = 88'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses black formatting with a line length of 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:40:39Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Black formatting target version is py311
+  claim_id: c_979d8fba
+  context: '2. Create `pyproject.toml` with EXACT content (including project metadata):
+    ... [tool.black] target-version = [''py311'']'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets Python 3.11 for black formatting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:41:06Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Wikidata Q24576
+  claim_id: c_64d26fc0
+  context: 'Implement fetch_taxonomy function in data_loader.py to load the fixed
+    AgentDoG safety taxonomy. Source: Fetch from canonical raw GitHub URL . Execution
+    Mechanism: {{claim:c_550f01d3}} (Wikidata Q24576, https://www.wikidata.org/wiki/Q24576)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q24576
+  kind: entity_fact
+  raw_text: Wikidata Q24576
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:41:47Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Effect size Cohen's d greater than or equal to 0.5
+  claim_id: c_8b5a95d0
+  context: "and an effect size (Cohen's d) \u2265 0.5."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Effect_size_Cohen's_d_greater_than_or_equal_to_0.5
+  kind: magnitude
+  raw_text: "Cohen's d \u2265 0.5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-09T20:43:44Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa threshold greater than 0.6
+  claim_id: c_d9596eb1
+  context: 'Threshold: Kappa > 0.6. IF Kappa < 0.6, raise a ValueError, write kappa_failed.json
+    artifact with error details'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_threshold_greater_than_0.6
+  kind: magnitude
+  raw_text: Kappa > 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:44:02Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Proxy AUC must be greater than 0.70 to be valid baseline substitute
+  claim_id: c_74ab6fde
+  context: 'Acceptance Criteria: The proxy AUC must be > 0.70 to be considered a valid
+    baseline substitute.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_AUC_must_be_greater_than_0.70_to_be_valid_baseline_sub
+  kind: magnitude
+  raw_text: proxy AUC must be > 0.70
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:44:46Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 2
+  canonical: Drift Score AUC must be within 0.10 of Baseline AUC
+  claim_id: c_e66b6cde
+  context: 'Acceptance Criteria: The Baseline (Flan-T5) AUC must be statistically
+    significant (p < 0.05) and the Drift Score AUC must be within 0.10 of the Baseline
+    AUC.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Drift Score AUC must be within 0.10 of the Baseline AUC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:44:47Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Benchmark completion time less than or equal to 30 minutes
+  claim_id: c_541f2370
+  context: "assert completion time \u2264 30 minutes (SC-003). ... If the direct run\
+    \ exceeds 30 minutes, the build MUST fail"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_completion_time_less_than_or_equal_to_30_minutes
+  kind: magnitude
+  raw_text: "completion time \u2264 30 minutes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T20:45:06Z'
