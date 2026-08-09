@@ -75,16 +75,16 @@
 ### Implementation for User Story 1
 
 - [X] T017 [US1] Create synthetic data generator for baseline validation in `code/validation/synthetic_baseline.py` (FR-009, US-1); MUST output to `data/raw/synthetic_baseline.csv` with columns (`participant_id`, `metric_type`, `value`, `timestamp`) and defined distributions (e.g., SART errors ~ N(10, 3), PSS-10 ~ N(20, 5)).
-- [ ] T014 [US1] Implement SART scoring function in `code/scoring/sart.py` (response times ranging from tens of milliseconds to several seconds, commission errors); MUST accept input schema `{'response_time': float, 'accuracy': bool, 'stimulus_type': str}` and output `{'commission_errors': int, 'omission_errors': int, 'mean_rt': float}`.
+- [X] T014 [US1] Implement SART scoring function in `code/scoring/sart.py` (response times ranging from tens of milliseconds to several seconds, commission errors); MUST accept input schema `{'response_time': float, 'accuracy': bool, 'stimulus_type': str}` and output `{'commission_errors': int, 'omission_errors': int, 'mean_rt': float}`.
 - [X] T015 [US1] Implement Ospan scoring function in `code/scoring/ospan.py` (span scores); MUST accept input schema `{'stimulus': str, 'recall': str, 'accuracy': bool}` and output `{'span_score': int, 'total_correct': int}`.
-- [ ] T016 [US1] Implement PSS-10 and PANAS scoring functions in `code/scoring/questionnaires.py`
+- [X] T016 [US1] Implement PSS-10 and PANAS scoring functions in `code/scoring/questionnaires.py`
 - [ ] T014.1 [US1] Implement web interface wrapper in `code/web/task_interface.py` that embeds OSF task URLs (v2.1+) and captures raw JSON response data for downstream scoring; MUST provide a browser-based interaction loop to collect raw data (JSON) and link it to participant IDs (FR-002); MUST validate that the web loop correctly captures response times and accuracy before data is passed to scoring functions.
-- [ ] T011 [P] [US1] Unit test for SART scoring logic against OSF reference (v+) in `tests/unit/test_sart_scoring.py` (runs against data from T017)
-- [ ] T012 [P] [US1] Unit test for Ospan scoring logic against OSF reference (v+) in `tests/unit/test_ospan_scoring.py` (runs against data from T017)
-- [ ] T013 [P] [US1] Unit test for PSS-10 and PANAS scoring in `tests/unit/test_questionnaire_scoring.py` (runs against data from T017)
+- [X] T011 [P] [US1] Unit test for SART scoring logic against OSF reference (v+) in `tests/unit/test_sart_scoring.py` (runs against data from T017)
+- [X] T012 [P] [US1] Unit test for Ospan scoring logic against OSF reference (v+) in `tests/unit/test_ospan_scoring.py` (runs against data from T017)
+- [X] T013 [P] [US1] Unit test for PSS-10 and PANAS scoring in `tests/unit/test_questionnaire_scoring.py` (runs against data from T017)
 - [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_baseline_schema.py`
 - [X] T018 [US1] Implement instrument logic validation script to run synthetic data through scorers and check ranges in `code/validation/validate_instruments.py`
-- [ ] T019 [US1] Create baseline data collection pipeline script in `code/pipeline/collect_baseline.py` <!-- FAILED: unspecified -->
+- [X] T019 [US1] Create baseline data collection pipeline script in `code/pipeline/collect_baseline.py` <!-- FAILED: unspecified -->
 - [ ] T019.1 [US1] Implement pre-study pilot check (n=5) with real participants in `code/pipeline/run_pilot.py`; MUST recruit 5 human subjects, run them through the web interface (T014.1), collect real data, and validate task functionality against expected psychometric ranges (FR-009); this task is distinct from synthetic validation and is the required empirical step.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -109,7 +109,7 @@
 - [X] T025 [US2] Implement plausibility validation logic (FR-010) in `code/validation/compliance_plausibility.py`
 - [X] T026 [US2] Implement compliance rule engine (≤30 min, no news, notifications off) in `code/compliance/rules_engine.py`
 - [X] T027 [US2] Create compliance aggregation script to calculate daily/weekly scores in `code/pipeline/aggregate_compliance.py`
-- [~] T028 [US2] Implement logic to flag non-compliant days but retain data for analysis (US-2)
+- [ ] T028 [US2] Implement logic to flag non-compliant days but retain data for analysis (US-2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,11 +130,11 @@
 - [X] T037 [US3] Implement fallback Wilcoxon signed-rank test logic in `code/analysis/wilcoxon_fallback.py`; MUST trigger ONLY if T037.1 detects convergence failure (FR-006).
 - [X] T038 [US3] Implement Holm-Bonferroni step-down correction in `code/analysis/holm_bonferroni.py` (FR-008)
 - [X] T039 [US3] Implement Cohen's d with 95% CI calculation in `code/analysis/effect_sizes.py` (FR-007)
-- [~] T020 [US3] Implement Monte Carlo power simulation (1,000 iterations) to estimate power for detecting d=0.5 with Holm-Bonferroni correction in `code/analysis/power_simulation.py`; MUST use synthetic data from T017 and apply Holm-Bonferroni correction to alpha in every iteration to account for reduced alpha; MUST write output to `results/power_analysis.json` (FR-006, US-1).
+- [ ] T020 [US3] Implement Monte Carlo power simulation (1,000 iterations) to estimate power for detecting d=0.5 with Holm-Bonferroni correction in `code/analysis/power_simulation.py`; MUST use synthetic data from T017 and apply Holm-Bonferroni correction to alpha in every iteration to account for reduced alpha; MUST write output to `results/power_analysis.json` (FR-006, US-1).
 - [ ] T040 [US3] Generate `results/statistical_summary.json` with mean change, CI, and corrected p-values (SC-001 to SC-005)
 - [ ] T029 [US3] Generate sensitivity analysis report in `results/sensitivity_analysis_report.md`; MUST explicitly document self-report limitations or compare against objective data if available (FR-011)
 - [X] T041 [US3] Create visualization generator for boxplots and change score distributions in `code/viz/generate_plots.py`
-- [~] T043 [US3] Create validation script to check results against success criteria (SC-001 to SC-005) in `code/validation/validate_success_criteria.py`; MUST explicitly compare `results/statistical_summary.json` values against thresholds (p < 0.05, d ≥ 0.2) AND verify the *direction* of the effect (e.g., reduction for SART, increase for Ospan) to match the hypothesis; generate a validation report; MUST run before T042.
+- [ ] T043 [US3] Create validation script to check results against success criteria (SC-001 to SC-005) in `code/validation/validate_success_criteria.py`; MUST explicitly compare `results/statistical_summary.json` values against thresholds (p < 0.05, d ≥ 0.2) AND verify the *direction* of the effect (e.g., reduction for SART, increase for Ospan) to match the hypothesis; generate a validation report; MUST run before T042.
 - [ ] T042 [US3] Implement final report generator in `code/report/generate_report.py`; MUST include: 1) Full text of sensitivity analysis report (from T029), 2) Power simulation results (from T020), 3) Statistical summary (from T040), 4) Validation status (from T043); Output to `results/final_report.md`; MUST be the final task in Phase 5. <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
@@ -145,11 +145,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T044 [P] Documentation updates: `README.md`, `quickstart.md`, and API docs in `docs/`
-- [~] T045 Code cleanup and refactoring for readability <!-- ATOMIZE: requested -->
+- [ ] T044 [P] Documentation updates: `README.md`, `quickstart.md`, and API docs in `docs/`
+- [ ] T045 Code cleanup and refactoring for readability <!-- ATOMIZE: requested -->
 - [~] T046 Performance optimization for bootstrap loops (vectorization)
 - [~] T047 [P] Additional unit tests for edge cases (dropouts, missing data) in `tests/unit/`
-- [ ] T048 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T048 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 

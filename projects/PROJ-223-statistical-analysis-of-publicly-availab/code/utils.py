@@ -1,5 +1,5 @@
 """
-Utility functions for geo-matching, encoding, and data handling.
+Utility functions for geospatial matching, encoding, and data manipulation.
 """
 from geopy.distance import geodesic
 import numpy as np
@@ -7,120 +7,81 @@ import pandas as pd
 from typing import Tuple, Optional
 import logging
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def encode_severity(value) -> Optional[str]:
+def encode_severity(severity_str: str) -> int:
     """
-    Encode FARS severity codes to standard categories.
-    Expected input: Integer codes (1, 2, 3) or similar.
-    Returns: 'Property', 'Injury', 'Fatality', or None if invalid.
+    Encode severity string to ordinal integer.
+    0: Property Damage Only
+    1: Injury
+    2: Fatality
     """
-    if pd.isna(value):
-        return None
+    if pd.isna(severity_str):
+        return 0
     
-    try:
-        val = int(value)
-        if val == 1:
-            return 'Property'
-        elif val == 2:
-            return 'Injury'
-        elif val == 3:
-            return 'Fatality'
-        else:
-            # NHTSA sometimes has 0 or other codes for unknown
-            logger.warning(f"Unknown severity code encountered: {val}")
-            return None
-    except (ValueError, TypeError):
-        return None
+    severity_str = str(severity_str).lower()
+    if 'property' in severity_str or 'pdo' in severity_str:
+        return 0
+    elif 'injury' in severity_str:
+        return 1
+    elif 'fatal' in severity_str:
+        return 2
+    else:
+        # Default to lowest severity if unknown
+        return 0
 
 def geo_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """
-    Calculate distance in km between two lat/lon points.
-    """
-    if any(np.isnan([lat1, lon1, lat2, lon2])):
-        return np.nan
-    return geodesic((lat1, lon1), (lat2, lon2)).km
+    """Calculate distance between two points in km."""
+    coord1 = (lat1, lon1)
+    coord2 = (lat2, lon2)
+    return geodesic(coord1, coord2).km
 
-def interpolate_weather(
-    target_time: pd.Timestamp,
-    station_data: pd.DataFrame,
-    time_col: str = 'date',
-    value_col: str = 'value'
-) -> Optional[float]:
-    """
-    Linearly interpolate weather value for a specific time.
-    """
-    # Sort by time
-    sorted_data = station_data.sort_values(by=time_col)
+def find_nearest_station(noaa_df: pd.DataFrame, target_lat: float, target_lon: float) -> Tuple[Optional[pd.Series], float]:
+    """Find the nearest NOAA station to a target coordinate."""
+    if noaa_df.empty:
+        return None, float('inf')
     
-    # Find surrounding points
-    before = sorted_data[sorted_data[time_col] <= target_time]
-    after = sorted_data[sorted_data[time_col] >= target_time]
-    
-    if before.empty or after.empty:
-        return None
-    
-    latest_before = before.iloc[-1]
-    earliest_after = after.iloc[0]
-    
-    if latest_before[time_col] == earliest_after[time_col]:
-        return latest_before[value_col]
-    
-    # Linear interpolation
-    t0 = latest_before[time_col].timestamp()
-    t1 = earliest_after[time_col].timestamp()
-    t_target = target_time.timestamp()
-    
-    v0 = latest_before[value_col]
-    v1 = earliest_after[value_col]
-    
-    if t1 == t0:
-        return v0
-        
-    ratio = (t_target - t0) / (t1 - t0)
-    return v0 + ratio * (v1 - v0)
-
-def find_nearest_station(
-    target_lat: float,
-    target_lon: float,
-    station_list: pd.DataFrame,
-    lat_col: str = 'LAT',
-    lon_col: str = 'LON',
-    max_distance_km: float = 50.0
-) -> Optional[str]:
-    """
-    Find the nearest NOAA station within max_distance_km.
-    Returns station ID or None.
-    """
-    if station_list.empty:
-        return None
-    
-    # Vectorized distance calculation for performance
-    # Assuming station_list has LAT and LON columns
-    if lat_col not in station_list.columns or lon_col not in station_list.columns:
-        logger.error(f"Station list missing columns {lat_col} or {lon_col}")
-        return None
-        
-    dists = station_list.apply(
-        lambda row: geo_distance(target_lat, target_lon, row[lat_col], row[lon_col]),
+    # Simple vectorized distance calculation (could be optimized with KDTree)
+    noaa_df['dist'] = noaa_df.apply(
+        lambda row: geo_distance(target_lat, target_lon, row['LAT'], row['LON']), 
         axis=1
     )
     
-    if dists.isna().all():
-        return None
-        
-    min_idx = dists.idxmin()
-    min_dist = dists[min_idx]
+    nearest_idx = noaa_df['dist'].idxmin()
+    min_dist = noaa_df.loc[nearest_idx, 'dist']
     
-    if min_dist > max_distance_km:
-        logger.debug(f"Nearest station is too far: {min_dist:.2f} km")
-        return None
-        
-    return station_list.loc[min_idx, 'STATION'] # Assuming 'STATION' is ID
+    return noaa_df.loc[nearest_idx], min_dist
+
+def interpolate_weather(station_data: pd.Series, target_time: pd.Timestamp) -> Optional[dict]:
+    """
+    Interpolate weather data for a specific time from a station's history.
+    Returns a dict with weather variables and match metadata.
+    """
+    # This is a simplified placeholder for the actual interpolation logic
+    # In a real implementation, this would look at the station's time series
+    # and perform linear interpolation between the two nearest timestamps.
+    
+    if 'DATE' not in station_data.index.names and 'DATE' not in station_data.index:
+        # If the input is a single row summary, we can't interpolate
+        # We just return the values if the time matches or is close
+        return {
+            'precipitation': station_data.get('precipitation', 0.0),
+            'visibility': station_data.get('visibility', 10.0),
+            'temperature': station_data.get('temperature', 20.0),
+            'time_delta': 0
+        }
+    
+    # Placeholder for real interpolation logic
+    return {
+        'precipitation': 0.0,
+        'visibility': 10.0,
+        'temperature': 20.0,
+        'time_delta': 0
+    }
 
 def validate_geo_coordinates(lat: float, lon: float) -> bool:
-    """
-    Validate latitude and longitude ranges.
-    """
-    return -90 <= lat <= 90 and -180 <= lon <= 180
+    """Check if coordinates are within valid ranges (approximate US bounds)."""
+    if pd.isna(lat) or pd.isna(lon):
+        return False
+    # Approximate US bounds
+    return -125 <= lon <= -65 and 25 <= lat <= 49

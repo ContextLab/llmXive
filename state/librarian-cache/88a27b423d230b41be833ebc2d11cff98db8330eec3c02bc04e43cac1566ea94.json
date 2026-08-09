@@ -1,0 +1,658 @@
+{
+  "fetched_at": "2026-08-09T09:44:52Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Spa\"",
+      "target_n": 5
+    },
+    "duration_seconds": 45.258,
+    "ended_at": "2026-08-09T09:44:52Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "unified 3D scene generation and reconstruction"
+        ],
+        [
+          2,
+          "pixel-space 3D scene synthesis"
+        ],
+        [
+          3,
+          "end-to-end 3D generation from pixels"
+        ],
+        [
+          4,
+          "neural radiance fields for scene generation"
+        ],
+        [
+          5,
+          "3D scene reconstruction without explicit geometry"
+        ],
+        [
+          6,
+          "pixel-based 3D world modeling"
+        ],
+        [
+          7,
+          "generative models for 3D scene understanding"
+        ],
+        [
+          8,
+          "differentiable rendering for scene reconstruction"
+        ],
+        [
+          9,
+          "vision-language models for 3D scene generation"
+        ],
+        [
+          10,
+          "implicit 3D representation learning"
+        ],
+        [
+          11,
+          "single-image 3D scene generation"
+        ],
+        [
+          12,
+          "multi-view 3D reconstruction from pixels"
+        ],
+        [
+          13,
+          "3D scene completion using generative AI"
+        ],
+        [
+          14,
+          "pixel-space 3D Gaussian splatting"
+        ],
+        [
+          15,
+          "unified frameworks for 3D vision tasks"
+        ],
+        [
+          16,
+          "diffusion models for 3D scene generation"
+        ],
+        [
+          17,
+          "self-supervised 3D scene representation"
+        ],
+        [
+          18,
+          "pixel-aligned 3D generative adversarial networks"
+        ],
+        [
+          19,
+          "joint optimization of 3D generation and reconstruction"
+        ],
+        [
+          20,
+          "pixel-centric 3D scene synthesis"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Spa\" computer science": 0,
+        "unified 3D scene generation and reconstruction": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "pixel-based 3D generative models",
+      "PixWorld 3D reconstruction pixel space",
+      "view synthesis neural radiance fields",
+      "3D scene generation evaluation metrics",
+      "inverse rendering generative priors"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2505.05474"
+      ]
+    },
+    "per_query_hit_count": {
+      "3D scene generation evaluation metrics": 3,
+      "PixWorld 3D reconstruction pixel space": 3,
+      "inverse rendering generative priors": 3,
+      "llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Spa\" computer science": 3,
+      "pixel-based 3D generative models": 3,
+      "view synthesis neural radiance fields": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-09T09:44:07Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"pixworld: unifying 3d scene generation and reconstruction in pixel spa\" computer science",
+      "raw": "llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Spa\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The style-based GAN (StyleGAN) architecture achieved state-of-the-art results for generating high-quality images, but it lacks explicit and precise control over camera poses. The recently proposed NeRF-based GANs made great progress towards 3D-aware generators, but they are unable to generate high-quality images yet. This paper presents CIPS-3D, a style-based, 3D-aware generator that is composed of a shallow NeRF network and a deep implicit neural representation (INR) network. The generator synthesizes each pixel value independently without any spatial convolution or upsampling operation. In addition, we diagnose the problem of mirror symmetry that implies a suboptimal solution and solve it by introducing an auxiliary discriminator. Trained on raw, single-view images, CIPS-3D sets new records for 3D-aware image synthesis with an impressive FID of 6.97 for images at the $256\\times256$ resolution on FFHQ. We also demonstrate several interesting directions for CIPS-3D such as transfer learning and 3D-aware face stylization. The synthesis results are best viewed as videos, so we recommend the readers to check our github project at https://github.com/PeterouZh/CIPS-3D",
+          "claimed_authors": [
+            "Peng Zhou",
+            "Lingxi Xie",
+            "Bingbing Ni",
+            "Qi Tian"
+          ],
+          "claimed_title": "CIPS-3D: A 3D-Aware Generator of GANs Based on Conditionally-Independent Pixel Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.09788"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='CIPS-3D: A 3D-Aware Generator of GANs Based on Conditionally-Independent Pixel Synthesis')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advancement of generative radiance fields has pushed the boundary of 3D-aware image synthesis. Motivated by the observation that a 3D object should look realistic from multiple viewpoints, these methods introduce a multi-view constraint as regularization to learn valid 3D radiance fields from 2D images. Despite the progress, they often fall short of capturing accurate 3D shapes due to the shape-color ambiguity, limiting their applicability in downstream tasks. In this work, we address this ambiguity by proposing a novel shading-guided generative implicit model that is able to learn a starkly improved shape representation. Our key insight is that an accurate 3D shape should also yield a realistic rendering under different lighting conditions. This multi-lighting constraint is realized by modeling illumination explicitly and performing shading with various lighting conditions. Gradients are derived by feeding the synthesized images to a discriminator. To compensate for the additional computational burden of calculating surface normals, we further devise an efficient volume rendering strategy via surface tracking, reducing the training and inference time by 24% and 48%, respectively. Our experiments on multiple datasets show that the proposed approach achieves photorealistic 3D-aware image synthesis while capturing accurate underlying 3D shapes. We demonstrate improved performance of our approach on 3D shape reconstruction against existing methods, and show its applicability on image relighting. Our code will be released at https://github.com/XingangPan/ShadeGAN.",
+          "claimed_authors": [
+            "Xingang Pan",
+            "Xudong Xu",
+            "Chen Change Loy",
+            "Christian Theobalt",
+            "Bo Dai"
+          ],
+          "claimed_title": "A Shading-Guided Generative Implicit Model for Shape-Accurate 3D-Aware Image Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.15678"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='A Shading-Guided Generative Implicit Model for Shape-Accurate 3D-Aware Image Synthesis')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In remote sensing, image fusion technique is a useful tool used to fuse high spatial resolution panchromatic images (PAN) with lower spatial resolution multispectral images (MS) to create a high spatial resolution multispectral of image fusion (F) while preserving the spectral information in the multispectral image (MS).There are many PAN sharpening techniques or Pixel-Based image fusion techniques that have been developed to try to enhance the spatial resolution and the spectral property preservation of the MS. This paper attempts to undertake the study of image fusion, by using two types of pixel-based image fusion techniques i.e. Arithmetic Combination and Frequency Filtering Methods of Pixel-Based Image Fusion Techniques. The first type includes Brovey Transform (BT), Color Normalized Transformation (CN) and Multiplicative Method (MLT). The second type include High-Pass Filter Additive Method (HPFA), High-Frequency-Addition Method (HFA) High Frequency Modulation Method (HFM) and The Wavelet transform-based fusion method (WT). This paper also devotes to concentrate on the analytical techniques for evaluating the quality of image fusion (F) by using various methods including Standard Deviation (SD), Entropy(En), Correlation Coefficient (CC), Signal-to Noise Ratio (SNR), Normalization Root Mean Square Error (NRMSE) and Deviation Index (DI) to estimate the quality and degree of information improvement of a fused image quantitatively.",
+          "claimed_authors": [
+            "Firouz Abdullah Al-Wassai",
+            "N. V. Kalyankar",
+            "Ali A. Al-Zuky"
+          ],
+          "claimed_title": "Arithmetic and Frequency Filtering Methods of Pixel-Based Image Fusion Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1107.3348"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Arithmetic and Frequency Filtering Methods of Pixel-Based Image Fusion Techniques')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Krylov subspace methods are considered a standard tool to solve large systems of linear algebraic equations in many scientific disciplines such as image restoration or solving partial differential equations in mechanics of continuum. In the context of computer tomography however, the mostly used algebraic reconstruction techniques are based on classical iterative schemes. In this work we present software package that implements fully 3D cone beam projection operator and uses Krylov subspace methods, namely CGLS and LSQR to solve related tomographic reconstruction problems. It also implements basic preconditioning strategies. On the example of the cone beam CT reconstruction of 3D Shepp-Logan phantom we show that the speed of convergence of the CGLS clearly outperforms PSIRT algorithm. Therefore Krylov subspace methods present an interesting option for the reconstruction of large 3D cone beam CT problems.",
+          "claimed_authors": [
+            "Vojtěch Kulvait",
+            "Georg Rose"
+          ],
+          "claimed_title": "Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13526"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ATLAS experiment, at the Large Hadron Collider, will incorporate discrete, high-resolution tracking sub-systems in the form of segmented silicon detectors with 40MHz radiation-hard readout electronics. In the region closest to the pp interaction point, the thin silicon tiles will be segmented into a pixel geometry providing two-dimensional space-point information. The current status of the ATLAS pixel project will be presented with an emphasis on the performance of the front-end electronics and prototype sensors.",
+          "claimed_authors": [
+            "John Richardson",
+            "representing the ATLAS Pixel Project"
+          ],
+          "claimed_title": "The ATLAS Pixel Project",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "hep-ex/9903035"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='The ATLAS Pixel Project')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a new task, novel view synthesis for LiDAR sensors. While traditional model-based LiDAR simulators with style-transfer neural networks can be applied to render novel views, they fall short of producing accurate and realistic LiDAR patterns because the renderers rely on explicit 3D reconstruction and exploit game engines, that ignore important attributes of LiDAR points. We address this challenge by formulating, to the best of our knowledge, the first differentiable end-to-end LiDAR rendering framework, LiDAR-NeRF, leveraging a neural radiance field (NeRF) to facilitate the joint learning of geometry and the attributes of 3D points. However, simply employing NeRF cannot achieve satisfactory results, as it only focuses on learning individual pixels while ignoring local information, especially at low texture areas, resulting in poor geometry. To this end, we have taken steps to address this issue by introducing a structural regularization method to preserve local structural details. To evaluate the effectiveness of our approach, we establish an object-centric multi-view LiDAR dataset, dubbed NeRF-MVL. It contains observations of objects from 9 categories seen from 360-degree viewpoints captured with multiple LiDAR sensors. Our extensive experiments on the scene-level KITTI-360 dataset, and on our object-level NeRF-MVL show that our LiDAR-NeRF surpasses the model-based algorithms significantly.",
+          "claimed_authors": [
+            "Tang Tao",
+            "Longfei Gao",
+            "Guangrun Wang",
+            "Yixing Lao",
+            "Peng Chen",
+            "Hengshuang Zhao",
+            "Dayang Hao",
+            "Xiaodan Liang",
+            "Mathieu Salzmann",
+            "Kaicheng Yu"
+          ],
+          "claimed_title": "LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.10406"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Radiance Fields (NeRFs) encode the radiance in a scene parameterized by the scene's plenoptic function. This is achieved by using an MLP together with a mapping to a higher-dimensional space, and has been proven to capture scenes with a great level of detail. Naturally, the same parameterization can be used to encode additional properties of the scene, beyond just its radiance. A particularly interesting property in this regard is the semantic decomposition of the scene. We introduce a novel technique for semantic soft decomposition of neural radiance fields (named SSDNeRF) which jointly encodes semantic signals in combination with radiance signals of a scene. Our approach provides a soft decomposition of the scene into semantic parts, enabling us to correctly encode multiple semantic classes blending along the same direction -- an impossible feat for existing methods. Not only does this lead to a detailed, 3D semantic representation of the scene, but we also show that the regularizing effects of the MLP used for encoding help to improve the semantic representation. We show state-of-the-art segmentation and reconstruction results on a dataset of common objects and demonstrate how the proposed approach can be applied for high quality temporally consistent video editing and re-compositing on a dataset of casually captured selfie videos.",
+          "claimed_authors": [
+            "Siddhant Ranade",
+            "Christoph Lassner",
+            "Kai Li",
+            "Christian Haene",
+            "Shen-Chi Chen",
+            "Jean-Charles Bazin",
+            "Sofien Bouaziz"
+          ],
+          "claimed_title": "SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03406"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present CG-NeRF, a cascade and generalizable neural radiance fields method for view synthesis. Recent generalizing view synthesis methods can render high-quality novel views using a set of nearby input views. However, the rendering speed is still slow due to the nature of uniformly-point sampling of neural radiance fields. Existing scene-specific methods can train and render novel views efficiently but can not generalize to unseen data. Our approach addresses the problems of fast and generalizing view synthesis by proposing two novel modules: a coarse radiance fields predictor and a convolutional-based neural renderer. This architecture infers consistent scene geometry based on the implicit neural fields and renders new views efficiently using a single GPU. We first train CG-NeRF on multiple 3D scenes of the DTU dataset, and the network can produce high-quality and accurate novel views on unseen real and synthetic data using only photometric losses. Moreover, our method can leverage a denser set of reference images of a single scene to produce accurate novel views without relying on additional explicit representations and still maintains the high-speed rendering of the pre-trained model. Experimental results show that CG-NeRF outperforms state-of-the-art generalizable neural rendering methods on various synthetic and real datasets.",
+          "claimed_authors": [
+            "Phong Nguyen-Ha",
+            "Lam Huynh",
+            "Esa Rahtu",
+            "Jiri Matas",
+            "Janne Heikkila"
+          ],
+          "claimed_title": "Cascaded and Generalizable Neural Radiance Fields for Fast View Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.04717"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Cascaded and Generalizable Neural Radiance Fields for Fast View Synthesis')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3D scene generation seeks to synthesize spatially structured, semantically meaningful, and photorealistic environments for applications such as immersive media, robotics, autonomous driving, and embodied AI. Early methods based on procedural rules offered scalability but limited diversity. Recent advances in deep generative models (e.g., GANs, diffusion models) and 3D representations (e.g., NeRF, 3D Gaussians) have enabled the learning of real-world scene distributions, improving fidelity, diversity, and view consistency. Recent advances like diffusion models bridge 3D scene synthesis and photorealism by reframing generation as image or video synthesis problems. This survey provides a systematic overview of state-of-the-art approaches, organizing them into four paradigms: procedural generation, neural 3D-based generation, image-based generation, and video-based generation. We analyze their technical foundations, trade-offs, and representative results, and review commonly used datasets, evaluation protocols, and downstream applications. We conclude by discussing key challenges in generation capacity, 3D representation, data and annotations, and evaluation, and outline promising directions including higher fidelity, physics-aware and interactive generation, and unified perception-generation models. This review organizes recent advances in 3D scene generation and highlights promising directions at the intersection of generative AI, 3D vision, and embodied intelligence. To track ongoing developments, we maintain an up-to-date project page: https://github.com/hzxie/Awesome-3D-Scene-Generation.",
+          "claimed_authors": [
+            "Beichen Wen",
+            "Haozhe Xie",
+            "Zhaoxi Chen",
+            "Fangzhou Hong",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "3D Scene Generation: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.05474"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='3D Scene Generation: A Survey')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Creating high-fidelity 3D models of indoor environments is essential for applications in design, virtual reality, and robotics. However, manual 3D modeling remains time-consuming and labor-intensive. While recent advances in generative AI have enabled automated scene synthesis, existing methods often face challenges in balancing visual quality, diversity, semantic consistency, and user control. A major bottleneck is the lack of a large-scale, high-quality dataset tailored to this task. To address this gap, we introduce a comprehensive synthetic dataset, featuring 12,328 structured annotated scenes with 57,431 rooms, and 4.7M photorealistic 2D renderings. Leveraging this dataset, we present SpatialGen, a novel multi-view multi-modal diffusion model that generates realistic and semantically consistent 3D indoor scenes. Given a 3D layout and a reference image (derived from a text prompt), our model synthesizes appearance (color image), geometry (scene coordinate map), and semantic (semantic segmentation map) from arbitrary viewpoints, while preserving spatial consistency across modalities. SpatialGen consistently generates superior results to previous methods in our experiments. We are open-sourcing our data and models to empower the community and advance the field of indoor scene understanding and generation.",
+          "claimed_authors": [
+            "Chuan Fang",
+            "Heng Li",
+            "Yixun Liang",
+            "Jia Zheng",
+            "Yongsen Mao",
+            "Yuan Liu",
+            "Rui Tang",
+            "Zihan Zhou",
+            "Ping Tan"
+          ],
+          "claimed_title": "SPATIALGEN: Layout-guided 3D Indoor Scene Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.14981"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='SPATIALGEN: Layout-guided 3D Indoor Scene Generation')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Three-dimensional scene generation is crucial in computer vision, with applications spanning autonomous driving, gaming and the metaverse. Current methods either lack user control or rely on imprecise, non-intuitive conditions. In this work, we propose a method that uses, scene graphs, an accessible, user friendly control format to generate outdoor 3D scenes. We develop an interactive system that transforms a sparse scene graph into a dense BEV (Bird's Eye View) Embedding Map, which guides a conditional diffusion model to generate 3D scenes that match the scene graph description. During inference, users can easily create or modify scene graphs to generate large-scale outdoor scenes. We create a large-scale dataset with paired scene graphs and 3D semantic scenes to train the BEV embedding and diffusion models. Experimental results show that our approach consistently produces high-quality 3D urban scenes closely aligned with the input scene graphs. To the best of our knowledge, this is the first approach to generate 3D outdoor scenes conditioned on scene graphs.",
+          "claimed_authors": [
+            "Yuheng Liu",
+            "Xinke Li",
+            "Yuning Zhang",
+            "Lu Qi",
+            "Xin Li",
+            "Wenping Wang",
+            "Chongshou Li",
+            "Xueting Li",
+            "Ming-Hsuan Yang"
+          ],
+          "claimed_title": "Controllable 3D Outdoor Scene Generation via Scene Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.07152"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Controllable 3D Outdoor Scene Generation via Scene Graphs')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inverse rendering seeks to reconstruct both geometry and spatially varying BRDFs (SVBRDFs) from captured images. To address the inherent ill-posedness of inverse rendering, basis BRDF representations are commonly used, modeling SVBRDFs as spatially varying blends of a set of basis BRDFs. However, existing methods often yield basis BRDFs that lack intuitive separation and have limited scalability to scenes of varying complexity. In this paper, we introduce a differentiable inverse rendering method that produces interpretable basis BRDFs. Our approach models a scene using 2D Gaussians, where the reflectance of each Gaussian is defined by a weighted blend of basis BRDFs. We efficiently render an image from the 2D Gaussians and basis BRDFs using differentiable rasterization and impose a rendering loss with the input images. During this analysis-by-synthesis optimization process of differentiable inverse rendering, we dynamically adjust the number of basis BRDFs to fit the target scene while encouraging sparsity in the basis weights. This ensures that the reflectance of each Gaussian is represented by only a few basis BRDFs. This approach enables the reconstruction of accurate geometry and interpretable basis BRDFs that are spatially separated. Consequently, the resulting scene representation, comprising basis BRDFs and 2D Gaussians, supports physically-based novel-view relighting and intuitive scene editing.",
+          "claimed_authors": [
+            "Hoon-Gyu Chung",
+            "Seokjun Choi",
+            "Seung-Hwan Baek"
+          ],
+          "claimed_title": "Differentiable Inverse Rendering with Interpretable Basis BRDFs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.17994"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Differentiable Inverse Rendering with Interpretable Basis BRDFs')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reconstructing physics-based 3D assets -- geometry, materials, and illumination -- from multi-view images is a core problem in computer graphics and vision, and a prerequisite for realistic relighting and editing. Physics-based inverse rendering offers an accurate image-formation model, but is severely underconstrained: without strong priors, illumination is baked into materials, and reconstructions generalize poorly to novel views and lighting. Data-driven diffusion models, in contrast, predict visually plausible materials, yet their predictions rarely satisfy the rendering equation and are not directly usable for physics-based rendering. We bridge these two paradigms rather than replacing either. Our key idea is to treat the predictions of a state-of-the-art diffusion model not as target material values but as a similarity kernel for optimization: we introduce a regularization loss that penalizes deviations in the optimized material over surface regions where the diffusion predictions are near-constant, while leaving the optimization free to match the input images. Built on this regularizer, our end-to-end pipeline jointly reconstructs geometry, materials, and illumination, yielding high-quality assets that drop into standard rendering pipelines and relight faithfully. On the Synthetic4Relight, Stanford-ORB, and DTC-Synthetic datasets, our method significantly outperforms state-of-the-art baselines in both reconstruction accuracy and relighting quality.",
+          "claimed_authors": [
+            "Jingwang Ling",
+            "Lifan Wu",
+            "Feng Xu",
+            "Shuang Zhao"
+          ],
+          "claimed_title": "Diffusion-Based Material Regularization for Physics-Based Inverse Rendering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.31065"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Diffusion-Based Material Regularization for Physics-Based Inverse Rendering')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Can a diffusion model trained on bedrooms recover human faces? Diffusion models are widely used as priors for inverse problems, but standard approaches usually assume a high-fidelity model trained on data that closely match the unknown signal. In practice, one often must use a mismatched or low-fidelity diffusion prior. Surprisingly, these weak priors often perform nearly as well as full-strength, in-domain baselines. We study when and why inverse solvers are robust to weak diffusion priors. Through extensive experiments, we find that weak priors succeed when measurements are highly informative (e.g., many observed pixels), and we identify regimes where they fail. To explain this behavior, we combine Bayesian-consistency theory with local-correlation analysis: the theory gives conditions under which high-dimensional measurements make the posterior concentrate near the true signal, while the correlation analysis shows that weak and stronger natural-image priors can share similar local spatial structure. These results provide a principled justification on when weak diffusion priors can be used reliably. Code is available at https://github.com/jjia131/weak-diffusion-priors-inverse-problem.",
+          "claimed_authors": [
+            "Jing Jia",
+            "Wei Yuan",
+            "Sifan Liu",
+            "Liyue Shen",
+            "Guanyang Wang"
+          ],
+          "claimed_title": "Weak Diffusion Priors Can Still Achieve Strong Inverse-Problem Performance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.22443"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PixWorld: Unifying 3D Scene Generation and Reconst', candidate_title='Weak Diffusion Priors Can Still Achieve Strong Inverse-Problem Performance')",
+        "failed_at": "2026-08-09T09:44:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sensen Gao",
+            "Zhaoqing Wang",
+            "Qihang Cao",
+            "Dongdong Yu",
+            "Changhu Wang",
+            "Jia-Wang Bian"
+          ],
+          "title": "PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Space",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.05373",
+        "summary": "3D reconstruction and generation are commonly tackled by separate paradigms: pixel-based regression for reconstruction, and latent diffusion for generation. Recent works attempt to unify them in latent space, but with notable drawbacks: the diffusion objective is defined on latent features rather than the underlying 3D representation, and both branches suffer from information loss introduced by latent encoding, while requiring a pretrained Variational Autoencoder (VAE) or Representation Autoencoder (RAE). In this paper, we reformulate these two tasks under a unified pixel-space diffusion paradigm and introduce PixWorld, a single model that jointly addresses 3D reconstruction and generation. By supervising diffusion directly on rendered images, PixWorld removes the above limitations and aligns optimization with 3D scene fidelity. Beyond photometric and perceptual supervision that operates at the 2D image level and lacks 3D geometric awareness, we further introduce a geometry perception loss that aligns rendered views with their ground truth in the geometry-aware feature space of a pretrained 3D foundation model, providing 3D structural supervision. PixWorld consistently outperforms prior latent-space generation methods and matches state-of-the-art reconstruction methods, demonstrating the superiority of a unified pixel-space approach.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.05373",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-09T09:44:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Beichen Wen",
+            "Haozhe Xie",
+            "Zhaoxi Chen",
+            "Fangzhou Hong",
+            "Ziwei Liu"
+          ],
+          "title": "3D Scene Generation: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.05474",
+        "summary": "3D scene generation seeks to synthesize spatially structured, semantically meaningful, and photorealistic environments for applications such as immersive media, robotics, autonomous driving, and embodied AI. Early methods based on procedural rules offered scalability but limited diversity. Recent advances in deep generative models (e.g., GANs, diffusion models) and 3D representations (e.g., NeRF, 3D Gaussians) have enabled the learning of real-world scene distributions, improving fidelity, diversity, and view consistency. Recent advances like diffusion models bridge 3D scene synthesis and photorealism by reframing generation as image or video synthesis problems. This survey provides a systematic overview of state-of-the-art approaches, organizing them into four paradigms: procedural generation, neural 3D-based generation, image-based generation, and video-based generation. We analyze their technical foundations, trade-offs, and representative results, and review commonly used datasets, evaluation protocols, and downstream applications. We conclude by discussing key challenges in generation capacity, 3D representation, data and annotations, and evaluation, and outline promising directions including higher fidelity, physics-aware and interactive generation, and unified perception-generation models. This review organizes recent advances in 3D scene generation and highlights promising directions at the intersection of generative AI, 3D vision, and embodied intelligence. To track ongoing developments, we maintain an up-to-date project page: https://github.com/hzxie/Awesome-3D-Scene-Generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.05474",
+          "http_status": 200,
+          "pdf_sample_score": 0.2798,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-09T09:44:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chuan Fang",
+            "Heng Li",
+            "Yixun Liang",
+            "Jia Zheng",
+            "Yongsen Mao",
+            "Yuan Liu",
+            "Rui Tang",
+            "Zihan Zhou",
+            "Ping Tan"
+          ],
+          "title": "SPATIALGEN: Layout-guided 3D Indoor Scene Generation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.14981",
+        "summary": "Creating high-fidelity 3D models of indoor environments is essential for applications in design, virtual reality, and robotics. However, manual 3D modeling remains time-consuming and labor-intensive. While recent advances in generative AI have enabled automated scene synthesis, existing methods often face challenges in balancing visual quality, diversity, semantic consistency, and user control. A major bottleneck is the lack of a large-scale, high-quality dataset tailored to this task. To address this gap, we introduce a comprehensive synthetic dataset, featuring 12,328 structured annotated scenes with 57,431 rooms, and 4.7M photorealistic 2D renderings. Leveraging this dataset, we present SpatialGen, a novel multi-view multi-modal diffusion model that generates realistic and semantically consistent 3D indoor scenes. Given a 3D layout and a reference image (derived from a text prompt), our model synthesizes appearance (color image), geometry (scene coordinate map), and semantic (semantic segmentation map) from arbitrary viewpoints, while preserving spatial consistency across modalities. SpatialGen consistently generates superior results to previous methods in our experiments. We are open-sourcing our data and models to empower the community and advance the field of indoor scene understanding and generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.14981",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-09T09:44:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuheng Liu",
+            "Xinke Li",
+            "Yuning Zhang",
+            "Lu Qi",
+            "Xin Li",
+            "Wenping Wang",
+            "Chongshou Li",
+            "Xueting Li",
+            "Ming-Hsuan Yang"
+          ],
+          "title": "Controllable 3D Outdoor Scene Generation via Scene Graphs",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.07152",
+        "summary": "Three-dimensional scene generation is crucial in computer vision, with applications spanning autonomous driving, gaming and the metaverse. Current methods either lack user control or rely on imprecise, non-intuitive conditions. In this work, we propose a method that uses, scene graphs, an accessible, user friendly control format to generate outdoor 3D scenes. We develop an interactive system that transforms a sparse scene graph into a dense BEV (Bird's Eye View) Embedding Map, which guides a conditional diffusion model to generate 3D scenes that match the scene graph description. During inference, users can easily create or modify scene graphs to generate large-scale outdoor scenes. We create a large-scale dataset with paired scene graphs and 3D semantic scenes to train the BEV embedding and diffusion models. Experimental results show that our approach consistently produces high-quality 3D urban scenes closely aligned with the input scene graphs. To the best of our knowledge, this is the first approach to generate 3D outdoor scenes conditioned on scene graphs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.07152",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-09T09:44:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuanhao Cai",
+            "He Zhang",
+            "Kai Zhang",
+            "Yixun Liang",
+            "Mengwei Ren",
+            "Fujun Luan",
+            "Qing Liu",
+            "Soo Ye Kim",
+            "Jianming Zhang",
+            "Zhifei Zhang",
+            "Yuqian Zhou",
+            "Yulun Zhang",
+            "Xiaokang Yang",
+            "Zhe Lin",
+            "Alan Yuille"
+          ],
+          "title": "Baking Gaussian Splatting into Diffusion Denoiser for Fast and Scalable Single-stage Image-to-3D Generation and Reconstruction",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.14384",
+        "summary": "Existing feedforward image-to-3D methods mainly rely on 2D multi-view diffusion models that cannot guarantee 3D consistency. These methods easily collapse when changing the prompt view direction and mainly handle object-centric cases. In this paper, we propose a novel single-stage 3D diffusion model, DiffusionGS, for object generation and scene reconstruction from a single view. DiffusionGS directly outputs 3D Gaussian point clouds at each timestep to enforce view consistency and allow the model to generate robustly given prompt views of any directions, beyond object-centric inputs. Plus, to improve the capability and generality of DiffusionGS, we scale up 3D training data by developing a scene-object mixed training strategy. Experiments show that DiffusionGS yields improvements of 2.20 dB/23.25 and 1.34 dB/19.16 in PSNR/FID for objects and scenes than the state-of-the-art methods, without depth estimator. Plus, our method enjoys over 5$\\times$ faster speed ($\\sim$6s on an A100 GPU). Our Project page at https://caiyuanhao1998.github.io/project/DiffusionGS/ shows the video and interactive results. The code and models are publicly available at https://github.com/caiyuanhao1998/Open-DiffusionGS",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.14384",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-09T09:44:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"pixworld: unifying 3d scene generation and reconstruction in pixel spa\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

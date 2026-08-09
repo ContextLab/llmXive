@@ -1,87 +1,180 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Merged Traffic-Weather Dataset Schema
+# Schema contract for the merged Traffic-Weather Severity Dataset
+# Generated for project: PROJ-223-statistical-analysis-of-publicly-availab
+# Task: T007b
+#
+# This file defines the required fields, data types, and constraints
+# for the output of the data ingestion and merging pipeline (User Story 1).
+# It is used by `code/schema_validation.py` to validate the final merged dataset.
+
+version: "1.0.0"
+dataset_name: "merged_traffic_weather_severity"
 description: >
-  Contract definition for the merged FARS and NOAA ISD dataset.
-  Validates fields required for Ordinal Logistic Regression modeling
-  and ensures data integrity before analysis.
-type: object
-properties:
-  accident_id:
-    description: Unique identifier for the accident record (from FARS).
+  Unified dataset merging FARS (traffic accidents) and NOAA ISD (weather) data.
+  Includes spatial-temporal matches, severity encoding, and weather metrics.
+
+fields:
+  # --- Primary Keys & Identifiers ---
+  - name: accident_id
     type: string
-  severity:
-    description: >
-      Ordinal severity level: 0=Property Damage Only, 1=Injury, 2=Fatality.
-      Encoded from FARS 'MGL' or similar severity columns.
+    required: true
+    description: Unique identifier for the FARS accident record (e.g., "STATEID_STUDYYEAR_ACCID")
+
+  - name: fars_record_id
+    type: string
+    required: true
+    description: Original FARS record identifier for traceability
+
+  - name: noaa_station_id
+    type: string
+    required: true
+    description: NOAA ISD station ID (USAF/WBAN) of the matched weather station
+
+  # --- Temporal Data ---
+  - name: accident_datetime
+    type: datetime
+    required: true
+    description: Timestamp of the accident (UTC)
+
+  - name: weather_datetime
+    type: datetime
+    required: true
+    description: Timestamp of the weather observation used (UTC)
+
+  - name: time_delta_minutes
+    type: float
+    required: true
+    description: Time difference between accident and weather observation in minutes (absolute value)
+
+  # --- Spatial Data ---
+  - name: accident_lat
+    type: float
+    required: true
+    description: Latitude of the accident (decimal degrees)
+
+  - name: accident_lon
+    type: float
+    required: true
+    description: Longitude of the accident (decimal degrees)
+
+  - name: station_lat
+    type: float
+    required: true
+    description: Latitude of the weather station (decimal degrees)
+
+  - name: station_lon
+    type: float
+    required: true
+    description: Longitude of the weather station (decimal degrees)
+
+  - name: geo_distance_km
+    type: float
+    required: true
+    description: Great-circle distance between accident and station (km)
+
+  # --- Match Metadata ---
+  - name: match_method
+    type: categorical
+    required: true
+    allowed_values: ["nearest_station", "interpolated", "nearest_hour", "failed"]
+    description: Method used to derive the weather data for this record
+
+  # --- Severity Target Variable ---
+  - name: severity
     type: integer
-    enum: [0, 1, 2]
-  latitude:
-    description: Latitude of the accident location.
-    type: number
-  longitude:
-    description: Longitude of the accident location.
-    type: number
-  accident_date:
-    description: Date of the accident (YYYY-MM-DD).
-    type: string
-    format: date
-  accident_hour:
-    description: Hour of the accident (0-23).
-    type: integer
-    minimum: 0
-    maximum: 23
-  precipitation:
+    required: true
+    allowed_values: [0, 1, 2]
     description: >
-      Hourly precipitation in inches. NaN if no precipitation or missing.
-      Source: NOAA ISD.
-    type: number
-  visibility:
-    description: Visibility in miles. NaN if missing.
-    type: number
-  temperature:
-    description: Air temperature in Fahrenheit. NaN if missing.
-    type: number
-  wind_speed:
-    description: Wind speed in knots. NaN if missing.
-    type: number
-  weather_condition:
-    description: Categorical weather condition code.
-    type: string
-  match_method:
-    description: >
-      Method used to associate weather with accident.
-      Values: 'exact', 'interpolated', 'nearest'.
-    type: string
-    enum: ['exact', 'interpolated', 'nearest']
-  time_delta_minutes:
-    description: Time difference in minutes between accident and weather observation.
-    type: number
-  station_id:
-    description: NOAA ISD station ID used for the match.
-    type: string
-  distance_km:
-    description: Distance in km between accident location and weather station.
-    type: number
-  road_type:
-    description: Categorical road type from FARS.
-    type: string
-  day_of_week:
-    description: Day of week (0=Monday, 6=Sunday).
+      Encoded severity level:
+      0 = Property Damage Only (PDO)
+      1 = Injury
+      2 = Fatality
+
+  # --- Weather Predictors (Continuous/Categorical) ---
+  - name: precipitation_inches
+    type: float
+    required: true
+    description: Hourly precipitation accumulation (inches). NaN if not reported.
+
+  - name: visibility_miles
+    type: float
+    required: true
+    description: Visibility in miles. NaN if not reported.
+
+  - name: temperature_fahrenheit
+    type: float
+    required: true
+    description: Air temperature in Fahrenheit. NaN if not reported.
+
+  - name: wind_speed_mph
+    type: float
+    required: false
+    description: Wind speed in miles per hour (optional control)
+
+  - name: weather_condition_code
     type: integer
-    minimum: 0
-    maximum: 6
-required:
-  - accident_id
-  - severity
-  - latitude
-  - longitude
-  - accident_date
-  - accident_hour
-  - precipitation
-  - visibility
-  - temperature
-  - match_method
-  - station_id
-  - distance_km
-  - road_type
-additionalProperties: false
+    required: false
+    description: Coded weather condition (e.g., 0=Clear, 1=Rain, 2=Snow)
+
+  # --- Control Variables (from FARS) ---
+  - name: accident_hour
+    type: integer
+    required: true
+    description: Hour of day (0-23)
+
+  - name: accident_day_of_week
+    type: integer
+    required: true
+    description: Day of week (0=Monday, 6=Sunday)
+
+  - name: road_surface_condition
+    type: string
+    required: false
+    description: Road surface condition (e.g., "Dry", "Wet", "Snow")
+
+  # --- Derived Features (Optional but recommended) ---
+  - name: is_night
+    type: boolean
+    required: false
+    description: True if accident occurred between sunset and sunrise
+
+  - name: is_weekend
+    type: boolean
+    required: false
+    description: True if accident occurred on Saturday or Sunday
+
+constraints:
+  # Null constraints
+  - field: severity
+    constraint: not_null
+  - field: accident_id
+    constraint: not_null
+  - field: match_method
+    constraint: not_null
+
+  # Range constraints
+  - field: severity
+    constraint: in_range
+    min: 0
+    max: 2
+  - field: time_delta_minutes
+    constraint: non_negative
+  - field: geo_distance_km
+    constraint: non_negative
+
+  # Coverage target (SC-001)
+  # The ratio of rows where 'match_method' is NOT 'failed' must be >= 0.85
+  metric: coverage_rate
+  formula: "count(match_method != 'failed') / total_rows"
+  target: 0.85
+
+validation_rules:
+  - rule: "check_columns_exist"
+    message: "Missing required columns defined in schema"
+  - rule: "check_data_types"
+    message: "Data types do not match schema definition"
+  - rule: "check_categorical_values"
+    message: "Categorical fields contain unexpected values"
+  - rule: "check_null_constraints"
+    message: "Required fields contain null values"
+  - rule: "check_coverage_rate"
+    message: "Weather coverage rate is below 85% target"

@@ -1,14 +1,17 @@
 status: none
-intent: source monitoring confidence rating OpenNeuro ds003386 python package dataset
+intent: OpenNeuro source monitoring confidence ratings dataset download python package
+  dataset
 required_fields:
-- participant_id
+- subject_id
 - trial_id
-- stimulus_condition
+- stimulus_type
+- source_label
+- response
 - confidence_rating
-- source_truth
-- participant_response
 - accuracy
 - reaction_time
-cache_key: f013a2c25c0cb6c5c79bb006861abe410119c57abc9af6aecf6413de27092ca4
-searched_at: '2026-07-27T10:29:41.392129+00:00'
+- age
+- gender
+cache_key: 97c171d5ee8e73020b57c16efe351c9827e43df3387a766dc2f6fe54e0ea6977
+searched_at: '2026-08-09T09:34:34.142634+00:00'
 retry_count: 1

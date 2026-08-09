@@ -1,3 +1,3 @@
 """
-llmXive Traffic-Weather Severity Analysis Pipeline
+Traffic-Weather Severity Analysis Code Package
 """

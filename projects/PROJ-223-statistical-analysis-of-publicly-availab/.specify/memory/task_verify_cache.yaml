@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/` directory or the required Python files (`__init__.py`, `config.py`,\
+    \ `ingest.py`, `model.py`, `diagnostics.py`, `utils.py`, `main.py`) are present\
+    \ in the provided artifacts; therefore the task\u2019s core deliverable is missing.\
+    \ The implementer must add the directory and populate each file with appropriate,\
+    \ non\u2011placeholder code."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory or the required files (`__init__.py`, `test_ingest.py`,
+    `test_model.py`, `test_diagnostics.py`) was provided; without these artifacts
+    the task requirement is not satisfied.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/` directory (with `raw/`, `processed/`, and\
+    \ `reports/` subfolders) is provided; the claim lacks any artifact or listing\
+    \ confirming the directories exist. The implementer must supply a file\u2011system\
+    \ snapshot, directory listing, or code that creates these folders."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `.flake8`, or a `black` config) or scripts are present in the provided evidence,\
+    \ so the requirement to configure ruff/flake8 and black is not satisfied. The\
+    \ implementer must add the appropriate configuration files and ensure they are\
+    \ non\u2011empty and correctly set up."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory, an `__init__.py` file inside it, or any
+    pytest configuration (e.g., `pytest.ini` or `conftest.py`) was provided. The required
+    artifacts are missing, so the task is not satisfied.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No environment\u2011variable configuration file, script, or documentation was\
+    \ presented; the only evidence is the task description, which does not include\
+    \ any artifact showing that data\u2011path variables have been defined, loaded,\
+    \ or validated. Consequently the required deliverable is missing."

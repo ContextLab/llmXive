@@ -1,10 +1,7 @@
-? T001a [P] Create `code/` directory structure (`__init__.py`, `config.py`, `ingest.py`,
-  `model.py`, `diagnostics.py`, `utils.py`, `main.py`)
-: 1
-T001b [P] Create `tests/` directory structure (`__init__.py`, `test_ingest.py`, `test_model.py`, `test_diagnostics.py`): 1
-T001c [P] Create `data/` directory structure (`raw/`, `processed/`, `reports/`): 1
-? T002 Initialize Python 3.11 project with `requirements.txt` (pinned `pandas`, `numpy`,
-  `scikit-learn`, `statsmodels`, `geopy`, `pyyaml`, `matplotlib`, `seaborn`, `pyarrow`,
-  `h3`)
-: 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+T001a: 1
+T001b: 1
+T001c: 1
+T003: 1
+T006: 1
+T007b: 1
+T008: 1

@@ -1,0 +1,47 @@
+T020:
+  c: false
+  h: 941d90fc1d1557c38eb8ebde5a66b428b0f56e02e2518875430906e7735276b5
+  r: "The `results/power_analysis.json` file does not exist, and the provided `power_simulation.py`\
+    \ is truncated before any Monte\u2011Carlo loop, power calculation, Holm\u2011\
+    Bonferroni adjustment per iteration, or JSON output logic. The required output\
+    \ artifact is missing and the script does not demonstrably fulfill the full simulation\
+    \ requirements."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that shows the implementation\
+    \ of logic to flag non\u2011compliant days while preserving the data for later\
+    \ analysis. The required artifact (e.g., a function, module, or database update\
+    \ rule) is missing, so the task is not satisfied."
+T042:
+  c: false
+  h: 4efc2e67e1dc5526a0d1685efb9fbb65ca72078166236a0d211598a1c1647a06
+  r: "The `code/report/generate_report.py` file is truncated and does not contain\
+    \ the full logic to load and combine the sensitivity analysis, power simulation,\
+    \ statistical summary, and validation status into a markdown report. Moreover,\
+    \ the required output file `results/final_report.md` is missing entirely. The\
+    \ task\u2019s core deliverables are therefore not present."
+T043:
+  c: false
+  h: 1029057b0f66ae94f5d8a9d662e200cdefa737a427009a862f81c6b2b1650e78
+  r: "The `validate_success_criteria.py` file is present but its content is truncated\
+    \ and does not show the actual logic that loads `results/statistical_summary.json`,\
+    \ performs the explicit p\u2011value/effect\u2011size/direction checks, and writes\
+    \ a validation report. Moreover, the required `results/statistical_summary.json`\
+    \ file is absent, so the script cannot operate as specified. The task therefore\
+    \ remains unfinished."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md, quickstart.md, or API documentation files were presented in the
+    evidence; the claim provides only a description of the study feature without any
+    of the required documentation artifacts. The task cannot be considered complete
+    until those markdown files and docs/ contents are supplied.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, diff, commit log, or any refactored script were provided; the\
+    \ claim of \u201Ccode cleanup and refactoring for readability\u201D cannot be\
+    \ verified because the required artifact (the cleaned/refactored code) is missing.\
+    \ The implementer must supply the updated source files (or a clear before\u2011\
+    after comparison) showing the readability improvements."
