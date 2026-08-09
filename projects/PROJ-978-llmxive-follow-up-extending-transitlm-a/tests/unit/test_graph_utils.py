@@ -1,207 +1,153 @@
-import pytest
 import json
-import tempfile
+import os
+import pytest
 from pathlib import Path
-import sys
+from unittest.mock import patch, mock_open
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
+# Import the functions to test
 from data.graph_utils import (
     build_route_graph,
-    load_ground_truth,
-    compute_edge_overlap,
+    compute_jaccard_index,
     validate_graph_against_ground_truth,
-    compute_path_betweenness_centrality,
-    compute_route_complexity_metrics
+    load_ground_truth,
+    load_processed_routes
 )
 
+def test_build_route_graph_basic():
+    """Test building a graph from a simple list of routes."""
+    routes = [
+        {"stops": ["A", "B", "C"]},
+        {"stops": ["C", "D"]}
+    ]
+    edges = build_route_graph(routes)
+    expected = {("A", "B"), ("B", "C"), ("C", "D")}
+    assert edges == expected
 
-class TestBuildRouteGraph:
-    def test_basic_graph_building(self):
-        routes = [
-            ["A", "B", "C"],
-            ["B", "D", "E"]
-        ]
-        graph = build_route_graph(routes)
-        
-        assert "A" in graph
-        assert "B" in graph["A"]
-        assert "C" in graph["B"]
-        assert "D" in graph["B"]
-        assert "E" in graph["D"]
-    
-    def test_empty_routes(self):
-        routes = []
-        graph = build_route_graph(routes)
-        assert graph == {}
-    
-    def test_single_station_route(self):
-        routes = [["A"]]
-        graph = build_route_graph(routes)
-        assert graph == {}
-    
-    def test_two_station_route(self):
-        routes = [["A", "B"]]
-        graph = build_route_graph(routes)
-        assert "A" in graph
-        assert "B" in graph["A"]
-        assert "A" in graph["B"]
+def test_build_route_graph_empty():
+    """Test building a graph from empty or invalid routes."""
+    routes = [
+        {"stops": []},
+        {"stops": ["A"]},
+        {},
+        None
+    ]
+    edges = build_route_graph(routes)
+    assert edges == set()
 
+def test_build_route_graph_alternative_keys():
+    """Test that the function handles alternative keys for stops."""
+    routes = [
+        {"stations": ["X", "Y"]},
+        {"stop_sequence": ["Y", "Z"]}
+    ]
+    edges = build_route_graph(routes)
+    expected = {("X", "Y"), ("Y", "Z")}
+    assert edges == expected
 
-class TestLoadGroundTruth:
-    def test_load_ground_truth(self):
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump([
-                {"from": "A", "to": "B", "count": 10},
-                {"from": "B", "to": "C", "count": 20}
-            ], f)
-            temp_path = f.name
-        
-        try:
-            edges = load_ground_truth(temp_path)
-            assert ("A", "B") in edges
-            assert ("B", "C") in edges
-            assert len(edges) == 2
-        finally:
-            Path(temp_path).unlink()
-    
-    def test_normalized_edges(self):
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump([
-                {"from": "B", "to": "A", "count": 10}
-            ], f)
-            temp_path = f.name
-        
-        try:
-            edges = load_ground_truth(temp_path)
-            assert ("A", "B") in edges
-        finally:
-            Path(temp_path).unlink()
+def test_jaccard_index_identical_sets():
+    """Test Jaccard index for identical sets."""
+    s1 = {"A", "B", "C"}
+    s2 = {"A", "B", "C"}
+    assert compute_jaccard_index(s1, s2) == 1.0
 
+def test_jaccard_index_disjoint_sets():
+    """Test Jaccard index for disjoint sets."""
+    s1 = {"A", "B"}
+    s2 = {"C", "D"}
+    assert compute_jaccard_index(s1, s2) == 0.0
 
-class TestComputeEdgeOverlap:
-    def test_complete_overlap(self):
-        built_graph = {
-            "A": {"B"},
-            "B": {"A", "C"},
-            "C": {"B"}
-        }
-        ground_truth = {("A", "B"), ("B", "C")}
-        
-        overlap = compute_edge_overlap(built_graph, ground_truth)
-        assert overlap == 1.0
-    
-    def test_no_overlap(self):
-        built_graph = {
-            "A": {"B"},
-            "B": {"A"}
-        }
-        ground_truth = {("C", "D"), ("D", "E")}
-        
-        overlap = compute_edge_overlap(built_graph, ground_truth)
-        assert overlap == 0.0
-    
-    def test_partial_overlap(self):
-        built_graph = {
-            "A": {"B", "C"},
-            "B": {"A"},
-            "C": {"A"}
-        }
-        ground_truth = {("A", "B")}
-        
-        overlap = compute_edge_overlap(built_graph, ground_truth)
-        assert overlap == 0.5  # 1 out of 2 edges overlap
-    
-    def test_empty_built_graph(self):
-        built_graph = {}
-        ground_truth = {("A", "B")}
-        
-        overlap = compute_edge_overlap(built_graph, ground_truth)
-        assert overlap == 0.0
+def test_jaccard_index_partial_overlap():
+    """Test Jaccard index for partially overlapping sets."""
+    s1 = {"A", "B", "C"}
+    s2 = {"B", "C", "D"}
+    # Intersection: {B, C} (2)
+    # Union: {A, B, C, D} (4)
+    assert compute_jaccard_index(s1, s2) == 0.5
 
+def test_jaccard_index_empty_sets():
+    """Test Jaccard index for empty sets."""
+    assert compute_jaccard_index(set(), set()) == 1.0
+    assert compute_jaccard_index({"A"}, set()) == 0.0
+    assert compute_jaccard_index(set(), {"A"}) == 0.0
 
-class TestValidateGraphAgainstGroundTruth:
-    def test_validation_pass(self):
-        routes = [
-            ["A", "B", "C"],
-            ["C", "D"]
-        ]
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump([
-                {"from": "A", "to": "B", "count": 10},
-                {"from": "B", "to": "C", "count": 10},
-                {"from": "C", "to": "D", "count": 10}
-            ], f)
-            temp_path = f.name
-        
-        try:
-            is_valid, details = validate_graph_against_ground_truth(routes, temp_path, threshold=0.95)
-            assert is_valid
-            assert details["overlap_ratio"] == 1.0
-        finally:
-            Path(temp_path).unlink()
-    
-    def test_validation_fail(self):
-        routes = [
-            ["A", "B"],
-            ["C", "D"]
-        ]
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump([
-                {"from": "X", "to": "Y", "count": 10}
-            ], f)
-            temp_path = f.name
-        
-        try:
-            is_valid, details = validate_graph_against_ground_truth(routes, temp_path, threshold=0.95)
-            assert not is_valid
-            assert details["overlap_ratio"] == 0.0
-        finally:
-            Path(temp_path).unlink()
+@pytest.mark.parametrize("threshold,expected_status", [
+    (0.95, "PASS"),
+    (0.99, "FAIL")
+])
+def test_validate_graph_against_ground_truth_success_and_fail(tmp_path, threshold, expected_status):
+    """
+    Test validate_graph_against_ground_truth with mock data.
+    This test verifies the logic of the validation and the raising of RuntimeError on failure.
+    """
+    # Prepare mock data
+    routes_data = [
+        {"stops": ["A", "B", "C"]},
+        {"stops": ["C", "D"]}
+    ]
+    # Ground truth has slightly different edges to test threshold
+    gt_data = [
+        {"stops": ["A", "B", "C"]},
+        {"stops": ["C", "D"]},
+        {"stops": ["E", "F"]} # Extra edge in GT
+    ]
 
+    routes_file = tmp_path / "routes.jsonl"
+    gt_file = tmp_path / "gt.json"
+    report_file = tmp_path / "report.json"
 
-class TestComputePathBetweennessCentrality:
-    def test_basic_centrality(self):
-        routes = [
-            ["A", "B", "C", "D"],
-            ["E", "B", "F"]
-        ]
-        centrality = compute_path_betweenness_centrality(routes)
-        
-        # B appears as intermediate in both routes
-        assert centrality.get("B", 0) > 0
-        # A, C, D, E, F are not intermediates
-        assert centrality.get("A", 0) == 0
-        assert centrality.get("C", 0) == 0
-    
-    def test_empty_routes(self):
-        centrality = compute_path_betweenness_centrality([])
-        assert centrality == {}
-    
-    def test_short_routes(self):
-        routes = [
-            ["A", "B"],
-            ["C"]
-        ]
-        centrality = compute_path_betweenness_centrality(routes)
-        assert centrality == {}
+    with open(routes_file, 'w') as f:
+        for r in routes_data:
+            f.write(json.dumps(r) + "\n")
 
+    with open(gt_file, 'w') as f:
+        json.dump(gt_data, f)
 
-class TestComputeRouteComplexityMetrics:
-    def test_basic_metrics(self):
-        routes = [
-            ["A", "B", "C", "D"],
-            ["E", "F"]
-        ]
-        metrics = compute_route_complexity_metrics(routes)
-        
-        assert len(metrics) == 2
-        assert metrics[0]["length"] == 4
-        assert metrics[1]["length"] == 2
-        assert metrics[0]["complexity_score"] >= 0
-        assert metrics[1]["complexity_score"] == 0  # No intermediate nodes
-    
-    def test_empty_routes(self):
-        metrics = compute_route_complexity_metrics([])
-        assert metrics == []
+    # Calculate expected Jaccard manually
+    # Route edges: (A,B), (B,C), (C,D) -> 3 edges
+    # GT edges: (A,B), (B,C), (C,D), (E,F) -> 4 edges
+    # Intersection: 3
+    # Union: 4
+    # Jaccard: 0.75
+
+    if expected_status == "FAIL":
+        with pytest.raises(RuntimeError, match="Graph validation FAILED"):
+            validate_graph_against_ground_truth(
+                routes_path=str(routes_file),
+                ground_truth_path=str(gt_file),
+                output_path=str(report_file),
+                threshold=threshold
+            )
+    else:
+        # For PASS, we need Jaccard >= threshold.
+        # With current data J=0.75. If threshold is 0.95, it should fail.
+        # Let's adjust the test data for the PASS case.
+        if threshold == 0.95:
+            # Make GT identical to routes
+            gt_data_pass = [
+                {"stops": ["A", "B", "C"]},
+                {"stops": ["C", "D"]}
+            ]
+            with open(gt_file, 'w') as f:
+                json.dump(gt_data_pass, f)
+            
+            validate_graph_against_ground_truth(
+                routes_path=str(routes_file),
+                ground_truth_path=str(gt_file),
+                output_path=str(report_file),
+                threshold=threshold
+            )
+            
+            assert report_file.exists()
+            with open(report_file) as f:
+                report = json.load(f)
+            assert report["status"] == "PASS"
+            assert report["jaccard_index"] == 1.0
+def test_load_ground_truth_file_not_found():
+    """Test that load_ground_truth raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_ground_truth("non_existent_file.json")
+
+def test_load_processed_routes_file_not_found():
+    """Test that load_processed_routes raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_processed_routes("non_existent_file.jsonl")

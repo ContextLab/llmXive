@@ -1,53 +1,69 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: Network Reconfigurability Metric Schema
-description: Schema for the computed network reconfigurability metrics per subject.
+description: Schema for computed network reconfigurability metrics per subject.
 type: object
 required:
   - subject_id
-  - transition_count
-  - window_size
-  - step_size
-  - community_algorithm
-  - seed
-  - computation_timestamp
+  - metrics
+  - computation_details
 properties:
   subject_id:
     type: string
-    description: The HCP subject ID.
-    pattern: "^\\d{6}$"
-  transition_count:
-    type: integer
-    description: Total number of community state transitions detected.
-    minimum: 0
-  window_size:
-    type: integer
-    description: Size of the sliding window in TRs.
-    minimum: 1
-  step_size:
-    type: integer
-    description: Step size for sliding window in TRs.
-    minimum: 1
-  community_algorithm:
-    type: string
-    description: Algorithm used for community detection.
-    enum:
-      - louvain
-      - leiden
-  seed:
-    type: integer
-    description: Random seed used for reproducibility.
-  computation_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of computation.
-  qc_flags:
-    type: array
-    description: List of QC flags or warnings.
-    items:
-      type: string
-  raw_transition_series:
-    type: array
-    description: (Optional) Array of community labels per window.
-    items:
-      type: integer
+    description: Unique subject identifier matching dataset.schema.yaml
+  metrics:
+    type: object
+    required:
+      - transition_count
+      - modularity
+    properties:
+      transition_count:
+        type: integer
+        minimum: 0
+        description: Number of community state transitions detected
+      modularity:
+        type: number
+        description: Average modularity score across windows
+      dwell_time:
+        type: number
+        description: Average dwell time in each community state
+      flexibility:
+        type: number
+        description: Average node flexibility metric
+  computation_details:
+    type: object
+    required:
+      - window_size
+      - step_size
+      - algorithm
+      - seed
+    properties:
+      window_size:
+        type: integer
+        description: Sliding window size in TRs
+      step_size:
+        type: integer
+        description: Step size in TRs
+      algorithm:
+        type: string
+        enum: ["louvain", "leiden"]
+        description: Community detection algorithm used
+      seed:
+        type: integer
+        description: Random seed used for reproducibility
+      n_iterations:
+        type: integer
+        description: Number of Louvain iterations performed
+      convergence_status:
+        type: string
+        enum: ["converged", "max_iter_reached", "failed"]
+        description: Convergence status of the algorithm
+  qc_status:
+    type: object
+    properties:
+      motion_excluded:
+        type: boolean
+      fd_mean:
+        type: number
+      exclusion_reason:
+        type: string
 additionalProperties: false

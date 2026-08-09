@@ -1,119 +1,102 @@
-"""
-Project initialization script for llmXive research pipeline.
-Creates the required directory structure and initial configuration files.
-"""
 import os
 import sys
 from pathlib import Path
 
 def create_directory_structure(root_dir: Path) -> None:
     """
-    Create the standard project directory structure.
+    Create the required project directory structure for the llmXive pipeline.
     
-    Args:
-        root_dir: The root directory of the project.
+    Creates:
+    - code/ (source code)
+    - code/src/ (internal modules)
+    - code/src/data/ (data loading and processing)
+    - code/src/utils/ (utilities)
+    - code/src/analysis/ (analysis modules)
+    - code/src/viz/ (visualization modules)
+    - tests/ (test suite)
+    - tests/unit/ (unit tests)
+    - tests/integration/ (integration tests)
+    - data/ (raw and processed data)
+    - data/raw/ (downloaded raw data)
+    - data/processed/ (preprocessed data)
+    - results/ (analysis results)
+    - results/stats/ (statistical outputs)
+    - results/figures/ (visualizations)
+    - specs/ (feature specifications)
     """
     directories = [
-        "src",
-        "src/utils",
-        "src/data",
-        "src/analysis",
-        "src/viz",
+        "code",
+        "code/src",
+        "code/src/data",
+        "code/src/utils",
+        "code/src/analysis",
+        "code/src/viz",
         "tests",
         "tests/unit",
         "tests/integration",
         "data",
         "data/raw",
         "data/processed",
-        "data/cache",
         "results",
-        "results/figures",
         "results/stats",
+        "results/figures",
         "specs",
-        "logs",
     ]
     
-    for dir_name in directories:
-        dir_path = root_dir / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        # Create .gitkeep to ensure empty directories are tracked
-        (dir_path / ".gitkeep").touch()
+    for dir_path in directories:
+        full_path = root_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Create .gitkeep files to ensure directories are tracked by git
+        gitkeep = full_path / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
     
-    print(f"Directory structure created in: {root_dir}")
+    print(f"Created directory structure at {root_dir}")
+    for dir_path in directories:
+        print(f"  - {dir_path}")
 
 def create_initial_files(root_dir: Path) -> None:
     """
-    Create initial configuration and placeholder files.
-    
-    Args:
-        root_dir: The root directory of the project.
+    Create initial placeholder files for the project structure.
     """
-    # Create requirements.txt
-    requirements_path = root_dir / "requirements.txt"
-    if not requirements_path.exists():
-        requirements_path.write_text(
-            "# Core dependencies\n"
-            "nibabel>=5.0.0\n"
-            "numpy>=1.24.0\n"
-            "pandas>=2.0.0\n"
-            "networkx>=3.1.0\n"
-            "scikit-learn>=1.3.0\n"
-            "scipy>=1.11.0\n"
-            "matplotlib>=3.7.0\n"
-            "seaborn>=0.12.0\n"
-            "bids-validator>=1.12.0\n"
-            "requests>=2.31.0\n"
-            "fsl-afni-wrappers>=1.0.0\n"
-        )
-        print(f"Created: {requirements_path}")
+    # Create __init__.py files for Python packages
+    init_files = [
+        "code/src/__init__.py",
+        "code/src/data/__init__.py",
+        "code/src/utils/__init__.py",
+        "code/src/analysis/__init__.py",
+        "code/src/viz/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py",
+        "tests/integration/__init__.py",
+    ]
     
-    # Create .gitignore
-    gitignore_path = root_dir / ".gitignore"
-    if not gitignore_path.exists():
-        gitignore_path.write_text(
-            "# Python\n"
-            "__pycache__/\n"
-            "*.py[cod]\n"
-            "*$py.class\n"
-            ".pytest_cache/\n"
-            ".coverage\n"
-            "htmlcov/\n"
-            "\n"
-            "# Data\n"
-            "data/raw/*\n"
-            "!data/raw/.gitkeep\n"
-            "*.nii.gz\n"
-            "*.nii\n"
-            "\n"
-            "# Results\n"
-            "results/*\n"
-            "!results/.gitkeep\n"
-            "\n"
-            "# Logs\n"
-            "logs/*\n"
-            "!logs/.gitkeep\n"
-            "\n"
-            "# IDE\n"
-            ".idea/\n"
-            ".vscode/\n"
-            "*.swp\n"
-            "*.swo\n"
-        )
-        print(f"Created: {gitignore_path}")
+    for file_path in init_files:
+        full_path = root_dir / file_path
+        if not full_path.exists():
+            full_path.touch()
+            # Add minimal content to make it a proper package
+            with open(full_path, 'w') as f:
+                f.write(f'"""{file_path.replace("/", ".")} package."""\n')
+    
+    print("Created initial package files")
 
-def main() -> None:
+def main():
     """Main entry point for project setup."""
-    # Determine project root (parent of code directory)
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent if current_file.name == "setup_project.py" else code_dir
+    # Determine project root (parent of code/)
+    # We assume this script is run from the project root
+    root_dir = Path.cwd()
     
-    print(f"Initializing project structure at: {project_root}")
+    print(f"Setting up project structure at: {root_dir}")
     
-    create_directory_structure(project_root)
-    create_initial_files(project_root)
+    create_directory_structure(root_dir)
+    create_initial_files(root_dir)
     
-    print("Project setup complete.")
+    print("\nProject structure setup complete!")
+    print("Next steps:")
+    print("  1. Verify directory structure with: ls -R")
+    print("  2. Initialize git repository if not already done")
+    print("  3. Install dependencies: pip install -r requirements.txt")
 
 if __name__ == "__main__":
     main()

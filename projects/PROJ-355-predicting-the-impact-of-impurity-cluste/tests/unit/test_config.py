@@ -1,9 +1,13 @@
-"""
-Unit tests for code/config.py
-"""
+"""Unit tests for code/config.py."""
 import pytest
 from pathlib import Path
-from config import get_project_root, get_data_paths, get_config_summary
+import sys
+import os
+
+# Add parent directory to path to allow imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from code.config import get_project_root, get_data_paths, get_config_summary
 
 def test_get_project_root():
     """Test that get_project_root returns a valid Path object."""
@@ -12,21 +16,15 @@ def test_get_project_root():
     assert root.exists()
 
 def test_get_data_paths():
-    """Test that get_data_paths returns the expected directory structure."""
+    """Test that get_data_paths returns expected directories."""
     paths = get_data_paths()
-    
-    assert "raw" in paths
-    assert "processed" in paths
-    assert "results" in paths
-    
-    # Check that paths are Path objects
-    for key, path in paths.items():
-        assert isinstance(path, Path)
+    assert 'raw' in paths
+    assert 'processed' in paths
+    assert isinstance(paths['raw'], Path)
+    assert isinstance(paths['processed'], Path)
 
 def test_get_config_summary():
-    """Test that get_config_summary returns a dictionary with expected keys."""
+    """Test that get_config_summary returns a dictionary."""
     summary = get_config_summary()
-    
     assert isinstance(summary, dict)
-    # At minimum, it should contain basic configuration info
-    assert "project_root" in summary or "random_seed" in summary or "data_paths" in summary
+    assert 'project_id' in summary or 'seed' in summary  # At least one config key

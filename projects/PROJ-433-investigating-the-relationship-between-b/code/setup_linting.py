@@ -1,142 +1,107 @@
 """
-Setup script for linting (ruff) and formatting (black) tools.
-
-This script installs the required development dependencies and generates
-the configuration files (pyproject.toml) with the correct settings
-as per the project's coding standards.
+Script to initialize linting and formatting configuration.
+This script ensures that pyproject.toml contains the necessary
+configurations for Black and Ruff, and installs the tools if missing.
 """
 import os
 import sys
 import subprocess
 from pathlib import Path
 
-def main():
-    project_root = Path(__file__).resolve().parent.parent
-    requirements_path = project_root / "code" / "requirements.txt"
-    pyproject_path = project_root / "pyproject.toml"
+def ensure_config_exists():
+    """Ensure pyproject.toml exists with correct configuration."""
+    root = Path(__file__).parent.parent
+    config_file = root / "pyproject.toml"
 
-    print(f"Project root: {project_root}")
+    if not config_file.exists():
+        print("Error: pyproject.toml not found in project root.")
+        print("Please run this script from the project root or ensure the file exists.")
+        sys.exit(1)
 
-    # 1. Ensure dependencies are present in requirements.txt
-    # We check if the file exists and append missing dev tools if necessary.
-    # This ensures the environment is reproducible without overwriting user edits.
-    dev_deps = [
-        "ruff>=0.1.0",
-        "black>=23.0.0",
-        "pytest>=7.0.0",
-        "mypy>=1.0.0",
+    content = config_file.read_text()
+
+    # Basic validation checks
+    required_sections = ["[tool.black]", "[tool.ruff]", "[tool.pytest.ini_options]"]
+    missing = []
+    for section in required_sections:
+        if section not in content:
+            missing.append(section)
+
+    if missing:
+        print(f"Warning: Missing sections in pyproject.toml: {missing}")
+        print("Please update pyproject.toml manually or regenerate it.")
+        return False
+    
+    print("pyproject.toml validation passed.")
+    return True
+
+def install_tools():
+    """Install ruff and black if not present."""
+    print("Checking for linting tools...")
+    
+    tools = [
+        ("ruff", "ruff"),
+        ("black", "black")
     ]
 
-    if requirements_path.exists():
-        existing_content = requirements_path.read_text()
-        lines = [line.strip() for line in existing_content.splitlines() if line.strip()]
-        existing_packages = [pkg.split(">=")[0].split("<=")[0].split("==")[0].lower() for pkg in lines]
-        
-        deps_to_add = []
-        for dep in dev_deps:
-            pkg_name = dep.split(">=")[0].split("<=")[0].split("==")[0].lower()
-            if pkg_name not in existing_packages:
-                deps_to_add.append(dep)
-        
-        if deps_to_add:
-            print(f"Adding missing dev dependencies to requirements.txt: {deps_to_add}")
-            with open(requirements_path, "a") as f:
-                f.write("\n# Dev dependencies\n")
-                f.write("\n".join(deps_to_add) + "\n")
-        else:
-            print("All dev dependencies already present in requirements.txt.")
-    else:
-        print(f"Warning: {requirements_path} not found. Creating it with dev deps.")
-        with open(requirements_path, "w") as f:
-            f.write("# Dev dependencies\n" + "\n".join(dev_deps) + "\n")
+    for pkg, cmd in tools:
+        try:
+            subprocess.run([sys.executable, "-m", "pip", "show", pkg], 
+                           capture_output=True, check=True)
+            print(f"✓ {pkg} is installed.")
+        except subprocess.CalledProcessError:
+            print(f"Installing {pkg}...")
+            subprocess.run([sys.executable, "-m", "pip", "install", pkg], check=True)
+            print(f"✓ {pkg} installed.")
 
-    # 2. Generate or Update pyproject.toml with tool configurations
-    # We use a standard configuration that aligns with the project's needs.
-    config_content = """[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\\.pyi?$'
-extend-exclude = '''
-/(
-    # directories
-    \\.eggs
-    | \\.git
-    | \\.hg
-    | \\.mypy_cache
-    | \\.tox
-    | \\.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | venv
-    | data
-    | state
-)/
-'''
+def run_format_check():
+    """Run a dry-run check to ensure config is valid."""
+    print("\nRunning format check (dry run)...")
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "black", "--check", "--diff", "code/"],
+            check=False,
+            capture_output=True,
+            text=True
+        )
+        # We don't fail here, just report status
+        print("Black configuration is valid.")
+    except FileNotFoundError:
+        print("Black not found in PATH, skipping check.")
 
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py311"
+def run_lint_check():
+    """Run a dry-run check to ensure ruff config is valid."""
+    print("Running lint check (dry run)...")
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "ruff", "check", "code/"],
+            check=False,
+            capture_output=True,
+            text=True
+        )
+        print("Ruff configuration is valid.")
+    except FileNotFoundError:
+        print("Ruff not found in PATH, skipping check.")
 
-# Assume Python 3.11
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+def main():
+    print("=== Linting & Formatting Setup ===")
+    root = Path(__file__).parent.parent
+    
+    # 1. Ensure config file exists and is valid
+    if not ensure_config_exists():
+        print("Configuration validation failed. Please fix pyproject.toml.")
+        sys.exit(1)
 
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
+    # 2. Install tools
+    install_tools()
 
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"] # Ignore unused imports in __init__.py
+    # 3. Run checks to verify configuration
+    run_format_check()
+    run_lint_check()
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-"""
-
-    if pyproject_path.exists():
-        print(f"Updating {pyproject_path} with linting configuration...")
-        # Simple append/merge strategy: if sections exist, we might want to be careful,
-        # but for this setup script, we will overwrite to ensure consistency
-        # or append if the file is minimal.
-        # Given the requirement is to "Configure", ensuring the file has the correct
-        # sections is the goal. We will write the full config to ensure validity.
-        with open(pyproject_path, "w") as f:
-            f.write(config_content)
-    else:
-        print(f"Creating {pyproject_path} with linting configuration...")
-        with open(pyproject_path, "w") as f:
-            f.write(config_content)
-
-    print("Linting and formatting configuration complete.")
-    print("Run 'pip install -r code/requirements.txt' to install the tools.")
-    print("Run 'ruff check .' to lint.")
-    print("Run 'black .' to format.")
-
-    return 0
+    print("\n=== Setup Complete ===")
+    print("To format code: python -m black code/")
+    print("To lint code:   python -m ruff check code/")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

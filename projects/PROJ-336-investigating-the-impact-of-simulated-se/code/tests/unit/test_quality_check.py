@@ -1,239 +1,196 @@
-"""
-Unit tests for the quality_check module.
-"""
 import unittest
 import json
 import tempfile
 from pathlib import Path
 import sys
 import os
-import logging
+import numpy as np
 
-# Add parent directory to path to import src
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code to path if not already
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from src.data import quality_check
+from src.data.quality_check import (
+    load_motion_json,
+    calculate_fd,
+    compute_subject_fd,
+    run_quality_check,
+    save_manifest,
+    FD_THRESHOLD_MM,
+    MAX_HIGH_MOTION_PCT,
+    MIN_SAMPLE_SIZE
+)
 
-# Configure logging for tests
-logging.basicConfig(level=logging.WARNING)
 
 class TestQualityCheck(unittest.TestCase):
     
     def setUp(self):
         """Set up test fixtures."""
-        self.temp_dir = Path(tempfile.mkdtemp())
-        self.data_dir = self.temp_dir / "bids_dataset"
-        self.data_dir.mkdir()
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.data_root = Path(self.temp_dir.name)
         
-        # Create a mock subject directory
-        self.subject_dir = self.data_dir / "sub-01" / "func"
-        self.subject_dir.mkdir(parents=True)
+        # Create mock subject directories
+        self.sub1_dir = self.data_root / "sub-01" / "func"
+        self.sub1_dir.mkdir(parents=True)
         
-        # Create a mock motion JSON file
-        self.motion_json = self.subject_dir / "sub-01_task-rest_bold_motion.json"
+        self.sub2_dir = self.data_root / "sub-02" / "func"
+        self.sub2_dir.mkdir(parents=True)
         
-        # Generate realistic motion parameters
-        # Format: list of lists [tx, ty, tz, rx, ry, rz]
-        self.motion_data = {
-            "trans_x": [0.0, 0.1, 0.2, 0.15, 0.05, 0.0, -0.1, -0.05, 0.0, 0.0],
-            "trans_y": [0.0, 0.05, 0.1, 0.05, 0.0, -0.05, -0.1, -0.05, 0.0, 0.0],
-            "trans_z": [0.0, 0.0, 0.05, 0.0, -0.05, -0.05, 0.0, 0.05, 0.0, 0.0],
-            "rot_x": [0.0, 0.001, 0.002, 0.0015, 0.0005, 0.0, -0.001, -0.0005, 0.0, 0.0],
-            "rot_y": [0.0, 0.0005, 0.001, 0.0005, 0.0, -0.0005, -0.001, -0.0005, 0.0, 0.0],
-            "rot_z": [0.0, 0.0, 0.0005, 0.0, -0.0005, -0.0005, 0.0, 0.0005, 0.0, 0.0]
+        self.sub3_dir = self.data_root / "sub-03" / "func"
+        self.sub3_dir.mkdir(parents=True)
+        
+        # Mock motion data for sub-01 (low motion)
+        self.motion_data_low = {
+            "trans_x": [0.0, 0.1, 0.1, 0.1, 0.1],
+            "trans_y": [0.0, 0.1, 0.1, 0.1, 0.1],
+            "trans_z": [0.0, 0.1, 0.1, 0.1, 0.1],
+            "rot_x": [0.0, 0.01, 0.01, 0.01, 0.01],
+            "rot_y": [0.0, 0.01, 0.01, 0.01, 0.01],
+            "rot_z": [0.0, 0.01, 0.01, 0.01, 0.01],
+            "total_volume_count": 5
         }
         
-        with open(self.motion_json, 'w') as f:
-            json.dump(self.motion_data, f)
-    
-    def tearDown(self):
-        """Clean up temporary files."""
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-    
-    def test_load_motion_json(self):
-        """Test loading motion JSON file."""
-        data = quality_check.load_motion_json(self.motion_json)
-        self.assertIn("trans_x", data)
-        self.assertEqual(len(data["trans_x"]), 10)
-    
-    def test_load_motion_json_file_not_found(self):
-        """Test loading non-existent file raises error."""
-        with self.assertRaises(FileNotFoundError):
-            quality_check.load_motion_json(Path("/nonexistent/file.json"))
-    
-    def test_calculate_fd(self):
-        """Test FD calculation."""
-        # Simple case: no motion
-        fd = quality_check.calculate_fd([0, 0, 0, 0, 0, 0])
-        self.assertEqual(fd, 0.0)
+        # Mock motion data for sub-02 (high motion)
+        self.motion_data_high = {
+            "trans_x": [0.0, 1.0, 1.0, 1.0, 1.0],
+            "trans_y": [0.0, 1.0, 1.0, 1.0, 1.0],
+            "trans_z": [0.0, 1.0, 1.0, 1.0, 1.0],
+            "rot_x": [0.0, 0.5, 0.5, 0.5, 0.5],
+            "rot_y": [0.0, 0.5, 0.5, 0.5, 0.5],
+            "rot_z": [0.0, 0.5, 0.5, 0.5, 0.5],
+            "total_volume_count": 5
+        }
         
-        # Case with motion
-        # tx=1mm, ty=0, tz=0, rx=0.01 rad (~0.5mm), ry=0, rz=0
-        # FD = 1 + 0 + 0 + 0.5 + 0 + 0 = 1.5
-        fd = quality_check.calculate_fd([1.0, 0, 0, 0.01, 0, 0])
-        self.assertAlmostEqual(fd, 1.5, places=1)
-    
+        # Mock motion data for sub-03 (low motion)
+        self.motion_data_low_2 = {
+            "trans_x": [0.0, 0.1, 0.1, 0.1, 0.1],
+            "trans_y": [0.0, 0.1, 0.1, 0.1, 0.1],
+            "trans_z": [0.0, 0.1, 0.1, 0.1, 0.1],
+            "rot_x": [0.0, 0.01, 0.01, 0.01, 0.01],
+            "rot_y": [0.0, 0.01, 0.01, 0.01, 0.01],
+            "rot_z": [0.0, 0.01, 0.01, 0.01, 0.01],
+            "total_volume_count": 5
+        }
+        
+        # Write JSON files
+        self.json1 = self.sub1_dir / "sub-01_task-rest_bold.json"
+        with open(self.json1, 'w') as f:
+            json.dump(self.motion_data_low, f)
+            
+        self.json2 = self.sub2_dir / "sub-02_task-rest_bold.json"
+        with open(self.json2, 'w') as f:
+            json.dump(self.motion_data_high, f)
+            
+        self.json3 = self.sub3_dir / "sub-03_task-rest_bold.json"
+        with open(self.json3, 'w') as f:
+            json.dump(self.motion_data_low_2, f)
+            
+        self.manifest_path = self.data_root / "exclusion_manifest.json"
+
+    def tearDown(self):
+        """Clean up test fixtures."""
+        self.temp_dir.cleanup()
+
+    def test_load_motion_json(self):
+        """Test loading a motion JSON file."""
+        data = load_motion_json(self.json1)
+        self.assertIn('trans_x', data)
+        self.assertEqual(len(data['trans_x']), 5)
+
+    def test_load_motion_json_not_found(self):
+        """Test loading a non-existent JSON file raises error."""
+        with self.assertRaises(FileNotFoundError):
+            load_motion_json(Path("non_existent.json"))
+
+    def test_calculate_fd(self):
+        """Test FD calculation logic."""
+        # Create motion data with known differences
+        motion = {
+            "trans_x": [0.0, 0.5, 0.0],
+            "trans_y": [0.0, 0.0, 0.0],
+            "trans_z": [0.0, 0.0, 0.0],
+            "rot_x": [0.0, 0.0, 0.0],
+            "rot_y": [0.0, 0.0, 0.0],
+            "rot_z": [0.0, 0.0, 0.0]
+        }
+        
+        fd = calculate_fd(motion)
+        
+        # Expected: |0.5 - 0| = 0.5 for trans_x
+        # rest are 0
+        # FD = 0.5
+        self.assertEqual(len(fd), 2)
+        self.assertAlmostEqual(fd[0], 0.5, places=4)
+        self.assertAlmostEqual(fd[1], 0.5, places=4)
+
+    def test_calculate_fd_missing_keys(self):
+        """Test FD calculation with missing keys raises error."""
+        motion = {"trans_x": [0.0, 0.1]}
+        with self.assertRaises(ValueError):
+            calculate_fd(motion)
+
     def test_compute_subject_fd(self):
         """Test computing FD for a subject."""
-        fd_series, total_vol, high_motion_count = quality_check.compute_subject_fd(self.motion_json)
-        
-        # We have 10 volumes, so 9 FD values (differences)
-        self.assertEqual(len(fd_series), 9)
-        self.assertEqual(total_vol, 9)
-        
-        # With small motions, high motion count should be 0 (threshold 0.5mm)
-        self.assertEqual(high_motion_count, 0)
-    
-    def test_compute_subject_fd_missing_file(self):
-        """Test computing FD for missing file."""
-        fd_series, total_vol, high_motion_count = quality_check.compute_subject_fd(Path("/nonexistent.json"))
-        self.assertEqual(len(fd_series), 0)
-        self.assertEqual(total_vol, 0)
-        self.assertEqual(high_motion_count, 0)
-    
-    def test_find_motion_jsons(self):
-        """Test finding motion JSON files."""
-        # Create another motion file
-        other_motion = self.data_dir / "sub-02" / "func" / "sub-02_task-rest_bold_motion.json"
-        other_motion.parent.mkdir(parents=True)
-        with open(other_motion, 'w') as f:
-            json.dump(self.motion_data, f)
-        
-        found_files = quality_check.find_motion_jsons(self.data_dir)
-        self.assertEqual(len(found_files), 2)
-    
-    def test_run_quality_check_includes_all(self):
-        """Test quality check when all subjects pass."""
-        # Create a subject with very low motion
-        subject_dir = self.data_dir / "sub-02" / "func"
-        subject_dir.mkdir(parents=True)
-        motion_json = subject_dir / "sub-02_task-rest_bold_motion.json"
-        
-        # Very low motion
-        low_motion_data = {
-            "trans_x": [0.0, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
-            "trans_y": [0.0, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
-            "trans_z": [0.0, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
-            "rot_x": [0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001],
-            "rot_y": [0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001],
-            "rot_z": [0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001]
-        }
-        
-        with open(motion_json, 'w') as f:
-            json.dump(low_motion_data, f)
-        
-        # Create a manifest directory
-        output_dir = self.temp_dir / "manifests"
-        output_dir.mkdir()
-        
-        # We need at least 20 subjects to pass the check, so we'll mock the count
-        # For this test, we'll just verify the logic works for a small set
-        # and trust the sample size check for the full integration test
-        
-        # Since we only have 2 subjects, the check will fail the n>=20 requirement
-        # So we test the logic by mocking the sample size check
-        with unittest.mock.patch.object(quality_check, 'MIN_SAMPLE_SIZE', 1):
-            manifest = quality_check.run_quality_check(self.data_dir, output_dir)
-            
-            self.assertEqual(manifest["total_subjects"], 2)
-            self.assertEqual(manifest["included_subjects"], 2)
-            self.assertEqual(manifest["excluded_subjects"], 0)
-            
-            # Verify manifest file was created
-            manifest_path = output_dir / "exclusion_manifest.json"
-            self.assertTrue(manifest_path.exists())
-    
-    def test_run_quality_check_excludes_high_motion(self):
-        """Test quality check excludes high motion subjects."""
-        # Create a subject with high motion
-        subject_dir = self.data_dir / "sub-03" / "func"
-        subject_dir.mkdir(parents=True)
-        motion_json = subject_dir / "sub-03_task-rest_bold_motion.json"
-        
-        # High motion: >10% volumes above 0.5mm
-        # 100 volumes, 15 high motion
-        high_motion_data = {
-            "trans_x": [0.0] * 100,
-            "trans_y": [0.0] * 100,
-            "trans_z": [0.0] * 100,
-            "rot_x": [0.0] * 100,
-            "rot_y": [0.0] * 100,
-            "rot_z": [0.0] * 100
-        }
-        
-        # Inject high motion at specific indices
-        high_motion_indices = [10, 20, 30, 40, 50, 60, 70, 80, 90, 91, 92, 93, 94, 95, 96]
-        for idx in high_motion_indices:
-            if idx > 0:
-                high_motion_data["trans_x"][idx] = 0.6  # > 0.5mm
-        
-        with open(motion_json, 'w') as f:
-            json.dump(high_motion_data, f)
-        
-        # Create another low motion subject to ensure we have enough for the check
-        subject_dir2 = self.data_dir / "sub-04" / "func"
-        subject_dir2.mkdir(parents=True)
-        motion_json2 = subject_dir2 / "sub-04_task-rest_bold_motion.json"
-        
-        low_motion_data = {
-            "trans_x": [0.0] * 100,
-            "trans_y": [0.0] * 100,
-            "trans_z": [0.0] * 100,
-            "rot_x": [0.0] * 100,
-            "rot_y": [0.0] * 100,
-            "rot_z": [0.0] * 100
-        }
-        with open(motion_json2, 'w') as f:
-            json.dump(low_motion_data, f)
-        
-        # Create enough low-motion subjects to pass the n>=20 check
-        # We'll create 19 more
-        for i in range(5, 25):
-            sub_dir = self.data_dir / f"sub-{i:02d}" / "func"
-            sub_dir.mkdir(parents=True)
-            sub_json = sub_dir / f"sub-{i:02d}_task-rest_bold_motion.json"
-            with open(sub_json, 'w') as f:
-                json.dump(low_motion_data, f)
-        
-        output_dir = self.temp_dir / "manifests"
-        output_dir.mkdir()
-        
-        manifest = quality_check.run_quality_check(self.data_dir, output_dir)
-        
-        self.assertEqual(manifest["total_subjects"], 24) # 1 high + 23 low
-        self.assertEqual(manifest["excluded_subjects"], 1)
-        self.assertEqual(manifest["included_subjects"], 23)
-        self.assertIn("sub-03", manifest["excluded_list"])
-        self.assertNotIn("sub-03", manifest["included_list"])
-    
-    def test_run_quality_check_fails_low_sample(self):
-        """Test quality check fails if sample size < 20."""
-        # Only create 5 subjects, all low motion
-        for i in range(1, 6):
-            subject_dir = self.data_dir / f"sub-{i:02d}" / "func"
-            subject_dir.mkdir(parents=True)
-            motion_json = subject_dir / f"sub-{i:02d}_task-rest_bold_motion.json"
-            
-            low_motion_data = {
-                "trans_x": [0.0] * 10,
-                "trans_y": [0.0] * 10,
-                "trans_z": [0.0] * 10,
-                "rot_x": [0.0] * 10,
-                "rot_y": [0.0] * 10,
-                "rot_z": [0.0] * 10
-            }
-            with open(motion_json, 'w') as f:
-                json.dump(low_motion_data, f)
-        
-        output_dir = self.temp_dir / "manifests"
-        output_dir.mkdir()
-        
-        with self.assertRaises(ValueError) as context:
-            quality_check.run_quality_check(self.data_dir, output_dir)
-        
-        self.assertIn("below the minimum required threshold", str(context.exception))
-        self.assertIn("20", str(context.exception))
+        fd_values, total_vols = compute_subject_fd([self.json1])
+        self.assertEqual(total_vols, 5)
+        self.assertEqual(len(fd_values), 4) # N-1
 
-if __name__ == "__main__":
+    def test_run_quality_check_exclusion_logic(self):
+        """Test that high motion subjects are excluded."""
+        # We have 3 subjects: sub-01 (low), sub-02 (high), sub-03 (low)
+        # Expected: sub-02 excluded, sub-01 and sub-03 included
+        manifest = run_quality_check(self.data_root, self.manifest_path)
+        
+        self.assertEqual(manifest['included_count'], 2)
+        self.assertEqual(manifest['excluded_count'], 1)
+        self.assertIn('sub-02', manifest['exclusion_reasons'])
+        self.assertNotIn('sub-01', manifest['exclusion_reasons'])
+        self.assertNotIn('sub-03', manifest['exclusion_reasons'])
+        
+        # Verify manifest file exists
+        self.assertTrue(self.manifest_path.exists())
+
+    def test_run_quality_check_sample_size_threshold(self):
+        """Test that execution halts if sample size < 20."""
+        # Create a temporary directory with only 2 low-motion subjects
+        temp_dir = tempfile.TemporaryDirectory()
+        try:
+            small_root = Path(temp_dir.name)
+            
+            for i in range(2):
+                sub_dir = small_root / f"sub-{i+1:02d}" / "func"
+                sub_dir.mkdir(parents=True)
+                json_file = sub_dir / f"sub-{i+1:02d}_task-rest_bold.json"
+                with open(json_file, 'w') as f:
+                    json.dump(self.motion_data_low, f)
+            
+            manifest_path = small_root / "exclusion_manifest.json"
+            
+            # This should succeed because 2 >= 20 is False, but we only have 2 subjects
+            # Wait, the threshold is 20. With only 2 subjects, it should fail.
+            with self.assertRaises(ValueError) as context:
+                run_quality_check(small_root, manifest_path)
+                
+            self.assertIn("below minimum threshold", str(context.exception))
+            
+        finally:
+            temp_dir.cleanup()
+
+    def test_save_manifest(self):
+        """Test saving the exclusion manifest."""
+        data = {
+            "total_subjects": 3,
+            "included": [{"subject_id": "sub-01"}],
+            "excluded": [],
+            "exclusion_reasons": {},
+            "sample_size": 1
+        }
+        save_manifest(data, self.manifest_path)
+        
+        self.assertTrue(self.manifest_path.exists())
+        with open(self.manifest_path, 'r') as f:
+            saved_data = json.load(f)
+        self.assertEqual(saved_data['sample_size'], 1)
+
+
+if __name__ == '__main__':
     unittest.main()

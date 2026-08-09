@@ -5,38 +5,32 @@ from setup_project import ensure_directory, create_gitkeep
 
 def setup_directories():
     """
-    Setup the directory structure for the project including data/raw,
-    data/processed, and results directories with .gitkeep files.
-    """
-    project_root = Path(__file__).resolve().parent.parent
+    Setup the required directory structure for the project:
+    - data/raw/
+    - data/processed/
+    - results/
     
-    # Define directories relative to project root
+    Creates .gitkeep files in each directory to ensure they are tracked by git.
+    """
+    # Define the relative paths to create
     directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "results"
+        "data/raw",
+        "data/processed",
+        "results"
     ]
     
-    for directory in directories:
-        ensure_directory(directory)
-        gitkeep_path = directory / ".gitkeep"
-        create_gitkeep(gitkeep_path)
-        print(f"Created directory: {directory}")
-        print(f"Created .gitkeep: {gitkeep_path}")
+    project_root = Path(__file__).resolve().parent.parent
     
-    return True
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        ensure_directory(full_path)
+        create_gitkeep(full_path)
+        print(f"Created directory: {full_path} with .gitkeep")
 
 def main():
-    """
-    Main entry point for setting up directories.
-    """
-    print("Setting up directory structure...")
-    success = setup_directories()
-    if success:
-        print("Directory structure setup completed successfully.")
-    else:
-        print("Failed to setup directory structure.", file=sys.stderr)
-        sys.exit(1)
+    """Entry point for the script."""
+    setup_directories()
+    print("Directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

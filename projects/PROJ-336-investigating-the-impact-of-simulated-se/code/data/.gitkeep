@@ -1,3 +1,2 @@
-# This directory stores downloaded and processed neuroimaging data.
-# Raw NIfTI files, preprocessed BOLD series, and intermediate artifacts live here.
-# .gitkeep ensures the directory exists in version control.
+# This directory is for raw and processed data
+# Data files will be downloaded here during execution

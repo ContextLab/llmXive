@@ -3,19 +3,17 @@ Download and verify the TransitLM SFT dataset from Hugging Face.
 
 This script fetches the dataset using streaming to minimize memory footprint,
 verifies integrity using SHA256 checksums, and saves the raw data to data/raw/.
-
-Output: data/raw/transitlm_ground_truth.json
+The output is converted to the required JSON format: `data/raw/transitlm_ground_truth.json`.
 """
 import hashlib
 import json
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 # Ensure we can import from the project root if run as a script
 if __name__ == "__main__":
-    # Add parent directory to path for imports if necessary
     parent = Path(__file__).parent.parent
     if str(parent) not in sys.path:
         sys.path.insert(0, str(parent))
@@ -28,16 +26,12 @@ except ImportError:
 
 
 # Configuration
-# The specific dataset ID for TransitLM SFT
 DATASET_ID = "TransitLM/TransitLM-SFT"
 OUTPUT_DIR = Path("data/raw")
-# The task explicitly requests this output filename
+# The task explicitly requires this output filename
 OUTPUT_FILENAME = "transitlm_ground_truth.json"
-
-# We do not have a pre-computed hash for the full dataset yet.
-# We will compute it after download. If the dataset is stable,
-# we can update this value in future runs to verify integrity.
-EXPECTED_SHA256: Optional[str] = None
+# We will compute the hash of the final output file to verify integrity
+EXPECTED_SHA256: Optional[str] = None  # Can be set if a known hash is available
 
 
 def compute_sha256(file_path: Path) -> str:
@@ -54,10 +48,7 @@ def download_transitlm(output_dir: Path, filename: str) -> Path:
     Download the TransitLM SFT dataset from Hugging Face.
     
     Uses streaming=True to handle large datasets efficiently.
-    Saves the result as a JSON file containing the list of items.
-    
-    Note: The task requires saving to `data/raw/transitlm_ground_truth.json`.
-    We will accumulate the streaming data into a list and write it as JSON.
+    Aggregates the streamed data into a single JSON list and saves it.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / filename
@@ -66,49 +57,41 @@ def download_transitlm(output_dir: Path, filename: str) -> Path:
     
     try:
         # Load dataset in streaming mode
-        # Most HF datasets have a 'train' split.
+        # We assume the dataset has a 'train' split.
         dataset = load_dataset(DATASET_ID, split="train", streaming=True)
         
-        # Accumulate data to write as a single JSON file as requested
-        # Streaming allows us to iterate without loading everything into RAM at once,
-        # but we need to write the final file. If the dataset is massive, 
-        # writing a single huge JSON might be memory intensive during write.
-        # However, the task specifies a .json output.
-        # We will write line-by-line JSON (JSONL) internally but rename/structure
-        # it to match the requested .json if it implies a list, or keep as JSONL 
-        # if the extension is loose. 
-        # Strictly, "transitlm_ground_truth.json" usually implies a JSON list.
-        # Given the streaming nature, writing a JSON list requires wrapping in []
-        # and handling commas.
+        # Accumulate data in memory (or stream to file if too large, 
+        # but the task requires a single JSON file output).
+        # Given the nature of "streaming" for large datasets, we iterate and collect.
+        # If the dataset is too massive for RAM, we would need to stream to JSONL 
+        # and then convert, but the requirement is a specific JSON output file.
+        # We will collect rows. If memory becomes an issue, the user should 
+        # adjust the dataset ID or split, but we must fetch REAL data.
+        data_rows: List[Dict[str, Any]] = []
         
-        # To be safe with memory, we will write a JSONL file but name it .json 
-        # if the downstream expects line-delimited, OR we write a proper JSON list.
-        # The task says "save to data/raw/transitlm_ground_truth.json".
-        # Let's write a valid JSON list.
+        for i, item in enumerate(dataset):
+            data_rows.append(item)
+            if (i + 1) % 10000 == 0:
+                print(f"  Streamed {i + 1} rows...", end="\r")
         
+        print(f"\nTotal rows streamed: {len(data_rows)}")
+        
+        if len(data_rows) == 0:
+            raise RuntimeError("Dataset returned 0 rows. The dataset ID or split might be incorrect.")
+
+        # Write to JSON (as a single list object)
+        print(f"Writing {len(data_rows)} rows to {output_path}...")
         with open(output_path, "w", encoding="utf-8") as f:
-            f.write("[\n")
-            count = 0
-            first = True
-            for item in dataset:
-                if not first:
-                    f.write(",\n")
-                first = False
-                f.write(json.dumps(item, ensure_ascii=False))
-                count += 1
-                if count % 10000 == 0:
-                    print(f"  Downloaded {count} rows...", end="\r")
-            f.write("\n]")
-            print(f"\nDownloaded {count} rows to {output_path}")
-        
+            json.dump(data_rows, f, ensure_ascii=False, indent=2)
+            
+        print(f"Successfully wrote {output_path}")
+            
     except Exception as e:
         print(f"Error downloading dataset: {e}")
-        # Fail loudly: do not fallback to synthetic data
-        raise RuntimeError(
-            f"Failed to download real data from {DATASET_ID}. "
-            "The task requires real data. If the dataset ID is wrong, update DATASET_ID. "
-            "If the dataset is unavailable, the task cannot be completed."
-        ) from e
+        # Fail loudly - no synthetic fallback
+        raise RuntimeError(f"Failed to download real data from {DATASET_ID}. "
+                           "The task requires real data. If the dataset ID is wrong, update DATASET_ID. "
+                           "If the dataset is unavailable, the task cannot be completed.") from e
 
     return output_path
 
@@ -142,9 +125,15 @@ def main():
             "dataset_id": DATASET_ID,
             "file": str(output_path),
             "sha256": file_hash,
+            "row_count": json.load(open(output_path)) if False else len(json.load(open(output_path, "r"))), # Safe load
             "downloaded_at": str(Path().cwd())
         }
-        metadata_path = output_path.with_suffix(".json.meta")
+        # Re-load to get count safely if needed, or just store hash
+        with open(output_path, "r", encoding="utf-8") as f:
+            count = len(json.load(f))
+        metadata["row_count"] = count
+        
+        metadata_path = output_path.with_suffix(".meta.json")
         with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
         print(f"Metadata saved to {metadata_path}")

@@ -1,267 +1,326 @@
+"""
+Descriptors computation module for grain boundary impurity clustering analysis.
+
+Computes:
+1. Radial Distribution Function (RDF) peaks within the interface region
+2. Pair correlation statistics
+3. Voronoi-based neighbor counts in the interface region
+
+Output: data/processed/descriptors.csv
+"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
+import pandas as pd
 
-# Importing from existing API surface
-try:
-    from pymatgen.core import Structure
-    from pymatgen.analysis.structure_analyzer import crystal_system
-except ImportError:
-    # Fallback for environments where specific analyzer might differ, 
-    # but standard pymatgen.core should suffice for basic properties
-    from pymatgen.core import Structure
+from pymatgen.core import Structure
+from pymatgen.analysis.structure_analyzer import voronoi_volume
+from pymatgen.analysis.rdf import InterRDF
+from pymatgen.analysis.local_env import VoronoiNN
 
+from config import get_project_root, get_data_paths
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def get_interface_atoms(structure: Structure, interface_distance: float = 2.0) -> List[int]:
-    """
-    Identify atoms within a specific distance from the GB interface plane.
-    Assumes the interface is roughly perpendicular to the c-axis or defined by symmetry.
-    For a generic implementation, we select atoms in the central region of the supercell
-    along the z-axis (assuming GB plane is normal to z).
-    """
-    if not structure:
-        return []
-    
-    # Simple heuristic: atoms in the middle 20% of the z-dimension
-    # In a real GB builder, this would be more precise based on the specific GB plane
-    z_coords = [site.coords[2] for site in structure]
-    z_min, z_max = min(z_coords), max(z_coords)
-    z_range = z_max - z_min
-    
-    if z_range == 0:
-        return list(range(len(structure)))
-        
-    center = (z_min + z_max) / 2
-    interface_atoms = []
-    for i, site in enumerate(structure):
-        if abs(site.coords[2] - center) < interface_distance:
-            interface_atoms.append(i)
-    
-    return interface_atoms
+# Constants
+INTERFACE_CUTOFF_A = 5.0  # Ångströms from GB plane to define interface region
+RDF_MAX_R = 10.0  # Maximum distance for RDF calculation
+RDF_BIN_WIDTH = 0.1  # Bin width for RDF histogram
 
-def compute_rdf_peak(structure: Structure, interface_indices: List[int], cutoff: float = 5.0) -> float:
+def get_interface_atoms(structure: Structure, gb_plane_normal: np.ndarray, gb_plane_dist: float) -> List[int]:
     """
-    Compute the RDF peak for atoms in the interface region.
-    Simplified: returns the first major peak distance or 0.0 if not found.
+    Identify atoms within the interface region of a grain boundary supercell.
+
+    Args:
+        structure: The GB supercell structure
+        gb_plane_normal: Normal vector of the GB plane
+        gb_plane_dist: Distance of the GB plane from origin
+
+    Returns:
+        List of atom indices that fall within the interface region
     """
-    if not interface_indices or len(interface_indices) < 2:
+    interface_indices = []
+    coords = structure.frac_coords
+    lattice = structure.lattice
+
+    # Calculate Cartesian coordinates
+    cart_coords = lattice.get_cartesian_coords(coords)
+
+    for i, pos in enumerate(cart_coords):
+        # Project position onto the normal vector
+        projection = np.dot(pos, gb_plane_normal)
+        distance = abs(projection - gb_plane_dist)
+
+        if distance <= INTERFACE_CUTOFF_A:
+            interface_indices.append(i)
+
+    return interface_indices
+
+def compute_rdf_peak(structure: Structure, interface_indices: List[int], species: str) -> float:
+    """
+    Compute the Radial Distribution Function (RDF) peak for a specific species
+    within the interface region.
+
+    Args:
+        structure: The GB supercell structure
+        interface_indices: Indices of atoms in the interface region
+        species: The impurity species to analyze (e.g., 'Cr')
+
+    Returns:
+        The distance (in Å) of the first major RDF peak
+    """
+    if not interface_indices:
+        logger.warning("No interface atoms found, returning 0.0 for RDF peak")
         return 0.0
-    
-    # Placeholder for actual RDF calculation logic using pymatgen
-    # In a full implementation, this would use RadialDistributionFunction
-    # returning a representative peak distance.
-    # For this task, we return a deterministic value based on lattice to satisfy
-    # the requirement of producing a descriptor without external heavy computation
-    # if the full RDF module isn't fully mocked in the prompt context.
-    # However, to be "real", we attempt a basic distance check.
-    
+
+    # Get structure subset for interface atoms
     interface_atoms = [structure[i] for i in interface_indices]
-    distances = []
-    for i, atom1 in enumerate(interface_atoms):
-        for j, atom2 in enumerate(interface_atoms):
-            if i < j:
-                d = atom1.distance(atom2.coords)
-                if 0.0 < d < cutoff:
-                    distances.append(d)
-    
-    if not distances:
-        return 0.0
-    
-    # Bin distances to find peak
-    bins = np.histogram(distances, bins=50, range=(0, cutoff))
-    if np.max(bins[0]) == 0:
-        return 0.0
-    
-    peak_idx = np.argmax(bins[0])
-    bin_width = cutoff / 50.0
-    return peak_idx * bin_width
 
-def compute_pair_correlation(structure: Structure, interface_indices: List[int]) -> float:
+    # Filter for the specific species
+    target_atoms = [atom for atom in interface_atoms if atom.species_string == species]
+
+    if not target_atoms:
+        # If no target species in interface, compute RDF for all interface atoms
+        # against the whole structure to find clustering
+        ref_atoms = [structure[i] for i in interface_indices]
+        rdf = InterRDF(structure, ref_atoms,
+                       query_species=[species],
+                       nbins=int(RDF_MAX_R / RDF_BIN_WIDTH),
+                       r_max=RDF_MAX_R)
+    else:
+        # Compute RDF of target atoms against all atoms
+        rdf = InterRDF(structure, target_atoms,
+                       query_species=[species],
+                       nbins=int(RDF_MAX_R / RDF_BIN_WIDTH),
+                       r_max=RDF_MAX_R)
+
+    rdf.compute()
+
+    # Find the first significant peak (excluding the first bin if it's noise)
+    # RDF data is in rdf.rdf array, distances in rdf.r
+    rdf_values = rdf.rdf
+    distances = rdf.r
+
+    # Skip the first few bins to avoid self-correlation artifacts
+    start_idx = max(1, int(1.0 / RDF_BIN_WIDTH))
+
+    if len(rdf_values) <= start_idx:
+        logger.warning("RDF data too short to find peak")
+        return 0.0
+
+    # Find the first local maximum after the start index
+    peak_distance = 0.0
+    for i in range(start_idx + 1, len(rdf_values) - 1):
+        if rdf_values[i] > rdf_values[i-1] and rdf_values[i] > rdf_values[i+1]:
+            # Check if it's a significant peak (above 1.0 or 10% of max)
+            if rdf_values[i] > 1.0 or rdf_values[i] > 0.1 * np.max(rdf_values):
+                peak_distance = distances[i]
+                break
+
+    if peak_distance == 0.0:
+        # Fallback to the global maximum if no clear local peak found
+        max_idx = np.argmax(rdf_values[start_idx:]) + start_idx
+        peak_distance = distances[max_idx]
+
+    return float(peak_distance)
+
+def compute_pair_correlation(structure: Structure, interface_indices: List[int], species: str) -> float:
     """
-    Compute a simplified pair correlation statistic (e.g., average coordination number).
+    Compute pair correlation statistics for the impurity species in the interface region.
+    This measures the clustering tendency by calculating the average number of
+    impurity-impurity pairs within a defined cutoff.
+
+    Args:
+        structure: The GB supercell structure
+        interface_indices: Indices of atoms in the interface region
+        species: The impurity species to analyze
+
+    Returns:
+        Pair correlation coefficient (normalized count of impurity pairs)
     """
     if not interface_indices:
         return 0.0
-    
-    interface_atoms = [structure[i] for i in interface_indices]
-    total_pairs = 0
-    count = 0
-    for i, atom1 in enumerate(interface_atoms):
-        for j, atom2 in enumerate(interface_atoms):
-            if i != j:
-                if atom1.distance(atom2.coords) < 3.5: # Typical bonding distance
-                    total_pairs += 1
-                    count += 1
-    
-    return total_pairs / count if count > 0 else 0.0
 
-def compute_voronoi_neighbor_counts(structure: Structure, interface_indices: List[int]) -> int:
+    interface_atoms = [structure[i] for i in interface_indices]
+    target_atoms = [atom for atom in interface_atoms if atom.species_string == species]
+
+    if len(target_atoms) < 2:
+        return 0.0
+
+    # Calculate distances between all pairs of target atoms
+    cart_coords = [atom.coords for atom in target_atoms]
+    n = len(cart_coords)
+
+    # Use a cutoff based on typical bond lengths (e.g., 3.5 Å)
+    cutoff = 3.5
+    pair_count = 0
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            dist = np.linalg.norm(np.array(cart_coords[i]) - np.array(cart_coords[j]))
+            # Use minimum image convention for periodic boundaries
+            dist = structure.lattice.get_distance_and_image(cart_coords[i], cart_coords[j])[0]
+            if dist < cutoff:
+                pair_count += 1
+
+    # Normalize by the number of possible pairs
+    max_pairs = n * (n - 1) / 2
+    if max_pairs == 0:
+        return 0.0
+
+    return float(pair_count / max_pairs)
+
+def compute_voronoi_neighbor_counts(structure: Structure, interface_indices: List[int], species: str) -> int:
     """
-    Compute Voronoi-based neighbor counts for the interface region.
+    Compute Voronoi-based neighbor counts for the impurity species in the interface region.
+    This counts the average number of neighbors for each impurity atom.
+
+    Args:
+        structure: The GB supercell structure
+        interface_indices: Indices of atoms in the interface region
+        species: The impurity species to analyze
+
+    Returns:
+        Average Voronoi neighbor count for the impurity species
     """
     if not interface_indices:
         return 0
-    
-    # Simplified Voronoi neighbor count: count neighbors within a cutoff
-    # A full Voronoi tessellation would use pymatgen.analysis.voronoi
-    total_neighbors = 0
-    cutoff = 3.5
-    
-    for i in interface_indices:
-        atom = structure[i]
-        neighbors = 0
-        for j in range(len(structure)):
-            if i == j:
-                continue
-            if atom.distance(structure[j].coords) < cutoff:
-                neighbors += 1
-        total_neighbors += neighbors
-    
-    return total_neighbors // len(interface_indices) if interface_indices else 0
 
-def run_descriptor_computation(structure: Structure, output_path: Path) -> Dict[str, Any]:
-    """
-    Run the full descriptor computation pipeline on a structure.
-    """
-    interface_indices = get_interface_atoms(structure)
-    
-    rdf_peak = compute_rdf_peak(structure, interface_indices)
-    pair_corr = compute_pair_correlation(structure, interface_indices)
-    voronoi_count = compute_voronoi_neighbor_counts(structure, interface_indices)
-    
-    result = {
-        "rdf_peak": rdf_peak,
-        "pair_corr": pair_corr,
-        "voronoi_count": voronoi_count,
-        "interface_atom_count": len(interface_indices)
-    }
-    
-    # Save to CSV if path ends in .csv, otherwise JSON
-    if str(output_path).endswith('.csv'):
-        # In a real pipeline, this would append to a CSV file
-        # For this function, we return the dict
-        pass
-    else:
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-    
-    return result
+    voronoi_nn = VoronoiNN()
+    target_indices = [i for i, idx in enumerate(interface_indices)
+                     if structure[idx].species_string == species]
 
-def main():
-    """
-    Entry point for descriptor computation.
-    """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Descriptor computation module loaded.")
+    if not target_indices:
+        return 0
 
-def extract_alloy_system_id(structure: Structure, impurity_species: str) -> str:
-    """
-    Extract and tag the configuration with its alloy_system_id.
-    Logic: alloy_system_id = f"{crystal_system}_{impurity_species}"
-    
-    crystal_system is derived from the bulk structure using pymatgen's space group analysis.
-    """
-    if not structure:
-        raise ValueError("Structure cannot be None")
-    
-    # Determine crystal system
-    # pymatgen Structure has a lattice property, but getting the specific crystal system
-    # usually requires a SpaceGroupAnalyzer or checking lattice parameters.
-    # We use a robust method:
-    try:
-        from pymatgen.symmetry.analyzer import SpaceGroupAnalyzer
-        sga = SpaceGroupAnalyzer(structure, symprec=0.1)
-        crystal_system_name = sga.get_crystal_system()
-        
-        # Normalize to common abbreviations if needed, but standard names are:
-        # 'cubic', 'tetragonal', 'orthorhombic', 'hexagonal', 'trigonal', 'monoclinic', 'triclinic'
-        # The task example uses 'BCC', 'FCC'. These are specific Bravais lattices within cubic.
-        # To be precise with the example 'BCC_Cr', we check the space group symbol or lattice type.
-        
-        space_group_symbol = sga.get_space_group_symbol()
-        lattice_type = structure.lattice.lattice_type # This might not exist in all versions
-        
-        # Fallback to a simple heuristic if specific lattice type isn't available directly
-        # or use the space group to infer.
-        # For 'BCC' (e.g., Im-3m) and 'FCC' (e.g., Fm-3m)
-        if 'Fm-3m' in space_group_symbol or 'F 4 3 m' in space_group_symbol:
-            crystal_short = "FCC"
-        elif 'Im-3m' in space_group_symbol or 'I 4/mmm' in space_group_symbol:
-            crystal_short = "BCC"
-        elif 'Pm-3m' in space_group_symbol:
-            crystal_short = "SC" # Simple Cubic
-        elif 'R-3m' in space_group_symbol:
-            crystal_short = "Rhombohedral"
-        elif 'P6_3/mmc' in space_group_symbol:
-            crystal_short = "HCP"
-        else:
-            # Default to the full crystal system name if not a common cubic one
-            crystal_short = crystal_system_name.capitalize()
-            
-    except Exception as e:
-        logger.warning(f"Could not determine crystal system via SpaceGroupAnalyzer: {e}. Using fallback.")
-        # Fallback: Use lattice parameters to guess (very rough)
-        a, b, c = structure.lattice.abc
-        alpha, beta, gamma = structure.lattice.angles
-        if abs(a-b) < 0.01 and abs(b-c) < 0.01 and abs(alpha-90)<1 and abs(beta-90)<1 and abs(gamma-90)<1:
-            crystal_short = "Cubic"
-        else:
-            crystal_short = "Unknown"
+    neighbor_counts = []
 
-    return f"{crystal_short}_{impurity_species}"
+    for idx in target_indices:
+        # Get the site index in the full structure
+        site_idx = interface_indices[idx]
+        site = structure[site_idx]
 
-def generate_alloy_systems_report(
-    structures_data: List[Dict[str, Any]], 
-    output_path: Path
-) -> None:
-    """
-    Generate the alloy_systems.json file.
-    
-    Args:
-        structures_data: List of dicts containing 'structure' (Structure object), 'impurity_species', etc.
-        output_path: Path to the output JSON file.
-    """
-    results = []
-    
-    for item in structures_data:
-        structure = item.get('structure')
-        impurity_species = item.get('impurity_species')
-        
-        if not structure or not impurity_species:
-            logger.warning(f"Skipping item missing structure or impurity_species: {item}")
-            continue
-        
         try:
-            alloy_id = extract_alloy_system_id(structure, impurity_species)
-            results.append({
-                "alloy_system_id": alloy_id,
-                "impurity_species": impurity_species,
-                "crystal_system": alloy_id.split('_')[0], # Extract just the system part
-                "original_index": item.get('index', -1)
-            })
+            # Get Voronoi neighbors
+            neighbors = voronoi_nn.get_nn(structure, site_idx)
+            neighbor_counts.append(len(neighbors))
         except Exception as e:
-            logger.error(f"Failed to generate alloy_system_id for {impurity_species}: {e}")
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Generated alloy_systems report with {len(results)} entries at {output_path}")
+            logger.warning(f"Could not compute Voronoi neighbors for atom {site_idx}: {e}")
+            neighbor_counts.append(0)
+
+    if not neighbor_counts:
+        return 0
+
+    return int(np.mean(neighbor_counts))
+
+def run_descriptor_computation(structure: Structure, impurity_species: str,
+                               gb_plane_normal: np.ndarray, gb_plane_dist: float,
+                               alloy_system_id: str) -> Dict[str, Any]:
+    """
+    Run the full descriptor computation pipeline for a single GB supercell.
+
+    Args:
+        structure: The GB supercell structure
+        impurity_species: The impurity species (e.g., 'Cr')
+        gb_plane_normal: Normal vector of the GB plane
+        gb_plane_dist: Distance of the GB plane from origin
+        alloy_system_id: Identifier for the alloy system
+
+    Returns:
+        Dictionary containing computed descriptors
+    """
+    logger.info(f"Computing descriptors for {alloy_system_id}")
+
+    # 1. Identify interface atoms
+    interface_indices = get_interface_atoms(structure, gb_plane_normal, gb_plane_dist)
+    logger.info(f"Found {len(interface_indices)} interface atoms")
+
+    # 2. Compute RDF peak
+    rdf_peak = compute_rdf_peak(structure, interface_indices, impurity_species)
+    logger.info(f"RDF peak: {rdf_peak:.3f} Å")
+
+    # 3. Compute pair correlation
+    pair_corr = compute_pair_correlation(structure, interface_indices, impurity_species)
+    logger.info(f"Pair correlation: {pair_corr:.3f}")
+
+    # 4. Compute Voronoi neighbor counts
+    voronoi_count = compute_voronoi_neighbor_counts(structure, interface_indices, impurity_species)
+    logger.info(f"Voronoi neighbor count: {voronoi_count}")
+
+    return {
+        'species': impurity_species,
+        'alloy_system_id': alloy_system_id,
+        'rdf_peak': rdf_peak,
+        'pair_corr': pair_corr,
+        'voronoi_count': voronoi_count
+    }
 
 def main():
     """
-    Entry point for descriptor computation and alloy system tagging.
+    Main entry point for descriptor computation.
+    Reads processed GB supercells from data/processed/, computes descriptors,
+    and writes results to data/processed/descriptors.csv.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Descriptor computation module loaded.")
-    # Example usage if run as script (requires data loading logic not in this snippet)
-    # structure = Structure.from_file("path/to/structure.cif")
-    # alloy_id = extract_alloy_system_id(structure, "Cr")
-    # print(alloy_id)
+    project_root = get_project_root()
+    data_paths = get_data_paths()
+
+    processed_dir = data_paths['processed']
+    output_path = processed_dir / 'descriptors.csv'
+
+    logger.info(f"Starting descriptor computation. Output: {output_path}")
+
+    # Find all GB supercell files
+    gb_files = list(processed_dir.glob('gb_supercell_*.cif'))
+    if not gb_files:
+        logger.error("No GB supercell files found in data/processed/")
+        # Create empty output file with headers
+        pd.DataFrame(columns=['species', 'alloy_system_id', 'rdf_peak', 'pair_corr', 'voronoi_count']).to_csv(output_path, index=False)
+        return
+
+    results = []
+    impurity_species = "Cr"  # Default, can be parameterized
+
+    # GB plane parameters (assumed to be along z-axis for simplicity)
+    # In a real implementation, these would be read from metadata
+    gb_plane_normal = np.array([0, 0, 1])
+    gb_plane_dist = 0.0
+
+    for gb_file in gb_files:
+        try:
+            # Extract alloy system ID from filename
+            # Expected format: gb_supercell_<alloy_system_id>.cif
+            alloy_id = gb_file.stem.replace('gb_supercell_', '')
+
+            structure = Structure.from_file(gb_file)
+
+            descriptor = run_descriptor_computation(
+                structure=structure,
+                impurity_species=impurity_species,
+                gb_plane_normal=gb_plane_normal,
+                gb_plane_dist=gb_plane_dist,
+                alloy_system_id=alloy_id
+            )
+            results.append(descriptor)
+
+        except Exception as e:
+            logger.error(f"Failed to process {gb_file}: {e}")
+            continue
+
+    if results:
+        df = pd.DataFrame(results)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully wrote {len(results)} descriptor records to {output_path}")
+    else:
+        logger.warning("No descriptors computed. Creating empty output file.")
+        pd.DataFrame(columns=['species', 'alloy_system_id', 'rdf_peak', 'pair_corr', 'voronoi_count']).to_csv(output_path, index=False)
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Test Package
-"""
+"""Tests package for llmXive research pipeline."""

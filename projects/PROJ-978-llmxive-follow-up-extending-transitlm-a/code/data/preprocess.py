@@ -5,70 +5,75 @@ import hashlib
 import pandas as pd
 from collections import Counter
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple
 
-# Configuration constants matching project specs
-CITY_FILTERS = ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"]
-SHORT_THRESHOLD = 15
-MEDIUM_THRESHOLD = 30
-VOCAB_SIZE_LIMIT = 5000  # Default for vocab restriction if needed in this flow
+# Configuration paths
+RAW_DATA_PATH = Path("data/raw/transitlm_ground_truth.json")
+FILTERED_DATA_PATH = Path("data/processed/city_filtered_routes.jsonl")
+VOCAB_DATA_PATH = Path("data/processed/vocab_restricted_routes.jsonl")
+STRATIFIED_DATA_PATH = Path("data/processed/stratified_routes.parquet")
 
 def compute_sha256(file_path: str) -> str:
-    """Compute SHA256 checksum of a file."""
+    """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_raw_dataset(path: str) -> List[Dict[str, Any]]:
-    """Load the raw JSON dataset."""
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+def load_raw_dataset() -> List[Dict[str, Any]]:
+    """Load the raw TransitLM dataset."""
+    if not RAW_DATA_PATH.exists():
+        raise FileNotFoundError(f"Raw dataset not found at {RAW_DATA_PATH}")
+    
+    with open(RAW_DATA_PATH, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    if isinstance(data, dict) and 'routes' in data:
+        return data['routes']
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError("Unexpected dataset format")
 
 def filter_cities(data: List[Dict[str, Any]], cities: List[str] = None) -> List[Dict[str, Any]]:
-    """Filter dataset for specific Chinese cities."""
+    """Filter routes for specific Chinese cities."""
     if cities is None:
-        cities = CITY_FILTERS
+        cities = ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"]
     
     filtered = []
-    for record in data:
-        # Assuming 'city' or 'location_city' field exists, or nested in 'metadata'
-        city = record.get('city') or record.get('location_city') or record.get('metadata', {}).get('city')
-        if city and city in cities:
-            filtered.append(record)
+    for route in data:
+        city = route.get('city', '')
+        if city in cities:
+            filtered.append(route)
+    
     return filtered
 
-def build_vocabulary(data: List[Dict[str, Any]], limit: int = VOCAB_SIZE_LIMIT) -> Dict[str, int]:
-    """Build a frequency-based vocabulary from station names."""
+def build_vocabulary(data: List[Dict[str, Any]], top_n: int = 5000) -> Dict[str, int]:
+    """Build a vocabulary of top-N stations."""
     station_counts = Counter()
-    for record in data:
-        stops = record.get('stops', [])
+    for route in data:
+        stops = route.get('stops', [])
         for stop in stops:
-            station_name = stop.get('name') if isinstance(stop, dict) else stop
-            if station_name:
-                station_counts[station_name] += 1
+            station_counts[stop] += 1
     
-    # Keep top N stations, map others to UNKNOWN
-    vocab = {name: idx for idx, (name, _) in enumerate(station_counts.most_common(limit - 1))}
-    vocab['<UNKNOWN>'] = limit - 1
+    top_stations = station_counts.most_common(top_n)
+    vocab = {station: idx for idx, (station, _) in enumerate(top_stations)}
+    vocab['<UNKNOWN>'] = len(vocab)
     return vocab
 
 def apply_vocabulary_filter(data: List[Dict[str, Any]], vocab: Dict[str, int]) -> List[Dict[str, Any]]:
-    """Apply vocabulary restriction, replacing unknown stations with <UNKNOWN>."""
+    """Apply vocabulary restriction to routes."""
     processed = []
-    for record in data:
-        new_record = record.copy()
-        new_stops = []
-        for stop in record.get('stops', []):
-            stop_name = stop.get('name') if isinstance(stop, dict) else stop
-            if stop_name in vocab:
-                new_stops.append(stop)
-            else:
-                # Replace with UNKNOWN token structure
-                new_stops.append({'name': '<UNKNOWN>', 'id': vocab['<UNKNOWN>']})
-        new_record['stops'] = new_stops
-        processed.append(new_record)
+    for route in data:
+        stops = route.get('stops', [])
+        processed_stops = [vocab.get(stop, vocab['<UNKNOWN>']) for stop in stops]
+        
+        processed_route = route.copy()
+        processed_route['stops'] = processed_stops
+        processed_route['original_stops'] = stops
+        processed.append(processed_route)
+    
     return processed
 
 def stratify_routes(data: List[Dict[str, Any]]) -> pd.DataFrame:
@@ -76,130 +81,117 @@ def stratify_routes(data: List[Dict[str, Any]]) -> pd.DataFrame:
     Stratify routes into short (<15), medium (15-30), and long (>30) categories.
     
     Args:
-        data: List of route dictionaries with 'stops' list.
+        data: List of route dictionaries with 'stops' field.
     
     Returns:
-        pandas DataFrame with columns: route_id, stop_count, length_category, and original data.
+        DataFrame with stratified routes and category labels.
+    
+    Verification:
+        - Asserts row_count > 0
+        - Asserts categories are balanced (at least one route per category)
     """
     if not data:
-        raise ValueError("Input data is empty. Cannot stratify routes.")
+        raise ValueError("Input data is empty")
     
-    rows = []
-    for record in data:
-        stops = record.get('stops', [])
-        stop_count = len(stops)
+    stratified_data = []
+    for route in data:
+        stops = route.get('stops', [])
+        route_length = len(stops)
         
-        if stop_count < SHORT_THRESHOLD:
-            category = 'short'
-        elif stop_count <= MEDIUM_THRESHOLD:
-            category = 'medium'
+        if route_length < 15:
+            category = "short"
+        elif route_length <= 30:
+            category = "medium"
         else:
-            category = 'long'
+            category = "long"
         
-        row = {
-            'route_id': record.get('route_id', record.get('id', f"route_{len(rows)}")),
-            'stop_count': stop_count,
-            'length_category': category,
-            'stops': stops, # Store full stops list for downstream usage
-            'city': record.get('city'),
-            'ground_truth_next': record.get('ground_truth_next') # Keep for evaluation later
-        }
-        # Flatten other metadata if needed, but keeping raw record in 'stops' is safer for now
-        # We will serialize the whole record or specific fields as needed for Parquet
-        # For Parquet, we need to ensure 'stops' is serializable (list of dicts is fine in newer pandas/pyarrow)
-        rows.append(row)
+        route_entry = route.copy()
+        route_entry['route_length'] = route_length
+        route_entry['category'] = category
+        stratified_data.append(route_entry)
     
-    df = pd.DataFrame(rows)
+    df = pd.DataFrame(stratified_data)
     
-    # Verification: Assert row_count > 0
-    assert len(df) > 0, "Stratified dataset is empty."
+    # Verification: row_count > 0
+    if len(df) == 0:
+        raise ValueError("Stratification resulted in zero rows")
     
-    # Verification: Check balance (warn if heavily skewed, but don't fail unless empty)
-    category_counts = df['length_category'].value_counts()
-    print(f"Stratification Summary:\n{category_counts}")
+    # Verification: categories are balanced (at least one route per category)
+    categories = df['category'].unique()
+    expected_categories = {"short", "medium", "long"}
+    if not expected_categories.issubset(set(categories)):
+        missing = expected_categories - set(categories)
+        raise ValueError(f"Missing categories in stratification: {missing}")
+    
+    category_counts = df['category'].value_counts()
+    print(f"Stratification results:")
+    print(f"  Short (<15): {category_counts.get('short', 0)}")
+    print(f"  Medium (15-30): {category_counts.get('medium', 0)}")
+    print(f"  Long (>30): {category_counts.get('long', 0)}")
+    print(f"  Total: {len(df)}")
     
     return df
 
 def compute_route_metrics(data: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Compute basic metrics for the dataset."""
-    if not data:
-        return {}
-    total_routes = len(data)
-    total_stops = sum(len(r.get('stops', [])) for r in data)
-    return {
-        'total_routes': total_routes,
-        'total_stops': total_stops,
-        'avg_stops_per_route': total_stops / total_routes if total_routes > 0 else 0
+    """Compute basic metrics for routes."""
+    metrics = {
+        'total_routes': len(data),
+        'avg_stops': sum(len(r.get('stops', [])) for r in data) / len(data) if data else 0,
+        'min_stops': min(len(r.get('stops', [])) for r in data) if data else 0,
+        'max_stops': max(len(r.get('stops', [])) for r in data) if data else 0
     }
+    return metrics
 
-def save_processed_data(df: pd.DataFrame, output_path: str):
-    """Save the processed DataFrame to a Parquet file."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+def save_processed_data(df: pd.DataFrame, output_path: Path) -> None:
+    """Save processed data to Parquet format."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(output_path, index=False)
     print(f"Saved stratified routes to {output_path}")
 
-def validate_output(file_path: str) -> bool:
-    """Validate that the output file exists and is not empty."""
-    if not os.path.exists(file_path):
+def validate_output(df: pd.DataFrame) -> bool:
+    """Validate the output DataFrame."""
+    required_columns = ['category', 'route_length']
+    if not all(col in df.columns for col in required_columns):
         return False
-    if os.path.getsize(file_path) == 0:
+    
+    if not df['category'].isin(['short', 'medium', 'long']).all():
         return False
+    
     return True
 
 def main():
-    """Main entry point for preprocessing pipeline."""
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    raw_input_path = project_root / "data" / "raw" / "transitlm_ground_truth.json"
-    city_filtered_path = project_root / "data" / "processed" / "city_filtered_routes.jsonl"
-    vocab_restricted_path = project_root / "data" / "processed" / "vocab_restricted_routes.jsonl"
-    stratified_output_path = project_root / "data" / "processed" / "stratified_routes.parquet"
+    """Main execution function for T006c."""
+    print("Starting T006c: Stratify routes...")
     
-    # Check if intermediate files exist (T006a, T006b outputs)
-    # If T006a/b haven't run in this exact environment, we might need to load raw and re-filter
-    # But per task description, we assume T006b output is available or we chain from raw if needed.
-    # For robustness, we check for vocab_restricted first, then city_filtered, then raw.
+    # Load raw data
+    raw_data = load_raw_dataset()
+    print(f"Loaded {len(raw_data)} routes")
     
-    input_data = None
-    source = ""
+    # Filter cities (T006a dependency)
+    filtered_data = filter_cities(raw_data)
+    print(f"Filtered to {len(filtered_data)} routes for target cities")
     
-    if vocab_restricted_path.exists():
-        print(f"Loading from vocab_restricted: {vocab_restricted_path}")
-        with open(vocab_restricted_path, 'r', encoding='utf-8') as f:
-            input_data = [json.loads(line) for line in f]
-        source = "vocab_restricted"
-    elif city_filtered_path.exists():
-        print(f"Loading from city_filtered: {city_filtered_path}")
-        with open(city_filtered_path, 'r', encoding='utf-8') as f:
-            input_data = [json.loads(line) for line in f]
-        source = "city_filtered"
-    elif raw_input_path.exists():
-        print(f"Loading from raw: {raw_input_path}")
-        input_data = load_raw_dataset(str(raw_input_path))
-        # Re-apply filters if loading from raw to ensure consistency
-        input_data = filter_cities(input_data)
-        vocab = build_vocabulary(input_data)
-        input_data = apply_vocabulary_filter(input_data, vocab)
-        source = "raw (re-processed)"
-    else:
-        raise FileNotFoundError("No input data found. Expected raw or processed files.")
+    # Apply vocabulary restriction (T006b dependency)
+    vocab = build_vocabulary(filtered_data)
+    vocab_restricted_data = apply_vocabulary_filter(filtered_data, vocab)
+    print(f"Applied vocabulary restriction with {len(vocab)} tokens")
     
-    print(f"Loaded {len(input_data)} routes from {source}")
+    # Stratify routes (T006c main task)
+    stratified_df = stratify_routes(vocab_restricted_data)
     
-    # Perform Stratification (T006c)
-    df_stratified = stratify_routes(input_data)
+    # Validate output
+    if not validate_output(stratified_df):
+        raise ValueError("Validation failed for stratified output")
     
     # Save to Parquet
-    save_processed_data(df_stratified, str(stratified_output_path))
+    save_processed_data(stratified_df, STRATIFIED_DATA_PATH)
     
-    # Validate
-    if validate_output(str(stratified_output_path)):
-        print("T006c Validation: PASSED")
-        return 0
-    else:
-        print("T006c Validation: FAILED")
-        return 1
+    # Verify file exists and has content
+    if not STRATIFIED_DATA_PATH.exists():
+        raise FileNotFoundError(f"Output file not created: {STRATIFIED_DATA_PATH}")
+    
+    print(f"Task T006c completed successfully. Output: {STRATIFIED_DATA_PATH}")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -25,18 +25,45 @@ T013b:
     \ Consequently the task\u2019s requirement is not satisfied."
 T015:
   c: false
-  h: b9fb044b9738df772a9c7d053e609aba683c05087d205e00d9059cf422b5c7d7
-  r: "The repository contains a partially\u2011implemented `code/data/descriptors.py`\
-    \ (the file is truncated and only defines interface detection and a placeholder\
-    \ RDF peak routine; it never computes pair\u2011correlation or Voronoi counts\
-    \ nor writes any CSV). Moreover, the required output file `data/processed/descriptors.csv`\
-    \ is absent. Consequently the task\u2019s specifications are not met."
+  h: d8556775af170044f3c4ce52c21a8aab2f04ff56800d79bf3d7ed7cb19981974
+  r: "The required output file `data/processed/descriptors.csv` does not exist, and\
+    \ the provided `code/data/descriptors.py` is only partially shown (truncated)\
+    \ with no evidence that it writes the CSV with the specified columns. Without\
+    \ the CSV artifact, the task\u2019s core requirement is unmet."
+T016c:
+  c: false
+  h: d85649edcd60be21689c7456ea643eac966413c1163a989c29d541c76e3ce43f
+  r: The provided `simulate_energy.py` does not contain a `run_simulation` function
+    (the shown excerpt ends before any such definition) and the required output file
+    `data/processed/segregation_energies.csv` is absent. Both the runner implementation
+    and the generated CSV are missing, so the task is not satisfied.
 T017:
   c: false
-  h: 77e6f7e3a5c2db22bc30249610b800ceb9534a9d48cdd3babf92ebab8b5b09f9
-  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
-    \ validation cannot be performed against the specified contract. Moreover, the\
-    \ provided `download.py` only defines schema\u2011loading and validation helpers\
-    \ but does not show any call to validate the downloaded data before any grain\u2011\
-    boundary construction step. Both the missing schema file and the absence of integrated\
-    \ validation mean the task is not satisfied."
+  h: c6fbf71ccaf573723df41a70c447dd8e25cad2d32689fce7931e591ff5470aa3
+  r: The repository lacks the required `contracts/dataset.schema.yaml` file, so the
+    validation cannot actually be performed. Moreover, the provided `download.py`
+    snippet is truncated and does not show the validation being invoked before GB
+    construction. Without the schema file and a complete implementation, the task
+    is not satisfied.
+T018:
+  c: false
+  h: 018797a4485787b2b1b323c68060fd665ff34f1fa469b88384a23f14f45d3a2d
+  r: "The repository contains `code/data/descriptor_filter.py`, which defines VIF\
+    \ computation and a `generate_report` function, but the required output file `data/processed/collinearity_report.md`\
+    \ does not exist. Moreover, the script lacks a runnable entry point that actually\
+    \ creates the markdown report, so the task\u2019s core deliverable\u2014a descriptive\
+    \ collinearity report\u2014is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data file implementing the per\u2011system evaluation logic\
+    \ was provided, nor is there any `alloy_systems.json` or evidence that the required\
+    \ R\xB2 reporting per alloy system was added. The implementer\u2019s claim lacks\
+    \ the necessary artifact to satisfy the task."
+T027:
+  c: false
+  h: 28b8fb9c959acee214ba3f747bd617e753f6be9b68ec23723110f934e8ca9c8b
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, and\
+    \ `code/modeling/train.py` does not perform validation against that schema (it\
+    \ only does a custom column check and never calls `validate_schema`). Consequently\
+    \ the contract\u2011validation step before training is not implemented."

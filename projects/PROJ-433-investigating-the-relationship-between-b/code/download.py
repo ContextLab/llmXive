@@ -1,92 +1,88 @@
 """
-HCP Data Download and Availability Verification Module.
-
-Handles fetching HCP resting-state fMRI and behavioral datasets,
-checking file availability, and managing data status without raising
-exceptions for missing data (graceful handling).
+Download and verification utilities for HCP fMRI data.
 """
 import os
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import from local project modules (as per API surface)
 from utils import setup_logger
 
 # Configuration
-# Based on typical HCP directory structure for resting-state fMRI
-# Adjusted to match project data paths: data/raw/hcp/...
-HCP_DATA_ROOT = Path("data/raw")
-FMRI_SUBFOLDER_PATTERN = "MNINonLinear/Results/r{task}"
-TASK_REST = "r11100"  # HCP resting state task identifier
-FILE_PATTERN = "rfMRI_REST1_LR.nii.gz"
-
+DATA_ROOT = Path("data")
+RAW_DATA_DIR = DATA_ROOT / "raw"
+LOG_FILE = DATA_ROOT / "preprocess_log.txt"
 
 def verify_fMRI_availability(subject_id: str) -> Dict[str, Any]:
     """
-    Check for the existence of fMRI time-series files for a given subject.
-
-    This function checks the local filesystem for the expected pre-processed
-    or raw fMRI time-series files corresponding to the HCP dataset structure.
-    It does NOT raise exceptions if data is missing; instead, it returns a
-    status dictionary allowing the caller to handle the "Data Gap" gracefully.
+    Check for existence of fMRI time-series files for a given subject.
 
     Args:
-        subject_id (str): The HCP subject ID (e.g., '100307').
+        subject_id (str): The HCP subject ID.
 
     Returns:
-        dict: A status object with one of the following structures:
-              {'status': 'PRESENT'}
-              {'status': 'MISSING', 'reason': 'Data Gap: fMRI time-series not found'}
+        dict: Status object with 'status' key ('PRESENT' or 'MISSING').
+              If MISSING, includes a 'reason' key.
     """
     logger = setup_logger()
+    
+    # Define expected path structure for HCP data (simplified for verification)
+    # In a real scenario, this would check the specific HCP directory structure
+    # e.g., data/raw/HCP1200/<subject_id>/MNINonLinear/Results/...
+    expected_base = RAW_DATA_DIR / "HCP1200" / subject_id / "MNINonLinear" / "Results"
+    
+    # Check if the base directory exists
+    if not expected_base.exists():
+        logger.warning(f"Data Gap: fMRI time-series not found for subject {subject_id} at {expected_base}")
+        return {
+            'status': 'MISSING',
+            'reason': f'Data Gap: fMRI time-series not found for subject {subject_id}'
+        }
 
-    # Construct the expected path based on HCP directory structure
-    # Typical HCP path: data/raw/<subject_id>/MNINonLinear/Results/r11100/rfMRI_REST1_LR.nii.gz
-    expected_file = (
-        HCP_DATA_ROOT
-        / subject_id
-        / "MNINonLinear"
-        / "Results"
-        / TASK_REST
-        / FILE_PATTERN
-    )
+    # Check for specific resting state files (e.g., rfMRI_REST1_LR)
+    # HCP typically has rfMRI_REST1_LR, rfMRI_REST1_RL, rfMRI_REST2_LR, rfMRI_REST2_RL
+    required_files = [
+        "rfMRI_REST1_LR_hp2000_clean.nii.gz",
+        "rfMRI_REST1_RL_hp2000_clean.nii.gz"
+    ]
+    
+    missing_files = []
+    for fname in required_files:
+        if not (expected_base / fname).exists():
+            missing_files.append(fname)
 
-    logger.info(f"Checking fMRI availability for subject {subject_id} at: {expected_file}")
+    if missing_files:
+        logger.warning(f"Data Gap: Missing files for subject {subject_id}: {missing_files}")
+        return {
+            'status': 'MISSING',
+            'reason': f'Data Gap: fMRI time-series not found for subject {subject_id} (Missing: {", ".join(missing_files)})'
+        }
 
-    if expected_file.exists():
-        logger.info(f"fMRI data found for subject {subject_id}.")
-        return {'status': 'PRESENT'}
-    else:
-        reason = "Data Gap: fMRI time-series not found"
-        logger.warning(f"fMRI data MISSING for subject {subject_id}. {reason}")
-        return {'status': 'MISSING', 'reason': reason}
+    logger.info(f"fMRI data verified for subject {subject_id}")
+    return {'status': 'PRESENT'}
 
-
-def check_dataset_status(subject_ids: list) -> Dict[str, Dict[str, Any]]:
+def check_dataset_status(dataset_name: str) -> Dict[str, Any]:
     """
-    Batch check availability for multiple subjects.
+    Check the general status of a dataset directory.
 
     Args:
-        subject_ids (list): List of subject IDs to check.
+        dataset_name (str): Name of the dataset (e.g., 'HCP1200').
 
     Returns:
-        dict: Mapping of subject_id -> status object.
+        dict: Status information.
     """
-    results = {}
-    for sid in subject_ids:
-        results[sid] = verify_fMRI_availability(sid)
-    return results
-
-
-if __name__ == "__main__":
-    # Simple CLI entry point for testing availability
-    # Usage: python -m code.download --subject 100307
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Verify fMRI data availability")
-    parser.add_argument("--subject", type=str, required=True, help="Subject ID to check")
-    args = parser.parse_args()
-
-    status = verify_fMRI_availability(args.subject)
-    print(f"Subject {args.subject}: {status}")
+    logger = setup_logger()
+    dataset_path = RAW_DATA_DIR / dataset_name
+    
+    if not dataset_path.exists():
+        return {
+            'status': 'MISSING',
+            'path': str(dataset_path),
+            'reason': 'Dataset directory does not exist'
+        }
+    
+    return {
+        'status': 'PRESENT',
+        'path': str(dataset_path),
+        'reason': 'Dataset directory exists'
+    }

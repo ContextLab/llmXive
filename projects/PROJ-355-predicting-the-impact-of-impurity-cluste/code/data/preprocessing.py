@@ -7,133 +7,133 @@ import pandas as pd
 
 from config import get_project_root, get_data_paths
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def filter_zero_impurity_configs(input_df: pd.DataFrame) -> pd.DataFrame:
+def filter_zero_impurity_configs(input_path: Path) -> tuple[pd.DataFrame, int]:
     """
-    Filter bulk configurations that have zero impurity atoms.
+    Filters bulk configurations to remove entries with zero impurity atoms.
     
     Args:
-        input_df: DataFrame containing configuration data with a column 
-                  indicating the number of impurity atoms (e.g., 'impurity_count').
-    
+        input_path: Path to the input CSV containing bulk configurations.
+                    Expected columns include 'impurity_species' or similar.
+                    
     Returns:
-        Filtered DataFrame containing only configurations with at least one impurity atom.
+        tuple: (filtered_df, count_excluded)
     """
-    # Check if the expected column exists
-    # Assuming the column is named 'impurity_count' based on common conventions
-    # If the actual column name differs, this should be adjusted
-    impurity_count_col = 'impurity_count'
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    if impurity_count_col not in input_df.columns:
-        # Fallback: try to infer or raise an error
-        logger.warning(f"Column '{impurity_count_col}' not found in input DataFrame. "
-                       f"Available columns: {list(input_df.columns)}")
-        # If we can't determine impurity count, we cannot filter safely.
-        # Return the original DataFrame and log a warning.
-        return input_df
+    df = pd.read_csv(input_path)
     
-    # Filter out rows where impurity_count is zero
-    filtered_df = input_df[input_df[impurity_count_col] > 0].copy()
-    excluded_count = len(input_df) - len(filtered_df)
+    # Determine the column name for impurity species.
+    # Based on the schema defined in T004a, the column is likely 'impurity_species'.
+    # We assume an empty string, NaN, or None indicates zero impurities.
+    impurity_col = 'impurity_species'
     
-    logger.info(f"Filtered {excluded_count} configurations with zero impurity atoms.")
+    if impurity_col not in df.columns:
+        # Fallback if column naming differs, though schema should enforce it.
+        # If no impurity column exists, we might assume all have 0 impurities?
+        # Or perhaps the count is in a different column.
+        # For now, raise an error if the expected column is missing.
+        raise ValueError(f"Expected column '{impurity_col}' not found in {input_path}")
     
-    return filtered_df
+    # Count excluded rows (where impurity is missing or empty)
+    # Treat NaN, None, and empty string as zero impurity
+    mask = df[impurity_col].isna() | (df[impurity_col].astype(str).str.strip() == '')
+    
+    count_excluded = mask.sum()
+    filtered_df = df[~mask].reset_index(drop=True)
+    
+    logger.info(f"Filtered {count_excluded} configurations with zero impurity atoms.")
+    logger.info(f"Remaining configurations: {len(filtered_df)}")
+    
+    return filtered_df, int(count_excluded)
 
-def generate_preprocessing_report(excluded_count: int, total_count: int, output_path: Path) -> None:
+def generate_preprocessing_report(excluded_count: int, output_path: Path) -> None:
     """
-    Generate a JSON report documenting the preprocessing filter results.
+    Generates a JSON report detailing the preprocessing steps taken.
     
     Args:
-        excluded_count: Number of configurations excluded (zero impurity atoms).
-        total_count: Total number of configurations processed.
-        output_path: Path to save the JSON report.
+        excluded_count: Number of configurations excluded due to zero impurities.
+        output_path: Path where the report JSON will be saved.
     """
     report = {
-        "filter_type": "zero_impurity_removal",
-        "total_configurations": total_count,
+        "task": "T019",
+        "description": "Filtering bulk configurations with zero impurity atoms",
         "excluded_count": excluded_count,
-        "retained_count": total_count - excluded_count,
-        "exclusion_reason": "Configurations with zero impurity atoms do not contribute to segregation analysis."
+        "reason": "Configurations with no impurity atoms cannot be used for segregation analysis."
     }
     
-    # Ensure the output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
     
     logger.info(f"Preprocessing report saved to {output_path}")
 
-def run_preprocessing_filter(input_path: Optional[Path] = None, output_path: Optional[Path] = None) -> Dict[str, Any]:
+def run_preprocessing_filter(input_path: Path, output_path: Path, report_path: Path) -> tuple[Path, Path]:
     """
-    Main function to run the preprocessing filter on the dataset.
+    Orchestrates the filtering and reporting process.
     
     Args:
-        input_path: Path to the input CSV file (descriptors/energies merged).
-                   If None, uses default path from config.
-        output_path: Path to save the filtered dataset.
-                    If None, uses default path from config.
-    
+        input_path: Path to the input CSV.
+        output_path: Path where the filtered CSV will be saved.
+        report_path: Path where the JSON report will be saved.
+                    
     Returns:
-        Dictionary containing the report summary.
+        tuple: (output_path, report_path)
     """
+    filtered_df, excluded_count = filter_zero_impurity_configs(input_path)
+    
+    # Save filtered data
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Filtered data saved to {output_path}")
+    
+    # Generate report
+    generate_preprocessing_report(excluded_count, report_path)
+    
+    return output_path, report_path
+
+def main():
+    """
+    Entry point for the preprocessing filter script.
+    Expects input data to be in data/processed/raw_descriptors.csv (or similar).
+    For T019, we are specifically filtering the bulk configuration list.
+    Assuming the input is the output of the download/gb_builder step, 
+    which might be in data/processed/bulk_configs.csv or similar.
+    
+    Since the exact input file name isn't specified in T019, 
+    we will look for a standard input or allow override.
+    For this implementation, we assume the input is `data/processed/bulk_configs.csv`
+    as generated by previous steps (T013/T014).
+    """
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
     project_root = get_project_root()
     data_paths = get_data_paths()
     
-    # Default paths if not provided
-    if input_path is None:
-        # Assuming the input is the merged descriptors and energies file
-        # This path might need adjustment based on actual pipeline output
-        input_path = project_root / data_paths.get('processed_descriptors', 'data/processed/descriptors.csv')
+    # Define paths
+    # We assume the input is the result of the download/builder pipeline
+    input_file = data_paths.get('processed', project_root / 'data' / 'processed') / 'bulk_configs.csv'
+    output_file = data_paths.get('processed', project_root / 'data' / 'processed') / 'bulk_configs_filtered.csv'
+    report_file = data_paths.get('processed', project_root / 'data' / 'processed') / 'preprocessing_report.json'
     
-    if output_path is None:
-        output_path = project_root / data_paths.get('processed_filtered', 'data/processed/descriptors_filtered.csv')
+    # If input doesn't exist, we might need to check other common names
+    # or just fail loudly as per instructions.
+    if not input_file.exists():
+        # Check if there's a generic input
+        alt_input = project_root / 'data' / 'processed' / 'descriptors.csv' # T015 output
+        # T019 is about filtering BULK CONFIGS before descriptor computation usually, 
+        # but the task says "filtering logic for bulk configurations".
+        # If the bulk config file is missing, we can't proceed.
+        logger.error(f"Input file not found: {input_file}. Cannot proceed with filtering.")
+        return
     
-    preprocessing_report_path = project_root / data_paths.get('preprocessing_report', 'data/processed/preprocessing_report.json')
-    
-    logger.info(f"Loading input data from {input_path}")
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    # Load the data
-    df = pd.read_csv(input_path)
-    total_count = len(df)
-    
-    # Apply filter
-    filtered_df = filter_zero_impurity_configs(df)
-    excluded_count = total_count - len(filtered_df)
-    
-    # Save filtered data
-    logger.info(f"Saving filtered data to {output_path}")
-    filtered_df.to_csv(output_path, index=False)
-    
-    # Generate report
-    generate_preprocessing_report(excluded_count, total_count, preprocessing_report_path)
-    
-    return {
-        "total": total_count,
-        "excluded": excluded_count,
-        "retained": len(filtered_df),
-        "output_path": str(output_path),
-        "report_path": str(preprocessing_report_path)
-    }
-
-def main():
-    """Entry point for the preprocessing filter script."""
     try:
-        result = run_preprocessing_filter()
+        run_preprocessing_filter(input_file, output_file, report_file)
         logger.info("Preprocessing filter completed successfully.")
-        logger.info(f"Result: {result}")
     except Exception as e:
-        logger.error(f"Preprocessing filter failed: {e}", exc_info=True)
+        logger.error(f"Preprocessing filter failed: {e}")
         raise
 
 if __name__ == "__main__":

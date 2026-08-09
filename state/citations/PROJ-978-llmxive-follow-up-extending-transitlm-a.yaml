@@ -1,4 +1,4 @@
-- artifact_hash: bbe3e956d415ebd74520abb3474334fa84e8b6ca4e1043475a486ad4013282f9
+- artifact_hash: 8d40bdf50ae7366b545f9bca1c56653396a3a2becbab4ef445ee6b54416cd0ff
   artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://www.wikidata.org/wiki/Q385989
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q385989
-  verified_at: '2026-08-08T16:01:00.499716Z'
-- artifact_hash: bbe3e956d415ebd74520abb3474334fa84e8b6ca4e1043475a486ad4013282f9
+  verified_at: '2026-08-09T16:01:32.666887Z'
+- artifact_hash: 8d40bdf50ae7366b545f9bca1c56653396a3a2becbab4ef445ee6b54416cd0ff
   artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-  verified_at: '2026-08-08T16:01:00.499716Z'
+  verified_at: '2026-08-09T16:01:32.666887Z'

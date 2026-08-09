@@ -23,3 +23,16 @@ T008:
   r: "No evidence of a modified `main.py` implementing disk\u2011quota enforcement,\
     \ compression of intermediate files, or checkpointing is provided; the required\
     \ artifact is missing, so the task cannot be confirmed as completed."
+T010:
+  c: false
+  h: 2ae3df41748da46db8f5b6bcc44e31b36db63afb1de041d6e3d6cc1083b33499
+  r: "The required file `tests/unit/test_quality_check.py` does not exist in the repository,\
+    \ so no unit test for FD calculation is present to verify the >\u202F0.5\u202F\
+    mm threshold logic. The task\u2019s artifact is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging code, configuration, or generated log files were presented; the claim
+    that logging for download statistics, exclusion counts, and preprocessing times
+    was added cannot be verified from the provided evidence. The required artifact
+    (implemented logging and its output) is missing.

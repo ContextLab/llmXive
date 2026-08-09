@@ -1,6 +1,10 @@
 """
 Script to create a Python virtual environment for the project.
-Task T002a: Create Python virtual environment.
+
+This script creates a virtual environment in the repository root named 'venv'
+using Python 3.11. It verifies the Python version and handles the creation
+process, exiting with a clear error message if the required Python version
+is not available.
 """
 import os
 import subprocess
@@ -8,53 +12,69 @@ import sys
 from pathlib import Path
 
 def main():
-    """
-    Creates a virtual environment in the repository root using python3.11.
-    """
-    # Determine the project root (parent of the code/ directory where this script lives)
-    current_file_path = Path(__file__).resolve()
-    project_root = current_file_path.parent.parent
+    """Create the virtual environment in the repository root."""
+    # Determine the repository root (assuming this script is in code/)
+    repo_root = Path(__file__).resolve().parent.parent
+    venv_path = repo_root / "venv"
 
-    venv_path = project_root / "venv"
+    # Check Python version
+    if sys.version_info < (3, 11):
+        print(f"Error: Python 3.11 or higher is required. "
+              f"Current version: {sys.version_info.major}.{sys.version_info.minor}")
+        sys.exit(1)
 
+    # Check if venv already exists
     if venv_path.exists():
-        print(f"Virtual environment already exists at: {venv_path}")
-        print("Skipping creation. To recreate, manually remove the 'venv' directory first.")
+        print(f"Virtual environment already exists at {venv_path}. Skipping creation.")
+        print("To recreate, manually delete the 'venv' directory first.")
         return 0
 
-    print(f"Creating virtual environment at: {venv_path}")
+    print(f"Creating virtual environment at {venv_path} using Python {sys.executable}...")
     
-    # Check for python3.11 availability
-    python_executable = "python3.11"
     try:
+        # Create the virtual environment
+        # Using subprocess to ensure we get the correct exit code handling
         result = subprocess.run(
-            [python_executable, "--version"],
+            [sys.executable, "-m", "venv", str(venv_path)],
+            check=True,
             capture_output=True,
-            text=True,
-            check=True
+            text=True
         )
-        print(f"Using: {result.stdout.strip()}")
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        # Fallback to generic python3 if 3.11 not explicitly found, 
-        # though the task specifies python3.11
-        print(f"Warning: {python_executable} not found. Attempting to use 'python3'.")
-        python_executable = "python3"
-        try:
-            subprocess.run([python_executable, "--version"], check=True)
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            print("Error: Could not find python3 or python3.11.")
-            return 1
-
-    try:
-        subprocess.run(
-            [python_executable, "-m", "venv", str(venv_path)],
-            check=True
-        )
+        
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        
         print("Virtual environment created successfully.")
-        print(f"Activate with: source {venv_path}/bin/activate")
+        
+        # Verify creation by checking for key files
+        if (venv_path / "pyvenv.cfg").exists():
+            print("Verification: pyvenv.cfg found.")
+        else:
+            print("Warning: pyvenv.cfg not found after creation.")
+            
+        # Check for activation script based on OS
+        if os.name == "nt":
+            activate_script = venv_path / "Scripts" / "activate.bat"
+        else:
+            activate_script = venv_path / "bin" / "activate"
+            
+        if activate_script.exists():
+            print(f"Verification: Activation script found at {activate_script}.")
+            print(f"To activate, run: source {activate_script} (Linux/Mac) or {activate_script} (Windows)")
+        else:
+            print(f"Warning: Activation script not found at {activate_script}.")
+            
         return 0
+
     except subprocess.CalledProcessError as e:
         print(f"Error creating virtual environment: {e}")
+        if e.stderr:
+            print(e.stderr, file=sys.stderr)
+        return 1
+    except FileNotFoundError:
+        print(f"Error: Python executable not found at {sys.executable}")
         return 1
 
 if __name__ == "__main__":

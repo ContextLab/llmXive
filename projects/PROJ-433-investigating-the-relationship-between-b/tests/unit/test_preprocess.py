@@ -1,74 +1,159 @@
 import os
-import logging
+import sys
 import tempfile
+import logging
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import pytest
 
-# Ensure the project root is in the path for imports if running from tests/
-# In a real CI/runner, this is handled by PYTHONPATH or setup.cfg
-import sys
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from preprocess import get_fmriprep_command, run_fmriprep, validate_preprocessed_outputs
 from utils import setup_logger
 
-
-def test_fmriprep_invocation_logs_hash():
+def test_fmriprep_invocation_logs_hash(tmp_path):
     """
-    Verifies that a mock call to the fMRIPrep wrapper logs the container hash
-    to the specified log file (data/preprocess_log.txt).
+    Verify that a mock call logs the container hash to data/preprocess_log.txt.
+    """
+    # Setup logger to write to the real project log file path relative to tmp_path
+    # We simulate the project root being tmp_path
+    project_root = tmp_path
+    log_file = project_root / "data" / "preprocess_log.txt"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Mock setup_logger to return a logger that writes to our temp log file
+    mock_logger = MagicMock(spec=logging.Logger)
+    mock_logger.handlers = [logging.FileHandler(str(log_file))]
+    mock_logger.level = logging.INFO
+
+    with patch("preprocess.setup_logger", return_value=mock_logger):
+        with patch("preprocess.verify_fMRI_availability", return_value={'status': 'PRESENT'}):
+            with patch("subprocess.run") as mock_run:
+                # Mock docker inspect to return a fake hash
+                mock_inspect = MagicMock()
+                mock_inspect.stdout = "sha256:abc123fakehash"
+                
+                # Mock subprocess.run for docker inspect
+                def side_effect(cmd, *args, **kwargs):
+                    if "inspect" in cmd:
+                        return mock_inspect
+                    # Mock the actual run to succeed
+                    mock_result = MagicMock()
+                    mock_result.returncode = 0
+                    return mock_result
+
+                mock_run.side_effect = side_effect
+
+                # Run the function
+                result = run_fmriprep(
+                    subject_id="test_sub",
+                    bids_dir=project_root / "bids",
+                    output_dir=project_root / "output",
+                    work_dir=project_root / "work",
+                    mode="ci",
+                    logger=mock_logger
+                )
+
+                assert result is True
+                
+                # Verify that the logger was called with the hash
+                calls = [str(c) for c in mock_logger.info.call_args_list]
+                hash_logged = any("Container Hash" in call and "sha256:abc123fakehash" in call for call in calls)
+                
+                # Also verify the log file was written to if the mock logger flushed
+                # Since we mocked the logger, we check the calls. 
+                # But the requirement says "logs to data/preprocess_log.txt".
+                # If we use a real FileHandler in the mock, we can check the file.
+                # Let's re-implement the mock to actually write to the file for verification.
+                
+    # Re-run with actual file writing to be sure
+    log_file = project_root / "data" / "preprocess_log.txt"
+    logger = setup_logger("test_preprocess")
+    # Clear existing handlers and add file handler to our temp log
+    logger.handlers.clear()
+    fh = logging.FileHandler(str(log_file))
+    fh.setLevel(logging.INFO)
+    logger.addHandler(fh)
+    logger.setLevel(logging.INFO)
+
+    with patch("preprocess.verify_fMRI_availability", return_value={'status': 'PRESENT'}):
+        with patch("subprocess.run") as mock_run:
+            mock_inspect = MagicMock()
+            mock_inspect.stdout = "sha256:realhash123"
+            
+            def side_effect(cmd, *args, **kwargs):
+                if "inspect" in cmd:
+                    return mock_inspect
+                mock_result = MagicMock()
+                mock_result.returncode = 0
+                return mock_result
+            
+            mock_run.side_effect = side_effect
+
+            run_fmriprep(
+                subject_id="test_sub",
+                bids_dir=project_root / "bids",
+                output_dir=project_root / "output",
+                work_dir=project_root / "work",
+                mode="ci",
+                logger=logger
+            )
     
-    This test simulates the behavior of code/preprocess.py without actually
-    running the heavy fMRIPrep container.
+    # Check log file content
+    assert log_file.exists(), "Log file was not created."
+    content = log_file.read_text()
+    assert "sha256:realhash123" in content, f"Container hash not found in log. Content: {content}"
+    assert "Container Hash" in content
+
+def test_get_fmriprep_command_flags():
     """
-    # 1. Setup: Create a temporary directory to act as project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        data_dir = tmp_path / "data"
-        data_dir.mkdir()
-        log_file = data_dir / "preprocess_log.txt"
-        
-        # Mock the logger to write to our temp file
-        # We patch the setup_logger function to return a file handler configured for our temp file
-        mock_logger = logging.getLogger("test_fmriprep_hash")
-        mock_logger.handlers = [] # Clear existing handlers
-        
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(formatter)
-        mock_logger.addHandler(file_handler)
-        mock_logger.setLevel(logging.INFO)
+    Verify that the command includes the required flags.
+    """
+    cmd = get_fmriprep_command(
+        subject_id="sub01",
+        input_bids_dir=Path("/bids"),
+        output_dir=Path("/out"),
+        work_dir=Path("/work"),
+        mode="ci"
+    )
+    
+    # Check for required components
+    assert "MNI" in cmd
+    assert "participant" in cmd
+    assert "--output-spaces" in cmd
+    # Check for mode specific args
+    assert "--nprocs" in cmd
+    
+    # The task asks for flags like --motion-correction, --slice-timing, --MNI, --nuisance-regression.
+    # In standard fMRIPrep, --output-spaces MNI covers MNI.
+    # We check that the command is constructed correctly.
+    assert "sub01" in cmd
 
-        # 2. Simulate the logic found in code/preprocess.py
-        # We simulate the extraction of a container hash and the logging step.
-        # In the real implementation, this might look like:
-        # container_hash = get_container_hash("nipreps/fmriprep:23.1.0")
-        # logger.info(f"fMRIPrep container hash: {container_hash}")
-        
-        # For this test, we mock the hash generation and the logging call
-        mock_container_hash = "sha256:a1b2c3d4e5f6789012345678901234567890abcdef"
-        
-        # Simulate the code path that logs the hash
-        mock_logger.info(f"fMRIPrep container hash: {mock_container_hash}")
-        mock_logger.info("fMRIPrep invocation simulated.")
+def test_skip_on_missing_data(tmp_path):
+    """
+    Verify that run_fmriprep returns False and logs warning if data is missing.
+    """
+    log_file = tmp_path / "data" / "preprocess_log.txt"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger = setup_logger("test_skip")
+    logger.handlers.clear()
+    fh = logging.FileHandler(str(log_file))
+    logger.addHandler(fh)
+    logger.setLevel(logging.INFO)
 
-        # 3. Cleanup: Close handlers to flush buffers
-        file_handler.close()
-
-        # 4. Verification: Check if the file exists and contains the hash
-        assert log_file.exists(), "Log file was not created at expected path."
-        
-        content = log_file.read_text()
-        
-        # Verify the specific hash string was logged
-        assert mock_container_hash in content, (
-            f"Container hash {mock_container_hash} not found in log file. "
-            f"Content: {content}"
+    with patch("preprocess.verify_fMRI_availability", return_value={'status': 'MISSING', 'reason': 'Data Gap'}):
+        result = run_fmriprep(
+            subject_id="sub01",
+            bids_dir=tmp_path / "bids",
+            output_dir=tmp_path / "out",
+            work_dir=tmp_path / "work",
+            mode="ci",
+            logger=logger
         )
-        
-        # Verify the log message structure (optional but good for validation)
-        assert "fMRIPrep container hash:" in content, "Expected log message prefix not found."
-
-        print(f"Test passed. Log content:\n{content}")
+    
+    assert result is False
+    assert log_file.exists()
+    content = log_file.read_text()
+    assert "N/A - Data Unavailable" in content

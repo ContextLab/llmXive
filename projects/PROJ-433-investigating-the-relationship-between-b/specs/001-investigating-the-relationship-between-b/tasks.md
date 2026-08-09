@@ -87,8 +87,8 @@
 - [X] T012 [US1] Implement `verify_fMRI_availability()` in `code/download.py`: Check for existence of fMRI time-series files. **MUST return** a status object: `{'status': 'PRESENT'}` or `{'status': 'MISSING', 'reason': 'Data Gap: fMRI time-series not found'}`. **DO NOT** raise exceptions; return status to allow graceful handling.
 - [ ] T012b [US1] Implement Main Runner Logic in `code/main.py` (or `code/download.py`): Add logic to call `verify_fMRI_availability()`. **IF** status is 'MISSING', log "N/A - Data Unavailable" to `data/preprocess_log.txt`, skip all preprocessing tasks (T013, T014), and exit gracefully. **IF** status is 'PRESENT', proceed to T013.
 - [ ] T013 [US1] Implement `code/preprocess.py` to invoke fMRIPrep container (version specified in plan.md) with flags: `--motion-correction --slice-timing --MNI --nuisance-regression`. **MUST check** T012b status first; if 'MISSING', skip execution. Support cluster mode (`--mode cluster`) and CI subset mode (`--mode ci`) via CLI argument or `MODE` env variable. Log container hash and full command to `data/preprocess_log.txt`.
-- [~] T014 [US1] Implement QC validation in `code/preprocess.py`: Run `check_fd()` on output files; exclude subjects with FD > 0.5mm and log exclusion reasons to `data/preprocess_log.txt`. **MUST check** T012b status first; if 'MISSING', skip execution.
-- [~] T015 [US1] Apply `setup_logger()` usage in `code/download.py` and `code/preprocess.py`: Ensure all download and preprocessing operations log to `data/preprocess_log.txt` using the logger from T004.
+- [ ] T014 [US1] Implement QC validation in `code/preprocess.py`: Run `check_fd()` on output files; exclude subjects with FD > 0.5mm and log exclusion reasons to `data/preprocess_log.txt`. **MUST check** T012b status first; if 'MISSING', skip execution.
+- [ ] T015 [US1] Apply `setup_logger()` usage in `code/download.py` and `code/preprocess.py`: Ensure all download and preprocessing operations log to `data/preprocess_log.txt` using the logger from T004.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (or correctly skip with 'N/A' if data is missing)
 
@@ -109,7 +109,7 @@
 
 - [X] T018 [P] [US2] Implement `code/metrics.py` `compute_sliding_window()` to generate functional connectivity matrices (s window, small step) using the Schaefer parcellated atlas.
 - [X] T019 [US2] Implement `code/metrics.py` `extract_reconfigurability()` using Louvain community detection with `get_seeded_rng(42)`, A retry logic mechanism will be implemented to handle transient failures. The research question focuses on determining the optimal retry strategy for system resilience. The method involves simulating network instability scenarios to evaluate recovery performance. References include prior work on fault tolerance patterns []. for convergence failure, and subject exclusion logging.
-- [~] T020 [US2] Implement extraction of network reconfigurability metric (community state transition count) and save to `data/results/metrics_{subject_id}.json` with keys: `subject_id`, `transition_count`.
+- [ ] T020 [US2] Implement extraction of network reconfigurability metric (community state transition count) and save to `data/results/metrics_{subject_id}.json` with keys: `subject_id`, `transition_count`.
 - [~] T020a [US2] Implement `code/metrics.py` `aggregate_metrics_to_tsv()` to convert all JSON metric files into a single TSV file `data/processed/metrics_aggregated.tsv` (intermediate step) with columns: `subject_id`, `transition_count`.
 - [X] T021 [US2] Implement QC check in `code/metrics.py` to exclude subjects with excessive motion (FD > 0.5mm) before metric computation using `check_fd()`.
 - [ ] T022 [US2] Add logging for metric computation steps and exclusion reasons in `data/metrics_log.txt`.

@@ -1,24 +1,7 @@
-# Standalone Ruff configuration file for backward compatibility
-# This file mirrors the settings in pyproject.toml
+# Explicit ruff configuration file (fallback if pyproject.toml is not preferred)
+# This file mirrors the settings in pyproject.toml for clarity and IDE support.
 
-line-length = 88
-target-version = "py311"
-
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-    "UP",
-    "N",
-]
-
-ignore = [
-    "E501",
-    "B008",
-]
-
-[per-file-ignores]
-"tests/*" = ["S101"]
+extend = "pyproject.toml"
+# If you prefer to keep all config in pyproject.toml, this file can be empty
+# or deleted. It is provided here to ensure the linter finds the config
+# regardless of how the tool is invoked.

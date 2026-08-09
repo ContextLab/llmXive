@@ -17,6 +17,13 @@ T004:
   r: The provided `data/download.py` is truncated, never invokes the SHA256 check,
     and writes to `transitlm_sft_raw.jsonl` instead of the required `transitlm_ground_truth.json`.
     Moreover, the expected output file `data/raw/transitlm_ground_truth.json` is missing.
+T006b:
+  c: false
+  h: a932facab857626cc3255d9ab8edafd351746217f04064d881406b941995c6fa
+  r: "The required `data/preprocess.py` file does not exist, and the claimed output\
+    \ `data/processed/vocab_restricted_routes.jsonl` contains only placeholder text\
+    \ rather than the actual vocabulary\u2011restricted routes. Both the implementation\
+    \ and the real output file are missing."
 T010:
   c: true
   h: 21f09e3da1a022150ea77e9a8d7e8568f98605c97b92ee7c99ca50f73526e948

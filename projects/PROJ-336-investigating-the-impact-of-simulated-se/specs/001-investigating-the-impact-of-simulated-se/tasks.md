@@ -74,13 +74,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for dataset label validation in `tests/unit/test_download.py` (verifies 'task-rest' + deprivation labels)
+- [X] T009 [P] [US1] Unit test for dataset label validation in `tests/unit/test_download.py` (verifies 'task-rest' + deprivation labels)
 - [ ] T010 [P] [US1] Unit test for FD calculation in `tests/unit/test_quality_check.py` (verifies FD > 0.5mm threshold logic)
 
 ### Implementation for User Story 1
 
 - [ ] T011 [P] [US1] Implement `src/data/download.py` to fetch ds001770/ds003820 from OpenNeuro, verify BIDS structure, and halt if labels missing
-- [ ] T012 [US1] Implement `src/data/preprocess.py` for CPU-compatible pipeline: motion correction, normalization, bandpass filtering (low-frequency range) **using version-locked FSL or AFNI pipelines only** (no nilearn fallback) to ensure Neuroimaging Preprocessing Integrity.
+- [ ] T012 [US1] Implement `src/data/preprocess.py` for CPU-compatible pipeline: motion correction, normalization, bandpass filtering (low-frequency range) **using version-locked FSL or AFNI pipelines only** (no nilearn fallback) to ensure Neuroimaging Preprocessing Integrity. <!-- FAILED: unspecified -->
 - [ ] T013 [US1] Implement `src/data/preprocess.py` logic to output preprocessed BOLD time series files — **raw NIfTI files must be preserved unchanged** for reproducibility (Constitution Principle III).
 - [ ] T014a [US1] Implement specific validation in `src/data/download.py` to **raise ValueError if BIDS structure is invalid** with a specific error message directing to verify dataset availability.
 - [ ] T014b [US1] Implement specific validation in `src/data/download.py` to **raise ValueError if motion covariates are missing** with a specific error message directing to verify dataset metadata.

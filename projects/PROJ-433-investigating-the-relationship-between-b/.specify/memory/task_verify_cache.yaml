@@ -20,29 +20,47 @@ T003:
     tooling is not demonstrated.
 T010:
   c: false
-  h: 0a28a1e569628f84ac480bb592ea0c2d95e70cad1af48b0e43d9a4087e80c506
-  r: The provided `tests/unit/test_preprocess.py` defines the required test function,
-    but it writes the log to a temporary directory rather than the real `data/preprocess_log.txt`.
-    Consequently, the expected log file does not exist in the project (`data/preprocess_log.txt`
-    is missing), so the test does not actually verify that the container hash is logged
-    to the required location. The test must be adjusted to target `data/preprocess_log.txt`
-    (or the file must be created) for the requirement to be met.
+  h: d2a865b360108db689adb8014f14534c95f1cef3f969b70c50f085366b4c3acc
+  r: "The repository contains a partially\u2011written `tests/unit/test_preprocess.py`\
+    \ but the test ends abruptly (truncated) and never actually checks that `data/preprocess_log.txt`\
+    \ was written or contains the container hash. Moreover, the required `data/preprocess_log.txt`\
+    \ file is missing entirely. The task\u2019s requirement\u2014to verify that a\
+    \ mock call logs the container hash to that file\u2014is therefore not satisfied."
 T012b:
   c: false
-  h: f9726d232b7ab29e5137b7fb4c3109ff973a9316e4834589fa5502a709908643
-  r: "The `code/main.py` does call `verify_fMRI_availability()`, but it logs via a\
-    \ generic logger (not explicitly to `data/preprocess_log.txt`) and only skips\
-    \ preprocessing when **no** subjects are present, not when any subject is missing\
-    \ as required. Moreover, the required log file `data/preprocess_log.txt` does\
-    \ not exist, so the mandated \u201CN/A - Data Unavailable\u201D entry cannot be\
-    \ verified. The implementation does not fully satisfy the task\u2019s conditional\
-    \ exit and logging specifications."
+  h: 8febbbddf716411c78ee475b54498f872ba3db0be99647abed5a8afeb2092b60
+  r: "The `main.py` script does call `verify_fMRI_availability()` and skips preprocessing\
+    \ for missing subjects, but it does not create or write the required `data/preprocess_log.txt`\
+    \ file (the file is missing) and the logged message does not match the exact required\
+    \ text \u201CN/A - Data Unavailable\u201D. The implementation must generate the\
+    \ log file and write the exact message before exiting."
 T013:
   c: false
-  h: 1c5f2894f4177fb17688a5a4049dbfa841b40c5f0a70a8e569c518ce462eb081
-  r: The provided `code/preprocess.py` is truncated, lacks a CLI/ENV interface for
-    selecting `--mode`, does not log the container hash or full command to `data/preprocess_log.txt`
-    (the file is absent), and uses `--output-spaces MNI` instead of the required `--MNI`
-    flag. The check for T012b status is incomplete and the script never writes to
-    the required log file. These missing/incorrect elements must be added for the
-    task to be considered complete.
+  h: df72ca24d901b4cde3108e2646f964b1cdf7990ab2ac105dc72e4a5378e5fc1b
+  r: The provided `code/preprocess.py` does not actually add the required flags (`--motion-correction
+    --slice-timing --MNI --nuisance-regression`) to the fMRIPrep command, lacks a
+    check of T012b status before execution, and does not write the container hash
+    and full command to `data/preprocess_log.txt` (the log file is missing). These
+    core requirements are not satisfied.
+T014:
+  c: false
+  h: df72ca24d901b4cde3108e2646f964b1cdf7990ab2ac105dc72e4a5378e5fc1b
+  r: "The provided `code/preprocess.py` does not contain any call to a `check_fd()`\
+    \ function, logic to exclude subjects with FD\u202F>\u202F0.5\u202Fmm, or code\
+    \ that checks the T012b status before running. Additionally, the required log\
+    \ file `data/preprocess_log.txt` is absent. These essential components are missing,\
+    \ so the task is not fulfilled."
+T015:
+  c: false
+  h: c97c0e572c41a6142c12811691cf67a5c23edc8527ab3dc6b07ecc4bf30bf623
+  r: "The `download.py` file does call `setup_logger()`, but `preprocess.py` shows\
+    \ no logger usage in the visible code, and the required log file `data/preprocess_log.txt`\
+    \ is absent from the repository. Consequently the task\u2019s requirement to log\
+    \ all download and preprocessing operations to that file is not satisfied."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No JSON file `data/results/metrics_{subject_id}.json` (or any similar artifact)
+    was presented; therefore the required metric extraction and saving step cannot
+    be verified. The implementer must provide the actual JSON output files containing
+    the `subject_id` and `transition_count` fields for at least one subject.

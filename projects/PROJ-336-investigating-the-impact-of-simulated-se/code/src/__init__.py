@@ -1,3 +1,1 @@
-"""
-llmXive Research Pipeline - Source Code Package
-"""
+"""Source code package for llmXive research pipeline."""
