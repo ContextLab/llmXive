@@ -1,0 +1,3 @@
+# Standalone Ruff config for CLI usage (redundant if using pyproject.toml but helpful for some editors)
+extend = "code/pyproject.toml"
+line-length = 88

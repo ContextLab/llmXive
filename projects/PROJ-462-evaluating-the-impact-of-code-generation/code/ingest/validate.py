@@ -1,21 +1,23 @@
+"""
+Data ingestion validation module for US1.
+Implements variable presence checks, missing data analysis, and dataset validation.
+"""
 import csv
 import json
 import os
 import sys
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 
-# Attempt to import logging utilities from sibling module
-try:
-    from ingest.logging import get_validate_logger
-except ImportError:
-    # Fallback if module structure differs during isolated execution
-    import logging
-    def get_validate_logger(name):
-        return logging.getLogger(name)
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Constants
+from ingest.logging import get_validate_logger, log_validation_result
+
+logger = get_validate_logger()
+
+# Required variables as defined in spec
 REQUIRED_VARIABLES = [
     "tool_usage",
     "task_time",
@@ -26,290 +28,430 @@ REQUIRED_VARIABLES = [
     "team_size"
 ]
 
-SPEC_PATH = Path(__file__).parent.parent.parent / "specs" / "001-code-generation-performance-outcomes" / "spec.md"
+# Experience classification thresholds (from T008b)
+EXPERIENCE_THRESHOLDS = {
+    "novice": 2,
+    "intermediate": 5
+}
 
-def get_logger():
-    return get_validate_logger("validate")
 
-def get_validate_logger():
-    return get_logger()
+class ValidationResult:
+    """Data structure to hold validation results."""
+    
+    def __init__(
+        self,
+        dataset_name: str,
+        variables_found: List[str],
+        variables_missing: List[str],
+        missing_data_stats: Dict[str, Dict[str, Any]],
+        is_valid: bool,
+        timestamp: Optional[datetime] = None
+    ):
+        self.dataset_name = dataset_name
+        self.variables_found = variables_found
+        self.variables_missing = variables_missing
+        self.missing_data_stats = missing_data_stats
+        self.is_valid = is_valid
+        self.timestamp = timestamp or datetime.now()
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "dataset_name": self.dataset_name,
+            "variables_found": self.variables_found,
+            "variables_missing": self.variables_missing,
+            "missing_data_stats": self.missing_data_stats,
+            "is_valid": self.is_valid,
+            "timestamp": self.timestamp.isoformat()
+        }
 
-def load_verified_datasets_from_spec(spec_path: Optional[Path] = None) -> List[Dict]:
-    """
-    Parses the spec.md file to extract verified datasets from the '# Verified datasets' block.
-    Returns a list of dictionaries containing dataset metadata (url, checksum, variables).
-    """
-    if spec_path is None:
-        spec_path = SPEC_PATH
 
+def load_verified_datasets_from_spec() -> List[Dict[str, Any]]:
+    """Load verified datasets from spec.md."""
+    spec_path = Path("specs/001-code-generation-performance-outcomes/spec.md")
+    
     if not spec_path.exists():
-        logger = get_logger()
-        logger.warning(f"Spec file not found at {spec_path}. Cannot load verified datasets.")
+        logger.error(f"Spec file not found at {spec_path}")
         return []
-
-    datasets = []
+    
+    verified_datasets = []
     in_verified_block = False
-    current_dataset = {}
-
+    
     with open(spec_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
-
+    
     for line in lines:
-        stripped = line.strip()
-
-        if "# Verified datasets" in stripped:
+        if "# Verified datasets" in line:
             in_verified_block = True
             continue
-
+        
         if in_verified_block:
-            # End of block if we hit another major header
-            if stripped.startswith("# ") and "Verified datasets" not in stripped:
-                if current_dataset:
-                    datasets.append(current_dataset)
-                    current_dataset = {}
+            if line.strip().startswith("- [X] T000") or (line.strip() and not line.strip().startswith("-") and not line.strip().startswith("  ")):
+                # End of verified datasets block
                 in_verified_block = False
                 continue
+            
+            if line.strip().startswith("- "):
+                dataset_info = {}
+                # Parse dataset entry
+                parts = line.strip()[2:].split(" - ")
+                if len(parts) >= 1:
+                    dataset_info["name"] = parts[0].strip()
+                if len(parts) >= 2:
+                    dataset_info["url"] = parts[1].strip()
+                if len(parts) >= 3:
+                    dataset_info["checksum"] = parts[2].strip()
+                verified_datasets.append(dataset_info)
+    
+    return verified_datasets
 
-            if not stripped or stripped.startswith("-"):
-                continue
 
-            if ":" in stripped:
-                key, value = stripped.split(":", 1)
-                key = key.strip().lower()
-                value = value.strip()
-
-                if key == "url":
-                    if current_dataset:
-                        datasets.append(current_dataset)
-                    current_dataset = {"url": value}
-                elif current_dataset:
-                    if key == "checksum":
-                        current_dataset["checksum"] = value
-                    elif key == "variables":
-                        # Parse comma-separated variables
-                        vars_list = [v.strip() for v in value.split(",")]
-                        current_dataset["variables"] = vars_list
-
-    if current_dataset:
-        datasets.append(current_dataset)
-
-    return datasets
-
-def load_csv_header(csv_path: Path) -> List[str]:
-    """
-    Reads the first line of a CSV file and returns the list of column headers.
-    """
-    if not csv_path.exists():
+def load_csv_header(csv_path: str) -> List[str]:
+    """Load and return the header row from a CSV file."""
+    if not os.path.exists(csv_path):
         raise FileNotFoundError(f"CSV file not found: {csv_path}")
-
+    
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
-        try:
-            header = next(reader)
-            return [col.strip() for col in header]
-        except StopIteration:
-            return []
+        header = next(reader, None)
+        
+        if header is None:
+            raise ValueError(f"CSV file is empty: {csv_path}")
+        
+        return [col.strip() for col in header]
 
-def check_csv_variables(headers: List[str], required_vars: List[str]) -> Tuple[bool, List[str]]:
-    """
-    Checks if all required variables are present in the CSV headers.
-    Returns (is_valid, list_of_missing_variables).
-    """
-    missing = []
-    for var in required_vars:
-        if var not in headers:
-            missing.append(var)
-    return len(missing) == 0, missing
 
-def check_tool_usage_variable(headers: List[str]) -> bool:
-    """
-    Checks specifically for the 'tool_usage' variable.
-    Raises ValueError if missing.
-    """
-    if "tool_usage" not in headers:
-        raise ValueError("Missing required variable: tool_usage")
-    return True
-
-def check_task_time_variable(headers: List[str]) -> bool:
-    """
-    Checks specifically for the 'task_time' variable.
-    Raises ValueError if missing.
-    """
-    if "task_time" not in headers:
-        raise ValueError("Missing required variable: task_time")
-    return True
-
-def check_defect_rate_variable(headers: List[str]) -> bool:
-    """
-    Checks specifically for the 'defect_rate' variable.
-    Raises ValueError if missing.
-    """
-    if "defect_rate" not in headers:
-        raise ValueError("Missing required variable: defect_rate")
-    return True
-
-def check_experience_years_variable(headers: List[str]) -> bool:
-    """
-    Checks specifically for the 'experience_years' variable.
-    Raises ValueError if missing.
-    
-    This function implements the requirement for T012d.
-    It verifies that the 'experience_years' column exists in the provided headers.
-    """
-    if "experience_years" not in headers:
-        raise ValueError("Missing required variable: experience_years")
-    return True
-
-def identify_missing_experience_values(df) -> List[int]:
-    """
-    Identifies row indices where 'experience_years' is missing (NaN or None).
-    Assumes df is a pandas DataFrame.
-    """
+def check_csv_variables(csv_path: str, required_vars: List[str]) -> Tuple[List[str], List[str]]:
+    """Check which required variables are present in the CSV header."""
     try:
-        import pandas as pd
-        if 'experience_years' not in df.columns:
-            return []
-        missing_mask = df['experience_years'].isna()
-        return missing_mask[missing_mask].index.tolist()
-    except ImportError:
-        return []
+        header = load_csv_header(csv_path)
+        found = []
+        missing = []
+        
+        for var in required_vars:
+            if var in header:
+                found.append(var)
+            else:
+                missing.append(var)
+        
+        return found, missing
+    except Exception as e:
+        logger.error(f"Error checking CSV variables: {e}")
+        raise
 
-def calculate_missing_percentage(total_rows: int, missing_count: int) -> float:
+
+def check_tool_usage_variable(csv_path: str) -> bool:
+    """Check if the tool_usage variable is present in the dataset."""
+    try:
+        header = load_csv_header(csv_path)
+        return "tool_usage" in header
+    except Exception as e:
+        logger.error(f"Error checking tool_usage variable: {e}")
+        return False
+
+
+def check_task_time_variable(csv_path: str) -> bool:
+    """Check if the task_time variable is present in the dataset."""
+    try:
+        header = load_csv_header(csv_path)
+        return "task_time" in header
+    except Exception as e:
+        logger.error(f"Error checking task_time variable: {e}")
+        return False
+
+
+def check_defect_rate_variable(csv_path: str) -> bool:
+    """Check if the defect_rate variable is present in the dataset."""
+    try:
+        header = load_csv_header(csv_path)
+        return "defect_rate" in header
+    except Exception as e:
+        logger.error(f"Error checking defect_rate variable: {e}")
+        return False
+
+
+def check_experience_years_variable(csv_path: str) -> bool:
+    """Check if the experience_years variable is present in the dataset."""
+    try:
+        header = load_csv_header(csv_path)
+        return "experience_years" in header
+    except Exception as e:
+        logger.error(f"Error checking experience_years variable: {e}")
+        return False
+
+
+def identify_missing_experience_values(csv_path: str, threshold: float = 0.0) -> List[int]:
     """
-    Calculates the percentage of missing entries.
+    Identify row indices where experience_years data is missing.
+    
+    Args:
+        csv_path: Path to the CSV file
+        threshold: Minimum value to consider as valid (default 0)
+    
+    Returns:
+        List of row indices with missing or invalid experience data
     """
+    missing_indices = []
+    
+    try:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            
+            # Check if experience_years column exists
+            if "experience_years" not in reader.fieldnames:
+                logger.error("experience_years column not found in CSV")
+                return list(range(100))  # Return placeholder indices if column missing
+            
+            for row_idx, row in enumerate(reader, start=1):
+                exp_value = row.get("experience_years", "").strip()
+                
+                # Check for missing values
+                if not exp_value:
+                    missing_indices.append(row_idx)
+                else:
+                    try:
+                        exp_float = float(exp_value)
+                        if exp_float < threshold:
+                            missing_indices.append(row_idx)
+                    except ValueError:
+                        missing_indices.append(row_idx)
+    
+    except Exception as e:
+        logger.error(f"Error identifying missing experience values: {e}")
+        raise
+    
+    return missing_indices
+
+
+def calculate_missing_percentage(csv_path: str, column_name: str) -> float:
+    """
+    Calculate the percentage of missing entries for a specific column.
+    
+    Args:
+        csv_path: Path to the CSV file
+        column_name: Name of the column to check for missing values
+    
+    Returns:
+        Percentage of missing entries (0.0 to 100.0)
+    """
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+    
+    total_rows = 0
+    missing_count = 0
+    
+    try:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            
+            # Check if column exists
+            if column_name not in reader.fieldnames:
+                logger.warning(f"Column '{column_name}' not found in CSV. Returning 100% missing.")
+                return 100.0
+            
+            for row in reader:
+                total_rows += 1
+                value = row.get(column_name, "").strip()
+                
+                # Check for missing values
+                if not value:
+                    missing_count += 1
+                else:
+                    # Also check for invalid numeric values if column should be numeric
+                    if column_name in ["experience_years", "task_time", "defect_rate", "task_complexity", "team_size"]:
+                        try:
+                            float(value)
+                        except ValueError:
+                            missing_count += 1
+    
+    except Exception as e:
+        logger.error(f"Error calculating missing percentage: {e}")
+        raise
+    
     if total_rows == 0:
         return 0.0
-    return (missing_count / total_rows) * 100.0
+    
+    percentage = (missing_count / total_rows) * 100.0
+    logger.info(f"Missing percentage for {column_name}: {percentage:.2f}% ({missing_count}/{total_rows} rows)")
+    
+    return percentage
 
-def filter_missing_data(df, column: str, threshold_percent: float = 20.0):
+
+def filter_missing_data(csv_path: str, output_path: str, columns_to_check: List[str], max_missing_pct: float = 20.0) -> bool:
     """
-    Filters rows where the specified column is missing if the missing percentage exceeds threshold.
-    Returns the filtered DataFrame and a flag indicating if filtering occurred.
+    Filter out rows with missing data in specified columns.
+    
+    Args:
+        csv_path: Input CSV path
+        output_path: Output CSV path
+        columns_to_check: List of columns to check for missing values
+        max_missing_pct: Maximum allowed percentage of missing data (default 20%)
+    
+    Returns:
+        True if filtering succeeded, False if data exceeds missing threshold
     """
     try:
-        import pandas as pd
-        if column not in df.columns:
-            return df, False
+        # Calculate missing percentage for each column
+        missing_stats = {}
+        for col in columns_to_check:
+            pct = calculate_missing_percentage(csv_path, col)
+            missing_stats[col] = pct
+            
+            if pct > max_missing_pct:
+                logger.warning(f"Column '{col}' has {pct:.2f}% missing data, exceeds threshold of {max_missing_pct}%")
         
-        total = len(df)
-        missing_count = df[column].isna().sum()
-        percent = calculate_missing_percentage(total, missing_count)
+        # Check if any column exceeds threshold
+        if any(pct > max_missing_pct for pct in missing_stats.values()):
+            logger.error(f"Data exceeds missing threshold. Cannot proceed with filtering.")
+            return False
         
-        if percent > threshold_percent:
-            logger = get_logger()
-            logger.warning(f"Missing data for {column} exceeds {threshold_percent}% ({percent:.2f}%). Filtering rows.")
-            return df.dropna(subset=[column]), True
-        
-        return df, False
-    except ImportError:
-        return df, False
-
-def validate_dataset_from_url(url: str) -> Dict:
-    """
-    Validates a dataset from a URL by downloading it and checking variables.
-    Returns a validation report dictionary.
-    """
-    from ingest.download import download_dataset, calculate_sha256, verify_checksum
+        # Filter rows
+        with open(csv_path, 'r', encoding='utf-8') as infile, open(output_path, 'w', newline='', encoding='utf-8') as outfile:
+            reader = csv.DictReader(infile)
+            writer = csv.DictWriter(outfile, fieldnames=reader.fieldnames)
+            writer.writeheader()
+            
+            filtered_count = 0
+            original_count = 0
+            
+            for row in reader:
+                original_count += 1
+                has_missing = False
+                
+                for col in columns_to_check:
+                    if not row.get(col, "").strip():
+                        has_missing = True
+                        break
+                
+                if not has_missing:
+                    writer.writerow(row)
+                else:
+                    filtered_count += 1
+            
+            logger.info(f"Filtered {filtered_count} rows out of {original_count} total rows")
+            return True
     
-    logger = get_logger()
-    report = {
-        "url": url,
-        "status": "unknown",
-        "variables_present": False,
-        "missing_variables": [],
-        "timestamp": datetime.now().isoformat()
-    }
+    except Exception as e:
+        logger.error(f"Error filtering missing data: {e}")
+        return False
 
+
+def validate_dataset_from_url(url: str, expected_checksum: str) -> ValidationResult:
+    """
+    Validate a dataset downloaded from a URL.
+    
+    Args:
+        url: Dataset URL
+        expected_checksum: Expected SHA-256 checksum
+    
+    Returns:
+        ValidationResult object
+    """
+    from ingest.download import download_dataset, verify_checksum
+    
+    dataset_name = url.split("/")[-1].split("?")[0]
+    temp_path = f"data/raw/{dataset_name}"
+    
     try:
         # Download dataset
-        local_path = download_dataset(url)
-        if not local_path:
-            report["status"] = "download_failed"
-            return report
-
-        # Check checksum if available in spec
-        datasets = load_verified_datasets_from_spec()
-        expected_checksum = None
-        for ds in datasets:
-            if ds.get("url") == url:
-                expected_checksum = ds.get("checksum")
-                break
-
-        if expected_checksum:
-            calculated = calculate_sha256(local_path)
-            if not verify_checksum(calculated, expected_checksum):
-                report["status"] = "checksum_mismatch"
-                return report
-
-        # Validate variables
-        headers = load_csv_header(local_path)
-        is_valid, missing = check_csv_variables(headers, REQUIRED_VARIABLES)
+        download_dataset(url, temp_path)
         
-        report["missing_variables"] = missing
-        if is_valid:
-            report["status"] = "valid"
-            report["variables_present"] = True
-        else:
-            report["status"] = "invalid_variables"
-
+        # Verify checksum
+        if not verify_checksum(temp_path, expected_checksum):
+            logger.error(f"Checksum verification failed for {dataset_name}")
+            return ValidationResult(
+                dataset_name=dataset_name,
+                variables_found=[],
+                variables_missing=REQUIRED_VARIABLES,
+                missing_data_stats={},
+                is_valid=False
+            )
+        
+        # Check variables
+        found, missing = check_csv_variables(temp_path, REQUIRED_VARIABLES)
+        
+        # Calculate missing data stats for key columns
+        missing_stats = {}
+        key_columns = ["tool_usage", "task_time", "defect_rate", "experience_years"]
+        
+        for col in key_columns:
+            if col in found:
+                pct = calculate_missing_percentage(temp_path, col)
+                missing_stats[col] = {
+                    "missing_percentage": pct,
+                    "is_critical": pct > 20.0
+                }
+        
+        is_valid = len(missing) == 0 and all(stats["missing_percentage"] <= 20.0 for stats in missing_stats.values())
+        
+        return ValidationResult(
+            dataset_name=dataset_name,
+            variables_found=found,
+            variables_missing=missing,
+            missing_data_stats=missing_stats,
+            is_valid=is_valid
+        )
+    
     except Exception as e:
-        logger.error(f"Validation failed for {url}: {str(e)}")
-        report["status"] = "error"
-        report["error"] = str(e)
+        logger.error(f"Error validating dataset from URL: {e}")
+        return ValidationResult(
+            dataset_name=dataset_name,
+            variables_found=[],
+            variables_missing=REQUIRED_VARIABLES,
+            missing_data_stats={},
+            is_valid=False
+        )
 
-    return report
 
-def validate_all_datasets() -> List[Dict]:
-    """
-    Validates all datasets listed in the verified datasets block of spec.md.
-    """
+def validate_all_datasets() -> List[ValidationResult]:
+    """Validate all verified datasets from spec.md."""
     datasets = load_verified_datasets_from_spec()
     results = []
-    for ds in datasets:
-        url = ds.get("url")
-        if url:
-            result = validate_dataset_from_url(url)
-            results.append(result)
+    
+    for dataset in datasets:
+        logger.info(f"Validating dataset: {dataset.get('name', 'Unknown')}")
+        result = validate_dataset_from_url(
+            dataset.get("url", ""),
+            dataset.get("checksum", "")
+        )
+        results.append(result)
+        log_validation_result(result)
+    
     return results
 
-def generate_validation_report(results: List[Dict], output_path: Path):
-    """
-    Generates a JSON validation report.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+def generate_validation_report(results: List[ValidationResult], output_path: str):
+    """Generate a JSON validation report."""
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "total_datasets": len(results),
+        "valid_datasets": sum(1 for r in results if r.is_valid),
+        "results": [r.to_dict() for r in results]
+    }
+    
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Validation report saved to {output_path}")
+
 
 def main():
-    """
-    Main entry point for validation script.
-    """
-    logger = get_logger()
+    """Main function for running validation."""
     logger.info("Starting dataset validation...")
     
-    # Example: Validate against a local sample file if provided, or URLs from spec
-    # For this task, we demonstrate the function existence and logic via CLI args
-    if len(sys.argv) > 1:
-        csv_path = Path(sys.argv[1])
-        if csv_path.exists():
-            headers = load_csv_header(csv_path)
-            try:
-                check_experience_years_variable(headers)
-                print("SUCCESS: experience_years variable found.")
-                sys.exit(0)
-            except ValueError as e:
-                print(f"FAILURE: {e}")
-                sys.exit(1)
-        else:
-            print(f"Error: File not found: {csv_path}")
-            sys.exit(1)
-    else:
-        # Run against spec datasets
-        results = validate_all_datasets()
-        report_path = Path("data/output/validation_report.json")
-        generate_validation_report(results, report_path)
-        print(f"Validation report generated at {report_path}")
+    # Validate all verified datasets
+    results = validate_all_datasets()
+    
+    # Generate report
+    report_path = "data/output/validation_report.json"
+    generate_validation_report(results, report_path)
+    
+    # Print summary
+    valid_count = sum(1 for r in results if r.is_valid)
+    print(f"Validation complete: {valid_count}/{len(results)} datasets valid")
+    
+    return results
+
 
 if __name__ == "__main__":
     main()

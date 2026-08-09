@@ -41,9 +41,9 @@
 
 - [X] T004 [P] Implement data hygiene utilities: checksum verification, raw vs processed directory structure (`data/raw/`, `data/processed/`) in `code/utils/io_utils.py` (Depends on T008 schema)
 - [X] T005 [P] Implement reference validation wrapper for the Reference-Validator Agent pre-commit hook in `code/utils/citation_validator.py`
-- [~] T006 [P] Create base configuration management (env vars, random seeds) in `code/config.py`
-- [~] T007 [P] Setup logging infrastructure with structured JSON output in `code/utils/logger.py`
-- [~] T008 [P] Define data schemas and validation logic in `code/contracts/dataset.schema.yaml` and `code/contracts/output.schema.yaml`
+- [X] T006 [P] Create base configuration management (env vars, random seeds) in `code/config.py`
+- [X] T007 [P] Setup logging infrastructure with structured JSON output in `code/utils/logger.py`
+- [X] T008 [P] Define data schemas and validation logic in `code/contracts/dataset.schema.yaml` and `code/contracts/output.schema.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,22 +59,22 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T009 [P] [US1] Unit test for Web of Life downloader in `tests/test_ingestion.py` (mock network calls, verify file structure)
-- [~] T010 [P] [US1] Unit test for heuristic mapping logic in `tests/test_ingestion.py` (verify fallback paths: mapping file -> DOI scrape -> Dryad API)
-- [~] T011 [P] [US1] Integration test for full ingestion pipeline on 3 sample ecosystems in `tests/integration/test_ingestion_flow.py`
+- [X] T009 [P] [US1] Unit test for Web of Life downloader in `tests/test_ingestion.py` (mock network calls, verify file structure)
+- [X] T010 [P] [US1] Unit test for heuristic mapping logic in `tests/test_ingestion.py` (verify fallback paths: mapping file -> DOI scrape -> Dryad API)
+- [X] T011 [P] [US1] Integration test for full ingestion pipeline on 3 sample ecosystems in `tests/integration/test_ingestion_flow.py`
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/ingestion.py`: Web of Life downloader with error handling (skip ecosystem if no trait data, log warning). **Must return the count of valid ecosystems retrieved.**
-- [ ] T013 [P] [US1] Implement `code/ingestion.py`: Heuristic mapping strategy (Mapping file -> DOI scrape -> Dryad API search). **Runs in parallel with T012.**
-- [ ] T014 [US1] Implement `code/preprocessing.py`: **Co-occurrence Logic & Temporal Validation**. Validate presence of temporal metadata. If missing, **default to spatial-only co-occurrence** (species in same ecosystem) and log a warning; do NOT block execution. Ensure strict adherence to FR-007 (spatial co-occurrence is sufficient).
-- [ ] T015 [US1] Implement `code/preprocessing.py`: **Negative Sample Generation**. Generate negative samples strictly from co-occurring pairs (using logic from T014).
-- [ ] T016 [US1] Implement `code/preprocessing.py`: Missing value handling (median imputation, flag >15% missingness)
-- [ ] T017 [US1] Implement `code/preprocessing.py`: Outlier handling (winsorize at the extreme percentiles) and Z-score normalization
-- [ ] T018 [US1] Implement `code/preprocessing.py`: Categorical encoding (one-hot, no leakage) and sampling effort extraction
-- [ ] T019 [US1] Implement `code/preprocessing.py`: Unified feature matrix construction (rows: pairs, cols: traits + label, exclude species IDs)
+- [X] T012 [US1] Implement `code/ingestion.py`: Web of Life downloader with error handling (skip ecosystem if no trait data, log warning). **Must return the count of valid ecosystems retrieved.**
+- [X] T013 [P] [US1] Implement `code/ingestion.py`: Heuristic mapping strategy (Mapping file -> DOI scrape -> Dryad API search). **Runs in parallel with T012.**
+- [X] T014 [US1] Implement `code/preprocessing.py`: **Co-occurrence Logic & Temporal Validation**. Validate presence of temporal metadata. If missing, **default to spatial-only co-occurrence** (species in same ecosystem) and log a warning; do NOT block execution. Ensure strict adherence to FR-007 (spatial co-occurrence is sufficient).
+- [X] T015 [US1] Implement `code/preprocessing.py`: **Negative Sample Generation**. Generate negative samples strictly from co-occurring pairs (using logic from T014).
+- [X] T016 [US1] Implement `code/preprocessing.py`: Missing value handling (median imputation, flag >15% missingness)
+- [X] T017 [US1] Implement `code/preprocessing.py`: Outlier handling (winsorize at the extreme percentiles) and Z-score normalization
+- [X] T018 [US1] Implement `code/preprocessing.py`: Categorical encoding (one-hot, no leakage) and sampling effort extraction
+- [X] T019 [US1] Implement `code/preprocessing.py`: Unified feature matrix construction (rows: pairs, cols: traits + label, exclude species IDs)
 - [ ] T020 [US1] [Depends on T012] **Validation & Threshold Enforcement**: Implement logic to verify the count of valid ecosystems (from T012). **If valid_count < 8, log a warning stating the reduced sample size and proceed with the available data.** Do NOT raise SystemExit. This task MUST be completed before T021 (Orchestrator).
-- [ ] T021 [US1] Create `code/main.py` orchestrator to run ingestion and preprocessing sequentially (depends on T020 validation logic).
+- [X] T021 [US1] Create `code/main.py` orchestrator to run ingestion and preprocessing sequentially (depends on T020 validation logic).
 - [ ] T022 [US1] Add validation logic to ensure output matches `code/contracts/dataset.schema.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -89,9 +89,9 @@
 
 ### Tests for User Story 2
 
-- [ ] T023 [P] [US2] Unit test for stratified split generation in `tests/test_model.py`
-- [ ] T024 [P] [US2] Unit test for permutation importance calculation in `tests/test_model.py`
-- [ ] T025 [P] [US2] Integration test for training loop on sample data in `tests/integration/test_training_flow.py`
+- [X] T023 [P] [US2] Unit test for stratified split generation in `tests/test_model.py`
+- [X] T024 [P] [US2] Unit test for permutation importance calculation in `tests/test_model.py`
+- [X] T025 [P] [US2] Integration test for training loop on sample data in `tests/integration/test_training_flow.py`
 
 ### Implementation for User Story 2
 

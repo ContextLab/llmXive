@@ -1,2 +1,2 @@
-# This directory holds generated LoRA adapter weights (.safetensors).
-# Output of the adapter generation process.
+# This directory stores generated LoRA adapters (.safetensors).
+# Output of the hypernetwork adapter generation pipeline.

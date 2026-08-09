@@ -3,88 +3,104 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import List, Tuple
-from ..config import get_project_root, get_data_path
-from ..utils.logging import get_logger, log_counterbalance_strategy
+import logging
+
+from ..config import get_project_root
+from ..utils.logging import log_counterbalance_strategy, get_logger
+
+logger = get_logger("counterbalance")
 
 def generate_counterbalance_assignments(
-    n_participants: int = 100,
+    participant_ids: List[str],
     seed: int = 42,
-    output_path: Optional[Path] = None
+    split_ratio: float = 0.5
 ) -> pd.DataFrame:
     """
-    Generate a counterbalance assignment map for participants.
-    
-    Creates a DataFrame mapping participant IDs to session orders (Low-High vs High-Low)
-    using a seeded random shuffle to ensure a 50/50 split.
-    
+    Generate counterbalancing assignments for participants.
+
+    This function assigns each participant to one of two session orders:
+    - 'Low-High': Start with Low complexity stimuli, then High complexity
+    - 'High-Low': Start with High complexity stimuli, then Low complexity
+
+    The assignment is randomized with a fixed seed to ensure reproducibility
+    and a near 50/50 split between the two conditions.
+
     Args:
-        n_participants: Total number of participants to generate assignments for.
+        participant_ids: List of participant identifiers.
         seed: Random seed for reproducibility (default: 42).
-        output_path: Optional path to save the CSV. If None, saves to 
-                     data/processed/counterbalance_assignment.csv.
-                     
+        split_ratio: Target ratio for the first condition (default: 0.5).
+
     Returns:
-        DataFrame with columns: participant_id, session_order
+        A DataFrame with columns: ['participant_id', 'session_order']
     """
-    # Ensure output path
-    if output_path is None:
-        data_path = get_data_path()
-        processed_dir = data_path / "processed"
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        output_path = processed_dir / "counterbalance_assignment.csv"
-    
-    # Generate participant IDs
-    participant_ids = [f"P{str(i).zfill(4)}" for i in range(1, n_participants + 1)]
-    
-    # Create orders list: ensure exact 50/50 split if possible
-    n_low_high = n_participants // 2
-    n_high_low = n_participants - n_low_high
-    
-    orders = ["LOW-HIGH"] * n_low_high + ["HIGH-LOW"] * n_high_low
-    
-    # Shuffle orders using the seed
-    rng = np.random.default_rng(seed)
-    rng.shuffle(orders)
-    
+    logger.info(f"Generating counterbalance assignments for {len(participant_ids)} participants.")
+    logger.info(f"Using random seed: {seed}, target split ratio: {split_ratio}")
+
+    np.random.seed(seed)
+
+    # Create assignment list
+    n_participants = len(participant_ids)
+    n_condition_a = int(n_participants * split_ratio)
+
+    # Create list of conditions
+    conditions = ['Low-High'] * n_condition_a + ['High-Low'] * (n_participants - n_condition_a)
+
+    # Shuffle to randomize assignment
+    np.random.shuffle(conditions)
+
     # Create DataFrame
     df = pd.DataFrame({
-        "participant_id": participant_ids,
-        "session_order": orders
+        'participant_id': participant_ids,
+        'session_order': conditions
     })
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    
-    logger = get_logger(__name__)
-    logger.info(f"Generated counterbalance assignments for {n_participants} participants.")
-    logger.info(f"Saved to: {output_path}")
-    
+
+    # Log the strategy details
+    strategy_details = (
+        f"Counterbalancing Strategy: Latin Square (AB/BA design)\n"
+        f"Total Participants: {n_participants}\n"
+        f"Condition A (Low-High): {sum(conditions == 'Low-High')} participants\n"
+        f"Condition B (High-Low): {sum(conditions == 'High-Low')} participants\n"
+        f"Random Seed: {seed}\n"
+        f"Split Ratio: {split_ratio}\n"
+        f"Assignment Method: Seeded random shuffle of pre-balanced condition list\n"
+        f"Output: data/processed/counterbalance_assignment.csv"
+    )
+
+    log_counterbalance_strategy(strategy_details)
+
     return df
 
 def main():
     """
-    Entry point for generating counterbalance assignments.
-    Also logs the strategy used.
+    Main entry point for generating counterbalance assignments.
+
+    This function creates a synthetic list of participant IDs (for CI/testing),
+    generates the counterbalance assignments, and saves them to a CSV file.
     """
-    logger = get_logger(__name__)
-    logger.info("Starting counterbalance assignment generation...")
-    
-    # Log the strategy first
-    strategy_log_path = log_counterbalance_strategy()
-    logger.info(f"Strategy logged to: {strategy_log_path}")
-    
-    # Generate assignments (default 100 participants for testing/CI)
-    # In a real run, this might be driven by actual participant count
-    df = generate_counterbalance_assignments(n_participants=100, seed=42)
-    
-    # Verify split
-    counts = df['session_order'].value_counts()
-    logger.info(f"Assignment split: {counts.to_dict()}")
-    
-    if abs(counts['LOW-HIGH'] - counts['HIGH-LOW']) > 1:
-        logger.warning("Warning: Assignment split is not exactly 50/50.")
-    else:
-        logger.info("Assignment split is balanced.")
+    # Create a synthetic list of participant IDs for testing
+    # In a real scenario, this would be loaded from actual participant logs
+    participant_ids = [f"P{str(i).zfill(3)}" for i in range(1, 101)]
+
+    # Generate assignments
+    assignments_df = generate_counterbalance_assignments(participant_ids, seed=42)
+
+    # Save to CSV
+    project_root = get_project_root()
+    output_path = project_root / "data" / "processed" / "counterbalance_assignment.csv"
+
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    assignments_df.to_csv(output_path, index=False)
+    logger.info(f"Counterbalance assignments saved to {output_path}")
+
+    # Print summary
+    print(f"\nCounterbalance Assignment Summary:")
+    print(f"Total Participants: {len(assignments_df)}")
+    print(f"Low-High: {len(assignments_df[assignments_df['session_order'] == 'Low-High'])}")
+    print(f"High-Low: {len(assignments_df[assignments_df['session_order'] == 'High-Low'])}")
+
+    return assignments_df
 
 if __name__ == "__main__":
     main()

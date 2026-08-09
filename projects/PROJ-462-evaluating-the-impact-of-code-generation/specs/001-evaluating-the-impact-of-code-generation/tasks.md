@@ -87,12 +87,12 @@
 - [X] T011a [US1] Write function to download dataset from URL at `code/ingest/download.py` (FR-001) - supports URLs from verified-datasets block
 - [X] T011b [US1] Write function to calculate SHA-256 checksum at `code/ingest/download.py` (FR-001) - validates file integrity
 - [X] T011c [US1] Implement checksum validation integration at `code/ingest/download.py` (FR-001) - compares calculated vs recorded checksum
-- [ ] T012a [US1] Write function to check for tool_usage variable at `code/ingest/validate.py` (FR-002)
-- [ ] T012b [US1] Write function to check for task_time variable at `code/ingest/validate.py` (FR-002)
-- [ ] T012c [US1] Write function to check for defect_rate variable at `code/ingest/validate.py` (FR-002)
-- [ ] T012d [US1] Write function to check for experience_years variable at `code/ingest/validate.py` (FR-002)
-- [ ] T013a [US1] Write function to identify missing experience data values at `code/ingest/validate.py` (FR-010)
-- [ ] T013b [US1] Write function to calculate percentage of missing entries at `code/ingest/validate.py` (FR-010)
+- [X] T012a [US1] Write function to check for tool_usage variable at `code/ingest/validate.py` (FR-002)
+- [X] T012b [US1] Write function to check for task_time variable at `code/ingest/validate.py` (FR-002)
+- [X] T012c [US1] Write function to check for defect_rate variable at `code/ingest/validate.py` (FR-002)
+- [X] T012d [US1] Write function to check for experience_years variable at `code/ingest/validate.py` (FR-002)
+- [X] T013a [US1] Write function to identify missing experience data values at `code/ingest/validate.py` (FR-010)
+- [X] T013b [US1] Write function to calculate percentage of missing entries at `code/ingest/validate.py` (FR-010)
 - [X] T013c [US1] Implement missing data filtering with percentage reporting at `code/ingest/validate.py` (FR-010) - flag if >20% entries removed
 - [X] T014 [US1] Add error handling for missing required variables at `code/ingest/validate.py` - halt with clear error identifying missing variable
 - [X] T016 [US1] Implement SHA-256 checksum verification in download pipeline at `code/ingest/download.py` (FR-001)
@@ -127,8 +127,8 @@
 - [X] T021b [US2] Write function to calculate interaction term at `code/analysis/anova.py` (FR-003) - tool usage × experience level interaction
 - [X] T021c [US2] Write function to extract p-values and F-statistics at `code/analysis/anova.py` (FR-003)
 - [X] T022 [US2] Implement ANCOVA fallback when covariates available at `code/analysis/anova.py` (FR-011) - task_complexity, project_type, team_size as covariates
-- [ ] T022a [US2] Write function to test for normality/homogeneity assumption violations at `code/analysis/anova.py` (SC-002) - Shapiro-Wilk, Levene's test before deciding on Welch's ANOVA
-- [ ] T023 [US2] Implement Welch's ANOVA fallback for unequal variances at `code/analysis/anova.py` - apply when assumption violations detected in T022a
+- [X] T022a [US2] Write function to test for normality/homogeneity assumption violations at `code/analysis/anova.py` (SC-002) - Shapiro-Wilk, Levene's test before deciding on Welch's ANOVA
+- [X] T023 [US2] Implement Welch's ANOVA fallback for unequal variances at `code/analysis/anova.py` - apply when assumption violations detected in T022a
 - [ ] T024 [US2] Implement Cohen's d effect size calculation at `code/analysis/effect_sizes.py` (FR-004, SC-004) - pairwise comparisons within experience strata
 - [ ] T024b [US2] Implement paired output verification at `code/analysis/effect_sizes.py` (Constitution Principle VI) - ensure effect sizes reported alongside p-values in same result block
 - [ ] T025 [US2] Implement Bonferroni/Holm-Bonferroni correction at `code/analysis/effect_sizes.py` (FR-005, SC-003) - family-wise error rate ≤0.05

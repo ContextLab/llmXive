@@ -1,126 +1,124 @@
-"""
-Latency monitoring for inference evaluation.
-
-Implements FR-004: Instrument the evaluation runner to measure inference latency
-per task in milliseconds, saving results to data/results/latency.csv.
-"""
 import time
 import csv
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
+
 def measure_inference_latency(
     task_id: str,
     inference_func,
     *args,
     **kwargs
-) -> float:
+) -> Dict[str, Any]:
     """
-    Measure the inference latency for a single task.
-    
+    Measure the inference latency of a single task.
+
     Args:
-        task_id: Unique identifier for the task
-        inference_func: Callable that performs the inference
-        *args, **kwargs: Arguments to pass to the inference function
-        
+        task_id: Unique identifier for the task.
+        inference_func: Callable that performs the inference.
+        *args: Positional arguments to pass to the inference function.
+        **kwargs: Keyword arguments to pass to the inference function.
+
     Returns:
-        Latency in milliseconds
+        A dictionary containing the task_id and latency in milliseconds.
     """
+    logger.info(f"Measuring latency for task: {task_id}")
     start_time = time.perf_counter()
-    
-    # Execute the inference
     try:
         result = inference_func(*args, **kwargs)
     except Exception as e:
-        # Re-raise to let the caller handle errors
-        raise e
-    
+        logger.error(f"Error during inference for task {task_id}: {e}")
+        # Return a latency entry with 0 or -1 to indicate failure, or raise
+        # Depending on runner logic, we might want to record the failure time too
+        end_time = time.perf_counter()
+        latency_ms = (end_time - start_time) * 1000
+        return {
+            "task_id": task_id,
+            "latency_ms": latency_ms,
+            "status": "error",
+            "error": str(e)
+        }
     end_time = time.perf_counter()
-    latency_ms = (end_time - start_time) * 1000  # Convert to milliseconds
-    
-    return latency_ms
+    latency_ms = (end_time - start_time) * 1000
+
+    logger.debug(f"Task {task_id} completed in {latency_ms:.2f} ms")
+    return {
+        "task_id": task_id,
+        "latency_ms": latency_ms,
+        "status": "success"
+    }
 
 
 def save_latency_results(
     results: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
+    output_path: str
+) -> Path:
     """
-    Save latency measurement results to a CSV file.
-    
+    Save latency results to a CSV file.
+
     Args:
-        results: List of dicts with 'task_id' and 'latency_ms' keys
-        output_path: Optional custom output path. Defaults to 
-                    'data/results/latency.csv'
-                    
+        results: List of dictionaries containing task_id and latency_ms.
+        output_path: Path to the output CSV file.
+
     Returns:
-        The path where results were saved
+        The Path object of the created file.
     """
-    if output_path is None:
-        output_path = "data/results/latency.csv"
-    
-    # Ensure the directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    # Write to CSV
-    with open(output_path, 'w', newline='') as csvfile:
-        fieldnames = ['task_id', 'latency_ms']
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Saving latency results to {output_file}")
+
+    with open(output_file, mode='w', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ['task_id', 'latency_ms', 'status', 'error']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
+
         writer.writeheader()
         for result in results:
-            writer.writerow({
-                'task_id': result['task_id'],
-                'latency_ms': result['latency_ms']
-            })
-    
-    return output_path
+            # Ensure all fields are present, filling with empty string if missing
+            row = {
+                'task_id': result.get('task_id', ''),
+                'latency_ms': result.get('latency_ms', 0),
+                'status': result.get('status', 'unknown'),
+                'error': result.get('error', '')
+            }
+            writer.writerow(row)
+
+    logger.info(f"Successfully saved {len(results)} latency records to {output_file}")
+    return output_file
 
 
 def collect_latency_stats(results: List[Dict[str, Any]]) -> Dict[str, float]:
     """
-    Compute summary statistics from latency results.
-    
+    Calculate basic statistics from latency results.
+
     Args:
-        results: List of dicts with 'task_id' and 'latency_ms' keys
-                
+        results: List of dictionaries containing latency_ms.
+
     Returns:
-        Dict with 'mean', 'median', 'min', 'max', 'std' latency in ms
+        Dictionary with min, max, mean, and median latency.
     """
-    if not results:
+    latencies = [r['latency_ms'] for r in results if r.get('status') == 'success']
+
+    if not latencies:
         return {
-            'mean': 0.0,
-            'median': 0.0,
-            'min': 0.0,
-            'max': 0.0,
-            'std': 0.0,
-            'count': 0
+            "min": 0.0,
+            "max": 0.0,
+            "mean": 0.0,
+            "median": 0.0,
+            "count": 0
         }
-    
-    latencies = [r['latency_ms'] for r in results]
+
+    latencies.sort()
     n = len(latencies)
-    
-    mean_latency = sum(latencies) / n
-    sorted_latencies = sorted(latencies)
-    median_latency = sorted_latencies[n // 2] if n % 2 == 1 else (sorted_latencies[n // 2 - 1] + sorted_latencies[n // 2]) / 2
-    min_latency = min(latencies)
-    max_latency = max(latencies)
-    
-    # Calculate standard deviation
-    if n > 1:
-        variance = sum((x - mean_latency) ** 2 for x in latencies) / (n - 1)
-        std_latency = variance ** 0.5
-    else:
-        std_latency = 0.0
-    
     return {
-        'mean': mean_latency,
-        'median': median_latency,
-        'min': min_latency,
-        'max': max_latency,
-        'std': std_latency,
-        'count': n
+        "min": latencies[0],
+        "max": latencies[-1],
+        "mean": sum(latencies) / n,
+        "median": latencies[n // 2] if n % 2 == 1 else (latencies[n // 2 - 1] + latencies[n // 2]) / 2,
+        "count": n
     }

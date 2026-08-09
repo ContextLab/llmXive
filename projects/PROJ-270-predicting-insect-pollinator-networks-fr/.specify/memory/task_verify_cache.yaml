@@ -1,0 +1,46 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no listed artifacts showing that the required directories (`code/`,\
+    \ `data/raw/`, `data/processed/`, `tests/`, `docs/`, `results/`) actually exist\
+    \ in the repository; the evidence provided contains only the task description\
+    \ and no filesystem snapshot. The implementer must add these directories (non\u2011\
+    empty or at least present) to satisfy the requirement."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the three required `__init__.py` files (in `code/`, `tests/`,\
+    \ and `code/utils/`) is presented; the artifact list is empty, so we cannot verify\
+    \ that the files exist or are non\u2011empty. The implementer must add those empty\
+    \ `__init__.py` files at the specified locations."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for any linting/formatting/type\u2011checking configuration artifacts\
+    \ (e.g., `pyproject.toml`, `.ruff.toml`, `black.cfg`, `mypy.ini`, or CI scripts)\
+    \ but none were presented in the evidence. Without those files the requirement\
+    \ to configure `ruff`, `black`, and `mypy` is not satisfied. The implementer must\
+    \ add the appropriate configuration files and ensure they are non\u2011empty."
+T008:
+  c: true
+  h: 5883a1516fff37762a401b95c2a81b30735d8011a94acbd591cc53ed5cc7ae18
+  r: "Both `code/contracts/dataset.schema.yaml` and `code/contracts/output.schema.yaml`\
+    \ are present, non\u2011empty, and contain detailed JSON\u2011schema style definitions\
+    \ that specify required fields, types, constraints, and validation rules for the\
+    \ dataset and model output, fulfilling the requirement to define data schemas\
+    \ and validation logic."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log output was provided that implements the required validation\
+    \ of the ecosystem count from T012, nor a warning when the count is below 8. Without\
+    \ an artifact demonstrating this logic, the task\u2019s requirement is not satisfied."
+T022:
+  c: false
+  h: 378eb4dc0c987c6f80ac71c10b4e3b17ce8219f79862423fd4666943d5d8b5b5
+  r: The repository contains the `code/contracts/dataset.schema.yaml` file, but there
+    is no accompanying validation code (e.g., a script or function that loads an output
+    dataset and checks it against this schema). The claimed addition of validation
+    logic is not present, and the missing `schema.yaml` further indicates incomplete
+    work. The next implementer must add the actual validation implementation and ensure
+    it is invoked where appropriate.

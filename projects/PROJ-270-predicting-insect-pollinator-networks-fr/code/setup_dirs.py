@@ -1,39 +1,61 @@
-"""
-Script to initialize the project directory structure.
-Creates: code/, data/raw/, data/processed/, tests/, docs/, results/
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    root = Path(__file__).resolve().parent.parent
+    """
+    Creates the required directory structure for the project.
     
-    dirs = [
+    Directories created:
+    - code/
+    - data/raw/
+    - data/processed/
+    - tests/
+    - docs/
+    - results/
+    
+    Also creates __init__.py files to initialize Python packages where needed.
+    """
+    # Get the project root (parent of code/)
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent
+    
+    # Define relative paths for required directories
+    directories = [
         "code",
         "data/raw",
         "data/processed",
         "tests",
         "docs",
-        "results",
-        "code/utils",  # Subdirectory needed for T001b
-        "tests/integration",
-        "tests/unit",
+        "results"
     ]
-
-    created = 0
-    skipped = 0
-
-    for d in dirs:
-        target = root / d
-        if not target.exists():
-            target.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {target.relative_to(root)}")
-            created += 1
-        else:
-            skipped += 1
-
-    print(f"\nDone. Created {created} directories, skipped {skipped} existing.")
+    
+    # Create directories
+    created_dirs = []
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(str(full_path))
+        print(f"Created directory: {full_path}")
+    
+    # Create __init__.py files for Python packages
+    init_files = [
+        "code/__init__.py",
+        "tests/__init__.py",
+        "code/utils/__init__.py"
+    ]
+    
+    created_init_files = []
+    for init_path in init_files:
+        full_path = project_root / init_path
+        # Ensure parent directory exists
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        # Create empty __init__.py file
+        full_path.touch(exist_ok=True)
+        created_init_files.append(str(full_path))
+        print(f"Created package initializer: {full_path}")
+    
+    print(f"\nSuccessfully created {len(created_dirs)} directories and {len(created_init_files)} package initializers.")
     return 0
 
 if __name__ == "__main__":

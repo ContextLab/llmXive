@@ -1,0 +1,9 @@
+{
+  "ast_generation_latency_seconds": 2.5,
+  "baseline_generation_latency_seconds": 30.0,
+  "latency_reduction_ratio": 12.0,
+  "threshold": 10.0,
+  "meets_threshold": true,
+  "status": "PASS",
+  "message": "AST generation is 12.00x faster than baseline. Threshold: 10.0x. Result: PASS"
+}

@@ -12,6 +12,23 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/data/extract_metrics.py`
+  - script usage: `extract_metrics.py [-h] --input INPUT --output OUTPUT`
+  - argparse error: `extract_metrics.py: error: the following arguments are required: --input, --output`
+- run-book command: `python code/data/preprocess.py`
+  - script usage: `preprocess.py [-h] --input INPUT --output OUTPUT`
+  - argparse error: `preprocess.py: error: the following arguments are required: --input, --output`
+- run-book command: `python code/modeling/train.py`
+  - script usage: `train.py [-h] --data-dir DATA_DIR [--model-dir MODEL_DIR] [--seed SEED]`
+  - argparse error: `train.py: error: the following arguments are required: --data-dir`
+- run-book command: `python code/modeling/evaluate.py`
+  - script usage: `evaluate.py [-h] --data-dir DATA_DIR --model-path MODEL_PATH`
+  - argparse error: `evaluate.py: error: the following arguments are required: --data-dir, --model-path, --output-dir`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”; 4 command(s) failed: python code/data/extract_metrics.py (rc=2); python code/data/preprocess.py (rc=2); python code/modeling/train.py (rc=2)
@@ -26,17 +43,16 @@ extract_metrics.py: error: the following arguments are required: --input, --outp
 - python code/data/preprocess.py -> rc=2
     usage: preprocess.py [-h] --input INPUT --output OUTPUT
                      [--ground-truth GROUND_TRUTH]
-                     [--min-precision MIN_PRECISION]
+                     [--min-precision MIN_PRECISION] [--seed SEED]
 preprocess.py: error: the following arguments are required: --input, --output
 - python code/modeling/train.py -> rc=2
     usage: train.py [-h] --data-dir DATA_DIR [--model-dir MODEL_DIR] [--seed SEED]
                 [--alpha ALPHA]
 train.py: error: the following arguments are required: --data-dir
-- python code/modeling/evaluate.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py", line 14, in <module>
-    from sklearn.metrics import (
-ImportError: cannot import name 'calibration_curve' from 'sklearn.metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/.venv/lib/python3.11/site-packages/sklearn/metrics/__init__.py)
+- python code/modeling/evaluate.py -> rc=2
+    usage: evaluate.py [-h] --data-dir DATA_DIR --model-path MODEL_PATH
+                   --output-dir OUTPUT_DIR
+evaluate.py: error: the following arguments are required: --data-dir, --model-path, --output-dir
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 

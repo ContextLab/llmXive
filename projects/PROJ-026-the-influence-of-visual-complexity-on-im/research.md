@@ -1,50 +1,39 @@
-# Methodological Note: Statistical Analysis Plan
+# Research Methodology: Statistical Analysis Strategy
 
 ## Overview
 
-This document outlines the statistical approach for analyzing the influence of visual complexity on implicit bias (IAT D-scores). It details the decision to utilize a **Permutation Test** rather than a traditional Analysis of Variance (ANOVA) for the primary hypothesis testing.
+This document outlines the statistical methodology employed to analyze the influence of visual complexity on implicit bias in the current study. It specifically details the decision to utilize a **Permutation Test** rather than a traditional Analysis of Variance (ANOVA) for the primary hypothesis testing.
 
-## The Methodological Shift: ANOVA to Permutation Test
+## Methodological Shift: From ANOVA to Permutation Test
 
-### Original Plan (ANOVA)
-Initially, the analysis plan considered a standard Analysis of Variance (ANOVA) to compare mean D-scores across different levels of visual complexity (Low, Medium, High). ANOVA relies on several strict parametric assumptions:
-1. **Normality**: Residuals must be normally distributed.
-2. **Homogeneity of Variance**: Variances across groups must be equal.
-3. **Independence**: Observations must be independent (often challenged in within-subject designs without specific corrections).
+### Original Consideration: ANOVA
+Historically, Analysis of Variance (ANOVA) has been the standard parametric test for comparing means across multiple groups. In the context of this research, an ANOVA approach would have been used to determine if there are statistically significant differences in D-scores (implicit bias measures) between groups defined by visual complexity categories (Low, Medium, High).
 
-In the context of visual complexity research, these assumptions are frequently violated:
-* **Stimulus-Set Confounds**: Visual stimuli are not interchangeable; a specific "complex" image may possess unique properties (e.g., color contrast, specific patterns) unrelated to the abstract metric of "complexity" that influence the D-score. Standard ANOVA treats stimuli as fixed effects or ignores this clustering, potentially inflating Type I error rates.
-* **Non-Normal Distributions**: IAT D-scores often exhibit non-normal distributions, particularly with smaller sample sizes or specific demographic subgroups.
-* **Small Sample Sizes**: Research constraints often limit the number of participants, making the Central Limit Theorem less effective at ensuring normality of the sampling distribution.
+**Limitations of ANOVA in this Context:**
+1. **Assumption of Normality:** ANOVA assumes that the residuals are normally distributed. Implicit bias data (D-scores) often exhibit non-normal distributions, particularly with small sample sizes or skewed reaction time data.
+2. **Homogeneity of Variance:** ANOVA requires equal variances across groups. Visual complexity stimuli may induce different levels of variance in response times, violating this assumption.
+3. **Stimulus-Set Confounds:** A critical limitation in visual complexity research is the "stimulus-set" effect. If specific images are consistently assigned to specific complexity categories, any observed effect could be driven by idiosyncratic properties of those specific images rather than the general property of "complexity." Standard ANOVA does not inherently account for this clustering without complex mixed-model extensions that require large sample sizes.
 
-### Adopted Approach (Permutation Test)
-To address these limitations and ensure robust inference, the analysis plan has been revised to employ a **Permutation Test** (also known as a Randomization Test).
+### Adopted Method: Permutation Test
+To address these limitations and ensure robust, assumption-free inference, this project adopts a **Permutation Test** (also known as a randomization test) as the primary statistical method (Task T033).
 
-**Justification:**
-1. **Distribution-Free**: Permutation tests do not assume a specific underlying distribution (e.g., normal) for the data. They derive the null distribution empirically by reshuffling the observed data labels.
-2. **Handling Stimulus-Set Confounds**: By implementing a **Leave-One-Image-Out (LOIO)** sensitivity analysis in conjunction with the permutation test, we can assess the stability of the effect across the specific set of stimuli used. This directly addresses the confound where results might be driven by a single outlier image rather than the complexity metric itself.
-3. **Exact P-values**: For smaller sample sizes, permutation tests provide exact p-values based on the actual data permutations, offering greater precision than asymptotic approximations used in ANOVA.
-4. **Flexibility**: The test statistic can be any metric of interest (e.g., mean difference, Cohen's d), allowing us to directly report the effect size alongside the significance.
+**Justification for Permutation Test:**
+1. **Distribution-Free:** The permutation test makes no assumptions about the underlying distribution of the data. It derives the null distribution empirically by randomly shuffling the observed data labels (complexity groups) and recalculating the test statistic (mean difference in D-scores).
+2. **Robustness to Small Samples:** It provides exact p-values even with small sample sizes where asymptotic approximations (like F-distributions in ANOVA) may fail.
+3. **Control for Stimulus-Set Confounds:** By permuting the assignment of stimuli to complexity categories (or permuting participant responses within the context of the specific stimulus set), the test inherently accounts for the specific structure of the visual stimuli, isolating the effect of the complexity metric itself.
+4. **Flexibility:** It allows for the direct calculation of effect sizes (Cohen's d) and confidence intervals based on the empirical distribution, providing a more intuitive interpretation of the magnitude of the effect.
 
 ### Implementation Details
-* **Null Hypothesis ($H_0$)**: There is no difference in IAT D-scores between groups defined by visual complexity levels.
-* **Test Statistic**: The mean difference of D-scores between the High-Complexity and Low-Complexity groups.
-* **Procedure**:
- 1. Calculate the observed test statistic from the actual data.
- 2. Randomly shuffle the group labels (complexity categories) across the participants' D-scores.
- 3. Recalculate the test statistic for the permuted data.
- 4. Repeat steps 2-3 a large number of times (e.g., $N=10,000$) to build the null distribution.
- 5. The p-value is the proportion of permuted statistics that are as extreme as or more extreme than the observed statistic.
-* **Sensitivity Analysis**:
- * **Threshold Sweep**: Vary the complexity categorization thresholds ($\pm 0.05, \pm 0.10, \pm 0.15$ SD) to ensure results are not artifacts of arbitrary binning.
- * **LOIO**: Iteratively remove one image stimulus from the dataset and re-run the analysis to identify if any single image disproportionately drives the result.
+The implementation (see `code/analysis/permutation.py`) follows these steps:
+1. **Observed Statistic:** Calculate the mean difference in D-scores between the High and Low complexity groups.
+2. **Null Distribution Generation:** Randomly shuffle the group labels (High/Low) across the participants $N$ times (where $N$ is sufficiently large, e.g., 10,000) to simulate the null hypothesis that complexity has no effect.
+3. **P-value Calculation:** The p-value is the proportion of permuted statistics that are as extreme or more extreme than the observed statistic.
+4. **Sensitivity Analysis:** The method includes a Leave-One-Image-Out (LOIO) sensitivity analysis (Task T035a) to further verify that the results are not driven by a single outlier stimulus.
 
-## Conclusion
+### Citation and Plan Alignment
+This methodological decision aligns with the project's implementation plan and the specific requirement to handle stimulus-set confounds effectively. The shift from ANOVA to Permutation Test is explicitly documented in the project plan to ensure the robustness of the findings against the unique challenges of visual complexity research.
 
-The shift from ANOVA to a Permutation Test represents a methodological improvement tailored to the specific challenges of visual complexity research. It provides a more robust, assumption-free framework for validating the relationship between visual complexity and implicit bias, ensuring that findings are driven by the complexity metric itself rather than stimulus-specific artifacts or distributional violations.
-
-## References
-
+**References:**
 * Good, P. I. (2005). *Permutation, Parametric, and Bootstrap Tests of Hypotheses*. Springer.
-* Edgington, E. S., & Onghena, P. (2007). *Randomization Tests*. Chapman and Hall/CRC.
-* Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003). Understanding and using the Implicit Association Test: I. An improved scoring algorithm. *Journal of Personality and Social Psychology*, 85(2), 197–216. (Context for D-score usage).
+* Edgington, E. S., & Onghena, P. (2007). *Randomization Tests*. CRC Press.
+* Project Plan: Section on Statistical Analysis (FR-003 Amendment).

@@ -78,9 +78,9 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for edge density calculation in `tests/test_stimuli/test_metrics.py`
-- [ ] T010 [P] [US1] Unit test for entropy calculation in `tests/test_stimuli/test_metrics.py`
-- [ ] T011 [P] [US1] Unit test for fractal dimension (box-counting) in `tests/test_stimuli/test_metrics.py`
+- [X] T009 [P] [US1] Unit test for edge density calculation in `tests/test_stimuli/test_metrics.py`
+- [X] T010 [P] [US1] Unit test for entropy calculation in `tests/test_stimuli/test_metrics.py`
+- [X] T011 [P] [US1] Unit test for fractal dimension (box-counting) in `tests/test_stimuli/test_metrics.py`
 - [X] T012 [P] [US1] Integration test for full pipeline on sample images in `tests/test_stimuli/test_pipeline.py`
 
 ### Implementation for User Story 1
@@ -89,8 +89,8 @@
 - [X] T014 [P] [US1] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`
 - [X] T015 [P] [US1] Implement fractal dimension via box-counting in `code/stimuli/metrics.py` (handle edge cases: clamp value to a bounded range or raise ValueError if out of bounds).
 - [X] T016 [US1] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing in T017. Skips corrupted files, logs filenames. Depends on T013-T015.
-- [~] T017 [US1] Create `code/stimuli/process.py` to batch-process `data/raw/stimuli/` and output `data/processed/complexity_scores.csv`. Output schema: `filename, edge_density, entropy, fractal_dim, complexity_category`.
-- [~] T018 [US1] Add logic to categorize images into Low/Medium/High complexity based on computed scores (use pandas.qcut with a specified number of bins).
+- [ ] T017 [US1] Create `code/stimuli/process.py` to batch-process `data/raw/stimuli/` and output `data/processed/complexity_scores.csv`. Output schema: `filename, edge_density, entropy, fractal_dim, complexity_category`.
+- [ ] T018 [US1] Add logic to categorize images into Low/Medium/High complexity based on computed scores (use pandas.qcut with a specified number of bins).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,9 +112,9 @@
 
 - [X] T022 [P] [US2] Implement trial filtering logic (latency bounds, error handling) in `code/data/process.py`
 - [X] T023 [P] [US2] Implement Greenwald D2 algorithm for D-score aggregation in `code/data/process.py`
-- [~] T024 [US2] Implement logic to exclude participants with insufficient valid trials (<10) and flag as `NaN`
+- [ ] T024 [US2] Implement logic to exclude participants with insufficient valid trials (<10) and flag as `NaN`
 - [X] T025 [US2] Create `code/data/load.py` to load raw response logs (support synthetic `--null-effect` mode for CI)
-- [~] T026 [US2] Create `code/data/process.py` to aggregate raw logs into `data/processed/aggregated_d_scores.csv`. Input: raw logs. Output schema: `participant_id, session_id, d_score, n_trials_valid, status`. Dependency: Requires T022 and T023.
+- [ ] T026 [US2] Create `code/data/process.py` to aggregate raw logs into `data/processed/aggregated_d_scores.csv`. Input: raw logs. Output schema: `participant_id, session_id, d_score, n_trials_valid, status`. Dependency: Requires T022 and T023.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -156,9 +156,9 @@
 - [~] T039 [P] Documentation updates in `docs/` (README, usage examples)
 - [~] T040 Code cleanup and refactoring (remove debug prints, ensure type hints)
 - [ ] T043a Add CI workflow file (.github/workflows/analysis.yml) to run pipeline and assert duration < 6h.
-- [ ] T043b Vectorize image processing loops if execution time exceeds target.
-- [ ] T044 [P] Additional unit tests for edge cases (corrupted images, missing data) in `tests/`
-- [ ] T045 Run `quickstart.md` validation to ensure reproducibility
+- [~] T043b Vectorize image processing loops if execution time exceeds target.
+- [~] T044 [P] Additional unit tests for edge cases (corrupted images, missing data) in `tests/`
+- [~] T045 Run `quickstart.md` validation to ensure reproducibility
 
 ---
 

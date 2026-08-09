@@ -1,0 +1,40 @@
+T017:
+  c: false
+  h: d715f547fcf211d24c4f8ed0613f9e2400344f6213b98d01260163f543add543
+  r: "The `code/stimuli/process.py` script is present and implements the required\
+    \ processing and CSV schema, but the expected output file `data/processed/complexity_scores.csv`\
+    \ does not exist, so the task\u2019s required artifact is missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or output file was provided that actually computes\
+    \ visual\u2011complexity scores and applies `pandas.qcut` to assign Low/Medium/High\
+    \ categories. Without the required artifact (e.g., a Python module or CSV showing\
+    \ the categorized images), the task\u2019s requirement is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data file implementing the exclusion of participants with\
+    \ fewer than 10 valid trials and flagging their D\u2011score as `NaN` was provided.\
+    \ The required artifact is missing, so the task is not satisfied."
+T026:
+  c: false
+  h: 8425fbaec5fcd9f804727cd2ec6b3f98724ab5f13686b2735e8fbaf7bbad615d
+  r: "The required output file `data/processed/aggregated_d_scores.csv` does not exist,\
+    \ and the provided `code/data/process.py` is truncated with no visible logic that\
+    \ writes the aggregated DataFrame to that CSV (nor a complete implementation of\
+    \ the aggregation function). The task\u2019s core deliverable is therefore missing."
+T027b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `logs/counterbalance_strategy.log` file was provided; the claim\
+    \ lacks any artifact showing the log\u2019s existence, content, or the specific\
+    \ counterbalancing strategy recorded. The required log file must be present and\
+    \ contain the strategy details for the task to be considered complete."
+T033a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or excerpt was provided, and there is no evidence that\
+    \ the methodological shift from ANOVA to a permutation test has been documented,\
+    \ justified, or cited as required. The implementer must supply a non\u2011empty\
+    \ `research.md` containing the explanation and citation."

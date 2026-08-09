@@ -1,3 +1,1 @@
-"""
-Utility modules for the project.
-"""
+# Package initializer for utils

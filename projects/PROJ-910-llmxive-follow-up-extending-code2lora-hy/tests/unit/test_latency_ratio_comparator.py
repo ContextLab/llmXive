@@ -1,215 +1,164 @@
 """
-Unit tests for the latency ratio comparator (T049b).
-
-Tests:
-- Loading of latency files
-- Computation of reduction ratio
-- Verification of SC-001 requirement (>= 10x)
-- Error handling for missing/invalid files
+Unit tests for T049b: latency_ratio_comparator.py
 """
 import json
 import os
 import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+
 import pytest
 
-# Import the module under test
-from code.utils.latency_ratio_comparator import (
+from utils.latency_ratio_comparator import (
     compute_latency_ratio,
     generate_comparison_report,
+    save_comparison_report,
+    run_latency_comparison,
     load_json_file,
-    RESULTS_DIR
+    ensure_results_dir,
 )
 
+
 class TestComputeLatencyRatio:
-    """Tests for compute_latency_ratio function."""
-    
-    def test_compute_ratio_normal_case(self):
-        """Test normal ratio computation."""
-        ast_latency = 100.0  # ms
-        baseline_latency = 1500.0  # ms
+    def test_normal_case(self):
+        ast_latency = 1.0
+        baseline_latency = 15.0
         ratio, status = compute_latency_ratio(ast_latency, baseline_latency)
-        
-        assert ratio == pytest.approx(15.0, rel=1e-4)
-        assert status == "PASS"
-    
-    def test_compute_ratio_below_threshold(self):
-        """Test ratio computation when below 10x threshold."""
-        ast_latency = 200.0
-        baseline_latency = 1500.0
+        assert ratio == 15.0
+        assert status == "success"
+
+    def test_ratio_below_threshold(self):
+        ast_latency = 10.0
+        baseline_latency = 15.0
         ratio, status = compute_latency_ratio(ast_latency, baseline_latency)
-        
-        assert ratio == pytest.approx(7.5, rel=1e-4)
-        assert status == "FAIL"
-    
-    def test_compute_ratio_exactly_threshold(self):
-        """Test ratio computation exactly at 10x threshold."""
-        ast_latency = 150.0
-        baseline_latency = 1500.0
-        ratio, status = compute_latency_ratio(ast_latency, baseline_latency)
-        
-        assert ratio == pytest.approx(10.0, rel=1e-4)
-        assert status == "PASS"
-    
-    def test_compute_ratio_zero_ast_latency_raises(self):
-        """Test that zero AST latency raises ValueError."""
+        assert ratio == 1.5
+        assert status == "success"
+
+    def test_zero_ast_latency_raises(self):
         with pytest.raises(ValueError, match="AST latency must be positive"):
-            compute_latency_ratio(0.0, 1500.0)
-    
-    def test_compute_ratio_negative_baseline_raises(self):
-        """Test that negative baseline latency raises ValueError."""
+            compute_latency_ratio(0.0, 10.0)
+
+    def test_zero_baseline_latency_raises(self):
         with pytest.raises(ValueError, match="Baseline latency must be positive"):
-            compute_latency_ratio(100.0, -1500.0)
+            compute_latency_ratio(10.0, 0.0)
+
+    def test_negative_ast_latency_raises(self):
+        with pytest.raises(ValueError, match="AST latency must be positive"):
+            compute_latency_ratio(-1.0, 10.0)
+
 
 class TestGenerateComparisonReport:
-    """Tests for generate_comparison_report function."""
-    
-    def test_report_structure(self):
-        """Test that report contains all required fields."""
-        ast_latency = 100.0
-        baseline_latency = 1500.0
-        ratio = 15.0
-        status = "PASS"
-        
-        report = generate_comparison_report(ast_latency, baseline_latency, ratio, status)
-        
-        required_fields = [
-            "ast_generation_latency_ms",
-            "baseline_generation_latency_ms",
-            "latency_reduction_ratio",
-            "reduction_percentage",
-            "sc_001_requirement",
-            "meets_requirement",
-            "status",
-            "message"
-        ]
-        
-        for field in required_fields:
-            assert field in report, f"Missing field: {field}"
-    
-    def test_report_values(self):
-        """Test that report values are computed correctly."""
-        ast_latency = 100.0
-        baseline_latency = 1500.0
-        ratio = 15.0
-        status = "PASS"
-        
-        report = generate_comparison_report(ast_latency, baseline_latency, ratio, status)
-        
-        assert report["ast_generation_latency_ms"] == ast_latency
-        assert report["baseline_generation_latency_ms"] == baseline_latency
-        assert report["latency_reduction_ratio"] == pytest.approx(ratio, rel=1e-4)
-        assert report["meets_requirement"] is True
+    def test_meets_threshold(self):
+        ast_latency = 1.0
+        baseline_latency = 20.0
+        ratio = 20.0
+        report = generate_comparison_report(ast_latency, baseline_latency, ratio, threshold=10.0)
+        assert report["meets_threshold"] is True
         assert report["status"] == "PASS"
-        
-        # Check reduction percentage: (1500-100)/1500 * 100 = 93.33%
-        expected_percentage = ((baseline_latency - ast_latency) / baseline_latency) * 100
-        assert report["reduction_percentage"] == pytest.approx(expected_percentage, rel=1e-2)
-    
-    def test_report_fail_status(self):
-        """Test report generation with FAIL status."""
-        ast_latency = 200.0
-        baseline_latency = 1500.0
-        ratio = 7.5
-        status = "FAIL"
-        
-        report = generate_comparison_report(ast_latency, baseline_latency, ratio, status)
-        
-        assert report["meets_requirement"] is False
+        assert report["latency_reduction_ratio"] == 20.0
+
+    def test_fails_threshold(self):
+        ast_latency = 5.0
+        baseline_latency = 20.0
+        ratio = 4.0
+        report = generate_comparison_report(ast_latency, baseline_latency, ratio, threshold=10.0)
+        assert report["meets_threshold"] is False
         assert report["status"] == "FAIL"
+        assert report["latency_reduction_ratio"] == 4.0
 
-class TestLoadJsonFile:
-    """Tests for load_json_file function."""
-    
-    def test_load_valid_json(self):
-        """Test loading a valid JSON file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump({"key": "value"}, f)
-            temp_path = Path(f.name)
-        
-        try:
-            result = load_json_file(temp_path)
-            assert result == {"key": "value"}
-        finally:
-            os.unlink(temp_path)
-    
-    def test_load_nonexistent_file_raises(self):
-        """Test that loading a nonexistent file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_json_file(Path("/nonexistent/path/file.json"))
-    
-    def test_load_invalid_json_raises(self):
-        """Test that loading invalid JSON raises an error."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            f.write("not valid json {{{")
-            temp_path = Path(f.name)
-        
-        try:
-            with pytest.raises(json.JSONDecodeError):
-                load_json_file(temp_path)
-        finally:
-            os.unlink(temp_path)
 
-class TestIntegration:
-    """Integration-style tests for the full workflow."""
-    
-    def test_end_to_end_pass_case(self, tmp_path):
-        """Test end-to-end workflow with passing case."""
-        # Create temporary results directory
-        temp_results = tmp_path / "data" / "results"
-        temp_results.mkdir(parents=True)
-        
-        # Create mock AST latency file
-        ast_file = temp_results / "generation_latency.json"
-        ast_file.write_text(json.dumps({"generation_latency_ms": 100.0}))
-        
-        # Create mock baseline latency file
-        baseline_file = temp_results / "baseline_generation_latency.json"
-        baseline_file.write_text(json.dumps({"generation_latency_ms": 1500.0}))
-        
-        # Temporarily override RESULTS_DIR for testing
-        import code.utils.latency_ratio_comparator as module
-        original_results_dir = module.RESULTS_DIR
-        module.RESULTS_DIR = temp_results
-        
-        try:
-            from code.utils.latency_ratio_comparator import run_latency_comparison
-            result = run_latency_comparison()
-            
-            assert result["meets_requirement"] is True
-            assert result["latency_reduction_ratio"] == pytest.approx(15.0, rel=1e-4)
-            
-            # Verify output file was created
-            output_file = temp_results / "generation_latency_comparison.json"
-            assert output_file.exists()
-            
-            with open(output_file) as f:
-                saved_report = json.load(f)
-            
-            assert saved_report["status"] == "PASS"
-        finally:
-            module.RESULTS_DIR = original_results_dir
-    
-    def test_end_to_end_fail_case(self, tmp_path):
-        """Test end-to-end workflow with failing case."""
-        temp_results = tmp_path / "data" / "results"
-        temp_results.mkdir(parents=True)
-        
-        ast_file = temp_results / "generation_latency.json"
-        ast_file.write_text(json.dumps({"generation_latency_ms": 200.0}))
-        
-        baseline_file = temp_results / "baseline_generation_latency.json"
-        baseline_file.write_text(json.dumps({"generation_latency_ms": 1500.0}))
-        
-        import code.utils.latency_ratio_comparator as module
-        original_results_dir = module.RESULTS_DIR
-        module.RESULTS_DIR = temp_results
-        
-        try:
-            from code.utils.latency_ratio_comparator import run_latency_comparison
-            result = run_latency_comparison()
-            
-            assert result["meets_requirement"] is False
-            assert result["status"] == "FAIL"
-        finally:
-            module.RESULTS_DIR = original_results_dir
+class TestSaveComparisonReport:
+    def test_saves_correctly(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_report.json"
+            report = {"test": "data"}
+            save_comparison_report(report, output_path)
+            assert output_path.exists()
+            with open(output_path, "r") as f:
+                loaded = json.load(f)
+            assert loaded == report
+
+
+class TestRunLatencyComparison:
+    @patch("utils.latency_ratio_comparator.Path")
+    @patch("utils.latency_ratio_comparator.load_json_file")
+    @patch("utils.latency_ratio_comparator.save_comparison_report")
+    @patch("utils.latency_ratio_comparator.ensure_results_dir")
+    def test_run_success(
+        self, mock_ensure_dir, mock_save, mock_load_json, mock_path
+    ):
+        # Mock paths
+        mock_ast_path = MagicMock()
+        mock_baseline_path = MagicMock()
+        mock_t040_path = MagicMock()
+
+        mock_path.side_effect = [
+            mock_ast_path,  # First call: ast_latency_path
+            mock_baseline_path,  # Second call: baseline_latency_path
+            mock_t040_path,  # Third call: t040_output_path (if needed)
+            Path("/fake/results"),  # ensure_results_dir return
+        ]
+
+        mock_ast_path.exists.return_value = True
+        mock_baseline_path.exists.return_value = True
+        mock_t040_path.exists.return_value = False
+
+        # Mock load_json_file to return expected data
+        def mock_load(path):
+            if path == mock_ast_path:
+                return {"ast_generation_latency_seconds": 2.0}
+            elif path == mock_baseline_path:
+                return {"baseline_generation_latency_seconds": 20.0}
+            return {}
+
+        mock_load_json.side_effect = mock_load
+
+        mock_ensure_dir.return_value = Path("/fake/results")
+
+        report = run_latency_comparison()
+
+        assert report["latency_reduction_ratio"] == 10.0
+        assert report["meets_threshold"] is True
+        assert report["status"] == "PASS"
+
+    @patch("utils.latency_ratio_comparator.Path")
+    @patch("utils.latency_ratio_comparator.load_json_file")
+    def test_run_missing_ast_latency(self, mock_load_json, mock_path):
+        mock_ast_path = MagicMock()
+        mock_baseline_path = MagicMock()
+
+        mock_path.side_effect = [mock_ast_path, mock_baseline_path]
+
+        mock_ast_path.exists.return_value = False
+        mock_baseline_path.exists.return_value = True
+
+        def mock_load(path):
+            if path == mock_baseline_path:
+                return {"baseline_generation_latency_seconds": 20.0}
+            return {}
+
+        mock_load_json.side_effect = mock_load
+
+        with pytest.raises(FileNotFoundError, match="Could not find AST generation latency"):
+            run_latency_comparison()
+
+    @patch("utils.latency_ratio_comparator.Path")
+    @patch("utils.latency_ratio_comparator.load_json_file")
+    def test_run_missing_baseline_latency(self, mock_load_json, mock_path):
+        mock_ast_path = MagicMock()
+        mock_baseline_path = MagicMock()
+
+        mock_path.side_effect = [mock_ast_path, mock_baseline_path]
+
+        mock_ast_path.exists.return_value = True
+        mock_baseline_path.exists.return_value = True
+
+        def mock_load(path):
+            if path == mock_ast_path:
+                return {"ast_generation_latency_seconds": 2.0}
+            return {}  # Missing baseline key
+
+        mock_load_json.side_effect = mock_load
+
+        with pytest.raises(KeyError, match="Could not find baseline_generation_latency_seconds"):
+            run_latency_comparison()

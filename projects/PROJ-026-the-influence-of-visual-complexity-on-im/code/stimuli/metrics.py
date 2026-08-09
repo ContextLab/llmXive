@@ -1,105 +1,110 @@
-"""
-Metrics calculation for visual complexity.
-"""
 import numpy as np
 import cv2
 from scipy.stats import entropy
+from typing import Tuple, Optional
 
-def calculate_edge_density(image_path: str) -> float:
+def calculate_edge_density(image: np.ndarray) -> float:
     """
     Calculate edge density using Canny edge detection.
     
     Args:
-        image_path: Path to the image file.
+        image: Input image (grayscale or BGR).
         
     Returns:
-        Edge density as a float between 0 and 1.
+        Edge density (ratio of edge pixels to total pixels).
     """
-    img = cv2.imread(image_path)
-    if img is None:
-        raise ValueError(f"Could not read image: {image_path}")
+    if image.ndim == 3:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = image.copy()
         
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray, 50, 150)
-    
+    gray = gray.astype(np.uint8)
+    edges = cv2.Canny(gray, 100, 200)
     edge_pixels = np.count_nonzero(edges)
     total_pixels = edges.size
-    
-    return edge_pixels / total_pixels
+    return float(edge_pixels / total_pixels)
 
-def calculate_entropy(image_path: str) -> float:
+def calculate_entropy(image: np.ndarray) -> float:
     """
     Calculate entropy of the grayscale histogram.
     
     Args:
-        image_path: Path to the image file.
+        image: Input image (grayscale or BGR).
         
     Returns:
         Entropy value.
     """
-    img = cv2.imread(image_path)
-    if img is None:
-        raise ValueError(f"Could not read image: {image_path}")
+    if image.ndim == 3:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = image.copy()
         
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    hist, _ = np.histogram(gray, bins=256, range=(0, 256))
-    
-    # Normalize histogram to get probabilities
-    probs = hist / hist.sum()
-    probs = probs[probs > 0]  # Remove zeros to avoid log(0)
-    
-    return entropy(probs)
+    hist, _ = np.histogram(gray.flatten(), bins=256, range=(0, 256))
+    hist = hist.astype(float) / hist.sum()
+    hist = hist[hist > 0]
+    return float(entropy(hist))
 
-def calculate_fractal_dim(image_path: str) -> float:
+def calculate_fractal_dim(image: np.ndarray) -> float:
     """
-    Calculate fractal dimension using box-counting method.
+    Calculate fractal dimension via box-counting method.
     
     Args:
-        image_path: Path to the image file.
+        image: Input image (grayscale or BGR).
         
     Returns:
-        Fractal dimension value.
+        Fractal dimension (clamped to [1.0, 2.0]).
     """
-    img = cv2.imread(image_path)
-    if img is None:
-        raise ValueError(f"Could not read image: {image_path}")
+    if image.ndim == 3:
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = image.copy()
         
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = gray.astype(np.uint8)
     _, binary = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
     
-    # Box counting
+    h, w = binary.shape
     sizes = []
     counts = []
     
-    h, w = binary.shape
+    # Box sizes: powers of 2, from large to small
     max_size = min(h, w)
-    
-    # Use powers of 2 for box sizes
-    for k in range(1, 6):
-        size = max_size // (2 ** k)
-        if size <= 0:
+    min_size = 2
+    k = 0
+    while True:
+        box_size = max_size // (2 ** k)
+        if box_size < min_size:
             break
-            
-        # Count boxes with at least one non-zero pixel
+        sizes.append(box_size)
+        
+        # Count boxes with at least one edge pixel
         count = 0
-        for i in range(0, h, size):
-            for j in range(0, w, size):
-                box = binary[i:i+size, j:j+size]
+        for i in range(0, h, box_size):
+            for j in range(0, w, box_size):
+                box = binary[i:i+box_size, j:j+box_size]
                 if np.any(box > 0):
                     count += 1
-                    
-        sizes.append(size)
         counts.append(count)
+        k += 1
         
     if len(sizes) < 2:
-        return 1.5  # Default value if not enough data
+        return 1.5
         
-    # Fit line to log-log plot
-    log_sizes = np.log(sizes)
+    log_sizes = np.log(1.0 / np.array(sizes))
     log_counts = np.log(counts)
     
+    # Linear regression to estimate slope
     slope, _ = np.polyfit(log_sizes, log_counts, 1)
-    fractal_dim = -slope
+    fractal_dim = float(slope)
     
-    # Clamp to reasonable range [1.0, 2.0]
-    return np.clip(fractal_dim, 1.0, 2.0)
+    # Clamp to valid range [1.0, 2.0] for 2D images
+    return max(1.0, min(2.0, fractal_dim))
+
+def process_image_vectorized(image: np.ndarray) -> Tuple[float, float, float]:
+    """
+    Vectorized wrapper for processing a single image.
+    Returns edge_density, entropy, fractal_dim.
+    """
+    edge_density = calculate_edge_density(image)
+    entropy_val = calculate_entropy(image)
+    fractal_dim = calculate_fractal_dim(image)
+    return edge_density, entropy_val, fractal_dim

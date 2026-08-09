@@ -34,8 +34,46 @@ T018:
     \ that the abort\u2011on\u2011incompatible\u2011base\u2011model behavior was implemented."
 T021:
   c: false
-  h: a46bbdabbb28a1f2115ebc57f1706f7328bfab5b578eaa0f92172f19a9630433
-  r: "The repository contains a partially implemented `runner.py`, but the provided\
-    \ excerpt stops before any scoring logic or CSV writing, and the required output\
-    \ file `data/results/ast_scores.csv` is missing. Consequently the task of computing\
-    \ exact\u2011match scores and saving them to the specified CSV has not been fulfilled."
+  h: abc94c58d862190d55256d41bc3a7c910fd0837572a3d0fb818f6ad694bbef0e
+  r: "The provided `code/evaluation/runner.py` is incomplete (truncated after the\
+    \ adapter\u2011loading stub) and does not contain logic to run the model on the\
+    \ RepoPeftBench tasks, compute exact\u2011match scores, or write `data/results/ast_scores.csv`.\
+    \ Moreover, the required `ast_scores.csv` file is absent. The task therefore remains\
+    \ unfinished."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or documentation was provided that implements the three failure\u2011\
+    mode classes (`'Syntax Error'`, `'Semantic Mismatch'`, `'Timeout'`) nor a test\
+    \ that logs a mock `SyntaxError`. The required artifact (implementation and verification\
+    \ log) is missing, so the task is not satisfied."
+T026:
+  c: false
+  h: 4974b5c12e8b1423ec44a3ce38bd76562c3e54669b1bbb63899c61a45924d30c
+  r: "The repository contains a partially shown `code/evaluation/stats.py`, but the\
+    \ file is truncated and does not demonstrate the full required logic (fallback\
+    \ to t\u2011test, JSON output, verification assertion). Moreover, the required\
+    \ output file `data/results/stats.json` is missing. Consequently the task\u2019\
+    s specifications are not satisfied."
+T028:
+  c: false
+  h: 97969afb6fd11006fdfe02724132e75522ce35ffa7753f183cc1fe045cb09565
+  r: The required artifact `tests/integration/test_sensitivity_analysis.py` does not
+    exist in the repository, so the integration test for the sensitivity analysis
+    loop is missing. The task cannot be considered completed until this file is added
+    with appropriate test code.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `sensitivity.py` file or any code implementing the described loop was provided;
+    the evidence contains only the task description and no concrete artifact. Without
+    the actual implementation calling the adapter generator and evaluator, the requirement
+    is unmet.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `sensitivity.py` file or any code showing the calculation of exact\u2011\
+    match score drops when features are removed is provided. Without the artifact,\
+    \ we cannot confirm that the required analysis for US\u20113 Scenario\u202F3 was\
+    \ implemented. The implementer must add the `sensitivity.py` module with the appropriate\
+    \ logic and evidence of its execution."
