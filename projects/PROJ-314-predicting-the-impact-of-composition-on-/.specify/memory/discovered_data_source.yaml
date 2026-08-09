@@ -1,0 +1,16 @@
+status: none
+intent: Materials Project NIST arXiv ceramic Weibull modulus python package dataset
+required_fields:
+- formula
+- stoichiometry
+- weibull_modulus
+- sample_count
+- sintering_temperature
+- sintering_time
+- atmosphere
+- processing_method
+- density
+- porosity
+cache_key: 4c5bbe4ca3dc0ed5dfea4a38da66af6b655e8d9b74818afc0c56c0307aa65be4
+searched_at: '2026-08-09T19:19:51.807257+00:00'
+retry_count: 1

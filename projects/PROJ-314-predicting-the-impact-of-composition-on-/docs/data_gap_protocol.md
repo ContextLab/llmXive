@@ -1,98 +1,95 @@
 # Data Gap Protocol
 
-## Overview
+This document defines the protocol for handling insufficient data in the "Predicting the Impact of Composition on the Weibull Modulus of Ceramics" project. It ensures that the pipeline halts gracefully when the dataset is too small to support statistically significant modeling, preventing the generation of spurious results.
 
-This document defines the protocol for detecting insufficient data during the ceramic materials ingestion pipeline and the exact steps for generating the data availability report.
+## 1. Overview
 
-**Trigger Condition**: The pipeline halts if the number of valid ceramic entries (N) after fetching and applying per-entry filters is less than 30.
+The Data Gap Protocol is triggered when the total number of valid ceramic entries (`N`) after ingestion and cleaning falls below the minimum threshold required for robust machine learning (N < 30).
 
-## Protocol Steps
+**Threshold**: `N < 30`
 
-### Step 1: Data Fetching and Initial Filtering
+## 2. Trigger Conditions
 
-1. Execute `fetch_data()` in `code/ingestion.py` to retrieve raw data from configured sources (Materials Project, NIST, arXiv).
-2. Apply per-entry filters defined in `clean_data()`:
- - Filter for `N >= 30` by explicitly extracting sample count from fields named 'N', 'sample_size', or 'n'.
- - Handle range values: Extract midpoint, set `is_range_flag`, store `range_original`.
- - Impute missing processing params (group median -> global median).
- - Handle non-stoichiometric phases: Exclude if the specific class has < 5 samples.
- - Derive `primary_anion_cation_group` from stoichiometry.
+The protocol activates in `code/ingestion.py` via the `validate_data_gap()` function after the following steps:
+1. Data fetching (Materials Project, NIST, arXiv).
+2. Data cleaning (`clean_data()`), including:
+ - Filtering for `sample_count >= 30`.
+ - Handling range values.
+ - Imputing missing processing parameters.
+ - Excluding non-stoichiometric phases with < 5 samples.
+3. Calculation of the total valid entry count (`N`).
 
-### Step 2: Data Gap Validation
+## 3. Halting Logic
 
-1. Call `validate_data_gap()` in `code/ingestion.py` immediately after cleaning.
-2. This function calculates `total_valid_entries` (N) from the cleaned dataset.
-3. **Check Condition**:
- - **IF N < 30**: Trigger the Data Gap Protocol (Step 3).
- - **IF N >= 30**: Proceed to descriptor computation and modeling.
+If `N < 30`:
+1. **Generate Report**: Call `generate_data_availability_report()` to create `data/reports/data_availability_report.json`.
+2. **Log Event**: Log `INFO: PROJECT_HALTED: Insufficient data (N={N})` to `logs/ingestion.log`.
+3. **Exit**: Terminate the pipeline with exit code `1`.
+4. **Do Not Proceed**: No modeling, SHAP analysis, or reporting steps will be executed.
 
-### Step 3: Report Generation (Triggered on N < 30)
+If `N >= 30`:
+1. Proceed to the modeling phase (User Story 2).
 
-When the condition `N < 30` is met, the system must:
+## 4. Report Schema
 
-1. **Call Generation Function**: Execute `generate_data_availability_report()` in `code/ingestion.py`.
- - **Input**: The current count of valid entries (`N`) and the list of source attempts.
- - **Logic**:
- - Count the actual number of sources attempted (not hardcoded).
- - Record the reason code (e.g., "INSUFFICIENT_SAMPLES").
- - Capture the current timestamp.
-2. **Write Artifact**: Save the report to `data/reports/data_availability_report.json`.
-3. **Log Halt**: Log the message `INFO: PROJECT_HALTED: Insufficient data (N={N})` to `logs/ingestion.log`.
-4. **Exit**: Terminate the pipeline with exit code 1.
-
-## Output Schema: `data/reports/data_availability_report.json`
-
-The generated JSON file must strictly adhere to the following schema:
+The report `data/reports/data_availability_report.json` must contain the following fields:
 
 ```json
 {
- "total_sources": <integer>,
- "valid_entries": <integer>,
- "reason_code": <string>,
- "timestamp": <ISO8601_string>
+ "total_sources": <int>, // Count of distinct data sources attempted (e.g., 3 for MP, NIST, arXiv)
+ "valid_entries": <int>, // The actual count N of valid entries found
+ "reason_code": <string>, // "INSUFFICIENT_DATA"
+ "timestamp": <string>, // ISO 8601 timestamp of the check
+ "sources_breakdown": { // Optional: breakdown of entries per source
+ "materials_project": <int>,
+ "nist": <int>,
+ "arxiv": <int>
+ },
+ "message": <string> // Human-readable explanation
 }
 ```
 
-### Field Definitions
+## 5. Implementation Details
 
-| Field | Type | Description |
-|:--- |:--- |:--- |
-| `total_sources` | Integer | The actual count of data sources fetched or attempted during the run. Must be dynamic, not hardcoded. |
-| `valid_entries` | Integer | The final count of valid ceramic entries (N) after all filtering steps. This is the value that triggered the halt (N < 30). |
-| `reason_code` | String | A standardized code indicating the halt reason. Expected value: `"INSUFFICIENT_SAMPLES"`. |
-| `timestamp` | String | ISO8601 formatted timestamp (e.g., "2023-10-27T10:00:00Z") indicating when the report was generated. |
+### 5.1. `generate_data_availability_report()`
 
-## Implementation Reference
+**Location**: `code/ingestion.py`
 
-The logic for this protocol is implemented in `code/ingestion.py`:
+**Logic**:
+- Counts the number of valid entries in the processed DataFrame.
+- Constructs the dictionary according to the schema above.
+- Writes the JSON file to `data/reports/data_availability_report.json`.
+- Ensures the `data/reports/` directory exists before writing.
 
-```python
-def validate_data_gap(df: pd.DataFrame) -> None:
- """
- Checks if the number of valid entries is >= 30.
- If N < 30, generates the data availability report and halts.
- """
- N = len(df)
- if N < 30:
- generate_data_availability_report(N)
- logger.info(f"PROJECT_HALTED: Insufficient data (N={N})")
- sys.exit(1)
+### 5.2. `validate_data_gap()`
 
-def generate_data_availability_report(valid_count: int) -> None:
- """
- Generates the data availability report JSON.
- """
- # Implementation details:
- # 1. Count actual sources attempted
- # 2. Construct report dict
- # 3. Write to data/reports/data_availability_report.json
- pass
-```
+**Location**: `code/ingestion.py`
 
-## Verification
+**Logic**:
+- Calls `generate_data_availability_report()` if `N < 30`.
+- Raises a `SystemExit(1)` or returns a flag to halt the main pipeline loop.
 
-To verify this protocol:
-1. Run the pipeline with a controlled sample dataset containing < 30 valid entries.
-2. Confirm `data/reports/data_availability_report.json` is created.
-3. Verify the `valid_entries` field matches the actual sample count.
-4. Confirm the process exits with code 1.
+## 6. Verification
+
+To verify the protocol:
+1. Create a test dataset with `N < 30` (e.g., `data/raw/test_n29.csv` with 29 rows).
+2. Run the ingestion pipeline with the `--force-gap-check` flag (or equivalent test harness).
+3. Confirm that:
+ - `data/reports/data_availability_report.json` is created.
+ - The file contains `valid_entries: 29`.
+ - The process exits with code 1.
+ - No downstream files (e.g., `data/results/model_metrics.json`) are created.
+
+## 7. Recovery
+
+To recover from a data gap:
+1. **Expand Sources**: Add new data sources (e.g., additional literature, expanded API queries).
+2. **Relax Filters**: Review cleaning criteria (e.g., `N >= 30` filter, non-stoichiometric exclusion) to see if valid data was inadvertently dropped. *Note: Relaxing scientific filters must be documented.*
+3. **Re-run**: Execute the pipeline again. The protocol will re-evaluate the new `N`.
+
+## 8. Compliance
+
+This protocol satisfies:
+- **Plan Phase 1, Task 1.5**: Documentation of data availability checks.
+- **FR-003**: Requirement to validate sample size.
+- **Constitution Principle II**: Ensures data integrity by halting on insufficient evidence.

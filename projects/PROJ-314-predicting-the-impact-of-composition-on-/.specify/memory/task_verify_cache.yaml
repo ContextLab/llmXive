@@ -13,10 +13,11 @@ T016a:
     \ task is not satisfied."
 T016b:
   c: true
-  h: 0dd78ed1206dba6c7cce0c22c93d0e125199fa540889897c76b82c58ad263e34
-  r: "The `docs/data_gap_protocol.md` file exists (\u22484\u202FKB) and contains the\
-    \ detailed protocol steps, halting logic, and the JSON schema for `data/reports/data_availability_report.json`\
-    \ as required. No other artifacts are needed for this task."
+  h: a424ae298b2c07f4854f37521537d4db6cedbffd9958b6b2f4c6c67dd8266441
+  r: "The repository contains `docs/data_gap_protocol.md` (\u22483.8\u202FKB) which\
+    \ details the Data Gap Protocol steps, defines the JSON schema for `data/reports/data_availability_report.json`,\
+    \ and describes the halting logic as required. No other artifacts are needed for\
+    \ this task."
 T016c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -24,40 +25,13 @@ T016c:
     provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
     entities, their relationships, and validation rules is missing. The task is not
     satisfied.
-T017b:
-  c: false
-  h: f89227315978e063dba592e815f32baf6d6112c4a7a0b5077e341a9788d8ede3
-  r: The repository contains a `generate_data_availability_report` function that writes
-    the required JSON, but the `data/reports/data_availability_report.json` file is
-    absent, indicating the report was never actually generated. Additionally, the
-    function is called with a placeholder `total_sources=0`, which may not meet the
-    intended semantics. The required output file is missing, so the task is not fully
-    satisfied.
-T018c:
-  c: false
-  h: 4747667a93cb4887725a45ab83e2b1fccc133833d059c2e9b1faacfcb2ddb55d
-  r: "The repository lacks a `fetch_materials_project_data()` implementation (no such\
-    \ function appears in `code/ingestion.py`) and the existing `fetch_data` is a\
-    \ stub returning a dummy DataFrame. Moreover, the required output file `data/raw/materials_project_raw.json`\
-    \ does not exist. The task\u2019s requirements for real API calls, authentication,\
-    \ pagination, and writing raw data are therefore unmet."
-T018d:
-  c: false
-  h: 9acef07d719c9a28803ac807edee70f4ef21d8990c5e10b07338730de6a4049d
-  r: "The repository lacks a `fetch_nist_data()` implementation (the file only contains\
-    \ placeholder helpers and a dummy `fetch_data` that returns a hard\u2011coded\
-    \ DataFrame). Moreover, the required output file `data/raw/nist_raw.json` does\
-    \ not exist. The task\u2019s core requirement\u2014real API/scraping logic, pagination,\
-    \ authentication, and writing the fetched raw data to the specified path\u2014\
-    is therefore not satisfied."
 T018e:
   c: false
-  h: 9e3a97ca4aa326f05bf766fea4a8f34ea497aa6ebc228f5c3c3d21d2d124042a
-  r: "The repository lacks a `fetch_arxiv_data()` function; the only data\u2011fetching\
-    \ stub is `fetch_data()` which returns a dummy DataFrame and does not write any\
-    \ file. Moreover, the required output file `data/raw/arxiv_raw.json` is missing.\
-    \ The task\u2019s core requirement\u2014to implement real arXiv scraping/API logic\
-    \ and produce the raw JSON/CSV\u2014is not satisfied."
+  h: 98b43be2beb2cb1a1fb88c15f3ea5fc777a325a7d5313bacc7d31d2b79cc0430
+  r: The repository lacks a `fetch_arxiv_data()` implementation in `code/ingestion.py`
+    (the file ends with unrelated helper code and no such function), and the required
+    output file `data/raw/arxiv_raw.json` does not exist. Both the core functionality
+    and the expected artifact are missing.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,74 +1,101 @@
 """
-Tests for T010b: Verification of citation validation log creation.
+Unit tests for verify_citation_log.py (T010b verification).
+
+Tests the verification logic for citation validation log creation.
 """
 import os
 import sys
-import json
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-class TestCitationLogVerification:
-    """Test suite for citation validation log verification."""
+from verify_citation_log import main as verify_main
+from ingestion import validate_source_citations
+from code import logger
 
-    def test_log_file_creation(self, tmp_path):
-        """Test that the log file is created during validation."""
-        # Create a temporary logs directory
-        logs_dir = tmp_path / "logs"
-        logs_dir.mkdir()
+class TestVerifyCitationLog:
+    """Test cases for citation validation log verification."""
 
-        # Save original paths
-        original_cwd = Path.cwd()
-        try:
-            # Change to temp directory
-            os.chdir(tmp_path)
+    def test_log_file_creation(self):
+        """Test that logs/citation_validation.log is created."""
+        logs_dir = project_root / 'logs'
+        logs_dir.mkdir(exist_ok=True)
+        
+        log_file = logs_dir / 'citation_validation.log'
+        
+        # Run validation with dummy URLs
+        dummy_urls = ['https://example.com']
+        validate_source_citations(dummy_urls)
+        
+        # Verify file exists
+        assert log_file.exists(), "Log file should be created"
 
-            # Create dummy data
-            dummy_data = [
-                {
-                    "composition": "Al2O3",
-                    "weibull_modulus": 10.5,
-                    "source_url": "https://example.com/test",
-                    "doi": "10.1000/test"
-                }
-            ]
-
-            # Import after changing directory to ensure relative paths work
-            from ingestion import validate_source_citations
-
-            # Run validation
-            validate_source_citations(dummy_data)
-
-            # Check log file exists
-            log_file = logs_dir / "citation_validation.log"
-            # Note: The actual log path is hardcoded in code/ingestion.py
-            # We check the actual location
-            actual_log = Path("logs/citation_validation.log")
-            assert actual_log.exists(), "Log file was not created"
-
-            # Check log file has content
-            content = actual_log.read_text()
-            assert len(content) > 0, "Log file is empty"
-
-        finally:
-            os.chdir(original_cwd)
-
-    def test_log_contains_validation_entry(self):
-        """Test that the log file contains at least one validation entry."""
-        # This test assumes T010b has been run successfully
-        # If T010b hasn't been run, this test will fail appropriately
-        log_file = Path("logs/citation_validation.log")
-
+    def test_log_format(self):
+        """Test that log contains expected format."""
+        logs_dir = project_root / 'logs'
+        log_file = logs_dir / 'citation_validation.log'
+        
+        # Ensure we have content
         if not log_file.exists():
-            pytest.skip("Log file does not exist yet. Run T010b first.")
+            dummy_urls = ['https://example.com']
+            validate_source_citations(dummy_urls)
+        
+        with open(log_file, 'r') as f:
+            content = f.read()
+        
+        # Check for expected pattern
+        assert "Citation validation for" in content, \
+            "Log should contain 'Citation validation for' entries"
+        
+        # Check for status field
+        assert "INFO:" in content or "ERROR:" in content, \
+            "Log should contain log level indicators"
 
-        content = log_file.read_text()
-        assert len(content.strip()) > 0, "Log file is empty"
+    def test_verify_main_success(self, capsys):
+        """Test that verify_main runs successfully and prints success message."""
+        # Ensure logs directory exists
+        logs_dir = project_root / 'logs'
+        logs_dir.mkdir(exist_ok=True)
+        
+        # Run the main function
+        result = verify_main()
+        
+        # Check return code
+        assert result == 0, "Main function should return 0 on success"
+        
+        # Check output
+        captured = capsys.readouterr()
+        assert "SUCCESS" in captured.out, \
+            "Output should contain success message"
+        assert "Log file exists" in captured.out, \
+            "Output should confirm log file existence"
 
-        # Check for typical log entry patterns
-        assert any(keyword in content.lower() for keyword in ['validation', 'citation', 'url', 'doi', 'success', 'failure']), \
-            "Log file does not contain expected validation entries"
+    def test_empty_status_detection(self):
+        """Test that empty status would be detected as error."""
+        # This is a conceptual test - in practice, validate_source_citations
+        # should always produce a status
+        logs_dir = project_root / 'logs'
+        log_file = logs_dir / 'citation_validation.log'
+        
+        if log_file.exists():
+            with open(log_file, 'r') as f:
+                content = f.read()
+            
+            # Verify at least one non-empty status exists
+            lines = content.split('\n')
+            has_non_empty = False
+            for line in lines:
+                if "Citation validation for" in line:
+                    parts = line.split(':')
+                    if len(parts) >= 3:
+                        status = parts[-1].strip()
+                        if status:
+                            has_non_empty = True
+                            break
+            
+            assert has_non_empty, "At least one log entry should have non-empty status"
