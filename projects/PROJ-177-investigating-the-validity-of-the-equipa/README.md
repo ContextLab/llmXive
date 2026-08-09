@@ -1,41 +1,26 @@
-# PROJ-177: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
+# Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
+
+This project implements an automated science pipeline to analyze particle tracking data from driven granular systems. It tests whether energy distributions follow the Maxwell-Boltzmann prediction (thermal) or deviate significantly (non-thermal).
 
 ## Project Structure
 
-This project follows the standard llmXive pipeline structure:
+- `code/`: Python modules for ingestion, statistics, sensitivity, and regression.
+- `data/`: Raw input data and derived intermediate/final datasets.
+- `artifacts/`: Logs, metadata, statistical reports, and hashes.
+- `tests/`: Unit and integration tests.
 
-- `code/`: Python modules for data ingestion, analysis, and orchestration.
-- `data/`: Raw input data and derived datasets.
- - `data/raw/`: Unprocessed particle tracking and driving signal logs.
- - `data/derived/`: Computed energy components and intermediate results.
-- `artifacts/`: Final outputs, statistical results, and reports.
-- `tests/`: Unit and integration tests for all modules.
-- `specs/`: Design documents and user stories.
-- `state/`: Pipeline state tracking and artifact hashes.
+## Installation
 
-## Prerequisites
+1. Clone the repository.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Place raw data in `data/raw/`.
 
-- Python 3.11+
-- `requirements.txt` dependencies (see T002)
+## Usage
 
-## Quick Start
+See `quickstart.md` for detailed execution commands.
 
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+## Key Outputs
 
-2. Run the full pipeline:
- ```bash
- python code/main.py --run-all
- ```
-
-3. Run specific stages:
- ```bash
- python code/main.py --stage ingestion
- python code/main.py --stage statistics
- ```
-
-## License
-
-Research project for scientific investigation.
+- `data/derived/energy_samples.csv`: Calculated energy components per particle.
+- `artifacts/statistical_results.json`: Results of KS and Chi-squared tests.
+- `artifacts/regression_results.json`: Regression analysis of deviation drivers.

@@ -1,5 +1,6 @@
 """
 Unit tests for energy calculation logic in T019b.
+Verifies E_trans = 0.5mv^2, E_rot = 0.5Iω^2, E_pot = mgz, and E_vib = m*var(a).
 """
 import pytest
 import pandas as pd
@@ -7,6 +8,7 @@ import numpy as np
 import os
 import sys
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 # Add code to path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
@@ -19,7 +21,8 @@ MOCK_CONFIG = {
     'mass': 1.0,
     'inertia': 0.5,
     'vib_window': 5,
-    'data_dir': 'data/raw'
+    'data_dir': 'data/raw',
+    'g': 9.81
 }
 
 def test_translational_energy():
@@ -42,19 +45,13 @@ def test_translational_energy():
     })
     
     # Mock config function to return our mock
-    import ingestion
-    original_load = ingestion.load_config
-    ingestion.load_config = lambda x: MOCK_CONFIG
-    
-    try:
+    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
         result = calculate_energy_components(df, 'dummy.yaml')
         
         # E_trans = 0.5 * 1.0 * (3^2) = 4.5
         # E_trans = 0.5 * 1.0 * (4^2) = 8.0
         assert np.isclose(result['E_trans'].iloc[0], 4.5)
         assert np.isclose(result['E_trans'].iloc[1], 8.0)
-    finally:
-        ingestion.load_config = original_load
 
 def test_rotational_energy():
     """Verify E_rot = 0.5 * I * omega^2"""
@@ -75,11 +72,7 @@ def test_rotational_energy():
         'particle_id': [1, 1]
     })
     
-    import ingestion
-    original_load = ingestion.load_config
-    ingestion.load_config = lambda x: MOCK_CONFIG
-    
-    try:
+    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
         result = calculate_energy_components(df, 'dummy.yaml')
         
         # I = 0.5
@@ -87,8 +80,6 @@ def test_rotational_energy():
         # Row 1: 0.5 * 0.5 * (3^2) = 2.25
         assert np.isclose(result['E_rot'].iloc[0], 1.0)
         assert np.isclose(result['E_rot'].iloc[1], 2.25)
-    finally:
-        ingestion.load_config = original_load
 
 def test_potential_energy():
     """Verify E_pot = m * g * z"""
@@ -109,13 +100,7 @@ def test_potential_energy():
         'particle_id': [1, 1]
     })
     
-    import ingestion
-    original_load = ingestion.load_config
-    # Override g in config? Or assume 9.81 hardcoded.
-    # Our implementation uses hardcoded 9.81.
-    ingestion.load_config = lambda x: MOCK_CONFIG
-    
-    try:
+    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
         result = calculate_energy_components(df, 'dummy.yaml')
         
         # m=1, g=9.81
@@ -123,14 +108,17 @@ def test_potential_energy():
         # Row 1: 1 * 9.81 * 20 = 196.2
         assert np.isclose(result['E_pot'].iloc[0], 98.1)
         assert np.isclose(result['E_pot'].iloc[1], 196.2)
-    finally:
-        ingestion.load_config = original_load
 
 def test_vibrational_energy():
     """Verify E_vib = m * var(a) over window"""
     # Create a sequence where we can calculate variance manually
-    # a = [0, 0, 0, 0, 10] -> var = 16
-    # a = [0, 0, 0, 0, 0] -> var = 0
+    # a = [0, 0, 0, 0, 10] -> var = 16 (if ddof=1, N=5, mean=2, sum_sq=80, var=20)
+    # Note: Pandas default ddof=1.
+    # Mean = 2.0
+    # (0-2)^2 * 4 + (10-2)^2 = 4*4 + 64 = 16 + 64 = 80
+    # Var = 80 / (5-1) = 20.0
+    # E_vib = m * var = 1.0 * 20.0 = 20.0
+    
     a_vals = [0.0, 0.0, 0.0, 0.0, 10.0]
     df = pd.DataFrame({
         'vx': [0.0]*5,
@@ -149,26 +137,12 @@ def test_vibrational_energy():
         'particle_id': [1]*5
     })
     
-    import ingestion
-    original_load = ingestion.load_config
-    ingestion.load_config = lambda x: MOCK_CONFIG
-    
-    try:
+    with patch('ingestion.load_config', return_value=MOCK_CONFIG):
         result = calculate_energy_components(df, 'dummy.yaml')
-        
-        # Window size 5.
-        # Row 4 (last): window is [0,0,0,0,10]. Variance of this sample.
-        # Variance of [0,0,0,0,10] = sum((x-mean)^2)/(N-1) ? Pandas default ddof=1.
-        # Mean = 2.
-        # (0-2)^2 * 4 + (10-2)^2 = 4*4 + 64 = 16 + 64 = 80.
-        # Var = 80 / 4 = 20.
-        # E_vib = m * var = 1.0 * 20 = 20.0
         
         # Check the last row
         last_row = result['E_vib'].iloc[-1]
         assert np.isclose(last_row, 20.0)
-    finally:
-        ingestion.load_config = original_load
 
 def test_derivatives():
     """Verify acceleration calculation"""

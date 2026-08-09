@@ -1,2 +1,1 @@
-# This directory is for raw input data (particle tracking CSVs, driving logs).
-# Do not commit large files here; use .gitkeep to preserve directory structure.
+# This directory contains raw input data files.

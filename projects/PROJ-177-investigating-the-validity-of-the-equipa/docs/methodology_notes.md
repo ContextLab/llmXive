@@ -1,26 +1,41 @@
-# Methodology Notes: Vibrational Energy ($E_{vib}$)
+# Methodology Notes: Energy Component Definitions
 
-## Operational Definition
+## Vibrational Energy ($E_{vib}$)
 
-In this study, vibrational energy ($E_{vib}$) is defined as a proxy for the fluctuating kinetic energy of particles due to collisions and driven motion, distinct from the bulk translational and rotational kinetic energy.
+### Operational Definition
 
-$$ E_{vib} = m \cdot \text{Var}(a) $$
+In the context of driven granular systems, vibrational energy is defined as the energy associated with the stochastic fluctuations of particle acceleration around the mean driving signal. Unlike thermal systems where velocity fluctuations follow a Maxwell-Boltzmann distribution, granular systems exhibit non-Gaussian, intermittent dynamics driven by inelastic collisions and external forcing.
+
+### Provisional Formula (Unverified Source)
+
+**Note**: No verified, peer-reviewed citation (DOI or arXiv) has been confirmed by the Reference-Validator for the specific formula below. This definition is marked as **Provisional (Unverified Source)** pending literature verification.
+
+The operational formula used in this pipeline is:
+
+$$E_{vib} = m \cdot \text{var}(a) \cdot (\Delta t)^2$$
 
 Where:
-- $m$ is the particle mass (kg).
-- $\text{Var}(a)$ is the variance of the acceleration magnitude over a sliding window of $N=5$ frames ($m^2/s^4$).
+- $m$: Particle mass (kg)
+- $\text{var}(a)$: Variance of the acceleration vector magnitude over a sliding window of $N$ frames (m/s²)²
+- $\Delta t$: Time step between consecutive frames (s)
 
-The resulting unit is $kg \cdot m^2/s^4 \cdot s^2 = kg \cdot m^2/s^2 = \text{Joules}$.
+### Unit Analysis
 
-## Rationale
+The formula yields units of Joules (J):
+$$ [E_{vib}] = \text{kg} \cdot \left(\frac{\text{m}}{\text{s}^2}\right)^2 \cdot \text{s}^2 = \text{kg} \cdot \frac{\text{m}^2}{\text{s}^4} \cdot \text{s}^2 = \text{kg} \cdot \frac{\text{m}^2}{\text{s}^2} = \text{J} $$
 
-This definition is chosen because:
-1. **Direct Measurement**: Acceleration is directly derivable from high-frequency particle tracking data ($a = \Delta v / \Delta t$).
-2. **Collisional Proxy**: In granular gases, energy dissipation occurs primarily through inelastic collisions. [UNRESOLVED-CLAIM: c_ff9e30e8 — status=not_enough_info] The variance of acceleration serves as a robust statistical proxy for the intensity of these impulsive events, which are the primary source of "vibrational" heating in the system.
-3. **Mass Scaling**: Multiplying by mass ensures the energy is in Joules and scales correctly with particle size, allowing comparison across different material types (e.g., steel vs. polymer).
+### Implementation Details
 
-## Literature Support
+- **Windowing**: The variance is computed over a sliding window of size $N$ (configured in `data/config.yaml` as `window_size_N`).
+- **Acceleration Calculation**: Acceleration $a$ is derived from the second finite difference of position: $a_i = \frac{p_{i+1} - 2p_i + p_{i-1}}{(\Delta t)^2}$.
+- **Vector Magnitude**: For 3D data, $\text{var}(a)$ is the variance of the scalar magnitude $|a| = \sqrt{a_x^2 + a_y^2 + a_z^2}$. For 2D data, the $z$-component is assumed zero or handled via the `pot_incomplete` flag.
 
-This approach aligns with methods used in granular gas dynamics where granular temperature ($T_g$) is often estimated from velocity fluctuations. Since $a \propto \Delta v$, the variance of acceleration correlates with the second moment of velocity fluctuations, providing a localized measure of non-thermal agitation.
+### Limitations and Future Work
 
-*Reference*: Goldhirsch, I. (2003). "Rapid Granular Flows". *Annual Review of Fluid Mechanics*, 35, 267-293. (Concept of granular temperature and fluctuation energy).
+1. **Physical Interpretation**: This formula assumes a direct proportionality between acceleration variance and vibrational energy, which may not hold for highly inelastic or strongly driven regimes.
+2. **Citation Needed**: A rigorous derivation or experimental validation from granular physics literature is required to confirm this specific scaling.
+3. **Alternative Definitions**: Future iterations may explore definitions based on power spectral density (PSD) of velocity or acceleration, or energy injection rates from the driving mechanism.
+
+### Usage in Pipeline
+
+This definition is implemented in `code/ingestion.py` within the `compute_energy` function. The resulting $E_{vib}$ values are stored in `data/derived/energy_samples.csv`.

@@ -1,3 +1,1 @@
-"""
-Test suite for the Equipartition Theorem investigation.
-"""
+# Test package for the granular system analysis pipeline.

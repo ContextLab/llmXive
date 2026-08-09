@@ -7,7 +7,12 @@ This project implements a computational physics pipeline to test the validity of
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x
+
+The specific value to remove/generalize: '3.x'
+
+Rewritten passage:
+Python 3.x  
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `pyyaml`, `tqdm`, `pytest`  
 **Storage**: Local CSV/JSON files within `data/` and `artifacts/`; no external database.  
 **Testing**: `pytest` (unit tests for energy formulas, integration tests for pipeline flow).  

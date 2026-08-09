@@ -1,3 +1,39 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/`, `artifacts/`, `tests/`)
+    is provided; the response contains only specification text and no actual project
+    structure artifacts. The implementer must create and show these folders (with
+    at least placeholder files) to satisfy the task.
+T012a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The required files `artifacts/manual_baseline.csv` and `artifacts/energy_verification_report.json`\
+    \ are not present in the provided evidence, and no content is shown that demonstrates\
+    \ the synthetic dataset generation, manual energy calculations, or the verification\
+    \ report with the max absolute error. Without these artifacts, the task\u2019\
+    s acceptance criteria cannot be confirmed."
+T014a:
+  c: false
+  h: 0018fa865d6bb51f83ae46a2196b06d2e08162d0972793a80eda77f98e92d961
+  r: The repository contains a partially shown `code/ingestion.py`, but the file is
+    truncated and does not demonstrate a complete ingestion pipeline that writes the
+    required `data/derived/driving_signals.csv`. Moreover, the expected output CSV
+    is missing from the `data/derived` directory. The task therefore remains unfinished.
+T019b:
+  c: false
+  h: c6be6c71596145a7d67944a327158a8a9ec8c0c293bf1bfe07376102d117c18d
+  r: "The `energy_samples.csv` file does not exist, and the provided `code/ingestion.py`\
+    \ is truncated and does not contain the required `compute_energy` implementation\
+    \ or any logic that would generate the CSV. Consequently, the task\u2019s core\
+    \ output and verification criteria are unmet."
+T020a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/test_params.json` file was presented, and there is no evidence\
+    \ that a JSON containing the required parameters (Maxwell\u2011Boltzmann mean\u202F\
+    =\u202F1.0, scale\u202F=\u202F0.1; Pareto shape\u202F=\u202F2.0) was created.\
+    \ The implementer must supply the actual JSON file with those fields."
 T021:
   c: false
   h: d2800f2938c76f5bc7fa4acfe6bcd3ac530162603deff7d586805193e1862f8a

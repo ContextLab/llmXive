@@ -58,8 +58,27 @@ def validate_config(config: Dict[str, Any]) -> None:
         if key not in config:
             raise ConfigError(f"Missing required config key: {key}")
     
-    if "mass_density" not in config.get("materials", {}).get("steel", {}):
-        raise ConfigError("Missing mass_density for steel material")
+    # Check for at least one material with required fields
+    materials = config.get("materials", {})
+    if not materials:
+        raise ConfigError("No materials defined in config")
+    
+    for mat_name, mat_props in materials.items():
+        if "mass_density" not in mat_props:
+            raise ConfigError(f"Missing mass_density for material '{mat_name}'")
+        if "roughness_proxy" not in mat_props:
+            raise ConfigError(f"Missing roughness_proxy for material '{mat_name}'")
+    
+    # Validate frequency_bins structure
+    freq_bins = config.get("frequency_bins", [])
+    if not freq_bins:
+        raise ConfigError("No frequency_bins defined in config")
+    
+    for i, bin_def in enumerate(freq_bins):
+        if "name" not in bin_def:
+            raise ConfigError(f"Missing 'name' in frequency_bins[{i}]")
+        if "min_hz" not in bin_def or "max_hz" not in bin_def:
+            raise ConfigError(f"Missing 'min_hz' or 'max_hz' in frequency_bins[{i}]")
 
 
 def get_material_properties(config: Dict[str, Any], material_name: str) -> Dict[str, float]:
@@ -167,6 +186,18 @@ def main():
         print(f"Materials: {list(config['materials'].keys())}")
         print(f"Steel mass: {get_mass(config, 'steel'):.6f} kg")
         print(f"Steel inertia: {get_inertia(config, 'steel'):.6e} kg*m^2")
+        
+        # Print frequency bins
+        bins = get_frequency_bins(config)
+        print(f"Frequency bins: {len(bins)}")
+        for b in bins:
+            print(f"  - {b['name']}: {b['min_hz']}-{b['max_hz']} Hz")
+            
+        # Test roughness proxy
+        for mat in config['materials'].keys():
+            rp = get_roughness_proxy(config, mat)
+            print(f"  Roughness ({mat}): {rp}")
+            
     except ConfigError as e:
         print(f"Config Error: {e}")
         return 1

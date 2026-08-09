@@ -1,3 +1,1 @@
-"""
-Data storage directory.
-"""
+# Data directory for raw and derived datasets.

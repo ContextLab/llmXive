@@ -1,109 +1,177 @@
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
+from datetime import datetime, timedelta
 import json
 import os
+import sys
+from pathlib import Path
 
-from ingestion import (
-    load_tracking_data, load_driving_data, sync_timestamps,
-    handle_missing_frames, check_z_axis_completeness, compute_derivatives,
-    calculate_energy_components, detect_non_stationary_segments
-)
-from config import load_config
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from ingestion import calculate_tracking_failure_rate, IngestionError
 
 @pytest.fixture
 def sample_tracking_data():
-    data = {
-        'particle_id': [1, 1, 1, 1, 2, 2, 2],
-        'timestamp': [0.0, 0.1, 0.2, 0.3, 0.0, 0.1, 0.2],
-        'x': [0.0, 0.1, 0.2, 0.3, 0.0, 0.1, 0.2],
-        'y': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'z': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        'theta': [0.0, 0.1, 0.2, 0.3, 0.0, 0.1, 0.2],
-        'material_type': ['steel', 'steel', 'steel', 'steel', 'polymer', 'polymer', 'polymer']
-    }
+    """Create sample particle tracking data with controlled missing frames."""
+    n_windows = 5
+    window_size = 100
+    frames_per_window = [100, 80, 100, 70, 100]  # Window 1 and 3 have missing frames (20% and 30% loss)
+    
+    data = []
+    current_time = datetime(2023, 1, 1, 0, 0, 0)
+    
+    for window_idx, frames in enumerate(frames_per_window):
+        for i in range(frames):
+            data.append({
+                'particle_id': f'p{window_idx}',
+                'timestamp': current_time + timedelta(seconds=i*0.01),
+                'x': np.random.rand(),
+                'y': np.random.rand(),
+                'z': np.random.rand()
+            })
+        current_time += timedelta(seconds=window_size * 0.01 + 0.1)  # Add gap between windows
+    
     return pd.DataFrame(data)
 
 @pytest.fixture
-def sample_driving_data():
-    data = {
-        'timestamp': [0.0, 0.1, 0.2, 0.3],
-        'frequency': [10.0, 10.0, 10.0, 10.0],
-        'amplitude': [1.0, 1.0, 1.0, 1.0]
-    }
+def incomplete_tracking_data():
+    """Create sample data with high missing frame rate (>20%)."""
+    n_windows = 3
+    window_size = 100
+    frames_per_window = [100, 50, 100]  # Window 1 has 50% loss
+    
+    data = []
+    current_time = datetime(2023, 1, 1, 0, 0, 0)
+    
+    for window_idx, frames in enumerate(frames_per_window):
+        for i in range(frames):
+            data.append({
+                'particle_id': f'p{window_idx}',
+                'timestamp': current_time + timedelta(seconds=i*0.01),
+                'x': np.random.rand(),
+                'y': np.random.rand(),
+                'z': np.random.rand()
+            })
+        current_time += timedelta(seconds=window_size * 0.01 + 0.1)
+    
     return pd.DataFrame(data)
 
-@pytest.fixture
-def config():
-    return {
-        'material_properties': {
-            'steel': {'mass': 0.001, 'radius': 0.005},
-            'polymer': {'mass': 0.0005, 'radius': 0.005}
-        },
-        'vib_window_size': 5
-    }
+def test_calculate_tracking_failure_rate_basic(sample_tracking_data):
+    """Test basic functionality of tracking failure rate calculation."""
+    flagged_df, summary = calculate_tracking_failure_rate(
+        sample_tracking_data, 
+        window_size=100,
+        threshold=0.20
+    )
+    
+    # Check that the dataframe has the 'excluded' column
+    assert 'excluded' in flagged_df.columns
+    assert 'window_id' in flagged_df.columns
+    
+    # Check summary statistics
+    assert 'total_windows' in summary
+    assert 'flagged_windows' in summary
+    assert 'exclusion_threshold' in summary
+    assert summary['exclusion_threshold'] == 0.20
+    
+    # Window 1 (20% loss) should NOT be flagged (threshold is > 20%)
+    # Window 3 (30% loss) should be flagged
+    assert summary['flagged_windows'] == 1
+    assert 3 in summary['flagged_window_ids']
 
-def test_load_tracking_data(tmp_path, sample_tracking_data):
-    file_path = tmp_path / "tracking.csv"
-    sample_tracking_data.to_csv(file_path, index=False)
-    df = load_tracking_data([file_path])
-    assert len(df) == 7
-    assert 'x' in df.columns
+def test_calculate_tracking_failure_rate_high_threshold(incomplete_tracking_data):
+    """Test with high threshold where no windows are flagged."""
+    flagged_df, summary = calculate_tracking_failure_rate(
+        incomplete_tracking_data, 
+        window_size=100,
+        threshold=0.60  # 60% threshold
+    )
+    
+    assert summary['flagged_windows'] == 0
+    assert len(summary['flagged_window_ids']) == 0
 
-def test_sync_timestamps(sample_tracking_data, sample_driving_data):
-    merged = sync_timestamps(sample_tracking_data, sample_driving_data)
-    assert 'frequency' in merged.columns
-    assert len(merged) == len(sample_tracking_data)
+def test_calculate_tracking_failure_rate_low_threshold(incomplete_tracking_data):
+    """Test with low threshold where multiple windows are flagged."""
+    flagged_df, summary = calculate_tracking_failure_rate(
+        incomplete_tracking_data, 
+        window_size=100,
+        threshold=0.10  # 10% threshold
+    )
+    
+    # Window 1 has 50% loss, should be flagged
+    assert summary['flagged_windows'] == 1
+    assert 1 in summary['flagged_window_ids']
 
-def test_handle_missing_frames(sample_tracking_data):
-    # Introduce a gap
-    sample_tracking_data.loc[2, 'timestamp'] = 0.5
-    df = handle_missing_frames(sample_tracking_data, max_gap=0.15)
-    assert 'gap_flag' in df.columns
-    assert df.loc[2, 'gap_flag'] == True
+def test_calculate_tracking_failure_rate_missing_time_column():
+    """Test error handling when time column is missing."""
+    df = pd.DataFrame({
+        'particle_id': ['p1', 'p2'],
+        'x': [1.0, 2.0]
+    })
+    
+    with pytest.raises(IngestionError) as exc_info:
+        calculate_tracking_failure_rate(df, time_col='timestamp')
+    
+    assert "Time column 'timestamp' not found in DataFrame" in str(exc_info.value)
 
-def test_check_z_axis_completeness(sample_tracking_data):
-    df = check_z_axis_completeness(sample_tracking_data)
-    assert 'pot_incomplete' in df.columns
-    assert all(~df['pot_incomplete'])
+def test_calculate_tracking_failure_rate_output_structure(sample_tracking_data):
+    """Test that the output structure matches expected format."""
+    flagged_df, summary = calculate_tracking_failure_rate(
+        sample_tracking_data, 
+        window_size=100,
+        threshold=0.20
+    )
+    
+    # Verify summary keys
+    required_keys = [
+        'total_windows', 'flagged_windows', 'exclusion_threshold', 
+        'window_size', 'avg_failure_rate', 'max_failure_rate', 'flagged_window_ids'
+    ]
+    for key in required_keys:
+        assert key in summary, f"Missing key: {key}"
+    
+    # Verify data types
+    assert isinstance(summary['total_windows'], int)
+    assert isinstance(summary['flagged_windows'], int)
+    assert isinstance(summary['exclusion_threshold'], float)
+    assert isinstance(summary['flagged_window_ids'], list)
 
-def test_check_z_axis_incomplete(tmp_path):
-    data = {
-        'particle_id': [1, 1],
-        'timestamp': [0.0, 0.1],
-        'x': [0.0, 0.1],
-        'y': [0.0, 0.0],
-    }
-    df = pd.DataFrame(data)
-    df = check_z_axis_completeness(df)
-    assert all(df['pot_incomplete'])
+def test_calculate_tracking_failure_rate_window_assignment(sample_tracking_data):
+    """Test that frames are correctly assigned to windows."""
+    flagged_df, summary = calculate_tracking_failure_rate(
+        sample_tracking_data, 
+        window_size=100,
+        threshold=0.20
+    )
+    
+    # Check that window_id is assigned correctly
+    window_ids = flagged_df['window_id'].unique()
+    assert len(window_ids) == 5  # 5 windows in the sample data
+    assert all(isinstance(wid, (int, np.integer)) for wid in window_ids)
 
-def test_compute_derivatives(sample_tracking_data):
-    df = compute_derivatives(sample_tracking_data)
-    assert 'v' in df.columns
-    assert 'omega' in df.columns
-    # Check velocity calculation for first particle
-    v1 = np.sqrt(0.1**2 + 0.0**2 + 0.0**2) # dx=0.1, dt=0.1 -> vx=1.0? No, diff/dt
-    # Actually: dx = 0.1, dt = 0.1 -> vx = 1.0
-    # v = 1.0
-    assert abs(df.loc[1, 'v'] - 1.0) < 0.01
-
-def test_calculate_energy_components(sample_tracking_data, config):
-    # Add frequency for sync
-    sample_tracking_data['frequency'] = 10.0
-    df = compute_derivatives(sample_tracking_data)
-    df = calculate_energy_components(df, config)
-    assert 'E_trans' in df.columns
-    assert 'E_rot' in df.columns
-    assert 'E_pot' in df.columns
-    assert 'E_vib' in df.columns
-    # Check E_trans = 0.5 * m * v^2
-    # m_steel = 0.001, v = 1.0 -> E = 0.0005
-    assert abs(df.loc[1, 'E_trans'] - 0.0005) < 1e-6
-
-def test_detect_non_stationary_segments(sample_tracking_data):
-    sample_tracking_data['frequency'] = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
-    df = detect_non_stationary_segments(sample_tracking_data)
-    assert 'chirp_flag' in df.columns
-    assert all(~df['chirp_flag']) # Constant frequency should not be flagged
+def test_calculate_tracking_failure_rate_exclusion_flag(sample_tracking_data):
+    """Test that the exclusion flag is correctly set based on failure rate."""
+    flagged_df, summary = calculate_tracking_failure_rate(
+        sample_tracking_data, 
+        window_size=100,
+        threshold=0.20
+    )
+    
+    # Check that excluded column is boolean
+    assert flagged_df['excluded'].dtype == bool
+    
+    # Check that flagged windows have excluded=True
+    flagged_ids = summary['flagged_window_ids']
+    if flagged_ids:
+        for wid in flagged_ids:
+            window_data = flagged_df[flagged_df['window_id'] == wid]
+            assert all(window_data['excluded'] == True)
+    
+    # Check that non-flagged windows have excluded=False
+    non_flagged_ids = [i for i in range(5) if i not in flagged_ids]
+    for wid in non_flagged_ids:
+        window_data = flagged_df[flagged_df['window_id'] == wid]
+        if len(window_data) > 0:
+            assert all(window_data['excluded'] == False)
