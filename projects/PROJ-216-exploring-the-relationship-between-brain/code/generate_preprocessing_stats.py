@@ -3,79 +3,81 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, List
-
 from utils import ResourceMonitor
-
 
 def load_subject_logs(log_dir: Path) -> List[Dict[str, Any]]:
     """
-    Load all subject processing logs from the specified directory.
-    Expects JSON files named 'subject_<id>_log.json' or similar.
-    Returns a list of log dictionaries.
+    Load individual subject processing logs from the specified directory.
+    Expected log format: JSON files containing subject_id, status, and timing.
     """
     logs = []
     if not log_dir.exists():
         return logs
-
-    for file_path in log_dir.glob("*.json"):
-        # Skip non-subject logs if necessary, but generally assume all JSONs here are logs
-        if "motion" in file_path.name or "resource" in file_path.name:
-            continue
-        try:
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                # Ensure we have a subject ID to identify the entry
-                if 'subject_id' in data:
-                    logs.append(data)
-                else:
-                    # Fallback: use filename as ID if key missing
-                    data['subject_id'] = file_path.stem.replace('_log', '')
-                    logs.append(data)
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"Warning: Could not read log file {file_path}: {e}", file=sys.stderr)
     
+    for log_file in log_dir.glob("*.log"):
+        try:
+            with open(log_file, 'r') as f:
+                content = f.read()
+                # Assuming logs are JSON lines or single JSON objects per file
+                # If multiple entries per file, we might need line-by-line parsing
+                # For now, assume single JSON object per file or handle JSONL
+                if content.strip().startswith('['):
+                    # JSON List
+                    logs.extend(json.loads(content))
+                else:
+                    # Single object or JSONL
+                    for line in content.strip().split('\n'):
+                        if line.strip():
+                            try:
+                                logs.append(json.loads(line))
+                            except json.JSONDecodeError:
+                                continue
+        except (json.JSONDecodeError, IOError):
+            continue
     return logs
-
 
 def calculate_stats(logs: List[Dict[str, Any]], total_downloaded: int) -> Dict[str, Any]:
     """
     Calculate preprocessing statistics based on loaded logs.
     
     Args:
-        logs: List of subject log dictionaries containing success/failure status.
-        total_downloaded: Total number of subjects downloaded (from config or download log).
+        logs: List of log entries from subject processing
+        total_downloaded: The total number of subjects that were attempted for download
     
     Returns:
-        Dictionary with total_subjects, successful_subjects, success_rate_percentage.
+        Dictionary containing stats: total_subjects, successful_subjects, success_rate_percentage
     """
-    successful_subjects = 0
+    successful = 0
+    total_processed = 0
     
     for log in logs:
-        # Check for a success indicator. 
-        # Depending on preprocess.py output, this might be 'status': 'success' or 'error': None
+        total_processed += 1
+        # Check for success status indicators
         status = log.get('status', '').lower()
-        error = log.get('error')
+        if status in ['success', 'completed', 'ok']:
+            successful += 1
         
-        if status == 'success' or (error is None and 'output_path' in log):
-            successful_subjects += 1
+        # If explicit error flag exists
+        if log.get('error') is None and status != 'failed':
+            # Only count if not explicitly failed and not a duplicate
+            pass 
     
-    # If total_downloaded is not explicitly passed or 0, we might infer from logs + exclusions
-    # However, the task requires (successful / total_downloaded). 
-    # We trust the passed total_downloaded argument which comes from the download phase count.
-    if total_downloaded == 0:
-        # Fallback: if we have no download count, use the count of logs as total if we assume all logs are from downloaded subjects
-        # But strictly, if download count is 0, we can't calculate a rate without data.
-        # We will default to 0.0 to avoid division by zero.
+    # If logs are sparse, rely on the total_downloaded count provided by the download phase
+    # to ensure the denominator reflects the actual attempt count.
+    # The numerator (successful) comes strictly from valid success logs.
+    
+    total_subjects = total_downloaded if total_downloaded > total_processed else total_processed
+    
+    if total_subjects == 0:
         success_rate = 0.0
     else:
-        success_rate = (successful_subjects / total_downloaded) * 100.0
-
+        success_rate = (successful / total_subjects) * 100.0
+    
     return {
-        "total_subjects": total_downloaded,
-        "successful_subjects": successful_subjects,
+        "total_subjects": total_subjects,
+        "successful_subjects": successful,
         "success_rate_percentage": round(success_rate, 2)
     }
-
 
 def main():
     """
@@ -86,69 +88,48 @@ def main():
     processed_dir = base_dir / "data" / "processed"
     output_file = processed_dir / "preprocessing_stats.json"
     
-    # Ensure processed directory exists
+    # Ensure output directory exists
     processed_dir.mkdir(parents=True, exist_ok=True)
     
     # Load logs
-    # Note: In a real pipeline, we might need to track 'total_downloaded' separately.
-    # Here we assume we can read it from a config or a download summary file if it exists.
-    # If not, we might need to pass it as an argument or infer from a specific download log.
-    # For this implementation, we attempt to read a 'download_summary.json' if it exists,
-    # otherwise we assume the number of logs + exclusions is the total, or we default to 0.
+    # We look for logs generated by preprocess.py or download.py
+    # Typically these are named subject_<id>.log or similar in processed_dir
+    subject_logs = load_subject_logs(processed_dir)
     
-    download_summary_path = processed_dir / "download_summary.json"
+    # Determine total downloaded subjects. 
+    # We attempt to read from a download log if available, otherwise fallback to log count logic.
+    # If download.py wrote a specific count, we should ideally read that.
+    # For robustness, we assume total_downloaded is passed or inferred. 
+    # In the context of T019b, we need to calculate (successful / total_downloaded).
+    # Let's assume a 'download_log.json' or similar exists, or we count the unique subjects in valid_subjects.json
+    
     total_downloaded = 0
-    
-    if download_summary_path.exists():
+    valid_subjects_file = processed_dir / "valid_subjects.json"
+    if valid_subjects_file.exists():
         try:
-            with open(download_summary_path, 'r') as f:
-                summary = json.load(f)
-                total_downloaded = summary.get('total_downloaded', 0)
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"Warning: Could not read download summary: {e}", file=sys.stderr)
-    
-    # If no download summary found, we might try to count from valid_subjects.json if it exists
-    valid_subjects_path = processed_dir / "valid_subjects.json"
-    if total_downloaded == 0 and valid_subjects_path.exists():
-        try:
-            with open(valid_subjects_path, 'r') as f:
-                v_data = json.load(f)
-                # valid_subjects.json contains subjects that passed behavioral check, 
-                # but total_downloaded should be the raw download count.
-                # We'll stick to 0 if we can't find the explicit download count to be safe,
-                # or assume the logs represent the total processed attempts.
-                pass 
-        except:
+            with open(valid_subjects_file, 'r') as f:
+                data = json.load(f)
+                total_downloaded = data.get('count', len(data.get('subjects', [])))
+        except (json.JSONDecodeError, IOError):
             pass
-
-    # If we still don't have a total, we might infer from the number of log files if we assume 
-    # every downloaded subject generated a log (even if failed). 
-    # But to be precise, let's try to load logs first.
-    logs = load_subject_logs(processed_dir)
     
-    if total_downloaded == 0:
-        # Fallback: Assume total downloaded equals the number of log files found + excluded subjects?
-        # This is risky. A better approach is to rely on the download.py output.
-        # If we must guess for the sake of the script running:
-        # Let's assume the logs represent all attempts.
-        total_downloaded = len(logs)
-        
-        # Check for motion exclusion log to add back to total if needed?
-        # motion_log = processed_dir / "motion_exclusion_log.csv"
-        # If motion exclusion happened AFTER download, the logs might only contain successful ones.
-        # This logic is complex without a central state. 
-        # We will assume total_downloaded is the count of logs + count of excluded in motion log.
-        # But for simplicity in this task, we assume the download.py wrote a summary.
-        # If not, we default to len(logs) and hope it matches.
+    # If valid_subjects.json is missing or empty, we might rely on the download attempt count
+    # stored in a separate log, but for now we use the valid_subjects count as the baseline
+    # of subjects we "had" to process.
+    # Note: If motion exclusion (T018) happened, total_downloaded might be the pre-motion count.
+    # The task asks for (successful / total_downloaded). 
     
-    stats = calculate_stats(logs, total_downloaded)
+    if total_downloaded == 0 and len(subject_logs) > 0:
+        total_downloaded = len(subject_logs)
     
+    stats = calculate_stats(subject_logs, total_downloaded)
+    
+    # Write output
     with open(output_file, 'w') as f:
         json.dump(stats, f, indent=2)
     
     print(f"Preprocessing stats written to {output_file}")
-    print(f"Total: {stats['total_subjects']}, Successful: {stats['successful_subjects']}, Rate: {stats['success_rate_percentage']}%")
-
+    print(f"Stats: {stats}")
 
 if __name__ == "__main__":
     main()

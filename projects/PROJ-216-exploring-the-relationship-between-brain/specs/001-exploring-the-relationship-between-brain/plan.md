@@ -103,7 +103,7 @@ projects/PROJ-216-exploring-the-relationship-between-brain/
 - **SC-003 (Effect Size)**: The `stats.py` script will calculate and report Cohen's d and 95% CI for all significant correlations.
 
 ## Compute Feasibility Analysis
-- **Environment**: GitHub Actions Free Tier (multiple CPU cores, ~7GB RAM).
+- **Environment**: GitHub Actions Free Tier (multiple CPU cores, several GB RAM).
 - **Strategy**:
   - **Sample Limit**: Process **N=10** subjects (down from N=50) to ensure <6h runtime.
   - **Sequential Processing**: Preprocess one subject at a time to avoid RAM spikes.

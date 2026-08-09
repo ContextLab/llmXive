@@ -1,17 +1,20 @@
-# Black configuration file
-# Referenced by pyproject.toml but provided for IDE compatibility
+# Standalone black configuration for CLI usage
+# Mirrors pyproject.toml settings for standalone CLI execution
+
 line-length = 100
-target-version = ["py39", "py310", "py311"]
-include = "\\.pyi?$"
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
     | \.venv
-    | _build
-    | buck-out
+    | venv
+    | \.mypy_cache
+    | \.pytest_cache
+    | __pycache__
+    | data
+    | reports
     | build
     | dist
 )/

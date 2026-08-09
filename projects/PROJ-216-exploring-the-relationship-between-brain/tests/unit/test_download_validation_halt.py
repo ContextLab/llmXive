@@ -1,128 +1,121 @@
-import pytest
-import json
 import os
+import json
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-import sys
+from unittest.mock import patch, mock_open
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Import the function to test
+from download import check_validation_and_halt
 
-from download import validate_and_aggregate, _log_pipeline_error
-from config import get_sample_limit
-
-class TestHaltOnZeroValidSubjects:
+class TestDownloadValidationHalt:
     """
-    Tests for T014c: Halt on Zero Valid Subjects.
-    Verifies that the system raises a ValueError with the exact error message
-    when no valid subjects with Fluid Intelligence scores are found.
+    Tests for T016c: Halt on Zero Valid Subjects.
+    Verifies that check_validation_and_halt raises ValueError with the exact message
+    when valid_subjects.json indicates 0 subjects, and logs to validation_errors.log.
     """
 
-    def test_raises_value_error_on_zero_valid_subjects(self):
-        """
-        Verify that validate_and_aggregate raises ValueError with the exact message
-        when no valid subjects are found.
-        """
-        # Mock the data directory structure
-        mock_data_dir = Path("/mock/data/raw")
-        mock_output_dir = Path("/mock/data/processed")
+    @pytest.fixture(autouse=True)
+    def setup_teardown(self, tmp_path):
+        """Setup temporary directories for test isolation."""
+        self.tmp_dir = tmp_path
+        self.processed_dir = self.tmp_dir / "data" / "processed"
+        self.processed_dir.mkdir(parents=True, exist_ok=True)
         
-        # Mock the validate_and_aggregate from validate_fluid_intelligence
-        # to return a result with count=0
-        with patch('download.validate_and_aggregate') as mock_validate, \
-             patch('download.get_dataset_ids', return_value=['ds000224']), \
-             patch('download.get_subject_list', return_value=['sub-01', 'sub-02']), \
-             patch('download.enforce_sample_limit', return_value=['sub-01', 'sub-02']), \
-             patch('pathlib.Path.mkdir'):
-            
-            # Simulate zero valid subjects
-            mock_validate.return_value = {
-                "subjects": [],
-                "count": 0
-            }
-            
-            # The function should raise ValueError with the specific message
-            with pytest.raises(ValueError) as excinfo:
-                validate_and_aggregate(mock_data_dir, mock_output_dir, get_sample_limit())
-            
-            assert str(excinfo.value) == "No valid Fluid Intelligence data found in specified datasets"
+        # Patch the paths used by the function
+        self.valid_subjects_path = self.processed_dir / "valid_subjects.json"
+        self.error_log_path = self.processed_dir / "validation_errors.log"
 
-    def test_logs_error_to_pipeline_errors_log(self):
-        """
-        Verify that when zero valid subjects are found, an error is logged to
-        data/processed/pipeline_errors.log.
-        """
-        mock_data_dir = Path("/mock/data/raw")
-        mock_output_dir = Path("/mock/data/processed")
-        log_path = mock_output_dir / "pipeline_errors.log"
+        # We need to patch the global paths in the download module or pass them?
+        # Since the function uses hardcoded paths in the module, we must patch Path() or os.path
+        # The function uses: Path("data/processed/valid_subjects.json")
+        # We will patch Path to return our tmp_path based paths for specific filenames
         
-        # Mock file writing to capture the log content
-        written_content = []
+        self.original_path = Path
         
-        def mock_file_write(self, content):
-            written_content.append(content)
-            return MagicMock(__enter__=lambda s: s, __exit__=lambda s, t, v, tb: None)
-        
-        with patch('download.validate_and_aggregate') as mock_validate, \
-             patch('download.get_dataset_ids', return_value=['ds000224']), \
-             patch('download.get_subject_list', return_value=['sub-01']), \
-             patch('download.enforce_sample_limit', return_value=['sub-01']), \
-             patch('pathlib.Path.mkdir'), \
-             patch('builtins.open', mock_open()) as mock_file:
-            
-            mock_validate.return_value = {"subjects": [], "count": 0}
-            
-            with pytest.raises(ValueError):
-                validate_and_aggregate(mock_data_dir, mock_output_dir, get_sample_limit())
-            
-            # Verify that open was called with the log file path
-            # and that the file was written to
-            assert mock_file.called
+        def mock_path_constructor(path_str):
+            p = self.original_path(path_str)
+            if str(p) == "data/processed/valid_subjects.json":
+                return self.valid_subjects_path
+            if str(p) == "data/processed/validation_errors.log":
+                return self.error_log_path
+            return p
 
-    def test_error_message_exact_match(self):
-        """
-        Verify the error message matches the specification exactly:
-        "No valid Fluid Intelligence data found in specified datasets"
-        """
-        expected_message = "No valid Fluid Intelligence data found in specified datasets"
+        self.patch_path = patch('download.Path', side_effect=mock_path_constructor)
+        self.patch_path.start()
         
-        mock_data_dir = Path("/mock/data/raw")
-        mock_output_dir = Path("/mock/data/processed")
-        
-        with patch('download.validate_and_aggregate') as mock_validate, \
-             patch('download.get_dataset_ids', return_value=['ds000224']), \
-             patch('download.get_subject_list', return_value=['sub-01']), \
-             patch('download.enforce_sample_limit', return_value=['sub-01']), \
-             patch('pathlib.Path.mkdir'):
-            
-            mock_validate.return_value = {"subjects": [], "count": 0}
-            
-            with pytest.raises(ValueError) as excinfo:
-                validate_and_aggregate(mock_data_dir, mock_output_dir, get_sample_limit())
-            
-            assert str(excinfo.value) == expected_message
+        yield
 
-    def test_halt_logic_integration(self):
+        self.patch_path.stop()
+
+    def test_halt_on_zero_subjects_raises_error(self):
         """
-        Integration test: Verify the full flow from data directory to halt.
+        Verify that if valid_subjects.json has count 0, a ValueError is raised
+        with the exact message: "No valid Fluid Intelligence data found in specified datasets"
         """
-        mock_data_dir = Path("/mock/data/raw")
-        mock_output_dir = Path("/mock/data/processed")
+        # Arrange: Create valid_subjects.json with count 0
+        data = {"subjects": [], "count": 0}
+        with open(self.valid_subjects_path, 'w') as f:
+            json.dump(data, f)
+
+        # Act & Assert: Expect ValueError with specific message
+        with pytest.raises(ValueError) as exc_info:
+            check_validation_and_halt()
+
+        assert str(exc_info.value) == "No valid Fluid Intelligence data found in specified datasets"
+
+    def test_halt_on_zero_subjects_logs_error(self):
+        """
+        Verify that the error is logged to data/processed/validation_errors.log
+        with the prefix [VALIDATION_ERROR].
+        """
+        # Arrange
+        data = {"subjects": [], "count": 0}
+        with open(self.valid_subjects_path, 'w') as f:
+            json.dump(data, f)
+
+        # Act
+        try:
+            check_validation_and_halt()
+        except ValueError:
+            pass # Expected
+
+        # Assert
+        assert self.error_log_path.exists(), "validation_errors.log was not created"
         
-        # Simulate a scenario where subjects exist but none have valid scores
-        with patch('download.validate_and_aggregate') as mock_validate, \
-             patch('download.get_dataset_ids', return_value=['ds000224']), \
-             patch('download.get_subject_list', return_value=['sub-01', 'sub-02', 'sub-03']), \
-             patch('download.enforce_sample_limit', return_value=['sub-01', 'sub-02']), \
-             patch('pathlib.Path.mkdir'):
-            
-            mock_validate.return_value = {
-                "subjects": [],
-                "count": 0,
-                "reason": "No Fluid Intelligence scores found"
-            }
-            
-            with pytest.raises(ValueError) as excinfo:
-                validate_and_aggregate(mock_data_dir, mock_output_dir, get_sample_limit())
-            
-            assert "No valid Fluid Intelligence data found in specified datasets" in str(excinfo.value)
+        with open(self.error_log_path, 'r') as f:
+            log_content = f.read()
+        
+        assert "[VALIDATION_ERROR]" in log_content, "Log missing [VALIDATION_ERROR] prefix"
+        assert "No valid Fluid Intelligence data found in specified datasets" in log_content
+
+    def test_continues_on_valid_subjects(self):
+        """
+        Verify that if count > 0, no error is raised and function returns data.
+        """
+        # Arrange
+        data = {"subjects": [{"id": "sub-01", "score": 1.5}], "count": 1}
+        with open(self.valid_subjects_path, 'w') as f:
+            json.dump(data, f)
+
+        # Act
+        result = check_validation_and_halt()
+
+        # Assert
+        assert result == data
+        assert not self.error_log_path.exists() # Should not create log if success
+
+    def test_halt_on_missing_file(self):
+        """
+        Verify that if valid_subjects.json does not exist, it is treated as 0 subjects
+        and the halt logic triggers.
+        """
+        # Arrange: Ensure file does not exist
+        if self.valid_subjects_path.exists():
+            self.valid_subjects_path.unlink()
+
+        # Act & Assert
+        with pytest.raises(ValueError) as exc_info:
+            check_validation_and_halt()
+
+        assert str(exc_info.value) == "No valid Fluid Intelligence data found in specified datasets"
+        assert self.error_log_path.exists()

@@ -1,34 +1,49 @@
-"""
-Script to initialize the project directory structure and create __init__.py files.
-This satisfies Task T001.
-"""
 import os
 import sys
+import time
 from pathlib import Path
 from typing import List
 
-def create_directories(paths: List[str]) -> None:
-    """Create directories if they do not exist."""
-    for p in paths:
-        path_obj = Path(p)
-        path_obj.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {p}")
+def create_directories(base_path: Path, directories: List[str]) -> List[Path]:
+    """
+    Create a list of directories relative to the base_path.
+    Returns a list of the created Path objects.
+    """
+    created_paths = []
+    for dir_name in directories:
+        full_path = base_path / dir_name
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(full_path)
+    return created_paths
 
-def verify_directories(paths: List[str]) -> bool:
-    """Verify that all specified directories exist."""
-    all_exist = True
-    for p in paths:
-        path_obj = Path(p)
-        if not path_obj.is_dir():
-            print(f"ERROR: Directory missing: {p}")
-            all_exist = False
-        else:
-            print(f"Verified directory: {p}")
-    return all_exist
+def verify_directories(paths: List[Path]) -> bool:
+    """
+    Verify that all provided paths exist and are directories.
+    """
+    return all(p.exists() and p.is_dir() for p in paths)
 
-def main() -> int:
-    """Main entry point to create and verify required data and test directories."""
-    # Define required directories based on tasks T001b, T001c, T001d, T001f, T001g
+def generate_verification_log(paths: List[Path], log_path: Path) -> None:
+    """
+    Generate a log file containing the list of created paths and their timestamps.
+    """
+    with open(log_path, 'w') as f:
+        f.write("Directory Verification Log\n")
+        f.write(f"Generated at: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write("-" * 40 + "\n")
+        for p in paths:
+            f.write(f"Path: {p}\n")
+            f.write(f"Exists: {p.exists()}\n")
+            f.write(f"Is Directory: {p.is_dir()}\n")
+            f.write("-" * 20 + "\n")
+
+def main():
+    """
+    Main entry point for T001: Initialize Data Directory Structure.
+    Creates required directories and generates the verification log.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    # Define required directories
     required_dirs = [
         "data/raw",
         "data/interim",
@@ -37,21 +52,20 @@ def main() -> int:
         "tests/integration",
         "reports"
     ]
-
+    
     # Create directories
-    print("Creating directories...")
-    create_directories(required_dirs)
-
-    # Verify directories
-    print("\nVerifying directories...")
-    success = verify_directories(required_dirs)
-
-    if success:
-        print("\nAll required directories created and verified successfully.")
-        return 0
-    else:
-        print("\nVerification failed: Some directories are missing.")
-        return 1
+    created_paths = create_directories(project_root, required_dirs)
+    
+    # Verify creation
+    if not verify_directories(created_paths):
+        print("Error: Failed to create one or more required directories.", file=sys.stderr)
+        sys.exit(1)
+    
+    # Generate verification log
+    log_path = project_root / "data" / ".verify_structure.log"
+    generate_verification_log(created_paths, log_path)
+    
+    print(f"Successfully created directories and log at: {log_path}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

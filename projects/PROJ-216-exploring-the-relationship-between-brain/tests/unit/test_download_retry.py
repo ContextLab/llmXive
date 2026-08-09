@@ -8,7 +8,7 @@ Validates requirements defined in T013a:
 """
 import pytest
 import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 import sys
 import os
 

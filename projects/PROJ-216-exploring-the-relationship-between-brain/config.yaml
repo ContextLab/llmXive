@@ -1,29 +1,19 @@
-# Configuration for Brain Network Dynamics and Fluid Intelligence Study
-# Generated for Task T008b
-# This file defines dataset priorities and sample limits.
+# Project Configuration for llmXive
+# Defines dataset sources and processing limits
 
+# Dataset Configuration
+# Primary: ds000224 (Resting state fMRI with Fluid Intelligence scores)
+# Fallback: ds000230 (Alternative dataset, used only if primary fails)
 datasets:
-  primary:
-    id: ds000224
-    description: "OpenNeuro ds000224 - Primary source for Fluid Intelligence data"
-    priority: 1
-  fallback:
-    id: ds000230
-    description: "OpenNeuro ds000230 - Fallback source (used only if primary fails)"
-    priority: 2
-    usage_constraint: "fallback_only"
+  primary: "ds000224"
+  fallback_only: "ds000230"
 
-sampling:
-  ci_limit: 10
-  max_subjects: 50
-  strategy: "first_n"
-  description: "Limit to N=10 for CI feasibility baseline as per SC-001"
+# Sample Limit
+# Maximum number of subjects to process per run (N=10 baseline)
+sample_limit: 10
 
-analysis:
-  correction_method: "bonferroni"
-  description: "Bonferroni correction mandated by Constitution Principle VII"
-
-metadata:
-  created_for_task: "T008b"
-  spec_amendment_ref: "specs/amendment-001-fluid-intelligence-n10.md"
-  conflict_resolution_ref: "reports/conflict_resolution.json"
+# Processing Settings
+processing:
+  motion_threshold_translation_mm: 3.0
+  motion_threshold_rotation_mm: 2.0
+  bonferroni_correction: true

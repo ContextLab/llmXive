@@ -1,6 +1,5 @@
-numpy
-pandas
-scipy
+nibabel
+nilearn
 networkx
 scikit-learn
 pandas
@@ -8,7 +7,5 @@ numpy
 openneuro-py
 dipy
 pytest
-ruff
-black
 matplotlib
 seaborn

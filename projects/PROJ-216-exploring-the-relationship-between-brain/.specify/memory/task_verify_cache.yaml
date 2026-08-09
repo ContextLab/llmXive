@@ -1,95 +1,19 @@
-T001b:
+T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `data/raw` directory was actually created or\
-    \ that its existence was programmatically verified; the submission contains only\
-    \ the task description and specifications without any artifact (e.g., a file system\
-    \ listing, script output, or log) confirming the directory\u2019s presence."
-T001c:
+  r: No evidence of a file at `specs/amendment-002-sc-n10-baseline.md` was provided,
+    nor any content showing the required redefinition of SC-001 and SC-005 to N=10.
+    The implementer must supply the actual markdown file with the specified baseline
+    revisions.
+T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing that a `data/interim` directory was created or that its\
-    \ existence was verified is provided; the claim lacks any concrete file\u2011\
-    system evidence. The implementer must create the directory and include a proof\
-    \ (e.g., a screenshot, command output, or script that checks `os.path.isdir('data/interim')`)."
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/processed` directory (or any script/file that creates
-    and checks it) is provided; the artifact is missing, so the requirement is not
-    satisfied.
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `tests/unit` and `tests/integration` directories
-    is provided, nor any script or test that checks their existence. The implementer
-    must add these directories (with at least placeholder files) and include a verification
-    step (e.g., a test or script that asserts the directories exist).
-T001g:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing a `reports` directory was provided, nor any script or log\
-    \ confirming its creation and existence. The implementer\u2019s submission contains\
-    \ only the project specification without the required directory or verification\
-    \ evidence."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., pyproject.toml entries for ruff
-    and black, .ruff.toml, or related setup scripts) were provided or referenced,
-    so there is no evidence that the required tools have been configured. The implementer
-    must supply the actual configuration artifacts.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script or code file that checks for the presence of FSL and AFNI is provided;\
-    \ the only artifacts described relate to data preprocessing, graph metrics, and\
-    \ analysis, not a system\u2011level dependency check. The required dependency\u2011\
-    check script is missing."
-T008a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The required file `specs/amendment-001-fluid-intelligence-n10.md` was not presented,
-    and no content showing the three amendment clauses was provided. Without the artifact,
-    the task cannot be considered fulfilled.
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation implementing the required fallback logic for
-    ds000230 is present; the provided information contains only the original feature
-    specification and no concrete artifact demonstrating that ds000230 is used when
-    ds000224 fails or lacks data. The task therefore remains unfulfilled.
-T017b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocessing_stats.json` file was presented, nor any code or output showing\
-    \ the calculation of `successful_subjects / total_downloaded_subjects`. Without\
-    \ this artifact, the required success\u2011rate metric has not been produced."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (script, log file, report, or dataset) was provided that demonstrates
-    a validation step checking for the presence of Fluid Intelligence scores in the
-    aggregated subject data. Without such evidence, the requirement cannot be confirmed
-    as met. The implementer must supply the validation code/output showing that Fluid
-    Intelligence scores are present (or an explicit error if missing).
-T014b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., script, log file, or report) was provided that demonstrates
-    a check for the presence of age and gender metadata for subjects who have Fluid
-    Intelligence scores. Without such evidence, we cannot confirm that the validation
-    requirement has been implemented. The implementer must supply the actual validation
-    code or its execution output showing that age/gender metadata is verified (or
-    an error is raised when missing).
-T014c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or configuration file implementing the required halt logic is
-    present; the evidence provides only the task description without any artifact
-    showing that a check for zero valid subjects (specifically missing Fluid Intelligence
-    scores) raises the specified critical error. The necessary implementation artifact
-    is missing.
+  h: e38b8be1e3b7fe7c0dad765d7260cd83c25d0976167a0483970f1acba3084f0a
+  r: "The `ResourceMonitor` class in `code/utils.py` is truncated and its `finalize`\
+    \ method does not fully implement JSON writing (the code ends mid\u2011dictionary).\
+    \ The expected `resource_profile.json` file is absent, and the unit test `tests/unit/test_resource_monitor.py`\
+    \ is also truncated before it asserts the JSON schema, so it does not actually\
+    \ verify the file\u2019s contents. The required implementation and complete test\
+    \ are missing."
 T016a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -97,13 +21,13 @@ T016a:
     \ detection is present; there is no code, log output, or documentation showing\
     \ that translations >\u202F3\u202Fmm are identified and flagged as required. The\
     \ task therefore remains unfinished."
-T016b:
+T019b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided that shows a halt\u2011logic\
-    \ implementation for the case where the effective N becomes zero after motion\
-    \ exclusion. Without an artifact demonstrating this behavior, the requirement\
-    \ cannot be confirmed as met."
+  r: No `preprocessing_stats.json` file (or any evidence of its creation) is present,
+    and there is no code or output showing the calculation of `successful_subjects
+    / total_downloaded_subjects`. Consequently, the required artifact is missing,
+    so the task is not satisfied.
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

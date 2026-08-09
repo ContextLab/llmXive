@@ -1,166 +1,157 @@
-"""
-Unit tests for the ResourceMonitor class in code/utils.py.
-"""
 import json
 import os
 import sys
 import time
-import pytest
 import tempfile
 import shutil
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import pytest
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from code.utils import ResourceMonitor
-
+# Ensure we import from the project code directory
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from utils import ResourceMonitor, ResourceUsage
 
 class TestResourceMonitor:
-    """Tests for ResourceMonitor functionality."""
+    """Unit tests for ResourceMonitor class."""
 
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for output files."""
-        temp_dir = tempfile.mkdtemp()
-        yield Path(temp_dir)
-        shutil.rmtree(temp_dir)
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.test_dir = tempfile.mkdtemp()
+        self.processed_dir = Path(self.test_dir) / "data" / "processed"
+        self.processed_dir.mkdir(parents=True, exist_ok=True)
 
-    def test_init_creates_directory(self, temp_output_dir):
-        """Test that __init__ creates the output directory if it doesn't exist."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        assert monitor.output_dir.exists()
-        assert monitor.output_dir == temp_output_dir
+    def teardown_method(self):
+        """Clean up test fixtures."""
+        shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_start_subject_logs_to_stderr(self, capfd, temp_output_dir):
-        """Test that start_subject writes to stderr."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        monitor.start_subject("sub-001")
+    @patch('utils.ResourceMonitor._get_current_ram_gb')
+    def test_log_snapshot_creates_entry(self, mock_ram):
+        """Test that log_snapshot creates a ResourceUsage entry and logs to stderr."""
+        mock_ram.return_value = 2.5
         
-        captured = capfd.readouterr()
-        assert "sub-001" in captured.err
-        assert "Started monitoring" in captured.err
-        assert monitor._current_subject == "sub-001"
-        assert monitor._start_time is not None
+        monitor = ResourceMonitor()
+        # Override processed_dir for test
+        monitor.processed_dir = self.processed_dir
+        
+        with patch('builtins.print') as mock_print:
+            monitor.log_snapshot("sub-001")
+        
+        assert len(monitor.snapshots) == 1
+        assert monitor.snapshots[0].subject_id == "sub-001"
+        assert monitor.snapshots[0].ram_gb == 2.5
+        mock_print.assert_called_once()
+        assert "sub-001" in str(mock_print.call_args)
 
-    def test_record_checkpoint_updates_peak(self, temp_output_dir):
-        """Test that record_checkpoint updates peak RAM if current is higher."""
-        # Note: We can't easily simulate higher RAM, but we can test the logic
-        # by checking that the method doesn't crash and logs if label is provided
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        monitor.start_subject("sub-001")
+    @patch('utils.ResourceMonitor._get_current_ram_gb')
+    def test_start_and_stop(self, mock_ram):
+        """Test start and stop methods."""
+        mock_ram.return_value = 3.0
         
-        # Record a checkpoint without label (should not log)
-        monitor.record_checkpoint()
+        monitor = ResourceMonitor()
+        monitor.processed_dir = self.processed_dir
         
-        # Record a checkpoint with label (should log)
-        monitor.record_checkpoint("test_checkpoint")
-        
-        captured = capfd.readouterr()
-        assert "test_checkpoint" in captured.err
-        
-        monitor.finish_subject()
+        with patch('builtins.print'):
+            monitor.start("sub-002")
+            assert "sub-002" in monitor.subject_start_times
+            assert len(monitor.snapshots) == 1
+            
+            monitor.stop("sub-002")
+            assert "sub-002" not in monitor.subject_start_times
+            assert len(monitor.snapshots) == 2  # One at start, one at stop
 
-    def test_finish_subject_creates_record(self, temp_output_dir):
-        """Test that finish_subject creates a valid record."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        monitor.start_subject("sub-001")
-        time.sleep(0.1)  # Ensure some duration
-        monitor.finish_subject()
+    @patch('utils.ResourceMonitor._get_current_ram_gb')
+    def test_finalize_writes_json(self, mock_ram):
+        """Test that finalize writes resource_profile.json with correct schema."""
+        mock_ram.return_value = 4.0
         
-        assert len(monitor._measurements) == 1
-        record = monitor._measurements[0]
+        monitor = ResourceMonitor()
+        monitor.processed_dir = self.processed_dir
         
-        assert record["subject_id"] == "sub-001"
-        assert "peak_ram_mb" in record
-        assert "start_time" in record
-        assert "end_time" in record
-        assert "duration_seconds" in record
-        assert record["duration_seconds"] >= 0.1
+        with patch('builtins.print'):
+            monitor.start("sub-003")
+            time.sleep(0.01)
+            mock_ram.return_value = 4.5
+            monitor.log_snapshot("sub-003")
+            monitor.stop("sub-003")
+            monitor.finalize()
+        
+        output_path = monitor.processed_dir / "resource_profile.json"
+        assert output_path.exists(), "resource_profile.json was not created"
+        
+        with open(output_path, 'r') as f:
+            profile = json.load(f)
+        
+        # Verify schema
+        assert "peak_ram_gb" in profile
+        assert "total_runtime_hours" in profile
+        assert "subject_count" in profile
+        assert "subject_peak_ram_gb" in profile
+        assert "snapshots" in profile
+        
+        # Verify values
+        assert profile["peak_ram_gb"] >= 4.0
+        assert profile["subject_count"] == 1
+        assert len(profile["snapshots"]) == 2
+        assert "sub-003" in profile["subject_peak_ram_gb"]
 
-    def test_finish_subject_without_start(self, capfd, temp_output_dir):
-        """Test that finish_subject handles the case where no subject was started."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        monitor.finish_subject()
+    @patch('utils.ResourceMonitor._get_current_ram_gb')
+    def test_finalize_empty_snapshots(self, mock_ram):
+        """Test finalize behavior when no snapshots were recorded."""
+        monitor = ResourceMonitor()
+        monitor.processed_dir = self.processed_dir
         
-        captured = capfd.readouterr()
-        assert "No active subject to finish" in captured.err
-        assert len(monitor._measurements) == 0
+        monitor.finalize()
+        
+        output_path = monitor.processed_dir / "resource_profile.json"
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
+            profile = json.load(f)
+        
+        assert profile["peak_ram_gb"] == 0.0
+        assert profile["total_runtime_hours"] == 0.0
+        assert profile["subject_count"] == 0
+        assert profile["snapshots"] == []
 
-    def test_save_profile_creates_json(self, temp_output_dir):
-        """Test that save_profile writes a valid JSON file."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        monitor.start_subject("sub-001")
-        time.sleep(0.1)
-        monitor.finish_subject()
+    @patch('utils.ResourceMonitor._get_current_ram_gb')
+    def test_multiple_subjects_aggregation(self, mock_ram):
+        """Test aggregation of multiple subjects."""
+        mock_ram.return_value = 2.0
         
-        path = monitor.save_profile()
+        monitor = ResourceMonitor()
+        monitor.processed_dir = self.processed_dir
         
-        assert path.exists()
-        assert path.suffix == ".json"
+        with patch('builtins.print'):
+            monitor.start("sub-A")
+            monitor.log_snapshot("sub-A")
+            monitor.stop("sub-A")
+            
+            mock_ram.return_value = 5.0
+            monitor.start("sub-B")
+            monitor.log_snapshot("sub-B")
+            monitor.stop("sub-B")
+            
+            monitor.finalize()
         
-        with open(path, 'r') as f:
-            data = json.load(f)
+        output_path = monitor.processed_dir / "resource_profile.json"
+        with open(output_path, 'r') as f:
+            profile = json.load(f)
         
-        assert "generated_at" in data
-        assert "total_subjects" in data
-        assert "measurements" in data
-        assert data["total_subjects"] == 1
-        assert len(data["measurements"]) == 1
+        assert profile["subject_count"] == 2
+        assert profile["peak_ram_gb"] == 5.0
+        assert "sub-A" in profile["subject_peak_ram_gb"]
+        assert "sub-B" in profile["subject_peak_ram_gb"]
 
-    def test_get_summary_empty(self, temp_output_dir):
-        """Test get_summary returns zeros when no measurements."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        summary = monitor.get_summary()
+    def test_error_logging_on_stop(self):
+        """Test that errors are logged to stderr on stop."""
+        monitor = ResourceMonitor()
         
-        assert summary["avg_peak_ram_mb"] == 0.0
-        assert summary["max_peak_ram_mb"] == 0.0
-        assert summary["total_duration_seconds"] == 0.0
-
-    def test_get_summary_with_data(self, temp_output_dir):
-        """Test get_summary calculates correct statistics."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
+        with patch('builtins.print') as mock_print:
+            monitor.stop("sub-004", error="Simulated failure")
         
-        # Add two mock measurements
-        monitor._measurements = [
-            {"peak_ram_mb": 100.0, "duration_seconds": 10.0},
-            {"peak_ram_mb": 200.0, "duration_seconds": 20.0}
-        ]
-        
-        summary = monitor.get_summary()
-        
-        assert summary["avg_peak_ram_mb"] == 150.0
-        assert summary["max_peak_ram_mb"] == 200.0
-        assert summary["total_duration_seconds"] == 30.0
-
-    def test_integration_full_flow(self, capfd, temp_output_dir):
-        """Test the complete flow of monitoring a subject."""
-        monitor = ResourceMonitor(output_dir=temp_output_dir)
-        
-        # Start subject
-        monitor.start_subject("sub-test-123")
-        initial_err = capfd.readouterr().err
-        assert "sub-test-123" in initial_err
-        
-        # Record checkpoint
-        monitor.record_checkpoint("mid_process")
-        checkpoint_err = capfd.readouterr().err
-        assert "mid_process" in checkpoint_err
-        
-        # Finish subject
-        time.sleep(0.1)
-        monitor.finish_subject()
-        finish_err = capfd.readouterr().err
-        assert "Finished sub-test-123" in finish_err
-        
-        # Save profile
-        profile_path = monitor.save_profile()
-        save_err = capfd.readouterr().err
-        assert "Profile saved" in save_err
-        
-        # Verify file content
-        with open(profile_path, 'r') as f:
-            data = json.load(f)
-        
-        assert data["total_subjects"] == 1
-        assert data["measurements"][0]["subject_id"] == "sub-test-123"
-        assert data["measurements"][0]["duration_seconds"] >= 0.1
+        mock_print.assert_called_once()
+        call_args = str(mock_print.call_args)
+        assert "sub-004" in call_args
+        assert "Simulated failure" in call_args
+        assert "[ResourceMonitor]" in call_args
