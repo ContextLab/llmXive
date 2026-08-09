@@ -20,7 +20,7 @@
 
 **BLOCKING GATE**: Task T012 (dataset verification) MUST complete successfully with PASS status before any data download tasks (T013+) can execute. This resolves Constitution Principle II (Verified Accuracy) blocking gate. T013+ explicitly depend on T012 completion. **NOTE**: If T012 returns FAIL (no verified sources), the project halts and flags the spec for amendment; T013+ will not execute.
 
-**CPU CONSTRAINT**: All analyses must complete on 2 CPU, 7GB RAM, no GPU within 6 hours. [UNRESOLVED-CLAIM: c_4779ff6a — status=not_enough_info] No GPU-dependent operations (load_in_8bit, device_map="cuda", large LLMs) are permitted.
+**CPU CONSTRAINT**: All analyses must complete on 2 CPU, 7GB RAM, no GPU within 6 hours. No GPU-dependent operations (load_in_8bit, device_map="cuda", large LLMs) are permitted.
 
 ---
 
@@ -73,7 +73,7 @@
 - [ ] T015 [US1] Implement variable verification per FR-008 (OTU/ASV tables, plant species, GPS, soil type, sequencing depth, sample ID, disease type, incidence rate, measurement date) with [MISSING_VARIABLE] markers - verification: data/processed/variable_verification_log.csv with columns sample_id, variable_name, status (present/missing)
 - [ ] T016 [US1] Implement sample-disease matching logic by location and date fields (≥30 matched samples target)
 - [ ] T016A [US1] **Validate merged dataset metadata completeness**: Verify that the merged dataset from T016 contains complete metadata for all required fields (plant species, GPS, soil type, disease incidence rate) per US1 Independent Test; verification: data/processed/metadata_completeness_report.csv with columns sample_id, field_name, status (complete/incomplete); **explicitly addresses US1 "complete metadata" requirement**
-- [ ] T017 [US1] Implement taxon filtering (retain taxa present in ≥5% of samples) in code/analysis/preprocessing.py
+- [X] T017 [US1] Implement taxon filtering (retain taxa present in ≥5% of samples) in code/analysis/preprocessing.py
 - [ ] T018 [US1] Implement rarefaction to 10k reads per sample using QIIME 2 version 2023.9 (FR-002) in code/analysis/preprocessing.py - command: qiime diversity rarefy --i-table filtered-table.qza --p-sampling-depth 10000 - verification: data/processed/rarefied-table.qza created; **note: if >50% reads discarded, log warning and proceed with reduced sample size per Edge Cases**
 - [ ] T019 [P] [US1] Implement checksum validation for all downloaded files in code/analysis/data_acquisition.py (Constitution Principle III)
 - [ ] T020 [US1] Implement merged dataset export to data/processed/matched_samples.csv with complete metadata

@@ -76,7 +76,7 @@
   verification_status: mismatch
   verified_against_url: https://docs.qiime2.org/latest/install/
   verified_at: '2026-06-29T19:38:07.703177Z'
-- artifact_hash: 050a0ded0450257bb5140110970ae1abf5f9d7b9e12abf981288c245302b8dd1
+- artifact_hash: 3c145234352152a0aa42741e55d6fa190db91552be1b46627b0f70470f9c5899
   artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -86,8 +86,8 @@
   value: https://qiita.ucsd.edu/
   verification_status: pending
   verified_against_url: https://qiita.ucsd.edu/
-  verified_at: '2026-07-17T10:29:26.293253Z'
-- artifact_hash: 050a0ded0450257bb5140110970ae1abf5f9d7b9e12abf981288c245302b8dd1
+  verified_at: '2026-08-09T06:36:43.424851Z'
+- artifact_hash: 3c145234352152a0aa42741e55d6fa190db91552be1b46627b0f70470f9c5899
   artifact_path: projects/PROJ-136-investigating-the-impact-of-soil-microbi/specs/001-investigating-the-impact-of-soil-microbi/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -97,4 +97,4 @@
   value: https://en.wikipedia.org/wiki/Cyclomatic_complexity
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity
-  verified_at: '2026-07-17T10:29:26.293253Z'
+  verified_at: '2026-08-09T06:36:43.424851Z'

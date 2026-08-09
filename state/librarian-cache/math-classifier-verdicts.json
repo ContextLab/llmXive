@@ -1703,6 +1703,10 @@
     "classified_at": "2026-07-04T21:28:03Z",
     "verdict": false
   },
+  "PROJ-954-llmxive-follow-up-extending-minwm-a-full::1.6.0": {
+    "classified_at": "2026-08-09T06:25:39Z",
+    "verdict": false
+  },
   "PROJ-955-llmxive-follow-up-extending-dockerless-e::1.6.0": {
     "classified_at": "2026-07-12T21:46:40Z",
     "verdict": false

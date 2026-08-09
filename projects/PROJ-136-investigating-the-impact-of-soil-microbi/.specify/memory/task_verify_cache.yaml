@@ -1,7 +1,14 @@
 T014:
   c: false
-  h: a045efedf3e6133b0ac82721f299394e86c5247553f6f7431a857ed11093742c
-  r: "The required output file `data/raw/disease_incidence_records.csv` does not exist,\
-    \ and the implementation in `code/analysis/data_acquisition.py` is incomplete\
-    \ (truncated and contains placeholder warnings). Hence the download functionality\
-    \ and the \u226550 records target are not fulfilled."
+  h: 06ba6ac6283cfc56f2b3dba248067c980e325428abdcee5d38cb61d305bc9ee7
+  r: "The repository contains `code/analysis/data_acquisition.py` with a download\
+    \ function, but the expected output file `data/raw/disease_incidence_records.csv`\
+    \ is absent, so the required artifact was not created (and thus the \u226550\u2011\
+    record target cannot be verified). The task remains unfinished."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files were provided that implement the\
+    \ matching logic or demonstrate \u226530 matched samples; therefore the required\
+    \ artifact is missing. The claim cannot be verified without concrete implementation\
+    \ or results."
