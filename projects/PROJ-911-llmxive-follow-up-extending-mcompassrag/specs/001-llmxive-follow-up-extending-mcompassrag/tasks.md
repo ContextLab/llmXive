@@ -39,7 +39,7 @@
 - [X] T005 [P] Create `code/utils/hash_artifacts.py` to calculate SHA-256 hashes for `data/` and update `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`
 - [X] T006 Setup `data/raw/`, `data/processed/`, and `data/results/` directory structure
 - [X] T007 Implement `code/data_loader.py` to fetch HotpotQA (`fullwiki`) and Wikipedia 20231001.en via `datasets.load_dataset` with deterministic sampling (N ≤ 360)
-- [X] T008 Implement sampling logic in `code/data_loader.py` to ensure the sample size N is strictly ≤ 360 before execution, enforcing the ‑hour time budget constraint (FR‑007). The loader should truncate or randomly sample the dataset to N ≤ 360; it must **not raise an exception** if the raw dataset exceeds this limit. [UNRESOLVED-CLAIM: c_77d4be31 — status=not_enough_info]
+- [X] T008 Implement sampling logic in `code/data_loader.py` to ensure the sample size N is strictly ≤ 360 before execution, enforcing the ‑hour time budget constraint (FR‑007). The loader should truncate or randomly sample the dataset to N ≤ 360; it must **not raise an exception** if the raw dataset exceeds this limit.
 - [X] T009 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for artifact validation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -93,7 +93,7 @@
 
 The research question is: Can we improve multi-hop reasoning performance by incorporating knowledge graph embeddings into a transformer-based architecture? [UNRESOLVED-CLAIM: c_4399987f — status=not_enough_info]
 
-We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K as a key metric.
+We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K as a key metric. [UNRESOLVED-CLAIM: c_d38b0570 — status=not_enough_info]
 
 (FR‑004) **Output**: `data/results/retrieval_scores.csv`
 - [X] T025 [US2] Ensure strict disjointness between training corpus and query set to prevent data leakage in `code/data_loader.py`
@@ -111,7 +111,7 @@ We will evaluate the performance of our model on the HotpotQA dataset, using Rec
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T026 [P] [US3] Unit test for Spearman correlation calculation in `tests/unit/test_evaluator.py`
-- [ ] T027 [P] [US3] Integration test for end‑to‑end statistical validation in `tests/integration/test_statistical_validation.py`
+- [X] T027 [P] [US3] Integration test for end‑to‑end statistical validation in `tests/integration/test_statistical_validation.py`
 
 ### Implementation for User Story 3
 
@@ -216,4 +216,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU‑only CI (limited cores, constrained RAM, time limit). No GPU, no 8‑bit quantization, no large model loading.
 - **Data Integrity**: All datasets must be real (HotpotQA, Wikipedia) via `datasets` library. No synthetic data generation.
-- **Methodology**: Topological signatures are extracted from *retrieved* documents only; they are NOT used for ranking. [UNRESOLVED-CLAIM: c_d33daa4a — status=not_enough_info] {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)
+- **Methodology**: Topological signatures are extracted from *retrieved* documents only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)

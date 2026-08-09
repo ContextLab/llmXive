@@ -1,14 +1,13 @@
 """
-Demonstration script for the logging infrastructure.
-This script exercises all logging utilities and writes a real log file
-to data/outputs/logs/ to verify the implementation works end-to-end.
+Demo script to verify the logging infrastructure (Task T006).
+This script exercises the logging functions and writes to disk.
 """
 import sys
 import time
 from pathlib import Path
 
-# Ensure code/ is in path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.logging import (
     get_pipeline_logger,
@@ -16,70 +15,35 @@ from utils.logging import (
     log_pipeline_end,
     log_error,
     log_metric,
-    get_log_file_path
+    log_chunk_info
 )
 
 def main():
-    """Run a demonstration of the logging pipeline."""
-    print("Starting Logging Infrastructure Demo...")
+    logger = get_pipeline_logger("demo")
     
-    # Initialize logger
-    logger = get_pipeline_logger(
-        name="llmXive_Demo",
-        level="DEBUG",
-        console=True
-    )
-    
-    log_file = get_log_file_path()
-    print(f"Log file will be written to: {log_file}")
-    
-    # Simulate a pipeline task
-    task_id = "T006_DEMO"
-    config = {
-        "chunk_size": 1000,
-        "random_seed": 42,
-        "enable_sampling": True
-    }
-    
-    start_time = time.time()
+    # Log start
+    log_pipeline_start(logger, task_id="T006-DEMO")
     
     try:
-        # Log start
-        log_pipeline_start(task_id, config)
-        logger.debug("Initializing demo components...")
+        # Simulate some work
+        log_metric(logger, "start_time", time.time(), "epoch")
         
-        # Simulate processing steps
-        logger.info("Step 1: Loading configuration...")
-        time.sleep(0.1)
+        for i in range(3):
+            time.sleep(0.1)  # Simulate processing
+            log_chunk_info(logger, i, 3, 100, 0.1)
         
-        logger.info("Step 2: Processing data chunks...")
-        log_metric(task_id, "chunks_processed", 5, unit="count")
-        log_metric(task_id, "records_processed", 5000, unit="rows")
+        log_metric(logger, "end_time", time.time(), "epoch")
+        log_metric(logger, "total_duration", 0.3, "seconds")
         
-        time.sleep(0.1)
+        # Simulate a non-fatal warning context
+        log_error(logger, ValueError("Simulated warning for demo"), {"stage": "validation", "item": "test_001"})
         
-        logger.info("Step 3: Computing metrics...")
-        log_metric(task_id, "computation_time", 0.45, unit="seconds")
-        
-        # Simulate a warning
-        logger.warning("Warning: Some data points were excluded due to missing values.")
-        log_metric(task_id, "excluded_records", 12, unit="rows")
-        
-        # Simulate successful completion
-        duration = time.time() - start_time
-        log_pipeline_end(task_id, "SUCCESS", duration_seconds=duration)
-        
-        print(f"\nDemo completed successfully in {duration:.2f} seconds.")
-        print(f"Check the log file at: {log_file}")
+        log_pipeline_end(logger, success=True)
         
     except Exception as e:
-        duration = time.time() - start_time
-        log_error(task_id, e, context={"step": "demo_execution"})
-        log_pipeline_end(task_id, "FAILED", duration_seconds=duration)
-        print(f"\nDemo failed: {e}")
-        return 1
-    
-    return 0
+        log_error(logger, e, {"stage": "demo_execution"})
+        log_pipeline_end(logger, success=False)
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

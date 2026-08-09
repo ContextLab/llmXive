@@ -96,26 +96,6 @@
   updated_at: '2026-07-14T16:59:23Z'
 - artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
   attempts: 1
-  canonical: sample size N strictly less than or equal to 360
-  claim_id: c_88343c09
-  context: "Implement sampling logic in code/data_loader.py to ensure the sample size\
-    \ N is strictly \u2264 360 before execution, enforcing the \u2011hour time budget\
-    \ constraint (FR\u2011007)."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Sample_size_N_strictly_less_than_or_equal_to_360
-  kind: magnitude
-  raw_text: "The loader should truncate or randomly sample the dataset to N \u2264\
-    \ 360; it must not raise an exception if the raw dataset exceeds this limit."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T16:59:40Z'
-- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
-  attempts: 1
   canonical: topological signatures extracted only from TF-IDF ranked documents
   claim_id: c_b839eb35
   context: "Implement extraction of topological signatures ONLY from the set of documents\
@@ -666,26 +646,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T17:19:51Z'
-- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
-  attempts: 1
-  canonical: topological signatures extracted from retrieved documents not used for
-    ranking
-  claim_id: c_c4b06e5f
-  context: 'Methodology: Topological signatures are extracted from *retrieved* documents
-    only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_no
-  kind: entity_fact
-  raw_text: Topological signatures are extracted from retrieved documents only; they
-    are NOT used for ranking.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T17:19:54Z'
 - artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
   attempts: 1
   canonical: 'Research question: improve multi-hop reasoning with knowledge graph
@@ -1563,27 +1523,6 @@
   updated_at: '2026-08-05T08:03:55Z'
 - artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
   attempts: 1
-  canonical: research question on multi-hop reasoning with knowledge graph embeddings
-  claim_id: c_4399987f
-  context: 'The research question is: Can we improve multi-hop reasoning performance
-    by incorporating knowledge graph embeddings into a transformer-based architecture?
-    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
-    as a key metric.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Research_question_on_multi-hop_reasoning_with_knowledge_grap
-  kind: entity_fact
-  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
-    by incorporating knowledge graph embeddings into a transformer-based architecture?'
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-05T08:03:57Z'
-- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
-  attempts: 1
   canonical: topological signatures extracted from retrieved documents only and not
     used for ranking
   claim_id: c_d33daa4a
@@ -1602,3 +1541,458 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T08:04:02Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 2
+  canonical: sample size N strictly less than or equal to 360
+  claim_id: c_88343c09
+  context: "Implement sampling logic in code/data_loader.py to ensure the sample size\
+    \ N is strictly \u2264 360 before execution, enforcing the \u2011hour time budget\
+    \ constraint (FR\u2011007)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_N_strictly_less_than_or_equal_to_360
+  kind: magnitude
+  raw_text: "The loader should truncate or randomly sample the dataset to N \u2264\
+    \ 360; it must not raise an exception if the raw dataset exceeds this limit."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:18:10Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: graph construction pipeline time less than 60 seconds per document
+  claim_id: c_15736464
+  context: Run the graph construction pipeline on a sample subset (up to 360 docs)
+    and verify numerical feature vectors are generated for every document within 60s/doc.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_construction_pipeline_time_less_than_60_seconds_per_do
+  kind: magnitude
+  raw_text: Verify numerical feature vectors are generated for every document within
+    60s/doc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:18:38Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Recall@K calculated against HotpotQA ground truth
+  claim_id: c_7803e92e
+  context: "Implement Recall@K calculation against HotpotQA ground\u2011truth in code/evaluator.py\
+    \ (FR\u2011004)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Recall@K_calculated_against_HotpotQA_ground_truth
+  kind: entity_fact
+  raw_text: "Implement Recall@K calculation against HotpotQA ground\u2011truth in\
+    \ code/evaluator.py."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:19:04Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: research question regarding knowledge graph embeddings in transformer-based
+    architecture for multi-hop reasoning
+  claim_id: c_904b7def
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_regarding_knowledge_graph_embeddings_in_tr
+  kind: entity_fact
+  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:19:27Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: model performance evaluated on HotpotQA dataset using Recall@K
+  claim_id: c_531ad114
+  context: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_performance_evaluated_on_HotpotQA_dataset_using_Recall
+  kind: entity_fact
+  raw_text: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:19:46Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: tasks run on CPU-only CI with no GPU or 8-bit quantization
+  claim_id: c_8bb43a27
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI (limited cores,\
+    \ constrained RAM, time limit). No GPU, no 8\u2011bit quantization, no large model\
+    \ loading."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU\u2011only CI (limited cores, constrained RAM,\
+    \ time limit). No GPU, no 8\u2011bit quantization, no large model loading."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:20:07Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: datasets are real HotpotQA and Wikipedia via datasets library
+  claim_id: c_78e8faee
+  context: 'Data Integrity: All datasets must be real (HotpotQA, Wikipedia) via datasets
+    library. No synthetic data generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_are_real_HotpotQA_and_Wikipedia_via_datasets_librar
+  kind: entity_fact
+  raw_text: All datasets must be real (HotpotQA, Wikipedia) via datasets library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:21:24Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: topological signatures extracted from retrieved documents only not used
+    for ranking
+  claim_id: c_a9137715
+  context: 'Methodology: Topological signatures are extracted from *retrieved* documents
+    only; they are NOT used for ranking.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_on
+  kind: entity_fact
+  raw_text: Topological signatures are extracted from retrieved documents only; they
+    are NOT used for ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:21:46Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Sample size N strictly less than or equal to 360
+  claim_id: c_5fa2aaf7
+  context: "Implement sampling logic in code/data_loader.py to ensure the sample size\
+    \ N is strictly \u2264 360 before execution, enforcing the \u2011hour time budget\
+    \ constraint (FR\u2011007)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_N_strictly_less_than_or_equal_to_360
+  kind: magnitude
+  raw_text: "The loader should truncate or randomly sample the dataset to N \u2264\
+    \ 360; it must not raise an exception if the raw dataset exceeds this limit."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:23:26Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Document processing time less than 60 seconds per document
+  claim_id: c_c7ae7445
+  context: 'Independent Test: Run the graph construction pipeline on a sample subset
+    (up to 360 docs) and verify numerical feature vectors are generated for every
+    document within 60s/doc.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Document_processing_time_less_than_60_seconds_per_document
+  kind: magnitude
+  raw_text: Verify numerical feature vectors are generated for every document within
+    60s/doc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:23:28Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Research question on multi-hop reasoning with knowledge graph embeddings
+    in transformer architecture
+  claim_id: c_4bf58f37
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_on_multi-hop_reasoning_with_knowledge_grap
+  kind: entity_fact
+  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:23:30Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Evaluation of model performance on HotpotQA dataset using Recall@K metric
+  claim_id: c_b84f4da0
+  context: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_of_model_performance_on_HotpotQA_dataset_using_Re
+  kind: entity_fact
+  raw_text: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:23:33Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Ratio of Graph Recall@10 to Neural Recall@10 greater than or equal to
+    0.70
+  claim_id: c_29b9dae6
+  context: "Implement paired t\u2011test for precision metrics and calculate the ratio\
+    \ of Graph Recall@10 to Neural Recall@10, logging whether the ratio meets the\
+    \ \u2265 0.70 threshold in metrics.json (FR\u2011006)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ratio_of_Graph_Recall@10_to_Neural_Recall@10_greater_than_or
+  kind: magnitude
+  raw_text: "Implement paired t\u2011test for precision metrics and calculate the\
+    \ ratio of Graph Recall@10 to Neural Recall@10, logging whether the ratio meets\
+    \ the \u2265 0.70 threshold."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:24:19Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Tasks run on CPU-only CI with no GPU, 8-bit quantization, or large model
+    loading
+  claim_id: c_2e96f2fc
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI (limited cores,\
+    \ constrained RAM, time limit). No GPU, no 8\u2011bit quantization, no large model\
+    \ loading."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks must run on CPU\u2011only CI (limited cores, constrained RAM,\
+    \ time limit). No GPU, no 8\u2011bit quantization, no large model loading."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:24:19Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Datasets are real HotpotQA and Wikipedia via datasets library
+  claim_id: c_bf807215
+  context: 'Data Integrity: All datasets must be real (HotpotQA, Wikipedia) via datasets
+    library. No synthetic data generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_are_real_HotpotQA_and_Wikipedia_via_datasets_librar
+  kind: entity_fact
+  raw_text: All datasets must be real (HotpotQA, Wikipedia) via datasets library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:24:21Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Topological signatures extracted from retrieved documents only and not
+    used for ranking
+  claim_id: c_c3ea8fea
+  context: 'Methodology: Topological signatures are extracted from retrieved documents
+    only; they are NOT used for ranking. (1406.5617, https://arxiv.org/abs/1406.5617)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_on
+  kind: entity_fact
+  raw_text: Topological signatures are extracted from retrieved documents only; they
+    are NOT used for ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:24:23Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: 'research question: improve multi-hop reasoning with knowledge graph
+    embeddings in transformer'
+  claim_id: c_fafea871
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question:_improve_multi-hop_reasoning_with_knowledg
+  kind: entity_fact
+  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:26:00Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: evaluate model performance on HotpotQA dataset using Recall@K
+  claim_id: c_93c8bef1
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_model_performance_on_HotpotQA_dataset_using_Recall@
+  kind: entity_fact
+  raw_text: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:26:02Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: topological signatures extracted from retrieved documents only not used
+    for ranking
+  claim_id: c_d7c9fead
+  context: '**Methodology**: Topological signatures are extracted from *retrieved*
+    documents only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617,
+    https://arxiv.org/abs/1406.5617)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_on
+  kind: entity_fact
+  raw_text: Topological signatures are extracted from retrieved documents only; they
+    are NOT used for ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:26:04Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: dataset sample size limited to 360
+  claim_id: c_77323636
+  context: "Implement sampling logic in code/data_loader.py to ensure the sample size\
+    \ N is strictly \u2264 360 before execution, enforcing the -hour time budget constraint\
+    \ (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The loader should truncate or randomly sample the dataset to N \u2264\
+    \ 360; it must not raise an exception if the raw dataset exceeds this limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:26:57Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 2
+  canonical: research question on multi-hop reasoning with knowledge graph embeddings
+  claim_id: c_4399987f
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_on_multi-hop_reasoning_with_knowledge_grap
+  kind: entity_fact
+  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:26:59Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: model evaluation on HotpotQA using Recall@K
+  claim_id: c_d38b0570
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_evaluation_on_HotpotQA_using_Recall@K
+  kind: entity_fact
+  raw_text: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:27:01Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 2
+  canonical: topological signatures extracted from retrieved documents not used for
+    ranking
+  claim_id: c_c4b06e5f
+  context: 'Methodology: Topological signatures are extracted from *retrieved* documents
+    only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_no
+  kind: entity_fact
+  raw_text: Topological signatures are extracted from retrieved documents only; they
+    are NOT used for ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:27:03Z'

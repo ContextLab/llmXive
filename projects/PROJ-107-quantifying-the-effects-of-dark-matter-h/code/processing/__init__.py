@@ -1,3 +1,1 @@
-"""
-Data processing modules (Inertia, Shapes, Pipeline).
-"""
+# Processing package

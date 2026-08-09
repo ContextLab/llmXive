@@ -44,11 +44,11 @@ T014b:
     s core artifact does not exist, indicating the work is not done."
 T015:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or configuration implementing the stimulus file integrity check\
-    \ is present; there is no evidence of fetching a checksum from `metadata.json`\
-    \ or a GitHub release, comparing it to a local SHA\u2011256, or logging `ERR_STIMULUS_CORRUPT`.\
-    \ The required artifact is missing, so the task is not satisfied."
+  h: 726b3df5730ebebf6fb45b3d1f722441e59682a0da408bc981beebfb3c6997dc
+  r: "The required `data/raw/metadata.json` file is missing, so the stimulus checksum\
+    \ validation cannot be performed, and there is no evidence of the required error\
+    \ logging or conditional skip behavior. Without the metadata file (or logs showing\
+    \ the appropriate error handling), the task\u2019s requirements are not met."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,6 +77,15 @@ T025:
     in the repository, so the integration test for the sensitivity analysis pipeline
     is missing. The task cannot be considered completed until this file is added with
     appropriate test code.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., code, logs, screenshots, or test results) was provided to\
+    \ demonstrate that a dynamic search for the keywords \u201CWCST\u201D and \u201C\
+    aging\u201D actually works. Without concrete evidence of the search functionality\
+    \ being verified, the requirement is not satisfied. The implementer must supply\
+    \ the relevant implementation and proof (e.g., query output, test script, or log)\
+    \ showing successful retrieval of data using those keywords."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

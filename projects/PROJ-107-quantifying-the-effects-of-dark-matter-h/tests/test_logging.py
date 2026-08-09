@@ -1,156 +1,115 @@
-"""
-Unit tests for the logging infrastructure.
-Tests verify that the logger initializes correctly, writes to file,
-and logs messages at various levels.
-"""
+import pytest
+import logging
 import os
-import sys
 import tempfile
 import shutil
 from pathlib import Path
-import logging
-import pytest
+import sys
 
-# Ensure code/ is in path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Ensure imports work from test directory
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.logging import (
     get_pipeline_logger,
+    get_log_file_path,
     log_pipeline_start,
     log_pipeline_end,
     log_error,
     log_metric,
-    get_log_file_path,
-    _logger as global_logger
+    log_chunk_info
 )
 from utils.config import get_project_root
 
 class TestLoggingInfrastructure:
-    """Tests for the base logging infrastructure."""
+    """Tests for the base logging infrastructure (Task T006)"""
 
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Setup and teardown for each test to avoid logger state conflicts."""
-        # Save original state
-        original_logger = global_logger
-        original_handlers = []
-        if original_logger:
-            original_handlers = original_logger.handlers.copy()
-            original_logger.handlers.clear()
-
-        yield
-
-        # Restore state
-        if original_logger:
-            original_logger.handlers.clear()
-            original_logger.handlers.extend(original_handlers)
-        # Reset module-level globals if needed (handled by fixture logic in real scenario)
-        # For this test, we rely on the fixture to clear handlers
-
-    def test_logger_initialization(self):
-        """Test that the logger initializes with correct settings."""
-        logger = get_pipeline_logger(name="test_logger", level="INFO", console=False)
-        
-        assert logger is not None
-        assert logger.name == "test_logger"
+    def test_get_pipeline_logger_creation(self):
+        """Test that a logger is created and configured correctly"""
+        logger = get_pipeline_logger("test_creation")
+        assert isinstance(logger, logging.Logger)
+        assert logger.name == "test_creation"
         assert logger.level == logging.INFO
-        
-        # Should have at least one handler (file)
+        # Should have at least console and file handlers
         assert len(logger.handlers) >= 1
 
-    def test_console_and_file_handlers(self):
-        """Test that logger has both console and file handlers when requested."""
-        logger = get_pipeline_logger(name="test_both", level="DEBUG", console=True)
-        
-        handler_types = [type(h).__name__ for h in logger.handlers]
-        assert "StreamHandler" in handler_types
-        assert "FileHandler" in handler_types
+    def test_get_pipeline_logger_singleton(self):
+        """Test that calling get_pipeline_logger twice returns the same instance"""
+        logger1 = get_pipeline_logger("test_singleton")
+        logger2 = get_pipeline_logger("test_singleton")
+        assert logger1 is logger2
 
-    def test_log_file_creation(self):
-        """Test that the log file is created on disk."""
-        logger = get_pipeline_logger(name="test_file", level="INFO", console=False)
-        log_path = get_log_file_path()
+    def test_log_file_path_exists(self):
+        """Test that a log file is created and path is retrievable"""
+        logger = get_pipeline_logger("test_path")
+        log_path = get_log_file_path("test_path")
         
         assert log_path is not None
         assert log_path.exists()
         assert log_path.suffix == ".log"
 
-    def test_log_message_content(self, caplog):
-        """Test that log messages contain expected content."""
-        logger = get_pipeline_logger(name="test_content", level="INFO", console=True)
+    def test_log_pipeline_start(self):
+        """Test pipeline start logging"""
+        logger = get_pipeline_logger("test_start")
+        # Should not raise
+        log_pipeline_start(logger, task_id="T006")
         
-        with caplog.at_level(logging.INFO):
-            logger.info("Test message")
-        
-        assert "Test message" in caplog.text
+        # Verify log file was written to
+        log_path = get_log_file_path("test_start")
+        assert log_path.exists()
+        content = log_path.read_text()
+        assert "Pipeline execution started" in content
+        assert "T006" in content
 
-    def test_log_pipeline_start(self, caplog):
-        """Test the log_pipeline_start utility function."""
-        with caplog.at_level(logging.INFO):
-            log_pipeline_start("T006", {"key": "value"})
+    def test_log_pipeline_end(self):
+        """Test pipeline end logging"""
+        logger = get_pipeline_logger("test_end")
+        log_pipeline_end(logger, success=True)
         
-        assert "TASK START: T006" in caplog.text
-        assert "key" in caplog.text
+        log_path = get_log_file_path("test_end")
+        content = log_path.read_text()
+        assert "SUCCESS" in content
 
-    def test_log_pipeline_end(self, caplog):
-        """Test the log_pipeline_end utility function."""
-        with caplog.at_level(logging.INFO):
-            log_pipeline_end("T006", "SUCCESS", duration_seconds=10.5)
+    def test_log_error(self):
+        """Test error logging"""
+        logger = get_pipeline_logger("test_error")
+        try:
+            1 / 0
+        except ZeroDivisionError as e:
+            log_error(logger, e, context={"test": "value"})
         
-        assert "TASK END: T006" in caplog.text
-        assert "SUCCESS" in caplog.text
-        assert "10.50s" in caplog.text
+        log_path = get_log_file_path("test_error")
+        content = log_path.read_text()
+        assert "ZeroDivisionError" in content
+        assert "test=value" in content
 
-    def test_log_error(self, caplog):
-        """Test the log_error utility function."""
-        test_error = ValueError("Test error")
+    def test_log_metric(self):
+        """Test metric logging"""
+        logger = get_pipeline_logger("test_metric")
+        log_metric(logger, "accuracy", 0.95, "percent")
         
-        with caplog.at_level(logging.ERROR):
-            log_error("T006", test_error, context={"step": "init"})
-        
-        assert "ERROR in T006" in caplog.text
-        assert "ValueError" in caplog.text
-        assert "Test error" in caplog.text
-        assert "step" in caplog.text
+        log_path = get_log_file_path("test_metric")
+        content = log_path.read_text()
+        assert "accuracy" in content
+        assert "0.95" in content
+        assert "percent" in content
 
-    def test_log_metric(self, caplog):
-        """Test the log_metric utility function."""
-        with caplog.at_level(logging.INFO):
-            log_metric("T006", "accuracy", 0.95, unit="ratio")
+    def test_log_chunk_info(self):
+        """Test chunk info logging"""
+        logger = get_pipeline_logger("test_chunk")
+        log_chunk_info(logger, chunk_id=0, total_chunks=10, items_in_chunk=100, elapsed=0.5)
         
-        assert "Metric: accuracy = 0.95" in caplog.text
-        assert "(ratio)" in caplog.text
+        log_path = get_log_file_path("test_chunk")
+        content = log_path.read_text()
+        assert "Chunk 1/10" in content
+        assert "100" in content
+        assert "0.50" in content
 
-    def test_log_metric_no_unit(self, caplog):
-        """Test log_metric without a unit."""
-        with caplog.at_level(logging.INFO):
-            log_metric("T006", "count", 100)
+    def test_log_produced_in_project_logs_dir(self):
+        """Test that logs are written to the project's logs directory"""
+        logger = get_pipeline_logger("test_location")
+        log_path = get_log_file_path("test_location")
+        project_root = get_project_root()
         
-        assert "Metric: count = 100" in caplog.text
-        assert "()" not in caplog.text
-
-    def test_different_log_levels(self, caplog):
-        """Test that different log levels are respected."""
-        logger = get_pipeline_logger(name="test_levels", level="WARNING", console=True)
-        
-        with caplog.at_level(logging.DEBUG):
-            logger.debug("Debug message")
-            logger.info("Info message")
-            logger.warning("Warning message")
-            logger.error("Error message")
-        
-        # Only WARNING and ERROR should appear
-        assert "Debug message" not in caplog.text
-        assert "Info message" not in caplog.text
-        assert "Warning message" in caplog.text
-        assert "Error message" in caplog.text
-
-    def test_singleton_behavior(self):
-        """Test that get_pipeline_logger returns the same instance."""
-        logger1 = get_pipeline_logger(name="test_singleton", level="INFO", console=False)
-        logger2 = get_pipeline_logger(name="test_singleton", level="DEBUG", console=False)
-        
-        # Should be the same instance
-        assert logger1 is logger2
-        # Level should remain as first set (INFO), not changed by second call
-        assert logger1.level == logging.INFO
+        # The log file should be under project_root/logs
+        assert log_path.is_relative_to(project_root / "logs")
+        assert log_path.parent.name == "logs"

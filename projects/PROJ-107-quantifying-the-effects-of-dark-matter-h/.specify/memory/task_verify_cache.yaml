@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required project directories (`code/`, `data/`, `outputs/`)\
+    \ is present; the provided material only contains a feature specification and\
+    \ no filesystem artifacts. The implementer must create the three top\u2011level\
+    \ folders (and populate them as appropriate) to satisfy the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, `.flake8`, or related CI setup) are present
+    in the provided evidence. Consequently, the task of configuring ruff/flake8 and
+    Black has not been demonstrated. The implementer must add the appropriate configuration
+    files and, optionally, show they are active (e.g., a sample run output).
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration files, or documentation for a base logging infrastructure
+    were provided; the only artifacts shown relate to data ingestion and analysis,
+    not to pipeline tracking logs. Consequently, the required logging component is
+    missing.
+T009:
+  c: false
+  h: 84779e7c89ac99752d3b18952dc52b70a4afa2f9abc3ea101c93b008f8a43849
+  r: The required artifact `code/tests/test_inertia.py` does not exist on the repository,
+    so no unit test for inertia tensor singularity handling is present. The task therefore
+    lacks the necessary output.
+T010:
+  c: false
+  h: b7e36ca464aa09e313b69faa16f7144025485337b3d98a778bad7aa91f4622a5
+  r: "The required artifact `code/tests/test_pipeline.py` does not exist on the repository,\
+    \ so the integration test for TNG-100 download and chunk processing is missing.\
+    \ Without this file, the task\u2019s core requirement is not satisfied."
+T017:
+  c: false
+  h: 8bad2baedd9c92d581edc62550674c94f7f02113d9e5949e420e3c35cd17d63d
+  r: "The repository contains a `pipeline_runner.py` file, but the provided excerpt\
+    \ is truncated and does not demonstrate the required aggregation, validation of\
+    \ axial ratios, logging of excluded haloes, or writing of `data/processed/halo_shapes.csv`.\
+    \ Moreover, the expected output CSV file is absent from the `data/processed` directory.\
+    \ The task\u2019s core requirements are therefore not met."

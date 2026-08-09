@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `outputs/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scipy, scikit-learn, h5py, requests, pyyaml, pytest). **Note**: Document in `README.md` that due to hardware constraints (7GB RAM), the pipeline implements chunked processing and sampling, which is a documented deviation from the "every FoF halo" requirement in FR-001, as per SC-005 feasibility constraints.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scipy, scikit-learn, h5py, requests, pyyaml, pytest). **Note**: Document in `README.md` that due to hardware constraints (7GB RAM), the pipeline implements chunked processing and sampling, which is a documented deviation from the "every FoF halo" requirement in FR-001, as per SC-005 feasibility constraints.
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -56,9 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup configuration management (`code/utils/config.py`) with `random.seed()` and path constants
-- [ ] T005 [P] Implement chunked data I/O utilities (`code/utils/io.py`) to handle <7GB RAM constraints
+- [X] T005 [P] Implement chunked data I/O utilities (`code/utils/io.py`) to handle <7GB RAM constraints
 - [ ] T006 [P] Create base logging infrastructure for pipeline tracking
-- [ ] T007 Setup `data/metadata.yaml` schema for checksums and version tracking
+- [X] T007 Setup `data/metadata.yaml` schema for checksums and version tracking
 - [X] T008 Implement `code/main.py` entry point for pipeline orchestration
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,8 +75,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [US1] Unit test for inertia tensor singularity handling in `code/tests/test_inertia.py`. **Depends on T012 completion** (Interface definition must exist before testing). <!-- ATOMIZE: requested -->
-- [~] T010 [P] [US1] Integration test for TNG-100 download and chunk processing in `code/tests/test_pipeline.py`
+- [ ] T009 [US1] Unit test for inertia tensor singularity handling in `code/tests/test_inertia.py`. **Depends on T012 completion** (Interface definition must exist before testing). <!-- ATOMIZE: requested -->
+- [ ] T010 [P] [US1] Integration test for TNG-100 download and chunk processing in `code/tests/test_pipeline.py`
 
 ### Implementation for User Story 1
 
@@ -85,7 +85,7 @@
 - [X] T013 [US1] Implement shape metrics derivation (axial ratios, triaxiality) in `code/processing/shape_metrics.py`
 - [X] T014 [US1] Implement halo filtering logic (exclude N < 10,000 particles) in `code/processing/shape_metrics.py`
 - [X] T015 [US1] Implement chunked loop logic in `code/processing/pipeline_runner.py`: Read input chunks (configurable size), iterate over haloes, and yield processed records. Includes T016 logic.
-- [~] T017 [US1] Implement aggregation and validation in `code/processing/pipeline_runner.py`: Merge chunks, validate 0 < b/a ≤ 1 and 0 < c/a ≤ 1, log excluded haloes, and output `data/processed/halo_shapes.csv`.
+- [ ] T017 [US1] Implement aggregation and validation in `code/processing/pipeline_runner.py`: Merge chunks, validate 0 < b/a ≤ 1 and 0 < c/a ≤ 1, log excluded haloes, and output `data/processed/halo_shapes.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,9 +111,9 @@
 - [X] T022 [US2] Implement non-parametric tests (Kruskal-Wallis, Mann-Whitney U, KS) in `code/analysis/stats.py`
 - [~] T023 [US2] Implement linear regression with mass control in `code/analysis/stats.py`: Perform regression of galaxy property ~ continuous shape parameters (**specifically 'triaxiality' and 'b_a_ratio' columns from `data/processed/halo_shapes.csv`**) controlling for halo mass.
 - [X] T024 [US2] Implement Bonferroni correction for multiple comparisons in `code/analysis/stats.py`
-- [ ] T025 [US2] Create analysis script to generate `data/processed/statistical_results.csv`
-- [ ] T026 [US2] Add metadata flag `associational_only=true` to **ALL** output datasets: `data/processed/halo_shapes.csv`, `data/processed/statistical_results.csv`, `data/processed/sensitivity_report.csv`, `data/processed/millennium_results.csv`, and `data/processed/alignment_angles.csv`. **Note**: This task must be completed before T030 and T038 generate their files, or T030/T038 must integrate this logic.
-- [ ] T027 [US2] Add logging for null hypothesis rejection flags (p < 0.01)
+- [X] T025 [US2] Create analysis script to generate `data/processed/statistical_results.csv`
+- [~] T026 [US2] Add metadata flag `associational_only=true` to **ALL** output datasets: `data/processed/halo_shapes.csv`, `data/processed/statistical_results.csv`, `data/processed/sensitivity_report.csv`, `data/processed/millennium_results.csv`, and `data/processed/alignment_angles.csv`. **Note**: This task must be completed before T030 and T038 generate their files, or T030/T038 must integrate this logic.
+- [~] T027 [US2] Add logging for null hypothesis rejection flags (p < 0.01)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,20 +129,20 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
+- [X] T028 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement Millennium-II and WDM variant data fetcher in `code/ingestion/millennium_loader.py`. **Action**: Attempt to fetch Millennium-II and WDM variant snapshots. **If URLs are unverified or data is missing**: Log the specific gap to `data/metadata.yaml` and the final report, mark SC-004 as 'Not Measurable' in the report, and proceed with TNG-100 only. **Do not skip by design**; the task is to attempt fetch and log the specific gap.
-- [ ] T030 [US3] Implement sensitivity analysis script in `code/analysis/sensitivity.py`: Sweep thresholds over a representative set of values spanning low to high confidence levels. Compute stats for each, output `data/processed/sensitivity_report.csv`. **Action**: Calculate the p-value variance across the set and verify it is ≤ 0.001 per SC-003. **If variance > 0.001**: Flag the result as 'FAILED_SC-003' in the report and update `data/metadata.yaml`. **Depends on T026** to ensure flag is applied.
+- [X] T029 [US3] Implement Millennium-II and WDM variant data fetcher in `code/ingestion/millennium_loader.py`. **Action**: Attempt to fetch Millennium-II and WDM variant snapshots. **If URLs are unverified or data is missing**: Log the specific gap to `data/metadata.yaml` and the final report, mark SC-004 as 'Not Measurable' in the report, and proceed with TNG-100 only. **Do not skip by design**; the task is to attempt fetch and log the specific gap.
+- [~] T030 [US3] Implement sensitivity analysis script in `code/analysis/sensitivity.py`: Sweep thresholds over a representative set of values spanning low to high confidence levels. Compute stats for each, output `data/processed/sensitivity_report.csv`. **Action**: Calculate the p-value variance across the set and verify it is ≤ 0.001 per SC-003. **If variance > 0.001**: Flag the result as 'FAILED_SC-003' in the report and update `data/metadata.yaml`. **Depends on T026** to ensure flag is applied.
 - [ ] T031-Fetch [US3] Create script to fetch Millennium-II data (if available) and output `data/raw/millennium/`. **Depends on T029**.
 - [ ] T031-Process [US3] Run ingestion and shape computation pipeline on Millennium-II data (if fetched). **Depends on T031-Fetch**.
 - [ ] T031-Analyze [US3] Run full statistical analysis on Millennium-II data (if processed) and output `data/processed/millennium_results.csv`. **Depends on T031-Process**.
 - [ ] T031-WDM-Fetch [US3] Attempt to fetch WDM variant snapshots (if available). **If missing**: Log gap to `data/metadata.yaml`, mark SC-004 as 'Not Measurable', and proceed. **Depends on T029**.
 - [ ] T031-WDM-Analyze [US3] Run full statistical analysis on WDM data (if fetched) and output `data/processed/wdm_results.csv`. **Depends on T031-WDM-Fetch**.
-- [ ] T032 [US3] Generate sensitivity report comparing significance rates and p-value variance across thresholds. **Depends on T030**.
-- [ ] T033 [US3] Implement cross-dataset comparison logic (TNG-100 vs Millennium-II vs WDM). **Depends on T031-Analyze and T031-WDM-Analyze**.
-- [ ] T034 [US3] Update final report generation to include robustness conclusions.
+- [~] T032 [US3] Generate sensitivity report comparing significance rates and p-value variance across thresholds. **Depends on T030**.
+- [~] T033 [US3] Implement cross-dataset comparison logic (TNG-100 vs Millennium-II vs WDM). **Depends on T031-Analyze and T031-WDM-Analyze**. <!-- FAILED: unspecified -->
+- [~] T034 [US3] Update final report generation to include robustness conclusions.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,11 +158,11 @@
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T035 [P] [US4] Unit test for angle calculation (dot product/arccos) in `code/tests/test_alignment.py`
+- [X] T035 [P] [US4] Unit test for angle calculation (dot product/arccos) in `code/tests/test_alignment.py`
 
 ### Implementation for User Story 4
 
-- [ ] T036 [US4] Implement spin vector and major axis calculation in `code/processing/alignment.py`. **Depends on T017**.
+- [X] T036 [US4] Implement spin vector and major axis calculation in `code/processing/alignment.py`. **Depends on T017**.
 - [ ] T037 [US4] Implement misalignment angle computation (halo-galaxy pairs) in `code/processing/alignment.py`.
 - [ ] T038 [US4] Create script to generate `data/processed/alignment_angles.csv`. **Must apply `associational_only=true` flag to this file (integrate T026 logic)**. **Depends on T026**.
 - [ ] T039 [US4] Implement correlation analysis for misalignment angles vs galaxy properties (SFR, radius).

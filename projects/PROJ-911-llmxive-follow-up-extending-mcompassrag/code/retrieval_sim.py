@@ -3,7 +3,7 @@ import csv
 import logging
 import os
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from code.config import RESULTS_DIR, PROCESSED_DIR
@@ -29,6 +29,9 @@ def load_corpus_for_retrieval(corpus_path: Optional[Path] = None) -> Tuple[List[
 
 def build_tfidf_index(texts: List[str]) -> Tuple[TfidfVectorizer, np.ndarray]:
     """Build TF-IDF index from corpus texts."""
+    if not texts:
+        raise ValueError("Corpus texts are empty; cannot build TF-IDF index.")
+    
     vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
     tfidf_matrix = vectorizer.fit_transform(texts)
     return vectorizer, tfidf_matrix
@@ -77,6 +80,9 @@ def save_retrieval_scores(results: List[Dict[str, Any]], output_path: Optional[P
         logger.warning("No retrieval results to save.")
         return
     
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     # Flatten nested structures for CSV
     flat_results = []
     for result in results:
@@ -109,7 +115,8 @@ def run_pipeline(queries_path: Optional[Path] = None, corpus_path: Optional[Path
         with open(queries_path, 'r') as f:
             queries = json.load(f)
     else:
-        logger.warning(f"Queries file not found at {queries_path}, using empty queries.")
+        raise FileNotFoundError(f"Queries file not found at {queries_path}. "
+                                "Ensure T025 (disjoint split) has generated the query set.")
     
     texts, metadata = load_corpus_for_retrieval(corpus_path)
     

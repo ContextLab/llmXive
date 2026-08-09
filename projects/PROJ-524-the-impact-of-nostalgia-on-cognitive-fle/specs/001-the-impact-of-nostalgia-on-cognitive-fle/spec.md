@@ -1,105 +1,80 @@
 # Specification: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
 
-## Overview
-This document defines the requirements, user stories, and data models for the study investigating how nostalgia induction affects cognitive flexibility in adults aged 65 and older.
+## 1. Introduction
 
-## Critical Design Note
-**Statistical Analysis Methodology Update**:
-Per the project Plan (FR-002 revision), the primary statistical analysis for User Story 2 has been updated from a "paired t-test" to a **Welch's independent samples t-test**.
-- **Reasoning**: The study design utilizes a between-subjects approach where participants are assigned to either a "Nostalgia" or "Control" condition, rather than a within-subjects repeated measures design.
-- **Implication**: All hypothesis testing in `code/analysis.py` must use `scipy.stats.ttest_ind` with `equal_var=False` (Welch's t-test).
-- **Effect Size**: Cohen's d must be calculated for independent samples, not paired samples.
+This document outlines the requirements and design for a study investigating the effect of nostalgia induction on cognitive flexibility in adults aged 65 and older. Cognitive flexibility is measured using the Wisconsin Card Sorting Test (WCST) metrics: perseverative errors and categories completed.
 
-## User Stories
+## 2. Goals
 
-### US-1: Data Ingestion and Pre-processing
-**Goal**: Ingest publicly available WCST/Executive Function data and nostalgia stimuli, validate age ≥ 65, and produce a clean, aligned dataframe.
-**Acceptance Criteria**:
-- Raw data is fetched from real sources (OpenML/HuggingFace) or simulation mode is explicitly triggered.
-- Data is filtered for `age >= 65`.
-- Records with missing `stimulus_type`, `perseverative_errors`, or `categories_completed` are excluded.
-- If `MMSE` column exists, records with `MMSE < 24` are excluded.
-- A cleaned dataset `data/processed/cleaned_dataset.csv` is produced.
-- An exclusion log `data/processed/exclusion_log.json` is generated.
+- **Primary Goal**: Determine if nostalgia induction improves cognitive flexibility compared to a neutral control condition.
+- **Secondary Goal**: Assess the robustness of findings across different significance thresholds and cognitive impairment exclusions.
 
-### US-2: Statistical Analysis and Hypothesis Testing
-**Goal**: Execute statistical comparison of cognitive flexibility metrics between nostalgia and control conditions using **Welch's independent samples t-test**.
-**Acceptance Criteria**:
-- **FR-002**: The system performs a **Welch's independent samples t-test** comparing `perseverative_errors` and `categories_completed` between the `nostalgia` and `control` groups.
-- Multiple comparison correction (Bonferroni) is applied.
-- Effect sizes (Cohen's d) with 95% CI are calculated.
-- Statistical power and Minimum Detectable Effect Size (MDES) are reported.
-- Results are saved to `data/results/statistical_report.json`.
+## 3. User Stories
 
-### US-3: Sensitivity Analysis and Robustness Check
-**Goal**: Perform sensitivity analysis by sweeping significance thresholds and checking robustness against cognitive impairment exclusions.
-**Acceptance Criteria**:
-- Sensitivity sweep is performed across thresholds (0.01, 0.05, 0.1).
-- Robustness check re-runs analysis excluding participants with `MMSE < 24` (if data available).
-- Borderline results (p-value 0.04-0.06) are flagged.
-- Final sensitivity summary is generated.
+### US1: Data Ingestion and Pre-processing
+As a researcher, I want to ingest WCST and executive function data from public repositories, validate that participants are aged 65+, and exclude those with significant cognitive impairment (MMSE < 24) so that the dataset is clean and relevant to the target population.
 
-## Data Model
+### US2: Statistical Analysis and Hypothesis Testing
+As a researcher, I want to perform statistical comparisons between the nostalgia and control groups using **Welch's independent samples t-test** to account for potential unequal variances, calculate effect sizes, and apply multiple comparison corrections so that the results are statistically rigorous.
 
-### Raw Dataset Schema
-- `participant_id`: string (unique identifier)
-- `age`: integer (years)
-- `stimulus_type`: string (categorical: "nostalgia", "control")
-- `perseverative_errors`: integer (WCST metric)
-- `categories_completed`: integer (WCST metric)
-- `MMSE`: integer (optional, 0-30)
+### US3: Sensitivity Analysis and Robustness Check
+As a researcher, I want to perform sensitivity analyses by varying significance thresholds and re-running analyses with and without cognitive impairment exclusions to ensure the findings are robust and not artifacts of specific parameter choices.
 
-### Processed Output Schema
-- `participant_id`: string
-- `stimulus_type`: string
-- `perseverative_errors`: float
-- `categories_completed`: float
-- `age`: int
+## 4. Functional Requirements
 
-## Functional Requirements
+### FR-001: Data Validation
+The system must validate that all participants are aged 65 or older. Records with missing age or age < 65 must be excluded.
 
-### FR-001: Data Source Validation
-The system must validate that data sources contain a citation DOI or metadata indicating a validation study.
+### FR-002: Statistical Test Selection
+**CRITICAL UPDATE**: The system must use **Welch's independent samples t-test** (between-subjects design) to compare the nostalgia and control groups.
+*Previous implementation note: Paired t-tests were considered but rejected due to the between-subjects nature of the experimental design.*
+The test must be applied to:
+1. Perseverative Errors
+2. Categories Completed
 
-### FR-002: Statistical Test Implementation (UPDATED)
-The system must implement **Welch's independent samples t-test** for between-subjects comparisons.
-- **Input**: Two independent groups defined by `stimulus_type`.
-- **Output**: t-statistic, degrees of freedom, p-value, and effect size.
-- **Constraint**: Do not use paired t-tests. Use `equal_var=False`.
+### FR-003: Multiple Comparison Correction
+The system must apply Bonferroni correction to p-values resulting from multiple outcome comparisons.
 
-### FR-003: MMSE Filtering
-If MMSE data is available, participants scoring below 24 must be excluded from the primary analysis to ensure cognitive health.
+### FR-004: Effect Size Calculation
+The system must calculate Cohen's d with 95% confidence intervals for all primary comparisons.
 
-### FR-004: Exclusion Logging
-All exclusion steps (age, missing data, MMSE) must be logged with counts in `exclusion_log.json`.
+### FR-005: Sensitivity Analysis
+The system must flag results as "sensitive to threshold choice" if p-values fall within a borderline range (0.04 - 0.06).
 
-### FR-005: Sensitivity Reporting
-The system must flag results that are sensitive to small changes in the significance threshold (borderline p-values).
-
-### FR-006: Stimulus Integrity
-Stimulus files must be validated against checksums provided in metadata.
+### FR-006: MMSE Exclusion
+If MMSE scores are available, participants with MMSE < 24 must be excluded from the primary analysis.
 
 ### FR-007: Runtime Monitoring
-If runtime exceeds 6 hours, a warning must be logged, but the process continues.
+The system must log a warning if the analysis runtime exceeds 6 hours but continue to completion.
 
-## Non-Functional Requirements
+## 5. Data Model
 
-### SC-001: Data Validity
-At least 90% of raw records must pass validation filters to proceed.
+### Input Schema (Raw)
+- `participant_id`: string
+- `age`: integer
+- `stimulus_type`: string (nostalgia | control)
+- `perseverative_errors`: float
+- `categories_completed`: float
+- `MMSE`: float (optional)
 
-### SC-002: Reproducibility
-All random seeds must be fixed where applicable.
+### Output Schema (Processed)
+- `statistical_report.json`: Contains p-values, corrected p-values, effect sizes, power, and MDES.
+- `sensitivity_report.json`: Contains significance status across thresholds.
+- `exclusion_log.json`: Contains counts of excluded records by reason.
 
-### SC-003: Error Handling
-The system must fail loudly if real data cannot be fetched and simulation mode is not explicitly enabled.
+## 6. Design Decisions
 
-## Appendix: Statistical Methodology Details
+### Between-Subjects Design
+The study employs a between-subjects design where participants are assigned to either the nostalgia or control condition. Therefore, **Welch's t-test** is the appropriate statistical method, not a paired t-test. This decision is mandated by the study design documented in the project plan.
 
-### Welch's t-test Formula
-$t = \frac{\bar{X}_1 - \bar{X}_2}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}$
-Where $s_1^2$ and $s_2^2$ are the sample variances, and $n_1, n_2$ are sample sizes.
-Degrees of freedom are approximated using the Welch-Satterthwaite equation.
+### MMSE Threshold
+A threshold of 24 is used for MMSE to exclude participants with significant cognitive impairment, ensuring the sample represents "aging adults" with intact cognitive function.
 
-### Cohen's d (Independent Samples)
-$d = \frac{\bar{X}_1 - \bar{X}_2}{s_{pooled}}$
-Where $s_{pooled} = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1 + n_2 - 2}}$
+## 7. Validation
+
+- **Citation Validation**: All data sources must be validated against their original citations with a title overlap score >= 0.7.
+- **Stimulus Integrity**: Stimulus files must be validated against checksums stored in metadata.
+
+## 8. Appendix: Change Log
+
+- **T040 Update**: Updated FR-002 and US-2 to explicitly specify Welch's independent samples t-test, replacing previous references to paired t-tests, to align with the between-subjects experimental design.

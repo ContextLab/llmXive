@@ -7,11 +7,11 @@ T017:
     \ artifact (logging implementation and its verification) is missing."
 T022:
   c: false
-  h: 006426b41bf808f8a999b1f91943365a29ed373a162ced6f30c4691d56f103bc
-  r: "The `code/retrieval_sim.py` file is truncated (the `save_retrieval_scores` function\
-    \ is incomplete) and the required output file `data/results/retrieval_scores.csv`\
-    \ does not exist. Consequently the TF\u2011IDF ranking implementation and the\
-    \ generation of the ranked CSV are not fully realized."
+  h: cd067b3cb13d67b3ad1ca1e82e849a8c7c8bc1e7cbc6d4914477af4b0a95b6fa
+  r: The `code/retrieval_sim.py` file is truncated and its `save_retrieval_scores`
+    function is unfinished, and the required output file `data/results/retrieval_scores.csv`
+    is missing from the repository. Without a complete implementation that writes
+    the ranked results to the specified CSV, the task is not satisfied.
 T027:
   c: false
   h: 8da1da84084b8830383f62360bb21bce9c30e9c673242cb145d52b2917106a10

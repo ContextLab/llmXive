@@ -1,5 +1,17 @@
 # Project Metadata and Data Source Tracking
-# Updated by T011: TNG-100 Data Fetcher
+# Schema Definition and Instance Data
+# Updated by T007: Schema for checksums and version tracking
+
+# --- SCHEMA DEFINITION ---
+# The following structure defines the required fields for all sections.
+# This file serves as both the schema documentation and the live state store.
+#
+# Required Keys:
+# - project: name (str), version (str), hardware_constraints (dict)
+# - sources: <source_id>: status (str), url (str), checksum (str|null), last_updated (str|null)
+# - processing: chunk_size (int), sample_rate (float), associations_only (bool)
+# - success_criteria: <sc_id>: status (str), details (str)
+# - files: <file_path>: checksum_md5 (str), version (str), generated_by (str)
 
 project:
   name: "PROJ-107-quantifying-the-effects-of-dark-matter-h"
@@ -20,6 +32,7 @@ sources:
     download_path: null
     downloaded_count: 0
     failed_count: 0
+    checksums: {}  # Populated upon successful download
 
 processing:
   chunk_size: 1000
@@ -36,3 +49,8 @@ success_criteria:
 notes:
   - "T002: Documented deviation from 'every FoF halo' due to hardware constraints."
   - "T026: All output datasets must include associational_only=true flag."
+
+# --- FILE CHECKSUM TRACKING ---
+# This section tracks the checksums and versions of all generated artifacts.
+# Keys are relative paths from project root.
+files: {}

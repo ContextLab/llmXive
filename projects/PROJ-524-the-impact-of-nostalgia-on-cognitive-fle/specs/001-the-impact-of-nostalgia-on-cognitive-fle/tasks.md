@@ -98,7 +98,7 @@ Examples of foundational tasks (adjust based on plan.md):
 - [X] T014a [US1] **GENERATE CLEANED DATASET**: Create `data/processed/cleaned_dataset.csv` with columns: `participant_id`, `stimulus_type` (nostalgia/control), `perseverative_errors`, `categories_completed`, `age`. **Depends on T012c (exclusion counts) and T012d (MMSE filtering)**. MMSE filtering is now part of the primary pipeline. **Depends on T012c, T012d**.
 - [X] T014b [US1] **VALIDITY METRICS**: Calculate percentage of valid records (age >= 65, non-null metrics, MMSE >= 24 if available) vs total raw input records. Write to `data/processed/validity_metrics.json`. Must satisfy SC-001 (≥90% target). **Depends on T012c**.
 - [X] T015a [US1] **GENERATE METADATA**: Create `data/raw/metadata.json` with keys `dataset_source`, `validation_study_doi` (if found in source), and `stimuli_checksums` (SHA-256 of all files in `data/stimuli/`). **Depends on T010a**.
-- [~] T015 [US1] **STIMULUS INTEGRITY**: **Conditional**: Run ONLY if `SIMULATION_MODE` is False. Validate stimulus files in `data/stimuli/` against `data/raw/metadata.json` checksums. If mismatch, log `ERR_STIMULUS_CORRUPT` and halt. If missing files, log `ERR_STIMULUS_MISSING` and halt. If `SIMULATION_MODE` is True, skip this task and log `SKIP_STIMULUS_CHECK_SIMULATION`. **Depends on T015a, T010a**.
+- [ ] T015 [US1] **STIMULUS INTEGRITY**: **Conditional**: Run ONLY if `SIMULATION_MODE` is False. Validate stimulus files in `data/stimuli/` against `data/raw/metadata.json` checksums. If mismatch, log `ERR_STIMULUS_CORRUPT` and halt. If missing files, log `ERR_STIMULUS_MISSING` and halt. If `SIMULATION_MODE` is True, skip this task and log `SKIP_STIMULUS_CHECK_SIMULATION`. **Depends on T015a, T010a**.
 - [X] T015b [US1] **STIMULUS VALIDATION**: If `data/raw/metadata.json` contains `validation_study_doi`, log `INFO_STIMULUS_VALIDATED`. Else, log `WARN_STIMULUS_NO_VALIDATION`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -159,11 +159,11 @@ Examples of foundational tasks (adjust based on plan.md):
 - [X] T031a [P] **README INSTALLATION**: Update `README.md` with installation instructions, dependencies, and usage examples.
 - [X] T031b [P] **API DOCS**: Add API docs for `code/ingestion.py` and `code/analysis.py` functions.
 - [X] T032a [P] **REFACTOR ANALYSIS**: Refactor `code/analysis.py` to reduce cyclomatic complexity to < 10. **Method**: Extract data cleaning logic into `clean_data()` function and split `run_analysis()` into `compute_stats()` and `generate_report()`. **Depends on T022**.
-- [ ] T032b [P] **REFACTOR INGESTION**: Refactor `code/ingestion.py` to improve modularity and error handling. **Method**: Split `fetch_data()` and `validate_schema()` into separate modules. **Depends on T010a**.
-- [ ] T033a [P] [US1] Unit test: `test_cleaning_filters_age` in `tests/unit/test_cleaning.py`
-- [ ] T033b [P] [US1] Unit test: `test_cleaning_filters_mmse` in `tests/unit/test_cleaning.py`
-- [ ] T033c [P] [US2] Unit test: `test_welch_ttest` in `tests/unit/test_analysis.py`
-- [ ] T033d [P] [US3] Unit test: `test_sensitivity_sweep` in `tests/unit/test_sensitivity.py`
+- [X] T032b [P] **REFACTOR INGESTION**: Refactor `code/ingestion.py` to improve modularity and error handling. **Method**: Split `fetch_data()` and `validate_schema()` into separate modules. **Depends on T010a**.
+- [X] T033a [P] [US1] Unit test: `test_cleaning_filters_age` in `tests/unit/test_cleaning.py`
+- [X] T033b [P] [US1] Unit test: `test_cleaning_filters_mmse` in `tests/unit/test_cleaning.py`
+- [X] T033c [P] [US2] Unit test: `test_welch_ttest` in `tests/unit/test_analysis.py`
+- [X] T033d [P] [US3] Unit test: `test_sensitivity_sweep` in `tests/unit/test_sensitivity.py`
 - [X] T034 [P] Run `code/reference_validator.py` to validate all citations in the final report
 - [X] T035b [P] **RUNTIME MONITORING**: Implement runtime monitoring logic: **If runtime > 6 hours, log warning `WARN_TIMEOUT` but continue to completion** (per FR-007)
 - [X] T036a [US1/US2/US3] **EXTRACT CITATION**: Parse source metadata from `data/raw/metadata.json` (from T015a) to extract `validation_study_doi`.
@@ -298,5 +298,5 @@ With multiple developers:
 ### Implementation for Revision Concerns
 
 - [ ] T038 [US1] **CORRECT DATA SOURCE**: (Already addressed by T010a dynamic search). Verify dynamic search works for "WCST" and "aging" keywords.
-- [ ] T039 [US1] **REMOVE SYNTHETIC FALLBACK**: (Already addressed by T010a). Ensure `code/ingestion.py` raises `DataFetchError` if real fetch fails and `SIMULATION_MODE` is not explicitly set.
-- [ ] T041 [US3] **STRENGTHEN ROBUSTNESS**: Ensure the sensitivity analysis in `code/analysis.py` explicitly logs the "borderline" range (e.g., 0.04-0.06) and outputs a binary flag `is_sensitive_to_threshold` in `data/results/sensitivity_report.json` as required by FR-005.
+- [X] T039 [US1] **REMOVE SYNTHETIC FALLBACK**: (Already addressed by T010a). Ensure `code/ingestion.py` raises `DataFetchError` if real fetch fails and `SIMULATION_MODE` is not explicitly set.
+- [X] T041 [US3] **STRENGTHEN ROBUSTNESS**: Ensure the sensitivity analysis in `code/analysis.py` explicitly logs the "borderline" range (e.g., 0.04-0.06) and outputs a binary flag `is_sensitive_to_threshold` in `data/results/sensitivity_report.json` as required by FR-005.

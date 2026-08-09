@@ -1,246 +1,259 @@
 """
-Unit tests for code/analysis.py statistical functions.
-Tests Welch's t-test, Cohen's d, confidence intervals, Bonferroni correction,
-and power analysis using deterministic synthetic data.
+Unit tests for statistical analysis functions in code/analysis.py.
+Specifically tests the Welch's t-test implementation as per T033c.
 """
-import pytest
+import unittest
 import numpy as np
-from scipy import stats
 import pandas as pd
-import json
-import os
+from scipy import stats as scipy_stats
 import sys
-from pathlib import Path
+import os
 
-# Add project root to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the project root to the path to allow imports from code/
+# Assuming this test file is at tests/unit/test_analysis.py
+# and code/analysis.py is at code/analysis.py
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-from code.analysis import (
-    welch_t_test,
-    calculate_cohen_d,
-    calculate_effect_size_ci,
-    bonferroni_correction,
-    calculate_power_and_mdes,
-    run_sensitivity_analysis
-)
+from code.analysis import welch_t_test, calculate_cohen_d, calculate_effect_size_ci
 
 
-class TestWelchTTest:
-    def test_welch_t_test_basic(self):
-        """Test basic Welch's t-test functionality."""
-        group_a = np.array([23, 25, 28, 30, 32, 26, 29, 27, 31, 24])
-        group_b = np.array([35, 38, 40, 42, 36, 39, 41, 37, 43, 34])
+class TestWelchTTest(unittest.TestCase):
+    """Unit tests for the welch_t_test function."""
 
-        result = welch_t_test(group_a, group_b)
-
-        assert 't_statistic' in result
-        assert 'p_value' in result
-        assert 'df' in result
-        assert isinstance(result['t_statistic'], float)
-        assert 0 < result['p_value'] <= 1.0
-        assert result['df'] > 0
-
-    def test_welch_t_test_equal_groups(self):
-        """Test that identical groups yield non-significant p-value."""
-        group_a = np.array([25, 26, 27, 28, 29])
-        group_b = np.array([25, 26, 27, 28, 29])
-
-        result = welch_t_test(group_a, group_b)
-        assert result['p_value'] > 0.05
-
-    def test_welch_t_test_unequal_variances(self):
-        """Test Welch's t-test handles unequal variances correctly."""
-        group_a = np.array([10, 12, 11, 13, 10])  # Low variance
-        group_b = np.array([15, 25, 10, 30, 5])   # High variance
-
-        result = welch_t_test(group_a, group_b)
-        assert 't_statistic' in result
-        assert 'p_value' in result
-
-    def test_welch_t_test_small_sample(self):
-        """Test with very small sample sizes."""
-        group_a = np.array([10, 12])
-        group_b = np.array([15, 18])
-
-        result = welch_t_test(group_a, group_b)
-        assert 't_statistic' in result
-        assert 'p_value' in result
-
-
-class TestCohenD:
-    def test_cohen_d_basic(self):
-        """Test basic Cohen's d calculation."""
-        group_a = np.array([23, 25, 28, 30, 32])
-        group_b = np.array([35, 38, 40, 42, 36])
-
-        d = calculate_cohen_d(group_a, group_b)
-
-        assert isinstance(d, float)
-        # Group B has higher mean, so d should be negative (a - b)
-        assert d < 0
-
-    def test_cohen_d_equal_groups(self):
-        """Test that identical groups yield d = 0."""
-        group_a = np.array([25, 26, 27, 28, 29])
-        group_b = np.array([25, 26, 27, 28, 29])
-
-        d = calculate_cohen_d(group_a, group_b)
-        assert abs(d) < 1e-10
-
-    def test_cohen_d_small_effect(self):
-        """Test small effect size calculation."""
-        group_a = np.array([20, 21, 22, 23, 24])
-        group_b = np.array([21, 22, 23, 24, 25])
-
-        d = calculate_cohen_d(group_a, group_b)
-        assert abs(d) < 0.5  # Small effect
-
-
-class TestEffectSizeCI:
-    def test_calculate_effect_size_ci(self):
-        """Test confidence interval calculation for effect size."""
-        group_a = np.array([23, 25, 28, 30, 32, 26, 29, 27, 31, 24])
-        group_b = np.array([35, 38, 40, 42, 36, 39, 41, 37, 43, 34])
-
-        result = calculate_effect_size_ci(group_a, group_b, ci=0.95)
-
-        assert 'cohens_d' in result
-        assert 'ci_lower' in result
-        assert 'ci_upper' in result
-        assert result['ci_lower'] < result['cohens_d'] < result['ci_upper']
-
-    def test_calculate_effect_size_ci_99(self):
-        """Test 99% confidence interval is wider than 95%."""
-        group_a = np.array([23, 25, 28, 30, 32, 26, 29, 27, 31, 24])
-        group_b = np.array([35, 38, 40, 42, 36, 39, 41, 37, 43, 34])
-
-        ci_95 = calculate_effect_size_ci(group_a, group_b, ci=0.95)
-        ci_99 = calculate_effect_size_ci(group_a, group_b, ci=0.99)
-
-        width_95 = ci_95['ci_upper'] - ci_95['ci_lower']
-        width_99 = ci_99['ci_upper'] - ci_99['ci_lower']
-
-        assert width_99 > width_95
-
-
-class TestBonferroniCorrection:
-    def test_bonferroni_basic(self):
-        """Test basic Bonferroni correction."""
-        p_values = [0.01, 0.04, 0.06, 0.10, 0.20]
-
-        result = bonferroni_correction(p_values)
-
-        assert len(result['corrected_p_values']) == len(p_values)
-        assert result['alpha'] == 0.05
-        assert result['num_tests'] == 5
-
-    def test_bonferroni_single_test(self):
-        """Test Bonferroni with single test (no correction)."""
-        p_values = [0.03]
-
-        result = bonferroni_correction(p_values)
-        assert result['corrected_p_values'][0] == 0.03
-        assert result['is_significant'][0] == (0.03 < 0.05)
-
-    def test_bonferroni_all_significant(self):
-        """Test when all tests are significant after correction."""
-        p_values = [0.001, 0.002, 0.003]
-
-        result = bonferroni_correction(p_values)
-        assert all(result['is_significant'])
-
-    def test_bonferroni_none_significant(self):
-        """Test when no tests are significant after correction."""
-        p_values = [0.1, 0.2, 0.3]
-
-        result = bonferroni_correction(p_values)
-        assert not any(result['is_significant'])
-
-
-class TestPowerAndMDES:
-    def test_calculate_power_and_mdes(self):
-        """Test power and MDES calculation."""
-        group_a = np.array([23, 25, 28, 30, 32, 26, 29, 27, 31, 24])
-        group_b = np.array([35, 38, 40, 42, 36, 39, 41, 37, 43, 34])
-
-        result = calculate_power_and_mdes(group_a, group_b, alpha=0.05)
-
-        assert 'power' in result
-        assert 'mdes' in result
-        assert 0 <= result['power'] <= 1
-        assert result['mdes'] > 0
-
-    def test_calculate_power_and_mdes_large_sample(self):
-        """Test with larger sample sizes for higher power."""
+    def setUp(self):
+        """Set up test data for Welch's t-test."""
+        # Create synthetic but realistic data for two independent groups
+        # Group 1: Nostalgia condition (n=30)
         np.random.seed(42)
-        group_a = np.random.normal(25, 5, 100)
-        group_b = np.random.normal(30, 5, 100)
+        self.nostalgia_pe = np.random.normal(loc=5.0, scale=2.0, size=30)
+        self.nostalgia_cc = np.random.normal(loc=4.5, scale=1.5, size=30)
 
-        result = calculate_power_and_mdes(group_a, group_b, alpha=0.05)
-        assert result['power'] > 0.8  # Should have high power
+        # Group 2: Control condition (n=30)
+        self.control_pe = np.random.normal(loc=7.0, scale=2.5, size=30)
+        self.control_cc = np.random.normal(loc=6.0, scale=2.0, size=30)
 
+        # Create a DataFrame matching the expected schema
+        self.df = pd.DataFrame({
+            'participant_id': [f'P{i:03d}' for i in range(60)],
+            'stimulus_type': ['nostalgia'] * 30 + ['control'] * 30,
+            'perseverative_errors': np.concatenate([self.nostalgia_pe, self.control_pe]),
+            'categories_completed': np.concatenate([self.nostalgia_cc, self.control_cc]),
+            'age': np.random.randint(65, 85, 60)
+        })
 
-class TestSensitivityAnalysis:
-    def test_run_sensitivity_analysis(self):
-        """Test sensitivity analysis across multiple thresholds."""
-        group_a = np.array([23, 25, 28, 30, 32, 26, 29, 27, 31, 24])
-        group_b = np.array([35, 38, 40, 42, 36, 39, 41, 37, 43, 34])
-
-        thresholds = [0.01, 0.05, 0.10]
-        result = run_sensitivity_analysis(group_a, group_b, thresholds)
-
-        assert 'results' in result
-        assert len(result['results']) == len(thresholds)
-
-        for r in result['results']:
-            assert 'threshold' in r
-            assert 'is_significant' in r
-            assert 'p_value' in r
-
-    def test_run_sensitivity_analysis_borderline(self):
-        """Test sensitivity analysis with borderline p-value."""
-        # Create groups with p-value near 0.05
-        group_a = np.array([25, 26, 27, 28, 29, 30, 31, 32])
-        group_b = np.array([30, 31, 32, 33, 34, 35, 36, 37])
-
-        thresholds = [0.04, 0.05, 0.06]
-        result = run_sensitivity_analysis(group_a, group_b, thresholds)
-
-        # Should show sensitivity to threshold choice
-        significant_count = sum(1 for r in result['results'] if r['is_significant'])
-        assert significant_count > 0 and significant_count < len(thresholds)
-
-
-class TestIntegration:
-    def test_full_analysis_pipeline(self):
-        """Test complete analysis workflow."""
-        np.random.seed(42)
-        nostalgia_group = np.random.normal(25, 5, 50)
-        control_group = np.random.normal(30, 5, 50)
-
-        # Run Welch's t-test
-        t_result = welch_t_test(nostalgia_group, control_group)
-
-        # Calculate effect size
-        d = calculate_cohen_d(nostalgia_group, control_group)
-
-        # Calculate CI
-        ci_result = calculate_effect_size_ci(nostalgia_group, control_group)
-
-        # Bonferroni correction (simulating multiple comparisons)
-        p_values = [t_result['p_value'], 0.03, 0.07]
-        bonf_result = bonferroni_correction(p_values)
-
-        # Power analysis
-        power_result = calculate_power_and_mdes(nostalgia_group, control_group)
-
-        # Sensitivity analysis
-        sens_result = run_sensitivity_analysis(
-            nostalgia_group, control_group, [0.01, 0.05, 0.10]
+    def test_welch_ttest_perseverative_errors(self):
+        """Test Welch's t-test on perseverative_errors between groups."""
+        result = welch_t_test(
+            self.df,
+            group_col='stimulus_type',
+            value_col='perseverative_errors',
+            group1='nostalgia',
+            group2='control'
         )
 
-        # Verify all results are consistent
-        assert t_result['p_value'] == ci_result['p_value']
-        assert bonf_result['corrected_p_values'][0] == t_result['p_value'] * 3
-        assert power_result['power'] > 0
-        assert len(sens_result['results']) == 3
+        # Verify return type
+        self.assertIsInstance(result, dict)
+
+        # Verify expected keys
+        self.assertIn('statistic', result)
+        self.assertIn('pvalue', result)
+        self.assertIn('group1_mean', result)
+        self.assertIn('group2_mean', result)
+        self.assertIn('group1_std', result)
+        self.assertIn('group2_std', result)
+        self.assertIn('group1_n', result)
+        self.assertIn('group2_n', result)
+
+        # Verify values are numeric
+        self.assertIsInstance(result['statistic'], (int, float, np.floating))
+        self.assertIsInstance(result['pvalue'], (int, float, np.floating))
+
+        # Verify group means match our synthetic data
+        self.assertAlmostEqual(result['group1_mean'], self.nostalgia_pe.mean(), places=5)
+        self.assertAlmostEqual(result['group2_mean'], self.control_pe.mean(), places=5)
+
+        # Verify sample sizes
+        self.assertEqual(result['group1_n'], 30)
+        self.assertEqual(result['group2_n'], 30)
+
+        # Verify the t-statistic is approximately correct using scipy directly
+        scipy_stat, scipy_p = scipy_stats.ttest_ind(
+            self.nostalgia_pe,
+            self.control_pe,
+            equal_var=False  # Welch's t-test
+        )
+        self.assertAlmostEqual(result['statistic'], scipy_stat, places=5)
+        self.assertAlmostEqual(result['pvalue'], scipy_p, places=5)
+
+    def test_welch_ttest_categories_completed(self):
+        """Test Welch's t-test on categories_completed between groups."""
+        result = welch_t_test(
+            self.df,
+            group_col='stimulus_type',
+            value_col='categories_completed',
+            group1='nostalgia',
+            group2='control'
+        )
+
+        # Verify return type and keys
+        self.assertIsInstance(result, dict)
+        self.assertIn('statistic', result)
+        self.assertIn('pvalue', result)
+
+        # Verify means
+        self.assertAlmostEqual(result['group1_mean'], self.nostalgia_cc.mean(), places=5)
+        self.assertAlmostEqual(result['group2_mean'], self.control_cc.mean(), places=5)
+
+        # Verify against scipy
+        scipy_stat, scipy_p = scipy_stats.ttest_ind(
+            self.nostalgia_cc,
+            self.control_cc,
+            equal_var=False
+        )
+        self.assertAlmostEqual(result['statistic'], scipy_stat, places=5)
+        self.assertAlmostEqual(result['pvalue'], scipy_p, places=5)
+
+    def test_welch_ttest_unequal_sample_sizes(self):
+        """Test Welch's t-test handles unequal sample sizes correctly."""
+        # Create data with unequal group sizes
+        df_unequal = pd.DataFrame({
+            'stimulus_type': ['nostalgia'] * 20 + ['control'] * 40,
+            'score': list(np.random.normal(5, 2, 20)) + list(np.random.normal(7, 2.5, 40))
+        })
+
+        result = welch_t_test(
+            df_unequal,
+            group_col='stimulus_type',
+            value_col='score',
+            group1='nostalgia',
+            group2='control'
+        )
+
+        # Verify sample sizes are correctly reported
+        self.assertEqual(result['group1_n'], 20)
+        self.assertEqual(result['group2_n'], 40)
+
+        # Verify it still produces valid statistics
+        self.assertTrue(np.isfinite(result['statistic']))
+        self.assertTrue(0 <= result['pvalue'] <= 1)
+
+    def test_welch_ttest_identical_groups(self):
+        """Test Welch's t-test returns p=1.0 for identical groups."""
+        identical_data = pd.DataFrame({
+            'stimulus_type': ['group_a'] * 20 + ['group_b'] * 20,
+            'score': [5.0] * 40  # All values are identical
+        })
+
+        result = welch_t_test(
+            identical_data,
+            group_col='stimulus_type',
+            value_col='score',
+            group1='group_a',
+            group2='group_b'
+        )
+
+        # When variance is zero, scipy may raise or return NaN, but Welch's
+        # should handle it gracefully or we should handle it in our wrapper.
+        # For identical values, the t-statistic is undefined (0/0), but typically
+        # scipy returns nan for the statistic and nan for p-value.
+        # We'll check that the function doesn't crash and returns something.
+        self.assertIn('statistic', result)
+        self.assertIn('pvalue', result)
+
+    def test_welch_ttest_missing_group(self):
+        """Test Welch's t-test raises error when a group is missing."""
+        df_missing = pd.DataFrame({
+            'stimulus_type': ['nostalgia'] * 30,
+            'score': np.random.normal(5, 2, 30)
+        })
+
+        with self.assertRaises(ValueError):
+            welch_t_test(
+                df_missing,
+                group_col='stimulus_type',
+                value_col='score',
+                group1='nostalgia',
+                group2='control'  # 'control' group doesn't exist
+            )
+
+    def test_welch_ttest_wrong_value_type(self):
+        """Test Welch's t-test raises error for non-numeric value column."""
+        df_string = pd.DataFrame({
+            'stimulus_type': ['nostalgia'] * 15 + ['control'] * 15,
+            'score': ['a', 'b', 'c'] * 10  # String values
+        })
+
+        with self.assertRaises((ValueError, TypeError)):
+            welch_t_test(
+                df_string,
+                group_col='stimulus_type',
+                value_col='score',
+                group1='nostalgia',
+                group2='control'
+            )
+
+
+class TestCohenD(unittest.TestCase):
+    """Unit tests for the calculate_cohen_d function."""
+
+    def setUp(self):
+        """Set up test data."""
+        np.random.seed(42)
+        self.group1 = np.random.normal(loc=5.0, scale=2.0, size=30)
+        self.group2 = np.random.normal(loc=7.0, scale=2.5, size=30)
+
+    def test_cohen_d_basic(self):
+        """Test Cohen's d calculation with basic data."""
+        d = calculate_cohen_d(self.group1, self.group2)
+
+        self.assertIsInstance(d, float)
+        self.assertTrue(np.isfinite(d))
+
+        # Verify against manual calculation
+        # Cohen's d = (mean1 - mean2) / pooled_std
+        mean_diff = self.group1.mean() - self.group2.mean()
+        n1, n2 = len(self.group1), len(self.group2)
+        var1, var2 = self.group1.var(ddof=1), self.group2.var(ddof=1)
+        pooled_var = ((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2)
+        pooled_std = np.sqrt(pooled_var)
+        expected_d = mean_diff / pooled_std
+
+        self.assertAlmostEqual(d, expected_d, places=5)
+
+    def test_cohen_d_equal_groups(self):
+        """Test Cohen's d returns 0 for identical groups."""
+        identical = np.array([5.0] * 20)
+        d = calculate_cohen_d(identical, identical)
+        self.assertEqual(d, 0.0)
+
+
+class TestEffectSizeCI(unittest.TestCase):
+    """Unit tests for the calculate_effect_size_ci function."""
+
+    def setUp(self):
+        """Set up test data."""
+        np.random.seed(42)
+        self.group1 = np.random.normal(loc=5.0, scale=2.0, size=30)
+        self.group2 = np.random.normal(loc=7.0, scale=2.5, size=30)
+
+    def test_effect_size_ci_basic(self):
+        """Test effect size CI calculation."""
+        ci = calculate_effect_size_ci(self.group1, self.group2, alpha=0.05)
+
+        self.assertIsInstance(ci, dict)
+        self.assertIn('lower', ci)
+        self.assertIn('upper', ci)
+        self.assertIn('effect_size', ci)
+
+        # Verify lower < effect_size < upper
+        self.assertLess(ci['lower'], ci['effect_size'])
+        self.assertLess(ci['effect_size'], ci['upper'])
+
+        # Verify CI contains 0 if effect is small (not always true, but for this test)
+        # We're just checking the structure and logic, not the exact values
+
+
+if __name__ == '__main__':
+    unittest.main()

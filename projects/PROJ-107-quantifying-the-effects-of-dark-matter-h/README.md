@@ -1,28 +1,39 @@
-# PROJ-107: Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation
+# Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation
 
-## Hardware Constraints & Deviations
-**Important**: This project is designed to run on machines with limited resources (specifically **7GB RAM** and CPU-only execution).
-
-Due to these hardware constraints, the pipeline implements **chunked processing** and **sampling**. This is a documented deviation from the original requirement FR-001 ("process every FoF halo") to satisfy Success Criterion SC-005 (Feasibility).
-
-- **Chunked I/O**: Data is read and processed in small chunks to prevent memory overflow.
-- **Sampling**: If a snapshot exceeds memory limits even with chunking, a representative sample is processed.
-- **No GPU**: All computations are performed on CPU.
+This project implements an automated science pipeline to analyze the relationship between dark matter halo shapes and galaxy formation properties using cosmological simulation data (primarily TNG-100).
 
 ## Project Structure
-- `code/`: Source code for the pipeline
-- `data/`: Raw and processed data artifacts
-- `tests/`: Unit and integration tests
-- `specs/`: Feature specifications and design documents
 
-## Installation
-1. Ensure Python 3.11+ is installed.
+- `code/`: Source code for the pipeline
+- `data/`: Raw and processed data files
+- `outputs/`: Generated figures and reports
+- `specs/`: Project specifications and design documents
+- `tests/`: Unit and integration tests
+
+## Hardware Constraints & Feasibility
+
+**Important Note on Data Processing Strategy**:
+
+Due to hardware constraints (7GB RAM limit on the execution environment), this pipeline implements **chunked processing and sampling** strategies. This is a **documented deviation** from the original "every FoF halo" requirement specified in FR-001, as per SC-005 feasibility constraints.
+
+The pipeline is designed to:
+- Process data in memory-safe chunks (<7GB RAM usage)
+- Apply representative sampling when full dataset processing is infeasible
+- Log all deviations and limitations in `data/metadata.yaml`
+- Ensure reproducibility with documented sampling seeds
+
+This approach ensures the project remains feasible within the compute budget while maintaining scientific rigor through documented limitations.
+
+## Setup
+
+1. Ensure Python 3.11 is installed
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
 ## Usage
+
 Run the main pipeline:
 ```bash
 python code/main.py
@@ -33,5 +44,11 @@ Run tests:
 pytest code/tests/
 ```
 
-## Output
-The primary output for User Story 1 is `data/processed/halo_shapes.csv`, containing axial ratios, triaxiality, and other shape metrics for valid haloes.
+## Data Sources
+
+- TNG-100: Downloaded via the TNG API (see `code/ingestion/tng_loader.py`)
+- Millennium-II: Attempted fetch with fallback logging if unavailable (see `code/ingestion/millennium_loader.py`)
+
+## License
+
+[Project License]

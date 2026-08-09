@@ -529,3 +529,354 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-04T10:38:45Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: frozen BERT model inference on WiC test split outputs accuracy and macro-F1
+    scores
+  claim_id: c_b7e1908d
+  context: 'Independent Test: The system can be fully tested by loading the frozen
+    BERT model, running inference on the WiC test split, and outputting a JSON file
+    containing accuracy and macro-F1 scores. No complex-valued logic is required for
+    this test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Frozen_BERT_model_inference_on_WiC_test_split_outputs_accura
+  kind: entity_fact
+  raw_text: The system can be fully tested by loading the frozen BERT model, running
+    inference on the WiC test split, and outputting a JSON file containing accuracy
+    and macro-F1 scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:28:17Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: synthetic complex vectors injected into adapter verify output probability
+    matches theoretical squared magnitude normalized via softmax
+  claim_id: c_7321fbcb
+  context: 'Independent Test: The system can be tested by injecting synthetic complex
+    vectors (known phase and amplitude) into the adapter, performing the interference
+    operation, and verifying that the output probability matches the theoretical squared
+    magnitude of the sum (normalized via softmax).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_complex_vectors_injected_into_adapter_verify_outpu
+  kind: entity_fact
+  raw_text: The system can be tested by injecting synthetic complex vectors (known
+    phase and amplitude) into the adapter, performing the interference operation,
+    and verifying that the output probability matches the theoretical squared magnitude
+    of the sum (normalized via softmax).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:28:40Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: baseline and complex model with identical seeds verify t-test output
+    calculates p-value and effect size
+  claim_id: c_e8daf58a
+  context: 'Independent Test: The system can be tested by running the baseline and
+    the complex model with identical seeds, collecting the paired scores, and verifying
+    that the t-test output correctly calculates the p-value and effect size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_and_complex_model_with_identical_seeds_verify_t-tes
+  kind: entity_fact
+  raw_text: The system can be tested by running the baseline and the complex model
+    with identical seeds, collecting the paired scores, and verifying that the t-test
+    output correctly calculates the p-value and effect size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:29:15Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: unified loss minimized when phase_diff equals pi and cross_term is negative
+  claim_id: c_5686fcac
+  context: 'Verification: Unit test asserts that loss is minimized when `phase_diff
+    = pi` AND `cross_term` is negative, and increases for non-anti-parallel phases
+    or positive cross-terms.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unified_loss_minimized_when_phase_diff_equals_pi_and_cross_t
+  kind: entity_fact
+  raw_text: Unit test asserts that loss is minimized when phase_diff = pi AND cross_term
+    is negative, and increases for non-anti-parallel phases or positive cross-terms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:29:39Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: complex adapter output dtype is torch.complex64 and BERT weights remain
+    frozen
+  claim_id: c_ba01737a
+  context: 'Verification: Unit test in `tests/unit/test_bert_adapter.py` asserting
+    `c_complex.dtype == torch.complex64` and BERT weights remain frozen after adapter
+    instantiation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complex_adapter_output_dtype_is_torch.complex64_and_BERT_wei
+  kind: entity_fact
+  raw_text: Unit test asserts that c_complex.dtype == torch.complex64 and BERT weights
+    remain frozen after adapter instantiation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:30:09Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: runtime monitor raises error if runtime exceeds 6 hours or RAM exceeds
+    7 GB
+  claim_id: c_b9addae6
+  context: Implement `code/utils/runtime_monitor.py` with functions `start_timer()`,
+    `check_ram()`, `assert_limits()`. `assert_limits()` must raise an error if runtime
+    > 6h or RAM > 7GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert_limits() must raise an error if runtime > 6h or RAM > 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:30:10Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: variance of baseline metrics must be less than 0.02
+  claim_id: c_8feab9fc
+  context: 'collect metrics, calculate variance. **Output**: `data/results/baseline_metrics.json`
+    with schema: `{"accuracy": float, "macro_f1": float, "seed": int, "variance_accuracy":
+    float, "variance_macro_f1": float}`. Assert variance < 0.02; raise error if failed.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variance_of_baseline_metrics_must_be_less_than_0.02
+  kind: magnitude
+  raw_text: Assert variance < 0.02; raise error if failed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:30:37Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: destructive interference yields probability zero when c1 equals 1 and
+    c2 equals negative 1
+  claim_id: c_a61dd31c
+  context: Unit test for destructive interference ($c_1=1, c_2=-1 \to P=0$) in `tests/unit/test_complex_ops.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for destructive interference ($c_1=1, c_2=-1 \to P=0$)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:30:59Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: constructive interference yields probability one after softmax when c1
+    equals 1 and c2 equals 1
+  claim_id: c_30109523
+  context: Unit test for constructive interference ($c_1=1, c_2=1 \to P=1$ after softmax)
+    in `tests/unit/test_complex_ops.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for constructive interference ($c_1=1, c_2=1 \to P=1$ after
+    softmax)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:31:16Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: cross-term 2Re(c1 times c2 star) is negative for c1 equals 1 plus 0i
+    and c2 equals negative 0.5 plus 0.5i
+  claim_id: c_6e6a03dc
+  context: 'Unit test for explicit cross-term calculation: Verify $2\text{Re}(c_1
+    \cdot c_2^*)$ can be negative in `tests/unit/test_complex_ops.py`. Input: $c_1=1+0i,
+    c_2=-0.5+0.5i$. Assert cross-term < 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify $2\text{Re}(c_1 \cdot c_2^*)$ can be negative in `tests/unit/test_complex_ops.py`.
+    Input: $c_1=1+0i, c_2=-0.5+0.5i$. Assert cross-term < 0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:31:35Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: superposition output is a pair of raw probabilities for ambiguous and
+    unambiguous classes
+  claim_id: c_25951747
+  context: 'Verification: Assert that the output is a *pair* of raw probabilities
+    (ambiguous vs. unambiguous) ready for softmax.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Superposition_output_is_a_pair_of_raw_probabilities_for_ambi
+  kind: entity_fact
+  raw_text: Assert that the output is a *pair* of raw probabilities (ambiguous vs.
+    unambiguous) ready for softmax.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:31:56Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: minimum cross-term value is less than zero
+  claim_id: c_acffe8b4
+  context: 'Logic: Assert `min(cross_term_values) < 0`. **Output**: `data/results/interference_validation.json`
+    with schema: `{"min_cross_term": float, "percentage_negative": float, "valid":
+    bool}`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_cross-term_value_is_less_than_zero
+  kind: magnitude
+  raw_text: Assert that `min(cross_term_values) < 0`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:32:20Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: paired t-test uses alpha of 0.05
+  claim_id: c_aa06b23e
+  context: "Implement `code/analysis/stats_test.py`: Paired t-test logic (\u03B1=0.05)\
+    \ across multiple seeds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Paired t-test logic (\u03B1=0.05) across multiple seeds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:32:50Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations to calculate confidence intervals
+  claim_id: c_aed98b4d
+  context: 'Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000
+    iterations) to calculate confidence intervals for the mean difference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/analysis/stats_test.py`: Bootstrap resampling (k=1000
+    iterations) to calculate confidence intervals for the mean difference.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:34:23Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: confidence interval width must be less than 0.1
+  claim_id: c_e70bb7a4
+  context: 'Verification: Assert that the confidence interval width is < 0.1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Confidence_interval_width_must_be_less_than_0.1
+  kind: magnitude
+  raw_text: Assert that the confidence interval width is < 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:34:45Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: confidence interval lower and upper bounds are populated by bootstrap
+    logic
+  claim_id: c_595589ec
+  context: 'Validation: Assert `ci_lower` and `ci_upper` are not null and are populated
+    by Bootstrap logic from T030b.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Confidence_interval_lower_and_upper_bounds_are_populated_by
+  kind: entity_fact
+  raw_text: Assert `ci_lower` and `ci_upper` are not null and are populated by Bootstrap
+    logic from T030b.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:35:05Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: spearman rank correlation computed for ambiguity score and cross-term
+    value pairs
+  claim_id: c_f6231997
+  context: 'Test: Spearman rank correlation. **Output**: `data/results/interference_correlation.json`
+    with schema: `{"spearman_correlation": float, "p_value": float, "interpretation":
+    "negative_correlation" | "no_correlation"}`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_computed_for_ambiguity_score_and_c
+  kind: entity_fact
+  raw_text: 'Test: Spearman rank correlation. **Output**: `data/results/interference_correlation.json`
+    with schema: `{"spearman_correlation": float, "p_value": float, "interpretation":
+    "negative_correlation" | "no_correlation"}`. **Verification**: Assert that file
+    exists and contains a float for `spearman_correlation`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:35:38Z'
+- artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  attempts: 1
+  canonical: spearman correlation must be less than negative 0.3
+  claim_id: c_9027a85b
+  context: 'Logic: Assert `spearman_correlation` in `data/results/interference_correlation.json`
+    is < -0.3. If failed, log warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_must_be_less_than_negative_0.3
+  kind: magnitude
+  raw_text: Assert `spearman_correlation` in `data/results/interference_correlation.json`
+    is < -0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T21:35:58Z'

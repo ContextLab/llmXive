@@ -1,4 +1,4 @@
-- artifact_hash: b6e0d4b0658037cd8568d67c14f04ce652453e94f54891dbd0c6e4c1749ad1fe
+- artifact_hash: b62b8b79dd6154addd4d569b04c5990035ef6e1e56c3127b0cffbec539d3dbd4
   artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -9,4 +9,4 @@
   value: https://arxiv.org/abs/1406.5617
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1406.5617
-  verified_at: '2026-08-05T08:04:02.570331Z'
+  verified_at: '2026-08-09T21:27:03.675972Z'

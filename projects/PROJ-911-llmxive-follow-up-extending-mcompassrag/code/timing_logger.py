@@ -4,117 +4,159 @@ import json
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Callable, Optional
-from functools import wraps
+from code.config import RESULTS_DIR, PROJECT_ROOT
 
-from code.config import PROJECT_ROOT, RESULTS_DIR
+# Configuration for timing logs
+TIMING_LOG_PATH = RESULTS_DIR / "timing_logs.json"
+TIMING_LOG_FILE = RESULTS_DIR / "timing_log.txt"
 
-# Configure logging for the timing module
-logger = logging.getLogger("llmxive.timing")
-logger.setLevel(logging.INFO)
-
-# Ensure we have a handler if not configured elsewhere
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    ))
-    logger.addHandler(handler)
-
-# File path for the timing log
-TIMING_LOG_PATH = RESULTS_DIR / "processing_times.jsonl"
-
-def setup_timing_logging():
-    """Ensure the results directory exists and initializes the log file."""
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    if not TIMING_LOG_PATH.exists():
-        TIMING_LOG_PATH.touch()
-    logger.info(f"Timing log initialized at {TIMING_LOG_PATH}")
-
-def log_document_processing_time(doc_id: str, duration_seconds: float, status: str = "success"):
+def setup_timing_logging(log_file: Optional[Path] = None) -> logging.Logger:
     """
-    Logs the processing time for a single document to a JSONL file.
-    
-    Args:
-        doc_id: Unique identifier for the document.
-        duration_seconds: Time taken to process the document in seconds.
-        status: 'success' or 'error'.
+    Configure a logger that writes to both console and a specific log file.
+    Ensures the log directory exists.
     """
-    entry = {
+    if log_file is None:
+        log_file = TIMING_LOG_FILE
+
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    logger = logging.getLogger("timing_logger")
+    logger.setLevel(logging.INFO)
+
+    # Clear existing handlers to avoid duplicates in interactive environments
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    return logger
+
+def log_document_processing_time(
+    logger: logging.Logger,
+    doc_id: str,
+    start_time: float,
+    end_time: float,
+    status: str = "completed",
+    extra_details: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Logs the processing time for a single document.
+    Also appends the entry to a JSON log file for structured analysis.
+    """
+    duration = end_time - start_time
+    msg = f"Document {doc_id}: {duration:.4f}s [{status}]"
+    logger.info(msg)
+
+    log_entry = {
         "doc_id": doc_id,
-        "duration_seconds": duration_seconds,
+        "start_time": start_time,
+        "end_time": end_time,
+        "duration_seconds": duration,
         "status": status,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        "details": extra_details or {}
     }
-    
-    # Write to JSONL file
-    with open(TIMING_LOG_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
-    
-    # Log to stdout as well
-    if duration_seconds >= 60.0:
-        logger.warning(f"Document {doc_id} exceeded 60s constraint: {duration_seconds:.2f}s")
-    else:
-        logger.info(f"Document {doc_id} processed in {duration_seconds:.2f}s (Constraint: <60s)")
 
-def measure_document_processing(doc_id: str):
-    """
-    Decorator to measure and log the execution time of a document processing function.
-    
-    Usage:
-        @measure_document_processing(doc_id="doc_123")
-        def process_my_doc(doc):
-            ...
-    """
-    def decorator(func: Callable):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            try:
-                result = func(*args, **kwargs)
-                duration = time.time() - start_time
-                log_document_processing_time(doc_id, duration, "success")
-                return result
-            except Exception as e:
-                duration = time.time() - start_time
-                log_document_processing_time(doc_id, duration, "error")
-                logger.error(f"Error processing {doc_id}: {str(e)}", exc_info=True)
-                raise
-        return wrapper
-    return decorator
+    # Append to JSON log file
+    TIMING_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(TIMING_LOG_PATH, 'r', encoding='utf-8') as f:
+            logs = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        logs = []
 
-def run_timing_validation():
+    logs.append(log_entry)
+
+    with open(TIMING_LOG_PATH, 'w', encoding='utf-8') as f:
+        json.dump(logs, f, indent=2)
+
+def measure_document_processing(
+    doc_id: str,
+    process_func: Callable,
+    *args,
+    **kwargs
+) -> Any:
     """
-    Reads the processing times log and validates that all documents 
-    were processed within the 60-second constraint.
+    Decorator-like function to measure execution time of a document processing function.
+    Returns the result of the function and logs the timing.
+    Raises RuntimeError if processing exceeds 60 seconds.
+    """
+    logger = setup_timing_logging()
+    start = time.perf_counter()
+    try:
+        result = process_func(*args, **kwargs)
+        end = time.perf_counter()
+        duration = end - start
+
+        if duration >= 60.0:
+            logger.warning(f"Document {doc_id} exceeded 60s limit: {duration:.2f}s")
+            log_document_processing_time(logger, doc_id, start, end, status="timeout_warning")
+        else:
+            log_document_processing_time(logger, doc_id, start, end, status="completed")
+
+        return result
+    except Exception as e:
+        end = time.perf_counter()
+        log_document_processing_time(logger, doc_id, start, end, status="error", extra_details={"error": str(e)})
+        raise
+
+def run_timing_validation(corpus_stats_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Reads the JSON timing log and validates that all documents processed within the 60s limit.
+    Returns a summary report.
     """
     if not TIMING_LOG_PATH.exists():
-        logger.warning("No timing log found. Run the pipeline first.")
-        return False
+        return {"status": "no_logs_found", "message": f"Log file {TIMING_LOG_PATH} not found."}
 
-    violations = []
-    total_docs = 0
-    
-    with open(TIMING_LOG_PATH, "r", encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            entry = json.loads(line)
-            total_docs += 1
-            if entry["duration_seconds"] >= 60.0:
-                violations.append(entry)
-    
-    if violations:
-        logger.error(f"Validation FAILED: {len(violations)} documents exceeded 60s constraint.")
-        for v in violations:
-            logger.error(f"  - {v['doc_id']}: {v['duration_seconds']:.2f}s")
-        return False
+    with open(TIMING_LOG_PATH, 'r', encoding='utf-8') as f:
+        logs = json.load(f)
+
+    if not logs:
+        return {"status": "empty_logs", "message": "No log entries found."}
+
+    violations = [entry for entry in logs if entry["duration_seconds"] >= 60.0]
+    total_docs = len(logs)
+    avg_time = sum(e["duration_seconds"] for e in logs) / total_docs if total_docs > 0 else 0
+    max_time = max(e["duration_seconds"] for e in logs) if logs else 0
+
+    summary = {
+        "total_documents": total_docs,
+        "average_processing_time": avg_time,
+        "max_processing_time": max_time,
+        "violation_count": len(violations),
+        "violations": [
+            {"doc_id": v["doc_id"], "time": v["duration_seconds"]}
+            for v in violations
+        ],
+        "all_within_limit": len(violations) == 0,
+        "status": "passed" if len(violations) == 0 else "failed"
+    }
+
+    return summary
+
+def main():
+    """
+    CLI entry point to run timing validation on existing logs.
+    """
+    logger = setup_timing_logging()
+    logger.info("Running timing validation...")
+    report = run_timing_validation()
+    print(json.dumps(report, indent=2))
+    if report.get("status") == "passed":
+        logger.info("All documents processed within 60s limit.")
     else:
-        logger.info(f"Validation PASSED: All {total_docs} documents processed within 60s.")
-        return True
+        logger.warning(f"Timing validation failed. {report.get('violation_count')} violations found.")
+    return report
 
 if __name__ == "__main__":
-    # Simple test runner if executed directly
-    setup_timing_logging()
-    log_document_processing_time("test_doc_001", 12.5)
-    log_document_processing_time("test_doc_002", 65.0) # Intentional violation for demo
-    run_timing_validation()
+    main()

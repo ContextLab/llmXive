@@ -92,7 +92,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 ## Assumptions
 
 - The original LatentSkill repository (arXiv:2606.06087) provides downloadable LoRA weight files (A and B matrices) and corresponding task descriptions in a format compatible with standard PyTorch/NumPy loading.
-- The base LLM (e.g., LlamaB) can be run in a quantized mode (e.g., low-bit or higher-precision via `bitsandbytes` or similar CPU-optimized quantization) within the 7 GB RAM limit of the GitHub Actions free runner.
+- The base LLM (e.g., LlamaB) can be run in a quantized mode (e.g., low-bit or higher-precision via `bitsandbytes` or similar CPU-optimized quantization) within the RAM limit of the GitHub Actions free runner.
 - The "environment's internal logic" for ALFWorld and Search-QA is accessible as a deterministic simulation or script that returns a binary success/failure flag independent of the LLM's internal state, provided the action sequence is correct.
 - The sentence-transformer `all-MiniLM-L6-v2` is small enough to be loaded and executed on the CPU-only runner without exceeding memory constraints.
 - **Scientific Premise**: The latent space geometry of LoRA adapters is assumed to be consistent across different base models if the same fine-tuning protocol is used; any deviation in base model architecture is treated as a confounding variable to be controlled.
@@ -113,7 +113,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - The "density" of the latent space is defined as the minimum distance between any two skill vectors in the database; if the space is too sparse, retrieval may fail to find a relevant neighbor.
 - The "computational bottleneck" of the hypernetwork is assumed to be the inference time for skill selection; other bottlenecks (e.g., data loading) are not considered in this analysis.
 - The "edge device" scenario is approximated by the CPU-only runner, assuming that the latency and memory constraints of the runner are representative of a standard edge device.
-- The "serverless environment" scenario is approximated by the 6-hour job limit and the 14 GB disk limit of the GitHub Actions runner.
+- The "serverless environment" scenario is approximated by the time and disk limits of the GitHub Actions runner.
 - The "deterministic agent architecture" is assumed to be achievable if retrieval/interpolation is viable, as the selection mechanism becomes a simple lookup rather than a generative process.
 - The "modular AI systems" trade-off between flexibility and computational cost is assumed to be the primary motivation for this research, and the results will inform this trade-off.
 - The "novel task compositions" are assumed to be unseen during the training of the original LoRA adapters, ensuring that the test is truly out-of-distribution.
@@ -123,4 +123,4 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - The "Wilcoxon signed-rank test" is assumed to be the appropriate non-parametric alternative if the success rates are not normally distributed.
 - The "Benjamini-Hochberg correction" is assumed to be the appropriate multiple-comparison correction method for controlling the false discovery rate, mandated by FR-006 due to the multiple comparisons inherent in testing 3 strategies and sensitivity sweeps.
 - The "sensitivity analysis" for the top-$k$ value is assumed to be necessary to determine the robustness of the retrieval mechanism to the number of neighbors used.
-- The "power limitation" is assumed to be a potential issue if the number of held-out composite tasks is too small to detect a 5-10% difference in success rates.
+- The "power limitation" is assumed to be a potential issue if the number of held-out composite tasks is too small to detect a difference in success rates.
