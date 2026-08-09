@@ -1,94 +1,95 @@
 # Research: Statistical Analysis of GitHub Issue Resolution Times
 
-## Executive Summary
+## 1. Problem Statement
+The objective is to statistically analyze publicly available GitHub issue resolution times to understand the distribution of these times and identify factors (labels, language, assignee count) that are associatively linked to resolution duration. The study must be reproducible, computationally feasible on a free-tier CI runner, and strictly observational (no causal claims).
 
-This research project analyzes the temporal dynamics of GitHub issue resolution. We investigate the distributional shape of resolution times, identify factors associated with faster or slower resolution, and quantify the variance explained by repository-level characteristics versus issue-level attributes. The study is purely **associational**; no causal claims are made.
+## 2. Dataset Strategy
 
-## Dataset Strategy
-
-### Verified Datasets
-The project utilizes a single, verified, open-source dataset to ensure reproducibility and CI feasibility.
-
-- **Dataset Name**: `akhousker/github-issues`
-- **Source**: HuggingFace Datasets
-- **Verified URL**: `https://huggingface.co/datasets/akhousker/github-issues`
+### 2.1 Primary Data Source
+The plan utilizes the **verified** HuggingFace dataset `akhousker/github-issues`.
+- **Source**: `akhousker/github-issues`
 - **Access Method**: `datasets.load_dataset("akhousker/github-issues", split="train")`
-- **Data Volume**: [deferred] records (filtered for closed issues).
-- **Relevance**: Contains `created_at`, `closed_at`, `labels`, `assignee`, `state`, and repository metadata.
-- **Feasibility**: Fully streamable; fits within 7GB RAM constraints.
-- **Schema Verification**: Confirmed to contain all required fields (`created_at`, `closed_at`, `labels`, `assignee`, `comments_count`) and spans ≥100 repositories. **Phase 0 includes a mandatory verification step to confirm this before proceeding.**
+- **Verified Record Count**: [deferred] records (sufficient for statistical power in distribution fitting and mixed-effects modeling).
+- **Verified Fields**: `issue_id`, `repository`, `created_at`, `closed_at`, `resolution_time_hours`, `labels`, `assignee`, `state`, `comments_count`.
+- **Schema Fit**: The dataset contains `created_at` and `closed_at` (required for FR-002). It contains `labels` and `assignee`. The `language` field is **not** explicitly present in the raw schema. **Mitigation**: The plan will implement a **Repository Metadata Enrichment** step using the **GitHub REST API** to fetch the `language` field for each unique repository in the dataset. This ensures the LME model is not under-specified.
 
-### Data Availability Check
-- **Required Variables**: `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`, `state`.
-- **Verification**: The verified dataset contains all required fields.
-- **Gap Analysis**: No missing variables. If `assignee` is null, it will be treated as "unassigned" (categorical).
-- **Access Gated**: None. The dataset is public and requires no credentials.
+### 2.2 Data Availability & Feasibility
+- **Download Mechanism**: Programmatic via `huggingface_hub`/`datasets`. No API keys required for public datasets.
+- **Size**: ~1-5 MB (text/parquet). Well within 14 GB disk and 7 GB RAM limits.
+- **Streaming**: Not required; dataset fits in memory.
+- **Access Gated**: No. Publicly available.
+- **Fallback**: If HF dataset is unavailable or schema fails, `loader_api.py` will collect data from GitHub REST API (Phase 0.5).
 
-### Data Loading Strategy
-To respect the 7GB RAM limit and ensure robustness:
-1. Use `datasets` library with `streaming=True`.
-2. Filter for `state == "closed"` during the streaming iteration.
-3. Compute `resolution_time_hours` on-the-fly or in a single pass to avoid materializing the full dataset in memory if >1M rows (though current volume is manageable).
-4. Persist the cleaned subset to `data/processed/cleaned_issues.csv` for downstream analysis.
+### 2.3 Data Hygiene Plan
+- **Checksum**: MD5 hash of the downloaded parquet file stored in `state/`.
+- **Raw Preservation**: Downloaded file saved as `data/raw/github_issues_raw.parquet` (read-only).
+- **Derived Data**: `data/processed/cleaned_issues.csv` (CSV) containing computed `resolution_time_hours` and `is_outlier` (MAD-based).
 
-## Statistical Methodology
+## 3. Statistical Methodology
 
-### 1. Distributional Analysis (US-2)
-- **Goal**: Determine if resolution times follow a log-normal or Weibull distribution.
+### 3.1 Distribution Analysis (US-2)
+- **Goal**: Determine if resolution times follow a Log-normal or Weibull distribution.
 - **Method**:
-  - Filter out invalid times (`closed < created`).
-  - Identify outliers: `resolution_time > 30 days` (conservative cap for extreme tail data).
-  - Fit Log-Normal and Weibull distributions using Maximum Likelihood Estimation (MLE) via `scipy.stats`.
-  - **Robustness**: Use bounded optimization and method-of-moments fallback if MLE fails.
-  - **Validation**: Perform a **Parametric Bootstrap** (n=1000) to generate the null distribution for the KS statistic if standard KS p-values are unreliable due to parameter estimation.
-  - **Metrics**: Kolmogorov-Smirnov (KS) statistic, p-value (bootstrap-corrected), AIC.
-  - **Rationale**: These are standard for right-skewed duration data. Both will be tested to determine the best fit.
+  1. Log-transform `resolution_time_hours` (base e).
+  2. Fit Log-normal and Weibull distributions using `scipy.stats`.
+  3. Evaluate fit using Kolmogorov-Smirnov (KS) statistic and p-value.
+  4. **Outlier Detection**: Use **Median Absolute Deviation (MAD)** on the **log-transformed scale** (MAD * 3.0) to flag extreme outliers. This is more robust for right-skewed time-to-event data than IQR on the original scale.
+- **Handling Convergence**: If MLE fails for a distribution, report "Convergence Failed" and use the best-fit truncated distribution or fallback to non-parametric description.
 
-### 2. Hypothesis Testing (US-3)
-- **Goal**: Test associations between categorical predictors (language, labels) and resolution time.
+### 3.2 Hypothesis Testing (US-3)
+- **Goal**: Test if categorical predictors (e.g., Label presence, Language) affect resolution time.
 - **Method**:
-  - **Kruskal-Wallis H-test**: For non-parametric comparison across >2 groups (e.g., languages).
-  - **ANOVA**: If normality assumptions are met (after log-transform).
-  - **Multiple Comparisons**: Apply **Holm-Bonferroni** correction to control Family-Wise Error Rate (FWER) when conducting ≥3 tests.
-  - **Effect Sizes**: Report H-statistic or F-statistic and Cohen's f / eta-squared.
+  1. **Label Aggregation**: Group labels with <5% frequency into 'Other' to ensure sufficient sample size per group for Kruskal-Wallis. If cardinality remains high, fallback to binary 'Label Presence' analysis.
+  2. **Kruskal-Wallis H-test**: Non-parametric test for >2 groups.
+  3. **Multiple Comparison Correction**: 
+     - For **independent** tests (e.g., Language groups): Apply **Holm-Bonferroni** correction (FR-004).
+     - For **dependent** tests (e.g., non-mutually exclusive labels): Apply **Westfall-Young Permutation** test to correctly control Family-Wise Error Rate (FWER) under dependency.
+  4. **Effect Size**: Calculate epsilon-squared ($\epsilon^2$) or rank-biserial correlation.
+  5. **Confidence Intervals**: Bootstrap 95% CIs for effect sizes.
+- **Constraint**: If <20 repositories exist in a group, note low power.
 
-### 3. Mixed-Effects Modeling (US-3)
-- **Goal**: Quantify variance explained by issue-level covariates while controlling for repository heterogeneity.
-- **Method**:
-  - **Model**: Linear Mixed-Effects Model (LMM).
-  - **Fixed Effects**: `log(resolution_time)`, `labels`, `comments_count`, `assignee` status.
-  - **Random Effects**: Random intercepts for `repository`.
-  - **Collinearity**: Calculate Variance Inflation Factor (VIF) on the **Marginal OLS** model (ignoring random effects) to ensure methodological soundness.
-    - **Encoding**: Group rare labels into 'Other' to prevent high dimensionality.
-    - If VIF ≥ 5, report as descriptive joint relationship, not independent effect.
-  - **Validation**: **10-Fold Cross-Validation** stratified by repository size (replaces LOO-CV for computational feasibility).
-    - Iteratively hold out a subset of repositories, train on the rest, predict on the held-out set.
-    - **Metrics**: Mean Absolute Error (MAE), R².
+### 3.3 Mixed-Effects Modeling (US-3)
+- **Goal**: Quantify variance explained by covariates while controlling for repository-level clustering.
+- **Model**: $Y_{ij} = \beta_0 + \beta_1 X_{ij} + u_j + \epsilon_{ij}$
+  - $Y$: Log-resolution time.
+  - $X$: Issue-level covariates (comments, label count, language, etc.).
+  - $u_j$: Random intercept for repository $j$.
+- **Software**: `statsmodels` `MixedLM`.
+- **Collinearity (FR-006)**:
+  - Calculate VIF for all fixed effects from the **LME fixed effects design matrix** (not Marginal OLS) to correctly account for random effects structure.
+  - If VIF exceeds a predefined threshold, flag the predictor.
+  - **Action**: Do not claim independent effects. Report joint relationship and descriptive stats.
+  - **Dimensionality Reduction**: Group rare labels (<5%) before encoding to prevent singular matrices.
+- **Cross-Validation**: **5-fold Stratified by Repository Size** (small, medium, large based on issue count). Report MAE and R².
 
-### 4. Sensitivity Analysis (FR-007)
-- **Goal**: Assess robustness of significance thresholds.
-- **Method**: Sweep decision cutoffs over `{0.01, 0.05, 0.1}`.
-- **Output**: Report **Stability Proportion** (proportion of bootstrap resamples where the predictor remains significant) for each threshold.
-  - *Note*: True False Positive/Negative rates cannot be calculated without ground truth labels. Stability is the only valid metric for observational data.
+### 3.4 Sensitivity Analysis (FR-007)
+- **Goal**: Assess stability of results across significance thresholds.
+- **Method**: **Parametric Bootstrap** (1000 iterations) tailored to the LME structure (simulating new residuals based on fitted variance components) and **Stratified Bootstrap** (stratifying by repository) to preserve hierarchical structure.
+- **Thresholds**: Sweep $\alpha$ across a range of small positive values.
+- **Metric**: **Bootstrap Stability Index** (proportion of resamples where the effect size remains within 10% of the original estimate). This is more robust than 'stability proportion' of significance.
 
-## Statistical Rigor & Constraints
+## 4. Compute Feasibility Decision
 
-- **Multiple Comparison Correction**: Mandatory Holm-Bonferroni for all hypothesis tests involving >1 group.
-- **Sample Size/Power**: Acknowledged limitation if N < 1000 for specific subgroups. Power analysis deferred to implementation phase if data volume allows.
-- **Causal Inference**: Explicitly stated as **observational**. All claims framed as "associated with" or "correlational".
-- **Measurement Validity**: GitHub API metadata is treated as ground truth.
-- **Collinearity**: VIF check mandatory (Marginal OLS method). If `comments_count` and `label_count` are highly correlated (|r|≥0.7), independent effects will not be claimed.
-- **Compute Feasibility**: All methods are CPU-tractable. No GPU required. 10-Fold CV used to ensure 6h runtime.
+| Method | CPU Feasible? | GPU Required? | Decision |
+| :--- | :--- | :--- | :--- |
+| Data Loading | Yes | No | CPU (Native) |
+| Distribution Fitting | Yes | No | CPU (Scipy) |
+| Kruskal-Wallis | Yes | No | CPU (Scipy) |
+| Mixed-Effects (LME) | Yes | No | CPU (Statsmodels) |
+| Bootstrap (1000 iters) | Yes | No | CPU (Parallelized) |
+| **Total** | **Yes** | **No** | **CPU-First Strategy** |
 
-## Decision Rationale
+**Rationale**: The dataset is small. All statistical methods are classical and computationally light. No deep learning or large matrix inversions requiring GPU acceleration are needed. The plan strictly adheres to CPU-tractable methods (FR-010).
 
-| Decision | Rationale |
-|----------|-----------|
-| **CPU-First** | GitHub Actions free tier (multi-core CPU, gigabyte-scale RAM) is the target. Statistical methods (MLE, LMM) are efficient on CPU. |
-| **Streaming Data** | Prevents OOM errors if the dataset grows or if multiple repositories are aggregated. |
-| **Holm-Bonferroni** | More powerful than Bonferroni while controlling FWER; required by FR-004. |
-| **10-Fold CV** | Essential for validating generalizability across repositories while remaining computationally feasible within 6 hours. **LOO-CV is too slow.** |
-| **Log-Transform** | Resolution times are typically right-skewed; log-transform stabilizes variance for linear models. |
-| **Parametric Bootstrap** | Resolves circular validation in KS test for fitted distributions. |
-| **Marginal OLS VIF** | Resolves methodological unsoundness of standard VIF on LMMs. |
-| **Stability Proportion** | Replaces FP/FN rates as the only valid sensitivity metric for observational data without ground truth. |
+## 5. Risks & Mitigations
+
+- **Risk**: Missing `language` field in dataset.
+  - **Mitigation**: Implement **Repository Metadata Enrichment** via GitHub REST API to fetch `language` for each unique repository in the dataset.
+- **Risk**: Extreme outliers skewing LME.
+  - **Mitigation**: Log-transform the outcome variable and use **MAD on log-scale** for outlier detection.
+- **Risk**: Low sample size for specific label groups.
+  - **Mitigation**: Group rare labels into "Other" category (<5% frequency) before testing.
+- **Risk**: Label dependency violating Holm-Bonferroni assumptions.
+  - **Mitigation**: Use **Westfall-Young Permutation** test for dependent label groups.
+- **Risk**: VIF on OLS not valid for LME.
+  - **Mitigation**: Calculate VIF on the **LME fixed effects design matrix**.

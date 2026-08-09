@@ -1,67 +1,69 @@
-# Quickstart: GitHub Issue Resolution Analysis
+# Quickstart: Statistical Analysis of GitHub Issue Resolution Times
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
 - Git
+- GitHub Actions runner (or local environment for testing)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-208-statistical-analysis-of-publicly-availab
-    ```
+1. **Clone the repository** and navigate to the project directory.
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` includes `datasets`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`.*
 
-2.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Key dependencies*: `pandas`, `scipy`, `statsmodels`, `datasets`, `seaborn`, `matplotlib`.
+## Data Download & Processing
 
-3.  **Verify Data Access**:
-    Ensure you can access HuggingFace datasets (no auth required for public datasets).
-    ```python
-    from datasets import load_dataset
-    ds = load_dataset("akhousker/github-issues", split="train")
-    print(f"Loaded {len(ds)} records")
-    ```
-
-## Running the Pipeline
-
-Execute the full analysis pipeline:
+The pipeline automatically downloads the verified dataset from HuggingFace.
 
 ```bash
+# Run the full pipeline
 python code/main.py
 ```
 
-### What happens?
-1.  **Data Loading**: Streams data from HuggingFace, filters closed issues.
-2.  **Cleaning**: Calculates resolution times, flags outliers (>30 days), excludes invalid timestamps.
-3.  **Distribution Analysis**: Fits Log-Normal and Weibull models; generates ECDF plots.
-4.  **Hypothesis Testing**: Runs Kruskal-Wallis/ANOVA with Holm-Bonferroni correction.
-5.  **Mixed-Effects Modeling**: Fits LMM with repository random intercepts; performs **10-Fold CV**.
-6.  **Sensitivity Analysis**: Sweeps thresholds {0.01, 0.05, 0.1}.
-7.  **Output**: Generates `data/processed/cleaned_issues.csv`, figures, and JSON reports.
+This script performs:
+1. **Data Ingestion**: Downloads `akhousker/github-issues`.
+2. **Cleaning**: Filters invalid timestamps, computes resolution times.
+3. **Analysis**: Runs distribution fitting, hypothesis testing, and LME.
+4. **Reporting**: Generates `data/processed/analysis_results.json` and plots.
+
+## Manual Steps (Optional)
+
+### Load Data Manually
+```python
+from datasets import load_dataset
+ds = load_dataset("akhousker/github-issues", split="train")
+print(f"Loaded {len(ds)} records")
+```
+
+### Run Specific Analysis
+```python
+# Distribution Analysis
+from code.analysis.distribution import run_distribution_analysis
+run_distribution_analysis("data/processed/cleaned_issues.csv")
+
+# Hypothesis Testing
+from code.analysis.hypothesis import run_hypothesis_tests
+run_hypothesis_tests("data/processed/cleaned_issues.csv")
+```
 
 ## Output Artifacts
 
-- `data/processed/cleaned_issues.csv`: The analysis-ready dataset.
-- `data/interim/distribution_metrics.json`: KS, p-values, AIC for fitted models.
-- `data/interim/hypothesis_results.json`: P-values, adjusted p-values, effect sizes.
-- `data/interim/mixed_effects_results.json`: MAE, R² from **10-Fold CV**.
-- `figures/`: ECDF plots, histograms (with "associational" captions).
+- `data/raw/github_issues_raw.parquet`: Raw downloaded data.
+- `data/processed/cleaned_issues.csv`: Cleaned analysis dataset.
+- `data/processed/analysis_results.json`: Statistical test results.
+- `data/processed/plots/`: ECDF, distribution fits, and model diagnostics.
 
-## Validation
+## Troubleshooting
 
-Run the test suite to verify data integrity and statistical logic:
-
-```bash
-pytest tests/
-```
-
-Specific checks:
-- **T014**: Verifies `cleaned_issues.csv` exists and has ≥1000 rows (Blocking Gate).
-- **T016**: Verifies Log-Normal/Weibull fit metrics are present.
-- **T025**: Verifies **10-Fold CV** MAE/R² are calculated.
+- **Rate Limits**: Not applicable (uses static HF dataset).
+- **Memory Errors**: Dataset is small. If errors occur, check for memory leaks in other processes.
+- **Missing Fields**: If `language` is missing, the script will skip language-based analysis and log a warning.

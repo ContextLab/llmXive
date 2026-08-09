@@ -1,49 +1,56 @@
 # Data Model: GitHub Issue Resolution Analysis
 
-## Entity-Relationship Overview
+## 1. Entity Definitions
 
-The data model represents a hierarchical structure: **Repositories** contain **Issues**. Each issue has temporal attributes and categorical metadata.
+### Issue
+Represents a single GitHub issue record after cleaning.
+- **issue_id**: Unique identifier (int/string)
+- **repository**: Repository path (string, e.g., "owner/repo")
+- **created_at**: ISO 8601 timestamp (datetime)
+- **closed_at**: ISO 8601 timestamp (datetime)
+- **resolution_time_hours**: Computed duration (float, hours)
+- **labels**: List of label strings (list of strings)
+- **assignee**: Assignee username or null (string/null)
+- **comments_count**: Number of comments (int)
+- **state**: Issue state (string, e.g., "closed")
+- **is_outlier**: Boolean flag for IQR outlier detection (bool)
 
-### Key Entities
+### Repository (Derived)
+Aggregated metadata for a repository (derived from Issue data).
+- **repository**: Repository path (string)
+- **issue_count**: Total issues in dataset (int)
+- **mean_resolution_hours**: Average resolution time (float)
+- **primary_language**: Inferred language (string) or "Unknown"
 
-1.  **Repository**
-    *   `repo_id` (str): Unique identifier (e.g., "owner/repo").
-    *   `language` (str): Primary programming language.
-    *   `star_count` (int): Popularity metric.
-    *   `contributor_count` (int): Number of unique contributors.
-    *   `created_at` (datetime): Repository creation time.
+### AnalysisResult
+Represents the output of a statistical test or model fit.
+- **test_type**: Name of the test (string, e.g., "Kruskal-Wallis", "LME")
+- **predictor**: Variable tested (string)
+- **p_value**: Raw p-value (float)
+- **adjusted_p_value**: Corrected p-value (float, if applicable)
+- **effect_size**: Magnitude of effect (float)
+- **ci_lower**: Lower bound of 95% CI (float)
+- **ci_upper**: Upper bound of 95% CI (float)
+- **convergence_status**: "Success" or "Failed" (string)
+- **note**: Any caveats (e.g., "Associational only")
 
-2.  **Issue**
-    *   `issue_id` (str): Unique issue ID.
-    *   `repo_id` (str): Foreign key to Repository.
-    *   `created_at` (datetime): Issue creation timestamp (ISO 8601).
-    *   `closed_at` (datetime): Issue closure timestamp (ISO 8601).
-    *   `resolution_time_hours` (float): Derived: `(closed_at - created_at) / 3600`.
-    *   `labels` (str): Comma-separated list of labels.
-    *   `assignee` (str): Username or "unassigned".
-    *   `comments_count` (int): Number of comments.
-    *   `is_outlier` (bool): True if `resolution_time_hours > 30 * 24`.
-    *   `is_valid` (bool): True if `closed_at >= created_at`.
+## 2. Data Flow
 
-3.  **AnalysisResult**
-    *   `test_type` (str): e.g., "Kruskal-Wallis", "LMM".
-    *   `predictor` (str): Variable tested.
-    *   `p_value` (float): Raw p-value.
-    *   `adjusted_p_value` (float): Holm-Bonferroni adjusted.
-    *   `effect_size` (float): e.g., eta-squared.
-    *   `ci_lower` (float): 95% CI lower bound.
-    *   `ci_upper` (float): 95% CI upper bound.
+1. **Raw Input**: `github_issues_raw.parquet` (from HF)
+2. **Cleaning**:
+   - Parse timestamps.
+   - Filter: `closed_at > created_at` AND `resolution_time > 0`.
+   - Compute: `resolution_time_hours`.
+   - Flag: `is_outlier` (IQR method).
+3. **Output**: `cleaned_issues.csv`
+4. **Analysis**:
+   - Read `cleaned_issues.csv`.
+   - Generate `analysis_results.json`.
+   - Generate plots (PNG/SVG).
 
-## Data Flow
+## 3. Constraints & Rules
 
-1.  **Raw Input**: Parquet from HuggingFace (`akhousker/github-issues`).
-2.  **Cleaned**: `data/processed/cleaned_issues.csv`.
-    *   Filtered: `state == "closed"`, `closed_at >= created_at`.
-    *   Derived: `resolution_time_hours`, `is_outlier`.
-3.  **Analysis Output**: `data/interim/` (JSON/CSV) for metrics, figures.
-
-## Storage Constraints
-
-- **Format**: CSV for processed data (human-readable, streamable).
-- **Size Limit**: Target < 500MB for processed CSV to ensure fast I/O on CI.
-- **Checksum**: SHA-256 of `cleaned_issues.csv` recorded in `state/`.
+- **Temporal Integrity**: `created_at` and `closed_at` must be parsed as UTC.
+- **Zero Handling**: Issues with `resolution_time == 0` are excluded.
+- **Missing Data**: Rows with missing `created_at` or `closed_at` are excluded.
+- **Label Encoding**: Rare labels (<1% frequency) are grouped into "Other".

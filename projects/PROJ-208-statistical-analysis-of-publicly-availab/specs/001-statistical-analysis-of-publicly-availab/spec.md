@@ -13,13 +13,13 @@ A researcher can automatically collect closed issue data from multiple diverse G
 
 **Why this priority**: Without reliable data collection and preprocessing, no subsequent analysis is possible. This is the foundational step that enables all downstream statistical work.
 
-**Independent Test**: Can be fully tested by running the collection pipeline on a fixed set of 5 repositories and verifying the output CSV contains ≥1000 issues with non-missing resolution times and all required feature columns.
+**Independent Test**: Can be fully tested by running the collection pipeline on a fixed set of 20 repositories and verifying the output CSV contains ≥1000 issues with non-missing resolution times and all required feature columns.
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of 5 valid GitHub repository paths, **When** the collection script executes, **Then** the output CSV contains ≥1000 closed issues with `created_at`, `closed_at`, `labels`, `assignee`, and `comments_count` columns populated
-2. **Given** an issue with `closed_at` earlier than `created_at`, **When** the preprocessing script runs, **Then** that issue is flagged and excluded from the final dataset with a log entry
-3. **Given** the GitHub API rate limit is reached during collection, **When** the script retries, **Then** the script waits ≥60 seconds before resuming and completes within the allocated CI budget
+1. **Given** a list of 20 valid GitHub repository paths, **When** the collection script executes, **Then** the output CSV contains ≥1000 closed issues with `created_at`, `closed_at`, `labels`, `assignee`, and `comments_count` columns populated
+2. **Given** an issue with `closed_at` earlier than `created_at` or `resolution_time` <= 0, **When** the preprocessing script runs, **Then** that issue is flagged and excluded from the final dataset with a log entry
+3. **Given** the GitHub API rate limit is reached during collection (triggered after 3 consecutive 403 errors), **When** the script retries, **Then** the script waits ≥60 seconds before resuming and completes within the allocated CI budget (if API fallback is used)
 
 ---
 
@@ -34,8 +34,8 @@ A researcher can generate empirical cumulative distribution plots and fit parame
 **Acceptance Scenarios**:
 
 1. **Given** a cleaned dataset of ≥1000 issues, **When** the distribution analysis script runs, **Then** an ECDF plot is generated showing resolution time on the x-axis (log scale) and cumulative probability on the y-axis
-2. **Given** the log-normal and Weibull candidate families, **When** maximum likelihood fitting is performed, **Then** fit quality metrics (KS statistic, p-value, AIC) are reported for both families regardless of threshold
-3. **Given** resolution times with extreme outliers (>30 days), **When** the analysis runs, **Then** the script reports the number of outliers and their percentage of the total dataset
+2. **Given** the log-normal and Weibull candidate families, **When** maximum likelihood fitting is performed, **Then** fit quality metrics (KS statistic, p-value, AIC) are reported for both families regardless of threshold; if MLE fitting fails, report 'Convergence Failed' and metrics for the best-fit truncated distribution
+3. **Given** resolution times with extreme outliers (detected via IQR method: Q3 + 1.5*IQR), **When** the analysis runs, **Then** the script reports the number of outliers and their percentage of the total dataset
 
 ---
 
@@ -50,9 +50,9 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 **Acceptance Scenarios**:
 
 1. **Given** a cleaned dataset with ≥1000 issues across ≥20 repositories, **When** the Kruskal-Wallis test runs for programming language groups, **Then** a p-value is reported with Holm-Bonferroni adjusted α=0.05
-2. **Given** the mixed-effects model with random intercepts for repository, **When** leave-one-repository-out cross-validation executes, **Then** MAE and R² metrics are reported with standard deviation across folds
-3. **Given** any predictor with pairwise correlation |r|≥0.7, **When** the collinearity diagnostic runs, **Then** VIF is calculated from the full model design matrix and a VIF ≥5 is flagged (the model reports the joint relationship as descriptive rather than claiming independent effects)
-4. **Given** decision cutoffs for significance or effect size, **When** the sensitivity analysis runs, **Then** cutoffs are swept over a range of thresholds and false-positive/false-negative rates are reported for each threshold
+2. **Given** the mixed-effects model with random intercepts for repository, **When** 5-fold cross-validation stratified by repository size executes, **Then** MAE and R² metrics are reported with standard deviation across folds
+3. **Given** any predictor with pairwise correlation |r|≥0.7, **When** the collinearity diagnostic runs, **Then** VIF is calculated from the full model design matrix (after one-hot encoding and dimensionality reduction for categorical variables) and a VIF ≥5 is flagged; the model proceeds with fitting and reports the joint relationship as descriptive rather than claiming independent effects
+4. **Given** decision cutoffs for significance or effect size, **When** the sensitivity analysis runs, **Then** cutoffs are swept over a range of thresholds {0.01, 0.05, 0.1} and the stability proportion (proportion of bootstrap resamples significant) is reported for each threshold
 
 ---
 
@@ -68,14 +68,14 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST collect closed issues from ≥100 repositories via GitHub REST API with `state=closed` and `since=2020-01-01` (See US-1)
-- **FR-002**: System MUST compute resolution time as `closed_at - created_at` in hours and log-transform values for distribution fitting (See US-1, US-2)
-- **FR-003**: System MUST exclude issues with resolution time <0 or missing timestamps from analysis (See US-1)
+- **FR-001**: System MUST collect closed issues from ≥100 repositories via GitHub REST API (with `state=closed` and `since=2020-01-01`) or from the HuggingFace dataset `akhousker/github-issues` if it meets schema requirements (See US-1)
+- **FR-002**: System MUST compute resolution time as `closed_at - created_at` in hours, exclude issues with resolution time <= 0, and log-transform values for distribution fitting (See US-1, US-2)
+- **FR-003**: System MUST exclude issues with resolution time <= 0 or missing timestamps from analysis (See US-1)
 - **FR-004**: System MUST apply Holm-Bonferroni correction when conducting ≥3 hypothesis tests on the same outcome variable (See US-3)
 - **FR-005**: System MUST fit a linear mixed-effects model with random intercepts for repository and fixed effects for issue-level covariates (See US-3)
-- **FR-006**: System MUST calculate VIF from the full model design matrix after fitting and flag collinearity when VIF≥5; pairwise |r|≥0.7 triggers VIF calculation (See US-3)
-- **FR-007**: System MUST perform sensitivity analysis sweeping any decision cutoffs over a range of low-probability thresholds. and report how false-positive/false-negative rates vary (See US-3)
-- **FR-008**: System MUST include the phrase "associational" or "correlational" in all result text when describing relationships between variables (See US-3)
+- **FR-006**: System MUST calculate VIF from the full model design matrix after one-hot encoding categorical variables and applying dimensionality reduction (grouping rare labels with <1% frequency) to prevent singular matrices, and flag collinearity when VIF≥5; pairwise |r|≥0.7 triggers VIF calculation (See US-3)
+- **FR-007**: System MUST perform sensitivity analysis sweeping decision cutoffs over thresholds {0.01, 0.05, 0.1} and report the stability proportion (proportion of bootstrap resamples significant) for each threshold (See US-3)
+- **FR-008**: System MUST include the phrase "associational" or "correlational" in all result text (including JSON reports and console logs) when describing relationships between variables (See US-3)
 - **FR-009**: System MUST complete all data collection and analysis within ≤6 hours on a multi-core CPU, 7GB RAM GitHub Actions runner (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
 - **FR-010**: System MUST use only CPU-tractable methods (no GPU/CUDA, no low-bit quantization, no deep network training from scratch) (implementation constraint for CI feasibility) (See US-1, US-2, US-3)
 
@@ -96,13 +96,13 @@ A researcher can execute ANOVA/Kruskal-Wallis tests for categorical predictors, 
 - **SC-001**: Dataset completeness is measured against GitHub API schema requirements (all required columns populated for ≥95% of collected issues) (See US-1)
 - **SC-002**: Distribution goodness-of-fit is measured against Kolmogorov-Smirnov test p-value (reported for at least one parametric family) (See US-2)
 - **SC-003**: Hypothesis test validity is measured against Holm-Bonferroni adjusted p-values (significant associations reported only when adjusted p<0.05) (See US-3)
-- **SC-004**: Model predictive performance is measured against leave-one-repository-out cross-validation MAE and R² metrics (R² [deferred] expected ≥0.15 from prior literature) (See US-3)
+- **SC-004**: Model predictive performance is measured against 5-fold cross-validation MAE and R² metrics (R² [deferred] expected ≥0.15 from prior literature) (See US-3)
 - **SC-005**: Compute feasibility is measured against GitHub Actions free-tier constraints (total runtime ≤6h, memory ≤7GB, no GPU usage) (See US-1, US-2, US-3)
 
 ## Assumptions
 
-- GitHub REST API rate limits allow collection of ≥100 repositories × ~500 issues each within 6 hours ([deferred] API calls with exponential backoff)
-- The GitHub API provides all required variables: `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`, and repository `language` field
+- GitHub REST API rate limits allow collection of ≥100 repositories × ~500 issues each within 6 hours ([deferred] API calls with exponential backoff) or the HuggingFace dataset provides sufficient data
+- The GitHub API or HuggingFace dataset provides all required variables: `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`, and repository `language` field
 - Resolution times follow a right-skewed distribution (log-normal or Weibull) based on prior software engineering literature
 - The GitHub API does not provide post-issue-closure metrics (e.g., user satisfaction); the study is limited to metadata available at closure time
 - Mixed-effects modeling with `pymer4` or `statsmodels` can execute within 7GB RAM for the expected dataset size ([deferred] issues)

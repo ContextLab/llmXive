@@ -1,50 +1,38 @@
 status: verified
 kind: pypi_package
 ref: datasets
-access_python: 'import pandas as pd
+access_python: 'import sys
 
   from datasets import load_dataset
 
 
   ds = load_dataset("akhousker/github-issues", split="train")
 
-  # Convert to DataFrame for easier manipulation
+  print(f"RECORDS={len(ds)}")
 
-  df = pd.DataFrame(ds)
+  required = ["issue_id","repository","created_at","closed_at","resolution_time_hours","labels","assignee","state","comments_count"]
 
-  # Keep only closed issues
-
-  closed = df[df["state"] == "closed"]
-
-  print(f"RECORDS={len(closed)}")
-
-  fields = [c for c in ["issue_id","repository","created_at","closed_at","resolution_time","title","body","labels","author","assignee","comments_count","state"]
-  if c in closed.columns]
+  fields = [c for c in required if c in ds.column_names]
 
   print("FIELDS=" + ",".join(fields))'
-record_count: 6315
+record_count: 7096
 sample_fields:
 - created_at
 - closed_at
-- title
-- body
 - labels
 - assignee
 - state
-field_coverage: 0.583
+field_coverage: 0.556
 required_fields:
 - issue_id
 - repository
 - created_at
 - closed_at
-- resolution_time
-- title
-- body
+- resolution_time_hours
 - labels
-- author
 - assignee
-- comments_count
 - state
-intent: GitHub closed issues dataset python package with resolution times and features
-  python package dataset
-cache_key: 3720252b906cb4300df07dd26261c8344796d1b83a2eae4797aa19e657562f26
+- comments_count
+intent: HuggingFace dataset akhousker github-issues closed issues download python
+  package dataset
+cache_key: b905448506b0d5b496ee651824f880c91d91417234f3badd3a9681d9e6c20b63

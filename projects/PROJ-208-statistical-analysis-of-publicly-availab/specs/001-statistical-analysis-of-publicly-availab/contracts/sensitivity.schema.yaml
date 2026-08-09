@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Sensitivity Analysis Schema"
-description: "Schema for validating sensitivity analysis report (data/processed/sensitivity_report.json). Reports bootstrap‑estimated stability metrics for each decision cutoff."
+description: "Schema for validating sensitivity analysis report (data/processed/sensitivity_report.json). Reports Bootstrap Stability Index for each decision cutoff."
 type: "object"
 properties:
   cutoff:
@@ -9,12 +9,12 @@ properties:
       - 0.01
       - 0.05
       - 0.1
-    description: "Decision cutoff value (Holm‑Bonferroni adjusted p‑value threshold)"
-  stability_proportion:
+    description: "Decision cutoff value (Holm-Bonferroni adjusted p-value threshold)"
+  stability_index:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Proportion of bootstrap resamples where the predictor remains significant at this cutoff"
+    description: "Proportion of bootstrap resamples where the effect size remains within 10% of the original estimate (Bootstrap Stability Index)"
   note:
     type: "string"
     description: "Note that FP/FN rates are not calculable without ground truth; stability reported instead."

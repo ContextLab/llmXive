@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Collinearity Diagnostic Schema"
-description: "Schema for validating collinearity report (data/processed/collinearity_report.json). VIF is calculated on the Marginal OLS model to ensure methodological soundness."
+description: "Schema for validating collinearity report (data/processed/collinearity_report.json). VIF is calculated on the LME fixed effects design matrix to ensure methodological soundness."
 type: "object"
 properties:
   predictor:
@@ -9,7 +9,7 @@ properties:
   vif:
     type: "number"
     minimum: 1
-    description: "Variance Inflation Factor value (calculated on Marginal OLS model)"
+    description: "Variance Inflation Factor value (calculated on LME fixed effects design matrix)"
   is_flagged:
     type: "boolean"
     description: "True if VIF >= 5"
@@ -20,7 +20,7 @@ properties:
     description: "Maximum pairwise |r| with other predictors"
   method_note:
     type: "string"
-    description: "Note that VIF was calculated on the marginal OLS model, not the LMM directly."
+    description: "Note that VIF was calculated on the LME fixed effects design matrix, not a marginal OLS model."
 required:
   - predictor
   - vif

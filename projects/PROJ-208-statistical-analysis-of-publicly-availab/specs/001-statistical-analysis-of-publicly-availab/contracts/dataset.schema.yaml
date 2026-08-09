@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Cleaned GitHub Issues Dataset"
-description: "Schema for data/processed/cleaned_issues.csv"
+description: "Schema for data/processed/cleaned_issues.csv. This is the single canonical schema for the cleaned dataset."
 type: "object"
 properties:
   issue_id:
     type: "string"
-    description: "Unique GitHub issue identifier"
+    description: "Unique GitHub issue identifier (string format)"
   repo_id:
     type: "string"
     description: "Repository path (owner/repo)"
@@ -33,10 +33,13 @@ properties:
     description: "Number of comments on the issue"
   is_outlier:
     type: "boolean"
-    description: "True if resolution_time_hours > 720 (30 days)"
+    description: "True if resolution_time_hours > 3 * MAD on log-scale"
   is_valid:
     type: "boolean"
     description: "True if closed_at >= created_at"
+  language:
+    type: ["string", "null"]
+    description: "Primary programming language of the repository (enriched via API)"
 required:
   - issue_id
   - repo_id

@@ -53,7 +53,7 @@ properties:
           count:
             type: "integer"
             minimum: 0
-            description: "Number of outliers (>30 days)"
+            description: "Number of outliers (MAD on log-scale)"
           percentage:
             type: "number"
             minimum: 0
@@ -82,7 +82,7 @@ properties:
       properties:
         test_type:
           type: "string"
-          description: "Test name (e.g., Kruskal-Wallis, ANOVA)"
+          description: "Test name (e.g., Kruskal-Wallis, ANOVA, Westfall-Young)"
         predictor:
           type: "string"
           description: "Predictor variable name"
@@ -95,7 +95,7 @@ properties:
           type: "number"
           minimum: 0
           maximum: 1
-          description: "Holm-Bonferroni adjusted p-value (FR-004, SC-003)"
+          description: "Holm-Bonferroni or Westfall-Young adjusted p-value (FR-004, SC-003)"
         effect_size:
           type: "number"
           description: "Effect size metric"
@@ -135,7 +135,7 @@ properties:
           description: "Repository-level control variables (star_count, contributor_count, language)"
       cv_method:
         type: "string"
-        description: "Cross-validation method (e.g., 10-Fold Stratified)"
+        description: "Cross-validation method (e.g., 5-Fold Stratified by Repository Size)"
       cv_results:
         type: "object"
         properties:
@@ -189,7 +189,7 @@ properties:
         description: "Whether VIF was calculated (FR-006)"
       vif_method:
         type: "string"
-        description: "Method used (e.g., Marginal OLS)"
+        description: "Method used (e.g., LME Design Matrix)"
       predictors_flagged:
         type: "array"
         items:
@@ -239,17 +239,17 @@ properties:
             - 0.05
             - 0.1
           description: "Alpha cutoff (FR-007)"
-        stability_proportion:
+        stability_index:
           type: "number"
           minimum: 0
           maximum: 1
-          description: "Proportion of bootstrap resamples where result remains significant"
+          description: "Bootstrap Stability Index (proportion of resamples where effect size remains within 10%)"
         note:
           type: "string"
           description: "Note that FP/FN rates are not calculable without ground truth; stability reported instead."
       required:
         - cutoff
-        - stability_proportion
+        - stability_index
         - note
   compute_metrics:
     type: "object"
