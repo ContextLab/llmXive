@@ -1,8 +1,7 @@
 """
 Manual Curator Module.
 Loads manually curated data from data/raw/manual_curated.csv.
-If the file is missing, it logs a warning and proceeds with 0 entries.
-Ensures the output file exists at data/raw/manual_curated.csv (empty if no data).
+If the file is missing, logs a warning and returns an empty DataFrame.
 """
 import logging
 import pandas as pd
@@ -11,36 +10,35 @@ from typing import Optional, List
 from src.utils.logging_config import setup_logging, create_logger
 import sys
 
-# Ensure project root is in path
-project_root = Path(__file__).resolve().parents[2]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 logger = create_logger(__name__)
-MANUAL_DATA_PATH = project_root / "data" / "raw" / "manual_curated.csv"
-MANUAL_TEMPLATE_PATH = project_root / "data" / "raw" / "manual_curated_template.csv"
 
-def load_manual_curated_data() -> Optional[pd.DataFrame]:
+def load_manual_curated_data() -> pd.DataFrame:
     """
-    Load manual curated data.
-    If the file is missing, logs a warning and returns None.
+    Load manual curated data from the CSV file.
+    
+    Returns:
+        pd.DataFrame: Loaded data or empty DataFrame if file missing.
     """
-    if MANUAL_DATA_PATH.exists():
-        logger.info(f"Loading manual curated data from {MANUAL_DATA_PATH}")
-        try:
-            df = pd.read_csv(MANUAL_DATA_PATH)
-            if 'source_type' not in df.columns:
-                df['source_type'] = 'Manual'
-            logger.info(f"Loaded {len(df)} rows from manual curator.")
-            return df
-        except Exception as e:
-            logger.error(f"Error reading manual_curated.csv: {e}")
-            return None
-    else:
-        logger.warning(f"Manual curated data file not found at {MANUAL_DATA_PATH}. Proceeding with 0 entries.")
-        if MANUAL_TEMPLATE_PATH.exists():
-            logger.info(f"Template found at {MANUAL_TEMPLATE_PATH}. Please copy to manual_curated.csv to provide data.")
-        return None
+    file_path = Path("data/raw/manual_curated.csv")
+    
+    if not file_path.exists():
+        logger.warning(f"Manual curated data file not found at {file_path}. Proceeding with empty data.")
+        # Create an empty DataFrame with expected columns to prevent downstream crashes
+        return pd.DataFrame(columns=[
+            "composition", "coercivity_oe", "saturation_magnetization_emu_g", 
+            "source_type", "synthesis_method"
+        ])
+    
+    try:
+        df = pd.read_csv(file_path)
+        logger.info(f"Loaded {len(df)} entries from manual curated data.")
+        return df
+    except Exception as e:
+        logger.error(f"Error reading manual curated data: {e}")
+        return pd.DataFrame(columns=[
+            "composition", "coercivity_oe", "saturation_magnetization_emu_g", 
+            "source_type", "synthesis_method"
+        ])
 
 def save_manual_curated_data(df: Optional[pd.DataFrame]) -> Path:
     """
@@ -68,11 +66,11 @@ def save_manual_curated_data(df: Optional[pd.DataFrame]) -> Path:
     return MANUAL_DATA_PATH
 
 def main():
-    """Entry point for manual curator."""
-    setup_logging()
+    """Entry point for manual curator script."""
+    setup_logging("manual_curator", level=logging.INFO)
     df = load_manual_curated_data()
-    output_path = save_manual_curated_data(df)
-    logger.info(f"Manual curator completed. Output written to {output_path}")
+    if not df.empty:
+        logger.info(f"Sample data:\n{df.head()}")
     return df
 
 if __name__ == "__main__":
