@@ -1,3 +1,19 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or similar) are present in the provided artifacts, so\
+    \ the requirement to configure ruff/black is not satisfied. The implementer must\
+    \ add the appropriate configuration files and ensure they are non\u2011empty and\
+    \ correctly set up."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or related files were provided; the evidence contains
+    only the project specification and no tangible artifact showing that a data directory
+    hierarchy was created as required by task T006. The implementer must supply the
+    actual folder layout (e.g., `data/human/`, `data/llm/`, etc.) or a script that
+    creates it.
 T019:
   c: false
   h: 6adee02a20e8d6dedf9c3cc70178b152b9c2a5a947d982573033ba7e2666e195
@@ -5,3 +21,9 @@ T019:
     repository, so the contract test for the PMD CLI wrapper is missing. The task
     cannot be considered completed until this test file is added with appropriate
     test cases.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of an updated `specs/001-code-smell-comparison/research.md` file
+    is provided; the claim consists only of a restated specification, not the actual
+    documentation changes. The required artifact is missing.

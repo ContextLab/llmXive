@@ -1,26 +1,112 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "llmXive-code-smell-study"
 version = "0.1.0"
 description = "Evaluating the impact of code generation on code smell frequency"
 requires-python = ">=3.9"
+dependencies = [
+    "requests==2.31.0",
+    "GitPython==3.1.40",
+    "pandas==2.2.1",
+    "scipy==1.13.0",
+    "matplotlib==3.9.0",
+    "pyyaml==6.0.1",
+    "pytest==8.2.0",
+    "ruff==0.4.8",
+    "black==24.4.2"
+]
+
+[tool.ruff]
+# Target Python version
+target-version = "py39"
+
+# Enable specific rule sets
+# E: pycodestyle errors
+# F: Pyflakes
+# W: pycodestyle warnings
+# I: isort (import sorting)
+# B: flake8-bugbear
+# C4: flake8-comprehensions
+select = ["E", "F", "W", "I", "B", "C4"]
+
+# Ignore specific rules if necessary (none ignored by default for strictness)
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv"
+]
+
+# Per-file ignores (if needed)
+per-file-ignores = {}
+
+# Line length for Black compatibility
+line-length = 88
+indent-width = 4
+
+# Assume Black compatibility
+force-exclude = false
+
+[tool.ruff.format]
+# Use Black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.black]
-line-length = 100
-target-version = ['py39']
+# Black configuration for formatting
+line-length = 88
+target-version = ["py39"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
-  | reports
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
+# Ensure compatibility with ruff
+skip-magic-trailing-comma = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["utils*", "01_data_collection*", "02_static_analysis*", "03_statistical_analysis*", "04_reporting*"]

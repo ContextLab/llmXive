@@ -25,7 +25,7 @@ This feature implements an observational study to compare the frequency of four 
 **External Dependencies**: Java Runtime (JRE +), PMD CLI (v.x). *Note: PMD is not a Python package; it must be installed system-wide or via Docker.*  
 **Storage**: Local `data/` directory (raw code, analysis JSON, processed CSVs).  
 **Testing**: `pytest` (unit tests for data loaders, statistical functions).  
-**Target Platform**: GitHub Actions Free-tier Runner (Linux, limited CPU, 7GB RAM, No GPU).  
+**Target Platform**: GitHub Actions Free-tier Runner (Linux, limited CPU, constrained memory, No GPU).  
 **Project Type**: Computational Research Pipeline / CLI.  
 **Performance Goals**: Total CI job ≤ 2 hours; Per-process RAM ≤ 2GB.  
 **Constraints**: No GPU; No heavy LLM training; Must handle API rate limits; Must enforce high data validity.  
