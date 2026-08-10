@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 426d2b48190d970cd4c29babaae469714e9004b14002098c865b1ae18b3beb0b
+  artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-d32a63c5798549f1.parquet
+  kind: url
+  value: https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/651189c402dbe541c921fd8c/6d1e157a519a181a5f5e8fb181b5a7c9878786d3841397d188595cc1a685c288?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-d32a63c5798549f1.parquet%3B+filename%3D%22train-00000-of-00001-d32a63c5798549f1.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1786334803&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUxMTg5YzQwMmRiZTU0MWM5MjFmZDhjLzZkMWUxNTdhNTE5YTE4MWE1ZjVlOGZiMTgxYjVhN2M5ODc4Nzg2ZDM4NDEzOTdkMTg4NTk1Y2MxYTY4NWMyODhcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZDMyYTYzYzU3OTg1NDlmMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZDMyYTYzYzU3OTg1NDlmMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODYzMzQ4MDN9fX1dfQ__&Signature=MEYCIQCp8fdq4FVEECsvdhUoje5krdVy3Fib%7EcyYQSeDz3w5nwIhAIqUjBMOxHafcTMwVcHhVmZVGAsPm66PRtbDHSAhmq4g&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-10T03:06:43.629011Z'
+- artifact_hash: 426d2b48190d970cd4c29babaae469714e9004b14002098c865b1ae18b3beb0b
+  artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-a3494cf8c0712e34.parquet
+  kind: url
+  value: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/650302ac89707f18239a7177/c9613d847b480971b6f75e2279ea0fb1fdc6c733c4c793c2a82742c346100808?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-a3494cf8c0712e34.parquet%3B+filename%3D%22train-00000-of-00001-a3494cf8c0712e34.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1786334804&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUwMzAyYWM4OTcwN2YxODIzOWE3MTc3L2M5NjEzZDg0N2I0ODA5NzFiNmY3NWUyMjc5ZWEwZmIxZmRjNmM3MzNjNGM3OTNjMmE4Mjc0MmMzNDYxMDA4MDhcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODYzMzQ4MDR9fX1dfQ__&Signature=MEUCIGBnNeDRn4In1n031CBLoPm1jrO7c7vGDoTH6dBoBg1JAiEA-Ig6clohGvM4zcKPVqT1Uw6-fRF3PEbPEyD1KcC5cq0_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-10T03:06:43.629011Z'
+- artifact_hash: 6880e7c304b26fdd23333fe13cb58aa94316619c5240ceab0c6cc970046f9b13
+  artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-08-10T03:42:02.105174Z'

@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PullRequest Processed Schema"
+description: "Schema for the processed PR dataset with labels and metrics."
+type: "object"
+properties:
+  pr_id:
+    type: "integer"
+    description: "GitHub Pull Request ID"
+  repo:
+    type: "string"
+    description: "Repository name (owner/repo)"
+  source_type:
+    type: "string"
+    enum:
+      - "llm"
+      - "human"
+    description: "Classification label"
+  confidence_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence of the classification"
+  flagged_for_audit:
+    type: "boolean"
+    description: "True if the PR requires manual review"
+  comment_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of comments on the PR"
+  time_to_merge_minutes:
+    type: "number"
+    minimum: 0
+    description: "Time from creation to merge in minutes"
+  review_cycles:
+    type: "integer"
+    minimum: 1
+    description: "Estimated number of review cycles"
+  complexity_score:
+    type: "number"
+    minimum: 0
+    description: "Cyclomatic complexity of the diff"
+  loc:
+    type: "integer"
+    minimum: 0
+    description: "Lines of code in the diff"
+  entropy_score:
+    type: "number"
+    minimum: 0
+    description: "Code entropy score for secondary detection"
+  hour_of_day:
+    type: "integer"
+    minimum: 0
+    maximum: 23
+    description: "Hour of creation (0-23) for temporal control"
+  day_of_week:
+    type: "integer"
+    minimum: 0
+    maximum: 6
+    description: "Day of week (0-6) for temporal control"
+required:
+  - pr_id
+  - repo
+  - source_type
+  - comment_count
+  - time_to_merge_minutes
+  - complexity_score
+  - loc
+  - hour_of_day
+  - day_of_week
+additionalProperties: false
