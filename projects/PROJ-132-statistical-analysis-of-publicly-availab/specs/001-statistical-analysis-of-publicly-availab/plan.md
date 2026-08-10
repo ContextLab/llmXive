@@ -15,7 +15,7 @@ This project implements a reproducible statistical pipeline to analyze the corre
 **Primary Dependencies**: `pandas`, `polars` (for efficient streaming), `scikit-learn`, `pygam` (or `statsmodels` with `patsy`), `geopy`, `scipy`, `numpy`, `matplotlib`, `seaborn`, `filelock`, `datasets` (from Hugging Face).  
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/provenance`) with checksums; no database required for this CI-run analysis.  
 **Testing**: `pytest` with fixtures for synthetic data validation.  
-**Target Platform**: GitHub Actions Free Tier (CPU, ~7 GB RAM) with automatic offload to Kaggle GPU for heavy GAMM/Manifold steps if CPU fails.  
+**Target Platform**: GitHub Actions Free Tier (CPU, limited RAM) with automatic offload to Kaggle GPU for heavy GAMM/Manifold steps if CPU fails.  
 **Project Type**: Data Science Pipeline / Statistical Analysis  
 **Performance Goals**: Pipeline completion within 6 hours on CPU; GAMM convergence < 600s per species; Block Bootstrap < 1800s.  
 **Constraints**: No local GPU; memory < 7 GB (requires streaming/chunking); no external authentication (public datasets only).  
