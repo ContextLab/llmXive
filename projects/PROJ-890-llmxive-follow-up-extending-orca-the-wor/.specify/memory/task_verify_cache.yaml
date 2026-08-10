@@ -24,3 +24,10 @@ T010:
   r: "The required file `tests/integration/test_latent_extraction.py` does not exist,\
     \ so no integration test is provided to verify latent extraction on a sample clip.\
     \ The task\u2019s core artifact is missing."
+T020a:
+  c: false
+  h: 9320384e6f4f55af47940d9f990b699b9f36e3c49331409dabd75eecc5dc689d
+  r: The repository contains `code/data/extract_original_labels.py`, but the file
+    is truncated and does not implement the full extraction logic or write the required
+    CSV. Moreover, the expected output `data/processed/original_labels.csv` is absent.
+    Both the artifact and its content are missing, so the task is not satisfied.

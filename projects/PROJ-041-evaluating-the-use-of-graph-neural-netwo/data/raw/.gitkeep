@@ -1,2 +1,3 @@
-# This directory stores raw downloaded datasets (e.g., CTU, NF-BoT-IoT).
-# Files here are large and should be gitignored (see .gitignore).
+# This directory holds raw network traffic datasets (e.g., CTU-13, NF-BoT-IoT).
+# Files are downloaded here by code/data/ingest_netflow.py.
+# Do not commit large binary files; ensure .gitattributes handles LFS if needed.

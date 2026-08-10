@@ -1,3 +1,4 @@
 """
-Data processing module for network traffic graph construction and preprocessing.
+Data processing module for the GNN Anomaly Detection project.
+Contains utilities for data ingestion, preprocessing, and graph construction.
 """

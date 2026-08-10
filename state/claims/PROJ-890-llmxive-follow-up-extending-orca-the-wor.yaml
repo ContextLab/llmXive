@@ -1,24 +1,5 @@
 - artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
   attempts: 1
-  canonical: Extract original physical outcomes from N=450 curated clips
-  claim_id: c_6dbcf63d
-  context: 'T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement
-    `code/data/extract_original_labels.py` to parse the video metadata from the N=450
-    curated clips and extract the *original* physical outcomes (e.g., "object fell")
-    as ground truth for Descriptive Analysis.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement code/data/extract_original_labels.py to parse the video metadata
-    from the N=450 curated clips
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T04:12:18Z'
-- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
-  attempts: 1
   canonical: Generate physics-verified labels for N=50 subset using MuJoCo/PyBullet
   claim_id: c_e3a7ebd7
   context: 'T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py`
@@ -235,3 +216,218 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T16:22:34Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 2
+  canonical: Extract original physical outcomes from N=450 curated clips
+  claim_id: c_6dbcf63d
+  context: 'T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement
+    `code/data/extract_original_labels.py` to parse the video metadata from the N=450
+    curated clips and extract the *original* physical outcomes (e.g., "object fell")
+    as ground truth for Descriptive Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/extract_original_labels.py to parse the video metadata
+    from the N=450 curated clips
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:52:56Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Generate physics-verified labels for N=50 subset using MuJoCo/PyBullet
+    simulation
+  claim_id: c_6d830787
+  context: 'T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py`
+    to generate **Physics-Verified Labels** for the N=50 subset using full MuJoCo/PyBullet
+    simulation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data/physics_verify.py` to generate **Physics-Verified
+    Labels** for the N=50 subset using full MuJoCo/PyBullet simulation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:53:00Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Vector arithmetic validation gate passes if accuracy is 90% or higher
+  claim_id: c_779be828
+  context: 'T026a [US2] ... **Output**: Write `data/validation/gate_status.json` with
+    `status: "passed"` (if accuracy >= 90%) or `status: "blocked"`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Write `data/validation/gate_status.json` with `status: "passed"` (if
+    accuracy >= 90%) or `status: "blocked"`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:53:00Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Filter ambiguous clips from entire dataset of N=500 (N=450 + N=50)
+  claim_id: c_be69c110
+  context: 'T022b [US2] **Filter Ambiguous Clips**: Implement logic in `code/data/filter_training_set.py`
+    to read `data/processed/latents_cf_raw.csv`. **Action**: Exclude rows where `ambiguous_flag`
+    == 1 for the **entire dataset** (N=450 + N=50).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude rows where `ambiguous_flag` == 1 for the **entire dataset** (N=450
+    + N=50)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:53:07Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Execution time optimization triggered if runtime exceeds 6 hours to meet
+    6-hour target
+  claim_id: c_939e69a1
+  context: 'T042 [P] **Performance Optimization**: Execute optimization strategies
+    (reduce batch size, lower frame resolution, or skip non-critical logging) **IF**
+    T038a runtime > 6 hours to meet the 6h target.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute optimization strategies ... IF T038a runtime > 6 hours to meet
+    the 6h target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:53:09Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: N=450 dataset uses original video labels for descriptive analysis
+  claim_id: c_43de6177
+  context: 'Notes ... **Methodological Note**: The N=450 set uses *original video
+    labels* for descriptive analysis (T020a), while the N=50 set uses *physics-verified
+    labels* for causal analysis (T020b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The N=450 set uses *original video labels* for descriptive analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:53:15Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: N=50 dataset uses physics-verified labels for causal analysis
+  claim_id: c_d0943ae2
+  context: 'Notes ... **Methodological Note**: The N=450 set uses *original video
+    labels* for descriptive analysis (T020a), while the N=50 set uses *physics-verified
+    labels* for causal analysis (T020b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The N=50 set uses *physics-verified labels* for causal analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:53:21Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: N=450 curated clips parsed for original labels
+  claim_id: c_1c07c0af
+  context: 'T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement
+    code/data/extract_original_labels.py to parse the video metadata from the N=450
+    curated clips (e.g., "object fell") as ground truth for Descriptive Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/extract_original_labels.py to parse the video metadata
+    from the N=450 curated clips
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:58:35Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: N=50 subset generated with physics-verified labels
+  claim_id: c_2925976b
+  context: 'T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py`
+    to generate **Physics-Verified Labels** for the N=50 subset using full MuJoCo/PyBullet
+    simulation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate Physics-Verified Labels for the N=50 subset using full MuJoCo/PyBullet
+    simulation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:58:48Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if vector arithmetic validation accuracy is below 90%
+  claim_id: c_4c1912dd
+  context: 'T026a [US2] ... **Output**: Write `data/validation/gate_status.json` with
+    `status: "passed"` (if accuracy >= 90%) or `status: "blocked"`. **Logic**: If
+    `status` is "blocked", the pipeline MUST halt downstream *causal* training tasks
+    (T023, T024 Causal Mode).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline MUST halt downstream causal training tasks if accuracy is
+    below 90%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:58:48Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: Optimization triggered if benchmark runtime exceeds 6 hours
+  claim_id: c_4e9fc600
+  context: 'T042 [P] **Performance Optimization**: Execute optimization strategies
+    (reduce batch size, lower frame resolution, or skip non-critical logging) **IF**
+    T038a runtime > 6 hours to meet the 6h target.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute optimization strategies IF T038a runtime > 6 hours to meet the
+    6h target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:58:48Z'
+- artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/tasks.md
+  attempts: 1
+  canonical: OPTICAL_FLOW_THRESHOLD default value is 0.5
+  claim_id: c_0d8630ab
+  context: T004 Setup global config module (`code/config.py`) with paths, seeds, memory
+    limits, and `OPTICAL_FLOW_THRESHOLD` parameter (default 0.5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T18:58:48Z'

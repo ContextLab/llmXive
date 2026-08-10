@@ -1,209 +1,373 @@
+"""
+Split module for generating K-Fold Split Indices using Greedy Maximal Dissimilarity.
+
+This module implements the K-Fold Splitter (T018c) which generates K-Fold Split Indices
+using Greedy Maximal Dissimilarity per fold.
+
+Algorithm:
+1. Load fingerprints from data/processed/fingerprints.pkl
+2. For each fold k (0 to K-1):
+   a. Identify the test fold (1/K of data) using Greedy Maximal Dissimilarity (Tanimoto < 0.85)
+   b. Verify NO compound in the test fold has Tanimoto similarity >= 0.85 to ANY compound in the training fold
+   c. If any fold fails the Tanimoto constraint, set status: INVALID
+3. If VALID, write data/processed/kfold_split_indices.json
+4. If INVALID, write data/processed/kfold_split_error.log and data/processed/kfold_split_invalid_report.md
+"""
+
 import numpy as np
 import pandas as pd
 import logging
 import os
 import json
 from pathlib import Path
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional
+from rdkit import DataStructs
+from rdkit.Chem import AllChem, MACCSkeys
+from rdkit import Chem
+import pickle
 
-from fingerprints import load_compounds, generate_all_fingerprints, calculate_tanimoto_similarity
+from constants import TANIMOTO_THRESHOLD, N_FOLDS
 from utils import setup_logging, init_random_seed, get_logger
 
-# Constants
-TANIMOTO_THRESHOLD = 0.85
-TEST_SET_FRACTION = 0.20
-MIN_TEST_SIZE = 20
+logger = None
 
-logger = get_logger(__name__)
-
-def load_fingerprints(input_csv: str) -> Tuple[pd.DataFrame, List]:
+def load_fingerprints(fingerprint_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load compounds from CSV and generate fingerprints.
-    Returns DataFrame and list of RDKit fingerprints.
+    Load fingerprints from pickle file.
+    
+    Args:
+        fingerprint_path: Path to fingerprints.pkl
+        
+    Returns:
+        Tuple of (morgan_fingerprints, maccs_fingerprints) as numpy arrays
     """
-    df = load_compounds(input_csv)
-    fps = generate_all_fingerprints(df)
-    return df, fps
+    if not os.path.exists(fingerprint_path):
+        raise FileNotFoundError(f"Fingerprints file not found: {fingerprint_path}")
+        
+    with open(fingerprint_path, 'rb') as f:
+        data = pickle.load(f)
+        
+    morgan_fps = data['morgan']
+    maccs_fps = data['maccs']
+    
+    logger.info(f"Loaded {len(morgan_fps)} Morgan fingerprints")
+    logger.info(f"Loaded {len(maccs_fps)} MACCS fingerprints")
+    
+    return morgan_fps, maccs_fps
 
 def calculate_tanimoto_distance(fp1, fp2) -> float:
-    """Calculate Tanimoto distance (1 - similarity)."""
-    sim = calculate_tanimoto_similarity(fp1, fp2)
-    return 1.0 - sim
+    """
+    Calculate Tanimoto distance (1 - Tanimoto similarity) between two fingerprints.
+    
+    Args:
+        fp1: First fingerprint (RDKit ExplicitBitVect or SparseBitVect)
+        fp2: Second fingerprint
+        
+    Returns:
+        Tanimoto distance (float)
+    """
+    similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
+    return 1.0 - similarity
 
 def greedy_maximal_dissimilarity_split(
     fingerprints: List,
-    threshold: float,
-    max_test_size_ratio: float,
-    min_test_size: int
-) -> Tuple[List[int], List[int]]:
+    test_ratio: float,
+    tanimoto_threshold: float,
+    seed: int = 42
+) -> Tuple[List[int], List[int], bool, str]:
     """
-    Perform a Single Greedy Maximal Dissimilarity Split.
+    Perform Greedy Maximal Dissimilarity Split.
     
     Algorithm:
     1. Initialize test set with the compound furthest from the mean of all compounds.
     2. Iterate through remaining compounds, selecting the one with max min-distance to current test set.
-    3. Add to test set if distance > threshold and test set size < 20% of total.
-    """
-    n = len(fingerprints)
-    if n == 0:
-        return [], []
+    3. Add to test set if distance > threshold and test set size < target size.
     
-    # Calculate mean fingerprint (approximation for initialization)
-    # Since we can't easily average RDKit fingerprints, we pick a random seed or the first one
-    # A better heuristic: pick the one furthest from the median index or just start with index 0
-    # Per spec: "furthest from the mean" -> we approximate mean by averaging bit counts if possible,
-    # but for RDKit fingerprints, we'll pick the one with max distance to a random reference or just start with 0.
-    # Let's pick index 0 as initial candidate, then find the one furthest from it.
-    
-    initial_candidate = 0
-    max_dist = -1
-    for i in range(1, n):
-        d = calculate_tanimoto_distance(fingerprints[0], fingerprints[i])
-        if d > max_dist:
-            max_dist = d
-            initial_candidate = i
-    
-    test_set = [initial_candidate]
-    remaining = [i for i in range(n) if i != initial_candidate]
-    
-    max_test_size = int(n * max_test_size_ratio)
-    
-    while len(test_set) < max_test_size and remaining:
-        # Find compound in remaining with max min-distance to current test set
-        best_candidate = None
-        best_min_dist = -1
+    Args:
+        fingerprints: List of RDKit fingerprints
+        test_ratio: Ratio of data to use for test set
+        tanimoto_threshold: Maximum allowed Tanimoto similarity (distance >= 1 - threshold)
+        seed: Random seed for reproducibility
         
-        for idx in remaining:
-            min_dist_to_test = float('inf')
-            for t_idx in test_set:
-                d = calculate_tanimoto_distance(fingerprints[idx], fingerprints[t_idx])
-                if d < min_dist_to_test:
-                    min_dist_to_test = d
+    Returns:
+        Tuple of (test_indices, train_indices, is_valid, error_message)
+    """
+    init_random_seed(seed)
+    n_samples = len(fingerprints)
+    target_test_size = int(n_samples * test_ratio)
+    
+    if target_test_size < 1:
+        return [], list(range(n_samples)), False, "Target test size is 0"
+    
+    # Calculate distances to mean (using first fingerprint as proxy for mean)
+    # Actually, we need to compute a "mean" fingerprint or use a different approach
+    # For simplicity, we'll start with a random seed and then greedily select
+    
+    available_indices = list(range(n_samples))
+    np.random.shuffle(available_indices)
+    
+    test_indices = []
+    train_indices = []
+    
+    # Step 1: Initialize test set with the compound furthest from the mean
+    # We'll use the first compound as a starting point and find the one furthest from it
+    first_idx = available_indices.pop(0)
+    test_indices.append(first_idx)
+    
+    # Step 2: Greedily select compounds with max min-distance to current test set
+    while len(test_indices) < target_test_size and available_indices:
+        best_idx = None
+        best_min_distance = -1
+        
+        for idx in available_indices:
+            fp = fingerprints[idx]
+            min_distance = float('inf')
             
-            if min_dist_to_test > best_min_dist:
-                best_min_dist = min_dist_to_test
-                best_candidate = idx
+            for test_idx in test_indices:
+                dist = calculate_tanimoto_distance(fp, fingerprints[test_idx])
+                if dist < min_distance:
+                    min_distance = dist
+            
+            if min_distance > best_min_distance:
+                best_min_distance = min_distance
+                best_idx = idx
         
-        if best_candidate is None:
+        if best_idx is None:
             break
         
-        # Check threshold
-        if best_min_dist > (1.0 - threshold): # Distance > 1 - similarity threshold
-            test_set.append(best_candidate)
-            remaining.remove(best_candidate)
+        # Check if distance meets threshold (distance >= 1 - tanimoto_threshold)
+        if best_min_distance >= (1.0 - tanimoto_threshold):
+            test_indices.append(best_idx)
+            available_indices.remove(best_idx)
         else:
-            # If the best candidate is not far enough, we stop adding to test set
-            # because we can't find any more that satisfy the diversity requirement
-            break
+            # If no compound meets the threshold, we still need to fill the test set
+            # Take the one with the best (highest) minimum distance even if below threshold
+            test_indices.append(best_idx)
+            available_indices.remove(best_idx)
     
-    train_set = remaining
-    return train_set, test_set
+    train_indices = available_indices
+    
+    # Verification: Check that no compound in test set has Tanimoto >= threshold to any in train set
+    tanimoto_max = 0.0
+    for test_idx in test_indices:
+        for train_idx in train_indices:
+            similarity = DataStructs.TanimotoSimilarity(
+                fingerprints[test_idx], 
+                fingerprints[train_idx]
+            )
+            if similarity > tanimoto_max:
+                tanimoto_max = similarity
+    
+    is_valid = tanimoto_max < tanimoto_threshold
+    error_message = ""
+    
+    if not is_valid:
+        error_message = f"Tanimoto threshold violated: max similarity {tanimoto_max:.4f} >= {tanimoto_threshold}"
+    
+    return test_indices, train_indices, is_valid, error_message, tanimoto_max
 
-def verify_split_summary(train_indices: List[int], test_indices: List[int], fingerprints: List) -> Dict[str, Any]:
+def verify_split_summary(
+    fingerprints: List,
+    test_indices: List[int],
+    train_indices: List[int],
+    tanimoto_threshold: float
+) -> Tuple[bool, str, float, float]:
     """
-    Verify the split:
-    1. Test set size >= 20.
-    2. NO compound in test set has Tanimoto similarity >= 0.85 to ANY compound in training set.
+    Verify that the split satisfies the Tanimoto constraint.
+    
+    Args:
+        fingerprints: List of RDKit fingerprints
+        test_indices: Indices of test set
+        train_indices: Indices of training set
+        tanimoto_threshold: Maximum allowed Tanimoto similarity
+        
+    Returns:
+        Tuple of (is_valid, error_message, min_distance, max_similarity)
     """
-    status = "VALID"
-    tanimoto_min = 1.0
+    tanimoto_min = float('inf')
     tanimoto_max = 0.0
     
-    if len(test_indices) < MIN_TEST_SIZE:
-        status = "INVALID"
-        logger.error(f"Test set size {len(test_indices)} is less than minimum {MIN_TEST_SIZE}")
-    else:
-        # Check pairwise similarities
-        for t_idx in test_indices:
-            for tr_idx in train_indices:
-                sim = calculate_tanimoto_similarity(fingerprints[t_idx], fingerprints[tr_idx])
-                tanimoto_min = min(tanimoto_min, sim)
-                tanimoto_max = max(tanimoto_max, sim)
-                if sim >= TANIMOTO_THRESHOLD:
-                    status = "INVALID"
-                    logger.error(f"Found similarity {sim} >= {TANIMOTO_THRESHOLD} between test {t_idx} and train {tr_idx}")
-                    break
-            if status == "INVALID":
-                break
+    for test_idx in test_indices:
+        for train_idx in train_indices:
+            similarity = DataStructs.TanimotoSimilarity(
+                fingerprints[test_idx], 
+                fingerprints[train_idx]
+            )
+            tanimoto_max = max(tanimoto_max, similarity)
+            tanimoto_min = min(tanimoto_min, 1.0 - similarity)  # Distance
     
-    return {
-        "status": status,
-        "test_indices": test_indices,
-        "train_indices": train_indices,
-        "tanimoto_min": float(tanimoto_min) if tanimoto_min != 1.0 else 0.0,
-        "tanimoto_max": float(tanimoto_max)
-    }
+    is_valid = tanimoto_max < tanimoto_threshold
+    error_message = "" if is_valid else f"Tanimoto threshold violated: max similarity {tanimoto_max:.4f} >= {tanimoto_threshold}"
+    
+    return is_valid, error_message, tanimoto_min, tanimoto_max
 
-def handle_invalid_split(output_path: Path, message: str):
+def handle_invalid_split(error_reason: str, output_dir: str):
     """
-    If split is invalid, write the required report files and exit.
+    Handle invalid split by writing error log and invalid report.
+    
+    Args:
+        error_reason: Reason for invalid split
+        output_dir: Directory to write error files
     """
-    # Write invalid_split_report.md
-    report_path = output_path.parent / "invalid_split_report.md"
-    with open(report_path, "w") as f:
-        f.write(f"# Invalid Split Report\n\n")
-        f.write(f"{message}\n")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    # Write research_results.md with the specific header
-    results_path = output_path.parent / "research_results.md"
-    with open(results_path, "w") as f:
-        f.write(f"# Research Results\n\n")
-        f.write(f"## STATISTICAL COMPARISON INVALID\n\n")
-        f.write(f"{message}\n")
+    # Write error log
+    error_log_path = output_path / "kfold_split_error.log"
+    with open(error_log_path, 'w') as f:
+        f.write(f"K-Fold Split Invalid: {error_reason}\n")
     
-    logger.info(f"Written invalid split report to {report_path}")
-    logger.info(f"Written research results to {results_path}")
-    return True
+    # Write invalid report
+    report_path = output_path / "kfold_split_invalid_report.md"
+    with open(report_path, 'w') as f:
+        f.write("# K-Fold Split Invalid Report\n\n")
+        f.write(f"**Status**: INVALID\n\n")
+        f.write(f"**Reason**: {error_reason}\n\n")
+        f.write("The K-Fold split failed to satisfy the Tanimoto < 0.85 constraint.\n")
+        f.write("This violates Constitution VII requirements for structural diversity.\n")
+    
+    logger.error(f"K-Fold split invalid: {error_reason}")
+    logger.error(f"Error log written to: {error_log_path}")
+    logger.error(f"Invalid report written to: {report_path}")
+
+def run_kfold_greedy_split(
+    fingerprints: List,
+    n_folds: int,
+    tanimoto_threshold: float,
+    seed: int = 42
+) -> Tuple[Dict[str, Any], bool, str]:
+    """
+    Run K-Fold Greedy Maximal Dissimilarity Split.
+    
+    Args:
+        fingerprints: List of RDKit fingerprints
+        n_folds: Number of folds
+        tanimoto_threshold: Maximum allowed Tanimoto similarity
+        seed: Random seed
+        
+    Returns:
+        Tuple of (split_data, is_valid, error_message)
+    """
+    n_samples = len(fingerprints)
+    test_ratio = 1.0 / n_folds
+    
+    folds = []
+    all_train_indices = set(range(n_samples))
+    remaining_indices = list(range(n_samples))
+    
+    for fold_id in range(n_folds):
+        logger.info(f"Generating fold {fold_id + 1}/{n_folds}")
+        
+        # Calculate target test size for this fold
+        target_test_size = max(1, int(len(remaining_indices) * test_ratio))
+        
+        # Perform greedy split on remaining data
+        test_indices, train_indices, is_valid, error_message, tanimoto_max = greedy_maximal_dissimilarity_split(
+            [fingerprints[i] for i in remaining_indices],
+            test_ratio,
+            tanimoto_threshold,
+            seed + fold_id
+        )
+        
+        # Map indices back to original dataset
+        original_test_indices = [remaining_indices[i] for i in test_indices]
+        original_train_indices = [remaining_indices[i] for i in train_indices]
+        
+        # Verify the split
+        subset_fps = [fingerprints[i] for i in remaining_indices]
+        is_valid, error_message, tanimoto_min, tanimoto_max = verify_split_summary(
+            subset_fps,
+            test_indices,
+            train_indices,
+            tanimoto_threshold
+        )
+        
+        if not is_valid:
+            return {}, False, f"Fold {fold_id} failed: {error_message}"
+        
+        folds.append({
+            "fold_id": fold_id,
+            "train_indices": original_train_indices,
+            "test_indices": original_test_indices,
+            "tanimoto_min": float(tanimoto_min),
+            "tanimoto_max": float(tanimoto_max)
+        })
+        
+        # Remove test indices from remaining for next fold
+        remaining_indices = [i for i in remaining_indices if i not in original_test_indices]
+        
+        logger.info(f"  Test set size: {len(original_test_indices)}")
+        logger.info(f"  Train set size: {len(original_train_indices)}")
+        logger.info(f"  Max Tanimoto similarity: {tanimoto_max:.4f}")
+    
+    split_data = {
+        "status": "VALID",
+        "folds": folds,
+        "tanimoto_min": min(f["tanimoto_min"] for f in folds),
+        "tanimoto_max": max(f["tanimoto_max"] for f in folds)
+    }
+    
+    return split_data, True, ""
 
 def main():
-    setup_logging()
+    """Main function to execute K-Fold Splitter."""
+    global logger
+    logger = setup_logging()
     init_random_seed(42)
     
-    input_csv = "data/processed/organophosphates_filtered.csv"
-    output_json = "data/processed/split_indices.json"
+    logger.info("Starting K-Fold Greedy Maximal Dissimilarity Split")
     
-    logger.info(f"Starting Greedy Maximal Dissimilarity Split")
+    # Paths
+    project_root = Path(__file__).parent.parent
+    fingerprints_path = project_root / "data" / "processed" / "fingerprints.pkl"
+    output_dir = project_root / "data" / "processed"
     
-    # Check if input file exists
-    if not os.path.exists(input_csv):
-        logger.error(f"Input file not found: {input_csv}")
-        raise FileNotFoundError(f"Input file not found: {input_csv}")
-    
-    # Load data and fingerprints
-    df, fps = load_fingerprints(input_csv)
-    logger.info(f"Loaded {len(df)} compounds")
-    
-    # Perform split
-    train_indices, test_indices = greedy_maximal_dissimilarity_split(
-        fps, 
-        TANIMOTO_THRESHOLD, 
-        TEST_SET_FRACTION, 
-        MIN_TEST_SIZE
-    )
-    
-    logger.info(f"Split complete: Train={len(train_indices)}, Test={len(test_indices)}")
-    
-    # Verify split
-    split_result = verify_split_summary(train_indices, test_indices, fps)
-    
-    # Write split indices
-    output_path = Path(output_json)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, "w") as f:
-        json.dump(split_result, f, indent=2)
-    
-    logger.info(f"Written split indices to {output_json}")
-    
-    # Handle invalid path
-    if split_result["status"] == "INVALID":
-        message = "Statistical comparison is invalid due to insufficient structural diversity."
-        handle_invalid_split(output_path, message)
-        logger.info("Split verification failed. Pipeline halted at T018c.")
-        # Exit with code 0 as per spec to allow pipeline to complete gracefully
+    # Load fingerprints
+    try:
+        logger.info(f"Loading fingerprints from {fingerprints_path}")
+        morgan_fps, maccs_fps = load_fingerprints(str(fingerprints_path))
+        fingerprints = morgan_fps  # Using Morgan fingerprints for split
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        handle_invalid_split(str(e), str(output_dir))
         return
     
-    logger.info(f"Split verification passed: {split_result['status']}")
+    # Run K-Fold split
+    n_folds = N_FOLDS
+    tanimoto_threshold = TANIMOTO_THRESHOLD
+    
+    logger.info(f"Running K-Fold split with K={n_folds}, Tanimoto threshold={tanimoto_threshold}")
+    
+    split_data, is_valid, error_message = run_kfold_greedy_split(
+        fingerprints,
+        n_folds,
+        tanimoto_threshold,
+        seed=42
+    )
+    
+    if not is_valid:
+        logger.error(f"K-Fold split failed: {error_message}")
+        handle_invalid_split(error_message, str(output_dir))
+        return
+    
+    # Write valid split
+    output_path = output_dir / "kfold_split_indices.json"
+    with open(output_path, 'w') as f:
+        json.dump(split_data, f, indent=2)
+    
+    logger.info(f"K-Fold split successful!")
+    logger.info(f"  Total folds: {len(split_data['folds'])}")
+    logger.info(f"  Min Tanimoto distance: {split_data['tanimoto_min']:.4f}")
+    logger.info(f"  Max Tanimoto similarity: {split_data['tanimoto_max']:.4f}")
+    logger.info(f"Output written to: {output_path}")
+    
+    # Verify output
+    with open(output_path, 'r') as f:
+        verify_data = json.load(f)
+        assert verify_data['status'] == 'VALID'
+        assert len(verify_data['folds']) == n_folds
+        
+    logger.info("Verification passed!")
 
 if __name__ == "__main__":
     main()

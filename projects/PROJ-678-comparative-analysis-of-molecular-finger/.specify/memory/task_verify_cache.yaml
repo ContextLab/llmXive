@@ -1,9 +1,24 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory hierarchy (`projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`\
+    \ with subfolders `data/raw`, `data/processed`, `code`, `tests`) is provided,\
+    \ nor any indication that the `specs/` sibling directory exists. The implementer\u2019\
+    s claim contains no artifacts confirming the directories were created."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided showing a `tests/` directory with the required `unit/`
     and `integration/` subfolders; the claim lacks any artifact confirming the directory
     structure exists.
+T012:
+  c: false
+  h: f435163df416b14ce8cc2e2946b54b94527927eb7ae9fb1755948a75c352e70d
+  r: "The repository contains `code/filter.py` with the filtering logic, but the required\
+    \ output file `data/processed/organophosphates_filtered.csv` is absent, so the\
+    \ task\u2019s core deliverable (a non\u2011empty filtered CSV) was not produced.\
+    \ The implementer must run the script (or add a driver) to generate and save the\
+    \ filtered dataset at the specified location."
 T013a:
   c: false
   h: 4fd5268ba41d568fbb400365296ea02c2c70be264cd8a1c89b49bbef2d2b28e4
@@ -13,6 +28,12 @@ T013a:
     \ logging a low\u2011sample\u2011size warning is not demonstrated. The missing\
     \ file and incomplete implementation must be added for the task to be considered\
     \ complete."
+T013b:
+  c: false
+  h: 5de2e57442643cd9a16ac67b70d811dcea8f5e6802bf36ab2001a971b6b099ed
+  r: The provided `code/filter.py` does not contain any code that writes `data/processed/sample_size_status.json`,
+    and the file `data/processed/sample_size_status.json` is absent from the repository.
+    Consequently the required JSON output and trigger file are missing.
 T018c:
   c: false
   h: 8b019f3d9b2025644bde250f94405c5c3c610d792ca99cf39a517fb8c5297d76
@@ -21,10 +42,25 @@ T018c:
     \ are missing, so the task\u2019s core behavior (writing the reports and ensuring\
     \ the final `research_results.md` exists before exit) was not performed. The implementer\
     \ must generate both files with the specified content."
-T039:
+T020b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the file `specs/001-comparative-analysis-of-molecular-fingerprints/research.md`\
-    \ exists or that it now contains a \u201CResponse to Reviewer\u201D subsection.\
-    \ Without the actual document content, we cannot verify the required update. The\
-    \ missing artifact must be supplied and inspected."
+  h: 05703c0b7bec84e5c4055c6f4e6e81223b77151ca70c2c864bdd4547ed5dc2c9
+  r: "The required `data/processed/final_test_metrics.json` file is missing, and `code/train.py`\
+    \ does not contain logic to evaluate a final model on the test set or to write\
+    \ the specified ROC\u2011AUC and PR\u2011AUC metrics for Morgan and MACCS fingerprints.\
+    \ The script is focused on training with K\u2011Fold CV and is incomplete/truncated."
+T024a:
+  c: false
+  h: 35872b55635098d483c4fecc86a0cc65d230fc1552ace28414e002faa59fa032
+  r: "The required `data/processed/final_test_metrics.json` file is absent, and `code/evaluate.py`\
+    \ contains no logic to read that file or compute ROC\u2011AUC/PR\u2011AUC specifically\
+    \ for the single held\u2011out test set (FR\u2011004). The script only defines\
+    \ generic evaluation utilities for K\u2011fold folds. Consequently the task\u2019\
+    s core requirement is not satisfied."
+T024b:
+  c: false
+  h: 9820f8cb49db3252b36b24c161848f7d6d1e4438111bba26dd0821052b9073e5
+  r: The required output file `data/processed/test_set_descriptive.json` does not
+    exist, and the provided `code/evaluate.py` (as shown) contains no logic that writes
+    a JSON with the specified schema. Consequently the task of generating the descriptive
+    metrics file has not been fulfilled.

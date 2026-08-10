@@ -84,7 +84,7 @@
 - [X] T014 [US1] Implement batch processing logic in `code/data/extract_latents.py` with dynamic batch size adjustment (FR-001, Edge Cases)
 - [ ] T015 [US1] Implement latent extraction loop to output `data/processed/latents.csv` with video IDs, prompts, and vector arrays
 - [X] T016 [US1] Add error handling in `code/data/extract_latents.py` to log corrupted/missing files and continue processing (Edge Cases)
-- [ ] T017 [US1] Verify output shape and validity of latent vectors in `tests/unit/test_latent_validation.py`
+- [X] T017 [US1] Verify output shape and validity of latent vectors in `tests/unit/test_latent_validation.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,12 +98,12 @@
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Contract test for physics engine simulation output format in `tests/contract/test_physics_output.py`
-- [ ] T019 [P] [US2] Integration test for end-to-end training and stats comparison in `tests/integration/test_model_comparison.py`
+- [X] T018 [P] [US2] Contract test for physics engine simulation output format in `tests/contract/test_physics_output.py`
+- [X] T019 [P] [US2] Integration test for end-to-end training and stats comparison in `tests/integration/test_model_comparison.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement `code/data/extract_original_labels.py` to parse the video metadata from the N=450 curated clips and extract the *original* physical outcomes (e.g., "object fell") as ground truth for Descriptive Analysis. **Output**: `data/processed/original_labels.csv` with columns `scenario_id`, `original_outcome`. This dataset serves as the ground truth for the N=450 Descriptive Baseline (FR-004, Plan Summary).
+- [ ] T020a [US2] **Extract Original Physical Outcomes (N=450)**: Implement code/data/extract_original_labels.py to parse the video metadata from the N=450 curated clips (e.g., "object fell") as ground truth for Descriptive Analysis. **Output**: `data/processed/original_labels.csv` with columns `scenario_id`, `original_outcome`. This dataset serves as the ground truth for the N=450 Descriptive Baseline (FR-004, Plan Summary).
 - [ ] T020b [US2] **Generate Physics-Verified Labels (N=50)**: Implement `code/data/physics_verify.py` to generate **Physics-Verified Labels** for the N=50 subset using full MuJoCo/PyBullet simulation. This task outputs `data/validation/physics_ground_truth_subset.csv` with columns `scenario_id`, `counterfactual_prompt`, `simulated_outcome`. This dataset is used for vector arithmetic validation and Causal Mode training (FR-009, FR-010).
 - [ ] T021 [US2] Implement `code/data/inject_counterfactuals.py` to apply **vector arithmetic** for clear prompts, **ZeroVectorMask** for ambiguous prompts, to generate $z_{cf}$ for *each* clip. Output `data/processed/latents_cf_raw.csv`. (FR-002)
 - [ ] T022 [US2] Implement ambiguity detection in `code/data/inject_counterfactuals.py` to flag ambiguous prompts and record in `failed_scenarios.log`. **Output**: Add `ambiguous_flag` column to `data/processed/latents_cf_raw.csv` (0=valid, 1=ambiguous). (Edge Cases, FR-003)

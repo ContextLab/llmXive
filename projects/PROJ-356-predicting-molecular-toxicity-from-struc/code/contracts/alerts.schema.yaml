@@ -1,12 +1,19 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Structural Alerts Schema
-description: Schema for the structural alerts configuration file.
+%YAML 1.2
+---
+# Schema for structural alerts configuration
+# Used by: src/features/alerts.py, config/structural_alerts.json
 type: object
 required:
+  - version
   - alerts
 properties:
+  version:
+    type: string
+    default: "1.0"
+    description: "Schema version"
   alerts:
     type: array
+    minItems: 1
     items:
       type: object
       required:
@@ -16,14 +23,26 @@ properties:
       properties:
         name:
           type: string
-          description: Human-readable name of the alert (e.g., NitroAromatic).
+          description: "Human-readable name for the alert (e.g., 'NitroAromatic')"
         smarts:
           type: string
-          description: SMARTS pattern string.
+          description: "SMARTS pattern string for the structural alert"
         weight:
           type: number
           minimum: 0.0
-          description: Weight factor for the alert in the rule-based model.
+          description: "Weight of the alert for scoring (FR-003)"
         description:
           type: string
-          description: Optional detailed description of the alert.
+          description: "Optional detailed description of the alert"
+        source:
+          type: string
+          description: "Optional source reference for the alert"
+examples:
+  - name: "NitroAromatic"
+    smarts: "[*;a]([N+](=O)[O-])"
+    weight: 1.5
+    description: "Nitro group attached to an aromatic ring"
+  - name: "Epoxide"
+    smarts: "[C;D3]1[O;D1][C;D3]1"
+    weight: 2.0
+    description: "Three-membered cyclic ether"

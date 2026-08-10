@@ -1,110 +1,131 @@
 """
-Memory monitoring wrapper using tracemalloc to enforce hard memory limits.
+Memory monitoring utilities with hard limits using tracemalloc.
+
+This module provides context managers and functions to monitor memory
+usage and enforce hard memory limits to prevent OOM errors.
 """
+
 import tracemalloc
 import os
 import sys
 from typing import Optional, Callable, Any
 from contextlib import contextmanager
 
+# Default memory limit in MB (7GB as per project requirements)
+DEFAULT_MEMORY_LIMIT_MB = 7 * 1024  # 7000 MB
+
+
 class MemoryLimitExceededError(Exception):
-    """Raised when memory usage exceeds the configured limit."""
+    """Exception raised when memory usage exceeds the configured limit."""
     pass
+
+
+# Global memory limit configuration
+memory_limit: int = int(os.getenv('MEMORY_LIMIT_MB', DEFAULT_MEMORY_LIMIT_MB))
+
+# Flag to track if monitoring is active
+_monitoring_active: bool = False
+
 
 def get_memory_usage_mb() -> float:
     """
-    Get current memory usage in MB.
+    Get current memory usage in megabytes.
     
     Returns:
-        Current memory usage in megabytes.
+        Current memory usage in MB, or 0.0 if tracemalloc is not running.
     """
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
+    if not _monitoring_active:
+        return 0.0
     
-    current, peak = tracemalloc.get_traced_memory()
+    current, _ = tracemalloc.get_traced_memory()
     return current / (1024 * 1024)
 
 def get_peak_memory_mb() -> float:
     """
-    Get peak memory usage since tracing started in MB.
+    Get peak memory usage since monitoring started in megabytes.
     
     Returns:
-        Peak memory usage in megabytes.
+        Peak memory usage in MB, or 0.0 if tracemalloc is not running.
     """
-    if not tracemalloc.is_tracing():
+    if not _monitoring_active:
         return 0.0
     
-    current, peak = tracemalloc.get_traced_memory()
+    _, peak = tracemalloc.get_traced_memory()
     return peak / (1024 * 1024)
 
-@contextmanager
-def memory_limit(limit_mb: float = 7000.0, verbose: bool = True):
+def check_memory_limit() -> None:
     """
-    Context manager to enforce a hard memory limit.
+    Check if current memory usage exceeds the limit.
+    
+    Raises:
+        MemoryLimitExceededError: If memory usage exceeds the configured limit.
+    """
+    if not _monitoring_active:
+        return
+    
+    current_mb = get_memory_usage_mb()
+    if current_mb > memory_limit:
+        raise MemoryLimitExceededError(
+            f"Memory limit exceeded: {current_mb:.2f} MB > {memory_limit} MB"
+        )
+
+def start_monitoring() -> None:
+    """Start memory monitoring with tracemalloc."""
+    global _monitoring_active
+    if not _monitoring_active:
+        tracemalloc.start()
+        _monitoring_active = True
+
+def stop_monitoring() -> None:
+    """Stop memory monitoring and reset state."""
+    global _monitoring_active
+    if _monitoring_active:
+        tracemalloc.stop()
+        _monitoring_active = False
+
+@contextmanager
+def memory_limit_context(limit_mb: Optional[int] = None):
+    """
+    Context manager that enforces a memory limit.
     
     Args:
-        limit_mb: Maximum allowed memory in megabytes (default 7GB).
-        verbose: If True, prints status messages.
-        
+        limit_mb: Optional memory limit in MB. If None, uses the global limit.
+    
+    Yields:
+        None
+    
     Raises:
         MemoryLimitExceededError: If memory usage exceeds the limit.
     """
-    tracemalloc.start()
-    start_mem = get_memory_usage_mb()
-    if verbose:
-        print(f"[MemoryMonitor] Started. Current: {start_mem:.2f} MB, Limit: {limit_mb:.2f} MB")
+    global _monitoring_active
+    old_limit = memory_limit
+    old_monitoring = _monitoring_active
+    
+    if limit_mb is not None:
+        memory_limit = limit_mb
+    
+    if not _monitoring_active:
+        start_monitoring()
     
     try:
         yield
+        # Final check before exiting context
+        check_memory_limit()
     finally:
-        end_mem = get_memory_usage_mb()
-        peak_mem = get_peak_memory_mb()
-        if verbose:
-            print(f"[MemoryMonitor] Finished. Peak: {peak_mem:.2f} MB, Final: {end_mem:.2f} MB")
-        
-        if peak_mem > limit_mb:
-            raise MemoryLimitExceededError(
-                f"Memory limit exceeded: {peak_mem:.2f} MB > {limit_mb:.2f} MB"
-            )
-        tracemalloc.stop()
+        memory_limit = old_limit
+        if not old_monitoring:
+            stop_monitoring()
 
-def check_memory_limit(limit_mb: float = 7000.0, verbose: bool = True) -> bool:
+@contextmanager
+def enforce_memory_limit(limit_mb: Optional[int] = None):
     """
-    Check if current memory usage is within limits.
+    Context manager that periodically checks memory and raises if exceeded.
     
     Args:
-        limit_mb: Maximum allowed memory in megabytes.
-        verbose: If True, prints status messages.
-        
-    Returns:
-        True if within limits, False otherwise.
-        
+        limit_mb: Optional memory limit in MB. If None, uses the global limit.
+    
     Raises:
-        MemoryLimitExceededError: If limit is exceeded.
+        MemoryLimitExceededError: If memory usage exceeds the limit.
     """
-    current_mem = get_memory_usage_mb()
-    peak_mem = get_peak_memory_mb()
-    
-    if verbose:
-        print(f"[MemoryMonitor] Check: Current={current_mem:.2f} MB, Peak={peak_mem:.2f} MB, Limit={limit_mb:.2f} MB")
-    
-    if peak_mem > limit_mb:
-        raise MemoryLimitExceededError(
-            f"Memory limit exceeded: {peak_mem:.2f} MB > {limit_mb:.2f} MB"
-        )
-    
-    return True
-
-def start_monitoring(limit_mb: float = 7000.0) -> None:
-    """
-    Start tracemalloc and set up a periodic check.
-    
-    Args:
-        limit_mb: Maximum allowed memory in megabytes.
-    """
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
-    
-    # We don't set up a background thread here to avoid complexity,
-    # but the context manager can be used for scoped monitoring.
-    print(f"[MemoryMonitor] Monitoring started with limit {limit_mb:.2f} MB")
+    with memory_limit_context(limit_mb):
+        yield

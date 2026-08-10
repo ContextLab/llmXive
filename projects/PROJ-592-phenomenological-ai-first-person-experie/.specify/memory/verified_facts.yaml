@@ -1,7 +1,6 @@
-'|16gb ram user':
-  quote: On September 10, 2024 Huawei announced the Mate XT in a keynote event announcing
-    the specs with 16GB of ram, 256GB 512GB and 1TB storage options, a 10.2 inch screen
-    with 2 flexible LTPO OLED 90Hz displays, a 5,600 mAh battery, and a price of $2,800.
-  source_id: Huawei Mate XT
-  url: https://en.wikipedia.org/wiki/Huawei_Mate_XT
-  value: 16GB
+'|bit execution gguf local use':
+  quote: "(LPIPS0 .243vs.0 .277/0.306for the half-size 4-bit baselines; the INT8\u2212\
+    Q4_K gap excludes"
+  source_id: '2606.12280'
+  url: https://arxiv.org/abs/2606.12280
+  value: Q4_K

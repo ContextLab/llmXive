@@ -1,0 +1,6 @@
+# Extends pyproject.toml for specific overrides if needed, 
+# but currently pyproject.toml handles all config.
+# This file exists to satisfy the explicit .ruff.toml convention if the project 
+# prefers separate config files, though tool.ruff in pyproject.toml is preferred.
+# For this implementation, we rely on pyproject.toml [tool.ruff] section.
+extend = "pyproject.toml"

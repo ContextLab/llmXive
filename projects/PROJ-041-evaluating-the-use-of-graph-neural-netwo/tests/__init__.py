@@ -1,8 +1,3 @@
 """
-Test suite for the llmXive GNN Anomaly Detection project.
-
-This package contains unit tests, integration tests, and test skeletons
-for validating the research pipeline components.
+Test suite for the GNN Anomaly Detection project.
 """
-
-__version__ = "0.1.0"

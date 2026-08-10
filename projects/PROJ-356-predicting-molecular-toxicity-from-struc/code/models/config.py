@@ -1,53 +1,27 @@
 """
-Model configuration and constants.
-
-This module contains configuration parameters and constants for the
-molecular toxicity prediction models.
+Configuration for model hyperparameters and settings.
 """
 from typing import Dict, Any
 
-# Default model parameters
-DEFAULT_MODEL_CONFIG: Dict[str, Any] = {
-    "rule_based": {
-        "config_path": "config/structural_alerts.json",
-        "threshold": 0.0
-    },
-    "logistic_regression": {
-        "n_splits": 5,
-        "n_repeats": 3,
-        "random_state": 42,
-        "C": 1.0,
-        "max_iter": 1000
-    }
-}
+class ModelConfig:
+    """Configuration container for model parameters."""
 
-# Feature importance thresholds
-FEATURE_IMPORTANCE_THRESHOLD: float = 0.01
+    def __init__(self):
+        self.logistic: Dict[str, Any] = {
+            "max_iter": 1000,
+            "random_state": 42,
+            "solver": "lbfgs",
+            "cv_folds": 5,
+            "cv_repeats": 3,
+        }
+        self.rule_based: Dict[str, Any] = {
+            "config_path": "config/structural_alerts.json",
+        }
 
-# Model evaluation metrics
-EVALUATION_METRICS: list = [
-    "roc_auc",
-    "f1",
-    "recall",
-    "precision"
-]
+    def get_logistic_params(self) -> Dict[str, Any]:
+        """Return logistic regression parameters."""
+        return self.logistic.copy()
 
-# Cross-validation strategy
-CV_STRATEGY: Dict[str, Any] = {
-    "type": "stratified",
-    "n_splits": 5,
-    "n_repeats": 3,
-    "shuffle": True
-}
-
-# Memory limits (in bytes)
-MEMORY_LIMIT: int = 7 * 1024 * 1024 * 1024  # 7 GB
-
-# Performance targets
-TARGET_EXECUTION_TIME_HOURS: float = 4.0
-
-# Dataset requirements
-MIN_DATASET_SIZE: int = 1000
-
-# Statistical significance threshold
-SIGNIFICANCE_THRESHOLD: float = 0.05
+    def get_rule_based_params(self) -> Dict[str, Any]:
+        """Return rule-based model parameters."""
+        return self.rule_based.copy()

@@ -12,6 +12,31 @@ T001b:
     artifact list is empty and there is no confirmation (e.g., a directory listing,
     screenshot, or file path) showing the required folder was created. The implementer
     must create the `code/models` directory and provide proof of its existence.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented that a `code/analysis` directory exists; the artifact
+    list is empty, so the required directory was not shown to be created. The implementer
+    must add the directory (and optionally list its contents) to satisfy the task.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence is provided that a `code/utils` directory exists in the repository;\
+    \ the \u201CActual artifacts / evidence on disk\u201D section is empty, so we\
+    \ cannot verify the required directory was created. The implementer must add the\
+    \ directory (and optionally populate it) and provide proof of its presence."
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/raw` directory is provided; the artifact list is empty,
+    so we cannot confirm that the required directory was created. The implementer
+    must create the `data/raw` folder (and show its presence) to satisfy the task.
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/processed` directory was provided; the artifact list is
+    empty, so the required directory does not appear to exist. The implementer must
+    create the directory (and optionally show its presence) to satisfy the task.
 T001g:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,3 +66,17 @@ T003:
     `.pre-commit-config.yaml`) or documentation of their integration into the project
     or CI pipeline are present. The claim lacks any concrete artifact demonstrating
     that `ruff` and `black` have been set up.
+T007a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No dataset files, download scripts, or checksum validation logs are present;
+    the claim provides no tangible artifact confirming that the CTU dataset was downloaded
+    from the canonical URL or that its checksum was verified. The required evidence
+    is missing.
+T007b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (downloaded NF\u2011BoT\u2011IoT files, checksum file, or validation\
+    \ script/log) is present; the claim provides no evidence that the dataset was\
+    \ retrieved or that its checksum was verified. The required download and checksum\
+    \ validation steps are therefore missing."

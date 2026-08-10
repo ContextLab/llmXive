@@ -1,84 +1,92 @@
 # Data Model: Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction
 
-This document defines the core data entities, their schemas, and relationships for the project.
-These definitions serve as the contract between data acquisition, processing, modeling, and evaluation stages.
+This document defines the core data entities, their schemas, and relationships for the molecular fingerprint analysis pipeline.
 
-## 1. Compound
+## 1. Entity: Compound
 
-Represents a unique chemical entity derived from the Tox21 dataset, filtered for organophosphates.
+Represents a chemical compound from the source dataset (Tox21).
 
+**Schema:**
 | Field Name | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `compound_id` | string | Unique identifier (e.g., DSSTox ID or hash) | Primary Key, Non-null |
-| `smiles` | string | Canonical SMILES string representing the molecular structure | Non-null, Valid RDKit parseable string |
-| `inchi_key` | string | Standard InChI Key for deduplication | Unique, Non-null |
-| `molecular_weight` | float | Calculated molecular weight (g/mol) | > 0 |
-| `is_organophosphate` | boolean | Flag indicating if the compound matches the SMARTS pattern `[P](=O)([O,SC])[O,SC]` | True (after filtering) |
-| `toxicity_labels` | dict | Dictionary mapping endpoint names to binary labels (0/1) or null | Keys: `NR-AR`, `NR-AR-LBD`, `NR-AhR`, etc. |
+| `compound_id` | str | Unique identifier for the compound (e.g., DSSTox ID) | Primary Key, Non-null |
+| `smiles` | str | Canonical SMILES string representing the molecular structure | Non-null, Valid RDKit parseable string |
+| `molecular_weight` | float | Calculated molecular weight | > 0 |
+| `formula` | str | Chemical formula (optional) | Nullable |
+| `organophosphate` | bool | Flag indicating if the compound matches the organophosphate SMARTS pattern | Derived (via T012) |
+| `labels` | dict | Dictionary of toxicity endpoints (e.g., `{"NR-AR": 0, "NR-AR-LBD": 1}`) | Values in {0, 1, -1} (0: inactive, 1: active, -1: missing) |
 
-**Source**: `data/processed/organophosphates_filtered.csv`
-**Schema Version**: 1.0
+**Source:** `data/raw/tox21.csv` (via T011)
+**Derived File:** `data/processed/organophosphates_filtered.csv` (via T012)
 
-## 2. Fingerprint
+## 2. Entity: Fingerprint
 
-Represents the binary vector encoding of a compound's molecular structure, generated via RDKit.
+Represents a binary or integer vector encoding the structural features of a compound.
 
+**Schema:**
 | Field Name | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `compound_id` | string | Foreign key referencing `Compound.compound_id` | Foreign Key |
-| `fingerprint_type` | string | Type of fingerprint: `Morgan` or `MACCS` | Enum: ['Morgan', 'MACCS'] |
-| `parameters` | dict | Configuration used for generation (e.g., radius, bits) | JSON object |
-| `bit_vector` | list[int] | The binary fingerprint vector (0 or 1) | Length: 2048 (Morgan) or 166 (MACCS) |
-| `generated_at` | timestamp | ISO 8601 timestamp of generation | Non-null |
+| `compound_id` | str | Reference to the parent Compound | Foreign Key |
+| `fingerprint_type` | str | Type of fingerprint (e.g., "Morgan", "MACCS") | Enum: ["Morgan", "MACCS"] |
+| `parameters` | dict | Configuration used for generation (e.g., `{"radius": 2, "n_bits": 2048}`) | Non-null |
+| `vector` | ndarray | The actual fingerprint bit vector (uint8 or int) | Shape depends on type |
+| `bit_info` | dict | Mapping of bit indices to substructure patterns (for Morgan) | Optional, derived |
 
-**Source**: Intermediate memory objects or `data/processed/fingerprints.pkl`
-**Schema Version**: 1.0
+**Constants (from `code/constants.py`):**
+- **Morgan:** `radius=2`, `n_bits=2048`
+- **MACCS:** `n_bits=166`
 
-## 3. Model
+**Derived File:** `data/processed/fingerprints.pkl` (via T017)
 
-Represents a trained machine learning model (Random Forest) associated with a specific fingerprint type and split configuration.
+## 3. Entity: Model
 
+Represents a trained machine learning model (Random Forest) used for toxicity prediction.
+
+**Schema:**
 | Field Name | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `model_id` | string | Unique identifier for the model instance | Primary Key |
-| `model_type` | string | Algorithm used (e.g., `RandomForestClassifier`) | Non-null |
-| `fingerprint_type` | string | Input feature type (`Morgan` or `MACCS`) | Enum: ['Morgan', 'MACCS'] |
-| `hyperparameters` | dict | Training parameters (e.g., `n_estimators`, `max_depth`) | JSON object |
-| `split_config` | string | Identifier for the data split used (e.g., `single_held_out`, `kfold_0`) | Non-null |
-| `artifact_path` | string | Relative path to the serialized model file (`.pkl`) | Valid file path |
-| `trained_at` | timestamp | ISO 8601 timestamp of training | Non-null |
+| `model_id` | str | Unique identifier for the model instance | Primary Key |
+| `algorithm` | str | Underlying algorithm (e.g., "RandomForestClassifier") | Non-null |
+| `fingerprint_type` | str | Type of fingerprint used for training | Enum: ["Morgan", "MACCS"] |
+| `hyperparameters` | dict | Training parameters (e.g., `{"n_estimators": 100, "max_depth": 15}`) | Non-null |
+| `training_set_id` | str | Reference to the specific data split used for training | Foreign Key |
+| `artifacts` | dict | Serialized model object and feature importance vectors | Non-null |
+| `feature_importances` | ndarray | Gini importance scores for each bit in the fingerprint | Shape matches fingerprint vector |
 
-**Source**: `data/processed/final_models.pkl` (serialized object metadata)
-**Schema Version**: 1.0
+**Derived File:** `data/processed/final_models.pkl` (via T020a)
 
-## 4. PerformanceMetric
+## 4. Entity: PerformanceMetric
 
-Represents the quantitative evaluation results of a model on a specific dataset split.
+Represents the evaluation results of a model on a specific dataset split.
 
+**Schema:**
 | Field Name | Type | Description | Constraints |
 |:--- |:--- |:--- |:--- |
-| `metric_id` | string | Unique identifier for the metric record | Primary Key |
-| `model_id` | string | Foreign key referencing `Model.model_id` | Foreign Key |
-| `split_config` | string | The data split configuration used for evaluation | Non-null |
-| `metric_name` | string | Name of the metric (e.g., `roc_auc`, `pr_auc`) | Enum: ['roc_auc', 'pr_auc'] |
-| `value` | float | The calculated score | 0.0 <= value <= 1.0 |
-| `confidence_interval` | list[float] | 95% CI bounds [lower, upper] (if applicable) | Optional |
-| `p_value` | float | Statistical significance value (if applicable) | 0.0 <= value <= 1.0 |
-| `evaluated_at` | timestamp | ISO 8601 timestamp of evaluation | Non-null |
+| `metric_id` | str | Unique identifier for the metric record | Primary Key |
+| `model_id` | str | Reference to the evaluated Model | Foreign Key |
+| `dataset_split` | str | Name of the split used (e.g., "test_set", "fold_0") | Non-null |
+| `metric_name` | str | Name of the metric (e.g., "roc_auc", "pr_auc") | Enum: ["roc_auc", "pr_auc"] |
+| `value` | float | Calculated metric value | Range: [0.0, 1.0] |
+| `confidence_interval` | tuple | (lower, upper) bounds if calculated via bootstrap | Optional |
+| `p_value` | float | Statistical significance value (for comparative tests) | Range: [0.0, 1.0] |
 
-**Source**: `data/processed/final_test_metrics.json`, `data/processed/kfold_scores.json`, `data/processed/sc003_analysis.json`
-**Schema Version**: 1.0
+**Derived Files:**
+- `data/processed/final_test_metrics.json` (Single Split, via T020b)
+- `data/processed/kfold_scores.json` (K-Fold CV, via T019)
+- `data/processed/test_set_descriptive.json` (via T024b)
+- `data/processed/sc003_analysis.json` (Feature Importance, via T025c3)
 
-## Data Flow & Relationships
+## Relationships
 
-1. **Compound** is the foundational entity.
-2. **Fingerprint** is derived from **Compound** (1:1 or 1:N relationship depending on fingerprint types generated).
-3. **Model** is trained on **Fingerprint** data partitioned by a **Split**.
-4. **PerformanceMetric** is calculated by evaluating **Model** on a held-out set of **Fingerprints** and **Compound** labels.
+1. **Compound 1..1 Fingerprint**: Each compound generates one Morgan and one MACCS fingerprint.
+2. **Compound 1..* PerformanceMetric**: A compound's label is used in multiple model evaluations.
+3. **Model 1..* PerformanceMetric**: A model is evaluated on multiple splits (K-Fold) or a single test set.
+4. **PerformanceMetric 1..1 Model**: Each metric record belongs to exactly one model instance.
 
-## Constraints & Validation Rules
+## Data Flow
 
-- **SMARTS Filter**: All `Compound` records must satisfy the pattern `[P](=O)([O,SC])[O,SC]` to be included in the analysis.
-- **Fingerprint Consistency**: Morgan fingerprints must have exactly 2048 bits; MACCS must have 166 bits. [UNRESOLVED-CLAIM: c_f94f7e14 — status=not_enough_info]
-- **Split Integrity**: The Tanimoto similarity between any compound in the test set and any compound in the training set must be < 0.85 (Greedy Maximal Dissimilarity constraint).
-- **Statistical Rigor**: Corrected Resampled t-test (Nadeau & Bengio) is applied to `roc_auc` scores from K-Fold splits only.
+1. **Raw Data** -> `Compound` (T011)
+2. **Compound** -> `Fingerprint` (T017)
+3. **Fingerprint + Compound Labels** -> `Model` (T019, T020a)
+4. **Model + Test Data** -> `PerformanceMetric` (T020b, T019)
+5. **PerformanceMetric Aggregation** -> Statistical Reports (T025a2, T025b, T029a3)

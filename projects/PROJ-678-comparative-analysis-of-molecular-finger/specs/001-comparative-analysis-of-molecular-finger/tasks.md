@@ -57,8 +57,8 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure. **Gate**: Pre-Phase 0 (T008) must be complete.
 
-- [ ] T001a Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`. Execute: `mkdir -p data/raw data/processed code tests`. Note: `specs/` is a sibling to `projects/`, not nested inside.
-- [ ] T001b Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
+- [ ] T001a Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`. Execute: `mkdir -p data/raw data/processed code tests`. Note: `specs/` is a sibling to `projects/`, not nested inside. <!-- FAILED: unspecified -->
+- [X] T001b Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md` <!-- FAILED: unspecified -->
 - [X] T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 - [X] T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep`. Verify with: `ls -d data/raw data/processed && test -f data/raw/.gitkeep && test -f data/processed/.gitkeep`.
@@ -94,7 +94,7 @@ description: "Task list template for feature implementation"
  - **Failure Path**: After execution, `grep "WARNING: Low Sample Size (n < 50)" data/processed/filter_log.txt` must succeed if n < 50.
  - **Success Path**: After execution, `grep "status: OK" data/processed/filter_log.txt` must succeed if n >= 50.
  **Deliverable**: File `data/processed/filter_log.txt` must exist and contain either the warning string or "status: OK". **Depends on T012**.
-- [ ] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **CRITICAL**: This file is the trigger for downstream statistical tasks. **Verification**: `cat data/processed/sample_size_status.json` must return valid JSON. **Depends on T013a**.
+- [ ] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **CRITICAL**: This file is the trigger for downstream statistical tasks. **Verification**: `cat data/processed/sample_size_status.json` must return valid JSON. **Depends on T013a**. <!-- FAILED: unspecified -->
 - [ ] T014 [US1] Add logging for dataset download size, filter counts, and endpoint distribution to `data/processed/filter_log.txt`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -115,7 +115,7 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 2
 
 - [X] T017 [US2] Implement `code/fingerprints.py` to generate Morgan (radius=2, 2048 bits) and MACCS (bits) fingerprints for all compounds in filtered CSV; implement chunked processing (batch=500) if memory > 7GB.
-- [ ] T018a [US2] **Single Greedy Maximal Dissimilarity Split**: Implement `code/split.py` to execute a **Single Greedy Maximal Dissimilarity Split** (Tanimoto < 0.85) on the **full filtered dataset** to create a held-out test set (FR-004).
+- [X] T018a [US2] **Single Greedy Maximal Dissimilarity Split**: Implement `code/split.py` to execute a **Single Greedy Maximal Dissimilarity Split** (Tanimoto < 0.85) on the **full filtered dataset** to create a held-out test set (FR-004).
  **Algorithm**:
  1. Initialize test set with the compound furthest from the mean of all compounds.
  2. Iterate through remaining compounds, selecting the one with max min-distance to current test set.
@@ -127,7 +127,7 @@ description: "Task list template for feature implementation"
  **CRITICAL HARD GATE**: If status is "INVALID", write `data/processed/single_split_error.log` with the specific error reason (e.g., "Test set size < 20" or "Tanimoto threshold violated") and **HALT** the pipeline. Do NOT proceed to T020a.
  **Deliverable**: If VALID, write `data/processed/split_indices.json` with schema `{"status": "VALID", "test_indices": [int], "train_indices": [int], "tanimoto_min": float, "tanimoto_max": float}`. If INVALID, write `data/processed/single_split_invalid_report.md` stating "Single Split Invalid: Insufficient Structural Diversity" and `data/processed/single_split_error.log`.
  **Dependency**: T017. **Parallel to T018c**.
-- [ ] T018c [US2] **K-Fold Splitter**: Implement `code/split.py` to generate **K-Fold Split Indices** (where K=`N_FOLDS` from `code/constants.py`) using **Greedy Maximal Dissimilarity** *per fold*.
+- [X] T018c [US2] **K-Fold Splitter**: Implement `code/split.py` to generate **K-Fold Split Indices** (where K=`N_FOLDS` from `code/constants.py`) using **Greedy Maximal Dissimilarity** *per fold*.
  **Algorithm**:
  1. Load `data/processed/organophosphates_filtered.csv`.
  2. For each fold k (0 to K-1):
@@ -146,7 +146,7 @@ description: "Task list template for feature implementation"
  **Deliverable**: Write `data/processed/kfold_scores.json` with schema `{"morgan": {"roc_auc": [float,...]}, "maccs": {"roc_auc": [float,...]}}`. These scores are used for the Corrected Resampled t-test.
  **Dependency**: T018c. **Parallel to T020a**.
 - [X] T020a [US2] **Train Final Model**: Implement `code/train.py` to train a **Final Model** on the **Training Set** (from T018a) and save the model object to `data/processed/final_models.pkl`. **CRITICAL**: Only execute if T018a status is "VALID". If T018a is "INVALID", skip this task. **Dependency**: T018a. **Parallel to T019**.
-- [ ] T020b [US2] **Evaluate Final Model**: Implement `code/train.py` to evaluate the Final Model on the **Test Set** (from T018a) and save metrics to `data/processed/final_test_metrics.json` with schema `{"morgan": {"roc_auc": float, "pr_auc": float}, "maccs": {"roc_auc": float, "pr_auc": float}}`. **Dependency**: T020a.
+- [ ] T020b [US2] **Evaluate Final Model**: Implement `code/train.py` to evaluate the Final Model on the **Test Set** (from T018a) and save metrics to `data/processed/final_test_metrics.json` with schema `{"morgan": {"roc_auc": float, "pr_auc": float}, "maccs": {"roc_auc": float, "pr_auc": float}}`. **Dependency**: T020a. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -165,11 +165,11 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T024a [US3] **Calculate Descriptive Metrics**: Implement `code/evaluate.py` to read `data/processed/final_test_metrics.json`. Calculate ROC-AUC and PR-AUC for the **Single Held-Out Test Set** (FR-004). **CRITICAL**: These metrics are for the descriptive report ONLY and are distinct from the K-Fold statistical metrics. **Dependency**: T020b.
+- [ ] T024a [US3] **Calculate Descriptive Metrics**: Implement `code/evaluate.py` to read `data/processed/final_test_metrics.json`. Calculate ROC-AUC and PR-AUC for the **Single Held-Out Test Set** (FR-004). **CRITICAL**: These metrics are for the descriptive report ONLY and are distinct from the K-Fold statistical metrics. **Dependency**: T020b. <!-- FAILED: unspecified -->
 - [ ] T024b [US3] **Write Descriptive Metrics**: Implement `code/evaluate.py` to write `data/processed/test_set_descriptive.json` with schema `{"morgan": {"roc_auc": float, "pr_auc": float}, "maccs": {"roc_auc": float, "pr_auc": float}}`. **Dependency**: T024a.
 - [ ] T025a1 [US3] **Load & Verify Data**: Implement `code/evaluate.py` to read `data/processed/kfold_scores.json` and `data/processed/sample_size_status.json`. Verify that the scores are derived from K-Fold splits (full dataset) and NOT the single held-out test set. If `sample_size_status.json` is "SKIP_STATS", skip execution and log "Statistical test skipped due to low sample size". **Dependency**: T019, T013b.
 - [ ] T025a2 [US3] **Execute Statistical Test**: Implement `code/evaluate.py` to perform the **Corrected Resampled t-test (Nadeau & Bengio)** on the **K-Fold ROC-AUC scores** from `data/processed/kfold_scores.json`. **CRITICAL**: Only ROC-AUC scores are used for this test. **Reproducibility**: Use `random_seed=42` and `n_iterations=1000`. **Dependency**: T025a1.
-- [ ] T025b [US3] **Bootstrap Confidence Interval**: Implement `code/evaluate.py` to generate confidence intervals via **bootstrap resamples** of the **difference** in performance (Morgan - MACCS) for **ROC-AUC** using the **K-Fold scores**. **Reproducibility**: Use `random_seed=42` and `n_iterations=1000`. **Dependency**: T025a2.
+- [X] T025b [US3] **Bootstrap Confidence Interval**: Implement `code/evaluate.py` to generate confidence intervals via **bootstrap resamples** of the **difference** in performance (Morgan - MACCS) for **ROC-AUC** using the **K-Fold scores**. **Reproducibility**: Use `random_seed=42` and `n_iterations=1000`. **Dependency**: T025a2. <!-- FAILED: unspecified -->
 - [ ] T025c1 [US3] **Identify Phosphorus Bits**: Implement `code/evaluate.py` to:
  1. Parse SMILES from `data/processed/organophosphates_filtered.csv`.
  2. Locate the atom with atomic number corresponding to Phosphorus in each molecule.

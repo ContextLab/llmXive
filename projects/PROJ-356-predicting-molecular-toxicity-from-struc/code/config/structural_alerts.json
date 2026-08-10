@@ -1,66 +1,76 @@
 {
   "version": "1.0.0",
-  "description": "Curated set of structural alerts with SMARTS patterns and toxicity weights for molecular toxicity prediction.",
+  "description": "Curated set of SMARTS patterns and weights for structural alert-based toxicity prediction",
   "alerts": [
     {
-      "id": "NitroAromatic",
+      "id": "nitro_aromatic",
+      "name": "NitroAromatic",
       "smarts": "[*;a]([N+](=O)[O-])",
       "weight": 1.5,
-      "description": "Nitro aromatic compounds are known mutagens."
+      "description": "Nitro group attached to an aromatic ring"
     },
     {
-      "id": "Epoxide",
+      "id": "epoxide",
+      "name": "Epoxide",
       "smarts": "[C;D3]1[O;D1][C;D3]1",
       "weight": 2.0,
-      "description": "Epoxides are highly reactive electrophiles."
+      "description": "Three-membered cyclic ether"
     },
     {
-      "id": "PrimaryAromaticAmine",
+      "id": "primary_aromatic_amine",
+      "name": "PrimaryAromaticAmine",
       "smarts": "[N;D1;H2][c]",
       "weight": 1.2,
-      "description": "Primary aromatic amines are common metabolic activation targets."
+      "description": "Primary amine attached to an aromatic ring"
     },
     {
-      "id": "SecondaryAromaticAmine",
+      "id": "secondary_aromatic_amine",
+      "name": "SecondaryAromaticAmine",
       "smarts": "[N;D2;H1][c]",
       "weight": 1.0,
-      "description": "Secondary aromatic amines exhibit moderate toxicity risk."
+      "description": "Secondary amine attached to an aromatic ring"
     },
     {
-      "id": "Azide",
+      "id": "azide",
+      "name": "Azide",
       "smarts": "[N;D1]=[N;D1]=[N;D1]",
       "weight": 2.5,
-      "description": "Azides are unstable and potentially toxic."
+      "description": "Azide functional group"
     },
     {
-      "id": "Isocyanate",
+      "id": "isocyanate",
+      "name": "Isocyanate",
       "smarts": "[N;D1]=[C;D2]=[O;D1]",
       "weight": 2.0,
-      "description": "Isocyanates are reactive and respiratory sensitizers."
+      "description": "Isocyanate functional group"
     },
     {
-      "id": "Aldehyde",
+      "id": "aldehyde",
+      "name": "Aldehyde",
       "smarts": "[C;D2](=[O;D1])[H;D1]",
       "weight": 0.8,
-      "description": "Aldehydes can form protein adducts."
+      "description": "Aldehyde functional group"
     },
     {
-      "id": "HalogenatedAliphatic",
+      "id": "halogenated_aliphatic",
+      "name": "HalogenatedAliphatic",
       "smarts": "[C;D4][Cl,Br,I,F]",
       "weight": 0.5,
-      "description": "Halogenated aliphatic chains may indicate metabolic stability or toxicity."
+      "description": "Aliphatic carbon bonded to a halogen"
     },
     {
-      "id": "Azo",
+      "id": "azo",
+      "name": "Azo",
       "smarts": "[N;D1]=[N;D1]",
       "weight": 1.8,
-      "description": "Azo compounds can be reduced to aromatic amines."
+      "description": "Azo group (N=N)"
     },
     {
-      "id": "Hydrazine",
+      "id": "hydrazine",
+      "name": "Hydrazine",
       "smarts": "[N;D1][N;D1]",
       "weight": 1.5,
-      "description": "Hydrazine derivatives are toxic and potentially carcinogenic."
+      "description": "Hydrazine group (N-N)"
     }
   ]
 }

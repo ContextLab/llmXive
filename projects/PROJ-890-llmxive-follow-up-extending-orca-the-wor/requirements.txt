@@ -1,25 +1,12 @@
-# Core dependencies for llmXive Orca Follow-up
-# CPU-only constraints enforced
+# Core dependencies
 torch==2.1.0
 torchvision==0.16.0
-torchaudio==2.1.0
-# Note: Install CPU-only version via pip if not using conda
-# pip install torch --index-url https://download.pytorch.org/whl/cpu
-
-numpy>=1.24.0,<2.0.0
-pandas>=2.0.0
-scikit-learn>=1.3.0
-datasets>=2.14.0
-transformers>=4.35.0
-accelerate>=0.24.0
-
-# Utilities
-psutil>=5.9.0
-pydantic>=2.0.0
-ruff>=0.1.0
-black>=23.0.0
-pytest>=7.4.0
-
-# Physics (Optional for later phases, but listed here)
-# mujoco>=3.0.0
-# pybullet>=3.2.0
+numpy==1.24.3
+pandas==2.0.3
+scikit-learn==1.3.0
+datasets==2.14.6
+pydantic==2.4.2
+psutil==5.9.5
+ruff==0.1.0
+black==23.9.1
+pytest==7.4.2

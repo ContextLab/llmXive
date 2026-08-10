@@ -3551,3 +3551,1199 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T22:41:17Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 0
+  canonical: load NLI model cross-encoder/stsb-distilroberta-base
+  claim_id: c_98d58777
+  context: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
+    (CPU-safe), compute pairwise contradiction counts.'
+  evidence:
+    entailment_evidence: Use cross-encoder/stsb-distilroberta-base NLI model.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Use_cross-encoder/stsb-distilroberta-base_NLI_model.
+  kind: entity_fact
+  raw_text: load NLI model cross-encoder/stsb-distilroberta-base
+  resolved_value: Use cross-encoder/stsb-distilroberta-base NLI model.
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T19:05:56Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 0
+  canonical: run Shapiro-Wilk and Levene tests
+  claim_id: c_ae3749ab
+  context: 'Implement code/analysis/stats.py to orchestrate metric aggregation. Logic:
+    Run Shapiro-Wilk and Levene tests (FR-012).'
+  evidence:
+    entailment_evidence: Perform Shapiro-Wilk and Levene tests.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Perform_Shapiro-Wilk_and_Levene_tests.
+  kind: entity_fact
+  raw_text: run Shapiro-Wilk and Levene tests
+  resolved_value: Perform Shapiro-Wilk and Levene tests.
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T19:06:01Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 0
+  canonical: TinyLlama-1.1B is the only model for the primary CI pipeline
+  claim_id: c_233306d7
+  context: 'Model Constraint: TinyLlama-1.1B is the only model for the primary CI
+    pipeline. 7B models are optional/local-only and excluded from the primary research
+    validity path.'
+  evidence:
+    asserted: '-1.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: TinyLlama-1.1B is the only model for the primary CI pipeline
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T19:06:10Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 80 samples per prompt per strategy
+  claim_id: c_a2c3857a
+  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
+    a substantial total dataset for analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'target volume: approximately 80 samples per prompt per strategy'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:06:58Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 6400 total samples calculated as 80 samples times 20 prompts times 4
+    strategies
+  claim_id: c_d80b8747
+  context: "Independent Test: Execute code/generation/runner.py and verify data/raw/\
+    \ contains \u226580 samples per strategy (totaling a substantial set of samples:\
+    \ 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON metadata."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "totaling a substantial set of samples: 80 samples \xD7 20 prompts \xD7\
+    \ 4 strategies"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:07:21Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 80 samples per strategy
+  claim_id: c_f51f74c8
+  context: "verify data/raw/ contains \u226580 samples per strategy"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 80 samples per strategy
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:07:49Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 20 base prompts
+  claim_id: c_8a004f7f
+  context: Implement code/generation/prompt_engineering.py with the defined strategies
+    (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts loaded from
+    data/prompts/base_prompts.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 20 base prompts loaded from data/prompts/base_prompts.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:08:07Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 4 prompting strategies
+  claim_id: c_5c5a3d73
+  context: Generate the corpus of phenomenological reports using CPU-tractable models
+    and four prompting strategies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4 strategies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:08:26Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time is 6 hours or less on free-tier
+  claim_id: c_e5cb4525
+  context: "Run quickstart.md validation to ensure full pipeline execution \u2264\
+    6 hours on free-tier"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "run full pipeline execution in \u22646 hours on free-tier"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:08:26Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: sample size gap between CI and Research is 1024
+  claim_id: c_0e69702e
+  context: Implement code/analysis/sensitivity_analysis.py to test validity score
+    weights (FR-006) and address the sample size gap (CI vs Research 1024) by analyzing
+    robustness across sample subsets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: address the sample size gap (CI vs Research 1024)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:09:05Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: load model TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  claim_id: c_0c130217
+  context: Implement code/generation/runner.py using llama-cpp-python for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+    (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf) on CPU-only environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load model TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:09:21Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: load model tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+  claim_id: c_3dcc7908
+  context: Implement code/generation/runner.py using llama-cpp-python for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+    (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf) on CPU-only environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load model tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:09:38Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: generate control samples using arxiv_nlp dataset
+  claim_id: c_8bc789c0
+  context: "Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples using datasets.load_dataset(\"arxiv_nlp\") with filter='arxiv_nlp' and\
+    \ random sampling."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_control_samples_using_arxiv_nlp_dataset
+  kind: entity_fact
+  raw_text: generate control samples using datasets.load_dataset(arxiv_nlp)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:09:58Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: load dataset imdb
+  claim_id: c_be29ea01
+  context: 'Add a comparative analysis module that explicitly tests the "phenomenological
+    style" hypothesis by comparing the generated reports against a baseline of "ordinary
+    conversation" (e.g., from datasets.load_dataset("imdb") or {{claim:c_f16d7feb}}
+    (Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3) subset).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_dataset_imdb
+  kind: entity_fact
+  raw_text: load dataset imdb
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:10:12Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: load dataset arxiv_nlp
+  claim_id: c_d39e522e
+  context: "Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples using datasets.load_dataset(\"arxiv_nlp\") with filter='arxiv_nlp' and\
+    \ random sampling."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_dataset_arxiv_nlp
+  kind: entity_fact
+  raw_text: load dataset arxiv_nlp
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:10:31Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: output experience traces to data/processed/experience_traces.json
+  claim_id: c_3bf14926
+  context: Create a lightweight attention-mapping script that extracts and logs the
+    top-k token attention heads for specific phenomenological keywords (e.g., "feel",
+    "now") to trace internal state activation patterns. Output to data/processed/experience_traces.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_experience_traces_to_data/processed/experience_traces
+  kind: entity_fact
+  raw_text: output to data/processed/experience_traces.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:10:54Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR and Tukey HSD post-hoc tests
+  claim_id: c_42969247
+  context: Implement code/analysis/fdr_correction.py and code/analysis/tukey_hsd.py
+    for Benjamini-Hochberg FDR and Tukey HSD post-hoc tests (FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_and_Tukey_HSD_post-hoc_tests
+  kind: entity_fact
+  raw_text: apply Benjamini-Hochberg FDR and Tukey HSD post-hoc tests
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:11:21Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: compute pairwise contradiction counts
+  claim_id: c_a349faaf
+  context: 'Implement code/analysis/consistency.py: Load NLI model cross-encoder/stsb-distilroberta-base
+    (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping
+    pairs with warnings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_pairwise_contradiction_counts
+  kind: entity_fact
+  raw_text: compute pairwise contradiction counts
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:11:36Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: calculate cosine similarity for stability scores
+  claim_id: c_bcd21c58
+  context: 'Implement code/analysis/stability.py: Compute embeddings for repeated
+    generations, calculate cosine similarity, and store stability scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_cosine_similarity_for_stability_scores
+  kind: entity_fact
+  raw_text: calculate cosine similarity for stability scores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:11:58Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: count sensory, temporal, and intentional markers
+  claim_id: c_4d9930bd
+  context: 'Implement code/analysis/markers.py: Load the keyword dictionary defined
+    in code/config.py (T004) to count sensory, temporal, and intentional markers (FR-008).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Count_sensory,_temporal,_and_intentional_markers
+  kind: entity_fact
+  raw_text: count sensory, temporal, and intentional markers
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:12:19Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: compute Cohen's kappa
+  claim_id: c_f8d0d06b
+  context: "Implement Cohen's \u03BA calculation and threshold sensitivity analysis\
+    \ in code/analysis/sensitivity_kappa.py: Analyze robustness of conclusions across\
+    \ a range of kappa thresholds as required by FR-011."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Cohen%27s_kappa
+  kind: entity_fact
+  raw_text: compute Cohen's kappa
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:12:41Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: apply independent validation rubric from code/validation/rubric.md
+  claim_id: c_ea60d01d
+  context: Implement code/validation/human_rater.py to load generated reports, apply
+    independent validation rubric from code/validation/rubric.md (FR-010), and store
+    ratings.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_independent_validation_rubric_from_code/validation/rub
+  kind: entity_fact
+  raw_text: apply independent validation rubric from code/validation/rubric.md
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:13:13Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: verify data/qualitative/ contains anonymized rating sheets
+  claim_id: c_60279a24
+  context: "Independent Test: Verify data/qualitative/ contains anonymized rating\
+    \ sheets, code/validation/human_rater.py calculates Cohen's \u03BA correctly,\
+    \ and the archive script commits all artifacts."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_data/qualitative/_contains_anonymized_rating_sheets
+  kind: entity_fact
+  raw_text: verify data/qualitative/ contains anonymized rating sheets
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:13:41Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: verify data/processed/validity_scores.csv contains non-null scores for
+    Internal Consistency, Semantic Stability, and Marker Presence
+  claim_id: c_d08c0dc0
+  context: 'Independent Test: Run code/analysis/stats.py on a small subset of reports
+    and verify data/processed/validity_scores.csv contains non-null scores for all
+    three metrics and correct statistical test outputs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_data/processed/validity_scores.csv_contains_non-null
+  kind: entity_fact
+  raw_text: verify data/processed/validity_scores.csv contains non-null scores for
+    all three metrics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:14:03Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: verify no CUDA errors
+  claim_id: c_2d4395ae
+  context: "Independent Test: Execute code/generation/runner.py and verify data/raw/\
+    \ contains \u226580 samples per strategy with valid JSON metadata (seed, prompt,\
+    \ strategy) and no CUDA errors."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_no_CUDA_errors
+  kind: entity_fact
+  raw_text: verify no CUDA errors
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:14:28Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: verify valid JSON metadata (seed, prompt, strategy)
+  claim_id: c_1c4403d2
+  context: "Independent Test: Execute code/generation/runner.py and verify data/raw/\
+    \ contains \u226580 samples per strategy (totaling a substantial set of samples:\
+    \ 80 samples \xD7 20 prompts \xD7 4 strategies) with valid JSON metadata (seed,\
+    \ prompt, strategy) and no CUDA errors."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_valid_JSON_metadata_(seed,_prompt,_strategy)
+  kind: entity_fact
+  raw_text: verify valid JSON metadata (seed, prompt, strategy)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:14:57Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: exclude 7B models from CI
+  claim_id: c_dd7f9cb8
+  context: 'Target volume: approximately 80 samples per prompt per strategy, yielding
+    a substantial total dataset for analysis.. Constraint: Do not use 7B models in
+    this script; they are excluded from CI.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_7B_models_from_CI
+  kind: entity_fact
+  raw_text: exclude 7B models from CI
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:15:14Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: use 4-bit GGUF for local execution
+  claim_id: c_c4b7f531
+  context: Implement code/generation/runner_local.py for the second checkpoint (Mistral-7B
+    or Llama-7B) using llama-cpp-python with 4-bit GGUF.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "(LPIPS0 .243vs.0 .277/0.306for the half-size 4-bit baselines; the INT8\u2212\
+        Q4_K gap excludes"
+      source_id: '2606.12280'
+      url: https://arxiv.org/abs/2606.12280
+      value: Q4_K
+    filled: true
+  kind: numeric
+  raw_text: use 4-bit GGUF for local execution
+  resolved_value: Q4_K
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T19:15:27Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: run on CPU-only environment
+  claim_id: c_f4156bcb
+  context: Implement code/generation/runner.py using llama-cpp-python for TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+    (specifically tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf) on CPU-only environment (FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_on_CPU-only_environment
+  kind: entity_fact
+  raw_text: run on CPU-only environment
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:16:02Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 7B models are excluded from the primary CI path due to RAM constraints
+  claim_id: c_bf5828a7
+  context: 'Note: This is NOT required for primary research validity or CI execution
+    (Plan.md). 7B models are excluded from the primary CI path due to RAM constraints.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_models_are_excluded_from_the_primary_CI_path_due_to_RAM_c
+  kind: entity_fact
+  raw_text: 7B models are excluded from the primary CI path due to RAM constraints
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:16:26Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: output a report justifying the fixed weights used in the Constitution
+    based on sensitivity results
+  claim_id: c_a09db712
+  context: 'Justification: Output a report justifying the fixed weights used in the
+    Constitution based on sensitivity results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_a_report_justifying_the_fixed_weights_used_in_the_Con
+  kind: entity_fact
+  raw_text: output a report justifying the fixed weights used in the Constitution
+    based on sensitivity results
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:16:54Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: cite phenomenology literature or perform alternative metric sensitivity
+  claim_id: c_c18a13a8
+  context: Implement code/analysis/validity_justification.py to cite phenomenology
+    literature or perform alternative metric sensitivity (FR-009).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cite_phenomenology_literature_or_perform_alternative_metric
+  kind: entity_fact
+  raw_text: cite phenomenology literature or perform alternative metric sensitivity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:17:17Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: measure the operational difference in marker density and structural coherence
+  claim_id: c_3d5c5686
+  context: 'Add a comparative analysis module that explicitly tests the "phenomenological
+    style" hypothesis by comparing the generated reports against a baseline of "ordinary
+    conversation" (e.g., from datasets.load_dataset("imdb") or {{claim:c_f16d7feb}}
+    (Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3) subset) to measure the
+    operational difference in marker density and structural coherence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Measure_the_operational_difference_in_marker_density_and_str
+  kind: entity_fact
+  raw_text: measure the operational difference in marker density and structural coherence
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:17:37Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: implement a distinction metric that measures the rate of detected contradictions
+    or breaks in persona over a long horizon
+  claim_id: c_62072bdf
+  context: Implement a "distinction metric" that measures the rate of detected contradictions
+    or breaks in persona over a long horizon (e.g., an extended sequence of turns),
+    addressing the operational test for indistinguishability.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_a_distinction_metric_that_measures_the_rate_of_det
+  kind: entity_fact
+  raw_text: implement a distinction metric that measures the rate of detected contradictions
+    or breaks in persona over a long horizon
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:18:20Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: extract and log the top-k token attention heads for specific phenomenological
+    keywords
+  claim_id: c_e63d1fba
+  context: Create a lightweight attention-mapping script that extracts and logs the
+    top-k token attention heads for specific phenomenological keywords (e.g., "feel",
+    "now") to trace internal state activation patterns. Output to data/processed/experience_traces.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_and_log_the_top-k_token_attention_heads_for_specific
+  kind: entity_fact
+  raw_text: extract and log the top-k token attention heads for specific phenomenological
+    keywords
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:18:44Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: define concrete lists for sensory, temporal, and intentional keywords
+  claim_id: c_626718ca
+  context: Define concrete lists for 'sensory' (e.g., see, hear, feel, touch, taste,
+    smell, light, sound), 'temporal' (e.g., now, then, before, after, moment, duration),
+    and 'intentional' (e.g., think, believe, desire, intend, perceive, experience)
+    keywords as per FR-008 and FR-009.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Define_concrete_lists_for_sensory,_temporal,_and_intentional
+  kind: entity_fact
+  raw_text: define concrete lists for sensory, temporal, and intentional keywords
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:18:58Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 'scaffold directories: code/, data/raw/, data/processed/, data/qualitative/,
+    tests/unit/, tests/integration/, specs/contracts/'
+  claim_id: c_55896b11
+  context: 'Write scripts/init_project.py script to scaffold directories: code/, data/raw/,
+    data/processed/, data/qualitative/, tests/unit/, tests/integration/, specs/contracts/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scaffold_directories:_code/,_data/raw/,_data/processed/,_dat
+  kind: entity_fact
+  raw_text: 'scaffold directories: code/, data/raw/, data/processed/, data/qualitative/,
+    tests/unit/, tests/integration/, specs/contracts/'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:19:24Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: configure linting (ruff) and formatting (black) tools
+  claim_id: c_9189d672
+  context: Configure linting (ruff) and formatting (black) tools
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_linting_(ruff)_and_formatting_(black)_tools
+  kind: entity_fact
+  raw_text: configure linting (ruff) and formatting (black) tools
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:20:10Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: setup code/utils/logging.py for structured logging, warning capture,
+    and retry logic
+  claim_id: c_37b270b7
+  context: Setup code/utils/logging.py for structured logging, warning capture, and
+    retry logic (multiple attempts per sample)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Setup_code/utils/logging.py_for_structured_logging,_warning
+  kind: entity_fact
+  raw_text: setup code/utils/logging.py for structured logging, warning capture, and
+    retry logic
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:20:33Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: implement code/utils/io.py for JSON/CSV schema validation and artifact
+    archiving
+  claim_id: c_5b8215a0
+  context: Implement code/utils/io.py for JSON/CSV schema validation and artifact
+    archiving
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_code/utils/io.py_for_JSON/CSV_schema_validation_an
+  kind: entity_fact
+  raw_text: implement code/utils/io.py for JSON/CSV schema validation and artifact
+    archiving
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:21:08Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 'create base data schemas in specs/contracts/: specs/contracts/generation_output.schema.yaml,
+    specs/contracts/validity_scores.schema.yaml, specs/contracts/qualitative_ratings.schema.yaml'
+  claim_id: c_b1d59826
+  context: 'Create base data schemas in specs/contracts/: specs/contracts/generation_output.schema.yaml,
+    specs/contracts/validity_scores.schema.yaml, specs/contracts/qualitative_ratings.schema.yaml'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_base_data_schemas_in_specs/contracts/:_specs/contract
+  kind: entity_fact
+  raw_text: 'create base data schemas in specs/contracts/: specs/contracts/generation_output.schema.yaml,
+    specs/contracts/validity_scores.schema.yaml, specs/contracts/qualitative_ratings.schema.yaml'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:21:31Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: implement code/generation/prompt_engineering.py with the defined strategies
+    (Direct, Hypothetical, Comparative, Role-play)
+  claim_id: c_1a04d0ac
+  context: Implement code/generation/prompt_engineering.py with the defined strategies
+    (Direct, Hypothetical, Comparative, Role-play) and 20 base prompts loaded from
+    data/prompts/base_prompts.json loaded from data/prompts/base_prompts.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_code/generation/prompt_engineering.py_with_the_def
+  kind: entity_fact
+  raw_text: implement code/generation/prompt_engineering.py with the defined strategies
+    (Direct, Hypothetical, Comparative, Role-play)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:21:48Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 'implement retry logic in runner.py: A fixed number of attempts per prompt/strategy
+    combination, marking samples as missing after failure'
+  claim_id: c_73e827e3
+  context: 'Implement retry logic in runner.py: A fixed number of attempts per prompt/strategy
+    combination, marking samples as missing after failure (FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_retry_logic_in_runner.py:_A_fixed_number_of_attemp
+  kind: entity_fact
+  raw_text: 'implement retry logic in runner.py: A fixed number of attempts per prompt/strategy
+    combination, marking samples as missing after failure'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:22:07Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: "generate \u226580 control samples using datasets.load_dataset(arxiv_nlp)\
+    \ with filter='arxiv_nlp' and random sampling"
+  claim_id: c_d4feac64
+  context: "Create code/generation/control_corpus.py to generate \u226580 control\
+    \ samples using datasets.load_dataset(\"arxiv_nlp\") with filter='arxiv_nlp' and\
+    \ random sampling."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "generate \u226580 control samples using datasets.load_dataset(arxiv_nlp)\
+    \ with filter='arxiv_nlp' and random sampling"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:22:08Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: ensure these samples are processed through the same three validity metrics
+    (Consistency, Stability, Markers) as the phenomenological reports to compute discriminant
+    validity
+  claim_id: c_cfc3c9f6
+  context: 'Verification: Ensure these samples are processed through the same three
+    validity metrics (Consistency, Stability, Markers) as the phenomenological reports
+    to compute discriminant validity (FR-001).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_these_samples_are_processed_through_the_same_three_va
+  kind: entity_fact
+  raw_text: ensure these samples are processed through the same three validity metrics
+    (Consistency, Stability, Markers) as the phenomenological reports to compute discriminant
+    validity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:22:37Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: implement code/generation/runner_local.py for the second checkpoint (Mistral-7B
+    or Llama-7B) using llama-cpp-python with 4-bit GGUF
+  claim_id: c_95901c2e
+  context: Implement code/generation/runner_local.py for the second checkpoint (Mistral-7B
+    or Llama-7B) using llama-cpp-python with 4-bit GGUF.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implement code/generation/runner_local.py for the second checkpoint (Mistral-7B
+    or Llama-7B) using llama-cpp-python with 4-bit GGUF
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:22:52Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: "add timeout handling and sample-size logging to ensure \u226580 successful\
+    \ samples per condition"
+  claim_id: c_259feb86
+  context: "Add timeout handling and sample-size logging to ensure \u226580 successful\
+    \ samplesper condition."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "add timeout handling and sample-size logging to ensure \u226580 successful\
+    \ samples per condition"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:22:53Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: "implement code/main.py to orchestrate the full pipeline: Generation\
+    \ \u2192 Metrics \u2192 Stats"
+  claim_id: c_9c9c0b72
+  context: "Implement code/main.py to orchestrate the full pipeline: Generation \u2192\
+    \ Metrics \u2192 Stats (enables US1+US2 integration testing)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_code/main.py_to_orchestrate_the_full_pipeline:_Gen
+  kind: entity_fact
+  raw_text: "implement code/main.py to orchestrate the full pipeline: Generation \u2192\
+    \ Metrics \u2192 Stats"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:23:12Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: create a lightweight attention-mapping script that extracts and logs
+    the top-k token attention heads for specific phenomenological keywords (e.g.,
+    "feel", "now") to trace internal state activation patterns
+  claim_id: c_462820b4
+  context: Create a lightweight attention-mapping script that extracts and logs the
+    top-k token attention heads for specific phenomenological keywords (e.g., "feel",
+    "now") to trace internal state activation patterns. Output to data/processed/experience_traces.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_a_lightweight_attention-mapping_script_that_extracts
+  kind: entity_fact
+  raw_text: create a lightweight attention-mapping script that extracts and logs the
+    top-k token attention heads for specific phenomenological keywords (e.g., "feel",
+    "now") to trace internal state activation patterns
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:23:36Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 'add a comparative analysis module that explicitly tests the "phenomenological
+    style" hypothesis by comparing the generated reports against a baseline of "ordinary
+    conversation" (e.g., from datasets.load_dataset("imdb") or {{claim:c_f16d7feb}}
+    (Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3) subset) to measure the
+    operational difference in marker density and structural coherence'
+  claim_id: c_593471a0
+  context: 'Add a comparative analysis module that explicitly tests the "phenomenological
+    style" hypothesis by comparing the generated reports against a baseline of "ordinary
+    conversation" (e.g., from datasets.load_dataset("imdb") or {{claim:c_f16d7feb}}
+    (Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3) subset) to measure the
+    operational difference in marker density and structural coherence.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'add a comparative analysis module that explicitly tests the "phenomenological
+    style" hypothesis by comparing the generated reports against a baseline of "ordinary
+    conversation" (e.g., from datasets.load_dataset("imdb") or {{claim:c_f16d7feb}}
+    (Wikipedia: GPT-3, https://en.wikipedia.org/wiki/GPT-3) subset) to measure the
+    operational difference in marker density and structural coherence'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:23:56Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: create a script to generate "conversation logs" where the model attempts
+    to sustain a first-person dialogue without contradiction
+  claim_id: c_5a3cf098
+  context: Create a script to generate "conversation logs" where the model attempts
+    to sustain a first-person dialogue without contradiction. Implement a "distinction
+    metric" that measures the rate of detected contradictions or breaks in persona
+    over a long horizon (e.g., an extended sequence of turns), addressing the operational
+    test for indistinguishability.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_a_script_to_generate_%22conversation_logs%22_where_the_mo
+  kind: entity_fact
+  raw_text: create a script to generate "conversation logs" where the model attempts
+    to sustain a first-person dialogue without contradiction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:24:20Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: add CLI usage examples and environment setup instructions to quickstart.md
+  claim_id: c_fc1230d8
+  context: 'Add CLI usage examples and environment setup instructions to quickstart.md.
+    Examples: Document python main.py --mode generation, python main.py --mode analysis,
+    python main.py --mode validate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Add_CLI_usage_examples_and_environment_setup_instructions_to
+  kind: entity_fact
+  raw_text: add CLI usage examples and environment setup instructions to quickstart.md
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:24:51Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: add schema descriptions and data flow diagrams to data-model.md
+  claim_id: c_486d9c0c
+  context: Add schema descriptions and data flow diagrams to data-model.md
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Add_schema_descriptions_and_data_flow_diagrams_to_data-model
+  kind: entity_fact
+  raw_text: add schema descriptions and data flow diagrams to data-model.md
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:25:16Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: refactor code/analysis/stats.py to add type hints and remove duplicate
+    imports
+  claim_id: c_d3fa7b15
+  context: Refactor code/analysis/stats.py to add type hints and remove duplicate
+    imports.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refactor_code/analysis/stats.py_to_add_type_hints_and_remove
+  kind: entity_fact
+  raw_text: refactor code/analysis/stats.py to add type hints and remove duplicate
+    imports
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:25:35Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: refactor code/utils/logging.py to standardize log levels and output formats
+  claim_id: c_ade4cbc9
+  context: Refactor code/utils/logging.py to standardize log levels and output formats.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refactor_code/utils/logging.py_to_standardize_log_levels_and
+  kind: entity_fact
+  raw_text: refactor code/utils/logging.py to standardize log levels and output formats
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:25:52Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 'add unit tests in tests/unit/: specifically tests/unit/test_markers.py::test_count_sensory_keywords,
+    tests/unit/test_consistency.py::test_pairwise_contradiction'
+  claim_id: c_bb009625
+  context: 'Add unit tests in tests/unit/: specifically tests/unit/test_markers.py::test_count_sensory_keywords,
+    tests/unit/test_consistency.py::test_pairwise_contradiction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Add_unit_tests_in_tests/unit/:_specifically_tests/unit/test
+  kind: entity_fact
+  raw_text: 'add unit tests in tests/unit/: specifically tests/unit/test_markers.py::test_count_sensory_keywords,
+    tests/unit/test_consistency.py::test_pairwise_contradiction'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:25:56Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: "run quickstart.md validation to ensure full pipeline execution \u2264\
+    6 hours on free-tier"
+  claim_id: c_a766fc6c
+  context: "Run quickstart.md validation to ensure full pipeline execution \u2264\
+    6 hours on free-tier"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "run quickstart.md validation to ensure full pipeline execution \u2264\
+    6 hours on free-tier"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:25:57Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: add a "Phenomenological Incoherence" test case to tests/unit/test_metrics.py
+    (Review-FreemanDyson)
+  claim_id: c_05c982cc
+  context: 'Add a "Phenomenological Incoherence" test case to tests/unit/test_metrics.py
+    (Review-FreemanDyson): Verify that the system does not penalize inherently incoherent
+    but phenomenologically accurate reports (e.g., stream-of-consciousness) if they
+    maintain internal marker consistency.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Add_a_%22Phenomenological_Incoherence%22_test_case_to_tests/unit
+  kind: entity_fact
+  raw_text: add a "Phenomenological Incoherence" test case to tests/unit/test_metrics.py
+    (Review-FreemanDyson)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:26:12Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: implement code/generation/runner_local.py for local 7B model execution
+    (Mistral-7B/Llama-7B) with explicit hardware warnings
+  claim_id: c_5fdc1fa5
+  context: Implement code/generation/runner_local.py for local 7B model execution
+    (Mistral-7B/Llama-7B) with explicit hardware warnings.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_code/generation/runner_local.py_for_local_7B_model
+  kind: entity_fact
+  raw_text: implement code/generation/runner_local.py for local 7B model execution
+    (Mistral-7B/Llama-7B) with explicit hardware warnings
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:26:36Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: all tasks must be executable on a minimal CPU configuration
+  claim_id: c_c87d1c7b
+  context: 'CPU Constraint: All tasks must be executable on a minimal CPU configuration.
+    No CUDA, no 8-bit/4-bit quantization requiring GPU drivers. Use llama-cpp-python
+    with GGUF for TinyLlama.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_tasks_must_be_executable_on_a_minimal_CPU_configuration
+  kind: entity_fact
+  raw_text: all tasks must be executable on a minimal CPU configuration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:26:55Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: use llama-cpp-python with GGUF for TinyLlama
+  claim_id: c_8fcaeba3
+  context: 'CPU Constraint: All tasks must be executable on a minimal CPU configuration.
+    No CUDA, no 8-bit/4-bit quantization requiring GPU drivers. Use llama-cpp-python
+    with GGUF for TinyLlama.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_llama-cpp-python_with_GGUF_for_TinyLlama
+  kind: entity_fact
+  raw_text: use llama-cpp-python with GGUF for TinyLlama
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:27:13Z'
+- artifact_path: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie/tasks.md
+  attempts: 1
+  canonical: 7B models are optional/local-only and excluded from the primary research
+    validity path
+  claim_id: c_81502482
+  context: 'Model Constraint: TinyLlama-1.1B is the only model for the primary CI
+    pipeline. 7B models are optional/local-only and excluded from the primary research
+    validity path.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_models_are_optional/local-only_and_excluded_from_the_prim
+  kind: entity_fact
+  raw_text: 7B models are optional/local-only and excluded from the primary research
+    validity path
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T19:27:30Z'

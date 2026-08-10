@@ -1,43 +1,45 @@
 """
-Pytest configuration and fixtures for the Molecular Toxicity Prediction Pipeline.
+Pytest configuration and fixtures for the Molecular Toxicity Prediction project.
+Provides shared fixtures for project paths and test data directories.
 """
 import os
 import sys
 import pytest
 from pathlib import Path
 
+# Determine the project root based on the standard layout:
+# projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/conftest.py
+# Project root is the parent of 'code'
+_current_file = Path(__file__).resolve()
+_code_dir = _current_file.parent
+_project_root = _code_dir.parent
+
 @pytest.fixture(scope="session")
 def project_root() -> Path:
-    """Return the absolute path to the project root."""
-    # Assume the project root is two levels up from this file:
-    # code/tests/conftest.py -> code -> root
-    return Path(__file__).resolve().parent.parent.parent
+    """Return the root directory of the project."""
+    return _project_root
 
 @pytest.fixture(scope="session")
-def code_dir(project_root: Path) -> Path:
-    """Return the path to the 'code' directory."""
-    return project_root / "code"
+def code_dir() -> Path:
+    """Return the 'code' directory."""
+    return _code_dir
 
 @pytest.fixture(scope="session")
-def src_dir(code_dir: Path) -> Path:
-    """Return the path to the 'src' directory."""
-    return code_dir / "src"
+def src_dir() -> Path:
+    """Return the 'src' directory inside 'code'."""
+    return _code_dir / "src"
 
 @pytest.fixture(scope="session")
-def test_data_dir(code_dir: Path) -> Path:
-    """Return the path to the test data directory."""
-    data_dir = code_dir / "data"
+def test_data_dir() -> Path:
+    """Return the 'data' directory inside 'code' for test resources."""
+    data_dir = _code_dir / "data"
     data_dir.mkdir(exist_ok=True)
     return data_dir
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="function")
 def add_code_to_path(code_dir: Path):
-    """
-    Automatically add the 'code' directory to sys.path for all tests.
-    This allows importing modules like 'src.pipeline.run' directly.
-    """
+    """Add the code directory to sys.path temporarily for imports."""
+    original_path = sys.path[:]
     sys.path.insert(0, str(code_dir))
     yield
-    # Optional: cleanup if strictly necessary, though usually not needed for test sessions
-    if str(code_dir) in sys.path:
-        sys.path.remove(str(code_dir))
+    sys.path[:] = original_path

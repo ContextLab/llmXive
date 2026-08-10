@@ -1,55 +1,65 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Dataset Schema
-description: Schema for the molecular toxicity dataset used in the pipeline.
+%YAML 1.2
+---
+# Schema for the raw and preprocessed molecular toxicity dataset
+# Used by: src/data/download.py, src/data/preprocess.py
 type: object
 required:
   - metadata
-  - compounds
+  - records
 properties:
   metadata:
     type: object
     required:
-      - assay_id
+      - source_id
       - assay_type
-      - source
       - total_compounds
-      - date_retrieved
+      - timestamp
+      - checksum_sha256
     properties:
-      assay_id:
+      source_id:
         type: string
-        description: Unique identifier for the assay (e.g., PubChem AID 1851).
+        description: "Identifier for the data source (e.g., 'PubChem_AID_1851')"
       assay_type:
         type: string
-        description: Type of assay (e.g., Ames, ToxCast).
-      source:
-        type: string
-        description: URL or name of the data source.
+        description: "Type of mutagenicity assay (e.g., 'Ames', 'ToxCast')"
       total_compounds:
         type: integer
         minimum: 1000
-        description: Total number of compounds in the dataset.
-      date_retrieved:
+        description: "Total number of compounds after filtering (must be > 1000 per reviewer concern)"
+      timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of data retrieval.
-  compounds:
+        description: "ISO 8601 timestamp of data generation"
+      checksum_sha256:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: "SHA-256 hash of the raw data file for reproducibility"
+      version:
+        type: string
+        default: "1.0"
+        description: "Schema version"
+  records:
     type: array
     items:
       type: object
       required:
         - smiles
         - label
+        - molecular_weight
       properties:
         smiles:
           type: string
-          description: Canonical SMILES string of the molecule.
+          pattern: "^[C-9c-9O-9N-9S-9P-9F-9Cl-9Br-9I-9H-9a-z0-9@#%\\[\\]\\(\\)\\-+=/]+$"
+          description: "Canonical SMILES string of the molecule"
         label:
           type: integer
           enum: [0, 1]
-          description: Binary label: 0 (non-toxic), 1 (toxic).
-        mw:
+          description: "Binary label: 0 (non-mutagenic), 1 (mutagenic)"
+        molecular_weight:
           type: number
-          description: Molecular weight in Daltons.
-        canonical_smiles:
+          minimum: 0
+          maximum: 1000
+          description: "Molecular weight in Daltons (filtered < 1000)"
+        original_id:
           type: string
-          description: Canonicalized SMILES string.
+          description: "Original identifier from the source dataset"

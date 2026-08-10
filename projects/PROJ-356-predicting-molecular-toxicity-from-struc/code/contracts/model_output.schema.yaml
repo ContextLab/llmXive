@@ -1,38 +1,44 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
-description: Schema for the model evaluation results and out-of-fold predictions.
+%YAML 1.2
+---
+# Schema for model evaluation metrics and Out-of-Fold (OOF) predictions
+# Used by: src/evaluation/metrics.py, src/pipeline/run.py
 type: object
 required:
-  - dataset_metadata
-  - rule_based_metrics
-  - logistic_metrics
-  - oof_predictions
+  - metadata
+  - rule_based
+  - logistic
+  - statistical_significance
 properties:
-  dataset_metadata:
+  metadata:
     type: object
     required:
-      - assay_id
-      - assay_type
-      - total_compounds
+      - pipeline_version
+      - cv_folds
+      - cv_repeats
+      - dataset_source
     properties:
-      assay_id:
+      pipeline_version:
         type: string
-      assay_type:
-        type: string
-      total_compounds:
+      cv_folds:
         type: integer
-  rule_based_metrics:
+        default: 5
+      cv_repeats:
+        type: integer
+        default: 3
+      dataset_source:
+        type: string
+  rule_based:
     type: object
     required:
       - roc_auc
-      - f1
+      - f1_score
       - recall
     properties:
       roc_auc:
         type: number
         minimum: 0.0
         maximum: 1.0
-      f1:
+      f1_score:
         type: number
         minimum: 0.0
         maximum: 1.0
@@ -40,18 +46,18 @@ properties:
         type: number
         minimum: 0.0
         maximum: 1.0
-  logistic_metrics:
+  logistic:
     type: object
     required:
       - roc_auc
-      - f1
+      - f1_score
       - recall
     properties:
       roc_auc:
         type: number
         minimum: 0.0
         maximum: 1.0
-      f1:
+      f1_score:
         type: number
         minimum: 0.0
         maximum: 1.0
@@ -59,61 +65,58 @@ properties:
         type: number
         minimum: 0.0
         maximum: 1.0
+  comparison:
+    type: object
+    required:
+      - recall_diff
+      - threshold
+    properties:
+      recall_diff:
+        type: number
+        description: "Recall (Logistic) - Recall (Rule-Based)"
+      threshold:
+        type: number
+        default: 0.05
+        description: "Threshold for marginal gain (SC-002)"
   statistical_significance:
     type: object
+    required:
+      - delong_p_value
+      - ci_95_lower
+      - ci_95_upper
+      - is_significant
     properties:
       delong_p_value:
         type: number
-      confidence_interval_95:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
+        minimum: 0.0
+        maximum: 1.0
+      ci_95_lower:
+        type: number
+      ci_95_upper:
+        type: number
       is_significant:
         type: boolean
-  recall_difference:
+        description: "True if p-value < 0.05"
+  out_of_fold_predictions:
     type: object
+    description: "Path to the JSON file containing OOF prediction vectors"
     properties:
-      logistic_recall:
-        type: number
-      rule_based_recall:
-        type: number
-      difference:
-        type: number
-      exceeds_threshold:
-        type: boolean
-        description: True if difference > 0.05 (5%).
-  oof_predictions:
-    type: array
-    description: Out-of-fold predictions for every instance.
-    items:
-      type: object
-      required:
-        - instance_id
-        - rule_based_prob
-        - logistic_prob
-        - true_label
-      properties:
-        instance_id:
-          type: integer
-        rule_based_prob:
-          type: number
-        logistic_prob:
-          type: number
-        true_label:
-          type: integer
+      rule_based_path:
+        type: string
+      logistic_path:
+        type: string
   error_analysis:
     type: object
+    description: "Optional error analysis results (US3)"
     properties:
-      false_negatives_count:
-        type: integer
-      top_scaffolds:
+      false_negative_scaffolds:
         type: array
         items:
           type: object
           properties:
             scaffold_smiles:
               type: string
-            frequency:
+            count:
               type: integer
+            frequency:
+              type: number

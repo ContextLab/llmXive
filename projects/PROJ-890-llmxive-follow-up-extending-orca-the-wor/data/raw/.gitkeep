@@ -1,1 +1,3 @@
-# Raw data directory. Downloaded datasets and unprocessed files go here.
+# This directory stores raw dataset downloads.
+# Files here are gitignored to prevent repository bloat.
+# Ensure you have sufficient disk space before running download scripts.

@@ -1,1 +1,3 @@
-# Validation data directory. Ground truth sets and benchmark logs go here.
+# This directory stores validation data and physics simulation results.
+# Includes ground truth subsets and benchmark logs.
+# Files here are gitignored.

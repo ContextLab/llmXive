@@ -1,78 +1,127 @@
 """
-Tests for utility modules.
+Tests for utility functions in code/utils/.
+
+These tests verify the functionality of seed management and memory monitoring.
 """
-import pytest
+
 import os
 import sys
+import pytest
 import random
 import numpy as np
 import torch
-from unittest.mock import patch
 
-# Add code to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from code.utils.seed import set_seed, get_seed_value
-from code.utils.memory_monitor import (
-    memory_limit,
+from utils.seed import set_seed, get_seed_value, DEFAULT_SEED
+from utils.memory_monitor import (
+    MemoryLimitExceededError,
     get_memory_usage_mb,
     get_peak_memory_mb,
-    MemoryLimitExceededError
+    memory_limit,
+    check_memory_limit,
+    start_monitoring,
+    stop_monitoring,
+    memory_limit_context,
+    enforce_memory_limit
 )
 
+
 class TestSeedManagement:
-    def test_set_seed_determinism(self):
-        """Test that setting seed produces deterministic results."""
-        seed = 12345
+    """Tests for seed management functionality."""
+    
+    def test_set_seed_default(self):
+        """Test that set_seed uses default when no argument provided."""
+        seed = set_seed()
+        assert seed == DEFAULT_SEED
+        
+        # Verify randomness is controlled
+        val1 = random.random()
         set_seed(seed)
+        val2 = random.random()
+        assert val1 == val2
+    
+    def test_set_seed_custom(self):
+        """Test setting a custom seed value."""
+        custom_seed = 12345
+        seed = set_seed(custom_seed)
+        assert seed == custom_seed
         
-        val1_rand = random.random()
-        val1_np = np.random.rand()
-        val1_torch = torch.rand(1).item()
-        
-        set_seed(seed)
-        
-        val2_rand = random.random()
-        val2_np = np.random.rand()
-        val2_torch = torch.rand(1).item()
-        
-        assert val1_rand == val2_rand
-        assert val1_np == val2_np
-        assert val1_torch == val2_torch
+        # Verify reproducibility
+        random.seed(custom_seed)
+        val1 = np.random.rand()
+        set_seed(custom_seed)
+        val2 = np.random.rand()
+        assert val1 == val2
+    
+    def test_get_seed_from_env(self):
+        """Test getting seed from environment variable."""
+        original = os.getenv('SEED')
+        try:
+            os.environ['SEED'] = '999'
+            assert get_seed_value() == 999
+        finally:
+            if original is not None:
+                os.environ['SEED'] = original
+            elif 'SEED' in os.environ:
+                del os.environ['SEED']
+    
+    def test_get_seed_default_when_env_invalid(self):
+        """Test default seed when env variable is invalid."""
+        original = os.getenv('SEED')
+        try:
+            os.environ['SEED'] = 'invalid'
+            assert get_seed_value() == DEFAULT_SEED
+        finally:
+            if original is not None:
+                os.environ['SEED'] = original
+            elif 'SEED' in os.environ:
+                del os.environ['SEED']
 
-    def test_get_seed_value_returns_input(self):
-        """Test that get_seed_value returns the provided seed."""
-        assert get_seed_value(42) == 42
-        assert get_seed_value(999) == 999
-
-    def test_get_seed_value_generates_random(self):
-        """Test that get_seed_value generates a random seed when None."""
-        seed1 = get_seed_value()
-        seed2 = get_seed_value()
-        # They should likely be different (high probability)
-        # We don't assert inequality strictly as collisions are possible but rare
-
-class TestMemoryMonitor:
-    def test_memory_limit_context_manager_success(self):
-        """Test that context manager works when limit is not exceeded."""
-        with memory_limit(limit_mb=1000.0, verbose=False):
-            # Allocate some memory
-            data = [0] * 100000
-            assert get_memory_usage_mb() < 1000.0
-
-    def test_memory_limit_context_manager_failure(self):
-        """Test that context manager raises error when limit exceeded."""
-        # This test is tricky because we can't easily force a memory spike
-        # without allocating a lot. We mock the check instead.
-        with patch('code.utils.memory_monitor.get_peak_memory_mb', return_value=8000.0):
-            with pytest.raises(MemoryLimitExceededError):
-                with memory_limit(limit_mb=7000.0, verbose=False):
-                    pass
-
-    def test_get_memory_functions(self):
-        """Test basic memory function calls."""
-        # Just ensure they don't crash
+class TestMemoryMonitoring:
+    """Tests for memory monitoring functionality."""
+    
+    def setup_method(self):
+        """Start monitoring before each test."""
+        start_monitoring()
+    
+    def teardown_method(self):
+        """Stop monitoring after each test."""
+        stop_monitoring()
+    
+    def test_memory_usage_starts_at_zero(self):
+        """Test that memory usage is tracked."""
+        # Usage should be > 0 after starting and doing some work
+        _ = [i for i in range(1000)]
+        usage = get_memory_usage_mb()
+        assert usage >= 0
+    
+    def test_peak_memory_greater_than_current(self):
+        """Test that peak memory is at least current memory."""
         current = get_memory_usage_mb()
         peak = get_peak_memory_mb()
-        assert current >= 0.0
         assert peak >= current
+    
+    def test_check_memory_limit_no_error(self):
+        """Test that check_memory_limit doesn't raise when under limit."""
+        # This should not raise
+        check_memory_limit()
+    
+    def test_memory_limit_context(self):
+        """Test memory limit context manager."""
+        # Should not raise with reasonable limit
+        with memory_limit_context(10000):  # 10GB limit
+            _ = [i for i in range(10000)]
+    
+    def test_memory_limit_exceeded(self):
+        """Test that MemoryLimitExceededError is raised when limit exceeded."""
+        # Set a very low limit for testing
+        with pytest.raises(MemoryLimitExceededError):
+            with memory_limit_context(0.0001):  # 0.1KB limit
+                _ = [i for i in range(100000)]
+    
+    def test_enforce_memory_limit_context(self):
+        """Test enforce_memory_limit context manager."""
+        with enforce_memory_limit(10000):
+            _ = [i for i in range(1000)]
