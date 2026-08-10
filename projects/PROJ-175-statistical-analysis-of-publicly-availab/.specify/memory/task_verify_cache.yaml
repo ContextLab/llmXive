@@ -1,31 +1,39 @@
-T007a:
-  c: false
-  h: a324a2cd6a69ea95f579f6575215e009dfb1e2dd83437a9036088a0d86fcc3f1
-  r: "The validator script `code/utils/validate_schema.py` is present, but the required\
-    \ schema files `specs/001-statistical-analysis-of-recipe-data/contracts/dataset.schema.yaml`\
-    \ and `specs/001-statistical-analysis-of-recipe-data/contracts/model_output.schema.yaml`\
-    \ are missing (no such files on disk). Without these YAML schema definitions,\
-    \ the task\u2019s deliverables are not fulfilled."
 T012b:
   c: false
   h: 880704efb8efdda90e24c66879d847dc67abbcf27a5519a6ef56d9a0a2bb1872
   r: The required artifact `data/download_status.json` is missing from the repository,
     so the implementer could not read it or generate the amendment log as specified.
     No alternative file or placeholder was provided.
-T016:
+T013a:
+  c: false
+  h: c7138c5d5debff7c089cdd70aa3475155be78749c3a63deef0b5fb4c7edc6cdc
+  r: "The `recipe1m_processed.parquet` file is only a placeholder (144\u202Fbytes\
+    \ of dummy text) and does not contain the streamed dataset with the required schema,\
+    \ and the required `data/logs/recipe1m_validation.json` file is missing entirely.\
+    \ Both the output data and the validation log are absent, so the task is not genuinely\
+    \ fulfilled."
+T014a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data file, or result showing the computed cosine similarity between
-    ingredient embeddings is present; the task description alone does not constitute
-    the required artifact. The implementer has not provided any concrete output (e.g.,
-    a similarity matrix, script, or notebook) that fulfills T016.
-T019:
+  r: No code, data file, or mapping artifact for ingredient name normalization and
+    canonical ID mapping was provided. The task required a concrete implementation
+    (e.g., a script or dataset) that normalizes raw ingredient strings and produces
+    a canonical ID mapping, but the evidence contains only a placeholder comment and
+    no tangible output.
+T016a:
+  c: true
+  h: 59138de6844a1f1de497d339030466d70ed2766e75b37c553279fe42a94e61a0
+  r: "The amendment log shows the methodology is \u201CCorrelational Analysis\u201D\
+    , which according to the task\u2019s constraint means the chemical similarity\
+    \ step should be skipped, and consequently the expected Parquet file is correctly\
+    \ absent."
+T016b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No concrete artifact (e.g., a CSV file, dataset column, or code output) containing
-    the required binary compatibility labels is present; the response only repeats
-    the task description without providing the actual labels or any generated data.
-    The required output is missing.
+  h: 5422911205ea3ba63d6a7e649cc1960d7d826f28333ff7001616c4a4cefdb861
+  r: The amendment log indicates the task should run, but the required output file
+    `data/processed/similarity_scores_embedding.parquet` is absent, so the embedding
+    similarity computation was not completed. No evidence of the embeddings or parquet
+    file is present.
 T038:
   c: false
   h: b33fed31ef935bed54cf471b740f02c09ae2a8f56ed2c2c4ed05e8ec02f52fa5

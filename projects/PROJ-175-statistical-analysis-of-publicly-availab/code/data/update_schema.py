@@ -7,118 +7,122 @@ from datetime import datetime
 import yaml
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_amendment_log(log_path: str = "data/amendment_log.json") -> dict:
-    """Load the amendment log to determine the active methodology."""
-    if not os.path.exists(log_path):
-        raise FileNotFoundError(f"Amendment log not found at {log_path}. Run T012d_ratification_gate first.")
+def load_amendment_log() -> dict:
+    """Load the amendment log from data/amendment_log.json."""
+    path = Path("data/amendment_log.json")
+    if not path.exists():
+        raise FileNotFoundError(f"Amendment log not found at {path}. Run T012d_ratification_gate first.")
     
-    with open(log_path, 'r') as f:
-        data = json.load(f)
-    
-    if data.get("status") != "RATIFIED":
-        raise RuntimeError(f"Amendment log status is '{data.get('status')}'. Must be 'RATIFIED' to update schema.")
-    
-    return data
+    with open(path, 'r') as f:
+        return json.load(f)
 
-def load_schema(schema_path: str = "specs/001-statistical-analysis-of-recipe-data/contracts/dataset.schema.yaml") -> dict:
-    """Load the current schema definition."""
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found at {schema_path}. Run T007a first.")
+def load_schema(schema_path: Path) -> dict:
+    """Load the dataset schema from a YAML file."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found at {schema_path}")
     
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def update_schema(schema: dict, methodology: str, proxy_source: str = None) -> dict:
+def update_schema(schema: dict, methodology: str) -> dict:
     """
-    Update the schema based on the ratified methodology.
+    Update the dataset schema based on the ratified methodology.
     
-    Logic:
-    - If "Correlational Analysis", define `flavor_similarity` as "Recipe1M embedding cosine similarity".
-    - If "Causal Independence", define `flavor_similarity` as "FlavorDB chemical vectors".
+    If methodology is "Correlational Analysis", update flavor_similarity 
+    to "Recipe1M embedding cosine similarity".
+    If methodology is "Causal Independence", update flavor_similarity 
+    to "FlavorDB chemical vectors".
     """
-    logger.info(f"Updating schema for methodology: {methodology}, proxy: {proxy_source}")
+    logger.info(f"Updating schema for methodology: {methodology}")
     
-    # Ensure the fields section exists
-    if "fields" not in schema:
-        schema["fields"] = []
+    # Navigate to the IngredientPair definition
+    if 'fields' not in schema:
+        raise ValueError("Schema missing 'fields' key")
     
-    # Find or create the flavor_similarity field definition
-    flavor_sim_field = None
-    for field in schema["fields"]:
-        if field.get("name") == "flavor_similarity":
-            flavor_sim_field = field
+    ingredient_pair_fields = None
+    for field in schema['fields']:
+        if field.get('name') == 'IngredientPair':
+            ingredient_pair_fields = field
             break
     
-    if not flavor_sim_field:
-        flavor_sim_field = {"name": "flavor_similarity", "type": "float", "description": ""}
-        schema["fields"].append(flavor_sim_field)
+    if not ingredient_pair_fields:
+        raise ValueError("Schema missing 'IngredientPair' definition")
     
-    # Update description based on methodology
+    if 'properties' not in ingredient_pair_fields:
+        raise ValueError("IngredientPair definition missing 'properties'")
+    
+    flavor_sim_prop = ingredient_pair_fields['properties'].get('flavor_similarity')
+    if not flavor_sim_prop:
+        raise ValueError("IngredientPair missing 'flavor_similarity' property")
+    
+    # Update the description based on methodology
     if methodology == "Correlational Analysis":
-        flavor_sim_field["description"] = "Cosine similarity between ingredient embeddings from Recipe1M corpus."
-        flavor_sim_field["source"] = "Recipe1M"
-        flavor_sim_field["computation"] = "cosine_similarity(embedding_i, embedding_j)"
+        flavor_sim_prop['description'] = "Recipe1M embedding cosine similarity"
+        flavor_sim_prop['type'] = "float"
+        flavor_sim_prop['source'] = "Recipe1M embeddings"
+        logger.info("Updated flavor_similarity to Recipe1M embedding cosine similarity")
     elif methodology == "Causal Independence":
-        flavor_sim_field["description"] = "Chemical vector similarity derived from FlavorDB."
-        flavor_sim_field["source"] = "FlavorDB"
-        flavor_sim_field["computation"] = "cosine_similarity(chemical_vector_i, chemical_vector_j)"
+        flavor_sim_prop['description'] = "FlavorDB chemical vectors"
+        flavor_sim_prop['type'] = "float"
+        flavor_sim_prop['source'] = "FlavorDB chemical matrix"
+        logger.info("Updated flavor_similarity to FlavorDB chemical vectors")
     else:
         raise ValueError(f"Unknown methodology: {methodology}")
     
-    # Update metadata timestamp
-    schema["metadata"] = schema.get("metadata", {})
-    schema["metadata"]["last_updated"] = datetime.now().isoformat()
-    schema["metadata"]["methodology"] = methodology
-    schema["metadata"]["proxy_source"] = proxy_source
-    
     return schema
 
-def save_schema(schema: dict, schema_path: str = "specs/001-statistical-analysis-of-recipe-data/contracts/dataset.schema.yaml"):
-    """Save the updated schema back to disk."""
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(schema_path), exist_ok=True)
-    
+def save_schema(schema: dict, schema_path: Path) -> None:
+    """Save the updated schema to a YAML file."""
     with open(schema_path, 'w') as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
-    
     logger.info(f"Schema saved to {schema_path}")
 
 def main():
-    """Main entry point for T007b."""
+    """Main entry point for T007b: Update Schema for Ratified Path."""
+    logger.info("Starting T007b: Update Schema for Ratified Path")
+    
     try:
-        # 1. Load Amendment Log
+        # Load amendment log
         amendment_log = load_amendment_log()
-        methodology = amendment_log.get("methodology")
-        proxy_source = amendment_log.get("proxy_source")
         
-        logger.info(f"Amendment Log Status: {amendment_log.get('status')}")
-        logger.info(f"Methodology: {methodology}")
-        logger.info(f"Proxy Source: {proxy_source}")
+        # Check if amendment is ratified
+        if amendment_log.get('status') != 'RATIFIED':
+            raise RuntimeError(
+                f"Amendment log status is '{amendment_log.get('status')}'. "
+                "Must be 'RATIFIED' to proceed with schema update. "
+                "Run T012d_ratification_gate first."
+            )
         
-        # 2. Load Current Schema
-        schema_path = "specs/001-statistical-analysis-of-recipe-data/contracts/dataset.schema.yaml"
+        methodology = amendment_log.get('methodology')
+        if not methodology:
+            raise ValueError("Amendment log missing 'methodology' key")
+        
+        # Define schema path
+        schema_path = Path("specs/001-statistical-analysis-of-recipe-data/contracts/dataset.schema.yaml")
+        if not schema_path.exists():
+            raise FileNotFoundError(
+                f"Dataset schema not found at {schema_path}. "
+                "Run T007a_schema_dataset first to create the base schema."
+            )
+        
+        # Load, update, and save schema
         schema = load_schema(schema_path)
-        
-        # 3. Update Schema
-        updated_schema = update_schema(schema, methodology, proxy_source)
-        
-        # 4. Save Updated Schema
+        updated_schema = update_schema(schema, methodology)
         save_schema(updated_schema, schema_path)
         
-        print("T007b completed successfully: Schema updated.")
+        # Log completion
+        logger.info("T007b completed successfully")
+        return 0
         
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
-    except RuntimeError as e:
-        logger.error(f"Runtime error: {e}")
-        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+        logger.error(f"T007b failed: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

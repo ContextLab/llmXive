@@ -1,63 +1,34 @@
-version: "1.0.0"
-description: "Schema for model output artifacts including logistic and Bayesian results."
+name: ModelResult
+description: Schema for model output data from statistical analysis
+version: 1.0.0
 fields:
-  - name: model_type
-    type: string
-    description: "Type of model fitted (e.g., logistic_regression, bayesian_hierarchical)."
-    nullable: false
-    enum:
-      - logistic_regression
-      - bayesian_hierarchical
-  - name: coefficients
-    type: object
-    description: "Dictionary of feature names to coefficient values."
-    nullable: false
-  - name: intercept
-    type: float
-    description: "Model intercept term."
-    nullable: false
-  - name: vif_scores
-    type: object
-    description: "Dictionary of feature names to Variance Inflation Factor scores."
-    nullable: true
-  - name: auc
-    type: float
-    description: "Area Under the Curve metric for model performance."
-    nullable: true
-    min_value: 0.0
-    max_value: 1.0
-  - name: precision
-    type: float
-    description: "Precision metric for model performance."
-    nullable: true
-    min_value: 0.0
-    max_value: 1.0
-  - name: recall
-    type: float
-    description: "Recall metric for model performance."
-    nullable: true
-    min_value: 0.0
-    max_value: 1.0
-  - name: convergence_status
-    type: string
-    description: "Status of model convergence (for Bayesian models)."
-    nullable: true
-    enum:
-      - converged
-      - failed
-      - timeout
-  - name: posterior_samples
-    type: integer
-    description: "Number of posterior samples drawn (for Bayesian models)."
-    nullable: true
-    min_value: 0
-  - name: methodology_flag
-    type: string
-    description: "The methodology used (Causal Independence or Correlational Analysis)."
-    nullable: false
-    enum:
-      - Causal Independence
-      - Correlational Analysis
-constraints:
-  - "If model_type is 'bayesian_hierarchical', convergence_status and posterior_samples must be present."
-  - "If model_type is 'logistic_regression', vif_scores must be present."
+  - name: ModelResult
+    description: Results from statistical model fitting
+    properties:
+      coefficients:
+        type: dict
+        description: Dictionary of model coefficients with predictor names as keys
+        required: true
+      p_values:
+        type: dict
+        description: Dictionary of p-values for each coefficient
+        required: true
+      vif_scores:
+        type: dict
+        description: Dictionary of Variance Inflation Factor scores for predictors
+        required: true
+      posterior_distributions:
+        type: dict
+        description: Dictionary of posterior distribution parameters for Bayesian models
+        required: true
+      model_type:
+        type: str
+        description: Type of model used (logistic, bayesian, etc.)
+        required: true
+      methodology:
+        type: str
+        description: Methodology used (Causal Independence or Correlational Analysis)
+        required: true
+metadata:
+  created_by: T007a_schema_model
+  last_updated: 2024-01-01T00:00:00Z

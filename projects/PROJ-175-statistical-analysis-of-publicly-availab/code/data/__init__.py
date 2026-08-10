@@ -1,1 +1,1 @@
-"""Data module for recipe analysis pipeline."""
+# code/data package

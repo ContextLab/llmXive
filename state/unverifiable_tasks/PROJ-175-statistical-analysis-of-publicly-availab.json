@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-175-statistical-analysis-of-publicly-availab",
+  "tasks": [
+    {
+      "task_key": "T007b",
+      "reject_count": 1,
+      "last_reason": "The required `specs/001-statistical-analysis-of-recipe-data/contracts/dataset.schema.yaml` file does not exist (or is empty), so the schema was not updated as specified. The implementer must create the file with the appropriate `flavor_similarity` definition based on the ratified methodology.",
+      "first_seen": "2026-08-10T02:17:28.102319+00:00",
+      "last_seen": "2026-08-10T02:17:28.102319+00:00"
+    },
+    {
+      "task_key": "T018",
+      "reject_count": 1,
+      "last_reason": "The required output file `data/processed/ingredient_pairs.csv` is missing, so the pipeline never produced the final dataset with imputed similarity scores and logged exclusion counts. Without this artifact, the task\u2019s core requirement is not satisfied.",
+      "first_seen": "2026-08-10T02:17:37.814114+00:00",
+      "last_seen": "2026-08-10T02:17:37.814114+00:00"
+    }
+  ],
+  "updated_at": "2026-08-10T02:17:37.814114+00:00"
+}

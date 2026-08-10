@@ -1,0 +1,5 @@
+{
+  "switched_to_correlational": true,
+  "threshold": 3.85,
+  "note": "Labels derived from Recipe1M ratings (same corpus as embeddings). This introduces circularity as per Constitution Principle VI."
+}

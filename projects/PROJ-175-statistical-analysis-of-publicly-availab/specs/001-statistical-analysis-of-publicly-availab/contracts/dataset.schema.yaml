@@ -1,50 +1,36 @@
-version: "1.0.0"
-description: "Schema for the primary ingredient analysis dataset used in statistical modeling."
+name: IngredientPair
+description: Schema for ingredient pair data used in statistical analysis
+version: 1.0.0
 fields:
-  - name: ingredient_id
-    type: string
-    description: "Unique identifier for the ingredient (normalized canonical name)."
-    nullable: false
-    unique: true
-  - name: log_co_occurrence
-    type: float
-    description: "Log-transformed co-occurrence count with other ingredients, smoothed with epsilon."
-    nullable: false
-    min_value: -inf
-  - name: flavor_similarity
-    type: float
-    description: "Cosine similarity between ingredient embeddings (FlavorDB chemical vectors or Recipe1M visual/text embeddings)."
-    nullable: false
-    min_value: -1.0
-    max_value: 1.0
-  - name: functional_role
-    type: string
-    description: "Derived functional role of the ingredient."
-    nullable: false
-    enum:
-      - primary
-      - secondary
-      - garnish
-  - name: compatibility_label
-    type: integer
-    description: "Binary compatibility label (1 if rating >= median, 0 otherwise)."
-    nullable: false
-    enum:
-      - 0
-      - 1
-  - name: frequency
-    type: integer
-    description: "Marginal frequency of the ingredient in the corpus."
-    nullable: false
-    min_value: 1
-  - name: source_methodology
-    type: string
-    description: "Indicates the data source methodology used for this record."
-    nullable: false
-    enum:
-      - Causal Independence
-      - Correlational Analysis
-constraints:
-  - "No null values allowed in primary key (ingredient_id)."
-  - "flavor_similarity must be within [-1, 1]."
-  - "functional_role must be one of the enumerated values."
+  - name: IngredientPair
+    description: A pair of ingredients with their relationship metrics
+    properties:
+      ingredient_id:
+        type: str
+        description: Unique identifier for the ingredient pair (e.g., 'ing1_ing2')
+        required: true
+      log_co_occurrence:
+        type: float
+        description: Log-transformed co-occurrence frequency of the ingredient pair
+        required: true
+      flavor_similarity:
+        type: float
+        description: FlavorDB chemical vectors
+        source: FlavorDB chemical matrix
+        required: true
+      functional_role:
+        type: str
+        description: Functional role of the first ingredient (primary, secondary, garnish)
+        enum:
+          - primary
+          - secondary
+          - garnish
+        required: true
+      compatibility_label:
+        type: int
+        description: Binary compatibility label (1 = compatible, 0 = not compatible)
+        required: true
+metadata:
+  created_by: T007a_schema_dataset
+  updated_by: T007b
+  last_updated: 2024-01-01T00:00:00Z

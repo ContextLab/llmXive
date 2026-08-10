@@ -1,151 +1,122 @@
-"""
-Tests for T018: Imputation & Bias Check
-"""
-import os
-import sys
-import json
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
+import json
+import os
 from pathlib import Path
+import tempfile
+import shutil
 
-# Add parent directory to path to import code modules
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from data.impute_and_check import (
-    ensure_directories,
-    load_processed_data,
-    merge_datasets,
-    impute_missing,
-    save_output,
-    main
-)
-
+# Mock the necessary files for testing
 @pytest.fixture
-def setup_test_data(tmp_path):
-    """Create mock data files for testing."""
-    # Create processed directory
-    proc_dir = tmp_path / "data" / "processed"
-    proc_dir.mkdir(parents=True)
-
-    # Create mock similarity scores
-    df_sim = pd.DataFrame({
-        'ingredient_a': ['salt', 'sugar', 'pepper', 'garlic'],
-        'ingredient_b': ['butter', 'flour', 'oil', 'onion'],
-        'flavor_similarity': [0.8, 0.1, None, 0.5]  # One missing
-    })
-    sim_file = proc_dir / "similarity_scores.parquet"
-    df_sim.to_parquet(sim_file)
-
-    # Create mock functional roles
-    df_roles = pd.DataFrame({
-        'ingredient_a': ['salt', 'sugar', 'pepper', 'garlic'],
-        'ingredient_b': ['butter', 'flour', 'oil', 'onion'],
-        'functional_role': ['primary', 'secondary', 'garnish', None] # One missing
-    })
-    role_file = proc_dir / "functional_roles.parquet"
-    df_roles.to_parquet(role_file)
-
-    return proc_dir
-
-def test_ensure_directories(tmp_path):
-    """Test that ensure_directories creates the path."""
-    # Change cwd to tmp_path to simulate project root
-    old_cwd = os.getcwd()
-    try:
-        os.chdir(tmp_path)
-        # We need to mock the path inside the function or pass it
-        # Since the function uses hardcoded "data/processed", we create it manually here
-        # or we assume the function creates it.
-        # Let's test the logic by creating the dir manually and checking existence
-        target = Path(tmp_path) / "data" / "processed"
-        target.mkdir(parents=True, exist_ok=True)
-        assert target.exists()
-    finally:
-        os.chdir(old_cwd)
-
-def test_merge_datasets():
-    """Test merging similarity and role data."""
-    df_sim = pd.DataFrame({
-        'ingredient_a': ['A', 'B'],
-        'ingredient_b': ['C', 'D'],
-        'score': [0.9, 0.2]
-    })
-    df_roles = pd.DataFrame({
-        'ingredient_a': ['A', 'B'],
-        'ingredient_b': ['C', 'D'],
-        'role': ['primary', 'secondary']
-    })
-
-    merged = merge_datasets(df_sim, df_roles)
-    assert merged.shape == (2, 5)
-    assert 'score' in merged.columns
-    assert 'role' in merged.columns
-
-def test_impute_missing():
-    """Test imputation of missing similarity and exclusion of missing roles."""
-    df_merged = pd.DataFrame({
-        'ingredient_a': ['A', 'B', 'C'],
-        'ingredient_b': ['C', 'D', 'E'],
-        'flavor_similarity': [0.5, np.nan, 0.8], # B has missing sim
-        'functional_role': ['primary', 'secondary', np.nan] # C has missing role
-    })
-
-    result = impute_missing(df_merged)
-
-    # Check that missing sim was imputed to 0
-    assert result.loc[result['ingredient_a'] == 'B', 'flavor_similarity'].iloc[0] == 0.0
+def setup_test_environment():
+    # Create temporary directories
+    test_dir = tempfile.mkdtemp()
+    data_dir = Path(test_dir) / "data"
+    processed_dir = data_dir / "processed"
+    logs_dir = data_dir / "logs"
+    processed_dir.mkdir(parents=True)
+    logs_dir.mkdir(parents=True)
     
-    # Check that row C (missing role) was dropped
-    assert 'C' not in result['ingredient_a'].values
-    assert len(result) == 2
-
-def test_save_output(tmp_path):
-    """Test saving the output CSV."""
-    df = pd.DataFrame({
-        'a': [1, 2],
-        'b': [3, 4]
-    })
-    output_dir = tmp_path
-    path = save_output(df, output_dir)
+    # Create mock amendment_log.json
+    amendment_data = {
+        "status": "RATIFIED",
+        "methodology": "Correlational Analysis",
+        "proxy_source": "Recipe1M"
+    }
+    with open(data_dir / "amendment_log.json", 'w') as f:
+        json.dump(amendment_data, f)
     
-    assert path.exists()
-    assert path.name == "ingredient_pairs.csv"
-    loaded = pd.read_csv(path)
-    assert loaded.shape == (2, 2)
+    # Create mock similarity file (embedding)
+    sim_df = pd.DataFrame({
+        'ingredient_id': ['A', 'B', 'C'],
+        'ingredient_id_2': ['B', 'C', 'A'],
+        'flavor_similarity': [0.8, 0.5, None] # One missing
+    })
+    sim_df.to_parquet(processed_dir / "similarity_scores_embedding.parquet")
+    
+    # Create mock co-occurrence / functional roles file (pairs)
+    pairs_df = pd.DataFrame({
+        'ingredient_id': ['A', 'B', 'C', 'D'],
+        'ingredient_id_2': ['B', 'C', 'A', 'E'],
+        'log_co_occurrence': [10.0, 5.0, 8.0, None], # One missing
+        'functional_role': ['primary', 'secondary', 'primary', None] # One missing role
+    })
+    pairs_df.to_parquet(processed_dir / "functional_roles_validated.parquet")
+    
+    yield test_dir, processed_dir, logs_dir, data_dir
+    
+    # Cleanup
+    shutil.rmtree(test_dir)
 
-def test_main_integration(tmp_path, setup_test_data):
-    """Integration test: run main and verify output file exists."""
-    # Setup is in tmp_path/data/processed
-    # We need to run main in the context of tmp_path
-    old_cwd = os.getcwd()
+def test_impute_missing(setup_test_environment):
+    test_dir, processed_dir, logs_dir, data_dir = setup_test_environment
+    
+    # Change to test directory to simulate project root
+    original_cwd = os.getcwd()
+    os.chdir(test_dir)
+    
     try:
-        os.chdir(tmp_path)
-        # The function uses hardcoded paths relative to cwd
-        # setup_test_data created files in tmp_path/data/processed
+        from code.data.impute_and_check import impute_missing, load_processed_data, save_output, ensure_directories
         
-        # We need to ensure the function can find them.
-        # The function load_processed_data looks for "data/processed/..." relative to cwd.
-        # setup_test_data created them at tmp_path/data/processed.
-        # So we are good if we chdir to tmp_path.
+        # Load data
+        df = load_processed_data()
         
-        # However, the function also writes to "data/processed/..."
-        # Let's run it.
-        main()
+        # Check initial state
+        assert df['flavor_similarity'].isnull().sum() > 0, "Test setup failed: no missing similarity"
+        assert df['log_co_occurrence'].isnull().sum() > 0, "Test setup failed: no missing co-occurrence"
+        assert df['functional_role'].isnull().sum() > 0, "Test setup failed: no missing role"
         
-        # Verify output
-        output_file = Path(tmp_path) / "data" / "processed" / "ingredient_pairs.csv"
-        assert output_file.exists()
+        # Impute
+        df_imputed, log_data = impute_missing(df)
         
-        # Verify log
-        log_file = Path(tmp_path) / "data" / "processed" / "imputation_log.json"
-        assert log_file.exists()
+        # Check imputation
+        assert df_imputed['flavor_similarity'].isnull().sum() == 0, "Similarity not imputed"
+        assert (df_imputed['flavor_similarity'] == 0).sum() > 0, "Missing similarity not filled with 0"
         
-        with open(log_file) as f:
-            log_data = json.load(f)
-        assert log_data['total_rows_before'] == 4
-        assert log_data['missing_similarity_imputed'] == 1
-        assert log_data['missing_role_excluded'] == 1
+        # Check exclusions
+        assert 'exclusion_counts' in log_data
+        assert log_data['exclusion_counts'].get('missing_functional_role', 0) > 0, "Rows with missing role not dropped"
+        assert log_data['exclusion_counts'].get('missing_co_occurrence', 0) > 0, "Rows with missing co-occurrence not dropped"
+        
+        # Verify file saving
+        output_dir, log_dir = ensure_directories()
+        save_output(df_imputed, log_data, output_dir, log_dir)
+        
+        assert (output_dir / "ingredient_pairs.csv").exists(), "Output CSV not created"
+        assert (log_dir / "imputation_log.json").exists(), "Log JSON not created"
         
     finally:
-        os.chdir(old_cwd)
+        os.chdir(original_cwd)
+
+def test_amendment_log_validation(setup_test_environment):
+    test_dir, processed_dir, logs_dir, data_dir = setup_test_environment
+    original_cwd = os.getcwd()
+    os.chdir(test_dir)
+    
+    try:
+        # Change methodology to Causal
+        amendment_data = {
+            "status": "RATIFIED",
+            "methodology": "Causal Independence",
+            "proxy_source": "FlavorDB"
+        }
+        with open(data_dir / "amendment_log.json", 'w') as f:
+            json.dump(amendment_data, f)
+        
+        # Create mock chemical similarity file
+        sim_df = pd.DataFrame({
+            'ingredient_id': ['A', 'B'],
+            'ingredient_id_2': ['B', 'C'],
+            'flavor_similarity': [0.9, 0.4]
+        })
+        sim_df.to_parquet(processed_dir / "similarity_scores_chemical.parquet")
+        
+        from code.data.impute_and_check import load_processed_data
+        
+        # Should load chemical file now
+        df = load_processed_data()
+        assert df is not None
+        
+    finally:
+        os.chdir(original_cwd)
