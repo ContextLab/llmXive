@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010a` (rejected 1x): The provided `code/01_data_acquisition.py` does not show any implementation of the Materials Project API query or exponential‑backoff retry logic, and the generated `data/raw/pristine_structures.csv` contains only the header (no structures). Consequently there is no evidence that ≥50 pristine graphene/MoS₂ structures were retrieved, nor that the required backoff mechanism was implemented. The task’s core functional requirement is therefore unmet.
-- `T010b` (rejected 1x): The provided `code/01_data_acquisition.py` does not contain any logic that checks for API failure, loads `data/raw/pristine_structures.csv`, validates it, or writes `data/state/cache_load_log.json`. Moreover, the required output file `data/state/cache_load_log.json` is absent, and the cache CSV contains only a header (no valid data). The cache‑fallback step is therefore not implemented nor demonstrated.
+- `T013` (rejected 1x): The repository lacks the required output files `data/raw/synthetic_train.csv` and `data/state/synthetic_config.json`, and the provided `code/01_data_acquisition.py` does not contain the synthetic‑data generation logic described in the task (the file is truncated before any such implementation). Consequently the task’s specifications are not satisfied.
 
 ## Required change
 

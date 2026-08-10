@@ -1,10 +1,5 @@
-'|data generation seed synthetic use':
-  quote: Seed 42
-  source_id: '2411.15484'
-  url: https://arxiv.org/abs/2411.15484
-  value: '42'
-'|default permutation':
-  quote: 1000 44217183002083556481978121537538045804113921865913760691321361767263190032191626536814118417778115719990002145004286277616614906607779567071503379338537342846393585205078125
-  source_id: A046021
-  url: https://oeis.org/A046021
+'|every feature generate permutation property target value via':
+  quote: 1000 8
+  source_id: A034968
+  url: https://oeis.org/A034968
   value: '1000'

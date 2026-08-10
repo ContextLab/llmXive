@@ -1,12 +1,19 @@
+T010b:
+  c: false
+  h: b3304e51494f1b32449b72a52af012b2f4202e2e3463d3adcd6f204041c67f77
+  r: The repository contains `code/01_data_acquisition.py`, but the shown implementation
+    only contains placeholders for the Materials Project query and does not include
+    any logic to load `data/raw/pristine_structures.csv` on API failure, nor does
+    it write `data/state/cache_load_log.json`. Moreover, the required `data/state/cache_load_log.json`
+    file is absent. The cache fallback step and its log output are therefore not implemented.
 T011a:
-  c: true
-  h: 16bc28b52762dcb6fb8c22887dbefe3fbc1396f95848a8452c0900238af2be18
-  r: "The repository contains the required `data/raw/defect_dataset_2022.csv` (created\
-    \ even though empty) and a correctly\u2011structured `data/state/source_validation.json`\
-    \ with the expected fields. The provided `code/01_data_acquisition.py` includes\
-    \ utility functions and, given its length, presumably contains the download attempt\
-    \ and schema validation logic that produced the JSON outcome. No required artifact\
-    \ is missing or placeholder."
+  c: false
+  h: 7d26f47833f327bcdf58d1cd4a0e7b91c67e946ecc1c580338dea76ee6acf366
+  r: "The required `data/raw/defect_dataset_2022.csv` file is absent, violating the\
+    \ mandate that the script must create this file (even if empty). Additionally,\
+    \ the provided `code/01_data_acquisition.py` ends abruptly with a placeholder\
+    \ comment and does not contain a complete implementation of the download\u2011\
+    and\u2011validation step. The task therefore remains unfinished."
 T012:
   c: false
   h: 5001772e57f0e1c9c67c8db0f4dff6a03e9b1e405f8009a9a07cfb64da3724f5
@@ -16,14 +23,14 @@ T012:
     \ Moreover, the required `data/state/generation_status.json` file is absent, so\
     \ the script cannot demonstrate handling of that dependency. The task\u2019s core\
     \ Step\u202F3 is not evidenced in the artifacts."
-T013:
+T013b:
   c: false
-  h: 3d35ba937cf423daa83b2fb5c8d4000d695e57f8b757c8984668391d95c9fd22
-  r: "The required outputs `data/raw/synthetic_train.csv` and `data/state/synthetic_config.json`\
-    \ are not present on disk, and thus the task\u2019s core deliverables have not\
-    \ been produced. Additionally, the provided script is truncated and does not show\
-    \ the synthetic\u2011generation logic. The implementer must ensure the script\
-    \ creates both files (even empty with error logs) according to the specification."
+  h: 9660955bafd047c94ca9df073459709abed94be493e614513687e0e98aef516b
+  r: "The repository lacks the required `data/raw/synthetic_train.csv` (and holdout)\
+    \ files, and the provided `code/01_data_acquisition.py` does not contain any implementation\
+    \ of the Step\u202F4b confounding\u2011field generation logic (no checks for `synthesis_method`/`grain_size`\
+    \ or generation of those columns). Consequently the task\u2019s guarantee that\
+    \ those fields are present in the synthetic datasets is not satisfied."
 T018:
   c: false
   h: c358d1a397877ecc5909edd6f38f6107d05ccf578c4026ce1e930b63a3bb2e0c
@@ -31,15 +38,6 @@ T018:
     the expected output files (`data/processed/features.csv`, `data/processed/targets.csv`,
     `data/state/normalization_log.json`) are not present. Consequently the processing
     script cannot run nor produce the mandated artifacts.
-T020:
-  c: false
-  h: a2acae030db14c32f296237f2252d23727022d67491a3742aee895cac7e10509
-  r: "The repository contains `code/03_modeling.py`, but the file is truncated and\
-    \ does not show the full implementation of the Ridge\u2011regression primary strategy,\
-    \ the fallback exclusion logic, or the saving of `data/processed/feature_selection_log.json`.\
-    \ Moreover, the required `feature_selection_log.json` file is absent from the\
-    \ `data/processed` directory. The task\u2019s core output (the log file documenting\
-    \ excluded features and method) is missing, so the requirement is not met."
 T021:
   c: false
   h: 0b0926fdc406128cc651e707eb303bbba7304fb746361af5b2d9e70d8ba40d07
