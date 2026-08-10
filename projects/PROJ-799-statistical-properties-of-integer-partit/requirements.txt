@@ -1,9 +1,11 @@
-# Initial requirements - empty as per T001b
-# Dependencies will be added in T002
-# numpy
-# scipy
-# scikit-learn
-# statsmodels
-# matplotlib
-# pandas
-# pygam
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+statsmodels>=0.13.5
+matplotlib>=3.6.0
+pandas>=1.5.0
+pygam>=0.8.0
+pyyaml>=6.0
+flake8>=6.0.0
+black>=23.0.0
+pytest>=7.0.0

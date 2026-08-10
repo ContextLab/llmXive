@@ -1,3 +1,11 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or any file listings were provided; the required `projects/PROJ-799-statistical-properties-of-integer-partit/`
+    with its subfolders (`code/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/schemas/`,
+    `tests/`, `tests/data/`, `docs/`) and the separate `state/projects/` directory
+    at the repository root are not shown to exist. The implementer must create and
+    demonstrate these directories (e.g., via a directory listing or screenshots).
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -6,3 +14,10 @@ T003:
     in the `projects/PROJ-799-statistical-properties-of-integer-partit/code/` directory,
     nor any documentation showing that these tools have been scoped to that path.
     The required artifacts are missing, so the task is not satisfied.
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or figures were provided; the claim references required\
+    \ artifacts (a partition\u2011count script, CSV of\u202F$n$,\u202F$p_{\\mathcal{P}}(n)$,\u202F\
+    $Q_{as}(n)$, residual calculations, regression summary, and visualizations) but\
+    \ none are present on disk. Consequently the task\u2019s deliverables are missing."

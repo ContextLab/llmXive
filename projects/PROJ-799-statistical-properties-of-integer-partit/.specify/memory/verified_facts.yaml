@@ -1,5 +1,5 @@
-'|distinct function generating partition prod':
-  quote: 1 1
-  source_id: A000041
-  url: https://oeis.org/A000041
-  value: '11'
+'|asymptotic exp function partition prime sqrt unrestricted':
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

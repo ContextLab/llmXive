@@ -1,55 +1,36 @@
 # Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
 ## Project Overview
-This project investigates the statistical properties of integer partitions into distinct prime summands, denoted as $p_{\mathcal{P}}(n)$. We compute exact values for $n \in [1, 50000]$ [UNRESOLVED-CLAIM: c_6a09483e — status=not_enough_info] and compare them against asymptotic baselines derived from the distinct-partition variant of Meinardus' theorem.
+
+This project investigates the statistical properties of integer partitions where the summands are distinct primes.
+Specifically, we analyze the partition function $p_{\mathcal{P}}(n)$ and compare it against asymptotic baselines
+derived from Roth & Szekeres (1954) and Meinardus' theorem.
 
 ## Directory Structure
+
 - `code/`: Source code for data generation, feature engineering, and modeling.
-- `code/utils/`: Utility modules (e.g., prime sieves).
-- `data/raw/`: Generated raw data (partitions).
-- `data/processed/`: Processed features and model results.
-- `data/schemas/`: JSON/YAML schemas for data validation.
+- `data/raw/`: Raw generated data (e.g., partition counts).
+- `data/processed/`: Processed data and model outputs.
+- `data/schemas/`: Schema definitions for data artifacts.
 - `tests/`: Unit and integration tests.
-- `docs/`: Documentation.
-- `state/`: Project state tracking (checksums, versions).
+- `docs/`: Documentation and research notes.
+- `state/`: Repository-level state tracking (outside project folder).
 
 ## Prerequisites
+
 - Python 3.11+
-- pip
+- Dependencies listed in `requirements.txt`
 
 ## Installation
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -e.
- ```
- Or manually:
- ```bash
- pip install numpy scipy scikit-learn statsmodels matplotlib pandas pygam flake8 black pytest
- ```
 
-## Linting and Formatting
-This project uses `flake8` for linting and `black` for formatting, scoped to the `code/` directory.
-
-### Run Linting
 ```bash
-flake8 code/
+pip install -r requirements.txt
 ```
 
-### Run Formatting
-```bash
-black code/
-```
+## Usage
 
-### Check Formatting (Dry Run)
-```bash
-black --check code/
-```
+See `quickstart.md` for the full pipeline execution instructions.
 
-## Running the Pipeline
-Refer to `quickstart.md` for the full execution pipeline.
+## License
 
-## Testing
-```bash
-pytest tests/
-```
+[Insert License]

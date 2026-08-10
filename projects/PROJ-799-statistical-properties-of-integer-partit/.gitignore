@@ -9,13 +9,14 @@ __pycache__/
 # Distribution / packaging
 .eggs/
 *.egg-info/
-build/
 dist/
+build/
 
 # Virtual environments
-venv/
-env/
 .venv/
+venv/
+ENV/
+env/
 
 # IDE
 .idea/
@@ -23,15 +24,10 @@ env/
 *.swp
 *.swo
 
-# Data artifacts (generated)
+# Data files (tracked via checksums in state/)
 data/raw/*.csv
-data/processed/*.csv
-data/processed/*.json
-data/processed/*.png
-data/processed/*.pdf
-
-# State files
-state/projects/*.yaml
+data/processed/*
+data/schemas/*.yaml
 
 # Logs
 *.log

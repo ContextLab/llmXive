@@ -2209,3 +2209,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T04:18:04Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: asymptotic formula for distinct prime partitions Q_as(n) ~ exp(C * sqrt(n
+    / ln(n)))
+  claim_id: c_0325b4f9
+  context: Verify the asymptotic formula for distinct prime partitions against Roth
+    & Szekeres (1954). Explicitly derive and write the leading-order formula to docs/verified_formula.md.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Asymptotic_formula_for_distinct_prime_partitions_Q_as(n)_~_e
+  kind: entity_fact
+  raw_text: The asymptotic formula for distinct prime partitions is Q_as(n) ~ exp(C
+    * sqrt(n / ln(n))) where C is a constant determined by the underlying theoretical
+    framework.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:28:45Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: generating function for distinct prime partitions is product_{p in P}
+    (1 + q^p)
+  claim_id: c_b9cc51c9
+  context: Explicitly document the generating function product_{p in P} (1+q^p) in
+    the code comments of generate_partitions.py to distinguish it from the unrestricted
+    partition generating function.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generating function for distinct prime partitions is the product over
+    p in P of (1 + q^p).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:30:31Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/verified_formula.md
+  attempts: 1
+  canonical: Prime number counting function asymptotic pi(x) ~ x / ln(x)
+  claim_id: c_5a6d4709
+  context: 'For the set of prime numbers P: - The counting function is the Prime Number
+    Theorem: pi(x) ~ x / ln(x). - This corresponds to alpha = 1 and gamma = 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prime_number_counting_function_asymptotic_pi(x)_~_x_/_ln(x)
+  kind: entity_fact
+  raw_text: 'For the set of prime numbers P, the counting function is the Prime Number
+    Theorem: pi(x) ~ x / ln(x).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:33:38Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/verified_formula.md
+  attempts: 1
+  canonical: Leading order asymptotic behavior of distinct prime partitions ln Q(n)
+    ~ C sqrt(n / ln n)
+  claim_id: c_c7973bb8
+  context: 'Thus, the leading order behavior is: ln Q(n) ~ C sqrt(n / ln n) Exponentiating
+    both sides yields the verified formula: Q(n) ~ exp( C sqrt(n / ln n) )'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Leading_order_asymptotic_behavior_of_distinct_prime_partitio
+  kind: entity_fact
+  raw_text: The leading order behavior of the number of partitions of n into distinct
+    primes Q(n) is ln Q(n) ~ C sqrt(n / ln n).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:36:16Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/verified_formula.md
+  attempts: 1
+  canonical: Constant C for distinct prime partitions Q(n) is sqrt(24 / pi^2) approx
+    1.555
+  claim_id: c_14ec1566
+  context: 'Therefore, the constant C is: C = sqrt(24 / pi^2) The verified formula
+    uses: C = sqrt(24 / pi^2) approx 1.555'
+  evidence:
+    asserted: '24.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The constant C for the distinct prime partition function Q(n) is sqrt(24
+    / pi^2), which is approximately 1.555.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T04:36:17Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/verified_formula.md
+  attempts: 1
+  canonical: Unrestricted prime partition asymptotic exp(sqrt(48 / pi^2) sqrt(n /
+    ln n))
+  claim_id: c_03ab6bea
+  context: 'Unrestricted partitions into primes: P_P(n) ~ exp(sqrt(48 / pi^2) sqrt(n
+    / ln n)). Distinct partitions into primes: Q_P(n) ~ exp(sqrt(24 / pi^2) sqrt(n
+    / ln n)).'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: The unrestricted prime partition function P_P(n) is asymptotic to exp(sqrt(48
+    / pi^2) sqrt(n / ln n)).
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T04:36:32Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/verified_formula.md
+  attempts: 1
+  canonical: Distinct prime partition asymptotic exp(sqrt(24 / pi^2) sqrt(n / ln n))
+  claim_id: c_264ff381
+  context: 'Unrestricted partitions into primes: P_P(n) ~ exp(sqrt(48 / pi^2) sqrt(n
+    / ln n)). Distinct partitions into primes: Q_P(n) ~ exp(sqrt(24 / pi^2) sqrt(n
+    / ln n)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distinct prime partition function Q_P(n) is asymptotic to exp(sqrt(24
+    / pi^2) sqrt(n / ln n)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:38:31Z'

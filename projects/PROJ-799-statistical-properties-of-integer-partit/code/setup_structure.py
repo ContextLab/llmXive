@@ -1,18 +1,17 @@
-"""
-Setup script to create the project directory structure for PROJ-799.
-This script ensures all required directories exist under the project root.
-"""
 import os
 import sys
+from pathlib import Path
 
 def main():
-    """Create the required directory structure for the project."""
-    # Determine project root relative to this script's location
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
+    """
+    Initialize the project directory structure for PROJ-799.
+    Creates necessary subdirectories under the project root.
+    """
+    # Define the project root relative to this file's location
+    # Assuming this script is at: projects/PROJ-799-statistical-properties-of-integer-partit/code/setup_structure.py
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Define the relative paths to create
-    relative_paths = [
+    directories = [
         "code",
         "code/utils",
         "data/raw",
@@ -21,26 +20,16 @@ def main():
         "tests",
         "tests/data",
         "docs",
+        "state",
         "state/projects"
     ]
     
-    created_count = 0
-    skipped_count = 0
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
     
-    for rel_path in relative_paths:
-        full_path = os.path.join(project_root, rel_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path, exist_ok=True)
-            print(f"Created directory: {rel_path}")
-            created_count += 1
-        else:
-            skipped_count += 1
-    
-    print(f"\nDirectory setup complete.")
-    print(f"  Created: {created_count} directories")
-    print(f"  Skipped (already exist): {skipped_count} directories")
-    
-    return 0
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
