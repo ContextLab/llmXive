@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-tractable unsupervised machine learning pipeline to detect phase transitions in 2D isotropic spin systems (J1-J2 Heisenberg and XY models). The approach utilizes a Variational Autoencoder (VAE) to learn a compressed latent representation of Monte Carlo spin configurations. The critical temperature $T^*$ is identified via peak detection in the variance of the latent means, validated against independent physical observables (magnetic susceptibility) and Finite-Size Scaling (FSS) extrapolations. The implementation strictly adheres to the -hour runtime and 7 GB RAM constraints of the GitHub Actions free-tier runner.
+This project implements a CPU-tractable unsupervised machine learning pipeline to detect phase transitions in 2D isotropic spin systems (J1-J2 Heisenberg and XY models). The approach utilizes a Variational Autoencoder (VAE) to learn a compressed latent representation of Monte Carlo spin configurations. The critical temperature $T^*$ is identified via peak detection in the variance of the latent means, validated against independent physical observables (magnetic susceptibility) and Finite-Size Scaling (FSS) extrapolations. The implementation strictly adheres to the -hour runtime and standard memory constraints of the GitHub Actions free-tier runner.
 
 ## Technical Context
 
