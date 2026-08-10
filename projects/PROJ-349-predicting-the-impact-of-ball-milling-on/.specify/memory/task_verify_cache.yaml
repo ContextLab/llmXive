@@ -1,29 +1,3 @@
-T003a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.flake8` file or its contents were provided as evidence, so we cannot confirm
-    that the required configuration file exists or contains valid settings. The implementer
-    must supply the actual `.flake8` file with its configuration.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `.git` directory or any proof that `git init` was executed in
-    the project root was provided; the required artifact is missing.
-T007a:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required schema file `contracts/dataset.schema.yaml` does not exist (only\
-    \ a missing `schema.yaml` is noted), so no dataset schema with the specified fields\
-    \ is provided. The task\u2019s core artifact is absent."
-T007b:
-  c: false
-  h: 61837433dd7de4f6925ea4b63f86bb80f2daf8c196c374bec7109a6a76994a36
-  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
-    \ validator cannot load the schema. Moreover, the provided `validate_schema.py`\
-    \ does not show a `validate_schema(dataframe)` function that raises only `InsufficientDataError`\
-    \ on schema mismatches (it imports and likely uses `SchemaValidationError`). Both\
-    \ the missing schema file and the absent/correct\u2011exception\u2011only validation\
-    \ function mean the task is not genuinely fulfilled."
 T009:
   c: false
   h: 427b4689638c2d79a4d7019a5d0d16f6f07f2b7d7204b9d6da17cfaa18186f97
@@ -31,13 +5,6 @@ T009:
     configuration management is not set up as specified, even though `config.yaml`
     is present and contains the needed keys. The missing `settings.py` must be added
     (e.g., loading the YAML, exposing the configuration) to satisfy the task.
-T009b:
-  c: false
-  h: 427b4689638c2d79a4d7019a5d0d16f6f07f2b7d7204b9d6da17cfaa18186f97
-  r: "The required file `src/config/settings.py` does not exist, so there is no `load_config()`\
-    \ implementation. Moreover, even the existing `config.yaml` does not contain a\
-    \ top\u2011level `ocr_enabled` key (it has `ocr.fallback_enabled`), so the required\
-    \ validation could not be satisfied. The task therefore remains unfinished."
 T012:
   c: false
   h: 74e9e94ace5f9bb0b942d7c4f924093f158935f54bc4a0fc2c7488ecf56086cc
@@ -62,9 +29,43 @@ T013b:
     \ cannot be verified and the task\u2019s core output is missing. The implementer\
     \ must generate the JSON file with at least one valid row (including `source_name`\
     \ and `source_id`)."
-T015c:
+T014c:
   c: false
-  h: 0b87cfc107b034772399067d0175dfddb163634a1e5e6dd21b449816012db451
-  r: The `size_gate.py` file does not contain a complete `check_size_gate` implementation
-    (the definition is truncated), and the required `data/processed/row_count.json`
-    file is missing, so the function cannot read the count or log the warning as specified.
+  h: 99ffba469182e2c2c2310d0f454238fe0ac0feec27be32a7c42f4d17ea1eb119
+  r: "The required artifact `tests/unit/test_ocr.py` does not exist, so there is no\
+    \ test file to verify the OCR extraction functionality. The task\u2019s core requirement\u2014\
+    a unit test file that runs and checks regex parsing and unit handling\u2014is\
+    \ missing."
+T014c#1:
+  c: false
+  h: ce05033e3d0e57e4a381c36380994994bcedeccb92512741c30a638b5a602894
+  r: "The required source file `src/ingest/ocr_fallback.py` and its unit\u2011test\
+    \ `tests/unit/test_ocr.py` are both missing, so no extraction logic or tests exist.\
+    \ Additionally, the config key referenced in the task (`ocr_enabled`) does not\
+    \ appear in `config.yaml` (the file defines `ocr.fallback_enabled` instead). Consequently\
+    \ the implementation cannot be verified and the task is not fulfilled."
+T015a:
+  c: false
+  h: aebb4ee2278a8cc858fd39f2098954a90bdd6ae04b96b46f47d8b381a0096d8e
+  r: "The provided `src/ingest/merge.py` is truncated and shows no implementation\
+    \ of the required traceability checks (`source_name`, `source_id`), the pre\u2011\
+    merge size guard, or the write to `data/raw/merged_dataset.parquet`. Moreover,\
+    \ the expected output Parquet file is absent. The task therefore lacks the necessary\
+    \ logic and artifact."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code artifact defining a `validate_traceability` function was provided, nor
+    any evidence (e.g., test results, documentation) showing that such a function
+    checks each row for `source_name` and `source_id`. The required implementation
+    is therefore missing.
+T016e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or data file was provided that demonstrates the creation\
+    \ or population of a `process_duration` column with NaN values when missing. Without\
+    \ an artifact showing the dataframe manipulation, we cannot verify that the required\
+    \ column exists or that missing values are set to NaN as specified. The implementer\
+    \ must supply the implementation (e.g., a Python function or preprocessing script)\
+    \ and a sample output dataframe confirming the column\u2019s presence and correct\
+    \ handling of missing values."

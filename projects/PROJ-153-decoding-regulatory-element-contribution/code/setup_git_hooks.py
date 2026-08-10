@@ -1,185 +1,202 @@
-"""
-Setup Git LFS hooks for large file tracking in the llmXive project.
-
-This script configures Git LFS for the repository to track large data files
-(raw FASTQ, BAM, bigWig, etc.) while keeping the Git history lightweight.
-
-Usage:
-    python code/setup_git_hooks.py
-"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd, cwd=None):
-    """Run a shell command and return success status."""
+def run_command(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
+    """Execute a shell command and return the result."""
     try:
         result = subprocess.run(
             cmd,
-            shell=True,
-            cwd=cwd,
+            check=check,
             capture_output=True,
             text=True,
-            check=False
+            cwd=Path.cwd()
         )
-        if result.returncode != 0:
-            print(f"Command failed: {cmd}")
-            print(f"stderr: {result.stderr}")
-            return False
         if result.stdout:
-            print(result.stdout.strip())
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        return result
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing command: {' '.join(cmd)}", file=sys.stderr)
+        print(f"Return code: {e.returncode}", file=sys.stderr)
+        print(f"Stderr: {e.stderr}", file=sys.stderr)
+        raise
+
+def check_git_lfs_installed() -> bool:
+    """Check if Git LFS is installed on the system."""
+    try:
+        result = subprocess.run(
+            ["git", "lfs", "version"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print(f"Git LFS found: {result.stdout.strip()}")
         return True
-    except Exception as e:
-        print(f"Error running command: {e}")
+    except subprocess.CalledProcessError:
+        print("Git LFS is not installed.", file=sys.stderr)
+        return False
+    except FileNotFoundError:
+        print("Git is not installed or not in PATH.", file=sys.stderr)
         return False
 
-def check_git_lfs_installed():
-    """Check if Git LFS is installed."""
-    result = subprocess.run(
-        ["git", "lfs", "version"],
-        capture_output=True,
-        text=True
-    )
-    return result.returncode == 0
+def install_git_lfs() -> None:
+    """Attempt to install Git LFS (requires root/sudo)."""
+    print("Attempting to install Git LFS...")
+    # Try common package managers
+    install_cmds = [
+        ["sudo", "apt-get", "install", "-y", "git-lfs"],
+        ["sudo", "yum", "install", "-y", "git-lfs"],
+        ["brew", "install", "git-lfs"]
+    ]
+    
+    for cmd in install_cmds:
+        try:
+            # Check if the package manager exists first
+            pkg_mgr = cmd[0]
+            try:
+                subprocess.run([pkg_mgr, "--version"], capture_output=True, check=True)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                continue
+            
+            run_command(cmd, check=False)
+            print("Installation command executed. Please run 'git lfs install' manually if needed.")
+            return
+        except Exception as e:
+            print(f"Failed with {cmd[0]}: {e}")
+    
+    raise RuntimeError("Could not determine package manager to install Git LFS.")
 
-def install_git_lfs():
-    """Install Git LFS if not already installed."""
-    print("Installing Git LFS...")
-    if not run_command("git lfs install"):
-        print("Failed to install Git LFS. Please install it manually:")
-        print("  - macOS: brew install git-lfs")
-        print("  - Linux: apt-get install git-lfs")
-        print("  - Windows: Download from https://git-lfs.github.com/")
-        return False
-    return True
-
-def setup_lfs_tracking():
-    """Configure Git LFS to track specific file patterns."""
+def setup_lfs_tracking() -> None:
+    """Configure Git LFS to track specific file patterns for raw data."""
+    # Define patterns for raw data files that should be tracked by LFS
+    # Based on typical ChIP-seq, Hi-C, ATAC-seq, and eQTL file extensions
     patterns = [
         "*.fastq",
         "*.fastq.gz",
+        "*.fq",
+        "*.fq.gz",
         "*.bam",
+        "*.bai",
         "*.cram",
-        "*.bigwig",
-        "*.bw",
         "*.cool",
         "*.mcool",
         "*.hic",
-        "*.tsv.gz",
-        "*.csv.gz",
+        "*.bigwig",
+        "*.bw",
         "*.bed.gz",
-        "*.gz",
-        "*.tar",
-        "*.tar.gz",
-        "*.zip",
-        "data/raw/**/*",
-        "data/processed/**/*",
-        "results/**/*"
+        "*.vcf",
+        "*.vcf.gz",
+        "*.tsv",
+        "*.csv"
     ]
     
     print("Configuring Git LFS tracking patterns...")
     for pattern in patterns:
-        # Use git lfs track with --filename to avoid .gitattributes conflicts
-        if not run_command(f'git lfs track "{pattern}"'):
-            print(f"Warning: Could not track pattern {pattern}")
+        run_command(["git", "lfs", "track", pattern], check=False)
     
-    # Commit .gitattributes if it changed
-    if run_command("git add .gitattributes"):
-        if run_command("git status --porcelain .gitattributes"):
-            print("Created/updated .gitattributes file")
-        else:
-            print("No changes to .gitattributes")
+    # Ensure .gitattributes is created if not exists
+    gitattributes_path = Path(".gitattributes")
+    if not gitattributes_path.exists():
+        print("Creating .gitattributes file...")
+        with open(gitattributes_path, "w") as f:
+            f.write("# Git LFS tracking configuration\n")
+            f.write("# Auto-generated by setup_git_hooks.py\n")
+        print(f"Created {gitattributes_path}")
     else:
-        print("Warning: Could not stage .gitattributes")
-    
-    return True
+        print(f"{gitattributes_path} already exists. Appending/merging patterns.")
 
-def create_pre_push_hook():
-    """Create a pre-push hook to warn about large untracked files."""
+def create_pre_push_hook() -> None:
+    """Create a pre-push hook to warn if large files are being pushed without LFS."""
     hooks_dir = Path(".git/hooks")
     hooks_dir.mkdir(parents=True, exist_ok=True)
     
-    pre_push_script = hooks_dir / "pre-push"
-    
-    hook_content = '''#!/bin/bash
-# Pre-push hook to check for large untracked files
-# This helps prevent accidentally pushing large files without LFS
+    hook_script = hooks_dir / "pre-push"
+    hook_content = """#!/bin/bash
+# Pre-push hook to check for large files not tracked by LFS
 
-LARGE_FILE_THRESHOLD=10000000  # 10MB
+# Maximum size allowed for non-LFS files (in bytes) - 100MB
+MAX_SIZE=104857600 
 
-echo "Checking for large files that should be tracked by Git LFS..."
+# Get list of files being pushed
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -v "^\\.gitattributes$")
 
-# Find files larger than threshold that aren't tracked by LFS
-large_files=$(git ls-files --others --exclude-standard | while read file; do
-    size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
-    if [ "$size" -gt $LARGE_FILE_THRESHOLD ]; then
-  echo "$file ($((size/1024/1024))MB)"
-    fi
-done)
-
-if [ -n "$large_files" ]; then
-    echo "WARNING: The following large files are not tracked by Git LFS:"
-    echo "$large_files"
-    echo ""
-    echo "Please track them with: git lfs track <filename>"
-    echo "Or add them to .gitignore if they should not be versioned."
-    echo ""
-    echo "To skip this check, set GIT_LFS_SKIP_PUSH_CHECK=1"
-    if [ -z "$GIT_LFS_SKIP_PUSH_CHECK" ]; then
-  exit 1
-    fi
+if [ -z "$FILES" ]; then
+    exit 0
 fi
 
-echo "Large file check passed."
+LARGE_FILES=""
+for FILE in $FILES; do
+    if [ -f "$FILE" ]; then
+  SIZE=$(stat -f%z "$FILE" 2>/dev/null || stat -c%s "$FILE" 2>/dev/null)
+  if [ "$SIZE" -gt "$MAX_SIZE" ]; then
+      # Check if file is tracked by LFS
+      if ! git lfs ls-files | grep -q "^$FILE "; then
+          LARGE_FILES="$LARGE_FILES\n$FILE ($SIZE bytes)"
+      fi
+  fi
+    fi
+done
+
+if [ -n "$LARGE_FILES" ]; then
+    echo "ERROR: Large files detected that are not tracked by Git LFS:"
+    echo -e "$LARGE_FILES"
+    echo ""
+    echo "Please use 'git lfs track <filename>' and 'git add .gitattributes' before pushing."
+    echo "Alternatively, ensure large files are excluded via .gitignore."
+    exit 1
+fi
+
 exit 0
-'''
+"""
     
-    with open(pre_push_script, "w") as f:
+    with open(hook_script, "w") as f:
         f.write(hook_content)
     
     # Make executable
-    if sys.platform != "win32":
-        os.chmod(pre_push_script, 0o755)
-    
-    print(f"Created pre-push hook at {pre_push_script}")
-    return True
+    os.chmod(hook_script, 0o755)
+    print(f"Created pre-push hook at {hook_script}")
 
-def main():
-    """Main entry point for Git LFS setup."""
-    print("=" * 60)
-    print("Setting up Git LFS for llmXive project")
-    print("=" * 60)
+def main() -> None:
+    """Main entry point to setup Git LFS hooks."""
+    print("Setting up Git LFS hooks for large file tracking...")
     
-    # Check if we're in a git repository
-    if not run_command("git rev-parse --is-inside-work-tree"):
-        print("Error: Not a git repository. Please initialize git first.")
-        sys.exit(1)
-    
-    # Check/install Git LFS
     if not check_git_lfs_installed():
-        print("Git LFS not found. Attempting to install...")
-        if not install_git_lfs():
-            print("Failed to install Git LFS. Please install manually and re-run.")
+        print("Git LFS is required but not installed.")
+        response = input("Do you want to try to install it? (y/n): ").strip().lower()
+        if response == 'y':
+            try:
+                install_git_lfs()
+                if not check_git_lfs_installed():
+                    print("Installation failed or verification failed. Aborting.")
+                    sys.exit(1)
+            except Exception as e:
+                print(f"Installation failed: {e}")
+                sys.exit(1)
+        else:
+            print("Aborting setup. Please install Git LFS manually and run again.")
             sys.exit(1)
-    else:
-        print("Git LFS is already installed.")
+    
+    # Initialize LFS in the repo if not already done
+    try:
+        run_command(["git", "lfs", "install"])
+    except subprocess.CalledProcessError:
+        print("Warning: Could not run 'git lfs install'. Ensure you are in a git repository.")
     
     # Setup tracking patterns
-    if not setup_lfs_tracking():
-        print("Warning: Some tracking patterns could not be set up.")
+    setup_lfs_tracking()
     
     # Create pre-push hook
-    if not create_pre_push_hook():
-        print("Warning: Could not create pre-push hook.")
+    create_pre_push_hook()
     
-    print("=" * 60)
-    print("Git LFS setup complete!")
+    print("\nGit LFS setup complete.")
     print("Next steps:")
-    print("  1. Add large files to git: git add data/raw/...")
-    print("  2. Commit: git commit -m 'Add raw data'")
-    print("  3. Push: git push (will trigger pre-push check)")
-    print("=" * 60)
+    print("1. Review .gitattributes and adjust patterns if needed.")
+    print("2. Run 'git lfs track' manually for any additional specific files.")
+    print("3. Add and commit .gitattributes: git add .gitattributes && git commit -m 'Add LFS tracking'")
+    print("4. The pre-push hook will now warn you about large files not tracked by LFS.")
 
 if __name__ == "__main__":
     main()

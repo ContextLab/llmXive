@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: 17f8a78058b009a7415e9270116bde4c6c8d046248a600c5c73ad3099177858a
+- artifact_hash: b838cb6413aaca487fd4d5c06d8447dce71158466b3cb63f0e59d7761409e76d
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://next-gen.materialsproject.org/api/v2/materials`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/materials
-  verified_at: '2026-07-30T10:58:34.112637Z'
-- artifact_hash: 17f8a78058b009a7415e9270116bde4c6c8d046248a600c5c73ad3099177858a
+  verified_at: '2026-08-10T04:32:49.962802Z'
+- artifact_hash: b838cb6413aaca487fd4d5c06d8447dce71158466b3cb63f0e59d7761409e76d
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://arxiv.org/abs/2304.02632
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2304.02632
-  verified_at: '2026-07-30T10:58:34.112637Z'
+  verified_at: '2026-08-10T04:32:49.962802Z'

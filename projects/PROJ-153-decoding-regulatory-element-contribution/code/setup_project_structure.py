@@ -4,54 +4,42 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the standard project directory structure for the llmXive pipeline.
-    Directories created:
-        - code/
-        - tests/
-        - data/raw/
-        - data/processed/
-        - results/
-        - figures/
-        - logs/
+    Creates the required project directory structure:
+    code/, tests/, data/, results/
+    
+    This implements the setup phase for the llmXive pipeline.
     """
-    base_dir = Path(__file__).resolve().parent.parent
-    directories = [
+    base_dir = Path(".")
+    required_dirs = [
         "code",
         "tests",
+        "data",
+        "results",
         "data/raw",
         "data/processed",
-        "data/external",
-        "results",
-        "figures",
-        "logs",
+        "results/figures",
+        "results/tables",
         "specs"
     ]
 
     created_count = 0
-    for dir_name in directories:
+    for dir_name in required_dirs:
         target_path = base_dir / dir_name
         if not target_path.exists():
             target_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {target_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {target_path}")
+            print(f"Directory exists: {target_path}")
 
-    if created_count == 0:
-        print("No new directories created. All required directories exist.")
-    else:
-        print(f"Successfully created {created_count} directory structure(s).")
-
-    return True
+    return created_count
 
 def main():
-    """Entry point for the script."""
-    try:
-        create_directories()
-        return 0
-    except Exception as e:
-        print(f"Error creating project structure: {e}", file=sys.stderr)
-        return 1
+    """Main entry point for project setup."""
+    print("Initializing project directory structure...")
+    created = create_directories()
+    print(f"Setup complete. Created {created} new directories.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

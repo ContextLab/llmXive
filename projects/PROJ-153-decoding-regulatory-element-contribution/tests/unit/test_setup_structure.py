@@ -1,76 +1,60 @@
-"""
-Unit tests for T001: Project directory structure creation.
-Verifies that the setup script creates all required directories.
-"""
 import os
-import tempfile
-import shutil
+import pytest
 from pathlib import Path
 import sys
 
-# Add parent directory to path to import the setup script module
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def test_required_directories_exist():
-    """Test that all required directories are created by the setup script."""
-    # Create a temporary directory to simulate project root
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        
-        # Mock the project root structure for testing
-        # We'll manually create the 'code' dir so the script thinks it's in the right place
-        code_dir = tmp_path / "code"
-        code_dir.mkdir()
-        
-        # Import and run the setup logic directly
-        from setup_project_structure import REQUIRED_DIRS, create_directories
-        
-        create_directories(tmp_path)
-        
-        # Verify all directories were created
-        for dir_name in REQUIRED_DIRS:
-            dir_path = tmp_path / dir_name
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
+from code.setup_project_structure import create_directories
 
-def test_nested_directories_created():
-    """Test that nested directories (e.g., tests/unit) are created correctly."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        code_dir = tmp_path / "code"
-        code_dir.mkdir()
+class TestProjectStructure:
+    """Tests for project directory creation logic."""
+
+    def test_directories_exist_after_creation(self, tmp_path, monkeypatch):
+        """Verify that create_directories creates the expected folders."""
+        # Change to temp directory for testing
+        monkeypatch.chdir(tmp_path)
         
-        from setup_project_structure import create_directories
-        create_directories(tmp_path)
+        # Mock the base directory to be the temp path
+        original_cwd = Path.cwd()
         
-        # Check specific nested directories
-        nested_dirs = [
-            "tests/unit",
-            "tests/integration", 
-            "tests/contract",
-            "data/raw",
-            "data/processed",
-            "data/external",
+        # Run the function
+        create_directories()
+        
+        # Verify expected directories exist
+        expected_dirs = [
+            "code", "tests", "data", "results",
+            "data/raw", "data/processed",
+            "results/figures", "results/tables",
+            "specs"
         ]
         
-        for dir_name in nested_dirs:
-            dir_path = tmp_path / dir_name
-            assert dir_path.exists(), f"Nested directory {dir_path} was not created"
+        for dir_name in expected_dirs:
+            target = original_cwd / dir_name
+            assert target.exists(), f"Directory {dir_name} was not created"
+            assert target.is_dir(), f"{dir_name} exists but is not a directory"
 
-def test_idempotent_creation():
-    """Test that running the script twice doesn't cause errors."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        code_dir = tmp_path / "code"
-        code_dir.mkdir()
+    def test_no_error_if_dirs_exist(self, tmp_path, monkeypatch):
+        """Verify that create_directories does not fail if directories already exist."""
+        monkeypatch.chdir(tmp_path)
         
-        from setup_project_structure import create_directories
+        # Pre-create one directory
+        (tmp_path / "code").mkdir()
         
-        # Run twice
-        create_directories(tmp_path)
-        create_directories(tmp_path)
+        # Should not raise an exception
+        try:
+            create_directories()
+        except Exception as e:
+            pytest.fail(f"create_directories raised an exception when directories existed: {e}")
+
+    def test_nested_directories_created(self, tmp_path, monkeypatch):
+        """Verify that nested directories (e.g., data/raw) are created correctly."""
+        monkeypatch.chdir(tmp_path)
         
-        # Should still exist
-        assert (tmp_path / "code").exists()
-        assert (tmp_path / "data").exists()
-        assert (tmp_path / "tests").exists()
+        create_directories()
+        
+        assert (tmp_path / "data" / "raw").exists()
+        assert (tmp_path / "results" / "figures").exists()
+        assert (tmp_path / "data" / "processed").exists()
+        assert (tmp_path / "results" / "tables").exists()

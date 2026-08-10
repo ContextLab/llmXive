@@ -1,0 +1,21 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (code/, tests/, data/, results/) is shown or listed in
+    the provided evidence; the response only contains feature specifications and user
+    stories without any actual filesystem artifacts. The required project folders
+    are missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No Git\u2011hook scripts, LFS configuration files (e.g., `.gitattributes`),\
+    \ or documentation showing that large\u2011file tracking has been set up are present.\
+    \ The only artifacts described relate to downstream analysis results, not to the\
+    \ required Git\u2011LFS setup, so the task\u2019s core requirement is unmet."
+T012:
+  c: false
+  h: f523067fbb97c9856ae6a2405579165d92a310dcd94ed640850c497f9892f061
+  r: "The required integration test file `tests/integration/test_pipeline_us1.py`\
+    \ is missing from the repository, so the claimed end\u2011to\u2011end pipeline\
+    \ test does not exist. The task cannot be considered completed until this test\
+    \ file is added with appropriate test code."

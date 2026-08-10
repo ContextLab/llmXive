@@ -16338,3 +16338,88 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T00:55:27Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: QM9 dataset contains 133885 small organic molecules
+  claim_id: c_3db8b072
+  context: 'Dataset: QM9 (133,885 small organic molecules).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The QM9 dataset contains 133,885 small organic molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:19:49Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: Random subset of 10000 molecules extracted with seed 42
+  claim_id: c_76fca027
+  context: 'Subset: A reproducible random subset of 10,000 molecules was extracted
+    using a fixed seed (42) to ensure experimental consistency.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A reproducible random subset of 10,000 molecules was extracted using a
+    fixed seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:20:39Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: GNN model achieved MAE of 0.15 Debye
+  claim_id: c_6588de7b
+  context: 'GNN Performance: Mean Absolute Error (MAE) ~0.15 D (Debye) with a 95%
+    confidence interval.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN model achieved a Mean Absolute Error (MAE) of approximately 0.15
+    Debye.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:21:01Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: Random Forest model achieved MAE of 0.22 Debye
+  claim_id: c_a5d084b0
+  context: 'Random Forest Performance: Higher MAE (~0.22 D), indicating limitations
+    of 2D descriptors in capturing directional charge separation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model achieved a Mean Absolute Error (MAE) of approximately
+    0.22 Debye.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:21:26Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: QM9 dataset provides dipole moments calculated using BLYP/6-31G(2df,p)
+    functional
+  claim_id: c_2ba0cf2e
+  context: The primary ground truth for training and evaluation is derived from Density
+    Functional Theory (DFT) calculations at the BLYP/6-31G(2df,p) level, as provided
+    in the QM9 reference dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The QM9 dataset provides dipole moments calculated using the BLYP/6-31G(2df,p)
+    functional.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T04:22:00Z'

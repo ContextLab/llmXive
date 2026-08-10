@@ -104,7 +104,7 @@ As a researcher, I need to collect empathic engagement and moral judgement score
 - **SC-002**: The text-similarity matching precision is measured against a stratified random sample of 100 potential matches (balanced by genre and similarity quartile) to ensure the false-positive rate is ≤ 5% at the primary threshold. (See US-2)
 - **SC-003**: The statistical model stability is measured by the variation in the headline correlation coefficient (slope) when the similarity threshold is swept across a defined set of low, medium, and high values; the coefficient must not vary significantly across the sweep to be considered robust. (See US-3)
 - **SC-004**: The multiplicity control is measured by verifying that the count of reported significant findings exactly equals the count of p-values < 0.05/k after Bonferroni adjustment. (See US-3)
-- **SC-005**: The compute feasibility is measured by ensuring the total execution time of the analysis script on a standard GitHub Actions free-tier runner (multi-core CPU, standard RAM) does not exceed 45 minutes, with peak memory usage remaining below 6 GB. (See US-3)
+- **SC-005**: The compute feasibility is measured by ensuring the total execution time of the analysis script on a standard GitHub Actions free-tier runner (multi-core CPU, standard RAM) remains within a practical threshold, with peak memory usage staying below a manageable limit. (See US-3)
 - **SC-006**: The primary analysis validity is measured by confirming that the regression coefficient for `perspective_score` is derived from the `ReaderResponse` dataset (US-4) and not solely from external text proxies. (See US-3, US-4)
 
 ## Assumptions

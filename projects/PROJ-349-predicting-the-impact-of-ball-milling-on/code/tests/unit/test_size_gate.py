@@ -1,221 +1,222 @@
 """
-Unit tests for the size gate utility (T015c).
+Unit tests for the size gate and flagged entry processor (T015c).
 """
+
 import json
 import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pytest
-import logging
 
-# Import the module under test
-import sys
-# Ensure the code directory is in the path if not already
-if 'code' not in sys.path:
-    sys.path.insert(0, 'code')
+import pytest
 
 from src.utils.size_gate import (
     read_row_count,
     load_flagged_entries,
     trigger_ocr_fallback,
     check_size_gate,
-    ROW_COUNT_PATH,
-    FLAGGED_PSD_PATH,
-    MIN_ROWS_WARNING
+    run_size_gate_pipeline
 )
-
-@pytest.fixture
-def temp_data_dir(tmp_path):
-    """Creates a temporary directory structure for data files."""
-    processed_dir = tmp_path / "data" / "processed"
-    processed_dir.mkdir(parents=True)
-    return processed_dir
-
-@pytest.fixture
-def temp_root(tmp_path):
-    """Creates a temporary root to mimic project structure."""
-    root = tmp_path
-    (root / "data" / "processed").mkdir(parents=True)
-    (root / "data").mkdir(exist_ok=True)
-    return root
+from src.exceptions import InsufficientDataError
 
 class TestReadRowCount:
-    def test_read_row_count_success(self, temp_data_dir):
-        count_file = temp_data_dir / "row_count.json"
-        count_file.write_text(json.dumps({"count": 500}))
-        
-        with patch('src.utils.size_gate.ROW_COUNT_PATH', count_file):
-            count = read_row_count()
-            assert count == 500
+    def test_read_row_count_success(self, temp_dir):
+        count_file = Path(temp_dir) / "count.json"
+        with open(count_file, 'w') as f:
+            json.dump({'count': 200}, f)
 
-    def test_read_row_count_empty(self, temp_data_dir):
-        count_file = temp_data_dir / "row_count.json"
-        count_file.write_text(json.dumps({"count": 0}))
-        
-        with patch('src.utils.size_gate.ROW_COUNT_PATH', count_file):
-            count = read_row_count()
-            assert count == 0
+        assert read_row_count(count_file) == 200
 
-    def test_read_row_count_file_not_found(self, temp_data_dir):
-        # Point to a non-existent file
-        non_existent = temp_data_dir / "missing.json"
-        
-        with patch('src.utils.size_gate.ROW_COUNT_PATH', non_existent):
-            with pytest.raises(FileNotFoundError):
-                read_row_count()
+    def test_read_row_count_file_not_found(self, temp_dir):
+        with pytest.raises(FileNotFoundError):
+            read_row_count(Path(temp_dir) / "nonexistent.json")
 
-    def test_read_row_count_missing_key(self, temp_data_dir):
-        count_file = temp_data_dir / "row_count.json"
-        count_file.write_text(json.dumps({"wrong_key": 500}))
-        
-        with patch('src.utils.size_gate.ROW_COUNT_PATH', count_file):
-            with pytest.raises(ValueError):
-                read_row_count()
+    def test_read_row_count_invalid_json(self, temp_dir):
+        count_file = Path(temp_dir) / "bad.json"
+        with open(count_file, 'w') as f:
+            f.write("not json")
+        with pytest.raises(json.JSONDecodeError):
+            read_row_count(count_file)
+
+    def test_read_row_count_missing_key(self, temp_dir):
+        count_file = Path(temp_dir) / "missing.json"
+        with open(count_file, 'w') as f:
+            json.dump({'data': 100}, f)
+        with pytest.raises(KeyError):
+            read_row_count(count_file)
+
 
 class TestLoadFlaggedEntries:
-    def test_load_flagged_entries_success(self, temp_root):
-        flagged_file = temp_root / "data" / "flagged_psd.json"
+    def test_load_flagged_entries_success(self, temp_dir):
+        flagged_file = Path(temp_dir) / "flagged.json"
         data = [
-            {"experiment_id": "exp_1", "issue_type": "image", "image_path": "/tmp/img.png"},
-            {"experiment_id": "exp_2", "issue_type": "image", "image_path": "/tmp/img2.png"}
+            {'experiment_id': '1', 'issue_type': 'missing_psd', 'source': 'A'},
+            {'experiment_id': '2', 'issue_type': 'missing_psd', 'source': 'B'}
         ]
-        flagged_file.write_text(json.dumps(data))
+        with open(flagged_file, 'w') as f:
+            json.dump(data, f)
 
-        with patch('src.utils.size_gate.FLAGGED_PSD_PATH', flagged_file):
-            entries = load_flagged_entries()
-            assert len(entries) == 2
-            assert entries[0]["experiment_id"] == "exp_1"
+        result = load_flagged_entries(flagged_file)
+        assert len(result) == 2
+        assert result[0]['experiment_id'] == '1'
 
-    def test_load_flagged_entries_file_not_found(self, temp_root):
-        # Ensure file doesn't exist
-        flagged_file = temp_root / "data" / "flagged_psd.json"
-        if flagged_file.exists():
-            flagged_file.unlink()
+    def test_load_flagged_entries_file_not_found(self, temp_dir):
+        result = load_flagged_entries(Path(temp_dir) / "nonexistent.json")
+        assert result == []
 
-        with patch('src.utils.size_gate.FLAGGED_PSD_PATH', flagged_file):
-            entries = load_flagged_entries()
-            assert entries == []
+    def test_load_flagged_entries_invalid_json(self, temp_dir):
+        flagged_file = Path(temp_dir) / "bad.json"
+        with open(flagged_file, 'w') as f:
+            f.write("bad json")
+        result = load_flagged_entries(flagged_file)
+        assert result == []
 
-    def test_load_flagged_entries_invalid_json(self, temp_root):
-        flagged_file = temp_root / "data" / "flagged_psd.json"
-        flagged_file.write_text("not valid json")
-
-        with patch('src.utils.size_gate.FLAGGED_PSD_PATH', flagged_file):
-            entries = load_flagged_entries()
-            assert entries == []
-
-    def test_load_flagged_entries_not_list(self, temp_root):
-        flagged_file = temp_root / "data" / "flagged_psd.json"
-        flagged_file.write_text(json.dumps({"key": "value"}))
-
-        with patch('src.utils.size_gate.FLAGGED_PSD_PATH', flagged_file):
-            entries = load_flagged_entries()
-            assert entries == []
 
 class TestTriggerOcrFallback:
     @patch('src.utils.size_gate.extract_psd_from_image')
-    def test_trigger_ocr_fallback_success(self, mock_extract, temp_root):
-        entries = [
-            {"experiment_id": "exp_1", "image_path": "/tmp/img1.png"},
-            {"experiment_id": "exp_2", "image_path": "/tmp/img2.png"}
-        ]
-        mock_extract.return_value = {"d50": 10.5}
-
-        count = trigger_ocr_fallback(entries)
-        assert count == 2
-        assert mock_extract.call_count == 2
-        mock_extract.assert_any_call("/tmp/img1.png", "exp_1")
-        mock_extract.assert_any_call("/tmp/img2.png", "exp_2")
+    def test_trigger_ocr_fallback_disabled(self, mock_extract, temp_dir):
+        flagged_entries = [{'experiment_id': '1'}]
+        config = {'ocr': {'enabled': False}}
+        result = trigger_ocr_fallback(flagged_entries, config)
+        assert result is None
+        mock_extract.assert_not_called()
 
     @patch('src.utils.size_gate.extract_psd_from_image')
-    def test_trigger_ocr_fallback_missing_image_path(self, mock_extract, temp_root):
-        entries = [
-            {"experiment_id": "exp_1"}, # Missing image_path
-            {"experiment_id": "exp_2", "image_path": "/tmp/img2.png"}
+    def test_trigger_ocr_fallback_success(self, mock_extract, temp_dir):
+        # Create a dummy image file
+        img_path = Path(temp_dir) / "dummy.png"
+        img_path.touch()
+
+        flagged_entries = [
+            {'experiment_id': '1', 'image_path': str(img_path)}
         ]
-        
-        count = trigger_ocr_fallback(entries)
-        # Should skip the first one
-        assert count == 1
-        mock_extract.assert_called_once_with("/tmp/img2.png", "exp_2")
+        config = {'ocr': {'enabled': True}}
+        mock_extract.return_value = {'d10': 1.0, 'd50': 2.0, 'd90': 3.0}
+
+        result = trigger_ocr_fallback(flagged_entries, config)
+        assert result is not None
+        assert len(result) == 1
+        assert result[0]['d10'] == 1.0
+        mock_extract.assert_called_once()
 
     @patch('src.utils.size_gate.extract_psd_from_image')
-    def test_trigger_ocr_fallback_exception_handling(self, mock_extract, temp_root):
-        entries = [
-            {"experiment_id": "exp_1", "image_path": "/tmp/img1.png"},
-            {"experiment_id": "exp_2", "image_path": "/tmp/img2.png"}
+    def test_trigger_ocr_fallback_missing_image(self, mock_extract, temp_dir):
+        flagged_entries = [
+            {'experiment_id': '1', 'image_path': '/nonexistent/path.png'}
         ]
-        mock_extract.side_effect = [
-            {"d50": 10.5}, # Success
-            RuntimeError("OCR Failed") # Failure
+        config = {'ocr': {'enabled': True}}
+        result = trigger_ocr_fallback(flagged_entries, config)
+        assert result is None
+        mock_extract.assert_not_called()
+
+    @patch('src.utils.size_gate.extract_psd_from_image')
+    def test_trigger_ocr_fallback_exception_handling(self, mock_extract, temp_dir):
+        img_path = Path(temp_dir) / "dummy.png"
+        img_path.touch()
+
+        flagged_entries = [
+            {'experiment_id': '1', 'image_path': str(img_path)}
         ]
+        config = {'ocr': {'enabled': True}}
+        mock_extract.side_effect = Exception("OCR Failed")
 
-        count = trigger_ocr_fallback(entries)
-        # Should process both (log error for second, but count as attempted/processed in loop logic)
-        # The function counts 'processed_count' only on success in the implementation?
-        # Let's check implementation: it increments on success.
-        # Wait, the implementation increments on success.
-        # So count should be 1.
-        assert count == 1
+        result = trigger_ocr_fallback(flagged_entries, config)
+        # Should return empty list or None if all fail
+        assert result is None or result == []
 
-    def test_trigger_ocr_fallback_empty_list(self, temp_root):
-        count = trigger_ocr_fallback([])
-        assert count == 0
 
 class TestCheckSizeGate:
-    @patch('src.utils.size_gate.read_row_count')
+    def test_check_size_gate_pass(self):
+        # Should not raise
+        check_size_gate(150, minimum_viable=150)
+        check_size_gate(200, minimum_viable=150)
+
+    def test_check_size_gate_fail(self):
+        with pytest.raises(SystemExit) as exc_info:
+            check_size_gate(149, minimum_viable=150)
+        assert exc_info.value.code == 1
+
+    def test_check_size_gate_empty(self):
+        with pytest.raises(SystemExit) as exc_info:
+            check_size_gate(0, minimum_viable=150)
+        assert exc_info.value.code == 1
+
+
+class TestRunSizeGatePipeline:
+    @patch('src.utils.size_gate.load_config')
     @patch('src.utils.size_gate.load_flagged_entries')
     @patch('src.utils.size_gate.trigger_ocr_fallback')
-    def test_check_size_gate_above_threshold(
-        self, mock_ocr, mock_load, mock_read, temp_root, caplog
+    @patch('src.utils.size_gate.read_row_count')
+    @patch('src.utils.size_gate.check_size_gate')
+    def test_run_pipeline_success(
+        self, mock_check, mock_read, mock_trigger, mock_load_flagged, mock_load_config, temp_dir
     ):
+        flagged_file = Path(temp_dir) / "flagged.json"
+        row_count_file = Path(temp_dir) / "count.json"
+
+        with open(flagged_file, 'w') as f:
+            json.dump([{'id': '1'}], f)
+        with open(row_count_file, 'w') as f:
+            json.dump({'count': 200}, f)
+
+        mock_load_config.return_value = {'ocr': {'enabled': False}}
+        mock_load_flagged.return_value = [{'id': '1'}]
+        mock_trigger.return_value = []
         mock_read.return_value = 200
-        mock_load.return_value = []
-        
-        with caplog.at_level(logging.INFO):
-            result = check_size_gate()
-        
-        assert result is True
-        assert "Dataset size (200 rows) meets the target threshold" in caplog.text
-        mock_ocr.assert_not_called()
 
-    @patch('src.utils.size_gate.read_row_count')
+        result = run_size_gate_pipeline(
+            row_count_path=row_count_file,
+            flagged_path=flagged_file
+        )
+        assert result == []
+        mock_check.assert_called_once_with(200)
+
+    @patch('src.utils.size_gate.load_config')
     @patch('src.utils.size_gate.load_flagged_entries')
     @patch('src.utils.size_gate.trigger_ocr_fallback')
-    def test_check_size_gate_below_threshold_no_flagged(
-        self, mock_ocr, mock_load, mock_read, temp_root, caplog
-    ):
-        mock_read.return_value = 100
-        mock_load.return_value = []
-        
-        with caplog.at_level(logging.WARNING):
-            result = check_size_gate()
-        
-        assert result is True
-        assert "CRITICAL WARNING" in caplog.text
-        mock_ocr.assert_not_called()
-
     @patch('src.utils.size_gate.read_row_count')
-    @patch('src.utils.size_gate.load_flagged_entries')
-    @patch('src.utils.size_gate.trigger_ocr_fallback')
-    def test_check_size_gate_below_threshold_with_flagged(
-        self, mock_ocr, mock_load, mock_read, temp_root, caplog
+    @patch('src.utils.size_gate.check_size_gate')
+    def test_run_pipeline_halt_on_size(
+        self, mock_check, mock_read, mock_trigger, mock_load_flagged, mock_load_config, temp_dir
     ):
-        mock_read.return_value = 100
-        mock_load.return_value = [{"id": 1}]
-        
-        with caplog.at_level(logging.WARNING):
-            result = check_size_gate()
-        
-        assert result is True
-        assert "CRITICAL WARNING" in caplog.text
-        mock_load.assert_called_once()
-        mock_ocr.assert_called_once()
+        flagged_file = Path(temp_dir) / "flagged.json"
+        row_count_file = Path(temp_dir) / "count.json"
 
-    @patch('src.utils.size_gate.read_row_count')
-    def test_check_size_gate_file_not_found(self, mock_read, temp_root):
-        mock_read.side_effect = FileNotFoundError("File not found")
-        
-        result = check_size_gate()
-        assert result is False
+        with open(flagged_file, 'w') as f:
+            json.dump([{'id': '1'}], f)
+        with open(row_count_file, 'w') as f:
+            json.dump({'count': 100}, f)
+
+        mock_load_config.return_value = {'ocr': {'enabled': False}}
+        mock_load_flagged.return_value = [{'id': '1'}]
+        mock_trigger.return_value = []
+        mock_read.return_value = 100
+        mock_check.side_effect = SystemExit(1)
+
+        with pytest.raises(SystemExit):
+            run_size_gate_pipeline(
+                row_count_path=row_count_file,
+                flagged_path=flagged_file
+            )
+
+# Fixtures
+@pytest.fixture
+def temp_dir(tmp_path):
+    return tmp_path
+
+@pytest.fixture
+def temp_image_file(temp_dir):
+    img_path = Path(temp_dir) / "test.png"
+    img_path.touch()
+    return img_path
+
+@pytest.fixture
+def temp_detected_images_json(temp_dir):
+    json_path = Path(temp_dir) / "detected.json"
+    with open(json_path, 'w') as f:
+        json.dump([{"page": 1, "path": "test.png"}], f)
+    return json_path
+
+@pytest.fixture
+def temp_output_dir(temp_dir):
+    return temp_dir

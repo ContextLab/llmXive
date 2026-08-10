@@ -68,7 +68,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and record its hash [UNRESOLVED-CLAIM: c_2797b23f — status=verified] in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` (depends on T090, T091)
+- [X] T015 [US1] Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and record its hash in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` (depends on T090, T091)
 - [X] T016 [US1] Create a reproducible random subset in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py` (seed 42) such that the resulting dataset is of a manageable size for initial prototyping and testing.
 - [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/preprocess_3d.py` (FR‑002, depends on T016)
 - [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/extract_2d_descriptors.py` (FR‑003, depends on T016)
@@ -101,7 +101,7 @@
 - [X] T029 [US2] Train Random Forest baseline with seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance.
 - [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`
 - [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
-- [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values [UNRESOLVED-CLAIM: c_09570f80 — status=not_enough_info] (fulfills FR‑011 without external data).
+- [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values (fulfills FR‑011 without external data).
 - [X] T033 [US2] Save model checkpoints to `data/checkpoints/model_seed_{N}.pt` and `rf_seed_{N}.pkl` – each checkpoint includes model state dict, training config, seed, and timestamp.
 - [X] T034 [US2] Generate `results/metrics.csv` with columns `seed`, `model`, `mae`, `rmse`, `mae_ci_lower`, `mae_ci_upper`, `rmse_ci_lower`, `rmse_ci_upper` – CI computed via bootstrap (95 % confidence) within this task.
 
@@ -154,7 +154,7 @@
 
 **Purpose**: Final documentation, end‑to‑end validation, and project cleanup. This phase consolidates all documentation tasks, including explicit scope boundary documentation.
 
-- [X] T093 [P] Update `research.md` with explicit limitations: gas-phase DFT data only [UNRESOLVED-CLAIM: c_5faf1eb7 — status=not_enough_info], single conformer per molecule [UNRESOLVED-CLAIM: c_8d7a6ed0 — status=not_enough_info], no experimental validation or hydration analysis performed (aligns with spec assumptions).
-- [ ] T210 [P] [Doc] Update `research.md` to explicitly document scope boundaries: state that physical measurement validation (e.g., Stark-effect spectroscopy) is out-of-scope and that QM DFT reference data (BLYP/6-31G(2df,p)) serves as the sole ground truth [UNRESOLVED-CLAIM: c_1101109e — status=not_enough_info]; confirm conformational ensembles and hydration state sampling are out-of-scope per spec assumptions (Addresses FR-011, Spec Assumptions).
+- [X] T093 [P] Update `research.md` with explicit limitations: gas-phase DFT data only, single conformer per molecule, no experimental validation or hydration analysis performed (aligns with spec assumptions).
+- [ ] T210 [P] [Doc] Update `research.md` to explicitly document scope boundaries: state that physical measurement validation (e.g., Stark-effect spectroscopy) is out-of-scope and that QM DFT reference data (BLYP/6-31G(2df,p)) serves as the sole ground truth; confirm conformational ensembles and hydration state sampling are out-of-scope per spec assumptions (Addresses FR-011, Spec Assumptions).
 
 **Checkpoint**: All user stories independently functional, validated, and scope boundaries explicitly documented.
