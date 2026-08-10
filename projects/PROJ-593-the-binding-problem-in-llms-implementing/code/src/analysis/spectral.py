@@ -2,181 +2,140 @@ import numpy as np
 from scipy.signal import welch, windows
 from typing import Tuple, Union, Optional
 
-def compute_fft(signal: np.ndarray, fs: float = 1.0) -> Tuple[np.ndarray, np.ndarray]:
+def compute_fft(signal: np.ndarray, sample_rate: float = 1.0) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute the Fast Fourier Transform (FFT) of a 1D signal.
-
-    Parameters
-    ----------
-    signal : np.ndarray
-        1D array of signal values.
-    fs : float, optional
-        Sampling frequency (in arbitrary units, typically 'cycles per sequence' in this project).
-
-    Returns
-    -------
-    freqs : np.ndarray
-        Array of frequencies corresponding to the FFT bins.
-    fft_vals : np.ndarray
-        Complex FFT values.
+    
+    Args:
+        signal: 1D numpy array of time-series data.
+        sample_rate: Sampling rate (in arbitrary units, e.g., tokens per sequence or Hz).
+        
+    Returns:
+        Tuple of (frequencies, magnitudes) where frequencies are in cycles per unit time
+        and magnitudes are the absolute values of the FFT.
     """
+    if signal.ndim != 1:
+        raise ValueError("Signal must be a 1D array.")
+    
     n = len(signal)
-    # Use rfft for real signals to get positive frequencies only
-    fft_vals = np.fft.rfft(signal)
-    freqs = np.fft.rfftfreq(n, d=1.0/fs)
-    return freqs, fft_vals
+    fft_result = np.fft.fft(signal)
+    frequencies = np.fft.fftfreq(n, d=1.0/sample_rate)
+    
+    # Only return positive frequencies
+    positive_mask = frequencies >= 0
+    return frequencies[positive_mask], np.abs(fft_result[positive_mask])
 
-def compute_welch_psd(
-    signal: np.ndarray,
-    fs: float = 1.0,
-    nperseg: Optional[int] = None,
-    noverlap: Optional[int] = None,
-    window: str = 'hann',
-    nfft: Optional[int] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+def compute_welch_psd(signal: np.ndarray, 
+                      fs: float = 1.0, 
+                      nperseg: int = 256, 
+                      noverlap: Optional[int] = None,
+                      window: str = 'hann',
+                      seq_len: Optional[int] = None) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute the Power Spectral Density (PSD) using Welch's method.
-
-    Parameters
-    ----------
-    signal : np.ndarray
-        1D array of signal values.
-    fs : float, optional
-        Sampling frequency.
-    nperseg : int, optional
-        Length of each segment. If None, defaults to min(256, len(signal)).
-    noverlap : int, optional
-        Number of points of overlap between segments. Defaults to nperseg // 2.
-    window : str, optional
-        Window function to use (e.g., 'hann', 'hamming').
-    nfft : int, optional
-        Number of FFT points. If None, defaults to nperseg. If signal is short,
-        this task implies zero-padding to 512 if seq_len < 512 as per T047 context.
-
-    Returns
-    -------
-    freqs : np.ndarray
-        Array of frequencies.
-    psd : np.ndarray
-        Power Spectral Density values.
+    
+    Args:
+        signal: 1D numpy array of time-series data.
+        fs: Sampling frequency.
+        nperseg: Length of each segment.
+        noverlap: Number of points to overlap between segments. Defaults to nperseg // 2.
+        window: Window function name or array (passed to scipy.signal.welch).
+        seq_len: Optional total sequence length for zero-padding logic.
+                If provided and len(signal) < seq_len, the signal is zero-padded to seq_len.
+                
+    Returns:
+        Tuple of (frequencies, psd) where frequencies are in cycles per unit time.
     """
-    seq_len = len(signal)
+    if signal.ndim != 1:
+        raise ValueError("Signal must be a 1D array.")
     
-    # Default segment length
-    if nperseg is None:
-        nperseg = min(256, seq_len)
+    current_signal = signal
+    if seq_len is not None and len(signal) < seq_len:
+        current_signal = np.zeros(seq_len)
+        current_signal[:len(signal)] = signal
     
-    # Zero-padding logic: if sequence is shorter than 512, pad to 512 for FFT resolution
-    # This aligns with T047 requirement: "zero-pad to 512 if seq_len < 512"
-    effective_nfft = nfft
-    if effective_nfft is None:
-        effective_nfft = nperseg
-    
-    if seq_len < 512 and effective_nfft < 512:
-        effective_nfft = 512
-
-    # If nperseg is larger than signal, welch will fail or behave unexpectedly.
-    # Ensure nperseg <= seq_len. If seq_len is very small, use seq_len.
-    if nperseg > seq_len:
-        nperseg = seq_len
-    
-    # Handle overlap
     if noverlap is None:
         noverlap = nperseg // 2
-
-    # Compute Welch PSD
-    freqs, psd = welch(
-        signal,
-        fs=fs,
-        window=window,
-        nperseg=nperseg,
+        
+    frequencies, psd = welch(
+        current_signal, 
+        fs=fs, 
+        window=window, 
+        nperseg=nperseg, 
         noverlap=noverlap,
-        nfft=effective_nfft,
         scaling='density'
     )
     
-    return freqs, psd
+    return frequencies, psd
 
 def normalize_psd_to_unit_area(psd: np.ndarray, freqs: np.ndarray) -> np.ndarray:
     """
-    Normalize the PSD so that the sum of (PSD * freq_bin_width) equals 1.0.
-    This effectively makes it a probability density function over frequency.
-
-    Parameters
-    ----------
-    psd : np.ndarray
-        Power Spectral Density values.
-    freqs : np.ndarray
-        Corresponding frequency values.
-
-    Returns
-    -------
-    normalized_psd : np.ndarray
-        Normalized PSD values.
+    Normalize a PSD array so that the area under the curve (integral) equals 1.
+    This allows for comparison of spectral shapes independent of total power.
+    
+    Args:
+        psd: 1D numpy array of power spectral density values.
+        freqs: 1D numpy array of corresponding frequencies.
+                
+    Returns:
+        Normalized PSD array.
     """
-    if len(freqs) < 2:
-        return psd / np.sum(psd) if np.sum(psd) > 0 else psd
+    if psd.ndim != 1 or freqs.ndim != 1:
+        raise ValueError("PSD and frequencies must be 1D arrays.")
+    if len(psd) != len(freqs):
+        raise ValueError("PSD and frequencies must have the same length.")
+        
+    # Calculate the integral using the trapezoidal rule
+    total_area = np.trapz(psd, freqs)
+    
+    if total_area == 0:
+        # Avoid division by zero; return zeros if the signal has no power
+        return np.zeros_like(psd)
+        
+    return psd / total_area
 
-    # Calculate frequency bin width (assuming uniform spacing)
-    df = freqs[1] - freqs[0]
-    
-    # Calculate total power (area under the curve)
-    total_power = np.sum(psd) * df
-    
-    if total_power <= 0:
-        # Avoid division by zero
-        return psd
-    
-    return psd / total_power
-
-def calculate_snr(
-    psd: np.ndarray,
-    freqs: np.ndarray,
-    target_band: Tuple[float, float],
-    noise_band: Tuple[float, float]
-) -> float:
+def calculate_snr(psd: np.ndarray, 
+                  freqs: np.ndarray, 
+                  target_band: Tuple[float, float], 
+                  adjacent_band_width: float = 5.0) -> float:
     """
-    Calculate the Signal-to-Noise Ratio (SNR) in decibels (dB).
+    Calculate the Signal-to-Noise Ratio (SNR) in decibels (dB) for a specific frequency band.
+    The 'signal' is the average power in the target band. The 'noise' is the average power
+    in the adjacent bands immediately flanking the target band.
     
-    The signal power is the mean power in the target band.
-    The noise power is the mean power in the noise (adjacent) band.
-    
-    SNR (dB) = 10 * log10(P_signal / P_noise)
-
-    Parameters
-    ----------
-    psd : np.ndarray
-        Power Spectral Density values (preferably normalized or raw, consistent).
-    freqs : np.ndarray
-        Corresponding frequency values.
-    target_band : tuple (f_min, f_max)
-        Frequency range defining the signal of interest (e.g., (38, 42) for 40Hz).
-    noise_band : tuple (f_min, f_max)
-        Frequency range defining the background noise.
-
-    Returns
-    -------
-    snr_db : float
-        SNR in decibels. Returns -inf if noise power is 0 or negative.
+    Args:
+        psd: 1D numpy array of power spectral density values.
+        freqs: 1D numpy array of corresponding frequencies.
+        target_band: Tuple (f_low, f_high) defining the target frequency range.
+        adjacent_band_width: Width of the adjacent bands on each side of the target band.
+                
+    Returns:
+        SNR in dB. Returns -np.inf if noise power is zero or negative.
     """
-    # Identify indices for target band
-    target_mask = (freqs >= target_band[0]) & (freqs <= target_band[1])
+    if psd.ndim != 1 or freqs.ndim != 1:
+        raise ValueError("PSD and frequencies must be 1D arrays.")
+    if len(psd) != len(freqs):
+        raise ValueError("PSD and frequencies must have the same length.")
+        
+    f_low, f_high = target_band
+    f_noise_low = f_low - adjacent_band_width
+    f_noise_high = f_high + adjacent_band_width
+    
+    # Identify indices for the bands
+    target_mask = (freqs >= f_low) & (freqs <= f_high)
+    noise_mask = ((freqs >= f_noise_low) & (freqs < f_low)) | \
+                 ((freqs > f_high) & (freqs <= f_noise_high))
+    
     if not np.any(target_mask):
         raise ValueError(f"No frequencies found in target band {target_band}")
-    
-    target_psd = psd[target_mask]
-    signal_power = np.mean(target_psd)
-
-    # Identify indices for noise band
-    noise_mask = (freqs >= noise_band[0]) & (freqs <= noise_band[1])
     if not np.any(noise_mask):
-        raise ValueError(f"No frequencies found in noise band {noise_band}")
+        raise ValueError(f"No frequencies found in adjacent noise bands [{f_noise_low}, {f_noise_high}]")
     
-    noise_psd = psd[noise_mask]
-    noise_power = np.mean(noise_psd)
-
+    signal_power = np.mean(psd[target_mask])
+    noise_power = np.mean(psd[noise_mask])
+    
     if noise_power <= 0:
-        return float('inf') if signal_power > 0 else float('-inf')
-
+        return np.inf
+        
     snr_db = 10 * np.log10(signal_power / noise_power)
     return snr_db

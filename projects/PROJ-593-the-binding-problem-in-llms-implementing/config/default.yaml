@@ -1,76 +1,104 @@
 # Configuration for The Binding Problem in LLMs: Implementing Synchronized Oscillations
-# This file defines seeds, frequency parameters, and dataset paths.
-# All paths are relative to the project root.
+# This file centralizes seeds, frequency parameters, and dataset paths.
+# Verified by: python -c "import yaml; yaml.safe_load(open('config/default.yaml'))"
 
-# Random seeds for reproducibility across all experiments
+# --- Random Seeds ---
+# Ensures reproducibility across runs.
 seeds:
   global: 42
-  model: 42
-  data_split: 42
-  permutation_test: 12345
+  torch: 42
+  numpy: 42
 
-# Frequency parameters for oscillatory attention
+# --- Frequency Parameters ---
 # Note: Frequencies are defined as "cycles per sequence length", not physical Hz.
-# The target gamma band (40Hz) is mapped relative to sequence length in the model.
-frequencies:
-  target_band_center: 40  # Target center in "cycles/sequence" context
+# The mapping to physical Hz depends on the token processing rate (tokens/sec).
+oscillation:
+  # Target relative frequency (cycles/sequence) for the gamma-band analog
+  target_cycles_per_sequence: 8.0
+  # Sweep range for frequency analysis
   sweep_range:
-    min_cycles: 10
-    max_cycles: 80
-    step: 10
-  gamma_band:
-    lower: 30
-    upper: 50
+    start: 2.0
+    end: 16.0
+    step: 2.0
+  # Primary frequency band for analysis (in cycles/sequence)
+  target_band:
+    lower: 6.0
+    upper: 10.0
+  # Adjacent bands for SNR calculation (in cycles/sequence)
+  adjacent_bands:
+    lower:
+      start: 2.0
+      end: 6.0
+    upper:
+      start: 10.0
+      end: 14.0
 
-# Dataset paths (relative to project root)
-data_paths:
+# --- Dataset Paths ---
+# Relative to project root.
+data:
   raw:
-    meg: data/raw/meg_streamed.parquet
-    clutrr: data/raw/clutrr.parquet
+    meg: "data/raw/meg_streamed.parquet"
+    clutrr: "data/raw/clutrr.parquet"
   processed:
-    meg_filtered: data/processed/meg_filtered.npy
-    meg_psd_normalized: data/processed/meg_psd_normalized.npy
-    meg_fallback: data/processed/meg_fallback.npy
+    meg_filtered: "data/processed/meg_filtered.npy"
+    meg_psd_normalized: "data/processed/meg_psd_normalized.npy"
+    clutrr_processed: "data/processed/clutrr_processed.parquet"
+  synthetic:
+    color_motion: "data/synthetic/color_motion.json"
+    toy_failure: "data/synthetic/toy_failure_case.json"
   final:
-    control_run_comparison: data/final/control_run_comparison.json
-    sweep_results: data/processed/sweep_results.csv
-    layer_metrics: data/processed/layer_metrics.csv
-    latency_report: data/final/latency_report.json
-    permutation_results: data/final/permutation_results.json
-    bound_heads_mapping: data/final/bound_heads_mapping.json
-    stability_check_results: data/final/stability_check_results.json
-    statistical_report: data/final/statistical_report.json
-    aggregated_results: data/final/aggregated_results.json
-    bonferroni_corrected_results: data/final/bonferroni_corrected_results.json
-    binding_vs_extraction_comparison: data/final/binding_vs_extraction_comparison.csv
-    toy_failure_case: data/synthetic/toy_failure_case.json
-    toy_failure_results: data/final/toy_failure_results.json
-    validation_log: data/validation_log.txt
+    control_run: "data/final/control_run_comparison.json"
+    sdc_comparison: "data/final/sdc_comparison.json"
+    latency_report: "data/final/latency_report.json"
+    feature_binding: "data/final/feature_binding_analysis.json"
+    statistical_report: "data/final/statistical_report.json"
+    metric_definitions: "data/final/metric_definitions.json"
+    bound_heads_mapping: "data/final/bound_heads_mapping.json"
+    stability_check: "data/final/stability_check_results.json"
+    aggregated_results: "data/final/aggregated_results.json"
+    bonferroni_results: "data/final/bonferroni_corrected_results.json"
+    toy_failure_results: "data/final/toy_failure_results.json"
+    binding_vs_extraction: "data/final/binding_vs_extraction_comparison.csv"
+    sweep_results: "data/processed/sweep_results.csv"
+    layer_metrics: "data/processed/layer_metrics.csv"
+    permutation_results_sdc: "data/final/permutation_results_sdc.json"
+  plots:
+    feature_binding: "plots/feature_binding_diagnostic.png"
 
-# Model configuration
+# --- Model Configuration ---
 model:
-  name: distilbert-base-uncased
-  device: cpu
+  name: "distilbert-base-uncased"
+  device: "cpu"
   max_length: 512
   batch_size: 8
+  # Oscillatory injection parameters
+  oscillatory:
+    enabled: true
+    target_layer: 4  # DistilBERT has 6 layers; targeting middle layer
+    target_head: 2   # Targeting a specific head within the layer
 
-# Analysis parameters
+# --- Analysis Thresholds ---
 analysis:
   snr_threshold_db: 3.0
+  sdc_significance_threshold: 0.15
+  p_value_threshold: 0.05
   permutation_iterations: 1000
-  snr_fallback_threshold: 2.0
-  latency_budget_seconds: 300
-  latency_warning_threshold: 25  # ms per token equivalent
+  latency_budget_seconds: 300.0
+  token_latency_budget_ms: 25.0
 
-# Logging and output settings
+# --- Logging & Reporting ---
 logging:
-  level: INFO
-  output_dir: logs
-  save_intermediates: true
+  level: "INFO"
+  log_file: "logs/run.log"
+  save_activations: true
+  save_attention_weights: true
 
-# Feature binding specific settings
-binding:
-  oscillation_injection: true
-  measure_plv: true
-  measure_sdc: true
-  control_run_enabled: true
+# --- Reviewer Constraints ---
+# Explicitly addressing reviewer constraints from Plan.md
+constraints:
+  # PLV is rejected per Plan.md (Category Error: discrete vs continuous)
+  use_plv: false
+  # SDC is the primary metric
+  primary_metric: "sdc"
+  # Global Bonferroni correction
+  apply_bonferroni_globally: true

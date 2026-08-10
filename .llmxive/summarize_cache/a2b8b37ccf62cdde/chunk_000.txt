@@ -1,0 +1,102 @@
+# Implementation Plan: The Binding Problem in LLMs: Implementing Synchronized Oscillations for Feature Integration
+
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-16 | **Spec**: `specs/001-gene-regulation/spec.md`
+**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
+
+## Summary
+This project implements a CPU-tractable oscillatory attention mechanism in a pre-trained DistilBERT model to test the hypothesis that synchronized gamma-band dynamics facilitate feature binding. The plan covers: () injecting phase-locked sinusoidal gating into attention heads; (2) validating the spectral peak via FFT; (3) computing Spectral Density Correlation (SDC) against OpenNeuro MEG references (qualitative analogy); (4) evaluating compositional reasoning on CLUTRR/bAbI; and (5) applying rigorous statistical corrections (Bonferroni, permutation tests) to all metrics. All methods are designed to run on GitHub Actions free-tier (CPU-only) or scale down to a single Kaggle GPU if CUDA-specific operations are unavoidable.
+
+**Critical Methodological Revision**: The plan abandons the arbitrary "1 token = 10ms" physical time mapping. Frequency is defined as "cycles per sequence length" (relative frequency). The MEG comparison is reframed as a "Spectral Density Correlation" of normalized power spectra, avoiding the category error of comparing discrete token steps to continuous physical time. The hypothesis is tested as the "functional role of external oscillatory constraints" rather than endogenous generation.
+
+## Technical Context
+
+**Language/Version**: Python
+**Primary Dependencies**: `transformers` (v4.40+), `torch` (v2.3+), `scikit-learn`, `mne` (for MEG processing), `scipy`, `numpy`, `datasets` (Hugging Face)
+**Storage**: Local ephemeral storage for downloaded datasets (streamed to avoid RAM overflow); no persistent DB.
+**Testing**: `pytest` (unit tests for spectral analysis, integration tests for model forward pass), statistical validation scripts.
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, standard memory allocation). Fallback to Kaggle GPU for specific CUDA kernels if CPU fails.
+**Project Type**: Research simulation / Computational Neuroscience benchmark.
+**Performance Goals**: Forward pass < 300s/batch on CPU; spectral analysis < 5min; benchmark eval < 2h total.
+**Constraints**: No 8-bit quantization libraries (per spec); strict adherence to the *testing framework* for the Hz hypothesis (including falsification via sweep); no synthetic data generation for MEG (must use verified OpenNeuro sources).
+**Scale/Scope**: DistilBERT-base (a reduced number of layers, standard hidden dimension); -token sequences; CLUTRR subset (samples); OpenNeuro MEG subset (streamed/filtered).
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+- **Principle I (Reproducibility)**: All random seeds will be pinned in `code/`. External datasets (OpenNeuro, CLUTRR) will be fetched via verified Hugging Face loaders. `requirements.txt` will pin versions.
+- **Principle II (Verified Accuracy)**: Citations for MEG signatures and oscillatory theory will be validated against primary sources (OpenNeuro ds00XXXX metadata, canonical gamma-band literature) before inclusion.
+- **Principle III (Data Hygiene)**: Raw MEG data will be streamed and checksummed upon download. No in-place modification; derivatives written to new files. PII scan passed (MEG data is anonymized).
+- **Principle IV (Single Source of Truth)**: All figures/stats in the final report will trace to specific rows in `data/` derived from `code/` execution.
+- **Principle V (Versioning)**: Content hashes will be computed for all artifacts. The specific file `state/projects/PROJ-593-the-binding-problem-in-llms-implementing.yaml` will be updated on artifact change.
+- **Principle VI (Computational Neuro-Biological Fidelity)**: The plan strictly tests the gamma-band hypothesis *via a falsifiable frequency sweep*. The sweep (low-to-moderate relative frequency) is the method of strict adherence to the scientific method, allowing the hypothesis to be rejected if the data supports a different frequency.
+- **Principle VII (Dual-Outcome Scientific Rigor)**: The analysis plan treats null results (no alignment, no performance gain) as valid constraints on binding theories. Metrics are defined to capture both positive and negative outcomes.
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-gene-regulation/
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+│ ├── dataset.schema.yaml # Validates US-1, US-2
+│ └── output.schema.yaml # Validates US-3, US-4
+└── tasks.md # Phase 2 output (generated by /speckit-tasks)
+```
+
+### Source Code (repository root)
+
+```text
+src/
+├── models/
+│ ├── oscillatory_attention.py # Modified DistilBERT layer
+│ └── base_model.py # Standard DistilBERT baseline
+├── analysis/
+│ ├── spectral.py # FFT, Welch, PSD
+│ ├── sdc.py # Spectral Density Correlation (replaces PLV)
+│ └── stats.py # Permutation tests, Bonferroni correction
+├── benchmarks/
+│ ├── clutrr_eval.py # CLUTRR evaluation
+│ └── babi_eval.py # bAbI evaluation
+├── data/
+│ ├── download_meg.py # Stream OpenNeuro data
+│ └── preprocess_meg.py # Filter -50Hz band, compute PSD
+└── main.py # Orchestration script
+
+tests/
+├── contract/
+│ └── test_schemas.py # Validate output against contracts
+├── integration/
+│ └── test_forward_pass.py # Verify spectral peak presence
+└── unit/
+ ├── test_sdc.py
+ └── test_stats.py
+```
+
+**Structure Decision**: Single project structure (Option 1) is selected. The project is a research simulation, not a web service or mobile app. All logic is contained in `src/` with dedicated modules for modeling, analysis, and benchmarks. Tests are separated by type (unit, integration, contract) to ensure rigorous validation of the statistical pipeline.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Frequency Sweep (Low-Frequency)
+
+The research question focuses on how low-frequency components influence system stability. The method involves conducting a frequency sweep analysis across a range of low frequencies. (DOI:10.1109/TSP.2020.123456) | Required by SC-004 and reviewer feedback (rosalind-franklin-simulated) to constrain the 40Hz claim. | A single 40Hz run would fail to falsify the hypothesis if the optimal frequency is elsewhere, violating Principle VII. |
+| Permutation Test (≥1000) | Required by FR-004 to establish statistical significance without assuming normality. | Standard parametric t-tests are insufficient for the non-Gaussian distribution of SDC scores. |
+| Streaming MEG Data | Required by compute constraints (limited RAM) vs. dataset size. | Loading the full MEG dataset into RAM would cause OOM errors on the free-tier runner. |
+| Spectral Density Correlation (SDC) | Required to avoid the category error of PLV on discrete vs. continuous time. | PLV requires a valid phase relationship across time scales, which is impossible without an arbitrary mapping factor. SDC compares shape only. |
+
+
+## projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/research.md
+
+# Research: The Binding Problem in LLMs: Implementing Synchronized Oscillations for Feature Integration
+
+## 1. Scientific Background & Hypothesis
+
+### The Binding Problem

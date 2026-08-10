@@ -10,14 +10,14 @@ This project implements a CPU-tractable oscillatory attention mechanism in a pre
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
+**Language/Version**: Python
 **Primary Dependencies**: `transformers` (v4.40+), `torch` (v2.3+), `scikit-learn`, `mne` (for MEG processing), `scipy`, `numpy`, `datasets` (Hugging Face)
 **Storage**: Local ephemeral storage for downloaded datasets (streamed to avoid RAM overflow); no persistent DB.
 **Testing**: `pytest` (unit tests for spectral analysis, integration tests for model forward pass), statistical validation scripts.
 **Target Platform**: Linux (GitHub Actions free-tier runner: CPU, standard memory allocation). Fallback to Kaggle GPU for specific CUDA kernels if CPU fails.
 **Project Type**: Research simulation / Computational Neuroscience benchmark.
 **Performance Goals**: Forward pass < 300s/batch on CPU; spectral analysis < 5min; benchmark eval < 2h total.
-**Constraints**: No 8-bit quantization libraries (per spec); strict adherence to the *testing framework* for the 40Hz hypothesis (including falsification via sweep); no synthetic data generation for MEG (must use verified OpenNeuro sources).
+**Constraints**: No 8-bit quantization libraries (per spec); strict adherence to the *testing framework* for the Hz hypothesis (including falsification via sweep); no synthetic data generation for MEG (must use verified OpenNeuro sources).
 **Scale/Scope**: DistilBERT-base (a reduced number of layers, standard hidden dimension); -token sequences; CLUTRR subset (samples); OpenNeuro MEG subset (streamed/filtered).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -66,7 +66,7 @@ src/
 │ └── babi_eval.py # bAbI evaluation
 ├── data/
 │ ├── download_meg.py # Stream OpenNeuro data
-│ └── preprocess_meg.py # Filter 30-50Hz band, compute PSD
+│ └── preprocess_meg.py # Filter -50Hz band, compute PSD
 └── main.py # Orchestration script
 
 tests/
@@ -100,7 +100,7 @@ The research question focuses on how low-frequency components influence system s
 ## 1. Scientific Background & Hypothesis
 
 ### The Binding Problem
-The binding problem refers to the neural mechanism by which the brain integrates distinct features (color, shape, motion) processed in separate cortical areas into a unified perceptual object. The "Synchronized Oscillations" hypothesis posits that neurons representing features of the same object synchronize their firing at specific frequencies (typically gamma band, ~40Hz), while neurons representing different objects fire out of phase.
+The binding problem refers to the neural mechanism by which the brain integrates distinct features (color, shape, motion) processed in separate cortical areas into a unified perceptual object. The "Synchronized Oscillations" hypothesis posits that neurons representing features of the same object synchronize their firing at specific frequencies (typically gamma band), while neurons representing different objects fire out of phase.
 
 ### Computational Mapping
 This project tests whether implementing synchronized oscillatory dynamics in a transformer's attention mechanism improves feature integration in a manner analogous to the brain.
@@ -122,7 +122,7 @@ This project tests whether implementing synchronized oscillatory dynamics in a t
 **Strategy**:
 - We will stream the OpenNeuro dataset using `datasets.load_dataset(..., streaming=True)` to avoid RAM overflow.
 - **Filtering**: Extract the gamma band using a bandpass filter.
-- **Fallback**: If the specific 40Hz signature is not isolated (SNR < 2.0), the system will fall back to analyzing the broader 30-50Hz band, as noted in the spec's edge cases.
+- **Fallback**: If the specific 40Hz signature is not isolated (SNR < 2.0), the system will fall back to analyzing the broader -50Hz band, as noted in the spec's edge cases.
 - **Variable Fit**: The dataset contains task-evoked MEG responses. We will align the "binding task" condition (if available) with the model's forward pass. If the dataset lacks a clean "feature binding" condition (as acknowledged by reviewers), we will use the general task-evoked gamma response as a *qualitative proxy* for "gamma engagement," explicitly noting this limitation. The comparison will be limited to **Spectral Density Correlation** (shape of the power spectrum), not Phase Locking Value (PLV), to avoid the category error of discrete vs. continuous time.
 
 ### CLUTRR & bAbI Benchmarks
@@ -174,7 +174,7 @@ This project tests whether implementing synchronized oscillatory dynamics in a t
 
 ## 5. Decision/Rationale
 
-- **Frequency Choice**: 40Hz is chosen based on the gamma-band hypothesis, but the sweep (20-60Hz) ensures we test the robustness of this claim. The frequency is defined as "cycles per sequence length" (relative frequency), not physical Hz.
+- **Frequency Choice**: 40Hz is chosen based on the gamma-band hypothesis, but the sweep (low-frequency to 60Hz) ensures we test the robustness of this claim. The frequency is defined as "cycles per sequence length" (relative frequency), not physical Hz.
 - **Dataset Selection**: OpenNeuro datasets relevant to binding tasks are selected for the study. The research question is [insert research question]. The method is [insert method]. References include [insert references]. If the specific condition is missing, we use the broader gamma response as a qualitative proxy, explicitly noting the limitation.
 - **Statistical Method**: Permutation tests are chosen over parametric tests to avoid assumptions about the distribution of SDC scores.
 - **Compute Platform**: CPU-first is chosen for reproducibility and cost. GPU is only used as a fallback for specific CUDA requirements.

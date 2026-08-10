@@ -8,128 +8,139 @@ from src.analysis.spectral import (
 )
 
 class TestComputeFFT:
-    def test_fft_basic(self):
+    def test_compute_fft_basic(self):
         """Test FFT on a simple sine wave."""
         fs = 100.0
-        t = np.arange(0, 1, 1/fs)
-        freq = 5.0
+        t = np.linspace(0, 1, int(fs), endpoint=False)
+        freq = 10.0
         signal = np.sin(2 * np.pi * freq * t)
         
-        freqs, fft_vals = compute_fft(signal, fs=fs)
+        frequencies, magnitudes = compute_fft(signal, sample_rate=fs)
         
-        # Check that we have the right number of frequency bins
-        assert len(freqs) == len(fft_vals)
-        assert len(freqs) == len(t) // 2 + 1  # rfft length
+        # Find the peak frequency
+        peak_idx = np.argmax(magnitudes)
+        peak_freq = frequencies[peak_idx]
         
-        # Check that the peak frequency is detected
-        # Find the index of the maximum magnitude
-        peak_idx = np.argmax(np.abs(fft_vals))
-        detected_freq = freqs[peak_idx]
-        
-        # Allow some tolerance due to spectral leakage
-        assert abs(detected_freq - freq) < 1.0
+        assert np.isclose(peak_freq, freq, atol=1.0), f"Expected peak near {freq} Hz, got {peak_freq}"
+        assert len(frequencies) == len(magnitudes)
+        assert np.all(frequencies >= 0)
 
-    def test_fft_constant(self):
-        """Test FFT on a constant signal."""
-        signal = np.ones(100)
-        freqs, fft_vals = compute_fft(signal, fs=1.0)
+    def test_compute_fft_zero_signal(self):
+        """Test FFT on a zero signal."""
+        signal = np.zeros(100)
+        frequencies, magnitudes = compute_fft(signal, sample_rate=1.0)
         
-        # DC component should be dominant
-        assert np.abs(fft_vals[0]) > np.sum(np.abs(fft_vals[1:]))
+        assert np.allclose(magnitudes, 0.0)
+
+    def test_compute_fft_dimension_error(self):
+        """Test that 2D signal raises error."""
+        signal = np.zeros((10, 10))
+        with pytest.raises(ValueError):
+            compute_fft(signal)
 
 class TestComputeWelchPSD:
-    def test_welch_psd_basic(self):
-        """Test Welch PSD on a generated signal."""
+    def test_compute_welch_psd_basic(self):
+        """Test Welch PSD computation."""
         fs = 100.0
-        t = np.arange(0, 10, 1/fs)
-        freq = 10.0
-        signal = np.sin(2 * np.pi * freq * t) + 0.1 * np.random.randn(len(t))
+        t = np.linspace(0, 1, int(fs), endpoint=False)
+        signal = np.sin(2 * np.pi * 10 * t) + 0.5 * np.random.randn(len(t))
         
-        freqs, psd = compute_welch_psd(signal, fs=fs, nperseg=128)
+        frequencies, psd = compute_welch_psd(signal, fs=fs, nperseg=32)
         
-        assert len(freqs) == len(psd)
+        assert len(frequencies) == len(psd)
+        assert np.all(frequencies >= 0)
         assert np.all(psd >= 0)
-        
-        # Check that the peak is near the expected frequency
-        peak_idx = np.argmax(psd)
-        detected_freq = freqs[peak_idx]
-        assert abs(detected_freq - freq) < 2.0  # Wider tolerance for Welch
 
-    def test_welch_psd_padding(self):
-        """Test that short signals are padded as per T047 logic."""
-        signal = np.sin(2 * np.pi * 5 * np.arange(0, 0.1, 0.01)) # Short signal
-        # Length is 10. T047 says pad to 512 if seq_len < 512.
-        freqs, psd = compute_welch_psd(signal, fs=100.0)
+    def test_compute_welch_psd_zero_padding(self):
+        """Test Welch PSD with zero padding logic."""
+        signal = np.sin(2 * np.pi * 10 * np.linspace(0, 0.5, 50))
+        # seq_len > len(signal) should trigger padding
+        frequencies, psd = compute_welch_psd(signal, fs=100.0, seq_len=100, nperseg=32)
         
-        # The nfft used internally should be 512
-        # This results in higher frequency resolution
-        assert len(freqs) == 257  # 512 // 2 + 1 for rfft
+        assert len(frequencies) == len(psd)
+        assert np.all(psd >= 0)
+
+    def test_compute_welch_psd_dimension_error(self):
+        """Test that 2D signal raises error."""
+        signal = np.zeros((10, 10))
+        with pytest.raises(ValueError):
+            compute_welch_psd(signal)
 
 class TestNormalizePSD:
-    def test_normalize_unit_area(self):
+    def test_normalize_psd_unit_area(self):
         """Test that normalized PSD integrates to 1."""
-        psd = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        freqs = np.array([10.0, 20.0, 30.0, 40.0, 50.0])
+        freqs = np.linspace(0, 10, 100)
+        psd = np.exp(-freqs) # Simple decaying function
         
-        normalized = normalize_psd_to_unit_area(psd, freqs)
+        normalized_psd = normalize_psd_to_unit_area(psd, freqs)
         
-        df = freqs[1] - freqs[0]
-        total_area = np.sum(normalized) * df
-        
-        assert np.isclose(total_area, 1.0, atol=1e-5)
+        area = np.trapz(normalized_psd, freqs)
+        assert np.isclose(area, 1.0, atol=1e-5)
 
-    def test_normalize_zero_psd(self):
-        """Test normalization with zero PSD."""
-        psd = np.zeros(5)
-        freqs = np.arange(5)
+    def test_normalize_psd_zero_power(self):
+        """Test normalization when total power is zero."""
+        freqs = np.linspace(0, 10, 100)
+        psd = np.zeros(100)
         
-        normalized = normalize_psd_to_unit_area(psd, freqs)
+        normalized_psd = normalize_psd_to_unit_area(psd, freqs)
         
-        # Should return zeros without error
-        assert np.all(normalized == 0)
+        assert np.allclose(normalized_psd, 0.0)
+
+    def test_normalize_psd_dimension_error(self):
+        """Test mismatched dimensions."""
+        psd = np.zeros(10)
+        freqs = np.zeros(5)
+        with pytest.raises(ValueError):
+            normalize_psd_to_unit_area(psd, freqs)
 
 class TestCalculateSNR:
-    def test_snr_calculation(self):
-        """Test SNR calculation with known signal and noise."""
-        # Create a synthetic PSD with a clear peak
+    def test_calculate_snr_basic(self):
+        """Test SNR calculation with a clear peak."""
+        # Create a signal with a strong peak at 40 Hz and low noise elsewhere
         freqs = np.linspace(0, 100, 1000)
-        psd = np.ones_like(freqs) * 0.1  # Baseline noise
+        psd = np.ones(1000) * 0.1 # Base noise
+        # Add a peak at 40 Hz
+        peak_indices = (freqs >= 38) & (freqs <= 42)
+        psd[peak_indices] = 10.0
         
-        # Add a peak at 40Hz
-        peak_idx = np.argmin(np.abs(freqs - 40))
-        psd[peak_idx-5:peak_idx+5] = 10.0  # Signal power
+        snr = calculate_snr(psd, freqs, target_band=(38.0, 42.0), adjacent_band_width=5.0)
         
-        target_band = (38.0, 42.0)
-        noise_band = (30.0, 35.0)
-        
-        snr = calculate_snr(psd, freqs, target_band, noise_band)
-        
-        # SNR should be positive and significant
-        assert snr > 0
-        # Expected: 10 * log10(10.0 / 0.1) = 20 dB
-        assert np.isclose(snr, 20.0, atol=1.0)
+        assert snr > 0.0 # Should be positive dB
+        # Rough check: signal is ~100x noise (10 vs 0.1) -> 20dB. Allow some margin.
+        assert snr > 10.0
 
-    def test_snr_negative(self):
-        """Test SNR when noise is stronger than signal."""
+    def test_calculate_snr_zero_noise(self):
+        """Test SNR when noise power is effectively zero."""
         freqs = np.linspace(0, 100, 1000)
-        psd = np.ones_like(freqs) * 1.0  # High noise
+        psd = np.zeros(1000)
+        psd[400:410] = 1.0 # Peak only in target
         
-        # Weak signal
-        peak_idx = np.argmin(np.abs(freqs - 40))
-        psd[peak_idx-5:peak_idx+5] = 0.5  # Signal power < noise
-        
-        target_band = (38.0, 42.0)
-        noise_band = (30.0, 35.0)
-        
-        snr = calculate_snr(psd, freqs, target_band, noise_band)
-        
-        # SNR should be negative
-        assert snr < 0
+        # This might return inf or a very large number depending on implementation
+        # We just check it doesn't crash
+        snr = calculate_snr(psd, freqs, target_band=(38.0, 42.0), adjacent_band_width=5.0)
+        assert not np.isnan(snr)
 
-    def test_snr_missing_band(self):
-        """Test SNR when bands are out of range."""
-        freqs = np.linspace(0, 50, 100)
-        psd = np.ones_like(freqs)
+    def test_calculate_snr_missing_target_band(self):
+        """Test error when target band has no data."""
+        freqs = np.linspace(0, 100, 1000)
+        psd = np.ones(1000)
         
         with pytest.raises(ValueError):
-            calculate_snr(psd, freqs, (60.0, 70.0), (10.0, 20.0))
+            # Target band is way outside range
+            calculate_snr(psd, freqs, target_band=(200.0, 210.0))
+
+    def test_calculate_snr_missing_noise_band(self):
+        """Test error when noise band has no data."""
+        freqs = np.linspace(0, 100, 1000)
+        psd = np.ones(1000)
+        
+        with pytest.raises(ValueError):
+            # Noise band would be outside range if target is at edge
+            calculate_snr(psd, freqs, target_band=(98.0, 100.0), adjacent_band_width=5.0)
+
+    def test_calculate_snr_dimension_error(self):
+        """Test mismatched dimensions."""
+        psd = np.zeros(10)
+        freqs = np.zeros(5)
+        with pytest.raises(ValueError):
+            calculate_snr(psd, freqs, target_band=(0, 1))

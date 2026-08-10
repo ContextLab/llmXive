@@ -37,20 +37,28 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement data ingestion module `src/data/download_meg.py` using `datasets.load_dataset(..., streaming=True)` for OpenNeuro ds000246. **Deliverable**: `data/raw/meg_streamed.parquet`. **Verification**: `python -c "import pandas as pd; df=pd.read_parquet('data/raw/meg_streamed.parquet'); assert len(df)>1000"`.
-- [ ] T006 Implement data ingestion module `src/data/download_clutrr.py` for Hugging Face `tasksource/clutrr`. **Deliverable**: `data/raw/clutrr.parquet`. **Verification**: `pytest tests/contract/test_clutrr_schema.py`.
-- [ ] T007 [P] Implement `src/data/preprocess_meg.py` (Part 1): Bandpass filter 30-50Hz on streamed MEG data. [UNRESOLVED-CLAIM: c_6469b9cc — status=not_enough_info] **Deliverable**: `data/processed/meg_filtered.npy`. **Dependency**: None.
-- [ ] T047 Implement `src/data/preprocess_meg.py` (Part 2): Compute Welch PSD (zero-pad to 512 if seq_len < 512) and normalize to unit area. [UNRESOLVED-CLAIM: c_d5e71987 — status=not_enough_info] **Deliverable**: `data/processed/meg_psd_normalized.npy`. **Verification**: Output matches `contracts/dataset.schema.yaml` spectral section. **Dependency**: T007.
-- [X] T008 [P] Implement `src/data/preprocess_meg.py` (Part 3): Validate and store pre-processed MEG data. **Deliverable**: Validated `meg_psd_normalized.npy`. **Dependency**: T047.
+- [ ] T005 [P] Implement data ingestion module `src/data/download_meg.py` using `datasets.load_dataset(..., streaming=True)` for OpenNeuro ds. **Deliverable**: `data/raw/meg_streamed.parquet`. **Verification**: `python -c "import pandas as pd; df=pd.read_parquet('data/raw/meg_streamed.parquet'); assert len(df)>1000"`. **Note**: Fail loudly if real data fetch fails; no synthetic fallback.
+- [ ] T006 [P] Implement data ingestion module `src/data/download_clutrr.py` for Hugging Face `tasksource/clutrr`. **Deliverable**: `data/raw/clutrr.parquet`. **Verification**: `pytest tests/contract/test_clutrr_schema.py`. **Note**: Fail loudly if real data fetch fails; no synthetic fallback.
+- [ ] T007-INGEST [P] Implement `src/data/preprocess_meg.py` (Part 1: Ingest): Load `meg_streamed.parquet` and extract `sensor_data` and `condition` fields. **Deliverable**: `data/processed/meg_raw.npy`. **Verification**: Output shape matches input rows. **Dependency**: T005.
+- [ ] T007-FILTER [P] Implement `src/data/preprocess_meg.py` (Part 2: Filter): Bandpass filter `meg_raw.npy` (30-50Hz). **Deliverable**: `data/processed/meg_filtered.npy`. **Verification**: Output power in 30-50Hz band is non-zero. **Dependency**: T007-INGEST.
+- [ ] T007-SNR-CALC [P] Implement `src/data/preprocess_meg.py` (Part 3: SNR): Calculate SNR for the 30-50Hz band in trials where `condition` matches 'binding' or 'gamma_binding'. **Deliverable**: `data/processed/meg_snr.json`. **Verification**: SNR value is a float. **Dependency**: T007-FILTER.
+- [ ] T007-PSD [P] Implement `src/data/preprocess_meg.py` (Part 4: PSD): Compute Welch PSD with `nperseg=min(256, seq_len)`. **Note**: If `seq_len < 512`, zero-pad to 512 ONLY if unit tests (T016) confirm spectral peak integrity in 38-42Hz band is preserved. Normalize to unit area. **Deliverable**: `data/processed/meg_psd_normalized.npy`. **Verification**: Output matches `contracts/dataset.schema.yaml` spectral section. **Dependency**: T007-FILTER.
+- [ ] T007-VALIDATE [P] Validate and store pre-processed MEG data. **Deliverable**: Validated `meg_psd_normalized.npy`. **Dependency**: T007-PSD.
 - [ ] T009 [P] Create base model wrapper `src/models/base_model.py` loading DistilBERT in CPU-only mode. **Deliverable**: `src/models/base_model.py`. **Verification**: `python -c "from src.models.base_model import DistilBERTWrapper; print(DistilBERTWrapper)"`.
-- [X] T010 [P] Implement `src/analysis/stats.py` (Part 1): Permutation test engine (≥1000 iterations). [UNRESOLVED-CLAIM: c_6a3445b3 — status=not_enough_info] **Deliverable**: `permute_test()` function in `src/analysis/stats.py`. **Verification**: `pytest tests/unit/test_stats.py`.
-- [X] T048 [P] Implement `src/analysis/stats.py` (Part 2): Bonferroni correction logic. **Deliverable**: `bonferroni_correct()` function. **Dependency**: T010.
-- [ ] T012 [P] Implement `src/analysis/spectral.py`: FFT, Welch PSD, SNR calculation functions. **Note**: Uses output from T047. **Verification**: `pytest tests/unit/test_spectral.py`.
-- [ ] T013 [P] Implement `src/analysis/sdc.py`: Spectral Density Correlation (SDC) calculation (Pearson correlation of normalized PSDs). **Note**: SDC is a complementary/secondary metric to PLV for methodological rigor regarding discrete/continuous time comparison. **Verification**: Output matches `contracts/output.schema.yaml` SDC section. **Dependency**: T012, T047.
-- [ ] T013b [P] Implement `src/analysis/plv.py`: Phase Locking Value (PLV) calculation as mandated by FR-003. **Deliverable**: `plv_calc()` function in `src/analysis/plv.py`. **Verification**: `pytest tests/unit/test_plv.py`. **Note**: Primary metric per spec; SDC is secondary.
-- [X] T014 [P] Setup configuration management `config/default.yaml` for seeds, frequencies, and dataset paths. **Verification**: `python -c "import yaml; yaml.safe_load(open('config/default.yaml'))"`.
+- [ ] T010 [P] Implement `src/analysis/stats.py` (Part 1): Permutation test engine (≥1000 iterations). **Deliverable**: `permute_test()` function in `src/analysis/stats.py`. **Implementation**: Must accept observed statistic, null distribution generator, and return p-value. **Verification**: `pytest tests/unit/test_stats.py`.
+- [ ] T048 [P] Implement `src/analysis/stats.py` (Part 2): Bonferroni correction logic. **Deliverable**: `bonferroni_correct()` function. **Dependency**: T010.
+- [ ] T012 [P] Implement `src/analysis/spectral.py`: FFT, Welch PSD, SNR calculation functions. **Note**: Uses output from T007. **Verification**: `pytest tests/unit/test_spectral.py`.
+- [ ] T014 [P] Setup configuration management `config/default.yaml` for seeds, frequencies, and dataset paths. **Verification**: `python -c "import yaml; yaml.safe_load(open('config/default.yaml'))"`.
+- [ ] T013-SDC [P] Implement `src/analysis/sdc.py`: Spectral Density Correlation (SDC) calculation (Pearson correlation of normalized PSDs). **Note**: SDC is the PRIMARY alignment metric per Plan revision (replacing PLV). **Deliverable**: `sdc_calc()` function in `src/analysis/sdc.py`. **Verification**: Output matches `contracts/output.schema.yaml` SDC section. **Dependency**: T012 (functions), T007 (data).
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+---
+
+## Phase 2.5: Spec-Plan Reconciliation (Critical Traceability)
+
+**Purpose**: Explicitly address Spec/Plan deviations to ensure traceability
+
+- [ ] T003-PLV-REJECT [P] **Spec-Plan Reconciliation**: Implement a formal rejection protocol for FR-003/US-2 PLV requirement. **Deliverable**: `docs/traceability/plv_rejection_rationale.md` and `data/final/metric_definitions.json` (defining SDC as the primary metric). **Content Checklist**: 1. Cite FR-003, 2. Quote Plan.md rejection rationale ('Category Error'), 3. Define FR-003-SDC as replacement, 4. Verify SDC satisfies the *intent* of FR-003 (neural alignment) without violating the Plan. **Verification**: Reviewer confirms SDC is used in all subsequent tasks and PLV is explicitly absent. **Dependency**: T003-FR003-AMEND.
+- [ ] T003-FR003-AMEND [P] **Spec Update**: Update `spec.md` to deprecate FR-003 (PLV) and replace it with FR-003-SDC. **Deliverable**: Updated `spec.md` with FR-003-SDC text. **Content**: 1. Cite FR-003, 2. State PLV rejection rationale, 3. Define FR-003-SDC as replacement, 4. Update spec.md text. **Verification**: `grep "FR-003-SDC" spec.md` returns non-empty. **Dependency**: None (runs early).
 
 ---
 
@@ -70,13 +78,14 @@
 ### Implementation for User Story 1
 
 - [X] T017 [P] [US1] Implement `OscillatoryAttentionModule` in `src/models/oscillatory_attention.py`: Inject sinusoidal mask at relative frequency `f` (cycles/sequence). **Deliverable**: Module class ready for injection.
-- [X] T018 [US1] Implement `src/main.py` orchestration: Load model, inject module (from T017), run forward pass, record `ActivationTimeSeries`. **Dependency**: T009, T017.
-- [X] T018b [US1] Implement `src/main.py` baseline run: Load model without oscillatory module, run forward pass, record `ActivationTimeSeries` for control comparison. **Dependency**: T009.
-- [ ] T021 [US1] **Address Feynman/Krakauer**: Implement "Control Run" logic: Run same sequence with oscillation disabled to demonstrate feature integration failure. **Deliverable**: `data/final/control_run_comparison.json` with schema: `{"oscillatory_coherence": float, "baseline_coherence": float, "coherence_difference": float}`. **Note**: Report difference descriptively; no hard threshold assertion. **Dependency**: T018, T018b.
-- [ ] T020 [US1] Implement SNR verification: Calculate peak power in target band vs. adjacent bands; assert SNR ≥ 3.0 dB. **Note**: Uses control run data from T021 for comparative verification. **Dependency**: T012, T018.
-- [ ] T019 [US1] Implement frequency sweep logic: Iterate relative frequencies across a range of cycle counts per sequence. **Deliverable**: `src/main.py` logic; Output artifact `data/processed/sweep_results.csv`. **Dependency**: T018.
-- [ ] T022 [US1] **Address Rosalind Franklin**: Implement quantitative measurement protocol: Log spectral density, phase-locking values (from T013b) across layers, and frequency stability metrics for every run. **Deliverable**: `data/processed/layer_metrics.csv` with columns: `[layer_id, head_id, frequency_stability, phase_locking_metric]`. **Dependency**: T012, T013b, T018, T019.
-- [ ] T023 [US1] **Address Freeman Dyson**: Implement latency budget check: Measure forward pass time per batch; assert < 300s on CPU; log if > 25ms/token equivalent. **Deliverable**: `data/final/latency_report.json`. **Dependency**: T018.
+- [ ] T018-ORCHESTRATE [US1] Implement `src/main.py` orchestration: Load model, inject module (from T017) or use baseline, run forward pass, record `ActivationTimeSeries`. **Deliverable**: `src/main.py` with `--mode` flag (values: `oscillatory`, `baseline`). **Dependency**: T009, T017.
+- [ ] T018-RUN-OSC [US1] Run `src/main.py` with `--mode oscillatory` to generate `ActivationTimeSeries` for oscillatory model. **Dependency**: T018-ORCHESTRATE.
+- [ ] T018-RUN-BASE [US1] Run `src/main.py` with `--mode baseline` to generate `ActivationTimeSeries` for baseline model. **Dependency**: T018-ORCHESTRATE.
+- [ ] T021 [US1] **Address Feynman/Krakauer**: Implement "Control Run" logic: Run same sequence with oscillation disabled to demonstrate feature integration failure. **Deliverable**: `data/final/control_runComparison.json` with schema: `{"oscillatory_coherence": float, "baseline_coherence": float, "coherence_difference": float, "is_significant": bool}`. **Note**: `is_significant` MUST be set to `True` if `coherence_difference >= 0.05`, else `False`. **Verification**: Validate output schema; ensure `is_significant` is calculated correctly. **Dependency**: T018-RUN-OSC, T018-RUN-BASE.
+- [ ] T020 [US1] Implement SNR verification: Calculate peak power in target band vs. adjacent bands; assert SNR ≥ 3.0 dB. **Note**: Uses control run data from T021 for comparative verification. **Dependency**: T012, T018-RUN-OSC, T021.
+- [ ] T019 [US1] Implement frequency sweep logic: Iterate relative frequencies across a range of cycle counts per sequence. **Deliverable**: `src/main.py` logic; Output artifact `data/processed/sweep_results.csv`. **Dependency**: T018-ORCHESTRATE.
+- [ ] T022 [US1] **Address Rosalind Franklin**: Implement quantitative measurement protocol: Log spectral density, SDC values (from T013-SDC) across layers, and frequency stability metrics for every run. **Deliverable**: `data/processed/layer_metrics.csv` with columns: `[layer_id, head_id, frequency_stability, sdc_metric]`. **Dependency**: T012, T013-SDC, T018-RUN-OSC.
+- [ ] T023 [US1] **Address Freeman Dyson**: Implement latency budget check: Measure forward pass time per batch; assert < 300s on CPU; log if > 300s. **Deliverable**: `data/final/latency_report.json`. **Dependency**: T018-ORCHESTRATE.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,24 +93,23 @@
 
 ## Phase 4: User Story 2 - Quantify Neural Alignment with Human MEG/EEG Signatures (Priority: P2)
 
-**Goal**: Compute Phase Locking Value (PLV) and Spectral Density Correlation (SDC) between model activations and OpenNeuro MEG reference.
+**Goal**: Compute Spectral Density Correlation (SDC) between model activations and OpenNeuro MEG reference.
 
-**Independent Test**: Compute PLV between model and MEG data; verify significant correlation (p < 0.05) via permutation test.
+**Independent Test**: Compute SDC between model and MEG data; verify significant correlation (p < 0.05) via permutation test.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US2] Contract test for `SpectralFeatures` schema in `tests/contract/test_spectral_features.py`
-- [ ] T025 [P] [US2] Integration test for PLV calculation against known synthetic signal in `tests/integration/test_plv_calc.py`
+- [X] T024 [P] [US2] Contract test for `SpectralFeatures` schema in `tests/contract/test_spectral_features.py`
+- [ ] T025 [P] [US2] Integration test for SDC calculation against known synthetic signal in `tests/integration/test_sdc_calc.py`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Implement `src/data/preprocess_meg.py` fallback: If specific "binding" condition SNR < 2.0, switch to broader 30-50Hz gamma response. **Deliverable**: `data/processed/meg_fallback.npy`. **Dependency**: Requires SNR metric from T047.
-- [ ] T027 [US2] Implement `src/analysis/sdc.py` and `src/analysis/plv.py` integration: Compare model `ActivationTimeSeries` (from T018) PSD and PLV with pre-processed MEG PSD and PLV (from T047, T013b). **Dependency**: T013, T013b, T047, T018.
-- [ ] T028 [US2] Implement permutation test wrapper: Shuffle model/MEG labels multiple times to generate null distribution. **Deliverable**: `src/analysis/stats.py` wrapper; Output artifact `data/final/permutation_results.json`. **Dependency**: T010.
-- [ ] T029 [US2] **Address von Neumann**: Implement explicit "Feature" definition: Map attention heads to feature groups; log which heads are bound by the oscillation. **Deliverable**: `data/final/bound_heads_mapping.json` with schema: `{"layer_head_id": "bound_group_id",...}`.
-- [ ] T030 [US2] **Address Kandel**: Implement "Stability Check": Run inference on the same sequence after oscillation removal; verify if the "binding" effect (PLV/SDC) remains stable or decays. **Deliverable**: `data/final/stability_check_results.json` with schema: `{"stability_score": float, "decay_observed": bool}`. **Note**: Replaces 'Persistence Check' with stability verification. **Dependency**: T018, T018b.
+- [ ] T026 [US2] Implement `src/data/preprocess_meg.py` fallback: If specific binding condition (trials with `condition` == 'binding' or 'gamma_binding') SNR < 2.0, switch to broader gamma response (30-50Hz). **Deliverable**: `data/processed/meg_fallback.npy`. **Dependency**: Requires SNR metric from T007-SNR-CALC.
+- [ ] T027 [US2] Implement `src/analysis/sdc.py` integration: Compare model `ActivationTimeSeries` (from T018-RUN-OSC) PSD and SDC with pre-processed MEG PSD and SDC (from T007, T013-SDC). Calculate the difference in SDC between oscillatory and baseline models. **Deliverable**: `data/final/sdc_comparison.json`. **Verification**: Report SDC difference; if > 0.15, flag as significant; otherwise report actual value. **Dependency**: T013-SDC, T007, T018-RUN-OSC, T018-RUN-BASE.
+- [ ] T027b [US2] Implement permutation test wrapper for SDC difference: Shuffle model/MEG labels multiple times to generate null distribution for SDC difference metric. **Deliverable**: `src/analysis/stats.py` wrapper; Output artifact `data/final/permutation_results_sdc.json`. **Dependency**: T010, T027.
+- [ ] T030 [US2] **Address Kandel**: Implement "Stability Check": Run inference on the same sequence after oscillation removal; verify if the "binding" effect (SDC) remains stable or decays. **Deliverable**: `data/final/stability_check_results.json` with schema: `{"stability_score": float, "decay_observed": bool}`. **Note**: Replaces 'Persistence Check' with stability verification. **Dependency**: T018-RUN-OSC, T018-RUN-BASE, T013-SDC.
 - [ ] T031 [US2] Implement output labeling: Explicitly label all similarity scores as "Associational Similarity Score" in `data/final/statistical_report.json`. **Deliverable**: `src/analysis/reporting.py`. **Dependency**: T048.
-- [ ] T032 [US2] **Address Rosalind Franklin**: Implement frequency bandwidth analysis: Report the bandwidth around 40Hz where SDC/PLV remains significant; log phase coherence scaling with sequence length. **Dependency**: T019, T027.
+- [ ] T032 [US2] **Address Rosalind Franklin**: Implement frequency bandwidth analysis: Report the bandwidth around the dominant frequency where SDC remains significant.; log phase coherence scaling with sequence length. **Dependency**: T019, T027.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,10 +130,11 @@
 
 - [ ] T035 [P] [US3] Implement `src/benchmarks/clutrr_eval.py`: Load dataset, run inference, compute accuracy/F1. **Deliverable**: `data/processed/task_classification.json` (metadata distinguishing 'integration' vs 'extraction' tasks).
 - [ ] T036 [US3] Implement `src/benchmarks/babi_eval.py`: Load dataset, run inference, compute accuracy/F1. **Deliverable**: `data/processed/task_classification.json` (metadata distinguishing 'integration' vs 'extraction' tasks).
+- [ ] T039-SYNTH [US3] **Address Feynman**: Create minimal synthetic case for binding visualization. **Deliverable**: `data/synthetic/color_motion.json` (minimal graph structure with defined features). **Note**: This task generates the input artifact required for T040. **Warning**: This synthetic data is ONLY for visualization and T040; it MUST NOT be used for SDC/PLV calculations against MEG data. **Dependency**: None.
+- [ ] T040 [US3] **Address Feynman**: Implement "Toy Failure" demonstration: Compare baseline vs oscillatory model on the synthetic dataset from T039-SYNTH. **Deliverables**: `data/final/toy_failure_results.json` with schema: `{"baseline_accuracy": float, "oscillatory_accuracy": float}`. **Note**: Run comparison and report results; analyze if oscillatory model shows improvement. **Dependency**: T018-RUN-OSC, T018-RUN-BASE, T039-SYNTH.
+- [ ] T039 [US3] **Address Krakauer**: Implement "Correlation vs. Binding" test: Compare performance on tasks requiring feature integration vs. simple feature extraction. **Deliverable**: `data/final/binding_vs_extraction_comparison.csv` with columns: `[task_type, accuracy, f1_score]`. **Statistical Test**: Paired t-test on accuracy between 'integration' and 'extraction' types. **Note**: Removed specific taxonomy requirement; use existing task metadata. **Dependency**: Requires `task_classification.json` from T035, T036.
 - [ ] T037 [US3] Implement statistical aggregation: Run multiple seeds for both models. **Deliverable**: `data/final/aggregated_results.json`. **Dependency**: T035, T036.
-- [ ] T038 [US3] Implement Bonferroni correction: Apply correction *within* the frequency sweep family and *within* the benchmark family separately (not across the combined set of multiple comparisons). **Deliverable**: `data/final/bonferroni_corrected_results.json`. **Dependency**: T048.
-- [ ] T039 [US3] **Address Krakauer**: Implement "Correlation vs. Binding" test: Compare performance on tasks requiring feature integration vs. simple feature extraction. **Deliverable**: `data/final/binding_vs_extraction_comparison.csv` with columns: `[task_type, accuracy, f1_score]`. **Statistical Test**: Paired t-test on accuracy between 'integration' and 'extraction' types. **Note**: Removed specific taxonomy requirement; use existing task metadata. **Dependency**: Requires `task_classification.json` from T035/T036.
-- [ ] T040 [US3] **Address Feynman**: Implement "Toy Failure" demonstration: Create a minimal synthetic case where oscillation is required to solve the task; verify baseline fails. **Deliverables**: `data/synthetic/toy_failure_case.json` (minimal graph structure) and `data/final/toy_failure_results.json` with schema: `{"baseline_accuracy": float, "oscillatory_accuracy": float}`. **Assertion**: `baseline_accuracy < 0.5` and `oscillatory_accuracy > 0.5`.
+- [ ] T038 [US3] Implement global Bonferroni correction: Apply correction across ALL statistical tests performed in frequency sweeps AND benchmark tasks (global family-wise error rate control). **Deliverable**: `data/final/bonferroni_corrected_results.json`. **Dependency**: T048.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,11 +145,13 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T041 [P] Documentation updates: Add "Mapping Hypothesis" section to `README.md` explaining relative frequency vs. physical time
-- [ ] T042 Code cleanup: Ensure all random seeds are pinned and logged in `data/final/statistical_report.json`
-- [ ] T043 Performance optimization: Verify streaming logic prevents OOM on constrained-memory runner. [UNRESOLVED-CLAIM: c_706e7872 — status=not_enough_info] **Verification**: Run on 7GB RAM limit and log success.
-- [ ] T044 [P] Additional unit tests: `tests/unit/test_sdc.py`, `tests/unit/test_stats.py`
-- [ ] T045 Security hardening: Verify no PII in MEG data (confirm OpenNeuro anonymization)
-- [ ] T046 Run `quickstart.md` validation: Ensure all commands execute successfully. **Deliverable**: `data/validation_log.txt`.
+- [ ] T042 [P] **Address von Neumann**: Implement feature definition schema validation. **Deliverable**: `data/final/feature_definition_schema.json`. **Dependency**: T041 (if T041 is renumbered), T051 (old ID). **Note**: This task validates the schema generated in T040. **Dependency**: T040.
+- [ ] T043 Code cleanup: Ensure all random seeds are pinned and logged in `data/final/statistical_report.json`
+- [ ] T044 [P] Performance optimization: Verify streaming logic prevents OOM on constrained-memory runner. **Verification**: Run on a constrained RAM limit and log success.
+- [ ] T045 [P] Additional unit tests: `tests/unit/test_sdc.py`, `tests/unit/test_stats.py`
+- [ ] T046 Security hardening: Verify no PII in MEG data (confirm OpenNeuro anonymization)
+- [ ] T047 Run `quickstart.md` validation: Ensure all commands execute successfully. **Deliverable**: `data/validation_log.txt`.
+- [ ] T053 [P] **Address All Reviewers**: Compile a "Limitations & Falsification" section in `research.md` explicitly stating where the model fails to bind, where the oscillation is merely correlational, and the specific conditions under which the 40Hz hypothesis is rejected. **Deliverable**: Updated `research.md` with a dedicated "Falsification Evidence" subsection.
 
 ---
 
@@ -150,6 +161,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **Phase 2.5 (Reconciliation)**: Depends on Foundational completion
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -200,17 +212,19 @@ Task: "Implement frequency sweep logic in src/main.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify spectral peak)
-5. Deploy/demo if ready
+3. Complete Phase 2.5: Reconciliation
+4. Complete Phase 3: User Story 1
+5. **STOP and VALIDATE**: Test User Story 1 independently (verify spectral peak)
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+2. Add Phase 2.5 (Reconciliation) → Traceability locked
+3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+4. Add User Story 2 → Test independently → Deploy/Demo
+5. Add User Story 3 → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -236,5 +250,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All data loading MUST fail loudly on missing real data; no synthetic fallbacks.
 - **Critical**: Frequency is defined as "cycles per sequence length", not physical Hz.
-- **Critical**: MEG comparison is "Phase Locking Value (PLV)" (primary) and "Spectral Density Correlation (SDC)" (secondary).
-- **Critical**: Bonferroni correction applied within families, not across all comparisons.
+- **Critical**: MEG comparison is "Spectral Density Correlation (SDC)" (Primary) and "PLV" (Removed per Plan).
+- **Critical**: Bonferroni correction applied globally across all families (FR-006).
+- **Critical Reviewer Addressing**:
+ - **Krakauer**: Differentiating correlation vs. causal binding via T021, T039, T040.
+ - **Kandel**: Addressing "what remains" via T030 (Stability Check).
+ - **Dyson**: Latency budget check via T023.
+ - **Feynman**: Physical mechanism visualization and toy failure via T040.
+ - **Franklin**: Quantitative constraints, bandwidth, and falsification via T022, T032, T053.

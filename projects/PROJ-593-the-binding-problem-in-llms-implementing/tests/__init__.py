@@ -1,3 +1,3 @@
 """
-Test suite for binding problem implementation
+Test suite for the binding problem research pipeline.
 """
