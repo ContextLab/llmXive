@@ -111,5 +111,5 @@ As a researcher, I need to publish all analysis scripts (Python 3.11, pandas, sc
 - Multiple-comparison correction uses Holm-Bonferroni method (family-wise error rate controlled at α=0.05 across 4 tests).
 - Sensitivity analysis sweeps the statistical significance threshold over a range of standard cutoffs and reports how the headline p-values vary across these levels.
 - Participant dropout rate is assumed ≤15% (≤2 participants); partial data from dropouts is excluded from paired analyses.
-- All code and anonymized logs will be published on OSF repository with a permissive license (CC-BY 4.0).
+- All code and anonymized logs will be published on OSF repository with a permissive license (CC-BY).
 - The system records timestamps with a precision of ≤100ms as verified by the local loopback calibration test at startup.

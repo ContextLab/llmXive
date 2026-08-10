@@ -31,17 +31,24 @@ env/
 *.swp
 *.swo
 
-# Environment variables
-.env
-*.env
-
-# Data (Sensitive)
+# Data (Sensitive/Big)
+data/raw/
+data/interaction_logs/
+data/analysis_results/
+data/summaries/
 data/consent/
 
 # Logs
-logs/
 *.log
+logs/
+
+# Environment
+.env
+.env.local
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Reproducibility Package (generated)
+data/reproducibility_package_*.tar.gz

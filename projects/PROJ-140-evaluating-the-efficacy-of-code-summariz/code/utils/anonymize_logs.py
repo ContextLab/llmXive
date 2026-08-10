@@ -27,8 +27,8 @@ def load_raw_logs(log_path: str) -> List[Dict]:
     path = Path(log_path)
     
     if not path.exists():
-        logger.warning(f"Raw log file not found: {log_path}. Returning empty list.")
-        return logs
+        logger.error(f"Raw log file not found: {log_path}. Cannot proceed with anonymization.")
+        raise FileNotFoundError(f"Raw log file not found: {log_path}")
     
     try:
         with open(path, 'r', newline='') as f:
@@ -57,6 +57,7 @@ def create_anonymization_mapping(raw_logs: List[Dict], seed: int = 42) -> Dict[s
     
     for pid in unique_participants:
         # Create a deterministic hash-based anonymized ID
+        # Using SHA-256 ensures uniqueness and irreversibility (without the salt)
         hash_obj = hashlib.sha256(pid.encode('utf-8'))
         anon_id = f"ANON_{hash_obj.hexdigest()[:8].upper()}"
         mapping[pid] = anon_id
@@ -80,6 +81,8 @@ def anonymize_logs(raw_logs: List[Dict], mapping: Dict[str, str]) -> List[Dict]:
         anon_log = log.copy()
         if 'participant_id' in anon_log and anon_log['participant_id'] in mapping:
             anon_log['participant_id'] = mapping[anon_log['participant_id']]
+        # Ensure no other PII fields exist (future-proofing)
+        # Currently, the schema only has participant_id as PII
         anonymized.append(anon_log)
     
     return anonymized
@@ -146,11 +149,15 @@ def main():
     logger.info(f"Starting anonymization process.")
     logger.info(f"Reading raw logs from: {raw_logs_path}")
     
-    raw_logs = load_raw_logs(raw_logs_path)
+    try:
+        raw_logs = load_raw_logs(raw_logs_path)
+    except FileNotFoundError:
+        logger.error("Aborting: Raw logs file missing.")
+        return 1
     
     if not raw_logs:
         logger.warning("No raw logs found. Skipping anonymization.")
-        return
+        return 0
     
     logger.info(f"Loaded {len(raw_logs)} raw log entries.")
     
@@ -165,6 +172,9 @@ def main():
     print(f"Anonymized {len(anonymized_logs)} logs.")
     print(f"Saved anonymized logs to: {anonymized_logs_path}")
     print(f"Saved mapping to: {mapping_path}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())
