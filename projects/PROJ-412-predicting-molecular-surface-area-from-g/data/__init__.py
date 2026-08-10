@@ -1,3 +1,3 @@
 """
-Data storage and management.
+Data directory for Molecular Surface Area Prediction Pipeline
 """

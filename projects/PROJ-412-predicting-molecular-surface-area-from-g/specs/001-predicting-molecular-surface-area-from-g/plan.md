@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational study to determine if 2D molecular topology (via Graph Convolutional Networks) can predict 3D molecular surface area (SASA) as accurately as direct 3D geometry calculations. The implementation ingests SMILES strings from verified public datasets, generates 2D graph features and 3D conformers using RDKit, trains a lightweight GCN on CPU hardware, and compares its performance against a "Geometry Oracle" (direct RDKit SASA calculation) and a "Descriptor Baseline" (Linear Regression on molecular descriptors). The plan strictly adheres to the compute constraints (CPU-first, ~7GB RAM) and data hygiene requirements (checksums, verified sources).
+This project implements a computational study to determine if 2D molecular topology (via Graph Convolutional Networks) can predict 3D molecular surface area (SASA) as accurately as direct 3D geometry calculations. The implementation ingests SMILES strings from verified public datasets, generates 2D graph features and 3D conformers using RDKit, trains a lightweight GCN on CPU hardware, and compares its performance against a "Geometry Oracle" (direct RDKit SASA calculation) and a "Descriptor Baseline" (Linear Regression on molecular descriptors). The plan strictly adheres to the compute constraints (CPU-first, limited RAM). and data hygiene requirements (checksums, verified sources).
 
 ## Technical Context
 

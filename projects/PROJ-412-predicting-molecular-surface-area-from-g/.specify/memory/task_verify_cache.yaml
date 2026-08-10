@@ -1,16 +1,10 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no evidence that the listed directories (`code/`, `code/data/`,
-    `code/models/`, etc.) were actually created; no directory tree, script output,
-    or screenshot is supplied. Without concrete artifacts showing the required folder
-    structure exists, the task requirement is not verified.
-T003:
-  c: false
-  h: c4012a3eeaaece7bc05584f38884d8fa17397780caaa16f2c18d4ff41d79de8d
-  r: The repository contains a valid `pyproject.toml`, but the required `.ruff.toml`
-    file is absent, so the linting configuration is incomplete. The missing `.ruff.toml`
-    must be added to satisfy the task.
+T003b:
+  c: true
+  h: 8987d844febea4fb5621c062cdb2cff88aeeebbc1541130fbfac6ed34b19b726
+  r: "The provided `pyproject.toml` exists, is non\u2011empty, and contains a `[tool.black]`\
+    \ section with typical Black configuration options (line\u2011length, target\u2011\
+    version, include, exclude). This fulfills the task of creating a Black configuration\
+    \ via `pyproject.toml`; the optional `.black.toml` is not required."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,15 +27,6 @@ T014:
     \ 2\u2011D graph feature extraction, molecular\u2011weight calculation, the >100\u2011\
     atom filter, or logging of excluded molecules, and the required output file `data/processed/graphs_with_features.parquet`\
     \ is absent. Consequently the task\u2019s core requirements are not met."
-T015:
-  c: false
-  h: 0339cd25837f15ecee6579fd8582884917caa61f088d498d8086ec626713c4ec
-  r: "The repository lacks the required output artifacts: `data/processed/conformer_params.json`,\
-    \ `data/processed/failure_report.csv`, and `data/processed/paired_dataset.parquet`\
-    \ are all missing. Moreover, the shown `preprocess.py` is truncated and does not\
-    \ contain code that writes these files, computes the SHA\u2011256 hash, or merges\
-    \ SASA values into the Parquet dataset. The task\u2019s core requirements are\
-    \ therefore not satisfied."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -78,6 +63,13 @@ T026:
     are missing, so no contract test or schema validation exists to meet the task.
     The implementer must add both artifacts with appropriate test code and schema
     definition.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that the `quickstart.md` steps were run or that functional\
+    \ requirements FR-001\u202F\u2013\u202FFR-007 were verified is present; the implementer\
+    \ provided only the task description without any validation logs, screenshots,\
+    \ or generated output."
 T045:
   c: false
   h: 925d705340249b7b14c551ff5b4fe3d15748720363a693a00aa00596dd1fa976

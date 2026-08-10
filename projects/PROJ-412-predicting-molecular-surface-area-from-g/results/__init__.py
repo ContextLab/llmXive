@@ -1,3 +1,3 @@
 """
-Results and reports.
+Results directory for Molecular Surface Area Prediction Pipeline
 """

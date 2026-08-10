@@ -1432,3 +1432,99 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T15:35:01Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/docs/index.md
+  attempts: 1
+  canonical: Filters molecules with more than 100 atoms
+  claim_id: c_3c3aa281
+  context: Validates SMILES syntax and filters molecules >100 atoms
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filters_molecules_with_more_than_100_atoms
+  kind: magnitude
+  raw_text: Filters molecules >100 atoms
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T11:10:38Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/docs/index.md
+  attempts: 1
+  canonical: Early stopping patience is 5 and maximum epochs is 50
+  claim_id: c_3fddb582
+  context: Early stopping with patience=5, max 50 epochs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Early stopping with patience=5, max 50 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T11:11:14Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/docs/index.md
+  attempts: 1
+  canonical: Absolute threshold sweep includes 0.01, 0.05, and 0.1 square angstroms
+  claim_id: c_89aa78fa
+  context: "Absolute threshold sweep: {0.01, 0.05, 0.1} \xC5\xB2"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Absolute threshold sweep: {0.01, 0.05, 0.1} \xC5\xB2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T11:11:36Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/docs/index.md
+  attempts: 1
+  canonical: Bonferroni correction used for n less than or equal to 5; FDR for n greater
+    than 5
+  claim_id: c_a8d1b542
+  context: "Multiple-comparison correction (Bonferroni for n\u22645, FDR for n>5)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_used_for_n_less_than_or_equal_to_5;_FD
+  kind: magnitude
+  raw_text: "Multiple-comparison correction (Bonferroni for n\u22645, FDR for n>5)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T11:11:57Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/docs/index.md
+  attempts: 1
+  canonical: Pipeline designed for 7 GB or less RAM usage
+  claim_id: c_5e5776e8
+  context: "Memory Constraints: Pipeline designed for \u22647GB RAM usage"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pipeline designed for \u22647GB RAM usage"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T11:11:57Z'
+- artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/docs/index.md
+  attempts: 1
+  canonical: Conformer generation failure rate is approximately 5 to 10 percent for
+    complex molecules
+  claim_id: c_a269b3cb
+  context: 'Conformer Generation: ~5-10% failure rate expected for complex molecules'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ~5-10% failure rate expected for complex molecules
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T11:29:14Z'
