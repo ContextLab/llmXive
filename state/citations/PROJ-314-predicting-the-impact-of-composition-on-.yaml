@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://example.com/ceramic-data
   verified_at: '2026-08-09T11:37:54.826192Z'
-- artifact_hash: 5a0922be4af8e190ef65a84d670501216e4b6b919272729e751d6a9faea5b34e
+- artifact_hash: 35f7e1c153dad5e9c1ad7a684e66f14ff1d09ad2eec488777200c818c92679d2
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,37 +19,26 @@
   value: https://example.com
   verification_status: pending
   verified_against_url: https://example.com
-  verified_at: '2026-08-10T07:32:08.203202Z'
-- artifact_hash: 5a0922be4af8e190ef65a84d670501216e4b6b919272729e751d6a9faea5b34e
+  verified_at: '2026-08-10T17:36:57.000533Z'
+- artifact_hash: 35f7e1c153dad5e9c1ad7a684e66f14ff1d09ad2eec488777200c818c92679d2
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://invalid-url-never-resolves.org
-  verification_status: unreachable
-  verified_against_url: https://invalid-url-never-resolves.org
-  verified_at: '2026-08-10T07:32:08.203202Z'
-- artifact_hash: 5a0922be4af8e190ef65a84d670501216e4b6b919272729e751d6a9faea5b34e
+  value: https://www.nist.gov/sites/default/files/documents/2021/09/08/ceramic_properties.csv`
+  verification_status: mismatch
+  verified_against_url: https://www.nist.gov/sites/default/files/documents/2021/09/08/ceramic_properties.csv
+  verified_at: '2026-08-10T17:36:57.000533Z'
+- artifact_hash: 35f7e1c153dad5e9c1ad7a684e66f14ff1d09ad2eec488777200c818c92679d2
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.nist.gov/sites/default/files/documents/materials_data_repository/ceramic_data.csv`
+  value: https://www.nist.gov/sites/default/files/documents/2021/09/08/ceramic_properties_sample.csv`
   verification_status: mismatch
-  verified_against_url: https://www.nist.gov/sites/default/files/documents/materials_data_repository/ceramic_data.csv
-  verified_at: '2026-08-10T07:32:08.203202Z'
-- artifact_hash: 5a0922be4af8e190ef65a84d670501216e4b6b919272729e751d6a9faea5b34e
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://zenodo.org/record/1234567/files/curated_ceramic_weibull.csv`
-  verification_status: mismatch
-  verified_against_url: https://zenodo.org/records/1234567/files/curated_ceramic_weibull.csv
-  verified_at: '2026-08-10T07:32:08.203202Z'
+  verified_against_url: https://www.nist.gov/sites/default/files/documents/2021/09/08/ceramic_properties_sample.csv
+  verified_at: '2026-08-10T17:36:57.000533Z'

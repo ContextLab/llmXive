@@ -24,29 +24,20 @@ T016c:
     provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
     entities, their relationships, and validation rules is missing. The task is not
     satisfied.
-T018c:
+T017b:
   c: false
-  h: f1e3d0528573c9cec116f068836baa8d7e242076a12458fa95bc228a27918891
-  r: The repository lacks the required `fetch_materials_project_data()` implementation
-    in `code/ingestion.py` (the shown portion contains only imports and helper functions,
-    no such function), and the expected output file `data/raw/materials_project_raw.json`
-    does not exist. Both the core functionality and the required artifact are missing.
-T018d:
+  h: abb15362a421e476868216aabfa3b01c8459e054d87514dd7fb127b26c08ba6a
+  r: The repository lacks the required `data/reports/data_availability_report.json`
+    file, and the provided `code/ingestion.py` excerpt does not contain an implementation
+    of `generate_data_availability_report()` that would create this file. Both the
+    artifact and the function are missing, so the task is not satisfied.
+T018e:
   c: false
-  h: f9c2f945c3edd9ac0d6d5775326167ee9f4e34fe82fab31efc472e61588462bf
-  r: The repository lacks the required `data/raw/nist_raw.json` file, and the provided
-    `code/ingestion.py` does not contain a complete implementation of `fetch_nist_data()`
-    that fetches the NIST data, raises `RuntimeError` on failure, and writes the raw
-    output to the specified path. These essential artifacts are missing, so the task
-    is not satisfied.
-T018g:
-  c: false
-  h: 4948ca2612fdfb6acde761b385ee261535746d9b270d249568054659e701303f
-  r: The repository lacks the required `data/raw/curated_literature_raw.json` file,
-    and the provided excerpt of `code/ingestion.py` does not show an implementation
-    of `fetch_curated_literature_data()` that fetches the CSV, parses the specified
-    columns, or raises the mandated `RuntimeError`. Both the output artifact and the
-    core function are missing, so the task is not satisfied.
+  h: dee7e99333de3e0e19a0670834f675b31c53cf6cfd4b3a11f04af1669f607c5c
+  r: "The repository lacks the required `data/raw/arxiv_raw.json` output file, and\
+    \ the `fetch_arxiv_data()` implementation in `code/ingestion.py` is truncated\
+    \ before it filters rows, raises errors, and writes the JSON/CSV result, so the\
+    \ task\u2019s specifications are not fully met."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,16 +47,6 @@ T020:
     cannot be verified as satisfied. The next implementer must provide the actual
     validation logic and evidence (e.g., code snippet, test results) showing that
     after imputation no primary predictor contains missing values.
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log output was presented showing that logging for\
-    \ data exclusion reasons (e.g., \u201CN < 30\u201D, \u201CInvalid Stoichiometry\u201D\
-    , \u201CNon\u2011stoichiometric fallback used\u201D) has been added to the data\
-    \ pipeline. The implementer provided only the task description and specifications,\
-    \ but no concrete artifact (such as modified source files, logging statements,\
-    \ or example log entries) to verify the requirement. The missing implementation\
-    \ must be supplied and demonstrated."
 T028:
   c: false
   h: 8cf42a5b444dc57939ae6a8fb3c1dd11b519510f946e0bcfd87404352441ada8
@@ -104,3 +85,16 @@ T044:
     alone is insufficient; the task demanded execution of the script and the resulting
     updated YAML file, which is missing. The next implementer must run the script
     and ensure the YAML file is created with the `data_hashes` and `code_hashes` entries.
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, tests, or documentation were provided that demonstrate\
+    \ a \u201Cfail loudly\u201D policy preventing synthetic data fallback; the claim\
+    \ lacks any concrete artifact to verify the requirement. The task remains unimplemented."
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, script, or configuration file that implements\
+    \ a memory\u2011usage check against `config.MEMORY_LIMIT_GB`. No artifact exists\
+    \ on disk to verify the check, nor any evidence that the dependency T017 is integrated.\
+    \ Consequently the required memory\u2011limit enforcement is missing."
