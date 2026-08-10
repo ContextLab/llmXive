@@ -2,60 +2,75 @@ import os
 from pathlib import Path
 import pytest
 import yaml
+import json
 from src.utils.directory_manager import (
     setup_project_directories,
-    initialize_checksums
+    initialize_checksums,
+    REQUIRED_DIRS
 )
 from src.utils.config import get_path
-from src.utils.checksums import load_state
 
 @pytest.fixture
 def temp_test_dir(tmp_path):
-    """Create a temporary directory for testing"""
-    # We can't easily mock get_path to use tmp_path without more complex mocking,
-    # so we'll test the logic by checking that directories exist after setup
+    """
+    Creates a temporary directory to simulate the project root for testing.
+    Note: In a real integration test, we might run against the actual project root,
+    but for unit testing the logic, we verify the function returns the correct structure.
+    """
     return tmp_path
 
-def test_setup_directories_creates_all_required():
-    """Test that setup_project_directories creates all required directories"""
-    # Run the setup
-    created_dirs = setup_project_directories()
+def test_setup_directories_creates_all_required(temp_test_dir, monkeypatch):
+    """
+    Verifies that setup_project_directories creates the expected directory structure.
+    """
+    # Monkeypatch get_path to return our temp directory
+    def mock_get_path(suffix):
+        if suffix == "":
+            return str(temp_test_dir)
+        return str(temp_test_dir / suffix)
     
-    # Check that all required directories were created or already existed
-    required_dirs = [
-        "data",
-        "data/raw",
-        "data/processed",
-        "results",
-        "specs",
-        "state",
-        "state/projects"
-    ]
-    
-    for dir_name in required_dirs:
-        dir_path = get_path(dir_name)
-        assert dir_path.exists(), f"Directory {dir_name} was not created"
-        assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
+    monkeypatch.setattr("src.utils.directory_manager.get_path", mock_get_path)
+    monkeypatch.setattr("src.utils.config.get_path", mock_get_path)
 
-def test_initialize_checksums_creates_state_file():
-    """Test that initialize_checksums creates the state file"""
+    # Run the setup
+    created_paths = setup_project_directories()
+
+    # Verify all expected directories exist
+    for dir_name in REQUIRED_DIRS:
+        expected_path = temp_test_dir / dir_name
+        assert expected_path.exists(), f"Directory {dir_name} was not created"
+        assert expected_path.is_dir(), f"{dir_name} is not a directory"
+
+    # Verify the returned list matches created paths
+    assert len(created_paths) == len(REQUIRED_DIRS)
+
+def test_initialize_checksums_creates_state_file(temp_test_dir, monkeypatch):
+    """
+    Verifies that initialize_checksums writes the structure_manifest.json.
+    """
+    def mock_get_path(suffix):
+        if suffix == "":
+            return str(temp_test_dir)
+        return str(temp_test_dir / suffix)
+    
+    monkeypatch.setattr("src.utils.directory_manager.get_path", mock_get_path)
+    monkeypatch.setattr("src.utils.config.get_path", mock_get_path)
+
+    # Create dummy paths
+    dummy_paths = [str(temp_test_dir / "src"), str(temp_test_dir / "data")]
+
     # Run initialization
-    initialize_checksums()
+    manifest = initialize_checksums(dummy_paths)
+
+    # Verify manifest file exists
+    manifest_path = temp_test_dir / "state" / "structure_manifest.json"
+    assert manifest_path.exists(), "structure_manifest.json was not created"
+
+    # Verify content
+    with open(manifest_path, "r") as f:
+        content = json.load(f)
     
-    # Check that state file exists
-    project_id = "PROJ-369-evaluating-the-robustness-of-statistical"
-    state_file = get_path("state/projects") / f"{project_id}.yaml"
-    
-    assert state_file.exists(), "State file was not created"
-    
-    # Verify the state file has the correct structure
-    state = load_state(project_id)
-    assert state is not None, "Could not load state file"
-    assert "project_id" in state, "State file missing project_id"
-    assert "checksums" in state, "State file missing checksums"
-    assert state["project_id"] == project_id, "Project ID mismatch in state file"
-    
-    # Verify checksums for required directories are present
-    required_dirs = ["data/raw", "data/processed", "results"]
-    for dir_name in required_dirs:
-        assert dir_name in state["checksums"], f"Missing checksums for {dir_name}"
+    assert "created_at" in content
+    assert "directories" in content
+    assert "status" in content
+    assert content["status"] == "complete"

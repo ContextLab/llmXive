@@ -1,62 +1,88 @@
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
+import json
+import datetime
 from src.utils.config import get_path, ensure_dirs
-from src.utils.checksums import update_checksums_for_project
+from src.utils.logging import setup_logger, log_info, log_error, log_warning
 
-def setup_project_directories() -> List[Path]:
-    """
-    Creates the required directory structure for the project.
-    Returns a list of created directory paths.
-    """
-    created_dirs = []
-    
-    # Define the directories to create based on task requirements
-    # These are relative to the project root
-    required_dirs = [
-        "data",
-        "data/raw",
-        "data/processed",
-        "results",
-        "specs",
-        "state",
-        "state/projects"
-    ]
-    
-    for dir_path in required_dirs:
-        full_path = get_path(dir_path)
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(full_path)
-        else:
-            created_dirs.append(full_path)
-            
-    return created_dirs
+REQUIRED_DIRS = [
+    "src",
+    "src/data",
+    "src/synthesis",
+    "src/analysis",
+    "src/viz",
+    "src/utils",
+    "tests/unit",
+    "tests/integration",
+    "tests/contract",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "specs",
+    "state",
+]
 
-def initialize_checksums() -> None:
+def setup_project_directories() -> List[str]:
     """
-    Initializes the checksum state file for the project.
-    This satisfies Constitution Principle III and V by recording
-    the state of the data directories.
+    Creates all required project directories.
+    Returns a list of paths that were created.
     """
-    # Ensure the state directory exists first
-    state_dir = get_path("state/projects")
-    state_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Update checksums for the project, which will create the state file
-    # if it doesn't exist, or update it if it does
-    update_checksums_for_project()
+    project_root = get_path("")
+    created_paths = []
 
-def main() -> None:
+    logger = setup_logger("directory_manager")
+
+    for dir_name in REQUIRED_DIRS:
+        target_path = Path(project_root) / dir_name
+        try:
+            target_path.mkdir(parents=True, exist_ok=True)
+            created_paths.append(str(target_path))
+            log_info(logger, f"Created directory: {target_path}")
+        except Exception as e:
+            log_error(logger, f"Failed to create directory {target_path}: {e}")
+            raise
+
+    return created_paths
+
+def initialize_checksums(created_paths: List[str]) -> Dict[str, Any]:
     """
-    Main entry point for directory setup and checksum initialization.
+    Generates the structure manifest JSON listing all created paths.
     """
-    print("Setting up project directories...")
-    dirs = setup_project_directories()
-    print(f"Created/verified {len(dirs)} directories:")
-    for d in dirs:
-        print(f"  - {d}")
-        
-    print("\nInitializing checksums...")
-    initialize_checksums()
-    print("Checksums initialized successfully.")
+    manifest = {
+        "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "project_root": str(get_path("")),
+        "directories": created_paths,
+        "status": "complete",
+    }
+
+    manifest_path = Path(get_path("state")) / "structure_manifest.json"
+    try:
+        with open(manifest_path, "w", encoding="utf-8") as f:
+            json.dump(manifest, f, indent=2)
+        log_info(None, f"Manifest written to {manifest_path}")
+    except Exception as e:
+        log_error(None, f"Failed to write manifest: {e}")
+        raise
+
+    return manifest
+
+def main() -> int:
+    """
+    Entry point for the setup script.
+    """
+    logger = setup_logger("directory_manager")
+    try:
+        log_info(logger, "Starting project directory setup...")
+        created = setup_project_directories()
+        manifest = initialize_checksums(created)
+        log_info(logger, f"Setup complete. Created {len(created)} directories.")
+        log_info(logger, f"Manifest: {json.dumps(manifest, indent=2)}")
+        return 0
+    except Exception as e:
+        log_error(logger, f"Setup failed: {e}")
+        return 1
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

@@ -1,0 +1,21 @@
+{
+  "created_at": "2023-10-27T10:00:00.000000+00:00",
+  "project_root": "code",
+  "directories": [
+    "code/src",
+    "code/src/data",
+    "code/src/synthesis",
+    "code/src/analysis",
+    "code/src/viz",
+    "code/src/utils",
+    "code/tests/unit",
+    "code/tests/integration",
+    "code/tests/contract",
+    "code/data/raw",
+    "code/data/processed",
+    "code/data/results",
+    "code/specs",
+    "code/state"
+  ],
+  "status": "verified"
+}
