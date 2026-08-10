@@ -1,0 +1,98 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema"
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique identifier for the analysis run"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the analysis"
+  null_model_type:
+    type: "string"
+    enum:
+      - "negative_binomial"
+      - "permutation"
+    description: "Type of null model used"
+  monte_carlo_iterations:
+    type: "integer"
+    minimum: 1
+    description: "Number of Monte Carlo iterations performed"
+  test_statistics:
+    type: "object"
+    properties:
+      anderson_darling:
+        type: "object"
+        properties:
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+            minimum: 0
+            maximum: 1
+      kolmogorov_smirnov:
+        type: "object"
+        properties:
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+            minimum: 0
+            maximum: 1
+    required:
+      - anderson_darling
+      - kolmogorov_smirnov
+  anomaly_detection:
+    type: "object"
+    properties:
+      primary_threshold_pct:
+        type: "number"
+        description: "Primary discrepancy threshold used (0.005)"
+      sensitivity_thresholds:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of thresholds swept: [0.0001, 0.0005, 0.001, 0.005]"
+      flagged_count:
+        type: "integer"
+        minimum: 0
+        description: "Number of jurisdictions flagged as anomalies"
+      flagged_jurisdictions:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of jurisdiction IDs flagged"
+    required:
+      - primary_threshold_pct
+      - sensitivity_thresholds
+      - flagged_count
+      - flagged_jurisdictions
+  collinearity_diagnostic:
+    type: "object"
+    description: "VIF results if regression was performed"
+    properties:
+      performed:
+        type: "boolean"
+        description: "Whether regression was performed"
+      max_vif:
+        type: "number"
+        description: "Maximum VIF observed"
+      note:
+        type: "string"
+        description: "Description of collinearity if VIF > 5"
+    required:
+      - performed
+  conclusion:
+    type: "string"
+    description: "Associational conclusion (e.g., 'Distribution deviates from random expectation')"
+required:
+  - analysis_id
+  - timestamp
+  - null_model_type
+  - monte_carlo_iterations
+  - test_statistics
+  - anomaly_detection
+  - collinearity_diagnostic
+  - conclusion
+additionalProperties: false

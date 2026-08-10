@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T23:25:42.774844Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-064-statistical-discrepancies-in-publicly-av
-last_run_id: eb8b9db0-4880-46aa-9c06-c047a2f0cae2
+last_run_id: c93eb6b2-c089-4ede-9c3d-fc87c96e633a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-064-statistical-discrepancies-in-publicly-av/specs/001-statistical-discrepancies-in-publicly-av
 title: Statistical Discrepancies in Publicly Available Election Data
-updated_at: '2026-07-26T04:41:12.205351Z'
+updated_at: '2026-08-10T13:05:58.667733Z'

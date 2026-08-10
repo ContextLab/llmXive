@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Election Discrepancy Dataset Schema"
+type: "object"
+properties:
+  jurisdiction_id:
+    type: "string"
+    description: "Unique identifier for the jurisdiction (e.g., 'county_precinct')"
+  state_fips:
+    type: "string"
+    description: "5-digit FIPS code for the state"
+  county_fips:
+    type: "string"
+    description: "3-digit FIPS code for the county"
+  county_name:
+    type: "string"
+    description: "Name of the county"
+  precinct_id:
+    type: "string"
+    description: "Precinct identifier within the county"
+  vote_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of votes recorded in this precinct"
+  county_reported:
+    type: "integer"
+    minimum: 0
+    description: "Total votes reported at the county level"
+  precinct_sum:
+    type: "integer"
+    minimum: 0
+    description: "Sum of votes from all precincts in the county"
+  discrepancy_abs:
+    type: "integer"
+    description: "Absolute difference between precinct_sum and county_reported"
+  discrepancy_pct:
+    type: "number"
+    description: "Relative discrepancy (discrepancy_abs / county_reported)"
+  flag_missing:
+    type: "boolean"
+    description: "True if data was missing and imputed/flagged"
+  flag_directional:
+    type: "boolean"
+    description: "True if precinct_sum > county_reported (directional anomaly)"
+  anomaly_p_value:
+    type: "number"
+    description: "P-value for this jurisdiction against the null distribution"
+  election_year:
+    type: "integer"
+    description: "Election year for temporal alignment validation"
+required:
+  - jurisdiction_id
+  - state_fips
+  - county_fips
+  - county_name
+  - precinct_id
+  - vote_count
+  - county_reported
+  - precinct_sum
+  - discrepancy_abs
+  - discrepancy_pct
+  - flag_missing
+  - flag_directional
+  - election_year
+additionalProperties: false

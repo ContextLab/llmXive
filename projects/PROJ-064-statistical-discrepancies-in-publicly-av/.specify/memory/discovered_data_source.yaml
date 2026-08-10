@@ -1,0 +1,19 @@
+status: none
+intent: download OpenElections dataset and EAC official results python package unified
+  election data
+required_fields:
+- election_year
+- state_fips
+- state_name
+- county_fips
+- county_name
+- precinct_id
+- precinct_name
+- office
+- candidate
+- party
+- precinct_votes
+- county_reported_votes
+cache_key: 76302196c0f2ebf688ba37645657aab2b990b2b5b917e2608426ffd9ab79290c
+searched_at: '2026-08-10T12:22:50.765543+00:00'
+retry_count: 1

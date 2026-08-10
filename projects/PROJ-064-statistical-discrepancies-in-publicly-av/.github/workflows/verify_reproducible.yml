@@ -1,0 +1,54 @@
+name: Verify Reproducibility
+
+on:
+  workflow_dispatch:
+    inputs:
+      trigger_flag:
+        description: 'Trigger flag for reproducible verification'
+        required: true
+        default: '--verify-reproducible'
+        type: string
+
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify data integrity
+        run: |
+          python code/utils/hashing.py verify
+
+      - name: Run reproducible analysis
+        env:
+          GITHUB_TRIGGER_FLAG: ${{ github.event.inputs.trigger_flag }}
+        run: |
+          python code/main.py ${{ github.event.inputs.trigger_flag }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproducible-analysis-results
+          path: |
+            data/processed/
+            state/
+            figures/
+
+      - name: Verify output existence
+        run: |
+          if [ ! -f "data/processed/discrepancies.csv" ]; then
+            echo "Error: Expected output file data/processed/discrepancies.csv not found"
+            exit 1
+          fi
+          echo "Reproducibility verification successful."
