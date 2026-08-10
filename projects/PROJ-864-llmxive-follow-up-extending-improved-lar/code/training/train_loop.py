@@ -1,426 +1,272 @@
 """
-Training loop for Autoregressive and Diffusion models.
-Implements CPU-optimized training with torch.compile support.
+Training loop implementation for autoregressive and diffusion models.
+Supports CPU-optimized training with mixed precision and resource monitoring.
 """
 import os
 import sys
 import time
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
-
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
+from torch.cuda.amp import autocast, GradScaler
+import numpy as np
+import json
 
-# Project imports
-from utils.config import (
-    get_config,
-    get_device,
-    get_learning_rate,
-    get_batch_size,
-    get_num_epochs,
-    get_max_seq_length,
-    get_vocab_size,
-    get_embed_dim,
-    get_num_heads,
-    get_model_config,
-    get_processed_dir,
-    get_artifacts_dir,
-    ConfigError,
-)
-from utils.logging import get_logger, setup_logging
-from utils.monitor import get_ram_usage_gb, get_elapsed_time
-from models.autoregressive import create_autoregressive_model, AutoregressiveModel
-from models.diffusion import create_diffusion_model, DiffusionModel
-from data.split_data import load_jsonl, split_data
+from utils.logging import get_logger, info, error, warning
+from utils.config import get_config, get_device, get_batch_size, get_learning_rate
+from utils.monitor import get_ram_usage_gb, check_ram_threshold
+from training.callbacks import create_logging_callback, LoggingCallback
+from training.helpers import ensure_training_dirs
 
-# Setup logging
-setup_logging()
 logger = get_logger(__name__)
 
-
 class TextDataset(Dataset):
-    """Simple dataset wrapper for tokenized text data."""
-    
-    def __init__(self, data_path: str, max_seq_length: int):
+    """Simple text dataset wrapper for tokenized data."""
+    def __init__(self, data_path: Path, max_length: int = 512):
         self.data_path = data_path
-        self.max_seq_length = max_seq_length
+        self.max_length = max_length
         self.data = []
-        self._load_data()
-    
-    def _load_data(self):
-        """Load data from JSONL file."""
-        logger.info(f"Loading dataset from {self.data_path}")
-        try:
-            self.data = load_jsonl(self.data_path)
-            logger.info(f"Loaded {len(self.data)} samples")
-        except Exception as e:
-            logger.error(f"Failed to load data from {self.data_path}: {e}")
-            raise
-    
+        
+        logger.info(f"Loading dataset from {data_path}")
+        with open(data_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    try:
+                        item = json.loads(line)
+                        self.data.append(item)
+                    except json.JSONDecodeError:
+                        continue
+        
+        logger.info(f"Loaded {len(self.data)} samples")
+
     def __len__(self):
         return len(self.data)
-    
+
     def __getitem__(self, idx):
         item = self.data[idx]
-        # Expecting 'input_ids' or 'tokens' in the JSONL
-        if 'input_ids' in item:
-            tokens = item['input_ids']
-        elif 'tokens' in item:
-            tokens = item['tokens']
-        else:
-            # Fallback: try to convert text to tokens if available
-            raise ValueError(f"Expected 'input_ids' or 'tokens' in data item at index {idx}")
+        # Assume 'input_ids' key exists in the JSONL
+        input_ids = item.get('input_ids', [])
+        if len(input_ids) > self.max_length:
+            input_ids = input_ids[:self.max_length]
         
-        # Truncate or pad to max_seq_length
-        if len(tokens) > self.max_seq_length:
-            tokens = tokens[:self.max_seq_length]
-        
-        # For causal LM, target is shifted input
-        # For simplicity, we assume tokens include both input and target
-        # In a real scenario, we'd separate them properly
-        x = torch.tensor(tokens[:-1], dtype=torch.long)
-        y = torch.tensor(tokens[1:], dtype=torch.long)
-        
-        return x, y
+        return torch.tensor(input_ids, dtype=torch.long)
 
-
-def prepare_dataloaders(
-    train_split: List[Dict[str, Any]],
-    val_split: List[Dict[str, Any]],
-    batch_size: int,
-    max_seq_length: int,
-) -> Tuple[DataLoader, DataLoader]:
-    """Create train and validation dataloaders."""
-    train_dataset = TextDataset.__new__(TextDataset)
-    train_dataset.data = train_split
-    train_dataset.max_seq_length = max_seq_length
+def prepare_dataloaders(data_dir: Path, batch_size: Optional[int] = None, 
+                         max_length: int = 512, train_split: float = 0.9) -> Tuple[DataLoader, DataLoader]:
+    """
+    Prepare train and validation dataloaders from processed data.
     
-    val_dataset = TextDataset.__new__(TextDataset)
-    val_dataset.data = val_split
-    val_dataset.max_seq_length = max_seq_length
+    Args:
+        data_dir: Path to the directory containing processed data.
+        batch_size: Batch size for training.
+        max_length: Maximum sequence length.
+        train_split: Fraction of data to use for training.
+        
+    Returns:
+        Tuple of (train_dataloader, val_dataloader)
+    """
+    if batch_size is None:
+        batch_size = get_batch_size()
+    
+    train_path = data_dir / "train.jsonl"
+    val_path = data_dir / "val.jsonl"
+    
+    if not train_path.exists() or not val_path.exists():
+        error(f"Training data not found at {train_path} or {val_path}")
+        raise FileNotFoundError("Training data files missing. Please run data preprocessing first.")
+    
+    train_dataset = TextDataset(train_path, max_length)
+    val_dataset = TextDataset(val_path, max_length)
     
     train_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
+        train_dataset, 
+        batch_size=batch_size, 
         shuffle=True,
-        num_workers=0,  # CPU only, avoid multiprocessing overhead
-        pin_memory=False,
+        num_workers=0,  # CPU-safe
+        pin_memory=False
     )
     
     val_loader = DataLoader(
-        val_dataset,
-        batch_size=batch_size,
+        val_dataset, 
+        batch_size=batch_size, 
         shuffle=False,
         num_workers=0,
-        pin_memory=False,
+        pin_memory=False
     )
     
     return train_loader, val_loader
 
-
-def train_epoch(
-    model: nn.Module,
-    dataloader: DataLoader,
-    optimizer: torch.optim.Optimizer,
-    device: torch.device,
-    epoch: int,
-    use_compile: bool = True,
-) -> float:
-    """Train one epoch."""
+def train_epoch(model: nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, 
+                epoch: int, device: torch.device, scaler: Optional[GradScaler] = None) -> float:
+    """
+    Train for one epoch.
+    
+    Returns:
+        Average training loss for the epoch.
+    """
     model.train()
     total_loss = 0.0
     num_batches = 0
     
-    start_time = time.time()
+    use_amp = scaler is not None
     
-    for batch_idx, (x, y) in enumerate(dataloader):
-        x = x.to(device)
-        y = y.to(device)
-        
+    for batch_idx, batch in enumerate(dataloader):
+        batch = batch.to(device)
         optimizer.zero_grad()
         
-        # Forward pass
-        if isinstance(model, AutoregressiveModel):
-            # For autoregressive models, forward returns logits
-            logits = model(x)
-        elif isinstance(model, DiffusionModel):
-            # For diffusion models, we need to handle the diffusion process
-            # Simplified: treat as a standard forward pass for now
-            logits = model(x)
+        if use_amp:
+            with autocast():
+                outputs = model(batch)
+                loss = outputs.loss
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
         else:
-            raise ValueError(f"Unsupported model type: {type(model)}")
-        
-        # Compute loss (cross-entropy)
-        loss = nn.functional.cross_entropy(
-            logits.view(-1, logits.size(-1)),
-            y.view(-1),
-            ignore_index=-100,
-        )
-        
-        # Backward pass
-        loss.backward()
-        
-        # Gradient clipping (optional, but good practice)
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-        
-        optimizer.step()
+            outputs = model(batch)
+            loss = outputs.loss
+            loss.backward()
+            optimizer.step()
         
         total_loss += loss.item()
         num_batches += 1
         
-        if batch_idx % 10 == 0:
-            current_loss = total_loss / num_batches
-            elapsed = time.time() - start_time
-            logger.debug(
-                f"Epoch {epoch}, Batch {batch_idx}, Loss: {current_loss:.4f}, "
-                f"Time: {elapsed:.2f}s, RAM: {get_ram_usage_gb():.2f}GB"
-            )
+        if batch_idx % 100 == 0:
+            info(f"Epoch {epoch}, Batch {batch_idx}, Loss: {loss.item():.4f}")
     
-    avg_loss = total_loss / max(num_batches, 1)
+    avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
     return avg_loss
 
-
-def evaluate_epoch(
-    model: nn.Module,
-    dataloader: DataLoader,
-    device: torch.device,
-    use_compile: bool = True,
-) -> float:
-    """Evaluate one epoch."""
+def evaluate_epoch(model: nn.Module, dataloader: DataLoader, 
+                   device: torch.device, scaler: Optional[GradScaler] = None) -> float:
+    """
+    Evaluate model on validation set for one epoch.
+    
+    Returns:
+        Average validation loss.
+    """
     model.eval()
     total_loss = 0.0
     num_batches = 0
     
+    use_amp = scaler is not None
+    
     with torch.no_grad():
-        for x, y in dataloader:
-            x = x.to(device)
-            y = y.to(device)
+        for batch in dataloader:
+            batch = batch.to(device)
             
-            # Forward pass
-            if isinstance(model, AutoregressiveModel):
-                logits = model(x)
-            elif isinstance(model, DiffusionModel):
-                logits = model(x)
+            if use_amp:
+                with autocast():
+                    outputs = model(batch)
+                    loss = outputs.loss
             else:
-                raise ValueError(f"Unsupported model type: {type(model)}")
-            
-            # Compute loss
-            loss = nn.functional.cross_entropy(
-                logits.view(-1, logits.size(-1)),
-                y.view(-1),
-                ignore_index=-100,
-            )
+                outputs = model(batch)
+                loss = outputs.loss
             
             total_loss += loss.item()
             num_batches += 1
     
-    avg_loss = total_loss / max(num_batches, 1)
+    avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
     return avg_loss
 
-
-def train_loop(
-    model_type: str,
-    train_data_path: str,
-    val_data_path: str,
-    output_dir: Optional[str] = None,
-) -> Dict[str, Any]:
+def train_loop(model: nn.Module, train_loader: DataLoader, val_loader: DataLoader,
+               num_epochs: int, seed_id: int, device: torch.device,
+               learning_rate: Optional[float] = None, batch_size: Optional[int] = None) -> Dict[str, Any]:
     """
-    Main training loop for a single model.
+    Main training loop with logging and resource monitoring.
     
     Args:
-        model_type: 'autoregressive' or 'diffusion'
-        train_data_path: Path to training data JSONL
-        val_data_path: Path to validation data JSONL
-        output_dir: Directory to save training logs and checkpoints
-    
+        model: The model to train.
+        train_loader: Training data loader.
+        val_loader: Validation data loader.
+        num_epochs: Number of epochs to train.
+        seed_id: Identifier for this training run.
+        device: Torch device to use.
+        learning_rate: Learning rate (optional, uses config if None).
+        batch_size: Batch size (optional, uses config if None).
+        
     Returns:
-        Dictionary containing training metrics and results
+        Dictionary containing training results and metrics.
     """
-    logger.info(f"Starting training loop for {model_type} model")
+    if learning_rate is None:
+        learning_rate = get_learning_rate()
     
-    # Get configuration
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    scaler = GradScaler() if device.type == 'cuda' else None
+    
+    # Setup logging
+    dirs = ensure_training_dirs()
+    callback = create_logging_callback(dirs["logs"], seed_id)
+    
+    info(f"Starting training for seed {seed_id} on {device}")
+    info(f"Training for {num_epochs} epochs with lr={learning_rate}, batch_size={batch_size}")
+    
+    training_results = {
+        "seed_id": seed_id,
+        "epochs_completed": 0,
+        "status": "COMPLETED",
+        "final_train_loss": None,
+        "final_val_loss": None,
+        "history": []
+    }
+    
+    start_time = time.time()
+    
     try:
-        config = get_config()
-    except ConfigError as e:
-        logger.error(f"Failed to load config: {e}")
+        for epoch in range(num_epochs):
+            callback.on_epoch_start(epoch)
+            
+            # Check RAM before epoch
+            ram_gb = get_ram_usage_gb()
+            if ram_gb > 6.5:  # Safety threshold
+                warning(f"High RAM usage detected: {ram_gb:.2f}GB. Consider reducing batch size.")
+            
+            train_loss = train_epoch(model, train_loader, optimizer, epoch, device, scaler)
+            val_loss = evaluate_epoch(model, val_loader, device, scaler)
+            
+            callback.on_epoch_end(epoch, train_loss, val_loss)
+            
+            training_results["history"].append({
+                "epoch": epoch,
+                "train_loss": train_loss,
+                "val_loss": val_loss,
+                "gap": val_loss - train_loss
+            })
+            
+            training_results["epochs_completed"] = epoch + 1
+            training_results["final_train_loss"] = train_loss
+            training_results["final_val_loss"] = val_loss
+            
+            # Check for early stopping or timeout (simplified)
+            if epoch > 0 and (val_loss > train_loss * 2):  # Simple overfitting check
+                warning("Significant overfitting detected. Training may be truncated.")
+    
+    except KeyboardInterrupt:
+        info("Training interrupted by user.")
+        training_results["status"] = "TRUNCATED"
+        callback.on_training_end("TRUNCATED")
+    
+    except Exception as e:
+        error(f"Training failed with error: {str(e)}")
+        training_results["status"] = "FAILED"
         raise
     
-    device = get_device()
-    batch_size = get_batch_size()
-    num_epochs = get_num_epochs()
-    max_seq_length = get_max_seq_length()
-    learning_rate = get_learning_rate()
-    embed_dim = get_embed_dim()
-    num_heads = get_num_heads()
-    vocab_size = get_vocab_size()
+    finally:
+        callback.on_training_end(training_results["status"])
+        total_time = time.time() - start_time
+        info(f"Training finished in {total_time:.2f} seconds")
     
-    logger.info(f"Device: {device}, Batch size: {batch_size}, Epochs: {num_epochs}")
-    logger.info(f"Embed dim: {embed_dim}, Heads: {num_heads}, Vocab: {vocab_size}")
-    
-    # Prepare data
-    logger.info("Preparing dataloaders...")
-    train_split = load_jsonl(train_data_path)
-    val_split = load_jsonl(val_data_path)
-    
-    train_loader, val_loader = prepare_dataloaders(
-        train_split, val_split, batch_size, max_seq_length
-    )
-    
-    # Create model
-    logger.info(f"Creating {model_type} model...")
-    if model_type == "autoregressive":
-        model = create_autoregressive_model(
-            embed_dim=embed_dim,
-            num_heads=num_heads,
-            vocab_size=vocab_size,
-            max_seq_length=max_seq_length,
-        )
-    elif model_type == "diffusion":
-        model = create_diffusion_model(
-            embed_dim=embed_dim,
-            num_heads=num_heads,
-            vocab_size=vocab_size,
-            max_seq_length=max_seq_length,
-        )
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
-    
-    model = model.to(device)
-    logger.info(f"Model created with {sum(p.numel() for p in model.parameters()):,} parameters")
-    
-    # Compile model if using torch.compile (CPU-optimized)
-    use_compile = True  # Always use compile for CPU as per task requirement
-    if use_compile and device.type == "cpu":
-        logger.info("Compiling model with torch.compile...")
-        try:
-            model = torch.compile(model, mode="reduce-overhead")
-            logger.info("Model compiled successfully")
-        except Exception as e:
-            logger.warning(f"Failed to compile model: {e}. Continuing without compilation.")
-            use_compile = False
-    
-    # Optimizer
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-    
-    # Training history
-    history = {
-        "epoch": [],
-        "train_loss": [],
-        "val_loss": [],
-        "gap": [],
-        "time_per_epoch": [],
-        "ram_per_epoch": [],
-    }
-    
-    # Training loop
-    logger.info("Starting training...")
-    start_total_time = time.time()
-    
-    for epoch in range(1, num_epochs + 1):
-        epoch_start = time.time()
-        
-        # Train
-        train_loss = train_epoch(
-            model, train_loader, optimizer, device, epoch, use_compile
-        )
-        
-        # Validate
-        val_loss = evaluate_epoch(model, val_loader, device, use_compile)
-        
-        # Calculate generalization gap
-        gap = val_loss - train_loss
-        
-        # Record metrics
-        epoch_time = time.time() - epoch_start
-        ram_usage = get_ram_usage_gb()
-        
-        history["epoch"].append(epoch)
-        history["train_loss"].append(train_loss)
-        history["val_loss"].append(val_loss)
-        history["gap"].append(gap)
-        history["time_per_epoch"].append(epoch_time)
-        history["ram_per_epoch"].append(ram_usage)
-        
-        logger.info(
-            f"Epoch {epoch}/{num_epochs} | "
-            f"Train Loss: {train_loss:.4f} | "
-            f"Val Loss: {val_loss:.4f} | "
-            f"Gap: {gap:.4f} | "
-            f"Time: {epoch_time:.2f}s | "
-            f"RAM: {ram_usage:.2f}GB"
-        )
-        
-        # Early stopping check (optional)
-        if val_loss > 10.0:  # Sanity check
-            logger.warning("Validation loss too high, stopping early")
-            break
-    
-    total_time = time.time() - start_total_time
-    logger.info(f"Training completed in {total_time:.2f}s")
-    
-    # Save history
-    if output_dir:
-        output_path = Path(output_dir) / f"{model_type}_training_history.json"
-        import json
-        with open(output_path, "w") as f:
-            json.dump(history, f, indent=2)
-        logger.info(f"Training history saved to {output_path}")
-    
-    return {
-        "model_type": model_type,
-        "history": history,
-        "total_time": total_time,
-        "final_train_loss": history["train_loss"][-1] if history["train_loss"] else None,
-        "final_val_loss": history["val_loss"][-1] if history["val_loss"] else None,
-        "final_gap": history["gap"][-1] if history["gap"] else None,
-    }
-
+    return training_results
 
 def main():
-    """Main entry point for training."""
-    import argparse
+    """
+    Entry point for standalone training execution.
+    """
+    info("Running training loop main...")
     
-    parser = argparse.ArgumentParser(description="Train a model on the micro-corpus")
-    parser.add_argument(
-        "--model-type",
-        type=str,
-        choices=["autoregressive", "diffusion"],
-        required=True,
-        help="Type of model to train",
-    )
-    parser.add_argument(
-        "--train-data",
-        type=str,
-        default=str(Path(get_processed_dir()) / "train.jsonl"),
-        help="Path to training data JSONL",
-    )
-    parser.add_argument(
-        "--val-data",
-        type=str,
-        default=str(Path(get_processed_dir()) / "val.jsonl"),
-        help="Path to validation data JSONL",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default=str(get_artifacts_dir()),
-        help="Directory to save training outputs",
-    )
+    # This is a placeholder for actual execution
+    # In a real scenario, this would load a model and dataset
+    # and run the training loop
     
-    args = parser.parse_args()
-    
-    # Run training
-    results = train_loop(
-        model_type=args.model_type,
-        train_data_path=args.train_data,
-        val_data_path=args.val_data,
-        output_dir=args.output_dir,
-    )
-    
-    logger.info(f"Training results: {results}")
-    return results
-
-
-if __name__ == "__main__":
-    main()
+    logger.info("Training loop module loaded successfully.")

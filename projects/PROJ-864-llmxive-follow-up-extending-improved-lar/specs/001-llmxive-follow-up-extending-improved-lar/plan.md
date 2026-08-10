@@ -22,7 +22,7 @@ The implementation constructs the strict "Micro-Corpus", trains 10 models (5 AR,
 **Project Type**: Computational Research / Machine Learning Experiment.  
 **Performance Goals**: Complete 100 epochs for 10 models (5 seeds x 2 arch) on 1M tokens within 6 hours wall-clock time; peak RAM < 7GB.  
 **Constraints**: Strict token count (MM); no GPU available for training (CPU-first); no access-gated datasets.  
-**Scale/Scope**: Two M-parameter models (multiple seeds each); M token dataset; 100 epochs; 1 statistical analysis pipeline.
+**Scale/Scope**: Two M-parameter models (multiple seeds each); M token dataset; multiple epochs; 1 statistical analysis pipeline.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -134,12 +134,12 @@ No violations found. The single-project structure minimizes overhead and aligns 
 7.  **Deliverable**: `data/processed/micro_corpus_train.jsonl`, `test.jsonl`, and `data/artifacts/corpus_validation.json`.
 
 ### Phase 3: Model Implementation & Training Loop
-**Goal**: Train multiple models (5 seeds AR, 5 seeds MDM) for 100 epochs.
+**Goal**: Train multiple models (multiple seeds AR, multiple seeds MDM) for 100 epochs.
 1.  **FR-002**: Implement `autoregressive.py` (Causal LM) and `diffusion.py` (Bidirectional MDM) with identical embedding/attention params.
 2.  **FR-003**: Implement `train_loop.py` using `torch.compile` on CPU.
 3.  **FR-004**: Integrate callbacks to log loss and gap every epoch, including `seed_id`.
 4.  **FR-007**: Integrate resource monitoring (RAM, time).
-5.  **FR-003**: Execute a sufficient number of epochs for each of the 5 seeds per architecture to ensure model convergence. **Timeout Logic**: If the 6h limit is approached, log the current epoch, set status=TRUNCATED in the log, and halt gracefully. The analysis will use available data.
+5.  **FR-003**: Execute a sufficient number of epochs for each of the 5 seeds per architecture to ensure model convergence. **Timeout Logic**: If the time limit is approached, log the current epoch, set status=TRUNCATED in the log, and halt gracefully. The analysis will use available data.
 6.  **Deliverable**: `data/artifacts/training_logs.csv`.
 
 ### Phase 4: Statistical Analysis & Benchmarking

@@ -561,3 +561,475 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T15:05:55Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 'model configuration: embed_dim 768, num_heads 12, params 100000000'
+  claim_id: c_19901995
+  context: 'T008 [P] Create base model definitions and hyperparameter constants in
+    projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py:
+    define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000 (Depends on T006)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:07:20Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: corpus token count tolerance 10000
+  claim_id: c_ec8db273
+  context: "T015 [US1] Implement validate_corpus.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/\
+    \ to verify token count is [deferred] \xB1 10,000 and generate data/artifacts/corpus_validation.json"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify token count is [deferred] \xB1 10,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:07:35Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: corpus disk footprint limit 14GB
+  claim_id: c_3bbcc4e5
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the token count is [deferred] \xB1 10,000, and confirming the\
+    \ total disk footprint is <14GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:07:59Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: experiment seeds 5 per architecture total 10, epochs 100
+  claim_id: c_1c8c18cd
+  context: T025 [US2] Implement run_experiment.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    to orchestrate 5 independent seeds per architecture (N=10 total) for up to 100
+    epochs and generate a single aggregated data/artifacts/training_logs.csv containing
+    seed_id
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: orchestrate 5 independent seeds per architecture (N=10 total) for up to
+    100 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:08:26Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: statistical analysis method Mixed-Model Repeated-Measures ANOVA on Generalization
+    Gap
+  claim_id: c_60e824ef
+  context: T030 [US3] Implement statistical_test.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/
+    to run Mixed-Model Repeated-Measures ANOVA on Generalization Gap using seed_id
+    as subjects
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_method_Mixed-Model_Repeated-Measures_AN
+  kind: entity_fact
+  raw_text: Mixed-Model Repeated-Measures ANOVA on Generalization Gap using seed_id
+    as subjects
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:08:48Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: power analysis target 0.8 for 1M token 5-seed regime
+  claim_id: c_99445759
+  context: "T034 [US3] Implement power_analysis.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/\
+    \ to perform a priori power analysis for the 1M token / 5-seed regime and verify\
+    \ power \u2265 0.8"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "perform a priori power analysis for the 1M token / 5-seed regime and\
+    \ verify power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:09:40Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: training loop timeout status TRUNCATED
+  claim_id: c_919516f8
+  context: T023 [US2] Implement train_loop.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    using torch.compile on CPU with mixed precision (FP16) if peak RAM > 6.0 GB; include
+    logic to log status=TRUNCATED if timeout approached
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_loop_timeout_status_TRUNCATED
+  kind: entity_fact
+  raw_text: include logic to log status=TRUNCATED if timeout approached
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:10:04Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: mixed precision FP16 threshold peak RAM 6.0 GB
+  claim_id: c_6748df27
+  context: T023 [US2] Implement train_loop.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    using torch.compile on CPU with mixed precision (FP16) if peak RAM > 6.0 GB; include
+    logic to log status=TRUNCATED if timeout approached
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mixed precision (FP16) if peak RAM > 6.0 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:10:28Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: base model configuration EMBED_DIM 768 NUM_HEADS 12 PARAMS 100000000
+  claim_id: c_6210137d
+  context: 'T008 [P] Create base model definitions and hyperparameter constants in
+    projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py:
+    define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000 (Depends on T006)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: define EMBED_DIM=768, NUM_HEADS=12, PARAMS=100000000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:19:19Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: corpus token count verification tolerance 10000
+  claim_id: c_b3007734
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the token count is [deferred] \xB1 10,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:19:19Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: micro-corpus disk footprint less than 14GB
+  claim_id: c_a3c434ec
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Micro-corpus_disk_footprint_less_than_14GB
+  kind: magnitude
+  raw_text: confirming the total disk footprint is <14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:19:44Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: micro-corpus token count reduced from 10 million to 1 million
+  claim_id: c_44dfa3cc
+  context: 'Note: This implements a ''Staged Simplification'' of FR-001 (10M tokens)
+    to 1M tokens due to CPU constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Staged Simplification of the Micro-Corpus from 10M tokens (Spec) to 1M
+    tokens (Plan)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:20:05Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: gpt2 tokenizer version 4.0
+  claim_id: c_44dd0639
+  context: 'T014 [US1] Implement tokenize_and_filter.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/
+    using gpt2 tokenizer (v4.0) with strict [deferred] token limit logic (via itertools.islice
+    on stream) to generate data/processed/micro_corpus.jsonl (Target: 1M tokens as
+    Staged Simplification of FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: using gpt2 tokenizer (v4.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:20:52Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: target token count 1 million
+  claim_id: c_3e307123
+  context: 'T014 [US1] Implement tokenize_and_filter.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/
+    using gpt2 tokenizer (v4.0) with strict [deferred] token limit logic (via itertools.islice
+    on stream) to generate data/processed/micro_corpus.jsonl (Target: 1M tokens as
+    Staged Simplification of FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target: 1M tokens'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:21:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: experiment design 5 seeds per architecture total 10
+  claim_id: c_27a63281
+  context: T025 [US2] Implement run_experiment.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    to orchestrate 5 independent seeds per architecture (N=10 total) for up to 100
+    epochs and generate a single aggregated data/artifacts/training_logs.csv containing
+    seed_id
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: orchestrate 5 independent seeds per architecture (N=10 total)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:21:39Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: maximum training epochs 100
+  claim_id: c_f14ca73c
+  context: T025 [US2] Implement run_experiment.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    to orchestrate 5 independent seeds per architecture (N=10 total) for up to 100
+    epochs and generate a single aggregated data/artifacts/training_logs.csv containing
+    seed_id
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: for up to 100 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:22:05Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: mixed precision trigger peak RAM greater than 6.0 GB
+  claim_id: c_37d45555
+  context: T023 [US2] Implement train_loop.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/
+    using torch.compile on CPU with mixed precision (FP16) if peak RAM > 6.0 GB; include
+    logic to log status=TRUNCATED if timeout approached
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mixed_precision_trigger_peak_RAM_greater_than_6.0_GB
+  kind: magnitude
+  raw_text: if peak RAM > 6.0 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:22:34Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: statistical power analysis target 0.8 for 1 million token 5 seed regime
+  claim_id: c_b88ad7c6
+  context: "T034 [US3] Implement power_analysis.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/\
+    \ to perform a priori power analysis for the 1M token / 5-seed regime and verify\
+    \ power \u2265 0.8"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "perform a priori power analysis for the 1M token / 5-seed regime and\
+    \ verify power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:22:35Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: verify token count within 10000 tolerance
+  claim_id: c_b0c89f78
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify the token count is [deferred] \xB1 10,000"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:26:16Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: total disk footprint less than 14GB
+  claim_id: c_070a2d9e
+  context: "Independent Test: The system can be tested by successfully loading the\
+    \ constructed Micro-Corpus into memory on a standard CPU runner, verifying the\
+    \ token count is [deferred] \xB1 10,000, and confirming the total disk footprint\
+    \ is <14GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_disk_footprint_less_than_14GB
+  kind: magnitude
+  raw_text: confirming the total disk footprint is <14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:26:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: use gpt2 tokenizer version 4.0
+  claim_id: c_887c9dd9
+  context: 'Implement `tokenize_and_filter.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`
+    using `gpt2` tokenizer (v4.0) with strict [deferred] token limit logic (via `itertools.islice`
+    on stream) to generate `data/processed/micro_corpus.jsonl` (Target: 1M tokens
+    as Staged Simplification of FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: using `gpt2` tokenizer (v4.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:26:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: orchestrate 5 independent seeds per architecture totaling 10
+  claim_id: c_deb09fa3
+  context: Implement `run_experiment.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`
+    to orchestrate 5 independent seeds per architecture (N=10 total) for up to 100
+    epochs and generate a single aggregated `data/artifacts/training_logs.csv` containing
+    `seed_id`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: orchestrate 5 independent seeds per architecture (N=10 total)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:26:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: train for up to 100 epochs
+  claim_id: c_1f8d5164
+  context: Implement `run_experiment.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`
+    to orchestrate 5 independent seeds per architecture (N=10 total) for up to 100
+    epochs and generate a single aggregated `data/artifacts/training_logs.csv` containing
+    `seed_id`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: for up to 100 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:26:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: use mixed precision if peak RAM exceeds 6.0 GB
+  claim_id: c_72bb9f2b
+  context: Implement `train_loop.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`
+    using `torch.compile` on CPU with mixed precision (FP16) if peak RAM > 6.0 GB;
+    include logic to log `status=TRUNCATED` if timeout approached
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if peak RAM > 6.0 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:26:18Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: verify statistical power is at least 0.8
+  claim_id: c_ce7e37eb
+  context: "Implement `power_analysis.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`\
+    \ to perform a priori power analysis for the 1M token / 5-seed regime and verify\
+    \ power \u2265 0.8"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_statistical_power_is_at_least_0.8
+  kind: magnitude
+  raw_text: "verify power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:26:42Z'
+- artifact_path: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/specs/001-llmxive-follow-up-extending-improved-lar/tasks.md
+  attempts: 1
+  canonical: 1 million token 5 seed regime
+  claim_id: c_0c75a34b
+  context: "Implement `power_analysis.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`\
+    \ to perform a priori power analysis for the 1M token / 5-seed regime and verify\
+    \ power \u2265 0.8"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1M token / 5-seed regime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:27:12Z'

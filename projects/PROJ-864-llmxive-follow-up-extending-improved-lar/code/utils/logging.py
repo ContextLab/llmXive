@@ -1,6 +1,6 @@
 """
-Logging infrastructure for the project.
-Provides a consistent logging interface across all modules.
+Logging infrastructure for the llmXive project.
+Provides a centralized logger configuration.
 """
 import logging
 import os
@@ -9,100 +9,105 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-logger_instance = None
-log_handler = None
+_logger: Optional[logging.Logger] = None
+_log_file: Optional[Path] = None
 
-def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
+def setup_logging(
+    level: int = logging.INFO,
+    log_file: Optional[Path] = None,
+    project_root: Optional[Path] = None
+) -> logging.Logger:
     """
-    Setup the global logger.
+    Configures the global logger for the project.
     
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional path to log file
-        
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Optional path to a log file. If None, logs to console only.
+        project_root: Root of the project. Defaults to inferred path.
+    
     Returns:
-        Configured logger instance
+        The configured logger instance.
     """
-    global logger_instance, log_handler
+    global _logger, _log_file
     
-    if logger_instance is not None:
-        return logger_instance
-    
-    # Create logger
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(log_level)
-    
-    # Avoid adding handlers multiple times
-    if not logger.handlers:
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(log_level)
-        console_format = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        console_handler.setFormatter(console_format)
-        logger.addHandler(console_handler)
-        
-        # File handler if specified
-        if log_file:
-            log_path = Path(log_file)
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(log_level)
-            file_format = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
-            file_handler.setFormatter(file_format)
-            logger.addHandler(file_handler)
-    
-    logger_instance = logger
-    return logger
+    if _logger is not None:
+        return _logger
+
+    # Infer project root if not provided
+    if project_root is None:
+        current_file = Path(__file__).resolve()
+        project_root = current_file.parent.parent.parent
+
+    _logger = logging.getLogger("llmXive")
+    _logger.setLevel(level)
+    _logger.handlers = [] # Clear existing handlers
+
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # Console Handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    ch.setFormatter(formatter)
+    _logger.addHandler(ch)
+
+    # File Handler
+    if log_file is None:
+        logs_dir = project_root / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = logs_dir / f"run_{timestamp}.log"
+    else:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        fh = logging.FileHandler(str(log_file))
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        _logger.addHandler(fh)
+        _log_file = log_file
+        _logger.info(f"Logging initialized. File: {log_file}")
+    except Exception as e:
+        _logger.error(f"Failed to create log file {log_file}: {e}")
+
+    return _logger
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance.
-    
-    Args:
-        name: Optional name for the logger (defaults to "llmXive")
-        
-    Returns:
-        Logger instance
+    Retrieves the global logger or a child logger.
     """
-    if logger_instance is None:
+    if _logger is None:
+        # Auto-setup if not initialized
         setup_logging()
     
     if name:
-        return logger_instance.getChild(name)
-    return logger_instance
+        return _logger.getChild(name)
+    return _logger
 
 def reset_logging():
-    """Reset the logging configuration."""
-    global logger_instance
-    logger_instance = None
+    """Resets the global logger state."""
+    global _logger, _log_file
+    _logger = None
+    _log_file = None
 
 # Convenience functions
 def debug(msg: str):
-    if logger_instance:
-        logger_instance.debug(msg)
+    if _logger: _logger.debug(msg)
 
 def info(msg: str):
-    if logger_instance:
-        logger_instance.info(msg)
+    if _logger: _logger.info(msg)
 
 def warning(msg: str):
-    if logger_instance:
-        logger_instance.warning(msg)
+    if _logger: _logger.warning(msg)
 
 def error(msg: str):
-    if logger_instance:
-        logger_instance.error(msg)
+    if _logger: _logger.error(msg)
 
 def critical(msg: str):
-    if logger_instance:
-        logger_instance.critical(msg)
+    if _logger: _logger.critical(msg)
 
 def exception(msg: str):
-    if logger_instance:
-        logger_instance.exception(msg)
+    if _logger: _logger.exception(msg)

@@ -1,223 +1,212 @@
 """
-Autoregressive (Causal Language Model) implementation for the llmXive project.
+Autoregressive Model Implementation.
 
-This module defines a large-scale Causal LM (Transformer decoder-only)
-designed to match the parameter counts and hyperparameters specified in
-the project configuration (T007: EMBED_DIM=768, NUM_HEADS=12, PARAMS=100M+).
-
-The model uses standard causal self-attention and is compatible with
-CPU-optimized training loops via torch.compile.
+Implements a Causal Language Model (CLM) using Transformer blocks with
+causal self-attention for next-token prediction.
 """
+
 import math
 from typing import Optional, Tuple
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from utils.config import get_embed_dim, get_num_heads, get_vocab_size, get_max_seq_length, ConfigError
-from utils.logging import get_logger
-from models.config import get_model_config
-
-logger = get_logger(__name__)
 
 
 class CausalSelfAttention(nn.Module):
     """
-    Causal Self-Attention layer with rotary-style masking implemented via
-    standard causal mask for CPU efficiency.
+    Causal Self-Attention block with rotary embeddings or standard masking.
     """
     def __init__(self, embed_dim: int, num_heads: int, dropout: float = 0.1):
         super().__init__()
-        assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
-
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
 
-        self.q_proj = nn.Linear(embed_dim, embed_dim, bias=False)
-        self.k_proj = nn.Linear(embed_dim, embed_dim, bias=False)
-        self.v_proj = nn.Linear(embed_dim, embed_dim, bias=False)
-        self.out_proj = nn.Linear(embed_dim, embed_dim, bias=False)
+        if self.head_dim * num_heads != embed_dim:
+            raise ValueError(f"embed_dim ({embed_dim}) must be divisible by num_heads ({num_heads})")
 
-        self.dropout = dropout
-        self.register_buffer("bias", torch.tril(torch.ones(get_max_seq_length(), get_max_seq_length()))
-                                   .view(1, 1, get_max_seq_length(), get_max_seq_length()))
+        self.qkv = nn.Linear(embed_dim, embed_dim * 3, bias=True)
+        self.proj = nn.Linear(embed_dim, embed_dim, bias=True)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        B, T, C = x.size()  # batch, sequence, embed_dim
+        batch_size, seq_len, embed_dim = x.size()
 
-        # Calculate Q, K, V
-        q = self.q_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        k = self.k_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
-        v = self.v_proj(x).view(B, T, self.num_heads, self.head_dim).transpose(1, 2)
+        # Project to Q, K, V
+        qkv = self.qkv(x)
+        q, k, v = qkv.chunk(3, dim=-1)
 
-        # Causal mask: only attend to past
-        # mask shape: (1, 1, T, T)
-        mask = self.bias[:, :, :T, :T]
+        # Reshape for multi-head attention
+        q = q.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        k = k.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        v = v.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
 
-        # Attention scores
-        scores = torch.matmul(q, k.transpose(-2, -1)) * (1.0 / math.sqrt(self.head_dim))
+        # Compute attention scores
+        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim)
 
         # Apply causal mask
-        scores = scores.masked_fill(mask == 0, float('-inf'))
+        if attention_mask is None:
+            # Create a causal mask
+            mask = torch.triu(torch.ones(seq_len, seq_len, device=x.device), diagonal=1)
+            mask = mask.masked_fill(mask == 1, float('-inf'))
+            scores = scores + mask
+        else:
+            # Apply custom mask if provided
+            scores = scores + attention_mask
 
-        # Apply attention mask if provided (e.g., for padding)
-        if attention_mask is not None:
-            # attention_mask expected to be (B, T) or (B, 1, 1, T)
-            if attention_mask.dim() == 2:
-                attention_mask = attention_mask.view(B, 1, 1, T)
-            scores = scores.masked_fill(attention_mask == 0, float('-inf'))
-
+        # Softmax and dropout
         attn_weights = F.softmax(scores, dim=-1)
-        attn_weights = F.dropout(attn_weights, p=self.dropout, training=self.training)
+        attn_weights = self.dropout(attn_weights)
 
         # Apply attention to values
         attn_output = torch.matmul(attn_weights, v)
 
-        # Reshape back to (B, T, C)
-        attn_output = attn_output.transpose(1, 2).contiguous().view(B, T, C)
+        # Reshape and project
+        attn_output = attn_output.transpose(1, 2).contiguous().view(batch_size, seq_len, embed_dim)
+        output = self.proj(attn_output)
 
-        # Project output
-        output = self.out_proj(attn_output)
         return output
 
 
 class MLPBlock(nn.Module):
     """
-    Feed-forward network block with GELU activation.
+    Multi-Layer Perceptron block used in Transformer layers.
     """
-    def __init__(self, embed_dim: int, hidden_dim: int, dropout: float = 0.1):
+    def __init__(self, embed_dim: int, hidden_dim: Optional[int] = None, dropout: float = 0.1):
         super().__init__()
-        self.c_fc = nn.Linear(embed_dim, hidden_dim, bias=False)
-        self.c_proj = nn.Linear(hidden_dim, embed_dim, bias=False)
+        if hidden_dim is None:
+            hidden_dim = embed_dim * 4
+        self.fc1 = nn.Linear(embed_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, embed_dim)
         self.dropout = nn.Dropout(dropout)
+        self.activation = nn.GELU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.c_fc(x)
-        x = F.gelu(x)
-        x = self.c_proj(x)
+        x = self.fc1(x)
+        x = self.activation(x)
+        x = self.dropout(x)
+        x = self.fc2(x)
         x = self.dropout(x)
         return x
 
 
 class TransformerBlock(nn.Module):
     """
-    A single Transformer block containing Causal Attention and MLP.
+    A single Transformer block containing self-attention and MLP.
     """
-    def __init__(self, embed_dim: int, num_heads: int, hidden_dim: int, dropout: float = 0.1):
+    def __init__(self, embed_dim: int, num_heads: int, dropout: float = 0.1):
         super().__init__()
-        self.ln_1 = nn.LayerNorm(embed_dim)
+        self.ln1 = nn.LayerNorm(embed_dim)
         self.attn = CausalSelfAttention(embed_dim, num_heads, dropout)
-        self.ln_2 = nn.LayerNorm(embed_dim)
-        self.mlp = MLPBlock(embed_dim, hidden_dim, dropout)
+        self.ln2 = nn.LayerNorm(embed_dim)
+        self.mlp = MLPBlock(embed_dim, dropout=dropout)
 
     def forward(self, x: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        # Pre-normalization architecture
-        x = x + self.attn(self.ln_1(x), attention_mask)
-        x = x + self.mlp(self.ln_2(x))
+        # Pre-norm architecture
+        residual = x
+        x = self.ln1(x)
+        x = self.attn(x, attention_mask)
+        x = x + residual
+
+        residual = x
+        x = self.ln2(x)
+        x = self.mlp(x)
+        x = x + residual
+
         return x
 
 
 class AutoregressiveModel(nn.Module):
     """
-    Full Causal Language Model (Decoder-only Transformer).
-
-    Architecture:
-    - Embedding layer
-    - N Transformer blocks
-    - Output projection to vocab
-    - No bias in Linear layers (as per modern LLM practices)
+    Full Autoregressive Transformer Model for next-token prediction.
     """
-    def __init__(self, config: Optional[dict] = None):
+    def __init__(self, vocab_size: int, embed_dim: int, num_heads: int, num_layers: int, max_seq_length: int, dropout: float = 0.1):
         super().__init__()
+        self.vocab_size = vocab_size
+        self.embed_dim = embed_dim
+        self.max_seq_length = max_seq_length
 
-        if config is None:
-            try:
-                config = get_model_config("autoregressive")
-            except ConfigError as e:
-                logger.error(f"Failed to load model config: {e}")
-                raise
+        self.token_embedding = nn.Embedding(vocab_size, embed_dim)
+        self.pos_embedding = nn.Embedding(max_seq_length, embed_dim)
+        self.dropout = nn.Dropout(dropout)
 
-        self.embed_dim = config.get("embed_dim", get_embed_dim())
-        self.num_heads = config.get("num_heads", get_num_heads())
-        self.vocab_size = config.get("vocab_size", get_vocab_size())
-        self.max_seq_length = config.get("max_seq_length", get_max_seq_length())
-        self.num_layers = config.get("num_layers", 12) # Default to ~100M params with 768 dim
-        self.dropout = config.get("dropout", 0.1)
-
-        # Calculate hidden dim for MLP (usually 4x embed_dim)
-        self.hidden_dim = self.embed_dim * 4
-
-        logger.info(f"Initializing AutoregressiveModel: "
-                    f"embed_dim={self.embed_dim}, heads={self.num_heads}, "
-                    f"layers={self.num_layers}, vocab={self.vocab_size}")
-
-        # Embeddings
-        self.tok_embeddings = nn.Embedding(self.vocab_size, self.embed_dim)
-        self.pos_embeddings = nn.Embedding(self.max_seq_length, self.embed_dim)
-
-        # Transformer blocks
         self.transformer_blocks = nn.ModuleList([
-            TransformerBlock(self.embed_dim, self.num_heads, self.hidden_dim, self.dropout)
-            for _ in range(self.num_layers)
+            TransformerBlock(embed_dim, num_heads, dropout) for _ in range(num_layers)
         ])
 
-        # Output projection
-        self.output_projection = nn.Linear(self.embed_dim, self.vocab_size, bias=False)
+        self.ln_f = nn.LayerNorm(embed_dim)
+        self.lm_head = nn.Linear(embed_dim, vocab_size, bias=False)
 
-        # Initialize weights
+        # Tie weights
+        self.lm_head.weight = self.token_embedding.weight
+
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
         if isinstance(module, nn.Linear):
-            nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            module.weight.data.normal_(mean=0.0, std=0.02)
             if module.bias is not None:
-                nn.init.zeros_(module.bias)
+                module.bias.data.zero_()
         elif isinstance(module, nn.Embedding):
-            nn.init.normal_(module.weight, mean=0.0, std=0.02)
+            module.weight.data.normal_(mean=0.0, std=0.02)
+            if module.padding_idx is not None:
+                module.weight.data[module.padding_idx].zero_()
         elif isinstance(module, nn.LayerNorm):
-            nn.init.ones_(module.weight)
-            nn.init.zeros_(module.bias)
+            module.bias.data.zero_()
+            module.weight.data.fill_(1.0)
 
     def forward(self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Args:
-            input_ids: (B, T) tensor of token ids
-            attention_mask: (B, T) tensor (1 for valid, 0 for padding)
-        Returns:
-            logits: (B, T, vocab_size)
-        """
-        B, T = input_ids.size()
-        assert T <= self.max_seq_length, f"Sequence length {T} exceeds max {self.max_seq_length}"
+        batch_size, seq_len = input_ids.size()
 
-        # Token embeddings
-        x = self.tok_embeddings(input_ids)
+        if seq_len > self.max_seq_length:
+            raise ValueError(f"Sequence length {seq_len} exceeds max_seq_length {self.max_seq_length}")
 
-        # Position embeddings
-        pos_ids = torch.arange(T, device=input_ids.device).unsqueeze(0)
-        x = x + self.pos_embeddings(pos_ids)
+        # Token and position embeddings
+        token_emb = self.token_embedding(input_ids)
+        pos_emb = self.pos_embedding(torch.arange(seq_len, device=input_ids.device).unsqueeze(0))
+        x = self.dropout(token_emb + pos_emb)
 
         # Apply transformer blocks
         for block in self.transformer_blocks:
             x = block(x, attention_mask)
 
-        # Project to logits
-        logits = self.output_projection(x)
+        x = self.ln_f(x)
+        logits = self.lm_head(x)
 
         return logits
-
-    def get_num_parameters(self) -> int:
-        """Calculate total number of trainable parameters."""
-        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
 
 def create_autoregressive_model() -> AutoregressiveModel:
     """
-    Factory function to create the autoregressive model using project config.
+    Factory function to create an AutoregressiveModel with project configuration.
+
+    Returns:
+        AutoregressiveModel instance configured with project hyperparameters.
     """
-    return AutoregressiveModel()
+    vocab_size = get_vocab_size()
+    embed_dim = get_embed_dim()
+    num_heads = get_num_heads()
+    max_seq_length = get_max_seq_length()
 
+    # Num layers is fetched from config, defaulting if necessary
+    try:
+        from models.config import get_num_layers
+        num_layers = get_num_layers()
+    except (ImportError, ConfigError):
+        num_layers = 12
 
-# For compatibility with tests that might expect a class name
-Model = AutoregressiveModel
+    try:
+        from models.config import get_dropout
+        dropout = get_dropout()
+    except (ImportError, ConfigError):
+        dropout = 0.1
+
+    return AutoregressiveModel(
+        vocab_size=vocab_size,
+        embed_dim=embed_dim,
+        num_heads=num_heads,
+        num_layers=num_layers,
+        max_seq_length=max_seq_length,
+        dropout=dropout
+    )

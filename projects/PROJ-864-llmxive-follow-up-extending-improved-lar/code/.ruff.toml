@@ -1,20 +1,30 @@
+# Ruff configuration for llmXive project
+# This file extends/overrides pyproject.toml if needed, 
+# but primary config is in pyproject.toml for tool integration.
+
+target-version = "py311"
+line-length = 100
+
 [lint]
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "SIM", "T20"]
-ignore = ["E501"]
-unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+select = [
+    "E",
+    "W", 
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+    "SIM",
+    "RET",
+    "PTH",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
 
 [lint.isort]
-force-single-line = false
-force-sort-within-sections = false
-known-first-party = []
-relative-imports-order = "closest-to-furthest"
-
-[lint.flake8-tidy-imports]
-ban-relative-imports = "all"
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+known-first-party = ["utils", "models", "data", "training", "analysis", "tests"]
+force-sort-within-sections = true
+lines-after-imports = 2

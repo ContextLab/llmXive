@@ -1,0 +1,35 @@
+# llmXive Project Configuration
+# This file contains all configuration settings for the project.
+
+project:
+  name: llmxive-follow-up
+  version: 1.0.0
+  # Root directory will be set dynamically based on script location
+
+data:
+  # Data directory structure
+  raw_dir: raw
+  processed_dir: processed
+  artifacts_dir: artifacts
+
+  # Corpus processing
+  # Staged Simplification: 1M tokens instead of 10M (Spec FR-001) due to CPU constraints
+  token_limit: 1000000
+  max_ram_gb: 6.0
+  train_split_ratio: 0.9
+
+training:
+  # Training hyperparameters
+  num_epochs: 100
+  batch_size: 16
+  learning_rate: 0.0001
+  max_seq_length: 1024
+  warmup_steps: 1000
+  device: cpu
+
+analysis:
+  # Statistical analysis parameters
+  statistical_significance: 0.05
+  power_threshold: 0.8
+
+# Model configuration is in models/config.py

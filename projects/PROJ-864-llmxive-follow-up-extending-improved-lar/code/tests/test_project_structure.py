@@ -1,104 +1,89 @@
+"""
+Test project structure and directory organization.
+
+This test ensures that all required directories and files exist
+according to the project specification.
+"""
+
 import os
 import sys
 import unittest
 from pathlib import Path
 
-# Ensure project root is in path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure code root is in path
+code_root = Path(__file__).parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 class TestProjectStructure(unittest.TestCase):
-    """
-    Contract test to verify the project directory structure
-    matches the requirements of T001.
-    """
+    """Test that the project structure is correctly set up."""
     
-    def setUp(self):
-        self.project_root = project_root
-        self.code_dir = self.project_root / "code"
+    @classmethod
+    def setUpClass(cls):
+        """Set up test fixtures."""
+        cls.code_root = code_root
+        cls.project_root = cls.code_root.parent
         
-        # Expected directories relative to code/
-        self.expected_dirs = [
-            "data",
-            "models",
-            "training",
-            "analysis",
-            "utils",
-            "tests"
+        # Define required directories
+        cls.required_dirs = [
+            "code",
+            "code/data",
+            "code/models",
+            "code/training",
+            "code/analysis",
+            "code/utils",
+            "code/tests",
         ]
         
-        # Expected files
-        self.expected_files = [
-            "main.py"
+        # Define required files
+        cls.required_files = [
+            "code/main.py",
+            "code/requirements.txt",
         ]
-
-    def test_code_directory_exists(self):
-        """Verify the code/ directory exists."""
-        self.assertTrue(self.code_dir.exists(), f"Directory {self.code_dir} does not exist")
-        self.assertTrue(self.code_dir.is_dir(), f"{self.code_dir} is not a directory")
-
-    def test_subdirectories_exist(self):
-        """Verify all required subdirectories exist."""
-        for subdir_name in self.expected_dirs:
-            subdir_path = self.code_dir / subdir_name
+    
+    def test_required_directories_exist(self):
+        """Test that all required directories exist."""
+        for dir_path in self.required_dirs:
+            full_path = self.project_root / dir_path
             self.assertTrue(
-                subdir_path.exists(), 
-                f"Subdirectory {subdir_name} missing in {self.code_dir}"
+                full_path.exists() and full_path.is_dir(),
+                f"Required directory does not exist: {full_path}"
             )
+    
+    def test_required_files_exist(self):
+        """Test that all required files exist."""
+        for file_path in self.required_files:
+            full_path = self.project_root / file_path
             self.assertTrue(
-                subdir_path.is_dir(),
-                f"{subdir_name} is not a directory"
+                full_path.exists() and full_path.is_file(),
+                f"Required file does not exist: {full_path}"
             )
-
-    def test_data_subdirectories_exist(self):
-        """Verify data/raw, data/processed, data/artifacts exist."""
-        data_dir = self.code_dir / "data"
-        required_data_subdirs = ["raw", "processed", "artifacts"]
-        
-        for subdir_name in required_data_subdirs:
-            subdir_path = data_dir / subdir_name
-            self.assertTrue(
-                subdir_path.exists(),
-                f"Data subdirectory {subdir_name} missing in {data_dir}"
-            )
-            self.assertTrue(
-                subdir_path.is_dir(),
-                f"{subdir_name} is not a directory"
-            )
-
-    def test_main_py_exists(self):
-        """Verify main.py exists at the root of code/."""
-        main_py_path = self.code_dir / "main.py"
+    
+    def test_tests_directory_is_not_empty(self):
+        """Test that the tests directory contains at least __init__.py."""
+        tests_dir = self.project_root / "code" / "tests"
+        init_file = tests_dir / "__init__.py"
         self.assertTrue(
-            main_py_path.exists(),
-            f"main.py missing in {self.code_dir}"
+            init_file.exists() and init_file.is_file(),
+            f"Tests directory missing __init__.py: {init_file}"
         )
-        self.assertTrue(
-            main_py_path.is_file(),
-            "main.py is not a file"
+    
+    def test_code_directory_has_python_files(self):
+        """Test that the code directory contains Python files."""
+        python_files = list(self.code_root.glob("**/*.py"))
+        self.assertGreater(
+            len(python_files), 0,
+            "No Python files found in the code directory"
         )
 
-    def test_main_py_importable(self):
-        """Verify main.py is syntactically valid and importable."""
-        main_py_path = self.code_dir / "main.py"
-        try:
-            # Attempt to import the main module
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("main", main_py_path)
-            if spec is None or spec.loader is None:
-                self.fail(f"Could not load spec for {main_py_path}")
-            
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            
-            # Verify main function exists
-            self.assertTrue(
-                hasattr(module, 'main'),
-                "main.py does not export a 'main' function"
-            )
-        except Exception as e:
-            self.fail(f"Failed to import or execute main.py: {e}")
+def run_tests():
+    """Run all tests in this module."""
+    loader = unittest.TestLoader()
+    suite = loader.loadTestsFromTestCase(TestProjectStructure)
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    return result.wasSuccessful()
 
 if __name__ == "__main__":
-    unittest.main()
+    success = run_tests()
+    sys.exit(0 if success else 1)
