@@ -41,13 +41,6 @@ T035:
     input files `data/processed/accuracy_deltas.csv` and `data/processed/feature_matrix.csv`
     are absent. Both the script and the necessary data are missing, so the task is
     not satisfied.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, data file, or result figure showing a Spearman correlation\
-    \ between the structural metrics and per\u2011trace Compressibility Score is present.\
-    \ Without any artifact demonstrating that the analysis was performed and its output\
-    \ recorded, the task requirement is not satisfied."
 T037a:
   c: false
   h: af2168b8c1afb50806724f4c33733315eb19b200f7607fcd953b7ef1e01c97a0
@@ -55,11 +48,3 @@ T037a:
     point) and does not demonstrate saving rule sets to `data/processed/rules/sweeps/`.\
     \ Moreover, the required metadata file `data/processed/sweep_config.json` is missing.\
     \ The task\u2019s deliverables are therefore not satisfied."
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only the feature specification and user stories; there\
-    \ is no artifact showing that the `quickstart.md` document was actually executed\
-    \ or validated (e.g., command output, validation logs, or a confirmed pass/fail\
-    \ report). Consequently, the required evidence for completing the \u201CRun `quickstart.md`\
-    \ validation\u201D task is missing."

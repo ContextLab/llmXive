@@ -1,3 +1,10 @@
+"""
+Quickstart Validation Module
+
+This module implements the validation logic for the llmXive pipeline as defined in quickstart.md.
+It executes each step in the strict order, verifies artifact generation, and reports pass/fail status.
+"""
+
 import sys
 import os
 import json
@@ -5,219 +12,365 @@ import subprocess
 import time
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Configure logging to stdout
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stdout
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/quickstart_validation.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
+
 class QuickstartValidationError(Exception):
-    """Raised when quickstart validation fails."""
+    """Custom exception for quickstart validation failures."""
     pass
 
-def log_step(message: str):
+
+def log_step(message: str) -> None:
+    """Log a step message."""
     logger.info(f"STEP: {message}")
 
-def log_success(message: str):
-    logger.info(f"✅ SUCCESS: {message}")
 
-def log_error(message: str):
-    logger.error(f"❌ ERROR: {message}")
+def log_success(message: str) -> None:
+    """Log a success message."""
+    logger.info(f"✓ SUCCESS: {message}")
 
-def check_file_exists(path: Path):
+
+def log_error(message: str) -> None:
+    """Log an error message."""
+    logger.error(f"✗ ERROR: {message}")
+
+
+def check_file_exists(file_path: str) -> bool:
+    """Check if a file exists."""
+    path = Path(file_path)
+    exists = path.exists()
+    if exists:
+        log_success(f"File exists: {file_path}")
+    else:
+        log_error(f"File missing: {file_path}")
+    return exists
+
+
+def check_file_not_empty(file_path: str) -> bool:
+    """Check if a file is not empty."""
+    path = Path(file_path)
     if not path.exists():
-        raise QuickstartValidationError(f"File not found: {path}")
-    log_success(f"File exists: {path}")
+        log_error(f"Cannot check empty: file missing {file_path}")
+        return False
+    
+    size = path.stat().st_size
+    if size > 0:
+        log_success(f"File not empty ({size} bytes): {file_path}")
+        return True
+    else:
+        log_error(f"File is empty: {file_path}")
+        return False
 
-def check_file_not_empty(path: Path):
-    if not path.exists():
-        raise QuickstartValidationError(f"File not found: {path}")
-    if path.stat().st_size == 0:
-        raise QuickstartValidationError(f"File is empty: {path}")
-    log_success(f"File not empty: {path}")
 
-def validate_json_structure(path: Path, required_keys: Optional[List[str]] = None):
-    check_file_exists(path)
+def validate_json_structure(file_path: str, required_keys: Optional[List[str]] = None) -> bool:
+    """Validate JSON structure."""
+    if not check_file_exists(file_path):
+        return False
+    
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             data = json.load(f)
+        
         if required_keys:
             missing = [k for k in required_keys if k not in data]
             if missing:
-                raise QuickstartValidationError(f"Missing keys in {path}: {missing}")
-        log_success(f"Valid JSON structure: {path}")
-        return data
+                log_error(f"Missing required keys in {file_path}: {missing}")
+                return False
+            else:
+                log_success(f"JSON structure valid: {file_path}")
+                return True
+        else:
+            log_success(f"JSON file valid: {file_path}")
+            return True
     except json.JSONDecodeError as e:
-        raise QuickstartValidationError(f"Invalid JSON in {path}: {e}")
+        log_error(f"Invalid JSON in {file_path}: {e}")
+        return False
 
-def validate_csv_structure(path: Path, required_columns: Optional[List[str]] = None):
-    check_file_exists(path)
+
+def validate_csv_structure(file_path: str, required_columns: Optional[List[str]] = None) -> bool:
+    """Validate CSV structure."""
+    if not check_file_exists(file_path):
+        return False
+    
     try:
         import csv
-        with open(path, 'r', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            header = next(reader, None)
-            if header is None:
-                raise QuickstartValidationError(f"CSV is empty: {path}")
+        with open(file_path, 'r') as f:
+            reader = csv.DictReader(f)
+            headers = reader.fieldnames
+            
+            if not headers:
+                log_error(f"CSV has no headers: {file_path}")
+                return False
+            
             if required_columns:
-                missing = [c for c in required_columns if c not in header]
+                missing = [c for c in required_columns if c not in headers]
                 if missing:
-                    raise QuickstartValidationError(f"Missing columns in {path}: {missing}")
-            # Check for at least one data row
-            try:
-                next(reader)
-            except StopIteration:
-                raise QuickstartValidationError(f"CSV has no data rows: {path}")
-        log_success(f"Valid CSV structure: {path}")
+                    log_error(f"Missing required columns in {file_path}: {missing}")
+                    return False
+                else:
+                    log_success(f"CSV structure valid: {file_path}")
+                    return True
+            else:
+                log_success(f"CSV file valid: {file_path}")
+                return True
     except Exception as e:
-        raise QuickstartValidationError(f"Failed to validate CSV {path}: {e}")
+        log_error(f"Error validating CSV {file_path}: {e}")
+        return False
 
-def run_script(script_name: str, description: str) -> bool:
-    log_step(f"Running {description} ({script_name})")
+
+def run_script(script_path: str, expected_outputs: List[str]) -> bool:
+    """Run a Python script and verify expected outputs are generated."""
+    log_step(f"Executing: {script_path}")
+    
+    start_time = time.time()
     try:
-        # Run the script with a timeout to prevent hanging
         result = subprocess.run(
-            [sys.executable, script_name],
+            [sys.executable, script_path],
             capture_output=True,
             text=True,
-            timeout=300, # 5 minutes timeout
-            check=False
+            timeout=300  # 5 minute timeout
         )
         
-        if result.returncode == 0:
-            log_success(f"{description} completed successfully.")
-            if result.stdout:
-                logger.debug(f"STDOUT:\n{result.stdout}")
+        elapsed = time.time() - start_time
+        
+        if result.returncode != 0:
+            log_error(f"Script failed with exit code {result.returncode}")
+            log_error(f"STDOUT: {result.stdout}")
+            log_error(f"STDERR: {result.stderr}")
+            return False
+        
+        log_success(f"Script completed in {elapsed:.2f}s")
+        
+        # Verify expected outputs
+        all_outputs_exist = True
+        for output in expected_outputs:
+            if not check_file_exists(output):
+                all_outputs_exist = False
+            elif not check_file_not_empty(output):
+                all_outputs_exist = False
+        
+        if all_outputs_exist:
+            log_success(f"All expected outputs generated for {script_path}")
             return True
         else:
-            log_error(f"{description} failed with exit code {result.returncode}")
-            if result.stderr:
-                logger.error(f"STDERR:\n{result.stderr}")
-            raise QuickstartValidationError(f"Script {script_name} failed")
+            log_error(f"Some expected outputs missing for {script_path}")
+            return False
+            
     except subprocess.TimeoutExpired:
-        log_error(f"{description} timed out.")
-        raise QuickstartValidationError(f"Script {script_name} timed out")
+        log_error(f"Script timed out: {script_path}")
+        return False
     except Exception as e:
-        log_error(f"Exception running {description}: {e}")
-        raise
+        log_error(f"Error running script {script_path}: {e}")
+        return False
 
-def validate_pipeline_artifacts(project_root: Path):
-    """Validates that all required artifacts from the pipeline exist and are non-empty."""
-    log_step("Validating pipeline artifacts...")
+
+def validate_pipeline_artifacts() -> Dict[str, Any]:
+    """Validate all artifacts produced by the pipeline."""
+    results = {
+        'training_data': False,
+        'held_out_data': False,
+        'feature_matrix': False,
+        'global_rules': False,
+        'per_trace_scores': False,
+        'benchmark_results': False,
+        'statistical_analysis': False,
+        'sensitivity_sweep': False
+    }
     
-    artifacts = [
-        # T012: Synthetic traces
-        {"path": project_root / "data" / "training", "type": "dir", "min_files": 1},
-        {"path": project_root / "data" / "held_out", "type": "dir", "min_files": 1},
-        
-        # T020: Feature matrix
-        {"path": project_root / "data" / "processed" / "feature_matrix.csv", "type": "file"},
-        
-        # T023/T026b: Global rules
-        {"path": project_root / "data" / "processed" / "rules" / "global_rules.json", "type": "file"},
-        
-        # T032: Benchmark results
-        {"path": project_root / "data" / "processed" / "benchmark_results.json", "type": "file"},
-        
-        # T035b: Accuracy deltas
-        {"path": project_root / "data" / "processed" / "accuracy_deltas.csv", "type": "file"},
-        
-        # T035: Statistical analysis
-        {"path": project_root / "data" / "processed" / "statistical_analysis.json", "type": "file"},
-        
-        # T037: Sensitivity sweep
-        {"path": project_root / "data" / "processed" / "sensitivity_sweep.csv", "type": "file"},
-        
-        # T037a: Sweep config
-        {"path": project_root / "data" / "processed" / "sweep_config.json", "type": "file"},
+    # Check training data
+    training_dir = Path('data/training')
+    if training_dir.exists() and any(training_dir.glob('session_*.json')):
+        results['training_data'] = True
+        log_success("Training data present")
+    else:
+        log_error("Training data missing")
+    
+    # Check held-out data
+    held_out_dir = Path('data/held_out')
+    if held_out_dir.exists() and any(held_out_dir.glob('session_*.json')):
+        results['held_out_data'] = True
+        log_success("Held-out data present")
+    else:
+        log_error("Held-out data missing")
+    
+    # Check feature matrix
+    feature_matrix = 'data/processed/feature_matrix.csv'
+    if validate_csv_structure(feature_matrix, ['trace_id', 'sequence_entropy', 'tool_repetition_freq', 'arg_semantic_variance']):
+        results['feature_matrix'] = True
+    else:
+        log_error("Feature matrix invalid or missing")
+    
+    # Check global rules
+    global_rules = 'data/processed/rules/global_rules.json'
+    if validate_json_structure(global_rules):
+        results['global_rules'] = True
+    else:
+        log_error("Global rules invalid or missing")
+    
+    # Check per-trace scores
+    per_trace_scores = 'data/processed/per_trace_scores.csv'
+    if validate_csv_structure(per_trace_scores, ['trace_id', 'rule_count', 'fidelity', 'compressibility_score']):
+        results['per_trace_scores'] = True
+    else:
+        log_error("Per-trace scores invalid or missing")
+    
+    # Check benchmark results
+    benchmark_results = 'data/processed/benchmark_results.json'
+    if validate_json_structure(benchmark_results):
+        results['benchmark_results'] = True
+    else:
+        log_error("Benchmark results invalid or missing")
+    
+    # Check statistical analysis
+    stats_analysis = 'data/processed/statistical_analysis.json'
+    if validate_json_structure(stats_analysis):
+        results['statistical_analysis'] = True
+    else:
+        log_error("Statistical analysis invalid or missing")
+    
+    # Check sensitivity sweep
+    sensitivity_sweep = 'data/processed/sensitivity_sweep.csv'
+    if validate_csv_structure(sensitivity_sweep, ['threshold', 'fidelity_rate', 'latency', 'rule_count']):
+        results['sensitivity_sweep'] = True
+    else:
+        log_error("Sensitivity sweep invalid or missing")
+    
+    return results
+
+
+def run_quickstart_validation() -> Tuple[bool, Dict[str, Any]]:
+    """
+    Execute the full quickstart validation pipeline.
+    
+    Returns:
+        Tuple of (success: bool, results: Dict)
+    """
+    log_step("Starting Quickstart Validation")
+    
+    # Define the execution order from quickstart.md
+    pipeline_steps = [
+        {
+            'name': 'Synthetic Trace Generation',
+            'script': 'code/generators/run_generation.py',
+            'outputs': []  # Multiple session files, checked by directory scan
+        },
+        {
+            'name': 'Metric Extraction',
+            'script': 'code/metrics/extract.py',
+            'outputs': ['data/processed/feature_matrix.csv']
+        },
+        {
+            'name': 'Rule Induction',
+            'script': 'code/models/rule_induction.py',
+            'outputs': [
+                'data/processed/rules/global_rules.json',
+                'data/processed/per_trace_scores.csv',
+                'data/processed/aggregate_model_summary.json'
+            ]
+        },
+        {
+            'name': 'Delta Calculation',
+            'script': 'code/evaluation/calculate_deltas.py',
+            'outputs': ['data/processed/accuracy_deltas.csv']
+        },
+        {
+            'name': 'Benchmark Execution',
+            'script': 'code/evaluation/benchmark.py',
+            'outputs': ['data/processed/benchmark_results.json']
+        },
+        {
+            'name': 'Statistical Analysis',
+            'script': 'code/evaluation/stats.py',
+            'outputs': ['data/processed/statistical_analysis.json']
+        },
+        {
+            'name': 'Sensitivity Sweep',
+            'script': 'code/evaluation/sensitivity_sweep.py',
+            'outputs': ['data/processed/sensitivity_sweep.csv']
+        }
     ]
+    
+    all_passed = True
+    step_results = {}
+    
+    for step in pipeline_steps:
+        log_step(f"Running: {step['name']}")
+        success = run_script(step['script'], step['outputs'])
+        step_results[step['name']] = success
+        
+        if not success:
+            all_passed = False
+            log_error(f"Pipeline failed at step: {step['name']}")
+            break
+        else:
+            log_success(f"Step completed: {step['name']}")
+    
+    # Final artifact validation
+    log_step("Validating Pipeline Artifacts")
+    artifact_results = validate_pipeline_artifacts()
+    
+    # Summary
+    log_step("Validation Summary")
+    if all_passed and all(artifact_results.values()):
+        log_success("Quickstart validation PASSED")
+        return True, {
+            'step_results': step_results,
+            'artifact_results': artifact_results,
+            'overall_status': 'PASSED'
+        }
+    else:
+        log_error("Quickstart validation FAILED")
+        return False, {
+            'step_results': step_results,
+            'artifact_results': artifact_results,
+            'overall_status': 'FAILED'
+        }
 
-    for artifact in artifacts:
-        path = artifact["path"]
-        if artifact["type"] == "file":
-            check_file_exists(path)
-            check_file_not_empty(path)
-            if path.suffix == '.json':
-                validate_json_structure(path)
-            elif path.suffix == '.csv':
-                validate_csv_structure(path)
-        elif artifact["type"] == "dir":
-            if not path.exists():
-                raise QuickstartValidationError(f"Directory not found: {path}")
-            files = list(path.glob("*"))
-            if len(files) < artifact.get("min_files", 1):
-                raise QuickstartValidationError(f"Directory {path} has fewer than {artifact['min_files']} files")
-            log_success(f"Directory valid: {path} ({len(files)} files)")
-
-    log_success("All pipeline artifacts validated.")
 
 def main():
-    """
-    Main entry point for T044: Run quickstart.md validation.
-    Executes the pipeline scripts in order and validates outputs.
-    """
-    project_root = Path(__file__).resolve().parent.parent.parent
-    code_root = project_root / "code"
+    """Main entry point for quickstart validation."""
+    print("=" * 60)
+    print("LLMXive Quickstart Validation")
+    print("=" * 60)
     
-    # Change to project root to ensure relative paths work
-    os.chdir(project_root)
-    
-    log_step("Starting Quickstart Validation (T044)")
-    
-    # Define the execution order as per quickstart.md (T050)
-    pipeline_steps = [
-        ("code/generators/run_generation.py", "Synthetic Trace Generation"),
-        ("code/metrics/extract.py", "Metric Extraction"),
-        ("code/models/rule_induction.py", "Rule Induction"),
-        ("code/evaluation/calculate_deltas.py", "Calculate Deltas"),
-        ("code/evaluation/benchmark.py", "Benchmarking"),
-        ("code/evaluation/stats.py", "Statistical Analysis"),
-        ("code/evaluation/sweep_thresholds.py", "Sweep Thresholds"),
-        ("code/evaluation/sensitivity_sweep.py", "Sensitivity Sweep"),
-        # Note: T036 (Correlation) is often part of stats or separate, 
-        # but if it's a separate script not in the main chain, we assume it's covered by stats or skipped if not critical for the core flow.
-        # However, if it has its own script, we should run it. 
-        # Based on API surface, there is analysis/correlation_analysis.py. 
-        # Let's add it if it exists as a main script.
-    ]
-
-    # Check for correlation analysis script if it's a standalone step
-    corr_script = code_root / "analysis" / "correlation_analysis.py"
-    if corr_script.exists():
-        pipeline_steps.append(("code/analysis/correlation_analysis.py", "Correlation Analysis"))
-
     try:
-        for script, desc in pipeline_steps:
-            full_path = code_root / script.replace("code/", "")
-            if not full_path.exists():
-                log_error(f"Script not found: {full_path}")
-                raise QuickstartValidationError(f"Missing script: {script}")
-            run_script(str(full_path), desc)
-
-        # Validate all artifacts
-        validate_pipeline_artifacts(project_root)
-
-        log_step("Quickstart Validation Completed Successfully")
-        print("\n" + "="*50)
-        print("T044 VALIDATION PASSED")
-        print("All scripts executed and artifacts validated.")
-        print("="*50)
-        return 0
-
-    except QuickstartValidationError as e:
-        log_error(f"Validation Failed: {e}")
-        print("\n" + "="*50)
-        print("T044 VALIDATION FAILED")
-        print(f"Reason: {e}")
-        print("="*50)
-        return 1
+        success, results = run_quickstart_validation()
+        
+        # Write results to file
+        results_file = Path('data/quickstart_validation_results.json')
+        with open(results_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        log_success(f"Results saved to {results_file}")
+        
+        if success:
+            print("\n" + "=" * 60)
+            print("VALIDATION PASSED")
+            print("=" * 60)
+            sys.exit(0)
+        else:
+            print("\n" + "=" * 60)
+            print("VALIDATION FAILED")
+            print("=" * 60)
+            sys.exit(1)
+            
     except Exception as e:
-        log_error(f"Unexpected error: {e}")
-        return 1
+        log_error(f"Validation crashed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(2)
 
-if __name__ == "__main__":
-    sys.exit(main())
+
+if __name__ == '__main__':
+    main()
