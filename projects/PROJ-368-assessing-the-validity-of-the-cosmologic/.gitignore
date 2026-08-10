@@ -1,32 +1,6 @@
-# Data files (raw, processed, simulations, reports)
 data/
-
-# Python cache
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-
-# Logs
 *.log
-logs/
-
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS files
 .DS_Store
-Thumbs.db
-
-# Environment variables
 .env
-
-# Build artifacts
-dist/
-build/
-*.egg-info/

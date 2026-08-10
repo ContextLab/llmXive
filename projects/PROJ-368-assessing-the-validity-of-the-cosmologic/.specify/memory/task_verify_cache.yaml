@@ -6,13 +6,6 @@ T001:
     to compare against. Without the actual `plan.md` artifact, we cannot confirm that
     the implementation matches the specification. The missing `plan.md` (or its relevant
     sections) must be supplied and checked for the explicit statements.
-T005:
-  c: true
-  h: b7ba081b12233bb0c9446a29fd55e62277205a91d447e56833c32bf8b568d86c
-  r: "The provided `code/pyproject.toml` exists, is non\u2011empty, and lists all\
-    \ required dependencies with exact version numbers (e.g., `healpy==1.16.5`, `numpy==1.26.4`).\
-    \ This satisfies the requirement for pinned, reproducible dependencies without\
-    \ needing a separate lockfile."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

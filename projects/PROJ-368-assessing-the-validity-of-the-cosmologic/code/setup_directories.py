@@ -1,55 +1,67 @@
+"""
+Module to create the required project directory structure.
+Implements T004: Create all project directories.
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_directories():
+def create_directories(base_path: Path = None) -> None:
     """
-    Create the project directory structure as defined in T004.
+    Creates the required project directory structure.
     
-    Required directories:
-    - code/
-    - tests/
+    Directories created:
     - data/raw
     - data/processed
     - data/simulations
     - data/reports
-    - docs/
+    - code (if not already present)
+    - tests (if not already present)
     
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Args:
+        base_path: Base path for the project. Defaults to current working directory.
     """
-    project_root = Path(__file__).resolve().parent.parent
+    if base_path is None:
+        base_path = Path.cwd()
     
+    # Define the directory structure relative to base_path
     directories = [
-        "code",
-        "tests",
         "data/raw",
         "data/processed",
         "data/simulations",
         "data/reports",
-        "docs"
+        "code",
+        "tests"
     ]
     
-    created = []
-    failed = []
+    created_count = 0
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
     
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
-        except Exception as e:
-            failed.append((dir_name, str(e)))
-            print(f"Failed to create directory {dir_name}: {e}", file=sys.stderr)
+    print(f"\nDirectory creation complete. {created_count} new directories created.")
     
-    if failed:
-        print(f"\nSummary: {len(created)} directories created, {len(failed)} failed.", file=sys.stderr)
-        return False
-    
-    print(f"\nSuccessfully created {len(created)} directories.")
-    return True
+    # Verification step: list the structure
+    print("\nVerification: Current directory structure:")
+    print("-" * 40)
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        if full_path.exists():
+            print(f"[OK] {full_path}")
+        else:
+            print(f"[MISSING] {full_path}")
+    print("-" * 40)
+
+def main():
+    """Main entry point for directory creation."""
+    print("Starting project directory setup (Task T004)...")
+    create_directories()
+    print("Setup complete.")
 
 if __name__ == "__main__":
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    main()

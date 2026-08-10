@@ -4,32 +4,35 @@ from pathlib import Path
 # Project root
 PROJECT_ROOT = Path(__file__).parent.parent
 
-# Directories
+# Directory paths
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 DATA_SIMULATIONS_DIR = PROJECT_ROOT / "data" / "simulations"
 DATA_REPORTS_DIR = PROJECT_ROOT / "data" / "reports"
-DOCS_DIR = PROJECT_ROOT / "docs"
-FIGURES_DIR = PROJECT_ROOT / "figures"
+CODE_DIR = PROJECT_ROOT / "code"
+TESTS_DIR = PROJECT_ROOT / "tests"
 
 # Ensure directories exist
 def ensure_directories():
-    """Create all necessary data directories if they don't exist."""
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_SIMULATIONS_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    DOCS_DIR.mkdir(parents=True, exist_ok=True)
-    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    """Create all required directories if they don't exist."""
+    dirs = [
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        DATA_SIMULATIONS_DIR,
+        DATA_REPORTS_DIR,
+        CODE_DIR,
+        TESTS_DIR
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return dirs
 
-# Configuration constants
-RANDOM_SEED = 42
+# Constants
 NSIDE_HIGH = 2048
 NSIDE_LOW = 128
-N_SIMULATIONS = 1000
-L_MIN = 2
-L_MAX = 128
-MASK_RETENTION_THRESHOLD = 0.95  # Minimum sky fraction required for mask validation
+MASK_RETENTION_THRESHOLD = 0.95
+SIMULATION_COUNT = 1000
+RANDOM_SEED = 42
 
 # Filename constants
 # Data files
@@ -44,17 +47,14 @@ MASK_VALIDATION_FILENAME = "mask_validation_report.json"
 FULL_SKY_CL_FILENAME = "full_sky_cl.npy"
 HEMISPHERE_CL_FILENAME = "hemisphere_cl.npy"
 NULL_DISTRIBUTION_FILENAME = "null_distribution.npy"
-
-# Reports
+POWER_VALIDATION_FILENAME = "power_validation.json"
 FINAL_RESULTS_FILENAME = "final_results.json"
 SENSITIVITY_REPORT_FILENAME = "sensitivity_report.json"
-POWER_VALIDATION_FILENAME = "power_validation.json"
-SPEC_ALIGNMENT_LOG_FILENAME = "spec_alignment_log.txt"
 
-# Simulations
-SIMULATION_PREFIX = "simulation_"
-SIMULATION_EXTENSION = ".fits"
+# Planck data URLs
+PLANCK_URL_BASE = "https://pla.esa.int/ftp/pla/pla/products/CMB/SMICA"
+COMMANDER_MASK_URL = "https://pla.esa.int/ftp/pla/pla/products/Masks/COM_Mask_R3.011_CMB.fits"
+COMMANDER_MASK_FILENAME = "COM_Mask_R3.011_CMB.fits"
 
-# URLs for Planck data (ESA Archive)
-PLANCK_SMICA_URL = "https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_CMB_ILU_SMICA_R3.011_Nside2048_Fullsky.fits"
-PLANCK_MASK_URL = "https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_Mask_R3.011_CMB.fits"
+# Thresholds for sensitivity analysis
+THRESHOLD_VALUES = [0.01, 0.05, 0.1, 0.2]

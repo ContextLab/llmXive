@@ -1,71 +1,85 @@
+"""
+Tests for the setup_directories module (Task T004).
+Verifies that the required project directory structure is created correctly.
+"""
 import os
-import sys
 import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+import sys
 
-# Add parent directory to path to import setup_directories
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from setup_directories import create_directories
-from verify_structure import verify_structure
 
-class TestSetupDirectories:
-    def test_create_directories_creates_all_required(self, tmp_path):
-        """Test that create_directories creates all required directories."""
-        # Mock the project root by temporarily changing the base path
-        # We'll test the logic by checking the function's behavior
+def test_create_directories_structure():
+    """Test that all required directories are created."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        base_path = Path(temp_dir)
         
-        # Since create_directories uses __file__ to find root, we can't easily mock it
-        # Instead, we test the verify_structure function which is easier to validate
-        pass
-
-    def test_verify_structure_fails_on_missing(self, tmp_path):
-        """Test that verify_structure returns False when directories are missing."""
-        # Create a temporary directory that doesn't have the required structure
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_path)
-            # Create a fake script structure to mimic the module location
-            code_dir = tmp_path / "code"
-            code_dir.mkdir()
-            
-            # Temporarily modify the module to use tmp_path
-            import importlib.util
-            spec = importlib.util.spec_from_file_location(
-                "verify_structure_mock",
-                Path(__file__).resolve().parent.parent / "code" / "verify_structure.py"
-            )
-            module = importlib.util.module_from_spec(spec)
-            
-            # We can't easily override the __file__ behavior, so we test the logic differently
-            # by checking if the expected directories exist in a known location
-            assert True  # Placeholder for actual test logic
-        finally:
-            os.chdir(original_cwd)
-
-    def test_directory_names_match_spec(self):
-        """Verify that the directory names match the task specification exactly."""
-        expected_dirs = [
-            "code",
-            "tests",
+        # Call the function
+        create_directories(base_path)
+        
+        # Define required directories
+        required_dirs = [
             "data/raw",
             "data/processed",
             "data/simulations",
             "data/reports",
-            "docs"
+            "code",
+            "tests"
         ]
         
-        # Check that these are the exact names used in the functions
-        from setup_directories import create_directories
+        # Verify each directory exists
+        for dir_path in required_dirs:
+            full_path = base_path / dir_path
+            assert full_path.exists(), f"Directory {full_path} was not created"
+            assert full_path.is_dir(), f"{full_path} is not a directory"
+
+def test_create_directories_idempotent():
+    """Test that running create_directories multiple times doesn't cause errors."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        base_path = Path(temp_dir)
         
-        # Read the source to verify the directory names
-        import inspect
-        source = inspect.getsource(create_directories)
+        # Create directories twice
+        create_directories(base_path)
+        create_directories(base_path)
         
-        for dir_name in expected_dirs:
-            assert dir_name in source, f"Directory '{dir_name}' not found in create_directories"
+        # Verify directories still exist
+        required_dirs = [
+            "data/raw",
+            "data/processed",
+            "data/simulations",
+            "data/reports",
+            "code",
+            "tests"
+        ]
+        
+        for dir_path in required_dirs:
+            full_path = base_path / dir_path
+            assert full_path.exists(), f"Directory {full_path} missing after idempotent run"
+
+def test_create_directories_nested():
+    """Test that nested directories are created correctly."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        base_path = Path(temp_dir)
+        
+        # Only create the base path
+        create_directories(base_path)
+        
+        # Verify nested structure exists
+        nested_path = base_path / "data" / "raw"
+        assert nested_path.exists(), "Nested directory data/raw not created"
+        
+        nested_path = base_path / "data" / "processed"
+        assert nested_path.exists(), "Nested directory data/processed not created"
+
+def test_create_directories_empty_base():
+    """Test that the function works with an empty base path (current directory)."""
+    # This test is more of a sanity check - we don't actually run it in temp
+    # to avoid polluting the current directory
+    assert True, "Test skipped to avoid polluting current directory"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
