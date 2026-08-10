@@ -316,3 +316,250 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T23:21:00Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project with specific pinned dependencies
+  claim_id: c_5b8f77e3
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: datasets==2.14.0, pandas==2.0.3, scipy==1.11.0,
+    pytest==7.4.0, requests==2.31.0, pyyaml==6.0.1, psutil==5.9.5.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T15:54:43Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Configure max-line-length to 88 for flake8 and black
+  claim_id: c_27f1a703
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Configure linting and formatting: Create .flake8 with max-line-length=88
+    and pyproject.toml with [tool.black] line-length = 88.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:55:15Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Enforce resource constraints: CPU <= 2, RAM <= 7GB, Time <= 6h'
+  claim_id: c_c1839d7a
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T007'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:55:15Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Log CPU and RAM metrics every 5 seconds
+  claim_id: c_ed51f133
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T006'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute psutil hook to log cpu_percent and ram_percent every 5 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:55:39Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Download and verify at least 500 code snippets from HumanEval, CodeXGLUE,
+    and BigCode
+  claim_id: c_98ac96b1
+  context: 'Phase 3: User Story 1 - Data Ingestion & Validation (Priority: P1) - Goal'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_and_verify_at_least_500_code_snippets_from_HumanEva
+  kind: magnitude
+  raw_text: "Download and verify \u2265500 code snippets from HumanEval, CodeXGLUE,\
+    \ and BigCode (TheStack) across Python, JS, and Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:56:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch HumanEval containing at least 100 records
+  claim_id: c_7395a72b
+  context: 'Phase 3: User Story 1 - Data Ingestion & Validation - Task T011'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_HumanEval_containing_at_least_100_records
+  kind: magnitude
+  raw_text: "Fetch HumanEval (Python) from openai/human-eval to data/raw/humaneval.json\
+    \ containing \u2265100 records with keys prompt and test."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:56:22Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch additional samples from TheStack if total records are less than
+    500
+  claim_id: c_6618ba92
+  context: 'Phase 3: User Story 1 - Data Ingestion & Validation - Task T012'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fetch_additional_samples_from_TheStack_if_total_records_are
+  kind: magnitude
+  raw_text: "If total records from HumanEval + CodeXGLUE < 500, fetch additional samples\
+    \ from bigcode/the-stack until total \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:56:43Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Stratify data with at least 30 per language and 500 total
+  claim_id: c_6a736fb8
+  context: 'Phase 3: User Story 1 - Data Ingestion & Validation - Task T014'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratify_data_with_at_least_30_per_language_and_500_total
+  kind: magnitude
+  raw_text: "Count \u2265 30 per language stratum (Python, JS, Java) AND total count\
+    \ \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:57:06Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Configure static analysis retry logic with 3 retries, 2s initial delay,
+    2.0 multiplier
+  claim_id: c_e831e585
+  context: 'Phase 4: User Story 2 - Analysis Pipeline Execution - Task T018'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry static analysis with Max 3 retries, initial delay 2s, multiplier
+    2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:57:30Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Mark snippets as untestable_dynamic if no test exists
+  claim_id: c_1a331b90
+  context: 'Phase 4: User Story 2 - Analysis Pipeline Execution - Task T020'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mark_snippets_as_untestable_dynamic_if_no_test_exists
+  kind: entity_fact
+  raw_text: Mark snippets as untestable_dynamic if no test exists.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:57:59Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Set dynamic execution timeout to 30 minutes per snippet
+  claim_id: c_e31ed0aa
+  context: 'Phase 5: User Story 3 - Results Aggregation & Statistical Reporting -
+    Task T027'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement timeout handling for dynamic execution: Max 30 minutes per
+    snippet.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:58:19Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Execute statistical tests for alpha values 0.01, 0.05, and 0.1
+  claim_id: c_12bd0f44
+  context: 'Phase 5: User Story 3 - Results Aggregation & Statistical Reporting -
+    Task T029'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:58:44Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Precision/Recall/F1 are invalid for static analysis due to lack of security
+    ground truth
+  claim_id: c_ef888b71
+  context: Notes - Statistical Validity
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Precision/Recall/F1_are_invalid_for_static_analysis_due_to_l
+  kind: entity_fact
+  raw_text: No Precision/Recall/F1 for static analysis due to lack of security ground
+    truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:59:13Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: McNemar's test is invalid due to distinct constructs; use Spearman/Chi-squared
+  claim_id: c_a2759bf9
+  context: Notes - Statistical Validity
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_is_invalid_due_to_distinct_constructs;_use_Sp
+  kind: entity_fact
+  raw_text: No McNemar's test due to distinct constructs; use Spearman/Chi-squared
+    instead.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:59:44Z'

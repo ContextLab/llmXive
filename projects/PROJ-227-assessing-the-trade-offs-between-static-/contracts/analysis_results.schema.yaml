@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Aggregated results combining static and dynamic analysis outcomes.
+type: object
+required:
+  snippet_id
+  static_analysis_status
+  dynamic_analysis_status
+  correlation_data
+properties:
+  snippet_id:
+    type: string
+  static_analysis_status:
+    type: object
+    properties:
+      passed:
+        type: boolean
+      issue_count:
+        type: integer
+      detection_rate:
+        type: number
+        format: float
+  dynamic_analysis_status:
+    type: object
+    properties:
+      passed:
+        type: boolean
+      test_coverage:
+        type: number
+        format: float
+      pass_rate:
+        type: number
+        format: float
+  correlation_data:
+    type: object
+    properties:
+      static_issue_density:
+        type: number
+      dynamic_pass_fail:
+        type: integer
+        enum: [0, 1]

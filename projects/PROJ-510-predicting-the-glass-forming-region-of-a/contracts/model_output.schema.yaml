@@ -1,127 +1,143 @@
-# Model Output Schema Definitions
-# This file defines the JSON/YAML structures for model evaluation outputs.
-# Used by code/train.py and code/analyze.py to validate generated artifacts.
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schemas
+description: >
+  Schema definitions for model training outputs and sensitivity analysis reports
+  used in the Glass Forming Region Prediction pipeline.
 
-ModelMetrics:
-  description: "Aggregated metrics from model training and cross-validation"
-  type: object
-  required:
-    - model_type
-    - random_state
-    - n_folds
-    - fold_scores
-    - mean_rmse
-    - std_rmse
-    - test_rmse
-    - test_r2
-    - timestamp
-  properties:
-    model_type:
-      type: string
-      description: "Name of the model algorithm (e.g., 'RandomForestRegressor')"
-    random_state:
-      type: integer
-      description: "Random seed used for reproducibility"
-    n_folds:
-      type: integer
-      description: "Number of cross-validation folds"
-    fold_scores:
-      type: array
-      items:
-        type: number
-      description: "RMSE scores for each cross-validation fold"
-    mean_rmse:
-      type: number
-      description: "Mean RMSE across all cross-validation folds"
-    std_rmse:
-      type: number
-      description: "Standard deviation of RMSE across folds"
-    test_rmse:
-      type: number
-      description: "RMSE on the held-out test set"
-    test_r2:
-      type: number
-      description: "R-squared coefficient on the held-out test set"
-    null_model_rmse:
-      type: number
-      description: "RMSE of the null model (DummyRegressor mean strategy)"
-    p_value:
-      type: number
-      description: "P-value from t-test comparing RF model vs null model"
-    is_significant:
-      type: boolean
-      description: "True if p-value < 0.05"
-    timestamp:
-      type: string
-      format: date-time
-      description: "ISO 8601 timestamp of when metrics were generated"
-    feature_names:
-      type: array
-      items:
+definitions:
+  ModelMetrics:
+    description: >
+      Aggregated metrics from the Random Forest regression training and
+      cross-validation process.
+    type: object
+    required:
+      - model_type
+      - random_state
+      - fold_scores
+      - mean_rmse
+      - fold_variance
+      - test_rmse
+      - test_r2
+      - n_samples_train
+      - n_samples_test
+      - feature_names
+    properties:
+      model_type:
         type: string
-      description: "List of feature names used in the model"
-
-SensitivityReport:
-  description: "Performance metrics across different critical cooling rate thresholds"
-  type: object
-  required:
-    - model_type
-    - thresholds
-    - results
-    - timestamp
-  properties:
-    model_type:
-      type: string
-      description: "Name of the model algorithm"
-    thresholds:
-      type: array
-      items:
+        const: "RandomForestRegressor"
+        description: The type of model trained.
+      random_state:
         type: integer
-      description: "List of critical cooling rate thresholds (K/s) evaluated"
-    results:
-      type: array
-      items:
-        type: object
-        required:
-          - threshold
-          - metric_type
-          - value
-          - variance_check
-        properties:
-          threshold:
-            type: integer
-            description: "The critical cooling rate threshold (K/s)"
-          metric_type:
-            type: string
-            enum:
-              - RMSE
-              - F1
-            description: "Type of metric calculated (RMSE for continuous, F1 for binarized)"
-          value:
-            type: number
-            description: "The calculated metric value"
-          variance_check:
-            type: object
-            required:
-              - passed
-              - threshold_variance
-            properties:
-              passed:
-                type: boolean
-                description: "True if variance across relevant samples is < 10%"
-              threshold_variance:
-                type: number
-                description: "The calculated variance percentage"
-          sample_size:
-            type: integer
-            description: "Number of samples used for this threshold calculation"
-    timestamp:
-      type: string
-      format: date-time
-      description: "ISO 8601 timestamp of when the report was generated"
-    stability_verified:
-      type: boolean
-      description: "True if the model stability test (RMSE difference < 5%) passed"
-    collinearity_flagged:
-      type: boolean
-      description: "True if any feature pairs had correlation > 0.8"
+        const: 42
+        description: The random seed used for reproducibility.
+      fold_scores:
+        type: array
+        items:
+          type: number
+        minItems: 5
+        maxItems: 5
+        description: RMSE scores for each of the 5 cross-validation folds.
+      mean_rmse:
+        type: number
+        description: The mean of the 5-fold cross-validation RMSE scores.
+      fold_variance:
+        type: number
+        description: Variance of the 5-fold cross-validation scores.
+      test_rmse:
+        type: number
+        description: Root Mean Squared Error on the held-out test set.
+      test_r2:
+        type: number
+        description: R-squared coefficient of determination on the test set.
+      n_samples_train:
+        type: integer
+        description: Number of samples in the training set.
+      n_samples_test:
+        type: integer
+        description: Number of samples in the test set.
+      feature_names:
+        type: array
+        items:
+          type: string
+        description: List of feature names used for training.
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the metrics were generated.
+
+  SensitivityReport:
+    description: >
+      Report containing sensitivity analysis results across different
+      critical cooling rate thresholds.
+    type: object
+    required:
+      - thresholds
+      - metrics
+      - analysis_type
+      - random_state
+    properties:
+      thresholds:
+        type: array
+        items:
+          type: integer
+        description: List of critical cooling rate thresholds analyzed (e.g., [50, 100, 150]).
+      analysis_type:
+        type: string
+        enum:
+          - regression
+          - classification
+        description: >
+          Type of analysis performed. 'classification' for thresholds < 100 K/s,
+          'regression' for thresholds >= 100 K/s.
+      metrics:
+        type: array
+        items:
+          type: object
+          required:
+            - threshold
+            - metric_type
+            - value
+            - variance_check
+          properties:
+            threshold:
+              type: integer
+              description: The specific threshold value (K/s).
+            metric_type:
+              type: string
+              enum:
+                - F1
+                - RMSE
+              description: The metric calculated (F1 for classification, RMSE for regression).
+            value:
+              type: number
+              description: The calculated metric value.
+            variance_check:
+              type: object
+              required:
+                - passed
+                - threshold_variance_limit
+              properties:
+                passed:
+                  type: boolean
+                  description: Whether the variance across the metric was within acceptable limits (< 10%).
+                threshold_variance_limit:
+                  type: number
+                  const: 0.10
+                  description: The maximum allowed variance ratio (10%).
+      random_state:
+        type: integer
+        const: 42
+        description: The random seed used for permutation/sensitivity analysis.
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the report was generated.
+
+# Main schema definitions for validation
+ModelMetricsSchema:
+  $ref: "#/definitions/ModelMetrics"
+
+SensitivityReportSchema:
+  $ref: "#/definitions/SensitivityReport"

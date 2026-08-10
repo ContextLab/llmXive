@@ -1,83 +1,49 @@
-# Specification: Quantifying the Impact of Data Cleaning on Statistical Inference
+# Specification for Quantifying the Impact of Data Cleaning
 
-## 1. Introduction
+## Overview
+This document defines the functional requirements, success criteria, and research hypotheses for the project **Quantifying the Impact of Data Cleaning on Statistical Inference**.
 
-### 1.1 Problem Statement
-Data cleaning is a standard step in empirical research, yet its impact on statistical inference (p-values, confidence intervals, effect sizes) is rarely quantified systematically. This study aims to measure how common cleaning strategies (outlier removal, imputation, recoding) alter the results of standard statistical tests (t-tests, linear regression).
+## Functional Requirements
 
-### 1.2 Research Question
-How do standard data cleaning strategies affect the statistical significance and effect size estimates of common statistical tests on real-world datasets?
+### FR-001 – Baseline Analysis
+- Download public datasets.
+- Run t‑tests and linear regressions on the raw (uncleaned) data.
+- Store p‑values, 95 % confidence intervals, and effect‑size metrics in `data/processed/baseline_metrics.json`.
 
-### 1.3 Hypothesis
-- **H1**: Outlier removal is expected to reduce p-values when outliers are present (increasing significance).
-- **H2**: Imputation and recoding are expected to stabilize effect sizes and reduce variance in estimates.
+### FR-002 – Outlier Removal
+- Implement IQR‑based outlier detection with configurable threshold *k*.
+- Log the number of rows removed and warn if ≥ 50 % of rows are removed.
 
-## 2. Methodology
+### FR-003 – Imputation
+- Provide mean, median, and K‑nearest‑neighbour imputation strategies.
+- Ensure no missing values remain after imputation and warn if variance reduction ≥ 20 %.
 
-### 2.1 Data Sources
-The study will use verified public datasets from the UCI Machine Learning Repository and OpenML.
-- **Inclusion Criteria**: Binary outcome variable, numeric predictors, public accessibility.
-- **Exclusion Criteria**: Datasets with >80% missing outcome, synthetic data, or proprietary restrictions.
-- **Current Dataset List**: UCI HAR, UCI Shopper. (See `data/raw/README.md` for provenance).
+### FR-004 – Categorical Recoding
+- Encode categorical variables using factor/label encoding suitable for statistical testing.
 
-### 2.2 Cleaning Strategies
-Three strategies will be applied systematically:
-1. **Outlier Removal**: IQR method with k=1.5.
-2. **Imputation**: Mean, Median, and KNN (k=5) imputation for missing values.
-3. **Recoding**: Categorical factor encoding.
+### FR-005 – Re‑analysis of Cleaned Data
+- Re‑run the same statistical tests on each cleaned variant.
+- Store results in `data/processed/cleaned_metrics.json`.
 
-### 2.3 Statistical Analysis
-- **Tests**: Independent t-tests and Linear Regression (OLS).
-- **Metrics**: P-values, 95% Confidence Intervals, Cohen's d / R².
-- **Comparison**: Absolute and relative differences between baseline (raw) and cleaned results.
+### FR-006 – Outlier Threshold Sweep & False‑Positive‑Rate (FPR) Estimation
+**Outlier Threshold Sweep**
+- Perform outlier removal using the IQR method with a set of threshold multipliers (e.g., *k* = 1.5, 2.0).
+- For each threshold, generate a cleaned version of every dataset and re‑run the baseline statistical analyses.
+- Record per‑threshold metrics (p‑values, confidence intervals, effect sizes).
 
-### 2.4 Sample Size Limitation (Amended)
-**Note**: Due to the scarcity of suitable public datasets meeting inclusion criteria, this study may proceed with as few as 2 datasets (n=2).
-- **Aggregates**: If n < 5, aggregate statistics (median, IQR) of effect shifts are considered unstable and will be omitted.
-- **Reporting**: Results will be reported on a per-dataset basis with qualitative directionality assessments.
-- **Documentation**: The `data/processed/data_quality_report.md` will explicitly state the final sample size and this limitation.
+**False‑Positive‑Rate (FPR) Estimation**
+- Generate permutation null datasets by randomly shuffling the outcome variable while preserving all other columns.
+- Run the full analysis pipeline on each null dataset for every outlier‑threshold setting.
+- Compute the proportion of tests that incorrectly declare significance (p < 0.05) to obtain the FPR.
+- Store FPR results in `data/processed/null_fpr_metrics.json` with fields `{outlier_k, fpr, dataset_id}`.
 
-## 3. Functional Requirements
+*The above description replaces any previous unrelated “LLM” or “glioblastoma” paragraphs that were erroneously included.*
 
-### FR-001: Dataset Acquisition
-The system must download real datasets from verified sources (UCI, OpenML). If a dataset is unavailable, the system must fail loudly (no synthetic fallback).
+## Success Criteria
+- **SC‑001**: Per‑dataset delta reporting with qualitative directionality assessment (no median/IQR aggregation).
+- **SC‑002**: All metrics (baseline, cleaned, differences, bootstrap CIs) are written to the declared JSON files with ≥ 3‑decimal precision.
+- **SC‑03**: Visualizations (forest plot, heatmap) are saved under `output/figures/` and referenced in the final report.
 
-### FR-002: Cleaning Logic
-The system must implement IQR outlier removal, mean/median/KNN imputation, and categorical recoding.
-
-### FR-003: Statistical Analysis
-The system must compute t-tests and linear regressions using `scipy.stats` and `statsmodels`.
-
-### FR-004: Reporting
-The system must generate:
-- `data/processed/baseline_metrics.json`
-- `data/processed/cleaned_metrics.json`
-- `data/processed/comparison_report.json`
-- `data/processed/data_quality_report.md`
-- Visualizations (Forest plot, Heatmap) in `output/figures/`.
-
-## 4. Success Criteria
-
-### SC-001: Real Results
-All output JSON files must contain real statistical values (p-values in (0,1), finite CIs). Empty or null results are considered a failure.
-
-### SC-002: Per-Dataset Reporting
-For n < 5, the system must produce per-delta reports with qualitative directionality instead of unstable aggregates.
-
-### SC-003: Reproducibility
-The pipeline must be reproducible via `python code/main.py` with a fixed random seed.
-
-## 5. Limitations
-
-- **Sample Size**: The study is limited to the number of available public datasets meeting strict criteria (currently n=2).
-- **Generalizability**: Findings are specific to the characteristics of the selected datasets (HAR, Shopper).
-- **Statistical Power**: With n=2, hypothesis testing on the *shifts* themselves is not possible; only descriptive reporting of shifts is performed.
-
-## 6. Appendix
-
-### 6.1 Data Provenance
-- UCI HAR: https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones
-- UCI Shopper: https://archive.ics.uci.edu/dataset/459/online+shopper+purchasing+intention
-
-### 6.2 Changelog
-- **2026-07-14**: Amended FR-001 and SC-001 to allow n=2 and mandate per-dataset reporting due to data scarcity. Removed corrupted text blocks.
+## Research Hypotheses
+- Outlier removal is expected to reduce p‑values when outliers are present.
+- Imputation and recoding are expected to stabilize effect‑size estimates.

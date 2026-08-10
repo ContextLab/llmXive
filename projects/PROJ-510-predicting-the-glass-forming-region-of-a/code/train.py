@@ -1,141 +1,196 @@
-"""
-Model Training: Train Random Forest and evaluate.
-"""
 import logging
 import sys
 import os
 import json
-from typing import Dict, Any
-
+from typing import Dict, Any, Tuple
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor, DummyRegressor
-from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.dummy import DummyRegressor
-import joblib
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import mean_squared_error
+import pickle
 
-if __name__ == "__main__":
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from code.utils import logger, RANDOM_STATE, ensure_dir
-from code.features import OUTPUT_PATH_PROCESSED
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-MODEL_PATH = "data/models/random_forest_model.pkl"
-METRICS_PATH = "data/models/model_metrics.json"
-INPUT_PATH = OUTPUT_PATH_PROCESSED
-
-def load_data() -> pd.DataFrame:
-    if not os.path.exists(INPUT_PATH):
-        raise FileNotFoundError(f"Data not found at {INPUT_PATH}")
-    return pd.read_csv(INPUT_PATH)
-
-def train_model(df: pd.DataFrame) -> tuple:
+def load_data(data_path: str = "data/processed/processed_alloys.csv") -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
     """
-    Train Random Forest with 5-fold CV and evaluate.
+    Load processed alloy data, split into features and target.
+    Returns X, y, and the full dataframe for reference.
     """
-    features = ['mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
-    target = 'critical_cooling_rate'
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Processed data file not found: {data_path}")
     
-    X = df[features].fillna(0)
-    y = df[target].fillna(0)
+    df = pd.read_csv(data_path)
     
-    # Split
+    # Define target and features based on previous tasks (T012-T016)
+    target_col = "critical_cooling_rate"
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in dataset.")
+    
+    feature_cols = [
+        "mixing_enthalpy", 
+        "atomic_size_mismatch", 
+        "electronegativity_variance"
+    ]
+    
+    # Validate features exist
+    missing_cols = [col for col in feature_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required feature columns: {missing_cols}")
+    
+    X = df[feature_cols].values
+    y = df[target_col].values
+    
+    logger.info(f"Loaded {len(df)} samples. Features: {feature_cols}, Target: {target_col}")
+    return X, y, df
+
+def train_model(X: np.ndarray, y: np.ndarray, random_state: int = 42) -> Tuple[Any, Dict[str, float]]:
+    """
+    Train a Random Forest regressor with 5-fold cross-validation.
+    Returns the trained model and a dictionary of metrics.
+    """
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_STATE
+        X, y, test_size=0.2, random_state=random_state
     )
     
-    # Train RF
     rf = RandomForestRegressor(
         n_estimators=100, 
-        random_state=RANDOM_STATE, 
+        random_state=random_state, 
         n_jobs=-1
     )
     
-    # Cross Validation
-    cv_scores = cross_val_score(rf, X_train, y_train, cv=5, scoring='neg_root_mean_squared_error')
-    cv_rmse = -cv_scores
-    mean_cv_rmse = np.mean(cv_rmse)
+    # Cross-validation
+    cv_scores = cross_val_score(rf, X_train, y_train, cv=5, scoring='neg_mean_squared_error')
+    cv_rmse = np.sqrt(-cv_scores)
+    mean_rmse = np.mean(cv_rmse)
+    fold_variance = np.var(cv_rmse)
     
-    # Fit on full train
+    # Train final model
     rf.fit(X_train, y_train)
     
-    # Test Evaluation
+    # Test evaluation
     y_pred = rf.predict(X_test)
     test_rmse = np.sqrt(mean_squared_error(y_test, y_pred))
     
-    return rf, {
-        'fold_scores': cv_rmse.tolist(),
-        'mean_cv_rmse': float(mean_cv_rmse),
-        'test_rmse': float(test_rmse),
-        'n_test_samples': len(y_test)
+    metrics = {
+        "mean_rmse": float(mean_rmse),
+        "fold_variance": float(fold_variance),
+        "test_rmse": float(test_rmse),
+        "fold_scores": cv_rmse.tolist()
     }
-
-def generate_null_distribution(X_train: pd.DataFrame, y_train: pd.Series) -> Dict[str, Any]:
-    """
-    Generate null model distribution using DummyRegressor (mean strategy).
-    """
-    logger.info("Generating null model distribution (1000 bootstrap samples)...")
-    rng = np.random.default_rng(RANDOM_STATE)
-    null_scores = []
     
-    n_bootstraps = 1000
-    # Subsample for speed if dataset is huge, but spec says 1000 samples
-    for i in range(n_bootstraps):
-        # Bootstrap sample
-        indices = rng.choice(len(y_train), size=len(y_train), replace=True)
-        X_boot = X_train.iloc[indices]
-        y_boot = y_train.iloc[indices]
+    logger.info(f"Training complete. CV Mean RMSE: {mean_rmse:.4f}, Test RMSE: {test_rmse:.4f}")
+    return rf, metrics
+
+def generate_null_distribution(
+    X: np.ndarray, 
+    y: np.ndarray, 
+    n_bootstrap: int = 1000, 
+    random_state: int = 42
+) -> Dict[str, Any]:
+    """
+    Generate a null model distribution using a DummyRegressor (mean strategy).
+    Performs n_bootstrap bootstrap samples, trains a dummy model on each,
+    and records the RMSE distribution.
+    
+    Returns a dictionary containing the distribution statistics and raw values.
+    """
+    logger.info(f"Generating null model distribution with {n_bootstrap} bootstrap samples...")
+    
+    rng = np.random.RandomState(random_state)
+    rmse_values = []
+    
+    n_samples = len(y)
+    
+    for i in range(n_bootstrap):
+        # Bootstrap sampling (sample with replacement)
+        indices = rng.choice(n_samples, size=n_samples, replace=True)
+        X_boot = X[indices]
+        y_boot = y[indices]
         
+        # Train Dummy Regressor (mean strategy)
         dummy = DummyRegressor(strategy='mean')
         dummy.fit(X_boot, y_boot)
         
-        # Evaluate on a hold-out or same set? Spec implies distribution of RMSE.
-        # Usually compare to test set, but for null distribution of the metric itself:
-        # We can evaluate on the same boot sample or a fixed test set.
-        # Let's evaluate on a fixed random split of the original train for consistency?
-        # Or simply RMSE on the boot sample itself (in-sample error).
-        # Spec says "record the RMSE distribution".
+        # Predict on the SAME bootstrap sample (to estimate expected error under null)
+        # Note: In bootstrap validation, we usually evaluate on the same sample 
+        # to estimate the distribution of the estimator's performance.
+        # Alternatively, we could evaluate on out-of-bag samples, but for 
+        # a simple null distribution of the "mean" strategy, in-sample is standard.
         y_pred = dummy.predict(X_boot)
         rmse = np.sqrt(mean_squared_error(y_boot, y_pred))
-        null_scores.append(rmse)
-        
-        if (i + 1) % 100 == 0:
-            logger.info(f"  Bootstrap {i+1}/{n_bootstraps}")
+        rmse_values.append(rmse)
     
-    return {
-        'null_rmse_distribution': null_scores,
-        'mean_null_rmse': float(np.mean(null_scores)),
-        'std_null_rmse': float(np.std(null_scores))
+    rmse_values = np.array(rmse_values)
+    
+    result = {
+        "n_bootstrap": n_bootstrap,
+        "strategy": "mean",
+        "rmse_mean": float(np.mean(rmse_values)),
+        "rmse_std": float(np.std(rmse_values)),
+        "rmse_min": float(np.min(rmse_values)),
+        "rmse_max": float(np.max(rmse_values)),
+        "rmse_percentiles": {
+            "25": float(np.percentile(rmse_values, 25)),
+            "50": float(np.percentile(rmse_values, 50)),
+            "75": float(np.percentile(rmse_values, 75)),
+            "95": float(np.percentile(rmse_values, 95))
+        },
+        "raw_rmse_values": rmse_values.tolist()
     }
+    
+    logger.info(f"Null distribution generated. Mean RMSE: {result['rmse_mean']:.4f}, Std: {result['rmse_std']:.4f}")
+    return result
 
-def run_training() -> None:
-    ensure_dir("data/models")
+def run_training(
+    data_path: str = "data/processed/processed_alloys.csv",
+    model_output_dir: str = "data/models",
+    random_state: int = 42
+) -> None:
+    """
+    Main entry point for the training pipeline.
+    1. Loads data.
+    2. Trains Random Forest model.
+    3. Generates null model distribution.
+    4. Saves model and metrics.
+    """
+    # Ensure output directory exists
+    os.makedirs(model_output_dir, exist_ok=True)
     
-    df = load_data()
-    rf_model, metrics = train_model(df)
+    # Load data
+    X, y, df = load_data(data_path)
     
-    # Save Model
-    joblib.dump(rf_model, MODEL_PATH)
-    logger.info(f"Model saved to {MODEL_PATH}")
+    # Train RF model
+    rf_model, rf_metrics = train_model(X, y, random_state)
     
-    # Save Metrics
-    with open(METRICS_PATH, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Metrics saved to {METRICS_PATH}")
+    # Generate null distribution
+    null_dist = generate_null_distribution(X, y, n_bootstrap=1000, random_state=random_state)
     
-    # Null Model (Optional but required by T024a)
-    # Extract train set for null generation
-    features = ['mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
-    target = 'critical_cooling_rate'
-    X = df[features].fillna(0)
-    y = df[target].fillna(0)
-    _, X_train, _, y_train = train_test_split(X, y, test_size=0.2, random_state=RANDOM_STATE)
+    # Save RF model
+    model_path = os.path.join(model_output_dir, "random_forest_model.pkl")
+    with open(model_path, 'wb') as f:
+        pickle.dump(rf_model, f)
+    logger.info(f"Model saved to {model_path}")
     
-    null_dist = generate_null_distribution(X_train, y_train)
-    null_path = "data/models/null_model_distribution.json"
-    with open(null_path, 'w') as f:
+    # Save RF metrics
+    metrics_path = os.path.join(model_output_dir, "model_metrics.json")
+    with open(metrics_path, 'w') as f:
+        json.dump(rf_metrics, f, indent=2)
+    logger.info(f"Metrics saved to {metrics_path}")
+    
+    # Save null distribution (Task T024a specific output)
+    null_dist_path = os.path.join(model_output_dir, "null_model_distribution.json")
+    with open(null_dist_path, 'w') as f:
         json.dump(null_dist, f, indent=2)
-    logger.info(f"Null distribution saved to {null_path}")
+    logger.info(f"Null distribution saved to {null_dist_path}")
+    
+    logger.info("Training pipeline completed successfully.")
 
 if __name__ == "__main__":
     run_training()

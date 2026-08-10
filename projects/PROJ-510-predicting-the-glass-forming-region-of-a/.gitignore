@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -20,20 +23,13 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Data (keep raw, ignore processed/large binaries if desired)
+# Data (Large files)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
@@ -43,7 +39,6 @@ data/models/*
 
 # Logs
 *.log
-logs/
 
 # OS
 .DS_Store

@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Manifest Schema
+description: Schema for the manifest tracking all ingested datasets.
+type: object
+required:
+  - manifest_version
+  - generated_at
+  - entries
+properties:
+  manifest_version:
+    type: string
+    default: "1.0"
+  generated_at:
+    type: string
+    format: date-time
+  total_count:
+    type: integer
+  entries:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - language
+        - source
+        - stratum
+        - static_only
+        - file_path
+      properties:
+        id:
+          type: string
+        language:
+          type: string
+          enum: [python, javascript, java]
+        source:
+          type: string
+        stratum:
+          type: string
+          description: Stratification label (e.g., python_high_complexity).
+        static_only:
+          type: boolean
+        file_path:
+          type: string
+          description: Relative path to the raw data file.

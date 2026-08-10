@@ -111,7 +111,7 @@
 - [ ] T023 [US2] Apply Benjamini-Hochberg FDR correction (α=0.05) to the p-values **derived from the robust SEs in T022** for primary covariates
 - [ ] T024 [US2] Implement convergence fallback: if Spatial models fail, fall back to OLS but still calculate/report OLS Moran's I
 - [ ] T025 [US2] Implement weight matrix failure handling: if both Queen and KNN fail, raise `SpatialWeightMatrixError("Both Queen and KNN failed")` and log CRITICAL error to halt execution
-- [ ] T026 [US2] Save model outputs (coefficients, p-values, AIC, R², Moran's I) to `data/processed/model_results.json`
+- [X] T026 [US2] Save model outputs (coefficients, p-values, AIC, R², Moran's I) to `data/processed/model_results.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,12 +126,12 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T027 [P] [US3] Unit test for spatial block generation in `tests/unit/test_validation.py`
-- [ ] T028 [P] [US3] Integration test for permutation test logic in `tests/integration/test_validation.py`
+- [X] T028 [P] [US3] Integration test for permutation test logic in `tests/integration/test_validation.py`
 
 ### Implementation for User Story 3
 
 - [X] T029 [US3] Implement 5-fold spatial cross-validation in `code/validation.py` ensuring spatially disjoint train/test sets
-- [~] T030 [US3] Implement performance metric calculation (RMSE, R², AIC) for each fold and model type
+- [ ] T030 [US3] Implement performance metric calculation (RMSE, R², AIC) for each fold and model type
 - [ ] T031 [US3] Implement spatial block permutation test with a sufficient number of permutations to determine statistical significance of RMSE differences
 - [ ] T032 [US3] Implement logic to identify best model based on lowest AIC and significant RMSE reduction
 - [ ] T033 [US3] Implement `code/validation.py::check_success_criteria(results)` which records whether Success Criteria (SC-001 to SC-005) are met and writes results to `data/processed/sc_validation_report.json`

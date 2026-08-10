@@ -1,12 +1,27 @@
-# Data directory: Store raw and processed datasets here.
-# These files are often large and should not be committed to git.
+# Ignore large data files in raw and processed directories
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/models/*
+!data/models/.gitkeep
+data/figures/*
+!data/figures/.gitkeep
 
-# Ignore all files in the data directory
-*
+# Explicitly ignore large file types
+*.csv
+*.pkl
+*.parquet
+*.h5
+*.hdf5
+*.json
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/models/.gitkeep
+!data/figures/.gitkeep
 
-# Explicitly keep .gitignore and README files if needed
-!.gitignore
-!README.md
-
-# Re-include specific small config files if necessary (currently none)
-# !config.yaml
+# Ignore temporary files
+*.tmp
+*.temp
+*.bak
+*~

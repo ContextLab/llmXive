@@ -46,7 +46,7 @@
 - [ ] T001 [P] Create project directory structure: `projects/PROJ-227-assessing-the-trade-offs-between-static-/data/raw/`, `data/processed/`, `state/`, `code/`, `tests/`
 
 - [ ] T002 Initialize Python 3.11 project with `projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt` containing pinned dependencies: `datasets==2.14.0`, `pandas==2.0.3`, `scipy==1.11.0`, `pytest==7.4.0`, `requests==2.31.0`, `pyyaml==6.0.1`, `psutil==5.9.5`. Verify by running `pip install -r requirements.txt` and checking exit code 0.
-- [ ] T003 [P] Configure linting and formatting: Create `.flake8` with `max-line-length=88` and `pyproject.toml` with `[tool.black] line-length = 88`. Verify by running `black --check.` and `flake8.`.
+- [X] T003 [P] Configure linting and formatting: Create `.flake8` with `max-line-length=88` and `pyproject.toml` with `[tool.black] line-length = 88`. Verify by running `black --check.` and `flake8.`.
 
 ---
 
@@ -59,7 +59,7 @@
 - [ ] T004 [P] Implement configuration management: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/config.yaml` with schema: `human_eval_url` (string), `codeql_path` (string), `sonar_path` (string), `max_cpu` (int), `max_ram_gb` (int). Verify by loading as dict in Python and asserting types.
 - [ ] T005 [P] Create base data models and schema validators: Create `contracts/dataset.schema.yaml`, `contracts/analysis_log.schema.yaml`, `contracts/analysis_results.schema.yaml`, `contracts/dataset_manifest.schema.yaml`, `contracts/statistical_report.schema.yaml`, `contracts/tool_version.schema.yaml`. Verify by running `python -c "import jsonschema; jsonschema.validate(...)"` on sample data.
 - [ ] T006 [P] Setup logging infrastructure: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/data/logs/pipeline.log`. **Format**: JSON Lines (one JSON object per line). **Hook**: Implement `psutil` hook to log `cpu_percent` and `ram_percent` every 5 seconds. **Verification**: Run script, verify `pipeline.log` exists, contains valid JSON lines, and includes CPU/RAM metrics at 5s intervals.
-- [ ] T007 [P] Implement resource constraint wrapper: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/resource_guard.py` using `psutil` and `cgroups`. Enforce CPU ≤ 2, RAM ≤ 7GB, Time ≤ 6h. [UNRESOLVED-CLAIM: c_c537d771 — status=not_enough_info] Exit code 137 on violation. Verify by simulating resource exhaustion.
+- [X] T007 [P] Implement resource constraint wrapper: Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/resource_guard.py` using `psutil` and `cgroups`. Enforce CPU ≤ 2, RAM ≤ 7GB, Time ≤ 6h. Exit code 137 on violation. Verify by simulating resource exhaustion.
 - [ ] T008 [P] Create `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/hash_artifacts.py` script for versioning (Constitution V). Verify syntax only: `python -m py_compile code/hash_artifacts.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -68,9 +68,9 @@
 
 ## Phase 3: User Story 1 - Data Ingestion & Validation (Priority: P1) 🎯 MVP
 
-**Goal**: Download and verify ≥500 code snippets from HumanEval, CodeXGLUE, and BigCode (TheStack) across Python, JS, and Java. [UNRESOLVED-CLAIM: c_715c0a20 — status=not_enough_info]
+**Goal**: Download and verify ≥500 code snippets from HumanEval, CodeXGLUE, and BigCode (TheStack) across Python, JS, and Java.
 
-**Independent Test**: Execute download script and verify file checksums without running analysis tools. [UNRESOLVED-CLAIM: c_ab771112 — status=not_enough_info]
+**Independent Test**: Execute download script and verify file checksums without running analysis tools.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -84,7 +84,7 @@
 - [ ] T011 [P] [US1] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py` to fetch HumanEval (Python) from `openai/human-eval` to `data/raw/humaneval.json`. **Verify**: File exists, contains ≥100 records with keys `prompt` and `test`. Calculate checksum and record in `state/checksums.json`.
 - [ ] T012 [P] [US1] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py` to fetch CodeXGLUE (JS/Java) from `codeparrot/codeXGLUE-javascript` and `codeparrot/codeXGLUE-java` to `data/raw/`. **Logic**: If total records from HumanEval + CodeXGLUE < 500, fetch additional samples from `bigcode/the-stack` until total ≥ 500. **Verify**: Total count ≥ 500. Calculate checksums.
 - [ ] T013 [P] [US1] Implement `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/download.py` to fetch BigCode (TheStack) for static-only analysis if needed (see T012). Mark as `static_only` in manifest. **Verify**: Checksums recorded.
-- [ ] T014 [US1] Implement stratification and manifest generation: Combine all downloaded data into `data/manifest.csv` with columns `id`, `language`, `source`, `stratum`, `static_only` (bool). **Verify**: Count ≥ 30 per language stratum (Python, JS, Java) AND total count ≥ 500. [UNRESOLVED-CLAIM: c_d75f2f79 — status=not_enough_info] If total < 500, abort with error.
+- [ ] T014 [US1] Implement stratification and manifest generation: Combine all downloaded data into `data/manifest.csv` with columns `id`, `language`, `source`, `stratum`, `static_only` (bool). **Verify**: Count ≥ 30 per language stratum (Python, JS, Java) AND total count ≥ 500. If total < 500, abort with error.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

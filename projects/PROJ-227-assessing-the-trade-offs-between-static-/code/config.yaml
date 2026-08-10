@@ -1,0 +1,13 @@
+# Configuration for PROJ-227: Assessing Trade-offs Between Static and Dynamic Analysis
+# Schema:
+#   human_eval_url: string (URL to HumanEval dataset)
+#   codeql_path: string (Path to CodeQL CLI executable)
+#   sonar_path: string (Path to SonarQube scanner or config)
+#   max_cpu: int (Maximum CPU cores allowed)
+#   max_ram_gb: int (Maximum RAM in GB allowed)
+
+human_eval_url: "https://huggingface.co/datasets/openai/human-eval"
+codeql_path: "/usr/local/bin/codeql"
+sonar_path: "/opt/sonar-scanner/bin/sonar-scanner"
+max_cpu: 2
+max_ram_gb: 7

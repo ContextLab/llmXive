@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for the raw dataset containing code snippets.
+type: object
+required:
+  - id
+  - language
+  - source
+  - code
+  - test_prompt
+properties:
+  id:
+    type: string
+    description: Unique identifier for the code snippet.
+  language:
+    type: string
+    enum: [python, javascript, java]
+    description: Programming language of the code.
+  source:
+    type: string
+    description: Origin dataset (e.g., HumanEval, CodeXGLUE, TheStack).
+  code:
+    type: string
+    description: The actual code snippet content.
+  test_prompt:
+    type: string
+    description: The prompt or test cases associated with the code.
+  static_only:
+    type: boolean
+    default: false
+    description: Flag indicating if the snippet is for static-only analysis.
+  created_at:
+    type: string
+    format: date-time
+    description: Timestamp of ingestion.

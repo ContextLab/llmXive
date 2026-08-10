@@ -40,3 +40,34 @@ T028:
     disk, so no integration test for the permutation test logic is present. The task
     cannot be considered complete until this file is created with the appropriate
     test implementation.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files were provided that compute RMSE,\
+    \ R\xB2, and AIC for each cross\u2011validation fold and for each model (OLS,\
+    \ Spatial Lag, Spatial Error). Without these artifacts, we cannot confirm that\
+    \ the required performance\u2011metric calculation has been implemented. The next\
+    \ implementer must add the metric\u2011calculation implementation and supply the\
+    \ resulting files or logs."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or output files implementing a spatial block permutation
+    test are present; the claim provides only a textual description without any executable
+    artifact or results demonstrating a sufficient number of permutations and statistical
+    significance assessment of RMSE differences. The required implementation and its
+    evidence are missing.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, function, or output was provided that implements the required
+    logic to compare models and select the best one based on the lowest AIC and a
+    statistically significant reduction in RMSE. The evidence consists only of the
+    task description and user stories, without any concrete artifact.
+T033:
+  c: false
+  h: 09775f797a63622bb1bb4c501d50681639a5a2a01490b95deeeac9e9ec7b4527
+  r: The repository lacks the required `check_success_criteria` implementation in
+    `code/validation.py` (the shown code does not include such a function) and the
+    output file `data/processed/sc_validation_report.json` is missing. Both the function
+    and its JSON report need to be added for the task to be considered complete.

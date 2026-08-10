@@ -1,4 +1,2 @@
-"""
-llmXive Research Pipeline: Predicting Glass Forming Region
-"""
-__version__ = "0.1.0"
+# llmXive Project: Predicting the Glass Forming Region of Alloy Systems
+# This package contains the core research pipeline.

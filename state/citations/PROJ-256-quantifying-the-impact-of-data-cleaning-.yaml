@@ -20,29 +20,7 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
   verified_at: '2026-06-30T01:45:27.467581Z'
-- artifact_hash: cf678826d621a7132310ba53e005daf39e0951527778da143d762fdae35b841d
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: UCI Machine Learning Repository
-  kind: url
-  value: https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones
-  verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones
-  verified_at: '2026-07-29T20:14:55.397639Z'
-- artifact_hash: cf678826d621a7132310ba53e005daf39e0951527778da143d762fdae35b841d
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: UCI Machine Learning Repository
-  kind: url
-  value: https://archive.ics.uci.edu/dataset/459/online+shopper+purchasing+intention
-  verification_status: pending
-  verified_against_url: https://archive.ics.uci.edu/dataset/459/online+shopper+purchasing+intention
-  verified_at: '2026-07-29T20:14:55.397639Z'
-- artifact_hash: f383517f64102e9eba974b014e75dd828743f1a04991591e79363507c1e5a9f8
+- artifact_hash: f53249751a5b155eb0b1b8f5c28f8f60289a52463223d30e1fa5c2b688f20c0c
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +30,4 @@
   value: https://www.wikidata.org/wiki/Q136366870
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q136366870
-  verified_at: '2026-07-30T04:50:55.746517Z'
+  verified_at: '2026-08-10T15:43:01.372127Z'

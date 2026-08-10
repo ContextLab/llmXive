@@ -1,0 +1,20 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`projects/PROJ-227-assessing-the-trade-offs-between-static-/data/raw/`,
+    `data/processed/`, `state/`, `code/`, `tests/`) is provided; the implementer has
+    not shown that the project structure exists or contains any files.
+T002:
+  c: false
+  h: b2167a620f7c8be9bde067dd208de7c028c07d0bda0504613b12fc36ca7f8601
+  r: "The required file `projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt`\
+    \ does not exist, and no evidence of a successful `pip install -r requirements.txt`\
+    \ run is provided. The root\u2011level `requirements.txt` is present, but it does\
+    \ not satisfy the specified path requirement."
+T004:
+  c: false
+  h: 6a688ff0dbeada6ccc7075ebfe36d3d5efa454ba19c9963bdf979be52128a1c9
+  r: "The required file at `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/config.yaml`\
+    \ is missing, and no evidence of the Python type\u2011checking verification is\
+    \ provided. The existing `code/config.yaml` does not satisfy the specified path\
+    \ requirement."

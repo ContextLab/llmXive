@@ -110,7 +110,7 @@
 - [ ] T022 [US2] Ensure imputation parameters are fitted ONLY on training folds to prevent leakage. (Depends on T020, T021)
 - [ ] T023 [US2] Calculate and report R² and RMSE metrics in `data/results/model_metrics.json`.
 - [ ] T024 [US2] Save trained model artifact to `data/models/random_forest.pkl`. (Depends on T020 completion)
-- [ ] T025 [US2] Inject associational disclaimer ("Findings are associational due to observational data") into `data/results/model_metrics.json` and `data/results/interpretation_report.json`. Verify via `tests/test_model.py`. (Depends on T024 completion)
+- [ ] T025 [US2] Inject associational disclaimer ("Findings are associational due to observational data") into `data/results/model_metrics.json` and `data/results/interpretation_report.json`. Verify via `tests/test_model.py`. (Depends on T024 completion) <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,7 +130,7 @@
 ### Implementation for User Story 3
 
 - [X] T028 [US3] Implement permutation feature importance calculation in `code/04_interpret.py`, generating p-values. (Depends on T024 completion) <!-- FAILED: unspecified -->
-- [ ] T029 [US3] Generate SHAP value visualizations and save to `data/results/shap_summary.png`. (Depends on T024 completion)
+- [X] T029 [US3] Generate SHAP value visualizations and save to `data/results/shap_summary.png`. (Depends on T024 completion)
 - [ ] T030 [US3] Apply Benjamini-Hochberg correction to p-values from T028 (permutation test) and save corrected values to `data/results/feature_importance_pvalues.json` (FR-010).
 - [ ] T031 [US3] Implement overlap statistics calculation against known terpene synthase gene families (FR-008) using the aggregated pathway features from T016.
 - [ ] T032 [US3] Generate final JSON report in `data/results/interpretation_report.json` with disclaimers and FDR values.
@@ -144,11 +144,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T034 [P] Documentation updates in `quickstart.md` (include synthetic data generation command and full pipeline execution command) and `research.md` (update with data availability status).
+- [ ] T034 [P] Documentation updates in `quickstart.md` (include synthetic data generation command and full pipeline execution command) and `research.md` (update with data availability status).
 - [ ] T035 Run `ruff check` and `black --check` on `code/`, save output to `data/results/lint_report.txt`.
-- [~] T036 Run `memory_profiler` on the full pipeline, record peak RAM usage in `data/results/perf_metrics.json` (ensure <6GB).
-- [~] T037 [P] Additional unit tests for edge cases (missing data, <50 samples) in `tests/unit/`
-- [~] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T036 Run `memory_profiler` on the full pipeline, record peak RAM usage in `data/results/perf_metrics.json` (ensure <6GB).
+- [ ] T037 [P] Additional unit tests for edge cases (missing data, <50 samples) in `tests/unit/`
+- [ ] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 

@@ -27,12 +27,11 @@ T023:
     \ with the calculated metrics."
 T025:
   c: false
-  h: 34cb0f6d3dd190b29811dd14437c28454ec6a3263462d563c4076b0aa25ec632
+  h: 7009d5eabfd5e2d941a574c7855880dbacb658e7b940a23b01e8808f9db02ba3
   r: "Both required files `data/results/model_metrics.json` and `data/results/interpretation_report.json`\
-    \ are missing from the repository, so the disclaimer cannot have been injected\
-    \ and the verification test cannot pass. The implementer must create these JSON\
-    \ files (non\u2011empty) and ensure they contain a non\u2011empty `disclaimer`\
-    \ field with the required associational wording."
+    \ are missing, so the disclaimer cannot be present and the tests in `tests/test_model.py`\
+    \ would fail. The task\u2019s core requirement\u2014to inject the associational\
+    \ disclaimer into those JSON files\u2014is therefore not satisfied."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,3 +41,30 @@ T031:
     \ such an artifact, the task\u2019s core requirement cannot be verified. The implementer\
     \ must supply the implementation (e.g., a Python script or notebook) and its output\
     \ (statistics, tables, or visualizations) showing the overlap analysis."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `quickstart.md` containing the synthetic data generation and full
+    pipeline execution commands, nor an updated `research.md` with data availability
+    status, were provided as evidence. The required documentation artifacts are missing.
+T036:
+  c: false
+  h: 273b7a134f895487f28cefd10ccc04a160dfa614a8d804b6d555564a9856dc72
+  r: "The required `data/results/perf_metrics.json` file does not exist, so no peak\
+    \ RAM usage was recorded, and the memory profiling requirement is unmet. The implementer\
+    \ must run `memory_profiler` on the full pipeline and create the JSON file with\
+    \ the measured peak RAM (ensuring it is below 6\u202FGB)."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `tests/unit/` was provided, and there is no listing
+    or content showing additional unit tests that cover the specified edge cases (missing
+    data, datasets with fewer than 50 samples). The required test artifacts are therefore
+    missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run (e.g., execution logs, reproduced\
+    \ outputs, or a reproducibility report) is present; the implementer provided no\
+    \ artifacts demonstrating that the end\u2011to\u2011end pipeline was executed\
+    \ and validated. The required validation output is missing."

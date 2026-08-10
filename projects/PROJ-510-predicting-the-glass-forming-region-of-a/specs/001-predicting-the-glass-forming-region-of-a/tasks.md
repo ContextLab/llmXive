@@ -104,15 +104,15 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for 5-fold cross-validation split generation ensuring non-overlapping folds in `tests/test_train.py`
-- [ ] T019 [P] [US2] Integration test for model training producing valid `ModelMetrics` schema in `tests/test_train.py`
+- [X] T018 [P] [US2] Unit test for 5-fold cross-validation split generation ensuring non-overlapping folds in `tests/test_train.py`
+- [X] T019 [P] [US2] Integration test for model training producing valid `ModelMetrics` schema in `tests/test_train.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/train.py`: Load `data/processed/processed_alloys.csv`, perform 80/20 train-test split with `random_state=42`.
-- [ ] T021 [US2] Implement `code/train.py`: Train `RandomForestRegressor` and perform 5-fold cross-validation. Calculate mean RMSE and fold variance.
-- [ ] T022 [US2] Implement `code/train.py`: Evaluate on held-out test set, calculate test RMSE, and save model to `data/models/random_forest_model.pkl`.
-- [ ] T023 [US2] Implement `code/train.py`: Generate `ModelMetrics` report (CSV/JSON) containing `fold_scores`, `mean_rmse`, `test_rmse`.
+- [X] T020 [US2] Implement `code/train.py`: Load `data/processed/processed_alloys.csv`, perform 80/20 train-test split with `random_state=42`.
+- [X] T021 [US2] Implement `code/train.py`: Train `RandomForestRegressor` and perform 5-fold cross-validation. Calculate mean RMSE and fold variance.
+- [X] T022 [US2] Implement `code/train.py`: Evaluate on held-out test set, calculate test RMSE, and save model to `data/models/random_forest_model.pkl`.
+- [X] T023 [US2] Implement `code/train.py`: Generate `ModelMetrics` report (CSV/JSON) containing `fold_scores`, `mean_rmse`, `test_rmse`.
 - [ ] T024a [P] [US2] Generate null model distribution: Train a `DummyRegressor` (mean strategy) on the training set. Perform 1000 bootstrap samples, train a `DummyRegressor` on each, and record the RMSE distribution. Save distribution to `data/models/null_model_distribution.json`.
 - [ ] T024 [US2] [Depends on T024a] Compare RF RMSE against the null model distribution generated in T024a (`data/models/null_model_distribution.json`). Perform a two-sided t-test (p < 0.05) to assert statistical significance (SC-002). **MUST raise AssertionError if p >= 0.05.**
 - [ ] T025 [US2] Add explicit documentation/comment in code framing findings as ASSOCIATIONAL (FR-006).

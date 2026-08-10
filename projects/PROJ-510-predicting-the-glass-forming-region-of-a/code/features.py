@@ -4,356 +4,391 @@ import os
 from typing import List, Dict, Any, Tuple
 import numpy as np
 import pandas as pd
-
 from mendeleev import element
-from utils import get_element_properties, normalize_element_symbol, get_logger
 
-# Ensure logger is configured
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def parse_composition(composition_str: str) -> Dict[str, float]:
+def get_element_properties(symbol: str) -> Dict[str, Any]:
     """
-    Parse a composition string like 'Fe50Cr30Ni20' into a dictionary of element: fraction.
-    Supports standard chemical formula notation (Element followed by optional integer).
+    Retrieve atomic properties for a given element symbol using mendeleev.
     
     Args:
-        composition_str: String representation of the alloy composition.
+        symbol: Element symbol (e.g., 'Fe', 'Cu')
         
     Returns:
-        Dictionary mapping element symbol to atomic fraction.
-    """
-    import re
-    if pd.isna(composition_str):
-        raise ValueError("Composition string is NaN")
-    
-    composition_str = str(composition_str).strip()
-    if not composition_str:
-        raise ValueError("Composition string is empty")
-    
-    # Regex to match Element symbol (1-2 chars) followed by optional number
-    # Handles cases like Fe50, Cr30, Ni20, or just Fe, Cr, Ni (assuming equal if no number? 
-    # Usually datasets provide explicit numbers. If missing, we might need to infer, 
-    # but standard practice is explicit. We assume explicit numbers based on tasks.md context).
-    pattern = r'([A-Z][a-z]?)(\d+(?:\.\d+)?)'
-    matches = re.findall(pattern, composition_str)
-    
-    if not matches:
-        raise ValueError(f"Could not parse composition: {composition_str}")
-    
-    result = {}
-    total_parts = 0.0
-    
-    for symbol, count_str in matches:
-        # Normalize symbol to ensure consistency (e.g. 'fe' -> 'Fe')
-        norm_symbol = normalize_element_symbol(symbol)
-        count = float(count_str)
-        result[norm_symbol] = count
-        total_parts += count
-    
-    if total_parts == 0:
-        raise ValueError(f"Total composition sum is zero for: {composition_str}")
-    
-    # Normalize to fractions
-    for symbol in result:
-        result[symbol] /= total_parts
+        Dictionary containing atomic_radius, electronegativity, and atomic_mass
         
-    return result
+    Raises:
+        ValueError: If element symbol is invalid or properties are missing
+    """
+    try:
+        el = element(symbol)
+        return {
+            'atomic_radius': el.atomic_radius,
+            'electronegativity': el.electronegativity,
+            'atomic_mass': el.atomic_mass,
+            'symbol': symbol
+        }
+    except Exception as e:
+        logger.error(f"Failed to retrieve properties for element {symbol}: {e}")
+        raise ValueError(f"Invalid element symbol or missing properties: {symbol}") from e
+
+def validate_composition(composition: Dict[str, float]) -> bool:
+    """
+    Validate that a composition dictionary is well-formed.
+    
+    Args:
+        composition: Dictionary mapping element symbols to atomic fractions
+        
+    Returns:
+        True if valid, False otherwise
+    """
+    if not isinstance(composition, dict):
+        return False
+    if len(composition) == 0:
+        return False
+    total = sum(composition.values())
+    # Allow small floating point tolerance
+    if abs(total - 1.0) > 1e-6:
+        return False
+    for symbol, fraction in composition.items():
+        if not isinstance(symbol, str) or len(symbol) == 0:
+            return False
+        if not isinstance(fraction, (int, float)) or fraction < 0:
+            return False
+    return True
 
 def calculate_mixing_enthalpy(composition: Dict[str, float]) -> float:
     """
-    Calculate the mixing enthalpy (ΔH_mix) for a ternary alloy using the Miedema model
-    approximations via Mendeleev or standard mixing enthalpy values if available.
+    Calculate the mixing enthalpy for a ternary alloy.
     
-    For this implementation, we use the pairwise mixing enthalpy approach:
-    ΔH_mix = Σ Σ c_i c_j ΔH_ij (for i != j)
+    Formula: ΔH_mix = Σ Σ Ω_ij * c_i * c_j (for i != j)
+    where Ω_ij = 4 * ΔH_mix(AB) (binary mixing enthalpy)
     
-    Note: Mendeleev does not directly provide binary mixing enthalpies in a simple lookup.
-    However, the task requires using mendeleev elemental properties. 
-    A common approximation in ML for glass formers uses:
-    ΔH_mix = Σ c_i * H_fusion_i (not ideal) OR uses a pre-computed matrix.
+    For this implementation, we approximate using the Miedema model simplified:
+    ΔH_mix ≈ Σ c_i * c_j * (H_i - H_j)^2 (simplified proxy)
     
-    Since the task specifically says "using mendeleev elemental properties", and pure
-    elemental mixing enthalpy isn't a single scalar per element, we must implement a
-    heuristic or use a standard approximation often used in these pipelines if the
-    dataset doesn't provide it pre-calculated.
+    A more rigorous approach uses binary interaction parameters from literature.
+    Here we use a simplified thermodynamic proxy based on electronegativity 
+    and atomic size differences as a feature engineering step.
     
-    Alternative: The dataset 'matsci/glass-forming-ability' might already have this.
-    But if we must calculate it:
-    We will use the standard regular solution model approximation where possible,
-    or if the specific binary enthalpies are not in mendeleev, we might need to 
-    rely on a lookup table or a simplified proxy if the task implies deriving it 
-    from basic properties (which is complex).
-    
-    However, looking at the context of "thermodynamic descriptors" in glass forming:
-    Often ΔH_mix is calculated from binary interaction parameters.
-    If we cannot fetch binary parameters from mendeleev (which it doesn't have directly),
-    we must assume the task implies using a standard library function or a known approximation.
-    
-    Let's check if 'mendeleev' has mixing enthalpy. It does not have a direct .mixing_enthalpy.
-    It has 'heat_fusion', 'electronegativity', 'atomic_radius'.
-    
-    A common approximation in the absence of binary data in the library is to use:
-    ΔH_mix ≈ Σ c_i c_j (χ_i - χ_j)^2 * Ω (where Ω is a constant) - this is for electronegativity.
-    
-    BUT, the task asks for "mixing_enthalpy".
-    If the dataset 'matsci/glass-forming-ability' has a column 'mixing_enthalpy' (often named 'delta_h_mix'),
-    we should just use that.
-    However, the task says "Calculate mixing_enthalpy using mendeleev...".
-    
-    Given the constraints and the fact that Mendeleev doesn't have binary mixing enthalpies:
-    We will implement a fallback to a standard approximation if the dataset doesn't provide it,
-    OR more likely, the 'ingestion.py' step should have handled this if it was in the dataset.
-    
-    Wait, the task says: "Calculate mixing_enthalpy using mendeleev elemental properties and ternary composition weights."
-    This implies we must compute it.
-    The most standard "Mendeleev-based" mixing enthalpy approximation in glass science literature
-    (e.g., Inoue's criteria) often relies on the difference in electronegativity or atomic size.
-    However, the strict definition of ΔH_mix requires binary interaction parameters.
-    
-    Let's assume we use the **Miedema** approximation which is often implemented using:
-    ΔH_mix = Σ c_i c_j * ΔH_ij
-    Since we don't have ΔH_ij in mendeleev, we might have to use a simplified model:
-    ΔH_mix = Σ c_i c_j * (χ_i - χ_j)^2 * K (where K is a scaling factor, often ~100-200 kJ/mol per unit^2? No, that's too high).
-    
-    Actually, a common approach in these ML pipelines when binary data is missing is to use:
-    ΔH_mix = Σ c_i * H_fusion_i (This is incorrect physically).
-    
-    Let's look at the "Constitution Principle VI" mentioned in T012: "Use MatsSci-Glass for CCR values and Mendeleev for elemental properties".
-    If the dataset provides the calculated mixing enthalpy, we use that.
-    If the task forces us to calculate it, we must use a proxy.
-    
-    However, to be robust and "real", we will check if the dataframe passed to compute_features
-    already has a 'mixing_enthalpy' column (perhaps calculated in ingestion).
-    If not, we calculate it using the **electronegativity difference squared** method as a proxy
-    which is a standard "Mendeleev property" derived thermodynamic descriptor in this context
-    when binary tables are unavailable.
-    
-    Formula: ΔH_mix ≈ Ω * Σ_i Σ_j c_i c_j (χ_i - χ_j)^2
-    Where Ω is a constant. This is a simplification of the regular solution model.
-    We will use a standard scaling factor if needed, or just return the sum of weighted differences.
-    
-    Actually, many papers use the exact binary mixing enthalpy values from a specific database.
-    Since we don't have that, and the prompt forces "using mendeleev", we will calculate
-    the **electronegativity variance** (which is T015) and use the **mixing enthalpy** approximation
-    based on the difference in electronegativity and atomic size if binary data is missing.
-    
-    Let's implement the calculation based on the **Miedema** model simplified for Python without external binary tables:
-    We will use the approximation: ΔH_mix = Σ c_i c_j * (χ_i - χ_j)^2 * 100 (arbitrary scaling to get kJ/mol range).
-    This is a heuristic. 
-    
-    BETTER: The dataset `matsci/glass-forming-ability` likely contains the calculated `mixing_enthalpy` already.
-    If the task requires us to calculate it, we assume the input DataFrame does NOT have it.
-    We will implement the calculation using the **electronegativity** and **atomic radius** differences
-    as a proxy for the interaction energy, which is the only way to do it with just Mendeleev.
-    
-    However, to be safe and "correct" for a research pipeline, we will check if the column exists.
-    If it does, we return it. If not, we calculate the proxy.
-    
-    Let's assume the task wants the **exact** calculation if possible.
-    Since we cannot get exact binary enthalpies from `mendeleev` alone, we will use the
-    **Miedema** approximation:
-    ΔH_mix = Σ_i Σ_j c_i c_j * ΔH_ij
-    where ΔH_ij is approximated by:
-    ΔH_ij = 2 * v_ij * (χ_i - χ_j)^2 * P (where P is a constant ~ 100-200).
-    
-    We will use a standard constant for this approximation.
-    Reference: "Mixing enthalpy of liquid phase alloys"
-    
-    Implementation:
-    1. Get electronegativities for all elements.
-    2. Compute pairwise differences.
-    3. Sum c_i * c_j * (diff)^2 * scale_factor.
-    
-    Scale factor: ~100 kJ/mol per unit^2 is a rough estimate for transition metals.
-    We will use 100.0 as a standard scaling factor for this approximation.
+    Args:
+        composition: Dictionary of element symbols to atomic fractions
+        
+    Returns:
+        Mixing enthalpy value (proxy)
     """
-    if not composition:
-        return 0.0
+    if not validate_composition(composition):
+        raise ValueError("Invalid composition for mixing enthalpy calculation")
     
     elements = list(composition.keys())
-    fractions = list(composition.values())
+    fractions = [composition[e] for e in elements]
     
-    # Get properties
-    electronegativities = []
-    for el in elements:
-        try:
-            # Mendeleev element object
-            elem_obj = element(el)
-            electronegativities.append(elem_obj.en) # Pauling scale
-        except Exception:
-            logger.warning(f"Could not get electronegativity for {el}, using 0.0")
-            electronegativities.append(0.0)
+    if len(elements) != 3:
+        logger.warning(f"Expected ternary alloy, got {len(elements)} elements. Calculation may be approximate.")
     
-    # Calculate pairwise
+    # Get properties for all elements
+    props = {}
+    for e in elements:
+        props[e] = get_element_properties(e)
+    
+    # Calculate pairwise contributions
     mixing_enthalpy = 0.0
-    scale_factor = 100.0 # Approximate scaling factor for kJ/mol from (Pauling)^2
-    
     for i in range(len(elements)):
-        for j in range(len(elements)):
-            if i != j:
-                diff = electronegativities[i] - electronegativities[j]
-                mixing_enthalpy += fractions[i] * fractions[j] * (diff ** 2)
+        for j in range(i + 1, len(elements)):
+            e_i, e_j = elements[i], elements[j]
+            c_i, c_j = fractions[i], fractions[j]
+            
+            # Simplified Miedema-like proxy using electronegativity and radius
+            # ΔH ∝ c_i * c_j * (Δχ)^2 * (Δr/r_avg)
+            d_chi = abs(props[e_i]['electronegativity'] - props[e_j]['electronegativity'])
+            r_i, r_j = props[e_i]['atomic_radius'], props[e_j]['atomic_radius']
+            if r_i is None or r_j is None or r_i == 0 or r_j == 0:
+                continue # Skip if radius data missing
+            r_avg = (r_i + r_j) / 2.0
+            d_r = abs(r_i - r_j) / r_avg
+            
+            # Empirical scaling factor (simplified)
+            contribution = c_i * c_j * (d_chi ** 2) * d_r
+            mixing_enthalpy += contribution
     
-    return mixing_enthalpy * scale_factor
+    return mixing_enthalpy
 
 def calculate_atomic_size_mismatch(composition: Dict[str, float]) -> float:
     """
     Calculate the atomic size mismatch (δ) parameter.
-    δ = sqrt( Σ c_i (1 - r_i / r_avg)^2 ) * 100
-    where r_i is the atomic radius and r_avg = Σ c_i r_i.
+    
+    Formula: δ = √[ Σ c_i * (1 - r_i / r_avg)^2 ] * 100
+    where r_i is the atomic radius of element i, 
+    r_avg is the composition-weighted average radius.
     
     Args:
-        composition: Dictionary of element: fraction.
+        composition: Dictionary of element symbols to atomic fractions
         
     Returns:
-        Atomic size mismatch in percent.
+        Atomic size mismatch percentage
     """
-    if not composition:
-        return 0.0
+    if not validate_composition(composition):
+        raise ValueError("Invalid composition for atomic size mismatch calculation")
     
     elements = list(composition.keys())
-    fractions = list(composition.values())
+    fractions = [composition[e] for e in elements]
     
+    # Get atomic radii
     radii = []
-    for el in elements:
-        try:
-            elem_obj = element(el)
-            # Mendeleev provides atomic_radius (covalent or metallic? usually metallic for alloys)
-            # We use 'atomic_radius' which defaults to metallic for metals in many contexts
-            # or 'covalent_radius'. Let's try 'atomic_radius' first.
-            r = elem_obj.atomic_radius
-            if r is None:
-                # Fallback to covalent radius if atomic is missing
-                r = elem_obj.covalent_radius
-            radii.append(r)
-        except Exception:
-            logger.warning(f"Could not get atomic radius for {el}, using 0.0")
-            radii.append(0.0)
+    for e in elements:
+        props = get_element_properties(e)
+        if props['atomic_radius'] is None:
+            raise ValueError(f"Missing atomic radius for element {e}")
+        radii.append(props['atomic_radius'])
     
     # Calculate weighted average radius
     r_avg = sum(c * r for c, r in zip(fractions, radii))
-    
     if r_avg == 0:
-        return 0.0
+        raise ValueError("Calculated average atomic radius is zero")
     
-    # Calculate mismatch
-    mismatch_sq = 0.0
+    # Calculate δ
+    sum_sq = 0.0
     for c, r in zip(fractions, radii):
-        mismatch_sq += c * ((1 - r / r_avg) ** 2)
+        sum_sq += c * ((1 - r / r_avg) ** 2)
     
-    return np.sqrt(mismatch_sq) * 100
+    delta = np.sqrt(sum_sq) * 100.0
+    return delta
 
 def calculate_electronegativity_variance(composition: Dict[str, float]) -> float:
     """
-    Calculate the electronegativity variance.
-    Variance = Σ c_i (χ_i - χ_avg)^2
-    where χ_avg = Σ c_i χ_i.
+    Calculate the variance of electronegativity in the alloy.
+    
+    Formula: σ_χ^2 = Σ c_i * (χ_i - χ_avg)^2
     
     Args:
-        composition: Dictionary of element: fraction.
+        composition: Dictionary of element symbols to atomic fractions
         
     Returns:
-        Electronegativity variance.
+        Electronegativity variance
     """
-    if not composition:
-        return 0.0
+    if not validate_composition(composition):
+        raise ValueError("Invalid composition for electronegativity variance calculation")
     
     elements = list(composition.keys())
-    fractions = list(composition.values())
+    fractions = [composition[e] for e in elements]
     
-    electronegativities = []
-    for el in elements:
-        try:
-            elem_obj = element(el)
-            electronegativities.append(elem_obj.en)
-        except Exception:
-            logger.warning(f"Could not get electronegativity for {el}, using 0.0")
-            electronegativities.append(0.0)
+    # Get electronegativities
+    chi = []
+    for e in elements:
+        props = get_element_properties(e)
+        if props['electronegativity'] is None:
+            raise ValueError(f"Missing electronegativity for element {e}")
+        chi.append(props['electronegativity'])
     
-    # Weighted average
-    chi_avg = sum(c * chi for c, chi in zip(fractions, electronegativities))
+    # Calculate weighted average
+    chi_avg = sum(c * x for c, x in zip(fractions, chi))
     
-    variance = 0.0
-    for c, chi in zip(fractions, electronegativities):
-        variance += c * ((chi - chi_avg) ** 2)
-        
+    # Calculate variance
+    variance = sum(c * ((x - chi_avg) ** 2) for c, x in zip(fractions, chi))
     return variance
+
+def parse_composition(composition_str: str) -> Dict[str, float]:
+    """
+    Parse a composition string into a dictionary.
+    
+    Expected format: "Fe0.5Cu0.3Al0.2" or "Fe:0.5,Cu:0.3,Al:0.2"
+    Handles standard chemical notation where element symbols are followed by fractions.
+    
+    Args:
+        composition_str: String representation of composition
+        
+    Returns:
+        Dictionary mapping element symbols to atomic fractions
+    """
+    import re
+    
+    # Normalize separators
+    if ',' in composition_str:
+        parts = [p.strip() for p in composition_str.split(',')]
+        parts = [p.replace(':', '') for p in parts]
+    else:
+        # Try to parse "Fe0.5Cu0.3Al0.2" style
+        # Regex to match element symbol followed by number
+        pattern = r'([A-Z][a-z]?)(\d*\.?\d+)'
+        matches = re.findall(pattern, composition_str)
+        parts = [f"{m[0]}{m[1]}" for m in matches]
+    
+    result = {}
+    for part in parts:
+        # Extract element and fraction
+        match = re.match(r'([A-Z][a-z]?)(\d*\.?\d+)', part)
+        if not match:
+            raise ValueError(f"Could not parse composition part: {part}")
+        
+        symbol = match.group(1)
+        fraction = float(match.group(2))
+        result[symbol] = fraction
+    
+    # Normalize if sum != 1
+    total = sum(result.values())
+    if abs(total - 1.0) > 1e-9:
+        result = {k: v/total for k, v in result.items()}
+    
+    return result
 
 def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute thermodynamic features for the entire DataFrame.
+    Compute thermodynamic features for a DataFrame of alloy compositions.
     
+    Expected input columns:
+        - 'composition': String or dict representation of alloy composition
+        - 'critical_cooling_rate': Target variable (optional, but required for validation)
+        
+    Output columns added:
+        - 'mixing_enthalpy': Calculated mixing enthalpy
+        - 'atomic_size_mismatch': Calculated atomic size mismatch (δ)
+        - 'electronegativity_variance': Calculated electronegativity variance
+        
     Args:
-        df: DataFrame with 'composition' column.
+        df: Input DataFrame with composition data
         
     Returns:
-        DataFrame with added feature columns.
+        DataFrame with added feature columns
     """
-    logger.info(f"Computing features for {len(df)} rows...")
+    logger.info(f"Computing features for {len(df)} alloy records")
     
-    # Apply parsing and calculations
-    # We assume 'composition' is a string column
+    features = {
+        'mixing_enthalpy': [],
+        'atomic_size_mismatch': [],
+        'electronegativity_variance': []
+    }
     
-    # Parse compositions
-    compositions = df['composition'].apply(parse_composition)
-    
-    # Calculate features
-    mixing_enthalpies = []
-    atomic_size_mismatches = []
-    electronegativity_variances = []
-    
-    for comp in compositions:
+    errors = 0
+    for idx, row in df.iterrows():
         try:
-            mixing_enthalpies.append(calculate_mixing_enthalpy(comp))
-            atomic_size_mismatches.append(calculate_atomic_size_mismatch(comp))
-            electronegativity_variances.append(calculate_electronegativity_variance(comp))
+            comp_str = row['composition']
+            
+            # Parse composition if string
+            if isinstance(comp_str, str):
+                comp = parse_composition(comp_str)
+            elif isinstance(comp_str, dict):
+                comp = comp_str
+            else:
+                logger.warning(f"Row {idx}: Invalid composition type {type(comp_str)}, skipping")
+                errors += 1
+                features['mixing_enthalpy'].append(np.nan)
+                features['atomic_size_mismatch'].append(np.nan)
+                features['electronegativity_variance'].append(np.nan)
+                continue
+            
+            # Calculate features
+            features['mixing_enthalpy'].append(calculate_mixing_enthalpy(comp))
+            features['atomic_size_mismatch'].append(calculate_atomic_size_mismatch(comp))
+            features['electronegativity_variance'].append(calculate_electronegativity_variance(comp))
+            
         except Exception as e:
-            logger.error(f"Error calculating features for composition {comp}: {e}")
-            mixing_enthalpies.append(np.nan)
-            atomic_size_mismatches.append(np.nan)
-            electronegativity_variances.append(np.nan)
+            logger.warning(f"Row {idx}: Failed to compute features: {e}")
+            errors += 1
+            features['mixing_enthalpy'].append(np.nan)
+            features['atomic_size_mismatch'].append(np.nan)
+            features['electronegativity_variance'].append(np.nan)
     
-    df['mixing_enthalpy'] = mixing_enthalpies
-    df['atomic_size_mismatch'] = atomic_size_mismatches
-    df['electronegativity_variance'] = electronegativity_variances
+    if errors > 0:
+        logger.warning(f"Failed to compute features for {errors} rows")
     
-    logger.info("Feature computation complete.")
-    return df
+    result = df.copy()
+    result['mixing_enthalpy'] = features['mixing_enthalpy']
+    result['atomic_size_mismatch'] = features['atomic_size_mismatch']
+    result['electronegativity_variance'] = features['electronegativity_variance']
+    
+    return result
+
+def validate_features(df: pd.DataFrame, tolerance: float = 1e-6) -> bool:
+    """
+    Validate computed features for consistency and plausibility.
+    
+    Checks:
+        - No NaN in computed feature columns
+        - Values are within reasonable physical bounds
+        - Tolerance check for reproducibility if run again
+        
+    Args:
+        df: DataFrame with computed features
+        tolerance: Tolerance for floating point comparisons
+        
+    Returns:
+        True if validation passes, False otherwise
+        
+    Raises:
+        ValueError: If validation fails
+    """
+    required_cols = ['mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
+    
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+        
+        if df[col].isna().any():
+            nan_count = df[col].isna().sum()
+            raise ValueError(f"Column '{col}' contains {nan_count} NaN values")
+        
+        # Basic physical bounds check
+        if col == 'atomic_size_mismatch':
+            # δ is typically 0-20% for glass formers, but allow up to 50%
+            if (df[col] < 0).any() or (df[col] > 50).any():
+                logger.warning(f"Column '{col}' has values outside typical range [0, 50]")
+        
+        if col == 'electronegativity_variance':
+            # Variance should be non-negative
+            if (df[col] < 0).any():
+                raise ValueError(f"Column '{col}' contains negative values")
+    
+    logger.info("Feature validation passed")
+    return True
 
 def run_features():
     """
-    Main entry point for running feature engineering.
-    Loads processed data, computes features, and saves the result.
+    Main entry point for feature engineering pipeline.
+    
+    Loads raw/processed data from ingestion, computes features, validates,
+    and saves to data/processed/processed_alloys.csv.
     """
-    logger.info("Starting feature engineering pipeline...")
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    # Determine input path
-    input_path = "data/processed/processed_alloys.csv"
+    input_path = 'data/processed/ingested_alloys.csv'
+    output_path = 'data/processed/processed_alloys.csv'
+    
     if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
+        # Try alternative path if standard path not found
+        alt_path = 'data/processed/processed_alloys_raw.csv'
+        if os.path.exists(alt_path):
+            input_path = alt_path
+        else:
+            # Check if we need to run ingestion first
+            logger.error(f"Input file not found: {input_path}. Please run ingestion first.")
+            sys.exit(1)
     
-    # Load data
+    logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
     
-    # Check for required column
-    if 'composition' not in df.columns:
-        logger.error("Column 'composition' not found in input data.")
-        sys.exit(1)
+    logger.info(f"Loaded {len(df)} records")
     
     # Compute features
-    df = compute_features(df)
+    df_processed = compute_features(df)
     
-    # Validate features (basic check for NaNs in target columns if they exist)
-    # The task requires saving to data/processed/processed_alloys.csv
-    # We overwrite or update the file.
+    # Validate features
+    try:
+        validate_features(df_processed, tolerance=1e-6)
+    except ValueError as e:
+        logger.error(f"Feature validation failed: {e}")
+        sys.exit(1)
     
-    output_path = "data/processed/processed_alloys.csv"
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved processed data with features to {output_path}")
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    return df
+    # Save processed data
+    df_processed.to_csv(output_path, index=False)
+    logger.info(f"Saved processed data to {output_path}")
+    
+    # Log summary
+    logger.info(f"Processed {len(df_processed)} records with features: "
+                f"mixing_enthalpy, atomic_size_mismatch, electronegativity_variance")
 
 if __name__ == "__main__":
     run_features()

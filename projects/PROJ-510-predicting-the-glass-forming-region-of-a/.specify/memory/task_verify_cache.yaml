@@ -23,3 +23,25 @@ T008:
     \ raises an explicit error when the `matsci/glass-forming-ability` fetch fails\
     \ (and that no synthetic fallback is used) was provided. Without such artifact,\
     \ we cannot confirm the required error\u2011handling behavior is implemented."
+T016:
+  c: false
+  h: dfd55d19591ddc3b10a89d3042c3f144c0f2b081f177086d663461deb186e2ac
+  r: The repository contains a `code/features.py` file with validation logic (e.g.,
+    `validate_composition` uses a 1e-6 tolerance), but the file does not include any
+    code that writes a processed DataFrame to `data/processed/processed_alloys.csv`,
+    and the expected CSV file is absent from the project. The required artifact (the
+    saved processed data) is missing, so the task is not fully satisfied.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided showing that a validation\
+    \ step was added to check that `critical_cooling_rate` has non\u2011zero variance\
+    \ and at least 500 entries, nor any error handling for the failure case. The required\
+    \ artifact (e.g., updated ingestion/validation module or a test confirming the\
+    \ check) is missing."
+T020:
+  c: true
+  h: de596a7a9e89bd5b95c271b80b03dc3832eb03fd32cd4b9b7ab3676121a6cbc4
+  r: "The `code/train.py` file exists, is non\u2011empty, and its `load_data` function\
+    \ loads `data/processed/processed_alloys.csv` and the `train_model` function performs\
+    \ an 80/20 `train_test_split` with `random_state=42` as specified."

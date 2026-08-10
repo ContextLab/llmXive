@@ -1,74 +1,47 @@
-"""
-Tests for the directory setup script (T001).
-
-Verifies that the project structure is created correctly.
-"""
 import os
-import tempfile
-import shutil
+import pytest
 from pathlib import Path
-import sys
+from code.setup_directories import main
 
-# Add the code directory to the path so we can import the setup script logic
-# Note: In a real test run, we would import the module, but since it's a script
-# with a main() function, we'll test the logic directly or import if refactored.
-# For now, we'll test the expected structure creation logic.
+@pytest.fixture
+def project_path():
+    return Path("projects/PROJ-227-assessing-the-trade-offs-between-static-")
 
-def test_directory_structure_creation():
-    """Test that all required directories are created."""
-    # Create a temporary directory to simulate the project root
-    with tempfile.TemporaryDirectory() as temp_root:
-        project_root = Path(temp_root)
-        project_name = "PROJ-227-assessing-the-trade-offs-between-static-"
-        project_dir = project_root / "projects" / project_name
-        
-        # Define the directories that should be created
-        expected_dirs = [
-            project_dir / "data" / "raw",
-            project_dir / "data" / "processed",
-            project_dir / "state",
-            project_dir / "code",
-            project_dir / "tests",
-        ]
-        
-        # Create the directories
-        for dir_path in expected_dirs:
-            dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify all directories exist
-        for dir_path in expected_dirs:
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} is not a directory"
-        
-        # Verify the project root exists
-        assert project_dir.exists(), "Project root directory does not exist"
-        
-        # Verify the 'projects' parent exists
-        assert (project_root / "projects").exists(), "Projects parent directory does not exist"
+def test_main_creates_directories(project_path):
+    """
+    Test that main() creates the required directory structure.
+    """
+    # Ensure clean state for the test (remove if exists)
+    if project_path.exists():
+        import shutil
+        shutil.rmtree(project_path)
+    
+    # Run the setup
+    exit_code = main()
+    
+    assert exit_code == 0, "main() should return 0 on success"
+    assert project_path.exists(), "Project root directory should exist"
 
-def test_directory_structure_idempotent():
-    """Test that creating directories multiple times doesn't cause errors."""
-    with tempfile.TemporaryDirectory() as temp_root:
-        project_root = Path(temp_root)
-        project_name = "PROJ-227-assessing-the-trade-offs-between-static-"
-        project_dir = project_root / "projects" / project_name
-        
-        expected_dirs = [
-            project_dir / "data" / "raw",
-            project_dir / "data" / "processed",
-            project_dir / "state",
-            project_dir / "code",
-            project_dir / "tests",
-        ]
-        
-        # Create directories first time
-        for dir_path in expected_dirs:
-            dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Create directories second time (should not raise)
-        for dir_path in expected_dirs:
-            dir_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify still exists
-        for dir_path in expected_dirs:
-            assert dir_path.exists()
+    # Check specific subdirectories
+    required_dirs = [
+        project_path / "data" / "raw",
+        project_path / "data" / "processed",
+        project_path / "state",
+        project_path / "code",
+        project_path / "tests",
+    ]
+
+    for d in required_dirs:
+        assert d.exists(), f"Required directory {d} should exist"
+        assert d.is_dir(), f"{d} should be a directory"
+
+def test_main_idempotent(project_path):
+    """
+    Test that running main() again does not fail if directories exist.
+    """
+    # First run creates them
+    main()
+    
+    # Second run should succeed (idempotent)
+    exit_code = main()
+    assert exit_code == 0, "main() should return 0 even if directories already exist"

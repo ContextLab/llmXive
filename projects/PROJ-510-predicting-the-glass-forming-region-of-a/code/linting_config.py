@@ -1,270 +1,157 @@
 """
-Linting and formatting configuration for the Glass Forming Region project.
+Linting and formatting configuration helpers.
 
-This module provides configuration constants and helper functions for:
-- Flake8 linting rules
-- Black code formatting
-- Isort import sorting
+This module provides functions to run flake8, black, and isort checks
+and fixes on the project codebase.
 """
-
 import os
 import subprocess
 import sys
 from typing import List, Optional
 
-# Flake8 configuration
-FLAKE8_CONFIG = {
-    "max-line-length": 88,
-    "extend-ignore": ["E203", "W503"],  # Black compatibility
-    "exclude": ["venv", ".git", "__pycache__", "data"],
-    "per-file-ignores": {
-        "__init__.py": "F401",  # Allow unused imports in __init__.py
-    },
-}
-
-# Black configuration
-BLACK_CONFIG = {
-    "line-length": 88,
-    "target-version": ["py311"],
-    "include": r"\.pyi?$",
-    "exclude": r"/(\.git|\.hg|\.mypy_cache|\.tox|venv|\.venv|data)/",
-}
-
-# Isort configuration
-ISORT_CONFIG = {
-    "profile": "black",
-    "line_length": 88,
-    "skip": ["venv", ".git", "data"],
-    "known_first_party": ["utils", "features", "ingestion", "train", "analyze"],
-}
-
-def run_flake8(paths: Optional[List[str]] = None, verbose: bool = False) -> bool:
+def run_flake8(path: Optional[str] = None) -> int:
     """
-    Run flake8 linting on the specified paths or default to the code/ directory.
+    Run flake8 linting checks.
 
     Args:
-        paths: List of paths to lint. If None, defaults to ['code/'].
-        verbose: If True, print command being executed.
+        path: Optional path to check. Defaults to current directory.
 
     Returns:
-        True if linting passes, False otherwise.
+        Exit code from flake8 (0 for success, non-zero for errors).
     """
-    if paths is None:
-        paths = ["code/"]
+    target = path if path else "."
+    cmd = [sys.executable, "-m", "flake8", target]
+    print(f"Running flake8 on {target}...")
+    result = subprocess.run(cmd)
+    return result.returncode
 
-    cmd = [
-        sys.executable,
-        "-m",
-        "flake8",
-        f"--max-line-length={FLAKE8_CONFIG['max-line-length']}",
-        f"--extend-ignore={','.join(FLAKE8_CONFIG['extend-ignore'])}",
-    ]
-
-    # Add exclude patterns
-    for pattern in FLAKE8_CONFIG["exclude"]:
-        cmd.extend(["--exclude", pattern])
-
-    cmd.extend(paths)
-
-    if verbose:
-        print(f"Running: {' '.join(cmd)}")
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
-
-    if result.returncode != 0:
-        print("Flake8 found issues:")
-        print(result.stdout)
-        print(result.stderr)
-        return False
-
-    if verbose:
-        print("Flake8 passed!")
-
-    return True
-
-def run_black(paths: Optional[List[str]] = None, check_only: bool = False, verbose: bool = False) -> bool:
+def run_black(path: Optional[str] = None, check_only: bool = False) -> int:
     """
-    Run Black code formatting on the specified paths.
+    Run black formatting checks or fixes.
 
     Args:
-        paths: List of paths to format. If None, defaults to ['code/'].
-        check_only: If True, only check formatting without modifying files.
-        verbose: If True, print command being executed.
+        path: Optional path to check. Defaults to current directory.
+        check_only: If True, only check formatting (don't modify files).
 
     Returns:
-        True if formatting is correct (or passes check), False otherwise.
+        Exit code from black (0 for success, non-zero for errors).
     """
-    if paths is None:
-        paths = ["code/"]
-
-    cmd = [sys.executable, "-m", "black"]
-
+    target = path if path else "."
     if check_only:
-        cmd.append("--check")
+        cmd = [sys.executable, "-m", "black", "--check", target]
+        print(f"Checking black formatting on {target}...")
+    else:
+        cmd = [sys.executable, "-m", "black", target]
+        print(f"Running black formatter on {target}...")
+    result = subprocess.run(cmd)
+    return result.returncode
 
-    cmd.extend(["--line-length", str(BLACK_CONFIG["line-length"])])
-
-    for pattern in BLACK_CONFIG["exclude"].strip("/").split("|"):
-        cmd.extend(["--exclude", pattern])
-
-    cmd.extend(paths)
-
-    if verbose:
-        print(f"Running: {' '.join(cmd)}")
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
-
-    if result.returncode != 0:
-        if check_only:
-            print("Black formatting check failed. Run 'black code/' to fix.")
-            print(result.stdout)
-            print(result.stderr)
-        else:
-            print("Black formatting completed with warnings.")
-            print(result.stdout)
-            print(result.stderr)
-        return False
-
-    if verbose:
-        print("Black formatting passed!")
-
-    return True
-
-def run_isort(paths: Optional[List[str]] = None, check_only: bool = False, verbose: bool = False) -> bool:
+def run_isort(path: Optional[str] = None, check_only: bool = False) -> int:
     """
-    Run isort import sorting on the specified paths.
+    Run isort import sorting checks or fixes.
 
     Args:
-        paths: List of paths to sort. If None, defaults to ['code/'].
-        check_only: If True, only check sorting without modifying files.
-        verbose: If True, print command being executed.
+        path: Optional path to check. Defaults to current directory.
+        check_only: If True, only check sorting (don't modify files).
 
     Returns:
-        True if sorting is correct (or passes check), False otherwise.
+        Exit code from isort (0 for success, non-zero for errors).
     """
-    if paths is None:
-        paths = ["code/"]
-
-    cmd = [sys.executable, "-m", "isort"]
-
+    target = path if path else "."
     if check_only:
-        cmd.append("--check")
+        cmd = [sys.executable, "-m", "isort", "--check-only", target]
+        print(f"Checking isort imports on {target}...")
+    else:
+        cmd = [sys.executable, "-m", "isort", target]
+        print(f"Running isort import sorter on {target}...")
+    result = subprocess.run(cmd)
+    return result.returncode
 
-    cmd.extend(["--profile", "black"])
-    cmd.extend(["--line-length", str(ISORT_CONFIG["line_length"])])
-
-    for pattern in ISORT_CONFIG["skip"]:
-        cmd.extend(["--skip", pattern])
-
-    cmd.extend(paths)
-
-    if verbose:
-        print(f"Running: {' '.join(cmd)}")
-
-    result = subprocess.run(cmd, capture_output=True, text=True)
-
-    if result.returncode != 0:
-        if check_only:
-            print("Isort import sorting check failed. Run 'isort code/' to fix.")
-            print(result.stdout)
-            print(result.stderr)
-        else:
-            print("Isort import sorting completed with warnings.")
-            print(result.stdout)
-            print(result.stderr)
-        return False
-
-    if verbose:
-        print("Isort import sorting passed!")
-
-    return True
-
-def run_all_checks(verbose: bool = False) -> bool:
+def run_all_checks() -> bool:
     """
     Run all linting and formatting checks.
-
-    Args:
-        verbose: If True, print detailed output for each tool.
 
     Returns:
         True if all checks pass, False otherwise.
     """
-    print("Running linting and formatting checks...")
-    print("=" * 50)
+    print("=" * 60)
+    print("Running all linting and formatting checks")
+    print("=" * 60)
 
-    results = []
+    all_passed = True
 
-    print("\n1. Running Flake8...")
-    results.append(run_flake8(verbose=verbose))
-
-    print("\n2. Running Black (check only)...")
-    results.append(run_black(check_only=True, verbose=verbose))
-
-    print("\n3. Running Isort (check only)...")
-    results.append(run_isort(check_only=True, verbose=verbose))
-
-    print("\n" + "=" * 50)
-    if all(results):
-        print("All checks passed!")
-        return True
+    # Run flake8
+    if run_flake8() != 0:
+        all_passed = False
+        print("❌ flake8 checks failed")
     else:
-        print("Some checks failed. Please fix the issues above.")
-        return False
+        print("✅ flake8 checks passed")
 
-def fix_all(verbose: bool = False) -> bool:
+    # Run black check
+    if run_black(check_only=True) != 0:
+        all_passed = False
+        print("❌ black formatting checks failed")
+    else:
+        print("✅ black formatting checks passed")
+
+    # Run isort check
+    if run_isort(check_only=True) != 0:
+        all_passed = False
+        print("❌ isort import checks failed")
+    else:
+        print("✅ isort import checks passed")
+
+    if all_passed:
+        print("\n" + "=" * 60)
+        print("✅ All checks passed!")
+        print("=" * 60)
+    else:
+        print("\n" + "=" * 60)
+        print("❌ Some checks failed. Run 'python code/linting_config.py fix_all' to fix.")
+        print("=" * 60)
+
+    return all_passed
+
+def fix_all() -> bool:
     """
-    Run Black and Isort to automatically fix formatting and import issues.
-
-    Args:
-        verbose: If True, print detailed output for each tool.
+    Automatically fix all formatting and import issues.
 
     Returns:
-        True if all fixes applied successfully, False otherwise.
+        True if fixes were applied successfully, False otherwise.
     """
-    print("Running automatic fixes...")
-    print("=" * 50)
+    print("=" * 60)
+    print("Running automatic fixes for formatting and imports")
+    print("=" * 60)
 
-    results = []
+    # Fix isort
+    print("\nFixing imports with isort...")
+    isort_result = run_isort(check_only=False)
 
-    print("\n1. Running Black...")
-    results.append(run_black(verbose=verbose))
+    # Fix black
+    print("\nFixing formatting with black...")
+    black_result = run_black(check_only=False)
 
-    print("\n2. Running Isort...")
-    results.append(run_isort(verbose=verbose))
+    # Run flake8 (no auto-fix, but show remaining issues)
+    print("\nChecking remaining linting issues with flake8...")
+    flake8_result = run_flake8()
 
-    print("\n" + "=" * 50)
-    if all(results):
-        print("All fixes applied successfully!")
+    if isort_result == 0 and black_result == 0:
+        print("\n" + "=" * 60)
+        print("✅ Formatting and imports fixed successfully!")
+        print("=" * 60)
+        if flake8_result != 0:
+            print("⚠️  Some flake8 issues remain. Please fix them manually.")
         return True
     else:
-        print("Some fixes could not be applied. Please review the output above.")
+        print("\n" + "=" * 60)
+        print("❌ Some fixes failed. Please check the output above.")
+        print("=" * 60)
         return False
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run linting and formatting tools")
-    parser.add_argument(
-        "--check", action="store_true", help="Only check without fixing"
-    )
-    parser.add_argument(
-        "--fix", action="store_true", help="Automatically fix issues"
-    )
-    parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Verbose output"
-    )
-    parser.add_argument(
-        "paths", nargs="*", default=["code/"], help="Paths to check/fix"
-    )
-
-    args = parser.parse_args()
-
-    if args.fix:
-        success = fix_all(verbose=args.verbose)
-    elif args.check:
-        success = run_all_checks(verbose=args.verbose)
+    if len(sys.argv) > 1 and sys.argv[1] == "fix":
+        success = fix_all()
+        sys.exit(0 if success else 1)
     else:
-        # Default: run checks
-        success = run_all_checks(verbose=args.verbose)
-
-    sys.exit(0 if success else 1)
+        success = run_all_checks()
+        sys.exit(0 if success else 1)

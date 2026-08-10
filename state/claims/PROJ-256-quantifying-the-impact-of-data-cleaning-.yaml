@@ -1956,3 +1956,342 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-30T04:50:55Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
+  attempts: 1
+  canonical: study uses two datasets
+  claim_id: c_82efb67c
+  context: "Limitations & Notes - The study works with a small number of datasets\
+    \ (n\u202F=\u202F2). Aggregate statistics such as median and IQR are omitted due\
+    \ to instability."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study works with a small number of datasets (n\u202F=\u202F2)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:35:08Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
+  attempts: 1
+  canonical: study uses UCI HAR and UCI Online Shopper Intention datasets
+  claim_id: c_a7694326
+  context: Datasets - **UCI Human Activity Recognition (HAR)** - **UCI Online Shopper
+    Intention**
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_uses_UCI_HAR_and_UCI_Online_Shopper_Intention_datasets
+  kind: entity_fact
+  raw_text: The study uses the UCI Human Activity Recognition (HAR) dataset and the
+    UCI Online Shopper Intention dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:35:41Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns successful HTTP status and non-empty content
+    for UCI HAR URL
+  claim_id: c_d2757816
+  context: Contract test in `tests/unit/test_acquisition.py` verifies `download_dataset`
+    returns a successful HTTP status and non-empty content for UCI HAR URL.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_dataset_returns_successful_HTTP_status_and_non-empt
+  kind: entity_fact
+  raw_text: '`download_dataset` returns a successful HTTP status and non-empty content
+    for UCI HAR URL.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:36:18Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows where absolute z-score exceeds
+    k
+  claim_id: c_d92447a2
+  context: Unit test in `tests/unit/test_cleaning.py` verifies `apply_iqr_outlier_removal`
+    removes rows where |z-score| > k and logs count.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_where_absolute_z-scor
+  kind: entity_fact
+  raw_text: '`apply_iqr_outlier_removal` removes rows where |z-score| > k.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:36:39Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_145d9b55
+  context: Unit test in `tests/unit/test_cleaning.py` verifies `apply_mean_imputation`
+    results in zero missing values in target columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: '`apply_mean_imputation` results in zero missing values in target columns.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:36:42Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_categorical_recoding produces factor-encoded columns
+  claim_id: c_36d54acc
+  context: Unit test in `tests/unit/test_cleaning.py` verifies `apply_categorical_recoding`
+    produces factor-encoded columns and validates against FR-002 and FR-003 requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_categorical_recoding_produces_factor-encoded_columns
+  kind: entity_fact
+  raw_text: '`apply_categorical_recoding` produces factor-encoded columns.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:37:06Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_bcc1e14f
+  context: Integration test `tests/integration/test_baseline.py` verifies baseline
+    analysis script produces `baseline_metrics.json` with valid p-values (0 < p <
+    1) and finite CIs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline analysis script produces `baseline_metrics.json` with valid p-values
+    (0 < p < 1) and finite confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:37:26Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec_amendment.md
+  attempts: 1
+  canonical: two public datasets (UCI HAR and UCI Shopper) were reliably obtainable
+    and passed quality checks
+  claim_id: c_8297f8e2
+  context: "In the Rationale section, the amendment notes that only two well\u2011\
+    documented public datasets (UCI HAR and UCI Shopper) were reliably obtainable\
+    \ and passed all quality checks, making it infeasible to meet the original requirement\
+    \ of ten datasets."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two_public_datasets_(UCI_HAR_and_UCI_Shopper)_were_reliably
+  kind: entity_fact
+  raw_text: "Only two well\u2011documented public datasets (UCI HAR and UCI Shopper)\
+    \ were reliably obtainable and passed all quality checks."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:38:20Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns successful HTTP status and non-empty content
+    for UCI HAR dataset
+  claim_id: c_7ce68c6f
+  context: Test T009 verifies that the function `download_dataset` returns a successful
+    HTTP status and non-empty content for the UCI HAR URL.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_dataset_returns_successful_HTTP_status_and_non-empt
+  kind: entity_fact
+  raw_text: download_dataset returns a successful HTTP status and non-empty content
+    for UCI HAR URL
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:38:33Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis outputs p-values between 0 and 1 and finite confidence
+    intervals
+  claim_id: c_2e943f46
+  context: Integration test T010 checks that the baseline analysis script produces
+    `baseline_metrics.json` containing p-values in the interval (0,1) and finite confidence
+    intervals.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: baseline analysis script produces baseline_metrics.json with valid p-values
+    (0 < p < 1) and finite confidence intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:38:34Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows with absolute z-score greater
+    than k
+  claim_id: c_9eda97a5
+  context: "Function `apply_iqr_outlier_removal(df, k=1.5)` is required to log rows\
+    \ removed and remove any rows whose absolute z\u2011score exceeds the threshold\
+    \ k."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_with_absolute_z-score
+  kind: magnitude
+  raw_text: apply_iqr_outlier_removal removes rows where |z-score| > k
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:38:36Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation yields zero missing values in specified columns
+  claim_id: c_d8a1346e
+  context: Unit test T015 verifies that `apply_mean_imputation` produces zero missing
+    values in the target columns after imputation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_yields_zero_missing_values_in_specifie
+  kind: causal
+  raw_text: apply_mean_imputation results in zero missing values in target columns
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:38:38Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_knn_imputation yields zero missing values after imputation
+  claim_id: c_49de7e1d
+  context: Unit test T020 checks that `apply_knn_imputation(df, columns, k=5)` results
+    in zero missing values after the operation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_knn_imputation_yields_zero_missing_values_after_imputa
+  kind: causal
+  raw_text: "apply_knn_imputation results in zero missing values post\u2011op"
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:38:40Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with valid p-values
+    and finite confidence intervals
+  claim_id: c_a3bb78fc
+  context: In Phase 3, the baseline analysis is intended to run statistical tests
+    on raw data and output a JSON file containing p-values that lie between 0 and
+    1 and confidence intervals that are finite.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline analysis script produces `baseline_metrics.json` with valid p-values
+    (0 < p < 1) and finite confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:41:38Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows where absolute z-score exceeds
+    k
+  claim_id: c_130847f7
+  context: "Phase 4 specifies that the outlier removal function should log rows removed\
+    \ and operate on a z\u2011score threshold k."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_where_absolute_z-scor
+  kind: entity_fact
+  raw_text: '`apply_iqr_outlier_removal` removes rows where |z-score| > k.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:41:40Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_b86e6a2a
+  context: The mean imputation function is required to validate that no missing values
+    remain after imputation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: '`apply_mean_imputation` results in zero missing values in target columns.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:41:41Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_categorical_recoding produces factor-encoded columns
+  claim_id: c_e9de867f
+  context: "The categorical recoding step must convert categorical variables into\
+    \ factor\u2011encoded columns for downstream statistical testing."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_categorical_recoding_produces_factor-encoded_columns
+  kind: entity_fact
+  raw_text: '`apply_categorical_recoding` produces factor-encoded columns.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:41:43Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction is applied
+  claim_id: c_cac730f5
+  context: Task T028 implements a claim referencing Wikidata Q136366870 to ensure
+    the Benjamini-Hochberg procedure is used.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_is_applied
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg correction is applied.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T15:42:32Z'

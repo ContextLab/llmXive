@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-227-assessing-the-trade-offs-between-static"
+name = "llm-analysis-tradeoffs"
 version = "0.1.0"
 description = "Assessing the Trade-offs Between Static and Dynamic Analysis for LLM-Generated Code"
 requires-python = ">=3.11"
@@ -14,7 +14,7 @@ dependencies = [
     "pytest==7.4.0",
     "requests==2.31.0",
     "pyyaml==6.0.1",
-    "psutil==5.9.5"
+    "psutil==5.9.5",
 ]
 
 [tool.black]
@@ -23,20 +23,18 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v"
+[tool.isort]
+profile = "black"
+line_length = 88
