@@ -1,273 +1,263 @@
 """
-Download LoRA weights for ALFWorld and Search-QA benchmarks.
+Download real LoRA weights from HuggingFace datasets.
 
-Fetches real weights from HuggingFace datasets 'latent-skills/alfworld-weights'
-and 'latent-skills/searchqa-weights'. If real weights are unavailable, generates
-a documented proxy using numpy.random.normal with matching shapes.
+Fetches weights from:
+- latent-skills/alfworld-weights (path: weights/alfworld/*.npz)
+- latent-skills/searchqa-weights (path: weights/searchqa/*.npz)
+
+Outputs:
+- data/raw/alfworld_weights.npz
+- data/raw/searchqa_weights.npz
+
+Behavior:
+- In PROD mode (default): Fails loudly if real weights are unavailable.
+- In DEV mode (PROJECT_STAGE=dev): Generates deterministic mock data with seed=42.
 """
 import os
-import json
+import sys
 import logging
-import time
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
-
 import numpy as np
-from huggingface_hub import HfApi, hf_hub_download, list_repo_files
-from datasets import load_dataset
 
-from src.utils.config import get_config, get_project_root
+# Ensure parent path is in sys.path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Configure logging
+from src.validate.citation_check import verify_sources
+from src.utils.config import get_project_root, get_env_var
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DATASET_IDS = {
-    'alfworld': 'latent-skills/alfworld-weights',
-    'searchqa': 'latent-skills/searchqa-weights'
-}
+# Expected dimensions for LoRA weights
+EXPECTED_IN_FEATURES = 4096
+EXPECTED_OUT_FEATURES = 1024
 
-PROXY_OUTPUT_DIR = 'data/processed/proxy_weights'
-METADATA_FILE = 'download_metadata.json'
-
-def verify_source_existence(dataset_id: str) -> bool:
-    """Verify if the dataset exists on HuggingFace."""
-    try:
-        api = HfApi()
-        # Try to list files to verify existence
-        files = list_repo_files(dataset_id, repo_type="dataset")
-        if files:
-            logger.info(f"Dataset {dataset_id} exists and is accessible.")
-            return True
-    except Exception as e:
-        logger.warning(f"Dataset {dataset_id} not accessible: {e}")
-    return False
-
-def generate_proxy_weights(
-    dataset_id: str, 
-    output_dir: Path, 
-    expected_shapes: Dict[str, Tuple[int, int]]
-) -> Dict[str, Any]:
+def load_real_weights(dataset_id: str, sub_path: str, output_path: Path) -> bool:
     """
-    Generate proxy weights using numpy.random.normal with matching shapes.
-    
+    Attempt to load real weights from a HuggingFace dataset.
+
     Args:
-        dataset_id: The HuggingFace dataset ID
-        output_dir: Directory to save proxy weights
-        expected_shapes: Dict mapping matrix names to (rows, cols)
-        
+        dataset_id: HuggingFace dataset ID (e.g., 'latent-skills/alfworld-weights')
+        sub_path: Path within the dataset (e.g., 'weights/alfworld')
+        output_path: Destination path for the .npz file
+
     Returns:
-        Metadata dictionary about the generated proxy
+        True if real weights were successfully loaded and saved, False otherwise.
     """
-    logger.info(f"Generating proxy weights for {dataset_id}")
-    
-    proxy_data = {}
-    for matrix_name, shape in expected_shapes.items():
-        # Generate random normal data with specified shape and dtype float32
-        weight_matrix = np.random.normal(
-            loc=0.0, 
-            scale=0.02,  # Small scale typical for LoRA initialization
-            size=shape
-        ).astype(np.float32)
-        
-        # Save to file
-        matrix_path = output_dir / f"{matrix_name}.npy"
-        np.save(str(matrix_path), weight_matrix)
-        logger.debug(f"Saved proxy matrix {matrix_name} with shape {shape}")
-        
-        proxy_data[matrix_name] = {
-            'shape': list(shape),
-            'dtype': 'float32',
-            'path': str(matrix_path),
-            'is_proxy': True
-        }
-    
-    return proxy_data
-
-def download_real_weights(
-    dataset_id: str, 
-    output_dir: Path
-) -> Tuple[Dict[str, Any], bool]:
-    """
-    Download real weights from HuggingFace.
-    
-    Args:
-        dataset_id: The HuggingFace dataset ID
-        output_dir: Directory to save weights
-        
-    Returns:
-        Tuple of (metadata dict, success boolean)
-    """
-    logger.info(f"Attempting to download real weights from {dataset_id}")
-    
     try:
-        # Load the dataset
-        dataset = load_dataset(dataset_id, split="train", streaming=True)
+        logger.info(f"Attempting to fetch real weights from {dataset_id}...")
         
-        metadata = {
-            'dataset_id': dataset_id,
-            'is_proxy': False,
-            'source': 'huggingface',
-            'weights': {}
-        }
+        # Import datasets inside try to handle missing dependency gracefully
+        from datasets import load_dataset
         
-        # Process each sample in the dataset
-        count = 0
-        for sample in dataset:
-            count += 1
-            # Assuming sample contains A and B matrices
-            # This structure may need adjustment based on actual dataset format
-            if 'A' in sample and 'B' in sample:
-                matrix_name = f"adapter_{count}"
-                
-                # Convert to numpy arrays
-                A = np.array(sample['A']).astype(np.float32)
-                B = np.array(sample['B']).astype(np.float32)
-                
-                # Save matrices
-                A_path = output_dir / f"{matrix_name}_A.npy"
-                B_path = output_dir / f"{matrix_name}_B.npy"
-                np.save(str(A_path), A)
-                np.save(str(B_path), B)
-                
-                metadata['weights'][matrix_name] = {
-                    'A': {
-                        'shape': list(A.shape),
-                        'dtype': 'float32',
-                        'path': str(A_path),
-                        'is_proxy': False
-                    },
-                    'B': {
-                        'shape': list(B.shape),
-                        'dtype': 'float32',
-                        'path': str(B_path),
-                        'is_proxy': False
-                    }
-                }
+        # Load dataset in streaming mode to handle large sizes
+        ds = load_dataset(dataset_id, split="train", streaming=True)
         
-        logger.info(f"Successfully downloaded {count} real adapters from {dataset_id}")
-        return metadata, True
+        # Collect all files matching the pattern
+        weight_files = []
+        for item in ds:
+            # The dataset structure might vary; we look for keys containing the sub_path
+            if sub_path.replace('/', '_') in item:
+                weight_files.append(item[sub_path.replace('/', '_')])
+            # Fallback: check if the item itself is a dictionary of paths
+            elif isinstance(item, dict):
+                for k, v in item.items():
+                    if sub_path in str(k):
+                        weight_files.append(v)
         
-    except Exception as e:
-        logger.error(f"Failed to download real weights: {e}")
-        return {}, False
-
-def run_citation_check() -> bool:
-    """Run the citation check script to verify data sources."""
-    logger.info("Running citation check to verify data sources...")
-    try:
-        # Import and run the citation check
-        from src.validate.citation_check import check_all_sources
-        result = check_all_sources()
-        if result:
-            logger.info("Citation check passed - all sources verified")
-            return True
-        else:
-            logger.warning("Citation check failed - some sources may be invalid")
-            return False
-    except Exception as e:
-        logger.error(f"Error running citation check: {e}")
-        return False
-
-def main():
-    """Main function to download weights or generate proxies."""
-    config = get_config()
-    project_root = get_project_root()
-    
-    # Run citation check first
-    citation_ok = run_citation_check()
-    if not citation_ok:
-        logger.warning("Citation check did not pass, proceeding with caution")
-    
-    # Create output directories
-    output_base = project_root / PROXY_OUTPUT_DIR
-    output_base.mkdir(parents=True, exist_ok=True)
-    
-    all_metadata = {
-        'timestamp': time.strftime("%Y-%m-%d %H:%M:%S"),
-        'datasets': {}
-    }
-    
-    for dataset_name, dataset_id in DATASET_IDS.items():
-        logger.info(f"Processing dataset: {dataset_name} ({dataset_id})")
-        
-        # Verify source existence
-        if not verify_source_existence(dataset_id):
-            logger.warning(f"Dataset {dataset_id} not available, generating proxy")
+        if not weight_files:
+            # Try a different approach: list all files in the repo if streaming didn't yield direct paths
+            # This assumes the dataset has a specific structure we need to adapt to
+            # For now, we assume the dataset provides direct file paths or we need to download shards
+            logger.warning("No direct weight files found in streaming iteration. Attempting full load or alternative fetch.")
             
-            # Define expected shapes for proxy generation
-            # These are typical LoRA shapes - adjust based on actual dataset
-            expected_shapes = {
-                'A': (64, 32),  # Down projection
-                'B': (32, 64)   # Up projection
-            }
+            # If streaming fails to yield paths, we might need to download the repo
+            # But for this implementation, we assume the dataset provides file paths or we fetch specific files
+            # Let's try to download the dataset to disk first if streaming fails to yield paths
+            from huggingface_hub import list_repo_files, hf_hub_download
             
-            dataset_output_dir = output_base / dataset_name
-            dataset_output_dir.mkdir(parents=True, exist_ok=True)
+            files = list_repo_files(dataset_id)
+            matching_files = [f for f in files if sub_path in f and f.endswith('.npz')]
             
-            proxy_data = generate_proxy_weights(
-                dataset_id, 
-                dataset_output_dir, 
-                expected_shapes
-            )
+            if not matching_files:
+                logger.error(f"No .npz files found matching '{sub_path}' in {dataset_id}")
+                return False
             
-            all_metadata['datasets'][dataset_name] = {
-                'dataset_id': dataset_id,
-                'is_proxy': True,
-                'source': 'generated',
-                'weights': proxy_data,
-                'note': 'Real weights unavailable - proxy generated with numpy.random.normal'
-            }
-        else:
-            # Attempt to download real weights
-            dataset_output_dir = output_base / dataset_name
-            dataset_output_dir.mkdir(parents=True, exist_ok=True)
-            
-            metadata, success = download_real_weights(dataset_id, dataset_output_dir)
-            
-            if success:
-                all_metadata['datasets'][dataset_name] = metadata
-            else:
-                logger.warning(f"Failed to download real weights for {dataset_id}, generating proxy")
-                
-                # Generate proxy as fallback
-                expected_shapes = {
-                    'A': (64, 32),
-                    'B': (32, 64)
-                }
-                
-                proxy_data = generate_proxy_weights(
-                    dataset_id, 
-                    dataset_output_dir, 
-                    expected_shapes
+            # Download and merge all matching files
+            merged_data = {}
+            for file_path in matching_files:
+                logger.info(f"Downloading {file_path}...")
+                local_path = hf_hub_download(
+                    repo_id=dataset_id,
+                    filename=file_path,
+                    repo_type="dataset"
                 )
                 
-                all_metadata['datasets'][dataset_name] = {
-                    'dataset_id': dataset_id,
-                    'is_proxy': True,
-                    'source': 'generated',
-                    'weights': proxy_data,
-                    'note': 'Real weights download failed - proxy generated'
-                }
+                # Load the npz file
+                data = np.load(local_path)
+                for key in data.files:
+                    merged_data[key] = data[key]
+            
+            if not merged_data:
+                logger.error("Downloaded files contained no data.")
+                return False
+            
+            # Save merged data
+            np.savez(output_path, **merged_data)
+            logger.info(f"Successfully saved real weights to {output_path}")
+            return True
+
+        # If we have files from streaming, download them
+        merged_data = {}
+        for file_path in weight_files:
+            if isinstance(file_path, str) and file_path.endswith('.npz'):
+                logger.info(f"Downloading {file_path}...")
+                local_path = hf_hub_download(
+                    repo_id=dataset_id,
+                    filename=file_path,
+                    repo_type="dataset"
+                )
+                data = np.load(local_path)
+                for key in data.files:
+                    merged_data[key] = data[key]
+        
+        if not merged_data:
+            logger.error("No weight data extracted from dataset.")
+            return False
+
+        np.savez(output_path, **merged_data)
+        logger.info(f"Successfully saved real weights to {output_path}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to load real weights: {e}")
+        return False
+
+def generate_proxy_weights(output_path: Path, seed: int = 42) -> None:
+    """
+    Generate deterministic mock weights for development.
+
+    Args:
+        output_path: Destination path for the .npz file
+        seed: Random seed for reproducibility
+    """
+    logger.warning("PROJECT_STAGE=dev detected. Generating deterministic mock weights.")
+    logger.warning("This is NOT real data. Do not use for production results.")
     
-    # Save metadata
-    metadata_path = output_base / METADATA_FILE
-    with open(metadata_path, 'w') as f:
-        json.dump(all_metadata, f, indent=2)
+    np.random.seed(seed)
     
-    logger.info(f"Download complete. Metadata saved to {metadata_path}")
+    # Generate mock A and B matrices matching expected dimensions
+    # LoRA typically has two matrices: A (down-projection) and B (up-projection)
+    # Dimensions: A: (out_features, rank), B: (rank, in_features)
+    # But the task specifies in_features=4096, out_features=1024
+    # Assuming rank=1024 for A and B to match typical LoRA structure
+    rank = 1024
     
-    # Log summary
-    proxy_count = sum(1 for d in all_metadata['datasets'].values() if d.get('is_proxy', False))
-    real_count = len(all_metadata['datasets']) - proxy_count
-    logger.info(f"Summary: {real_count} real datasets, {proxy_count} proxy datasets")
+    A = np.random.randn(rank, rank).astype(np.float32) * 1.0
+    B = np.random.randn(rank, EXPECTED_IN_FEATURES).astype(np.float32) * 1.0
     
-    if proxy_count > 0:
-        logger.warning("Some datasets were generated as proxies. Ensure this is acceptable for your use case.")
+    # Ensure non-zero and non-NaN
+    A = np.nan_to_num(A, nan=0.0, posinf=1.0, neginf=-1.0)
+    B = np.nan_to_num(B, nan=0.0, posinf=1.0, neginf=-1.0)
+    
+    np.savez(output_path, A=A, B=B)
+    logger.info(f"Generated mock weights saved to {output_path}")
+
+def save_weights(data: Dict[str, np.ndarray], output_path: Path) -> None:
+    """
+    Save weight matrices to a .npz file.
+
+    Args:
+        data: Dictionary of numpy arrays to save
+        output_path: Destination path
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(output_path, **data)
+    logger.info(f"Saved weights to {output_path}")
+
+def process_dataset(
+    dataset_id: str,
+    sub_path: str,
+    output_filename: str,
+    stage: str
+) -> bool:
+    """
+    Process a single dataset: try to load real weights, fallback to proxy if in DEV mode.
+
+    Args:
+        dataset_id: HuggingFace dataset ID
+        sub_path: Path within the dataset
+        output_filename: Name of the output file (e.g., 'alfworld_weights.npz')
+        stage: Project stage ('prod' or 'dev')
+
+    Returns:
+        True if successful, False otherwise
+    """
+    project_root = get_project_root()
+    output_path = project_root / "data" / "raw" / output_filename
+    
+    logger.info(f"Processing {dataset_id}...")
+    
+    # Try to load real weights first
+    if load_real_weights(dataset_id, sub_path, output_path):
+        logger.info(f"Real weights successfully saved to {output_path}")
+        return True
+    
+    # If real weights failed, check project stage
+    if stage == "dev":
+        logger.warning("Real weights unavailable. Generating proxy weights in DEV mode.")
+        generate_proxy_weights(output_path)
+        return True
+    else:
+        logger.error("Real weights unavailable and PROJECT_STAGE=prod. Failing loudly.")
+        raise RuntimeError(
+            f"Failed to fetch real weights from {dataset_id} in PROD mode. "
+            "Set PROJECT_STAGE=dev to use mock data or fix the data source."
+        )
+
+def main() -> None:
+    """
+    Main entry point for downloading weights.
+    """
+    logger.info("Starting weight download process...")
+    
+    # Run citation check first
+    logger.info("Running citation check to verify data sources...")
+    try:
+        verify_sources()
+        logger.info("Citation check passed. Sources verified.")
+    except Exception as e:
+        logger.warning(f"Citation check encountered issues: {e}")
+        # Continue anyway as the task might still be able to fetch if sources are partially valid
+    
+    # Get project stage
+    project_stage = get_env_var("PROJECT_STAGE", default="prod").lower()
+    logger.info(f"Project stage: {project_stage}")
+    
+    # Process datasets
+    datasets = [
+        ("latent-skills/alfworld-weights", "weights/alfworld", "alfworld_weights.npz"),
+        ("latent-skills/searchqa-weights", "weights/searchqa", "searchqa_weights.npz"),
+    ]
+    
+    success = True
+    for dataset_id, sub_path, output_filename in datasets:
+        try:
+            if not process_dataset(dataset_id, sub_path, output_filename, project_stage):
+                success = False
+        except Exception as e:
+            logger.error(f"Failed to process {dataset_id}: {e}")
+            success = False
+    
+    if success:
+        logger.info("All weight downloads completed successfully.")
+    else:
+        logger.error("Some weight downloads failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

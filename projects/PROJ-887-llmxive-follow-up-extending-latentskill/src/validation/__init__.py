@@ -1,3 +1,4 @@
 """
-Validation module for ground truth generation and reconstruction error analysis.
+Validation module for llmXive.
+Handles ground truth generation, linearity checks, and reconstruction error analysis.
 """

@@ -1,2 +1,2 @@
-# This directory stores schema contracts for validation.
-# Defines the expected structure for data and results.
+# This directory stores contract schema definitions for validation.
+# Do not commit large binary files here.

@@ -1,7 +1,3 @@
-"""
-Script to execute T014b: Construct and save the static skill index.
-Depends on T014a (vector_db.py logic) and T013 (flatten_lora.py outputs).
-"""
 import os
 import sys
 import logging
@@ -9,80 +5,90 @@ import time
 import hashlib
 from pathlib import Path
 
-# Ensure code directory is in path
-CODE_ROOT = Path(__file__).resolve().parent.parent
-if str(CODE_ROOT) not in sys.path:
-    sys.path.insert(0, str(CODE_ROOT))
+# Add project root to path if not present
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.retrieval.vector_db import load_flattened_vectors, compute_index_structure, prepare_for_serialization, save_index
+from src.retrieval.vector_db import main as vector_db_main
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(CODE_ROOT / "logs" / "t014b_execution.log")
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def verify_file_integrity(file_path: Path) -> str:
-    """Compute SHA256 hash of the output file for integrity verification."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def verify_file_integrity(file_path: Path) -> bool:
+    """
+    Verify the existence and basic integrity of the generated index file.
+    Checks:
+    1. File exists
+    2. File size > 0
+    3. File is readable as npz (basic check)
+    """
+    if not file_path.exists():
+        logger.error(f"File does not exist: {file_path}")
+        return False
 
-def main():
-    logger.info("Starting T014b: Constructing static skill index.")
-    
-    # Define paths relative to project root (code/ is parent of scripts/)
-    project_root = CODE_ROOT.parent
-    flattened_vectors_path = project_root / "data" / "processed" / "flattened_vectors.npz"
-    output_path = project_root / "data" / "processed" / "skill_index.npz"
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if file_path.stat().st_size == 0:
+        logger.error(f"File is empty: {file_path}")
+        return False
 
     try:
-        # 1. Load flattened vectors (output from T013)
-        logger.info(f"Loading flattened vectors from {flattened_vectors_path}")
-        if not flattened_vectors_path.exists():
-            raise FileNotFoundError(f"Required input file not found: {flattened_vectors_path}. "
-                                    "Ensure T013 has been executed successfully.")
+        import numpy as np
+        # Attempt to load to verify format integrity
+        data = np.load(file_path, allow_pickle=True)
+        if 'vectors' not in data.files:
+            logger.error(f"File missing required 'vectors' key: {file_path}")
+            return False
+        if 'metadata' not in data.files:
+            logger.error(f"File missing required 'metadata' key: {file_path}")
+            return False
         
-        vectors_data = load_flattened_vectors(flattened_vectors_path)
-        logger.info(f"Loaded {len(vectors_data['vectors'])} vectors.")
-
-        # 2. Compute index structure
-        logger.info("Computing index structure...")
-        index_data = compute_index_structure(vectors_data)
+        # Compute SHA256 for versioning
+        sha256_hash = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
         
-        # 3. Prepare for serialization (add metadata, ensure types)
-        logger.info("Preparing index for serialization...")
-        serialized_data = prepare_for_serialization(index_data, source_path=flattened_vectors_path)
+        logger.info(f"Index file verified successfully: {file_path}")
+        logger.info(f"  - Size: {file_path.stat().st_size / 1024 / 1024:.2f} MB")
+        logger.info(f"  - Vector count: {len(data['vectors'])}")
+        logger.info(f"  - SHA256: {sha256_hash.hexdigest()[:16]}...")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to verify file integrity: {e}")
+        return False
 
-        # 4. Save index
-        logger.info(f"Saving index to {output_path}")
-        save_index(serialized_data, output_path)
+def main():
+    """
+    Executes the vector_db construction and verifies the output.
+    """
+    logger.info("Starting T014b: Executing vector_db construction...")
+    start_time = time.time()
 
-        # 5. Verify output
-        if not output_path.exists():
-            raise RuntimeError(f"Failed to create output file: {output_path}")
+    try:
+        # Execute the main logic from vector_db module
+        # This function is responsible for loading flattened vectors,
+        # computing the index structure, and saving to data/processed/skill_index.npz
+        vector_db_main()
         
-        file_size = output_path.stat().st_size
-        checksum = verify_file_integrity(output_path)
-        
-        logger.info(f"SUCCESS: Index created at {output_path}")
-        logger.info(f"  - File Size: {file_size / (1024*1024):.2f} MB")
-        logger.info(f"  - SHA256: {checksum}")
-        logger.info(f"  - Vectors Indexed: {serialized_data.get('metadata', {}).get('vector_count', 'N/A')}")
+        elapsed = time.time() - start_time
+        logger.info(f"Vector DB construction completed in {elapsed:.2f} seconds.")
 
-        return 0
+        # Define expected output path
+        output_path = project_root / "data" / "processed" / "skill_index.npz"
+        
+        # Verify the output
+        if verify_file_integrity(output_path):
+            logger.info("T014b: SUCCESS - Index constructed and verified.")
+            return 0
+        else:
+            logger.error("T014b: FAILED - Index verification failed.")
+            return 1
 
     except Exception as e:
-        logger.error(f"Execution failed: {str(e)}", exc_info=True)
+        logger.exception(f"T014b: FAILED with exception: {e}")
         return 1
 
 if __name__ == "__main__":

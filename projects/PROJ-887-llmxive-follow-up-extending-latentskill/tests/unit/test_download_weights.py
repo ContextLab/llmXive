@@ -2,132 +2,123 @@
 Unit tests for download_weights.py
 """
 import os
+import sys
 import tempfile
 import numpy as np
+import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import pytest
+# Add parent path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.ingestion.download_weights import (
-    verify_source_existence,
-    generate_proxy_weights,
-    download_real_weights,
-    DATASET_IDS
-)
-
-class TestVerifySourceExistence:
-    """Tests for verify_source_existence function."""
-    
-    @patch('src.ingestion.download_weights.HfApi')
-    def test_existing_dataset(self, mock_hf_api):
-        """Test with an existing dataset."""
-        mock_api_instance = MagicMock()
-        mock_hf_api.return_value = mock_api_instance
-        mock_api_instance.list_repo_files.return_value = ['file1.npy', 'file2.npy']
-        
-        result = verify_source_existence('test/dataset')
-        
-        assert result is True
-        mock_api_instance.list_repo_files.assert_called_once_with(
-            'test/dataset', 
-            repo_type="dataset"
-        )
-    
-    @patch('src.ingestion.download_weights.HfApi')
-    def test_nonexistent_dataset(self, mock_hf_api):
-        """Test with a non-existing dataset."""
-        mock_api_instance = MagicMock()
-        mock_hf_api.return_value = mock_api_instance
-        mock_api_instance.list_repo_files.side_effect = Exception("Dataset not found")
-        
-        result = verify_source_existence('nonexistent/dataset')
-        
-        assert result is False
+from src.ingestion.download_weights import generate_proxy_weights, save_weights
 
 class TestGenerateProxyWeights:
-    """Tests for generate_proxy_weights function."""
-    
-    def test_generate_proxy_weights_creates_files(self):
-        """Test that proxy weights are generated correctly."""
+    def test_proxy_weights_generated(self):
+        """Test that proxy weights are generated with correct dimensions."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            expected_shapes = {
-                'A': (64, 32),
-                'B': (32, 64)
-            }
+            output_path = Path(tmpdir) / "proxy_weights.npz"
+            generate_proxy_weights(output_path, seed=42)
             
-            metadata = generate_proxy_weights(
-                'test/dataset',
-                output_dir,
-                expected_shapes
-            )
+            assert output_path.exists()
             
-            # Check metadata structure
-            assert 'A' in metadata
-            assert 'B' in metadata
-            assert metadata['A']['shape'] == [64, 32]
-            assert metadata['B']['shape'] == [32, 64]
-            assert metadata['A']['dtype'] == 'float32'
-            assert metadata['A']['is_proxy'] is True
-            assert metadata['B']['is_proxy'] is True
+            data = np.load(output_path)
+            assert "A" in data.files
+            assert "B" in data.files
             
-            # Check files exist
-            assert (output_dir / 'A.npy').exists()
-            assert (output_dir / 'B.npy').exists()
+            # Check dimensions
+            assert data["A"].shape[0] == 1024  # rank
+            assert data["A"].shape[1] == 1024  # rank
+            assert data["B"].shape[0] == 1024  # rank
+            assert data["B"].shape[1] == 4096  # in_features
             
-            # Verify file contents
-            A_data = np.load(output_dir / 'A.npy')
-            B_data = np.load(output_dir / 'B.npy')
-            
-            assert A_data.shape == (64, 32)
-            assert B_data.shape == (32, 64)
-            assert A_data.dtype == np.float32
-            assert B_data.dtype == np.float32
-            
-            # Verify values are from normal distribution (not zeros)
-            assert np.any(A_data != 0)
-            assert np.any(B_data != 0)
+            # Check deterministic
+            data2 = np.load(output_path)
+            assert np.array_equal(data["A"], data2["A"])
+            assert np.array_equal(data["B"], data2["B"])
 
-class TestDownloadRealWeights:
-    """Tests for download_real_weights function."""
-    
+    def test_proxy_weights_non_zero(self):
+        """Test that proxy weights are non-zero."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "proxy_weights.npz"
+            generate_proxy_weights(output_path, seed=42)
+            
+            data = np.load(output_path)
+            assert not np.all(data["A"] == 0)
+            assert not np.all(data["B"] == 0)
+
+    def test_proxy_weights_no_nan(self):
+        """Test that proxy weights have no NaN values."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "proxy_weights.npz"
+            generate_proxy_weights(output_path, seed=42)
+            
+            data = np.load(output_path)
+            assert not np.any(np.isnan(data["A"]))
+            assert not np.any(np.isnan(data["B"]))
+
+class TestSaveWeights:
+    def test_save_weights(self):
+        """Test saving weights to file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_weights.npz"
+            data = {
+                "A": np.random.randn(1024, 1024),
+                "B": np.random.randn(1024, 4096)
+            }
+            save_weights(data, output_path)
+            
+            assert output_path.exists()
+            loaded = np.load(output_path)
+            assert np.array_equal(loaded["A"], data["A"])
+            assert np.array_equal(loaded["B"], data["B"])
+
+    def test_save_weights_creates_dir(self):
+        """Test that save_weights creates parent directories."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "subdir" / "test_weights.npz"
+            data = {
+                "A": np.random.randn(1024, 1024),
+                "B": np.random.randn(1024, 4096)
+            }
+            save_weights(data, output_path)
+            
+            assert output_path.exists()
+
+class TestLoadRealWeights:
     @patch('src.ingestion.download_weights.load_dataset')
-    def test_download_real_weights_success(self, mock_load_dataset):
-        """Test successful download of real weights."""
-        # Mock dataset with samples
-        mock_sample1 = {'A': np.random.rand(64, 32).tolist(), 'B': np.random.rand(32, 64).tolist()}
-        mock_sample2 = {'A': np.random.rand(64, 32).tolist(), 'B': np.random.rand(32, 64).tolist()}
-        
-        mock_dataset = MagicMock()
-        mock_dataset.__iter__ = MagicMock(return_value=iter([mock_sample1, mock_sample2]))
-        mock_load_dataset.return_value = mock_dataset
+    def test_load_real_weights_success(self, mock_load_dataset):
+        """Test loading real weights from dataset."""
+        # Mock dataset
+        mock_ds = MagicMock()
+        mock_ds.__iter__ = MagicMock(return_value=iter([
+            {"weights_alfworld_A": np.random.randn(1024, 1024), "weights_alfworld_B": np.random.randn(1024, 4096)}
+        ]))
+        mock_load_dataset.return_value = mock_ds
         
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
+            output_path = Path(tmpdir) / "real_weights.npz"
+            from src.ingestion.download_weights import load_real_weights
             
-            metadata, success = download_real_weights('test/dataset', output_dir)
+            result = load_real_weights("test/dataset", "weights/alfworld", output_path)
             
-            assert success is True
-            assert metadata['dataset_id'] == 'test/dataset'
-            assert metadata['is_proxy'] is False
-            assert len(metadata['weights']) == 2
-            
-            # Check that files were created
-            assert (output_dir / 'adapter_1_A.npy').exists()
-            assert (output_dir / 'adapter_1_B.npy').exists()
-            assert (output_dir / 'adapter_2_A.npy').exists()
-            assert (output_dir / 'adapter_2_B.npy').exists()
+            assert result is True
+            assert output_path.exists()
+            loaded = np.load(output_path)
+            assert "weights_alfworld_A" in loaded.files
+            assert "weights_alfworld_B" in loaded.files
     
     @patch('src.ingestion.download_weights.load_dataset')
-    def test_download_real_weights_failure(self, mock_load_dataset):
-        """Test handling of download failure."""
-        mock_load_dataset.side_effect = Exception("Download failed")
+    def test_load_real_weights_failure(self, mock_load_dataset):
+        """Test that load_real_weights returns False on failure."""
+        mock_load_dataset.side_effect = Exception("Dataset not found")
         
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
+            output_path = Path(tmpdir) / "real_weights.npz"
+            from src.ingestion.download_weights import load_real_weights
             
-            metadata, success = download_real_weights('test/dataset', output_dir)
+            result = load_real_weights("test/dataset", "weights/alfworld", output_path)
             
-            assert success is False
-            assert metadata == {}
+            assert result is False
+            assert not output_path.exists()

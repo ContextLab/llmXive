@@ -1216,3 +1216,162 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T00:13:45Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Download TinyLlama 1.1B Chat v1.0 and quantize to q4_0 GGUF format
+  claim_id: c_4adc70e1
+  context: Task T026a in Phase 5 specifies downloading the base LLM and quantizing
+    it for inference within the 7GB RAM limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download and convert the base LLM to GGUF format, using llama.cpp to download
+    'TinyLlama/TinyLlama-1.1B-Chat-v1.0' and quantize to 'q4_0', saving to 'data/models/tinyllama-1.1b-q4_0.gguf'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:53:53Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Enforce 6.5 GB file size limit for TinyLlama GGUF model
+  claim_id: c_ab3a99d0
+  context: Task T026a includes a constraint to validate the file size of the downloaded
+    model against a 6.5 GB threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure file size fits within 7GB RAM limit during inference and fail loudly
+    if it exceeds 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:54:31Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Execute 5 or more independent runs per task for success probability calculation
+  claim_id: c_a5419338
+  context: Task T027 in Phase 5 mandates running at least 5 independent trials per
+    task to ensure statistical stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute N >= 5 independent runs per task to record binary outcomes and
+    calculate the mean to establish a stable success probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:54:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Run sensitivity analysis with k values of 1, 3, 5, and 10
+  claim_id: c_92d01c2d
+  context: Task T031 requires implementing sensitivity analysis logic for specific
+    k values as defined in SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis for k in {1, 3, 5, 10} and report specific
+    performance degradation thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:56:37Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Calculate Pearson correlation with 0.6 validity threshold for linearity
+    check
+  claim_id: c_905dab8d
+  context: Task T030 specifies calculating the correlation between text and weight
+    spaces and flagging validity based on a 0.6 threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Pearson correlation between text-space and weight-space distances
+    and output a validity flag (True if >= 0.6, False otherwise).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:57:37Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Flag reconstruction error exceeding 0.05
+  claim_id: c_0a5725a5
+  context: Task T022d requires calculating cosine distance and flagging results that
+    exceed the 0.05 threshold defined in SC-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if the reconstruction error (cosine distance) exceeds 0.05 and record
+    this flag.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:58:01Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Fetch LoRA weights from latent-skills/alfworld-weights and latent-skills/searchqa-weights
+    datasets
+  claim_id: c_9beb7f68
+  context: Task T012 specifies the exact HuggingFace dataset names and file paths
+    for retrieving real LoRA weights.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_LoRA_weights_from_latent-skills/alfworld-weights_and_l
+  kind: entity_fact
+  raw_text: 'Fetch real LoRA weights from the HuggingFace dataset ''latent-skills/alfworld-weights''
+    (path: weights/alfworld/*.npz) and ''latent-skills/searchqa-weights'' (path: weights/searchqa/*.npz).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:58:26Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Verify LoRA weight dimensions are 4096 input features and 1024 output
+    features
+  claim_id: c_1ce78447
+  context: Task T012 requires validating that downloaded real weights have specific
+    dimensions of 4096 and 1024.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify shapes match in_features=4096, out_features=1024 if real data is
+    found.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:58:56Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Generate mock dataset with seed 42 if real weights unavailable in DEV
+    mode
+  claim_id: c_21234b8c
+  context: Task T012 outlines a fallback mechanism for development mode using a fixed
+    seed of 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a deterministic mock dataset using a fixed random seed (e.g.,
+    np.random.seed(42)) if real weights are unavailable in 'DEV' mode.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T08:59:13Z'

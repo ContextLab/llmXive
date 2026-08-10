@@ -13,7 +13,7 @@ This project implements a CPU-only retrieval and interpolation mechanism to repl
 **Primary Dependencies**: `torch` (CPU only), `numpy`, `scikit-learn`, `sentence-transformers` (all-MiniLM-L6-v2), `transformers` (quantized base model), `pandas`, `scipy` (statistical tests), `llama-cpp-python` (CPU-optimized inference).  
 **Storage**: Local filesystem (`data/` for raw weights, `artifacts/` for vector indices and synthesized adapters).  
 **Testing**: `pytest` (unit tests for vector math, integration tests for retrieval pipeline).  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, 7 GB RAM, No GPU).  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, 7 GB RAM, No GPU).  
 **Project Type**: Research/Computational Experiment  
 **Performance Goals**: Skill selection latency < 1s; Total job runtime < 6h; Memory footprint < 6.5 GB (leaving GB headroom).  
 **Constraints**: No GPU/CUDA; **Primary Quantization**: `llama-cpp-python` (GGUF format); `bitsandbytes` explicitly excluded for CPU inference due to CUDA dependency and memory overhead. Strict adherence to FR-006 (Benjamini-Hochberg correction).  
@@ -33,7 +33,7 @@ This project implements a CPU-only retrieval and interpolation mechanism to repl
 | **IV. Single Source of Truth** | **Compliant** | Success metrics trace to `data/` results and `code/` execution logs. |
 | **V. Versioning Discipline** | **Compliant** | **Protocol**: The `Advancement-Evaluator` agent updates `state/projects/...yaml` with content hashes for every artifact change. The `src/utils/versioning.py` script computes SHA256 hashes and updates the state file automatically upon artifact write. |
 | **VI. Parameter-Space Linearity** | **Compliant** | Plan explicitly includes FR-007 (Spearman correlation) and FR-005 (Permutation tests) to validate linearity. |
-| **VII. Edge-Deployment Latency** | **Compliant** | Plan mandates benchmarking on the 2-core CPU runner (SC-003). |
+| **VII. Edge-Deployment Latency** | **Compliant** | Plan mandates benchmarking on the -core CPU runner (SC-003). |
 
 ## Project Structure
 

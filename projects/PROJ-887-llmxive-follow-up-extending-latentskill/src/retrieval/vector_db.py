@@ -1,235 +1,314 @@
 """
-Vector Database construction for LatentSkill vectors.
+Vector Database Module for LatentSkill Indexing.
 
-This module implements FR-001: Construct and save the static index
-to data/processed/skill_index.npz from flattened LoRA weights.
+Implements FR-001: Load flattened vectors from T013, compute the index structure,
+and prepare data for serialization.
 """
 import os
-import json
+import sys
+import logging
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
-
+from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
-import torch
 
-# Import from sibling modules as per project structure
-from ..utils.config import get_project_root, get_data_path, ensure_dir
-from ..ingestion.flatten_lora import load_flattened_lora
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+FLATTENED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+OUTPUT_INDEX_PATH = PROJECT_ROOT / "data" / "processed" / "skill_index.npz"
 
 
-class SkillVectorDB:
+def load_flattened_vectors(input_dir: Optional[Path] = None) -> Tuple[Dict[str, np.ndarray], Dict[str, Any]]:
     """
-    A CPU-compatible static index for skill vectors.
-
-    Stores flattened, normalized LoRA weight vectors and their metadata.
-    Uses numpy for zero-dependency CPU storage.
-    """
-
-    def __init__(self, index_path: Optional[Path] = None):
-        """
-        Initialize the SkillVectorDB.
-
-        Args:
-            index_path: Path to the .npz index file. Defaults to
-                       data/processed/skill_index.npz
-        """
-        self.project_root = get_project_root()
-        if index_path is None:
-            self.index_path = get_data_path("processed", "skill_index.npz")
-        else:
-            self.index_path = Path(index_path)
-
-        self.vectors: Optional[np.ndarray] = None
-        self.metadata: Optional[List[Dict[str, Any]]] = None
-        self.index_map: Optional[np.ndarray] = None  # Maps index -> metadata_id
-
-    def load(self) -> "SkillVectorDB":
-        """
-        Load the index from disk if it exists.
-
-        Returns:
-            self for chaining.
-
-        Raises:
-            FileNotFoundError: If the index file does not exist.
-        """
-        if not self.index_path.exists():
-            raise FileNotFoundError(f"Skill index not found at {self.index_path}")
-
-        data = np.load(self.index_path, allow_pickle=True)
-        self.vectors = data["vectors"]
-        self.metadata = data["metadata"].tolist()
-        self.index_map = data["index_map"]
-        return self
-
-    def save(self, vectors: np.ndarray, metadata: List[Dict[str, Any]]) -> None:
-        """
-        Save the vectors and metadata to the static index file.
-
-        Args:
-            vectors: Numpy array of shape (N, D) containing flattened skill vectors.
-            metadata: List of dicts containing metadata for each vector.
-        """
-        ensure_dir(self.index_path.parent)
-
-        # Create index map (0 to N-1)
-        index_map = np.arange(len(metadata))
-
-        # Save as compressed npz
-        np.savez_compressed(
-            self.index_path,
-            vectors=vectors,
-            metadata=np.array(metadata, dtype=object),
-            index_map=index_map
-        )
-
-        print(f"✓ Saved skill index to {self.index_path}")
-        print(f"  - Vectors shape: {vectors.shape}")
-        print(f"  - Total entries: {len(metadata)}")
-
-    def query(self, query_vector: np.ndarray, k: int = 5) -> Tuple[np.ndarray, List[Dict]]:
-        """
-        Perform approximate nearest neighbor search (using brute force for CPU).
-
-        Args:
-            query_vector: The query vector (1D array).
-            k: Number of nearest neighbors to return.
-
-        Returns:
-            Tuple of (similarity_scores, metadata_list)
-        """
-        if self.vectors is None:
-            raise RuntimeError("Index not loaded. Call load() first.")
-
-        # Normalize query vector
-        query_norm = query_vector / (np.linalg.norm(query_vector) + 1e-8)
-
-        # Compute cosine similarities
-        similarities = np.dot(self.vectors, query_norm)
-
-        # Get top-k indices
-        top_k_indices = np.argsort(similarities)[::-1][:k]
-
-        return similarities[top_k_indices], [self.metadata[i] for i in top_k_indices]
-
-
-def construct_skill_index(
-    source_dir: Optional[Path] = None,
-    output_path: Optional[Path] = None,
-    verbose: bool = True
-) -> SkillVectorDB:
-    """
-    Construct the static skill index from flattened LoRA weights.
-
-    This function:
-    1. Loads flattened vectors from the ingestion pipeline (T013 output).
-    2. Aggregates them into a single matrix.
-    3. Saves the static index to data/processed/skill_index.npz.
-
+    Load flattened vectors from the processed directory.
+    
+    Expects .npz files containing 'A' and 'B' matrices that have been flattened
+    and normalized by T013 (flatten_lora.py).
+    
     Args:
-        source_dir: Directory containing flattened .npz files from T013.
-                   Defaults to data/processed/flat_lora_vectors/
-        output_path: Path to save the index. Defaults to data/processed/skill_index.npz
-        verbose: Whether to print progress logs.
-
+        input_dir: Directory containing flattened vector files. Defaults to data/processed/.
+        
     Returns:
-        Constructed SkillVectorDB instance.
+        Tuple of (vectors_dict, metadata_dict):
+            - vectors_dict: {task_id: flattened_vector}
+            - metadata_dict: {task_id: {original_shape, normalization_factor, ...}}
     """
+    if input_dir is None:
+        input_dir = FLATTENED_DATA_DIR
+        
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory not found: {input_dir}")
+    
+    vectors = {}
+    metadata = {}
+    
+    logger.info(f"Loading flattened vectors from {input_dir}")
     start_time = time.time()
-
-    # Resolve paths
-    project_root = get_project_root()
-    if source_dir is None:
-        source_dir = get_data_path("processed", "flat_lora_vectors")
-    else:
-        source_dir = Path(source_dir)
-
-    if output_path is None:
-        output_path = get_data_path("processed", "skill_index.npz")
-    else:
-        output_path = Path(output_path)
-
-    if verbose:
-        print(f"Constructing skill index from {source_dir}...")
-
-    # Verify source exists
-    if not source_dir.exists():
-        raise FileNotFoundError(
-            f"Source directory for flattened vectors not found: {source_dir}. "
-            f"Ensure T013 (flatten_lora.py) has been executed first."
-        )
-
-    # Collect all flattened vector files
-    vector_files = list(source_dir.glob("*.npz"))
-    if not vector_files:
-        raise FileNotFoundError(
-            f"No .npz files found in {source_dir}. "
-            f"Run T013 (flatten_lora.py) to generate flattened vectors first."
-        )
-
-    all_vectors = []
-    all_metadata = []
-
-    for i, file_path in enumerate(vector_files):
-        if verbose:
-            print(f"  Loading {file_path.name} ({i+1}/{len(vector_files)})")
-
-        data = np.load(file_path, allow_pickle=True)
-
-        # Extract vectors and metadata
-        # Expected keys: 'vectors' (N, D), 'metadata' (list of dicts)
-        if 'vectors' not in data:
-            raise ValueError(f"Missing 'vectors' key in {file_path.name}")
-        if 'metadata' not in data:
-            raise ValueError(f"Missing 'metadata' key in {file_path.name}")
-
-        vectors = data['vectors']
-        metadata = data['metadata'].tolist() if isinstance(data['metadata'], np.ndarray) else data['metadata']
-
-        # Validate dimensions
-        if vectors.ndim != 2:
-            raise ValueError(f"Expected 2D vectors in {file_path.name}, got {vectors.ndim}D")
-
-        all_vectors.append(vectors)
-        all_metadata.extend(metadata)
-
-    # Concatenate all vectors
-    if verbose:
-        print(f"  Concatenating {len(all_vectors)} arrays...")
-
-    final_vectors = np.concatenate(all_vectors, axis=0)
-    final_metadata = all_metadata
-
-    # Validate
-    assert len(final_vectors) == len(final_metadata), "Vector count mismatch with metadata"
-
-    if verbose:
-        print(f"  Total vectors: {final_vectors.shape[0]}")
-        print(f"  Vector dimension: {final_vectors.shape[1]}")
-
-    # Save the index
-    db = SkillVectorDB(index_path=output_path)
-    db.save(final_vectors, final_metadata)
-
+    
+    npz_files = list(input_dir.glob("*.npz"))
+    
+    if not npz_files:
+        raise FileNotFoundError(f"No .npz files found in {input_dir}")
+        
+    logger.info(f"Found {len(npz_files)} .npz files")
+    
+    for file_path in npz_files:
+        try:
+            data = np.load(file_path)
+            
+            # Extract task ID from filename
+            task_id = file_path.stem
+            
+            # Expect 'vector' key from flatten_lora.py
+            if 'vector' not in data:
+                logger.warning(f"Skipping {file_path}: missing 'vector' key")
+                continue
+                
+            vector = data['vector']
+            
+            # Validate vector
+            if not isinstance(vector, np.ndarray):
+                logger.warning(f"Skipping {file_path}: 'vector' is not an ndarray")
+                continue
+                
+            if np.any(np.isnan(vector)) or np.any(np.isinf(vector)):
+                logger.warning(f"Skipping {file_path}: vector contains NaN or Inf")
+                continue
+                
+            vectors[task_id] = vector
+            
+            # Store metadata
+            metadata[task_id] = {
+                'file_path': str(file_path),
+                'original_shape': data.get('original_shape', None),
+                'normalization': data.get('normalization', 'L2'),
+                'vector_size': len(vector)
+            }
+            
+            logger.debug(f"Loaded {task_id}: shape={vector.shape}")
+            
+        except Exception as e:
+            logger.error(f"Error loading {file_path}: {e}")
+            continue
+    
     elapsed = time.time() - start_time
-    if verbose:
-        print(f"✓ Index construction completed in {elapsed:.2f}s")
+    logger.info(f"Loaded {len(vectors)} vectors in {elapsed:.2f}s")
+    
+    if len(vectors) == 0:
+        raise ValueError("No valid vectors loaded. Check input files.")
+        
+    return vectors, metadata
 
-    return db
+
+def compute_index_structure(vectors: Dict[str, np.ndarray]) -> Dict[str, Any]:
+    """
+    Compute the index structure from the loaded vectors.
+    
+    Creates a consolidated structure containing:
+    - All vectors concatenated into a single matrix
+    - Mapping from vector index to task ID
+    - Statistical summaries (min, max, mean, std)
+    
+    Args:
+        vectors: Dictionary of {task_id: vector}
+        
+    Returns:
+        Index structure dictionary containing:
+            - 'vectors_matrix': np.ndarray of shape (n_tasks, vector_dim)
+            - 'task_mapping': List of task_ids in order
+            - 'statistics': Dict of statistical measures
+            - 'index_created_at': Timestamp
+    """
+    logger.info("Computing index structure")
+    start_time = time.time()
+    
+    if not vectors:
+        raise ValueError("Cannot compute index from empty vector dictionary")
+        
+    # Validate consistent dimensions
+    vector_dims = [len(v) for v in vectors.values()]
+    unique_dims = set(vector_dims)
+    
+    if len(unique_dims) > 1:
+        raise ValueError(f"Inconsistent vector dimensions found: {unique_dims}")
+        
+    vector_dim = vector_dims[0]
+    n_tasks = len(vectors)
+    
+    logger.info(f"Building index for {n_tasks} tasks, dimension {vector_dim}")
+    
+    # Sort task IDs for deterministic ordering
+    task_ids = sorted(vectors.keys())
+    
+    # Create matrix
+    vectors_matrix = np.zeros((n_tasks, vector_dim), dtype=np.float32)
+    
+    for idx, task_id in enumerate(task_ids):
+        vectors_matrix[idx] = vectors[task_id].astype(np.float32)
+    
+    # Compute statistics
+    stats = {
+        'n_tasks': n_tasks,
+        'vector_dim': vector_dim,
+        'total_elements': n_tasks * vector_dim,
+        'matrix_min': float(np.min(vectors_matrix)),
+        'matrix_max': float(np.max(vectors_matrix)),
+        'matrix_mean': float(np.mean(vectors_matrix)),
+        'matrix_std': float(np.std(vectors_matrix)),
+        'vector_mins': [float(np.min(vectors[task_id])) for task_id in task_ids],
+        'vector_maxs': [float(np.max(vectors[task_id])) for task_id in task_ids],
+    }
+    
+    index_structure = {
+        'vectors_matrix': vectors_matrix,
+        'task_mapping': task_ids,
+        'statistics': stats,
+        'index_created_at': time.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    
+    elapsed = time.time() - start_time
+    logger.info(f"Index structure computed in {elapsed:.2f}s")
+    logger.info(f"  Tasks: {n_tasks}, Dim: {vector_dim}, Matrix shape: {vectors_matrix.shape}")
+    
+    return index_structure
+
+
+def prepare_for_serialization(index_structure: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Prepare the index structure for serialization.
+    
+    Converts numpy arrays to serializable formats and ensures all data
+    is ready for saving to disk.
+    
+    Args:
+        index_structure: The computed index structure from compute_index_structure()
+        
+    Returns:
+        Prepared dictionary ready for np.savez()
+    """
+    logger.info("Preparing index for serialization")
+    
+    prepared = {
+        'vectors_matrix': index_structure['vectors_matrix'],
+        'task_mapping': np.array(index_structure['task_mapping'], dtype=object),
+        'statistics': {
+            'n_tasks': index_structure['statistics']['n_tasks'],
+            'vector_dim': index_structure['statistics']['vector_dim'],
+            'total_elements': index_structure['statistics']['total_elements'],
+            'matrix_min': index_structure['statistics']['matrix_min'],
+            'matrix_max': index_structure['statistics']['matrix_max'],
+            'matrix_mean': index_structure['statistics']['matrix_mean'],
+            'matrix_std': index_structure['statistics']['matrix_std'],
+        },
+        'index_created_at': index_structure['index_created_at'],
+    }
+    
+    # Log summary
+    stats = prepared['statistics']
+    logger.info(f"Prepared index: {stats['n_tasks']} tasks, {stats['vector_dim']} dimensions")
+    logger.info(f"  Value range: [{stats['matrix_min']:.4f}, {stats['matrix_max']:.4f}]")
+    
+    return prepared
+
+
+def save_index(prepared_index: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+    """
+    Save the prepared index to disk.
+    
+    Args:
+        prepared_index: The prepared index dictionary
+        output_path: Path to save the index. Defaults to data/processed/skill_index.npz
+        
+    Returns:
+        Path to the saved file
+    """
+    if output_path is None:
+        output_path = OUTPUT_INDEX_PATH
+        
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving index to {output_path}")
+    start_time = time.time()
+    
+    # Save using np.savez (compressed)
+    np.savez_compressed(
+        output_path,
+        vectors_matrix=prepared_index['vectors_matrix'],
+        task_mapping=prepared_index['task_mapping'],
+        n_tasks=prepared_index['statistics']['n_tasks'],
+        vector_dim=prepared_index['statistics']['vector_dim'],
+        total_elements=prepared_index['statistics']['total_elements'],
+        matrix_min=prepared_index['statistics']['matrix_min'],
+        matrix_max=prepared_index['statistics']['matrix_max'],
+        matrix_mean=prepared_index['statistics']['matrix_mean'],
+        matrix_std=prepared_index['statistics']['matrix_std'],
+        index_created_at=prepared_index['index_created_at'],
+    )
+    
+    elapsed = time.time() - start_time
+    file_size = output_path.stat().st_size
+    
+    logger.info(f"Index saved in {elapsed:.2f}s, size: {file_size / 1024:.2f} KB")
+    
+    return output_path
 
 
 def main():
     """
-    Entry point for constructing the skill index.
-    Usage: python -m src.retrieval.vector_db
+    Main entry point for constructing the skill index.
+    
+    This function orchestrates the full pipeline:
+    1. Load flattened vectors from data/processed/
+    2. Compute the index structure
+    3. Prepare for serialization
+    4. Save to data/processed/skill_index.npz
     """
+    logger.info("=" * 60)
+    logger.info("Starting Vector DB Index Construction (T014a)")
+    logger.info("=" * 60)
+    
+    total_start = time.time()
+    
     try:
-        construct_skill_index()
+        # Step 1: Load flattened vectors
+        vectors, metadata = load_flattened_vectors()
+        
+        # Step 2: Compute index structure
+        index_structure = compute_index_structure(vectors)
+        
+        # Step 3: Prepare for serialization
+        prepared_index = prepare_for_serialization(index_structure)
+        
+        # Step 4: Save index
+        output_path = save_index(prepared_index)
+        
+        # Verify file exists
+        if not output_path.exists():
+            raise RuntimeError(f"Failed to create index file: {output_path}")
+            
+        total_elapsed = time.time() - total_start
+        
+        logger.info("=" * 60)
+        logger.info(f"SUCCESS: Index constructed and saved to {output_path}")
+        logger.info(f"Total time: {total_elapsed:.2f}s")
+        logger.info(f"Tasks indexed: {len(vectors)}")
+        logger.info("=" * 60)
+        
+        return 0
+        
     except Exception as e:
-        print(f"✗ Failed to construct skill index: {e}")
-        raise
+        logger.error(f"ERROR: {e}")
+        logger.exception("Full traceback:")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

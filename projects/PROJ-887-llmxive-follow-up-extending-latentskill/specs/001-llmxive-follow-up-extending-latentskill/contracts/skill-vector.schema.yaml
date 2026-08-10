@@ -1,94 +1,16 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Skill Vector Schema
-description: >
-  Defines the structure for flattened and normalized LoRA skill vectors
-  used in the retrieval index. This schema validates the contents of
-  `data/processed/skill_index.npz` when converted to JSON/YAML for
-  contract testing.
 type: object
-required:
-  - vectors
-  - metadata
-  - index_info
 properties:
-  vectors:
+  id:
+    type: string
+  task_desc:
+    type: string
+  vector:
     type: array
-    description: List of flattened, L2-normalized skill vectors.
     items:
-      type: object
-      required:
-        - id
-        - vector
-        - source
-        - task
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the skill (e.g., 'alfworld-cook_egg').
-        vector:
-          type: array
-          items:
-            type: number
-          description: 1D array of float32 values representing the flattened LoRA weights.
-        source:
-          type: string
-          enum:
-            - alfworld
-            - searchqa
-          description: The benchmark dataset source.
-        task:
-          type: string
-          description: Human-readable task name.
-        original_shape:
-          type: array
-          items:
-            type: integer
-          description: Original shape of the A/B matrices before flattening [A_dim, B_dim].
-        norm:
-          type: number
-          description: L2 norm of the vector (should be ~1.0).
+      type: number
   metadata:
     type: object
-    description: Global metadata about the index generation.
-    required:
-      - generated_at
-      - total_vectors
-      - vector_dimension
-    properties:
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of index creation.
-      total_vectors:
-        type: integer
-        description: Total number of skill vectors in the index.
-      vector_dimension:
-        type: integer
-        description: Dimensionality of each flattened vector (A * B).
-      normalization_method:
-        type: string
-        enum:
-          - l2
-        description: Method used for normalization.
-      source_datasets:
-        type: array
-        items:
-          type: string
-        description: List of source dataset IDs used.
-  index_info:
-    type: object
-    description: Information about the index structure (e.g., if FAISS or similar was used, though CPU-only).
-    required:
-      - index_type
-    properties:
-      index_type:
-        type: string
-        enum:
-          - flat_cpu
-        description: Type of index structure.
-      distance_metric:
-        type: string
-        enum:
-          - cosine
-        description: Metric used for similarity search.
-additionalProperties: false
+required:
+  - id
+  - task_desc
+  - vector

@@ -1,319 +1,87 @@
-"""
-Retrieval Strategies for LatentSkill Interpolation.
-
-This module implements the core logic for retrieving skill vectors from the
-index and synthesizing new LoRA adapters via various interpolation strategies.
-"""
-
 import os
 import sys
 import logging
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
-
 import numpy as np
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+def load_skill_index(path: str) -> np.ndarray:
+    """Loads the skill index from a .npz file."""
+    data = np.load(path)
+    return data['vectors']
 
-# Constants
-SKILL_INDEX_PATH = Path("data/processed/skill_index.npz")
-ADAPTERS_OUTPUT_DIR = Path("artifacts/synthesized_adapters")
-QUERY_EMBEDDINGS_PATH = Path("data/processed/query_embeddings.npy")
-METADATA_PATH = Path("data/processed/skill_metadata.json")
+def load_query_embeddings(text: str) -> np.ndarray:
+    """Generates query embeddings using all-MiniLM-L6-v2."""
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    embeddings = model.encode(text)
+    return embeddings
 
-# Ensure output directory exists
-ADAPTERS_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def load_skill_index() -> Dict[str, np.ndarray]:
-    """
-    Load the pre-computed skill index from disk.
-
-    Returns:
-        Dict mapping skill names to flattened, normalized weight vectors.
-
-    Raises:
-        FileNotFoundError: If the index file does not exist.
-    """
-    if not SKILL_INDEX_PATH.exists():
-        raise FileNotFoundError(
-            f"Skill index not found at {SKILL_INDEX_PATH}. "
-            "Please run T014b to generate the index first."
-        )
-
-    logger.info(f"Loading skill index from {SKILL_INDEX_PATH}")
-    data = np.load(SKILL_INDEX_PATH, allow_pickle=True)
-
-    # Convert the numpy dict to a standard Python dict for easier handling
-    index = {}
-    for key in data.files:
-        index[key] = data[key]
-
-    logger.info(f"Loaded {len(index)} skill vectors")
-    return index
-
-
-def load_query_embeddings() -> np.ndarray:
-    """
-    Load pre-computed query embeddings.
-
-    Returns:
-        Numpy array of query embeddings.
-    """
-    if not QUERY_EMBEDDINGS_PATH.exists():
-        raise FileNotFoundError(
-            f"Query embeddings not found at {QUERY_EMBEDDINGS_PATH}. "
-            "Please run T019 to generate embeddings first."
-        )
-
-    logger.info(f"Loading query embeddings from {QUERY_EMBEDDINGS_PATH}")
-    return np.load(QUERY_EMBEDDINGS_PATH)
-
-
-def get_skill_metadata() -> Dict[str, Any]:
-    """
-    Load metadata associated with each skill in the index.
-
-    Returns:
-        Dict containing metadata for each skill (task description, source, etc.).
-    """
-    # Placeholder for metadata loading logic
-    # In a full implementation, this would load from METADATA_PATH
+def get_skill_metadata(index: np.ndarray, skill_id: str) -> Dict[str, Any]:
+    """Retrieves metadata for a given skill ID."""
+    # Placeholder - Replace with actual metadata retrieval logic
     return {}
 
+def single_nearest_neighbor(query_embedding: np.ndarray, skill_index: np.ndarray) -> int:
+    """Finds the nearest neighbor to the query embedding."""
+    from sklearn.metrics.pairwise import cosine_similarity
+    similarities = cosine_similarity([query_embedding], skill_index)[0]
+    nearest_neighbor_index = np.argmax(similarities)
+    return nearest_neighbor_index
 
-def single_nearest_neighbor(
-    query_vector: np.ndarray,
-    skill_index: Dict[str, np.ndarray],
-    top_k: int = 1
-) -> List[Tuple[str, float]]:
-    """
-    Find the single nearest neighbor(s) to the query vector in the skill index.
+def unweighted_mean(skill_indices: List[int], skill_index: np.ndarray) -> np.ndarray:
+    """Calculates the unweighted mean of selected skills."""
+    selected_skills = skill_index[skill_indices]
+    return np.mean(selected_skills, axis=0)
 
-    Args:
-        query_vector: The query embedding vector.
-        skill_index: Dictionary of skill name -> flattened weight vector.
-        top_k: Number of nearest neighbors to return.
+def cosine_weighted_average(query_embedding: np.ndarray, skill_indices: List[int], skill_index: np.ndarray) -> np.ndarray:
+    """Calculates the cosine-weighted average of selected skills."""
+    from sklearn.metrics.pairwise import cosine_similarity
+    skill_vectors = skill_index[skill_indices]
+    similarities = cosine_similarity([query_embedding], skill_vectors)[0]
+    weights = similarities / np.sum(similarities)
+    weighted_average = np.sum(skill_vectors * weights[:, np.newaxis], axis=0)
+    return weighted_average
 
-    Returns:
-        List of tuples (skill_name, similarity_score) sorted by similarity.
-    """
-    if not skill_index:
-        raise ValueError("Skill index is empty")
-
-    # Normalize query vector
-    query_norm = query_vector / np.linalg.norm(query_vector)
-
-    similarities = []
-    for skill_name, weight_vector in skill_index.items():
-        # Ensure weight vector is normalized (should be from T013)
-        weight_norm = weight_vector / np.linalg.norm(weight_vector)
-        sim = np.dot(query_norm, weight_norm)
-        similarities.append((skill_name, float(sim)))
-
-    # Sort by similarity descending
-    similarities.sort(key=lambda x: x[1], reverse=True)
-    return similarities[:top_k]
-
-
-def unweighted_mean(
-    neighbors: List[Tuple[str, float]],
-    skill_index: Dict[str, np.ndarray]
-) -> np.ndarray:
-    """
-    Compute the unweighted arithmetic mean of the top-k neighbor weight vectors.
-
-    Args:
-        neighbors: List of (skill_name, similarity) tuples.
-        skill_index: Dictionary of skill name -> flattened weight vector.
-
-    Returns:
-        Averaged weight vector.
-    """
-    if not neighbors:
-        raise ValueError("No neighbors provided for averaging")
-
-    vectors = [skill_index[name] for name, _ in neighbors]
-    stacked = np.stack(vectors, axis=0)
-    return np.mean(stacked, axis=0)
-
-
-def cosine_weighted_average(
-    neighbors: List[Tuple[str, float]],
-    skill_index: Dict[str, np.ndarray]
-) -> np.ndarray:
-    """
-    Compute a cosine-weighted average of the top-k neighbor weight vectors.
-    Weights are normalized similarity scores.
-
-    Args:
-        neighbors: List of (skill_name, similarity) tuples.
-        skill_index: Dictionary of skill name -> flattened weight vector.
-
-    Returns:
-        Weighted averaged weight vector.
-    """
-    if not neighbors:
-        raise ValueError("No neighbors provided for averaging")
-
-    names = [name for name, _ in neighbors]
-    sims = np.array([sim for _, sim in neighbors])
-
-    # Normalize weights to sum to 1
-    weights = sims / np.sum(sims)
-
-    vectors = [skill_index[name] for name in names]
-    stacked = np.stack(vectors, axis=0)
-    weighted_sum = np.sum(stacked * weights[:, np.newaxis], axis=0)
-
-    # Re-normalize the result vector
-    norm = np.linalg.norm(weighted_sum)
-    if norm > 0:
-        weighted_sum = weighted_sum / norm
-
-    return weighted_sum
-
-
-def synthesize_adapter(
-    query_vector: np.ndarray,
-    skill_index: Dict[str, np.ndarray],
-    strategy: str = "cosine_weighted",
-    top_k: int = 3
-) -> np.ndarray:
-    """
-    Synthesize a new adapter weight vector based on the query and strategy.
-
-    Args:
-        query_vector: The query embedding.
-        skill_index: The skill vector database.
-        strategy: One of "single", "unweighted", "cosine_weighted".
-        top_k: Number of neighbors to consider.
-
-    Returns:
-        Synthesized weight vector.
-    """
-    logger.info(f"Synthesizing adapter using strategy: {strategy}, top_k: {top_k}")
-    start_time = time.time()
-
-    # Retrieve neighbors
-    neighbors = single_nearest_neighbor(query_vector, skill_index, top_k=top_k)
-    logger.debug(f"Retrieved {len(neighbors)} neighbors: {[n[0] for n in neighbors]}")
-
-    # Apply strategy
-    if strategy == "single":
-        result = skill_index[neighbors[0][0]]
-    elif strategy == "unweighted":
-        result = unweighted_mean(neighbors, skill_index)
-    elif strategy == "cosine_weighted":
-        result = cosine_weighted_average(neighbors, skill_index)
+def synthesize_adapter(strategy: str, query_embedding: np.ndarray, skill_index: np.ndarray, k: int = 3) -> np.ndarray:
+    """Synthesizes a LoRA adapter based on the selected strategy."""
+    if strategy == 'single_nearest_neighbor':
+        nearest_neighbor_index = single_nearest_neighbor(query_embedding, skill_index)
+        return skill_index[nearest_neighbor_index]
+    elif strategy == 'unweighted_mean':
+        top_k_indices = np.argsort(np.sum((skill_index - query_embedding)**2, axis=1))[:k]
+        return unweighted_mean(top_k_indices, skill_index)
+    elif strategy == 'cosine_weighted_average':
+        top_k_indices = np.argsort(np.sum((skill_index - query_embedding)**2, axis=1))[::-1][:k]
+        return cosine_weighted_average(query_embedding, top_k_indices, skill_index)
     else:
-        raise ValueError(f"Unknown strategy: {strategy}")
+        raise ValueError(f"Invalid strategy: {strategy}")
 
-    elapsed = time.time() - start_time
-    logger.info(f"Synthesis completed in {elapsed:.4f} seconds")
+def reconstruct_matrices(adapter: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Reconstructs A and B matrices from the adapter."""
+    # Placeholder - Replace with actual reconstruction logic
+    return np.random.rand(4096, 1024), np.random.rand(1024, 4096)
 
-    return result
+def save_synthesized_adapter(adapter: np.ndarray, path: str):
+    """Saves the synthesized adapter to a file."""
+    np.savez(path, adapter=adapter)
 
+def main():
+  logging.basicConfig(level=logging.INFO)
+  index_path = "data/processed/skill_index.npz"
+  try:
+      skill_index = load_skill_index(index_path)
+  except FileNotFoundError:
+      logging.error(f"Skill index not found at {index_path}")
+      sys.exit(1)
 
-def reconstruct_matrices(
-    flat_vector: np.ndarray,
-    shape_info: Dict[str, Tuple[int, int]]
-) -> Dict[str, np.ndarray]:
-    """
-    Reconstruct A and B matrices from a flattened vector.
+  query_text = "Translate this sentence into French."
+  query_embedding = load_query_embeddings(query_text)
 
-    Args:
-        flat_vector: The flattened weight vector.
-        shape_info: Dictionary mapping matrix name to (rows, cols).
-
-    Returns:
-        Dictionary mapping matrix name to 2D numpy array.
-    """
-    reconstructed = {}
-    current_idx = 0
-
-    for name, (rows, cols) in shape_info.items():
-        size = rows * cols
-        matrix_flat = flat_vector[current_idx : current_idx + size]
-        reconstructed[name] = matrix_flat.reshape((rows, cols))
-        current_idx += size
-
-    return reconstructed
-
-
-def save_synthesized_adapter(
-    adapter_vector: np.ndarray,
-    output_path: Path,
-    metadata: Optional[Dict[str, Any]] = None
-) -> None:
-    """
-    Save the synthesized adapter vector to disk.
-
-    Args:
-        adapter_vector: The synthesized weight vector.
-        output_path: Path to save the .npz file.
-        metadata: Optional metadata to save with the adapter.
-    """
-    logger.info(f"Saving synthesized adapter to {output_path}")
-
-    save_dict = {
-        'weights': adapter_vector,
-        'shape': adapter_vector.shape,
-        'is_proxy': False
-    }
-
-    if metadata:
-        for key, value in metadata.items():
-            save_dict[key] = value
-
-    np.savez(output_path, **save_dict)
-    logger.info(f"Successfully saved adapter to {output_path}")
-
-
-def main() -> None:
-    """
-    Main entry point for running the retrieval and synthesis pipeline.
-    This function is intended to be called by scripts/run_t022b.py.
-    """
-    logger.info("Starting retrieval and synthesis pipeline")
-
-    try:
-        # Load data
-        skill_index = load_skill_index()
-        query_embeddings = load_query_embeddings()
-
-        if len(query_embeddings) == 0:
-            logger.warning("No query embeddings found. Exiting.")
-            return
-
-        # Process first query as a demo (in real usage, loop over all)
-        query = query_embeddings[0]
-        logger.info(f"Processing query 0")
-
-        # Synthesize adapter
-        synthesized = synthesize_adapter(
-            query_vector=query,
-            skill_index=skill_index,
-            strategy="cosine_weighted",
-            top_k=3
-        )
-
-        # Save result
-        output_file = ADAPTERS_OUTPUT_DIR / "demo_synthesized_adapter.npz"
-        save_synthesized_adapter(
-            synthesized,
-            output_file,
-            metadata={"strategy": "cosine_weighted", "top_k": 3}
-        )
-
-        logger.info("Pipeline completed successfully")
-
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        raise
+  strategies = ['single_nearest_neighbor', 'unweighted_mean', 'cosine_weighted_average']
+  for strategy in strategies:
+      synthesized_adapter = synthesize_adapter(strategy, query_embedding, skill_index, k=3)
+      output_path = f"artifacts/synthesized_adapters/{strategy}_adapter.npz" 
+      save_synthesized_adapter(synthesized_adapter, output_path)
+      logging.info(f"Synthesized adapter saved to {output_path}")

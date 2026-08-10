@@ -1,2 +1,2 @@
-# This directory stores raw, unprocessed dataset files.
-# Do not modify files here; they are the source of truth.
+# This directory stores raw data files fetched from external sources.
+# Do not commit large binary files here.

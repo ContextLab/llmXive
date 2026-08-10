@@ -1,3 +1,4 @@
 """
-Utility functions for configuration, versioning, and shared helpers.
+Utils module for llmXive.
+Provides shared utilities for configuration, versioning, and path resolution.
 """

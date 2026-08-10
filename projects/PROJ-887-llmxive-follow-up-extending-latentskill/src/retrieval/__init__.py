@@ -1,3 +1,4 @@
 """
-Retrieval module for vector database operations and skill synthesis strategies.
+Retrieval module for llmXive.
+Handles vector database operations, query generation, and adapter synthesis.
 """
