@@ -64,9 +64,20 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4063457
   verified_at: '2026-07-07T02:31:39.882455Z'
-- artifact_hash: df22fcc6a2c2b9c3055c9a45500fbef0da1f6c30f221722aebef3e0b8f7b72c9
+- artifact_hash: 22a71bad96987aa00c62330e2695271269144c6188114d6b557d71ad4207e7b0
   artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Python - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Python_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Python
+  verified_at: '2026-08-10T09:52:12.868371Z'
+- artifact_hash: 22a71bad96987aa00c62330e2695271269144c6188114d6b557d71ad4207e7b0
+  artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: p-value - Wikipedia
@@ -74,10 +85,10 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-07-15T16:37:59.426232Z'
-- artifact_hash: df22fcc6a2c2b9c3055c9a45500fbef0da1f6c30f221722aebef3e0b8f7b72c9
+  verified_at: '2026-08-10T09:52:12.868371Z'
+- artifact_hash: 22a71bad96987aa00c62330e2695271269144c6188114d6b557d71ad4207e7b0
   artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
-  cite_id: c-002
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: '[1507.04182] Time calibration with atmospheric muon tracks in the
@@ -86,10 +97,10 @@
   value: https://arxiv.org/abs/1507.04182
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1507.04182
-  verified_at: '2026-07-15T16:37:59.426232Z'
-- artifact_hash: df22fcc6a2c2b9c3055c9a45500fbef0da1f6c30f221722aebef3e0b8f7b72c9
+  verified_at: '2026-08-10T09:52:12.868371Z'
+- artifact_hash: 22a71bad96987aa00c62330e2695271269144c6188114d6b557d71ad4207e7b0
   artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
-  cite_id: c-003
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -97,4 +108,4 @@
   value: 10.5281/zenodo.3966535
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966535
-  verified_at: '2026-07-15T16:37:59.426232Z'
+  verified_at: '2026-08-10T09:52:12.868371Z'

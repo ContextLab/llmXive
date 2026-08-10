@@ -157,3 +157,204 @@
   source_type: external
   status: verified
   updated_at: '2026-07-21T21:47:53Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.2 CPU build
+  claim_id: c_6b25f0c5
+  context: Initialize Python 3.11 project with requirements.txt (pinning transformers,
+    sentence-transformers, torch==2.2.2+cpu...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.2+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:27:29Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Phi-3-mini-4k-instruct-GGUF 4-bit quantization CPU-only
+  claim_id: c_d19fe616
+  context: Implement src/models/vlm.py wrapper for Phi-3-mini-4k-instruct-GGUF (4-bit,
+    CPU-only) using llama-cpp-python with initial batch size 8
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+      source_id: golden_ratio
+      url: https://en.wikipedia.org/wiki/Golden_ratio
+      value: '1.618033988749895'
+    filled: true
+  kind: numeric
+  raw_text: Phi-3-mini-4k-instruct-GGUF (4-bit, CPU-only)
+  resolved_value: '1.618033988749895'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T10:27:32Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 embedding model
+  claim_id: c_697bedb4
+  context: 'Implement src/services/scoring.py Logic Score logic: Embed instruction
+    & VLM description via all-MiniLM-L6-v2, compute cosine similarity'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: all-MiniLM-L6-v2
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T10:27:49Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: RAM estimation threshold 6.5GB
+  claim_id: c_0b494cc3
+  context: Reduce batch size if RAM_est > 6.5GB (GB limit minus A safety buffer of
+    sufficient capacity to accommodate system overhead and unexpected load variations.)
+    to guarantee the storage limit is never exceeded
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM_est > 6.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:27:49Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg false discovery rate threshold 0.05
+  claim_id: c_33e2a091
+  context: "Implement src/services/analysis.py Benjamini-Hochberg correction on regression\
+    \ p-values (FDR \u2264 0.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "FDR \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:27:49Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Logic versus Fidelity correlation difference threshold 0.1
+  claim_id: c_2a6a8594
+  context: The task must verify if Logic correlation exceeds Fidelity correlation
+    by at least 0.1 AND the p-value of the difference is < 0.05
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Logic_versus_Fidelity_correlation_difference_threshold_0.1
+  kind: magnitude
+  raw_text: Logic correlation exceeds Fidelity correlation by at least 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:28:14Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: p-value threshold 0.05 for correlation difference
+  claim_id: c_cfa37bc2
+  context: The task must verify if Logic correlation exceeds Fidelity correlation
+    by at least 0.1 AND the p-value of the difference is < 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: p-value of the difference is < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:28:14Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: citation title overlap threshold 0.7
+  claim_id: c_3ac7a73b
+  context: Implement src/services/reference_validator.py to perform local citation
+    verification (checking title overlap >= 0.7 and URL reachability)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: title overlap >= 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:28:51Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_c23a1a02
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Python 3.11 expanded exception handling functionality. Around this version,\
+        \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
+        60% faster than 3.10, and 3.12 increases by an additional 5%."
+      source_id: History of Python
+      url: https://en.wikipedia.org/wiki/History_of_Python
+      value: "10\u201360%"
+    filled: true
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: "10\u201360%"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T10:28:57Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Black formatter line length 88
+  claim_id: c_473685d6
+  context: Create pyproject.toml with [tool.black] (line-length=88) and [tool.ruff]
+    sections
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: line-length=88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:29:18Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: peak RAM usage limit 6.5GB
+  claim_id: c_0e292ac6
+  context: Run a full pass of the scoring pipeline and verify peak RAM usage is <
+    6.5GB in the logs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: peak RAM usage is < 6.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:29:18Z'

@@ -87,7 +87,7 @@
 - [ ] T012 [US1] Implement `code/data/download_gsm8k.py` (FR-001): Download GSM8K from HuggingFace, filter for verified correct solutions, save to `data/raw/gsm8k_verified.parquet`. Ensure at least 200 examples are available. **VERIFICATION**: Assert source dataset contains > 200 valid examples before proceeding.
 - [X] T013 [US1] Implement `code/data/generate_oracle.py` (FR-002): **AUTHORIZED BY T002a**: Load Phi-3-mini (full precision, CPU-only), run DelTA algorithm using explicit `torch.autograd.grad` logic with `retain_graph=True` on N=200 stratified examples (seed=42). Handle numerical instability by catching exceptions, logging to error.log, and excluding failed examples. **FAIL** if fewer than 200 valid examples remain. **VERIFICATION**: Assert output file contains coefficients for all 200 examples. **PLAN OVERRIDE**: This is a documented deviation from Spec FR-002 for compute feasibility, authorized by T002a.
 - [ ] T014 [US1] **MERGED INTO T013**: Variance validation is performed within `generate_oracle.py`. Ensure output coefficients have variance > 1e-9; fail explicitly if not met.
-- [ ] T015 [US1] Save output to `data/processed/delta_coefficients.json` conforming to `contracts/delta_oracle.schema.yaml`. **BLOCKED BY**: T004 (schema must exist), T012, T013. **RUNTIME CHECK**: If `contracts/delta_oracle.schema.yaml` is missing, fail immediately with error code 1. Do not attempt to run without schema. **VALIDATION**: Verify output contains coefficients for ALL 200 stratified examples and that global variance > 1e-9. <!-- ATOMIZE: requested -->
+- [ ] T015 [US1] Save output to `data/processed/delta_coefficients.json` conforming to `contracts/delta_oracle.schema.yaml`. **BLOCKED BY**: T004 (schema must exist), T012, T013. **RUNTIME CHECK**: If `contracts/delta_oracle.schema.yaml` is missing, fail immediately with error code 1. Do not attempt to run without schema. **VALIDATION**: Verify output contains coefficients for ALL 200 stratified examples and that global variance > 1e-9. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,10 +108,10 @@
 
 - [ ] T018 [US2] Implement `code/data/extract_features.py` (FR-003): **AUTHORIZED BY T002b**: Extract n-gram stats, POS tags (using `spacy`), and semantic similarity to the **first 50 examples (seed=42, stratified by length) from the raw GSM8K dataset (T012)** (reference set) using `sentence-transformers/all-MiniLM-L6-v2`. **PLAN OVERRIDE**: This is a documented deviation from Spec FR-003 to avoid circularity and ensure CPU-only execution, authorized by T002b. **DEPENDS ON T012 (raw GSM8K examples) and T005 (schema). PARALLEL with T015** (both read from T012 or produce independent outputs). Filter OOV tokens or assign default vectors. Output to `data/processed/static_features.parquet` with columns [token_id, feature_vector].
 - [X] T019 [US2] Implement feature vector handling in `code/data/extract_features.py` (Edge Case): Filter OOV tokens or assign default vectors to prevent training errors.
-- [ ] T020 [US2] Save extracted features to `data/processed/static_features.parquet` conforming to `contracts/static_features.schema.yaml`. **BLOCKED BY**: T018, T005. **FORMAT NOTE**: Use.parquet to match T018 output. <!-- FAILED: unspecified -->
+- [ ] T020 [US2] Save extracted features to `data/processed/static_features.parquet` conforming to `contracts/static_features.schema.yaml`. **BLOCKED BY**: T018, T005. **FORMAT NOTE**: Use.parquet to match T018 output. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T021 [US2] Implement `code/models/mlp.py` (FR-004): Define a multi-layer perceptron (MLP) with ReLU activation and a hidden layer of moderate capacity.
-- [ ] T022 [US2] Implement `code/models/train.py` (FR-004): Training loop using only extracted static features (T020), ground truth coefficients (T015), and using the model defined in T021 on CPU; ensure no CUDA/GPU calls; save model to `data/processed/mlp_model.pt`. **DEPENDS ON**: T020, T015, T021.
-- [ ] T023 [US2] Generate predictions for the held-out test set and save to `data/processed/predictions.json`. **DEPENDS ON**: T022.
+- [ ] T022 [US2] Implement `code/models/train.py` (FR-004): Training loop using only extracted static features (T020), ground truth coefficients (T015), and using the model defined in T021 on CPU; ensure no CUDA/GPU calls; save model to `data/processed/mlp_model.pt`. **DEPENDS ON**: T020, T015, T021. <!-- FAILED: unspecified -->
+- [ ] T023 [US2] Generate predictions for the held-out test set and save to `data/processed/predictions.json`. **DEPENDS ON**: T022. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,11 +126,11 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T024 [P] [US3] Unit test for Spearman calculation against random baseline in `tests/unit/test_metrics.py`
-- [ ] T025 [P] [US3] Unit test for permutation test logic (a sufficient number of shuffles) in `tests/unit/test_metrics.py`
+- [X] T025 [P] [US3] Unit test for permutation test logic (a sufficient number of shuffles) in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026b [US3] Implement uniform baseline generation in `code/eval/metrics.py` (FR-005): Generate a **uniform weight vector** (scaled to match the variance of the true coefficients in the test set) as the primary uniform baseline (SC-001 compliant). **DEPENDS ON**: T015, T022 (to access split logic/indices). **NOTE**: This baseline is mathematically independent of the training data distribution to ensure fairness.
+- [ ] T026b [US3] Implement uniform baseline generation in `code/eval/metrics.py` (FR-005): Generate a **uniform weight vector** (scaled to match the variance of the true coefficients in the test set) as the primary uniform baseline (SC-001 compliant). **DEPENDS ON**: T015, T022 (to access split logic/indices). **NOTE**: This baseline is mathematically independent of the training data distribution to ensure fairness. <!-- ATOMIZE: requested -->
 - [ ] T026c [US3] Implement diagnostic baseline generation in `code/eval/metrics.py`: Compute Spearman correlation using the **mean of the true coefficients from the TRAINING split** (derived from T015) as a secondary diagnostic metric. **DEPENDS ON**: T015, T022. **ERROR HANDLING**: If training split variance is zero, skip metric and log warning. **NOTE**: Explicitly labeled as 'diagnostic' and distinct from the SC-001 uniform baseline.
 - [ ] T026 [US3] Implement `code/eval/metrics.py` (FR-005, FR-006): Compute Spearman rank correlation between predicted (T023) and true (T015) coefficients. Compare against random baseline (N(0,1), seed=42), **uniform baseline** (from T026b), and diagnostic baseline (T026c). **DEPENDS ON**: T023, T015, T026b, T026c.
 - [ ] T027 [US3] Implement permutation test in `code/eval/metrics.py` (FR-006): Shuffle targets repeatedly to generate null distribution; calculate p-value (FR-006). **DEPENDS ON**: T026.

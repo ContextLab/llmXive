@@ -1,11 +1,11 @@
 T012:
   c: false
-  h: d5ddc7f5977b23109cd361ee22988465d010d033ecf14ddd456af2e10bd6c3d7
-  r: "The provided `download_gsm8k.py` is truncated (e.g., the `verify_solution_correctness`\
-    \ function ends mid\u2011line) and contains no logic to actually download the\
-    \ dataset, filter examples, assert >200 valid entries, or write a Parquet file.\
-    \ Moreover, the required output file `data/raw/gsm8k_verified.parquet` does not\
-    \ exist. The task therefore remains unfinished."
+  h: 0a861b87aee1a950c1a06c356832365040ec0f6f761d77433f13c9949d375618
+  r: The `download_gsm8k.py` file is present but only a partial snippet is shown,
+    ending abruptly before the dataset loading and saving logic, so we cannot confirm
+    it actually downloads, filters, asserts >200 valid examples, and writes `data/raw/gsm8k_verified.parquet`.
+    Moreover, the required parquet file does not exist. The implementation needs to
+    be completed and verified.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,16 +15,8 @@ T014:
     \ validation) is missing."
 T018:
   c: false
-  h: da088eb25dc0129dbd53b7254f28918b2989335b2f7a3828a9a2efa7c1d5b85c
-  r: "The repository contains `code/data/extract_features.py`, but the file is truncated\
-    \ and does not clearly implement selection of the first 50 GSM8K examples, n\u2011\
-    gram/POS extraction per token, or writing a Parquet file with columns `[token_id,\
-    \ feature_vector]`. Moreover, the required output `data/processed/static_features.parquet`\
-    \ is absent. The missing output file and incomplete script mean the task\u2019\
-    s requirements are not met."
-T022:
-  c: false
-  h: 21616eb768a4b9d314ec75a016dc401e38bd89df28955dffbc3ad36d3a009156
-  r: "The `code/models/train.py` script exists, but the required output model file\
-    \ `data/processed/mlp_model.pt` is missing, so the implementation does not fulfill\
-    \ the task\u2019s requirement to save the trained model."
+  h: b346213ca08feeec73d76cc68abca864348912b28d63226ce45f9f0726d2980e
+  r: "The required output file `data/processed/static_features.parquet` is absent,\
+    \ and the provided `extract_features.py` script is incomplete (truncated) and\
+    \ does not demonstrate that it writes the specified parquet with the required\
+    \ columns. The task\u2019s primary deliverable is therefore not satisfied."

@@ -159,6 +159,10 @@
     "classified_at": "2026-07-08T12:49:04Z",
     "verdict": false
   },
+  "PROJ-1018-llmxive-follow-up-extending-hierarchical::1.6.0": {
+    "classified_at": "2026-08-10T10:16:14Z",
+    "verdict": false
+  },
   "PROJ-1019-llmxive-follow-up-extending-vision-as-un::1.6.0": {
     "classified_at": "2026-07-20T04:46:35Z",
     "verdict": false

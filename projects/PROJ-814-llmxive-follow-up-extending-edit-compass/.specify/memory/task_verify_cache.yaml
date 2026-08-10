@@ -32,24 +32,44 @@ T001f:
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a `tests/contract` directory or an empty `.gitkeep` file was provided;
     the required artifact is missing.
-T003:
+T001g:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, or corresponding GitHub Action steps) were
-    presented. Without these artifacts, the claim that linting (ruff) and formatting
-    (black) are configured cannot be verified. The implementer must add the actual
-    configuration files and, if applicable, CI integration scripts.
+  r: No `data/raw` directory or `.gitkeep` file is present in the provided evidence;
+    the required artifact is missing, so the task is not satisfied.
+T003:
+  c: true
+  h: 28c348a6ea46f4325431932482a9f272efeb1e924b0243b014de1d3147dcd72f
+  r: The provided `pyproject.toml` contains both a `[tool.black]` section with `line-length
+    = 88` and a `[tool.ruff]` section with `select = ['E', 'F', 'W']`, fulfilling
+    the requirement to consolidate linting/formatting configuration into a single
+    file. The missing separate `ruff.toml` is expected, as the task specifies it should
+    be replaced.
 T013:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation was provided showing added error handling for
-    missing files or malformed JSON in the download or filter scripts; the evidence
-    section contains no artifacts to verify the claim. The required implementation
-    is therefore missing.
+  h: 5a2772f694b3de90810a6c1d7d4c7164874cc65062363d10ebd26723cb19d496
+  r: The `src/services/filter.py` file is present and correctly raises `ValueError`
+    for malformed JSON, but `src/services/download.py` is missing entirely, so the
+    required update to raise `FileNotFoundError` cannot be verified. The task is therefore
+    not fully completed.
 T014:
   c: false
   h: 0a1ef335411aa8d8d1ccfc91c8c85bb0d067a3d3220bd47e87a66d609559243f
   r: "The required file `src/cli/main.py` does not exist in the repository, so the\
     \ download and filter functionality cannot be verified or executed. The task\u2019\
     s core artifact is missing, making the implementation incomplete."
+T024:
+  c: false
+  h: 6a2afb574965621aadc93b8460be3592b58be6b2721404aef521c45706496bcc
+  r: "The provided `src/services/analysis.py` is truncated and shows no implementation\
+    \ of the required Pearson\u2011correlation independence check, atomic JSON write,\
+    \ or raising of `CircularValidationRiskError`. Moreover, the required output file\
+    \ `outputs/circular_validation_risk_report.json` does not exist. The task\u2019\
+    s core behavior is therefore not present."
+T024b:
+  c: false
+  h: 6a2afb574965621aadc93b8460be3592b58be6b2721404aef521c45706496bcc
+  r: "The repository lacks the required `outputs/circular_validation_risk_report.json`\
+    \ file, and the provided `src/services/analysis.py` does not contain any implementation\
+    \ that writes this JSON atomically using a temporary file and `os.rename()`. Consequently,\
+    \ the task\u2019s core requirement is not satisfied."

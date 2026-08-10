@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.07011",
+  "judged_at": "2026-08-10T10:16:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"hierarchical sparse attention done right: toward infinite context mode\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a foundational method (Block-Sparse Flash Attention) for the same biological/algorithmic mechanism (hierarchical sparse attention) and domain (long-context LLMs) central to the user's question, providing the canonical technical baseline for extending \"Hierarchical Sparse Attention Done Right.\"",
+  "relevant": true
+}

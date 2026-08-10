@@ -10,7 +10,7 @@ from unittest.mock import patch, MagicMock
 
 def test_ssim_calculation():
     """Assert SSIM calculation on dummy images returns value in [0, 1]."""
-    from src.services.scoring import calculate_ssim
+    from src.services.scoring import compute_ssim
     
     # Create two identical images
     img1 = Image.new('RGB', (512, 512), color='red')
@@ -22,12 +22,12 @@ def test_ssim_calculation():
         img1.save(path1)
         img2.save(path2)
         
-        ssim_score = calculate_ssim(path1, path2)
+        ssim_score = compute_ssim(path1, path2)
         assert 0 <= ssim_score <= 1
 
 def test_lpips_calculation():
     """Assert LPIPS calculation on dummy images returns value in [0, 1]."""
-    from src.services.scoring import calculate_lpips
+    from src.services.scoring import compute_lpips
     
     # Create two identical images
     img1 = Image.new('RGB', (512, 512), color='blue')
@@ -39,7 +39,7 @@ def test_lpips_calculation():
         img1.save(path1)
         img2.save(path2)
         
-        lpips_score = calculate_lpips(path1, path2)
+        lpips_score = compute_lpips(path1, path2)
         assert 0 <= lpips_score <= 1
 
 def test_vlm_description_generation():
@@ -73,15 +73,20 @@ def test_vlm_description_generation():
 
 def test_logic_score_range():
     """Assert Logic Score (cosine similarity) is in [-1, 1]."""
-    from src.services.scoring import calculate_logic_score
+    from src.services.scoring import compute_logic_score
     
     # Test with dummy embeddings
     embedding1 = np.array([1.0, 0.0, 0.0])
     embedding2 = np.array([0.0, 1.0, 0.0])
     
-    score = calculate_logic_score(embedding1, embedding2)
+    score = compute_logic_score(embedding1, embedding2)
     assert -1 <= score <= 1
     
     # Test with identical embeddings
-    score_identical = calculate_logic_score(embedding1, embedding1)
+    score_identical = compute_logic_score(embedding1, embedding1)
     assert score_identical == 1.0
+    
+    # Test with opposite embeddings (cosine similarity = -1)
+    embedding3 = np.array([-1.0, 0.0, 0.0])
+    score_opposite = compute_logic_score(embedding1, embedding3)
+    assert score_opposite == -1.0

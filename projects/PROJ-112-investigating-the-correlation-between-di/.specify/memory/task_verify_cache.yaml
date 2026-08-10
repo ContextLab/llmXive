@@ -1,0 +1,38 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project files, directory tree, or any code/scripts were presented; the claim
+    provides only the original specification without the required artifact (the created
+    project structure). Consequently, the required output does not exist.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or a `ruff` section, or a pre\u2011commit hook file)\
+    \ were presented, nor any evidence that ruff and Black have been installed or\
+    \ integrated into the project. Without these artifacts the requirement to configure\
+    \ linting (ruff) and formatting (black) is not satisfied."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `pytest` configuration file (e.g., `pytest.ini`, `conftest.py`) or test directory
+    (e.g., `tests/` with test modules) was found in the provided artifacts, so the
+    required setup is missing.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `data/processed/results/`)\
+    \ being created is provided; the artifact list is empty, so the task\u2019s core\
+    \ deliverable is missing."
+T011:
+  c: false
+  h: a75d5600bbdb7c75f73907b24764be564f02a7b8cf81c8e920d979aba669b653
+  r: "The required file `tests/integration/test_pipeline.py` does not exist, so no\
+    \ integration test for the ingestion pipeline is present. Without this artifact,\
+    \ the task\u2019s requirement is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file was presented that adds validation logic\
+    \ to prevent PII leakage or records checksums in the `state/` directory. The required\
+    \ artifact is missing, so the task\u2019s requirement is not satisfied."

@@ -4,213 +4,207 @@ import miceforest as mf
 import logging
 from typing import List, Optional, Tuple, Dict, Any
 from pathlib import Path
-import os
-
+import json
 from src.utils.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("preprocessing.covariate_handler")
 
-def calculate_missing_ratio(df: pd.DataFrame, columns: Optional[List[str]] = None) -> pd.Series:
+def calculate_missing_ratio(df: pd.DataFrame, columns: Optional[List[str]] = None) -> Dict[str, float]:
     """
-    Calculate the ratio of missing values per column.
+    Calculate the ratio of missing values for specified columns.
     
     Args:
-        df: Input DataFrame
-        columns: List of columns to check. If None, checks all numeric and object columns.
-    
+        df: Input DataFrame.
+        columns: List of column names to check. If None, checks all numeric and object columns.
+                
     Returns:
-        Series with missing ratio per column.
+        Dictionary mapping column names to their missing ratios (0.0 to 1.0).
     """
     if columns is None:
-        columns = df.select_dtypes(include=[np.number, object]).columns.tolist()
+        # Check numeric and object columns, exclude ID columns if they look like IDs
+        columns = [c for c in df.columns if df[c].dtype in ['float64', 'int64', 'object', 'bool']]
     
-    missing_counts = df[columns].isna().sum()
-    total_counts = len(df)
-    
-    return (missing_counts / total_counts).round(4)
+    missing_ratios = {}
+    for col in columns:
+        total = len(df)
+        if total == 0:
+            missing_ratios[col] = 0.0
+            continue
+        missing = df[col].isna().sum()
+        missing_ratios[col] = missing / total
+        logger.debug(f"Missing ratio for {col}: {missing_ratios[col]:.4f} ({missing}/{total})")
+        
+    return missing_ratios
 
-def exclude_high_missingness(
-    df: pd.DataFrame, 
-    threshold: float = 0.20, 
-    columns: Optional[List[str]] = None
-) -> Tuple[pd.DataFrame, List[str]]:
+def exclude_high_missingness(df: pd.DataFrame, threshold: float = 0.20, columns: Optional[List[str]] = None) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Exclude columns with missingness above a threshold.
+    Exclude columns with missingness above the threshold.
     
     Args:
-        df: Input DataFrame
+        df: Input DataFrame.
         threshold: Maximum allowed missing ratio (default 0.20).
         columns: Specific columns to evaluate. If None, evaluates all applicable columns.
-    
+                
     Returns:
-        Tuple of (DataFrame with excluded columns, list of excluded column names)
+        Tuple of (DataFrame with high-missingness columns removed, list of removed column names).
     """
-    if columns is None:
-        columns = df.select_dtypes(include=[np.number, object]).columns.tolist()
-    
-    missing_ratios = calculate_missing_ratio(df, columns)
-    excluded_cols = missing_ratios[missing_ratios > threshold].index.tolist()
+    ratios = calculate_missing_ratio(df, columns)
+    excluded_cols = [col for col, ratio in ratios.items() if ratio > threshold]
     
     if excluded_cols:
-        logger.warning(f"Excluding {len(excluded_cols)} columns due to missingness > {threshold*100}%: {excluded_cols}")
-        df_filtered = df.drop(columns=excluded_cols)
-        return df_filtered, excluded_cols
+        logger.warning(f"Excluding {len(excluded_cols)} columns due to high missingness (> {threshold*100}%): {excluded_cols}")
+        return df.drop(columns=excluded_cols), excluded_cols
     
-    logger.info("No columns excluded due to missingness threshold.")
+    logger.info(f"No columns excluded; all missingness ratios <= {threshold*100}%")
     return df, []
 
-def impute_with_mice(
-    df: pd.DataFrame,
-    columns: Optional[List[str]] = None,
-    number_of_iterations: int = 5,
-    random_state: int = 42
-) -> pd.DataFrame:
+def impute_with_mice(df: pd.DataFrame, 
+                     imputed_cols: Optional[List[str]] = None,
+                     iterations: int = 5,
+                     random_state: Optional[int] = None) -> Tuple[pd.DataFrame, mf.ImputedData]:
     """
-    Perform MICE imputation using miceforest.
+    Perform Multiple Imputation by Chained Equations (MICE) using miceforest.
     
     Args:
-        df: Input DataFrame with missing values.
-        columns: Columns to impute. If None, imputes all numeric columns with missing values.
-        number_of_iterations: Number of MICE iterations.
+        df: Input DataFrame.
+        imputed_cols: List of columns to impute. If None, imputes all numeric columns with missing values.
+        iterations: Number of MICE iterations.
         random_state: Random seed for reproducibility.
-    
+        
     Returns:
-        Imputed DataFrame.
+        Tuple of (DataFrame with imputed values, the ImputedData object for diagnostics).
     """
-    if columns is None:
-        columns = df.select_dtypes(include=[np.number]).columns.tolist()
+    if imputed_cols is None:
+        imputed_cols = [c for c in df.select_dtypes(include=[np.number]).columns if df[c].isna().any()]
     
-    # Filter to only columns that actually have missing values
-    cols_to_impute = [col for col in columns if df[col].isna().any()]
+    if not imputed_cols:
+        logger.info("No columns selected for imputation; returning original DataFrame.")
+        return df, None
     
-    if not cols_to_impute:
-        logger.info("No missing values found in specified columns. Returning original DataFrame.")
-        return df.copy()
-    
-    logger.info(f"Starting MICE imputation on {len(cols_to_impute)} columns for {number_of_iterations} iterations.")
+    logger.info(f"Starting MICE imputation for {len(imputed_cols)} columns with {iterations} iterations.")
     
     try:
+        # Create the kernel dataset
         kernel = mf.ImputationKernel(
-            df[cols_to_impute],
+            data=df[imputed_cols],
             datasets=1,
-            random_state=random_state
+            save_all_iterations_data=True
         )
         
-        kernel.mice(number_of_iterations=number_of_iterations)
+        if random_state is not None:
+            np.random.seed(random_state)
         
+        # Run imputation
+        kernel.mice(iterations)
+        
+        # Get the completed dataset (using the last iteration)
         imputed_data = kernel.complete_data(dataset=0)
         
-        # Merge back with non-imputed columns
-        df_imputed = df.copy()
-        df_imputed[cols_to_impute] = imputed_data[cols_to_impute]
+        # Replace the original columns in the full DataFrame
+        result_df = df.copy()
+        result_df[imputed_cols] = imputed_data[imputed_cols]
         
-        logger.info("MICE imputation completed successfully.")
-        return df_imputed
+        logger.info(f"MICE imputation completed successfully.")
+        return result_df, kernel
         
     except Exception as e:
         logger.error(f"MICE imputation failed: {str(e)}")
         raise
 
-def process_covariates(
-    df: pd.DataFrame,
-    covariate_columns: List[str],
-    missing_threshold: float = 0.20,
-    impute: bool = True,
-    num_iterations: int = 5
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def process_covariates(df: pd.DataFrame, 
+                       covariate_cols: List[str],
+                       missing_threshold: float = 0.20,
+                       impute: bool = True,
+                       output_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Main pipeline for covariate handling: exclusion and imputation.
+    Full pipeline for covariate processing:
+    1. Calculate missing ratios.
+    2. Exclude columns with missingness > threshold.
+    3. Impute remaining missing values using MICE if requested.
     
     Args:
         df: Input DataFrame.
-        covariate_columns: List of columns to process.
-        missing_threshold: Threshold for excluding columns (>20% missing).
+        covariate_cols: List of columns to process.
+        missing_threshold: Threshold for excluding columns.
         impute: Whether to perform MICE imputation on remaining missing values.
-        num_iterations: Number of MICE iterations if imputation is performed.
-    
+        output_path: Optional path to save the processed DataFrame.
+        
     Returns:
-        Tuple of (processed DataFrame, processing summary dict)
+        Processed DataFrame with imputed/excluded covariates.
     """
-    logger.info(f"Starting covariate processing for columns: {covariate_columns}")
+    logger.info(f"Processing covariates: {covariate_cols}")
     
-    summary = {
-        "original_columns": len(covariate_columns),
-        "excluded_columns": [],
-        "imputed_columns": [],
-        "final_columns": []
-    }
+    # Ensure we only process columns that exist
+    available_cols = [c for c in covariate_cols if c in df.columns]
+    missing_cols = [c for c in covariate_cols if c not in df.columns]
+    if missing_cols:
+        logger.warning(f"Covariate columns not found in DataFrame: {missing_cols}")
+    
+    if not available_cols:
+        logger.warning("No covariate columns found to process.")
+        return df
     
     # Step 1: Exclude high missingness
-    df_filtered, excluded = exclude_high_missingness(
-        df, 
-        threshold=missing_threshold, 
-        columns=covariate_columns
-    )
-    summary["excluded_columns"] = excluded
+    df_processed, excluded = exclude_high_missingness(df, threshold=missing_threshold, columns=available_cols)
     
-    # Step 2: Impute remaining missing values if requested
+    # Step 2: Impute if requested and there are remaining missing values
     if impute:
-        df_processed = impute_with_mice(
-            df_filtered,
-            columns=[c for c in covariate_columns if c in df_filtered.columns],
-            number_of_iterations=num_iterations
-        )
-        # Identify which columns had imputation actually applied
-        summary["imputed_columns"] = [c for c in covariate_columns if c in df_processed.columns and df[c].isna().any()]
-    else:
-        df_processed = df_filtered
-        summary["imputed_columns"] = []
+        remaining_missing = df_processed[available_cols].isna().sum().sum()
+        if remaining_missing > 0:
+            df_processed, kernel = impute_with_mice(df_processed, imputed_cols=available_cols)
+            
+            # Log imputation diagnostics if kernel exists
+            if kernel:
+                logger.info("Imputation diagnostics available in the returned ImputedData object.")
+        else:
+            logger.info("No missing values remaining after exclusion; skipping imputation.")
     
-    summary["final_columns"] = [c for c in covariate_columns if c in df_processed.columns]
+    # Step 3: Save output if path provided
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df_processed.to_csv(output_path, index=False)
+        logger.info(f"Processed covariates saved to {output_path}")
     
-    logger.info(f"Covariate processing complete. Retained {len(summary['final_columns'])} columns.")
-    
-    return df_processed, summary
+    return df_processed
 
 def main():
     """
-    CLI entry point for covariate handling demonstration/testing.
-    Reads a sample CSV, processes covariates, and saves results.
+    Command-line entry point for covariate processing.
+    Expected to be run with arguments specifying input/output paths and configuration.
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Process covariates with MICE imputation and exclusion.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input CSV file.")
-    parser.add_argument("--output", type=str, required=True, help="Path to output CSV file.")
+    parser = argparse.ArgumentParser(description="Process covariates with MICE imputation.")
+    parser.add_argument("--input", type=str, required=True, help="Path to input CSV/TSV file.")
+    parser.add_argument("--output", type=str, required=True, help="Path to output processed file.")
     parser.add_argument("--columns", type=str, nargs="+", required=True, help="List of covariate columns to process.")
     parser.add_argument("--threshold", type=float, default=0.20, help="Missingness threshold for exclusion.")
     parser.add_argument("--no-impute", action="store_true", help="Disable MICE imputation.")
-    parser.add_argument("--iterations", type=int, default=5, help="Number of MICE iterations.")
     
     args = parser.parse_args()
     
-    if not os.path.exists(args.input):
-        logger.error(f"Input file not found: {args.input}")
-        return 1
+    logger.info(f"Starting covariate processing pipeline for {args.input}")
     
-    logger.info(f"Loading data from {args.input}")
-    df = pd.read_csv(args.input)
+    # Load data
+    try:
+        if args.input.endswith('.tsv'):
+            df = pd.read_csv(args.input, sep='\t')
+        else:
+            df = pd.read_csv(args.input)
+    except Exception as e:
+        logger.error(f"Failed to load input file: {e}")
+        raise
     
-    logger.info(f"Processing covariates: {args.columns}")
-    df_processed, summary = process_covariates(
+    # Process
+    df_processed = process_covariates(
         df,
-        covariate_columns=args.columns,
+        covariate_cols=args.columns,
         missing_threshold=args.threshold,
         impute=not args.no_impute,
-        num_iterations=args.iterations
+        output_path=Path(args.output)
     )
     
-    logger.info(f"Saving processed data to {args.output}")
-    df_processed.to_csv(args.output, index=False)
-    
-    # Save summary to a sidecar file
-    summary_path = args.output.replace('.csv', '_summary.json')
-    import json
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Processing summary saved to {summary_path}")
-    return 0
+    logger.info("Covariate processing pipeline completed.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

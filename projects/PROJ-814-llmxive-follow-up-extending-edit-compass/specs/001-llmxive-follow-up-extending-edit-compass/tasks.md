@@ -51,12 +51,12 @@
 - [ ] T001d [P] Create directory `src/data-models` and add empty `.gitkeep` file
 - [ ] T001e [P] Create directory `tests/unit` and add empty `.gitkeep` file
 - [ ] T001f [P] Create directory `tests/contract` and add empty `.gitkeep` file
-- [~] T001g [P] Create directory `data/raw` and add empty `.gitkeep` file
+- [ ] T001g [P] Create directory `data/raw` and add empty `.gitkeep` file
 - [ ] T001h [P] Create directory `data/filtered` and add empty `.gitkeep` file
 - [ ] T001i [P] Create directory `data/scores` and add empty `.gitkeep` file
 - [ ] T001j [P] Create directory `outputs` and add empty `.gitkeep` file
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `transformers`, `sentence-transformers`, `torch==2.2.2+cpu`, `llama-cpp-python`, `scikit-image`, `lpips`, `statsmodels`, `numpy`, `scipy`)
-- [~] T003 [P] Create `pyproject.toml` with `[tool.black]` (line-length=88) and `[tool.ruff]` (select=['E', 'F', 'W']) sections to configure linting and formatting. This single file replaces separate `.ruff.toml` and `.black` files to avoid redundancy.
+- [X] T002 Initialize {{claim:c_c23a1a02}} (Wikipedia: History of Python, https://en.wikipedia.org/wiki/History_of_Python) project with `requirements.txt` (pinning `transformers`, `sentence-transformers`, `torch==2.2.2+cpu [UNRESOLVED-CLAIM: c_6b25f0c5 — status=not_enough_info]`, `llama-cpp-python`, `scikit-image`, `lpips`, `statsmodels`, `numpy`, `scipy`)
+- [X] T003 [P] Create `pyproject.toml` with `[tool.black]` (line-length=88 [UNRESOLVED-CLAIM: c_473685d6 — status=not_enough_info]) and `[tool.ruff]` (select=['E', 'F', 'W']) sections to configure linting and formatting. This single file replaces separate `.ruff.toml` and `.black` files to avoid redundancy.
 
 ---
 
@@ -67,12 +67,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
-- [ ] T006 [P] Create `src/data_models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`). This file serves as the primary data model definition.
-- [ ] T006b [P] Append `RegressionResult` Pydantic model to `src/data_models.py` (must include fields: `model_r_squared`, `beta_logic`, `beta_fidelity`, `p_value_logic`, `p_value_fidelity`, `fdr_corrected_p_logic`, `fdr_corrected_p_fidelity`). Note: The `fdr_corrected_p` fields are populated *after* the regression and correction steps (T026), not at model instantiation.
+- [X] T006 [P] Create `src/data_models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`). This file serves as the primary data model definition.
+- [X] T006b [P] Append `RegressionResult` Pydantic model to `src/data_models.py` (must include fields: `model_r_squared`, `beta_logic`, `beta_fidelity`, `p_value_logic`, `p_value_fidelity`, `fdr_corrected_p_logic`, `fdr_corrected_p_fidelity`). Note: The `fdr_corrected_p` fields are populated *after* the regression and correction steps (T026), not at model instantiation.
 - [ ] T007 [P] Create `contracts/score-record.schema.yaml` for JSON schema validation of `ScoreRecord` (Depends on T006)
 - [ ] T007a [P] Create `contracts/regression-result.schema.yaml` for JSON schema validation of `RegressionResult` (Depends on T006b)
 - [X] T008 [P] Implement `src/cli/main.py` entry point with argument parsing for pipeline stages
-- [X] T008a [P] Implement `src/services/reference_validator.py` to perform local citation verification (checking title overlap >= 0.7 and URL reachability). This local implementation satisfies the Constitution's Principle II (Verified Accuracy) for offline execution, replacing the external agent dependency.
+- [X] T008a [P] Implement `src/services/reference_validator.py` to perform local citation verification (checking title overlap >= 0.7 [UNRESOLVED-CLAIM: c_3ac7a73b — status=not_enough_info] and URL reachability). This local implementation satisfies the Constitution's Principle II (Verified Accuracy) for offline execution, replacing the external agent dependency.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,7 +88,7 @@
 
 - [ ] T011 [US1] Implement `src/services/download.py` to fetch Edit-Compass dataset via `wget`/`curl` from official repo. This task includes validating the presence of the 'category' key in the raw dataset metadata and verifying that at least one record contains "World Knowledge Reasoning" or "Visual Reasoning". If keys are missing or labels are absent, exit with code 1 and log "ERROR: Missing category labels or data structure mismatch". If zero records match, exit with code 1 and log "ERROR: No records found for target categories". Save raw data to `data/raw/`.
 - [X] T012 [US1] Implement `src/services/filter.py` to load raw data, filter by `category` in ["World Knowledge Reasoning", "Visual Reasoning"], and save to `data/filtered/`. If zero records match, exit with code 1 and log "ERROR: Filter returned zero records".
-- [~] T013 [US1] Update `src/services/download.py` to raise `FileNotFoundError` on missing files and `src/services/filter.py` to raise `ValueError` on malformed JSON.
+- [ ] T013 [US1] Update `src/services/download.py` to raise `FileNotFoundError` on missing files and `src/services/filter.py` to raise `ValueError` on malformed JSON.
 - [X] T014 [US1] Integrate download and filter into `src/cli/main.py` (Stage: `download-filter`)
 
 ### Tests for User Story 1 (TDD - Write AFTER Implementation) ⚠️
@@ -111,17 +111,17 @@
 ### Implementation for User Story 2
 
 - [ ] T017 [US2] Implement `src/models/vlm.py` wrapper for `Phi-3-mini-4k-instruct-GGUF` (4-bit, CPU-only) using `llama-cpp-python` with initial batch size 8
-- [ ] T018 [US2] Implement `src/services/scoring.py` Logic Score logic: Embed instruction & VLM description via `all-MiniLM-L6-v2`, compute cosine similarity
+- [ ] T018 [US2] Implement `src/services/scoring.py` Logic Score logic: Embed instruction & VLM description via `{{claim:c_697bedb4}} (2607.07974, https://arxiv.org/abs/2607.07974)`, compute cosine similarity
 - [ ] T019 [US2] Implement `src/services/scoring.py` Fidelity Score logic: Compute SSIM and LPIPS between the **original** source and edited images (NO resizing), calculate a weighted combination of SSIM and (1-LPIPS). This ensures compliance with FR-004 and Constitution IV (Single Source of Truth).
-- [ ] T020 [US2] Implement batch processing loop in `src/services/scoring.py` with **pre-flight memory estimation** and **dynamic batch-size adjustment**. Formula: `RAM_est = model_size_gb * scaling_factor + batch_size * image_size_mb`. `image_size_mb` is the memory of a single image tensor (using dimensions defined in T019, i.e., original size). **MUST NOT resize images**. Reduce batch size if `RAM_est > 6.5GB` (GB limit minus A safety buffer of sufficient capacity to accommodate system overhead and unexpected load variations.) to guarantee the storage limit is never exceeded; skip failures with logs. (Depends on T019).
-- [ ] T021 [US2] Integrate scoring into `src/cli/main.py` (Stage: `score`) and write results to `data/scores/`
+- [ ] T020 [US2] Implement batch processing loop in `src/services/scoring.py` with **pre-flight memory estimation** and **dynamic batch-size adjustment**. Formula: `RAM_est = model_size_gb * scaling_factor + batch_size * image_size_mb`. `image_size_mb` is the memory of a single image tensor (using dimensions defined in T019, i.e., original size). **MUST NOT resize images**. Reduce batch size if `RAM_est > 6.5GB [UNRESOLVED-CLAIM: c_0b494cc3 — status=not_enough_info]` (GB limit minus A safety buffer of sufficient capacity to accommodate system overhead and unexpected load variations.) to guarantee the storage limit is never exceeded; skip failures with logs. (Depends on T019).
+- [X] T021 [US2] Integrate scoring into `src/cli/main.py` (Stage: `score`) and write results to `data/scores/`
 
 ### Tests for User Story 2 (TDD - Write AFTER Implementation) ⚠️
 
 - [ ] T015a-1 [P] [US2] Write `tests/unit/test_scoring.py::test_ssim_calculation`: Assert SSIM calculation on dummy images returns value in [0, 1]. (Depends on T019)
 - [ ] T015a-2 [P] [US2] Write `tests/unit/test_scoring.py::test_lpips_calculation`: Assert LPIPS calculation on dummy images returns value in [0, 1]. (Depends on T019)
-- [ ] T016 [P] [US2] Write `tests/unit/test_scoring.py::test_vlm_description_generation`: Assert VLM wrapper returns a non-empty string description for a valid image prompt. (Depends on T017)
-- [ ] T016b [P] [US2] Write `tests/unit/test_scoring.py::test_logic_score_range`: Assert Logic Score (cosine similarity) is in [-1, 1]. (Depends on T018)
+- [X] T016 [P] [US2] Write `tests/unit/test_scoring.py::test_vlm_description_generation`: Assert VLM wrapper returns a non-empty string description for a valid image prompt. (Depends on T017)
+- [X] T016b [P] [US2] Write `tests/unit/test_scoring.py::test_logic_score_range`: Assert Logic Score (cosine similarity) is in [-1, 1]. (Depends on T018)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,12 +135,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T024a [US3] Implement `src/services/analysis.py` to extract and validate the 'Human Judgment Score' field from the filtered dataset (`data/filtered/`). Ensure the field exists and is numeric for all records. If missing, raise `ValueError` with message "ERROR: Human Judgment Score missing". (Prerequisite for T024).
+- [X] T024a [US3] Implement `src/services/analysis.py` to extract and validate the 'Human Judgment Score' field from the filtered dataset (`data/filtered/`). Ensure the field exists and is numeric for all records. If missing, raise `ValueError` with message "ERROR: Human Judgment Score missing". (Prerequisite for T024).
 - [ ] T024b [US3] Implement `src/services/analysis.py` to perform an **atomic write** of `outputs/circular_validation_risk_report.json`. The write MUST use a temporary file (e.g., `report.json.tmp`) followed by `os.rename()` to ensure atomicity. The JSON structure MUST include fields: `r` (correlation coefficient), `threshold` (0.5), `decision` (string), and `timestamp`. (Dependency for T024).
 - [ ] T024 [US3] Implement `src/services/analysis.py` independence check: Calculate Pearson correlation between Human Score (from T024a) and Logic Score. If |r| ≥ 0.5, **atomically** write `outputs/circular_validation_risk_report.json` (using T024b logic) AND immediately raise `CircularValidationRiskError` with message "CIRCULAR_VALIDATION_RISK: |r|={value:.4f} >= 0.5" and exit process with code 1. (Depends on T024a, T024b).
-- [ ] T025 [US3] Implement `src/services/analysis.py` multiple linear regression: Dependent=Human Score, Independent=Logic & Fidelity Scores (Depends on T024a).
-- [ ] T026 [US3] Implement `src/services/analysis.py` Benjamini-Hochberg correction on regression p-values (FDR ≤ 0.05)
-- [ ] T028a [US3] Implement `src/services/analysis.py` to perform a **statistical test for the difference in correlation strength** (Fisher's r-to-z transformation) between Logic and Fidelity predictors. The task must verify if Logic correlation exceeds Fidelity correlation by **at least 0.1** AND the **p-value of the difference is < 0.05**. Output results to `outputs/correlation_diff_test.json` with fields: `z_score`, `p_value`, `effect_size`, `conclusion`. (Depends on T025, T026)
+- [X] T025 [US3] Implement `src/services/analysis.py` multiple linear regression: Dependent=Human Score, Independent=Logic & Fidelity Scores (Depends on T024a).
+- [ ] T026 [US3] Implement `src/services/analysis.py` Benjamini-Hochberg correction on regression p-values (FDR ≤ 0.05 [UNRESOLVED-CLAIM: c_33e2a091 — status=not_enough_info])
+- [ ] T028a [US3] Implement `src/services/analysis.py` to perform a **statistical test for the difference in correlation strength** (Fisher's r-to-z transformation) between Logic and Fidelity predictors. The task must verify if Logic correlation exceeds Fidelity correlation by **at least 0.1** AND the **p-value of the difference is < 0.05 [UNRESOLVED-CLAIM: c_cfa37bc2 — status=not_enough_info]**. Output results to `outputs/correlation_diff_test.json` with fields: `z_score`, `p_value`, `effect_size`, `conclusion`. (Depends on T025, T026)
 - [ ] T028b [US3] Implement `src/services/analysis.py` to explicitly output the "threshold_met" (boolean) and "threshold_value" (0.1) in the final report, ensuring SC-001 is verifiable. (Depends on T028a)
 - [ ] T029 [US3] Generate final report in `outputs/regression_report.md`. Decision Logic: If (diff >= 0.1 AND p_diff < 0.05) -> State "Logic is stronger predictor". Else if (beta_fidelity > beta_logic AND p_diff < 0.05) -> State "Fidelity is stronger predictor". **Else -> State "Inconclusive: Neither predictor significantly exceeds the 0.1 threshold with p < 0.05."** The report MUST explicitly output `threshold_met` (boolean) and `threshold_value` (0.1) to verify SC-001. (Depends on T025, T026, T028a, T028b)
 - [ ] T030 [US3] Integrate analysis into `src/cli/main.py` (Stage: `analyze`)
@@ -160,8 +160,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T031 [P] Add contract tests validating `data/scores/*.json` against `contracts/score-record.schema.yaml` and `outputs/regression_report.json` against `contracts/regression-result.schema.yaml`
-- [ ] T032a [P] Run a full pass of the scoring pipeline and verify peak RAM usage is < 6.5GB in the logs, confirming the **dynamic batch-size adjustment** logic in T020 functions correctly. (Replaces T032a which incorrectly hardcoded batch size).
-- [ ] T032b [P] Run a full pass of the scoring pipeline and verify peak RAM usage is < 6.5GB in the logs.
+- [ ] T032a [P] Run a full pass of the scoring pipeline and verify peak RAM usage is < 6.5GB [UNRESOLVED-CLAIM: c_0e292ac6 — status=not_enough_info] in the logs, confirming the **dynamic batch-size adjustment** logic in T020 functions correctly. (Replaces T032a which incorrectly hardcoded batch size).
+- [ ] T032b [P] Run a full pass of the scoring pipeline and verify peak RAM usage is < 6.5GB [UNRESOLVED-CLAIM: c_0e292ac6 — status=not_enough_info] in the logs.
 - [ ] T033 [P] Execute the Advancement-Evaluator Agent to update `state/projects/PROJ-814-...yaml` with requirements.txt hash and dataset checksums.
 - [ ] T034 [P] Run `python -m src.cli.main --validate-docs` and update `quickstart.md` with the new CLI flags and execution instructions.
 

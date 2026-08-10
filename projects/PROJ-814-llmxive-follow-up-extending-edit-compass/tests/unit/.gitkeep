@@ -1,2 +1,1 @@
-# Placeholder file to ensure the tests/unit directory exists.
-# This directory is used for unit tests in the llmXive pipeline.
+# Unit tests for llmXive pipeline

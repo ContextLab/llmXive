@@ -1,4 +1,4 @@
-# Dietary Fiber Intake and Gut Microbiome Composition Analysis
+# llmXive Project: Dietary Fiber and Gut Microbiome Correlation
 
 ## Overview
 This project investigates the correlation between dietary fiber intake and gut microbiome composition using data from the American Gut Project (AGP) and UK Biobank (UKBB).
@@ -7,45 +7,43 @@ This project investigates the correlation between dietary fiber intake and gut m
 ```
 .
 ├── code/
-│ ├── main.py # Entry point
-│ ├── ingestion/ # Data loading scripts
-│ ├── preprocessing/ # Data cleaning and transformation
-│ ├── analysis/ # Statistical analysis (MaAsLin2, etc.)
-│ ├── utils/ # Utilities (logger, power analysis)
-│ └── tests/ # Test suites
+│ ├── src/
+│ │ ├── ingestion/ # Data loading modules
+│ │ ├── preprocessing/ # Data cleaning and transformation
+│ │ ├── analysis/ # Statistical analysis modules
+│ │ ├── utils/ # Shared utilities
+│ │ └── main.py # Entry point
+│ ├── tests/ # Test suites
+│ ├── requirements.txt # Dependencies
+│ └── pyproject.toml # Project configuration
 ├── data/
 │ ├── raw/ # Raw downloaded data
-│ └── processed/ # Processed and harmonized data
+│ ├── processed/ # Cleaned and transformed data
+│ └── processed/results/ # Analysis outputs
 ├── docs/ # Documentation
-├── state/ # Pipeline state tracking
-└── logs/ # Log files
+└── state/ # Pipeline state files
 ```
 
 ## Setup
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+1. Ensure Python 3.11 is installed.
 2. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
+3. Initialize directory structure:
+ ```bash
+ python code/src/setup_data_structure.py
+ ```
 
-## Usage
-Run the main pipeline:
+## Running the Pipeline
 ```bash
-python code/main.py
+python code/src/main.py
 ```
 
-Run tests:
+## Testing
 ```bash
 pytest code/tests/
 ```
-
-## Data Sources
-- American Gut Project (AGP): Via Qiita
-- UK Biobank (UKBB): Via UKBB portal
 
 ## License
 MIT

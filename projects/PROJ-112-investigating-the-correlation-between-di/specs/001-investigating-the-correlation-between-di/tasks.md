@@ -46,7 +46,7 @@
 - [ ] T001 Create project structure per implementation plan:
  - Directories: `src/`, `src/ingestion/`, `src/preprocessing/`, `src/analysis/`, `src/utils/`, `tests/`, `tests/contract/`, `tests/integration/`, `tests/unit/`, `data/raw/`, `data/processed/`, `data/processed/results/`, `docs/`, `state/`
  - Files: `src/main.py`, `src/utils/logger.py`, `src/utils/power_analysis.py`, `tests/test_schemas.py`, `requirements.txt`, `README.md`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions:
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions:
  - `pandas==2.0.3`, `scikit-learn==1.3.0`, `scipy==1.11.1`, `numpy==1.24.3`, `requests==2.31.0`, `pyyaml==6.0.1`, `joblib==1.3.1`, `miceforest==5.3.3`, `rpy2==3.5.11`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [ ] T004 [P] Setup `pytest` configuration and test directory structure
@@ -63,9 +63,9 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T005 Implement `src/utils/logger.py` for standardized logging
 - [ ] T006 Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable)
-- [ ] T006b Execute Power Analysis: Run `src/utils/power_analysis.py` on the harmonized dataset (once available) to generate `data/processed/results/power_analysis_report.tsv` containing calculated power and margin of error. **Depends on**: T014 (data availability). <!-- FAILED: unspecified -->
+- [ ] T006b Execute Power Analysis: Run `src/utils/power_analysis.py` on the harmonized dataset (once available) to generate `data/processed/results/power_analysis_report.tsv` containing calculated power and margin of error. **Depends on**: T014 (data availability). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T007 Create `src/preprocessing/id_generator.py` to generate SHA256 sample IDs (cohort + original_id)
-- [~] T008 Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/results/`)
+- [ ] T008 Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/results/`)
 - [ ] T009 [P] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing); **Configure complete logging**: Setup `src/utils/logger.py` with handlers for all analysis steps, including specific formatters for MaAsLin2 execution status, convergence warnings, and R-package output capture.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -83,7 +83,7 @@ Examples of foundational tasks (adjust based on your project):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
-- [~] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` <!-- FAILED: unspecified -->
+- [ ] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -96,7 +96,7 @@ Examples of foundational tasks (adjust based on your project):
  - Exclude samples with missing fiber data
  - Merge into `data/processed/merged_harmonized.tsv`
 - [ ] T015 [US1] Add validation logic to ensure no PII leaks and checksums are recorded in `state/`
-- [ ] T016 [US1] Add logging for ingestion steps (download status, filter counts, harmonization results)
+- [~] T016 [US1] Add logging for ingestion steps (download status, filter counts, harmonization results)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

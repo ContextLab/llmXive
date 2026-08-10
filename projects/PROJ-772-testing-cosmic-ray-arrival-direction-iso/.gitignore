@@ -1,6 +1,3 @@
-# Data artifacts (large files, binary formats)
-data/
-
 # Python bytecode and cache
 __pycache__/
 *.pyc
@@ -13,8 +10,12 @@ __pycache__/
 .env.local
 .env.*.local
 
-# Project state (exclude specific keep files)
+# Data artifacts (large files, not for version control)
+data/
+
+# State files (generated checksums and pipeline state)
 state/projects/*.yaml
+# Keep the directory structure but ignore generated state files
 !state/projects/.gitkeep
 
 # IDE and editor files
@@ -31,4 +32,4 @@ Thumbs.db
 # Logs and temporary files
 *.log
 tmp/
-temp/
+.tmp/

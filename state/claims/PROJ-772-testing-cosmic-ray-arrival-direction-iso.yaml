@@ -875,57 +875,6 @@
   updated_at: '2026-07-15T16:28:20Z'
 - artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
   attempts: 1
-  canonical: Auger Open Data 2020 DOI 10.5281/zenodo.3966535
-  claim_id: c_fe2bcb7e
-  context: 'Implement download_events.py to fetch Fetch Auger Open Data 2020 (DOI:
-    10.5281/zenodo.3966535) and TA Public Data 2023-01'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T16:30:01Z'
-- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
-  attempts: 1
-  canonical: Telescope Array Public Data 2023-01
-  claim_id: c_f93f827f
-  context: 'Implement download_events.py to fetch Fetch Auger Open Data 2020 (DOI:
-    10.5281/zenodo.3966535) and TA Public Data 2023-01'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: TA Public Data 2023-01
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T16:30:24Z'
-- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
-  attempts: 1
-  canonical: Monte Carlo simulation plan requires 10000 simulations
-  claim_id: c_4f6b2d66
-  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
-    parallelize The Monte Carlo simulation plan requires 10,000 simulations. across
-    2 CPUs within 6-hour runtime limit.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Monte Carlo simulation plan requires 10,000 simulations.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T16:30:24Z'
-- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
-  attempts: 1
   canonical: Monte Carlo simulation 10000 runs across 2 CPUs within 6 hours
   claim_id: c_b57abf00
   context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
@@ -1367,3 +1316,418 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T16:37:59Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Public Data 2023-01 referenced
+  claim_id: c_be59cf88
+  context: 'Fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535) and TA Public
+    Data 2023-01 and The document references Telescope Array Public Data 2023-01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document references Telescope Array Public Data 2023-01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:43:11Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: arXiv paper 1507.04182
+  claim_id: c_874246ae
+  context: Update research.md to document detector types, TA Fluorescence/Surface)
+    and {{claim:c_cda8bf62}} (1507.04182, https://arxiv.org/abs/1507.04182)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '1507.04182'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:43:20Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: arXiv URL for paper 1507.04182
+  claim_id: c_bfc8f8c1
+  context: Update research.md to document detector types, TA Fluorescence/Surface)
+    and {{claim:c_cda8bf62}} (1507.04182, https://arxiv.org/abs/1507.04182)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: https://arxiv.org/abs/1507.04182
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:43:46Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 2
+  canonical: Monte Carlo simulation plan requires 10000 simulations
+  claim_id: c_4f6b2d66
+  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
+    parallelize The Monte Carlo simulation plan requires 10,000 simulations. across
+    2 CPUs within 6-hour runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monte Carlo simulation plan requires 10,000 simulations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:44:27Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: 10000 simulations across 2 CPUs within 6 hours
+  claim_id: c_a984ef58
+  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
+    parallelize The Monte Carlo simulation plan requires 10,000 simulations. across
+    2 CPUs within 6-hour runtime limit. This task must validate throughput and define
+    the batching strategy before full run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parallelize The Monte Carlo simulation plan requires 10,000 simulations.
+    across 2 CPUs within 6-hour runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:44:50Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: 10000 simulations complete within 6 hours on 2 CPUs
+  claim_id: c_5d3c365d
+  context: 'Critical Constraint: All Monte Carlo simulations (N=10,000) must complete
+    within 6 hours on 2-CPU CPU-only runner; optimize map2alm calls via T038 and batching
+    (T027b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All Monte Carlo simulations (N=10,000) must complete within 6 hours on
+    2-CPU CPU-only runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:45:08Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 3
+  canonical: Auger Open Data 2020 DOI 10.5281/zenodo.3966535
+  claim_id: c_fe2bcb7e
+  context: 'Implement download_events.py to fetch Fetch Auger Open Data 2020 (DOI:
+    10.5281/zenodo.3966535) and TA Public Data 2023-01'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:46:01Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 3
+  canonical: Telescope Array Public Data 2023-01
+  claim_id: c_f93f827f
+  context: 'Implement download_events.py to fetch Fetch Auger Open Data 2020 (DOI:
+    10.5281/zenodo.3966535) and TA Public Data 2023-01'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TA Public Data 2023-01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:46:01Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Ultra-high-energy cosmic ray energy cut at 50 EeV
+  claim_id: c_e6e0be09
+  context: Implement preprocess.py to filter events with E > 50 EeV, exclude missing
+    energy/coords
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter events with E > 50 EeV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:46:01Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: HEALPix map resolution Nside 64 for cosmic ray arrival directions
+  claim_id: c_bdcaea8b
+  context: Implement analysis/healpix_conversion.py to convert RA/Dec to HEALPix Nside=64
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Convert RA/Dec to HEALPix map (Nside=64)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:46:41Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Angular power spectrum computed for multipole moments l=1 to 5
+  claim_id: c_05d4a303
+  context: "Compute angular power spectrum ($C_\ell$) for $\ell=1..5$ from HEALPix\
+    \ map"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute angular power spectrum for l=1..5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:47:04Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Shot-noise subtraction formula 1 over N total
+  claim_id: c_c47d81a3
+  context: compute spherical-harmonic coefficients with shot-noise subtraction ($1/N_{tot}$)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shot-noise subtraction of 1/N_tot
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:47:23Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation count 10000 for isotropy testing
+  claim_id: c_91a7a44c
+  context: The Monte Carlo simulation plan requires 10,000 simulations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 10,000 isotropic Monte Carlo simulations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:47:40Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation runtime limit 6 hours on 2 CPUs
+  claim_id: c_94a0f108
+  context: parallelize The Monte Carlo simulation plan requires 10,000 simulations.
+    across 2 CPUs within 6-hour runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monte Carlo simulations must complete within 6 hours on 2 CPUs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:47:53Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array calibration reference arXiv 1507.04182
+  claim_id: c_dd178fb1
+  context: Update research.md to document detector types, TA Fluorescence/Surface)
+    and {{claim:c_cda8bf62}} (1507.04182, https://arxiv.org/abs/1507.04182)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reference 1507.04182 for Telescope Array detector details
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:48:13Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Integrated exposure unit km squared steradian year
+  claim_id: c_ba754e8b
+  context: "Update research.md to calculate and document total integrated exposure\
+    \ (km\xB2\xB7sr\xB7yr)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integrated_exposure_unit_km_squared_steradian_year
+  kind: entity_fact
+  raw_text: "Calculate total integrated exposure in km\xB2\xB7sr\xB7yr"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:49:12Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Project Python version 3.11
+  claim_id: c_77895f10
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Guido van Rossum began working on Python in the late 1980s as a successor
+        to the ABC programming language. Python 3.0, released in 2008, was a major
+        revision and not completely backward-compatible with earlier versions. Beginning
+        with Python 3.5, capabilities and keywords for typing were added to the language,
+        allowing optional static typing. As of 2026, the Python Software Foundation
+        supports Python 3.10, 3.11, 3.12, 3.13, and 3.14, following the project's
+        annual release cycle and five-year support policy. Python 3.15.0rc1 (which
+        defaults to UTF-8) is out in preview, and the stable release is expected to
+        launch in October 2026. Earlier versions in the 3.x series have reached end-of-life
+        and no longer receive security updates.
+      source_id: Python (programming language)
+      url: https://en.wikipedia.org/wiki/Python_(programming_language)
+      value: '3.11'
+    filled: true
+  kind: numeric
+  raw_text: Use Python 3.11
+  resolved_value: '3.11'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T09:49:18Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: healpy package version requirement 1.16.0
+  claim_id: c_0b88eba7
+  context: requirements.txt in code/ containing exact version pins (e.g., healpy>=1.16.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use healpy version >= 1.16.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:49:39Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: numpy package version requirement 1.24.0
+  claim_id: c_661f86b4
+  context: requirements.txt in code/ containing exact version pins (e.g., numpy>=1.24.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use numpy version >= 1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:49:55Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: pandas package version requirement 2.0.0
+  claim_id: c_ce743d06
+  context: requirements.txt in code/ containing exact version pins (e.g., pandas>=2.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pandas version >= 2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:50:12Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: scipy package version requirement 1.10.0
+  claim_id: c_17fe8eb1
+  context: requirements.txt in code/ containing exact version pins (e.g., scipy>=1.10.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy version >= 1.10.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:50:30Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: astropy package version requirement 5.3.0
+  claim_id: c_db715fc4
+  context: requirements.txt in code/ containing exact version pins (e.g., astropy>=5.3.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use astropy version >= 5.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:50:45Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: requests package version requirement 2.31.0
+  claim_id: c_114cf0c7
+  context: requirements.txt in code/ containing exact version pins (e.g., requests>=2.31.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use requests version >= 2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:51:03Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: tqdm package version requirement 4.65.0
+  claim_id: c_40985000
+  context: requirements.txt in code/ containing exact version pins (e.g., tqdm>=4.65.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use tqdm version >= 4.65.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:51:23Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: pytest package version requirement 7.4.0
+  claim_id: c_f81af660
+  context: requirements.txt in code/ containing exact version pins (e.g., pytest>=7.4.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pytest version >= 7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:52:12Z'

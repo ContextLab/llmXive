@@ -1,6 +1,14 @@
-'T001 Create project structure per implementation plan:': 1
-'T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions:': 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 [P] Setup `pytest` configuration and test directory structure: 1
-T005 Implement `src/utils/logger.py` for standardized logging: 1
-T006 Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable): 1
+T001: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1
+T006b: 1
+T007: 1
+T008: 1
+T009: 1
+T011: 1
+T012: 1
+T013: 1
+T014: 1
+T015: 1

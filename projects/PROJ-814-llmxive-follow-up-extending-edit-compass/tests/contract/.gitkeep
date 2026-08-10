@@ -1,3 +1,4 @@
-# Placeholder file to mark the contract test directory.
-# This directory is intended for contract tests validating API schemas
-# and data contracts (e.g., against contracts/*.yaml).
+# Contract tests directory
+# This directory contains tests for validating data schemas and API contracts.
+# Files here ensure that data produced by the pipeline adheres to the defined
+# JSON schemas (e.g., score-record.schema.yaml, regression-result.schema.yaml).

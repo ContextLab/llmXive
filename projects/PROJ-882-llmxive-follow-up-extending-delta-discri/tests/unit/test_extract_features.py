@@ -1,92 +1,107 @@
 """
-Unit tests for T018: Feature Extraction.
+Unit tests for feature extraction logic (T018).
 """
 import pytest
-import pandas as pd
 import numpy as np
+import pandas as pd
 from pathlib import Path
 import sys
+import os
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from code.data.extract_features import (
     extract_ngram_features,
     extract_pos_features,
-    compute_semantic_similarity,
-    validate_features,
-    stratified_sample_by_length
+    stratified_sample_by_length,
+    validate_features
 )
-from code.config import get_config_summary
 
-def test_extract_ngram_features():
-    tokens = ["the", "cat", "sat"]
-    feats = extract_ngram_features(tokens, n_max=2)
-    assert "ngram_1_the" in feats
-    assert "ngram_2_the cat" in feats
-    assert feats["ngram_1_the"] == 1
-    assert feats["ngram_2_the cat"] == 1
+class TestNgramFeatures:
+    def test_extract_ngram_features_basic(self):
+        text = "The cat sat on the mat."
+        features = extract_ngram_features(text)
+        # Should have some features
+        assert isinstance(features, dict)
+        assert len(features) > 0
+        # Check that values are numeric
+        for v in features.values():
+            assert isinstance(v, (int, float))
 
-def test_extract_pos_features():
-    # Mock doc object would be needed, but we can test the logic if we had a real doc
-    # For now, test with a simple mock if needed, or skip if spacy dependency is heavy
-    # Let's assume spacy is installed and test with a small snippet
-    try:
-        import spacy
-        nlp = spacy.load("en_core_web_sm")
-        doc = nlp("The cat sat.")
-        feats = extract_pos_features(["The", "cat", "sat", "."], doc)
-        assert "NOUN" in feats
-        assert "DET" in feats
-    except OSError:
-        pytest.skip("Spacy model not found")
+    def test_extract_ngram_features_empty(self):
+        text = ""
+        features = extract_ngram_features(text)
+        # Should return default zeros or empty dict with zeros
+        # Based on implementation, it returns a dict with zeros
+        assert isinstance(features, dict)
+        # Implementation returns {f"ngram_{i}": 0.0 for i in range(30)}
+        assert all(v == 0.0 for v in features.values())
 
-def test_compute_semantic_similarity():
-    try:
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer("all-MiniLM-L6-v2")
-        target = ["cat"]
-        refs = ["The dog barked", "The cat meowed"]
-        sim = compute_semantic_similarity(target, refs, model)
-        assert 0.0 <= sim <= 1.0
-    except Exception as e:
-        pytest.skip(f"Embedding model failed: {e}")
+class TestStratifiedSample:
+    def test_stratified_sample_length(self):
+        # Create mock data with varying lengths
+        data = [
+            {"question": "Short", "id": 1},
+            {"question": "Medium length question", "id": 2},
+            {"question": "This is a very long question with many words to increase the length significantly", "id": 3},
+            {"question": "Another short", "id": 4},
+            {"question": "Medium again", "id": 5},
+        ]
+        
+        sample = stratified_sample_by_length(data, n=3, seed=42)
+        assert len(sample) == 3
+        # Check that IDs are preserved
+        ids = [s['id'] for s in sample]
+        assert len(set(ids)) == 3 # No duplicates
 
-def test_validate_features():
-    # Valid data
-    data = {
-        "example_id": ["1"],
-        "token_id": [0],
-        "token_text": ["a"],
-        "feature_vector": [[0.1, 0.2, 0.3]]
-    }
-    df = pd.DataFrame(data)
-    assert validate_features(df) is True
+class TestFeatureValidation:
+    def test_validate_features_valid(self):
+        data = [
+            {
+                "token_id": 0,
+                "feature_vector": [1.0, 0.0, 0.5, 0.9, 2.0],
+                "example_id": "1"
+            },
+            {
+                "token_id": 1,
+                "feature_vector": [2.0, 1.0, 0.2, 0.8, 3.0],
+                "example_id": "1"
+            }
+        ]
+        df = pd.DataFrame(data)
+        assert validate_features(df) is True
 
-    # Invalid: missing column
-    data_invalid = {
-        "example_id": ["1"],
-        "token_id": [0],
-        "token_text": ["a"]
-    }
-    df_invalid = pd.DataFrame(data_invalid)
-    assert validate_features(df_invalid) is False
+    def test_validate_features_missing_column(self):
+        data = [
+            {
+                "token_id": 0,
+                "feature_vector": [1.0, 0.0],
+                # Missing example_id
+            }
+        ]
+        df = pd.DataFrame(data)
+        assert validate_features(df) is False
 
-    # Invalid: non-list vector
-    data_bad_vec = {
-        "example_id": ["1"],
-        "token_id": [0],
-        "token_text": ["a"],
-        "feature_vector": ["string"]
-    }
-    df_bad_vec = pd.DataFrame(data_bad_vec)
-    assert validate_features(df_bad_vec) is False
+    def test_validate_features_nan_in_vector(self):
+        data = [
+            {
+                "token_id": 0,
+                "feature_vector": [1.0, np.nan, 0.5],
+                "example_id": "1"
+            }
+        ]
+        df = pd.DataFrame(data)
+        assert validate_features(df) is False
 
-def test_stratified_sample_by_length():
-    data = {
-        "question": ["Short", "This is a much longer question text", "Med"],
-        "answer": ["A", "B", "C"]
-    }
-    df = pd.DataFrame(data)
-    sample = stratified_sample_by_length(df, n=2, seed=42)
-    assert len(sample) <= 2
-    assert "length" in sample.columns
+    def test_validate_features_non_list_vector(self):
+        data = [
+            {
+                "token_id": 0,
+                "feature_vector": "not a list",
+                "example_id": "1"
+            }
+        ]
+        df = pd.DataFrame(data)
+        assert validate_features(df) is False

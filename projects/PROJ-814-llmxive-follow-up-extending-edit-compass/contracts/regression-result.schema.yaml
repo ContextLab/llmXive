@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: RegressionResult
-description: JSON Schema for validation of RegressionResult Pydantic model from src/data_models.py
+description: JSON Schema for the RegressionResult Pydantic model used in statistical analysis of Edit-Compass benchmark.
 type: object
 required:
   - model_r_squared
@@ -13,33 +13,33 @@ required:
 properties:
   model_r_squared:
     type: number
-    description: R-squared value of the multiple linear regression model
+    description: The R-squared value of the multiple linear regression model.
     minimum: 0.0
     maximum: 1.0
   beta_logic:
     type: number
-    description: Standardized beta coefficient for the Logic Score predictor
+    description: The standardized regression coefficient (beta) for the Logic Score predictor.
   beta_fidelity:
     type: number
-    description: Standardized beta coefficient for the Fidelity Score predictor
+    description: The standardized regression coefficient (beta) for the Fidelity Score predictor.
   p_value_logic:
     type: number
-    description: Raw p-value for the Logic Score coefficient
+    description: The p-value associated with the Logic Score coefficient.
     minimum: 0.0
     maximum: 1.0
   p_value_fidelity:
     type: number
-    description: Raw p-value for the Fidelity Score coefficient
+    description: The p-value associated with the Fidelity Score coefficient.
     minimum: 0.0
     maximum: 1.0
   fdr_corrected_p_logic:
     type: number
-    description: Benjamini-Hochberg FDR corrected p-value for the Logic Score coefficient
+    description: The Benjamini-Hochberg FDR-corrected p-value for the Logic Score.
     minimum: 0.0
     maximum: 1.0
   fdr_corrected_p_fidelity:
     type: number
-    description: Benjamini-Hochberg FDR corrected p-value for the Fidelity Score coefficient
+    description: The Benjamini-Hochberg FDR-corrected p-value for the Fidelity Score.
     minimum: 0.0
     maximum: 1.0
 additionalProperties: false

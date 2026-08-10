@@ -168,3 +168,155 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T17:04:16Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset contains at least 200 valid examples
+  claim_id: c_a578ab87
+  context: Download GSM8K from HuggingFace, filter for verified correct solutions,
+    save to data/raw/gsm8k_verified.parquet. Ensure at least 200 examples are available.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_contains_at_least_200_valid_examples
+  kind: magnitude
+  raw_text: Ensure at least 200 examples are available from the GSM8K dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:57:56Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Execution subset of 200 GSM8K examples with seed 42
+  claim_id: c_ba5b2c9e
+  context: 'Independent Test: Execute on a fixed subset of 200 GSM8K examples (seed=42)
+    and verify the output file contains a valid DelTA Coefficient for every token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute on a fixed subset of 200 GSM8K examples (seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:58:16Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: DelTA coefficient variance greater than 1e-9
+  claim_id: c_9c06a7b6
+  context: 'Independent Test: ...verify the output file contains a valid DelTA Coefficient
+    for every token, with variance > 1e-9 and no NaNs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DelTA_coefficient_variance_greater_than_1e-9
+  kind: magnitude
+  raw_text: Verify output coefficients have variance > 1e-9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:58:41Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Semantic similarity calculated against first 50 GSM8K examples
+  claim_id: c_ee2fa676
+  context: Extract n-gram stats, POS tags, and semantic similarity to the first 50
+    examples (seed=42, stratified by length) from the raw GSM8K dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract semantic similarity to the first 50 examples from the raw GSM8K
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:58:56Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Total runtime less than 6 hours
+  claim_id: c_685a3166
+  context: Read data/processed/metrics.json and explicitly verify total_runtime_seconds
+    is less than the free-tier limit (6 hours).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify total_runtime_seconds is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:59:15Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Memory footprint less than 7 GB
+  claim_id: c_311828e6
+  context: Code cleanup and refactoring to ensure memory footprint < 7 GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure memory footprint is less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:59:37Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Phi-3-mini used as Oracle model
+  claim_id: c_5187a7a4
+  context: Update spec.md (FR-002) to explicitly authorize the deviation from N>=500/Llama-3-8B
+    to N=200/Phi-3-mini for CPU feasibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Phi-3-mini as the Oracle model instead of Llama-3-8B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:59:58Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 used for embeddings
+  claim_id: c_e71bd2cb
+  context: Update spec.md (FR-003) to explicitly authorize the deviation from Llama-3-8B
+    embeddings to sentence-transformers/all-MiniLM-L6-v2 to avoid circularity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for embeddings instead of Llama-3-8B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:00:13Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: PyTorch seed 42 used for stratification
+  claim_id: c_9e238c19
+  context: Run DelTA algorithm using explicit torch.autograd.grad logic with retain_graph=True
+    on N=200 stratified examples (seed=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use PyTorch seed 42 for stratified examples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:03:58Z'

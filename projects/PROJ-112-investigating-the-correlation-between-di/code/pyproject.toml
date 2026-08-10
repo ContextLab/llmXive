@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-gut-microbiome"
+version = "0.1.0"
+description = "Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas==2.0.3",
+    "scikit-learn==1.3.0",
+    "scipy==1.11.1",
+    "numpy==1.24.3",
+    "requests==2.31.0",
+    "pyyaml==6.0.1",
+    "joblib==1.3.1",
+    "miceforest==5.3.3",
+    "rpy2==3.5.11",
+    "pytest==7.4.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"

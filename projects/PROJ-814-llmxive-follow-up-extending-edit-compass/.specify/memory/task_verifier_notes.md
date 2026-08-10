@@ -8,12 +8,14 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T001d** — No evidence of a `src/data-models` directory or a `.gitkeep` file was provided; without seeing those artifacts, we cannot confirm the required directory and empty placeholder file exist. The implementer must add the directory and an empty `.gitkeep` file inside it.
 - **T001e** — No artifact showing a `tests/unit` directory or an empty `.gitkeep` file was provided; without such evidence the requirement cannot be confirmed as fulfilled.
 - **T001f** — No evidence of a `tests/contract` directory or an empty `.gitkeep` file was provided; the required artifact is missing.
-- **T001h** — The implementer supplied only a high‑level feature specification and no concrete artifact showing a `data/raw` directory was created (or even listed). There is no evidence on disk of the required folder, so the task’s simple requirement is unmet.
-- **T001i** — No evidence of a `data/filtered` directory (or its contents) was presented; without a visible directory or confirmation that it was created, the requirement is not satisfied. The implementer must provide the actual directory (and preferably the filtered files) as proof.
-- **T001j** — No evidence of a `data/scores` directory was presented; the artifact list is empty, so we cannot confirm that the required directory was created. The implementer must add the directory (and optionally show its presence) to satisfy the task.
-- **T006** — declared artifact(s) missing/empty/invalid: src/data_models.py
-- **T006b** — declared artifact(s) missing/empty/invalid: src/data_models.py
+- **T001g** — No `data/raw` directory or `.gitkeep` file is present in the provided evidence; the required artifact is missing, so the task is not satisfied.
 - **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T007a** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T011** — declared artifact(s) missing/empty/invalid: src/services/download.py
+- **T013** — The `src/services/filter.py` file is present and correctly raises `ValueError` for malformed JSON, but `src/services/download.py` is missing entirely, so the required update to raise `FileNotFoundError` cannot be verified. The task is therefore not fully completed.
 - **T017** — declared artifact(s) missing/empty/invalid: src/models/vlm.py
+- **T018** — declared artifact(s) missing/empty/invalid: src/services/scoring.py
+- **T019** — declared artifact(s) missing/empty/invalid: src/services/scoring.py
+- **T020** — declared artifact(s) missing/empty/invalid: src/services/scoring.py
+- **T024b** — The repository lacks the required `outputs/circular_validation_risk_report.json` file, and the provided `src/services/analysis.py` does not contain any implementation that writes this JSON atomically using a temporary file and `os.rename()`. Consequently, the task’s core requirement is not satisfied.
+- **T024** — The provided `src/services/analysis.py` is truncated and shows no implementation of the required Pearson‑correlation independence check, atomic JSON write, or raising of `CircularValidationRiskError`. Moreover, the required output file `outputs/circular_validation_risk_report.json` does not exist. The task’s core behavior is therefore not present.
