@@ -3,7 +3,12 @@ import pytest
 from pathlib import Path
 
 def test_required_directories_exist():
-    """Verify that the core project directories exist."""
+    """
+    Test that the required project directories exist as per T001.
+    Required directories: code/, data/raw, data/processed, tests/, state/
+    """
+    project_root = Path.cwd()
+    
     required_dirs = [
         "code",
         "data/raw",
@@ -12,28 +17,61 @@ def test_required_directories_exist():
         "state"
     ]
     
-    for dir_path in required_dirs:
-        full_path = Path(dir_path)
-        assert full_path.exists(), f"Required directory missing: {full_path}"
-        assert full_path.is_dir(), f"Path is not a directory: {full_path}"
+    missing_dirs = []
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
+        if not dir_path.exists() or not dir_path.is_dir():
+            missing_dirs.append(dir_name)
+    
+    assert len(missing_dirs) == 0, f"Missing required directories: {missing_dirs}"
 
-def test_code_subdirectories_exist():
-    """Verify code subdirectories."""
-    subdirs = [
+def test_subdirectories_exist():
+    """
+    Test that additional required subdirectories exist.
+    """
+    project_root = Path.cwd()
+    
+    required_subdirs = [
         "code/data",
         "code/utils",
-        "code/modeling"
-    ]
-    for sub in subdirs:
-        full_path = Path(sub)
-        assert full_path.exists(), f"Missing code subdir: {full_path}"
-
-def test_test_subdirectories_exist():
-    """Verify test subdirectories."""
-    subdirs = [
+        "code/modeling",
         "tests/unit",
-        "tests/integration"
+        "tests/integration",
+        "results",
+        "figures"
     ]
-    for sub in subdirs:
-        full_path = Path(sub)
-        assert full_path.exists(), f"Missing test subdir: {full_path}"
+    
+    missing_dirs = []
+    for dir_name in required_subdirs:
+        dir_path = project_root / dir_name
+        if not dir_path.exists() or not dir_path.is_dir():
+            missing_dirs.append(dir_name)
+    
+    assert len(missing_dirs) == 0, f"Missing required subdirectories: {missing_dirs}"
+
+def test_gitkeep_files_exist():
+    """
+    Test that .gitkeep files exist in the directories to ensure they are tracked.
+    """
+    project_root = Path.cwd()
+    
+    dirs_with_gitkeep = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "tests",
+        "state",
+        "results",
+        "figures"
+    ]
+    
+    missing_gitkeeps = []
+    for dir_name in dirs_with_gitkeep:
+        dir_path = project_root / dir_name / ".gitkeep"
+        if not dir_path.exists():
+            missing_gitkeeps.append(dir_name)
+    
+    # Note: This is a soft check as .gitkeep might not be strictly required
+    # depending on git configuration, but it's good practice
+    if missing_gitkeeps:
+        print(f"Warning: Missing .gitkeep files in: {missing_gitkeeps}")

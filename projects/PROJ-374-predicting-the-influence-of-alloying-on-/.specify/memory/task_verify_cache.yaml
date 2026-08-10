@@ -1,0 +1,44 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories (or
+    any files within them) was provided; the claim lacks any tangible artifact confirming
+    the directory structure was created. The implementer must create and show the
+    actual folder hierarchy (e.g., a listing or screenshots) to satisfy the task.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `docs/figures/` directory was provided; the required folder
+    is missing (or empty), so the task of setting up that directory has not been demonstrated.
+T021:
+  c: false
+  h: a73e0c9038c41c2f35e76706792b73c131e110f5f3055e33f0da83d38b208863
+  r: The script `code/03_train_and_evaluate.py` is present, but the required data
+    file `data/processed/final_features.csv` does not exist, so the script cannot
+    actually load the dataset as the task demands. Without this CSV the implementation
+    cannot be verified or run.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required split logic was\
+    \ provided; the artifact that should contain the conditional dataset splitting\
+    \ (80/20 stratified for N\u202F\u2265\u202F100, repeated 5\u2011fold CV for N\u202F\
+    <\u202F100, with no halt for N\u202F<\u202F50) is missing. The claim cannot be\
+    \ verified without such implementation."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, dataset, model files, or evaluation outputs were presented. The claim\
+    \ of having implemented a baseline linear regression model and its evaluation\
+    \ cannot be verified because the required artifacts (e.g., ingestion script, engineered\
+    \ CSV, training script, model performance metrics, feature importance list) are\
+    \ absent. The next implementer must provide the actual files and results that\
+    \ demonstrate the linear regression training, cross\u2011validation, R\xB2 score\
+    \ with confidence interval, and descriptor correlations."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, model file, training script, or output results (e.g., performance metrics,
+    feature importance list) were presented. The required implementation of a `GradientBoostingRegressor`
+    with `n_estimators=100`, `max_depth=3`, `random_state=42`, along with the associated
+    training/evaluation artifacts, is missing.

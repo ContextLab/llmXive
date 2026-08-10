@@ -63,7 +63,7 @@
 - [X] T007 Create `code/utils/mapping.json` with schema `{formula: family}` covering Bi-Te, Pb-Te, and Skutterudites
 - [ ] T008 Setup `data/raw/` and `data/processed/` directory structure
 - [ ] T009 Setup `docs/figures/` directory
-- [ ] T010 Setup `state/` directory and initial `state/projects/PROJ-374-predicting-the-influence-of-alloying-on-.yaml`
+- [X] T010 Setup `state/` directory and initial `state/projects/PROJ-374-predicting-the-influence-of-alloying-on-.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,9 +77,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85, parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify row count > 0)
-- [ ] T012 [US1] Implement filtering logic in `code/01_ingest_and_clean.py`: Retain only Bi-Te, Pb-Te, Skutterudites; exclude missing Seebeck/Composition
-- [ ] T013 [US1] Implement stoichiometry mapping in `code/01_ingest_and_clean.py`: Use `utils/mapping.json` to assign material families
+- [X] T011 [US1] Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85 [UNRESOLVED-CLAIM: c_6af5a9d5 — status=verified], parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify row count > 0)
+- [X] T012 [US1] Implement filtering logic in `code/01_ingest_and_clean.py`: Retain only Bi-Te, Pb-Te, Skutterudites; exclude missing Seebeck/Composition
+- [X] T013 [US1] Implement stoichiometry mapping in `code/01_ingest_and_clean.py`: Use `utils/mapping.json` to assign material families
 - [X] T014 [US1] Implement retention check in `code/01_ingest_and_clean.py`: Calculate retention rate of **filtered input records**; if < 95%, exit with code 1, print "CRITICAL: Retention < 95%" to stderr, and write `state/retention_log.json` with structure: `{"retention_rate": float, "total_input": int, "retained_count": int, "status": "FAIL"}`; otherwise log `{"status": "PASS"}` (verify log contains `status: PASS` for pipeline to continue)
 - [X] T015 [US1] Implement `code/02_engineer_features.py`: Calculate Mean Atomic Radius (weighted avg) using `mendeleev`
 - [X] T016 [US1] Implement `code/02_engineer_features.py`: Calculate Electronegativity Variance using `mendeleev`
@@ -101,10 +101,10 @@
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/03_train_and_evaluate.py`: Load `data/processed/final_features.csv` (Depends on T020)
-- [~] T022 [US2] Implement split logic: If N >= 100, use 80/20 Stratified Split. If N < 100, use Repeated 5-Fold CV (10 repeats) on the full dataset. **Do NOT halt for N < 50**; the Repeated CV fallback is mandatory for small datasets. (Depends on T021)
-- [~] T023 [US2] Implement Baseline: Linear Regression model and evaluation
-- [~] T024 [US2] Implement Model: `GradientBoostingRegressor` (n_estimators=100, max_depth=3, random_state=42)
+- [ ] T021 [US2] Implement `code/03_train_and_evaluate.py`: Load `data/processed/final_features.csv` (Depends on T020)
+- [ ] T022 [US2] Implement split logic: If N >= 100, use 80/20 Stratified Split. If N < 100, use Repeated 5-Fold CV (10 repeats) on the full dataset. **Do NOT halt for N < 50**; the Repeated CV fallback is mandatory for small datasets. (Depends on T021)
+- [ ] T023 [US2] Implement Baseline: Linear Regression model and evaluation
+- [ ] T024 [US2] Implement Model: `GradientBoostingRegressor` (n_estimators=100, max_depth=3, random_state=42)
 - [~] T025 [US2] Implement K-Fold Cross-Validation loop (5-fold) to calculate mean R² and **save individual fold R² scores** to `state/cv_fold_scores.json` for traceability (used for CI in T026b)
 - [~] T026a [US2] Implement Permutation Test (A sufficient number of iterations, random_state=42) to calculate p-value for R² significance (null hypothesis: R² = 0). **Note**: Do NOT derive CI from this distribution. (Independent of T026b) <!-- FAILED: unspecified -->
 - [~] T026b [US2] Calculate 95% Confidence Interval for R² score derived strictly from the CV fold scores saved in T025 (T025) as required by FR-008. **Note**: Do NOT use permutation distribution for CI. (Independent of T026a)

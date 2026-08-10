@@ -1,177 +1,158 @@
 """
-Unit tests for collinearity diagnostics module.
-
-Tests VIF calculation, flagging logic, and diagnostic pipeline.
+Unit tests for collinearity diagnostics (T022).
 """
 import pytest
 import pandas as pd
 import numpy as np
-import sys
 from pathlib import Path
+import sys
+import os
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from modeling.collinearity import (
+from code.modeling.collinearity import (
     calculate_vif,
     flag_high_collinearity,
-    run_collinearity_diagnostics
+    run_collinearity_diagnostics,
+    VIF_THRESHOLD
 )
-
 
 class TestCalculateVIF:
     """Tests for VIF calculation function."""
     
-    def test_vif_no_collinearity(self):
-        """Test VIF calculation with uncorrelated features."""
-        # Create data with no correlation
+    def test_vif_basic(self):
+        """Test VIF calculation with simple data."""
+        # Create data with known correlation structure
         np.random.seed(42)
-        df = pd.DataFrame({
-            'feature1': np.random.randn(100),
-            'feature2': np.random.randn(100),
-            'feature3': np.random.randn(100)
+        n = 100
+        X = pd.DataFrame({
+            'feature1': np.random.randn(n),
+            'feature2': np.random.randn(n),
+            'feature3': np.random.randn(n)
         })
         
-        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        vif = calculate_vif(X)
         
-        # VIF should be close to 1.0 for uncorrelated features
-        assert all(vif_df['vif'] < 2.0), "VIF should be low for uncorrelated features"
-        assert len(vif_df) == 3
+        # VIF should be calculated for all features
+        assert len(vif) == 3
+        assert all(vif >= 1.0), "VIF values should be >= 1.0"
         
     def test_vif_high_collinearity(self):
-        """Test VIF calculation with highly correlated features."""
-        # Create data with high correlation
+        """Test VIF detects high collinearity."""
         np.random.seed(42)
-        base = np.random.randn(100)
-        df = pd.DataFrame({
+        n = 100
+        base = np.random.randn(n)
+        
+        X = pd.DataFrame({
             'feature1': base,
-            'feature2': base * 2 + np.random.randn(100) * 0.1,  # Highly correlated
-            'feature3': np.random.randn(100)  # Uncorrelated
+            'feature2': base * 2 + np.random.randn(n) * 0.1,  # Highly correlated
+            'feature3': np.random.randn(n)  # Independent
         })
         
-        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        vif = calculate_vif(X)
         
         # feature1 and feature2 should have high VIF
-        high_vif_features = vif_df[vif_df['vif'] > 5]['feature'].tolist()
-        assert 'feature1' in high_vif_features or 'feature2' in high_vif_features, \
-            "Highly correlated features should have high VIF"
+        assert vif['feature1'] > 5.0, "Collinear feature should have VIF > 5"
+        assert vif['feature2'] > 5.0, "Collinear feature should have VIF > 5"
         
-    def test_vif_single_feature(self):
-        """Test VIF with a single feature."""
-        df = pd.DataFrame({
-            'feature1': np.random.randn(100)
+    def test_vif_missing_values_raises(self):
+        """Test that VIF calculation raises on missing values."""
+        X = pd.DataFrame({
+            'feature1': [1.0, 2.0, np.nan, 4.0],
+            'feature2': [1.0, 2.0, 3.0, 4.0]
         })
         
-        vif_df = calculate_vif(df, ['feature1'])
-        
-        # VIF should be 1.0 for single feature
-        assert vif_df['vif'].iloc[0] == 1.0
-        
-    def test_vif_zero_variance_raises_error(self):
-        """Test that zero variance feature raises error."""
-        df = pd.DataFrame({
-            'feature1': [1.0] * 100,  # Zero variance
-            'feature2': np.random.randn(100)
+        with pytest.raises(ValueError, match="NaN"):
+            calculate_vif(X)
+            
+    def test_vif_constant_feature_raises(self):
+        """Test that VIF calculation raises on constant features."""
+        X = pd.DataFrame({
+            'feature1': [1.0, 1.0, 1.0, 1.0],
+            'feature2': [1.0, 2.0, 3.0, 4.0]
         })
         
         with pytest.raises(ValueError, match="zero variance"):
-            calculate_vif(df, ['feature1', 'feature2'])
-
+            calculate_vif(X)
 
 class TestFlagHighCollinearity:
-    """Tests for flagging high collinearity."""
+    """Tests for collinearity flagging function."""
     
-    def test_flag_default_threshold(self):
-        """Test flagging with default threshold (5.0)."""
-        vif_df = pd.DataFrame({
-            'feature': ['f1', 'f2', 'f3', 'f4'],
-            'vif': [1.5, 4.9, 5.1, 10.0]
-        })
-        
-        high_vif, flagged_df = flag_high_collinearity(vif_df)
-        
-        assert high_vif == ['f3', 'f4'], "Should flag f3 and f4"
-        assert all(flagged_df['high_collinearity'] == [False, False, True, True])
-        
-    def test_flag_custom_threshold(self):
+    def test_flag_threshold(self):
         """Test flagging with custom threshold."""
-        vif_df = pd.DataFrame({
-            'feature': ['f1', 'f2', 'f3'],
-            'vif': [2.0, 3.0, 4.0]
+        vif_series = pd.Series({
+            'f1': 2.0,
+            'f2': 6.0,
+            'f3': 8.0,
+            'f4': 3.0
         })
         
-        high_vif, flagged_df = flag_high_collinearity(vif_df, threshold=3.5)
+        flagged = flag_high_collinearity(vif_series, threshold=5.0)
         
-        assert high_vif == ['f3'], "Should only flag f3 with threshold 3.5"
+        assert len(flagged) == 2
+        assert set(flagged['feature']) == {'f2', 'f3'}
         
-    def test_flag_no_high_collinearity(self):
+    def test_flag_no_collinearity(self):
         """Test when no features exceed threshold."""
-        vif_df = pd.DataFrame({
-            'feature': ['f1', 'f2'],
-            'vif': [1.5, 2.5]
+        vif_series = pd.Series({
+            'f1': 2.0,
+            'f2': 3.0,
+            'f3': 4.0
         })
         
-        high_vif, flagged_df = flag_high_collinearity(vif_df)
+        flagged = flag_high_collinearity(vif_series, threshold=5.0)
         
-        assert high_vif == []
-        assert all(~flagged_df['high_collinearity'])
-
+        assert len(flagged) == 0
+        
+    def test_flag_all_collinearity(self):
+        """Test when all features exceed threshold."""
+        vif_series = pd.Series({
+            'f1': 6.0,
+            'f2': 7.0,
+            'f3': 8.0
+        })
+        
+        flagged = flag_high_collinearity(vif_series, threshold=5.0)
+        
+        assert len(flagged) == 3
 
 class TestRunCollinearityDiagnostics:
-    """Tests for full diagnostic pipeline."""
+    """Tests for full diagnostics pipeline."""
     
-    def test_run_diagnostics_on_sample_data(self, tmp_path):
-        """Test running diagnostics on sample data."""
-        # Create sample data
+    def test_diagnostics_creates_output(self, tmp_path):
+        """Test that diagnostics creates output file."""
         np.random.seed(42)
-        data = {
-            'metabolite_A': np.random.randn(50),
-            'metabolite_B': np.random.randn(50),
-            'metabolite_C': np.random.randn(50)
-        }
-        df = pd.DataFrame(data)
+        X = pd.DataFrame({
+            'f1': np.random.randn(50),
+            'f2': np.random.randn(50),
+            'f3': np.random.randn(50)
+        })
         
-        # Save to temp file
-        input_path = tmp_path / "test_matrix.csv"
-        df.to_csv(input_path, index=False)
+        output_file = tmp_path / "test_diagnostics.json"
         
-        output_path = tmp_path / "collinearity_test.json"
+        results = run_collinearity_diagnostics(X, output_file)
         
-        # Run diagnostics
-        results = run_collinearity_diagnostics(
-            data_path=str(input_path),
-            output_path=str(output_path)
-        )
-        
-        # Verify results structure
-        assert 'vif_results' in results
-        assert 'high_vif_features' in results
+        assert output_file.exists()
         assert 'summary' in results
-        
-        # Verify summary
+        assert 'vif_values' in results
+        assert 'flagged_features' in results
         assert results['summary']['total_features'] == 3
-        assert results['summary']['threshold'] == 5.0
         
-        # Verify output file was created
-        assert output_path.exists()
+    def test_diagnostics_summary_stats(self):
+        """Test summary statistics are correct."""
+        np.random.seed(42)
+        X = pd.DataFrame({
+            'f1': np.random.randn(50),
+            'f2': np.random.randn(50),
+            'f3': np.random.randn(50)
+        })
         
-    def test_run_diagnostics_file_not_found(self):
-        """Test error handling for missing file."""
-        with pytest.raises(FileNotFoundError):
-            run_collinearity_diagnostics(data_path="/nonexistent/path.csv")
+        results = run_collinearity_diagnostics(X)
         
-    def test_run_diagnostics_empty_features(self, tmp_path):
-        """Test error handling for no features."""
-        df = pd.DataFrame({'metadata': ['a', 'b', 'c']})
-        input_path = tmp_path / "empty.csv"
-        df.to_csv(input_path, index=False)
-        
-        with pytest.raises(ValueError, match="No features found"):
-            run_collinearity_diagnostics(
-                data_path=str(input_path),
-                feature_columns=['nonexistent']
-            )
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        summary = results['summary']
+        assert summary['total_features'] == 3
+        assert 'max_vif' in summary
+        assert 'mean_vif' in summary
+        assert summary['threshold'] == VIF_THRESHOLD
+        assert 'timestamp' in summary

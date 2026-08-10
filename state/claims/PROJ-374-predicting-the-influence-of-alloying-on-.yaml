@@ -395,3 +395,21 @@
   source_type: external
   status: verified
   updated_at: '2026-07-06T04:51:34Z'
+- artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
+  attempts: 0
+  canonical: Data source DOI 10.1038/sdata.2017.85
+  claim_id: c_5c4917c5
+  context: 'Implement `code/01_ingest_and_clean.py`: Download data from DOI 10.1038/sdata.2017.85,
+    parse to DataFrame, save to `data/processed/cleaned_compositions.csv` (verify
+    row count > 0)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Download data from DOI 10.1038/sdata.2017.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T12:33:02Z'

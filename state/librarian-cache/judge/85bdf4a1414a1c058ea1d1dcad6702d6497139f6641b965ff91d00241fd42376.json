@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.02152",
+  "judged_at": "2026-08-10T12:46:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it proposes and evaluates a specific \"double-robust\" estimator for causal inference on observational data, directly addressing the user's interest in the mechanism and methodology of doubly robust methods. Although the application domain is traffic safety, the core statistical contribution (hybridizing regression and propensity score weighting for causal effects) is foundational for the user's topic.",
+  "relevant": true
+}

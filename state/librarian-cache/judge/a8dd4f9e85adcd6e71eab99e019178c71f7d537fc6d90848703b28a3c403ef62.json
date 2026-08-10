@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2206.05640",
+  "judged_at": "2026-08-10T12:46:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper directly addresses the user's question by reviewing and proposing robust methods for estimating causal effects in observational studies, specifically focusing on propensity score models which are a foundational component of doubly robust estimation (Category d). It also provides empirical evidence on the performance of these estimators for key causal quantities like ATE and ATO, satisfying the requirement for same-mechanism evidence on the user's domain (Category a).",
+  "relevant": true
+}

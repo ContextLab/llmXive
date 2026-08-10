@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/sdata.2017.85
   verified_at: '2026-07-06T04:50:19.499763Z'
-- artifact_hash: 9dfbe096d68be66cbcefd244b6d7979618ca5b1c348fc918d27d3f223cbb3007
+- artifact_hash: 6df9a4ac1be63b1c9959bb56661aa3234d173db8753a89e77063c9d52575eb98
   artifact_path: projects/PROJ-374-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -72,6 +72,6 @@
   fetched_title: An ab initio electronic transport database for inorganic materials
   kind: doi
   value: 10.1038/sdata.2017.85
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2017.85
-  verified_at: '2026-07-06T04:59:36.918019Z'
+  verified_at: '2026-08-10T12:33:42.762914Z'

@@ -1,331 +1,156 @@
-"""
-Model evaluation module for plant disease resistance prediction.
-Implements metrics computation, permutation testing, FDR-corrected correlations,
-sensitivity analysis, and learning curves.
-"""
 import os
 import sys
 import json
 import pickle
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Dict, Any, Tuple, List, Optional
-import matplotlib.pyplot as plt
-from sklearn.metrics import (
-    balanced_accuracy_score,
-    roc_auc_score,
-    precision_recall_curve,
-    auc,
-    confusion_matrix,
-)
-from sklearn.model_selection import learning_curve
-from sklearn.ensemble import RandomForestClassifier
-from scipy.stats import pearsonr
-from statsmodels.stats.multitest import multipletests
-from code.utils.constants import RANDOM_STATE
+from sklearn.metrics import balanced_accuracy_score, roc_auc_score, precision_recall_curve, auc
+from sklearn.inspection import permutation_importance
+from sklearn.model_selection import train_test_split
+from scipy.stats import rankdata
+from typing import Tuple, Dict, Any, List
 
+# SHAP import
+try:
+    import shap
+    SHAP_AVAILABLE = True
+except ImportError:
+    SHAP_AVAILABLE = False
+    print("Warning: SHAP library not installed. SHAP analysis will be skipped.")
 
-def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray) -> Dict[str, float]:
-    """
-    Compute evaluation metrics: Balanced Accuracy, ROC-AUC, and PR-AUC.
+def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_prob: np.ndarray) -> Dict[str, float]:
+    """Compute balanced accuracy, ROC-AUC, and PR-AUC."""
+    metrics = {}
+    metrics["balanced_accuracy"] = float(balanced_accuracy_score(y_true, y_pred))
+    metrics["roc_auc"] = float(roc_auc_score(y_true, y_prob))
     
-    Args:
-        y_true: True labels (0 or 1)
-        y_pred: Predicted labels (0 or 1)
-        y_proba: Predicted probabilities for class 1
-        
-    Returns:
-        Dictionary containing balanced_accuracy, roc_auc, and pr_auc
-    """
-    bal_acc = balanced_accuracy_score(y_true, y_pred)
-    roc = roc_auc_score(y_true, y_proba)
+    precision, recall, _ = precision_recall_curve(y_true, y_prob)
+    metrics["pr_auc"] = float(auc(recall, precision))
     
-    # Compute PR-AUC
-    precision, recall, _ = precision_recall_curve(y_true, y_proba)
-    pr_auc = auc(recall, precision)
+    return metrics
+
+def permutation_test(model, X: pd.DataFrame, y: pd.Series, n_permutations: int = 1000, random_state: int = 42) -> Dict[str, Any]:
+    """Run permutation testing to generate null distribution."""
+    np.random.seed(random_state)
+    scores = []
+    base_score = balanced_accuracy_score(y, model.predict(X))
+    
+    for i in range(n_permutations):
+        y_perm = y.sample(frac=1, random_state=random_state + i).reset_index(drop=True)
+        score = balanced_accuracy_score(y_perm, model.predict(X))
+        scores.append(score)
+    
+    p_value = (np.sum(np.array(scores) >= base_score) + 1) / (n_permutations + 1)
     
     return {
-        "balanced_accuracy": float(bal_acc),
-        "roc_auc": float(roc),
-        "pr_auc": float(pr_auc),
+        "base_score": float(base_score),
+        "null_distribution_mean": float(np.mean(scores)),
+        "null_distribution_std": float(np.std(scores)),
+        "p_value": float(p_value),
+        "n_permutations": n_permutations
     }
 
-
-def permutation_test(
-    model: RandomForestClassifier,
-    X: np.ndarray,
-    y: np.ndarray,
-    n_permutations: int = 1000,
-    random_state: int = RANDOM_STATE,
-) -> Tuple[float, List[float], float]:
-    """
-    Perform permutation testing to generate a null distribution and assess significance.
-    
-    Args:
-        model: Trained RandomForestClassifier
-        X: Feature matrix
-        y: True labels
-        n_permutations: Number of permutations to run
-        random_state: Random seed for reproducibility
-        
-    Returns:
-        Tuple of (observed_score, null_distribution, p_value)
-    """
-    rng = np.random.default_rng(random_state)
-    
-    # Compute observed score
-    model.fit(X, y)
-    y_pred = model.predict(X)
-    obs_score = balanced_accuracy_score(y, y_pred)
-    
-    # Generate null distribution
-    null_dist = []
-    for _ in range(n_permutations):
-        # Permute labels
-        y_permuted = rng.permutation(y)
-        
-        # Train on permuted labels
-        model_perm = RandomForestClassifier(
-            n_estimators=model.n_estimators,
-            max_depth=model.max_depth,
-            random_state=random_state,
-        )
-        model_perm.fit(X, y_permuted)
-        
-        # Predict on original X (with permuted labels used for training)
-        # We evaluate on the permuted labels to get the null score
-        y_pred_perm = model_perm.predict(X)
-        score_perm = balanced_accuracy_score(y_permuted, y_pred_perm)
-        null_dist.append(score_perm)
-    
-    # Compute p-value: proportion of null scores >= observed score
-    p_val = np.mean([s >= obs_score for s in null_dist])
-    
-    return obs_score, null_dist, float(p_val)
-
-
-def compute_correlations_with_fdr(
-    X: pd.DataFrame, y: pd.Series, alpha: float = 0.05
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Compute Pearson correlations between each metabolite and resistance label,
-    applying Benjamini-Hochberg FDR correction.
-    
-    Args:
-        X: Feature DataFrame (metabolites as columns)
-        y: Target Series (resistance labels)
-        alpha: Significance threshold for FDR
-        
-    Returns:
-        Tuple of (full_correlations_df, significant_correlations_df)
-    """
-    n_features = X.shape[1]
-    correlations = []
+def compute_correlations_with_fdr(X: pd.DataFrame, y: pd.Series, alpha: float = 0.05) -> Dict[str, Any]:
+    """Compute pairwise correlations and apply Benjamini-Hochberg FDR."""
+    correlations = {}
     p_values = []
+    features = X.columns
     
-    for col in X.columns:
-        corr, p_val = pearsonr(X[col], y)
-        correlations.append(corr)
+    for feat in features:
+        corr, p_val = X[feat].corrwith(y).corr, X[feat].corrwith(y).corr # Placeholder for actual corr test
+        # Using scipy for actual p-value
+        from scipy.stats import pearsonr
+        corr, p_val = pearsonr(X[feat], y)
+        correlations[feat] = {"corr": float(corr), "p_value": float(p_val)}
         p_values.append(p_val)
     
-    # Apply Benjamini-Hochberg FDR correction
-    fdr_pvals, _, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
+    # BH Correction
+    p_values = np.array(p_values)
+    n = len(p_values)
+    sorted_indices = np.argsort(p_values)
+    sorted_p = p_values[sorted_indices]
+    corrected_p = (sorted_p * n) / (np.arange(1, n + 1) + 1e-9)
+    corrected_p = np.minimum(corrected_p, 1.0)
+    # Restore order
+    final_p = np.zeros(n)
+    final_p[sorted_indices] = corrected_p
     
-    corr_df = pd.DataFrame({
-        "metabolite": X.columns,
-        "correlation": correlations,
-        "p_value": p_values,
-        "fdr_adjusted_p_value": fdr_pvals,
-    })
-    
-    # Sort by p-value
-    corr_df = corr_df.sort_values("p_value")
-    
-    # Filter significant correlations
-    sig_df = corr_df[corr_df["fdr_adjusted_p_value"] <= alpha].copy()
-    
-    return corr_df, sig_df
-
-
-def sensitivity_analysis(
-    model: RandomForestClassifier,
-    X: np.ndarray,
-    y: np.ndarray,
-    cutoffs: List[float] = [0.01, 0.05, 0.1],
-) -> Dict[str, Dict[str, float]]:
-    """
-    Perform sensitivity analysis by sweeping decision cutoffs.
-    
-    Args:
-        model: Trained model
-        X: Feature matrix
-        y: True labels
-        cutoffs: List of absolute difference cutoffs to test
+    for i, feat in enumerate(features):
+        correlations[feat]["fdr_corrected_p"] = float(final_p[i])
+        correlations[feat]["significant"] = bool(final_p[i] <= alpha)
         
-    Returns:
-        Dictionary with results for each cutoff
-    """
-    y_proba = model.predict_proba(X)[:, 1]
+    return correlations
+
+def sensitivity_analysis(model, X: pd.DataFrame, y: pd.Series, thresholds: List[float] = [0.01, 0.05, 0.1]) -> Dict[str, Any]:
+    """Perform sensitivity analysis by sweeping decision cutoffs."""
+    y_prob = model.predict_proba(X)[:, 1]
     results = {}
     
-    for cutoff in cutoffs:
-        # Compute predictions with different thresholds
-        y_pred = (y_proba >= 0.5).astype(int)
-        
-        # Calculate confusion matrix
-        tn, fp, fn, tp = confusion_matrix(y, y_pred).ravel()
-        
-        # Calculate rates
-        fp_rate = fp / (fp + tn) if (fp + tn) > 0 else 0.0
-        fn_rate = fn / (fn + tp) if (fn + tp) > 0 else 0.0
-        
-        results[f"cutoff_{cutoff}"] = {
-            "avg_fp_rate": float(fp_rate),
-            "avg_fn_rate": float(fn_rate),
-            "total_samples": int(len(y)),
+    for thresh in thresholds:
+        # Simulate threshold sweep logic (simplified)
+        # In reality, this might involve perturbing features or probabilities
+        # Here we just report the baseline at different cutoffs for classification
+        y_pred = (y_prob >= thresh).astype(int)
+        acc = balanced_accuracy_score(y, y_pred)
+        results[f"threshold_{thresh}"] = {
+            "balanced_accuracy": float(acc),
+            "cutoff": float(thresh)
         }
-    
+        
     return results
 
-
-def generate_learning_curve(
-    model: RandomForestClassifier,
-    X: np.ndarray,
-    y: np.ndarray,
-    cv_folds: int = 5,
-    n_points: int = 10,
-    random_state: int = RANDOM_STATE,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Generate a learning curve to assess sample size sufficiency.
+def generate_learning_curve(model, X: pd.DataFrame, y: pd.Series, train_sizes: np.ndarray = None) -> Dict[str, Any]:
+    """Generate learning curve data."""
+    if train_sizes is None:
+        train_sizes = np.linspace(0.1, 1.0, 5)
     
-    Args:
-        model: Model instance (unfitted)
-        X: Feature matrix
-        y: Target vector
-        cv_folds: Number of CV folds
-        n_points: Number of sample sizes to test
-        random_state: Random seed
+    curve_data = []
+    for size in train_sizes:
+        n_samples = int(len(X) * size)
+        X_sub, _, y_sub, _ = train_test_split(X, y, train_size=n_samples, random_state=42)
+        model.fit(X_sub, y_sub)
+        score = balanced_accuracy_score(y_sub, model.predict(X_sub))
+        curve_data.append({"train_size": float(size), "score": float(score)})
         
-    Returns:
-        Tuple of (train_sizes, train_mean, train_std, test_mean, test_std)
-    """
-    train_sizes, train_scores, test_scores = learning_curve(
-        model,
-        X,
-        y,
-        cv=cv_folds,
-        train_sizes=np.linspace(0.1, 1.0, n_points),
-        scoring="balanced_accuracy",
-        random_state=random_state,
-        n_jobs=1,  # Single thread for consistency
-    )
-    
-    train_mean = np.mean(train_scores, axis=1)
-    train_std = np.std(train_scores, axis=1)
-    test_mean = np.mean(test_scores, axis=1)
-    test_std = np.std(test_scores, axis=1)
-    
-    return train_sizes, train_mean, train_std, test_mean, test_std
+    return {"curve": curve_data}
 
-
-def evaluate_model(
-    model_path: str,
-    processed_matrix_path: str,
-    labels_path: str,
-    output_dir: str,
-) -> Dict[str, Any]:
+def evaluate_model(model, X: pd.DataFrame, y: pd.Series, n_permutations: int = 1000) -> Tuple[Dict, Dict, Dict, Dict, Dict, Dict]:
     """
-    Run full evaluation pipeline: load model/data, compute metrics,
-    permutation test, correlations, sensitivity analysis, and learning curve.
+    Main evaluation function.
+    Returns: metrics, shap_analysis, correlations, sensitivity, learning_curve, permutation_results
+    """
+    y_pred = model.predict(X)
+    y_prob = model.predict_proba(X)[:, 1]
     
-    Args:
-        model_path: Path to saved model pickle
-        processed_matrix_path: Path to processed feature matrix CSV
-        labels_path: Path to labels CSV
-        output_dir: Directory to save results
+    metrics = compute_metrics(y.values, y_pred, y_prob)
+    perm_results = permutation_test(model, X, y, n_permutations)
+    correlations = compute_correlations_with_fdr(X, y)
+    sensitivity = sensitivity_analysis(model, X, y)
+    learning_curve = generate_learning_curve(model, X, y)
+    
+    shap_analysis = {}
+    if SHAP_AVAILABLE:
+        try:
+            explainer = shap.TreeExplainer(model)
+            shap_values = explainer.shap_values(X)
+            # Handle binary classification SHAP values (list of 2 arrays or 1 array)
+            if isinstance(shap_values, list):
+                shap_values = shap_values[1] # Class 1
+            
+            # Summary
+            mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
+            feature_names = X.columns
+            shap_importance = dict(zip(feature_names, mean_abs_shap.tolist()))
+            
+            shap_analysis = {
+                "available": True,
+                "feature_importance": shap_importance,
+                "mean_abs_shap": mean_abs_shap.tolist(),
+                "top_features": sorted(shap_importance.items(), key=lambda x: x[1], reverse=True)[:10]
+            }
+        except Exception as e:
+            shap_analysis = {"available": False, "error": str(e)}
+    else:
+        shap_analysis = {"available": False, "reason": "SHAP library not installed"}
         
-    Returns:
-        Dictionary containing all evaluation results
-    """
-    # Load data
-    model = pickle.load(open(model_path, "rb"))
-    X = pd.read_csv(processed_matrix_path)
-    y = pd.read_csv(labels_path)
-    
-    # Ensure y is a Series
-    if isinstance(y, pd.DataFrame):
-        y = y.iloc[:, 0]
-    
-    y_arr = y.values
-    X_arr = X.values
-    
-    # Compute metrics
-    y_pred = model.predict(X_arr)
-    y_proba = model.predict_proba(X_arr)[:, 1]
-    metrics = compute_metrics(y_arr, y_pred, y_proba)
-    
-    # Permutation test
-    obs_score, null_dist, p_val = permutation_test(model, X_arr, y_arr, n_permutations=1000)
-    
-    # Correlations with FDR
-    corr_df, sig_df = compute_correlations_with_fdr(X, y)
-    
-    # Sensitivity analysis
-    sens_results = sensitivity_analysis(model, X_arr, y_arr)
-    
-    # Learning curve
-    train_sizes, train_mean, train_std, test_mean, test_std = generate_learning_curve(
-        model, X_arr, y_arr
-    )
-    
-    # Create output directory
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    # Save metrics
-    with open(output_path / "metrics.json", "w") as f:
-        json.dump(metrics, f, indent=2)
-    
-    # Save null distribution
-    np.save(output_path / "null_distribution.npy", np.array(null_dist))
-    
-    # Save correlations
-    corr_df.to_csv(output_path / "metabolite_correlations.csv", index=False)
-    
-    # Generate learning curve plot
-    plt.figure(figsize=(10, 6))
-    plt.plot(train_sizes, train_mean, 'o-', label="Training")
-    plt.plot(train_sizes, test_mean, 'o-', label="Validation")
-    plt.fill_between(train_sizes, train_mean - train_std, train_mean + train_std, alpha=0.1)
-    plt.fill_between(train_sizes, test_mean - test_std, test_mean + test_std, alpha=0.1)
-    plt.xlabel("Training Examples")
-    plt.ylabel("Balanced Accuracy")
-    plt.title("Learning Curve")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(output_path / "learning_curve.png")
-    plt.close()
-    
-    # Compile results
-    results = {
-        "metrics": metrics,
-        "permutation_test": {
-            "observed_score": obs_score,
-            "p_value": p_val,
-            "n_permutations": 1000,
-        },
-        "correlations": {
-            "significant_count": len(sig_df),
-            "top_correlations": sig_df.head(10).to_dict(orient="records"),
-        },
-        "sensitivity_analysis": sens_results,
-        "learning_curve": {
-            "train_sizes": train_sizes.tolist(),
-            "train_mean": train_mean.tolist(),
-            "test_mean": test_mean.tolist(),
-        },
-    }
-    
-    return results
+    return metrics, shap_analysis, correlations, sensitivity, learning_curve, perm_results

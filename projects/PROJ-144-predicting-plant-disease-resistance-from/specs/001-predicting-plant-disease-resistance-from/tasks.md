@@ -139,11 +139,11 @@ found character '`' that cannot start any token
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for `code/modeling/interpret.py` verifying pathway mapping logic in `tests/unit/test_modeling.py`
+- [X] T025 [P] [US3] Unit test for `code/modeling/interpret.py` verifying pathway mapping logic in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/modeling/interpret.py` to:
+- [X] T026 [US3] Implement `code/modeling/interpret.py` to:
  - Extract top metabolites by **SHAP values (SHAP library)** (FR-010)
  - Map metabolites to KEGG/MetaCyc pathways using InChIKey or API lookups (FR-010)
  - Generate interpretation report discussing biological plausibility (e.g., phytoalexins, phenolics)

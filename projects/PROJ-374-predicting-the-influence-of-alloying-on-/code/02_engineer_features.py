@@ -3,6 +3,11 @@ import sys
 import json
 import pandas as pd
 import numpy as np
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from utils.periodic_data import (
     get_atomic_radius,
     get_electronegativity,
@@ -11,200 +16,223 @@ from utils.periodic_data import (
 )
 from utils.stoichiometry_parser import parse_formula
 
-def calculate_weighted_mean(composition_str, property_func):
+def calculate_weighted_mean(formula_str: str, property_func) -> float:
     """
-    Calculate the weighted mean of a property based on stoichiometry.
+    Calculate the weighted average of a property based on stoichiometry.
     
     Args:
-        composition_str: String like "Bi2Te3"
-        property_func: Function that takes element symbol and returns property value
+        formula_str: Chemical formula string (e.g., "Bi2Te3")
+        property_func: Function to get property value for an element symbol
         
     Returns:
-        float: Weighted mean property value
+        Weighted average of the property, or np.nan if calculation fails
     """
-    if not composition_str or not isinstance(composition_str, str):
-        return np.nan
-        
     try:
-        composition = parse_formula(composition_str)
-        total_atoms = sum(composition.values())
+        composition = parse_formula(formula_str)
+        if not composition:
+            return np.nan
         
+        total_atoms = sum(composition.values())
         if total_atoms == 0:
             return np.nan
-            
+        
         weighted_sum = 0.0
         for element, count in composition.items():
             try:
-                prop_value = property_func(element)
-                if prop_value is None or np.isnan(prop_value):
+                prop_val = property_func(element)
+                if prop_val is None:
                     return np.nan
-                weighted_sum += prop_value * count
+                weighted_sum += prop_val * count
             except Exception:
                 return np.nan
-                
+        
         return weighted_sum / total_atoms
     except Exception:
         return np.nan
 
-def calculate_variance(composition_str, property_func):
+def calculate_variance(formula_str: str, property_func) -> float:
     """
     Calculate the variance of a property based on stoichiometry.
     
     Args:
-        composition_str: String like "Bi2Te3"
-        property_func: Function that takes element symbol and returns property value
+        formula_str: Chemical formula string (e.g., "Bi2Te3")
+        property_func: Function to get property value for an element symbol
         
     Returns:
-        float: Variance of the property values weighted by composition
+        Variance of the property, or np.nan if calculation fails
     """
-    if not composition_str or not isinstance(composition_str, str):
-        return np.nan
-        
     try:
-        composition = parse_formula(composition_str)
-        total_atoms = sum(composition.values())
+        composition = parse_formula(formula_str)
+        if not composition:
+            return np.nan
         
+        total_atoms = sum(composition.values())
         if total_atoms == 0:
             return np.nan
-            
-        # First calculate the weighted mean
-        mean_val = calculate_weighted_mean(composition_str, property_func)
-        if np.isnan(mean_val):
-            return np.nan
-            
-        # Calculate weighted variance
-        weighted_sq_diff_sum = 0.0
+        
+        values = []
+        weights = []
         for element, count in composition.items():
             try:
-                prop_value = property_func(element)
-                if prop_value is None or np.isnan(prop_value):
+                prop_val = property_func(element)
+                if prop_val is None:
                     return np.nan
-                diff = prop_value - mean_val
-                weighted_sq_diff_sum += (diff ** 2) * count
+                values.append(prop_val)
+                weights.append(count)
             except Exception:
                 return np.nan
-                
-        return weighted_sq_diff_sum / total_atoms
+        
+        if not values:
+            return np.nan
+        
+        # Weighted mean
+        mean_val = np.average(values, weights=weights)
+        
+        # Weighted variance
+        variance = np.average([(v - mean_val) ** 2 for v in values], weights=weights)
+        return variance
     except Exception:
         return np.nan
 
-def engineer_features(df):
+def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add compositional features to the dataframe.
+    Add engineered compositional features to the DataFrame.
     
     Args:
-        df: DataFrame with 'formula' column
-        
+        df: DataFrame with 'composition' and 'temperature' columns
+            
     Returns:
         DataFrame with added feature columns
     """
-    # Create a copy to avoid modifying original
-    result_df = df.copy()
+    df = df.copy()
+    
+    # Ensure we have necessary columns
+    if 'composition' not in df.columns:
+        raise ValueError("DataFrame must contain 'composition' column")
     
     # Calculate Mean Atomic Radius (weighted avg)
-    result_df['mean_atomic_radius'] = result_df['formula'].apply(
+    print("Calculating Mean Atomic Radius...")
+    df['mean_atomic_radius'] = df['composition'].apply(
         lambda x: calculate_weighted_mean(x, get_atomic_radius)
     )
     
     # Calculate Electronegativity Variance
-    result_df['electronegativity_variance'] = result_df['formula'].apply(
+    print("Calculating Electronegativity Variance...")
+    df['electronegativity_variance'] = df['composition'].apply(
         lambda x: calculate_variance(x, get_electronegativity)
     )
     
     # Calculate Valence Electron Concentration (VEC) (weighted avg)
-    result_df['vec'] = result_df['formula'].apply(
+    print("Calculating VEC...")
+    df['vec'] = df['composition'].apply(
         lambda x: calculate_weighted_mean(x, get_valence_electrons)
     )
     
     # Calculate Atomic Number Variance
-    result_df['atomic_number_variance'] = result_df['formula'].apply(
+    print("Calculating Atomic Number Variance...")
+    df['atomic_number_variance'] = df['composition'].apply(
         lambda x: calculate_variance(x, get_atomic_number)
     )
     
-    # Temperature is already a covariate (assumed to be in the input df or added externally)
-    # Material Family is already a categorical feature (assumed to be in the input df)
+    # Ensure Temperature is present (if not, fill with a default or keep existing)
+    if 'temperature' not in df.columns:
+        # If temperature is missing, we might need to handle it based on context
+        # For now, we'll assume it might be present in raw data or handle missing
+        df['temperature'] = np.nan
     
-    return result_df
+    # Ensure Material Family is present
+    if 'material_family' not in df.columns:
+        raise ValueError("DataFrame must contain 'material_family' column (from T013)")
+    
+    # Handle potential nulls in engineered features by dropping or imputing
+    # For this task, we will drop rows where critical engineered features are null
+    feature_cols = ['mean_atomic_radius', 'electronegativity_variance', 'vec', 'atomic_number_variance']
+    initial_count = len(df)
+    df = df.dropna(subset=feature_cols)
+    dropped_count = initial_count - len(df)
+    if dropped_count > 0:
+        print(f"Dropped {dropped_count} rows due to null engineered features.")
+    
+    # Select and order final columns as per spec
+    final_cols = [
+        'mean_atomic_radius',
+        'electronegativity_variance',
+        'vec',
+        'atomic_number_variance',
+        'temperature',
+        'material_family'
+    ]
+    
+    # Ensure all final columns exist (add missing ones with NaN if necessary, though spec implies they exist)
+    for col in final_cols:
+        if col not in df.columns:
+            df[col] = np.nan
+    
+    return df[final_cols]
 
 def main():
     """
-    Main function to engineer features and save the final dataset.
+    Main execution function for T020.
+    Loads cleaned data, engineers features, and saves final CSV.
     """
     # Define paths relative to project root
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    input_path = os.path.join(base_dir, 'data', 'processed', 'cleaned_compositions.csv')
-    output_path = os.path.join(base_dir, 'data', 'processed', 'final_features.csv')
+    project_root = Path(__file__).parent.parent
+    input_path = project_root / "data" / "processed" / "cleaned_compositions.csv"
+    output_path = project_root / "data" / "processed" / "final_features.csv"
     
-    # Check if input file exists
-    if not os.path.exists(input_path):
-        print(f"Error: Input file not found at {input_path}")
+    if not input_path.exists():
+        print(f"ERROR: Input file not found: {input_path}")
+        print("T011/T012/T013 must complete first to generate cleaned_compositions.csv")
         sys.exit(1)
-        
-    # Load the cleaned data
+    
+    print(f"Loading data from {input_path}...")
     try:
         df = pd.read_csv(input_path)
-        print(f"Loaded {len(df)} records from {input_path}")
     except Exception as e:
-        print(f"Error loading input file: {e}")
+        print(f"ERROR: Failed to load input CSV: {e}")
         sys.exit(1)
-        
-    # Verify required columns exist
-    required_cols = ['formula']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        print(f"Error: Missing required columns: {missing_cols}")
-        sys.exit(1)
-        
+    
+    print(f"Loaded {len(df)} records.")
+    
     # Engineer features
     print("Engineering features...")
     df_engineered = engineer_features(df)
     
-    # Ensure Temperature and Material Family are present (they should be from T019)
-    # If not, we assume they were added in T019, but let's check
-    if 'temperature' not in df_engineered.columns:
-        print("Warning: 'temperature' column not found. Adding placeholder (should be set by T019).")
-        df_engineered['temperature'] = 300.0  # Default value if missing
-        
-    if 'material_family' not in df_engineered.columns:
-        print("Warning: 'material_family' column not found. Adding placeholder (should be set by T019).")
-        df_engineered['material_family'] = 'Unknown'
-        
-    # Check for nulls in engineered feature columns
-    engineered_cols = ['mean_atomic_radius', 'electronegativity_variance', 
-                     'vec', 'atomic_number_variance']
-    null_counts = df_engineered[engineered_cols].isnull().sum()
-    total_nulls = null_counts.sum()
+    # Verify no nulls in engineered feature columns
+    feature_cols = ['mean_atomic_radius', 'electronegativity_variance', 'vec', 'atomic_number_variance']
+    null_counts = df_engineered[feature_cols].isnull().sum()
+    if null_counts.any():
+        print(f"WARNING: Null values found in engineered features after processing:\n{null_counts}")
+        # If strict, we might exit, but we already dropped them in engineer_features
+        # If any remain (e.g., in temperature), it's not a hard fail for this specific task's verification
+        # unless the task requires NO nulls in ANY column. The task says "no nulls in engineered feature columns".
     
-    if total_nulls > 0:
-        print(f"Warning: Found {total_nulls} null values in engineered feature columns:")
-        print(null_counts)
-        # We proceed anyway as the task asks to verify, not necessarily to halt
-        # But in a real pipeline, we might want to filter these out
+    # Save to final CSV
+    print(f"Saving final dataset to {output_path}...")
+    df_engineered.to_csv(output_path, index=False)
+    
+    # Verification
+    if output_path.exists():
+        final_df = pd.read_csv(output_path)
+        print(f"Successfully saved {len(final_df)} records to {output_path}")
         
-    # Save to CSV
-    try:
-        df_engineered.to_csv(output_path, index=False)
-        print(f"Successfully saved {len(df_engineered)} records to {output_path}")
-        
-        # Verify output
-        if os.path.exists(output_path):
-            output_df = pd.read_csv(output_path)
-            expected_cols = ['mean_atomic_radius', 'electronegativity_variance', 
-                           'vec', 'atomic_number_variance', 'temperature', 'material_family']
-            missing_output_cols = [col for col in expected_cols if col not in output_df.columns]
-            if missing_output_cols:
-                print(f"Error: Output file missing expected columns: {missing_output_cols}")
-                sys.exit(1)
-            print("Verification: Output file contains all expected columns.")
-        else:
-            print("Error: Output file was not created.")
+        # Check columns
+        expected_cols = ['mean_atomic_radius', 'electronegativity_variance', 'vec', 'atomic_number_variance', 'temperature', 'material_family']
+        missing_cols = [c for c in expected_cols if c not in final_df.columns]
+        if missing_cols:
+            print(f"ERROR: Missing expected columns: {missing_cols}")
             sys.exit(1)
-            
-    except Exception as e:
-        print(f"Error saving output file: {e}")
-        sys.exit(1)
         
-    print("Feature engineering complete.")
+        # Check for nulls in engineered features
+        nulls_in_features = final_df[feature_cols].isnull().sum().sum()
+        if nulls_in_features > 0:
+            print(f"ERROR: Found {nulls_in_features} null values in engineered feature columns.")
+            sys.exit(1)
+        
+        print("Verification passed: File exists, columns present, no nulls in engineered features.")
+    else:
+        print("ERROR: Output file was not created.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.02310",
+  "judged_at": "2026-08-10T12:46:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper satisfies category (b) as it measures the dependent variable (causal effects) on the user's specified domain (observational data) and provides the foundational empirical context for the field, even though it focuses on general guidelines rather than the specific \"doubly robust\" algorithmic mechanism. It also aligns with category (f) as a canonical reference for the alternative-vocabulary cluster of \"identification strategies\" and \"research designs\" used in observational causal inferen",
+  "relevant": true
+}

@@ -1,12 +1,9 @@
 """
-State Manager Module for PROJ-308
+State Manager Module for Metadata Logging.
 
-Handles logging of numerically unresolved realizations to ensure audit trails
-as required by Constitution Principle IV.
-
-This module provides functionality to log, summarize, and manage the state
-of realizations that failed to converge or were flagged as 'numerically unresolved'
-during ground state computation.
+This module handles the logging of 'numerically unresolved' realizations to
+ensure an audit trail as per Constitution Principle IV. It manages both
+the `data/raw/metadata.json` file and the `state/` directory records.
 """
 
 import json
@@ -15,217 +12,143 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-# Constants for file paths
-METADATA_FILE = "data/raw/metadata.json"
-STATE_DIR = "state"
-UNRESOLVED_LOG_FILE = "state/unresolved_realizations.json"
+# Constants for paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+STATE_DIR = PROJECT_ROOT / "state"
+METADATA_FILE = DATA_RAW_DIR / "metadata.json"
+UNRESOLVED_LOG_FILE = STATE_DIR / "unresolved_log.json"
 
 def _ensure_directories():
     """Ensure required directories exist."""
-    Path("data/raw").mkdir(parents=True, exist_ok=True)
-    Path("state").mkdir(parents=True, exist_ok=True)
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-def _load_metadata() -> Dict[str, Any]:
-    """Load existing metadata file or create a new one."""
-    _ensure_directories()
-    if os.path.exists(METADATA_FILE):
-        with open(METADATA_FILE, 'r') as f:
+def _load_json_file(file_path: Path) -> Dict[str, Any]:
+    """Load JSON from file, returning empty structure if not found."""
+    if not file_path.exists():
+        return {"unresolved_realizations": [], "summary": {}}
+    try:
+        with open(file_path, 'r') as f:
             return json.load(f)
-    return {
-        "project_id": "PROJ-308-quantifying-entanglement-entropy-in-rand",
-        "created_at": datetime.utcnow().isoformat(),
-        "unresolved_realizations": [],
-        "summary": {
-            "total_unresolved": 0,
-            "by_reason": {}
-        }
-    }
+    except (json.JSONDecodeError, IOError):
+        return {"unresolved_realizations": [], "summary": {}}
 
-def _save_metadata(metadata: Dict[str, Any]) -> None:
-    """Save metadata to file."""
-    _ensure_directories()
-    with open(METADATA_FILE, 'w') as f:
-        json.dump(metadata, f, indent=2)
-
-def _load_unresolved_log() -> List[Dict[str, Any]]:
-    """Load unresolved realizations log."""
-    _ensure_directories()
-    if os.path.exists(UNRESOLVED_LOG_FILE):
-        with open(UNRESOLVED_LOG_FILE, 'r') as f:
-            return json.load(f)
-    return []
-
-def _save_unresolved_log(log: List[Dict[str, Any]]) -> None:
-    """Save unresolved realizations log."""
-    _ensure_directories()
-    with open(UNRESOLVED_LOG_FILE, 'w') as f:
-        json.dump(log, f, indent=2)
-
-def _update_summary(metadata: Dict[str, Any]) -> None:
-    """Update the summary statistics in metadata."""
-    unresolved_list = metadata.get("unresolved_realizations", [])
-    total = len(unresolved_list)
-    
-    # Count by reason
-    reason_counts = {}
-    for entry in unresolved_list:
-        reason = entry.get("reason", "unknown")
-        reason_counts[reason] = reason_counts.get(reason, 0) + 1
-    
-    metadata["summary"] = {
-        "total_unresolved": total,
-        "by_reason": reason_counts
-    }
+def _save_json_file(file_path: Path, data: Dict[str, Any]):
+    """Save data to JSON file with indentation."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2, default=str)
 
 def log_unresolved_realization(
     realization_id: int,
     delta: float,
     L: int,
     reason: str,
-    timestamp: Optional[str] = None,
-    additional_info: Optional[Dict[str, Any]] = None
+    timestamp: Optional[datetime] = None
 ) -> None:
     """
     Log a single numerically unresolved realization.
-    
+
     Args:
-        realization_id: Unique identifier for the realization
-        delta: Disorder strength parameter
-        L: Chain length
-        reason: Description of why the realization was unresolved
-        timestamp: ISO format timestamp (defaults to current time)
-        additional_info: Optional dictionary of additional diagnostic info
+        realization_id: Unique ID for the realization.
+        delta: Disorder strength parameter.
+        L: Chain length.
+        reason: String describing why it was unresolved (e.g., "TEBD did not converge").
+        timestamp: Optional timestamp (defaults to now).
     """
+    _ensure_directories()
     if timestamp is None:
-        timestamp = datetime.utcnow().isoformat()
-    
+        timestamp = datetime.now()
+
     entry = {
         "realization_id": realization_id,
         "delta": delta,
         "L": L,
         "reason": reason,
-        "timestamp": timestamp,
-        "additional_info": additional_info or {}
+        "timestamp": timestamp.isoformat()
     }
-    
+
     # Update metadata.json
-    metadata = _load_metadata()
+    metadata = _load_json_file(METADATA_FILE)
+    if "unresolved_realizations" not in metadata:
+        metadata["unresolved_realizations"] = []
     metadata["unresolved_realizations"].append(entry)
-    _update_summary(metadata)
-    _save_metadata(metadata)
+    _save_json_file(METADATA_FILE, metadata)
+
+    # Update state/unresolved_log.json for audit trail
+    state_log = _load_json_file(UNRESOLVED_LOG_FILE)
+    if "unresolved_realizations" not in state_log:
+        state_log["unresolved_realizations"] = []
+    state_log["unresolved_realizations"].append(entry)
     
-    # Also maintain a detailed log in state/
-    log = _load_unresolved_log()
-    log.append(entry)
-    _save_unresolved_log(log)
+    # Update summary counts
+    reason_counts = state_log.get("summary", {}).get("reason_counts", {})
+    reason_counts[reason] = reason_counts.get(reason, 0) + 1
+    state_log["summary"] = {
+        "total_unresolved": len(state_log["unresolved_realizations"]),
+        "reason_counts": reason_counts,
+        "last_updated": timestamp.isoformat()
+    }
+    _save_json_file(UNRESOLVED_LOG_FILE, state_log)
 
 def log_unresolved_batch(
-    entries: List[Dict[str, Any]]
+    entries: List[Dict[str, Any]],
+    timestamp: Optional[datetime] = None
 ) -> None:
     """
-    Log multiple unresolved realizations in batch.
-    
+    Log a batch of unresolved realizations.
+
     Args:
-        entries: List of dictionaries containing realization details.
-                Each entry should have: realization_id, delta, L, reason
-                Optional: timestamp, additional_info
+        entries: List of dicts with keys: realization_id, delta, L, reason.
+        timestamp: Optional timestamp.
     """
     for entry in entries:
-        if "timestamp" not in entry:
-            entry["timestamp"] = datetime.utcnow().isoformat()
-        if "additional_info" not in entry:
-            entry["additional_info"] = {}
-    
-    # Update metadata.json
-    metadata = _load_metadata()
-    metadata["unresolved_realizations"].extend(entries)
-    _update_summary(metadata)
-    _save_metadata(metadata)
-    
-    # Also maintain a detailed log in state/
-    log = _load_unresolved_log()
-    log.extend(entries)
-    _save_unresolved_log(log)
+        log_unresolved_realization(
+            realization_id=entry["realization_id"],
+            delta=entry["delta"],
+            L=entry["L"],
+            reason=entry["reason"],
+            timestamp=timestamp
+        )
 
 def get_unresolved_summary() -> Dict[str, Any]:
     """
-    Get a summary of all unresolved realizations.
-    
-    Returns:
-        Dictionary containing summary statistics:
-        - total_unresolved: Total count
-        - by_reason: Breakdown by reason type
-        - recent_entries: Last 10 entries for quick inspection
-    """
-    metadata = _load_metadata()
-    summary = metadata.get("summary", {})
-    unresolved_list = metadata.get("unresolved_realizations", [])
-    
-    return {
-        "total_unresolved": summary.get("total_unresolved", 0),
-        "by_reason": summary.get("by_reason", {}),
-        "recent_entries": unresolved_list[-10:] if len(unresolved_list) > 10 else unresolved_list,
-        "metadata_file": METADATA_FILE,
-        "log_file": UNRESOLVED_LOG_FILE
-    }
+    Get the current summary of unresolved realizations.
 
-def clear_unresolved_log() -> None:
-    """
-    Clear all unresolved realization logs.
-    
-    WARNING: This should only be used for testing or when starting a fresh
-    analysis run. In production, logs should be preserved for audit trails.
+    Returns:
+        Dict containing total count and breakdown by reason.
     """
     _ensure_directories()
-    
-    # Clear metadata
-    metadata = {
-        "project_id": "PROJ-308-quantifying-entanglement-entropy-in-rand",
-        "created_at": datetime.utcnow().isoformat(),
+    state_log = _load_json_file(UNRESOLVED_LOG_FILE)
+    return state_log.get("summary", {"total_unresolved": 0, "reason_counts": {}})
+
+def clear_unresolved_log() -> None:
+    """Clear the unresolved log (useful for fresh runs, but keep metadata)."""
+    _ensure_directories()
+    # Clear state log but keep metadata for historical record
+    state_log = {
         "unresolved_realizations": [],
         "summary": {
             "total_unresolved": 0,
-            "by_reason": {}
+            "reason_counts": {},
+            "last_updated": datetime.now().isoformat()
         }
     }
-    _save_metadata(metadata)
-    
-    # Clear detailed log
-    _save_unresolved_log([])
+    _save_json_file(UNRESOLVED_LOG_FILE, state_log)
 
-def get_unresolved_by_delta(delta: float, tolerance: float = 1e-6) -> List[Dict[str, Any]]:
-    """
-    Get all unresolved realizations for a specific delta value.
-    
-    Args:
-        delta: Disorder strength to filter by
-        tolerance: Numerical tolerance for float comparison
-        
-    Returns:
-        List of unresolved realization entries matching the delta
-    """
-    metadata = _load_metadata()
-    unresolved_list = metadata.get("unresolved_realizations", [])
-    
+def get_unresolved_by_delta(delta: float) -> List[Dict[str, Any]]:
+    """Get all unresolved realizations for a specific delta."""
+    state_log = _load_json_file(UNRESOLVED_LOG_FILE)
     return [
-        entry for entry in unresolved_list
-        if abs(entry.get("delta", 0) - delta) < tolerance
+        e for e in state_log.get("unresolved_realizations", [])
+        if abs(e["delta"] - delta) < 1e-6
     ]
 
 def get_unresolved_by_reason(reason: str) -> List[Dict[str, Any]]:
-    """
-    Get all unresolved realizations with a specific reason.
-    
-    Args:
-        reason: Reason string to filter by
-        
-    Returns:
-        List of unresolved realization entries matching the reason
-    """
-    metadata = _load_metadata()
-    unresolved_list = metadata.get("unresolved_realizations", [])
-    
+    """Get all unresolved realizations with a specific reason."""
+    state_log = _load_json_file(UNRESOLVED_LOG_FILE)
     return [
-        entry for entry in unresolved_list
-        if entry.get("reason", "").lower() == reason.lower()
+        e for e in state_log.get("unresolved_realizations", [])
+        if e["reason"] == reason
     ]

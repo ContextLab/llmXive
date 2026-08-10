@@ -210,3 +210,169 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-21T16:19:52Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction threshold 0.05 citation 1906.01701
+  claim_id: c_fa817913
+  context: "Run Permutation Testing (\u22651,000 permutations) to generate null distribution\
+    \ and assess significance (FR-007, SC-003). Apply Benjamini-Hochberg FDR correction\
+    \ (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701)) to pairwise metabolite-resistance\
+    \ correlations computed on the training fold only (FR-008, SC-002)"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR correction (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701))\
+    \ to pairwise metabolite-resistance correlations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:35:35Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Random Forest with 500 estimators and max depth 10 using stratified 5-fold
+    cross-validation
+  claim_id: c_202e5aeb
+  context: 'Implement code/modeling/train.py to: Reserve HOLD_OUT_FRACTION (0.20)
+    of samples as independent hold-out set before any feature selection (FR-006) Train
+    Random Forest (n_estimators=500, max_depth=10) with Stratified 5-fold CV (FR-005)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest (n_estimators=500, max_depth=10) with Stratified 5-fold
+    CV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:37:58Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Permutation testing with at least 1,000 permutations to generate null
+    distribution
+  claim_id: c_c51f39c0
+  context: "Run Permutation Testing (\u22651,000 permutations) to generate null distribution\
+    \ and assess significance (FR-007, SC-003)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_with_at_least_1,000_permutations_to_gene
+  kind: magnitude
+  raw_text: "Run Permutation Testing (\u22651,000 permutations) to generate null distribution\
+    \ and assess significance"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:38:21Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied at significance level 0.05
+  claim_id: c_c61bf7fd
+  context: "Apply Benjamini-Hochberg FDR correction (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701))\
+    \ to pairwise metabolite-resistance correlations computed on the training fold\
+    \ only (FR-008, SC-002)"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR correction (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701))\
+    \ to pairwise metabolite-resistance correlations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:38:22Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold set to 5 for collinearity diagnostics
+  claim_id: c_befc2f43
+  context: Implement collinearity diagnostics (VIF calculation) for selected metabolites,
+    flagging VIF > 5 (FR-012). Mandatory diagnostic per FR-012.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flagging VIF > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:38:22Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Full pipeline integration test runtime under 6 hours and RAM usage under
+    7GB
+  claim_id: c_d31a9504
+  context: "Run full pipeline integration test on GitHub Actions free-tier (verify\
+    \ \u22646h runtime, \u22647GB RAM)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u22646h runtime, \u22647GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:38:22Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Balanced accuracy verification on hold-out set
+  claim_id: c_3a3f5a7c
+  context: "Independent Test: Verify balanced accuracy on hold-out set, feature selection\
+    \ within CV folds, permutation testing (\u22651000), FDR correction, and sensitivity\
+    \ analysis sweeps."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Balanced_accuracy_verification_on_hold-out_set
+  kind: entity_fact
+  raw_text: Verify balanced accuracy on hold-out set
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:39:07Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis reports false positive and false negative rates
+  claim_id: c_67d64c88
+  context: "Perform Sensitivity Analysis sweeping decision cutoffs over absolute diff\
+    \ \u2208 {0.01, 0.05, 0.1} and report FP/FR rates (FR-009, SC-005)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_reports_false_positive_and_false_negati
+  kind: entity_fact
+  raw_text: report FP/FR rates
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T12:40:12Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction cited as 1906.01701 on arXiv
+  claim_id: c_17edb7d2
+  context: "Apply Benjamini-Hochberg FDR correction (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701))\
+    \ to pairwise metabolite-resistance correlations computed on the training fold\
+    \ only"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Apply Benjamini-Hochberg FDR correction (\u22640.05 (1906.01701, https://arxiv.org/abs/1906.01701))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T12:42:53Z'

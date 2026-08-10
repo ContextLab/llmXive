@@ -1,0 +1,12 @@
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/` directory, no `state/projects/PROJ-308-\u2026yaml` file, and no\
+    \ `test_state.py` (or passing `test_checksums`) were provided; thus the required\
+    \ configuration and verification artifacts are missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that `specs/PROJ-308-001-quantifying-entanglement/research.md`
+    actually exists or is readable, nor any output from `test_research.py::test_file_exists`
+    confirming the check. The required artifact and verification are missing.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.15555",
+  "judged_at": "2026-08-10T12:46:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper satisfies criterion (a) as it measures the same core mechanism (doubly robust estimation for causal effects) and addresses the same domain (observational data with endogenous treatment assignment), even though it extends the methodology to strategic equilibrium systems. It also qualifies under (d) as a foundational or advanced methodological reference for researchers applying doubly robust techniques in complex observational settings.",
+  "relevant": true
+}

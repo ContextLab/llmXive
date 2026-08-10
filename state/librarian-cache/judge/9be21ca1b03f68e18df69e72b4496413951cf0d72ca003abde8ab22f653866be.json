@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.19746",
+  "judged_at": "2026-08-10T12:47:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "The paper satisfies acceptance criteria (d) and (f) because it explicitly proposes a framework for \"robust causal directionality inference\" that integrates \"double robustness\" (via AIPW) and handles \"MNAR\" (Missing Not At Random) observational data, which are the core methodological components of the user's query, even though the application domain is framed around quantum engineering and gene expression.",
+  "relevant": true
+}

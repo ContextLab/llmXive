@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.07967",
+  "judged_at": "2026-08-10T12:46:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "The paper focuses on selection bias and principal stratification in cluster randomized trials, which is a distinct methodological problem from the user's query about \"doubly robust methods\" for observational data; it does not measure the same mechanism, establish a baseline for doubly robust estimation, or serve as a foundational reference for that specific technique.",
+  "relevant": false
+}

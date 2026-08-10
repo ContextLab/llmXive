@@ -76,7 +76,7 @@
   verification_status: verified
   verified_against_url: https://scikit-learn.org/
   verified_at: '2026-07-21T16:30:04.986572Z'
-- artifact_hash: 7e4f6787fb5a021c39ecc1d9a99f2fab1658ff716052ea1e81a6b13e373f0a82
+- artifact_hash: 85338bd2e751ef7e9fc9b08367299105d2a29783eef9066c801a3e312ff5bf01
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -86,4 +86,4 @@
   value: https://arxiv.org/abs/1906.01701
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1906.01701
-  verified_at: '2026-07-21T16:30:09.024390Z'
+  verified_at: '2026-08-10T12:45:17.743097Z'

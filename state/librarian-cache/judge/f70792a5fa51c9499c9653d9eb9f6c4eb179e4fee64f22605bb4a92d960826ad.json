@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.00603",
+  "judged_at": "2026-08-10T12:47:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper satisfies criterion (a) and (d) as it proposes and analyzes \"doubly robust estimators\" for causal effect estimation on observational data, which is the exact mechanism and methodological framework the user is investigating, even though it extends the application to network data and specific confounding structures.",
+  "relevant": true
+}

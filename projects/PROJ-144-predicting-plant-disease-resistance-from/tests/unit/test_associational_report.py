@@ -1,142 +1,126 @@
+"""
+Unit tests for the associational report generation functionality.
+
+Tests verify that all findings are properly framed as ASSOCIATIONAL
+as required by FR-011.
+"""
 import pytest
 import json
 import os
-import sys
 from pathlib import Path
-from unittest.mock import patch, mock_open
+import sys
+from datetime import datetime
 
-# Add code to path if not already
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from modeling.generate_associational_report import generate_associational_report, main, load_json_file
+from code.modeling.generate_associational_report import (
+    generate_associational_report,
+    load_json_file
+)
 
-@pytest.fixture
-def mock_metrics_data():
-    return {
-        "balanced_accuracy": 0.82,
-        "roc_auc": 0.89,
-        "permutation_p_value": 0.001,
-        "fdr_threshold": 0.05
-    }
-
-@pytest.fixture
-def mock_correlations_data():
-    return {
-        "correlations": [
-            {
-                "metabolite": "Indole-3-acetic acid",
-                "correlation": 0.75,
-                "fdr_p_value": 0.003
-            },
-            {
-                "metabolite": "Salicylic acid",
-                "correlation": 0.68,
-                "fdr_p_value": 0.012
-            }
-        ]
-    }
-
-@pytest.fixture
-def mock_vif_data():
-    return {
-        "high_vif_metabolites": ["Indole-3-acetic acid", "Auxin-like compound"],
-        "vif_values": {
-            "Indole-3-acetic acid": 6.2,
-            "Salicylic acid": 2.1
+class TestAssociationalReport:
+    """Test cases for associational report generation."""
+    
+    def test_report_contains_disclaimer(self):
+        """Test that the report contains the required associational disclaimer."""
+        report = generate_associational_report()
+        
+        assert "disclaimer" in report
+        assert "ASSOCIATIONAL" in report["disclaimer"]
+        assert "causal" in report["disclaimer"].lower()
+        
+    def test_report_contains_methodology_note(self):
+        """Test that the report contains methodology notes about observational nature."""
+        report = generate_associational_report()
+        
+        assert "methodology_note" in report
+        assert "observational" in report["methodology_note"].lower()
+        assert "causality" in report["methodology_note"].lower()
+        
+    def test_report_contains_limitations(self):
+        """Test that the report includes appropriate limitations."""
+        report = generate_associational_report()
+        
+        assert "limitations" in report
+        assert len(report["limitations"]) > 0
+        
+        # Check that causal limitations are mentioned
+        limitations_text = " ".join(report["limitations"]).lower()
+        assert "causal" in limitations_text or "confounding" in limitations_text
+        
+    def test_report_contains_recommendations(self):
+        """Test that the report includes recommendations for experimental validation."""
+        report = generate_associational_report()
+        
+        assert "recommendations" in report
+        assert len(report["recommendations"]) > 0
+        
+        # Check that validation recommendations are present
+        recommendations_text = " ".join(report["recommendations"]).lower()
+        assert "experimental" in recommendations_text or "validation" in recommendations_text
+        
+    def test_feature_associations_use_associational_language(self):
+        """Test that feature associations are framed as associational."""
+        mock_shap_data = {
+            "top_features": [
+                {"name": "Test_Metabolite", "value": 0.5, "importance": "high"}
+            ]
         }
-    }
+        
+        report = generate_associational_report(shap_data=mock_shap_data)
+        
+        assert len(report["findings"]["feature_associations"]) > 0
+        feature_interp = report["findings"]["feature_associations"][0]["interpretation"]
+        
+        assert "ASSOCIATION" in feature_interp or "association" in feature_interp
+        assert "causal" not in feature_interp.lower() or "not causal" in feature_interp.lower()
+        
+    def test_pathway_associations_use_associational_language(self):
+        """Test that pathway associations are framed as associational."""
+        mock_pathway_data = {
+            "pathways": [
+                {"name": "Test_Pathway", "id": "TEST001", "score": 0.8, "metabolite_count": 5}
+            ]
+        }
+        
+        report = generate_associational_report(pathway_data=mock_pathway_data)
+        
+        assert len(report["findings"]["pathway_associations"]) > 0
+        pathway_interp = report["findings"]["pathway_associations"][0]["interpretation"]
+        
+        assert "ASSOCIATIONAL" in pathway_interp or "association" in pathway_interp
+        assert "causal" not in pathway_interp.lower() or "not causal" in pathway_interp.lower()
+        
+    def test_model_performance_interpretation_is_associational(self):
+        """Test that model performance interpretation is framed as associational."""
+        mock_metrics_data = {
+            "balanced_accuracy": 0.85,
+            "roc_auc": 0.90,
+            "precision_recall": 0.88
+        }
+        
+        report = generate_associational_report(metrics_data=mock_metrics_data)
+        
+        assert "model_performance" in report["findings"]
+        perf_interp = report["findings"]["model_performance"]["interpretation"]
+        
+        assert "ASSOCIATIONAL" in perf_interp or "association" in perf_interp
+        assert "causal" not in perf_interp.lower() or "not causal" in perf_interp.lower()
+        
+    def test_report_type_is_correct(self):
+        """Test that the report type is correctly identified."""
+        report = generate_associational_report()
+        
+        assert report["report_type"] == "ASSOCIATIONAL_FINDINGS"
+        
+    def test_report_contains_timestamp(self):
+        """Test that the report contains a generation timestamp."""
+        report = generate_associational_report()
+        
+        assert "generation_timestamp" in report
+        # Try to parse the timestamp to ensure it's valid
+        datetime.fromisoformat(report["generation_timestamp"])
 
-def test_generate_associational_report_framing(mock_metrics_data, mock_correlations_data, mock_vif_data):
-    """Test that the generated report explicitly frames findings as associational."""
-    report = generate_associational_report(mock_metrics_data, mock_correlations_data, mock_vif_data)
-    
-    # Check for critical disclaimer
-    assert "CRITICAL NOTE" in report["disclaimer"]
-    assert "ASSOCIATIONAL" in report["disclaimer"]
-    assert "NO CAUSAL INFERENCES" in report["disclaimer"]
-    
-    # Check summary interpretation
-    assert "associational signal" in report["summary"]["model_performance"]["interpretation"]
-    assert "does not imply that these metabolites cause resistance" in report["summary"]["model_performance"]["interpretation"]
-    
-    # Check collinearity warning
-    assert "association strength" in report["summary"]["collinearity_warning"]["interpretation"]
-    assert "individual causal contribution" in report["summary"]["collinearity_warning"]["interpretation"]
-    
-    # Check limitations
-    assert any("causal inference" in lim.lower() for lim in report["limitations"])
-    assert any("confounders" in lim.lower() for lim in report["limitations"])
-
-def test_report_structure(mock_metrics_data, mock_correlations_data, mock_vif_data):
-    """Verify the report contains all required sections."""
-    report = generate_associational_report(mock_metrics_data, mock_correlations_data, mock_vif_data)
-    
-    required_keys = ["report_type", "disclaimer", "summary", "associational_findings", "limitations", "recommendations"]
-    for key in required_keys:
-        assert key in report, f"Missing key: {key}"
-    
-    # Verify specific data population
-    assert len(report["associational_findings"]["top_associated_metabolites"]) == 2
-    assert report["associational_findings"]["top_associated_metabolites"][0]["metabolite"] == "Indole-3-acetic acid"
-
-def test_load_json_file_success(tmp_path):
-    """Test loading a valid JSON file."""
-    file_path = tmp_path / "test.json"
-    data = {"key": "value"}
-    with open(file_path, 'w') as f:
-        json.dump(data, f)
-    
-    result = load_json_file(str(file_path))
-    assert result == data
-
-def test_load_json_file_not_found():
-    """Test that load_json_file raises FileNotFoundError for missing files."""
-    with pytest.raises(FileNotFoundError):
-        load_json_file("/non/existent/path.json")
-
-def test_load_json_file_invalid_json(tmp_path):
-    """Test that load_json_file raises ValueError for invalid JSON."""
-    file_path = tmp_path / "invalid.json"
-    with open(file_path, 'w') as f:
-        f.write("{ invalid json }")
-    
-    with pytest.raises(ValueError):
-        load_json_file(str(file_path))
-
-@patch('builtins.open', new_callable=mock_open)
-@patch('pathlib.Path.exists', return_value=True)
-@patch('pathlib.Path.mkdir')
-def test_main_execution(mock_mkdir, mock_exists, mock_open_file, mock_metrics_data, mock_correlations_data, mock_vif_data, tmp_path):
-    """Test the main function execution flow."""
-    # Setup mock file system for inputs
-    results_dir = tmp_path / "results"
-    results_dir.mkdir()
-    
-    metrics_file = results_dir / "metrics.json"
-    with open(metrics_file, 'w') as f:
-        json.dump(mock_metrics_data, f)
-    
-    shap_file = results_dir / "shap_analysis.json"
-    with open(shap_file, 'w') as f:
-        json.dump(mock_correlations_data, f)
-    
-    vif_file = results_dir / "collinearity.json"
-    with open(vif_file, 'w') as f:
-        json.dump(mock_vif_data, f)
-
-    # Mock the constants to point to our temp directory
-    with patch('modeling.generate_associational_report.RESULTS_DIR', str(results_dir)):
-        with patch('sys.exit') as mock_exit:
-            main()
-            
-            # Verify exit code 0
-            mock_exit.assert_called_once_with(0)
-            
-            # Verify output file was created
-            output_file = results_dir / "associational_report.json"
-            assert output_file.exists()
-            
-            # Verify content
-            with open(output_file, 'r') as f:
-                output_data = json.load(f)
-                assert "CRITICAL NOTE" in output_data["disclaimer"]
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

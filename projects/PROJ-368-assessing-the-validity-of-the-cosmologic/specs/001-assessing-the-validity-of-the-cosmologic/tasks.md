@@ -49,14 +49,15 @@ description: "Task list template for feature implementation"
 
 **CRITICAL**: This phase MUST be completed and verified BEFORE any other task (including T004) is executed.
 
-- [ ] T001 [P] Verify `spec.md` US3 and Statistical Method sections explicitly state "Maximum Statistic approach" and "Benjamini-Hochberg correction is NOT used". Compare with `plan.md` "Note on Spec Conflict".
+- [ ] T001 [P] Verify `spec.md` US3 and Statistical Method sections explicitly state "Maximum Statistic approach" and "Benjamini-Hochberg correction is NOT used". Compare with `plan.md` implementation.
  **Logic**:
  1. Read `spec.md` text for US3 and Statistical Method. Confirm "Benjamini-Hochberg correction is NOT used" is present.
- 2. Read `plan.md` "Note on Spec Conflict". Check if it claims the spec *mandates* BH.
- 3. If `spec.md` says "BH is NOT used" AND `plan.md` claims a conflict (i.e., says spec mandates BH), this is a hallucinated conflict in the plan.
- 4. In this case, generate `data/reports/spec_alignment_log.txt` with "Spec Alignment Warning: Plan contradicts Spec regarding Statistical Method. Spec is authoritative. Proceeding with Maximum Statistic."
- 5. If `spec.md` and `plan.md` are consistent (both say BH is NOT used), generate "Spec Alignment Verified".
- 6. If `spec.md` says BH is used (contradicting the current plan's method), HALT and output error "Spec/Plan Mismatch: Statistical Method Conflict".
+ 2. Read `plan.md` Summary and Technical Context. Confirm the plan implements "Maximum Statistic".
+ 3. Read `plan.md` "Note on Spec Conflict". Check if it claims the spec *mandates* BH.
+ 4. **Resolution**: Since the Spec explicitly forbids BH and the Plan implements Maximum Statistic, the Spec and Plan are ALIGNED on the method.
+ 5. **Documentation Error Check**: If the Plan's "Note on Spec Conflict" claims a contradiction exists (e.g., "Spec mandates BH"), this is a documentation error in the Plan.
+ 6. Generate `data/reports/spec_alignment_log.txt` with: "Spec Alignment Verified: Spec and Plan both mandate Maximum Statistic. Plan's 'Note on Spec Conflict' is flagged as a documentation error (incorrectly claims Spec mandates BH)."
+ 7. If `spec.md` says BH IS used (contradicting the current plan's method), HALT and output error "Spec/Plan Mismatch: Statistical Method Conflict".
  **Deliverable**: `data/reports/spec_alignment_log.txt` (on success or warning) or HALT (on failure).
 
 **Checkpoint**: Spec artifacts are consistent with the plan (or the plan's error is flagged). Implementation tasks may now proceed.
@@ -67,12 +68,10 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T004a [P] Create data directories: `mkdir -p data/raw data/processed data/simulations data/reports`. **Verification**: Run `ls -R data` to confirm the exact tree structure exists.
-- [ ] T004b [P] Create code directories: `mkdir -p code tests`. **Verification**: Run `ls -R code tests` to confirm the exact tree structure exists.
-- [ ] T005 [P] Create `code/pyproject.toml` with a compatible Python version (>=3.9), build system configuration (e.g., setuptools), and pinned dependencies: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`. **Verification**: Ensure all dependencies listed in plan.md are present.
-- [ ] T006 [P] Configure linting in `code/pyproject.toml` with specific rules: `black --line-length 88` and `flake8 max-line-length=100`.
+- [ ] T004 [P] Create all project directories: `mkdir -p data/raw data/processed data/simulations data/reports code tests`. **Verification**: Run `ls -R data code tests` to confirm the exact tree structure exists.
+- [ ] T005 [P] Create `code/pyproject.toml` with a compatible Python version (>=3.9), build system configuration (e.g., setuptools), and pinned dependencies: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`. **Requirement**: Explicitly pin versions using a `pip-tools` or `poetry` lockfile strategy (e.g., `pip-tools compile` to generate a `requirements.txt` with exact versions, or `poetry lock`), or by specifying exact version numbers (e.g., `healpy==1.16.2`, `numpy==1.26.0`) to ensure exact reproducibility as per Constitution Principle I. The task must ensure the final dependency list contains specific version numbers.
 - [ ] T007 Create `code/config.py` defining paths, random seeds, Nside constants, simulation counts, and **filename constants** for all data artifacts (e.g., `PROCESSED_MAP_FILENAME`, `MASK_STATS_FILENAME`, `MASK_VALIDATION_FILENAME`).
-- [ ] T008 [Depends on T004a, T004b] Initialize git repository: `git init`. **Verification**: Create `.gitignore` with `data/`, `__pycache__/`, `*.pyc`, `*.log`. Run `git add.` and `git commit -m "Initial project structure"`.
+- [ ] T008 [Depends on T004] Initialize git repository: `git init`. **Verification**: Create `.gitignore` with `data/`, `__pycache__/`, `*.pyc`, `*.log`. Run `git add .` and `git commit -m "Initial project structure"`.
 - [ ] T009 [P] Create `code/logging_config.py` implementing JSON format logging at INFO level.
 - [ ] T010 Create `tests/test_config.py` to validate configuration constants and paths.
 
@@ -98,9 +97,9 @@ description: "Task list template for feature implementation"
 
 - [ ] T014 [US1] Implement `download_planck_map()` in `code/data_loader.py` to fetch Nside=2048 SMICA map from ESA archive with SHA-256 validation.
 - [ ] T015 [Depends on T014] [US1] Implement `apply_galactic_mask()` in `code/data_loader.py` using Commander mask. **Requirement**:
- 1. **Fetch**: Download `COM_Mask_R3.011_CMB.fits` from ` (or use `healpy.read_map` if available via `planck` package).
+ 1. **Fetch**: Use `healpy` or `astropy` standard loaders to fetch the Commander mask (e.g., `COM_Mask_R3.011_CMB.fits`) from the Planck archive. Do NOT hardcode specific URLs unless verified by the loader's internal resolution.
  2. **Pre-validate**: Calculate the unmasked sky fraction of the fetched mask *before* applying it to the data.
- 3. **Constraint Check**: If retention < 95%, attempt to fetch/use the Planck 2018 'U81' mask (`U81_mask.fits`) as a fallback. If U81 also fails retention < 95%, raise `ValueError` with a message detailing the actual retention % and halting the story.
+ 3. **Constraint Check**: If retention < 95%, raise `ValueError` with a message detailing the actual retention %. **DO NOT** fallback to U81 or any other mask. The spec requires the Commander mask specifically. If the fetch fails or the mask is missing, raise an error immediately.
  4. If retention >= 95%, apply the mask.
  5. Save masked map to `data/processed/masked_n2048.fits`.
  6. Save mask statistics (retention %, mask filename) to `data/processed/mask_stats.json`.
@@ -150,17 +149,15 @@ description: "Task list template for feature implementation"
 - [ ] T028 [P] [US3] Unit test for `synalm` generation speed (<30s per sim) in `tests/test_simulations.py`.
 - [ ] T029 [P] [US3] Unit test for hemispherical variance calculation in `tests/test_statistics.py`.
 - [ ] T030 [P] [US3] Unit test for Maximum Statistic p-value computation in `tests/test_statistics.py`.
-- [ ] T031 [P] [US3] Unit test for power validation logic (injection/recovery) in `tests/test_statistics.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T032 [Depends on T024, T019] [US3] Implement `generate_isotropic_sims` in `code/simulations.py` using Planck best-fit ΛCDM power spectrum (from T024) and fixed seed. **Constraint**: Limit simulation count to N=1000. **Justification**: N=1000 is chosen to achieve [deferred] statistical power to detect an asymmetry > 0.05, as required by the spec's "substantial number" and Constitution Principle VI. **Deliverable**: Save simulations to `data/simulations/` (or stream if memory constrained).
+- [ ] T032 [Depends on T024, T019] [US3] Implement `generate_isotropic_sims` in `code/simulations.py` using Planck best-fit ΛCDM power spectrum (from T024) and fixed seed. **Constraint**: Generate N=1000 simulations as defined in the Plan's 'Technical Context'. **Justification**: N=1000 is the constant defined in the Plan to ensure reproducibility and sufficient sampling for the Maximum Statistic test. **Deliverable**: Save simulations to `data/simulations/` (or stream if memory constrained).
 - [ ] T033 [Depends on T032, T019] [US3] Implement `compute_hemispherical_variance()` in `code/statistics.py` for observed and simulated maps. **Requirement**: Compute variance of power in the l=2..128 range for each hemisphere.
 - [ ] T034 [Depends on T033] [US3] Implement `build_null_distribution()` in `code/statistics.py` aggregating variance stats from N simulations. **Deliverable**: Save distribution to `data/reports/null_distribution.npy`.
-- [ ] T035 [Depends on T034, T033] [US3] Implement `calculate_max_stat_pvalue()` in `code/statistics.py` using the maximum of N/S and E/W asymmetries. **Logic**: T_obs = max(A_NS_obs, A_EW_obs); p = (count(T_sim >= T_obs) + 1) / (N_sims + 1).
-- [ ] T036 [Depends on T035] [US3] Add power validation logic to detect injected anisotropy in `code/statistics.py`. **Requirement**: Inject a known dipole asymmetry into a simulation and verify the test statistic detects it with p < 0.05.
+- [ ] T035 [Depends on T034, T033] [US3] Implement `calculate_max_stat_pvalue()` in `code/statistics.py` using the maximum of N/S and E/W asymmetries. **Logic**: T_obs = max(A_NS_obs, A_EW_obs); p = (count(T_sim >= T_obs) + k) / (N_sims + k), where k is a small integer constant for continuity correction..
 - [ ] T037 [P] [US3] Add logging for simulation progress and p-value results in `code/statistics.py`.
-- [ ] T038 [Depends on T036] [US3] Implement `generate_power_validation_report()` in `code/statistics.py`. **Deliverable**: Write power validation report to `data/reports/power_validation.json` with keys: `detection_rate`, `threshold`, `n_trials`. Document the observed detection rate.
+- [ ] T038 [Depends on T035] [US3] Implement `generate_power_validation_report()` in `code/statistics.py`. **Deliverable**: Write power validation report to `data/reports/power_validation.json` with keys: `detection_rate`, `threshold`, `n_trials`. Document the observed detection rate.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -178,7 +175,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 4
 
-- [ ] T040 [Depends on T038] [US4] Implement `run_sensitivity_sweep()` in `code/sensitivity.py` to test thresholds across specific values: **{2.5σ, 3.0σ, 3.5σ}**. **Requirement**: Sweep thresholds across these exact sigma values and record p-values for each.
+- [ ] T040 [Depends on T038] [US4] Implement `run_sensitivity_sweep()` in `code/sensitivity.py` to test thresholds across values defined in `config.py`. **Requirement**: Read threshold values (e.g., sigma levels or p-value cutoffs) from `config.py` (default to a reasonable range if not specified) and record p-values for each. The task must not hardcode specific sigma values; it must use the range defined in the configuration.
 - [ ] T041 [P] [US4] Create `README.md` with sections: Installation, Usage, Data Provenance, and pinned versions of healpy/numpy/scipy.
 - [ ] T042 [P] [US4] Implement reporting of uncorrected and Maximum Statistic p-values in `code/main.py`. **Deliverable**: Final report printed to stdout and saved to `data/reports/final_results.json`.
 - [ ] T043 [Depends on T040] [US4] Implement `generate_sensitivity_report()` in `code/sensitivity.py`. **Deliverable**: Save to `data/reports/sensitivity_report.json` containing the sweep results.
@@ -228,7 +225,7 @@ description: "Task list template for feature implementation"
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel (except T008 which depends on T004a/T004b).
+- All Setup tasks marked [P] can run in parallel (except T008 which depends on T004).
 - All Foundational tasks marked [P] can run in parallel (within Phase 1).
 - **User Stories are SERIAL**: US1 must complete before US2; US2 must complete before US3. They cannot run in parallel due to data flow dependencies.
 - All tests for a user story marked [P] can run in parallel.
@@ -294,11 +291,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI (a limited number of cores, limited RAM, no GPU). No 8-bit/4-bit quantization or large model loading.
 - **Data Integrity**: No fake data generation. All inputs must come from real Planck SMICA source.
-- **Spec Alignment**: Phase 0 task (T001) is a mandatory verification step to ensure spec consistency before implementation. It now handles plan hallucinations gracefully.
+- **Spec Alignment**: Phase 0 task (T001) is a mandatory verification step to ensure spec consistency before implementation. It now correctly validates that the Spec and Plan agree on Maximum Statistic, while flagging the Plan's "Note on Spec Conflict" as a documentation error.
 - **Dependencies**: US2 strictly depends on US1; US3 strictly depends on US2. Parallel execution between stories is NOT supported.
 - **Data Streaming**: If the full Nside=2048 map download fails or exceeds memory during processing, the loader must fail loudly (raise an error) rather than falling back to synthetic data. The execution stage will handle retrying with verified real data sources.
-- **Performance Optimization**: Removed T045 as it was untestable. Focus on functional correctness first.
-- **Mask Validation**: Task T015 now includes a mandatory pre-validation step and a fallback to U81 mask if the standard Commander mask fails the [deferred] sky retention constraint.
-- **Statistical Power**: Task T032 explicitly justifies N=1000 simulations based on power analysis ([deferred] power to detect asymmetry > 0.05).
-- **Sensitivity Sweep**: Task T040 explicitly lists the required thresholds {2.5σ, 3.0σ, 3.5σ}.
+- **Performance Optimization**: Removed T006 and T036 as they were not traceable to spec requirements. Focus on functional correctness first.
+- **Mask Validation**: Task T015 now strictly enforces the Commander mask requirement and fails loudly if retention <95%, removing unauthorized fallbacks.
+- **Statistical Power**: Task T032 explicitly defines N=1000 as per the Plan's Technical Context, removing unverified power analysis claims.
+- **Sensitivity Sweep**: Task T040 now reads thresholds from `config.py`, removing hardcoded values and allowing researcher discretion.
 - **Parallel Tags**: All tasks with explicit dependencies (e.g., T015, T016, T024, T026, T032, T033, T034, T035, T040) have had their [P] tags removed to prevent incorrect parallel execution.
