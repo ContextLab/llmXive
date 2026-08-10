@@ -2356,3 +2356,77 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T04:38:31Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: pi(50000) is approximately 5133
+  claim_id: c_5853c836
+  context: "The dynamic programming algorithm used to compute p_P(n) has a time complexity\
+    \ of O(n \xB7 \u03C0(n)) and space complexity of O(n). With n=50,000, \u03C0(n)\
+    \ \u2248 5,133."
+  evidence:
+    asserted: '50.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "With n=50,000, \u03C0(n) \u2248 5,133."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T13:53:10Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: total operations for n=50000 are approximately 2.5e8
+  claim_id: c_cb0b2c21
+  context: "With n=50,000, \u03C0(n) \u2248 5,133. The total operations are roughly\
+    \ 2.5 \xD7 10^8, which fits within the 6-hour pipeline budget and the 6.5 GB memory\
+    \ constraint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total operations are roughly 2.5 \xD7 10^8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T13:53:37Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: average prime gap at n=50000 is approximately 10.8
+  claim_id: c_76814fc1
+  context: "At n=50,000, the average prime gap is approximately ln(50,000) \u2248\
+    \ 10.8. While this is small compared to n, it is large enough to create measurable\
+    \ 'holes' in the summand set that affect the partition count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At n=50,000, the average prime gap is approximately ln(50,000) \u2248\
+    \ 10.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T13:55:28Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: p(50000) is approximately 10 to the power of 170
+  claim_id: c_1f7b0c0d
+  context: "The unrestricted partition function p(n) grows extremely rapidly (p(50,000)\
+    \ \u2248 10^170). The distinct-prime variant p_P(n) grows much slower."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "p(50,000) \u2248 10^170."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T13:57:01Z'

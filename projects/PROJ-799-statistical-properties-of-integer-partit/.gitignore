@@ -1,37 +1,5 @@
-# Byte-compiled / optimized / DLL files
+*.pyc
 __pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
-build/
-
-# Virtual environments
-.venv/
-venv/
-ENV/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Data files (tracked via checksums in state/)
-data/raw/*.csv
-data/processed/*
-data/schemas/*.yaml
-
-# Logs
-*.log
-
-# OS
 .DS_Store
-Thumbs.db
+data/
+state/

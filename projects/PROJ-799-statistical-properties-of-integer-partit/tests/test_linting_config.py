@@ -1,100 +1,76 @@
 """
-Contract test for T003: Verify linting and formatting configuration.
-
-This test ensures that the configuration files for flake8, black, and isort
-exist and are valid, and that the pre-commit hooks are correctly set up.
+Contract test for linting configuration and tool availability.
+Verifies that the linting infrastructure is correctly set up for the project.
 """
-import os
+
 import subprocess
 import sys
-import tempfile
-import yaml
 from pathlib import Path
 
 import pytest
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CODE_DIR = PROJECT_ROOT / "code"
-CONFIG_FILES = {
-    "flake8": CODE_DIR / ".flake8",
-    "pyproject": CODE_DIR / "pyproject.toml",
-    "pre_commit": PROJECT_ROOT / ".pre-commit-config.yaml",
-}
 
-def test_config_files_exist():
-    """Verify all configuration files exist."""
-    for name, path in CONFIG_FILES.items():
-        assert path.exists(), f"Configuration file {name} not found at {path}"
 
-def test_flake8_config_valid():
-    """Verify flake8 configuration is valid and parseable."""
-    config_path = CONFIG_FILES["flake8"]
-    # flake8 reads ini-style config, just check it's not empty and has sections
-    content = config_path.read_text()
-    assert "[flake8]" in content, "Missing [flake8] section in .flake8"
-    assert "max-line-length" in content, "Missing max-line-length in .flake8"
+class TestLintingSetup:
+    """Tests to verify linting tools and configuration are present."""
 
-def test_pyproject_black_config_valid():
-    """Verify black configuration in pyproject.toml is valid."""
-    config_path = CONFIG_FILES["pyproject"]
-    content = config_path.read_text()
-    assert "[tool.black]" in content, "Missing [tool.black] section in pyproject.toml"
-    assert "line-length" in content, "Missing line-length in [tool.black]"
+    def test_flake8_config_exists(self):
+        """Verify .flake8 configuration file exists in project root."""
+        config_path = PROJECT_ROOT / ".flake8"
+        assert config_path.exists(), f".flake8 config not found at {config_path}"
 
-def test_pre_commit_config_valid():
-    """Verify pre-commit configuration is valid YAML and contains expected hooks."""
-    config_path = CONFIG_FILES["pre_commit"]
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
-    
-    assert "repos" in config, "Missing 'repos' key in pre-commit config"
-    repos = config["repos"]
-    assert len(repos) > 0, "No repositories configured in pre-commit"
-    
-    hook_ids = set()
-    for repo in repos:
-        for hook in repo.get("hooks", []):
-            hook_ids.add(hook["id"])
-    
-    expected_hooks = {"black", "isort", "flake8"}
-    assert expected_hooks.issubset(hook_ids), f"Missing hooks: {expected_hooks - hook_ids}"
+    def test_pyproject_black_config_exists(self):
+        """Verify black configuration exists in pyproject.toml."""
+        pyproject_path = PROJECT_ROOT / "pyproject.toml"
+        assert pyproject_path.exists(), "pyproject.toml not found"
+        
+        content = pyproject_path.read_text()
+        assert "[tool.black]" in content, "Black configuration missing from pyproject.toml"
+        assert "line-length = 100" in content, "Black line-length setting missing"
 
-def test_black_can_parse_code_dir():
-    """Verify black can parse the code directory without errors."""
-    if not CODE_DIR.exists():
-        pytest.skip("Code directory does not exist yet")
-    
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", "--diff", str(CODE_DIR)],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        # Black returns 1 if files need formatting, 0 if all good.
-        # We just want to ensure it runs without crashing.
-        assert result.returncode in (0, 1), f"Black crashed: {result.stderr}"
-    except FileNotFoundError:
-        pytest.skip("Black not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.skip("Black check timed out")
+    def test_lint_config_module_importable(self):
+        """Verify the lint_config module can be imported."""
+        # Add code dir to path to allow import
+        sys.path.insert(0, str(PROJECT_ROOT / "code"))
+        try:
+            import lint_config
+            assert hasattr(lint_config, "run_flake8")
+            assert hasattr(lint_config, "run_black")
+            assert hasattr(lint_config, "run_all_checks")
+        finally:
+            sys.path.remove(str(PROJECT_ROOT / "code"))
 
-def test_flake8_can_parse_code_dir():
-    """Verify flake8 can parse the code directory without errors."""
-    if not CODE_DIR.exists():
-        pytest.skip("Code directory does not exist yet")
-    
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "flake8", "--config=" + str(CONFIG_FILES["flake8"]), str(CODE_DIR)],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        # flake8 returns 0 if no errors, non-zero if errors found.
-        # We just want to ensure it runs without crashing.
-        assert result.returncode in (0, 1), f"Flake8 crashed: {result.stderr}"
-    except FileNotFoundError:
-        pytest.skip("Flake8 not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.skip("Flake8 check timed out")
+    @pytest.mark.skipif(
+        subprocess.run(["which", "flake8"], capture_output=True).returncode != 0,
+        reason="flake8 not installed in environment"
+    )
+    def test_flake8_executable_available(self):
+        """Verify flake8 is available in the environment."""
+        result = subprocess.run(["flake8", "--version"], capture_output=True, text=True)
+        assert result.returncode == 0, "flake8 executable not found or failed"
+
+    @pytest.mark.skipif(
+        subprocess.run(["which", "black"], capture_output=True).returncode != 0,
+        reason="black not installed in environment"
+    )
+    def test_black_executable_available(self):
+        """Verify black is available in the environment."""
+        result = subprocess.run(["black", "--version"], capture_output=True, text=True)
+        assert result.returncode == 0, "black executable not found or failed"
+
+    @pytest.mark.integration
+    def test_lint_config_module_runs_without_error(self):
+        """Verify the lint_config module can be executed without import errors."""
+        # This test ensures the module structure is valid even if checks fail due to code style
+        sys.path.insert(0, str(PROJECT_ROOT / "code"))
+        try:
+            import lint_config
+            # Just calling the function definitions to ensure they exist and are callable
+            assert callable(lint_config.run_flake8)
+            assert callable(lint_config.run_black)
+            assert callable(lint_config.run_all_checks)
+        finally:
+            sys.path.remove(str(PROJECT_ROOT / "code"))

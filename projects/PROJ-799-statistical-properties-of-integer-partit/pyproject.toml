@@ -1,17 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proj-799-statistical-properties-of-integer-partit"
+version = "0.1.0"
+description = "Statistical Properties of Integer Partitions Into Distinct Prime Summands"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "pandas",
+    "pygam"
+]
+
 [tool.black]
+# Black formatting configuration scoped to this project
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
+include = 'code/'
+extend-exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.mypy_cache
+    | \.pytest_cache
+    | data
+    | tests
 )/
 '''
+
+[tool.isort]
+# Optional: if isort is used alongside black
+profile = "black"
+line_length = 88
+skip = ["data", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]

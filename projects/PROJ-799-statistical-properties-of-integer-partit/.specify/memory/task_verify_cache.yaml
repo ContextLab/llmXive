@@ -1,11 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or any file listings were provided; the required `projects/PROJ-799-statistical-properties-of-integer-partit/`
-    with its subfolders (`code/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/schemas/`,
-    `tests/`, `tests/data/`, `docs/`) and the separate `state/projects/` directory
-    at the repository root are not shown to exist. The implementer must create and
-    demonstrate these directories (e.g., via a directory listing or screenshots).
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,10 +6,59 @@ T003:
     in the `projects/PROJ-799-statistical-properties-of-integer-partit/code/` directory,
     nor any documentation showing that these tools have been scoped to that path.
     The required artifacts are missing, so the task is not satisfied.
-T003b:
+T004:
+  c: false
+  h: a7bab802d10ed2be59a39cd97c2212eedf3ada128dd161f98b5e3cb023a2eccc
+  r: "The repository contains `code/utils/prime_sieve.py` with a correct implementation\
+    \ and a main block that would write `primes.npy`, but the required output file\
+    \ `code/utils/primes.npy` is absent, so the task\u2019s primary deliverable is\
+    \ not present."
+T006:
+  c: true
+  h: 59833dd9320bbebf4ca8c0ea52bb152faf66cf7581d162c58d065804bf68fb5e
+  r: "Both required files exist at the specified paths, are non\u2011empty, and contain\
+    \ YAML\u2011formatted JSON\u2011Schema definitions appropriate for partition records\
+    \ and regression output."
+T009:
+  c: false
+  h: 11b207bc50b14fe8b29c5e9527fd8b72d2d74f07b1b0ce05d1b058c484da11c7
+  r: "The required test file `tests/test_partition_logic.py` does not exist, so there\
+    \ is no contract test verifying that `p_{\\mathcal{P}}(n)` matches the reference\
+    \ CSV for all n\u202F=\u202F1\u2026100. The reference CSV is present, but without\
+    \ the test script the task is not fulfilled."
+T009#1:
+  c: false
+  h: 11b207bc50b14fe8b29c5e9527fd8b72d2d74f07b1b0ce05d1b058c484da11c7
+  r: The required test file `tests/test_partition_logic.py` is missing, so there is
+    no contract test that loads the reference CSV and compares it to `generate_partitions.py`
+    output. The reference CSV exists, but without the test script the task is not
+    fulfilled.
+T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or figures were provided; the claim references required\
-    \ artifacts (a partition\u2011count script, CSV of\u202F$n$,\u202F$p_{\\mathcal{P}}(n)$,\u202F\
-    $Q_{as}(n)$, residual calculations, regression summary, and visualizations) but\
-    \ none are present on disk. Consequently the task\u2019s deliverables are missing."
+  r: "No code changes or test output were provided; there is no `generate_partitions.py`\
+    \ file showing added validation logic, nor any evidence (e.g., diff, unit test,\
+    \ or execution log) that the script now skips values of\u202Fn with\u202Fp_{\\\
+    mathcal{P}}(n)=0 or\u202FQ_{as}(n)\u202F\u2264\u202F0. The required artifact is\
+    \ missing."
+T016b:
+  c: false
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: "The required artifact `data/processed/features.csv` does not exist, so the validation\
+    \ of the \u201Cdistance to nearest prime\u201D and oscillatory term columns cannot\
+    \ be performed. The implementer must create the file with the appropriate non\u2011\
+    null columns before the task can be considered complete."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `generate_partitions.py` file or its contents were presented, so we cannot
+    confirm that the required comment documenting the generating function $\prod_{p\in\mathbb{P}}(1+q^p)$
+    (and distinguishing it from $\prod(1-q^k)^{-1}$) actually exists. The implementer
+    must supply the code file with the explicit comment.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files or logs were provided showing that a `n_max` configuration parameter
+    was added to `generate_partitions.py` and `asymptotic_baseline.py`, nor that its
+    value is logged at runtime. The required artifact (modified scripts with the new
+    parameter and logging) is missing.

@@ -1,5 +1,6 @@
 from typing import List, Optional
 import numpy as np
+import os
 
 def get_prime_sieve(limit: int) -> np.ndarray:
     """
@@ -69,3 +70,26 @@ _PRIME_LIMIT = PROJECT_N_MAX + SIEVE_BUFFER
 # Accessible via `generate_primes(_PRIME_LIMIT)` or cached if needed.
 # To avoid global execution overhead on import, we provide a lazy getter if required,
 # but for this task, the functions above are the primary API.
+
+if __name__ == "__main__":
+    """
+    Main entry point for T004: Generate primes up to 50,000 and save to code/utils/primes.npy
+    """
+    # Define the limit as per task requirement
+    limit = 50000
+    
+    # Generate primes
+    primes = generate_primes(limit)
+    
+    # Convert to numpy array for efficient storage
+    primes_array = np.array(primes, dtype=np.int64)
+    
+    # Determine output path relative to project root
+    # The script is at code/utils/prime_sieve.py, output goes to code/utils/primes.npy
+    output_path = os.path.join(os.path.dirname(__file__), "primes.npy")
+    
+    # Save to disk
+    np.save(output_path, primes_array)
+    
+    print(f"Generated {len(primes)} primes up to {limit}.")
+    print(f"Saved to: {output_path}")

@@ -1,16 +1,17 @@
+"""
+Project Setup Script for PROJ-799.
+Creates the required directory structure for the integer partition research project.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Initialize the project directory structure for PROJ-799.
-    Creates necessary subdirectories under the project root.
-    """
-    # Define the project root relative to this file's location
-    # Assuming this script is at: projects/PROJ-799-statistical-properties-of-integer-partit/code/setup_structure.py
-    project_root = Path(__file__).resolve().parent.parent
+    """Create the directory structure for PROJ-799."""
+    # Define the base project directory
+    base_dir = Path("projects/PROJ-799-statistical-properties-of-integer-partit")
     
+    # Define all required subdirectories
     directories = [
         "code",
         "code/utils",
@@ -20,16 +21,28 @@ def main():
         "tests",
         "tests/data",
         "docs",
-        "state",
         "state/projects"
     ]
     
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    # Create each directory
+    created_count = 0
+    for subdir in directories:
+        dir_path = base_dir / subdir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    print("Project structure initialization complete.")
+    print(f"\nSetup complete. Created {created_count} new directories.")
+    print(f"Project structure rooted at: {base_dir}")
+    
+    # List the final structure
+    print("\nFinal directory structure:")
+    for dir_path in base_dir.rglob("*"):
+        if dir_path.is_dir():
+            print(f"  {dir_path.relative_to(base_dir)}")
 
 if __name__ == "__main__":
     main()
