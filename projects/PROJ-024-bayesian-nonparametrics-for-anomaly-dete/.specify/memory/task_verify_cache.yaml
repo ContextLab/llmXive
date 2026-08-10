@@ -1,0 +1,7 @@
+T104:
+  c: true
+  h: 64008669740b7fa725e1d186d40b4dde7cc39bd34518c50c74e6b59932418db6
+  r: "The `data/data_provenance_report.md` file exists, is non\u2011empty, and documents\
+    \ that the `ls -la \u2026 | grep pems` command produced no output after the `rm\
+    \ -f` cleanup, satisfying the task\u2019s verification constraint. The required\
+    \ raw files are absent, confirming they were removed."
