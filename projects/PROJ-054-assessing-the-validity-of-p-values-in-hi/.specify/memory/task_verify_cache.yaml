@@ -57,24 +57,11 @@ T032:
     execution scripts, p\u2011value collections, KS statistics, or QQ\u2011plot figures)\
     \ were supplied; the claim cannot be verified against any concrete artifact. The\
     \ required deliverables for User Stories\u202F1\u20113 are missing."
-T037:
+T040:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No runtime profiling logs, benchmark reports, or any evidence showing that the\
-    \ full simulation sweep was executed and completed within 6\u202Fhours on 2 CPU\
-    \ cores were provided. The claim lacks the required artifact (e.g., timing summary,\
-    \ resource usage report) to verify the task\u2019s requirement."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` directory or test files were presented; the claim provides no
-    concrete artifacts showing additional unit tests were added, so the required output
-    is missing.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing that the `quickstart.md` file was actually executed or validated\
-    \ is present; the only provided material is a feature specification, not the required\
-    \ validation output (e.g., logs, test results, or a confirmed pass/fail report).\
-    \ The task\u2019s core requirement\u2014running and confirming the quickstart\
-    \ validation\u2014is therefore unmet."
+  h: 1b66f3fa0494b2a7383f87c813a95c533a41416b8bd6d10b31af7fb3773739dc
+  r: "The required `data/results/sensitivity.csv` file is missing, and `docs/results.md`\
+    \ does not exist. Moreover, `docs/methodology.md` lacks the concrete \u201Cworst\u2011\
+    case\u201D extraction with an exact KS deviation (e.g., \u201CAt\u202F\u03C1=0.8,\u202F\
+    KS=0.xx\u201D). These essential artifacts are absent, so the documentation update\
+    \ is incomplete."

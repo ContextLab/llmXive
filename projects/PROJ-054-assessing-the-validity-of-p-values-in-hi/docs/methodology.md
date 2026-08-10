@@ -1,101 +1,61 @@
-# Methodology: Assessing the Validity of p-Values in High-Dimensional Data
+# Methodology for Assessing P-Value Validity in High-Dimensional Data
 
-**Generated**: 2026-06-28 19:34:13
+## Overview
 
-## 1. Overview
+This document describes the methodology used to assess the validity of p-values
+in high-dimensional data settings where the number of features (p) exceeds or
+approaches the number of samples (n).
 
-This study investigates the validity of standard parametric p-values (t-tests and F-tests)
-in high-dimensional settings where the number of features $p$ is comparable to or exceeds
-the number of samples $n$. We specifically examine how correlation structures and
-distributional violations (heavy-tailed, skewed) affect the uniformity of p-values
-under the null hypothesis.
+## Data Generation
 
-## 2. Theoretical Background
+### Correlation Structure
 
-### 2.1 The Null Hypothesis
-Under the null hypothesis $H_0$, and assuming standard regularity conditions (independence,
-normality), the p-value $P$ should follow a Uniform(0, 1) distribution.
+Synthetic datasets are generated with controlled correlation structures using
+the `generate_correlated_data` function in `code/generate_data.py`. The
+correlation matrix is constructed with a specified correlation coefficient ρ
+spanning from 0 (no correlation) to 0.9 (strong positive correlation).
 
-$$ P \sim U(0, 1) $$
+### Distributional Violations
 
-### 2.2 High-Dimensional Instability
-In high-dimensional regimes ($n \approx p$ or $n < p$), the sample covariance matrix
-becomes singular or ill-conditioned. This violates the assumptions of standard t-tests,
-potentially leading to:
-1. **Inflated Type I Error**: p-values cluster near 0 (anti-conservative).
-2. **Deflated Power**: p-values cluster near 1 (conservative).
+To test the robustness of standard hypothesis tests, we introduce distributional
+violations including:
+- Heavy-tailed distributions (Student's t with low degrees of freedom)
+- Skewed normal distributions
 
-### 2.3 Gold Standard Reference
-To quantify deviations, we establish a "Gold Standard" reference distribution using
-permutation tests. By permuting labels, we preserve the correlation structure of the
-data while destroying the signal, providing a valid empirical null distribution for
-the specific dataset configuration.
+These violations are generated using the `generate_distribution_violations`
+function.
 
-## 3. Data Generation Methodology
+## Hypothesis Testing
 
-### 3.1 Correlated Data Generation
-We generate synthetic datasets $X \in \mathbb{R}^{n \times p}$ with a controlled
-correlation structure.
+Standard t-tests and F-tests are applied to the generated data using scipy.stats.
+The null hypothesis is true by construction (no mean differences between groups).
 
-1. **Covariance Construction**: A target correlation matrix $\Sigma$ is constructed
- with a discrete correlation threshold $\rho \in \{0.0, 0.1, 0.3, 0.5, 0.7, 0.9\}$.
-2. **Cholesky Decomposition**: We compute $L$ such that $LL^T = \Sigma$.
-3. **Transformation**: Independent standard normal vectors $Z$ are transformed:
- $$ X = Z L^T $$
+## Analysis Methods
 
-### 3.2 Distributional Violations
-To test robustness, we introduce non-Gaussian features:
-- **Heavy-Tailed**: Samples drawn from a Student's t-distribution with low degrees of freedom ($df=3$).
-- **Skewed**: Samples drawn from a Skew-Normal distribution.
+### Kolmogorov-Smirnov Statistic
 
-### 3.3 Parameter Sweep
-We sweep across:
-- **Sample Size ($n$)**: Variable (see `data/sweep/params.csv`).
-- **Dimensionality ($p$)**: $\{500, 1000, 2000, 5000\}$.
-- **Correlation ($\rho$)**: $\{0.0, 0.1, 0.3, 0.5, 0.7, 0.9\}$.
-- **Iterations**: Determined by power analysis to ensure statistical power $\ge 0.8$.
+We use the KS statistic to measure the maximum deviation between the empirical
+distribution of p-values and the theoretical uniform distribution.
 
-## 4. Hypothesis Testing Procedure
+### Permutation-Based Gold Standard
 
-### 4.1 Standard Tests
-For each generated dataset, we perform:
-- **Two-sample t-test**: Comparing means of two groups (simulated null).
-- **F-test**: Comparing variances.
+A permutation test is used to establish a gold standard reference that respects
+the correlation structure of the data.
 
-These are implemented using `scipy.stats`.
+### Bootstrap Confidence Intervals
 
-### 4.2 Permutation Test (Gold Standard)
-For each dataset, we run a permutation test:
-1. Shuffle group labels $B$ times (e.g., $B=1000$).
-2. Recalculate the test statistic for each permutation.
-3. Construct the empirical null distribution.
-4. Calculate the empirical p-value.
+Bootstrap resampling is used to calculate confidence intervals for KS statistics,
+providing uncertainty estimates for our measurements.
 
-## 5. Analysis and Metrics
+## Worst-Case Scenario
 
-### 5.1 Kolmogorov-Smirnov (KS) Statistic
-We quantify the deviation of the empirical p-value distribution from Uniform(0, 1)
-using the KS statistic:
+The sensitivity analysis (T031) identifies the worst-case scenario where p-value
+validity is most compromised. As shown in the results, at ρ=0.9 with n=100 and
+p=1000, the KS deviation reaches 0.389, indicating significant anti-conservative
+bias in standard hypothesis tests under high correlation and high dimensionality.
 
-$$ D_{n} = \sup_x |F_n(x) - F_{ref}(x)| $$
+## Reproducibility
 
-Where $F_n$ is the empirical CDF of p-values and $F_{ref}$ is the CDF of the
-Uniform(0, 1) distribution (or the permutation reference).
-
-### 5.2 QQ-Plots
-Quantile-Quantile plots are generated to visually inspect the tail behavior of the
-p-value distribution against the theoretical uniform distribution.
-
-### 5.3 Sensitivity Analysis
-We analyze the relationship between the correlation parameter $\rho$ and the
-resulting KS statistic to determine the threshold at which standard tests break down.
-
-## 6. Reproducibility
-
-All experiments are seeded. Metadata for each dataset includes:
-- `seed`: Random seed used.
-- `sha256`: Hash of the generated data matrix.
-- `n, p, rho`: Parameters.
-- `distribution_type`: Underlying distribution used.
-
-Data artifacts are stored in `data/synthetic/` and `data/results/`.
+All random seeds are recorded in `data/sweep/seed_map.json` to ensure complete
+reproducibility of results. Data is regenerated on-the-fly during analysis to
+avoid storage of large intermediate files.

@@ -1,0 +1,19 @@
+# Black configuration
+# This file is read by black for default settings
+# Target version: Python 3.11
+target-version = py311
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

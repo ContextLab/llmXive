@@ -1,0 +1,125 @@
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: KS statistic 0.247 at correlation 0.9, sample size 50, feature dimension
+    5000
+  claim_id: c_65f9d5cd
+  context: "Per the \"Embarrassing the Theory\" narrative requirement, we extracted\
+    \ the parameter combination that produces the maximum deviation from the theoretical\
+    \ uniform distribution of p-values. **At \u03C1=0.9, with n=50 and p=5000:** -\
+    \ **KS Statistic**: 0.247"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03C1=0.9, with n=50 and p=5000: KS Statistic: 0.247"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:59:36Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: 24.7% maximum deviation from uniformity at worst-case parameters
+  claim_id: c_c564b854
+  context: This represents a 24.7% maximum deviation from uniformity, indicating significant
+    anti-conservative bias in p-values.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/24.7%25_maximum_deviation_from_uniformity_at_worst-case_parame
+  kind: magnitude
+  raw_text: This represents a 24.7% maximum deviation from uniformity
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:59:49Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: 95% bootstrap confidence intervals from 1000 resamples
+  claim_id: c_01d3475c
+  context: All KS statistics reported include 95% bootstrap confidence intervals calculated
+    from 1000 resamples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% bootstrap confidence intervals calculated from 1000 resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:59:49Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/methodology.md
+  attempts: 1
+  canonical: KS deviation of 0.389 at rho=0.9, n=100, p=1000
+  claim_id: c_3cfc67e7
+  context: "As shown in the results, at \u03C1=0.9 with n=100 and p=1000, the KS deviation\
+    \ reaches 0.389, indicating significant anti-conservative bias in standard hypothesis\
+    \ tests under high correlation and high dimensionality."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03C1=0.9 with n=100 and p=1000, the KS deviation reaches 0.389"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T02:07:52Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: KS statistic 0.389 at correlation 0.9 sample size 100 dimension 1000
+  claim_id: c_308c1354
+  context: "Worst-Case Scenario: At \u03C1=0.9, n=100, p=1000, the KS statistic reaches\
+    \ 0.389, indicating that 38.9% of p-values deviate from the expected uniform distribution\
+    \ by more than this amount."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_statistic_0.389_at_correlation_0.9_sample_size_100_dimens
+  kind: magnitude
+  raw_text: "At \u03C1=0.9, n=100, p=1000, the KS statistic reaches 0.389, indicating\
+    \ that 38.9% of p-values deviate from the expected uniform distribution by more\
+    \ than this amount."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T02:08:07Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: KS statistic increases from 0.156 to 0.213 as dimension increases from
+    1000 to 5000 at correlation 0.5
+  claim_id: c_412ea75b
+  context: "As the ratio p/n increases, the KS statistic systematically increases:\
+    \ At \u03C1=0.5: KS increases from 0.156 (p=1000) to 0.213 (p=5000)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03C1=0.5: KS increases from 0.156 (p=1000) to 0.213 (p=5000)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T02:08:18Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/results.md
+  attempts: 1
+  canonical: KS statistic increases from 0.389 to 0.456 as dimension increases from
+    1000 to 5000 at correlation 0.9
+  claim_id: c_c8a1519e
+  context: "As the ratio p/n increases, the KS statistic systematically increases:\
+    \ At \u03C1=0.9: KS increases from 0.389 (p=1000) to 0.456 (p=5000)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "At \u03C1=0.9: KS increases from 0.389 (p=1000) to 0.456 (p=5000)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T02:08:23Z'
