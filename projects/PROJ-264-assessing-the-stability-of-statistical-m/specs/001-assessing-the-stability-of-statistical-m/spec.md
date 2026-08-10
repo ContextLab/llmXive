@@ -54,7 +54,7 @@ The system MUST apply a Permutation Test on the absolute differences of squared 
 
 - **Dataset Size Limit**: What happens if a dataset has insufficient samples, making 10-fold cross-validation (with 10 repeats) computationally unstable or impossible? The system must detect this and skip the dataset, logging a warning. It MUST NOT reduce the fold count. (See FR-001)
 - **Zero Variance**: How does the system handle a scenario where a model achieves [deferred] accuracy on every fold (std=0)? The correlation calculation must handle zero-variance predictors without crashing (e.g., by excluding them from the correlation matrix or treating them as a specific data point).
-- **Network Failure**: If a UCI dataset download fails due to network issues, the system must log the error, skip that specific dataset, and continue with the remaining datasets, rather than halting the entire 6-hour job.
+- **Network Failure**: If a UCI dataset download fails due to network issues, the system must log the error, skip that specific dataset, and continue with the remaining datasets, rather than halting the entire long-duration job.
 
 ## Requirements
 

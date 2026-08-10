@@ -1,19 +1,19 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CorrelationResult"
-description: "Pearson correlation results between stability metrics and dataset properties."
+description: "Pearson correlation results between log-transformed stability metrics and log-transformed dataset properties."
 type: "object"
 properties:
   metric_name:
     type: "string"
-    enum: ["cv_accuracy", "cv_f1"]
-    description: "The stability metric being correlated."
+    enum: ["log_cv_accuracy", "log_cv_f1"]
+    description: "The log-transformed stability metric being correlated."
   property_name:
     type: "string"
-    enum: ["n_samples", "n_features"]
-    description: "The dataset property being correlated."
+    enum: ["log_n_samples", "log_n_features"]
+    description: "The log-transformed dataset property being correlated."
   correlation_coefficient:
     type: "number"
-    description: "Pearson r value."
+    description: "Pearson r value on log-transformed data."
   p_value:
     type: "number"
     minimum: 0.0
@@ -30,6 +30,7 @@ properties:
     description: "Correlation method used."
   log_transformed:
     type: "boolean"
+    const: true
     description: "Whether log-log transformation was applied."
 required:
   - metric_name

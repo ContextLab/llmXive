@@ -1,81 +1,82 @@
-# Quickstart: Assessing the Stability of Statistical Model Performance
-
-This guide walks you through running the full pipeline to assess model stability across multiple datasets.
+# Quickstart: Assessing the Stability of Statistical Model Performance Across Data Subsets
 
 ## Prerequisites
 
-- Python 3.10+
-- `pip` package manager
-- Internet connection (to download datasets from OpenML)
+-   Python 3.10 or higher.
+-   `pip` package manager.
+-   Internet connection (for initial dataset download).
 
 ## Installation
 
-1. Clone the repository and navigate to the project root.
-2. Install dependencies:
+1.  **Clone the repository** (or navigate to the project root).
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
- ```bash
- pip install -r requirements.txt
- ```
+## Running the Pipeline
 
-## Usage
+The pipeline is executed sequentially. Run the following commands in order:
 
-Run the main pipeline script to execute the full evaluation:
-
+### Step 1: Download Datasets (One-Time Setup)
+Fetches a set of pre-verified binary classification datasets from OpenML and caches them.
+**Important**: This step must be run **once** before the main evaluation. The CI execution assumes these files are present.
 ```bash
-python -m code.main
+python code/download_data.py
 ```
+*Output*: `data/raw/` directory with 15 CSV files and `data/checksums.txt`.
 
-This will:
-1. Load the configured datasets from OpenML.
-2. Run repeated stratified cross-validation (10 folds, 10 repeats) for Logistic Regression, Random Forest, and Linear SVM.
-3. Calculate stability metrics (CV, log-variance).
-4. Perform correlation analysis and permutation tests.
-5. Generate the final report.
-
-To generate the final report separately (if raw data already exists):
-
+### Step 2: Execute Evaluations
+Runs the repeated cross-validation for all datasets and models.
 ```bash
-python -m code.scripts.generate_final_report
+python code/run_evaluation.py
 ```
+*Output*: `results/stability_metrics.csv`.
+*Note*: This step may take several hours.
+
+### Step 3: Analyze Stability
+Calculates log-log correlations and runs block permutation tests.
+```bash
+python code/analyze_stability.py
+```
+*Output*: `results/correlation_results.csv`, `results/permutation_results.csv`.
+
+### Step 4: Generate Report
+Aggregates results and generates the final Markdown report.
+```bash
+python code/report_generator.py
+```
+*Output*: `results/final_report.md`.
 
 ## Dataset List
 
-The pipeline uses the following 15 binary classification datasets from OpenML/UCI. [UNRESOLVED-CLAIM: c_1973f8be — status=not_enough_info]
-These datasets were selected to span a wide range of sample sizes (N < 1k, 1k–10k, N > 10k)and feature counts, ensuring a robust assessment of model stability.
+The pipeline uses a set of binary classification datasets (pre-verified OpenML IDs):
+1.  **1590** (Adult) - Income prediction
+2.  **1464** (Bank Marketing) - Subscription
+3.  **1479** (Credit Approval) - US/UK (N=690)
+4.  **1468** (German Credit)
+5.  **1476** (Pima Indians Diabetes) - N=768, F=8
+6.  **1461** (Heart Disease) - Cleveland (N=303)
+7.  **1510** (Breast Cancer Wisconsin) (N=699)
+8.  **1482** (Ionosphere) (N=351)
+9.  **1471** (Spambase)
+10. **1463** (Vehicle) - Binary subset (van vs other)
+11. **1472** (Soybean) - Binary subset (diaporthe vs other)
+12. **1486** (Hypothyroid)
+13. **1488** (Letter Recognition) - Binary subset (a vs b)
+14. **1490** (Magic Gamma Telescope)
+15. **1492** (MiniBooNE)
 
-| Dataset Name | OpenML ID | Samples | Features | Description |
-|:--- |:--- |:--- |:--- |:--- |
-| Pima Indians Diabetes | 1510 | 768 (2509.12259, https://arxiv.org/abs/2509.12259) | 8 | Classic binary classification on health metrics. |
-| Breast Cancer Wisconsin | 1461 | 569 | 30 | Malignant vs. benign tumor classification. |
-| Ionosphere | 1464 | 351 | 34 | Radar signal classification (good/bad). |
-| Haberman's Survival | 1228 | 306 | 3 | Patient survival status after surgery. |
-| Spect Heart | 1478 | 267 | 44 | Heart disease diagnosis (presence/absence). |
-| Breast Cancer | 1286 | 286 | 9 | UCI Breast Cancer dataset. |
-| Monks-1 | 1472 | 432 | 6 | Synthetic robot classification task. |
-| Monks-2 | 1473 | 432 | 6 | Synthetic robot classification task. |
-| Monks-3 | 1474 | 432 | 6 | Synthetic robot classification task. |
-| Credit Approval | 1466 | 690 (2102.04721, https://arxiv.org/abs/2102.04721) | 15 | Credit card approval prediction. |
-| German Credit | 1467 | 1000 | 20 | German credit risk assessment. |
-| Heart Disease | 1470 | 270 | 13 | UCI Heart Disease dataset. |
-| Hepatitis | 1471 | 155 | 19 | Hepatitis diagnosis (alive/died). |
-| Liver Disorders | 1287 | 345 | 6 | Liver disorder detection. |
-| Thyroid | 1463 | 215 | 5 | Thyroid disease classification. |
+*Note*: All datasets are pre-verified to be binary classification tasks with sample sizes ranging from small to large scales.
 
-**Note**: Datasets with fewer than 200 samples are automatically skipped during execution to ensure stable 10-fold cross-validation results.
+## Verification
 
-## Output Files
-
-After a successful run, results are saved in the `results/` directory:
-
-- `results/raw_evaluations.csv`: Per-fold, per-repeat metrics.
-- `results/stability_metrics.csv`: Aggregated stability metrics (CV, log-variance).
-- `results/correlation_results.csv`: Correlation analysis between stability and dataset properties.
-- `results/permutation_results.csv`: Significance testing results for variance differences.
-- `results/regression_residuals.csv`: Residuals from the log-log regression analysis.
-- `results/final_report.md`: Human-readable summary of findings.
-
-## Troubleshooting
-
-- **Network Errors**: If a dataset fails to download, the script logs a warning and skips that dataset, continuing with the rest.
-- **Insufficient Datasets**: If fewer than 15 valid datasets are available after filtering, the script exits with an error.
-- **Memory Limits**: The pipeline processes datasets sequentially to stay within memory constraints (~7GB).
+To verify the installation and a single run (without the full 15 datasets):
+1.  Edit `code/config.py` to set `TEST_MODE = True`.
+2.  Run `python code/run_evaluation.py`.
+3.  Check `results/stability_metrics.csv` for non-zero variance.

@@ -1,6 +1,5 @@
 status: none
-intent: OpenML benchmark repeated cross validation results for binary classification
-  python package dataset
+intent: download OpenML UCI binary classification datasets python package dataset
 required_fields:
 - dataset_id
 - dataset_name
@@ -9,6 +8,6 @@ required_fields:
 - repeat
 - accuracy
 - f1_score
-cache_key: a8e57b9002a98dcd3132f69ad61f770ba8ffc2a73543592ae8ab4709d6ef14a6
-searched_at: '2026-08-06T04:54:20.775827+00:00'
+cache_key: 237d93598320c62b5b32fd1f27f5d02a8b68e3ebe872a0ccb2c0346f724cf94b
+searched_at: '2026-08-10T15:37:57.586948+00:00'
 retry_count: 1

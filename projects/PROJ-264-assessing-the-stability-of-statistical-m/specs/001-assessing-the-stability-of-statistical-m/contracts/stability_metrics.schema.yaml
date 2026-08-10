@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stability Metrics Schema"
+description: "Schema for the aggregated stability metrics per dataset and model."
+type: "object"
+properties:
+  dataset_id:
+    type: "integer"
+    description: "OpenML dataset identifier."
+  model_name:
+    type: "string"
+    description: "Name of the model used."
+    enum:
+      - "LogisticRegression"
+      - "RandomForest"
+      - "LinearSVC"
+  mean_accuracy:
+    type: "number"
+    description: "Mean accuracy over 100 repeats."
+  std_accuracy:
+    type: "number"
+    description: "Standard deviation of accuracy."
+  cv_accuracy:
+    type: "number"
+    description: "Coefficient of Variation for accuracy (std/mean)."
+  mean_f1:
+    type: "number"
+    description: "Mean F1-score over 100 repeats."
+  std_f1:
+    type: "number"
+    description: "Standard deviation of F1-score."
+  cv_f1:
+    type: "number"
+    description: "Coefficient of Variation for F1-score."
+required:
+  - "dataset_id"
+  - "model_name"
+  - "mean_accuracy"
+  - "std_accuracy"
+  - "cv_accuracy"
+  - "mean_f1"
+  - "std_f1"
+  - "cv_f1"
+additionalProperties: false

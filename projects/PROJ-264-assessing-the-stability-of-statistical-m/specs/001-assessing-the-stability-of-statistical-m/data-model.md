@@ -2,59 +2,79 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and storage formats used throughout the project. All data artifacts are CSV files (for tabular results) or JSON/Parquet (for raw data), validated against YAML schemas defined in `contracts/`.
+This document defines the data structures, schemas, and relationships used throughout the pipeline. The system is designed to process data in a streaming fashion where possible, but intermediate results are materialized as CSV files for transparency and reproducibility.
 
 ## Entity Definitions
 
 ### 1. Dataset Metadata
-Represents the properties of a loaded dataset.
--   **Attributes**: `dataset_id`, `source_url`, `n_samples`, `n_features`, `target_column`, `checksum`.
--   **Storage**: `data/metadata.json` (derived from download info).
+Represents the characteristics of a loaded dataset.
+-   `dataset_id`: Integer (OpenML ID).
+-   `name`: String (Dataset name).
+-   `n_samples`: Integer.
+-   `n_features`: Integer.
+-   `source`: String ("UCI" or "OpenML").
+-   `checksum`: String (SHA-256 of raw file).
 
-### 2. Evaluation Run (Raw Output)
-Represents a single cross-validation fold within a repeat.
--   **Attributes**: `dataset_id`, `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`.
--   **Storage**: `results/raw_evaluations.csv`.
--   **Schema Reference**: `contracts/evaluation_run.schema.yaml`.
+### 2. EvaluationRun
+Represents a single model evaluation within a specific fold and repeat.
+-   `dataset_id`: Integer.
+-   `model_name`: String ("LogisticRegression", "RandomForest", "LinearSVC").
+-   `fold_id`: Integer (1-10).
+-   `repeat_id`: Integer (1-10).
+-   `accuracy`: Float (0.0 - 1.0).
+-   `f1_score`: Float (0.0 - 1.0).
 
-### 3. Stability Metric (Aggregated)
-Represents the aggregated performance and stability for a (dataset, model) pair.
--   **Attributes**: `dataset_id`, `model_name`, `mean_accuracy`, `std_accuracy`, `cv_accuracy`, `mean_f1`, `std_f1`, `cv_f1`, `n_evals`.
--   **Storage**: `results/stability_metrics.csv`.
--   **Schema Reference**: `contracts/stability_metric.schema.yaml`.
+### 3. StabilityMetric
+Aggregated metrics for a (Dataset, Model) pair.
+-   `dataset_id`: Integer.
+-   `model_name`: String.
+-   `mean_accuracy`: Float.
+-   `std_accuracy`: Float.
+-   `cv_accuracy`: Float.
+-   `mean_f1`: Float.
+-   `std_f1`: Float.
+-   `cv_f1`: Float.
 
-### 4. Correlation Result
-Represents the statistical relationship between stability and dataset properties.
--   **Attributes**: `metric_name` (e.g., `cv_accuracy`), `property_name` (e.g., `n_samples`), `correlation_coefficient`, `p_value`, `method` (Pearson), `log_transformed` (bool).
--   **Storage**: `results/correlation_results.csv`.
--   **Schema Reference**: `contracts/correlation_result.schema.yaml`.
+### 4. CorrelationResult
+Result of the correlation analysis.
+-   `dataset_property`: String ("n_samples" or "n_features").
+-   `metric_type`: String ("cv_accuracy" or "cv_f1").
+-   `correlation_coefficient`: Float.
+-   `p_value`: Float.
+-   `p_value_adjusted`: Float (Bonferroni corrected).
+-   `significant`: Boolean.
 
-### 5. Permutation Test Result
-Represents the outcome of the variance comparison test.
--   **Attributes**: `dataset_id`, `model_pair` (e.g., `LR_vs_RF`), `statistic`, `raw_p_value`, `adjusted_p_value`, `is_significant`.
--   **Storage**: `results/permutation_results.csv`.
+### 5. PermutationResult
+Result of the variance comparison test.
+-   `dataset_id`: Integer.
+-   `model_a`: String.
+-   `model_b`: String.
+-   `metric_type`: String ("accuracy" or "f1").
+-   `test_statistic`: Float.
+-   `p_value`: Float.
+-   `p_value_adjusted`: Float.
+-   `significant`: Boolean.
 
-## Data Flow Diagram
+## File Formats
 
-```mermaid
-graph TD
-    A[Raw Datasets] -->|Streaming Load| B(Preprocessing & Imputation)
-    B -->|Clean Data| C[Repeated K-Fold CV Loop]
-    C -->|100 Runs| D[Evaluation Run Records]
-    D -->|Write| E[results/raw_evaluations.csv]
-    E -->|Aggregate| F[Stability Metrics Calculation]
-    F -->|Write| G[results/stability_metrics.csv]
-    G -->|Correlate| H[Pearson Correlation]
-    H -->|Write| I[results/correlation_results.csv]
-    G -->|Compare Variances| J[Permutation Test]
-    J -->|Adjust| K[BH Correction]
-    K -->|Write| L[results/permutation_results.csv]
-    I & L -->|Report| M[final_report.md]
-```
+### Input: Raw Datasets
+-   **Format**: CSV or ARFF (handled by `openml`).
+-   **Location**: `data/raw/`
 
-## File Formats & Constraints
+### Output: Intermediate Results
+-   **Format**: CSV (Comma Separated Values).
+-   **Encoding**: UTF-8.
+-   **Delimiter**: `,`.
+-   **Header**: Yes.
 
--   **CSV**: UTF-8 encoded, comma-separated, no quoting unless necessary.
--   **Float Precision**: All floating-point metrics stored with 6 decimal places.
--   **Missing Values**: Not allowed in final output CSVs; handled during aggregation (e.g., if an evaluation fails, it is excluded from the mean/CV, but the row count `n_evals` is updated).
--   **Checksums**: Every file in `data/` and `results/` must have a corresponding `.sha256` file.
+### Output: Final Report
+-   **Format**: Markdown.
+-   **Location**: `results/final_report.md`.
+
+## Data Flow
+
+1.  **Download**: `download_data.py` -> `data/raw/{dataset_id}.csv`.
+2.  **Evaluate**: `run_evaluation.py` reads `data/raw/`, writes `results/stability_metrics.csv` (temporarily) or accumulates in memory then writes `results/raw_evaluations.csv` (optional debug).
+    *   *Correction*: The plan will aggregate immediately in `run_evaluation.py` to save I/O, writing directly to `results/stability_metrics.csv` after all repeats for a dataset are done.
+3.  **Analyze**: `analyze_stability.py` reads `results/stability_metrics.csv` -> writes `results/correlation_results.csv` and `results/permutation_results.csv`.
+4.  **Report**: `report_generator.py` reads all CSVs -> writes `results/final_report.md`.

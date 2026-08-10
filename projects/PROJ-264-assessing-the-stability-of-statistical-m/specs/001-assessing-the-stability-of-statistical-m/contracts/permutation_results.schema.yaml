@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Permutation Test Results Schema"
+description: "Schema for permutation test results comparing variance distributions between models using block permutation."
+type: "object"
+properties:
+  dataset_id:
+    type: "integer"
+    description: "OpenML dataset identifier."
+  model_a:
+    type: "string"
+    description: "First model in the comparison."
+  model_b:
+    type: "string"
+    description: "Second model in the comparison."
+  metric_type:
+    type: "string"
+    description: "Metric used for variance comparison."
+    enum:
+      - "accuracy"
+      - "f1"
+  test_statistic:
+    type: "number"
+    description: "Observed test statistic (absolute difference of variances of the 100 performance scores)."
+  p_value:
+    type: "number"
+    description: "Raw p-value from permutation test."
+  p_value_adjusted:
+    type: "number"
+    description: "Benjamini-Hochberg corrected p-value."
+  significant:
+    type: "boolean"
+    description: "True if p_value_adjusted < 0.05."
+required:
+  - "dataset_id"
+  - "model_a"
+  - "model_b"
+  - "metric_type"
+  - "test_statistic"
+  - "p_value"
+  - "p_value_adjusted"
+  - "significant"
+additionalProperties: false
