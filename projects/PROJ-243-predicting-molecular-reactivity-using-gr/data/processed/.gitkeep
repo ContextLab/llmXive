@@ -1,3 +1,3 @@
-# This file ensures the `data/processed` directory is tracked by Git.
-# This directory is designated for intermediate and final processed datasets
-# (e.g., graph structures, feature matrices) used in the molecular reactivity pipeline.
+# This directory stores preprocessed molecular graph data (e.g., .pt, .parquet files).
+# It is created to ensure the directory structure exists for the pipeline.
+# See tasks.md T001b for creation requirement.

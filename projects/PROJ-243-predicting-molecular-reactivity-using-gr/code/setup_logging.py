@@ -4,24 +4,41 @@ from datetime import datetime
 from utils.logging_utils import setup_logging, log_metric, flush_metrics
 from config import ensure_directories
 
-def main():
+def main() -> None:
     """
-    Initializes the logging infrastructure.
-    This script ensures that the directories exist and the logging system is ready.
-    It also writes a startup entry to the metrics.json file.
+    Initialize the logging infrastructure and verify directory creation.
+    This script ensures that artifacts/logs and artifacts/metrics.json
+    are ready for use by other pipeline stages.
     """
+    print("Initializing logging infrastructure...")
+    
+    # Ensure base directories exist
     ensure_directories()
     
-    # Initialize the logger for this setup script
-    logger = setup_logging("setup_logging")
-    logger.info("Starting logging infrastructure setup.")
+    # Setup logging
+    logger = setup_logging()
     
-    # Log a startup metric
-    log_metric("system_startup", datetime.now().isoformat())
-    log_metric("logging_initialized", True)
+    # Verify artifacts directory exists
+    artifacts_dir = "artifacts"
+    logs_dir = os.path.join(artifacts_dir, "logs")
     
-    logger.info("Logging infrastructure ready. Check artifacts/logs/ for logs and artifacts/metrics.json for metrics.")
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+        logger.warning(f"Created missing directory: {logs_dir}")
     
+    # Log initialization event
+    log_metric("logging_init", True, step=0)
+    log_metric("init_timestamp", datetime.now().isoformat(), step=0)
+    
+    # Verify metrics.json creation
+    metrics_path = os.path.join(artifacts_dir, "metrics.json")
+    if os.path.exists(metrics_path):
+        logger.info(f"Metrics file ready at: {metrics_path}")
+    else:
+        logger.error("Failed to create metrics file.")
+        sys.exit(1)
+        
+    logger.info("Logging infrastructure setup complete.")
     flush_metrics()
 
 if __name__ == "__main__":

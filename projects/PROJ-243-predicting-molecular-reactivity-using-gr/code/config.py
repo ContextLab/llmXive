@@ -1,103 +1,73 @@
-"""
-Configuration management for the molecular reactivity prediction pipeline.
-Handles random seeds, device settings, and directory initialization.
-"""
 import os
 import random
 import logging
 from typing import Optional, Dict, Any
 import numpy as np
 
-# Default configuration values
-DEFAULT_CONFIG = {
-    "seed": 42,
-    "device": "cpu",  # Enforcing CPU-only as per project constraints
-    "log_level": "INFO",
-    "log_dir": "artifacts/logs",
-    "metrics_file": "artifacts/metrics.json",
-    "data_dir": "data",
-    "code_dir": "code",
-    "tests_dir": "tests",
-    "artifacts_dir": "artifacts",
-    "max_workers": 4,
-    "batch_size": 32,
-}
-
 class Config:
-    """Holds configuration parameters for the experiment."""
-    
-    def __init__(self, overrides: Optional[Dict[str, Any]] = None):
-        self.seed = DEFAULT_CONFIG["seed"]
-        self.device = DEFAULT_CONFIG["device"]
-        self.log_level = DEFAULT_CONFIG["log_level"]
-        self.log_dir = DEFAULT_CONFIG["log_dir"]
-        self.metrics_file = DEFAULT_CONFIG["metrics_file"]
-        self.data_dir = DEFAULT_CONFIG["data_dir"]
-        self.code_dir = DEFAULT_CONFIG["code_dir"]
-        self.tests_dir = DEFAULT_CONFIG["tests_dir"]
-        self.artifacts_dir = DEFAULT_CONFIG["artifacts_dir"]
-        self.max_workers = DEFAULT_CONFIG["max_workers"]
-        self.batch_size = DEFAULT_CONFIG["batch_size"]
+    """Central configuration for the project."""
+    def __init__(self):
+        self.project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        self.data_raw_dir = os.path.join(self.project_root, 'data', 'raw')
+        self.data_processed_dir = os.path.join(self.project_root, 'data', 'processed')
+        self.data_assets_dir = os.path.join(self.project_root, 'data', 'assets')
+        self.code_dir = os.path.join(self.project_root, 'code')
+        self.artifacts_dir = os.path.join(self.project_root, 'artifacts')
+        self.tests_dir = os.path.join(self.project_root, 'tests')
+        self.artifacts_logs_dir = os.path.join(self.artifacts_dir, 'logs')
+        self.artifacts_weights_dir = os.path.join(self.artifacts_dir, 'weights')
+        self.artifacts_figures_dir = os.path.join(self.artifacts_dir, 'figures')
         
-        if overrides:
-            for key, value in overrides.items():
-                if hasattr(self, key):
-                    setattr(self, key, value)
+        # Device configuration
+        self.device = 'cpu'
         
-        # Ensure reproducibility
-        self._set_seeds()
+        # Random seed
+        self.seed = 42
 
-    def _set_seeds(self):
-        """Set random seeds for reproducibility."""
-        random.seed(self.seed)
-        np.random.seed(self.seed)
-        os.environ['PYTHONHASHSEED'] = str(self.seed)
+def get_config() -> Config:
+    """Retrieve the global configuration instance."""
+    return Config()
 
-_config_instance: Optional[Config] = None
+def set_seed(seed: Optional[int] = None) -> None:
+    """Set random seeds for reproducibility."""
+    if seed is None:
+        seed = get_config().seed
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
-def get_config(overrides: Optional[Dict[str, Any]] = None) -> Config:
-    """Get the singleton configuration instance."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config(overrides)
-    elif overrides:
-        # Update existing config if overrides provided
-        for key, value in overrides.items():
-            if hasattr(_config_instance, key):
-                setattr(_config_instance, key, value)
-    return _config_instance
-
-def set_seed(seed: int):
-    """Manually set the random seed and update config."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config({"seed": seed})
-    else:
-        _config_instance.seed = seed
-        _config_instance._set_seeds()
-
-def ensure_directories():
-    """Create all required directories defined in the project structure."""
+def ensure_directories() -> None:
+    """
+    Create all required project directories if they do not exist.
+    This ensures the directory structure is ready for data ingestion and artifact storage.
+    """
     config = get_config()
     directories = [
-        config.data_dir,
-        os.path.join(config.data_dir, "raw"),
-        os.path.join(config.data_dir, "processed"),
-        os.path.join(config.data_dir, "assets"),
+        config.data_raw_dir,
+        config.data_processed_dir,
+        config.data_assets_dir,
         config.code_dir,
-        config.tests_dir,
         config.artifacts_dir,
-        config.log_dir,
-        os.path.join(config.artifacts_dir, "logs"),
+        config.tests_dir,
+        config.artifacts_logs_dir,
+        config.artifacts_weights_dir,
+        config.artifacts_figures_dir
     ]
     
     for directory in directories:
         if not os.path.exists(directory):
             os.makedirs(directory)
-            logging.debug(f"Created directory: {directory}")
-    
-    return directories
+            logging.getLogger(__name__).info(f"Created directory: {directory}")
 
 def get_default_config() -> Dict[str, Any]:
-    """Return a copy of the default configuration dictionary."""
-    return DEFAULT_CONFIG.copy()
+    """Return a dictionary of default configuration values."""
+    config = get_config()
+    return {
+        'device': config.device,
+        'seed': config.seed,
+        'data_raw_dir': config.data_raw_dir,
+        'data_processed_dir': config.data_processed_dir,
+        'data_assets_dir': config.data_assets_dir,
+        'artifacts_dir': config.artifacts_dir,
+        'artifacts_logs_dir': config.artifacts_logs_dir
+    }

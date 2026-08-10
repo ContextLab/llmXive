@@ -47,7 +47,7 @@
 - [ ] T001b [P] Create data directory: `data/processed`
 - [ ] T001c [P] Create data directory: `data/assets`
 - [ ] T002 [P] Create code and artifact directories: `code`, `artifacts`, `tests`
-- [X] T003 [P] Initialize Python 3.11 project with `requirements.txt` (pinning `torch`, `rdkit`, `scikit-learn`, `pandas`, `datasets`, `networkx`, `psutil`)
+- [X] T003 [P] Initialize Python 3.11 project with `requirements.txt` (pinning `torch`, `rdkit`, `torch-geometric`, `scikit-learn`, `pandas`, `datasets`, `networkx`, `psutil`, `pyyaml`, `requests`)
 - [ ] T004 [P] Configure linting (flake8/ruff) and formatting (black) tools
 
 ---
@@ -58,28 +58,28 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T005 [P] Implement `code/data/download.py` with robust retry logic (exponential backoff) for dataset downloads; **MUST** implement orchestration logic to exit with a clear error code and log the specific failure reason after retries are exhausted, as required by spec Edge Cases.
+- [X] T005 [P] Implement `code/data/download.py` with robust retry logic (exponential backoff) for dataset downloads; **MUST** implement orchestration logic to exit with a clear error code and log the specific failure reason after retries are exhausted, as required by spec Edge Cases. **VERIFICATION**: Must verify handling of: (1) Download failure (exponential backoff), (2) Invalid SMILES (logging/exclusion), (3) Memory overflow (adaptive sampling).
 - [X] T006 [P] Implement `code/utils/graph_utils.py` for molecular graph construction (SMILES → Node/Edge features)
-- [X] T007 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **Wilcoxon signed-rank test (PRIMARY per Plan.md Methodological Note)**, and **paired t-test (SENSITIVITY per Plan.md Methodological Note)**. **CRITICAL**: This utility must be the single source of truth for statistical tests; T025 will test this utility.
+- [X] T007 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **paired t-test (PRIMARY per FR-006)**, and **Wilcoxon signed-rank test (SENSITIVITY per Plan.md Methodological Note)**. **CRITICAL**: This utility must be the single source of truth for statistical tests; T024 will test this utility.
 - [X] T008 [P] Create base configuration management (`code/config.py`) for random seeds and device settings (`device='cpu'`)
 - [ ] T009 [P] Setup logging infrastructure to write structured logs to `artifacts/logs/` and `artifacts/metrics.json`
 
-- [ ] T010a [P] [FR-008] **CURATE STATIC REFERENCE SET**: Generate a deterministic CSV file `data/raw/reference_substructures_raw.csv` containing exactly 50 unique, valid SMILES strings representing known reactive substructures. **DO NOT** fetch from NIST/PubChem. **INSTRUCTIONS**: Create a Python script or inline logic to write a CSV with columns `id,smiles,source`. Populate with a hardcoded list of 50 valid SMILES (e.g., `c1ccccc1`, `C=O`, `N#N`, etc., ensuring chemical validity). This resolves the 'unspecified URL' dead-end by providing deterministic data. **Deliverable**: `data/raw/reference_substructures_raw.csv`.
+- [~] T010a-src [P] [FR-008] **FETCH SOURCE DATA (REF)**: Fetch or download Table 2 from DOI `10.1038/s41597-020-00628-6` (Source: Nature Scientific Data) containing known reactive substructures. **INSTRUCTIONS**: Use `requests` or `datasets` to retrieve the raw table data. **Deliverable**: `data/raw/source_ref_table2.csv`. **DEPENDS ON**: T005 (Reference Validator must pass first).
+- [ ] T010a [P] [FR-008] **CURATE STATIC REFERENCE SET**: Manually create `data/raw/reference_substructures_raw.csv` containing a representative set of unique, valid SMILES strings representing known reactive substructures, extracted from `data/raw/source_ref_table2.csv`. **INSTRUCTIONS**: Extract data from **Table 2** of **DOI: 10.1038/s41597-020-00628-6**. Columns: `id,smiles,source_doi,description`. **DO NOT** generate synthetic data or use hardcoded placeholders. **Deliverable**: `data/raw/reference_substructures_raw.csv`. **DEPENDS ON**: T010a-src, T005.
 - [ ] T010b [P] [FR-008] Verify checksum (SHA-256) of `data/raw/reference_substructures_raw.csv` against the hash in `data/raw/checksums.json`.
-- [ ] T010c [P] [FR-008] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation.
+- [ ] T010c [P] [FR-008] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation. **NOTE**: This file is the canonical input for T029 and T030.
 
-- [ ] T010d [P] [FR-009] **CURATE STATIC KINETIC DATASET**: Generate a deterministic CSV file `data/raw/kinetic_dataset_raw.csv` containing exactly 20 valid SMILES strings and corresponding experimental reaction rates. **DO NOT** fetch from PubChem. **INSTRUCTIONS**: Create a Python script or inline logic to write a CSV with columns `id,smiles,rate_constant,temperature,source`. Populate with 20 valid SMILES and corresponding rate constants (e.g., `1.2e-3`, `4.5e-2`). This resolves the 'unspecified URL' dead-end by providing deterministic data. **Deliverable**: `data/raw/kinetic_dataset_raw.csv`.
+- [ ] T010d-src [P] [FR-009] **FETCH SOURCE DATA (KINETIC)**: Fetch or download Table 3 from DOI `` (Source: J. Chem. Theory Comput.) containing experimental reaction rates. **INSTRUCTIONS**: Use `requests` or `datasets` to retrieve the raw table data. **Deliverable**: `data/raw/source_kinetic_table3.csv`. **DEPENDS ON**: T005 (Reference Validator must pass first).
+- [ ] T010d [P] [FR-009] **CURATE STATIC KINETIC DATASET**: Manually create `data/raw/kinetic_dataset_raw.csv` containing a set of valid SMILES strings and corresponding experimental reaction rates, extracted from `data/raw/source_kinetic_table3.csv`. **INSTRUCTIONS**: Extract data from **Table 3** of ****. Columns: `id,smiles,rate_constant,temperature,source_doi`. **DO NOT** generate synthetic data or use hardcoded placeholders. **Deliverable**: `data/raw/kinetic_dataset_raw.csv`. **DEPENDS ON**: T010d-src, T005.
 - [ ] T010e [P] [FR-009] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the hash in `data/raw/checksums.json`.
-- [ ] T010f [P] [FR-009] Ingest verified external kinetic data into `data/assets/kinetic_dataset.csv` with schema validation.
+- [ ] T010f [P] [FR-009] Ingest verified external kinetic data into `data/assets/kinetic_dataset.csv` with schema validation. **NOTE**: This file is the canonical input for T031.
 
-- [ ] T010g [FR-008/FR-009] **CREATE CHECKSUMS SCHEMA**: Create `data/raw/checksums_schema.json` defining the **expected** SHA-256 hashes for:
- - `reference_substructures`: The curated static file (to be generated/verified).
- - `kinetic_dataset`: The local static asset file (to be verified).
- - **MUST** include the source URL (local file path) and version for the kinetic dataset to ensure reproducibility. **DEPENDS ON**: T010c and T010f completion.
+- [ ] T010l [P] [FR-009] **TAG KINETIC DATA**: Update `data/raw/kinetic_dataset_raw.csv` to include a `reaction_type` column. **INSTRUCTIONS**: Annotate each entry with its reaction type (e.g., 'nucleophilic_attack', 'electrophilic_attack', 'pericyclic_reaction') based on the cited literature (). **Deliverable**: Updated `data/raw/kinetic_dataset_raw.csv`. **DEPENDS ON**: T010d.
+- [ ] T010g [P] [FR-001/FR-008/FR-009/Data Hygiene] **DEFINE CHECKSUM SCHEMA**: Create `data/raw/checksums_schema.json` defining the **expected structure** (keys, file paths, version) for the checksums file. **DO NOT** pre-populate with expected hashes. This is a static contract definition. **DEPENDS ON**: None (Parallel setup task).
+- [ ] T010m [P] [FR-008/FR-009] **VERIFY CURATION**: Run the Reference Validator (`code/utils/validator.py`) on `data/raw/reference_substructures_raw.csv` and `data/raw/kinetic_dataset_raw.csv` to verify the extracted data against the source DOIs. **MUST** fail if verification fails. **DEPENDS ON**: T010a, T010d, T010l.
+- [ ] T010h [FR-001/FR-008/FR-009/Data Hygiene] **COMPUTE AND POPULATE CHECKSUMS (CURATED)**: Verify that `data/assets/reference_substructures.csv` and `data/assets/kinetic_dataset.csv` exist. Compute their SHA-256 hashes and write them to `data/raw/checksums.json`. **MUST** fail if files are missing. **DEPENDS ON**: T010c, T010f, T010m. (Note: T010g is not a dependency; schema is static).
 
-- [ ] T010h [FR-008/FR-009] **VALIDATE AND POPULATE CHECKSUMS**: Verify that `data/assets/reference_substructures.csv` and `data/assets/kinetic_dataset.csv` exist. Compute their SHA-256 hashes and update `data/raw/checksums.json` with these values. **MUST** fail if files are missing or hashes do not match the schema. **DEPENDS ON**: T010g, T010c, T010f.
-
-- [ ] T010i [FR-009/SC-006] **VALIDATE DATA AVAILABILITY**: Ensure `data/assets/kinetic_dataset.csv` and `data/assets/reference_substructures.csv` exist before proceeding to Phase 3. **DEPENDS ON**: T010a, T010d, T010c, T010f, T010h completion.
+- [ ] T010i [FR-009/SC-006] **VALIDATE DATA AVAILABILITY**: Ensure `data/assets/kinetic_dataset.csv` and `data/assets/reference_substructures.csv` exist before proceeding to Phase 3. **DEPENDS ON**: T010a, T010d, T010c, T010f, T010h, T010l completion.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -98,15 +98,16 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/01_download_data.py` to fetch QM9 subset (via `datasets.load_dataset('qm9', split='train')`) with error handling and retry logic
-- [X] T014a [US1] **Estimate & Sample**: Implement `code/02_preprocess_graphs.py` logic to estimate total memory required for the full dataset. If estimated > 4GB, **sample N molecules** (using a fixed seed) to fit within 4GB *before* graph construction begins. **MUST** write sampling strategy (N, seed, original count) to `artifacts/memory_adjustment.log`. **Deliverable**: `artifacts/memory_adjustment.log`.
-- [X] T014b [US1] **Preprocess Graphs**: Implement the core preprocessing logic in `code/02_preprocess_graphs.py` to convert SMILES to graphs using RDKit. **Includes**:
+- [ ] T013 [US1] Implement `code/01_download_data.py` to fetch QM9 subset (via `datasets.load_dataset('qm9', split='train')`) with error handling and retry logic. **Deliverable**: `data/raw/qm9_subset.parquet`.
+- [ ] T010h-qm9 [US1] [FR-001/Data Hygiene] **COMPUTE QM9 CHECKSUM**: Compute SHA-256 hash for `data/raw/qm9_subset.parquet` and append to `data/raw/checksums.json`. **DEPENDS ON**: T013.
+- [ ] T014a [US1] **Estimate & Sample**: Implement `code/02_preprocess_graphs.py` logic to estimate total memory required for the full dataset. **CONDITIONAL LOGIC**: If estimated memory > 4GB, sample N molecules using a fixed seed; otherwise, process full set. **MUST** write sampling strategy (N, seed, original count) to `artifacts/memory_adjustment.log` if sampling occurs. **Deliverable**: `artifacts/memory_adjustment.log` (if applicable). **DEPENDS ON**: T013.
+- [ ] T014b [US1] **Preprocess Graphs**: Implement the core preprocessing logic in `code/02_preprocess_graphs.py` to convert SMILES to graphs using RDKit. **Includes**:
  1. **Memory Safety Logic**: During batch processing, if memory usage exceeds a predefined threshold, reduce batch size by half (integer division) with a hard floor at a minimum viable threshold, then re-attempt. Log the specific adjustment in `artifacts/memory_adjustment.log`.
  2. Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion. **CRITICAL**: Write exclusion count and list of excluded IDs to `artifacts/exclusion_report.json` (machine-readable JSON, not just log text).
- 3. **Deliverable**: Intermediate graph objects serialized to `data/processed/qm9_graphs_intermediate.parquet`.
- 4. **Explicit Deliverables**: Ensure `artifacts/exclusion_report.json` and `artifacts/memory_adjustment.log` are written as part of this task's execution.
+ 3. **Deliverable**: Intermediate graph objects (in-memory) ready for serialization. **DO NOT** save intermediate `.parquet` files.
+ 4. **Explicit Deliverables**: Ensure `artifacts/exclusion_report.json` and `artifacts/memory_adjustment.log` are written as part of this task's execution. **DEPENDS ON**: T014a.
 - [ ] T014c [US1] **Generate Exclusion Report & Validate**: Validate that `artifacts/exclusion_report.json` and `artifacts/memory_adjustment.log` exist and contain valid data. Verify excluded invalid SMILES count is < 0.1%. **DEPENDS ON**: T014b.
-- [ ] T016 [US1] [US1] **Serialization**: Serialize preprocessed graphs to `data/processed/` (`.parquet` with compression `snappy`, filename pattern `qm9_processed_{split}.parquet` where `{split}` is explicitly 'train' or 'test') with derivation logs and schema validation. **Includes** Murcko scaffold splitting. **Deliverable**: `data/processed/qm9_processed_train.parquet` and `data/processed/qm9_processed_test.parquet`. **DEPENDS ON**: T014b (Graph Production).
+- [ ] T016 [US1] [US1] **Serialization**: Serialize preprocessed graphs to `data/processed/graphs.pt` (PyTorch Geometric format) with derivation logs and schema validation. **Includes** Murcko scaffold splitting. **Deliverable**: `data/processed/graphs.pt`. **DEPENDS ON**: T014b (Graph Production).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -131,10 +132,11 @@
 - [ ] T022 [US2] Implement `code/train_models.py` to train all three models for a sufficient number of epochs (with early stopping: patience=5, metric='val_loss') targeting the prediction of DFT-derived properties. **Note**: Convergence criteria defined in `code/config.py`, not hardcoded. **CRITICAL**: Save the best model weights for each model to `artifacts/weights/best_{model_name}.pt` (e.g., `best_spectral_gnn.pt`) to ensure T025 has a deterministic target to archive.
 - [ ] T023a [US2] **Generate Predictions**: Implement `code/04_evaluate.py` to generate predictions for all models. **Deliverable**: Output `artifacts/predictions.json` with model predictions. **DEPENDS ON**: T022.
 - [ ] T023b [US2] **Compute Metrics**: Implement metric computation (MSE, MAE, Pearson R) in `code/04_evaluate.py`. **Deliverable**: Output `artifacts/metrics.json` with metrics for all models. **DEPENDS ON**: T023a.
-- [ ] T023c [US2] **Statistical Tests**: Implement statistical tests in `code/04_evaluate.py`. **Primary**: Wilcoxon signed-rank test (as per Plan.md Methodological Note). **Sensitivity**: Paired t-test (as per FR-006 sensitivity analysis). **CRITICAL**: Apply Bonferroni correction (alpha_adj = 0.05/3) and log corrected p-values. **Explicit Step**: Run paired t-test and record results in `model_comparison_results.json` to satisfy FR-006 sensitivity requirement. **Deliverable**: Write output to `artifacts/model_comparison_results.json` with schema `{model: {mse, mae, pearson_r, predictions}, statistical_tests: {primary_test: 'wilcoxon', sensitivity_test: 't-test', p_value_wilcoxon, p_value_ttest, alpha_adj:}}`. **PLAN OVERRIDE**: This task implements Wilcoxon as primary per Plan.md Methodological Note, overriding FR-006's primary t-test mandate. **DEPENDS ON**: T023b.
-- [ ] T023d [US2] **Document Statistical Justification**: Write `artifacts/statistical_justification.md` explicitly explaining why the **Wilcoxon signed-rank test** was chosen as the primary test over the **paired t-test** (mandated by FR-006 as sensitivity) due to heteroscedasticity and non-normality of residuals, as per the Methodological Note in plan.md. **CRITICAL**: This artifact must explicitly state that this is a **Plan Override** of FR-006 and reference the specific section in `plan.md` (Methodological Note) that justifies the deviation. **Deliverable**: `artifacts/statistical_justification.md`. **DEPENDS ON**: T023c.
-- [ ] T024 [US2] [US2] **Integration Test**: Write `tests/integration/test_statistics.py` to verify that `code/utils/metrics.py` (T007) correctly implements the Wilcoxon signed-rank test (PRIMARY) and paired t-test (SENSITIVITY) using mock data with known outcomes.
-- [ ] T025 [US2] Log all model weights to `artifacts/model_weights.tar.gz` (compressed archive of `artifacts/weights/best_*.pt` files) with checksums. **DEPENDS ON**: T022 creating `artifacts/weights/best_*.pt`.
+- [ ] T023c [US2] **Statistical Tests**: Implement statistical tests in `code/04_evaluate.py`. **Primary**: Paired t-test (as per FR-006). **Sensitivity**: Wilcoxon signed-rank test (as per Plan.md Methodological Note). **CRITICAL**: Apply Bonferroni correction (alpha_adj = 0.05/3). **CONDITIONAL LOGIC**: Perform a Post-Hoc Independence Check (T032 logic) on errors; if errors are correlated, switch primary test to Wilcoxon. Log the decision. **Explicit Step**: Run statistical tests and record results in `model_comparison_results.json` to satisfy FR-006. **Deliverable**: Write output to `artifacts/model_comparison_results.json` with schema `{model: {mse, mae, pearson_r, predictions}, statistical_tests: {primary_test: 't-test'|'wilcoxon', sensitivity_test: 'wilcoxon'|'t-test', p_value_ttest, p_value_wilcoxon, alpha_adj:}}`. **DEPENDS ON**: T023b.
+- [ ] T023e [US2] **Generate Comparison Report**: Format the results from T023c into `artifacts/model_comparison_results.json` with the specified schema. **DEPENDS ON**: T023c.
+- [ ] T023d [Plan] **Document Statistical Justification**: Write `artifacts/statistical_justification.md` explicitly explaining the choice of statistical tests: **Paired t-test** (Primary, per FR-006) and **Wilcoxon signed-rank test** (Sensitivity, per Plan.md Methodological Note). **CRITICAL**: This artifact must be created **after** T023c to document the *actual* test selected and the justification for that selection based on the independence check. **Deliverable**: `artifacts/statistical_justification.md`. **DEPENDS ON**: T023c, T023e.
+- [ ] T024 [US2] [US2] **Integration Test**: Write `tests/integration/test_statistics.py` to verify that `code/utils/metrics.py` (T007) correctly implements the paired t-test (PRIMARY) and Wilcoxon signed-rank test (SENSITIVITY) using mock data with known outcomes.
+- [ ] T025 [US2] **Archive All Artifacts**: Log all model weights (`artifacts/weights/best_*.pt`), attribution maps (`artifacts/attribution_maps.json`), and metrics (`artifacts/metrics.json`) to `artifacts/model_weights.tar.gz` (compressed archive) with checksums. **MUST** include attribution maps and metrics explicitly. **DEPENDS ON**: T022, T023e, T028 (Attribution).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -156,9 +158,9 @@
 - [ ] T028 [US3] Implement `code/05_attribution.py` using GNNExplainer or gradient-based methods to generate importance scores
 - [ ] T029 [US3] Load curated reference set of known reactive substructures from `data/assets/reference_substructures.csv` (produced by T010c).
 - [ ] T030 [US3] Implement logic to aggregate importance scores across the dataset and rank the most significant structural/electronic features.
-- [ ] T030b [US3] [US3] **Calculate Alignment**: Compute the alignment score between the top attributed substructures (from T030) and the curated reference set (from T029). **Deliverable**: Write `artifacts/alignment_score.json` containing the score.
+- [ ] T030b [US3] [US3] **Calculate Alignment**: Compute the alignment score between the top attributed substructures (from T030) and the curated reference set (from T029). **ALGORITHM**: Use Subgraph Isomorphism (VF2) with Tanimoto similarity to match attributed subgraphs against reference SMILES. **Deliverable**: Write `artifacts/alignment_score.json` containing the score.
 - [ ] T030c [US3] [US3] **Verify Alignment**: Write `tests/contract/test_alignment_threshold.py` to assert that the score in `artifacts/alignment_score.json` is >= 0.7 (SC-003).
-- [ ] T031 [US3] Load the full `data/assets/kinetic_dataset.csv` (produced by T010f) AND the full `artifacts/model_comparison_results.json` (produced by T023c); validate correlation between predicted gap and experimental rates for the **filtered** dataset. **CRITICAL**: Filter the kinetic dataset to include ONLY reaction types where the HOMO-LUMO gap is a known dominant predictor (e.g., 'nucleophilic_attack', 'electrophilic_attack', 'pericyclic_reaction'). **Do not** validate on the entire dataset if it contains other reaction types. **MUST** include a descriptive log entry analyzing reaction types where the proxy is theoretically strongest, but restrict scientific interpretation to those specific reaction types. **Deliverable**: `artifacts/proxy_validation_report.json` containing `correlation_full_dataset`, `correlation_filtered_dataset`, `correlation_by_reaction_type_descriptive`, and `mechanistic_consistency_notes`. **ERROR HANDLING**: If `data/assets/kinetic_dataset.csv` is missing, log 'MISSING_DATA' and exit gracefully. **DEPENDS ON**: T010f (Kinetic Data), T023c (Statistical Tests), T023d (Justification).
+- [ ] T031 [US3] Load the full `data/assets/kinetic_dataset.csv` (produced by T010f) AND the full `artifacts/model_comparison_results.json` (produced by T023c); validate correlation between predicted gap and experimental rates for the **filtered** dataset. **CRITICAL**: Filter the kinetic dataset to include ONLY reaction types where the HOMO-LUMO gap is a known dominant predictor: **'nucleophilic_attack'**, **'electrophilic_attack'**, **'pericyclic_reaction'**. **Do not** validate on the entire dataset if it contains other reaction types. **MUST** include a descriptive log entry analyzing reaction types where the proxy is theoretically strongest, but restrict scientific interpretation to those specific reaction types. **Deliverable**: `artifacts/proxy_validation_report.json` containing `correlation_full_dataset`, `correlation_filtered_dataset`, `correlation_by_reaction_type_descriptive`, and `mechanistic_consistency_notes`. **ERROR HANDLING**: If `data/assets/kinetic_dataset.csv` is missing, log 'MISSING_DATA' and exit gracefully. **DEPENDS ON**: T010f (Kinetic Data), T010l (Tagging), T023c (Statistical Tests), T023d (Justification).
 - [ ] T032 [US3] Generate attribution maps and validation reports in `artifacts/`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -176,6 +178,7 @@
 - [ ] T037 Run `quickstart.md` validation to ensure all artifacts are reproducible
 - [ ] T038 Verify `state/` YAML is updated with SHA-256 hashes of final artifacts
 - [ ] T039 [P] Final review of all artifacts against Constitution principles
+- [ ] T026 [P] **Archive Artifacts**: Compress and archive the following files to `artifacts/final_archive.tar.gz`: `artifacts/weights/best_*.pt`, `artifacts/metrics.json`, `artifacts/attribution_maps.json`, `artifacts/model_comparison_results.json`, `artifacts/proxy_validation_report.json`, `artifacts/statistical_justification.md`. **DEPENDS ON**: T022, T023c, T028, T031.
 
 ---
 
@@ -218,18 +221,20 @@
 - **T014a** (Estimate/Sample) MUST complete before **T014b** (Preprocess).
 - **T014b** (Preprocess) MUST complete before **T014c** (Exclusion Report) and **T016** (Serialization).
 - **T014c** (Exclusion Report) MUST complete before **T016** (Serialization) if T016 requires validation, otherwise T016 depends on T014b.
-- **T010a** (Fetch Ref) and **T010d** (Fetch Kinetic) MUST complete before **T010c** (Ingest Ref) and **T010f** (Ingest Kinetic).
-- **T010c** (Ingest Ref) and **T010f** (Ingest Kinetic) MUST complete before **T010g** (Create Checksums Schema).
-- **T010g** (Create Checksums Schema) MUST complete before **T010h** (Populate Checksums).
+- **T010a-src** and **T010d-src** MUST complete before **T010a** and **T010d**.
+- **T010a** and **T010d** MUST complete before **T010c** and **T010f**.
+- **T010c** and **T010f** MUST complete before **T010h** (Checksums).
+- **T010l** (Tagging) MUST complete before **T010h** (Checksums) and **T031**.
 - **T010h** (Populate Checksums) MUST complete before **T010i** (Validate Data Availability).
 - **T030** (Load Ref) and **T031** (Validate Correlation) are now in Phase 5, ensuring they are available after US2 completes.
-- **T031** (Validate Correlation) MUST complete after **T023c** (Statistical Tests), **T023d** (Justification), and **T010f** (Kinetic Data).
-- **T023a**, **T023b**, **T023c**, **T023d** are sequential within Phase 4.
+- **T031** (Validate Correlation) MUST complete after **T023c** (Statistical Tests), **T023d** (Justification), **T010f** (Kinetic Data), and **T010l** (Tagging).
+- **T023a**, **T023b**, **T023c**, **T023e**, **T023d** are sequential within Phase 4. **T023d** (Documentation) now depends on **T023c** (Tests).
 - **T023a** depends on **T022**.
 - **T023b** depends on **T023a**.
 - **T023c** depends on **T023b**.
-- **T023d** depends on **T023c**.
-- **T025** (Archive Weights) MUST complete after **T022** (Training) creates `artifacts/weights/best_*.pt`.
+- **T023e** depends on **T023c**.
+- **T023d** depends on **T023c**, **T023e**.
+- **T025** (Archive Weights) MUST complete after **T022** (Training) creates `artifacts/weights/best_*.pt` and **T023e** (Report) creates `model_comparison_results.json`.
 
 ---
 

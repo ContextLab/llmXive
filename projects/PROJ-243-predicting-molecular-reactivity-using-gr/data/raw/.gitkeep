@@ -1,3 +1,3 @@
-# This file ensures the data/raw directory is tracked by git.
-# It is a placeholder to satisfy the requirement of creating the directory.
-# No actual data is stored here; data files will be downloaded by T010a.
+# This directory stores raw, unprocessed data fetched from external sources.
+# Files here are immutable once downloaded and verified.
+# Do not modify or delete files in this directory manually.

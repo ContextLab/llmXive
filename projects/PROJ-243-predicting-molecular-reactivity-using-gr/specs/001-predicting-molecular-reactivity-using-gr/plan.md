@@ -101,7 +101,7 @@ artifacts/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |:--- |:--- |:--- |
 | **Heterophily-Aware GNN** | Standard GNNs fail on molecular graphs due to low homophily in electronic properties (HOMO/LUMO) across bonds. | Standard Message Passing Neural Networks (MPNN) would yield poor performance, failing SC-002. |
-| **Streaming Dataset Loading** | Full QM dataset exceeds 7GB RAM; direct loading causes OOM on GitHub Actions. | Loading full dataset into memory would crash the runner; streaming is required for feasibility. |
+| **Streaming Dataset Loading** | The full QM dataset exceeds available RAM capacity.; direct loading causes OOM on GitHub Actions. | Loading full dataset into memory would crash the runner; streaming is required for feasibility. |
 | **Dual Baseline (RF + GNN)** | Need to prove graph structure adds value over traditional descriptors. | A single model baseline would not address the research question of "graph vs. descriptor" advantage. |
 | **GPU Escape Hatch** | Required for failure recovery if CPU OOM/timeout occurs. | Not a standard path; only triggers on failure to maintain CPU-first compliance. |
 
@@ -129,7 +129,7 @@ artifacts/
 - **T014b** — **Generate Graphs**: Save `data/processed/graphs.pt`.
 - **T014c** — **Validate Exclusions**: Verify `artifacts/exclusion_report.json` exists and count < 0.1%. Verify `artifacts/memory_adjustment.log` if applicable.
 - **T016** — **Serialize Data**: Ensure `graphs.pt` is valid and loadable. **Dependencies**: T014b, T014c.
-- **T017** — **Split Data**: Generate /10/20 (Train/Val/Test) Murcko scaffold splits. Apply Tanimoto similarity filter (>0.8 exclusion) to ensure true generalization. **Note**: The [deferred] Validation is carved from the [deferred] Train set; the [deferred] Test is held out completely. Save splits to `data/processed/splits/`.
+- **T017** — **Split Data**: Generate Murcko scaffold splits for Train/Val/Test sets.. Apply Tanimoto similarity filter (>0.8 exclusion) to ensure true generalization. **Note**: The [deferred] Validation is carved from the [deferred] Train set; the [deferred] Test is held out completely. Save splits to `data/processed/splits/`.
 
 ### Phase 2: Model Training (Dependencies: T016, T017)
 

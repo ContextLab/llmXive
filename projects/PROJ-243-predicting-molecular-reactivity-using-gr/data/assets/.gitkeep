@@ -1,3 +1,2 @@
-# This directory contains curated and verified data assets.
-# It is created by task T001c.
-# Do not remove this file; it ensures the directory is tracked by git.
+This file ensures the data/assets directory is tracked by version control.
+This directory will contain curated, validated datasets ready for model consumption.

@@ -410,3 +410,464 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T02:17:17Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 3 from J. Chem. Theory Comput. contains experimental reaction rates
+  claim_id: c_a3d1f093
+  context: 'T010d-src [P] [FR-009] FETCH SOURCE DATA (KINETIC): Fetch or download
+    Table 3 from DOI  (Source: J. Chem. Theory Comput.) containing experimental reaction
+    rates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch or download Table 3 from DOI [empty] (Source: J. Chem. Theory Comput.)
+    containing experimental reaction rates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:11:37Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Target less than 0.1% exclusion of invalid SMILES
+  claim_id: c_dc6e4465
+  context: 'Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_less_than_0.1%25_exclusion_of_invalid_SMILES
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES during batch processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:12:35Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction with alpha_adj equal to 0.05 divided by 3
+  claim_id: c_8d15213b
+  context: 'CRITICAL: Apply Bonferroni correction (alpha_adj = 0.05/3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction with alpha_adj = 0.05/3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:12:54Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score between attributed substructures and reference set must
+    be greater than or equal to 0.7
+  claim_id: c_8cc49d26
+  context: 'T030c [US3] [US3] Verify Alignment: Write tests/contract/test_alignment_threshold.py
+    to assert that the score in artifacts/alignment_score.json is >= 0.7 (SC-003).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_between_attributed_substructures_and_referen
+  kind: magnitude
+  raw_text: Verify that the alignment score between top attributed substructures and
+    the curated reference set is >= 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:13:46Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime must be less than or equal to 6 hours and memory less
+    than or equal to 4 GB
+  claim_id: c_00262210
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_must_be_less_than_or_equal_to_6_hours_and
+  kind: magnitude
+  raw_text: Verify end-to-end runtime is less than or equal to 6 hours and memory
+    usage is less than or equal to 4 GB on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:14:08Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 2 of DOI 10.1038/s41597-020-00628-6 contains known reactive substructures
+  claim_id: c_6ce8bc16
+  context: 'T010a-src [FR-008] FETCH SOURCE DATA (REF): Fetch or download Table 2
+    from DOI 10.1038/s41597-020-00628-6 (Source: Nature Scientific Data) containing
+    known reactive substructures.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6 (Source:
+    Nature Scientific Data) containing known reactive substructures.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:14:38Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 3 of DOI 10.1038/s41597-020-00628-6 contains experimental reaction
+    rates
+  claim_id: c_f4783755
+  context: 'T010d-src [FR-009] FETCH SOURCE DATA (KINETIC): Fetch or download Table
+    3 from DOI 10.1038/s41597-020-00628-6 (Source: J. Chem. Theory Comput.) containing
+    experimental reaction rates.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Extract data from Table 3 of DOI 10.1038/s41597-020-00628-6 containing
+    experimental reaction rates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:14:41Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Target exclusion rate for invalid SMILES is less than 0.1 percent
+  claim_id: c_c44d86e7
+  context: 'T014b [US1] Preprocess Graphs: Invalid SMILES handling: Log and exclude
+    molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_exclusion_rate_for_invalid_SMILES_is_less_than_0.1_pe
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES during preprocessing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:15:19Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied with adjusted alpha of 0.05 divided by
+    3
+  claim_id: c_489f6380
+  context: 'T023c [US2] Statistical Tests: CRITICAL: Apply Bonferroni correction (alpha_adj
+    = 0.05/3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction with alpha_adj = 0.05/3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:15:19Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score threshold is greater than or equal to 0.7
+  claim_id: c_ebc24d89
+  context: 'T030c [US3] Verify Alignment: Write tests/contract/test_alignment_threshold.py
+    to assert that the score in artifacts/alignment_score.json is >= 0.7 (SC-003).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_threshold_is_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: Verify alignment score is >= 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:15:44Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime must be less than or equal to 6 hours
+  claim_id: c_34d9c5d9
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_must_be_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Verify end-to-end runtime \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:16:15Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Memory usage must be less than or equal to 4 GB on CI
+  claim_id: c_336a4e11
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_be_less_than_or_equal_to_4_GB_on_CI
+  kind: magnitude
+  raw_text: "Verify memory usage \u2264 4 GB on CI."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:16:34Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Subgraph Isomorphism VF2 algorithm with Tanimoto similarity used for
+    matching subgraphs
+  claim_id: c_e9acbca4
+  context: 'T030b [US3] Calculate Alignment: ALGORITHM: Use Subgraph Isomorphism (VF2)
+    with Tanimoto similarity to match attributed subgraphs against reference SMILES.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subgraph_Isomorphism_VF2_algorithm_with_Tanimoto_similarity
+  kind: entity_fact
+  raw_text: Use Subgraph Isomorphism (VF2) with Tanimoto similarity to match attributed
+    subgraphs against reference SMILES.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:17:03Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 2 of DOI 10.1038/s41597-020-00628-6 contains known reactive substructures
+  claim_id: c_52a12d16
+  context: 'Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6 (Source:
+    Nature Scientific Data) containing known reactive substructures.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Extract data from Table 2 of DOI 10.1038/s41597-020-00628-6 (Source:
+    Nature Scientific Data) containing known reactive substructures.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:17:13Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 3 of J. Chem. Theory Comput. source contains experimental reaction
+    rates
+  claim_id: c_622ab3d8
+  context: 'Fetch or download Table 3 from DOI (Source: J. Chem. Theory Comput.) containing
+    experimental reaction rates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract data from Table 3 of the cited J. Chem. Theory Comput. source
+    containing experimental reaction rates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:17:38Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 2 of DOI 10.1038/s41597-020-00628-6 contains known reactive substructures
+  claim_id: c_b284f1bb
+  context: 'T010a-src [P] [FR-008] FETCH SOURCE DATA (REF): Fetch or download Table
+    2 from DOI 10.1038/s41597-020-00628-6 (Source: Nature Scientific Data) containing
+    known reactive substructures.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6 (Source:
+    Nature Scientific Data) containing known reactive substructures.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:18:53Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Target invalid SMILES exclusion rate less than 0.1 percent
+  claim_id: c_f47b35fa
+  context: 'Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_invalid_SMILES_exclusion_rate_less_than_0.1_percent
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:19:15Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime less than or equal to 6 hours and memory less than
+    or equal to 4 GB on CI
+  claim_id: c_99c979aa
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_less_than_or_equal_to_6_hours_and_memory
+  kind: magnitude
+  raw_text: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:19:36Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha adjusted to 0.05 divided by 3
+  claim_id: c_deb61d56
+  context: 'CRITICAL: Apply Bonferroni correction (alpha_adj = 0.05/3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction (alpha_adj = 0.05/3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:19:54Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Use Subgraph Isomorphism VF2 with Tanimoto similarity to match attributed
+    subgraphs
+  claim_id: c_05a8aec2
+  context: 'T030b [US3] [US3] Calculate Alignment: Compute the alignment score between
+    the top attributed substructures (from T030) and the curated reference set (from
+    T029). ALGORITHM: Use Subgraph Isomorphism (VF2) with Tanimoto similarity to match
+    attributed subgraphs against reference SMILES.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Subgraph_Isomorphism_VF2_with_Tanimoto_similarity_to_mat
+  kind: entity_fact
+  raw_text: Use Subgraph Isomorphism (VF2) with Tanimoto similarity to match attributed
+    subgraphs against reference SMILES.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:19:55Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 3
+  canonical: Table 2 from DOI 10.1038/s41597-020-00628-6 contains known reactive substructures
+  claim_id: c_35fec959
+  context: 'T010a-src [P] [FR-008] FETCH SOURCE DATA (REF): Fetch or download Table
+    2 from DOI 10.1038/s41597-020-00628-6 (Source: Nature Scientific Data) containing
+    known reactive substructures.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6 (Source:
+    Nature Scientific Data) containing known reactive substructures.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:20:42Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 3 contains experimental reaction rates
+  claim_id: c_f3480188
+  context: 'T010d-src [P] [FR-009] FETCH SOURCE DATA (KINETIC): Fetch or download
+    Table 3 from DOI  (Source: J. Chem. Theory Comput.) containing experimental reaction
+    rates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract data from Table 3 of the cited literature containing experimental
+    reaction rates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:21:22Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Invalid SMILES exclusion target is less than 0.1 percent
+  claim_id: c_58e2bf47
+  context: 'T014b [US1] Invalid SMILES handling: Log and exclude molecules; target
+    < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invalid_SMILES_exclusion_target_is_less_than_0.1_percent
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES molecules.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:21:43Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score threshold is greater than or equal to 0.7
+  claim_id: c_5aae218f
+  context: 'T030c [US3] [US3] Verify Alignment: Write tests/contract/test_alignment_threshold.py
+    to assert that the score in artifacts/alignment_score.json is >= 0.7 (SC-003).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_threshold_is_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: Verify that the score in artifacts/alignment_score.json is >= 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:22:04Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime is less than or equal to 6 hours and memory is less
+    than or equal to 4 GB
+  claim_id: c_791f1dfa
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_is_less_than_or_equal_to_6_hours_and_memo
+  kind: magnitude
+  raw_text: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:22:05Z'
