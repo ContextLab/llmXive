@@ -1,3 +1,16 @@
+T010:
+  c: true
+  h: 5cb005816c2b16d8b4f598bcb4d49ca88a15c6cfd48f697051aa6a901876327e
+  r: "The `tests/contract/test_dataset_schema.py` file is present, non\u2011empty,\
+    \ and contains tests that check for the schema file\u2019s existence, its YAML\
+    \ validity, and proper field validation\u2014exactly the behavior required (failing\
+    \ when the schema is missing or invalid)."
+T011:
+  c: true
+  h: 9bf59229e1ea1cc65eb00168610a764f3a1e5eb4eafd5c25e92cae10b0e2a976
+  r: "The `tests/contract/test_results_schema.py` file is present, non\u2011empty,\
+    \ and contains tests that assert the schema file exists and is valid YAML, thereby\
+    \ failing when the schema is missing or invalid as required."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,13 +25,6 @@ T017:
   r: The required source file `src/gatekeeper/pipeline.py` does not exist, and the
     expected output `data/processed/baseline_results.json` is also missing, so the
     implementation and result generation cannot be verified.
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or test artifacts showing the added validation\u2011\
-    error logging, exclusion logic, or model\u2011load retry handling are present.\
-    \ The implementer provided no files or diff that demonstrate the required error\u2011\
-    handling changes, so the task\u2019s requirement cannot be verified as satisfied."
 T021:
   c: false
   h: ce1215ea96bb0f6c7328c4c6081b59cb0d26486570fc96534b960b2ec1fe05d2
@@ -64,10 +70,10 @@ T032:
     are missing, so there is no integration or logging functionality present. The
     task cannot be considered done until these files exist and contain the appropriate
     profiling code.
-T037:
+T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided evidence contains only feature specifications and user stories;
-    there is no `quickstart.md` file or any excerpt showing that it has been updated
-    with instructions to run the full benchmark suite. Consequently, the required
-    documentation artifact is missing.
+  r: "The provided information contains only the task description and project specifications;\
+    \ there is no markdown file named `quickstart.md` (or any file in `docs/` or the\
+    \ repository root) present in the evidence. Consequently, the required deliverable\u2014\
+    a step\u2011by\u2011step setup and run guide\u2014is missing."

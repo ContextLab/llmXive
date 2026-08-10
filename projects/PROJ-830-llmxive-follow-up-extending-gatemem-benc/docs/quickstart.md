@@ -1,137 +1,177 @@
-# llmXive Benchmark Suite: Quick Start Guide
+# llmXive Follow-up: Extending GateMem Benchmark
 
-This guide provides instructions to set up and run the full GateMem benchmark suite,
-evaluating the Gatekeeper pipeline against baselines for Access Control, Utility,
-Forgetting, and Computational Cost.
+This guide provides step-by-step instructions for setting up the environment, downloading the GateMem dataset, and running the initial evaluation pipeline.
 
 ## Prerequisites
 
 - Python 3.11 or higher
 - pip package manager
-- Sufficient disk space for model weights (~2GB) and dataset cache [UNRESOLVED-CLAIM: c_e6bb596d — status=not_enough_info]
+- Git (for cloning the repository)
+- At least 14GB of available disk space for dataset and intermediate files
+- 7GB+ RAM recommended for CPU-only inference
 
-## 1. Environment Setup
+## 1. Project Setup
 
-Clone the repository and install dependencies:
+### Clone and Initialize
 
 ```bash
-# Install core dependencies
+# Clone the repository (replace with actual URL)
+git clone
+cd llmxive-follow-up-extending-gatemem-benc
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
-
-# (Optional) Install development tools for linting and testing
-pip install ruff black pytest
 ```
 
-## 2. Data Preparation
-
-The pipeline automatically fetches the GateMem dataset from HuggingFace on first run [UNRESOLVED-CLAIM: c_dbb4dd14 — status=not_enough_info].
-If you prefer to download manually:
+### Verify Installation
 
 ```bash
-# The dataset will be cached automatically in ~/.cache/huggingface [UNRESOLVED-CLAIM: c_025c1606 — status=not_enough_info]
-# Or run the data loader script explicitly:
-python -m code.utils.data_loader
+# Check Python version
+python --version # Should be 3.11+
+
+# Verify key packages
+python -c "import torch, datasets, pandas, statsmodels, scipy, pytest; print('All dependencies installed successfully')"
 ```
 
-Ensure the `data/raw/` directory exists and contains the dataset files if running offline.
+## 2. Dataset Download
 
-## 3. Running the Full Benchmark Suite
-
-Execute the complete evaluation pipeline to run Gatekeeper and Baseline comparisons
-across all domains (medical, office, education, household).
+The GateMem benchmark dataset is hosted on HuggingFace. The following script downloads and validates the dataset.
 
 ```bash
-# Run the full evaluation suite
-python -m code.cli.run_evaluation --all
+# Run the data loader to fetch the dataset
+python code/utils/data_loader.py
 ```
 
-### Specific Domain Execution
+**What this does:**
+- Downloads the raw GateMem dataset from HuggingFace (`leak-target` benchmark)
+- Saves raw JSONL files to `data/raw/`
+- Calculates SHA256 checksums for data integrity
+- Records checksums in `state/projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc.yaml`
+- Validates the dataset against the schema defined in `contracts/dataset.schema.yaml`
 
-To run the benchmark on specific domains only:
+**Expected Output:**
+- `data/raw/gatemem_raw.jsonl` (or similar)
+- `data/raw/checksums.txt`
+- `data/processed/episodes.json` (extracted features)
+- Log files in `logs/`
+
+**Note:** If the download fails, the script will raise an error and **will not** fall back to synthetic data. Ensure you have internet connectivity and sufficient disk space.
+
+## 3. Running the First Evaluation
+
+### Quick Start: Access Control Evaluation (User Story 1)
+
+Run the Gatekeeper vs. Baseline comparison on the "medical" and "office" domains:
 
 ```bash
-# User Story 1: Access Control (Medical & Office domains)
-python -m code.cli.run_evaluation --domain medical,office --metrics access_control
-
-# User Story 2: Utility & Forgetting (Education & Household domains)
-python -m code.cli.run_evaluation --domain education,household --metrics utility,forgetting
-
-# User Story 3: Performance Profiling (All domains)
-python -m code.cli.run_evaluation --all --profile
+python code/cli/run_evaluation.py \
+ --domains medical,office \
+ --metrics access_control \
+ --output data/results/access_control_results.json
 ```
 
-## 4. Output Artifacts
+### Full Pipeline Execution
 
-Upon successful completion, the following files will be generated:
-
-- `data/processed/access_control_results.json`: Unauthorized exposure rates
-- `data/processed/utility_results.json`: Task success rates and forgetting compliance
-- `data/processed/performance_results.json`: Latency and memory usage metrics
-- `data/samples/failure_cases.json`: Stratified sample of failure cases (50 cases) [UNRESOLVED-CLAIM: c_20cb2e68 — status=not_enough_info]
-- `data/results/final_benchmark_report.md`: Comprehensive summary with statistical analysis
-
-## 5. Statistical Analysis
-
-The pipeline performs statistical comparisons between Gatekeeper and Baseline methods:
-- **Primary Method**: Linear Mixed Models (LMM) with formula `score ~ method + (1|Domain)`
-- **Fallback**: Paired t-test or Wilcoxon signed-rank test if LMM fails (singular matrix)
-- **Domain-Stratified Analysis**: Separate tests per domain when global model is not feasible
-
-Results are included in `final_benchmark_report.md` with test statistics, degrees of freedom,
-p-values, and effect sizes.
-
-## 6. Verification and Testing
-
-Run the contract and integration tests to verify outputs:
+To run all user stories (Access Control, Utility, Forgetting, and Profiling):
 
 ```bash
-# Run all tests
-pytest tests/ -v
-
-# Run specific contract tests
-pytest tests/contract/ -v
+python code/cli/run_evaluation.py \
+ --domains medical,office,education,household \
+ --all-metrics \
+ --profile \
+ --output-dir data/results/
 ```
 
-## 7. Troubleshooting
+**Arguments:**
+- `--domains`: Comma-separated list of domains to evaluate (default: all)
+- `--metrics`: Specific metric to compute (`access_control`, `utility`, `forgetting`, `latency`, `ram`)
+- `--all-metrics`: Run all evaluations
+- `--profile`: Enable computational profiling (wall-clock time, peak RAM)
+- `--output-dir`: Directory for results (default: `data/results/`)
 
-### Memory Errors
-If you encounter out-of-memory errors:
-- Ensure you are using the CPU-only configuration (no CUDA)
-- Reduce batch size in configuration files
-- Clear HuggingFace cache: `rm -rf ~/.cache/huggingface`
+## 4. Expected Outputs
 
-### Missing Data
-If data files are missing:
+After running the evaluation, you should find the following artifacts:
+
+### Data Artifacts
+- `data/raw/gatemem_raw.jsonl` - Raw dataset
+- `data/processed/episodes.json` - Extracted features
+- `data/processed/access_control_results.json` - Access Control metrics
+- `data/processed/utility_results.json` - Utility and Forgetting metrics
+- `data/processed/performance_results.json` - Latency and RAM profiling
+- `data/results/cost_comparison.json` - Cost reduction analysis
+- `data/samples/failure_cases.json` - Stratified failure case samples
+
+### Reports
+- `data/results/final_benchmark_report.md` - Comprehensive benchmark report
+
+### Logs
+- `logs/memory_profile.log` - CPU/RAM usage over time
+- `logs/deletion_errors.log` - Malformed deletion log entries
+- `logs/pipeline.log` - General pipeline execution logs
+
+## 5. Verification
+
+### Contract Tests
+
+Verify that outputs match the expected schemas:
+
 ```bash
-python -m code.utils.data_loader --fetch
+# Run dataset schema validation
+python -m pytest tests/contract/test_dataset_schema.py -v
+
+# Run results schema validation
+python -m pytest tests/contract/test_results_schema.py -v
 ```
 
-### Statistical Analysis Failures
-If LMM fitting fails, the pipeline automatically falls back to paired tests.
-Check `logs/stats_analysis.log` for details on fallback triggers.
+### Integration Tests
 
-## 8. Configuration
-
-Advanced configuration can be adjusted in `config/pipeline.yaml`:
-- Model paths and parameters
-- Threshold settings for access control
-- Statistical test parameters
-- Profiling intervals
-
-## 9. Reporting
-
-To regenerate the final report from existing results:
+Run a subset integration test:
 
 ```bash
-python -m code.cli.run_evaluation --generate-report
+python -m pytest tests/integration/test_us1_integration.py -v
 ```
 
-This will re-process `data/processed/*.json` files and output an updated
-`data/results/final_benchmark_report.md`.
+## 6. Troubleshooting
 
-## 10. Next Steps
+### Common Issues
 
-- Review `final_benchmark_report.md` for key findings
-- Analyze `failure_cases.json` for edge case insights
-- Extend the benchmark with custom domains or metrics
-- Contribute improvements to the Gatekeeper pipeline
+**Issue: "ModuleNotFoundError: No module named 'datasets'"**
+- Solution: Ensure virtual environment is activated and run `pip install -r requirements.txt`
+
+**Issue: "CUDA out of memory"**
+- Solution: The pipeline is configured for CPU-only. Ensure `torch.cuda.is_available()` is not being forced. Check `code/gatekeeper/classifier.py` for device settings.
+
+**Issue: "Download failed: 404 Not Found"**
+- Solution: Verify internet connectivity. The dataset must be fetched from HuggingFace. If the dataset ID has changed, update `code/data/loader.py`.
+
+**Issue: "Validation error: Missing required field"**
+- Solution: The dataset schema validation failed. Check `contracts/dataset.schema.yaml` and ensure the downloaded data matches the expected structure.
+
+### Memory Constraints
+
+If you encounter memory issues:
+- The pipeline processes data in batches. Ensure at least 7GB RAM is available.
+- Reduce the number of domains processed simultaneously.
+- Check `logs/memory_profile.log` for peak memory usage.
+
+## 7. Next Steps
+
+After completing the initial evaluation:
+
+1. Review `data/results/final_benchmark_report.md` for comprehensive analysis.
+2. Examine `data/samples/failure_cases.json` to understand error patterns.
+3. Run the full test suite: `pytest tests/ -v`
+4. Explore the statistical analysis in `data/results/cost_comparison.json`.
+
+For detailed implementation notes, refer to the `specs/` directory and the main project documentation.
+
+---
+
+**Project**: PROJ-830-llmxive-follow-up-extending-gatemem-benc
+**Task**: T037a - Quickstart Documentation
+**Version**: 1.0

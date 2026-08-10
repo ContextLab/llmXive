@@ -1,102 +1,61 @@
 import pytest
-import json
 import yaml
 from pathlib import Path
-from code.utils.data_loader import load_schema, validate_fields
+import json
 
-class TestDatasetSchema:
-    def test_schema_loads(self):
-        """Test that the dataset schema file loads correctly."""
-        schema_path = Path("contracts/dataset.schema.yaml")
-        assert schema_path.exists(), "Schema file not found"
-        schema = load_schema(str(schema_path))
-        assert "required" in schema
-        # Verify specific GateMem required fields are present
-        required_fields = schema.get("required", [])
-        assert "outcome" in required_fields
-        assert "predictors" in required_fields
-        assert "covariates" in required_fields
-        assert "leak-target" in required_fields
+# Import functions from the data_loader module
+from code.utils.data_loader import load_schema, validate_fields, SCHEMA_PATH
 
-    def test_validate_fields_passes(self):
-        """Test that valid data passes validation."""
-        schema = {
-            "required": ["id", "query", "role", "domain"]
+def test_schema_exists():
+    """Test that the schema file exists."""
+    assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
+
+def test_schema_is_valid_yaml():
+    """Test that the schema file is valid YAML."""
+    try:
+        with open(SCHEMA_PATH, "r") as f:
+            schema = yaml.safe_load(f)
+        assert isinstance(schema, dict), "Schema must be a dictionary"
+        assert "required" in schema, "Schema must have 'required' field"
+    except yaml.YAMLError as e:
+        pytest.fail(f"Invalid YAML in schema file: {e}")
+
+def test_validate_fields_with_valid_data():
+    """Test validation with data that matches the schema."""
+    schema = load_schema()
+    valid_data = [
+        {
+            "id": "1",
+            "domain": "medical",
+            "leak-target": "patient record",
+            "role": "doctor",
+            "outcome": "allowed",
+            "authorization_boundaries": {}
         }
-        valid_data = [
-            {"id": "1", "query": "test", "role": "user", "domain": "test"},
-            {"id": "2", "query": "test2", "role": "admin", "domain": "test"}
-        ]
-        # Should not raise
-        validate_fields(valid_data, schema)
+    ]
+    
+    missing = validate_fields(valid_data, schema)
+    assert len(missing) == 0, f"Valid data should not have missing fields: {missing}"
 
-    def test_validate_fields_fails_missing(self):
-        """Test that missing required fields raise ValueError."""
-        schema = {
-            "required": ["id", "missing_field"]
+def test_validate_fields_with_missing_required():
+    """Test validation detects missing required fields."""
+    schema = load_schema()
+    invalid_data = [
+        {
+            "id": "1",
+            "domain": "medical",
+            # Missing "leak-target", "role", etc.
         }
-        invalid_data = [
-            {"id": "1", "query": "test"} # missing_field is missing
-        ]
-        
-        with pytest.raises(ValueError) as excinfo:
-            validate_fields(invalid_data, schema)
-        
-        assert "missing_field" in str(excinfo.value)
+    ]
+    
+    missing = validate_fields(invalid_data, schema)
+    assert len(missing) > 0, "Should detect missing required fields"
+    assert "leak-target" in str(missing), "Should report missing leak-target"
 
-    def test_validate_fields_fails_all_missing(self):
-        """Test error when all required fields are missing."""
-        schema = {
-            "required": ["outcome", "predictors", "covariates", "leak-target"]
-        }
-        invalid_data = [
-            {"id": "1", "query": "test"}
-        ]
-        
-        with pytest.raises(ValueError) as excinfo:
-            validate_fields(invalid_data, schema)
-        
-        error_msg = str(excinfo.value)
-        assert "outcome" in error_msg
-        assert "predictors" in error_msg
-        assert "covariates" in error_msg
-        assert "leak-target" in error_msg
-
-    def test_validate_against_real_schema(self):
-        """Test validation against the actual GateMem schema file."""
-        schema_path = Path("contracts/dataset.schema.yaml")
-        schema = load_schema(str(schema_path))
-        
-        # Valid record matching schema
-        valid_record = [
-            {
-                "id": "test-001",
-                "outcome": "leak",
-                "predictors": ["feature_a", "feature_b"],
-                "covariates": {"domain": "medical"},
-                "leak-target": "patient_name",
-                "role": "admin",
-                "domain": "medical",
-                "query": "Get patient info",
-                "memory": "Patient John Doe"
-            }
-        ]
-        # Should not raise
-        validate_fields(valid_record, schema)
-
-        # Invalid record missing 'leak-target'
-        invalid_record = [
-            {
-                "id": "test-002",
-                "outcome": "no_leak",
-                "predictors": [],
-                "covariates": {},
-                "role": "user"
-            }
-        ]
-        with pytest.raises(ValueError) as excinfo:
-            validate_fields(invalid_record, schema)
-        assert "leak-target" in str(excinfo.value)
-        assert "outcome" in str(excinfo.value)
-        assert "predictors" in str(excinfo.value)
-        assert "covariates" in str(excinfo.value)
+def test_schema_contains_expected_fields():
+    """Test that the schema defines the expected fields."""
+    schema = load_schema()
+    expected_fields = ["id", "domain", "leak-target", "role", "outcome", "authorization_boundaries"]
+    
+    for field in expected_fields:
+        assert field in schema["required"], f"Field '{field}' should be required"

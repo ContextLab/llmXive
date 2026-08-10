@@ -5,79 +5,50 @@ import random
 from typing import Optional, Any
 from datetime import datetime
 
-from pathlib import Path
-
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
-
-def setup_logging(name: str = __name__) -> logging.Logger:
-    """
-    Setup logging configuration.
-
-    Args:
-        name: Logger name.
-
-    Returns:
-        Configured logger.
-    """
-    logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
-
-    logger.setLevel(logging.INFO)
-
-    # File handler
-    log_file = LOG_DIR / f"{name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+    """Set up logging configuration."""
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    
+    # Clear existing handlers
+    logger.handlers = []
+    
     # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.WARNING)
-
-    # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    fh.setFormatter(formatter)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
-
-    logger.addHandler(fh)
     logger.addHandler(ch)
-
+    
+    # File handler if specified
+    if log_file:
+        os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else '.', exist_ok=True)
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    
     return logger
 
-
-def pin_random_seed(seed: int = 42) -> None:
+def pin_random_seed(seed: int = 42):
     """Pin random seed for reproducibility."""
     random.seed(seed)
-    if "numpy" in sys.modules:
-        import numpy as np
-        np.random.seed(seed)
-    logger.info(f"Random seed pinned to {seed}")
-
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 class ErrorHandling:
     """Context manager for error handling."""
-
-    def __init__(self, logger_name: str):
-        self.logger = setup_logging(logger_name)
-
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
+    
     def __enter__(self):
         return self
-
+    
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
             self.logger.error(f"Error occurred: {exc_val}")
-        return False
-
-
-def verify_log_creation() -> bool:
-    """Verify that logs directory exists and is writable."""
-    try:
-        test_file = LOG_DIR / ".test_write"
-        test_file.touch()
-        test_file.unlink()
+            return False
         return True
-    except Exception:
-        return False
+
+def verify_log_creation(log_file: str) -> bool:
+    """Verify that a log file was created successfully."""
+    return os.path.exists(log_file) and os.path.getsize(log_file) > 0

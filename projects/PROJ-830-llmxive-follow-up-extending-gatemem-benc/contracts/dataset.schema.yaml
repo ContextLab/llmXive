@@ -1,48 +1,43 @@
-# GateMem Dataset Schema Definition
-# Defines the required structure for raw GateMem episodes
+$schema: http://json-schema.org/draft-07/schema#
+title: GateMem Dataset Schema
+description: Schema for GateMem benchmark episodes including leak-target, roles, domains, outcome, and authorization_boundaries.
 type: object
 required:
-  - id
-  - outcome
-  - predictors
-  - covariates
-  - leak-target
-  - role
-  - domain
-  - query
-  - memory
+  - episodes
 properties:
-  id:
-    type: string
-    description: Unique identifier for the episode
-  outcome:
-    type: string
-    description: Ground truth outcome (e.g., "leak", "no_leak")
-    enum:
-      - leak
-      - no_leak
-  predictors:
+  episodes:
     type: array
     items:
-      type: string
-    description: List of predictor features used for the outcome
-  covariates:
-    type: object
-    description: Additional context variables (e.g., domain, timestamp)
-    additionalProperties: true
-  leak-target:
-    type: string
-    description: The specific information that is the target of the leak
-  role:
-    type: string
-    description: The role of the user making the query
-  domain:
-    type: string
-    description: The domain of the episode (e.g., "medical", "office")
-  query:
-    type: string
-    description: The user's query string
-  memory:
-    type: string
-    description: The memory content being accessed
+      type: object
+      required:
+        - id
+        - domain
+        - leak_target
+        - role
+        - outcome
+        - authorization_boundaries
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the episode.
+        domain:
+          type: string
+          description: The domain of the episode (e.g., medical, office, education).
+        leak_target:
+          type: string
+          description: The specific information or data that is the target of a potential leak.
+        role:
+          type: string
+          description: The role of the user in this episode.
+        outcome:
+          type: string
+          description: The expected outcome (e.g., allow, deny).
+        authorization_boundaries:
+          type: object
+          description: Dictionary defining the specific boundaries for this episode.
+          additionalProperties: true
+        metadata:
+          type: object
+          description: Optional metadata for the episode.
+          additionalProperties: true
 additionalProperties: false
