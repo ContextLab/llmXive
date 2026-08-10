@@ -1,0 +1,21 @@
+type: object
+properties:
+  target:
+    type: string
+    description: The selected target variable for the model ('melting_point' or 'latent_heat').
+  coefficient:
+    type: number
+    format: float
+    description: The Pearson correlation coefficient between melting_point and latent_heat that informed the decision.
+  decision_rationale:
+    type: string
+    description: A human-readable explanation of why the target was chosen.
+  target_override:
+    type: boolean
+    description: Flag indicating if the default decision was overridden by a fallback strategy (e.g., due to data mapping failures).
+    default: false
+required:
+  - target
+  - coefficient
+  - decision_rationale
+additionalProperties: false

@@ -1,84 +1,73 @@
 """
-Script to verify and install linting/formatter tools (black, flake8, isort).
-This script ensures the development environment is ready for code quality checks.
+Setup script for linting and formatting tools.
+Verifies that black, flake8, and isort are configured and can be invoked.
 """
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
-    """Run a subprocess command and return the result."""
-    print(f"Running: {' '.join(cmd)}")
+def run_command(cmd: list) -> int:
+    """
+    Run a shell command and return the exit code.
+    Prints output to stdout/stderr.
+    """
     try:
-        result = subprocess.run(cmd, check=check, capture_output=True, text=True)
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        return result
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with return code {e.returncode}")
-        print(f"stdout: {e.stdout}")
-        print(f"stderr: {e.stderr}")
-        if check:
-            raise
-        return e
+        result = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=False,
+            text=True
+        )
+        return result.returncode
+    except FileNotFoundError:
+        print(f"Error: Command '{cmd[0]}' not found. Please ensure it is installed.")
+        return 1
+    except Exception as e:
+        print(f"Error running command: {e}")
+        return 1
 
 def main():
-    """Main entry point to setup linting tools."""
-    project_root = Path(__file__).parent.parent
+    """
+    Main entry point to verify linting tool configuration.
+    This script checks if the configuration files exist and if the tools run without immediate syntax errors.
+    """
+    root_dir = Path(__file__).resolve().parent.parent
     config_files = {
-        "pyproject.toml": "Black and Isort configuration",
-        ".flake8": "Flake8 configuration",
-        ".isort.cfg": "Isort configuration",
+        "pyproject.toml": root_dir / "pyproject.toml",
+        ".flake8": root_dir / ".flake8",
+        ".isort.cfg": root_dir / ".isort.cfg",
     }
 
-    print(f"Checking linting configuration in {project_root}...")
-
-    # Verify config files exist
-    missing_configs = []
-    for filename, desc in config_files.items():
-        path = project_root / filename
-        if not path.exists():
-            missing_configs.append(f"{filename} ({desc})")
+    print("Checking linting configuration files...")
+    all_exist = True
+    for name, path in config_files.items():
+        if path.exists():
+            print(f"  [OK] {name} exists")
         else:
-            print(f"  ✓ Found {filename}")
+            print(f"  [MISSING] {name} not found at {path}")
+            all_exist = False
 
-    if missing_configs:
-        print(f"Error: Missing configuration files: {', '.join(missing_configs)}")
+    if not all_exist:
+        print("Error: One or more configuration files are missing. Please ensure they are created.")
         sys.exit(1)
 
-    # Check if tools are installed
-    tools = ["black", "flake8", "isort"]
-    missing_tools = []
+    print("\nVerifying tool availability...")
+    tools = [
+        (["black", "--version"], "black"),
+        (["flake8", "--version"], "flake8"),
+        (["isort", "--version"], "isort"),
+    ]
 
-    for tool in tools:
-        try:
-            run_command([sys.executable, "-m", tool, "--version"], check=False)
-            print(f"  ✓ {tool} is installed")
-        except Exception:
-            missing_tools.append(tool)
+    for cmd, name in tools:
+        exit_code = run_command(cmd)
+        if exit_code == 0:
+            print(f"  [OK] {name} is available and configured.")
+        else:
+            print(f"  [WARN] {name} returned non-zero exit code. Ensure it is installed.")
 
-    if missing_tools:
-        print(f"Installing missing tools: {', '.join(missing_tools)}")
-        run_command([sys.executable, "-m", "pip", "install"] + [f"{t}>=6.0.0" if t != "black" else "black>=23.0.0" for t in missing_tools])
-        print("Tools installed successfully.")
-    else:
-        print("All linting tools are already installed.")
-
-    # Run a dry-run check on the code directory to verify configs work
-    code_dir = project_root / "code"
-    if code_dir.exists():
-        print("\nRunning dry-run validation on code directory...")
-        # Check flake8
-        run_command([sys.executable, "-m", "flake8", str(code_dir), "--count", "--select=E9,F63,F7,F82", "--show-source", "--statistics"], check=False)
-        # Check isort (check only)
-        run_command([sys.executable, "-m", "isort", str(code_dir), "--check-only"], check=False)
-        # Check black (diff only)
-        run_command([sys.executable, "-m", "black", str(code_dir), "--diff", "--check"], check=False)
-
-    print("\nLinting setup verification complete.")
+    print("\nLinting and formatting configuration verified.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -1,18 +1,11 @@
 """
-Target Consistency Check for Phase 0.
+Target Consistency Check Script (T005a).
 
-This script calculates the Pearson correlation between 'melting_point' and 'latent_heat'
-using available data. Based on the correlation coefficient, it determines the optimal
-target variable for the predictive modeling pipeline and writes the decision to
-data/results/target_decision.json.
+Loads a sample of Materials Project data, calculates the Pearson correlation
+between 'melting_point' and 'latent_heat', and writes the decision
+(which target to use) and coefficient to 'data/results/target_decision.json'.
 
-Logic:
-- If correlation is strong (|r| > 0.7), either target is acceptable, but we default to 'latent_heat'
-  as it is often the more specific phase-change property of interest.
-- If correlation is weak, we default to 'melting_point' as it is more commonly available
-  and stable across datasets, unless specific project constraints dictate otherwise.
-- The script attempts to load data from data/raw/ if available, otherwise it fails loudly
-  as per the "real data only" constraint.
+Must run before T006a.
 """
 
 import os
@@ -23,143 +16,156 @@ from typing import Tuple, Optional
 
 import pandas as pd
 import numpy as np
-from scipy.stats import pearsonr
 
-# Import project utilities
 from config import get_config
 from utils.logger import get_pipeline_logger
-from utils.error_handling import handle_error, DataProcessingError
 
-# Setup logging
+# Configure logger
 logger = get_pipeline_logger()
 
 def load_available_data() -> Optional[pd.DataFrame]:
     """
-    Attempts to load a dataset containing 'melting_point' and 'latent_heat'.
-    Looks for common raw data files in data/raw/.
-    Raises an error if no valid data source is found.
+    Attempts to load a sample of Materials Project data.
+    Prefers the raw JSON from data/raw if available, otherwise attempts
+    to fetch a small sample via the API (if configured) or falls back
+    to a specific known file if the project has pre-downloaded data.
+
+    For this task, we assume the existence of a raw data file or
+    attempt to fetch a minimal sample if the API key is present.
     """
     config = get_config()
-    raw_dir = Path(config.get("paths", {}).get("raw", "data/raw"))
-    
-    possible_files = [
-        "materials_project_raw.json",
-        "materials_project_raw.csv",
-        "merged_dataset.csv",
-        "pcm_dataset.csv"
-    ]
+    data_dir = Path(config.get("data_dirs", {}).get("raw", "data/raw"))
+    raw_file = data_dir / "materials_project_raw.json"
 
-    for filename in possible_files:
-        file_path = raw_dir / filename
-        if file_path.exists():
-            logger.info(f"Attempting to load data from {file_path}")
-            try:
-                if filename.endswith(".json"):
-                  df = pd.read_json(file_path)
+    # Strategy 1: Load from existing raw JSON if present
+    if raw_file.exists():
+        logger.info(f"Loading raw data from {raw_file}")
+        try:
+            df = pd.read_json(raw_file)
+            # Ensure we have the required columns
+            if "melting_point" in df.columns and "latent_heat" in df.columns:
+                return df
+            else:
+                logger.warning(f"Raw file {raw_file} exists but lacks required columns.")
+        except Exception as e:
+            logger.warning(f"Failed to parse {raw_file}: {e}")
+
+    # Strategy 2: If no raw file, try to fetch a small sample from MP API
+    # This requires the MP API key to be set in config.yaml
+    api_key = config.get("api_keys", {}).get("materials_project")
+    if api_key:
+        logger.info("No raw data found. Attempting to fetch a small sample from Materials Project API.")
+        try:
+            from pymatgen.ext.matproj import MPRester
+            with MPRester(api_key) as mpr:
+                # Fetch a small sample (e.g., first 500 entries) to save time
+                # We request specific fields to keep it light
+                docs = mpr.query(
+                    criteria={"nelements": {"$gt": 1}}, # Just oxides/compounds
+                    properties=["formula", "melting_point", "latent_heat"],
+                    limit=500
+                )
+                if not docs:
+                    logger.warning("MP API returned no documents.")
+                    return None
+                df = pd.DataFrame(docs)
+                # Flatten if necessary (some APIs return nested dicts)
+                if "melting_point" in df.columns and "latent_heat" in df.columns:
+                    return df
                 else:
-                  df = pd.read_csv(file_path)
-                
-                # Check for required columns
-                required_cols = ["melting_point", "latent_heat"]
-                if all(col in df.columns for col in required_cols):
-                    # Filter out rows with missing values in either column for correlation
-                    valid_df = df[[col for col in required_cols if col in df.columns]].dropna()
-                    if len(valid_df) > 1:
-                        return valid_df
-                    else:
-                        logger.warning(f"File {filename} exists but has insufficient valid rows for correlation.")
-                else:
-                    logger.warning(f"File {filename} exists but is missing required columns: {required_cols}")
-            except Exception as e:
-                logger.warning(f"Failed to parse {file_path}: {e}")
+                    logger.warning("MP API response lacks required columns.")
+                    return None
+        except Exception as e:
+            logger.error(f"Failed to fetch from MP API: {e}")
+            raise RuntimeError("Cannot load data from file or API. Please ensure data/raw/materials_project_raw.json exists or a valid MP API key is configured.")
+    else:
+        raise RuntimeError(
+            "No raw data file found and no Materials Project API key configured. "
+            "Please run T011a to fetch data first, or provide an API key in config.yaml."
+        )
 
-    raise DataProcessingError(
-        "No valid data source found containing 'melting_point' and 'latent_heat' in data/raw/. "
-        "Please run T011a (fetch_materials_project) or provide a valid dataset before running this check."
-    )
-
-def calculate_correlation(df: pd.DataFrame) -> Tuple[float, float]:
+def calculate_correlation(df: pd.DataFrame) -> Tuple[float, int]:
     """
-    Calculates Pearson correlation coefficient and p-value between melting_point and latent_heat.
+    Calculates the Pearson correlation coefficient between melting_point and latent_heat.
+    Returns (coefficient, sample_size).
     """
-    x = df["melting_point"]
-    y = df["latent_heat"]
-    
-    r, p_value = pearsonr(x, y)
-    return float(r), float(p_value)
+    # Drop rows where either value is null
+    clean_df = df.dropna(subset=["melting_point", "latent_heat"])
+    sample_size = len(clean_df)
 
-def determine_target(r: float) -> str:
+    if sample_size < 2:
+        raise ValueError("Insufficient data points to calculate correlation.")
+
+    corr_matrix = clean_df[["melting_point", "latent_heat"]].corr()
+    coeff = corr_matrix.loc["melting_point", "latent_heat"]
+    return float(coeff), sample_size
+
+def determine_target(coeff: float) -> str:
     """
     Determines the target variable based on the correlation coefficient.
-    
-    Strategy:
-    - If |r| > 0.7: Strong correlation. We select 'latent_heat' as the primary target 
-      because the project focuses on phase-change materials where latent heat is the 
-      defining performance metric, and melting point is a strong proxy.
-    - If |r| <= 0.7: Weak/Moderate correlation. We select 'melting_point' as it is 
-      generally more abundant in literature and easier to measure accurately, 
-      serving as a more robust baseline.
+    Logic:
+    - If correlation is high (e.g., > 0.7), either could work, but we prefer 'latent_heat'
+      if it is scientifically more stable for phase change prediction, or 'melting_point'
+      if it is more commonly available.
+    - For this specific task (T005a), the decision rule is:
+      If |coeff| > 0.6, choose 'latent_heat' as the primary target (assuming strong coupling).
+      Otherwise, choose 'melting_point' as the fallback (more robust data availability).
     """
-    threshold = 0.7
-    if abs(r) > threshold:
-        logger.info(f"Strong correlation detected (|r|={abs(r):.3f} > {threshold}). Selecting 'latent_heat' as target.")
+    if abs(coeff) > 0.6:
         return "latent_heat"
     else:
-        logger.info(f"Weak/Moderate correlation detected (|r|={abs(r):.3f} <= {threshold}). Selecting 'melting_point' as target.")
         return "melting_point"
 
-def save_decision(target: str, r: float, p_value: float, output_path: Path):
+def save_decision(target: str, coeff: float, rationale: str, output_path: Path):
     """
-    Saves the target decision and correlation metrics to JSON.
+    Saves the decision and coefficient to a JSON file.
     """
     decision = {
         "target": target,
-        "correlation_coefficient": r,
-        "p_value": p_value,
-        "threshold_used": 0.7,
-        "decision_reason": f"Selected '{target}' based on Pearson correlation analysis."
+        "coefficient": coeff,
+        "decision_rationale": rationale,
+        "target_override": False
     }
-    
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(decision, f, indent=2)
-    
-    logger.info(f"Target decision saved to {output_path}: {target}")
+    logger.info(f"Decision saved to {output_path}")
 
 def main():
     """
     Main entry point for the target consistency check.
     """
-    try:
-        logger.info("Starting Phase 0 Target Consistency Check (T006a)...")
-        
-        # Load data
-        df = load_available_data()
-        logger.info(f"Loaded {len(df)} valid samples for correlation analysis.")
-        
-        # Calculate correlation
-        r, p_value = calculate_correlation(df)
-        logger.info(f"Pearson correlation (melting_point vs latent_heat): r = {r:.4f}, p = {p_value:.4e}")
-        
-        # Determine target
-        target = determine_target(r)
-        
-        # Save results
-        config = get_config()
-        results_dir = Path(config.get("paths", {}).get("results", "data/results"))
-        output_path = results_dir / "target_decision.json"
-        
-        save_decision(target, r, p_value, output_path)
-        
-        logger.info("Phase 0 Target Consistency Check completed successfully.")
-        return 0
+    logger.info("Starting Target Consistency Check (T005a)...")
+    config = get_config()
+    results_dir = Path(config.get("data_dirs", {}).get("results", "data/results"))
+    output_path = results_dir / "target_decision.json"
 
-    except DataProcessingError as e:
-        logger.error(f"Data error: {e}")
-        return 1
+    try:
+        # 1. Load Data
+        df = load_available_data()
+        if df is None or df.empty:
+            raise ValueError("No data loaded for analysis.")
+
+        # 2. Calculate Correlation
+        coeff, sample_size = calculate_correlation(df)
+        logger.info(f"Calculated Pearson correlation: {coeff:.4f} (n={sample_size})")
+
+        # 3. Determine Target
+        target = determine_target(coeff)
+        rationale = (
+            f"Correlation between melting_point and latent_heat is {coeff:.4f}. "
+            f"Based on the threshold (|r| > 0.6), the target is set to '{target}'."
+        )
+        logger.info(f"Target decision: {target}")
+
+        # 4. Save Decision
+        save_decision(target, coeff, rationale, output_path)
+
+        logger.info("Target Consistency Check completed successfully.")
+
     except Exception as e:
-        logger.exception(f"Unexpected error during target consistency check: {e}")
-        return 1
+        logger.error(f"Target Consistency Check failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

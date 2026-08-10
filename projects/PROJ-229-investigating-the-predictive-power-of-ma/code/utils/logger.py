@@ -10,71 +10,76 @@ _handler: Optional[logging.Handler] = None
 
 def setup_logger(
     name: str = "llmXive",
+    level: Optional[int] = None,
     log_file: Optional[str] = None,
-    level: int = logging.INFO
+    use_color: bool = True
 ) -> logging.Logger:
     """
-    Configure and return a singleton logger instance for the pipeline.
+    Configure the global logger instance for the pipeline.
     
     Args:
         name: Logger name.
-        log_file: Optional path to a log file. If None, logs only to stdout.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        level: Logging level (e.g., logging.INFO, logging.DEBUG).
+        log_file: Optional path to a log file. If provided, logs are written there.
+        use_color: Whether to use ANSI color codes in console output.
     
     Returns:
-        Configured logging.Logger instance.
+        The configured logger instance.
     """
     global _logger, _handler
     
     if _logger is not None:
         return _logger
-    
+
+    config = get_config()
+    if level is None:
+        # Default to INFO unless DEBUG is explicitly set in config
+        level_str = config.get("logging", {}).get("level", "INFO")
+        level = getattr(logging, level_str.upper(), logging.INFO)
+
     _logger = logging.getLogger(name)
     _logger.setLevel(level)
     
-    # Prevent adding multiple handlers if called repeatedly
+    # Prevent adding multiple handlers if called multiple times
     if _logger.handlers:
         return _logger
 
-    # Create formatter
+    # Console Handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    
+    # Simple formatter
     formatter = logging.Formatter(
-        fmt='[%(asctime)s] %(levelname)-8s [%(name)s] %(message)s',
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
     _logger.addHandler(console_handler)
-    
-    # File handler (optional)
+
+    # File Handler (if specified)
     if log_file:
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
         _logger.addHandler(file_handler)
-    
+
     return _logger
 
-def get_pipeline_logger() -> logging.Logger:
+def get_pipeline_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Retrieve the global pipeline logger.
-    Initializes it if it hasn't been initialized yet.
+    Retrieve the initialized pipeline logger.
+    If not initialized, initializes it with default settings from config.
+    
+    Args:
+        name: Logger name (default 'llmXive').
     
     Returns:
-        The global pipeline logger instance.
+        The logger instance.
     """
     global _logger
     if _logger is None:
-        config = get_config()
-        log_level_str = config.get("logging", {}).get("level", "INFO")
-        log_level = getattr(logging, log_level_str.upper(), logging.INFO)
-        log_file = config.get("logging", {}).get("log_file", "logs/pipeline.log")
-        
-        _logger = setup_logger(
-            name="llmXive",
-            log_file=log_file,
-            level=log_level
-        )
+        # Initialize with defaults if not explicitly set up yet
+        _logger = setup_logger(name)
     return _logger

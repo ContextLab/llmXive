@@ -1,0 +1,13 @@
+.eggs
+.git
+.mypy_cache
+.tox
+.venv
+_build
+buck-out
+build
+dist
+__pycache__
+data/raw
+data/external
+data/results

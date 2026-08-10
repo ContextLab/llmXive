@@ -4,10 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence was provided that the required directories (`data/raw`, `data/processed`, `data/results`, `data/external`) actually exist; the artifact list is empty, so the task’s core deliverable is missing.
-- `T001b` (rejected 1x): No evidence of the required directories (`code/data`, `code/models`, `code/utils`) is provided; the artifact list is empty, so the claim that the code directories were created cannot be verified.
-- `T001c` (rejected 1x): No evidence was provided that the directories `tests/unit`, `tests/integration`, or `tests/contract` actually exist in the repository; the claim is unsupported and the required folder structure is missing.
-- `T002` (rejected 1x): No evidence of a Python 3.11 project setup is provided—there is no `pyproject.toml`, `requirements.txt`, `environment.yml`, or any source files showing the listed dependencies installed. Consequently the task of initializing the project with the specified packages is not satisfied.
+- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.flake8`, `.isort.cfg`) or scripts are provided; the evidence only contains a high‑level project specification unrelated to setting up Black, Flake8, or isort. Consequently the task of configuring those tools is not satisfied.
+- `T005` (rejected 1x): No files or code were presented in `code/utils/` showing a logging setup or error‑handling implementation; the only evidence supplied relates to the broader ML feature specifications, not to the required logging infrastructure. Consequently the task’s deliverable is missing.
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
 
 ## Required change
 

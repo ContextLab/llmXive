@@ -1,48 +1,46 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-proj-229"
+name = "llmxive-pcm-project"
 version = "0.1.0"
 description = "Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials"
-requires-python = ">=3.11"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
-    "pymatgen>=2023.0.0",
-    "scikit-learn>=1.3.0",
-    "pysr>=0.12.0",
-    "shap>=0.42.0",
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "matplotlib>=3.7.0",
-    "requests>=2.28.0",
-    "pyyaml>=6.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "black>=23.0.0",
-    "flake8>=6.0.0",
-    "isort>=5.12.0",
-    "pytest>=7.0.0",
+    "pymatgen",
+    "scikit-learn",
+    "pysr",
+    "shap",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "requests",
+    "pyyaml",
+    "black",
+    "flake8",
+    "isort",
+    "pytest",
+    "psutil"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
@@ -50,7 +48,37 @@ exclude = '''
 profile = "black"
 line_length = 88
 known_first_party = ["code"]
-skip = [".git", "__pycache__", ".eggs", "build", "dist", "data", ".venv"]
+skip = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist"
+]
 
-[tool.setuptools]
-packages = ["code", "code.data", "code.models", "code.utils", "tests"]
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203, W503"
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "__pycache__"
+]
+per-file-ignores = [
+    "__init__.py:F401"
+]
+max-complexity = 15
+count = true
+show-source = true
+statistics = true

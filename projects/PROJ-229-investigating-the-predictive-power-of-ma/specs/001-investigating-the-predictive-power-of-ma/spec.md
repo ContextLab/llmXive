@@ -91,7 +91,7 @@ A researcher needs to validate the derived symbolic rules against a held-out set
 
 ## Assumptions
 
-- The Materials Project API provides sufficient access to download the required subset of compounds with melting point and heat capacity data without hitting rate limits that exceed the 6-hour job window.
+- The Materials Project API provides sufficient access to download the required subset of compounds with melting point and heat capacity data without hitting rate limits that exceed the -hour job window.
 - The NIST PCM dataset contains latent heat values for a significant overlap with the Materials Project compounds; if not, the project will proceed with a proxy metric or a reduced dataset.
 - The PySR library can be installed and run efficiently on the GitHub Actions free-tier environment without requiring proprietary dependencies or GPU acceleration.
 - The "governing factors" identified are primarily structural and compositional; kinetic factors or synthesis conditions are assumed to be secondary or out of scope for this specific analysis.

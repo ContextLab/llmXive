@@ -1,73 +1,62 @@
-"""
-Script to create the required data directory structure for the project.
-
-This task (T001a) ensures the following directories exist:
-- data/raw
-- data/processed
-- data/results
-- data/external
-
-It uses the project's config to determine the root path and logs the operations.
-"""
 import os
 import logging
 from pathlib import Path
 from typing import List
-
-# Importing from the project's config module as per API surface
 from config import get_config
-
-# Importing logger utility as per API surface
 from code.utils.logger import get_pipeline_logger
 
-def create_data_directories() -> None:
+def create_data_directories() -> List[Path]:
     """
-    Creates the standard data directory structure.
+    Creates the required data directory structure for the project.
     
-    Raises:
-        OSError: If directory creation fails for any reason.
+    Directories created:
+    - data/raw: For raw, unprocessed data fetched from external sources
+    - data/processed: For cleaned and feature-engineered data
+    - data/results: For model outputs, validation results, and analysis artifacts
+    - data/external: For external literature data and third-party datasets
+    
+    Returns:
+        List[Path]: List of created directory paths
     """
-    logger = get_pipeline_logger()
     config = get_config()
+    base_dir = Path(config.get('project_root', '.'))
+    data_dir = base_dir / 'data'
     
-    # Determine the project root. 
-    # Assuming the script runs from the project root or we use the config's base path.
-    # If config specifies a base_dir, use that; otherwise, assume current working directory.
-    base_path = Path(config.get("base_dir", "."))
-    
-    data_dirs = [
-        "raw",
-        "processed",
-        "results",
-        "external"
+    required_dirs = [
+        'raw',
+        'processed', 
+        'results',
+        'external'
     ]
     
-    created_count = 0
-    for dir_name in data_dirs:
-        target_path = base_path / "data" / dir_name
-        try:
-            if not target_path.exists():
-                target_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {target_path}")
-                created_count += 1
-            else:
-                logger.debug(f"Directory already exists: {target_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {target_path}: {e}")
-            raise e
+    created_dirs = []
+    logger = get_pipeline_logger()
     
-    logger.info(f"Data directory setup complete. Created {created_count} new directories.")
+    for dir_name in required_dirs:
+        dir_path = data_dir / dir_name
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(dir_path)
+            logger.info(f"Created directory: {dir_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {dir_path}: {e}")
+            raise
+    
+    return created_dirs
 
-def main() -> None:
-    """
-    Entry point for the script.
-    """
+def main():
+    """Entry point for creating data directories."""
+    logger = get_pipeline_logger()
+    logger.info("Starting data directory creation...")
+    
     try:
-        create_data_directories()
+        created_dirs = create_data_directories()
+        logger.info(f"Successfully created {len(created_dirs)} data directories:")
+        for dir_path in created_dirs:
+            logger.info(f"  - {dir_path}")
     except Exception as e:
-        # Use the project's error handling if available, or standard logging
-        logging.error(f"Script failed: {e}")
-        raise e
+        logger.error(f"Failed to create data directories: {e}")
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

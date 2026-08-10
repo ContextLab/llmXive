@@ -46,7 +46,7 @@
 - [ ] T001a [P] Create data directories: `data/raw`, `data/processed`, `data/results`, `data/external`.
 - [ ] T001b [P] Create code directories: `code/data`, `code/models`, `code/utils`.
 - [ ] T001c [P] Create test directories: `tests/unit`, `tests/integration`, `tests/contract`.
-- [ ] T002 Initialize Python 3.11 project with `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml` dependencies
+- [X] T002 Initialize Python project with `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml` dependencies. **Deliverable**: Create `requirements.txt` pinning all versions.
 - [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort)
 
 ---
@@ -59,12 +59,16 @@
 
 - [X] T004 Setup `config.yaml` for API keys, random seeds, and time/memory constraints
 - [ ] T005 [P] Implement basic logging infrastructure and error handling in `code/utils/`
-- [ ] T006 [P] Create data directory structure (`data/raw`, `data/processed`, `data/results`)
-- [X] T006a [US1] Implement `code/data/target_consistency_check.py` to execute the Phase 0 Target Consistency Check: calculate Pearson correlation between `melting_point` and `latent_heat` on a sample, write the decision (`target: latent_heat` or `target: melting_point`) and the coefficient to `data/results/target_decision.json`. **Must run after T004 and T005**.
-- [ ] T007 [US1] Create `contracts/dataset.schema.yaml` in YAML format. Must read `data/results/target_decision.json` to dynamically set the `target_value` field name. Must validate that the generated YAML is non-empty and valid before marking complete. If validation fails, regenerate or fail the task. **Must run before T009 and T015**.
+- [ ] T005a [US1] Implement `code/data/target_consistency_check.py`: A script to load a sample of Materials Project data, calculate the Pearson correlation between `melting_point` and `latent_heat`, and write the decision (`target: latent_heat` or `target: melting_point`) and coefficient to `data/results/target_decision.json`. **Must run before T006a**.
+- [X] T006a [US1] Execute `code/data/target_consistency_check.py` to perform the Phase 0 Target Consistency Check. **Must run after T005a, T004, and T005**.
+- [ ] T006b [US1] Define the JSON schema for `target_decision.json` in `contracts/target_decision.schema.yaml`. Keys: `target` (string), `coefficient` (float), `decision_rationale` (string), `target_override` (boolean, optional). **Must run before T007**.
+- [ ] T007 [US1] Create `contracts/dataset.schema.yaml` in YAML format. Must define a *static* schema for the dataset. **Must run after T006b**.
+- [X] T007a [US1] Implement runtime validation logic in `code/utils/schema_validator.py`: A script that loads `data/results/target_decision.json` to determine the active target field name and validates the processed dataset against the static `dataset.schema.yaml`, enforcing the dynamic target constraint at runtime. **Must run after T007 and before T015**.
 - [X] T008 Implement `code/utils/stability_checks.py` for NaN/Inf validation and memory monitoring
 - [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`. **Must run after T007**.
-- [ ] T013 [US3] fetch the 50 literature PCMs from DOI: 10.1016/j.matt.2024.01.001 [UNRESOLVED-CLAIM: c_e62cdc04 — status=not_enough_info], map them to Materials Project IDs (using `pymatgen` or manual lookup), and save to `data/external/literature_pcms.csv` with a `mapping_log.json` recording any unmapped IDs. **If unmapped count > 25, raise a critical error and halt pipeline **. <!-- FAILED: unspecified -->
+- [ ] T013 [P] [US1] Fetch raw literature PCM data from DOI: 10.1016/j.matt.2024.01.001. Save raw CSV to `data/external/literature_pcms_raw.csv`. **Must run after T004**. <!-- FAILED: unspecified -->
+- [ ] T013a [US3] Map literature PCMs to Materials Project IDs using `pymatgen`. Read `data/results/target_decision.json` to determine the target variable (`latent_heat` or `melting_point`) and adapt mapping logic. Save mapped dataset to `data/external/literature_pcms_mapped.csv`. **Must run after T013 and T006a**. **Fallback**: If unmapped count > 50% of total, trigger T013b (do NOT raise a critical error). Log the failure in `data/results/mapping_log.json`.
+- [ ] T013b [US3] Fallback task: If T013a fails (unmapped > 50%), implement a proxy strategy using melting point only. Save proxy dataset to `data/external/literature_pcms_proxy.csv`. **Crucially**, update `data/results/target_decision.json` to set `target: "melting_point"` and `target_override: true`. Flag limitation in `data/results/fallback_decision.json`. **Must run after T013a triggers fallback**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,19 +78,19 @@
 
 **Goal**: Retrieve a curated subset of Materials Project data, compute elemental/structural descriptors, and prepare a clean dataset for modeling within 7GB RAM.
 
-**Independent Test**: Execute the data retrieval script and verify that the verify that the output CSV contains at least 5,000 compounds [UNRESOLVED-CLAIM: c_4ed50bc2 — status=not_enough_info] with non-null values for melting point, latent heat (where available), and the computed feature columns, fitting within 7 GB RAM [UNRESOLVED-CLAIM: c_a309d5ac — status=not_enough_info].
+**Independent Test**: Execute the data retrieval script and verify that the output CSV contains at least 5,000 compounds with non-null values for melting point, latent heat (where available), and the computed feature columns, fitting within 7 GB RAM.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T010 [US1] Integration test for data pipeline in `tests/integration/test_pipeline.py`. **Must run after T015** to ensure full pipeline implementation is complete. <!-- FAILED: unspecified -->
+- [X] T010 [US1] Integration test for data pipeline in `tests/integration/test_pipeline.py`. **Must run after T015** to ensure full pipeline implementation is complete.
 
 ### Implementation for User Story 1
 
 - [ ] T011a [US1] Implement `code/data/fetch_materials_project.py` (Part 1): Query Materials Project API for compounds with melting points and heat capacity, handling rate limits. Save raw JSON to `data/raw/materials_project_raw.json`.
-- [ ] T011b [US1] Implement `code/data/fetch_materials_project.py` (Part 2): Compute the overlap count between the fetched dataset and the NIST subset (if available). Save `nist_overlap_count.json`.
-- [ ] T012 [US1] Implement `code/data/compute_descriptors.py` to: (1) Generate elemental descriptors (atomic number, electronegativity, radius), (2) Generate crystal graph representations using `pymatgen`'s `StructureGraph`, (3) Handle missing structures, NaN/Inf values, and memory constraints, and (4) Apply fallback logic based on `nist_overlap_count.json` and `data/results/target_decision.json`. **Must run after T011a and T011b**.
+- [ ] T011b [US1] Implement `code/data/fetch_materials_project.py` (Part 2): Compute the overlap count between the fetched dataset and the NIST subset (if available). **Conditional**: If NIST data is inaccessible or empty, log the state and proceed without computing an overlap count, triggering the fallback logic downstream. Save `nist_overlap_count.json` only if successful. **Must run after T011a**.
+- [ ] T012 [US1] Implement `code/data/compute_descriptors.py` to: (1) Generate elemental descriptors (atomic number, electronegativity, radius), (2) Generate crystal graph representations using `pymatgen`'s `StructureGraph`, (3) Handle missing structures, NaN/Inf values, and memory constraints, and (4) Apply fallback logic based on `nist_overlap_count.json` (if exists) and `data/results/target_decision.json`. **Must run after T011a and T011b**.
 - [ ] T014 [US1] Implement `code/utils/collinearity_utils.py` for Variance Inflation Factor (VIF) analysis to detect definitional dependencies (e.g., atomic radius vs ionic radius). **Must run after T012**.
-- [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (fetch -> feature engineering -> VIF check -> save processed CSV).
+- [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (fetch -> feature engineering -> VIF check -> save processed CSV). **Must run after T007a**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,7 +100,7 @@
 
 **Goal**: Train Random Forest, Gradient Boosting, SHAP-analyzed trees, and PySR symbolic regression models on CPU within a constrained time window., ensuring R² > 0.0.
 
-**Independent Test**: Run the training pipeline and verify that models achieve R² > 0.0 on the validation set and that symbolic regression terminates within 4 hours [UNRESOLVED-CLAIM: c_8e6705e4 — status=not_enough_info].
+**Independent Test**: Run the training pipeline and verify that models achieve R² > 0.0 on the validation set and that symbolic regression terminates within 4 hours.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -107,7 +111,8 @@
 - [ ] T017a [US2] Implement `code/models/train_random_forest.py`: Train Random Forest model with fixed random seeds and memory constraints.
 - [ ] T017b [US2] Implement `code/models/train_gradient_boosting.py`: Train Gradient Boosting model with fixed random seeds and memory constraints.
 - [ ] T017c [US2] Implement `code/models/train_shap_analysis.py`: Perform SHAP analysis on the trained tree ensemble to generate ranked feature importances without GPU.
-- [ ] T019 [US2] Implement `code/models/train_symbolic.py` using PySR with: Strict time budget of a few hours, Regularized feature set (post-VIF from T014), Logic to output at least one explicit mathematical formula. **Must run after T014**.
+- [ ] T019 [US2] Implement `code/models/train_symbolic.py` using PySR with: Strict time budget of a few hours, Regularized feature set (post-VIF from T014), Logic to output at least one explicit mathematical formula. **Crucially**, save the best formula to `data/results/symbolic_formula.json` in a structured format. **Must run after T014**.
+- [ ] T019b [US2] Fallback task: If T019 fails to converge to a formula with R² > 0.0, generate a 'no-formula' artifact at `data/results/symbolic_formula.json` containing a placeholder structure and a flag `status: "failed"`. **Must run after T019 fails**.
 - [ ] T020 [US2] Implement `code/models/evaluate.py` to compute R² scores, perform paired t-tests between baselines and interpretable models (SC-002), and log performance metrics. **Ensure the exact same test split indices are used for both model types**.
 - [ ] T021 [US2] Add logic to `code/models/evaluate.py` to flag limitations if PySR fails to converge (r < 0.0) and default to SHAP results.
 
@@ -119,7 +124,7 @@
 
 **Goal**: Validate derived rules against external literature PCMs, perform sensitivity analysis on thresholds, and finalize associational framing.
 
-**Independent Test**: Apply derived rules to an external set of literature PCMs and performance drop ≤ 10% compared to test set [UNRESOLVED-CLAIM: c_98964d0e — status=not_enough_info]; generate sensitivity analysis report.
+**Independent Test**: Apply derived rules to an external set of literature PCMs and performance drop ≤ 10% compared to test set; generate sensitivity analysis report.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -127,24 +132,27 @@
 
 ### Implementation for User Story 3
 
+- [ ] T023a [US3] Set `top_n = 10` in `data/results/validation_config.json`. **Must strictly match SC-003**. **Must run after T013a or T013b**.
 - [ ] T023 [US3] Implement external validation logic in `code/models/validate_external.py`:
- - Load literature PCMs (from T013).
- - Read `data/results/target_decision.json` to determine the target variable (`latent_heat` or `melting_point`).
- - Apply derived symbolic rules or feature rankings (from T019).
- - Rank the **Top 10** highest-value PCMs (N=10 per Plan Phase 2 Step 1 [UNRESOLVED-CLAIM: c_ae1f9cc8 — status=not_enough_info]).
+ - Load literature PCMs (from `data/external/literature_pcms_mapped.csv` or `data/external/literature_pcms_proxy.csv` via T013a/T013b).
+ - Read `data/results/target_decision.json` to determine the target variable (`latent_heat` or `melting_point`). **If `target_override` is true, use `melting_point` regardless of the original decision**.
+ - Read `top_n` (must be 10) from `data/results/validation_config.json`.
+ - Load derived symbolic rules from `data/results/symbolic_formula.json` (or the fallback artifact from T019b).
+ - Rank the **Top 10** highest-value PCMs based on the target variable.
  - Calculate ranking accuracy on the Top 10.
- - Verify success criterion: ≥ 60% accuracy on Top 10 [UNRESOLVED-CLAIM: c_1fce2755 — status=not_enough_info] (SC-003).
- - **Must run after T019**.
-- [ ] T024 [US3] Implement sensitivity analysis in `code/utils/stability_checks.py`: Sweep feature importance thresholds across a range from zero to a moderate upper bound in incremental steps.. using the external validation set (T013) as ground truth. Report false-positive/false-negative rates (FR-004, SC-004). **Must run after T013 and T019**.
+ - {{claim:c_447a38b2}} (SC-003).
+ - Save results to `data/results/validation_results.json`. **Must run after T013a/T013b and T019/T019b**.
+- [ ] T024 [US3] Implement sensitivity analysis in `code/utils/stability_checks.py`: Sweep feature importance thresholds across the full valid range in fine-grained increments. Use the external validation set (`data/external/literature_pcms_mapped.csv` or `data/external/literature_pcms_proxy.csv`) as ground truth and `data/results/target_decision.json` for the target variable. Report false-positive/false-negative rates (FR-004, SC-004). Save report to `data/results/sensitivity_report.json`. **Must run after T013a/T013b and T019**.
 - [ ] T025 [US3] Add final collinearity diagnostic in `code/utils/collinearity_utils.py` to flag any remaining definitional dependencies and adjust interpretation to descriptive/associational (FR-006).
-- [ ] T026a [US3] Generate correlation analysis report section in `research.md` summarizing SC-001. **Report the outcome of the Phase 0 gate (which target was selected) and the Pearson coefficient that justified it**, replacing any '[deferred]' placeholders with measured values. **Use Top 10 as defined in Plan Phase 2 Step 1**.
+- [ ] T026a [US3] Generate correlation analysis report section in `research.md` summarizing SC-001. **Report the outcome of the Phase 0 gate (which target was selected) and the Pearson coefficient that justified it**, replacing any '[deferred]' placeholders with measured values. **Read the coefficient explicitly from `data/results/target_decision.json`**. **Use `top_n` from `data/results/validation_config.json`**.
 - [ ] T026b [US3] Generate model comparison report section in `research.md` summarizing SC-002 (R² comparison results and t-test). **Insert measured values from T020**.
 - [ ] T026c [US3] Generate final report in `research.md` and `paper/` drafts that explicitly includes:
- - Generalization accuracy on literature set (SC-003)
- - Sensitivity analysis results (SC-004)
- - **Explicit associational framing** (FR-007) stating findings are correlational, not causal. **Must include the exact text of the 'Critical Methodological Note' from the Plan** to ensure strict framing.
+ - Generalization accuracy on literature set (SC-003) from `data/results/validation_results.json`.
+ - Sensitivity analysis results (SC-004) from `data/results/sensitivity_report.json`.
+ - **Explicit associational framing** (FR-007) stating findings are correlational, not causal. **Must include the exact text of the 'Critical Methodological Note' from the Plan verbatim**.
  - **Insert measured values from previous steps**, replacing any '[deferred]' placeholders.
- - **Use Top 10 as defined in Plan Phase 2 Step 1**.
+ - **Use `top_n` from `data/results/validation_config.json`**.
+ - **Must run after T023 and T024**.
 - [ ] T027 [US3] Run reproducibility check: Execute full pipeline end-to-end on a fresh runner to verify checksums and artifact hashes (Phase 3, Step 1).
 
 **Checkpoint**: All user stories should now be independently functional
@@ -236,6 +244,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All tasks must run on CPU-only free-tier CI (a limited number of cores, limited RAM, 6h limit). No GPU, no 8-bit quantization, no large LLMs.
+- **CRITICAL**: All tasks must run on CPU-only free-tier CI (a limited number of cores, limited RAM, time-limited execution). No GPU, no 8-bit quantization, no large LLMs.
 - **CRITICAL**: Use real data sources only (Materials Project API, NIST, literature DOIs). No synthetic/fake data generation.
 - **CRITICAL**: Do not hard-code empirical values (like top-N counts or sweep ranges) unless explicitly derived from research or defined in the spec.
+- **CRITICAL**: SC-003 requires `top_n = 10`. Do not deviate.
+- **CRITICAL**: If PySR fails, use T019b fallback artifact.
+- **CRITICAL**: If NIST data is missing, do not fail; log and proceed.
+- **CRITICAL**: If literature mapping fails >50%, switch target to melting point via T013b.

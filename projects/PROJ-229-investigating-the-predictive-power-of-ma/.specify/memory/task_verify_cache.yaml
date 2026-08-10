@@ -1,28 +1,44 @@
-T003:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.flake8`, `.isort.cfg`) or scripts are provided; the evidence only\
-    \ contains a high\u2011level project specification unrelated to setting up Black,\
-    \ Flake8, or isort. Consequently the task of configuring those tools is not satisfied."
-T005:
+  r: "No evidence of the required directories (`data/raw`, `data/processed`, `data/results`,\
+    \ `data/external`) is provided; the implementer did not supply any file\u2011\
+    system listing, script output, or screenshots confirming their creation. The task\
+    \ remains undone until those directories exist and are shown."
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No files or code were presented in `code/utils/` showing a logging setup or\
-    \ error\u2011handling implementation; the only evidence supplied relates to the\
-    \ broader ML feature specifications, not to the required logging infrastructure.\
-    \ Consequently the task\u2019s deliverable is missing."
-T006:
+  r: No evidence of the required directories (`code/data`, `code/models`, `code/utils`)
+    is provided; the artifact list is empty, so the claim that the code directories
+    were created cannot be verified.
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw`, `data/processed`, or `data/results` directories
-    was provided; the implementer did not supply any artifact showing that the directory
-    structure exists. The task remains undone.
-T007:
+  r: The claim provides no concrete evidence (e.g., a directory listing, screenshots,
+    or file tree) that the required `tests/unit`, `tests/integration`, and `tests/contract`
+    directories actually exist in the repository. Without such proof, we cannot verify
+    that the task was completed.
+T005a:
   c: false
-  h: cb62e67d891052f1514d283e0eab1646b5b33e2e81194f8a17f13caa2592131d
-  r: "The required `contracts/dataset.schema.yaml` file does not exist, so no YAML\
-    \ output was generated or validated. Consequently the task of dynamically setting\
-    \ the `target_value` field from `data/results/target_decision.json` cannot have\
-    \ been fulfilled. The implementer must create the missing schema file with the\
-    \ appropriate content and ensure it is non\u2011empty and valid."
+  h: 74088ecd6794b3645cf58886eeaa2c207e419297bb8065c09e9447ab4cb8d200
+  r: "The `target_consistency_check.py` file is present but the shown code is truncated\
+    \ and does not demonstrate the Pearson correlation calculation or the JSON\u2011\
+    writing step required by the task. Moreover, the expected output file `data/results/target_decision.json`\
+    \ is absent, indicating the script either was not executed or does not create\
+    \ the required artifact. The implementer must ensure the script computes the correlation,\
+    \ decides the target, writes the result to the specified JSON file, and that the\
+    \ JSON file exists."
+T006b:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required file `contracts/target_decision.schema.yaml` does not exist (listed\
+    \ as missing), so no JSON schema has been provided. The task\u2019s core artifact\
+    \ is absent."
+T007a:
+  c: true
+  h: 7f741e0a2cbf89764ad0beb332e0f02193bbfdb58f58b9feb25df2e70fcb1989
+  r: "The `code/utils/schema_validator.py` file is present, non\u2011empty, and contains\
+    \ functions that load `data/results/target_decision.json`, load the static schema,\
+    \ and perform validation of the processed dataset, satisfying the implementation\
+    \ requirement. The missing input files are external data, not part of the required\
+    \ artifact."
