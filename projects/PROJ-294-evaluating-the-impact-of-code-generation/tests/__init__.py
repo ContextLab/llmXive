@@ -1,3 +1,1 @@
-"""
-Test module for llmXive.
-"""
+# Tests package initialization

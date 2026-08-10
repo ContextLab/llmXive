@@ -492,3 +492,106 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T07:10:06Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Tests are optional and included only if explicitly requested in the feature
+    specification
+  claim_id: c_dc758d61
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_included_only_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:21:35Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset size is 164
+  claim_id: c_a65db6d8
+  context: 'Independent Test: Run the pipeline on the full HumanEval dataset (N=164).
+    Verify that data/analysis/metrics.json contains cyclomatic_complexity, halstead_volume,
+    branch_coverage_pct, and pass_rate for every valid pair, with n=164 (or n < 164
+    only if specific tasks fail execution).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the pipeline on the full HumanEval dataset (N=164).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:22:22Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset is hosted on HuggingFace as openai_humaneval with revision
+    main
+  claim_id: c_01a46d68
+  context: Implement code/download_data.py to download the full HumanEval dataset
+    from HuggingFace (openai_humaneval) using revision="main" to ensure deterministic
+    versioning.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_is_hosted_on_HuggingFace_as_openai_humanev
+  kind: entity_fact
+  raw_text: Implement code/download_data.py to download the full HumanEval dataset
+    from HuggingFace (openai_humaneval) using revision=main to ensure deterministic
+    versioning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:24:04Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Salesforce/codegen-350M-mono model is CPU-tractable
+  claim_id: c_1485632c
+  context: 'Note: The primary model (CodeGen-350M) is CPU-tractable and handled in
+    Phase 3. This sub-phase is strictly for the CodeLlama sensitivity analysis (FR-009)
+    which requires GPU resources.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Salesforce/codegen-350M-mono_model_is_CPU-tractable
+  kind: entity_fact
+  raw_text: The primary model (CodeGen-350M) is CPU-tractable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:24:40Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 tasks
+  claim_id: c_722f6203
+  context: A Priori Power Analysis is N/A for fixed N=164; replaced by Sensitivity
+    Analysis (MDES) as documented in T029.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The HumanEval dataset contains 164 tasks.
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T03:24:57Z'

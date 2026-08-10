@@ -41,58 +41,63 @@ def get_timestamp() -> str:
 def setup_logging(task_id: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
     Set up and return a logger with consistent formatting.
-    
+
     Accepts various call signatures for flexibility:
     - setup_logging()
     - setup_logging(task_id="T010")
     - setup_logging(task_id=TASK_ID)
     - setup_logging(level=logging.DEBUG)
-    
+    - setup_logging("T010")  # Positional task_id
+
     Args:
-        task_id: Optional task ID to inject into logs.
-        level: Logging level.
-        
+        task_id: Optional task ID to inject into logs. Can be string, int (level), or None.
+                If an integer is passed, it is treated as the logging level.
+        level: Logging level (e.g., logging.INFO, logging.DEBUG).
+
     Returns:
         Configured logger instance.
     """
     # Handle flexible arguments
     if isinstance(task_id, int):
-        # If an integer is passed (unlikely but possible), treat as level
+        # If an integer is passed, treat as level
         level = task_id
         task_id = None
-    
+    elif isinstance(task_id, str):
+        # If a string is passed, treat as task_id
+        pass
+
     if task_id:
         set_task_id(task_id)
-    
+
     logger_name = f"llmXive.{get_task_id() or 'root'}"
     logger = logging.getLogger(logger_name)
-    
+
     # Avoid adding handlers multiple times
     if logger.handlers:
         logger.setLevel(level)
         return logger
-    
+
     logger.setLevel(level)
-    
+
     # Create console handler
     handler = logging.StreamHandler()
     handler.setLevel(level)
-    
+
     # Create formatter
     formatter = logging.Formatter(
         '%(asctime)s [%(levelname)s] [%(task_id)s] - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    
+
     # Add filter for task_id
     handler.addFilter(TaskIdFilter())
-    
+
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    
+
     # Add to registry
     _LOGGERS[logger_name] = logger
-    
+
     return logger
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
@@ -116,10 +121,10 @@ def log_error(msg: str) -> None:
 def compute_sha256(file_path: str) -> str:
     """
     Compute the SHA256 hash of a file.
-    
+
     Args:
         file_path: Path to the file.
-        
+
     Returns:
         Hexadecimal string of the SHA256 hash.
     """
@@ -132,11 +137,11 @@ def compute_sha256(file_path: str) -> str:
 def verify_checksum(file_path: str, expected_checksum: str) -> bool:
     """
     Verify a file's checksum against an expected value.
-    
+
     Args:
         file_path: Path to the file.
         expected_checksum: Expected SHA256 hash.
-        
+
     Returns:
         True if checksum matches, False otherwise.
     """
@@ -151,10 +156,10 @@ def ensure_directory(dir_path: str) -> None:
 def safe_json_loads(json_str: str) -> Optional[Any]:
     """
     Safely parse a JSON string.
-    
+
     Args:
         json_str: JSON string to parse.
-        
+
     Returns:
         Parsed object or None if parsing fails.
     """
@@ -166,11 +171,11 @@ def safe_json_loads(json_str: str) -> Optional[Any]:
 def safe_json_dumps(obj: Any, indent: int = 2) -> str:
     """
     Safely serialize an object to JSON string.
-    
+
     Args:
         obj: Object to serialize.
         indent: Indentation level.
-        
+
     Returns:
         JSON string or empty string if serialization fails.
     """

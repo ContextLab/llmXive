@@ -1,1 +1,1 @@
-# Package initialization for docs modules
+# Auto-generated init file
