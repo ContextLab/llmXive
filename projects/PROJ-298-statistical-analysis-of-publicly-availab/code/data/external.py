@@ -1,288 +1,305 @@
-"""
-code/data/external.py
-
-Fetches external metrics (GitHub stars, NPM downloads) for tags mapped in trend results.
-Implements FR-007: External Validation.
-"""
-
 import os
 import json
 import time
-import requests
+import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
+import hashlib
+import requests
+from datetime import datetime, timedelta
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_TAXONOMY_DIR = PROJECT_ROOT / "data" / "taxonomy"
+# Constants
+CACHE_DIR = Path("data/cache")
+CACHE_FILE = CACHE_DIR / "github_api_cache.json"
+NPM_CACHE_FILE = CACHE_DIR / "npm_api_cache.json"
+TTL_HOURS = 24
+RATE_LIMIT_DELAY = 1.0  # seconds between requests to respect rate limits
 
-# Ensure output directories exist
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-DATA_TAXONOMY_DIR.mkdir(parents=True, exist_ok=True)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# API Configuration
-GITHUB_API_URL = "https://api.github.com/search/repositories"
-NPM_API_URL = "https://registry.npmjs.org/-/v1/search"
-REQUEST_TIMEOUT = 10
-RATE_LIMIT_SLEEP = 1.0  # Seconds to sleep between requests to respect rate limits
+def ensure_cache_dir():
+    """Ensure the cache directory exists."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    return CACHE_DIR
 
-def load_trend_results() -> List[Dict[str, Any]]:
-    """
-    Loads the processed trend results from data/processed/trend_results.json.
-    Returns a list of tag data dictionaries.
-    """
-    trend_file = DATA_PROCESSED_DIR / "trend_results.json"
-    if not trend_file.exists():
-        raise FileNotFoundError(
-            f"Upstream artifact not found: {trend_file}. "
-            "Ensure T014/T018 (trend analysis) has completed successfully."
-        )
-    
-    with open(trend_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Handle structure if it's a dict with a 'tags' key or a list directly
-    if isinstance(data, dict) and 'tags' in data:
-        return data['tags']
-    elif isinstance(data, list):
-        return data
-    else:
-        raise ValueError(f"Unexpected format in {trend_file}")
+def get_cache_key(url: str, params: Optional[Dict] = None) -> str:
+    """Generate a unique cache key for a request."""
+    key_data = f"{url}:{json.dumps(params, sort_keys=True) if params else ''}"
+    return hashlib.md5(key_data.encode()).hexdigest()
 
-def fetch_github_stars(tag_name: str, max_retries: int = 3) -> Optional[Dict[str, Any]]:
-    """
-    Fetches GitHub repository stars for a given tag using the Search API.
-    Maps tag to a likely repository (e.g., 'react' -> 'facebook/react').
-    Returns None if no match found or API fails.
-    
-    Strategy:
-    1. Search for repos with topic:tag_name.
-    2. If multiple, pick the one with the most stars.
-    3. Return star count and repo details.
-    """
-    query = f"topic:{tag_name} in:readme"
-    params = {
-        "q": query,
-        "sort": "stars",
-        "order": "desc",
-        "per_page": 10
-    }
+def load_cache(cache_path: Path) -> Dict:
+    """Load cache from disk, returning empty dict if not found or invalid."""
+    if not cache_path.exists():
+        return {}
+    try:
+        with open(cache_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+            return {}
+    except (json.JSONDecodeError, IOError) as e:
+        logger.warning(f"Failed to load cache from {cache_path}: {e}")
+        return {}
 
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "llmXive-Research-Agent"
-    }
+def save_cache(cache_path: Path, data: Dict):
+    """Save cache to disk."""
+    ensure_cache_dir()
+    with open(cache_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
 
-    for attempt in range(max_retries):
-        try:
-            response = requests.get(GITHUB_API_URL, params=params, headers=headers, timeout=REQUEST_TIMEOUT)
-            
-            if response.status_code == 200:
-                data = response.json()
-                items = data.get('items', [])
-                
-                if not items:
-                    return None
-                
-                # Take the top result (most stars)
-                top_repo = items[0]
-                return {
-                    "source": "github",
-                    "tag": tag_name,
-                    "matched_repo": top_repo.get("full_name"),
-                    "stars": top_repo.get("stargazers_count"),
-                    "url": top_repo.get("html_url"),
-                    "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-                }
-            elif response.status_code == 403:
-                # Rate limited
-                if 'Retry-After' in response.headers:
-                    sleep_time = int(response.headers['Retry-After'])
-                else:
-                    sleep_time = 60
-                print(f"GitHub Rate limited. Sleeping for {sleep_time}s.")
-                time.sleep(sleep_time)
-                continue
-            else:
-                print(f"GitHub API Error for {tag_name}: {response.status_code}")
-                return None
+def is_cache_valid(cache_entry: Dict) -> bool:
+    """Check if a cache entry is still valid (within TTL)."""
+    if 'timestamp' not in cache_entry:
+        return False
+    try:
+        timestamp = datetime.fromisoformat(cache_entry['timestamp'])
+        expiry = timestamp + timedelta(hours=TTL_HOURS)
+        return datetime.now() < expiry
+    except (ValueError, TypeError):
+        return False
 
-        except requests.exceptions.RequestException as e:
-            print(f"Network error fetching GitHub for {tag_name}: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(1)
-            else:
-                return None
-
+def get_from_cache(cache: Dict, key: str) -> Optional[Dict]:
+    """Retrieve data from cache if valid."""
+    if key in cache:
+        entry = cache[key]
+        if is_cache_valid(entry):
+            logger.info(f"Cache hit for key: {key}")
+            return entry.get('data')
+        else:
+            logger.info(f"Cache expired for key: {key}, removing.")
+            del cache[key]
     return None
 
-def fetch_npm_downloads(tag_name: str, max_retries: int = 3) -> Optional[Dict[str, Any]]:
-    """
-    Fetches NPM download counts for a given tag.
-    Maps tag to a likely package name (e.g., 'react' -> 'react').
-    Returns None if no match found or API fails.
-    
-    Strategy:
-    1. Search NPM registry for keyword:tag_name.
-    2. If found, get the top package.
-    3. Fetch weekly downloads for that package.
-    """
-    # Step 1: Search for the package
-    search_params = {
-        "text": f"keywords:{tag_name}",
-        "size": 10
+def set_cache(cache: Dict, key: str, data: Any):
+    """Store data in cache with current timestamp."""
+    cache[key] = {
+        'timestamp': datetime.now().isoformat(),
+        'data': data
     }
 
+def rate_limit_wait():
+    """Enforce rate limiting delay between requests."""
+    time.sleep(RATE_LIMIT_DELAY)
+
+def fetch_github_stars(tag: str) -> Optional[Dict]:
+    """
+    Fetch GitHub star counts for a given tag using GitHub Search API.
+    Uses caching and rate limiting.
+    """
+    url = "https://api.github.com/search/repositories"
+    params = {
+        "q": f"topic:{tag}",
+        "sort": "stars",
+        "order": "desc",
+        "per_page": 5
+    }
+    
+    cache_key = get_cache_key(url, params)
+    
+    # Try cache first
+    cache = load_cache(CACHE_FILE)
+    cached_data = get_from_cache(cache, cache_key)
+    if cached_data is not None:
+        return cached_data
+    
     try:
-        search_response = requests.get(NPM_API_URL, params=search_params, timeout=REQUEST_TIMEOUT)
-        if search_response.status_code != 200:
-            return None
+        rate_limit_wait()
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
         
-        search_data = search_response.json()
-        objects = search_data.get('objects', [])
+        # Process and cache
+        result = {
+            "tag": tag,
+            "total_count": data.get("total_count", 0),
+            "items": [
+                {
+                    "name": item["full_name"],
+                    "stars": item["stargazers_count"],
+                    "url": item["html_url"]
+                }
+                for item in data.get("items", [])
+            ]
+        }
         
-        if not objects:
-            return None
-
-        # Take the top result
-        top_obj = objects[0]
-        package_name = top_obj.get('package', {}).get('name')
+        set_cache(cache, cache_key, result)
+        save_cache(CACHE_FILE, cache)
+        return result
         
-        if not package_name:
-            return None
-
-        # Step 2: Fetch weekly downloads
-        downloads_url = f"https://api.npmjs.org/downloads/point/last-week/{package_name}"
-        downloads_response = requests.get(downloads_url, timeout=REQUEST_TIMEOUT)
-        
-        if downloads_response.status_code == 200:
-            downloads_data = downloads_response.json()
-            count = downloads_data.get('downloads')
-            return {
-                "source": "npm",
-                "tag": tag_name,
-                "matched_package": package_name,
-                "weekly_downloads": count,
-                "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-            }
-        elif downloads_response.status_code == 404:
-            # Package exists but no download stats or not found
-            return None
-        else:
-            print(f"NPM API Error for {package_name}: {downloads_response.status_code}")
-            return None
-
     except requests.exceptions.RequestException as e:
-        print(f"Network error fetching NPM for {tag_name}: {e}")
+        logger.error(f"GitHub API request failed for tag '{tag}': {e}")
         return None
 
-def fetch_external_metrics() -> Dict[str, Any]:
+def fetch_npm_downloads(tag: str) -> Optional[Dict]:
     """
-    Orchestrates the fetching of external metrics for all tags in trend_results.
-    Writes raw metrics to data/processed/external_metrics.json.
-    Logs unmapped tags to data/processed/unmapped_tags.log.
+    Fetch NPM download counts for a given tag using NPM Search API.
+    Uses caching and rate limiting.
     """
-    print("Loading trend results...")
-    tags_data = load_trend_results()
+    # NPM Search API for packages
+    search_url = "https://registry.npmjs.org/-/v1/search"
+    search_params = {
+        "text": f"keywords:{tag}",
+        "size": 5
+    }
     
-    if not tags_data:
-        print("No tags found in trend results. Exiting.")
-        return {"tags": [], "unmapped": []}
-
-    results = []
-    unmapped_tags = []
-
-    print(f"Processing {len(tags_data)} tags for external metrics...")
+    search_key = get_cache_key(search_url, search_params)
+    cache = load_cache(NPM_CACHE_FILE)
     
-    for item in tags_data:
-        tag_name = item.get('tag') or item.get('name')
-        if not tag_name:
-            continue
-
-        tag_name_lower = str(tag_name).strip().lower()
+    # Try cache first for search
+    cached_search = get_from_cache(cache, search_key)
+    if cached_search is None:
+        try:
+            rate_limit_wait()
+            search_response = requests.get(search_url, params=search_params, timeout=10)
+            search_response.raise_for_status()
+            search_data = search_response.json()
+            
+            cached_search = {
+                "tag": tag,
+                "packages": [
+                    pkg["package"]["name"]
+                    for pkg in search_data.get("objects", [])
+                ]
+            }
+            set_cache(cache, search_key, cached_search)
+            save_cache(NPM_CACHE_FILE, cache)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"NPM search API request failed for tag '{tag}': {e}")
+            return None
+    
+    # Fetch download counts for found packages
+    download_results = []
+    for pkg_name in cached_search.get("packages", []):
+        download_url = f"https://api.npmjs.org/downloads/point/last-month/{pkg_name}"
+        dl_key = get_cache_key(download_url)
         
-        print(f"  Fetching metrics for: {tag_name_lower}")
+        cached_dl = get_from_cache(cache, dl_key)
+        if cached_dl is None:
+            try:
+                rate_limit_wait()
+                dl_response = requests.get(download_url, timeout=10)
+                if dl_response.status_code == 200:
+                    dl_data = dl_response.json()
+                    cached_dl = dl_data.get("downloads", 0)
+                else:
+                    cached_dl = 0
+                set_cache(cache, dl_key, cached_dl)
+                save_cache(NPM_CACHE_FILE, cache)
+            except requests.exceptions.RequestException:
+                cached_dl = 0
         
-        github_data = None
-        npm_data = None
-
-        # Fetch GitHub
-        github_data = fetch_github_stars(tag_name_lower)
-        
-        # Small delay to be polite to APIs
-        time.sleep(RATE_LIMIT_SLEEP)
-
-        # Fetch NPM
-        npm_data = fetch_npm_downloads(tag_name_lower)
-        
-        time.sleep(RATE_LIMIT_SLEEP)
-
-        combined_entry = {
-            "tag": tag_name_lower,
-            "github": github_data,
-            "npm": npm_data
-        }
-
-        if github_data is None and npm_data is None:
-            unmapped_tags.append(tag_name_lower)
-        
-        results.append(combined_entry)
-
-    # Prepare output structure
-    output_data = {
-        "tags": results,
-        "summary": {
-            "total_processed": len(results),
-            "total_unmapped": len(unmapped_tags)
-        }
+        download_results.append({
+            "name": pkg_name,
+            "downloads": cached_dl
+        })
+    
+    return {
+        "tag": tag,
+        "packages": download_results
     }
 
-    # Write main output file
-    output_file = DATA_PROCESSED_DIR / "external_metrics.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2)
+def load_trend_results() -> List[str]:
+    """Load the top 50 tags from trend results."""
+    trend_path = Path("data/processed/trend_results.json")
+    if not trend_path.exists():
+        logger.error(f"Trend results file not found: {trend_path}")
+        return []
     
-    print(f"External metrics written to: {output_file}")
+    try:
+        with open(trend_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Assuming structure: {"results": [{"tag": "name", ...}, ...]}
+            if "results" in data:
+                return [item["tag"] for item in data["results"]]
+            elif isinstance(data, list):
+                return [item.get("tag") for item in data if isinstance(item, dict)]
+            return []
+    except (json.JSONDecodeError, IOError, KeyError) as e:
+        logger.error(f"Failed to load trend results: {e}")
+        return []
 
-    # Write unmapped log
-    unmapped_file = DATA_PROCESSED_DIR / "unmapped_tags.log"
-    with open(unmapped_file, 'w', encoding='utf-8') as f:
-        for tag in unmapped_tags:
-            f.write(f"{tag}\n")
+def fetch_external_metrics(tags: List[str]) -> Dict:
+    """
+    Fetch external metrics (GitHub stars, NPM downloads) for a list of tags.
+    Implements rate limiting and caching as per T051.
+    """
+    if not tags:
+        logger.warning("No tags provided for external metrics fetch.")
+        return {"tags": []}
     
-    if unmapped_tags:
-        print(f"Unmapped tags written to: {unmapped_file} ({len(unmapped_tags)} tags)")
-    else:
-        print("All tags successfully mapped.")
+    results = []
+    errors = []
+    
+    for tag in tags:
+        logger.info(f"Fetching metrics for tag: {tag}")
+        
+        # Fetch GitHub data
+        github_data = fetch_github_stars(tag)
+        if github_data is None:
+            github_data = {"tag": tag, "error": "GitHub API failed"}
+            errors.append({"tag": tag, "source": "github", "error": "API failed"})
+        
+        # Fetch NPM data
+        npm_data = fetch_npm_downloads(tag)
+        if npm_data is None:
+            npm_data = {"tag": tag, "error": "NPM API failed"}
+            errors.append({"tag": tag, "source": "npm", "error": "API failed"})
+        
+        results.append({
+            "tag": tag,
+            "github": github_data,
+            "npm": npm_data
+        })
+    
+    output = {
+        "tags": results,
+        "fetch_errors": errors,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Save raw metrics to file as required by T039/T051
+    output_path = Path("data/processed/external_metrics.json")
+    ensure_cache_dir() # Ensure data/processed exists via ensure_cache_dir logic or separate
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(output, f, indent=2)
+    
+    logger.info(f"External metrics saved to {output_path}")
+    return output
 
-    return output_data
-
-def save_external_metrics(data: Dict[str, Any]) -> Path:
-    """
-    Saves the external metrics data to disk.
-    (Helper function, primarily used if data is pre-fetched).
-    """
-    output_file = DATA_PROCESSED_DIR / "external_metrics.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-    return output_file
+def save_external_metrics(metrics: Dict, path: Optional[Path] = None):
+    """Save external metrics to a specified path."""
+    if path is None:
+        path = Path("data/processed/external_metrics.json")
+    
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(metrics, f, indent=2)
 
 def main():
-    """
-    Main entry point for fetching external metrics.
-    """
-    print("Starting External Metrics Fetcher (T039)...")
-    try:
-        fetch_external_metrics()
-        print("External Metrics Fetcher completed successfully.")
-    except FileNotFoundError as e:
-        print(f"Critical Error: {e}")
-        print("Please ensure T018 (trend_results.json generation) is completed first.")
-        raise
-    except Exception as e:
-        print(f"Unexpected error during execution: {e}")
-        raise
+    """Main entry point for fetching external metrics."""
+    logger.info("Starting external metrics fetch with caching and rate limiting.")
+    
+    # Load tags from trend results
+    tags = load_trend_results()
+    if not tags:
+        logger.warning("No tags found in trend results. Exiting.")
+        return
+    
+    logger.info(f"Found {len(tags)} tags to process.")
+    
+    # Fetch metrics
+    metrics = fetch_external_metrics(tags)
+    
+    logger.info(f"Completed fetching metrics for {len(metrics.get('tags', []))} tags.")
+    if metrics.get('fetch_errors'):
+        logger.warning(f"Encountered {len(metrics['fetch_errors'])} API errors.")
 
 if __name__ == "__main__":
     main()
