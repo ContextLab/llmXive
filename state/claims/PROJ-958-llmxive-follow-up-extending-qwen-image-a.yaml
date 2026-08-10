@@ -1,0 +1,1112 @@
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Random subset of 200 prompts for pilot study
+  claim_id: c_cfd56ce7
+  context: Implement src/pilot/study_runner.py to select a random subset of 200 prompts
+    from data/derived/scoring_results.csv. Execute BOTH the Full Agent (baseline)
+    and Hybrid (rule-based for low/medium, agent for high) pipelines for these prompts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of 200 prompts from data/derived/scoring_results.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:39:44Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: permutation test with 10000 permutations for fidelity difference significance
+  claim_id: c_3f9f63c9
+  context: Output data/derived/regression_results.json with knee point, p-values,
+    and LRT stats (FR-005, FR-006). Also implement a permutation test with 10,000
+    permutations (FR-006) to validate the significance of fidelity difference below
+    threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a permutation test with 10,000 permutations to validate the
+    significance of fidelity difference below threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:42:33Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: select random subset of 200 prompts
+  claim_id: c_514e28b0
+  context: Implement src/pilot/study_runner.py to select a random subset of 200 prompts
+    from data/derived/scoring_results.csv. Execute BOTH the Full Agent (baseline)
+    and Hybrid (rule-based for low/medium, agent for high) pipelines for these prompts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of 200 prompts from data/derived/scoring_results.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:42:33Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: use frozen CLIP ViT-B/32 for inference
+  claim_id: c_618cc4f6
+  context: 'Goal: Compute ''Context Fidelity'' delta using frozen CLIP (ViT-B/32)
+    against human-verified references and identify the ''knee point'' via piecewise
+    linear regression with statistical validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use frozen CLIP (ViT-B/32) for inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:42:54Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: compute Pearson or Spearman correlation between syntactic complexity
+    score and fidelity delta
+  claim_id: c_fc445e5a
+  context: Implement src/pilot/study_runner.py to compute the correlation coefficient
+    (Pearson/Spearman) between the Syntactic Complexity Score (from scoring_results.csv)
+    and the Fidelity Delta (from T012b).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Pearson_or_Spearman_correlation_between_syntactic_co
+  kind: entity_fact
+  raw_text: Compute the correlation coefficient (Pearson/Spearman) between the Syntactic
+    Complexity Score and the Fidelity Delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:43:32Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: identify knee point where slope change is less than 0.01
+  claim_id: c_d42c8923
+  context: Implement src/fidelity/regression_analysis.py with piecewise linear regression
+    to identify the 'knee point' where slope change < 0.01.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_knee_point_where_slope_change_is_less_than_0.01
+  kind: magnitude
+  raw_text: Identify the 'knee point' where slope change is less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:44:34Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: validate knee point using Likelihood Ratio Test against linear model
+  claim_id: c_dcd70d4c
+  context: 'Implement statistical validation in src/fidelity/regression_analysis.py
+    including: 1) F-test (p < 0.05) AND 2) Likelihood Ratio Test (LRT) against a linear
+    model. BOTH tests must pass to validate the ''knee point'' as a statistically
+    superior non-linear relationship.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_knee_point_using_Likelihood_Ratio_Test_against_line
+  kind: entity_fact
+  raw_text: Validate the 'knee point' using a Likelihood Ratio Test (LRT) against
+    a linear model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:45:50Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: perform ANOVA or Levene's test for statistical equivalence of domain
+    slopes
+  claim_id: c_1c16d02c
+  context: Perform an ANOVA or Levene's test for statistical equivalence of domain
+    slopes. If p > 0.05 (equivalence), proceed to global regression.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_ANOVA_or_Levene%27s_test_for_statistical_equivalence_o
+  kind: entity_fact
+  raw_text: Perform an ANOVA or Levene's test for statistical equivalence of domain
+    slopes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:46:52Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: proceed to global regression if p-value for domain equivalence is greater
+    than 0.05
+  claim_id: c_372a562b
+  context: If p > 0.05 (equivalence), proceed to global regression. If p <= 0.05 (significant
+    difference), exclude global regression, output domain-specific thresholds, and
+    log that global aggregation is invalid.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_to_global_regression_if_p-value_for_domain_equivalen
+  kind: magnitude
+  raw_text: Proceed to global regression if the p-value for domain equivalence is
+    greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:47:35Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: exclude global regression if p-value for domain equivalence is less than
+    or equal to 0.05
+  claim_id: c_03f5cda1
+  context: If p <= 0.05 (significant difference), exclude global regression, output
+    domain-specific thresholds, and log that global aggregation is invalid (Constitution
+    Principle VII).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_global_regression_if_p-value_for_domain_equivalence
+  kind: magnitude
+  raw_text: Exclude global regression if the p-value for domain equivalence is less
+    than or equal to 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:48:14Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: clamp syntactic complexity score to range 0.0 to 1.0
+  claim_id: c_3c74c0ef
+  context: "Goal: Compute a deterministic 'Syntactic Complexity Score' (0.0\u2013\
+    1.0) for every input prompt... Implement src/scoring/complexity_calculator.py\
+    \ normalization logic to clamp raw score strictly to [0.0, 1.0] range (min-max\
+    \ scaling)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Clamp the Syntactic Complexity Score strictly to the range [0.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:48:36Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: classify prompts into low medium or high complexity categories
+  claim_id: c_60a4db58
+  context: 'Goal: Implement a deterministic ''Router'' that classifies prompts into
+    ''low,'' ''medium,'' or ''high'' complexity categories and routes them to either
+    rule-based expansion or the REAL Qwen-Image-Agent pipeline.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Classify_prompts_into_low_medium_or_high_complexity_categori
+  kind: entity_fact
+  raw_text: Classify prompts into 'low,' 'medium,' or 'high' complexity categories
+    based on thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:49:00Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: use thresholds 0.2 and 0.6 for routing logic
+  claim_id: c_af70cd1f
+  context: "Unit test for src/routing/router.py in tests/unit/test_router.py verifying\
+    \ threshold logic (< 0.2, 0.2\u20130.6, > 0.6)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use thresholds of 0.2 and 0.6 for routing logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:49:28Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: use thresholds 0.2 and 0.6 for routing logic
+  claim_id: c_e687090f
+  context: Update docs/thresholds.md with explicit definitions of routing thresholds
+    (0.2, 0.6) and normalization logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use thresholds of 0.2 and 0.6 for routing logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:49:28Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: assign score 0.0 and log warning on parse failure
+  claim_id: c_3f82c07c
+  context: Implement logic in src/scoring/syntactic_features.py to handle parse failures
+    gracefully (assign 0.0, log warning).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle parse failures by assigning a score of 0.0 and logging a warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:50:00Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: assign default score 0.0 for malformed prompts
+  claim_id: c_6630253b
+  context: Unit test for malformed prompt handling in tests/unit/test_scoring.py (verify
+    default 0.0 score and warning log).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign a default score of 0.0 for malformed prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:50:22Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: handle no threshold found if r squared less than 0.85 or slope change
+    less than 0.01
+  claim_id: c_7a6b3960
+  context: "Add logic to handle 'No Threshold Found' case (R\xB2 < 0.85 or slope change\
+    \ < 0.01) and record max observed delta."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_no_threshold_found_if_r_squared_less_than_0.85_or_slo
+  kind: magnitude
+  raw_text: "Handle \"No Threshold Found\" case if R\xB2 is less than 0.85 or slope\
+    \ change is less than 0.01."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:50:52Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: use pre-trained ResNet-50 classifier to determine visual domain
+  claim_id: c_12d556e7
+  context: Implement src/domain/classifier.py with a pre-trained ResNet-50 classifier
+    to determine visual domain (photorealistic, abstract, illustration) for generated
+    images (FR-011).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a pre-trained ResNet-50 classifier to determine visual domain.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:51:28Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: compute fidelity delta as baseline clip score minus hybrid clip score
+  claim_id: c_455587f7
+  context: Compute the 'Fidelity Delta' (Baseline CLIP Score - Hybrid CLIP Score)
+    for each prompt in the pilot subset. This delta serves as the proxy for 'need
+    for agentic reasoning'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_fidelity_delta_as_baseline_clip_score_minus_hybrid_c
+  kind: entity_fact
+  raw_text: Compute the Fidelity Delta as Baseline CLIP Score minus Hybrid CLIP Score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:51:52Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: calculate CLIP similarity for baseline and hybrid pairs
+  claim_id: c_3972768f
+  context: Calculate CLIP similarity for Baseline and Hybrid pairs. Compute Fidelity
+    Delta = Baseline Score - Hybrid Score.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_CLIP_similarity_for_baseline_and_hybrid_pairs
+  kind: entity_fact
+  raw_text: Calculate CLIP similarity for Baseline and Hybrid pairs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:52:19Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: fetch IA-Bench dataset using datasets.load_dataset streaming true
+  claim_id: c_bc27b793
+  context: Implement src/utils/data_loader.py function to fetch IA-Bench dataset (prompts
+    + images) using datasets.load_dataset(streaming=True) and download real images
+    to data/raw/ia-bench/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_IA-Bench_dataset_using_datasets.load_dataset_streaming
+  kind: entity_fact
+  raw_text: Fetch IA-Bench dataset using datasets.load_dataset(streaming=True).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:53:08Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: use tiktoken encoding cl100k_base to calculate token counts
+  claim_id: c_af5c52db
+  context: Implement src/routing/lightweight_expander.py to calculate and expose actual_token_count
+    for the expanded text output using tiktoken.get_encoding('cl100k_base').encode(text)
+    (used for efficiency comparison in T023).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_tiktoken_encoding_cl100k_base_to_calculate_token_counts
+  kind: entity_fact
+  raw_text: Use the tiktoken encoding 'cl100k_base' to calculate token counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:53:44Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: execute pipelines for random subset of 200 prompts
+  claim_id: c_63225323
+  context: Implement src/pilot/study_runner.py to select a random subset of 200 prompts
+    from data/derived/scoring_results.csv. Execute BOTH the Full Agent (baseline)
+    and Hybrid (rule-based for low/medium, agent for high) pipelines for these prompts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pipelines for a random subset of 200 prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:54:19Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: fidelity delta serves as proxy for need for agentic reasoning
+  claim_id: c_67717d1e
+  context: This delta serves as the proxy for 'need for agentic reasoning'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fidelity_delta_serves_as_proxy_for_need_for_agentic_reasonin
+  kind: entity_fact
+  raw_text: The Fidelity Delta serves as a proxy for the 'need for agentic reasoning'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:54:46Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: syntactic complexity score computed using only syntactic complexity and
+    lexical diversity excluding semantic embeddings
+  claim_id: c_7c45cbc7
+  context: "Goal: Compute a deterministic 'Syntactic Complexity Score' (0.0\u2013\
+    1.0) for every input prompt using only syntactic complexity and lexical diversity,\
+    \ explicitly excluding semantic embeddings."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Syntactic_complexity_score_computed_using_only_syntactic_com
+  kind: entity_fact
+  raw_text: The Syntactic Complexity Score is computed using only syntactic complexity
+    and lexical diversity, explicitly excluding semantic embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:55:36Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: syntactic complexity score computed using parse tree depth and clause
+    count
+  claim_id: c_0e8ce7cf
+  context: Implement src/scoring/syntactic_features.py with syntactic complexity metrics
+    (parse tree depth, clause count) using nltk/spacy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Syntactic_complexity_score_computed_using_parse_tree_depth_a
+  kind: entity_fact
+  raw_text: The Syntactic Complexity Score is computed using parse tree depth and
+    clause count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:56:00Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: syntactic complexity score uses MTLD metric for lexical diversity
+  claim_id: c_4b3644aa
+  context: Implement src/scoring/syntactic_features.py with lexical diversity metric
+    (MTLD) using textstat.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Syntactic_complexity_score_uses_MTLD_metric_for_lexical_dive
+  kind: entity_fact
+  raw_text: The Syntactic Complexity Score uses the MTLD metric for lexical diversity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:56:42Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: fidelity delta calculation uses human-verified reference descriptions
+    not raw prompts or images
+  claim_id: c_9de7f317
+  context: 'Critical Fidelity Rule: Fidelity calculation (T027) MUST use human-verified
+    reference descriptions (Task T006g), not raw prompts or images.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fidelity_delta_calculation_uses_human-verified_reference_des
+  kind: entity_fact
+  raw_text: The Fidelity Delta calculation uses human-verified reference descriptions,
+    not raw prompts or images.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:57:02Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: syntactic complexity score must be strictly clamped to range 0.0 to 1.0
+  claim_id: c_359f77b8
+  context: 'Critical Normalization Rule: Syntactic Complexity Score MUST be strictly
+    clamped to [0.0, 1.0] (Task T013b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Syntactic Complexity Score must be strictly clamped to the range [0.0,
+    1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:57:17Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: rule-based expansion must expose actual_token_count using a real tokenizer
+  claim_id: c_89fcd678
+  context: 'Critical Token Count Rule: Rule-based expansion MUST expose actual_token_count
+    (Task T020b) using a real tokenizer, not a proxy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rule-based_expansion_must_expose_actual_token_count_using_a
+  kind: entity_fact
+  raw_text: Rule-based expansion must expose actual_token_count using a real tokenizer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:57:44Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: high complexity prompts must trigger real Qwen-Image-Agent pipeline to
+    generate actual images
+  claim_id: c_9ab49e60
+  context: 'Critical Real Execution Rule: ''High'' complexity prompts MUST trigger
+    the REAL Qwen-Image-Agent pipeline (T021, T024b) to generate actual images, not
+    simulated data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/High_complexity_prompts_must_trigger_real_Qwen-Image-Agent_p
+  kind: entity_fact
+  raw_text: High complexity prompts must trigger the REAL Qwen-Image-Agent pipeline
+    to generate actual images.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:58:23Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: baseline images must be generated for a deferred sample of the full dataset
+  claim_id: c_40c02304
+  context: 'Critical Baseline Rule: T024e MUST generate baseline images for a [deferred]
+    sample of the full dataset to enable valid Fidelity Delta calculation for all
+    categories without violating the hybrid routing logic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_images_must_be_generated_for_a_deferred_sample_of_t
+  kind: entity_fact
+  raw_text: Baseline images must be generated for a deferred sample of the full dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:59:09Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: T012a-c must measure Fidelity Delta as proxy for need for agentic reasoning
+  claim_id: c_63384496
+  context: 'Critical Pilot Rule: T012a-c MUST measure Fidelity Delta (Baseline - Hybrid)
+    as the proxy for ''need for agentic reasoning'', not failure rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T012a-c_must_measure_Fidelity_Delta_as_proxy_for_need_for_ag
+  kind: entity_fact
+  raw_text: T012a-c must measure Fidelity Delta (Baseline - Hybrid) as the proxy for
+    'need for agentic reasoning'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T09:59:31Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: data_loader must fail loudly if real data fetch fails with no synthetic
+    fallbacks
+  claim_id: c_a2ce6fa1
+  context: 'Critical Data Rule: The src/utils/data_loader.py MUST fail loudly if real
+    data fetch fails. NO synthetic fallbacks allowed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_must_fail_loudly_if_real_data_fetch_fails_with_n
+  kind: entity_fact
+  raw_text: The src/utils/data_loader.py must fail loudly if real data fetch fails,
+    with no synthetic fallbacks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:00:10Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: syntactic_features must not use semantic embeddings BERT or CLIP text
+  claim_id: c_d6cb8b18
+  context: 'Critical Scoring Rule: src/scoring/syntactic_features.py MUST NOT use
+    any semantic embeddings (BERT, CLIP text). Only syntax/lexical.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Syntactic_features_must_not_use_semantic_embeddings_BERT_or
+  kind: entity_fact
+  raw_text: The src/scoring/syntactic_features.py must not use any semantic embeddings
+    (BERT, CLIP text).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:05:25Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: CLIP inference must be CPU-batched to fit in limited RAM
+  claim_id: c_437619aa
+  context: 'Critical Compute Rule: CLIP inference must be CPU-batched to fit in limited
+    RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLIP_inference_must_be_CPU-batched_to_fit_in_limited_RAM
+  kind: entity_fact
+  raw_text: CLIP inference must be CPU-batched to fit in limited RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:05:58Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: code must be written for CPU-first compatibility with auto-offload to
+    GPU
+  claim_id: c_edb6779f
+  context: If GPU is needed for speed, the execution stage will auto-offload, but
+    the code must be written for CPU-first compatibility.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_must_be_written_for_CPU-first_compatibility_with_auto-o
+  kind: entity_fact
+  raw_text: The code must be written for CPU-first compatibility, with auto-offload
+    to GPU if needed for speed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:06:34Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Select random subset of 200 prompts for pilot study
+  claim_id: c_f44dd6b8
+  context: Pilot Study (FR-012) - Moved to Phase 4 to ensure Agent pipeline availability
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/pilot/study_runner.py` to select a random subset of 200
+    prompts from `data/derived/scoring_results.csv`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:08:08Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Use frozen CLIP ViT-B/32 for fidelity delta
+  claim_id: c_63bb9bb1
+  context: 'Goal: Compute ''Context Fidelity'' delta using frozen CLIP (ViT-B/32)
+    against human-verified references'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use frozen CLIP (ViT-B/32) for Context Fidelity delta calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:08:27Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Perform ANOVA or Levene's test for domain slope equivalence
+  claim_id: c_f8672ee9
+  context: T032 [US3] Implement `src/fidelity/regression_analysis.py` with stratified
+    regression analysis... 1. Perform an ANOVA or Levene's test for statistical equivalence
+    of domain slopes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_ANOVA_or_Levene's_test_for_domain_slope_equivalence
+  kind: entity_fact
+  raw_text: Perform an ANOVA or Levene's test for statistical equivalence of domain
+    slopes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:08:29Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Use pre-trained ResNet-50 for visual domain classification
+  claim_id: c_a55626c6
+  context: T031 [P] [US3] Implement `src/domain/classifier.py` with a pre-trained
+    ResNet-50 classifier to determine visual domain...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a pre-trained ResNet-50 classifier to determine visual domain.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:08:29Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Identify knee point where slope change is less than 0.01
+  claim_id: c_3a63588b
+  context: T029 [US3] Implement `src/fidelity/regression_analysis.py` with piecewise
+    linear regression to identify the 'knee point' where slope change < 0.01
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_knee_point_where_slope_change_is_less_than_0.01
+  kind: magnitude
+  raw_text: Identify the 'knee point' where slope change < 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:08:50Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Handle no threshold found if R squared is less than 0.85
+  claim_id: c_3400f005
+  context: "T034 [US3] Add logic to handle 'No Threshold Found' case (R\xB2 < 0.85\
+    \ or slope change < 0.01)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Handle_no_threshold_found_if_R_squared_is_less_than_0.85
+  kind: magnitude
+  raw_text: "Handle 'No Threshold Found' case if R\xB2 < 0.85."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:09:18Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Use threshold values 0.2 and 0.6 for routing
+  claim_id: c_a9ada49f
+  context: T004 Create `src/config.py` with pinned random seeds, path configurations,
+    and threshold constants (0.2, 0.6)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use threshold values 0.2 and 0.6 for routing decisions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:09:46Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Normalize raw score to 0.0 to 1.0 range
+  claim_id: c_405fbf9b
+  context: T013b [US1] Implement `src/scoring/complexity_calculator.py` normalization
+    logic to clamp raw score strictly to [0.0, 1.0] range (min-max scaling)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Normalize raw score strictly to [0.0, 1.0] range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:10:07Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Calculate Fidelity Delta as Baseline CLIP Score minus Hybrid CLIP Score
+  claim_id: c_11ac8e71
+  context: T012b [US1/US2] Implement `src/pilot/failure_rate_computer.py` to compute
+    the 'Fidelity Delta' (Baseline CLIP Score - Hybrid CLIP Score)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Fidelity_Delta_as_Baseline_CLIP_Score_minus_Hybrid
+  kind: entity_fact
+  raw_text: Calculate Fidelity Delta as Baseline CLIP Score minus Hybrid CLIP Score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:10:24Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Compute Pearson or Spearman correlation between Syntactic Complexity
+    Score and Fidelity Delta
+  claim_id: c_edd6549e
+  context: T012c [US1/US2] Implement `src/pilot/study_runner.py` to compute the correlation
+    coefficient (Pearson/Spearman) between the Syntactic Complexity Score... and the
+    Fidelity Delta...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Pearson_or_Spearman_correlation_between_Syntactic_Co
+  kind: entity_fact
+  raw_text: Compute correlation coefficient (Pearson/Spearman) between Syntactic Complexity
+    Score and Fidelity Delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:10:27Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Generate baseline images for stratified random sample of entire dataset
+  claim_id: c_ef3099c5
+  context: Task T024e in Phase 4 regarding Fidelity Delta calculation for low/medium
+    prompts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_baseline_images_for_stratified_random_sample_of_ent
+  kind: entity_fact
+  raw_text: Implement a separate script src/pipeline/generate_baseline.py to generate
+    'baseline' (full agent) images for a random [deferred] sample of the entire dataset
+    (stratified by complexity category)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:12:43Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: Permutation test with 10000 permutations for fidelity difference significance
+  claim_id: c_4223c8a2
+  context: Task T030 in Phase 5 regarding statistical validation of the knee point.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement statistical validation in src/fidelity/regression_analysis.py
+    including a permutation test with 10,000 permutations to validate the significance
+    of fidelity difference below threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:13:02Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: pilot study selects 200 random prompts
+  claim_id: c_df420649
+  context: T012a [US1/US2] Implement src/pilot/study_runner.py to select a random
+    subset of 200 prompts from data/derived/scoring_results.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study selects a random subset of 200 prompts from data/derived/scoring_results.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:16:14Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: permutation test uses 10000 permutations
+  claim_id: c_2d7a7995
+  context: Also implement a permutation test with 10,000 permutations (FR-006) to
+    validate the significance of fidelity difference below threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 10,000 permutations to validate the significance
+    of fidelity difference below threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:16:27Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: 10000 permutations in fidelity difference validation
+  claim_id: c_f1cf1fbf
+  context: Also implement a permutation test with **10,000 permutations** (FR-006)
+    to validate the significance of fidelity difference below threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a permutation test with 10,000 permutations to validate the
+    significance of fidelity difference below threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:17:19Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: 200 prompts in pilot study
+  claim_id: c_ca56fd93
+  context: Implement `src/pilot/study_runner.py` to select a random subset of 200
+    prompts from `data/derived/scoring_results.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a random subset of 200 prompts from data/derived/scoring_results.csv
+    for the pilot study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:17:19Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: CLIP ViT-B/32 model used for inference
+  claim_id: c_3752cd24
+  context: Implement `src/fidelity/clip_evaluator.py` with frozen CLIP (ViT-B/32)
+    inference, CPU-batched processing, and delta calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use CLIP (ViT-B/32) for frozen inference in fidelity evaluation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:17:36Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: ResNet-50 used for visual domain classification
+  claim_id: c_e8daa170
+  context: Implement `src/domain/classifier.py` with a pre-trained ResNet-50 classifier
+    to determine visual domain (photorealistic, abstract, illustration) for generated
+    images.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use ResNet-50 as the pre-trained classifier for visual domain determination.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:18:01Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: MTLD metric used for lexical diversity
+  claim_id: c_dbf8747c
+  context: Implement `src/scoring/syntactic_features.py` with lexical diversity metric
+    (MTLD) using `textstat`.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1813: MTLD'
+      source_id: Q3326811
+      url: https://www.wikidata.org/wiki/Q3326811
+      value: MTLD
+    filled: true
+  kind: entity_fact
+  raw_text: Use MTLD as the lexical diversity metric.
+  resolved_value: MTLD
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T10:18:08Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: cl100k_base encoding used for tokenization
+  claim_id: c_b7a7aea8
+  context: Implement `src/routing/lightweight_expander.py` to calculate and expose
+    `actual_token_count` for the expanded text output using `tiktoken.get_encoding('cl100k_base').encode(text)`.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: GPT cl100k base 46.20 192.11 111.46 1.13 2.41x (Least Compact)
+      source_id: '2601.06142'
+      url: https://arxiv.org/abs/2601.06142
+      value: '111.46'
+    filled: true
+  kind: entity_fact
+  raw_text: Use cl100k_base encoding for token count calculation.
+  resolved_value: '111.46'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T10:18:27Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: 0.2 threshold for low complexity
+  claim_id: c_81cffcfa
+  context: "Implement `src/routing/router.py` with deterministic classification logic\
+    \ based on Syntactic Complexity Score thresholds (< 0.2, 0.2\u20130.6, > 0.6)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use threshold 0.2 for low complexity classification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:18:49Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: 0.6 threshold for high complexity
+  claim_id: c_2af03bf2
+  context: "Implement `src/routing/router.py` with deterministic classification logic\
+    \ based on Syntactic Complexity Score thresholds (< 0.2, 0.2\u20130.6, > 0.6)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use threshold 0.6 for high complexity classification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:19:24Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: 0.01 slope change threshold for knee point
+  claim_id: c_90e2c31d
+  context: Implement `src/fidelity/regression_analysis.py` with piecewise linear regression
+    to identify the 'knee point' where slope change < 0.01.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use slope change < 0.01 as the criterion for knee point identification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:19:24Z'
+- artifact_path: projects/PROJ-958-llmxive-follow-up-extending-qwen-image-a/specs/001-llmxive-follow-up-extending-qwen-image-a/tasks.md
+  attempts: 1
+  canonical: R < 0.85 condition for no threshold
+  claim_id: c_cbf89949
+  context: "Add logic to handle 'No Threshold Found' case (R\xB2 < 0.85 or slope change\
+    \ < 0.01) and record max observed delta."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use R\xB2 < 0.85 as the condition for 'No Threshold Found'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T10:19:24Z'

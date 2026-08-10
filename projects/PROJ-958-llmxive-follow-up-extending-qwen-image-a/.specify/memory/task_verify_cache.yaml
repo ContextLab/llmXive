@@ -1,0 +1,31 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file listings were provided showing that `src/`, `tests/`,
+    and `data/` exist in the repository, nor any contents inside them. Without concrete
+    evidence of these three required folders, the task requirement is not satisfied.
+    The implementer must add the project structure and show its presence.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or corresponding CI scripts) were provided,
+    nor any evidence that ruff and black have been set up in the repository. The required
+    artifacts are missing, so the task is not satisfied.
+T006g:
+  c: false
+  h: 133f07e6ccbd28d9c53676232e6df6d3005279b323cf3c9890b9a872f1cd1feb
+  r: "The provided `src/utils/data_loader.py` only contains code for fetching the\
+    \ WISE\u2011Verified dataset and does not implement any function that retrieves\
+    \ the IA\u2011Bench \u201Chuman\u2011verified reference descriptions\u201D, validates\
+    \ their schema, or writes them to `data/raw/ia-bench/references.jsonl`. Moreover,\
+    \ the required `data/raw/ia-bench/references.jsonl` file is absent. Both the implementation\
+    \ and the expected output are missing."
+T009:
+  c: false
+  h: 25992f594f7d765b69031765dee018f19d1087d0f8ee0b1334bbcd7f94a4fe14
+  r: "The provided `tests/unit/test_scoring.py` file exists and contains the static\u2011\
+    analysis checks, but the required source module `src/scoring/syntactic_features.py`\
+    \ is missing, causing the `test_file_exists` assertion to fail and rendering the\
+    \ unit test unusable. The missing source file must be added for the test to be\
+    \ meaningful."

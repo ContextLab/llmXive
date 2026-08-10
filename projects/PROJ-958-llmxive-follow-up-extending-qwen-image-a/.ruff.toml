@@ -1,0 +1,4 @@
+# Ruff configuration file
+# This file ensures ruff picks up settings from pyproject.toml if needed
+# or allows for CLI overrides.
+extend = "pyproject.toml"

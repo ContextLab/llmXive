@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`)
-- [ ] T002 Initialize Python project with dependencies (`pandas`, `numpy`, `scikit-learn`, `nltk`, `spacy`, `torch`, `transformers`, `statsmodels`, `textstat`, `datasets`, `huggingface_hub`, `matplotlib`, `seaborn`, `diffusers`, `accelerate`, `tiktoken`) in `requirements.txt`
+- [X] T002 Initialize Python project with dependencies (`pandas`, `numpy`, `scikit-learn`, `nltk`, `spacy`, `torch`, `transformers`, `statsmodels`, `textstat`, `datasets`, `huggingface_hub`, `matplotlib`, `seaborn`, `diffusers`, `accelerate`, `tiktoken`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,19 +55,19 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `src/config.py` with pinned random seeds, path configurations, and threshold constants (0.2, 0.6)
-- [ ] T005 [P] Implement `src/utils.py` with logging infrastructure, error handling wrappers, and domain stratification helpers
-- [ ] T006a [P] [US1] Implement `src/utils/data_loader.py` function to fetch IA-Bench dataset (prompts + images) using `datasets.load_dataset(streaming=True)` and download real images to `data/raw/ia-bench/`. **Include internal validation**: Verify the dataset source citation in `plan.md` matches the fetched ID; raise error if mismatch.
-- [ ] T006b [P] [US1] Implement `src/utils/data_loader.py` function to validate IA-Bench schema and raise error if mismatched
-- [ ] T006c [P] [US1] Implement `src/utils/data_loader.py` function to compute and store checksum for IA-Bench raw data in `state/artifact_hashes`
-- [ ] T006d [P] [US1] Implement `src/utils/data_loader.py` function to fetch WISE-Verified dataset (prompts + images + metadata) using explicit URL/package fetch to `data/raw/wise-verified/`
-- [ ] T006e [P] [US1] Implement `src/utils/data_loader.py` function to validate WISE-Verified schema and raise error if mismatched
-- [ ] T006f [P] [US1] Implement `src/utils/data_loader.py` function to compute and store checksum for WISE-Verified raw data in `state/artifact_hashes`
+- [X] T004 Create `src/config.py` with pinned random seeds, path configurations, and threshold constants (0.2, 0.6)
+- [X] T005 [P] Implement `src/utils.py` with logging infrastructure, error handling wrappers, and domain stratification helpers
+- [X] T006a [P] [US1] Implement `src/utils/data_loader.py` function to fetch IA-Bench dataset (prompts + images) using `datasets.load_dataset(streaming=True)` and download real images to `data/raw/ia-bench/`. **Include internal validation**: Verify the dataset source citation in `plan.md` matches the fetched ID; raise error if mismatch.
+- [X] T006b [P] [US1] Implement `src/utils/data_loader.py` function to validate IA-Bench schema and raise error if mismatched
+- [X] T006c [P] [US1] Implement `src/utils/data_loader.py` function to compute and store checksum for IA-Bench raw data in `state/artifact_hashes` <!-- FAILED: unspecified -->
+- [X] T006d [P] [US1] Implement `src/utils/data_loader.py` function to fetch WISE-Verified dataset (prompts + images + metadata) using explicit URL/package fetch to `data/raw/wise-verified/` <!-- FAILED: unspecified -->
+- [X] T006e [P] [US1] Implement `src/utils/data_loader.py` function to validate WISE-Verified schema and raise error if mismatched
+- [X] T006f [P] [US1] Implement `src/utils/data_loader.py` function to compute and store checksum for WISE-Verified raw data in `state/artifact_hashes` <!-- FAILED: unspecified -->
 - [ ] T006g [P] [US1] Implement `src/utils/data_loader.py` function to fetch "human-verified reference descriptions" from the dataset (IA-Bench), validate schema, and save to `data/raw/ia-bench/references.jsonl`
-- [ ] T006h [P] [US1] Implement `src/utils/data_loader.py` logic to validate that `references.jsonl` contains the required 'reference_description' field and is non-empty for all rows (Schema Check)
-- [ ] T007 [P] [US1] Implement `src/utils/data_loader.py` logic to fail loudly if real data fetch fails for IA-Bench (NO synthetic fallback)
-- [ ] T007b [P] [US1] Implement `src/utils/data_loader.py` logic to fail loudly if WISE-Verified fetch fails (NO synthetic fallback)
-- [ ] T008 Implement `src/main.py` orchestration script including the `Reference-Validator` gate invocation before data loading (for citations only)
+- [X] T006h [P] [US1] Implement `src/utils/data_loader.py` logic to validate that `references.jsonl` contains the required 'reference_description' field and is non-empty for all rows (Schema Check)
+- [X] T007 [P] [US1] Implement `src/utils/data_loader.py` logic to fail loudly if real data fetch fails for IA-Bench (NO synthetic fallback)
+- [X] T007b [P] [US1] Implement `src/utils/data_loader.py` logic to fail loudly if WISE-Verified fetch fails (NO synthetic fallback)
+- [X] T008 Implement `src/main.py` orchestration script including the `Reference-Validator` gate invocation before data loading (for citations only)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -150,20 +150,20 @@
 
 - [ ] T031 [P] [US3] Implement `src/domain/classifier.py` with a pre-trained ResNet-50 classifier to determine visual domain (photorealistic, abstract, illustration) for generated images (FR-011)
 - [ ] T027 [P] [US3] Implement `src/fidelity/clip_evaluator.py` with frozen CLIP (ViT-B/32) inference, CPU-batched processing, and delta calculation (Baseline vs. Hybrid).
-    - **Inputs**: 
-        - `data/derived/images/baseline/full_sample/` (from T024e) - Baseline for all
-        - `data/derived/images/hybrid/` (from T024b) - Hybrid for high; Rule-based for low/medium
-        - `data/raw/ia-bench/references.jsonl` (from T006g)
-    - **Logic**: Calculate CLIP similarity for Baseline and Hybrid pairs. Compute **Fidelity Delta** = Baseline Score - Hybrid Score.
-    - **Output**: `data/derived/fidelity_scores.csv` containing prompt_id, complexity_score, domain, baseline_score, hybrid_score, fidelity_delta. (FR-004)
+ - **Inputs**:
+ - `data/derived/images/baseline/full_sample/` (from T024e) - Baseline for all
+ - `data/derived/images/hybrid/` (from T024b) - Hybrid for high; Rule-based for low/medium
+ - `data/raw/ia-bench/references.jsonl` (from T006g)
+ - **Logic**: Calculate CLIP similarity for Baseline and Hybrid pairs. Compute **Fidelity Delta** = Baseline Score - Hybrid Score.
+ - **Output**: `data/derived/fidelity_scores.csv` containing prompt_id, complexity_score, domain, baseline_score, hybrid_score, fidelity_delta. (FR-004)
 - [ ] T028 [P] [US3] Implement `src/fidelity/clip_evaluator.py` to handle CLIP failures gracefully (log error, skip data point, continue)
 - [ ] T029 [US3] Implement `src/fidelity/regression_analysis.py` with piecewise linear regression to identify the "knee point" where slope change < 0.01
 - [ ] T030 [US3] Implement statistical validation in `src/fidelity/regression_analysis.py` including: 1) F-test (p < 0.05) AND 2) Likelihood Ratio Test (LRT) against a linear model. BOTH tests must pass to validate the 'knee point' as a statistically superior non-linear relationship. If either test fails, output "No Threshold Found" flag. Also implement a permutation test with **10,000 permutations** (FR-006) to validate the significance of fidelity difference below threshold. Output `data/derived/regression_results.json` with knee point, p-values, and LRT stats (FR-005, FR-006).
-- [ ] T032 [US3] Implement `src/fidelity/regression_analysis.py` with stratified regression analysis by visual domain using domain labels from `src/domain/classifier.py` (FR-010). **MANDATORY**: 
-    1. Perform an ANOVA or Levene's test for statistical equivalence of domain slopes.
-    2. If p > 0.05 (equivalence), proceed to global regression.
-    3. If p <= 0.05 (significant difference), **exclude** global regression, output domain-specific thresholds, and log that global aggregation is invalid (Constitution Principle VII).
-    4. If domain metadata is missing for any image, EXCLUDE that image from the stratified analysis, log a warning with the count of excluded samples, and proceed with the available data.
+- [ ] T032 [US3] Implement `src/fidelity/regression_analysis.py` with stratified regression analysis by visual domain using domain labels from `src/domain/classifier.py` (FR-010). **MANDATORY**:
+ 1. Perform an ANOVA or Levene's test for statistical equivalence of domain slopes.
+ 2. If p > 0.05 (equivalence), proceed to global regression.
+ 3. If p <= 0.05 (significant difference), **exclude** global regression, output domain-specific thresholds, and log that global aggregation is invalid (Constitution Principle VII).
+ 4. If domain metadata is missing for any image, EXCLUDE that image from the stratified analysis, log a warning with the count of excluded samples, and proceed with the available data.
 - [ ] T033 [US3] Create script `src/fidelity/run_fidelity_analysis.py` to orchestrate CLIP scoring, regression, and stratified analysis, outputting `data/derived/regression_results.json` (including knee point, p-values, and stratified plots)
 - [ ] T034 [US3] Add logic to handle "No Threshold Found" case (R² < 0.85 or slope change < 0.01) and record max observed delta
 
@@ -194,8 +194,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -259,9 +259,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Scoring)
-   - Developer B: User Story 2 (Routing/Real Execution)
-   - Developer C: User Story 3 (Fidelity/Regression)
+ - Developer A: User Story 1 (Scoring)
+ - Developer B: User Story 2 (Routing/Real Execution)
+ - Developer C: User Story 3 (Fidelity/Regression)
 3. Stories complete and integrate independently
 
 ---
