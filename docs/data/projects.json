@@ -29133,16 +29133,6 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-283-statistical-analysis-of-publicly-availab",
-          "project_id": "PROJ-283-statistical-analysis-of-publicly-availab",
-          "title": "Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz",
-          "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-          "title": "Evaluating the Efficacy of Code Summarization Techniques for Bug Localization"
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-132-statistical-analysis-of-publicly-availab",
           "project_id": "PROJ-132-statistical-analysis-of-publicly-availab",
           "title": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
@@ -29156,6 +29146,16 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-111-exploring-the-potential-for-machine-lear",
           "project_id": "PROJ-111-exploring-the-potential-for-machine-lear",
           "title": "Exploring the Potential for Machine Learning to Identify Novel Phase Transitions in Isotropic Systems"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-243-predicting-molecular-reactivity-using-gr",
+          "project_id": "PROJ-243-predicting-molecular-reactivity-using-gr",
+          "title": "Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases"
+        },
+        {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-799-statistical-properties-of-integer-partit",
+          "project_id": "PROJ-799-statistical-properties-of-integer-partit",
+          "title": "Statistical Properties of Integer Partitions Into Distinct Prime Summands"
         }
       ],
       "inputs": [
