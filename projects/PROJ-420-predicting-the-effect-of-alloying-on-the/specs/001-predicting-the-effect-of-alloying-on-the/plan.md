@@ -155,11 +155,11 @@ projects/PROJ-420-predicting-the-effect-of-alloying-on-the/
 
 1.  **T2.1: Train Random Forest** (`code/modeling.py`)
     *   Train RF on ILR features + `alloy_series`.
-    *   Perform 5-fold cross-validation.
+    *   Perform k-fold cross-validation.
     *   **Power Check**: If N < 50, HALT (already handled in T1.4).
     *   **Bootstrap**: If N < 100, run 1000 bootstrap resamples for feature importance stability.
 2.  **T2.2: Train/Test Split** (`code/modeling.py`)
-    *   Split data 80/20.
+    *   Split data into training and testing subsets using a standard proportion.
     *   Output: Train and Test sets.
 3.  **T2.3: Evaluate Model** (`code/modeling.py`)
     *   Compute test-set MAE.
