@@ -1,11 +1,12 @@
-T015:
+T009:
   c: false
-  h: aafcb29bd22e8c82c81132485f27ea9f1b1188db2e65e859386474a19847597a
-  r: The repository lacks a `fetch_openneuro_data()` implementation in `code/download.py`
-    (the file is truncated and does not contain the required function or the pivot
-    logic). Additionally, the required output file `data/processed/valid_subjects.json`
-    is missing, so the verification step cannot be satisfied. The task therefore remains
-    unfinished.
+  h: 870990c588b9b8f1a8da9fc34ac9c5be7e1ec095022e2b50007303ce7a59bc11
+  r: "The `ResourceMonitor` implementation in `code/utils.py` is truncated (the `finalize`\
+    \ method is incomplete and does not write the JSON profile). The required output\
+    \ file `data/processed/resource_profile.json` is missing, and the unit test file\
+    \ `tests/unit/test_resource_monitor.py` is also truncated, so it does not fully\
+    \ verify the RAM calculations or JSON writing. The task\u2019s artifacts are therefore\
+    \ incomplete."
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

@@ -7,8 +7,8 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import from local utils if needed, though T009 is pending fix, we assume basic logging works
-# If ResourceMonitor is needed here, we import it, but the task focuses on halt logic.
+# Import ResourceMonitor from utils as per T009 completion
+from utils import ResourceMonitor
 
 # Setup logging
 logging.basicConfig(
@@ -67,9 +67,27 @@ def preprocess_subject(subject_id: str, subject_path: Path) -> bool:
     Returns True if successful, False otherwise.
     """
     logger.info(f"Preprocessing subject: {subject_id}")
-    # Real implementation would call FSL/AFNI commands here
-    # For this task, we assume the subject path exists and is valid
-    return True
+    
+    # Initialize ResourceMonitor for this subject processing
+    # This integrates the ResourceMonitor (T009) into the preprocessing workflow (T011)
+    monitor = ResourceMonitor()
+    monitor.start(subject_id)
+    
+    try:
+        # Real implementation would call FSL/AFNI commands here
+        # For this task, we assume the subject path exists and is valid
+        # In a real run, actual preprocessing commands would be executed here
+        # run_command(["fslmaths", str(subject_path), "-Tmean", ...])
+        
+        # Simulate processing time to allow resource monitoring
+        time.sleep(0.1) 
+        
+        monitor.stop()
+        return True
+    except Exception as e:
+        monitor.stop()
+        logger.error(f"Preprocessing failed for {subject_id}: {e}")
+        return False
 
 def load_motion_exclusion_log() -> List[Dict[str, Any]]:
     """

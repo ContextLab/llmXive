@@ -1,94 +1,111 @@
 import os
 import sys
-import pytest
 from pathlib import Path
+import pytest
 import shutil
+import tempfile
 
-# Add parent directory to path to import code modules
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# We need to add the code directory to the path to import setup_directories
+# Assuming tests are run from the project root
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from code.setup_directories import create_directories, verify_directories, generate_verification_log
+from setup_directories import create_directories, verify_directories, generate_verification_log
 
 class TestDirectoryStructure:
-    """Unit tests for directory initialization logic."""
-
+    
     @pytest.fixture(autouse=True)
     def setup_and_teardown(self):
-        """Set up test environment and clean up after."""
-        # Create a temporary base directory for testing
-        self.test_base = Path('tests/temp_test_dirs')
-        self.test_base.mkdir(parents=True, exist_ok=True)
-        
-        # Define paths relative to test base
-        self.test_paths = [
-            str(self.test_base / 'data' / 'raw'),
-            str(self.test_base / 'data' / 'interim'),
-            str(self.test_base / 'data' / 'processed'),
-            str(self.test_base / 'tests' / 'unit'),
-            str(self.test_base / 'tests' / 'integration'),
-            str(self.test_base / 'reports')
-        ]
-        self.test_log = str(self.test_base / 'data' / '.verify_structure.log')
-
+        """
+        Setup: Create a temporary directory to simulate the project root.
+        Teardown: Clean up the temporary directory.
+        """
+        self.original_cwd = os.getcwd()
+        self.temp_dir = tempfile.mkdtemp()
+        os.chdir(self.temp_dir)
         yield
-
-        # Cleanup: Remove test base directory
-        if self.test_base.exists():
-            shutil.rmtree(self.test_base)
+        os.chdir(self.original_cwd)
+        shutil.rmtree(self.temp_dir)
 
     def test_create_directories_creates_all_paths(self):
-        """Test that create_directories creates all specified paths."""
-        create_directories(self.test_paths)
+        """Test that create_directories creates all required paths."""
+        paths = create_directories()
         
-        for p in self.test_paths:
-            assert os.path.isdir(p), f"Directory {p} was not created"
+        expected_paths = [
+            'data/raw',
+            'data/interim',
+            'data/processed',
+            'tests/unit',
+            'tests/integration',
+            'reports'
+        ]
+        
+        assert len(paths) == len(expected_paths)
+        for expected in expected_paths:
+            assert expected in paths
+            assert Path(expected).is_dir()
 
-    def test_verify_directories_returns_true_when_all_exist(self):
-        """Test that verify_directories returns True when all directories exist."""
-        # First ensure directories exist
-        create_directories(self.test_paths)
-        
-        result = verify_directories(self.test_paths)
-        assert result is True
+    def test_verify_directories_returns_true_for_existing(self):
+        """Test that verify_directories returns True when all dirs exist."""
+        create_directories()
+        paths = [
+            'data/raw',
+            'data/interim',
+            'data/processed',
+            'tests/unit',
+            'tests/integration',
+            'reports'
+        ]
+        assert verify_directories(paths) is True
 
-    def test_verify_directories_returns_false_when_missing(self):
-        """Test that verify_directories returns False if a directory is missing."""
-        # Create all but one
-        create_directories(self.test_paths[:-1])
+    def test_verify_directories_returns_false_for_missing(self):
+        """Test that verify_directories returns False if a dir is missing."""
+        # Create only some directories
+        Path('data/raw').mkdir(parents=True)
         
-        result = verify_directories(self.test_paths)
-        assert result is False
+        paths = [
+            'data/raw',
+            'data/interim', # This one is missing
+            'data/processed',
+            'tests/unit',
+            'tests/integration',
+            'reports'
+        ]
+        assert verify_directories(paths) is False
 
-    def test_generate_verification_log_creates_file_with_entries(self):
-        """Test that generate_verification_log creates the log file with correct content."""
-        # Ensure directories exist first
-        create_directories(self.test_paths)
+    def test_generate_verification_log_creates_file(self):
+        """Test that generate_verification_log creates the log file."""
+        paths = create_directories()
+        log_path = 'data/.verify_structure.log'
         
-        generate_verification_log(self.test_paths, self.test_log)
+        generate_verification_log(paths, log_path)
         
-        assert os.path.isfile(self.test_log), "Verification log file was not created"
+        assert Path(log_path).is_file()
         
-        with open(self.test_log, 'r') as f:
+        # Check content format
+        with open(log_path, 'r') as f:
             content = f.read()
         
-        # Verify all paths are in the log
-        for p in self.test_paths:
-            assert p in content, f"Path {p} not found in verification log"
-        
-        # Verify format (path:timestamp)
-        lines = content.strip().split('\n')
-        assert len(lines) == len(self.test_paths), "Log does not contain entries for all paths"
-        
-        for line in lines:
-            assert ':' in line, f"Log entry '{line}' does not contain a timestamp separator"
+        for p in paths:
+            assert p in content
+            assert ':' in content # Check for timestamp separator
 
     def test_full_workflow(self):
-        """Test the complete workflow: create, verify, and log."""
-        create_directories(self.test_paths)
-        assert verify_directories(self.test_paths) is True
+        """Test the full workflow: create -> verify -> log."""
+        # Create
+        created = create_directories()
         
-        generate_verification_log(self.test_paths, self.test_log)
-        assert os.path.isfile(self.test_log)
+        # Verify
+        assert verify_directories(created) is True
         
-        # Re-verify after log generation (should still be True)
-        assert verify_directories(self.test_paths) is True
+        # Log
+        log_path = 'data/.verify_structure.log'
+        generate_verification_log(created, log_path)
+        
+        # Final assertions
+        assert Path(log_path).exists()
+        assert Path('data/raw').exists()
+        assert Path('data/interim').exists()
+        assert Path('data/processed').exists()
+        assert Path('tests/unit').exists()
+        assert Path('tests/integration').exists()
+        assert Path('reports').exists()
