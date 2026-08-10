@@ -1,203 +1,163 @@
 """
-Unit tests for Node Manager.
-"""
+Unit tests for node_manager.py.
 
+These tests verify the discovery logic without requiring real hardware.
+They mock the paramiko SSHClient to simulate connection success/failure.
+"""
 import pytest
-import time
-from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, mock_open
-from pathlib import Path
-import sys
-import socket
+from unittest.mock import MagicMock, patch, mock_open
+from datetime import datetime, timezone
 
 from orchestrator.node_manager import (
-    NodeManager,
-    NodeDiscoveryError,
-    NodeHeartbeatLost,
-    NodeTimeoutError,
-    NodeReassignError,
-    create_node_manager,
-    NodeDiscoveryResult
+    NodeManager, 
+    NodeDiscoveryError, 
+    NodeState, 
+    create_node_manager
 )
-from orchestrator.models import PhysicalNode, NodeStatus
-from paramiko import SSHException, AuthenticationException, SocketTimeout
+from orchestrator.logger import configure_logging
 
+# Configure logging for tests
+configure_logging()
 
-class TestNodeManagerInit:
-    def test_create_node_manager(self):
-        manager = create_node_manager(ssh_timeout=5.0, heartbeat_interval=10.0)
-        assert isinstance(manager, NodeManager)
-        assert manager.ssh_timeout == 5.0
-        assert manager.heartbeat_interval == 10.0
+@pytest.fixture
+def mock_config():
+    return {
+        'ssh_timeout': 2,
+        'ssh_port': 22,
+        'username': 'test_user'
+    }
 
-    def test_default_values(self):
-        manager = create_node_manager()
-        assert manager.ssh_timeout == 2.0
-        assert manager.heartbeat_interval == 5.0
-
+@pytest.fixture
+def node_manager(mock_config):
+    return create_node_manager(mock_config)
 
 class TestNodeDiscovery:
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_discover_single_node_success(self, mock_ssh_class):
-        mock_client = MagicMock()
-        mock_client.exec_command.return_value = (MagicMock(), MagicMock(), MagicMock())
-        mock_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
-        mock_ssh_class.return_value = mock_client
+    """Tests for the discover_nodes method."""
 
-        manager = create_node_manager()
-        result = manager.discover_nodes(["192.168.1.10"])
-
-        assert len(result.discovered_nodes) == 1
-        assert result.discovered_nodes[0].ip_address == "192.168.1.10"
-        assert result.success_rate == 1.0
-        assert len(result.failed_nodes) == 0
-
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_discover_multiple_nodes_partial_failure(self, mock_ssh_class):
-        mock_client_success = MagicMock()
-        mock_client_success.exec_command.return_value = (MagicMock(), MagicMock(), MagicMock())
-        mock_client_success.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
+    def test_discover_single_online_node(self, node_manager):
+        """Test discovery of a single online node."""
+        ip_list = ['192.168.1.10']
         
-        # First call succeeds, second fails with timeout
-        mock_ssh_class.side_effect = [mock_client_success, SocketTimeout("Timeout")]
+        with patch('orchestrator.node_manager.SSHClient') as mock_ssh_class:
+            mock_client = MagicMock()
+            mock_ssh_class.return_value = mock_client
+            
+            # Simulate successful connection
+            mock_client.connect.return_value = None
+            mock_client.exec_command.return_value = (MagicMock(), MagicMock(read=lambda: b'node1'), MagicMock())
+            mock_client.channel.recv_exit_status.return_value = 0
+            
+            results = node_manager.discover_nodes(ip_list)
+            
+            assert len(results) == 1
+            assert results[0]['ip'] == '192.168.1.10'
+            assert results[0]['status'] == 'online'
+            assert results[0]['hostname'] == 'node1'
+            
+            mock_client.close.assert_called()
 
-        manager = create_node_manager()
-        result = manager.discover_nodes(["192.168.1.10", "192.168.1.11"])
-
-        assert len(result.discovered_nodes) == 1
-        assert len(result.failed_nodes) == 1
-        assert result.success_rate == 0.5
-
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_discover_all_nodes_fail_raises_error(self, mock_ssh_class):
-        mock_ssh_class.side_effect = [
-            SocketTimeout("Timeout"),
-            AuthenticationException("Auth Failed")
-        ]
-
-        manager = create_node_manager()
+    def test_discover_single_offline_node(self, node_manager):
+        """Test discovery of a single offline node."""
+        ip_list = ['192.168.1.99']
         
-        with pytest.raises(NodeDiscoveryError) as exc_info:
-            manager.discover_nodes(["192.168.1.10", "192.168.1.11"])
+        with patch('orchestrator.node_manager.SSHClient') as mock_ssh_class:
+            mock_client = MagicMock()
+            mock_ssh_class.return_value = mock_client
+            
+            # Simulate connection timeout
+            mock_client.connect.side_effect = Exception("Connection timed out")
+            
+            results = node_manager.discover_nodes(ip_list)
+            
+            assert len(results) == 1
+            assert results[0]['ip'] == '192.168.1.99'
+            assert results[0]['status'] == 'offline'
+            assert results[0]['hostname'] == '192.168.1.99' # Should fallback to IP
+
+    def test_discover_mixed_nodes(self, node_manager):
+        """Test discovery with a mix of online and offline nodes."""
+        ip_list = ['192.168.1.10', '192.168.1.11', '192.168.1.99']
         
-        assert "all" in str(exc_info.value).lower() or "failed" in str(exc_info.value).lower()
+        with patch('orchestrator.node_manager.SSHClient') as mock_ssh_class:
+            mock_client = MagicMock()
+            mock_ssh_class.return_value = mock_client
+            
+            def connect_side_effect(*args, **kwargs):
+                if '192.168.1.11' in args or kwargs.get('hostname') == '192.168.1.11':
+                    raise Exception("Auth failed")
+                return None
+            
+            mock_client.connect.side_effect = connect_side_effect
+            mock_client.exec_command.return_value = (MagicMock(), MagicMock(read=lambda: b'mesh-node'), MagicMock())
+            mock_client.channel.recv_exit_status.return_value = 0
+            
+            results = node_manager.discover_nodes(ip_list)
+            
+            assert len(results) == 3
+            
+            # Check online node
+            online = [r for r in results if r['status'] == 'online']
+            assert len(online) == 1
+            assert online[0]['ip'] == '192.168.1.10'
+            
+            # Check offline nodes
+            offline = [r for r in results if r['status'] == 'offline']
+            assert len(offline) == 2
 
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_discover_empty_list(self, mock_ssh_class):
-        manager = create_node_manager()
-        result = manager.discover_nodes([])
+    def test_discover_all_offline_raises_error(self, node_manager):
+        """Test that discovery raises NodeDiscoveryError if ALL nodes fail."""
+        ip_list = ['192.168.1.99', '192.168.1.98']
         
-        assert len(result.discovered_nodes) == 0
-        assert result.success_rate == 0.0
+        with patch('orchestrator.node_manager.SSHClient') as mock_ssh_class:
+            mock_client = MagicMock()
+            mock_ssh_class.return_value = mock_client
+            mock_client.connect.side_effect = Exception("Connection refused")
+            
+            with pytest.raises(NodeDiscoveryError) as exc_info:
+                node_manager.discover_nodes(ip_list)
+            
+            assert "Discovery failed for all" in str(exc_info.value.message)
+            assert len(exc_info.value.failed_nodes) == 2
 
+    def test_empty_ip_list(self, node_manager):
+        """Test behavior with an empty IP list."""
+        results = node_manager.discover_nodes([])
+        assert results == []
 
-class TestHeartbeat:
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_heartbeat_success(self, mock_ssh_class):
-        mock_client = MagicMock()
-        mock_client.exec_command.return_value = (MagicMock(), MagicMock(), MagicMock())
-        mock_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
-        mock_ssh_class.return_value = mock_client
+    def test_hostname_retrieval_failure(self, node_manager):
+        """Test that discovery continues if hostname retrieval fails."""
+        ip_list = ['192.168.1.10']
+        
+        with patch('orchestrator.node_manager.SSHClient') as mock_ssh_class:
+            mock_client = MagicMock()
+            mock_ssh_class.return_value = mock_client
+            
+            mock_client.connect.return_value = None
+            # Simulate successful connection but failed hostname command
+            mock_client.exec_command.side_effect = Exception("Command failed")
+            
+            results = node_manager.discover_nodes(ip_list)
+            
+            assert len(results) == 1
+            assert results[0]['status'] == 'online'
+            # Should fallback to IP if hostname command fails
+            assert results[0]['hostname'] == '192.168.1.10'
 
+class TestNodeManagerFactory:
+    """Tests for the create_node_manager factory."""
+
+    def test_create_node_manager_default(self):
+        """Test creating manager with default config."""
         manager = create_node_manager()
-        # Manually add a connection to simulate discovery
-        manager._active_connections["192.168.1.10"] = mock_client
-        manager._node_metadata["192.168.1.10"] = {"status": NodeStatus.ACTIVE}
+        assert isinstance(manager, NodeManager)
+        assert manager.ssh_timeout == 5
 
-        success = manager.send_heartbeat("192.168.1.10")
-        assert success is True
+    def test_create_node_manager_custom(self):
+        """Test creating manager with custom config."""
+        config = {'ssh_timeout': 10, 'ssh_port': 2222}
+        manager = create_node_manager(config)
+        assert manager.ssh_timeout == 10
+        assert manager.ssh_port == 2222
 
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_heartbeat_timeout(self, mock_ssh_class):
-        mock_client = MagicMock()
-        mock_client.exec_command.side_effect = SocketTimeout("Timeout")
-        mock_ssh_class.return_value = mock_client
-
-        manager = create_node_manager()
-        manager._active_connections["192.168.1.10"] = mock_client
-
-        success = manager.send_heartbeat("192.168.1.10")
-        assert success is False
-
-
-class TestCommandExecution:
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_ping_node_success(self, mock_ssh_class):
-        mock_client = MagicMock()
-        mock_client.exec_command.return_value = (MagicMock(), MagicMock(), MagicMock())
-        mock_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
-        mock_ssh_class.return_value = mock_client
-
-        manager = create_node_manager()
-        manager._active_connections["192.168.1.10"] = mock_client
-
-        assert manager.ping_node("192.168.1.10") is True
-
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_ping_node_no_connection(self, mock_ssh_class):
-        manager = create_node_manager()
-        # No connection added
-        assert manager.ping_node("192.168.1.10") is False
-
-
-class TestDropoutDetection:
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_heartbeat_loss_detection(self, mock_ssh_class):
-        mock_client = MagicMock()
-        mock_client.exec_command.side_effect = SocketTimeout("Timeout")
-        mock_ssh_class.return_value = mock_client
-
-        manager = create_node_manager()
-        manager._active_connections["192.168.1.10"] = mock_client
-        manager._node_metadata["192.168.1.10"] = {"status": NodeStatus.ACTIVE}
-
-        callback_called = False
-        def on_loss(ip):
-            nonlocal callback_called
-            callback_called = True
-            assert ip == "192.168.1.10"
-
-        # Simulate monitor_heartbeats for one iteration
-        # We call send_heartbeat directly to test the logic
-        result = manager.send_heartbeat("192.168.1.10")
-        assert result is False
-        assert manager._node_metadata["192.168.1.10"]["status"] == NodeStatus.DROPPED
-
-
-class TestConnectionManagement:
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_close_all_connections(self, mock_ssh_class):
-        mock_client = MagicMock()
-        mock_ssh_class.return_value = mock_client
-
-        manager = create_node_manager()
-        manager._active_connections["192.168.1.10"] = mock_client
-        manager._active_connections["192.168.1.11"] = mock_client
-
-        manager.close_all_connections()
-
-        assert len(manager._active_connections) == 0
-        assert mock_client.close.call_count == 2
-
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_reassign_task_success(self, mock_ssh_class):
-        mock_client = MagicMock()
-        mock_client.exec_command.return_value = (MagicMock(), MagicMock(), MagicMock())
-        mock_client.exec_command.return_value[1].channel.recv_exit_status.return_value = 0
-        mock_ssh_class.return_value = mock_client
-
-        manager = create_node_manager()
-        manager._active_connections["192.168.1.20"] = mock_client
-
-        success = manager.reassign_task("task-123", "192.168.1.20")
-        assert success is True
-
-    @patch('orchestrator.node_manager.SSHClient')
-    def test_reassign_task_node_unreachable(self, mock_ssh_class):
-        mock_ssh_class.side_effect = SocketTimeout("Timeout")
-
-        manager = create_node_manager()
-        # No connection exists for this IP
-
-        with pytest.raises(NodeReassignError):
-            manager.reassign_task("task-123", "192.168.1.99")
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

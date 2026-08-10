@@ -75,50 +75,61 @@
 ### Mandatory Block: US1 Core Infrastructure (Atomic Execution Required)
 *The following tasks MUST be completed in sequence before any other US1 tasks. T013a is the absolute prerequisite. T013b and T012 run in parallel after T013a. T014a and T014c run after T013b/T012. T014b runs after T014a. T015 runs after T014a, T014b, T014c, and T013b.*
 
-- [ ] T013a [US1] Implement `node_manager.py` in `code/orchestrator/` to handle SSH connections, heartbeat pings, and device discovery. **Specifics**: 
-  - **Discovery**: `discover_nodes(ip_list)` accepts a list of IP strings (e.g., `['192.168.1.10', '192.168.1.11']`). 
-  - **Output**: Returns a list of dictionaries: `[{'ip': '...', 'hostname': '...', 'status': 'online'/'offline'}, ...]`. 
-  - **Recovery**: This task handles ONLY *initial* discovery. Runtime heartbeat monitoring and re-assignment logic are handled in T013b and T015. 
-  - **Fail Loudly**: Raise `NodeDiscoveryError` if *all* nodes are unreachable.
-  - **Dependency**: None (Base task).
+- [ ] T013a [US1] Implement `node_manager.py` in `code/orchestrator/` to handle SSH connections, heartbeat pings, and device discovery. **Specifics**:
+ - **Discovery**: `discover_nodes(ip_list)` accepts a list of IP strings (e.g., `['192.168.1.10', '192.168.1.11']`).
+ - **Output**: Returns a list of dictionaries: `[{'ip': '...', 'hostname': '...', 'status': 'online'/'offline'},...]`.
+ - **Recovery**: This task handles ONLY *initial* discovery. Runtime heartbeat monitoring and re-assignment logic are handled in T013b and T015.
+ - **Fail Loudly**: Raise `NodeDiscoveryError` if *all* nodes are unreachable.
+ - **Dependency**: None (Base task).
 - [ ] T013b [US1] Implement `completion_feedback.py` in `code/orchestrator/` to handle the 'completion feedback' loop required by FR-001. **Specifics**: Implement `receive_task_status(node_id, task_id, status)` and `update_scheduler_state(task_id, status)`. This task handles runtime heartbeat monitoring and state updates. **Dependency**: T013a. **Note**: This task updates the `SchedulerState` object defined in T008, not the full T015 instance.
 - [ ] T012 [US1] Implement `remote_tools_manager.py` in `code/orchestrator/` to verify and install required CLI tools on remote nodes. **Specifics**:
  1. **Check**: Verify `tcpdump` and `mpstat` via `which`. Raise `ToolMissingError` if missing and cannot be installed.
  2. **Install**: If check fails, attempt `apt-get install` or `yum install` (with sudo prompt handling).
  3. **Context**: This task consolidates T012a and T012b for robustness. **Dependency**: T013a.
-- [ ] T049 [US1] Implement `node_profiler.py` in `code/orchestrator/` to measure and record CPU clock speeds (GHz) for heterogeneity calculation. **Specifics**: 
-  - **Execution**: Execute `lscpu | grep 'CPU MHz'` or `sysctl -n hw.cpufrequency` (macOS) via SSH.
-  - **Output**: Return a dict `{'cpu_speed_mhz': float}`.
-  - **Dependency**: T013a, T012.
-- [ ] T014a [US1] Implement `instrumentor_remote.py` in `code/orchestrator/` to remotely execute `tcpdump` (packet counts) and `mpstat` (CPU usage) commands on target nodes via SSH. **Specifics**: 
-  - **Execution**: Execute `tcpdump -c <count> -i any -n` and `mpstat <interval> 5`. 
-  - **Parsing Logic**: 
-    - `tcpdump`: Parse output lines matching `^\d{2}:\d{2}:\d{2}\.\d+.*` to count packets. Handle variable output formats by counting non-empty lines if `tcpdump` output format varies.
-    - `mpstat`: Parse the `Average` line or the last 5-second interval line to extract `CPU%` (user+system). Handle missing columns by logging a WARNING and using 0.
-  - **Output**: Return a dict `{'packet_count': int, 'cpu_utilization_pct': float}`.
-  - **Dependency**: Must wait for completion of T012. 
-  - **Network Saturation Detection**: Implement `check_network_saturation()` to detect >20% packet loss. **Handling**: If detected, send a `NETWORK_SATURATION_SIGNAL` to the orchestrator (T014b) and **DO NOT** abort locally. Return the signal to the orchestrator. 
-  - **Unmodeled Vars**: Implement `capture_unmodeled_vars()` to log thermal throttling and OS noise metrics (thermal_zone, loadavg) on a *best-effort* basis. If metrics are missing (e.g., on mobile phones), log a WARNING and proceed; do NOT abort the run. 
-  - **Wall-Clock**: Ensure node-level wall-clock time is captured via remote start/stop timing.
-- [ ] T014b [US1] Implement `network_saturation_handler.py` in `code/orchestrator/` to handle the abort logic. **Specifics**: Receive the `NETWORK_SATURATION_SIGNAL` from T014a. **Action**: Update the central scheduler state, log the failure with error code `NETWORK_SATURATION` to the central log, and initiate the abort sequence for the current run. **Dependency**: T014a. **Note**: This task ensures the orchestrator, not the remote tool, controls the abort and logging, preventing race conditions.
+- [ ] T049 [US1] Implement `node_profiler.py` in `code/orchestrator/` to measure and record CPU clock speeds (GHz) for heterogeneity calculation. **Specifics**:
+ - **Execution**: Execute `lscpu | grep 'CPU MHz'` or `sysctl -n hw.cpufrequency` (macOS) via SSH.
+ - **Output**: Return a dict `{'cpu_speed_mhz': float}`.
+ - **Dependency**: T013a, T012.
+- [ ] T014a [US1] Implement `instrumentor_remote.py` in `code/orchestrator/` to remotely execute `tcpdump` (packet counts) and `mpstat` (CPU usage) commands on target nodes via SSH. **Specifics**:
+ - **Execution**: Execute `tcpdump -c <count> -i any -n` and `mpstat <interval> 5`.
+ - **Parsing Logic**:
+ - `tcpdump`: Parse output lines matching `^\d{2}:\d{2}:\d{2}\.\d+.*` to count packets. Handle variable output formats by counting non-empty lines if `tcpdump` output format varies.
+ - `mpstat`: Parse the `Average` line or the last 5-second interval line to extract `CPU%` (user+system). Handle missing columns by logging a WARNING and using 0.
+ - **Output**: Return a dict `{'packet_count': int, 'cpu_utilization_pct': float}`.
+ - **Parsing Verification**: Validate the parsed `packet_count` by checking it is a non-negative integer and matches the expected format. Log a WARNING if the parsed value is invalid.
+ - **Dependency**: Must wait for completion of T012.
+ - **Network Saturation Detection**: Implement `check_network_saturation()` to detect >20% packet loss. **Handling**: If detected, send a `NETWORK_SATURATION_SIGNAL` to the orchestrator (T014b) and **DO NOT** abort locally. Return the signal to the orchestrator.
+ - **Unmodeled Vars**: Implement `capture_unmodeled_vars()` to log thermal throttling and OS noise metrics (thermal_zone, loadavg) on a *best-effort* basis. If metrics are missing (e.g., on mobile phones), log a WARNING and proceed; do NOT abort the run.
+ - **Wall-Clock**: Ensure node-level wall-clock time is captured via remote start/stop timing.
+ - **Missing Tool Handling**: If `tcpdump` is missing after T012 attempts installation, do NOT raise a hard error. Log a WARNING, mark the node as 'uninstrumented' for packet metrics, and proceed with CPU/wall-clock metrics only. If ALL nodes are uninstrumented for packets, raise `InstrumentationFailureError` to halt the run.
+- [ ] T014b [US1] Implement `network_saturation_handler.py` in `code/orchestrator/` to handle the abort logic. **Specifics**: Receive the `NETWORK_SATURATION_SIGNAL` from T014a. **Action**:
+ - **Terminate Remote Processes**: Send a SIGKILL signal to the benchmark process ID (captured during T016 start) on all active nodes.
+ - **Verify Termination**: Poll the remote process list (e.g., `ps -p <pid>`) to confirm the benchmark process has been killed. Retry up to 3 times with a 1-second delay.
+ - **Log Failure**: If termination fails, log an ERROR and raise a `TerminationFailedError`.
+ - **Update State**: Update the central scheduler state, log the failure with error code `NETWORK_SATURATION` to the central log, and initiate the abort sequence for the current run.
+ - **Dependency**: T014a. **Note**: This task ensures the orchestrator, not the remote tool, controls the abort and logging, preventing race conditions.
 - [ ] T014c [US1] Implement `remote_wall_clock_timer.py` in `code/orchestrator/` to capture wall-clock execution time on remote nodes. **Specifics**: Use SSH to start/stop timers on remote nodes to capture node-level wall-clock time, distinct from the benchmark's internal timing. **Dependency**: T013a.
-- [ ] T015 [US1] Implement `scheduler.py` in `code/orchestrator/` to distribute `TaskChunk` units. **Specifics**: Implement `assign_chunk(chunk, node)`, `monitor_task(task_id)`. 
-  - **RAM Check**: Query `free -m` via SSH to determine `available_ram`. 
-  - **Adaptive Chunking Algorithm**: 
-    - **Base Chunk Size**: 100MB. 
-    - **Minimum Chunk Size**: 1MB. 
-    - **Logic**: If `available_ram < chunk_size`, recursively split: `new_chunk_size = max(1MB, chunk_size / 2)`. Repeat until `new_chunk_size <= available_ram`. 
-  - **OOM Detection**: Implement `parse_oom_signals()` to detect OOM from remote logs and trigger re-assignment. 
-  - **Straggler Handling**: Enforce a median task time limit multiplier.. 
-  - **Asynchronous Timeout**: Implement an **asynchronous timeout mechanism** (e.g., `asyncio.wait_for` or a separate monitoring thread) to prevent the system from stalling in a synchronous barrier. If `task_time > 2 * median`, re-assign task immediately and log "heterogeneity penalty". 
-  - **Re-queue**: Integrate re-queue logic for heartbeat loss directly here. 
-  - **Dependencies**: DEPENDS ON T013a, T013b, T012, T014a (capability), T014b, T014c, T009.
+- [ ] T015a [US1] Implement `scheduler_setup.py` in `code/orchestrator/` to configure the scheduler logic. **Specifics**:
+ - **Configuration**: Load chunk size, node list, and timeout settings.
+ - **Dependency**: T013a, T013b, T012, T014a (capability), T014b, T014c, T009.
+- [ ] T015b [US1] Implement `scheduler_execution.py` in `code/orchestrator/` to distribute `TaskChunk` units. **Specifics**: Implement `assign_chunk(chunk, node)`, `monitor_task(task_id)`.
+ - **RAM Check**: Query `free -m` via SSH to determine `available_ram`.
+ - **Adaptive Chunking Algorithm**:
+ - **Base Chunk Size**: 100MB.
+ - **Minimum Chunk Size**: 1MB.
+ - **Logic**: If `available_ram < chunk_size`, recursively split: `new_chunk_size = max(1MB, chunk_size / 2)`. Repeat until `new_chunk_size <= available_ram`.
+ - **OOM Detection**: Implement `parse_oom_signals()` to detect OOM from remote logs and trigger re-assignment.
+ - **Straggler Handling**: Enforce a median task time limit multiplier.
+ - **Asynchronous Timeout**: Implement an **asynchronous timeout mechanism** (e.g., `asyncio.wait_for` or a separate monitoring thread) to prevent the system from stalling in a synchronous barrier. If `task_time > 2 * median`, re-assign task immediately and log "heterogeneity penalty".
+ - **Re-queue**: Integrate re-queue logic for heartbeat loss directly here.
+ - **Dependencies**: DEPENDS ON T013a, T013b, T012, T014a (capability), T014b, T014c, T009, T015a.
 - [ ] T016 [US1] Implement `benchmark.py` in `code/orchestrator/` to run the Monte Carlo integration workload on remote nodes. **Specifics**: Accept `chunk_size` and `iterations` as args. Output `wall_clock_time` and `ops_per_sec`. **Timeout Integration**: Explicitly invoke `enforce_pipeline_timeout()` from T009 at the start of execution. **Dependency**: DEPENDS ON T013a, T013b.
-- [ ] T017 [US1] Implement `data_collector.py` in `code/orchestrator/` to aggregate raw logs from nodes and write to `code/data/raw/` as CSV. **Specifics**: 
-  - **Aggregation**: Explicitly calculate the **run-level wall_clock_time** (max of node-level times). If a node time is missing, exclude that node from the max calculation and log a WARNING.
-  - **Output Schema**: CSV with columns: `node_id` (str), `wall_clock_time` (float, seconds), `cpu_utilization_pct` (float), `packet_count` (int), `run_id` (str), `cpu_speed_mhz` (float).
-  - **Exclusion**: Exclude runs flagged as saturated by T014b. 
-  - **Dependency**: DEPENDS ON T014b, T014c, T016, T049.
+- [ ] T017 [US1] Implement `data_collector.py` in `code/orchestrator/` to aggregate raw logs from nodes and write to `code/data/raw/` as CSV. **Specifics**:
+ - **Aggregation**: Explicitly calculate the **run-level wall_clock_time** (max of node-level times). If a node time is missing, exclude that node from the max calculation and log a WARNING.
+ - **Output Schema**: CSV with columns: `node_id` (str), `wall_clock_time` (float, seconds), `cpu_utilization_pct` (float), `packet_count` (int), `run_id` (str), `cpu_speed_mhz` (float).
+ - **Column Mapping Validation**: Explicitly verify that the `packet_count` column in the output CSV matches the parsed value from T014a and is a non-negative integer. If a node was marked 'uninstrumented' in T014a, set `packet_count` to -1 and log a WARNING.
+ - **Exclusion**: Exclude runs flagged as saturated by T014b.
+ - **Dependency**: DEPENDS ON T014b, T014c, T016, T049.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -166,44 +177,56 @@
 
 ### Implementation for User Story 3
 
-- [ ] T010a [US3] Implement `validate_data_completeness()` in `code/analysis/data_validator.py` to check for critical variables. **Specifics**: Logic: 'Exclude run if critical variables (throughput, latency) are missing; proceed with reduced model ONLY if non-critical covariates are missing'. **Specifics**: Define non-critical variables as `packet_loss_rate`, `thermal_zone`, `loadavg`. If a non-critical variable is missing, output a configuration object to exclude that variable and its interaction terms from the regression formula. Flag runs where `packet_loss_rate` > 20%. If critical, exclude run. If non-critical, proceed with reduced model complexity (exclude packet_loss as a predictor). (Required for SC-006). **Dependency**: DEPENDS ON T017. **Note**: This task consumes the raw logs produced by T017.
-- [ ] T010b [US3] Implement `dynamic_formula_configurator()` in `code/analysis/data_validator.py` to generate the regression configuration object based on T010a's output. **Specifics**: 
-  - **Input**: The configuration object from T010a indicating missing variables.
-  - **Logic**: Start with base formula `throughput ~ heterogeneity * granularity + injected_latency`. Remove terms involving missing variables.
-  - **Variable Encoding**: 
-    - `heterogeneity`: Encoded as the coefficient of variation (std/mean) of CPU speeds (from T049) across nodes.
-    - `granularity`: Encoded as categorical dummy variables (fine, medium, coarse).
-    - `injected_latency`: Continuous numeric value.
-  - **Output**: A configuration object containing the list of terms to include/exclude.
-  - **Dependency**: DEPENDS ON T010a.
-- [ ] T051 [US3] Implement `dynamic_formula_builder.py` in `code/analysis/` to explicitly construct the regression formula string based on T010b's configuration. **Specifics**: 
-  - **Input**: The configuration object from T010b.
-  - **Action**: Generate the final `statsmodels` formula string, explicitly removing interaction terms for missing variables.
-  - **Output**: A string ready for `statsmodels` fitting.
-  - **Dependency**: DEPENDS ON T010b.
-- [ ] T052 [US3] Implement `formula_construction.py` in `code/analysis/` to consume the config from T010a and T051 and explicitly generate the final statsmodels formula string. **Specifics**: 
-  - **Input**: The configuration object from T010a and the base formula from T051.
-  - **Action**: Dynamically prune interaction terms for missing variables (e.g., if `thermal_zone` is missing, remove `thermal_zone:granularity`).
-  - **Output**: A valid `statsmodels` formula string (e.g., `"throughput ~ C(granularity) * heterogeneity + injected_latency"`).
-  - **Dependency**: DEPENDS ON T010a, T051.
-- [X] T030a [P] [US3] Implement `fit_mlr_with_interactions()` in `code/analysis/regression.py` using `statsmodels` to perform Multiple Linear Regression (required by FR-005/SC-001) modeling throughput as a function of heterogeneity, granularity, and injected latency. **Specifics**: 
-  - **Formula**: Use the formula string generated by T052.
-  - **MUST include interaction terms between heterogeneity and granularity**.
-  - **Output**: Save the fitted model object and summary statistics to `code/analysis/output/mlr_model.json` containing keys: `coefficients`, `p_values`, `r_squared`, `formula_string`. 
-  - **CRITICAL**: This task is a HARD PREREQUISITE for the entire Phase 5 pipeline completion. It MUST produce `mlr_model.json` regardless of whether T035b selects GAM as the primary model. 
-  - **DEPENDS ON**: T052, T017.
+- [ ] T010a [US3] Implement `validate_data_completeness()` in `code/analysis/data_validator.py` to check for critical variables. **Specifics**:
+ - **Logic**:
+ - **Critical Variables**: `throughput`, `latency` (injected).
+ - **Non-Critical Variables**: `packet_loss_rate`, `thermal_zone`, `loadavg`.
+ - **Step 1**: Identify missing critical variables. If `critical_missing > 0`: EXCLUDE RUN. Log error.
+ - **Step 2**: Identify missing non-critical variables. If `non_critical_missing > 0`: FLAG WARN, PROCEED WITH REDUCED MODEL. Exclude missing predictor terms from the formula.
+ - **Output**: Generate `validation_warnings.json` with schema: `{"critical_missing": [list], "non_critical_missing": [list], "excluded_terms": [list], "warnings": [list]}`.
+ - **Dependency**: DEPENDS ON T017. **Note**: This task consumes the raw logs produced by T017.
+- [ ] T010b [US3] Implement `dynamic_formula_configurator()` in `code/analysis/data_validator.py` to generate the regression configuration object based on T010a's output. **Specifics**:
+ - **Input**: The `validation_warnings.json` file from T010a.
+ - **Logic**: Start with base formula `throughput ~ heterogeneity * granularity + injected_latency`. Remove terms involving missing variables listed in `excluded_terms`.
+ - **Variable Encoding**:
+ - `heterogeneity`: Encoded as the coefficient of variation (std/mean) of CPU speeds (from T049) across nodes.
+ - `granularity`: Encoded as categorical dummy variables (fine, medium, coarse).
+ - `injected_latency`: Continuous numeric value.
+ - **Output**: A configuration object containing the list of terms to include/exclude.
+ - **Dependency**: DEPENDS ON T010a.
+- [ ] T051 [US3] Implement `dynamic_formula_builder.py` in `code/analysis/` to explicitly construct the regression formula string based on T010b's configuration. **Specifics**:
+ - **Input**: The configuration object from T010b.
+ - **Action**: Generate the final `statsmodels` formula string, explicitly removing interaction terms for missing variables.
+ - **Output**: A string ready for `statsmodels` fitting.
+ - **Dependency**: DEPENDS ON T010b.
+- [ ] T052 [US3] Implement `formula_construction.py` in `code/analysis/` to consume the config from T010b and explicitly generate the final statsmodels formula string. **Specifics**:
+ - **Input**: The configuration object from T010b and the base formula from T051.
+ - **Action**: Dynamically prune interaction terms for missing variables (e.g., if `thermal_zone` is missing, remove `thermal_zone:granularity`).
+ - **Output**: A valid `statsmodels` formula string (e.g., `"throughput ~ C(granularity) * heterogeneity + injected_latency"`).
+ - **Dependency**: DEPENDS ON T051.
+- [X] T030a [P] [US3] Implement `fit_mlr_with_interactions()` in `code/analysis/regression.py` using `statsmodels` to perform Multiple Linear Regression (required by FR-005/SC-001) modeling throughput as a function of heterogeneity, granularity, and injected latency. **Specifics**:
+ - **Formula**: Use the formula string generated by T052.
+ - **MUST include interaction terms between heterogeneity and granularity**.
+ - **Output**: Save the fitted model object and summary statistics to `code/analysis/output/mlr_model.json` containing keys: `coefficients`, `p_values`, `r_squared`, `formula_string`.
+ - **CRITICAL**: This task is a hard prerequisite for T035b to perform model selection. It MUST produce `mlr_model.json` regardless of whether T035b selects GAM as the primary model.
+ - **DEPENDS ON**: T052, T017.
 - [ ] T030b [P] [US3] Implement `fit_gam_with_interactions()` in `code/analysis/regression.py` using `pygam` to model throughput as a Generalized Additive Model (required by Plan.md methodological update). DEPENDS ON T052.
 - [ ] T035b [US3] Implement `model_selector.py` in `code/analysis/` to compare MLR and GAM results. **Specifics**: Calculate AIC, BIC, and R² for both models. Select the model that best fits the "sweet spot" hypothesis (highest R² with parsimony) and log the selection rationale. **Output Requirement**: Ensure the selected model's coefficients and p-values are output in a format compatible with the `RegressionModel` schema (T007) and explicitly include interaction terms as required by FR-005. **CRITICAL**: This task must NOT suppress the MLR results; it must pass the MLR object (from T030a) and the GAM object (from T035b) to T034. **Dependency**: DEPENDS ON T030a, T030b.
 - [ ] T031 [US3] Implement `anova_test.py` in `code/analysis/` to determine statistical significance (p < 0.05) of granularity differences
-- [ ] T032 [US3] Implement `theoretical_bound.py` in `code/analysis/` to calculate Ong & Motani capacity limits AND **calculate the deviation metric** between empirical and theoretical curves. **Specifics**: Implement the capacity formula derived from Ong & Motani (2007), using the natural logarithm. **Topological Assumptions**: This formula assumes a single-source, multiple-relay topology with uniform node distribution. **Output**: Return a dictionary containing `theoretical_capacity`, `empirical_throughput`, and **`deviation_metric`** (required by SC-002). Flag if `empirical > capacity`. DEPENDS ON T030a.
+- [ ] T032 [US3] Implement `theoretical_bound.py` in `code/analysis/` to calculate Ong & Motani capacity limits AND **calculate the deviation metric** between empirical and theoretical curves. **Specifics**: Implement the capacity formula derived from Ong & Motani, using the natural logarithm. **Topological Assumptions**: This formula assumes a single-source, multiple-relay topology with uniform node distribution. **Output**: Return a dictionary containing `theoretical_capacity`, `empirical_throughput`, and **`deviation_metric`** (required by SC-002). Flag if `empirical > capacity`. DEPENDS ON T030a.
 - [ ] T033 [US3] Implement `validation.py` in `code/analysis/` to compare empirical curves against theoretical bounds and flag violations (measurement errors). DEPENDS ON T032.
-- [ ] T039 [US3] Implement `sweet_spot_detector.py` in `code/analysis/` to explicitly identify the "sweet spot" where coordination overhead is minimized relative to parallelism gains. **Specifics**: 
-  - **Logic**: Calculate the derivative of the throughput curve with respect to node count (or granularity). 
-  - **Criterion**: The sweet spot is the point where the marginal gain in throughput drops below a threshold (e.g., a negligible increase per additional node).. 
-  - **Input**: Read the aggregated throughput data from T023 (sweep_runner).
-  - **Output**: `sweet_spot_metrics.json` containing the identified node count/granularity and the corresponding throughput/overhead ratio.
-  - **Dependency**: DEPENDS ON T023, T024, T017.
-- [ ] T034 [US3] Implement `report_generator.py` in `code/analysis/` to output final `RegressionModel` JSON with coefficients, p-values, R², and deviation metrics. **Specifics**: Ensure output is validated against schema from T007 using `validate_json_against_schema()`. **Verification**: Explicitly verify that the output JSON contains the `interaction_terms` keys (heterogeneity * granularity) as mandated by FR-005 before finalizing the artifact. **MANDATORY**: This task MUST generate the **MLR artifact** (coefficients, p-values, R²) unconditionally, even if T035b selects GAM as the final model, to satisfy FR-005. **Dependency**: DEPENDS ON T035b, T033, T007, T030a. **Note**: This task must fetch the MLR object directly from T030a's output path and the GAM object from T035b.
+- [ ] T039a [US3] Implement `validate_extrapolation_bounds()` in `code/analysis/` to explicitly identify the "sweet spot" where coordination overhead is minimized relative to parallelism gains. **Specifics**:
+ - **Logic**: Calculate the derivative of the throughput curve with respect to node count (or granularity).
+ - **Criterion**: The sweet spot is the point where the marginal gain in throughput drops below a threshold (e.g., a negligible increase per additional node).
+ - **Input**: Read the aggregated throughput data from T023 (sweep_runner).
+ - **Output**: `extrapolation_check.json` containing the identified node count/granularity and the corresponding throughput/overhead ratio.
+ - **Dependency**: DEPENDS ON T023, T024, T017.
+- [ ] T034 [US3] Implement `report_generator.py` in `code/analysis/` to output final `RegressionModel` JSON with coefficients, p-values, R², and deviation metrics. **Specifics**:
+ - **Artifact Reading**: Explicitly read `mlr_model.json` from T030a's output path and `gam_model.json` from T030b's output path via the object passed from T035b. Do NOT rely on T035b for artifact retrieval logic; rely on T035b's output object.
+ - **Validation**: Ensure output is validated against schema from T007 using `validate_json_against_schema()`.
+ - **Verification**: Explicitly verify that the output JSON contains the `interaction_terms` keys (heterogeneity * granularity) as mandated by FR-005 before finalizing the artifact.
+ - **MANDATORY**: This task MUST generate the **MLR artifact** (coefficients, p-values, R²) unconditionally, even if T035b selects GAM as the final model, to satisfy FR-005.
+ - **Dependency**: DEPENDS ON T035b, T033, T007, T032. **Note**: This task receives the MLR object via T035b's output object.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -218,28 +241,35 @@
 ### Mandatory Block: Simulation Validation (Atomic Execution Required)
 *The following tasks MUST be completed in sequence. T035a determines the path. T035b produces the Golden Dataset. T037 calibrates.*
 
-- [ ] T035a [US3] Implement `ci_validation_gate.py` in `code/simulation/` to handle the CI environment detection. **Specifics**: Check for the presence of physical hardware or the `SKIP_PHYSICAL_VALIDATION` environment variable. 
-  - **Logic**: If physical hardware is NOT available AND `SKIP_PHYSICAL_VALIDATION` is NOT set, **raise a hard error** (`ConstitutionViolationError`) and block the pipeline. This enforces Constitution Principle VI.
-  - **Routing**: If hardware is present, route to T035b. If `SKIP_PHYSICAL_VALIDATION` is set, route to T035c (Mock) but log a WARNING that the Golden Dataset requirement is skipped (not satisfied). **NO MOCK ROUTING FOR CALIBRATION**: T035c is for unit tests only and MUST NOT be used for T037.
-  - **Dependency**: DEPENDS ON T017 (if available) or triggers the physical run.
-- [ ] T035b [US3] Implement `physical_validation_job.py` in `code/simulation/` to handle the mandatory physical validation. **Specifics**: 
-  - **Action**: Trigger a small-scale physical deployment (a local cluster of machines) by running `benchmark.py` (T016) and `data_collector.py` (T017) with a specific `run_id` tag: `golden_dataset`.
-  - **Constraint**: This task MUST NOT use mock or loopback nodes. It requires real hardware.
-  - **Output**: Produces the "Golden Dataset" file `code/data/raw/golden_dataset.csv`.
-  - **Behavior**: If real hardware is NOT available (and T035a did not route here), raise a `SkipValidation` exception to be caught by T035a. It MUST NOT generate mock data.
-  - **Dependency**: DEPENDS ON T017 (re-uses collector), T016. **Constitution**: This is the ONLY valid source for the Golden Dataset required by Principle VI.
+- [ ] T035a [US3] Implement `ci_validation_gate.py` in `code/simulation/` to handle the CI environment detection. **Specifics**:
+ - **Context Check**: Check for the presence of physical hardware or the `UNIT_TEST_MODE` environment variable.
+ - **Logic**:
+ - If `UNIT_TEST_MODE` is set, route to T035c (Mock) for unit tests only. Log a WARNING that the Golden Dataset requirement is skipped.
+ - If `UNIT_TEST_MODE` is NOT set, check for physical hardware. If hardware is NOT available, raise a hard error (`ConstitutionViolationError`) and block the pipeline. This enforces Constitution Principle VI.
+ - If hardware is present, route to T035b.
+ - **Constraint**: This task MUST NOT route to T035c for calibration. T035c is for unit tests only and MUST NOT be used for T037.
+ - **Dependency**: DEPENDS ON T017 (if available) or triggers the physical run.
+- [ ] T035b [US3] Implement `physical_validation_job.py` in `code/simulation/` to handle the mandatory physical validation. **Specifics**:
+ - **Action**: Trigger a small-scale physical deployment (a local cluster of machines) by running `benchmark.py` (T016) and `data_collector.py` (T017) with a specific `run_id` tag: `golden_dataset`.
+ - **Constraint**: This task MUST NOT use mock or loopback nodes. It requires real hardware.
+ - **Output**: Produces the "Golden Dataset" file `code/data/raw/golden_dataset.csv`.
+ - **Behavior**: If real hardware is NOT available (and T035a did not route here), raise a `SkipValidation` exception to be caught by T035a. It MUST NOT generate mock data.
+ - **Dependency**: DEPENDS ON T017 (re-uses collector), T016. **Constitution**: This is the ONLY valid source for the Golden Dataset required by Principle VI.
 - [ ] T035c [US3] Implement `ci_mock_bootstrap.py` in `code/simulation/` to generate a mock dataset for CI unit tests ONLY. **Specifics**: This is a fallback for unit testing when physical hardware is unavailable. It MUST NOT be used for the "Golden Dataset" required by Constitution Principle VI. **Warning**: Using this for calibration will fail Principle VI validation. DEPENDS ON T005.
+- [ ] T037a [US3] Implement `golden_dataset_gate.py` in `code/simulation/` to handle the Golden Dataset existence check. **Specifics**:
+ - **Check**: Verify the existence and validity of `code/data/raw/golden_dataset.csv`.
+ - **Logic**: If the file is missing or invalid, raise a `CalibrationBlockedError` with a clear message distinguishing between 'Hardware Unavailable' and 'Data Generation Failure'.
+ - **Dependency**: DEPENDS ON T035b.
 - [ ] T036 [P] [US3] Implement `des_model.py` in `code/simulation/` using `simpy` to model task scheduling, network latency, and node heterogeneity. **Specifics**: Create `TaskScheduler` and `Node` processes.
-- [ ] T037 [US3] Implement `calibration.py` in `code/simulation/` to fit DES parameters against the `code/data/raw/golden_dataset.csv` (the "Golden Dataset" generated by T035b). **Specifics**: 
-  - **Input**: MUST use `code/data/raw/golden_dataset.csv`. If any other file is detected, raise `ConstitutionViolationError`.
-  - **Optimization**: Optimize parameters (packet_loss_rate, CPU_variance) to **Minimize MSE** between simulation output and physical data. 
-  - **Convergence Criteria**: Stop if `relative_change_in_MSE < 1e-4` for 5 consecutive iterations OR if `max_iterations = 1000` is reached. **Logic**: Maintain a deque of the last 5 MSE values. Calculate relative change between current MSE and the MSE from 5 iterations ago. If this change is < 1e-4 for 5 consecutive iterations, stop.
-  - **Constraint**: MUST use T035b data. If T035c is detected as input, raise `ConstitutionViolationError`. 
-  - **Fallback**: If the 'Golden Dataset' is insufficient for convergence, raise `CalibrationFailureError` and output `calibration_status.json` with the failure reason. 
-  - **Timeout Integration**: Explicitly invoke `enforce_pipeline_timeout()` from T009. 
-  - **Dependency**: DEPENDS ON T036, T035b.
+- [ ] T037 [US3] Implement `calibration.py` in `code/simulation/` to fit DES parameters against the `code/data/raw/golden_dataset.csv` (the "Golden Dataset" generated by T035b). **Specifics**:
+ - **Input**: MUST use `code/data/raw/golden_dataset.csv`. If any other file is detected, raise `ConstitutionViolationError`.
+ - **Optimization**: Optimize parameters (packet_loss_rate, CPU_variance) to **Minimize MSE** between simulation output and physical data.
+ - **Convergence Criteria**: Stop if `relative_change_in_MSE < 1e-4` for 5 consecutive iterations OR if `max_iterations = 1000` is reached. **Logic**: Maintain a deque of the last MSE values. Calculate relative change between current MSE and the MSE from a prior iteration, as described in [Citation].. If this change is < 1e-4 for 5 consecutive iterations, stop.
+ - **Constraint**: MUST use T035b data. If T035c is detected as input, raise `ConstitutionViolationError`.
+ - **Fallback**: If the 'Golden Dataset' is insufficient for convergence, raise `CalibrationFailureError` and output `calibration_status.json` with the failure reason.
+ - **Timeout Integration**: Explicitly invoke `enforce_pipeline_timeout()` from T009.
+ - **Dependency**: DEPENDS ON T036, T037a.
 - [ ] T038 [US3] Implement `internal_state_validator.py` in `code/simulation/` to perform the **validation logic** required by Constitution Principle VI: compare DES outputs against the "Golden Dataset" to verify internal state fidelity and ensure no circular predictions. **Specifics**: If `abs(simulated - physical) > tolerance`, raise `ValidationFailure`. **Output**: Generate `validation_report.json` containing MSE, correlation, and pass/fail status to prove validation succeeded for the research record. DEPENDS ON T037.
-- [ ] T039 [US3] Ensure simulation extrapolation logic is documented and bounded by the validated parameter space
 
 ---
 
@@ -248,11 +278,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T040 [P] Documentation updates in `docs/` including `quickstart.md` for running the physical testbed
+- [ ] T040a [P] Write `docs/simulation_extrapolation.md` to explicitly document the simulation extrapolation logic, bounds, and validation approach. **Specifics**: Explain the logic behind the sweet spot detection and the extrapolation limits enforced by T039a.
 - [ ] T041 Code cleanup and refactoring of `orchestrator` and `analysis` modules
 - [ ] T042 [P] Performance optimization for the CI limit (parallelize sweep execution where possible)
 
 The research question is whether parallelizing sweep execution can effectively reduce continuous integration turnaround time. The method involves analyzing parallelization strategies for CI workflows. References: [Citation Placeholder].
-- [ ] T043 [P] Additional unit tests for `tcpdump` and `mpstat` parsing logic in `tests/unit/`
+- [ ] T043 [P] Additional unit tests for `tcpdump` and `mpstat` parsing logic in `tests/unit/`. **Specifics**: Create `test_tcpdump_parsing.py` to verify the regex logic in T014a against known `tcpdump` outputs.
 - [ ] T044 Security hardening of SSH key handling: Implement `SSHKeyManager` class in `code/orchestrator/node_manager.py`
 - [ ] T045 Run `quickstart.md` validation to ensure reproducibility
 
@@ -279,20 +310,20 @@ The research question is whether parallelizing sweep execution can effectively r
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
- - T013a must complete before T013b, T012, T014a, T014b, T014c, T015, T016
+ - T013a must complete before T013b, T012, T014a, T014b, T014c, T015a, T015b, T016
  - T012 must complete before T014a
  - T014a must complete before T014b
  - T013a must complete before T014c
  - T014b must complete before T017
  - T014c must complete before T017
- - T013b must complete before T015, T016
- - **Critical Path**: T012 -> T014a -> T014b -> T015
+ - T013b must complete before T015b, T016
+ - **Critical Path**: T012 -> T014a -> T014b -> T015b
  - T017 must complete before T010a
  - T010a must complete before T010b
  - T010b must complete before T051
  - T051 must complete before T052
  - T052 must complete before T030a/T030b
- - T009 must complete before T015
+ - T009 must complete before T015b
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
  - T050 must complete before T023
  - T009 must complete before T023a
@@ -306,11 +337,11 @@ The research question is whether parallelizing sweep execution can effectively r
  - T030a, T030b must complete before T035b
  - T007 must complete before T034
  - T017 must complete before T034
- - **T030a is a hard prerequisite for Phase 5 completion** (must produce mlr_model.json regardless of T035b outcome)
+ - **T035b is the hard prerequisite for Phase 5 completion** (must route MLR/GAM objects to T034)
 - **Simulation (Phase 6)**: Must wait for US1 to generate the "Golden Dataset" (or mock data in CI)
- - T035a must complete before T037
+ - T035a must complete before T037a
  - T036 must complete before T037
- - T037 must complete before T038
+ - T037a must complete before T037
 - **Robustness (Phase 8)**: Merged into Phase 3 (US1) and Phase 2 (Foundational)
 
 ### Within Each User Story
@@ -412,3 +443,7 @@ With multiple developers:
 - **Sweet Spot Detection**: T039 ensures the "sweet spot" hypothesis is tested via derivative analysis, independent of the regression model.
 - **CPU Heterogeneity**: T049 ensures CPU speeds are measured for heterogeneity calculation, resolving the executability gap.
 - **Convergence Logic**: T037 explicitly defines the deque-based convergence logic to ensure deterministic stopping.
+- **Missing Tool Handling**: T014a handles missing tcpdump gracefully by logging a warning and proceeding with partial metrics, rather than halting the entire pipeline.
+- **Data Flow Correction**: T034 receives MLR data via T035b, not directly from T030a, ensuring a clean dependency graph.
+- **Formula Dependency**: T052 depends only on T051, aligning with the master dependency graph.
+- **Calibration Gate**: T035a strictly enforces physical hardware for calibration; no mock fallback exists for T035b.

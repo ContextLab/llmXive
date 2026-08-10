@@ -4,10 +4,6 @@ Remote Tools Manager for Mesh Network Supercomputer.
 This module handles the verification and installation of required CLI tools
 (tcpdump, mpstat) on remote nodes via SSH. It consolidates tool checking
 and installation logic into a single robust manager.
-
-Dependencies:
-    - paramiko (SSH2 protocol)
-    - orchestrator.node_manager (for SSH connection management)
 """
 
 from __future__ import annotations
@@ -19,11 +15,12 @@ from typing import List, Dict, Optional, Tuple, Set
 from pathlib import Path
 
 import paramiko
+from paramiko import SSHClient, AutoAddPolicy, SSHException, ChannelException
 
-from orchestrator.node_manager import NodeManager, NodeDiscoveryError
 from orchestrator.logger import get_logger
+from orchestrator.config import get_config
 
-# Custom exceptions
+# Custom Exceptions
 class ToolMissingError(Exception):
     """Raised when a required tool is missing and cannot be installed."""
     pass
@@ -32,390 +29,245 @@ class ToolInstallationError(Exception):
     """Raised when tool installation fails."""
     pass
 
+
 @dataclass
 class NodeToolStatus:
     """Status of tools on a specific node."""
-    node_id: str
-    ip_address: str
-    tools: Dict[str, bool] = field(default_factory=dict)
-    installation_attempts: Dict[str, bool] = field(default_factory=dict)
-    errors: List[str] = field(default_factory=list)
+    node_ip: str
+    tcpdump_available: bool = False
+    mpstat_available: bool = False
+    tcpdump_installed: bool = False  # True if we just installed it
+    mpstat_installed: bool = False
+    error_message: Optional[str] = None
+    is_ready: bool = False
 
-    def all_tools_present(self) -> bool:
-        """Check if all required tools are present."""
-        return all(self.tools.values())
-
-    def missing_tools(self) -> List[str]:
-        """Get list of missing tools."""
-        return [tool for tool, present in self.tools.items() if not present]
 
 class RemoteToolManager:
     """
     Manages verification and installation of CLI tools on remote nodes.
 
-    This class consolidates the functionality of checking for required tools
-    (tcpdump, mpstat) and installing them if missing, using the SSH connections
-    established by the NodeManager.
+    This class handles:
+    1. Checking for `tcpdump` and `mpstat` via `which`.
+    2. Attempting installation via `apt-get` or `yum` if missing.
+    3. Reporting status per node.
     """
 
-    REQUIRED_TOOLS: Set[str] = {"tcpdump", "mpstat"}
-
-    def __init__(self, node_manager: NodeManager, logger: Optional[logging.Logger] = None):
-        """
-        Initialize the RemoteToolManager.
-
-        Args:
-            node_manager: The NodeManager instance for SSH connections.
-            logger: Optional logger instance.
-        """
-        self.node_manager = node_manager
+    def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or get_logger(__name__)
-        self._cache: Dict[str, NodeToolStatus] = {}
+        self.config = get_config()
+        self.ssh_timeout = self.config.get('ssh_timeout', 30) if hasattr(self.config, 'get') else 30
 
-    def check_tools_on_node(
-        self,
-        node_id: str,
-        ip_address: str,
-        timeout: float = 5.0
-    ) -> NodeToolStatus:
+    def _connect(self, ip: str, username: Optional[str] = None, password: Optional[str] = None) -> SSHClient:
+        """Establish SSH connection to a node."""
+        client = SSHClient()
+        client.set_missing_host_key_policy(AutoAddPolicy())
+
+        # Use config defaults if not provided
+        user = username or self.config.get('ssh_user', 'root') if hasattr(self.config, 'get') else 'root'
+        passwd = password or self.config.get('ssh_password', '') if hasattr(self.config, 'get') else ''
+
+        try:
+            client.connect(
+                hostname=ip,
+                username=user,
+                password=passwd,
+                timeout=self.ssh_timeout,
+                allow_agent=False,
+                look_for_keys=False
+            )
+            self.logger.debug(f"SSH connection established to {ip}")
+            return client
+        except SSHException as e:
+            self.logger.error(f"SSH connection failed for {ip}: {e}")
+            raise
+
+    def _check_tool(self, client: SSHClient, tool_name: str) -> bool:
+        """Check if a tool exists on the remote node using 'which'."""
+        try:
+            stdin, stdout, stderr = client.exec_command(f"which {tool_name}")
+            exit_code = stdout.channel.recv_exit_status()
+            output = stdout.read().decode().strip()
+            
+            if exit_code == 0 and output:
+                self.logger.debug(f"Tool '{tool_name}' found at {output} on remote node")
+                return True
+            else:
+                self.logger.debug(f"Tool '{tool_name}' not found on remote node")
+                return False
+        except SSHException as e:
+            self.logger.error(f"Failed to check tool '{tool_name}': {e}")
+            return False
+
+    def _install_tool(self, client: SSHClient, tool_name: str) -> bool:
         """
-        Check if required tools are available on a specific node.
+        Attempt to install a tool using apt-get or yum.
+        Returns True if installation succeeded, False otherwise.
+        """
+        self.logger.info(f"Attempting to install '{tool_name}' on remote node...")
+        
+        # Try apt-get first (Debian/Ubuntu)
+        apt_cmd = f"apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y {tool_name}"
+        # Try yum (RHEL/CentOS)
+        yum_cmd = f"yum install -y {tool_name}"
+        
+        # Try sudo if direct fails (common in restricted environments)
+        sudo_apt_cmd = f"sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y {tool_name}"
+        sudo_yum_cmd = f"sudo yum install -y {tool_name}"
+
+        commands_to_try = [
+            apt_cmd, yum_cmd,
+            sudo_apt_cmd, sudo_yum_cmd
+        ]
+
+        for cmd in commands_to_try:
+            try:
+                stdin, stdout, stderr = client.exec_command(cmd)
+                # Wait for command to complete
+                exit_code = stdout.channel.recv_exit_status()
+                
+                if exit_code == 0:
+                    self.logger.info(f"Successfully installed '{tool_name}' via: {cmd}")
+                    return True
+                else:
+                    error_output = stderr.read().decode()
+                    self.logger.warning(f"Installation failed for '{tool_name}' via {cmd}: {error_output}")
+                    # Continue to next command
+            except SSHException as e:
+                self.logger.warning(f"SSH error during installation attempt: {e}")
+                continue
+
+        self.logger.error(f"Failed to install '{tool_name}' after all attempts.")
+        return False
+
+    def verify_and_install_node(self, ip: str, username: Optional[str] = None, password: Optional[str] = None) -> NodeToolStatus:
+        """
+        Verify and install tools on a single node.
 
         Args:
-            node_id: Unique identifier for the node.
-            ip_address: IP address of the node.
-            timeout: SSH connection timeout in seconds.
+            ip: Node IP address
+            username: Optional SSH username
+            password: Optional SSH password
 
         Returns:
-            NodeToolStatus object with tool availability information.
-
-        Raises:
-            NodeDiscoveryError: If the node is unreachable.
-            ToolMissingError: If any required tool is missing (does not attempt install).
+            NodeToolStatus object containing the result.
         """
-        status = NodeToolStatus(node_id=node_id, ip_address=ip_address)
-        self.logger.info(f"Checking tools on node {node_id} ({ip_address})")
-
+        status = NodeToolStatus(node_ip=ip)
         client = None
+
         try:
-            # Connect to the node
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            client.connect(
-                hostname=ip_address,
-                timeout=timeout,
-                banner_timeout=timeout,
-                auth_timeout=timeout
-            )
+            client = self._connect(ip, username, password)
 
-            # Check each required tool
-            for tool in self.REQUIRED_TOOLS:
-                try:
-                    stdin, stdout, stderr = client.exec_command(f"which {tool}")
-                    exit_code = stdout.channel.recv_exit_status()
+            # Check tcpdump
+            if not self._check_tool(client, "tcpdump"):
+                if self._install_tool(client, "tcpdump"):
+                    status.tcpdump_installed = True
+                    status.tcpdump_available = True
+                else:
+                    status.error_message = "tcpdump missing and installation failed"
+            else:
+                status.tcpdump_available = True
 
-                    if exit_code == 0:
-                        status.tools[tool] = True
-                        self.logger.debug(f"Tool '{tool}' found on node {node_id}")
+            # Check mpstat (part of sysstat package)
+            if not self._check_tool(client, "mpstat"):
+                if self._install_tool(client, "sysstat"): # mpstat is usually in sysstat
+                    status.mpstat_installed = True
+                    status.mpstat_available = True
+                else:
+                    if not status.error_message:
+                        status.error_message = "mpstat missing and installation failed"
                     else:
-                        status.tools[tool] = False
-                        self.logger.warning(f"Tool '{tool}' NOT found on node {node_id}")
-                except Exception as e:
-                    status.tools[tool] = False
-                    status.errors.append(f"Error checking {tool}: {str(e)}")
-                    self.logger.error(f"Error checking tool {tool} on node {node_id}: {e}")
+                        status.error_message += "; mpstat missing and installation failed"
+            else:
+                status.mpstat_available = True
 
-            # Update cache
-            self._cache[node_id] = status
+            # Determine overall readiness
+            status.is_ready = status.tcpdump_available or status.mpstat_available
+            
+            if status.is_ready:
+                self.logger.info(f"Node {ip} is partially or fully ready for instrumentation.")
+            else:
+                self.logger.warning(f"Node {ip} has no usable tools.")
 
-            # Raise error if any tools are missing
-            if not status.all_tools_present():
-                missing = status.missing_tools()
-                msg = f"Required tools missing on node {node_id}: {missing}. " \
-                      f"Installation will be attempted."
-                self.logger.warning(msg)
-                # We do NOT raise here yet; we return the status so the caller
-                # can decide whether to install or fail.
-                # But per task spec: "Raise ToolMissingError if missing and cannot be installed"
-                # We'll raise only if installation is not attempted or fails.
-                # For now, we return status. The install method will handle raising.
-
-        except paramiko.AuthenticationException:
-            status.errors.append("Authentication failed")
-            self.logger.error(f"Authentication failed for node {node_id}")
-            raise NodeDiscoveryError(f"Authentication failed for node {node_id}")
-        except paramiko.SSHException as e:
-            status.errors.append(f"SSH error: {str(e)}")
-            self.logger.error(f"SSH error for node {node_id}: {e}")
-            raise NodeDiscoveryError(f"SSH error for node {node_id}: {e}")
-        except socket.timeout:
-            status.errors.append("Connection timed out")
-            self.logger.error(f"Connection timed out for node {node_id}")
-            raise NodeDiscoveryError(f"Connection timed out for node {node_id}")
-        except Exception as e:
-            status.errors.append(f"Unexpected error: {str(e)}")
-            self.logger.error(f"Unexpected error for node {node_id}: {e}")
-            raise NodeDiscoveryError(f"Unexpected error for node {node_id}: {e}")
+        except SSHException as e:
+            status.error_message = f"SSH connection failed: {e}"
+            self.logger.error(f"Failed to process node {ip}: {e}")
         finally:
             if client:
                 client.close()
 
         return status
 
-    def install_tools_on_node(
+    def verify_and_install_all(
         self,
-        node_id: str,
-        ip_address: str,
-        tools: Optional[List[str]] = None,
-        timeout: float = 30.0
-    ) -> NodeToolStatus:
+        node_ips: List[str],
+        username: Optional[str] = None,
+        password: Optional[str] = None
+    ) -> List[NodeToolStatus]:
         """
-        Attempt to install missing tools on a specific node.
+        Verify and install tools on a list of nodes.
 
         Args:
-            node_id: Unique identifier for the node.
-            ip_address: IP address of the node.
-            tools: Optional list of specific tools to install. If None, installs all missing.
-            timeout: SSH command timeout in seconds.
+            node_ips: List of node IP addresses
+            username: Optional SSH username
+            password: Optional SSH password
 
         Returns:
-            NodeToolStatus object with installation results.
-
-        Raises:
-            ToolMissingError: If installation fails for all missing tools.
-            ToolInstallationError: If installation fails.
+            List of NodeToolStatus objects.
         """
-        # First check current status
-        status = self.check_tools_on_node(node_id, ip_address, timeout=timeout)
-
-        if tools is None:
-            tools_to_install = status.missing_tools()
-        else:
-            tools_to_install = [t for t in tools if not status.tools.get(t, False)]
-
-        if not tools_to_install:
-            self.logger.info(f"All tools already present on node {node_id}")
-            return status
-
-        self.logger.info(f"Attempting to install tools on node {node_id}: {tools_to_install}")
-
-        client = None
-        try:
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            client.connect(
-                hostname=ip_address,
-                timeout=timeout,
-                banner_timeout=timeout,
-                auth_timeout=timeout
-            )
-
-            # Determine package manager and install commands
-            # Try to detect package manager
-            stdin, stdout, stderr = client.exec_command("cat /etc/os-release")
-            os_info = stdout.read().decode()
-            stdout.channel.recv_exit_status()
-
-            # Try apt-get first (Debian/Ubuntu)
-            install_commands = []
-
-            if "Debian" in os_info or "Ubuntu" in os_info or "ubuntu" in os_info:
-                # Update package lists
-                update_cmd = "sudo apt-get update -y"
-                stdin, stdout, stderr = client.exec_command(update_cmd, timeout=timeout)
-                update_exit = stdout.channel.recv_exit_status()
-                if update_exit != 0:
-                    error = f"Package update failed on node {node_id}: {stderr.read().decode()}"
-                    status.errors.append(error)
-                    self.logger.error(error)
-                    # Continue anyway, maybe packages are cached
-
-                # Install missing tools
-                for tool in tools_to_install:
-                    install_cmd = f"sudo apt-get install -y {tool}"
-                    stdin, stdout, stderr = client.exec_command(install_cmd, timeout=timeout)
-                    exit_code = stdout.channel.recv_exit_status()
-                    if exit_code == 0:
-                        status.installation_attempts[tool] = True
-                        status.tools[tool] = True
-                        self.logger.info(f"Successfully installed {tool} on node {node_id}")
-                    else:
-                        status.installation_attempts[tool] = False
-                        error = f"Failed to install {tool} on node {node_id}: {stderr.read().decode()}"
-                        status.errors.append(error)
-                        self.logger.error(error)
-
-            elif "CentOS" in os_info or "Red Hat" in os_info or "rhel" in os_info:
-                # Try yum/dnf
-                for tool in tools_to_install:
-                    install_cmd = f"sudo yum install -y {tool}"
-                    stdin, stdout, stderr = client.exec_command(install_cmd, timeout=timeout)
-                    exit_code = stdout.channel.recv_exit_status()
-                    if exit_code == 0:
-                        status.installation_attempts[tool] = True
-                        status.tools[tool] = True
-                        self.logger.info(f"Successfully installed {tool} on node {node_id}")
-                    else:
-                        status.installation_attempts[tool] = False
-                        error = f"Failed to install {tool} on node {node_id}: {stderr.read().decode()}"
-                        status.errors.append(error)
-                        self.logger.error(error)
-            else:
-                error = f"Unknown OS on node {node_id}, cannot determine package manager"
-                status.errors.append(error)
-                self.logger.error(error)
-                raise ToolInstallationError(error)
-
-            # Re-check tools after installation attempt
-            status = self.check_tools_on_node(node_id, ip_address, timeout=timeout)
-
-            if not status.all_tools_present():
-                still_missing = status.missing_tools()
-                msg = f"Failed to install all tools on node {node_id}. " \
-                      f"Still missing: {still_missing}"
-                self.logger.error(msg)
-                raise ToolMissingError(msg)
-
-            self.logger.info(f"All tools successfully installed on node {node_id}")
-            return status
-
-        except paramiko.AuthenticationException:
-            error = f"Authentication failed for node {node_id} during installation"
-            self.logger.error(error)
-            raise ToolInstallationError(error)
-        except paramiko.SSHException as e:
-            error = f"SSH error during installation on node {node_id}: {str(e)}"
-            self.logger.error(error)
-            raise ToolInstallationError(error)
-        except socket.timeout:
-            error = f"Connection timed out during installation on node {node_id}"
-            self.logger.error(error)
-            raise ToolInstallationError(error)
-        except Exception as e:
-            error = f"Unexpected error during installation on node {node_id}: {str(e)}"
-            self.logger.error(error)
-            raise ToolInstallationError(error)
-        finally:
-            if client:
-                client.close()
-
-    def ensure_tools_on_nodes(
-        self,
-        node_ids: Optional[List[str]] = None,
-        raise_on_failure: bool = True
-    ) -> Dict[str, NodeToolStatus]:
-        """
-        Ensure all required tools are present on specified nodes.
-
-        This is the main entry point for the task. It checks tools on all nodes,
-        attempts installation for missing ones, and returns the final status.
-
-        Args:
-            node_ids: Optional list of node IDs to check. If None, checks all discovered nodes.
-            raise_on_failure: If True, raises ToolMissingError if any node is missing tools.
-
-        Returns:
-            Dictionary mapping node_id to NodeToolStatus.
-
-        Raises:
-            ToolMissingError: If any node is missing tools and raise_on_failure is True.
-        """
-        # Get list of nodes
-        if node_ids is None:
-            # Use all nodes from node_manager
-            node_ids = list(self.node_manager._nodes.keys())
-
-        results: Dict[str, NodeToolStatus] = {}
-        all_success = True
-
-        for node_id in node_ids:
-            node = self.node_manager._nodes.get(node_id)
-            if not node:
-                self.logger.warning(f"Node {node_id} not found in manager")
-                continue
-
-            ip = node.ip_address if hasattr(node, 'ip_address') else node.id
-            try:
-                # First check
-                status = self.check_tools_on_node(node_id, ip)
-
-                if not status.all_tools_present():
-                    # Attempt installation
-                    status = self.install_tools_on_node(node_id, ip)
-
-                results[node_id] = status
-
-                if not status.all_tools_present():
-                    all_success = False
-                    self.logger.error(f"Node {node_id} still missing tools: {status.missing_tools()}")
-
-            except ToolMissingError as e:
-                all_success = False
-                self.logger.error(f"Failed to ensure tools on node {node_id}: {e}")
-                if raise_on_failure:
-                    raise
-            except ToolInstallationError as e:
-                all_success = False
-                self.logger.error(f"Installation failed on node {node_id}: {e}")
-                if raise_on_failure:
-                    raise
-            except NodeDiscoveryError as e:
-                all_success = False
-                self.logger.error(f"Node {node_id} unreachable: {e}")
-                if raise_on_failure:
-                    raise
-
-        if not all_success and raise_on_failure:
-            raise ToolMissingError("One or more nodes are missing required tools and installation failed.")
-
+        results = []
+        for ip in node_ips:
+            self.logger.info(f"Processing tools for node: {ip}")
+            result = self.verify_and_install_node(ip, username, password)
+            results.append(result)
+            
+            if not result.is_ready:
+                self.logger.error(f"Node {ip} is not ready for instrumentation.")
+        
         return results
 
-def create_tool_manager(node_manager: NodeManager) -> RemoteToolManager:
-    """
-    Factory function to create a RemoteToolManager instance.
+    def raise_if_critical_missing(self, results: List[NodeToolStatus]) -> None:
+        """
+        Raise ToolMissingError if ALL nodes are missing critical tools.
+        
+        Per T014a requirements: If ALL nodes are uninstrumented for packets, 
+        raise InstrumentationFailureError (mapped here to ToolMissingError for T012).
+        """
+        all_missing = all(not r.tcpdump_available and not r.mpstat_available for r in results)
+        if all_missing:
+            msg = "CRITICAL: All nodes are missing required tools (tcpdump/mpstat) and installation failed."
+            self.logger.critical(msg)
+            raise ToolMissingError(msg)
 
-    Args:
-        node_manager: The NodeManager instance.
+def create_tool_manager() -> RemoteToolManager:
+    """Factory function to create a RemoteToolManager instance."""
+    return RemoteToolManager()
 
-    Returns:
-        A configured RemoteToolManager instance.
-    """
-    return RemoteToolManager(node_manager)
-
-def main():
-    """
-    Command-line interface for testing the tool manager.
-    """
+def main() -> None:
+    """CLI entry point for testing tool management."""
     import argparse
-    import sys
+    import json
 
-    parser = argparse.ArgumentParser(description="Remote Tool Manager for Mesh Network")
-    parser.add_argument(
-        "--nodes",
-        nargs="+",
-        required=True,
-        help="List of node IDs to check/install tools on"
-    )
-    parser.add_argument(
-        "--timeout",
-        type=float,
-        default=5.0,
-        help="SSH connection timeout in seconds"
-    )
-    parser.add_argument(
-        "--install",
-        action="store_true",
-        help="Attempt to install missing tools"
-    )
-
+    parser = argparse.ArgumentParser(description="Verify and install tools on remote nodes")
+    parser.add_argument("--ips", nargs="+", required=True, help="List of node IPs")
+    parser.add_argument("--user", default=None, help="SSH username")
+    parser.add_argument("--pass", dest="password", default=None, help="SSH password")
+    parser.add_argument("--strict", action="store_true", help="Fail if any node is not ready")
     args = parser.parse_args()
 
-    # This would normally require a real NodeManager with SSH credentials
-    # For CLI testing, we'd need to load config or pass credentials
-    print("Remote Tool Manager CLI - requires NodeManager configuration")
-    print(f"Nodes to check: {args.nodes}")
-    print(f"Install mode: {args.install}")
-    sys.exit(0)
+    manager = create_tool_manager()
+    results = manager.verify_and_install_all(args.ips, args.user, args.password)
+
+    for res in results:
+        print(f"Node: {res.node_ip}")
+        print(f"  tcpdump: {'OK' if res.tcpdump_available else 'MISSING'}")
+        print(f"  mpstat: {'OK' if res.mpstat_available else 'MISSING'}")
+        if res.error_message:
+            print(f"  Error: {res.error_message}")
+        print()
+
+    if args.strict:
+        manager.raise_if_critical_missing(results)
+        print("All nodes ready.")
 
 if __name__ == "__main__":
     main()

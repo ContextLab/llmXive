@@ -1,3 +1,2 @@
-"""
-Tests module: Unit, integration, and contract tests.
-"""
+# Tests module root
+__all__ = []

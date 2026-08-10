@@ -1,3 +1,1 @@
-"""
-Data module: Storage for raw and processed data.
-"""
+"""Data module for raw and processed datasets."""

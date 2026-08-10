@@ -1,22 +1,57 @@
-# Data and logs - exclude from version control
+# Data directories
+data/
 code/data/
+
+# Logs
 *.log
+
+# Python cache
 __pycache__/
-*.pyc
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-dist/
+*.py[cod]
+$PYCACHE
+*.pyo
+*.pyd
+.Python
 build/
-*.egg-info/
+develop-eggs/
+dist/
+downloads/
+eggs/
 .eggs/
-# IDE
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Generated configs
+config/generated/

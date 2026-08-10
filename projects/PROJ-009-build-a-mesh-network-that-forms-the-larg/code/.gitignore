@@ -1,15 +1,16 @@
-# Data and logs
+# Data and logs - never commit
 data/
 *.log
 __pycache__/
 *.pyc
-*.pyo
 .pytest_cache/
-.mypy_cache/
 .ruff_cache/
+.mypy_cache/
 .coverage
 htmlcov/
+*.egg-info/
 dist/
 build/
-*.egg-info/
-.eggs/
+.DS_Store
+.idea/
+.vscode/

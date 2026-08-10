@@ -1,3 +1,3 @@
-"""
-Analysis module: Statistical modeling, regression, and validation.
-"""
+# Analysis module
+# Handles statistical modeling, regression, and validation
+__all__ = []
