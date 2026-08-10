@@ -55,3 +55,568 @@
   source_type: external
   status: verified
   updated_at: '2026-08-09T12:48:12Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: tcfe7.tdb included in pycalphad package
+  claim_id: c_16b7bb4c
+  context: 'Verification Details: The tcfe7.tdb database is included in the pycalphad
+    package distribution. It contains binary and ternary interaction parameters for
+    the Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W systems required for this
+    project.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Tcfe7.tdb_included_in_pycalphad_package
+  kind: entity_fact
+  raw_text: The tcfe7.tdb database is included in the pycalphad package distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-10T06:50:34Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: tcfe7.tdb contains parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W,
+    Fe-Mo-W systems
+  claim_id: c_40dbe54e
+  context: 'Verification Details: The tcfe7.tdb database is included in the pycalphad
+    package distribution. It contains binary and ternary interaction parameters for
+    the Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W systems required for this
+    project.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tcfe7.tdb_contains_parameters_for_Fe-Cr-Mo,_Fe-Cr-V,_Fe-Mo-V
+  kind: entity_fact
+  raw_text: The tcfe7.tdb database contains binary and ternary interaction parameters
+    for the Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:50:52Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Fe-Cr APT raw data available via NIST MDR under DOI 10.1016/j.actamat.2006.03.028
+  claim_id: c_00af20c0
+  context: 'Fe-Cr System: Primary Source: ''Atom probe tomography of Fe-Cr alloys''
+    (G. Da Costa et al., 2006). Data Availability: The raw data is often available
+    via the NIST Materials Data Repository (MDR) under the accession linked to the
+    publication DOI: 10.1016/j.actamat.2006.03.028.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The raw data for Fe-Cr alloys is often available via the NIST Materials
+    Data Repository under the accession linked to the publication DOI 10.1016/j.actamat.2006.03.028.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:50:53Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Fe-Mo APT data deposited in NIST MDR
+  claim_id: c_758b2db7
+  context: 'Fe-Mo System: Primary Source: ''Segregation of Mo to grain boundaries
+    in Fe'' (J. H. Park et al., 2010). Data Availability: Deposited in NIST MDR.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fe-Mo_APT_data_deposited_in_NIST_MDR
+  kind: entity_fact
+  raw_text: The Fe-Mo system APT data was deposited in the NIST Materials Data Repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:51:18Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Fe-V APT data available in NIST MDR
+  claim_id: c_95930840
+  context: 'Fe-V System: Primary Source: ''V segregation in Fe-V alloys'' (M. K. Miller
+    et al., 2005). Data Availability: NIST MDR.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fe-V_APT_data_available_in_NIST_MDR
+  kind: entity_fact
+  raw_text: The Fe-V system APT data is available in the NIST Materials Data Repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:51:46Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Fe-W APT data available in NIST MDR
+  claim_id: c_e4d953d4
+  context: 'Fe-W System: Primary Source: ''W segregation in Fe-W alloys'' (S. S. A.
+    Gerstl et al., 2015). Data Availability: NIST MDR.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fe-W_APT_data_available_in_NIST_MDR
+  kind: entity_fact
+  raw_text: The Fe-W system APT data is available in the NIST Materials Data Repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:51:47Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Zenodo 10.5281/zenodo.234567 contains Fe-Mo APT data
+  claim_id: c_4b12c160
+  context: 'Verified Zenodo Mirrors (Alternative Source for T045d): To ensure programmatic
+    access, the following Zenodo records containing processed/extracted APT data for
+    these systems have been identified: Fe-Mo: 10.5281/zenodo.234567.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Zenodo record 10.5281/zenodo.234567 contains processed or extracted
+    APT data for the Fe-Mo system.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:51:50Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Zenodo 10.5281/zenodo.345678 contains Fe-V APT data
+  claim_id: c_574558f9
+  context: 'Verified Zenodo Mirrors (Alternative Source for T045d): To ensure programmatic
+    access, the following Zenodo records containing processed/extracted APT data for
+    these systems have been identified: Fe-V: 10.5281/zenodo.345678.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Zenodo record 10.5281/zenodo.345678 contains processed or extracted
+    APT data for the Fe-V system.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:51:52Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 15 grain boundaries analyzed in Fe-10Cr-2Mo
+  claim_id: c_d374fabd
+  context: "Data Content: 15 grain boundaries analyzed in Fe-10Cr-2Mo (at.%) Segregation\
+    \ profiles for Cr and Mo across \u03A35(012) boundaries."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 15 grain boundaries analyzed in Fe-10Cr-2Mo (at.%)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:57:08Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 8 grain boundaries in Fe-9Cr-1V
+  claim_id: c_2ad284af
+  context: 'Data Content: 8 grain boundaries in Fe-9Cr-1V. Quantitative segregation
+    isotherms for V and Cr.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 8 grain boundaries in Fe-9Cr-1V
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:57:36Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 10 at. ppm detection limit for Mo, V, W at grain boundaries
+  claim_id: c_a4f97a5d
+  context: 'Key Findings: Detection Limit: ~10 at. ppm for Mo, V, W at grain boundaries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Detection Limit: ~10 at. ppm for Mo, V, W at grain boundaries'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:58:51Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 0.5 mg sample mass required for statistical significance
+  claim_id: c_377e4ab7
+  context: 'Key Findings: Sample Mass: ~0.5 mg required for statistical significance
+    (p<0.05) per T071.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Mass: ~0.5 mg required for statistical significance'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T06:59:49Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 550K aging temperature
+  claim_id: c_db8b3a8d
+  context: 'Data Content: Temperature: 550K aging.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/550K_aging_temperature
+  kind: entity_fact
+  raw_text: 'Temperature: 550K aging'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:00:23Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 500K to 600K temperature range
+  claim_id: c_1e808373
+  context: 'Data Content: Temperature: 500K - 600K range.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/500K_to_600K_temperature_range
+  kind: entity_fact
+  raw_text: 'Temperature: 500K - 600K range'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:01:09Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 600K segregation profile temperature
+  claim_id: c_9aa0d4ce
+  context: 'Data Content: Segregation profiles at 600K.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/600K_segregation_profile_temperature
+  kind: entity_fact
+  raw_text: Segregation profiles at 600K
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:01:47Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: 550K temperature
+  claim_id: c_0cf0b28c
+  context: 'Data Content: Temperature: 550K.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/550K_temperature
+  kind: entity_fact
+  raw_text: 'Temperature: 550K'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:02:05Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Create 7 specific directories for project PROJ-448
+  claim_id: c_99840ca9
+  context: T001a Create `scripts/setup_project.py` with explicit directory definitions
+    for `projects/PROJ-448-quantifying-grain-boundary-segregation/`, `code/`, `data/`,
+    `tests/`, `research/`, `data/figures/`, and `data/processed/`. The script MUST
+    create these directories if they do not exist.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The script MUST create these directories if they do not exist: `projects/PROJ-448-quantifying-grain-boundary-segregation/`,
+    `code/`, `data/`, `tests/`, `research/`, `data/figures/`, and `data/processed/`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:11:58Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 12 dependencies listed in requirements.txt
+  claim_id: c_f92a69d0
+  context: 'T002a Create `requirements.txt` at `projects/PROJ-448-quantifying-grain-boundary-segregation/`
+    with dependencies: `pymatgen`, `ase`, `numpy`, `scipy`, `pandas`, `scikit-learn`,
+    `pycalphad`, `pyyaml`, `requests`, `memory_profiler`, `ruff`, `black`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependencies list includes `pymatgen`, `ase`, `numpy`, `scipy`, `pandas`,
+    `scikit-learn`, `pycalphad`, `pyyaml`, `requests`, `memory_profiler`, `ruff`,
+    and `black`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:11:58Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Temperature range K to 900K in 50K increments
+  claim_id: c_67015ae7
+  context: T004 [P] Create `code/config.py` to define paths, random seeds, and temperature
+    ranges (K to 900K in 50K increments), and alloy system constants.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Temperature_range_K_to_900K_in_50K_increments
+  kind: entity_fact
+  raw_text: Temperature ranges are defined from K to 900K in 50K increments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:13:44Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: '5 ternary systems required: Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W'
+  claim_id: c_c4ffd64f
+  context: If the ternary parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, or Fe-Mo-W
+    are missing in the downloaded file, the task MUST FAIL LOUDLY with a clear error
+    message identifying the missing parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system requires ternary parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V,
+    Fe-Cr-W, and Fe-Mo-W.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:13:44Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 'DFT retry logic: 3 retries, mixing_beta +0.1, ecutwfc +10 Ry'
+  claim_id: c_9b07fa37
+  context: On failure, retry 3 times with `mixing_beta += 0.1` and `ecutwfc += 10`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The DFT retry logic attempts 3 retries with `mixing_beta` incremented
+    by 0.1 and `ecutwfc` incremented by 10 Ry per retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:14:04Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 'Initial DFT parameters: mixing_beta 0.4, ecutwfc 30'
+  claim_id: c_ef473ac7
+  context: 'Logic: Attempt to run Quantum ESPRESSO with `mixing_beta=0.4`, `ecutwfc=30`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial DFT parameters are `mixing_beta=0.4` and `ecutwfc=30`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:14:26Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 'Cooperative effect threshold: >10% MSE reduction'
+  claim_id: c_0930560a
+  context: Implement logic to compare MSE of interaction model vs. additive binary
+    null hypothesis, requiring >10% MSE reduction to confirm cooperative effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression model requires a >10% MSE reduction vs. additive model
+    to confirm cooperative effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:14:26Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 'Significance threshold: p < 0.05'
+  claim_id: c_083db05a
+  context: Implement significance testing (p-value < 0.05) for interaction coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Significance testing requires a p-value < 0.05 for interaction coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:14:26Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: '5 alloy systems covered: Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W'
+  claim_id: c_3fea68f4
+  context: Must cover **all five alloy systems** (Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W,
+    Fe-Mo-W) and the **full 500-900K range**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The analysis must cover all five alloy systems: Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V,
+    Fe-Cr-W, and Fe-Mo-W.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:14:26Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Analysis temperature range 500-900K
+  claim_id: c_2e915e0b
+  context: Must cover **all five alloy systems** (Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W,
+    Fe-Mo-W) and the **full 500-900K range**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The temperature range for analysis is 500-900K.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:15:04Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: "Cross-validation stability: Std Dev R\xB2 <= 0.05"
+  claim_id: c_4a1b621a
+  context: "verify mean R\xB2 is stable across folds with standard deviation \u2264\
+    \ 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cross-validation requires a standard deviation of R\xB2 \u2264 0.05 across\
+    \ folds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:15:04Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, power 0.8, d 0.5, variance 0.1'
+  claim_id: c_b1a76752
+  context: Use power analysis with alpha=0.05, power=0.8, assume effect size d=0.5,
+    variance=0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis uses alpha=0.05, power=0.8, effect size d=0.5, and variance=0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:15:28Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Density 7.87 g/cm3 for Fe-Cr-Mo
+  claim_id: c_be7a5871
+  context: where `avg_atomic_weight` is the weighted average of the alloy and `density
+    = 7.87 g/cm3` for Fe-Cr-Mo.
+  evidence:
+    asserted: '7.87'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: The density used for mass conversion is 7.87 g/cm3 for Fe-Cr-Mo.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T07:15:28Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Mass conversion multiplier 1000 for mg
+  claim_id: c_dc60fac3
+  context: Convert sample size (N) to mass using `mass_mg = N * (avg_atomic_weight
+    / density) * 1000`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mass conversion formula includes a multiplier of 1000 to convert to
+    mg.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:15:51Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Library statsmodels.stats.power.TTestIndPower for power analysis
+  claim_id: c_77aaec56
+  context: 'Library: Use `statsmodels.stats.power.TTestIndPower`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Library_statsmodels.stats.power.TTestIndPower_for_power_anal
+  kind: entity_fact
+  raw_text: The library `statsmodels.stats.power.TTestIndPower` is used for power
+    analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:16:21Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: 'Heatmap style: cmap viridis, norm LogNorm'
+  claim_id: c_378727d2
+  context: 'Style: Use `cmap=viridis` and `norm=LogNorm`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Heatmap_style:_cmap_viridis,_norm_LogNorm
+  kind: entity_fact
+  raw_text: The heatmap uses `cmap=viridis` and `norm=LogNorm`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T07:16:49Z'

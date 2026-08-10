@@ -1,3 +1,25 @@
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research/data_sources.md` file was presented, and there is no evidence that\
+    \ the implementer verified pycalphad open databases or listed NIST APT accession\
+    \ IDs for the four Fe\u2011based binary systems. The required markdown log is\
+    \ missing."
+T006b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual artifact (e.g., the downloaded `TCFE.tdb` file, verification logs,\
+    \ or code that performs the fetch and validates the presence of all required ternary\
+    \ parameters) was provided. Without the file and the accompanying implementation\
+    \ that fails loudly on missing parameters, the task\u2019s core requirement cannot\
+    \ be confirmed. The implementer must supply the fetched database file and the\
+    \ code/logs demonstrating the required error handling."
+T006c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research/data_sources.md` file was presented, and there is no evidence that
+    a DOI or URL for the `TCFE.tdb` file has been recorded there. The required traceability
+    entry is missing, so the task is not satisfied.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -10,17 +32,16 @@ T010:
   r: The required file `tests/unit/test_mclean.py` does not exist in the repository,
     so no unit test for the McLean isotherm calculation is present. The implementer
     must add this test file with appropriate test cases.
-T016:
+T045a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation artifact was presented showing that equilibrium\
-    \ concentrations are capped at\u202F1.0 or that \u201Csaturation\u201D flags are\
-    \ logged. The required validation logic and logging behavior are therefore not\
-    \ demonstrated."
-T017:
+  r: "No `research/data_sources.md` file was provided, and there is no evidence that\
+    \ the NIST APT accession IDs for the Fe\u2011Cr, Fe\u2011Mo, Fe\u2011V, and Fe\u2011\
+    W systems were verified or recorded. The required artifact is missing, so the\
+    \ task is not satisfied."
+T045c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or documentation showing that logging was added to the
-    US1 operations (energy extraction and McLean application) was provided. The claim
-    lacks any tangible artifact (e.g., modified source files, log configuration, example
-    log output) to verify that the required logging functionality exists.
+  r: "No `research/data_sources.md` file was provided, and there is no evidence of\
+    \ any list of peer\u2011reviewed literature sources or DOIs for ternary APT datasets.\
+    \ Consequently the required artifact is missing, so the task is not satisfied."

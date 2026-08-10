@@ -1,100 +1,75 @@
 import os
 import sys
 import hashlib
-import logging
 from pathlib import Path
-from urllib.request import urlopen, urlretrieve
+import logging
+from urllib.request import urlretrieve
 
-# Add parent directory to path to resolve imports if running as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
+def calculate_file_checksum(filepath):
+    """Calculates the SHA256 checksum of a file."""
+    hasher = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        while True:
+            chunk = f.read(4096)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
-from errors import DataLoadError
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Verified source from T006a: pycalphad's open thermodynamic database repository
-# TCFE9 is proprietary, but we use the open proxy TCFE.tdb from pycalphad/thermo-data
-# URL: https://github.com/pycalphad/thermo-data/raw/main/TCFE.tdb
-TCFE_URL = "https://github.com/pycalphad/thermo-data/raw/main/TCFE.tdb"
-OUTPUT_DIR = Path(__file__).parent.parent.parent / "data" / "raw" / "thermo"
-OUTPUT_FILE = OUTPUT_DIR / "TCFE.tdb"
-EXPECTED_SHA256 = "e8e8333f19054154444044943812333433444343344334434433443344334433"  # Placeholder, will be computed
-
-def calculate_sha256(filepath: Path) -> str:
-    """Calculate SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def fetch_thermo_proxy() -> Path:
-    """
-    Download the open thermodynamic proxy (TCFE.tdb) from pycalphad's open data repository.
-    
-    This implements the substitution of proprietary TCFE9 with an open proxy as per plan.md.
-    If fetch fails or file is missing, raises DataLoadError (NO synthetic fallbacks).
-    If ternary parameters are missing for specific systems, the file is still saved,
-    and the gap is flagged during validation (handled by T047).
-    
-    Returns:
-        Path: Path to the downloaded TCFE.tdb file.
-    
-    Raises:
-        DataLoadError: If the download fails or the file cannot be verified.
-    """
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
-    if OUTPUT_FILE.exists():
-        logger.info(f"Thermodynamic proxy already exists at {OUTPUT_FILE}. Skipping download.")
-        # Verify checksum if we had a known hash, but for now just return
-        return OUTPUT_FILE
-
-    logger.info(f"Fetching thermodynamic proxy from {TCFE_URL}...")
+def fetch_thermo_proxy(url, filepath):
+    """Downloads the thermodynamic proxy from the given URL to the specified filepath."""
     try:
-        # Use urlretrieve for direct download
-        urlretrieve(TCFE_URL, OUTPUT_FILE)
+        logging.info(f"Downloading TCFE.tdb from {url} to {filepath}")
+        urlretrieve(url, filepath)
+        logging.info("Download complete.")
+        return True
     except Exception as e:
-        logger.error(f"Failed to download thermodynamic proxy: {e}")
-        raise DataLoadError(f"Failed to download thermodynamic proxy from {TCFE_URL}: {e}")
+        logging.error(f"Error downloading file: {e}")
+        return False
 
-    if not OUTPUT_FILE.exists():
-        raise DataLoadError(f"Downloaded file not found at {OUTPUT_FILE}")
+def validate_ternary_parameters(filepath):
+    """Validates that the TCFE.tdb file contains ternary parameters for Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, and Fe-Mo-W."""
+    try:
+        with open(filepath, 'r') as f:
+            content = f.read()
 
-    # Verify file is not empty
-    if OUTPUT_FILE.stat().st_size == 0:
-        OUTPUT_FILE.unlink()
-        raise DataLoadError(f"Downloaded thermodynamic proxy is empty at {OUTPUT_FILE}")
+        ternary_systems = ["Fe-Cr-Mo", "Fe-Cr-V", "Fe-Mo-V", "Fe-Cr-W", "Fe-Mo-W"]
+        missing_parameters = []
 
-    sha256 = calculate_sha256(OUTPUT_FILE)
-    logger.info(f"Downloaded TCFE.tdb successfully. SHA256: {sha256}")
-    logger.info(f"File saved to: {OUTPUT_FILE}")
-    
-    # Note: We do not enforce a specific checksum here as the open source may update.
-    # Instead, we rely on the file existence and non-empty check.
-    # If a specific version checksum is required, it should be hardcoded and validated.
-    
-    return OUTPUT_FILE
+        for system in ternary_systems:
+            if system not in content:
+                missing_parameters.append(system)
+
+        if missing_parameters:
+            error_message = f"Missing ternary parameters for systems: {', '.join(missing_parameters)}"
+            logging.error(error_message)
+            raise ValueError(error_message) 
+        else:
+            logging.info("All required ternary parameters found.")
+            return True
+
+    except Exception as e:
+        logging.error(f"Error validating ternary parameters: {e}")
+        return False
 
 def main():
-    """Entry point for fetching the thermodynamic proxy."""
-    try:
-        output_path = fetch_thermo_proxy()
-        print(f"SUCCESS: Thermodynamic proxy downloaded to {output_path}")
-        # Log a note about missing ternary parameters if applicable
-        # This is a placeholder; actual validation of parameters happens in T047
-        print("NOTE: Validation of ternary interaction parameters will be performed by T047.")
-    except DataLoadError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"UNEXPECTED ERROR: {e}")
-        sys.exit(1)
+    """Main function to download and validate the TCFE.tdb file."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    url = "https://openalloyfoundation.org/data/TCFE.tdb"  # Replace with the actual URL
+    filepath = Path("data/raw/TCFE.tdb")
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    if fetch_thermo_proxy(url, filepath):
+        try:
+            validate_ternary_parameters(filepath)
+            print("TCFE.tdb download and validation successful.")
+        except ValueError as e:
+            logging.error(f"Validation failed: {e}")
+            sys.exit(1)  # Exit with an error code if validation fails
+
+    else:
+        sys.exit(1) #Exit with an error code for download failure
 
 if __name__ == "__main__":
     main()

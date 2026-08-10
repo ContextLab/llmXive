@@ -1,11 +1,22 @@
-- artifact_hash: 67929fe9a098a87e1de70c7015c4687df6f5f9dc85649451d07e3e3534cf266c
-  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+- artifact_hash: ab9be8bc4ec01e6ffe03331b61eeaed2b0c7d55c12a14b136f04f7b07a8f9c66
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/pycalphad/thermo-data/raw/main/tdb/TCFE.tdb`
+  value: https://github.com/pycalphad/pycalphad-data/raw/main/tcf/tcf9.tdb`
   verification_status: mismatch
-  verified_against_url: https://github.com/pycalphad/thermo-data/raw/main/tdb/TCFE.tdb
-  verified_at: '2026-08-09T13:18:22.510383Z'
+  verified_against_url: https://github.com/pycalphad/pycalphad-data/raw/main/tcf/tcf9.tdb
+  verified_at: '2026-08-10T07:02:47.139904Z'
+- artifact_hash: ab9be8bc4ec01e6ffe03331b61eeaed2b0c7d55c12a14b136f04f7b07a8f9c66
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.123456
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.123456
+  verified_at: '2026-08-10T07:02:47.139904Z'
