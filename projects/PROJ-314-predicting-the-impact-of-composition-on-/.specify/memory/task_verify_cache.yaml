@@ -13,11 +13,10 @@ T016a:
     \ task is not satisfied."
 T016b:
   c: true
-  h: a424ae298b2c07f4854f37521537d4db6cedbffd9958b6b2f4c6c67dd8266441
-  r: "The repository contains `docs/data_gap_protocol.md` (\u22483.8\u202FKB) which\
-    \ details the Data Gap Protocol steps, defines the JSON schema for `data/reports/data_availability_report.json`,\
-    \ and describes the halting logic as required. No other artifacts are needed for\
-    \ this task."
+  h: 31ec7e8e19d022cb6caeaeee6fca54fe71975cbb684bfeee241ab8db09cf0333
+  r: "The `docs/data_gap_protocol.md` file exists (3\u202FKB) and contains detailed\
+    \ steps, halting logic, and the JSON schema for `data/reports/data_availability_report.json`\
+    \ as required. No further artifacts are needed for this documentation task."
 T016c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,13 +24,29 @@ T016c:
     provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
     entities, their relationships, and validation rules is missing. The task is not
     satisfied.
-T018e:
+T018c:
   c: false
-  h: 98b43be2beb2cb1a1fb88c15f3ea5fc777a325a7d5313bacc7d31d2b79cc0430
-  r: The repository lacks a `fetch_arxiv_data()` implementation in `code/ingestion.py`
-    (the file ends with unrelated helper code and no such function), and the required
-    output file `data/raw/arxiv_raw.json` does not exist. Both the core functionality
-    and the expected artifact are missing.
+  h: f1e3d0528573c9cec116f068836baa8d7e242076a12458fa95bc228a27918891
+  r: The repository lacks the required `fetch_materials_project_data()` implementation
+    in `code/ingestion.py` (the shown portion contains only imports and helper functions,
+    no such function), and the expected output file `data/raw/materials_project_raw.json`
+    does not exist. Both the core functionality and the required artifact are missing.
+T018d:
+  c: false
+  h: f9c2f945c3edd9ac0d6d5775326167ee9f4e34fe82fab31efc472e61588462bf
+  r: The repository lacks the required `data/raw/nist_raw.json` file, and the provided
+    `code/ingestion.py` does not contain a complete implementation of `fetch_nist_data()`
+    that fetches the NIST data, raises `RuntimeError` on failure, and writes the raw
+    output to the specified path. These essential artifacts are missing, so the task
+    is not satisfied.
+T018g:
+  c: false
+  h: 4948ca2612fdfb6acde761b385ee261535746d9b270d249568054659e701303f
+  r: The repository lacks the required `data/raw/curated_literature_raw.json` file,
+    and the provided excerpt of `code/ingestion.py` does not show an implementation
+    of `fetch_curated_literature_data()` that fetches the CSV, parses the specified
+    columns, or raises the mandated `RuntimeError`. Both the output artifact and the
+    core function are missing, so the task is not satisfied.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

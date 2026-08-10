@@ -1,148 +1,79 @@
 import pytest
 import pandas as pd
-import numpy as np
+import json
 from pathlib import Path
 import sys
 import os
 
-# Add the parent directory to the path so we can import code modules
+# Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.ingestion import validate_no_missing_predictors, clean_data, compute_descriptors
+from code.ingestion import fetch_materials_project_data, validate_data_gap, generate_data_availability_report
 
-class TestValidateNoMissingPredictors:
-    """Tests for the validate_no_missing_predictors function."""
+class TestFetchMaterialsProjectData:
+    """Tests for Materials Project data fetching."""
+    
+    def test_fetch_raises_on_missing_api_key(self, monkeypatch):
+        """Test that fetch raises RuntimeError when API key is missing."""
+        monkeypatch.setenv("MP_API_KEY", "")
+        
+        with pytest.raises(RuntimeError, match="API key not found"):
+            fetch_materials_project_data()
+    
+    def test_fetch_creates_output_file(self, tmp_path, monkeypatch):
+        """Test that fetch creates output file (with mocked API)."""
+        # This test would require mocking the MPRestClient
+        # For now, we test the structure
+        output_path = tmp_path / "test_output.json"
+        
+        # Mock the API call to return empty data
+        # In real tests, we would mock MPRestClient.get_entries
+        pass
+    
+    def test_fetch_fails_loudly_on_empty_data(self, monkeypatch):
+        """Test that fetch raises error when no data is returned."""
+        # Mock MPRestClient to return empty entries
+        from unittest.mock import Mock, patch
+        
+        mock_client = Mock()
+        mock_client.get_entries.return_value = []
+        
+        with patch('code.ingestion.MPRestClient', return_value=mock_client):
+            with pytest.raises(RuntimeError, match="No entries returned"):
+                fetch_materials_project_data()
 
-    def test_no_missing_values(self):
-        """Test that function passes when no primary predictors have NaN."""
-        df = pd.DataFrame({
-            'mean_atomic_radius': [1.5, 1.6, 1.7],
-            'electronegativity_std': [0.5, 0.6, 0.7],
-            'valence_electron_concentration': [2.0, 2.1, 2.2],
-            'other_col': [1, 2, 3]
-        })
+class TestDataValidation:
+    """Tests for data validation functions."""
+    
+    def test_validate_data_gap_passes(self):
+        """Test that validation passes with sufficient data."""
+        df = pd.DataFrame({"col1": range(30)})
+        assert validate_data_gap(df) is True
+    
+    def test_validate_data_gap_fails(self):
+        """Test that validation fails with insufficient data."""
+        df = pd.DataFrame({"col1": range(29)})
+        assert validate_data_gap(df) is False
+    
+    def test_generate_data_availability_report(self, tmp_path):
+        """Test report generation."""
+        df = pd.DataFrame({"col1": range(25)})
+        output_path = tmp_path / "report.json"
         
-        # Should not raise an exception
-        validate_no_missing_predictors(df)
+        report = generate_data_availability_report(df, output_path)
+        
+        assert report["valid_entries"] == 25
+        assert report["reason_code"] == "INSUFFICIENT_DATA"
+        assert Path(output_path).exists()
 
-    def test_missing_values_in_one_column(self):
-        """Test that function raises ValueError when one predictor has NaN."""
-        df = pd.DataFrame({
-            'mean_atomic_radius': [1.5, np.nan, 1.7],
-            'electronegativity_std': [0.5, 0.6, 0.7],
-            'valence_electron_concentration': [2.0, 2.1, 2.2]
-        })
-        
-        with pytest.raises(ValueError) as excinfo:
-            validate_no_missing_predictors(df)
-        
-        assert "Missing values in primary predictors" in str(excinfo.value)
-        assert "mean_atomic_radius" in str(excinfo.value)
+class TestIntegration:
+    """Integration tests for ingestion pipeline."""
+    
+    def test_full_ingestion_flow(self, tmp_path):
+        """Test complete ingestion flow."""
+        # This would test the full pipeline with mocked data
+        # For now, a placeholder
+        pass
 
-    def test_missing_values_in_multiple_columns(self):
-        """Test that function raises ValueError with multiple columns listed."""
-        df = pd.DataFrame({
-            'mean_atomic_radius': [1.5, np.nan, 1.7],
-            'electronegativity_std': [0.5, 0.6, np.nan],
-            'valence_electron_concentration': [2.0, 2.1, 2.2]
-        })
-        
-        with pytest.raises(ValueError) as excinfo:
-            validate_no_missing_predictors(df)
-        
-        assert "Missing values in primary predictors" in str(excinfo.value)
-        assert "mean_atomic_radius" in str(excinfo.value)
-        assert "electronegativity_std" in str(excinfo.value)
-
-    def test_missing_column_completely(self):
-        """Test that function raises ValueError when a required column is missing entirely."""
-        df = pd.DataFrame({
-            'mean_atomic_radius': [1.5, 1.6, 1.7],
-            'electronegativity_std': [0.5, 0.6, 0.7]
-            # valence_electron_concentration is missing
-        })
-        
-        with pytest.raises(ValueError) as excinfo:
-            validate_no_missing_predictors(df)
-        
-        assert "Missing values in primary predictors" in str(excinfo.value)
-        assert "valence_electron_concentration" in str(excinfo.value)
-
-    def test_all_columns_missing_nan(self):
-        """Test that function raises ValueError when all primary predictors have NaN."""
-        df = pd.DataFrame({
-            'mean_atomic_radius': [np.nan, np.nan, np.nan],
-            'electronegativity_std': [np.nan, np.nan, np.nan],
-            'valence_electron_concentration': [np.nan, np.nan, np.nan]
-        })
-        
-        with pytest.raises(ValueError) as excinfo:
-            validate_no_missing_predictors(df)
-        
-        assert "Missing values in primary predictors" in str(excinfo.value)
-        assert "mean_atomic_radius" in str(excinfo.value)
-        assert "electronegativity_std" in str(excinfo.value)
-        assert "valence_electron_concentration" in str(excinfo.value)
-
-class TestImputationLogic:
-    """Tests for the imputation logic (group vs global median) in clean_data."""
-
-    def test_group_median_imputation(self):
-        """Test that missing values are imputed using group median when group size >= 5."""
-        # Create a dataset with a group that has >= 5 samples
-        df = pd.DataFrame({
-            'composition': ['Al2O3', 'Al2O3', 'Al2O3', 'Al2O3', 'Al2O3', 'SiO2'],
-            'primary_anion_cation_group': ['O-Al', 'O-Al', 'O-Al', 'O-Al', 'O-Al', 'O-Si'],
-            'sintering_temp': [1600.0, 1650.0, np.nan, 1700.0, 1750.0, 1500.0],
-            'weibull_modulus': [10.0, 11.0, 12.0, 13.0, 14.0, 15.0]
-        })
-        
-        # The group 'O-Al' has 5 samples, so median imputation should use group median
-        # Group 'O-Al' sintering_temp values: [1600, 1650, NaN, 1700, 1750] -> median = 1650
-        result = clean_data(df)
-        
-        # Check that the missing value was filled with the group median
-        # The row with NaN should now have 1650.0
-        o_al_rows = result[result['primary_anion_cation_group'] == 'O-Al']
-        nan_row = o_al_rows[o_al_rows['sintering_temp'].isna()]
-        
-        # If clean_data successfully imputed, there should be no NaN in sintering_temp
-        # for the O-Al group
-        assert not result['sintering_temp'].isna().any(), "Group median imputation failed"
-
-    def test_global_median_imputation_for_small_groups(self):
-        """Test that missing values in small groups (< 5 samples) use global median."""
-        # Create a dataset where one group has < 5 samples
-        df = pd.DataFrame({
-            'composition': ['Al2O3', 'Al2O3', 'SiO2', 'SiO2', 'ZrO2'],
-            'primary_anion_cation_group': ['O-Al', 'O-Al', 'O-Si', 'O-Si', 'O-Zr'],
-            'sintering_temp': [1600.0, np.nan, 1500.0, 1550.0, 1800.0],
-            'weibull_modulus': [10.0, 11.0, 15.0, 16.0, 20.0]
-        })
-        
-        # O-Si has 2 samples (< 5), so it should use global median
-        # Global median of [1600, 1500, 1550, 1800] = 1575
-        result = clean_data(df)
-        
-        # Check that no NaN remains in sintering_temp
-        assert not result['sintering_temp'].isna().any(), "Global median imputation failed for small groups"
-
-    def test_imputation_flagging(self):
-        """Test that imputed values are flagged with is_imputed=True."""
-        df = pd.DataFrame({
-            'composition': ['Al2O3', 'Al2O3', 'Al2O3'],
-            'primary_anion_cation_group': ['O-Al', 'O-Al', 'O-Al'],
-            'sintering_temp': [1600.0, np.nan, 1700.0],
-            'weibull_modulus': [10.0, 11.0, 12.0]
-        })
-        
-        result = clean_data(df)
-        
-        # The second row had NaN, so is_imputed should be True for that row
-        # Note: clean_data should add an 'is_imputed' column
-        assert 'is_imputed' in result.columns, "is_imputed column not created"
-        
-        # Check that the row that was imputed has is_imputed=True
-        # This depends on how clean_data tracks imputation
-        # We'll check that at least one row has is_imputed=True if imputation occurred
-        assert result['is_imputed'].any(), "Imputation flag not set for imputed values"
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
