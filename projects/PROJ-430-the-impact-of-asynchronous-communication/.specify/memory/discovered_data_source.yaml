@@ -1,0 +1,16 @@
+status: none
+intent: GitHub Archive GHTorrent GitHub API timestamps for issues pull requests comments
+  python package dataset
+required_fields:
+- repo_id
+- repo_name
+- event_type
+- event_id
+- actor_login
+- created_at
+- issue_number
+- pull_number
+- comment_id
+cache_key: 1013940dd8faa5ecf0eb803849df47fed7e09f47bbb52abce45b1bcb6144f91f
+searched_at: '2026-08-10T21:34:57.463667+00:00'
+retry_count: 1
