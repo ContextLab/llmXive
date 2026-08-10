@@ -2,5 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No evidence was presented showing that the required directories (`projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/`, `tests/`, `data/raw/`, `data/processed/`, `data/test/`, `specs/`, `docs/`, `specs/001-llmxive-drift-detection/`) actually exist; without such verification the acceptance criteria are not met.
-- **T010** — No linting or formatting configuration files (e.g., `.ruff.toml`, `pyproject.toml` with Black settings, or related setup scripts) are present in the indicated project directory, so the requirement to configure Ruff and Black has not been demonstrated. The implementer must add the appropriate configuration files and ensure they are functional.
+- **T011** — No `config.py` file was presented in the provided evidence, and thus we cannot verify that it exists or contains the required constants (`RANDOM_SEED=42`, `MAX_RAM_GB=7`, `BATCH_SIZE=64`). The implementer must supply the actual file (and optionally the passing pytest results) for the task to be considered complete.

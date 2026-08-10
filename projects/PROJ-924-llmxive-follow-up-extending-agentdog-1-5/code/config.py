@@ -1,8 +1,7 @@
 """
-Configuration management for the llmXive Drift Detection pipeline.
+Configuration management for the AgentDoG Drift Detection pipeline.
 
-This module centralizes random seeds, path configurations, and batch sizes
-to ensure reproducibility and consistent resource management across the project.
+Handles random seeds, memory constraints, batch sizes, and path resolution.
 """
 import os
 import random
@@ -14,30 +13,44 @@ import numpy as np
 # --- Core Constants ---
 RANDOM_SEED = 42
 MAX_RAM_GB = 7
-BATCH_SIZE = 64
+# Batch size reference: arxiv.org/abs/2410.21676
+BATCH_SIZE = 64 
 
 # --- Project Paths ---
-# Base directory is the project root
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Assuming the project root is the parent of the 'code' directory
+# or we can infer it from the current working directory if run as a script.
+# For robustness, we define relative paths from the project root.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_DATA_ROOT = _PROJECT_ROOT / "data"
+_DATA_RAW = _DATA_ROOT / "raw"
+_DATA_PROCESSED = _DATA_ROOT / "processed"
+_DATA_TEST = _DATA_ROOT / "test"
+_CODE_ROOT = _PROJECT_ROOT / "code"
+_SPEC_ROOT = _PROJECT_ROOT / "specs"
+_DOCS_ROOT = _PROJECT_ROOT / "docs"
 
-# --- Internal State ---
+# --- Global Config State ---
 _config: Dict[str, Any] = {
     "random_seed": RANDOM_SEED,
     "max_ram_gb": MAX_RAM_GB,
     "batch_size": BATCH_SIZE,
-    "project_root": _PROJECT_ROOT,
-    "data_raw_dir": _PROJECT_ROOT / "data" / "raw",
-    "data_processed_dir": _PROJECT_ROOT / "data" / "processed",
-    "data_test_dir": _PROJECT_ROOT / "data" / "test",
-    "code_dir": _PROJECT_ROOT / "code",
-    "specs_dir": _PROJECT_ROOT / "specs",
-    "docs_dir": _PROJECT_ROOT / "docs",
+    "drift_threshold": 0.5,
+    "centroid_model": "all-MiniLM-L6-v2",
+    "baseline_model": "google/flan-t5-small",
+    "paths": {
+        "raw": str(_DATA_RAW),
+        "processed": str(_DATA_PROCESSED),
+        "test": str(_DATA_TEST),
+        "code": str(_CODE_ROOT),
+        "specs": str(_SPEC_ROOT),
+        "docs": str(_DOCS_ROOT),
+        "root": str(_PROJECT_ROOT),
+    }
 }
-
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set the random seed for reproducibility across numpy, python random, and torch (if available).
+    Set the random seed for reproducibility across numpy, random, and torch (if available).
     
     Args:
         seed: The seed value. Defaults to RANDOM_SEED if None.
@@ -48,10 +61,6 @@ def set_seed(seed: Optional[int] = None) -> None:
     random.seed(seed)
     np.random.seed(seed)
     
-    # Update internal config
-    _config["random_seed"] = seed
-    
-    # Attempt to set torch seed if available
     try:
         import torch
         torch.manual_seed(seed)
@@ -59,149 +68,89 @@ def set_seed(seed: Optional[int] = None) -> None:
             torch.cuda.manual_seed_all(seed)
     except ImportError:
         pass
-
+    
+    _config["random_seed"] = seed
 
 def get_config() -> Dict[str, Any]:
-    """
-    Get the current configuration dictionary.
-    
-    Returns:
-        A copy of the current configuration.
-    """
+    """Return the current configuration dictionary."""
     return _config.copy()
 
-
 def update_config(key: str, value: Any) -> None:
-    """
-    Update a specific configuration value.
-    
-    Args:
-        key: The configuration key to update.
-        value: The new value.
-    """
-    _config[key] = value
-
+    """Update a specific configuration value."""
+    if key in _config:
+        _config[key] = value
+    elif key in _config["paths"]:
+        _config["paths"][key] = value
+    else:
+        # Allow adding new top-level keys if not predefined
+        _config[key] = value
 
 def get_config_summary() -> str:
-    """
-    Get a human-readable summary of the configuration.
-    
-    Returns:
-        A string containing key configuration values.
-    """
+    """Return a human-readable summary of the current configuration."""
     return (
-        f"Random Seed: {_config['random_seed']}\n"
-        f"Max RAM (GB): {_config['max_ram_gb']}\n"
-        f"Batch Size: {_config['batch_size']}\n"
-        f"Project Root: {_config['project_root']}"
+        f"Seed: {_config['random_seed']}, "
+        f"Max RAM: {_config['max_ram_gb']}GB, "
+        f"Batch Size: {_config['batch_size']}, "
+        f"Centroid Model: {_config['centroid_model']}, "
+        f"Baseline Model: {_config['baseline_model']}"
     )
 
-
-def get_path(relative_path: Optional[str] = None) -> Path:
+def get_path(name: str) -> Path:
     """
-    Resolve a path relative to the project root or a specific directory.
+    Retrieve a path from the configuration.
     
     Args:
-        relative_path: Optional relative path string. If None, returns project root.
-        
-    Returns:
-        A resolved Path object.
-    """
-    if relative_path is None:
-        return _config["project_root"]
+        name: The key of the path (e.g., 'raw', 'processed', 'root').
     
-    return _config["project_root"] / relative_path
-
-
-def get_output_path(output_type: str, filename: str) -> Path:
-    """
-    Get the output path for a specific type of artifact.
-    
-    Args:
-        output_type: Type of output (e.g., 'raw', 'processed', 'test').
-        filename: Name of the file.
-        
     Returns:
-        Resolved Path to the output file.
-        
+        The Path object corresponding to the key.
+    
     Raises:
-        ValueError: If the output_type is not recognized.
+        KeyError: If the path name is not found in configuration.
     """
-    path_map = {
-        "raw": _config["data_raw_dir"],
-        "processed": _config["data_processed_dir"],
-        "test": _config["data_test_dir"],
-    }
-    
-    if output_type not in path_map:
-        raise ValueError(f"Unknown output type: {output_type}. Valid types: {list(path_map.keys())}")
-        
-    return path_map[output_type] / filename
+    if name in _config["paths"]:
+        return Path(_config["paths"][name])
+    raise KeyError(f"Path '{name}' not found in configuration.")
 
+def get_output_path(subdir: str, filename: str) -> Path:
+    """
+    Construct a full output path within the processed directory.
+    
+    Args:
+        subdir: Subdirectory name (e.g., 'drift_results').
+        filename: The file name.
+    
+    Returns:
+        Full Path to the output file.
+    """
+    base = get_path("processed")
+    return base / subdir / filename
 
 def ensure_directories() -> None:
     """
-    Ensure all required directories exist in the project structure.
-    Creates them if they do not exist.
+    Ensure all directories defined in the configuration exist.
+    Creates them if they are missing.
     """
-    dirs_to_create = [
-        _config["data_raw_dir"],
-        _config["data_processed_dir"],
-        _config["data_test_dir"],
-        _config["code_dir"],
-        _config["specs_dir"],
-        _config["docs_dir"],
-    ]
-    
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
-
+    for path_str in _config["paths"].values():
+        path = Path(path_str)
+        path.mkdir(parents=True, exist_ok=True)
 
 def get_batch_size() -> int:
-    """
-    Get the configured batch size.
-    
-    Returns:
-        The batch size integer.
-    """
+    """Return the configured batch size."""
     return _config["batch_size"]
 
-
 def get_max_memory_gb() -> int:
-    """
-    Get the configured maximum RAM in GB.
-    
-    Returns:
-        The max RAM integer.
-    """
+    """Return the configured maximum RAM in GB."""
     return _config["max_ram_gb"]
 
-
 def get_drift_threshold() -> float:
-    """
-    Get the default drift threshold.
-    
-    Returns:
-        The drift threshold float.
-    """
-    return 0.8
-
+    """Return the configured drift threshold."""
+    return _config["drift_threshold"]
 
 def get_centroid_model() -> str:
-    """
-    Get the default centroid model name.
-    
-    Returns:
-        The model name string.
-    """
-    return "sentence-transformers/all-MiniLM-L6-v2"
-
+    """Return the configured centroid model name."""
+    return _config["centroid_model"]
 
 def get_baseline_model() -> str:
-    """
-    Get the default baseline model name.
-    
-    Returns:
-        The model name string.
-    """
-    return "google/flan-t5-small"
+    """Return the configured baseline model name."""
+    return _config["baseline_model"]

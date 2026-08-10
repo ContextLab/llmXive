@@ -1,16 +1,3 @@
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `config.py` file was presented in the provided evidence, and thus we cannot
-    verify that it exists or contains the required constants (`RANDOM_SEED=42`, `MAX_RAM_GB=7`,
-    `BATCH_SIZE=64`). The implementer must supply the actual file (and optionally
-    the passing pytest results) for the task to be considered complete.
-T012a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data_loader.py` containing `fetch_advbench` and `fetch_hf4` implementations
-    is provided, nor any test output showing `test_data_loader.py` passing. Consequently
-    the required functions, error handling, and streaming behavior are not demonstrated.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

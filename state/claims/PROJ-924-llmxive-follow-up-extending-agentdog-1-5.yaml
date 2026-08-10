@@ -2892,26 +2892,6 @@
   status: verified
   updated_at: '2026-08-03T14:37:12Z'
 - artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
-  attempts: 2
-  canonical: specification requires statistical validation and contract tests
-  claim_id: c_5250d7ad
-  context: 'Tests: The specification explicitly requires statistical validation and
-    contract tests. Organization: Tasks are grouped by user story to enable independent
-    implementation and testing of each story.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Specification_requires_statistical_validation_and_contract_t
-  kind: entity_fact
-  raw_text: The specification explicitly requires statistical validation and contract
-    tests.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-03T14:37:41Z'
-- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
   attempts: 1
   canonical: ruff configuration select E, F, W, I and double quote style
   claim_id: c_5437468d
@@ -5888,3 +5868,878 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T20:45:06Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: large-scale log dataset source mlfoundations/agent_logs
+  claim_id: c_499adad0
+  context: "Fetch the large\u2011scale log dataset for performance benchmarking. Source:\
+    \ datasets.load_dataset('mlfoundations/agent_logs', split='train', streaming=False)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Large-scale_log_dataset_source_mlfoundations/agent_logs
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is sourced from
+    'mlfoundations/agent_logs'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:54:27Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: taxonomy builder uses all-MiniLM-L-v2 model
+  claim_id: c_61cfcd1c
+  context: "Implement taxonomy_builder.py to generate centroid embeddings using all-MiniLM-L-v2\
+    \ (CPU\u2011first, dynamic batching to stay <7 GB RAM) with input from data/raw/taxonomy_agentdog.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Taxonomy_builder_uses_all-MiniLM-L-v2_model
+  kind: entity_fact
+  raw_text: The taxonomy builder uses the 'all-MiniLM-L-v2' model to generate centroid
+    embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:54:46Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: model substitution gpto-mini to google/flan-t5-small
+  claim_id: c_487bc35a
+  context: "Document the required substitution of gpto-mini with google/flan-t5-small\
+    \ in US\u201103 due to memory constraints."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_substitution_gpto-mini_to_google/flan-t5-small
+  kind: entity_fact
+  raw_text: The baseline model substitution replaces 'gpto-mini' with 'google/flan-t5-small'
+    due to memory constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:55:06Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Reference to arxiv.org/abs/2410.21676 in config.py
+  claim_id: c_8d1165e3
+  context: 'Create config.py ... contains RANDOM_SEED=42, MAX_RAM_GB=7, and BATCH_SIZE
+    = 64 # See arxiv.org/abs/2410.21676.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The comment in config.py references arxiv.org/abs/2410.21676.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:56:19Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Dataset mlfoundations/agent_logs used for benchmarking
+  claim_id: c_615bd0cc
+  context: "Fetch the large\u2011scale log dataset for performance benchmarking. Source:\
+    \ datasets.load_dataset('mlfoundations/agent_logs', split='train', streaming=False)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_mlfoundations/agent_logs_used_for_benchmarking
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is from the dataset
+    'mlfoundations/agent_logs'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:56:32Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L-v2 used for taxonomy centroid generation
+  claim_id: c_8d4c46eb
+  context: "Implement taxonomy_builder.py to generate centroid embeddings using all-MiniLM-L-v2\
+    \ (CPU\u2011first, dynamic batching to stay <7 GB RAM)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All-MiniLM-L-v2_used_for_taxonomy_centroid_generation
+  kind: entity_fact
+  raw_text: The taxonomy centroids are generated using the model 'all-MiniLM-L-v2'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:56:50Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: google/flan-t5-small used as baseline replacing gpto-mini
+  claim_id: c_70175de2
+  context: "Document model substitution (gpto\u2011mini \u2192 google/flan\u2011t5\u2011\
+    small). Prepare flan_config.json (model name, tokenizer cache, prompt template)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Google/flan-t5-small_used_as_baseline_replacing_gpto-mini
+  kind: entity_fact
+  raw_text: The baseline model substitution replaces gpto-mini with google/flan-t5-small.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:57:14Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 3
+  canonical: specification requires statistical validation and contract tests
+  claim_id: c_5250d7ad
+  context: 'Tests: The specification explicitly requires statistical validation and
+    contract tests. Organization: Tasks are grouped by user story to enable independent
+    implementation and testing of each story.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specification_requires_statistical_validation_and_contract_t
+  kind: entity_fact
+  raw_text: The specification explicitly requires statistical validation and contract
+    tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:58:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: ruff configuration selects E F W I and uses double quotes
+  claim_id: c_d1ea4ee2
+  context: '2. Create .ruff.toml with EXACT content: [lint] select = ["E", "F", "W",
+    "I"] ignore = [] [format] quote-style = "double"'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ruff_configuration_selects_E_F_W_I_and_uses_double_quotes
+  kind: entity_fact
+  raw_text: 'Create .ruff.toml with EXACT content: [lint] select = ["E", "F", "W",
+    "I"] ignore = [] [format] quote-style = "double"'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:59:08Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: pyproject.toml sets project name to agentdog-drift version 0.1.0 black
+    line-length 88
+  claim_id: c_80eda476
+  context: '2. Create pyproject.toml with EXACT content (including project metadata):
+    [project] name = "agentdog-drift" version = "0.1.0" [tool.black] line-length =
+    88 target-version = [''py'']'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create pyproject.toml with EXACT content (including project metadata):
+    [project] name = "agentdog-drift" version = "0.1.0" [tool.black] line-length =
+    88 target-version = [''py'']'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:59:38Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: config contains random seed 42 max ram 7 GB batch size 64
+  claim_id: c_4512feab
+  context: 'Create config.py in projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/
+    to manage random seeds, paths, and batch sizes. Acceptance Criteria: File exists,
+    contains RANDOM_SEED=42, MAX_RAM_GB=7, and BATCH_SIZE = 64 # See arxiv.org/abs/2410.21676.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'File exists, contains RANDOM_SEED=42, MAX_RAM_GB=7, and BATCH_SIZE =
+    64 # See arxiv.org/abs/2410.21676'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:59:46Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: taxonomy centroids generated using all-MiniLM-L-v2 with dynamic batching
+    under 7 GB RAM
+  claim_id: c_449a08bb
+  context: "Implement taxonomy_builder.py to generate centroid embeddings using all-MiniLM-L-v2\
+    \ (CPU\u2011first, dynamic batching to stay <7 GB RAM) with input from data/raw/taxonomy_agentdog.json\
+    \ (produced by T012d-fixed)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement taxonomy_builder.py to generate centroid embeddings using all-MiniLM-L-v2\
+    \ (CPU\u2011first, dynamic batching to stay <7 GB RAM)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:00:00Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: taxonomy builder raises MemoryError if peak RAM exceeds 7 GB
+  claim_id: c_092cc872
+  context: Add runtime memory monitoring in taxonomy_builder.py using tracemalloc;
+    raise MemoryError if peak RAM > 7 GB. DEPENDS ON T016a.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add runtime memory monitoring in taxonomy_builder.py using tracemalloc;
+    raise MemoryError if peak RAM > 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:00:01Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: MVP statistical validation outputs p-value and Cohen's d
+  claim_id: c_afefb20b
+  context: "MVP Statistical Validation (Novelty Proxy): Compute p\u2011value and Cohen's\
+    \ d using the NOVELTY PROXY (data/test/novelty_proxy.json) against benign logs\
+    \ from the real proxy. Output data/processed/us01_mvp_stats.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MVP_statistical_validation_outputs_p-value_and_Cohen's_d
+  kind: entity_fact
+  raw_text: Output data/processed/us01_mvp_stats.json containing p-value and Cohen's
+    d using the NOVELTY PROXY against benign logs from the real proxy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:15Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: computationally efficient alternative flagged if absolute difference
+    between drift AUC and LLM AUC is less than or equal to 0.10
+  claim_id: c_2d10fbcf
+  context: "Flag \"computationally efficient alternative\" if |AUC_drift - AUC_llm|\
+    \ \u2264 0.10. DEPENDS ON T041-final."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computationally_efficient_alternative_flagged_if_absolute_di
+  kind: magnitude
+  raw_text: "Flag \"computationally efficient alternative\" if |AUC_drift - AUC_llm|\
+    \ \u2264 0.10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: benchmark on agent_logs_100k.csv must complete within 30 minutes
+  claim_id: c_466719d6
+  context: "Implement benchmark_performance.py to run large\u2011scale log benchmark\
+    \ on data/raw/agent_logs_100k.csv using optimal batch size; enforce \u2264 30\
+    \ min runtime, raise TimeoutError otherwise. DEPENDS ON T045-opt-report, T012f."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement benchmark_performance.py to run large\u2011scale log benchmark\
+    \ on data/raw/agent_logs_100k.csv using optimal batch size; enforce \u2264 30\
+    \ min runtime, raise TimeoutError otherwise."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:03:07Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Specification requires statistical validation and contract tests
+  claim_id: c_480e571c
+  context: 'Tests: The specification explicitly requires statistical validation and
+    contract tests. Organization: Tasks are grouped by user story...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specification_requires_statistical_validation_and_contract_t
+  kind: entity_fact
+  raw_text: The specification explicitly requires statistical validation and contract
+    tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:04:10Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Use mlfoundations/agent_logs dataset for benchmarking
+  claim_id: c_83a50f7e
+  context: "T012f [S] Fetch the large\u2011scale log dataset for performance benchmarking.\
+    \ Source: datasets.load_dataset('mlfoundations/agent_logs', split='train', streaming=False)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_mlfoundations/agent_logs_dataset_for_benchmarking
+  kind: entity_fact
+  raw_text: The dataset 'mlfoundations/agent_logs' is used for performance benchmarking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:04:22Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Substitute google/flan-t5-small for gpto-mini
+  claim_id: c_756464bd
+  context: "Document the required substitution of gpto-mini with google/flan-t-small\
+    \ in US\u201103 due to memory constraints."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Substitute_google/flan-t5-small_for_gpto-mini
+  kind: entity_fact
+  raw_text: The model 'google/flan-t5-small' is substituted for 'gpto-mini' due to
+    memory constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:04:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Benchmark runtime limit is 30 minutes
+  claim_id: c_0b89ffed
+  context: "T045a [S] Implement benchmark_performance.py to run large\u2011scale log\
+    \ benchmark on data/raw/agent_logs_100k.csv using optimal batch size; enforce\
+    \ \u2264 30 min runtime, raise TimeoutError otherwise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark requires a runtime limit of 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:05:39Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Maximum RAM limit is 7 GB
+  claim_id: c_4db7c34e
+  context: 'Create config.py... Acceptance Criteria: File exists, contains RANDOM_SEED=42,
+    MAX_RAM_GB=7, and BATCH_SIZE = 64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum RAM limit is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:06:08Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Use all-MiniLM-L-v2 for centroid embeddings
+  claim_id: c_cb747ea4
+  context: "T016a [S] Implement taxonomy_builder.py to generate centroid embeddings\
+    \ using all-MiniLM-L-v2 (CPU\u2011first, dynamic batching to stay <7 GB RAM)..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_all-MiniLM-L-v2_for_centroid_embeddings
+  kind: entity_fact
+  raw_text: The model 'all-MiniLM-L-v2' is used to generate centroid embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:06:23Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Drift AUC within 0.10 of baseline
+  claim_id: c_775511dc
+  context: "T041-final [S] Generate Final Comparison Report using simulated gold standard;\
+    \ require Flan\u2011T5 AUC p < 0.05 and drift AUC within 0.10 of baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The drift AUC must be within 0.10 of the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:06:36Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Flag efficient alternative if |AUC_drift - AUC_llm| <= 0.10
+  claim_id: c_f05d64e8
+  context: "T042 [S] Flag 'computationally efficient alternative' if |AUC_drift -\
+    \ AUC_llm| \u2264 0.10."
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: <= 0.10
+    relation: AUC_drift - AUC_llm
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Flag_efficient_alternative_if_AUC_drift_-_AUC_llm_%3C=_0.10
+    source_value: https://en.wikipedia.org/wiki/Flag_efficient_alternative_if_AUC_drift_-_AUC_llm_<=_0.10
+    subject: Flag efficient alternative if
+  kind: relational
+  raw_text: "The condition for flagging a computationally efficient alternative is\
+    \ |AUC_drift - AUC_llm| \u2264 0.10."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:06:58Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Compute p-value and Cohen's d using novelty proxy against benign logs
+  claim_id: c_63483a09
+  context: 'Phase 3, T025a: MVP Statistical Validation (Novelty Proxy)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_p-value_and_Cohen's_d_using_novelty_proxy_against_be
+  kind: entity_fact
+  raw_text: Compute p-value and Cohen's d using the NOVELTY PROXY (data/test/novelty_proxy.json)
+    against benign logs from the real proxy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:10:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Flag computationally efficient alternative if absolute difference between
+    drift AUC and LLM AUC is less than or equal to 0.10
+  claim_id: c_18702a17
+  context: 'Phase 5, T042: Flag computationally efficient alternative'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_computationally_efficient_alternative_if_absolute_diffe
+  kind: magnitude
+  raw_text: Flag 'computationally efficient alternative' if |AUC_drift - AUC_llm|
+    <= 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:10:52Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Fetch mlfoundations/agent_logs dataset train split
+  claim_id: c_97955d73
+  context: 'Phase 2, T012f: Fetch the large-scale log dataset for performance benchmarking'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_mlfoundations/agent_logs_dataset_train_split
+  kind: entity_fact
+  raw_text: Fetch the large-scale log dataset for performance benchmarking from datasets.load_dataset('mlfoundations/agent_logs',
+    split='train', streaming=False).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:11:12Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Generate centroid embeddings using all-MiniLM-L-v2 model
+  claim_id: c_be312c1a
+  context: 'Phase 2, T016a: Implement taxonomy_builder.py to generate centroid embeddings'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_centroid_embeddings_using_all-MiniLM-L-v2_model
+  kind: entity_fact
+  raw_text: Generate centroid embeddings using all-MiniLM-L-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:11:32Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Load google/flan-t5-small for zero-shot classification
+  claim_id: c_a5fb2b5c
+  context: 'Phase 5, T039-model-runner: Implement run_flant5'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_google/flan-t5-small_for_zero-shot_classification
+  kind: entity_fact
+  raw_text: Implement run_flant5 to load google/flan-t5-small, perform zero-shot classification
+    on a given dataset, cache outputs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:11:59Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Enforce 30 minute runtime limit for large-scale log benchmark
+  claim_id: c_eb9052f3
+  context: 'Phase N, T045a: Implement benchmark_performance.py to run large-scale
+    log benchmark'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce <= 30 min runtime, raise TimeoutError otherwise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:12:09Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Perform logistic regression and Mann-Whitney U tests on merged annotations
+  claim_id: c_43505c6b
+  context: 'Phase 4, T031c: Perform logistic regression and Mann-Whitney U tests'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_logistic_regression_and_Mann-Whitney_U_tests_on_merg
+  kind: entity_fact
+  raw_text: Perform logistic regression and Mann-Whitney U tests on merged_annotations.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:12:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Assign annotator ID from filename if missing column
+  claim_id: c_5c8e9f10
+  context: 'Phase 4, T032a-annot-id: Assign annotator_id from filename'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Assign_annotator_ID_from_filename_if_missing_column
+  kind: entity_fact
+  raw_text: Assign annotator_id from filename if missing column.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:13:09Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Produce deterministic merged annotations CSV with three synthetic annotators
+  claim_id: c_7edb1f1f
+  context: 'Phase 4, T035s: Simulated Gold Standard Generation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Produce_deterministic_merged_annotations_CSV_with_three_synt
+  kind: entity_fact
+  raw_text: Produce a deterministic merged_annotations.csv with three synthetic annotators.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:13:31Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Verify substitution of gpto-mini with google/flan-t5-small in plan and
+    task documents
+  claim_id: c_a1ee1bcb
+  context: 'Phase 0, T000-ScopeVerify: Verify Plan Deviation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_substitution_of_gpto-mini_with_google/flan-t5-small_i
+  kind: entity_fact
+  raw_text: 'Verify plan deviation: Confirm plan.md and tasks.md contain the documented
+    substitution of gpto-mini with google/flan-t5-small.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:13:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Configure ruff and black tools
+  claim_id: c_7b81cb97
+  context: 'Phase 1, T010: Configure linting and formatting tools'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_ruff_and_black_tools
+  kind: entity_fact
+  raw_text: Configure linting (ruff) and formatting (black) tools.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:14:25Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Initialize Python project with specific dependencies including sentence-transformers
+    and scikit-learn
+  claim_id: c_7f645a8b
+  context: 'Phase 1, T009: Initialize a Python project'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize a Python project with requirements.txt (sentence-transformers,
+    scikit-learn, pandas, numpy, datasets, jsonschema, statsmodels, pytest, transformers,
+    accelerate, llama-cpp-python) using a modern, stable Python 3 release.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:14:42Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Create config with random seed 42, max RAM 7 GB, and batch size 64
+  claim_id: c_9e4db76a
+  context: 'Phase 2, T011: Create config.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create config.py with RANDOM_SEED=42, MAX_RAM_GB=7, and BATCH_SIZE = 64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:15:13Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Implement batch processing within 7 GB RAM limit
+  claim_id: c_5fb4b1ea
+  context: 'Phase 3, T021b: Implement batch_process_logs'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement batch_process_logs handling large datasets within 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:15:35Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Raise memory error if peak RAM exceeds 7 GB
+  claim_id: c_7d481689
+  context: 'Phase 2, T016b: Add runtime memory monitoring'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise MemoryError if peak RAM > 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:15:36Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Generate deterministic placeholder timestamp via hash UUID modulo year
+    range
+  claim_id: c_55d057f2
+  context: 'Phase 2, T012a-timestamp-handling: Generate deterministic, varied placeholder
+    timestamps'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_deterministic_placeholder_timestamp_via_hash_UUID_m
+  kind: entity_fact
+  raw_text: Generate deterministic placeholder timestamp via hash UUID modulo a year
+    range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:15:51Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Apply controlled perturbations like synonym replacement and token shuffling
+  claim_id: c_13752e1b
+  context: 'Phase 2, T012e2-novelty-proxy: Generate NOVELTY PROXY fixture'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_controlled_perturbations_like_synonym_replacement_and
+  kind: entity_fact
+  raw_text: Apply controlled perturbations (e.g., synonym replacement, token shuffling)
+    to simulate unseen attacks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:16:15Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Generate deterministic placeholder timestamp if source dataset lacks
+    timestamp field
+  claim_id: c_a5ee0da2
+  context: 'Phase 2, T012a: Implement fetch_advbench and fetch_hf4 functions'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_deterministic_placeholder_timestamp_if_source_datas
+  kind: entity_fact
+  raw_text: If the source dataset lacks a timestamp field, generate a deterministic
+    placeholder timestamp.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:16:39Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Implement fetch_taxonomy to load fixed AgentDoG safety taxonomy
+  claim_id: c_1f57626b
+  context: 'Phase 2, T012d-fixed: Fetch Taxonomy'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_fetch_taxonomy_to_load_fixed_AgentDoG_safety_taxon
+  kind: entity_fact
+  raw_text: Implement fetch_taxonomy to load the fixed AgentDoG safety taxonomy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:17:02Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Raise FileNotFoundError if taxonomy fetch returns non-200 status
+  claim_id: c_5b7e99b4
+  context: 'Phase 2, T012d-fixed: Fetch Taxonomy'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If unreachable or non-200, raise FileNotFoundError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:17:17Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: No local fallback for taxonomy fetch
+  claim_id: c_ee2a9c0e
+  context: 'Phase 2, T012d-fixed: Fetch Taxonomy'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_local_fallback_for_taxonomy_fetch
+  kind: entity_fact
+  raw_text: No local fallback for taxonomy fetch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:17:34Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Create test_directories_exist function to assert directory existence
+  claim_id: c_5ef9eca3
+  context: 'Phase 1, T001b: Verify directory structure'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_test_directories_exist_function_to_assert_directory_e
+  kind: entity_fact
+  raw_text: Create tests/test_setup.py with function test_directories_exist that asserts
+    the existence of the directories created in T001a.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:17:41Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Configure ruff to select E, F, W, I and ignore nothing
+  claim_id: c_08d67a13
+  context: 'Phase 1, T010: Configure linting and formatting tools'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_ruff_to_select_E,_F,_W,_I_and_ignore_nothing
+  kind: entity_fact
+  raw_text: Create .ruff.toml with select = ['E', 'F', 'W', 'I'] and ignore = [].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:17:59Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Configure black line length to 88
+  claim_id: c_b47a88b7
+  context: 'Phase 1, T010: Configure linting and formatting tools'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create pyproject.toml with [tool.black] line-length = 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:18:17Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Create specific project directory structure
+  claim_id: c_ab6b2cfa
+  context: 'Phase 1, T001a: Initialize project directory structure'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/,
+    tests/, data/raw/, data/processed/, data/test/, specs/, docs/, and specs/001-llmxive-drift-detection/.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:18:28Z'

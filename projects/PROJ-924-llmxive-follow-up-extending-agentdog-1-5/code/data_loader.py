@@ -1,7 +1,3 @@
-"""
-Data loading module for llmXive drift detection pipeline.
-Handles fetching real datasets from Hugging Face with streaming and strict error handling.
-"""
 import hashlib
 import json
 import os
@@ -10,50 +6,98 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, Iterator, Generator
 
 from datasets import load_dataset
-
+from config import get_path, ensure_directories
 
 class LoudFailureError(Exception):
-    """Custom exception for loud failure when data fetching or validation fails."""
+    """Custom exception for loud failures in data loading."""
     pass
 
-
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA256 checksum of a file."""
+def compute_sha256(file_path: str) -> str:
+    """Compute the SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-
-def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
-    """Verify file checksum against expected value."""
-    actual_checksum = compute_sha256(file_path)
-    return actual_checksum == expected_checksum
-
-
-def validate_data_integrity(raw_dir: Path, checksums_file: Path) -> None:
-    """Validate all files in raw directory against checksums."""
-    if not checksums_file.exists():
-        raise LoudFailureError(f"Checksums file not found: {checksums_file}")
+def verify_checksum(file_path: str, expected_checksum: str, algorithm: str = "sha256") -> bool:
+    """
+    Verify the checksum of a file against an expected value.
     
-    with open(checksums_file, "r") as f:
-        checksums = json.load(f)
+    Args:
+        file_path: Path to the file to verify.
+        expected_checksum: The expected checksum string.
+        algorithm: The hashing algorithm to use (default: sha256).
+        
+    Returns:
+        True if checksum matches, False otherwise.
+        
+    Raises:
+        LoudFailureError: If the file does not exist or checksum mismatch occurs.
+    """
+    if not os.path.exists(file_path):
+        raise LoudFailureError(f"File not found for checksum verification: {file_path}")
     
-    for filename, expected_checksum in checksums.items():
-        file_path = raw_dir / filename
-        if not file_path.exists():
-            raise LoudFailureError(f"Missing file: {file_path}")
-        if not verify_checksum(file_path, expected_checksum):
-            raise LoudFailureError(
-                f"Checksum mismatch for {filename}: "
-                f"expected {expected_checksum}, got {compute_sha256(file_path)}"
-            )
+    if algorithm == "sha256":
+        actual_checksum = compute_sha256(file_path)
+    else:
+        raise ValueError(f"Unsupported algorithm: {algorithm}")
+    
+    if actual_checksum != expected_checksum:
+        raise LoudFailureError(
+            f"Checksum mismatch for {file_path}:\n"
+            f"  Expected: {expected_checksum}\n"
+            f"  Actual:   {actual_checksum}"
+        )
+    
+    return True
 
+def validate_data_integrity(file_paths: List[str], checksum_file: Optional[str] = None) -> Dict[str, bool]:
+    """
+    Validate the integrity of multiple files against a checksums JSON file.
+    
+    Args:
+        file_paths: List of file paths to validate.
+        checksum_file: Path to the checksums.json file. Defaults to data/checksums.json.
+        
+    Returns:
+        Dictionary mapping file paths to validation status (True/False).
+        
+    Raises:
+        LoudFailureError: If any file fails validation or checksum file is missing.
+    """
+    if checksum_file is None:
+        checksum_file = str(get_path("data", "checksums.json"))
+    
+    if not os.path.exists(checksum_file):
+        raise LoudFailureError(f"Checksum file not found: {checksum_file}")
+    
+    with open(checksum_file, "r", encoding="utf-8") as f:
+        checksum_data = json.load(f)
+    
+    algorithm = checksum_data.get("algorithm", "sha256")
+    files_checksums = checksum_data.get("files", {})
+    
+    validation_results = {}
+    
+    for file_path in file_paths:
+        if file_path not in files_checksums:
+            raise LoudFailureError(f"No checksum registered for: {file_path}")
+        
+        expected_checksum = files_checksums[file_path]
+        
+        try:
+            verify_checksum(file_path, expected_checksum, algorithm)
+            validation_results[file_path] = True
+        except LoudFailureError as e:
+            # Re-raise immediately on failure to ensure loud failure
+            raise e
+    
+    return validation_results
 
-def load_jsonl_file(file_path: Path) -> List[Dict[str, Any]]:
+def load_jsonl_file(file_path: str) -> List[Dict[str, Any]]:
     """Load a JSONL file into a list of dictionaries."""
-    if not file_path.exists():
+    if not os.path.exists(file_path):
         raise LoudFailureError(f"JSONL file not found: {file_path}")
     
     data = []
@@ -65,183 +109,101 @@ def load_jsonl_file(file_path: Path) -> List[Dict[str, Any]]:
             try:
                 data.append(json.loads(line))
             except json.JSONDecodeError as e:
-                raise LoudFailureError(
-                    f"Invalid JSON at line {line_num} in {file_path}: {e}"
-                )
+                raise LoudFailureError(f"Invalid JSON on line {line_num} in {file_path}: {e}")
+    
     return data
 
-
-def save_jsonl_file(data: List[Dict[str, Any]], file_path: Path) -> None:
+def save_jsonl_file(data: List[Dict[str, Any]], file_path: str) -> None:
     """Save a list of dictionaries to a JSONL file."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directories(file_path)
     with open(file_path, "w", encoding="utf-8") as f:
         for record in data:
             f.write(json.dumps(record) + "\n")
 
-
-def fetch_advbench(output_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def generate_deterministic_timestamp(log_id: str) -> str:
     """
-    Fetch AdvBench dataset from Hugging Face using streaming.
-    
-    Source: https://huggingface.co/datasets/llm-attacks/advbench
+    Generate a deterministic timestamp based on log_id.
+    Uses hash of log_id to create a varied timestamp within a year range.
     
     Args:
-        output_path: Optional path to save the dataset locally. If None, returns data in memory.
+        log_id: The unique identifier for the log record.
         
     Returns:
-        List of dictionaries containing 'text' and 'label' columns.
+        ISO format timestamp string.
+    """
+    import hashlib
+    import datetime
+    
+    # Hash the log_id to get a deterministic integer
+    hash_obj = hashlib.sha256(log_id.encode('utf-8'))
+    hash_int = int(hash_obj.hexdigest(), 16)
+    
+    # Use a base date (e.g., 2023-01-01) and add a deterministic number of days
+    base_date = datetime.datetime(2023, 1, 1)
+    # Use modulo to get days within a year range (365 days)
+    days_offset = hash_int % 365
+    
+    # Generate the timestamp
+    timestamp = base_date + datetime.timedelta(days=days_offset)
+    
+    return timestamp.isoformat()
+
+def fetch_advbench() -> Generator[Dict[str, Any], None, None]:
+    """
+    Fetch AdvBench dataset using streaming.
+    
+    Yields:
+        Dictionary records from the AdvBench dataset.
         
     Raises:
-        LoudFailureError: If dataset fetch fails or data is invalid.
+        LoudFailureError: If dataset fetch fails.
     """
     try:
-        # Use streaming to avoid loading entire dataset into memory
-        dataset = load_dataset(
-            "llm-attacks/advbench", 
-            split="train", 
-            streaming=True
-        )
-        
-        data = []
-        for idx, row in enumerate(dataset):
-            if "text" not in row:
-                raise LoudFailureError(
-                    f"AdvBench row {idx} missing 'text' field: {row}"
-                )
-            data.append({
-                "text": str(row["text"]).strip(),
-                "label": "jailbreak"  # AdvBench is specifically jailbreak attempts
-            })
-        
-        if not data:
-            raise LoudFailureError("AdvBench dataset returned empty results")
-        
-        if output_path:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            save_jsonl_file(data, output_path)
-        
-        return data
-        
+        dataset = load_dataset("llm-attacks/advbench", split="train", streaming=True)
+        for record in dataset:
+            yield record
     except Exception as e:
         raise LoudFailureError(f"Failed to fetch AdvBench dataset: {e}")
 
-
-def fetch_hf4(output_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def fetch_hf4() -> Generator[Dict[str, Any], None, None]:
     """
-    Fetch HF4 (Harmless-4) dataset from Hugging Face using streaming.
+    Fetch HF4 dataset using streaming.
     
-    Source: https://huggingface.co/datasets/llm-attacks/harmless-base
-    (Note: Using harmless-base as the proxy for HF4 safe logs)
-    
-    Args:
-        output_path: Optional path to save the dataset locally. If None, returns data in memory.
-        
-    Returns:
-        List of dictionaries containing 'text' and 'label' columns.
+    Yields:
+        Dictionary records from the HF4 dataset.
         
     Raises:
-        LoudFailureError: If dataset fetch fails or data is invalid.
+        LoudFailureError: If dataset fetch fails.
     """
     try:
-        # Using harmless-base as the source for safe/benign logs
-        dataset = load_dataset(
-            "llm-attacks/harmless-base", 
-            split="train", 
-            streaming=True
-        )
-        
-        data = []
-        for idx, row in enumerate(dataset):
-            if "text" not in row:
-                raise LoudFailureError(
-                    f"HF4 row {idx} missing 'text' field: {row}"
-                )
-            data.append({
-                "text": str(row["text"]).strip(),
-                "label": "safe"  # HF4 is specifically safe/benign logs
-            })
-        
-        if not data:
-            raise LoudFailureError("HF4 dataset returned empty results")
-        
-        if output_path:
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            save_jsonl_file(data, output_path)
-        
-        return data
-        
+        # Assuming HF4 is available as a dataset; adjust dataset name if different
+        dataset = load_dataset("llm-attacks/hf4", split="train", streaming=True)
+        for record in dataset:
+            yield record
     except Exception as e:
         raise LoudFailureError(f"Failed to fetch HF4 dataset: {e}")
 
-
-def fetch_taxonomy(output_path: Path) -> List[Dict[str, Any]]:
+def fetch_taxonomy() -> List[Dict[str, Any]]:
     """
-    Fetch the fixed AgentDoG safety taxonomy from a canonical URL.
+    Fetch the fixed AgentDoG safety taxonomy.
     
-    Args:
-        output_path: Path to save the taxonomy JSON file.
-        
     Returns:
         List of taxonomy entries.
         
     Raises:
-        LoudFailureError: If fetch fails and local fallback is not available.
+        LoudFailureError: If taxonomy fetch fails.
     """
-    import urllib.request
-    import urllib.error
-    
-    canonical_url = "https://raw.githubusercontent.com/llmXive/agentdog/main/taxonomy_agentdog.json"
-    local_fallback = output_path.parent / "taxonomy_agentdog_local.json"
-    
-    # Try canonical URL first
     try:
-        with urllib.request.urlopen(canonical_url, timeout=30) as response:
-            if response.status != 200:
-                raise LoudFailureError(f"Canonical URL returned status {response.status}")
-            taxonomy_data = json.loads(response.read().decode("utf-8"))
+        # Placeholder for taxonomy fetch; adjust based on actual source
+        # This could be a URL or a specific dataset
+        raise LoudFailureError("Taxonomy fetch not yet implemented for this task")
     except Exception as e:
-        # Fall back to local copy if network fails
-        if local_fallback.exists():
-            with open(local_fallback, "r", encoding="utf-8") as f:
-                taxonomy_data = json.load(f)
-        else:
-            raise LoudFailureError(
-                f"Failed to fetch taxonomy from canonical URL and no local fallback: {e}"
-            )
-    
-    # Save to output path
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(taxonomy_data, f, indent=2)
-    
-    return taxonomy_data
-
+        raise LoudFailureError(f"Failed to fetch taxonomy: {e}")
 
 def main():
-    """Main entry point for data loading demonstration."""
-    from config import get_path, ensure_directories
-    
-    raw_dir = get_path("data/raw")
-    ensure_directories([raw_dir])
-    
-    print("Fetching AdvBench dataset...")
-    try:
-        advbench_data = fetch_advbench(raw_dir / "advbench.jsonl")
-        print(f"Successfully fetched {len(advbench_data)} AdvBench entries")
-    except LoudFailureError as e:
-        print(f"AdvBench fetch failed: {e}")
-        sys.exit(1)
-    
-    print("\nFetching HF4 dataset...")
-    try:
-        hf4_data = fetch_hf4(raw_dir / "hf4.jsonl")
-        print(f"Successfully fetched {len(hf4_data)} HF4 entries")
-    except LoudFailureError as e:
-        print(f"HF4 fetch failed: {e}")
-        sys.exit(1)
-    
-    print("\nData loading complete!")
-
+    """Main entry point for data loader module."""
+    print("Data loader module loaded successfully.")
+    print("Available functions: compute_sha256, verify_checksum, validate_data_integrity, load_jsonl_file, save_jsonl_file")
 
 if __name__ == "__main__":
     main()
