@@ -1,43 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: GateMem Dataset Schema
-description: Schema for GateMem benchmark episodes including leak-target, roles, domains, outcome, and authorization_boundaries.
+# GateMem Dataset Schema Definition
+# Defines the structure and required fields for dataset episodes
+schema_version: "1.0"
 type: object
 required:
-  - episodes
+  - leak-target
+  - roles
+  - domains
+  - outcome
+  - predictors
+  - covariates
 properties:
-  episodes:
+  leak-target:
+    type: string
+    description: "Target information intended to be leaked or protected"
+  roles:
+    type: array
+    items:
+      type: string
+    description: "List of roles involved in the episode"
+  domains:
+    type: array
+    items:
+      type: string
+    description: "List of domains (e.g., medical, office, education) associated with the episode"
+  outcome:
+    type: object
+    properties:
+      success:
+        type: boolean
+      label:
+        type: string
+    description: "Outcome of the episode regarding information access"
+  predictors:
     type: array
     items:
       type: object
-      required:
-        - id
-        - domain
-        - leak_target
-        - role
-        - outcome
-        - authorization_boundaries
       properties:
-        id:
+        name:
           type: string
-          description: Unique identifier for the episode.
-        domain:
+        value:
+          type: [string, number, boolean]
+    description: "Predictor variables for the episode"
+  covariates:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
           type: string
-          description: The domain of the episode (e.g., medical, office, education).
-        leak_target:
-          type: string
-          description: The specific information or data that is the target of a potential leak.
-        role:
-          type: string
-          description: The role of the user in this episode.
-        outcome:
-          type: string
-          description: The expected outcome (e.g., allow, deny).
-        authorization_boundaries:
-          type: object
-          description: Dictionary defining the specific boundaries for this episode.
-          additionalProperties: true
-        metadata:
-          type: object
-          description: Optional metadata for the episode.
-          additionalProperties: true
+        value:
+          type: [string, number, boolean]
+    description: "Covariate variables for the episode"
 additionalProperties: false

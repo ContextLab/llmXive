@@ -1,30 +1,24 @@
-T010:
-  c: true
-  h: 5cb005816c2b16d8b4f598bcb4d49ca88a15c6cfd48f697051aa6a901876327e
-  r: "The `tests/contract/test_dataset_schema.py` file is present, non\u2011empty,\
-    \ and contains tests that check for the schema file\u2019s existence, its YAML\
-    \ validity, and proper field validation\u2014exactly the behavior required (failing\
-    \ when the schema is missing or invalid)."
-T011:
-  c: true
-  h: 9bf59229e1ea1cc65eb00168610a764f3a1e5eb4eafd5c25e92cae10b0e2a976
-  r: "The `tests/contract/test_results_schema.py` file is present, non\u2011empty,\
-    \ and contains tests that assert the schema file exists and is valid YAML, thereby\
-    \ failing when the schema is missing or invalid as required."
-T013:
+T012:
+  c: false
+  h: f3d13f490452c4b5612d374ce4417af72d029a3078df2891689d5ad9991c8420
+  r: The required artifact `data/processed/access_control_results.json` does not exist,
+    and the schema file `results.schema.yaml` (or `schema.yaml`) is also missing,
+    so there is no content to verify against the schema. Without these files, the
+    contract test cannot be performed.
+T015a:
+  c: false
+  h: 66ec931846c0c159e5a95041f7cb8f22403fb9b7b88f49538d956b6454bdd150
+  r: "The required file `src/gatekeeper/rules.py` does not exist in the repository,\
+    \ so the core artifact\u2014a regex\u2011based rule engine for role validation\
+    \ and deletion\u2011log checking\u2014is missing. Without this file, the task\u2019\
+    s specification is not satisfied."
+T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only the task description and specification but no\
-    \ actual artifact\u2014no test script, execution logs, or Access Control score\
-    \ output for the \u201Cmedical\u201D domain subset. Consequently, there is no\
-    \ evidence that the pipeline was run or that the required score was calculated.\
-    \ The missing concrete test results must be supplied."
-T017:
-  c: false
-  h: 1f36fa567bc11643a99f64309ae470e31a509492465ed8adfba8eda90fa09e55
-  r: The required source file `src/gatekeeper/pipeline.py` does not exist, and the
-    expected output `data/processed/baseline_results.json` is also missing, so the
-    implementation and result generation cannot be verified.
+  r: "No code, configuration, or test artifacts showing the added validation\u2011\
+    error logging, exclusion logic, or model\u2011load retry handling are present.\
+    \ The implementer provided no files or diff that demonstrate the required error\u2011\
+    handling changes, so the task\u2019s requirement cannot be verified as satisfied."
 T021:
   c: false
   h: ce1215ea96bb0f6c7328c4c6081b59cb0d26486570fc96534b960b2ec1fe05d2

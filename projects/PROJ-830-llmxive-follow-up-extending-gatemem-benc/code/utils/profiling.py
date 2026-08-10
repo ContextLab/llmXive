@@ -5,6 +5,7 @@ import logging
 from typing import Optional, Dict, Any, Callable, TypeVar, ContextManager
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+import psutil
 
 try:
     import psutil
@@ -18,202 +19,256 @@ logger = setup_logging(__name__)
 
 @dataclass
 class ProfileResult:
-    """Container for profiling metrics."""
+    """Container for profiling results."""
     start_time: float
     end_time: float
     duration_ms: float
     peak_memory_mb: float
     current_memory_mb: float
-    block_name: Optional[str] = None
+    task_id: Optional[str] = None
+    domain: Optional[str] = None
 
-class ProfileContext:
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert result to dictionary for JSON serialization."""
+        return {
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "duration_ms": self.duration_ms,
+            "peak_memory_mb": self.peak_memory_mb,
+            "current_memory_mb": self.current_memory_mb,
+            "task_id": self.task_id,
+            "domain": self.domain
+        }
+
+# Global state for profiling
+_tracemalloc_active = False
+_start_time = 0.0
+_start_memory = 0.0
+_peak_memory = 0.0
+
+def get_process_memory_mb() -> float:
     """
-    Context manager for profiling CPU/RAM and wall-clock time.
-    Uses tracemalloc for memory and time.time() for wall-clock.
-    Falls back to psutil for memory if tracemalloc is unavailable or insufficient.
+    Get the current resident set size (RSS) memory usage of the process in MB.
+    Uses psutil for accurate cross-platform memory measurement.
     """
-    def __init__(self, block_name: str = "unnamed"):
-        self.block_name = block_name
-        self.start_time: float = 0.0
-        self.end_time: float = 0.0
-        self.peak_memory_mb: float = 0.0
-        self.current_memory_mb: float = 0.0
-        self._tracemalloc_started: bool = False
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
 
-    def _get_memory_mb(self) -> float:
-        """Get current process memory in MB."""
-        if HAS_PSUTIL:
-            process = psutil.Process(os.getpid())
-            # rss is Resident Set Size
-            return process.memory_info().rss / (1024 * 1024)
-        elif tracemalloc.is_tracing():
-            current, peak = tracemalloc.get_traced_memory()
-            return current / (1024 * 1024)
-        else:
-            return 0.0
-
-    def _get_peak_memory_mb(self) -> float:
-        """Get peak process memory in MB."""
-        if HAS_PSUTIL:
-            # psutil doesn't track peak RSS easily without custom logic,
-            # so we rely on tracemalloc if available, otherwise estimate.
-            if tracemalloc.is_tracing():
-                _, peak = tracemalloc.get_traced_memory()
-                return peak / (1024 * 1024)
-            # Fallback: current is a safe lower bound estimate
-            return self._get_memory_mb()
-        elif tracemalloc.is_tracing():
-            _, peak = tracemalloc.get_traced_memory()
-            return peak / (1024 * 1024)
-        else:
-            return 0.0
-
-    def __enter__(self) -> "ProfileContext":
-        self.start_time = time.time()
-        if not tracemalloc.is_tracing():
-            tracemalloc.start()
-            self._tracemalloc_started = True
-        else:
-            self._tracemalloc_started = False
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end_time = time.time()
-        self.current_memory_mb = self._get_memory_mb()
-        self.peak_memory_mb = self._get_peak_memory_mb()
-        
-        duration = self.end_time - self.start_time
-        self.duration_ms = duration * 1000
-
-        result = ProfileResult(
-            start_time=self.start_time,
-            end_time=self.end_time,
-            duration_ms=self.duration_ms,
-            peak_memory_mb=self.peak_memory_mb,
-            current_memory_mb=self.current_memory_mb,
-            block_name=self.block_name
-        )
-        
-        log_metrics(result)
-        
-        if self._tracemalloc_started:
-            tracemalloc.stop()
-
-    def get_result(self) -> ProfileResult:
-        """Manually retrieve results if not using context manager exit."""
-        self.end_time = time.time()
-        self.duration_ms = (self.end_time - self.start_time) * 1000
-        self.current_memory_mb = self._get_memory_mb()
-        self.peak_memory_mb = self._get_peak_memory_mb()
-        return ProfileResult(
-            start_time=self.start_time,
-            end_time=self.end_time,
-            duration_ms=self.duration_ms,
-            peak_memory_mb=self.peak_memory_mb,
-            current_memory_mb=self.current_memory_mb,
-            block_name=self.block_name
-        )
-
-def log_metrics(result: ProfileResult) -> None:
+def get_peak_memory_mb() -> float:
     """
-    Log profiling metrics to the configured logger.
-    Format: [PROFILING] <block_name>: <duration_ms>ms, <peak_memory_mb>MB peak.
+    Get the peak memory usage recorded by tracemalloc in MB.
+    Returns 0.0 if tracemalloc is not active.
     """
-    msg = (
-        f"[PROFILING] {result.block_name}: "
-        f"{result.duration_ms:.2f}ms wall-clock, "
-        f"{result.peak_memory_mb:.2f}MB peak RAM"
+    if not _tracemalloc_active:
+        return 0.0
+    current, peak = tracemalloc.get_traced_memory()
+    return peak / (1024 * 1024)
+
+def start_profiling() -> None:
+    """
+    Start global memory and time profiling.
+    Initializes tracemalloc and records start time.
+    """
+    global _tracemalloc_active, _start_time, _start_memory, _peak_memory
+    
+    if not _tracemalloc_active:
+        tracemalloc.start()
+        _tracemalloc_active = True
+        logger.debug("tracemalloc started for profiling")
+    
+    _start_time = time.perf_counter()
+    _start_memory = get_process_memory_mb()
+    _peak_memory = _start_memory
+    logger.debug(f"Profiling started. Initial memory: {_start_memory:.2f} MB")
+
+def stop_profiling() -> ProfileResult:
+    """
+    Stop profiling and return the result.
+    
+    Returns:
+        ProfileResult: Object containing duration and memory metrics.
+    """
+    global _tracemalloc_active, _start_time, _peak_memory
+    
+    end_time = time.perf_counter()
+    duration_ms = (end_time - _start_time) * 1000
+    
+    current_mem = get_process_memory_mb()
+    peak_mem = get_peak_memory_mb()
+    
+    # Update global peak if current is higher
+    if current_mem > _peak_memory:
+        _peak_memory = current_mem
+    
+    result = ProfileResult(
+        start_time=_start_time,
+        end_time=end_time,
+        duration_ms=duration_ms,
+        peak_memory_mb=peak_mem if peak_mem > 0 else _peak_memory,
+        current_memory_mb=current_mem
     )
-    logger.info(msg)
+    
+    logger.debug(f"Profiling stopped. Duration: {duration_ms:.2f}ms, Peak RAM: {result.peak_memory_mb:.2f} MB")
+    return result
+
+def reset_profiling() -> None:
+    """
+    Reset global profiling state without stopping tracemalloc.
+    Useful for measuring multiple segments independently.
+    """
+    global _start_time, _start_memory, _peak_memory
+    _start_time = time.perf_counter()
+    _start_memory = get_process_memory_mb()
+    _peak_memory = _start_memory
+    logger.debug("Profiling state reset")
 
 @contextmanager
-def profile_block(name: str = "block") -> ContextManager[ProfileContext]:
-    """Context manager to profile a specific code block."""
-    ctx = ProfileContext(block_name=name)
+def profile_block(task_id: Optional[str] = None, domain: Optional[str] = None) -> Any:
+    """
+    Context manager to profile a specific block of code.
+    
+    Args:
+        task_id: Optional identifier for the task being profiled.
+        domain: Optional domain name for categorization.
+        
+    Yields:
+        ProfileResult: The result of the profiling operation.
+    """
+    start_time = time.perf_counter()
+    start_mem = get_process_memory_mb()
+    
+    # Ensure tracemalloc is running if not already
+    if not _tracemalloc_active:
+        tracemalloc.start()
+        _tracemalloc_active = True
+    
     try:
         yield ctx
     finally:
-        pass  # Logging happens in __exit__
-
-def profile_function(func: Callable) -> Callable:
-    """Decorator to profile a function's execution time and memory."""
-    def wrapper(*args, **kwargs):
-        with ProfileContext(block_name=func.__name__) as ctx:
-            result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        duration_ms = (end_time - start_time) * 1000
+        current_mem = get_process_memory_mb()
+        peak_mem = get_peak_memory_mb()
+        
+        result = ProfileResult(
+            start_time=start_time,
+            end_time=end_time,
+            duration_ms=duration_ms,
+            peak_memory_mb=peak_mem,
+            current_memory_mb=current_mem,
+            task_id=task_id,
+            domain=domain
+        )
+        
+        logger.info(f"Block '{task_id}' profiled: {duration_ms:.2f}ms, Peak: {peak_mem:.2f} MB")
         return result
+
+@contextmanager
+def profile_function(func: Callable) -> Callable:
+    """
+    Decorator-style context manager to profile a function call.
+    
+    Args:
+        func: The function to profile.
+        
+    Returns:
+        Wrapped function that returns (result, ProfileResult).
+    """
+    def wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        start_mem = get_process_memory_mb()
+        
+        if not _tracemalloc_active:
+            tracemalloc.start()
+            _tracemalloc_active = True
+        
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            end_time = time.perf_counter()
+            duration_ms = (end_time - start_time) * 1000
+            current_mem = get_process_memory_mb()
+            peak_mem = get_peak_memory_mb()
+            
+            logger.info(f"Function '{func.__name__}' executed: {duration_ms:.2f}ms, Peak: {peak_mem:.2f} MB")
+            # Note: In a real implementation, we might want to attach the profile result to the return value
+            # For now, we just log it. The caller can access global stats if needed.
+        
+        return result
+    
     return wrapper
 
-def start_profiling() -> None:
-    """Start global tracing if not already started."""
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
-        logger.info("Tracemalloc started for global profiling.")
-
-def stop_profiling() -> None:
-    """Stop global tracing."""
-    if tracemalloc.is_tracing():
-        tracemalloc.stop()
-        logger.info("Tracemalloc stopped.")
-
-def reset_profiling() -> None:
-    """Reset tracing to clear accumulated memory stats."""
-    if tracemalloc.is_tracing():
-        tracemalloc.stop()
-    tracemalloc.start()
-    logger.info("Tracemalloc reset.")
-
-def get_process_memory_mb() -> float:
-    """Utility to get current process memory in MB."""
-    if HAS_PSUTIL:
-        process = psutil.Process(os.getpid())
-        return process.memory_info().rss / (1024 * 1024)
-    elif tracemalloc.is_tracing():
-        current, _ = tracemalloc.get_traced_memory()
-        return current / (1024 * 1024)
-    return 0.0
-
-def get_peak_memory_mb() -> float:
-    """Utility to get peak process memory in MB."""
-    if tracemalloc.is_tracing():
-        _, peak = tracemalloc.get_traced_memory()
-        return peak / (1024 * 1024)
-    return 0.0
-
-def measure_execution(func: Callable, *args, **kwargs) -> Tuple[float, Any]:
+def measure_execution(func: Callable, *args, **kwargs) -> tuple:
     """
-    Measure execution time and memory of a function call.
-    Returns (duration_ms, result).
-    """
-    start = time.time()
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
-        reset = True
-    else:
-        reset = False
+    Execute a function and measure its execution time and memory usage.
     
-    result = func(*args, **kwargs)
-    
-    end = time.time()
-    duration = (end - start) * 1000
-    _, peak = tracemalloc.get_traced_memory()
-    peak_mb = peak / (1024 * 1024)
-    
-    if reset:
-        tracemalloc.stop()
+    Args:
+        func: The function to execute.
+        *args: Positional arguments for the function.
+        **kwargs: Keyword arguments for the function.
         
-    logger.info(f"[MEASURE] {func.__name__}: {duration:.2f}ms, {peak_mb:.2f}MB peak")
-    return duration, result
+    Returns:
+        tuple: (function_return_value, ProfileResult)
+    """
+    start_time = time.perf_counter()
+    start_mem = get_process_memory_mb()
+    
+    if not _tracemalloc_active:
+        tracemalloc.start()
+        _tracemalloc_active = True
+    
+    try:
+        result = func(*args, **kwargs)
+    finally:
+        end_time = time.perf_counter()
+        duration_ms = (end_time - start_time) * 1000
+        current_mem = get_process_memory_mb()
+        peak_mem = get_peak_memory_mb()
+        
+        profile_result = ProfileResult(
+            start_time=start_time,
+            end_time=end_time,
+            duration_ms=duration_ms,
+            peak_memory_mb=peak_mem,
+            current_memory_mb=current_mem
+        )
+        
+        logger.debug(f"Function '{func.__name__}' measured: {duration_ms:.2f}ms, Peak: {peak_mem:.2f} MB")
+    
+    return result, profile_result
 
 def main():
-    """Demo execution for profiling module."""
-    logger.info("Starting profiling demo...")
+    """
+    Main entry point for testing the profiling module.
+    Runs a simple benchmark to demonstrate functionality.
+    """
+    logger.info("Starting profiling module self-test")
     
-    with ProfileContext("demo_block") as ctx:
-        # Simulate work
-        data = [i * i for i in range(1000000)]
-        _ = sum(data)
+    # Start global profiling
+    start_profiling()
     
-    logger.info(f"Demo completed. Peak RAM: {ctx.peak_memory_mb:.2f}MB")
+    # Simulate some work
+    data = []
+    for i in range(100000):
+        data.append(i * i)
+    
+    # Stop profiling
+    result = stop_profiling()
+    
+    print(f"Self-test Results:")
+    print(f"  Duration: {result.duration_ms:.2f} ms")
+    print(f"  Peak Memory: {result.peak_memory_mb:.2f} MB")
+    print(f"  Current Memory: {result.current_memory_mb:.2f} MB")
+    
+    # Test context manager
+    with profile_block(task_id="test_block", domain="self_test") as block_result:
+        _ = sum(range(10000))
+    
+    print(f"  Block Duration: {block_result.duration_ms:.2f} ms")
+    print(f"  Block Peak Memory: {block_result.peak_memory_mb:.2f} MB")
 
 if __name__ == "__main__":
+    # Setup basic logging if running standalone
+    logging.basicConfig(level=logging.INFO)
     main()
