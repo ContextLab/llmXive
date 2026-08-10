@@ -1,11 +1,8 @@
 """
-Save cleaned dataset to CSV with checksum and validate completeness.
+Save cleaned dataset and validate completeness.
 
-This script loads preprocessed issues from the Parquet file, saves them to CSV,
-calculates a checksum for reproducibility, and validates that the dataset meets
-the ≥95% completeness threshold for required columns.
+Implements SC-001: Validate ≥95% completeness threshold for required columns.
 """
-
 import json
 import hashlib
 import logging
@@ -15,165 +12,200 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.config import get_config, get_path
-from utils.validators import validate_dataset_schema, ValidationError
+from utils.validators import get_validator, SchemaValidator
+from utils.config import get_config
 
+# Required columns for completeness check (SC-001)
+REQUIRED_COLUMNS = [
+    'created_at',
+    'closed_at',
+    'labels',
+    'assignee',
+    'comments_count',
+    'language'
+]
+
+COMPLETENESS_THRESHOLD = 0.95
 
 def load_preprocessed_issues(input_path: Path) -> List[Dict[str, Any]]:
-    """Load preprocessed issues from Parquet file."""
-    try:
-        import pandas as pd
-        df = pd.read_parquet(input_path)
-        logging.info(f"Loaded {len(df)} issues from {input_path}")
-        return df.to_dict('records')
-    except Exception as e:
-        logging.error(f"Failed to load preprocessed issues: {e}")
-        raise
-
+    """Load preprocessed issues from Parquet or CSV."""
+    # Try Parquet first (as produced by T010)
+    if input_path.suffix == '.parquet':
+        try:
+            import pandas as pd
+            df = pd.read_parquet(input_path)
+            return df.to_dict('records')
+        except Exception as e:
+            logging.error(f"Failed to load Parquet: {e}")
+            raise
+    elif input_path.suffix == '.csv':
+        with open(input_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            return list(reader)
+    else:
+        raise ValueError(f"Unsupported file format: {input_path.suffix}")
 
 def calculate_checksum(data: List[Dict[str, Any]], algorithm: str = 'sha256') -> str:
-    """Calculate checksum of the dataset for reproducibility verification."""
-    # Convert to JSON string for consistent hashing
-    json_str = json.dumps(data, sort_keys=True, separators=(',', ':'))
-    return hashlib.new(algorithm, json_str.encode('utf-8')).hexdigest()
-
+    """Calculate checksum of the dataset content."""
+    # Serialize data deterministically
+    content = json.dumps(data, sort_keys=True, default=str)
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
 def validate_completeness(
     data: List[Dict[str, Any]],
     required_columns: List[str],
-    threshold: float = 0.95
+    threshold: float
 ) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate that required columns are populated for at least threshold percentage of rows.
-
-    Args:
-        data: List of issue dictionaries
-        required_columns: List of column names to check
-        threshold: Minimum completeness ratio (default 0.95)
-
+    Validate that required columns are populated for at least `threshold` fraction of rows.
+    
     Returns:
-        Tuple of (passed, details) where details contains per-column completeness
+        Tuple of (passed, report_dict)
     """
-    if not data:
-        logging.error("No data to validate")
-        return False, {"error": "Empty dataset"}
-
     total_rows = len(data)
-    completeness = {}
+    if total_rows == 0:
+        return False, {
+            'passed': False,
+            'threshold': threshold,
+            'total_rows': 0,
+            'details': {},
+            'message': 'Dataset is empty'
+        }
+
+    column_stats = {}
+    passed_columns = []
     failed_columns = []
 
     for col in required_columns:
-        populated_count = sum(1 for row in data if row.get(col) is not None and row.get(col) != '')
-        completeness_ratio = populated_count / total_rows
-        completeness[col] = {
-            "populated_count": populated_count,
-            "total_count": total_rows,
-            "ratio": completeness_ratio,
-            "passed": completeness_ratio >= threshold
+        non_null_count = 0
+        for row in data:
+            val = row.get(col)
+            # Check for non-null and non-empty
+            if val is not None and val != '' and val != '[]':
+                non_null_count += 1
+        
+        completeness = non_null_count / total_rows
+        column_stats[col] = {
+            'non_null_count': non_null_count,
+            'total_count': total_rows,
+            'completeness': completeness
         }
-        if completeness_ratio < threshold:
+
+        if completeness >= threshold:
+            passed_columns.append(col)
+        else:
             failed_columns.append(col)
 
     overall_passed = len(failed_columns) == 0
-    details = {
-        "overall_passed": overall_passed,
-        "threshold": threshold,
-        "required_columns": required_columns,
-        "completeness": completeness,
-        "failed_columns": failed_columns
+
+    report = {
+        'passed': overall_passed,
+        'threshold': threshold,
+        'total_rows': total_rows,
+        'details': column_stats,
+        'passed_columns': passed_columns,
+        'failed_columns': failed_columns,
+        'message': f"Completeness check {'passed' if overall_passed else 'failed'}: {len(failed_columns)} columns below threshold"
     }
 
-    if overall_passed:
-        logging.info(f"Completeness validation PASSED (≥{threshold*100}% for all required columns)")
-    else:
-        logging.warning(f"Completeness validation FAILED: {failed_columns} below {threshold*100}% threshold")
-
-    return overall_passed, details
-
+    return overall_passed, report
 
 def save_metadata(
     output_path: Path,
+    data: List[Dict[str, Any]],
     checksum: str,
-    validation_results: Dict[str, Any],
-    row_count: int
+    completeness_report: Dict[str, Any]
 ) -> None:
-    """Save metadata about the saved dataset."""
+    """Save metadata and checksum."""
     metadata = {
-        "saved_at": datetime.now(timezone.utc).isoformat(),
-        "row_count": row_count,
-        "checksum_sha256": checksum,
-        "completeness_validation": validation_results
+        'generated_at': datetime.now(timezone.utc).isoformat(),
+        'checksum': checksum,
+        'row_count': len(data),
+        'completeness_validation': completeness_report
     }
-
-    metadata_path = output_path.parent / f"{output_path.stem}_metadata.json"
+    metadata_path = output_path.with_suffix('.metadata.json')
     with open(metadata_path, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, indent=2)
-    logging.info(f"Saved metadata to {metadata_path}")
 
-
-def main() -> int:
-    """Main entry point for saving cleaned data."""
+def main():
+    """Main entry point for saving cleaned data and validating completeness."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
+    logger = logging.getLogger(__name__)
 
     config = get_config()
-    input_path = get_path(config, 'raw_parquet')
-    output_path = get_path(config, 'cleaned_csv')
+    project_root = Path(config['project_root'])
 
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Paths
+    input_path = project_root / 'data' / 'processed' / 'preprocessed_issues.parquet'
+    output_csv_path = project_root / 'data' / 'processed' / 'cleaned_issues.csv'
+    output_report_path = project_root / 'data' / 'logs' / 'completeness_report.json'
 
-    logging.info(f"Loading preprocessed issues from {input_path}")
-    data = load_preprocessed_issues(input_path)
+    # Ensure output directories exist
+    output_csv_path.parent.mkdir(parents=True, exist_ok=True)
+    output_report_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Define required columns per SC-001
-    required_columns = ['created_at', 'closed_at', 'labels', 'assignee', 'comments_count']
-    completeness_threshold = get_threshold(config, 'completeness_threshold', 0.95)
+    logger.info(f"Loading preprocessed issues from {input_path}")
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        sys.exit(1)
 
-    logging.info(f"Validating completeness (threshold: {completeness_threshold*100}%)")
-    passed, validation_details = validate_completeness(data, required_columns, completeness_threshold)
+    try:
+        data = load_preprocessed_issues(input_path)
+        logger.info(f"Loaded {len(data)} issues")
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
+        sys.exit(1)
+
+    # Validate completeness
+    logger.info(f"Validating completeness for columns: {REQUIRED_COLUMNS}")
+    passed, completeness_report = validate_completeness(
+        data, REQUIRED_COLUMNS, COMPLETENESS_THRESHOLD
+    )
+
+    # Save completeness report
+    with open(output_report_path, 'w', encoding='utf-8') as f:
+        json.dump(completeness_report, f, indent=2)
+    logger.info(f"Saved completeness report to {output_report_path}")
 
     if not passed:
-        logging.error("Completeness validation failed. Dataset does not meet requirements.")
-        # Still save the data but mark validation as failed
-        # The pipeline should not proceed to analysis if this fails
-
+        logger.warning(f"Completeness check failed: {completeness_report['message']}")
+        # Log failed columns for debugging
+        for col in completeness_report['failed_columns']:
+            stats = completeness_report['details'][col]
+            logger.warning(f"  - {col}: {stats['completeness']:.2%} (threshold: {COMPLETENESS_THRESHOLD:.0%})")
+    
     # Save to CSV
-    logging.info(f"Saving {len(data)} issues to {output_path}")
-    if data:
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
+    logger.info(f"Saving cleaned dataset to {output_csv_path}")
+    if len(data) > 0:
+        with open(output_csv_path, 'w', newline='', encoding='utf-8') as f:
+            # Use first row's keys as headers
+            fieldnames = list(data[0].keys())
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(data)
-
-    # Calculate checksum
+    
+    # Calculate and save checksum
     checksum = calculate_checksum(data)
-    logging.info(f"Dataset checksum (SHA256): {checksum}")
-
+    logger.info(f"Dataset checksum (SHA256): {checksum}")
+    
     # Save metadata
-    save_metadata(output_path, checksum, validation_details, len(data))
+    save_metadata(output_csv_path, data, checksum, completeness_report)
+    logger.info(f"Saved metadata to {output_csv_path.with_suffix('.metadata.json')}")
 
-    # Log summary
-    logging.info("=" * 60)
-    logging.info("CLEANED DATA SAVE SUMMARY")
-    logging.info("=" * 60)
-    logging.info(f"Input: {input_path}")
-    logging.info(f"Output: {output_path}")
-    logging.info(f"Rows: {len(data)}")
-    logging.info(f"Checksum: {checksum}")
-    logging.info(f"Completeness Passed: {validation_details['overall_passed']}")
-    if not validation_details['overall_passed']:
-        logging.warning(f"Failed columns: {validation_details['failed_columns']}")
-    logging.info("=" * 60)
-
-    # Return non-zero exit code if validation failed
-    return 0 if validation_details['overall_passed'] else 1
-
+    # Log final status
+    if passed:
+        logger.info("SUCCESS: Dataset meets completeness threshold (≥95%)")
+    else:
+        logger.warning("WARNING: Dataset does NOT meet completeness threshold")
+    
+    return 0 if passed else 1
 
 if __name__ == '__main__':
     sys.exit(main())

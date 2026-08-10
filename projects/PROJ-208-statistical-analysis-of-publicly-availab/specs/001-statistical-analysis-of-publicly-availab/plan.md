@@ -134,7 +134,7 @@ No complexity violations identified. The plan uses standard CPU-tractable statis
 | **FR-004** | Holm-Bonferroni correction | `code/analysis/hypothesis.py` applies `statsmodels.stats.multitest.multipletests` (for independent tests) and Westfall-Young (for dependent labels). |
 | **FR-005** | Linear Mixed-Effects Model | `code/analysis/modeling.py` uses `statsmodels` `MixedLM` with random intercepts. |
 | **FR-006** | VIF & Collinearity | `code/analysis/modeling.py` calculates VIF from **LME fixed effects design matrix**, flags `>=5`, reports descriptive joint relationships. Includes **Dimensionality Reduction** (label grouping <5%). |
-| **FR-007** | Sensitivity Analysis | `code/analysis/modeling.py` sweeps thresholds {0.01, 0.05, 0.1} with **Parametric Bootstrap**, reports **Bootstrap Stability Index**. |
+| **FR-007** | Sensitivity Analysis | `code/analysis/modeling.py` sweeps thresholds {, 0.05, 0.1} with **Parametric Bootstrap**, reports **Bootstrap Stability Index**. |
 | **FR-008** | "Associational" language | All result generation functions append "associational" or "correlational" to text. |
 | **FR-009** | ≤6h runtime | CPU-tractable methods on <10k rows ensure execution <1h. |
 | **FR-010** | CPU-only | No CUDA/GPU libraries used. |

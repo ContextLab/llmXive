@@ -1,0 +1,342 @@
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: HuggingFace loader outputs parquet with schema validation
+  claim_id: c_a1851445
+  context: 'T009a [US1] Implement HuggingFace Streaming Loader in code/data/loader_hf.py
+    to fetch from akhousker/github-issues with streaming=True; Output: data/raw/github_issues_raw_hf.parquet
+    with schema validation against contracts/dataset.schema.yaml (Plan Phase 0)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_loader_outputs_parquet_with_schema_validation
+  kind: entity_fact
+  raw_text: 'Output: data/raw/github_issues_raw_hf.parquet with schema validation
+    against contracts/dataset.schema.yaml'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:54:30Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GitHub API fallback stops at 100 unique repositories
+  claim_id: c_65bba21e
+  context: 'T009b [US1] Implement GitHub API Fallback Loader in code/data/loader_api.py
+    to collect closed issues from GitHub REST API (state=closed, since=2020-01-01)
+    from a curated list of high-star repositories; Stop condition: fetch until 100
+    unique repositories are found or the list is exhausted; Output: data/raw/github_issues_raw_api.parquet
+    (Plan Phase 0.5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Stop condition: fetch until 100 unique repositories are found or the
+    list is exhausted'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:54:46Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Orchestrator logs warning if unique repos < 100 after API exhaustion
+  claim_id: c_59fe39fc
+  context: 'T009c [US1] Implement Data Source Orchestrator in code/collect/orchestrator.py:
+    1) Call loader_hf.fetch() and count unique repos; 2) If unique repo count < 100,
+    call loader_api.fetch() to fetch from the curated list until 100 unique repositories
+    are reached; 3) If the API pool is exhausted and <100 unique repos are found,
+    log a warning but proceed (do not raise fatal error); 4) Merge data and output
+    data/raw/github_issues_raw_merged.parquet (FR-001, Plan Phase 0.5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the API pool is exhausted and <100 unique repos are found, log a warning
+    but proceed (do not raise fatal error)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:54:46Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Repository metadata enrichment outputs JSON with specific schema
+  claim_id: c_1726ed65
+  context: T045 [US1] Implement Repository Metadata Enrichment script in code/collect/enrich_metadata.py
+    to fetch language, star_count, and contributor_count for repositories in the dataset
+    via GitHub API; Output to data/processed/repo_metadata.json with schema {repo_id,
+    language, star_count, contributor_count} and merge language into the main dataset
+    (Plan Phase 0.5, FR-001)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Repository_metadata_enrichment_outputs_JSON_with_specific_sc
+  kind: entity_fact
+  raw_text: Output to data/processed/repo_metadata.json with schema {repo_id, language,
+    star_count, contributor_count}
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:55:03Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Log-normal model fitted with MLE reporting KS, p-value, and AIC
+  claim_id: c_ea7fd064
+  context: T016a [US2] Fit log-normal model using scipy.stats MLE, report KS statistic,
+    p-value, and AIC (FR-002, US-2)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log-normal_model_fitted_with_MLE_reporting_KS,_p-value,_and
+  kind: entity_fact
+  raw_text: Fit log-normal model using scipy.stats MLE, report KS statistic, p-value,
+    and AIC
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:55:50Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Weibull model fitted with MLE reporting KS, p-value, and AIC
+  claim_id: c_8ecc72c7
+  context: T016b [US2] Fit Weibull model using scipy.stats MLE, report KS statistic,
+    p-value, and AIC (FR-002, US-2)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Weibull_model_fitted_with_MLE_reporting_KS,_p-value,_and_AIC
+  kind: entity_fact
+  raw_text: Fit Weibull model using scipy.stats MLE, report KS statistic, p-value,
+    and AIC
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:56:14Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Outlier report includes count and percentage of total dataset
+  claim_id: c_b4601807
+  context: 'T017 [US2] Detect and report extreme outliers using IQR method (Q3 + 1.5*IQR)
+    as defined in Spec US-2 Acceptance Scenario 3; Note: This Spec requirement overrides
+    the Plan''s mention of MAD-based detection. Report the number of outliers and
+    their percentage of the total dataset; Output to data/processed/outlier_report.json
+    (FR-002, US-2, Plan Phase 2)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outlier_report_includes_count_and_percentage_of_total_datase
+  kind: entity_fact
+  raw_text: Report the number of outliers and their percentage of the total dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:56:55Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis test uses Holm-Bonferroni correction
+  claim_id: c_0abc7787
+  context: 'T021 [P] [US3] Implement Kruskal-Wallis test for programming language
+    groups with Holm-Bonferroni correction for independent tests (FR-004); Note: Westfall-Young
+    is an optional extension only if the Plan is updated, NOT a primary implementation
+    target. Output to code/analysis/hypothesis_testing.py (FR-004, US-3)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_test_uses_Holm-Bonferroni_correction
+  kind: entity_fact
+  raw_text: Implement Kruskal-Wallis test for programming language groups with Holm-Bonferroni
+    correction for independent tests
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:57:09Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 5-fold stratified CV generates MAE and R2 metrics with standard deviation
+  claim_id: c_b6dbe97b
+  context: "T023 [US3] Implement 5-fold Stratified Cross-Validation by repository\
+    \ size in code/analysis/modeling.py to generate MAE and R\xB2 metrics with standard\
+    \ deviation across folds (SC-004, US-3)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement 5-fold Stratified Cross-Validation by repository size to generate\
+    \ MAE and R\xB2 metrics with standard deviation across folds"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:57:31Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged when VIF >= 5
+  claim_id: c_2eb3ee15
+  context: "T024 [US3] Calculate VIF from full model design matrix, flag collinearity\
+    \ (VIF\u22655), and enforce descriptive language for joint relationship (not independent\
+    \ effects) in code/diagnostics/collinearity.py (FR-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "flag collinearity (VIF\u22655)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:57:31Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Parametric bootstrap uses 1000 resamples and random state 42
+  claim_id: c_4ae075f8
+  context: 'T025a [US3] Implement Parametric Bootstrap function in code/analysis/sensitivity.py
+    with n_resamples=1000, random_state=42, and distribution assumption based on log-normal/Weibull
+    fit results from T016; Output: data/processed/bootstrap_samples.pkl AND data/processed/stability_proportions.json
+    containing the stability proportion (proportion of bootstrap resamples significant)
+    for each threshold {0.01, 0.05, 0.1} (FR-007, Plan Phase 2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Parametric Bootstrap function with n_resamples=1000, random_state=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:57:49Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sensitivity report schema includes thresholds 0.01, 0.05, and 0.1
+  claim_id: c_14e272d6
+  context: 'T025c [US3] Generate stability proportion report (proportion of bootstrap
+    resamples significant) for each threshold in data/processed/sensitivity_report.json
+    with explicit schema: {0.01: <float>, 0.05: <float>, 0.1: <float>} (FR-007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'stability proportion report for each threshold in data/processed/sensitivity_report.json
+    with explicit schema: {0.01: <float>, 0.05: <float>, 0.1: <float>}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:58:17Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Labels with < 1% frequency grouped into Other category
+  claim_id: c_0782fbd9
+  context: 'T049 [US3] Update code/analysis/mixed_effects_model.py to implement Dimensionality
+    Reduction for categorical variables: group labels with <1% frequency into an Other
+    category before one-hot encoding to prevent singular matrices in VIF calculation
+    (Plan Phase 2, FR-006)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: group labels with <1% frequency into an Other category before one-hot
+    encoding
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:58:17Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pytest coverage target is >= 80%
+  claim_id: c_169e9af4
+  context: "T042 [P] Achieve pytest coverage \u226580% with coverage report"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Achieve pytest coverage \u226580% with coverage report"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:58:17Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Runtime constraint is <= 6 hours
+  claim_id: c_ca792a7a
+  context: "T029 [P] Configure GitHub Actions workflow for CI (standard CPU allocation,\
+    \ sufficient RAM, h timeout) AND validate actual runtime stays within \u22646h\
+    \ constraint (FR-009, FR-010)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate actual runtime stays within \u22646h constraint"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:58:17Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Rate limit handling waits >= 60 seconds
+  claim_id: c_7578bbb2
+  context: "T005 [P] Implement GitHub API client with rate limit handling, exponential\
+    \ backoff, and explicit wait \u226560 seconds before resuming upon rate limit\
+    \ hits in code/utils/api_client.py (FR-001, US-1)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "wait \u226560 seconds before resuming upon rate limit hits"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:58:17Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Independent test verifies >= 1000 issues with non-missing resolution
+    times
+  claim_id: c_4ee48909
+  context: "Independent Test: Run collection pipeline on a fixed set of repositories;\
+    \ verify output CSV contains \u22651000 issues with non-missing resolution times\
+    \ and all required feature columns (US1 acceptance scenario 1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify output CSV contains \u22651000 issues with non-missing resolution\
+    \ times"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:58:17Z'
+- artifact_path: projects/PROJ-208-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Streaming data loader keeps memory usage under 7GB
+  claim_id: c_d6c0aadf
+  context: T047 [US1] Implement Streaming Data Loader in code/data/loader.py using
+    datasets.load_dataset(..., streaming=True) to process the full real dataset in
+    chunks, ensuring memory usage stays <7GB while avoiding synthetic sampling unless
+    the full stream is impossible (Plan Phase 0, Constitution Principle II)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_data_loader_keeps_memory_usage_under_7GB
+  kind: entity_fact
+  raw_text: memory usage stays <7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:58:29Z'

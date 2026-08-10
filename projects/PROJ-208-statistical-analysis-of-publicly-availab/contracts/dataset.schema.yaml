@@ -1,0 +1,75 @@
+# Schema for GitHub Issues Dataset
+# Used for validation in T009a and T011
+schema_name: github_issues
+version: "1.0"
+description: "Schema for raw and processed GitHub issue data"
+
+fields:
+  - name: repository
+    type: string
+    required: true
+    description: "Repository full name (owner/repo)"
+    
+  - name: issue_number
+    type: integer
+    required: true
+    description: "Unique issue number within the repository"
+    
+  - name: created_at
+    type: string
+    required: true
+    description: "ISO 8601 timestamp of issue creation"
+    
+  - name: closed_at
+    type: string
+    required: false
+    description: "ISO 8601 timestamp of issue closure (null if open)"
+    
+  - name: labels
+    type: string
+    required: false
+    description: "JSON string or comma-separated list of labels"
+    
+  - name: assignee
+    type: string
+    required: false
+    description: "Username of the assignee (null if unassigned)"
+    
+  - name: comments_count
+    type: integer
+    required: true
+    description: "Number of comments on the issue"
+    
+  - name: title
+    type: string
+    required: true
+    description: "Issue title"
+    
+  - name: state
+    type: string
+    required: true
+    description: "State of the issue (open/closed)"
+    
+  - name: author
+    type: string
+    required: true
+    description: "Username of the issue author"
+
+  - name: resolution_time_hours
+    type: float
+    required: false
+    description: "Calculated time between created_at and closed_at"
+    
+  - name: language
+    type: string
+    required: false
+    description: "Primary programming language of the repository"
+
+constraints:
+  resolution_time_hours:
+    min: 0
+    max: 87600 # 10 years max
+  comments_count:
+    min: 0
+  issue_number:
+    min: 1

@@ -88,12 +88,12 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 1
 
 - [X] T047 [US1] Implement **Streaming Data Loader** in `code/data/loader.py` using `datasets.load_dataset(..., streaming=True)` to process the full real dataset in chunks, ensuring memory usage stays <7GB while avoiding synthetic sampling unless the full stream is impossible (Plan Phase 0, Constitution Principle II)
-- [ ] T009a [US1] Implement **HuggingFace Streaming Loader** in `code/data/loader_hf.py` to fetch from `akhousker/github-issues` with `streaming=True`; Output: `data/raw/github_issues_raw_hf.parquet` (Plan Phase 0)
-- [ ] T009b [US1] Implement **GitHub API Fallback Loader** in `code/data/loader_api.py` to collect closed issues from GitHub REST API (`state=closed`, `since=2020-01-01`) for a fixed set of repositories; Output: `data/raw/github_issues_raw_api.parquet` (Plan Phase 0.5)
-- [ ] T009c [US1] Implement **Data Source Orchestrator** in `code/collect/orchestrator.py`: 1) Call `loader_hf.fetch()` and count unique repos; 2) If unique repo count < 100, call `loader_api.fetch()` to fetch until a sufficient number of unique repositories are reached; 3) If total unique repos < 100 after both sources, **raise a fatal exception**; 4) Merge data and output `data/raw/github_issues_raw_merged.parquet` (FR-001, Plan Phase 0.5)
-- [ ] T045 [US1] Implement **Repository Metadata Enrichment** script in `code/collect/enrich_metadata.py` to fetch `language`, `star_count`, and `contributor_count` for repositories in the dataset via GitHub API; Output to `data/processed/repo_metadata.json` with schema `{repo_id, language, star_count, contributor_count}` (Plan Phase 0.5, FR-001)
-- [ ] T010 [US1] Implement preprocessing script in `code/collect/preprocess.py` to compute resolution_time_hours and exclude invalid issues (FR-002, FR-003)
-- [ ] T011 [US1] Save cleaned dataset to `data/processed/cleaned_issues.csv` with checksum AND validate ≥95% completeness threshold per SC-001 by checking that columns `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`, and `language` are populated for ≥95% of rows using `code/utils/validators.py` (defined in T006); Output validation report to `data/logs/completeness_report.json` (SC-001)
+- [ ] T009a [US1] Implement **HuggingFace Streaming Loader** in `code/data/loader_hf.py` to fetch from `akhousker/github-issues` with `streaming=True`; **Output**: `data/raw/github_issues_raw_hf.parquet` with schema validation against `contracts/dataset.schema.yaml` (Plan Phase 0)
+- [ ] T009b [US1] Implement **GitHub API Fallback Loader** in `code/data/loader_api.py` to collect closed issues from GitHub REST API (`state=closed`, `since=2020-01-01`) from a **curated list of high-star repositories**; **Stop condition**: fetch until **100 unique repositories** are found or the list is exhausted; Output: `data/raw/github_issues_raw_api.parquet` (Plan Phase 0.5)
+- [ ] T009c [US1] Implement **Data Source Orchestrator** in `code/collect/orchestrator.py`: 1) Call `loader_hf.fetch()` and count unique repos; 2) If unique repo count < 100, call `loader_api.fetch()` to fetch from the curated list until **100 unique repositories** are reached; 3) If the API pool is exhausted and <100 unique repos are found, **log a warning but proceed** (do not raise fatal error); 4) Merge data and output `data/raw/github_issues_raw_merged.parquet` (FR-001, Plan Phase 0.5) <!-- FAILED: unspecified -->
+- [ ] T045 [US1] Implement **Repository Metadata Enrichment** script in `code/collect/enrich_metadata.py` to fetch `language`, `star_count`, and `contributor_count` for repositories in the dataset via GitHub API; Output to `data/processed/repo_metadata.json` with schema `{repo_id, language, star_count, contributor_count}` and merge `language` into the main dataset (Plan Phase 0.5, FR-001)
+- [X] T010 [US1] Implement preprocessing script in `code/collect/preprocess.py` to compute resolution_time_hours and exclude invalid issues (FR-002, FR-003)
+- [ ] T011 [US1] Save cleaned dataset to `data/processed/cleaned_issues.csv` with checksum AND validate ≥95% completeness threshold per SC-001 by checking that columns `created_at`, `closed_at`, `labels`, `assignee`, `comments_count`, and `language` (post-enrichment) are populated for ≥95% of rows using `code/utils/validators.py` (defined in T006); Output validation report to `data/logs/completeness_report.json` (SC-001)
 - [ ] T012 [US1] Add logging for excluded issues (negative resolution time, missing timestamps) to `data/logs/preprocessing.log` in JSON format (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -116,10 +116,10 @@ description: "Task list template for feature implementation"
 - [X] T015 [P] [US2] Implement ECDF plot generation in `code/analysis/distribution_fitting.py` (x-axis log scale) (FR-002)
 - [X] T016a [US2] Fit log-normal model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
 - [X] T016b [US2] Fit Weibull model using scipy.stats MLE, report KS statistic, p-value, and AIC (FR-002, US-2)
-- [ ] T017 [US2] Detect and report extreme outliers using **MAD-based outlier detection** (Median Absolute Deviation on log-transformed resolution times); report the **number of outliers** and their **percentage of the total dataset**; Output to `data/processed/outlier_report.json` (FR-002, US-2, Plan Phase 2)
+- [ ] T017 [US2] Detect and report extreme outliers using **IQR method (Q3 + 1.5*IQR)** as defined in Spec US-2 Acceptance Scenario 3; **Note**: This Spec requirement overrides the Plan's mention of MAD-based detection. Report the **number of outliers** and their **percentage of the total dataset**; Output to `data/processed/outlier_report.json` (FR-002, US-2, Plan Phase 2)
 - [X] T018 [US2] Save figures to `data/figures/` and results to `data/processed/distribution_metrics.json` (SC-002)
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, At least User Story 1 AND 2 should both work independently
 
 ---
 
@@ -136,13 +136,13 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [X] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with **Holm-Bonferroni correction** for independent tests (FR-004); For label-dependent groups, apply **Westfall-Young permutation** as an optional extension if Holm-Bonferroni is insufficient (Plan Phase 2); Output to `code/analysis/hypothesis_testing.py` (FR-004, US-3)
+- [X] T021 [P] [US3] Implement Kruskal-Wallis test for programming language groups with **Holm-Bonferroni correction** for independent tests (FR-004); **Note**: Westfall-Young is an optional extension only if the Plan is updated, NOT a primary implementation target. Output to `code/analysis/hypothesis_testing.py` (FR-004, US-3)
 - [X] T022 [P] [US3] Fit linear mixed-effects model with random intercepts for repository in `code/analysis/mixed_effects_model.py` (FR-005)
 - [X] T023 [US3] Implement **5-fold Stratified Cross-Validation by repository size** in `code/analysis/modeling.py` to generate MAE and R² metrics with standard deviation across folds (SC-004, US-3)
 - [X] T024 [US3] Calculate VIF from full model design matrix, flag collinearity (VIF≥5), and enforce descriptive language for joint relationship (not independent effects) in `code/diagnostics/collinearity.py` (FR-006)
-- [ ] T025a [US3] Implement **Parametric Bootstrap** function in `code/analysis/sensitivity.py` with `n_resamples=1000`, `random_state=42`, and distribution assumption based on log-normal/Weibull fit results from T016; Output bootstrap samples to `data/processed/bootstrap_samples.pkl` (FR-007, Plan Phase 2)
-- [ ] T025b [US3] Implement sensitivity analysis sweep over thresholds **{low, 0.05, 0.1}** using the bootstrap samples from T025a; Output intermediate results to `data/processed/sensitivity_sweep.json` (FR-007)
-- [ ] T025c [US3] Generate **stability proportion report** (proportion of bootstrap resamples significant) for each threshold in `data/processed/sensitivity_report.json` (FR-007)
+- [ ] T025a [US3] Implement **Parametric Bootstrap** function in `code/analysis/sensitivity.py` with `n_resamples=1000`, `random_state=42`, and distribution assumption based on log-normal/Weibull fit results from T016; **Output**: `data/processed/bootstrap_samples.pkl` AND `data/processed/stability_proportions.json` containing the **stability proportion (proportion of bootstrap resamples significant)** for each threshold {0.01, 0.05, 0.1} (FR-007, Plan Phase 2)
+- [ ] T025b [US3] Implement sensitivity analysis sweep over thresholds **{0.01, 0.05, 0.1}** using the bootstrap samples from T025a; Output intermediate results to `data/processed/sensitivity_sweep.json` (FR-007)
+- [ ] T025c [US3] Generate **stability proportion report** (proportion of bootstrap resamples significant) for each threshold in `data/processed/sensitivity_report.json` with explicit schema: `{0.01: <float>, 0.05: <float>, 0.1: <float>}` (FR-007)
 - [X] T026 [US3] Enforce "associational" or "correlational" language in all result text generation in `code/analysis/results.py` (FR-008)
 - [X] T049 [US3] Update `code/analysis/mixed_effects_model.py` to implement **Dimensionality Reduction** for categorical variables: group labels with <1% frequency into an "Other" category before one-hot encoding to prevent singular matrices in VIF calculation (Plan Phase 2, FR-006)
 
@@ -227,7 +227,7 @@ description: "Task list template for feature implementation"
 - Once Foundational phase completes, US2 and US3 can start in parallel (if team capacity allows), but both depend on US1 data
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (once data is ready)
-- T016a and T016b share code/analysis/distribution_fitting.py; they can run in parallel if implemented as separate functions
+- T016a and T016b share code/analysis/distribution_fitting.py; they can run in parallel if implemented as separate functions. **Note**: T016a and T016b are parallel *with each other*, but both must complete before T018 (Save results).
 - T015 and T016a/T016b share code; T016a/T016b cannot run before T015 if they share the same file instance, but logically T015 (ECDF) and T016 (Fitting) are distinct steps.
 
 ### Ordering Notes
@@ -245,7 +245,8 @@ description: "Task list template for feature implementation"
 - **T045 (Metadata Enrichment) MUST precede T011 (Save Cleaned Dataset)** as language is a required predictor for US3 and must be present in the cleaned CSV. T045 MUST also precede T009c merge logic if the API fallback is used, ensuring the merged output contains 'language'.
 - **T009c (Orchestrator) MUST precede T010 (Preprocessing)** to ensure data is fetched before cleaning.
 - **T009a/T009b (Loaders) are conditional paths managed by T009c**, not parallel peers.
-- **T025a (Bootstrap) MUST precede T025b (Sweep) and T025c (Report)**.
+- **T025a (Bootstrap) MUST precede T025b (Sweep) and T025c (Report)**. T025b and T025c are NOT parallel ([P] removed) as they depend on T025a output.
+- **T010 (Preprocessing) and T011 (Validation) MUST follow T045 (Enrichment)** to ensure 'language' is available for validation.
 
 ---
 
@@ -313,7 +314,7 @@ With multiple developers:
 - **Constraint**: Repository collection must enforce ≥100 minimum (FR-001)
 - **Constraint**: Rate limit handling must wait ≥60 seconds (US-1)
 - **Constraint**: Distribution fitting must cover BOTH log-normal and Weibull (US-2)
-- **Constraint**: Outlier detection must use MAD-based method (Plan Phase 2) and report number and percentage (US-2)
+- **Constraint**: Outlier detection must use **IQR method (Q3 + 1.5*IQR)** as defined in Spec US-2 (overrides Plan's MAD mention) (US-2)
 - **Constraint**: 5-fold Stratified CV by repository size must generate MAE/R² (SC-004)
 - **Constraint**: Sensitivity thresholds must be set at {0.01, 0.05, 0.1} (FR-007)
 - **Constraint**: Reference-Validator Agent must execute before research_accepted (Constitution II)

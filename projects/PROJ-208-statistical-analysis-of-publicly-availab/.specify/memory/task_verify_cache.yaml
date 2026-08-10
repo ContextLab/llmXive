@@ -1,3 +1,35 @@
+T009a:
+  c: false
+  h: cae6bf3a27406990958d244297e01ca004b46e48321b9794bc2b8f13e3534785
+  r: "The repository contains a partially shown `loader_hf.py`, but the file is truncated\
+    \ and does not demonstrate completing the streaming load, schema validation, and\
+    \ Parquet write. Moreover, the required output file `data/raw/github_issues_raw_hf.parquet`\
+    \ is absent, and the schema file `contracts/dataset.schema.yaml` is missing. These\
+    \ missing artifacts mean the task\u2019s requirements are not satisfied."
+T009b:
+  c: false
+  h: e121a0e9d762458c5e27aca8622e8be9ca80afebcc21512b5fcfb8fa8310256b
+  r: "The `loader_api.py` contains placeholder implementations that never call the\
+    \ GitHub API, only returns two hard\u2011coded issues per repo, and processes\
+    \ a tiny hard\u2011coded list of three repositories without any logic to stop\
+    \ after 100 unique repos. Moreover, the required output file `data/raw/github_issues_raw_api.parquet`\
+    \ is not present. The artifact therefore does not meet the specified functionality\
+    \ or produce the expected output."
+T009c:
+  c: false
+  h: e70a6856b4ee87b920f8ba1598f95a3c4eaa96f0d43cad87a3a14c1a11203f3b
+  r: The provided `code/collect/orchestrator.py` is truncated (e.g., `fetch_api_data_wrapper`
+    ends with `result = fetch_issues_from_c` and lacks the logic to count unique repos,
+    invoke the API loader until 100 repos, merge datasets, and write the Parquet file).
+    Moreover, the required output file `data/raw/github_issues_raw_merged.parquet`
+    does not exist. The orchestrator therefore does not meet the specified requirements.
+T011:
+  c: false
+  h: 01a26d8078b8f49b8312804006483824602d452ed396e86f2c1b41578c6a7d18
+  r: "The required output files `data/processed/cleaned_issues.csv` and `data/logs/completeness_report.json`\
+    \ are absent, and there is no evidence that the validator was run to produce a\
+    \ \u226595\u202F% completeness check. Consequently the task\u2019s core deliverables\
+    \ are missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,10 +37,10 @@ T023:
     \ cross\u2011validation for MAE and R\xB2 are present; the only artifacts described\
     \ are unrelated user\u2011story specifications, so the required implementation\
     \ is missing."
-T025:
+T045:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., script, results table, or figure) showing a parametric bootstrap
-    sensitivity analysis with the specified cutoffs {, 0.05, 0.1} and reporting the
-    stability proportion is present. The claim lacks any concrete output, code, or
-    data to verify that the analysis was performed. The required evidence is missing.
+  h: 2d44a88f99ff05c14aa444ad8ea4f1dc25a1bb2bce492af0f501ee5d62f9014e
+  r: "The repository list script exists, but the required output file `data/processed/repo_metadata.json`\
+    \ is absent, and there is no evidence that the script writes the specified JSON\
+    \ or merges the `language` field into the main dataset. The task\u2019s core deliverable\
+    \ is therefore not satisfied."

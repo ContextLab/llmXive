@@ -1,8 +1,8 @@
 """
-Outlier detection module for GitHub issue resolution times.
+Outlier Detection Module for GitHub Issue Resolution Times.
 
-Implements IQR-based outlier detection on log-transformed resolution times
-and generates a detailed report.
+Implements the IQR method (Q3 + 1.5 * IQR) to detect extreme outliers
+in resolution time data as specified in Spec US-2 Acceptance Scenario 3.
 """
 
 import json
@@ -11,233 +11,179 @@ import sys
 import math
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
-import numpy as np
 import pandas as pd
+import numpy as np
 
-# Import from project utilities
-from utils.config import get_config, get_path
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/logs/outlier_detection.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-
-def load_cleaned_data() -> pd.DataFrame:
+def load_cleaned_data(data_path: Optional[str] = None) -> pd.DataFrame:
     """
     Load the cleaned issues dataset.
-    
+
+    Args:
+        data_path: Path to the cleaned CSV file. Defaults to 'data/processed/cleaned_issues.csv'.
+
     Returns:
-        DataFrame with cleaned issue data including resolution_time_hours.
-        
+        DataFrame containing the cleaned issues data.
+
     Raises:
-        FileNotFoundError: If the cleaned dataset does not exist.
+        FileNotFoundError: If the cleaned data file does not exist.
+        ValueError: If the required 'resolution_time_hours' column is missing.
     """
-    config = get_config()
-    data_path = get_path(config, "processed_cleaned_issues")
-    
-    if not Path(data_path).exists():
-        raise FileNotFoundError(f"Cleaned dataset not found at {data_path}")
-    
-    logging.info(f"Loading cleaned data from {data_path}")
+    if data_path is None:
+        data_path = Path(__file__).parent.parent.parent / "data" / "processed" / "cleaned_issues.csv"
+    else:
+        data_path = Path(data_path)
+
+    if not data_path.exists():
+        raise FileNotFoundError(f"Cleaned data file not found: {data_path}")
+
+    logger.info(f"Loading cleaned data from {data_path}")
     df = pd.read_csv(data_path)
-    
-    # Ensure resolution_time_hours is numeric
+
     if 'resolution_time_hours' not in df.columns:
-        raise ValueError("Cleaned dataset missing 'resolution_time_hours' column")
-    
-    df['resolution_time_hours'] = pd.to_numeric(
-        df['resolution_time_hours'], errors='coerce'
-    )
-    
+        raise ValueError("Required column 'resolution_time_hours' not found in dataset.")
+
+    # Filter out non-numeric or infinite values for calculation
+    df = df[df['resolution_time_hours'].apply(lambda x: isinstance(x, (int, float)) and math.isfinite(x))]
+
+    logger.info(f"Loaded {len(df)} valid issues for outlier detection.")
     return df
 
+def detect_outliers_iqr(df: pd.DataFrame, column: str = 'resolution_time_hours') -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Detect outliers using the IQR method (Q3 + 1.5 * IQR).
 
-def detect_outliers_iqr(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Detect extreme outliers using the IQR method on log-transformed resolution times.
-    
-    The IQR method identifies outliers as values > Q3 + 1.5 * IQR.
-    This is applied to log-transformed resolution times to handle the 
-    skewed distribution of issue resolution times.
-    
+    This method identifies extreme outliers as values greater than Q3 + 1.5 * IQR.
+    Note: Resolution times are strictly positive, so we only check the upper bound.
+
     Args:
-        df: DataFrame with 'resolution_time_hours' column.
-        
+        df: DataFrame containing the data.
+        column: Name of the column to analyze for outliers.
+
     Returns:
-        Tuple of (DataFrame with outlier flags, Dict with outlier statistics)
+        Tuple of (outliers_df, stats_dict) where:
+            - outliers_df: DataFrame containing only the outlier rows.
+            - stats_dict: Dictionary containing Q1, Q3, IQR, upper_bound, count, and percentage.
     """
-    # Filter out non-positive values for log transformation
-    valid_df = df[df['resolution_time_hours'] > 0].copy()
-    invalid_count = len(df) - len(valid_df)
-    
-    if len(valid_df) == 0:
-        logging.warning("No valid resolution times found for outlier detection")
-        return df, {
-            "total_issues": len(df),
-            "valid_issues": 0,
-            "outlier_count": 0,
-            "outlier_percentage": 0.0,
-            "q1": None,
-            "q3": None,
-            "iqr": None,
-            "lower_bound": None,
-            "upper_bound": None,
-            "log_lower_bound": None,
-            "log_upper_bound": None,
-            "invalid_count": invalid_count,
-            "outliers": []
+    if column not in df.columns:
+        raise ValueError(f"Column '{column}' not found in DataFrame.")
+
+    values = df[column].dropna()
+
+    if len(values) == 0:
+        logger.warning("No valid values found for outlier detection.")
+        return df.iloc[0:0], {
+            'q1': None,
+            'q3': None,
+            'iqr': None,
+            'upper_bound': None,
+            'lower_bound': None,
+            'outlier_count': 0,
+            'outlier_percentage': 0.0,
+            'total_count': 0
         }
-    
-    # Log-transform resolution times (add small epsilon to avoid log(0))
-    # Since we filtered > 0, we can safely log
-    log_times = np.log(valid_df['resolution_time_hours'])
-    
-    # Calculate Q1, Q3, and IQR
-    q1 = np.percentile(log_times, 25)
-    q3 = np.percentile(log_times, 75)
+
+    q1 = values.quantile(0.25)
+    q3 = values.quantile(0.75)
     iqr = q3 - q1
-    
-    # Calculate bounds for outlier detection
-    lower_bound = q1 - 1.5 * iqr
+
+    # IQR Method: Outliers are values > Q3 + 1.5 * IQR
+    # Since resolution time cannot be negative, we ignore the lower bound (Q1 - 1.5*IQR)
     upper_bound = q3 + 1.5 * iqr
-    
-    # Identify outliers
-    outliers_mask = (log_times < lower_bound) | (log_times > upper_bound)
-    
-    # Create a copy to add outlier flag
-    result_df = df.copy()
-    result_df['is_outlier'] = False
-    
-    # Map outlier flags back to original dataframe
-    # We need to match indices carefully
-    valid_indices = valid_df.index
-    outlier_indices = valid_df[outliers_mask].index
-    
-    result_df.loc[outlier_indices, 'is_outlier'] = True
-    
-    # Calculate statistics
-    outlier_count = outlier_indices.shape[0]
-    total_valid = len(valid_df)
-    outlier_percentage = (outlier_count / total_valid * 100) if total_valid > 0 else 0.0
-    
-    # Prepare outlier details
-    outlier_details = []
-    if outlier_count > 0:
-        outlier_df = valid_df[outliers_mask].copy()
-        outlier_df['log_resolution_time'] = log_times[outliers_mask].values
-        outlier_df['resolution_time_hours'] = outlier_df['resolution_time_hours']
-        
-        for _, row in outlier_df.head(100).iterrows():  # Limit to first 100 for report
-            outlier_details.append({
-                "issue_id": int(row.get('issue_id', 0)) if 'issue_id' in row else None,
-                "repo": row.get('repo', 'unknown'),
-                "resolution_time_hours": float(row['resolution_time_hours']),
-                "log_resolution_time": float(row['log_resolution_time'])
-            })
-    
+    lower_bound = q1 - 1.5 * iqr  # Included for completeness, though likely irrelevant for time
+
+    logger.info(f"Calculated IQR stats for {column}: Q1={q1:.2f}, Q3={q3:.2f}, IQR={iqr:.2f}")
+    logger.info(f"Outlier threshold (Upper Bound): {upper_bound:.2f} hours")
+
+    # Identify outliers (strictly greater than upper bound)
+    outlier_mask = df[column] > upper_bound
+    outliers_df = df[outlier_mask].copy()
+
+    total_count = len(df)
+    outlier_count = len(outliers_df)
+    outlier_percentage = (outlier_count / total_count * 100) if total_count > 0 else 0.0
+
     stats = {
-        "total_issues": len(df),
-        "valid_issues": total_valid,
-        "invalid_count": invalid_count,
-        "outlier_count": outlier_count,
-        "outlier_percentage": round(outlier_percentage, 2),
-        "q1": round(float(q1), 4),
-        "q3": round(float(q3), 4),
-        "iqr": round(float(iqr), 4),
-        "lower_bound": round(float(lower_bound), 4),
-        "upper_bound": round(float(upper_bound), 4),
-        "log_lower_bound": round(math.exp(lower_bound), 4),  # Back-transformed
-        "log_upper_bound": round(math.exp(upper_bound), 4),  # Back-transformed
-        "method": "IQR (Q3 + 1.5*IQR) on log-transformed data",
-        "outliers": outlier_details
+        'q1': float(q1),
+        'q3': float(q3),
+        'iqr': float(iqr),
+        'upper_bound': float(upper_bound),
+        'lower_bound': float(lower_bound),
+        'outlier_count': int(outlier_count),
+        'outlier_percentage': float(outlier_percentage),
+        'total_count': int(total_count)
     }
-    
-    logging.info(f"Detected {outlier_count} outliers ({outlier_percentage:.2f}% of valid issues)")
-    
-    return result_df, stats
 
+    logger.info(f"Detected {outlier_count} outliers ({outlier_percentage:.2f}% of total).")
 
-def save_report(stats: Dict[str, Any], output_path: Optional[str] = None) -> str:
+    return outliers_df, stats
+
+def save_report(outliers_df: pd.DataFrame, stats: Dict[str, Any], output_path: Optional[str] = None) -> None:
     """
-    Save the outlier detection report to JSON.
-    
+    Save the outlier detection report to a JSON file.
+
     Args:
-        stats: Dictionary containing outlier statistics and details.
-        output_path: Optional path to save the report. If None, uses config path.
-        
-    Returns:
-        Path to the saved report file.
+        outliers_df: DataFrame containing the outlier records.
+        stats: Dictionary containing the statistical summary.
+        output_path: Path for the output JSON file. Defaults to 'data/processed/outlier_report.json'.
     """
     if output_path is None:
-        config = get_config()
-        output_path = get_path(config, "processed_outlier_report")
-    
-    output_path = Path(output_path)
+        output_path = Path(__file__).parent.parent.parent / "data" / "processed" / "outlier_report.json"
+    else:
+        output_path = Path(output_path)
+
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
+    # Prepare report content
+    report = {
+        'method': 'IQR (Q3 + 1.5 * IQR)',
+        'statistics': stats,
+        'outlier_records': outliers_df.to_dict(orient='records')
+    }
+
+    logger.info(f"Saving outlier report to {output_path}")
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(stats, f, indent=2, default=str)
-    
-    logging.info(f"Outlier report saved to {output_path}")
-    return str(output_path)
+        json.dump(report, f, indent=2, default=str)
 
+    logger.info("Outlier report saved successfully.")
 
-def main() -> None:
-    """
-    Main entry point for outlier detection analysis.
-    
-    Loads cleaned data, detects outliers using IQR method on log-transformed
-    resolution times, and saves the report to data/processed/outlier_report.json.
-    """
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('data/logs/outlier_detection.log')
-        ]
-    )
-    
-    logging.info("Starting outlier detection analysis (Task T017)")
-    
+def main():
+    """Main entry point for outlier detection task."""
+    logger.info("Starting Outlier Detection (T017)...")
+
     try:
-        # Load cleaned data
+        # 1. Load Data
         df = load_cleaned_data()
-        logging.info(f"Loaded {len(df)} issues from cleaned dataset")
-        
-        # Detect outliers
-        result_df, stats = detect_outliers_iqr(df)
-        
-        # Save report
-        report_path = save_report(stats)
-        
-        # Print summary
-        print("\n" + "="*60)
-        print("OUTLIER DETECTION SUMMARY (IQR Method on Log-Transformed Data)")
-        print("="*60)
-        print(f"Total issues analyzed: {stats['total_issues']}")
-        print(f"Valid issues (positive resolution time): {stats['valid_issues']}")
-        print(f"Invalid issues (non-positive): {stats['invalid_count']}")
-        print(f"Outliers detected: {stats['outlier_count']}")
-        print(f"Outlier percentage: {stats['outlier_percentage']}%")
-        print(f"Q1 (log scale): {stats['q1']}")
-        print(f"Q3 (log scale): {stats['q3']}")
-        print(f"IQR (log scale): {stats['iqr']}")
-        print(f"Upper bound (log scale): {stats['upper_bound']}")
-        print(f"Upper bound (hours, back-transformed): {stats['log_upper_bound']}")
-        print(f"\nReport saved to: {report_path}")
-        print("="*60 + "\n")
-        
-        logging.info("Outlier detection completed successfully")
-        
+
+        # 2. Detect Outliers using IQR method
+        outliers_df, stats = detect_outliers_iqr(df, column='resolution_time_hours')
+
+        # 3. Save Report
+        save_report(outliers_df, stats)
+
+        # 4. Log Summary
+        logger.info(f"Task T017 Completed. Found {stats['outlier_count']} outliers ({stats['outlier_percentage']:.2f}%).")
+
     except FileNotFoundError as e:
-        logging.error(f"Data file not found: {e}")
-        print(f"ERROR: {e}")
-        print("Please ensure the cleaned dataset exists at data/processed/cleaned_issues.csv")
+        logger.error(f"Data file not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
         sys.exit(1)
     except Exception as e:
-        logging.error(f"Unexpected error during outlier detection: {e}", exc_info=True)
-        print(f"ERROR: {e}")
+        logger.error(f"Unexpected error during outlier detection: {e}", exc_info=True)
         sys.exit(1)
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

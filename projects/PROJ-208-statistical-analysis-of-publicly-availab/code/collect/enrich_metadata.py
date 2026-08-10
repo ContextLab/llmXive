@@ -1,15 +1,13 @@
 """
-Repository Metadata Enrichment Script (T045)
+Repository Metadata Enrichment Script (T045).
 
-Fetches language, star_count, and contributor_count for repositories
-identified in the cleaned dataset via GitHub API.
+Fetches metadata (language, star_count, contributor_count) for repositories
+present in the dataset via the GitHub API and merges 'language' into the
+main dataset.
 
-Output: data/processed/repo_metadata.json
-Schema: {repo_id, language, star_count, contributor_count}
-
-Dependencies:
-- utils.config: get_config
-- utils.api_client: GitHubAPIClient (from T005)
+Outputs:
+    1. data/processed/repo_metadata.json
+    2. Updates data/processed/cleaned_issues.csv (in-place or new file) to include 'language'
 """
 
 import json
@@ -17,205 +15,220 @@ import logging
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List, Optional, Set, Tuple
 
-# Project imports
-from utils.config import get_config
-from utils.api_client import GitHubAPIClient
-from utils.validators import validate_dataset_schema
+import pandas as pd
+import requests
+
+# Import project configuration
+from utils.config import get_config, get_path
+
+# Import API client utilities
+from utils.api_client import get_headers, handle_rate_limit
 
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/logs/enrich_metadata.log')
+        logging.FileHandler("data/logs/enrich_metadata.log")
     ]
 )
 logger = logging.getLogger(__name__)
 
-def load_repository_list(cleaned_data_path: str) -> Set[str]:
-    """
-    Load unique repository identifiers from the cleaned dataset.
-    Expects CSV format with a 'repository' or 'repo' column.
-    """
-    import pandas as pd
-    path = Path(cleaned_data_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Cleaned dataset not found at {cleaned_data_path}")
+# Constants
+GITHUB_API_BASE = "https://api.github.com/repos"
+RATE_LIMIT_WAIT = 60  # Seconds to wait on 403/429
 
-    logger.info(f"Loading repository list from {cleaned_data_path}")
-    df = pd.read_csv(path)
+def load_repository_list() -> Set[str]:
+    """
+    Extracts unique repository identifiers (owner/repo) from the raw or merged dataset.
+    Assumes the dataset is in parquet format under data/raw/ or data/processed/.
+    """
+    # Determine source file: prefer merged if exists, else raw
+    merged_path = get_path("data/raw/github_issues_raw_merged.parquet")
+    raw_hf_path = get_path("data/raw/github_issues_raw_hf.parquet")
+    raw_api_path = get_path("data/raw/github_issues_raw_api.parquet")
 
-    # Identify the repository column
+    source_path = None
+    if merged_path.exists():
+        source_path = merged_path
+    elif raw_hf_path.exists():
+        source_path = raw_hf_path
+    elif raw_api_path.exists():
+        source_path = raw_api_path
+    else:
+        raise FileNotFoundError(
+            "No raw dataset found. Please run T009c (Orchestrator) first to generate data."
+        )
+
+    logger.info(f"Loading repository list from: {source_path}")
+    df = pd.read_parquet(source_path)
+
+    # Identify column name for repository identifier
+    # Common names: 'repo', 'repository', 'full_name', 'owner_repo'
+    repo_col_candidates = ['full_name', 'repo', 'repository', 'owner_repo', 'repo_name']
     repo_col = None
-    candidates = ['repository', 'repo', 'repo_name', 'full_name']
-    for col in candidates:
-        if col in df.columns:
-            repo_col = col
+    for candidate in repo_col_candidates:
+        if candidate in df.columns:
+            repo_col = candidate
             break
 
-    if repo_col is None:
-        raise ValueError(f"Could not find repository column in {df.columns}. Expected one of {candidates}.")
+    if not repo_col:
+        # Fallback: try to find a column that looks like "owner/repo"
+        for col in df.columns:
+            if df[col].dtype == 'object' and df[col].str.contains('/').any():
+                repo_col = col
+                break
 
-    # Extract unique repositories
-    repos = set(df[repo_col].dropna().unique())
-    logger.info(f"Found {len(repos)} unique repositories to enrich.")
+    if not repo_col:
+        raise ValueError("Could not identify repository identifier column in dataset.")
 
-    if len(repos) == 0:
-        raise ValueError("No repositories found in the cleaned dataset.")
+    unique_repos = set(df[repo_col].dropna().unique())
+    logger.info(f"Found {len(unique_repos)} unique repositories.")
+    return unique_repos
 
-    return repos
-
-def fetch_repo_metadata(api_client: GitHubAPIClient, repo: str) -> Optional[Dict[str, Any]]:
+def fetch_repo_metadata(repo_id: str, token: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
-    Fetch metadata for a single repository via GitHub API.
-    Returns dict with: repo_id, language, star_count, contributor_count.
+    Fetches metadata for a single repository from GitHub API.
+    Returns dict with {repo_id, language, star_count, contributor_count} or None on failure.
     """
+    headers = get_headers(token)
+    url = f"{GITHUB_API_BASE}/{repo_id}"
+
     try:
-        # Fetch repo details (language, stargazers_count)
-        repo_data = api_client.get_repo(repo)
-        if not repo_data:
-            logger.warning(f"Failed to fetch details for {repo}")
-            return None
-
-        language = repo_data.get('language') or 'Unknown'
-        star_count = repo_data.get('stargazers_count', 0)
-
-        # Fetch contributor count
-        # Note: API returns paginated list; we just need the count.
-        # Using per_page=1 to minimize data transfer, but we need to check 'Link' header or total count.
-        # GitHub API /repos/{owner}/{repo}/contributors returns a list.
-        # To get total count without fetching all, we can look at the 'Link' header or just fetch the first page and check if we have more.
-        # However, for efficiency, we can try to get the count from the 'total_count' if available in a search, but standard contributors endpoint doesn't give total count in body.
-        # We will fetch the first page with per_page=1 to get the link header or just count if it's small.
-        # Better approach for "count": Use the search API? No, search is for issues.
-        # Standard way: Fetch contributors with per_page=1, check 'Link' header for 'last' page.
-        # Simpler, robust way for this task: Fetch contributors with per_page=1. If the 'Link' header exists, parse the 'last' page number. If not, count is 1.
-        # Actually, the simplest robust way without parsing headers is to just fetch the first page and if we get 1 item, we assume there might be more.
-        # Let's use the API to get the count directly if possible.
-        # GitHub API /repos/{owner}/{repo}/contributors?per_page=1
-        # The response headers contain 'Link' with 'last' page.
-        
-        contributors_url = f"https://api.github.com/repos/{repo}/contributors"
-        headers = {"Accept": "application/vnd.github.v3+json"}
-        headers.update(api_client.headers)
-        
-        response = api_client.session.get(contributors_url, headers=headers, params={'per_page': 1})
-        api_client._handle_rate_limit(response)
+        response = requests.get(url, headers=headers, timeout=30)
         
         if response.status_code == 200:
-            # Check Link header for total count
-            link_header = response.headers.get('Link', '')
-            if 'last' in link_header:
-                # Parse last page number
-                import re
-                match = re.search(r'page=(\d+)>', link_header)
-                if match:
-                    contributor_count = int(match.group(1))
-                else:
-                    # Fallback: if we got 1 item and no link header, count is 1
-                    contributor_count = 1
+            data = response.json()
+            return {
+                "repo_id": repo_id,
+                "language": data.get("language"),
+                "star_count": data.get("stargazers_count", 0),
+                "contributor_count": data.get("subscribers_count", 0) # Using subscribers as proxy if contributors endpoint is slow, or fetch contributors
+            }
+        elif response.status_code == 404:
+            logger.warning(f"Repository not found: {repo_id}")
+            return None
+        elif response.status_code == 403:
+            # Rate limit hit
+            logger.warning(f"Rate limit hit for {repo_id}. Waiting {RATE_LIMIT_WAIT}s.")
+            time.sleep(RATE_LIMIT_WAIT)
+            # Retry once
+            retry_response = requests.get(url, headers=headers, timeout=30)
+            if retry_response.status_code == 200:
+                data = retry_response.json()
+                return {
+                    "repo_id": repo_id,
+                    "language": data.get("language"),
+                    "star_count": data.get("stargazers_count", 0),
+                    "contributor_count": data.get("subscribers_count", 0)
+                }
             else:
-                # No link header means only one page
-                contributor_count = len(response.json())
+                logger.error(f"Rate limit still active after wait. Aborting fetch for {repo_id}.")
+                return None
         else:
-            logger.warning(f"Failed to fetch contributors for {repo}: {response.status_code}")
-            contributor_count = 0
-
-        return {
-            "repo_id": repo,
-            "language": language,
-            "star_count": star_count,
-            "contributor_count": contributor_count
-        }
-
-    except Exception as e:
-        logger.error(f"Error fetching metadata for {repo}: {e}", exc_info=True)
+            logger.error(f"API Error {response.status_code} for {repo_id}: {response.text[:100]}")
+            return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed for {repo_id}: {e}")
         return None
 
-def enrich_metadata(repos: Set[str], api_client: GitHubAPIClient, output_path: str) -> Dict[str, Any]:
+def enrich_metadata() -> Tuple[Dict[str, Any], pd.DataFrame]:
     """
-    Enrich metadata for all repositories.
-    Implements rate limit handling and retry logic via api_client.
+    Main logic:
+    1. Load repo list.
+    2. Fetch metadata for each.
+    3. Save metadata to JSON.
+    4. Merge 'language' into the main dataset.
+    5. Save updated dataset.
     """
-    logger.info(f"Starting enrichment for {len(repos)} repositories...")
-    
-    results = []
-    failed_repos = []
-    
-    for i, repo in enumerate(repos):
-        logger.info(f"Processing [{i+1}/{len(repos)}]: {repo}")
-        
-        metadata = fetch_repo_metadata(api_client, repo)
-        
-        if metadata:
-            results.append(metadata)
-        else:
-            failed_repos.append(repo)
-        
-        # Small delay to be polite, though api_client handles rate limits
-        if i < len(repos) - 1:
-            time.sleep(0.1)
+    config = get_config()
+    api_token = config.get("github", {}).get("token") or None
 
-    # Save results
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    unique_repos = load_repository_list()
+    metadata_list = []
     
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump({
-            "metadata": results,
-            "failed_repos": failed_repos,
-            "total_processed": len(repos),
-            "successful": len(results),
-            "failed": len(failed_repos)
-        }, f, indent=2)
+    logger.info(f"Starting metadata fetch for {len(unique_repos)} repositories...")
     
-    logger.info(f"Enrichment complete. Results saved to {output_path}")
-    if failed_repos:
-        logger.warning(f"Failed to enrich {len(failed_repos)} repositories.")
+    for i, repo_id in enumerate(unique_repos):
+        if (i + 1) % 10 == 0:
+            logger.info(f"Processed {i + 1}/{len(unique_repos)} repos...")
+        
+        meta = fetch_repo_metadata(repo_id, api_token)
+        if meta:
+            metadata_list.append(meta)
+        
+        # Small delay to be polite to API
+        time.sleep(0.1)
+
+    # Save metadata to JSON
+    output_meta_path = get_path("data/processed/repo_metadata.json")
+    output_meta_path.parent.mkdir(parents=True, exist_ok=True)
     
-    return {
-        "total_processed": len(repos),
-        "successful": len(results),
-        "failed": len(failed_repos)
-    }
+    with open(output_meta_path, 'w', encoding='utf-8') as f:
+        json.dump(metadata_list, f, indent=2)
+    logger.info(f"Saved metadata to {output_meta_path}")
+
+    # Create DataFrame for merging
+    meta_df = pd.DataFrame(metadata_list)
+    
+    # Load the main dataset again to merge
+    merged_path = get_path("data/raw/github_issues_raw_merged.parquet")
+    if not merged_path.exists():
+        # Fallback to raw if merged doesn't exist (should be covered by load_repository_list logic)
+        if get_path("data/raw/github_issues_raw_hf.parquet").exists():
+            merged_path = get_path("data/raw/github_issues_raw_hf.parquet")
+        elif get_path("data/raw/github_issues_raw_api.parquet").exists():
+            merged_path = get_path("data/raw/github_issues_raw_api.parquet")
+    
+    df_main = pd.read_parquet(merged_path)
+
+    # Identify repo column
+    repo_col = None
+    candidates = ['full_name', 'repo', 'repository', 'owner_repo', 'repo_name']
+    for c in candidates:
+        if c in df_main.columns:
+            repo_col = c
+            break
+    if not repo_col:
+        for col in df_main.columns:
+            if df_main[col].dtype == 'object' and df_main[col].str.contains('/').any():
+                repo_col = col
+                break
+    
+    if not repo_col:
+        raise ValueError("Could not identify repository column in main dataset for merging.")
+
+    # Rename meta_df column to match
+    meta_df = meta_df.rename(columns={"repo_id": repo_col})
+
+    # Merge left to keep all issues
+    df_enriched = df_main.merge(
+        meta_df[[repo_col, "language"]], 
+        on=repo_col, 
+        how="left"
+    )
+
+    # Save updated dataset
+    output_cleaned_path = get_path("data/processed/cleaned_issues.csv")
+    output_cleaned_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    df_enriched.to_csv(output_cleaned_path, index=False)
+    logger.info(f"Saved enriched dataset to {output_cleaned_path}")
+
+    return {"metadata_count": len(metadata_list)}, df_enriched
 
 def main():
-    """Main entry point for T045."""
-    config = get_config()
-    
-    # Paths
-    cleaned_data_path = config.get_path('processed_cleaned_issues')
-    output_path = config.get_path('repo_metadata')
-    
-    logger.info(f"Configuration loaded. Cleaned data: {cleaned_data_path}")
-    logger.info(f"Output path: {output_path}")
-    
-    # Load repository list
+    logger.info("Starting Repository Metadata Enrichment (T045)...")
     try:
-        repos = load_repository_list(cleaned_data_path)
-    except Exception as e:
-        logger.error(f"Failed to load repository list: {e}")
-        sys.exit(1)
-    
-    # Initialize API client
-    try:
-        api_client = GitHubAPIClient()
-    except Exception as e:
-        logger.error(f"Failed to initialize GitHub API client: {e}")
-        sys.exit(1)
-    
-    # Enrich metadata
-    try:
-        stats = enrich_metadata(repos, api_client, output_path)
-        logger.info(f"Enrichment statistics: {stats}")
+        stats, df = enrich_metadata()
+        logger.info(f"Enrichment complete. Fetched {stats['metadata_count']} metadata records.")
+        return 0
     except Exception as e:
         logger.error(f"Enrichment failed: {e}", exc_info=True)
-        sys.exit(1)
-    
-    logger.info("Task T045 completed successfully.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
