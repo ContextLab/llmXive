@@ -9,19 +9,19 @@ T014:
     \ must be added (or the import removed) for the task to be complete."
 T021:
   c: false
-  h: a29dda00dcf53a61945d19dc910549e98a98e36f179511c692f96c8d45be6bcc
-  r: The provided `baseline_cusum.py` is truncated (e.g., the `logger.info` line is
-    cut off) and does not contain a complete implementation that writes results. Moreover,
-    the required output file `data/results/cusum_predictions.csv` is absent. Both
-    the script and the expected output are missing or incomplete, so the task is not
-    satisfied.
+  h: e8663569401e1d1f321a68ce28e62310bfeec8afeec5e2cab5957bec142eb3aa
+  r: The `baseline_cusum.py` script is present but its code is truncated (the `run_cusum_detection`
+    loop ends abruptly) and thus does not implement a full CUSUM detection pipeline
+    nor write predictions to a CSV. Moreover, the required output file `data/results/cusum_predictions.csv`
+    is missing. The task therefore remains unfinished.
 T022:
   c: false
-  h: d4e035d3e37d5ca28203db549aa5f9c1faef57eac0da968ffa746055c5075ebd
-  r: "The provided `baseline_vae.py` exists but contains a syntax error (missing colon\
-    \ after `def sigmoid`) and implements a custom NumPy VAE instead of using scikit-learn\
-    \ or pytorch\u2011lightning as required. Moreover, the expected output file `data/results/vae_predictions.csv`\
-    \ is absent. Both the implementation and the required result artifact are missing/incorrect."
+  h: 9e0c2d6bdb107f44027d55ee90550c907dc0e43c348b7a926d60bb2cf33b7ea3
+  r: "The provided `baseline_vae.py` uses a custom NumPy implementation rather than\
+    \ scikit-learn or pytorch\u2011lightning as mandated, and the script is incomplete\
+    \ (truncated). Moreover, the required output file `data/results/vae_predictions.csv`\
+    \ does not exist. Both the correct implementation and the expected result artifact\
+    \ are missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,15 +30,29 @@ T023:
     \ present. The required integration artifact is missing, so the task is not satisfied."
 T027:
   c: false
-  h: ed6b9ceeaa328c084c8e17e668e9bba0eae1f05d797312fbd4a93e51d33fd2e5
-  r: The `code/scripts/sensitivity_analysis.py` file exists but is truncated (e.g.,
-    the `load_ground_truth` function ends abruptly) and there is no `data/results/sensitivity_analysis.json`
-    produced. Both the complete implementation and the required output file are missing.
+  h: d003eefee235dfb30ef17a790703f29e921c250d1fda9b6651c5ba3b00096e29
+  r: The `code/scripts/sensitivity_analysis.py` file exists but the provided excerpt
+    does not show any logic that writes the results to `data/results/sensitivity_analysis.json`,
+    and that JSON file is absent from the repository. Consequently the required output
+    artifact is missing, so the task is not fully satisfied.
 T028:
   c: false
-  h: 025ee2ea35dffb79b07d06e9eb18ef2529d7830d085798c33318cd51de744a81
-  r: "The repository contains a non\u2011truncated `code/scripts/render_fig1.py`,\
-    \ but the file is cut off before any plotting or saving logic, so we cannot verify\
-    \ it actually creates the required figure. Moreover, the expected output `paper/figures/fig1_timeseries.png`\
-    \ is absent. The task\u2019s core deliverable (a script that generates and saves\
-    \ the figure) is therefore not demonstrably present."
+  h: d0e9f7347ff8d3a1ea6444de61a50d2bc6cef9c8d464bdda3cf6b9853cee8e96
+  r: "The repository contains `code/scripts/render_fig1.py`, but the file is only\
+    \ partially shown and we cannot confirm it writes the figure to `paper/figures/fig1_timeseries.png`.\
+    \ Moreover, the required output image `paper/figures/fig1_timeseries.png` is absent\
+    \ from the project. The missing figure means the task\u2019s core requirement\
+    \ is not satisfied."
+T029:
+  c: false
+  h: e41731408c90d3c2a1191d74ab292d9d832a00aecf53fbbf6de0ff806760fbc5
+  r: The provided `render_fig2.py` is only partially shown and ends abruptly inside
+    `plot_f1_vs_shift`, indicating the script is incomplete and does not generate
+    or save the required figure. Additionally, the expected output file `paper/figures/fig2_method_comparison.png`
+    is absent. The task therefore remains unfinished.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `paper/results.md` file is present in the provided evidence, and thus no\
+    \ summary of findings, p\u2011values, or associational claims (with causal language\
+    \ avoided) can be verified. The required artifact is missing."

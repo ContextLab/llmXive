@@ -76,7 +76,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority: P1) 🎯 MVP
 
-**Goal**: Download raw BIDS rs‑fMRI data, filter for longitudinal scores, and generate graph metrics. [UNRESOLVED-CLAIM: c_8e2e5e12 — status=not_enough_info]
+**Goal**: Download raw BIDS rs‑fMRI data, filter for longitudinal scores, and generate graph metrics.
 
 **Independent Test**: The pipeline can be run on a single batch of data to produce `data/processed/graph_metrics.csv` containing subject IDs and calculated graph metrics without any machine learning training.
 
@@ -105,13 +105,13 @@
 
 ## Phase 4: User Story 2 - Predictive Modeling and Validation (Priority: P2)
 
-**Goal**: Train a Random Forest classifier with nested cross‑validation to predict cognitive decline. [UNRESOLVED-CLAIM: c_7acd01c1 — status=not_enough_info]
+**Goal**: Train a Random Forest classifier with nested cross‑validation to predict cognitive decline.
 
 **Independent Test**: The pipeline can be executed to output `data/processed/model.pkl` and `data/processed/performance_report.json` containing ROC‑AUC and F1‑score for nested CV, without running the permutation test.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for nested CV grid‑search logic in `tests/unit/test_nested_cv.py`
+- [X] T021 [P] [US2] Unit test for nested CV grid‑search logic in `tests/unit/test_nested_cv.py` <!-- FAILED: unspecified -->
 - [ ] T022 [P] [US2] Integration test for model training and evaluation flow in `tests/integration/test_model_training.py`
 - [ ] T041 [P] [US2] Unit test verifying that the collinearity filter correctly drops one of a pair of features with Pearson > 0.95 (Tests logic in T023)
 
@@ -128,7 +128,7 @@
 
 ## Phase 5: User Story 3 - Statistical Significance and Sensitivity Analysis (Priority: P3)
 
-**Goal**: Validate model significance via permutation test and assess robustness via threshold sensitivity. [UNRESOLVED-CLAIM: c_69751637 — status=not_enough_info]
+**Goal**: Validate model significance via permutation test and assess robustness via threshold sensitivity.
 
 **Independent Test**: The pipeline can take an existing model and performance metric, run the permutation test, and output `data/processed/permutation_results.json` and `data/processed/sensitivity_report.json`.
 

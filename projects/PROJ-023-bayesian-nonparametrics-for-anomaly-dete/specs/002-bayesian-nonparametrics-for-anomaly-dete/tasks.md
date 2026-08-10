@@ -58,7 +58,7 @@
 - [X] T004 Implement `code/lib/data_loader.py` to fetch real time series from UCR/UCI (e.g., NAB, UCR Archive) with version pinning and SHA-256 checksum verification; store metadata in `data/PROVENANCE.md`; include validation for missing values and extreme outliers
 - [X] T005 [P] Create `contracts/dataset.schema.yaml`, `contracts/evaluation.schema.yaml`, and `contracts/prediction.schema.yaml` defining column types, units, and constraints
 - [X] T006 Implement `code/lib/anomaly_injector.py` to inject synthetic anomalies (mean shift, variance spike, gradual drift) with configurable parameters via a YAML/JSON config file; ensure near-threshold values are supported; NO hardcoded parameter values; ensure no look-ahead bias
-- [ ] T007 Implement `code/lib/metrics.py` for Precision, Recall, F1, AUC-ROC, and Bootstrap Confidence Interval calculations; include Bonferroni correction logic
+- [X] T007 Implement `code/lib/metrics.py` for Precision, Recall, F1, AUC-ROC, and Bootstrap Confidence Interval calculations; include Bonferroni correction logic
 - [X] T008 Implement `code/lib/utils.py` for normalization, missing-value handling (interpolation policy), and seed pinning for reproducibility
 - [X] T009 Create `data/VERSION.txt` and `paper/README.md` to document pipeline version and structure
 - [X] T010 [P] Write unit tests in `code/tests/test_data_injection.py` and `code/tests/test_metrics.py` to validate schema and metric calculations
@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/scripts/inject_anomalies.py` to invoke `code/lib/anomaly_injector.py` (T006) with research parameters; save `data/processed/series_with_anomalies.csv` and `data/processed/ground_truth.csv`
+- [X] T014 [US1] Implement `code/scripts/inject_anomalies.py` to invoke `code/lib/anomaly_injector.py` (T006) with research parameters; save `data/processed/series_with_anomalies.csv` and `data/processed/ground_truth.csv`
 - [X] T015 [US1] Implement `code/scripts/bayesian_gp.py` using `pymc` or `numpyro` with Sparse Variational Inference (SVI); ensure CPU-only execution; implement convergence checks for ELBO stability and Effective Sample Size (ESS); include R-hat check ONLY if MCMC fallback is used (per Plan.md Constitution Check); **limit to a sufficient number of steps** and **log enforcement** of this limit; output `data/results/bayesian_predictions.csv`
 - [X] T017 [US1] Implement memory profiling wrapper in `code/scripts/bayesian_gp.py` AND `code/lib/utils.py` that monitors peak usage across ALL inference scripts using `tracemalloc`; **raise SystemExit(1)** if limit > 7GB is exceeded to satisfy SC-003 system-wide
 
@@ -135,8 +135,8 @@
 - [X] T026d [US3] Implement **fixed thresholding strategy** (e.g., % specificity) in `code/scripts/evaluate.py` and enforce it before correlation analysis as mandated by FR-012; output threshold parameters to `data/results/evaluation.json`
 - [ ] T027 [US3] Implement `code/scripts/sensitivity_analysis.py` to sweep decision thresholds (High specificity, F1-opt) and report false-positive/negative rates; output `data/results/sensitivity_analysis.json`
 - [ ] T028 [US3] Implement `code/scripts/render_fig1.py` to plot time series with injected anomalies and detection scores; save `paper/figures/fig1_timeseries.png`
-- [~] T029 [US3] Implement `code/scripts/render_fig2.py` to plot method comparison (F1 vs. shift magnitude) and correlation matrices; save `paper/figures/fig2_method_comparison.png`
-- [~] T030 [US3] Create `paper/results.md` summarizing findings, p-values, and associational claims (avoiding causal language per FR-008)
+- [ ] T029 [US3] Implement `code/scripts/render_fig2.py` to plot method comparison (F1 vs. shift magnitude) and correlation matrices; save `paper/figures/fig2_method_comparison.png`
+- [ ] T030 [US3] Create `paper/results.md` summarizing findings, p-values, and associational claims (avoiding causal language per FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,9 +147,9 @@
 **Purpose**: Improvements that affect multiple user stories and address prior review concerns.
 
 - [X] T031 [P] [Review] Generate `docs/research_config.md` documenting the configurable parameter ranges used for the study (deferred in spec) and the Bootstrap CI methodology (Plan.md override); do NOT edit spec.md or plan.md
-- [ ] T032 [P] [Review] Verify all file paths in code match `tasks.md` specifications (e.g., `code/scripts/` not `scripts/`)
-- [ ] T033 [P] [Review] Add `requirements-dev.txt` with test dependencies and pin all versions in `requirements.txt`
-- [ ] T034 [P] [Review] Ensure all scripts include type hints and docstrings for reproducibility
+- [~] T032 [P] [Review] Verify all file paths in code match `tasks.md` specifications (e.g., `code/scripts/` not `scripts/`)
+- [X] T033 [P] [Review] Add `requirements-dev.txt` with test dependencies and pin all versions in `requirements.txt`
+- [~] T034 [P] [Review] Ensure all scripts include type hints and docstrings for reproducibility
 - [ ] T035 [P] [Review] Validate that `data/results/shewhart_predictions.csv` and `bayesian_predictions.csv` have consistent dimensions and serialization formats
 - [ ] T036 [P] [Review] Add `README.md` to root documenting project structure, usage, and data provenance
 - [ ] T037 [P] Run full pipeline end-to-end to verify all outputs are generated and match task completion markers

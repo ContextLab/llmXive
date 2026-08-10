@@ -169,7 +169,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [S] [US-3] **IMPLEMENTATION**: Implement game simulation for varying agent counts in `code/run_experiment.py`. Run multiple games for varying agent counts (small, medium, and large groups). Dependencies: T011b, T011c. (US-3)
+- [X] T027 [S] [US-3] **IMPLEMENTATION**: Implement game simulation for varying agent counts in `code/run_experiment.py`. Run multiple games for varying agent counts (small, medium, and large groups). Dependencies: T011b, T011c. (US-3)
 - [X] T028 [S] [US-3] **IMPLEMENTATION**: Implement power-law fitting in `code/analysis/scaling.py`.
  **Algorithm**: Use `numpy.polyfit` on log-transformed data (`log(N)` vs `log(metric)`) for specialization index and retrieval efficiency.
  **Bootstrapping**: Perform bootstrap resamples to estimate the confidence interval for the slope (beta).

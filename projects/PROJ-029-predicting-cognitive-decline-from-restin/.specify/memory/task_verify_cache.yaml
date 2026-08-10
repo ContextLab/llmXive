@@ -1,27 +1,28 @@
 T017:
   c: false
-  h: 5545269ef4e7cbc0f9bd1b33397a3e2c60b015a2be4b5d1b5e5b68adf824b9ef
+  h: 05d62b5cd796011e4b29d47be99c565581ab2f2978bb121a1cc72fb577822c61
   r: The required output files `data/processed/eligible_subjects.csv` and `data/processed/excluded_subjects.log`
     are absent, and the generated `data/artifacts/data_gate_status.json` records a
-    download error (DNS failure) with zero eligible subjects, indicating the script
-    never completed the filtering logic. The implementation is therefore not functional
-    and does not satisfy the task requirements.
+    download error with zero eligible subjects. The script therefore did not successfully
+    complete the download, filtering, and output steps mandated by the task.
 T018:
   c: false
-  h: ab7a038b2384a4e4829da6b7e7f65780b6aa8a712e8db9bd6245a981e38eb6d5
-  r: "The script `code/02_preprocess_and_parcellate.py` is present but its implementation\
-    \ is truncated and does not show the full motion\u2011correction, normalization,\
-    \ atlas application, and connectivity matrix computation steps. Moreover, the\
-    \ required input file `data/processed/eligible_subjects.csv` is missing, so the\
-    \ script cannot even load the subject list. These missing artifacts prevent the\
-    \ task from being genuinely completed."
+  h: 2ec653d4ea67acb0ab27c2939ba0bd3168e51eab20a17a1c905b7e7056716b3c
+  r: The script `code/02_preprocess_and_parcellate.py` is only partially shown (e.g.,
+    the `motion_correction` function is cut off) and does not contain the full implementation
+    for normalization, atlas fetching, or connectivity matrix computation. Moreover,
+    the required input file `data/processed/eligible_subjects.csv` is missing, so
+    the script cannot even read the subject list. These missing pieces prevent the
+    task from being genuinely completed.
 T019:
   c: false
-  h: 857c10d94459916bc5976f365df7b9333c2db9a338ae54533216baacb611eba3
-  r: "The required output file `data/processed/graph_metrics.csv` is missing, and\
-    \ the provided script is incomplete (truncated) with no visible logic that writes\
-    \ the CSV, monitors peak RAM, or logs a warning when usage exceeds 7\u202FGB.\
-    \ The task\u2019s core deliverable is therefore not present."
+  h: bf586b3e4fbbbccd8d334df39240480d65a1f6e7d205f82bd1bebc7d9f2ae53e
+  r: "The repository contains `code/03_compute_graph_metrics.py`, but the script is\
+    \ truncated and does not show the full implementation (e.g., writing the CSV,\
+    \ RAM\u2011monitoring logic, and per\u2011subject processing). Moreover, the required\
+    \ output file `data/processed/graph_metrics.csv` is absent, indicating the script\
+    \ has not been executed or does not generate the expected result. The task\u2019\
+    s core deliverable\u2014a CSV with the specified schema\u2014is missing."
 T024:
   c: false
   h: 10de7ca2e707b90f90157a9b1083a325152b0d6926d1c13d194afc6a78459685
