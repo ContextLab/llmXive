@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1403.4521",
+  "judged_at": "2026-08-10T06:41:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology reference for generating the specific \"scale-free networks\" central to the user's question, and under category (b) because it investigates the consequences of varying the underlying attachment mechanisms that define the network proximity structure. While it does not explicitly model epidemic spreading, it provides the canonical tool and empirical analysis of the network generation process required to study the user's specific ",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0408049",
+  "judged_at": "2026-08-10T06:41:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same biological mechanism (epidemic spreading) on the exact same domain (scale-free networks) and measures the relationship between network properties (node strength/weight distribution) and spreading velocity, which is a direct proxy for the user's interest in \"network proximity\" and its impact on spreading dynamics.",
+  "relevant": true
+}

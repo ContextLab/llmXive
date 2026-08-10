@@ -1,5 +1,5 @@
-'|seed':
-  quote: of 42, 43, and 44, and are supported with statistical
-  source_id: '2402.11073'
-  url: https://arxiv.org/abs/2402.11073
-  value: '42'
+'|duration hour less than verify':
+  quote: "grid\u2019s reliability [1], [2]. One solution to this challenge is"
+  source_id: '2504.06729'
+  url: https://arxiv.org/abs/2504.06729
+  value: '1'

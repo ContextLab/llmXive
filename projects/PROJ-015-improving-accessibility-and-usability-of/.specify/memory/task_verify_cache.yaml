@@ -20,12 +20,6 @@ T021c:
     \ generation, or recording of the checksum in a project state file. Moreover,\
     \ the required output file `data/processed/cleaned_sessions.csv` does not exist.\
     \ The task\u2019s core deliverables are therefore missing."
-T023a:
-  c: false
-  h: 0dcbe873d54bfa05bc63c685f5a1ef6d99c79c2e44115e4773386fd04b6df3b4
-  r: "The required output file `data/processed/metrics_summary.csv` does not exist,\
-    \ so the deliverable is missing. Consequently the task\u2019s core requirement\
-    \ (producing the summary CSV with the specified columns) is not satisfied."
 T023b:
   c: false
   h: 955ed7ac9e26b5499c05de4081a6a064439c6d4f48983d0ac8c6d85507d38996
@@ -49,6 +43,14 @@ T025d:
     \ not present in the provided evidence, and no content is shown that cites Constitution\
     \ Principle\u202FVII or the amended Spec FR\u2011002. Without these artifacts,\
     \ the task cannot be considered completed."
+T027a:
+  c: false
+  h: ea11fcd89d763065023df068c2a89b4111a89d5bd67fbef4322ba604fcdd9b92
+  r: "The repository contains a `plot_completion_time` function that correctly creates\
+    \ and saves a box\u2011plot, satisfying the code\u2011level requirement. However,\
+    \ the required output file `figures/completion_time.png` is absent, so the visualization\
+    \ has not actually been produced. The missing figure must be generated and saved\
+    \ at the specified path to complete the task."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -78,3 +80,16 @@ T036:
     \ there is no `data/processed/power_flags.json` file present, and the provided\
     \ code excerpt shows no logic that writes the required JSON output. Consequently,\
     \ the task\u2019s output artifact is missing."
+T108:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `run_analysis.py` file containing a `precondition_check()` function
+    was provided, nor any indication that such a check raises an error when `cleaned_sessions.csv`
+    is absent. The required code artifact is missing, so the task is not satisfied.
+T113:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `run_analysis.py` containing checksum logic, nor any
+    files showing the comparison of `report_summary.txt` with the two source CSVs.
+    The required artifact (checksum verification implementation) is missing, so the
+    task is not satisfied.

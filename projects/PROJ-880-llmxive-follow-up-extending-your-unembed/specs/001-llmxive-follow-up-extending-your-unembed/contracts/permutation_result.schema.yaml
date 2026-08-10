@@ -1,56 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Permutation Result Schema"
 description: "Schema for the output of the permutation test and statistical analysis using within-language similarity samples."
-type: "object"
+type: object
 required:
-  - "observed_similarity"
-  - "null_distribution"
-  - "p_value"
-  - "metadata"
+  - observed_similarity
+  - null_mean
+  - null_std
+  - p_value
+  - iterations
+  - significant
 properties:
   observed_similarity:
-    type: "number"
-    description: "The observed cosine similarity between the two aligned subspaces."
-  null_distribution:
-    type: "array"
-    description: "List of similarity scores from within-language similarity samples and label-permuted frequency vectors."
-    items:
-      type: "number"
+    type: number
+    description: "The observed cosine similarity between the real model subspaces."
+    minimum: -1.0
+    maximum: 1.0
+  null_mean:
+    type: number
+    description: "Mean of the null distribution (random orthogonal bases)."
+  null_std:
+    type: number
+    description: "Standard deviation of the null distribution."
   p_value:
-    type: "number"
-    description: "Proportion of null distribution >= observed similarity."
+    type: number
+    description: "The calculated p-value from the bootstrap test."
     minimum: 0.0
     maximum: 1.0
-  metadata:
-    type: "object"
-    required:
-      - "iterations"
-      - "seed"
-      - "method"
-    properties:
-      iterations:
-        type: "integer"
-        description: "Number of bootstrap iterations performed."
-      seed:
-        type: "integer"
-      method:
-        type: "string"
-        enum: ["within_language_similarity", "label_permutation"]
-        description: "Method used for null distribution generation."
-      significant:
-        type: "boolean"
-        description: "True if p_value < 0.05."
-  alignment_method:
-    type: "string"
-    description: "Method used for cross-lingual alignment (e.g., 'procrustes_shared_vocab')."
-    enum:
-      - "procrustes_shared_vocab"
-      - "none"
-  null_method:
-    type: "string"
-    description: "Method used for null distribution generation."
-    enum:
-      - "within_language_similarity"
-      - "label_permutation"
-    default: "within_language_similarity"
+  iterations:
+    type: integer
+    description: "Number of permutation iterations performed."
+    minimum: 1
+  significant:
+    type: boolean
+    description: "True if p_value < 0.05 (or adjusted threshold)."
+  threshold:
+    type: number
+    description: "The significance threshold used (e.g., a conventional significance level)."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
 additionalProperties: false

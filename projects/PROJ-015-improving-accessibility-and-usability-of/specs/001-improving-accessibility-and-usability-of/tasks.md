@@ -46,7 +46,7 @@
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-015-improving-accessibility-and-usability-of/`)
 - [X] T002 Initialize Python project with pinned dependencies in `requirements.txt`. **Deliverable**: `requirements.txt` containing pinned versions of `scipy`, `matplotlib`, `pandas`, `jupyter`, `streamlit`, `statsmodels`, `pyyaml`, `numpy`. **Verification**: File exists and contains version pins (e.g., `scipy==1.11.0`, `statsmodels==0.14.0`).
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T015 [P] Implement Latin Square counterbalancing in `code/simulator/counterbalance.py` to assign the order of interface presentation (Traditional→Explainable or Explainable→Traditional). **Dependencies**: None. **Note**: This satisfies FR‑004 and must be completed before any UI tasks. [UNRESOLVED-CLAIM: c_75058500 — status=not_enough_info]
+- [X] T015 [P] Implement Latin Square counterbalancing in `code/simulator/counterbalance.py` to assign the order of interface presentation (Traditional→Explainable or Explainable→Traditional). **Dependencies**: None. **Note**: This satisfies FR‑004 and must be completed before any UI tasks.
 
 ---
 
@@ -120,7 +120,7 @@
 - [X] T021e [P] Unit test verifying dropout reason presence for incomplete sessions. **Dependencies**: T020.
 - [X] T050 [US2] Add validation for `explanation_engagement_time` consistency (missing/zero for Traditional, present for Explainable). **Dependencies**: T021a, T016b.
 - [X] T022 [P] Implement Shapiro‑Wilk normality test on difference scores in `code/analysis/stat_utils.py`; log to `data/processed/normality_log.txt`. **Dependencies**: T035a-apply.
-- [ ] T023a [US2] Implement Repeated Measures ANOVA using `statsmodels.stats.anova.AnovaRM`. **Constraint**: Explicitly ignore Shapiro‑Wilk results (audit‑only). **Output**: `data/processed/metrics_summary.csv`. **Dependencies**: T035a-apply.
+- [ ] T023a [US2] Implement Repeated Measures ANOVA using `statsmodels.stats.anova.AnovaRM`. **Constraint**: Explicitly ignore Shapiro‑Wilk results (audit‑only). **Output**: `data/processed/metrics_summary.csv`. **Dependencies**: T035a-apply. <!-- FAILED: unspecified -->
 - [X] T023b [P] Compute descriptive stats for `explanation_engagement_time` and output to `data/processed/descriptive_stats_explanation_engagement.csv`. Update `report_summary.txt`. **Dependencies**: T023a.
 - [X] T024 [P] Implement Holm‑Bonferroni correction for the three metric ANOVAs. **Dependencies**: T023a.
 - [X] T024a [P] Verify primary ANOVA p‑value < 0.05 before applying Holm‑Bonferroni; write result to `data/processed/primary_test_verification.txt`. **Dependencies**: T023a, T024.

@@ -1,4 +1,4 @@
-- artifact_hash: 12ec581702f2043c530a2e7c93a2875d63348ee9e1b7d82bdd957247a2d5461c
+- artifact_hash: 2808e8e14db5f3c103deafc04bb1d1d8821daccb85a18207493ef83e49a4d00c
   artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q42506454
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q42506454
-  verified_at: '2026-07-24T09:41:36.522141Z'
+  verified_at: '2026-08-10T07:14:51.581224Z'

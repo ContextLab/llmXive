@@ -7,20 +7,13 @@ T017a:
     \ requirement is therefore unmet."
 T017b:
   c: false
-  h: 32f4be8e801f43aa86833c6307613a41c0e6ed68d389332c668f1b0b92540814
-  r: "The repository contains a partially\u2011implemented `code/analysis/metrics.py`\
-    \ that is truncated and ends with an unfinished line, and the required data files\
-    \ `data/processed/samples_valid.csv` and `data/processed/metrics_valid.csv` are\
-    \ absent. Consequently the script cannot read valid samples nor produce the requested\
-    \ metrics output."
-T024a:
-  c: false
-  h: 5877723bf4ff2612a6a0f958d4446aae17ef989173b38ac83a9aecfc4683151f
-  r: "The repository contains `code/analysis/metrics.py`, but the file is truncated\
-    \ and does not include any routine that reads `data/processed/samples_all.csv`,\
-    \ computes per\u2011task/style mean AST edit distance and mean n\u2011gram entropy,\
-    \ and writes `data/processed/metrics_all.csv`. Moreover, the required `metrics_all.csv`\
-    \ file is absent. The task\u2019s core output is therefore missing."
+  h: 63cc9e99ee45056a669a66495c0d0e488dcfb0a1fdb059122d82043754b56359
+  r: "The repository lacks the required input `data/processed/samples_valid.csv` and\
+    \ the output `data/processed/metrics_valid.csv`. Moreover, `code/analysis/metrics.py`\
+    \ is truncated (ends mid\u2011function) and does not contain logic to read the\
+    \ valid samples, compute per\u2011task/style mean AST edit distance and mean n\u2011\
+    gram entropy, and write the aggregated results. These essential components are\
+    \ missing, so the task is not genuinely completed."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

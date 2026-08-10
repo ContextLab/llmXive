@@ -91,7 +91,7 @@ The researcher needs to perform a permutation test to determine if the observed 
 - **SC-002**: The composition shift of dominant tokens is measured against the overlap ratio of the top tokens between English and non-English models compared to a random orthogonal basis baseline (average overlap with random bases); the magnitude of the difference is the metric. (See FR-003, FR-008)
 - **SC-003**: The statistical significance of the shift is measured against the p-value derived from the permutation test null distribution (within-language similarity). (See FR-004)
 - **SC-004**: The validity of the validation metric is measured against the correlation coefficient between the subspace shift vector and the difference in Multilingual SentEval STS task accuracy (performance degradation) between language pairs. (See FR-007)
-- **SC-005**: The computational feasibility is measured against the constraint of completing the full SVD and permutation pipeline on a GitHub Actions ubuntu-latest runner (4 vCPU, 16GB RAM) within 6 hours. (See FR-001)
+- **SC-005**: The computational feasibility is measured against the constraint of completing the full SVD and permutation pipeline on a GitHub Actions ubuntu-latest runner (A multi‑core (several vCPU) configuration, 16 GB RAM) within 6 hours. (See FR-001)
 
 ## Assumptions
 

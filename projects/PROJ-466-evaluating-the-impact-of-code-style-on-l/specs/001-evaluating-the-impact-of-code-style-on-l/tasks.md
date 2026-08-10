@@ -119,7 +119,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T029a [US3] Implement `code/analysis/stats.py` **Kruskal-Wallis H-test** using `scipy` to compare diversity distributions across three style groups (FR-006, US-3) on the full N=164 dataset.
+- [X] T029a [US3] Implement `code/analysis/stats.py` **Kruskal-Wallis H-test** using `scipy` to compare diversity distributions across three style groups (FR-006, US-3) on the full N=164 dataset [UNRESOLVED-CLAIM: c_988f1098 — status=not_enough_info].
 - [X] T030a [US3] Implement `code/analysis/stats.py` post-hoc analysis: perform **Dunn's test with Bonferroni correction** if Kruskal-Wallis is significant (US-3 Acceptance Scenario 1)
 - [ ] T031a [US3] Implement sensitivity analysis: sweep α over the set **[0.01, 0.05, 0.1]** and record the count of significant tasks for each. **Output**: **Write the JSON file** `data/processed/sensitivity_results.json` to disk. **MUST WRITE FILE IN ALL CASES** (even if analysis fails, write error status). **Dependency**: T029a.
 - [X] T032a [US3] Implement survivorship bias comparison in `code/analysis/stats.py`: compare 'Valid' (from T017b) vs 'All Generated' (from T024a) results and quantify difference. **Dependency**: T017b, T024a.

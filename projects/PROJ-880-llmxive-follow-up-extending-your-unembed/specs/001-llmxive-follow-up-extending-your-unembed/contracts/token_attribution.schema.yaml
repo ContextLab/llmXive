@@ -15,7 +15,7 @@ properties:
     description: "Model identifier"
   top_tokens:
     type: array
-    description: "Top-k tokens with highest logit weights in the edge spectrum"
+    description: "Top‑k tokens with highest logit weight in the edge spectrum"
     items:
       type: object
       required:

@@ -435,6 +435,10 @@
     "classified_at": "2026-05-12T20:41:18Z",
     "verdict": false
   },
+  "PROJ-263-quantifying-the-impact-of-network-proxim::1.6.0": {
+    "classified_at": "2026-08-10T06:41:40Z",
+    "verdict": false
+  },
   "PROJ-266-machine-learning-prediction-of-fracture-::1.6.0": {
     "classified_at": "2026-06-24T14:39:27Z",
     "verdict": false

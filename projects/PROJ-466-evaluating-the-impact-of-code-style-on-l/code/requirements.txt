@@ -1,5 +1,5 @@
 transformers
-torch
+torch-cpu
 datasets
 networkx
 scipy
@@ -8,3 +8,6 @@ pytest
 matplotlib
 statsmodels
 pyyaml
+black
+ruff
+numpy

@@ -1,89 +1,36 @@
-# Data Model: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+# Data Model: llmXive follow‑up
 
 ## Overview
-The data model defines the canonical file formats, schema contracts, and directory layout used throughout the pipeline. All artifacts are version‑controlled under `data/` and validated against JSON Schema files in `contracts/`. The **Single Source of Truth (SSoT)** for the entire project is the state manifest:
+The project defines a small, version‑controlled data ecosystem. Every artifact is immutable; transformations produce new files with provenance metadata.
 
-```
-state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml
-```
+## Raw Inputs
+| Artifact | Description | Location | Checksum (SHA‑256) |
+|----------|-------------|----------|--------------------|
+| `models/llama3/` | Llama‑3 checkpoint (unembedding & embedding matrices) | `data/raw/models/llama3/` | *computed at runtime* |
+| `models/mistral/` | Mistral checkpoint | `data/raw/models/mistral/` | *computed at runtime* |
+| `models/bloom/` | BLOOM checkpoint | `data/raw/models/bloom/` | *computed at runtime* |
+| RedPajama (English) | Token stream for frequency counting | `datasets/togethercomputer/RedPajama-Data-1T` | N/A (streamed) |
+| OSCAR (French) | Token stream for frequency counting | `datasets/oscar` (language=`fr`) | N/A (streamed) |
+| OSCAR (Chinese) | Token stream for frequency counting | `datasets/oscar` (language=`zh`) | N/A (streamed) |
 
-All figures, tables, and numeric results trace back to entries in this file.
+## Processed / Derived Artifacts
+| Artifact | Generation Step | Format | Provenance |
+|----------|----------------|--------|------------|
+| `data/processed/token_counts.json` | `data_loader.py` (token counting, language filtering, guard) | JSON `{language: token_count, ...}` | Includes source URLs & hashes of RedPajama/OSCAR versions. |
+| `data/processed/frequency_vector_{lang}.npy` | `data_loader.py` (normalize counts) | Numpy 1‑D float32 | Derived from `token_counts.json`. |
+| `data/derived/edge_spectrum_{model}.npy` | `model_utils.py` (truncated SVD) | Numpy 2‑D float32 (k × d) | Stores top‑k singular vectors. |
+| `data/derived/aligned_edge_spectrum_{model}.npy` | `subspace.py` (vocab alignment & Procrustes) | Numpy 2‑D float32 | Aligned version used for similarity. |
+| `data/derived/edge_spectrum_similarity.json` | `subspace.py` (pairwise cosine similarity + bootstrap CI) | JSON conforming to `contracts/edge_spectrum.schema.yaml` | Uses `aligned_edge_spectrum_{model}.npy`. |
+| `data/derived/token_attribution_{model}.json` | `token_attribution.py` (high‑logit token ranking) | JSON list of `{token_id, token_str, weight}` (top‑N) | Uses aligned edge spectrum and tokenizer. |
+| `data/derived/mean_embedding_{model}_{lang}.npy` | `token_attribution.py` (projection `W_E × f`) | Numpy 1‑D float32 | Uses model’s $W_E$ and language frequency vector. |
+| `data/derived/permutation_result.json` | `permutation_test.py` (within‑language null, adaptive convergence) | JSON conforming to `contracts/permutation_result.schema.yaml` | Several thousand iterations (adaptive). |
+| `data/derived/final_report.json` | `run_pipeline.py` (aggregation) | JSON conforming to `contracts/similarity_report.schema.yaml` | Single source of truth for paper. |
 
-## Directory Layout
-```
-data/
-├── raw/
-│   ├── llama3/                # model weight archives
-│   ├── mistral/
-│   ├── bloom/
-│   ├── redpajama/             # raw RedPajama token streams
-│   ├── common_crawl_french/
-│   ├── common_crawl_german/
-│   ├── common_crawl_spanish/
-│   ├── common_crawl_chinese/
-│   └── wals/                  # WALS CSV
-├── processed/
-│   ├── edge_spectrum/
-│   │   ├── llama3_en_edge_spectrum.npy
-│   │   ├── llama3_fr_edge_spectrum.npy
-│   │   ├── llama3_de_edge_spectrum.npy
-│   │   ├── llama3_es_edge_spectrum.npy
-│   │   ├── mistral_en_edge_spectrum.npy
-│   │   ├── mistral_fr_edge_spectrum.npy
-│   │   └── bloom_edge_spectrum.npy
-│   ├── vocab_map.json
-│   ├── token_counts/
-│   │   ├── english_token_count.json
-│   │   ├── french_token_count.json
-│   │   ├── german_token_count.json
-│   │   ├── spanish_token_count.json
-│   │   └── chinese_token_count.json
-│   ├── mean_embeddings/
-│   │   ├── english_mean_embedding.npy
-│   │   ├── french_mean_embedding.npy
-│   │   ├── german_mean_embedding.npy
-│   │   ├── spanish_mean_embedding.npy
-│   │   └── chinese_mean_embedding.npy
-│   ├── token_count_guard.json   # guard file produced by Phase 0
-│   └── wals_features.csv
-└── results/
-    ├── edge_similarity.json
-    ├── token_attribution_*.json
-    ├── shift_correlations.json
-    └── permutation_test.json
-```
+## Metadata & Checksums
+Every file written by the pipeline includes a companion metadata file (`*.meta.json`) containing:
+- `generated_at` (ISO‑8601 timestamp)
+- `source_artifacts` (list of input files with SHA‑256)
+- `git_commit` (hash of repository at run time)
+- `seed` (random seed used)
 
-## Core JSON Schemas (in `contracts/`)
-
-*The existing schema files remain unchanged; they are referenced throughout the plan and research documents.*
-
-### `edge_spectrum.schema.yaml`
-*(unchanged – validates the edge‑spectrum similarity report)*
-
-### `token_attribution.schema.yaml`
-*(unchanged – validates token attribution reports)*
-
-### `permutation_test.schema.yaml`
-*(unchanged – validates permutation test output)*
-
-*All other schemas listed in the repository are similarly unchanged.*
-
-## Checksum Manifest
-`state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml` contains a mapping:
-
-```yaml
-artifact_hashes:
-  data/raw/redpajama/...: "<sha256>"
-  data/raw/common_crawl_french/...: "<sha256>"
-  data/raw/common_crawl_german/...: "<sha256>"
-  data/raw/common_crawl_spanish/...: "<sha256>"
-  data/raw/common_crawl_chinese/...: "<sha256>"
-  data/raw/wals/wals.csv: "<sha256>"
-  # etc.
-```
-
-All downstream scripts verify these checksums before processing, satisfying the Data Hygiene principle.
-
----
-
-
+These metadata files enable reproducibility and auditability per Constitution Principle I.

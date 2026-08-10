@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0610097",
+  "judged_at": "2026-08-10T06:41:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+  "rationale": "This paper satisfies criteria (a) and (b) because it investigates the dynamical behavior of an irreversible spreading process (opinion spreading) on the exact same network topology (Barabási-Albert scale-free networks) and explicitly analyzes the role of network proximity via \"degree of occupied sites\" and \"hubs,\" which serves as a canonical proxy for the mechanism of epidemic spreading in this domain.",
+  "relevant": true
+}

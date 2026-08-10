@@ -16,10 +16,25 @@ properties:
         type: string
   similarity_matrix:
     type: object
-    description: "Mapping from model‑pair string to cosine similarity (float)."
+    description: "Mapping from model‑pair string to an object with cosine similarity and 95 % bootstrap CI."
     patternProperties:
       "^[a-z0-9_]+-[a-z0-9_]+$":
-        type: number
-        minimum: -1.0
-        maximum: 1.0
+        type: object
+        required:
+          - cosine_similarity
+          - ci_lower
+          - ci_upper
+        properties:
+          cosine_similarity:
+            type: number
+            minimum: -1.0
+            maximum: 1.0
+          ci_lower:
+            type: number
+            minimum: -1.0
+            maximum: 1.0
+          ci_upper:
+            type: number
+            minimum: -1.0
+            maximum: 1.0
     additionalProperties: false
