@@ -1,16 +1,16 @@
 """
-Setup script to create the project directory structure for T001.
-This script ensures all required directories and __init__.py files exist.
+Script to create the directory structure for the Socratic Transformers project.
+This script implements task T001a.
 """
 import os
-import sys
 from pathlib import Path
 
 def main():
-    project_root = Path(__file__).parent
+    base_path = Path("projects/PROJ-582-socratic-transformers-dialogue-based-sel/code")
     
-    # Define the directory structure relative to the code root
-    dirs = [
+    # Define all required directories relative to the base path
+    directories = [
+        "",  # The base path itself
         "src",
         "src/data",
         "src/train",
@@ -22,26 +22,31 @@ def main():
         "tests/integration",
     ]
 
-    for dir_path in dirs:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-
-    # Create __init__.py files
-    init_files = [
-        project_root / "src" / "__init__.py",
-        project_root / "tests" / "__init__.py",
-    ]
-
-    for init_file in init_files:
-        if not init_file.exists():
-          init_file.write_text('"""\nAuto-generated init file.\n"""\n')
-          print(f"Created init file: {init_file}")
+    created_count = 0
+    for dir_name in directories:
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
         else:
-          print(f"Init file already exists: {init_file}")
+            print(f"Directory already exists: {full_path}")
 
-    print("Project structure setup complete.")
+    print(f"\nTotal directories created: {created_count}")
+    
+    # Verification step as per task description
+    print("\nVerifying directory structure:")
+    for dir_name in directories:
+        full_path = base_path / dir_name
+        if full_path.exists() and full_path.is_dir():
+            print(f"  [OK] {full_path}")
+        else:
+            print(f"  [FAIL] {full_path} (Missing)")
+            return 1
+    
+    print("\nVerification complete. All directories exist.")
     return 0
 
 if __name__ == "__main__":
+    import sys
     sys.exit(main())

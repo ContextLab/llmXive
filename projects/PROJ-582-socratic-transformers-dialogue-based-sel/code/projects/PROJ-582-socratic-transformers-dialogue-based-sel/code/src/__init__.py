@@ -1,2 +1,4 @@
-# Socratic Transformers Project
-# This package contains the core implementation for dialogue-based selection on belief.
+"""
+Socratic Transformers: Dialogue-Based Selection on Belief
+Source code package.
+"""

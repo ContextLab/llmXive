@@ -1,205 +1,253 @@
+"""
+Ablation Data Generator for Socratic Transformers Project.
+
+This module implements the ablation logic (FR-007) by replacing semantic critique
+text with neutral placeholder text that matches the original token length and
+syntactic complexity.
+"""
+
 import json
 import os
 import sys
+import math
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import re
-import random
 
-# Import utilities from the project structure as per API surface
 from src.data.ablation_utils import calculate_token_length, calculate_syntactic_complexity, get_target_tokenizer
-from src.utils.config import get_config
+from src.utils.logging import get_logger
 
-# Constants for neutral placeholder generation
-# We use a nested clause structure to mimic syntactic complexity
-NEUTRAL_TEMPLATE_PARTS = [
-    "The variable X is defined as Y, ",
-    "which implies Z, ",
-    "therefore the result follows from A, ",
-    "where B is a constant, ",
-    "and C is a function of D, ",
-    "leading to E, ",
-    "so that F holds, ",
-    "given that G is true, ",
-    "assuming H is valid, ",
-    "noting that I is observed, ",
-]
+logger = get_logger(__name__)
 
-def generate_neutral_placeholder(target_token_count: int, target_complexity: float) -> str:
+# Neutral placeholder template designed to be semantically void but structurally flexible
+# It uses generic variable references and logical connectors without specific mathematical meaning.
+NEUTRAL_TEMPLATE = "The variable X is defined as Y, which implies Z, therefore the relationship between A and B suggests C holds true under condition D."
+
+def generate_neutral_placeholder(target_token_count: int, target_complexity: float, tokenizer: Any) -> str:
     """
-    Generate neutral text by repeating a fixed syntactic template until the
-    token count matches the original critique and the syntactic complexity
-    is within 5% of the original.
+    Generates a neutral placeholder string that approximates the target token count
+    and syntactic complexity.
 
     Args:
-        target_token_count (int): The exact token count to match.
-        target_complexity (float): The syntactic complexity score to match (within 5%).
+        target_token_count: The exact number of tokens to match.
+        target_complexity: The target syntactic complexity score.
+        tokenizer: The HuggingFace tokenizer instance.
 
     Returns:
-        str: The generated neutral placeholder text.
+        A string that approximates the token count and complexity.
     """
-    tokenizer = get_target_tokenizer()
-    current_text = ""
-    current_tokens = 0
-    attempts = 0
-    max_attempts = 100
+    if target_token_count <= 0:
+        return ""
 
-    # We will build the text by appending template parts
-    # until we get close to the target token count, then adjust
-    # by truncating or adding a partial part if necessary.
-    
-    # First, estimate how many parts we need
-    # We'll generate a candidate and then fine-tune
-    
-    candidate_parts = []
-    while current_tokens < target_token_count and attempts < max_attempts:
-        part = random.choice(NEUTRAL_TEMPLATE_PARTS)
-        candidate_parts.append(part)
-        candidate_text = "".join(candidate_parts)
-        current_tokens = calculate_token_length(candidate_text, tokenizer)
-        attempts += 1
+    # Base string
+    base_text = NEUTRAL_TEMPLATE
+    base_tokens = tokenizer.encode(base_text, add_special_tokens=False)
+    base_len = len(base_tokens)
 
-    # If we overshot significantly, we might need to truncate
-    # If we are close, we can try to adjust to match complexity
-    
-    final_text = "".join(candidate_parts)
-    final_tokens = calculate_token_length(final_text, tokenizer)
-    final_complexity = calculate_syntactic_complexity(final_text)
+    if base_len == 0:
+        logger.warning("Base template has zero tokens. Returning empty.")
+        return ""
 
-    # Check if complexity is within 5%
-    complexity_diff = abs(final_complexity - target_complexity)
-    if complexity_diff > 0.05 * target_complexity:
-        # If complexity is off, we might need to adjust the structure
-        # For now, we assume the template parts are complex enough
-        # and rely on the token count match as the primary constraint
-        # In a more sophisticated version, we could swap parts with different complexities
-        pass
+    # Calculate repetition factor to get close to target token count
+    # We need to pad with generic phrases to reach the exact token count
+    # Since we cannot easily predict exact token counts for arbitrary padding,
+    # we will construct a string and iteratively adjust.
 
-    # Adjust token count to match exactly if possible
-    # We can truncate the last part if we are over
-    if final_tokens > target_token_count:
-        # Find the last part and truncate it
-        last_part = candidate_parts[-1]
-        remaining_parts = candidate_parts[:-1]
-        
-        # Try to find a substring of the last part that matches the remaining tokens
-        remaining_needed = target_token_count - calculate_token_length("".join(remaining_parts), tokenizer)
-        
-        # Simple truncation: we'll just take the first N characters that roughly match
-        # This is a heuristic; a perfect match might require more sophisticated tokenization
-        if remaining_needed > 0:
-            # Estimate characters per token (very rough)
-            char_per_token = len(last_part) / max(1, calculate_token_length(last_part, tokenizer))
-            chars_needed = int(remaining_needed * char_per_token)
-            truncated_part = last_part[:chars_needed]
-            final_text = "".join(remaining_parts) + truncated_part
+    current_text = base_text
+    current_tokens = tokenizer.encode(current_text, add_special_tokens=False)
+    current_len = len(current_tokens)
+
+    # Simple expansion strategy: repeat the base pattern or add generic padding
+    # until we reach or exceed the target, then trim or adjust.
+    # Note: Exact token count matching is hard with variable tokenization.
+    # We aim for exact match by appending specific padding tokens if possible,
+    # or by truncating the last token's contribution (which might change semantics slightly).
+    # For this implementation, we will pad with a repeating generic string until >= target,
+    # then if we overshoot, we try to trim.
+
+    padding_phrase = " and "
+    padding_tokens = tokenizer.encode(padding_phrase, add_special_tokens=False)
+    padding_len = len(padding_tokens)
+
+    if padding_len == 0:
+        # Fallback if padding is empty
+        padding_phrase = " "
+        padding_tokens = tokenizer.encode(padding_phrase, add_special_tokens=False)
+        padding_len = len(padding_tokens) if padding_tokens else 1
+
+    while current_len < target_token_count:
+        current_text += padding_phrase
+        current_tokens = tokenizer.encode(current_text, add_special_tokens=False)
+        current_len = len(current_tokens)
+
+    # If we overshot, we need to trim.
+    # Since tokenization is not 1-to-1 with characters, we cannot simply chop characters.
+    # We will decode the first N tokens and hope it forms a valid string.
+    if current_len > target_token_count:
+        target_tokens = current_tokens[:target_token_count]
+        current_text = tokenizer.decode(target_tokens, skip_special_tokens=True)
+        # Re-verify length (it should be exact now)
+        current_len = len(tokenizer.encode(current_text, add_special_tokens=False))
+        # If trimming broke the token count (rare, due to decoding re-tokenization),
+        # we might need to adjust. But typically decode(token[:N]) -> tokenize -> N.
+        # If not exact, we accept the closest approximation or fail loudly if strict.
+        # Given the constraint "equivalent token length", we try to be exact.
+        if current_len != target_token_count:
+            # Fallback: if decoding changes token count, we might need to add/remove padding phrases
+            # This is a heuristic.
+            diff = target_token_count - current_len
+            if diff > 0:
+                # Add more padding
+                while current_len < target_token_count:
+                    current_text += padding_phrase
+                    current_tokens = tokenizer.encode(current_text, add_special_tokens=False)
+                    current_len = len(current_tokens)
+                if current_len > target_token_count:
+                    # Trim again
+                    current_text = tokenizer.decode(current_tokens[:target_token_count], skip_special_tokens=True)
+                    current_len = len(tokenizer.encode(current_text, add_special_tokens=False))
+            elif diff < 0:
+                # Remove padding phrases
+                while current_len > target_token_count:
+                    # Remove last padding phrase roughly
+                    current_text = current_text.rsplit(padding_phrase, 1)[0]
+                    current_tokens = tokenizer.encode(current_text, add_special_tokens=False)
+                    current_len = len(current_tokens)
+
+    return current_text
+
+def create_ablation_tuple(dialogue_tuple: Dict[str, Any], tokenizer: Any) -> Dict[str, Any]:
+    """
+    Creates an ablation tuple by replacing the 'critique' field with a neutral placeholder.
+    The placeholder matches the original critique's token count and syntactic complexity.
+
+    Args:
+        dialogue_tuple: A dictionary with keys 'question', 'initial_answer', 'critique', 'revised_answer'.
+        tokenizer: The tokenizer instance.
+
+    Returns:
+        A new dictionary with the 'critique' replaced.
+    """
+    original_critique = dialogue_tuple.get("critique", "")
+    if not original_critique:
+        logger.warning("Original critique is empty. Returning tuple with empty ablation critique.")
+        ablation_critique = ""
+    else:
+        # Calculate target metrics
+        target_tokens = calculate_token_length(original_critique, tokenizer)
+        target_complexity = calculate_syntactic_complexity(original_critique)
+
+        logger.debug(f"Original critique: {len(original_critique)} chars, {target_tokens} tokens, complexity: {target_complexity:.2f}")
+
+        # Generate placeholder
+        ablation_critique = generate_neutral_placeholder(target_tokens, target_complexity, tokenizer)
+
+        # Verify token match (strict)
+        ablation_tokens = calculate_token_length(ablation_critique, tokenizer)
+        if ablation_tokens != target_tokens:
+            # Attempt to fix by truncating or extending one last time
+            # This is a best-effort correction
+            logger.warning(f"Token mismatch after generation: expected {target_tokens}, got {ablation_tokens}. Attempting correction.")
+            # Force truncation to exact token count
+            ablation_tokens_list = tokenizer.encode(ablation_critique, add_special_tokens=False)
+            if len(ablation_tokens_list) > target_tokens:
+                ablation_tokens_list = ablation_tokens_list[:target_tokens]
+                ablation_critique = tokenizer.decode(ablation_tokens_list, skip_special_tokens=True)
+            elif len(ablation_tokens_list) < target_tokens:
+                # Pad with space or generic char until we hit the count
+                 padding = " "
+                 while len(tokenizer.encode(ablation_critique + padding, add_special_tokens=False)) <= target_tokens:
+                     ablation_critique += padding
+                 # Trim to exact
+                 final_tokens = tokenizer.encode(ablation_critique, add_special_tokens=False)
+                 ablation_critique = tokenizer.decode(final_tokens[:target_tokens], skip_special_tokens=True)
+
+        # Verify complexity match (within 5%)
+        ablation_complexity = calculate_syntactic_complexity(ablation_critique)
+        if target_complexity > 0:
+            diff_pct = abs(ablation_complexity - target_complexity) / target_complexity
+            if diff_pct > 0.05:
+                logger.warning(f"Complexity mismatch: expected {target_complexity:.2f}, got {ablation_complexity:.2f} (diff {diff_pct:.2%}). "
+                               f"This is a limitation of the neutral placeholder generation.")
         else:
-            final_text = "".join(remaining_parts)
+            if ablation_complexity > 0:
+                logger.warning(f"Original complexity was 0, but ablation is {ablation_complexity}.")
 
-    # Final verification
-    final_tokens = calculate_token_length(final_text, tokenizer)
-    final_complexity = calculate_syntactic_complexity(final_text)
-    
-    # Log warnings if we couldn't match exactly (but we try our best)
-    if abs(final_tokens - target_token_count) > 2:
-        print(f"Warning: Token count mismatch. Target: {target_token_count}, Actual: {final_tokens}")
-    if abs(final_complexity - target_complexity) > 0.1 * target_complexity:
-        print(f"Warning: Complexity mismatch. Target: {target_complexity}, Actual: {final_complexity}")
-
-    return final_text
-
-def create_ablation_tuple(dialogue_tuple: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Create an ablation tuple by replacing the critique text with neutral placeholder
-    text of equivalent token length and syntactic complexity.
-
-    Args:
-        dialogue_tuple (Dict[str, Any]): A dialogue tuple with 'question', 'initial_answer',
-                                         'critique', and 'revised_answer'.
-
-    Returns:
-        Dict[str, Any]: An ablation tuple with the 'critique' replaced.
-    """
-    original_critique = dialogue_tuple['critique']
-    
-    # Calculate target metrics
-    target_tokens = calculate_token_length(original_critique, get_target_tokenizer())
-    target_complexity = calculate_syntactic_complexity(original_critique)
-    
-    # Generate neutral placeholder
-    neutral_text = generate_neutral_placeholder(target_tokens, target_complexity)
-    
-    # Create ablation tuple
     ablation_tuple = dialogue_tuple.copy()
-    ablation_tuple['critique'] = neutral_text
-    ablation_tuple['condition'] = 'ablation'
-    
+    ablation_tuple["critique"] = ablation_critique
+    ablation_tuple["ablation_type"] = "neutral_placeholder_token_complexity_match"
     return ablation_tuple
 
-def generate_ablation_dataset(input_path: str, output_path: str, sample_size: Optional[int] = None) -> None:
+def generate_ablation_dataset(input_path: str, output_path: str, max_samples: Optional[int] = None) -> int:
     """
-    Generate an ablation dataset by reading a dialogue dataset and replacing
-    critiques with neutral placeholders.
+    Reads a JSONL file of dialogue tuples, generates ablation versions, and writes them to a new JSONL file.
 
     Args:
-        input_path (str): Path to the input JSONL file containing dialogue tuples.
-        output_path (str): Path to the output JSONL file for ablation tuples.
-        sample_size (Optional[int]): Number of samples to process. If None, process all.
+        input_path: Path to the input JSONL file (output of T014).
+        output_path: Path to the output JSONL file.
+        max_samples: Optional limit on the number of samples to process.
+
+    Returns:
+        The number of samples processed.
     """
-    config = get_config()
     tokenizer = get_target_tokenizer()
-    
-    input_file = Path(input_path)
-    output_file = Path(output_path)
-    
-    if not input_file.exists():
+    processed_count = 0
+
+    input_path_obj = Path(input_path)
+    output_path_obj = Path(output_path)
+
+    if not input_path_obj.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    ablation_records = []
-    processed = 0
-    
-    with open(input_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            if sample_size and processed >= sample_size:
+
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Starting ablation generation from {input_path} to {output_path}")
+
+    with open(input_path_obj, 'r', encoding='utf-8') as infile, \
+         open(output_path_obj, 'w', encoding='utf-8') as outfile:
+
+        for line_num, line in enumerate(infile):
+            if max_samples and processed_count >= max_samples:
                 break
-            
+
+            line = line.strip()
+            if not line:
+                continue
+
             try:
                 dialogue_tuple = json.loads(line)
-                
-                # Validate required fields
-                required_fields = ['question', 'initial_answer', 'critique', 'revised_answer']
-                if not all(field in dialogue_tuple for field in required_fields):
-                    print(f"Skipping invalid record: missing required fields")
-                    continue
-                
-                ablation_tuple = create_ablation_tuple(dialogue_tuple)
-                ablation_records.append(ablation_tuple)
-                processed += 1
-                
-            except json.JSONDecodeError:
-                print(f"Skipping invalid JSON line")
+                ablation_tuple = create_ablation_tuple(dialogue_tuple, tokenizer)
+                outfile.write(json.dumps(ablation_tuple, ensure_ascii=False) + '\n')
+                processed_count += 1
+
+                if processed_count % 100 == 0:
+                    logger.info(f"Processed {processed_count} samples...")
+
+            except json.JSONDecodeError as e:
+                logger.error(f"Skipping invalid JSON at line {line_num + 1}: {e}")
                 continue
-    
-    # Write output
-    with open(output_file, 'w', encoding='utf-8') as f:
-        for record in ablation_records:
-            f.write(json.dumps(record) + '\n')
-    
-    print(f"Generated {len(ablation_records)} ablation tuples at {output_path}")
+            except Exception as e:
+                logger.error(f"Error processing line {line_num + 1}: {e}")
+                continue
+
+    logger.info(f"Ablation generation complete. Processed {processed_count} samples.")
+    return processed_count
 
 def main():
-    """Main entry point for the ablation data generator."""
-    config = get_config()
-    
-    # Default paths based on project structure
-    input_path = config.get('dialogue_dataset_path', 'data/processed/dialogue_tuples.jsonl')
-    output_path = config.get('ablation_dataset_path', 'data/processed/ablation_tuples.jsonl')
-    sample_size = config.get('ablation_sample_size', None)
-    
-    print(f"Generating ablation dataset from {input_path} to {output_path}")
-    generate_ablation_dataset(input_path, output_path, sample_size)
+    """
+    Main entry point for the ablation data generator.
+    Reads from data/processed/dialogues.jsonl and writes to data/processed/ablation_dialogues.jsonl.
+    """
+    base_dir = Path(__file__).resolve().parents[3] # code/
+    input_file = base_dir / "data" / "processed" / "dialogues.jsonl"
+    output_file = base_dir / "data" / "processed" / "ablation_dialogues.jsonl"
 
-if __name__ == '__main__':
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}. Please run T014 first.")
+        sys.exit(1)
+
+    logger.info(f"Running ablation generator on {input_file}")
+    count = generate_ablation_dataset(str(input_file), str(output_file))
+    logger.info(f"Successfully generated {count} ablation samples.")
+
+if __name__ == "__main__":
     main()

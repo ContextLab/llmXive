@@ -1,13 +1,13 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "socratic-transformers-dialogue-based-sel"
+name = "socratic-transformers"
 version = "0.1.0"
-description = "Socratic Transformers: Dialogue-Based Selection on Belief"
+description = "Dialogue-Based Selection on Belief for Transformers"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "transformers",
     "peft",
@@ -16,35 +16,31 @@ dependencies = [
     "scikit-learn",
     "pandas",
     "pytest",
+    "tokenizers",
     "ruff",
-    "black",
-    "spacy",
-    "torch",
     "numpy",
+    "torch",
+    "psutil",
+    "spacy"
 ]
 
-[tool.black]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*"]
+
+[tool.ruff]
 line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+target-version = "py310"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "W503"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101", "S311"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v"
-
-[tool.setuptools]
-packages = ["src", "tests"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

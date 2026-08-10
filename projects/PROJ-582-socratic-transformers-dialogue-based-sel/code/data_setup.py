@@ -1,74 +1,78 @@
-"""
-Data directory structure setup for the Socratic Transformers project.
-
-This module creates the required directory structure for raw, processed,
-and result data, along with .gitkeep files to ensure directories are
-tracked by version control.
-"""
 import os
 import sys
 from pathlib import Path
 
 
-def create_gitkeep(directory: Path) -> None:
+def setup_data_directories(root_dir: str) -> None:
     """
-    Create a .gitkeep file in the specified directory.
+    Create the required data directory structure under the project root.
+    
+    Creates:
+      - data/raw/
+      - data/processed/
+      - data/results/
     
     Args:
-        directory: Path to the directory where .gitkeep should be created.
+        root_dir: The project root directory path.
     """
-    gitkeep_path = directory / ".gitkeep"
-    gitkeep_path.touch()
-    print(f"Created .gitkeep in: {gitkeep_path}")
+    root_path = Path(root_dir)
+    data_root = root_path / "data"
+    
+    directories = [
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "results",
+    ]
+    
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
 
 
-def setup_data_directories(base_path: Path) -> None:
+def create_gitkeep(root_dir: str) -> None:
     """
-    Create the standard data directory structure.
+    Create .gitkeep files in all data directories to ensure they are tracked by git.
     
     Args:
-        base_path: Base path where the data directory will be created.
+        root_dir: The project root directory path.
     """
-    data_root = base_path / "data"
-    raw_dir = data_root / "raw"
-    processed_dir = data_root / "processed"
-    results_dir = data_root / "results"
+    root_path = Path(root_dir)
+    data_root = root_path / "data"
     
-    # Create directories
-    for dir_path in [data_root, raw_dir, processed_dir, results_dir]:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    directories = [
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "results",
+    ]
     
-    # Create .gitkeep files
-    for dir_path in [data_root, raw_dir, processed_dir, results_dir]:
-        create_gitkeep(dir_path)
+    for directory in directories:
+        gitkeep_path = directory / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            print(f"Created .gitkeep: {gitkeep_path}")
+        else:
+            print(f".gitkeep already exists: {gitkeep_path}")
 
 
-def main() -> int:
+def main() -> None:
     """
-    Main entry point for the data setup script.
+    Main entry point to setup the data directory structure and .gitkeep files.
+    Expects the project root directory as the first command-line argument.
+    """
+    if len(sys.argv) < 2:
+        print("Usage: python data_setup.py <project_root_directory>")
+        sys.exit(1)
     
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    try:
-        # Determine the base path (project root)
-        # The script is expected to be run from the project root
-        base_path = Path.cwd()
-        
-        print(f"Setting up data directories in: {base_path}")
-        setup_data_directories(base_path)
-        
-        print("\nData directory structure setup complete!")
-        print(f"  - {base_path}/data/raw/")
-        print(f"  - {base_path}/data/processed/")
-        print(f"  - {base_path}/data/results/")
-        
-        return 0
-    except Exception as e:
-        print(f"Error setting up data directories: {e}", file=sys.stderr)
-        return 1
+    project_root = sys.argv[1]
+    
+    if not os.path.isdir(project_root):
+        print(f"Error: Directory '{project_root}' does not exist.")
+        sys.exit(1)
+    
+    setup_data_directories(project_root)
+    create_gitkeep(project_root)
+    print("Data directory setup complete.")
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

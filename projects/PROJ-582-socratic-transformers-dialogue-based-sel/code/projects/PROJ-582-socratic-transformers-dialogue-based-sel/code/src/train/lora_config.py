@@ -1,14 +1,8 @@
 """
 LoRA Configuration Module for Socratic Transformers.
 
-This module defines the configuration class and factory functions for setting up
-Low-Rank Adaptation (LoRA) parameters and 4-bit quantization settings required
-for CPU-constrained fine-tuning (FR-003).
-
-Dependencies:
-    - peft: For LoraConfig
-    - transformers: For BitsAndBytesConfig
-    - src.utils.config: For SocraticConfig
+Implements configuration for Low-Rank Adaptation (LoRA) with 4-bit quantization
+to ensure training fits within CPU memory constraints (< 7GB) as per FR-003.
 """
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, Tuple
@@ -16,25 +10,26 @@ import os
 
 from peft import LoraConfig, TaskType
 from transformers import BitsAndBytesConfig
+
 from src.utils.config import get_config, SocraticConfig
 
 
 @dataclass
 class LoRAConfig:
     """
-    Configuration container for LoRA fine-tuning parameters.
+    Configuration dataclass for LoRA fine-tuning parameters.
 
     Attributes:
-        r (int): Rank of the update matrices.
-        lora_alpha (int): Alpha scaling factor for LoRA.
-        lora_dropout (float): Dropout probability for LoRA layers.
-        target_modules (list[str]): List of module names to apply LoRA to.
-        task_type (str): Task type for PEFT (e.g., CAUSAL_LM).
-        bias (str): Bias type for LoRA (none, lora_only, all).
-        modules_to_save (list[str], optional): Modules to be trained from scratch.
+        r: Rank of the LoRA update matrices.
+        lora_alpha: Scaling factor for LoRA updates.
+        lora_dropout: Dropout probability for LoRA layers.
+        target_modules: List of module names to apply LoRA to.
+        task_type: Type of task for PEFT (CAUSAL_LM for generative models).
+        bias: Bias type for LoRA.
+        modules_to_save: List of modules to save in addition to LoRA.
     """
-    r: int = 8
-    lora_alpha: int = 32
+    r: int = 64
+    lora_alpha: int = 16
     lora_dropout: float = 0.1
     target_modules: list = field(
         default_factory=lambda: ["q_proj", "k_proj", "v_proj", "o_proj"]
@@ -44,20 +39,13 @@ class LoRAConfig:
     modules_to_save: Optional[list] = None
 
     def to_peft_config(self) -> LoraConfig:
-        """
-        Converts this configuration into a PEFT LoraConfig object.
-
-        Returns:
-            LoraConfig: Configured PEFT instance ready for model attachment.
-        """
-        task_type_enum = TaskType.CAUSAL_LM if self.task_type == "CAUSAL_LM" else None
-
+        """Convert this configuration to a PEFT LoraConfig object."""
         return LoraConfig(
             r=self.r,
             lora_alpha=self.lora_alpha,
             lora_dropout=self.lora_dropout,
             target_modules=self.target_modules,
-            task_type=task_type_enum,
+            task_type=TaskType[self.task_type],
             bias=self.bias,
             modules_to_save=self.modules_to_save,
         )
@@ -65,105 +53,141 @@ class LoRAConfig:
 
 def get_4bit_quantization_config() -> BitsAndBytesConfig:
     """
-    Creates a BitsAndBytesConfig for 4-bit quantization (NF4) with CPU compatibility.
-
-    This satisfies FR-003 requirement for 4-bit quantization to reduce memory footprint
-    on constrained hardware.
+    Create a 4-bit quantization configuration using BitsAndBytes.
 
     Returns:
-        BitsAndBytesConfig: Configuration for 4-bit loading.
+        BitsAndBytesConfig: Configuration for 4-bit quantization optimized for CPU.
     """
     return BitsAndBytesConfig(
         load_in_4bit=True,
+        bnb_4bit_compute_dtype="float32",  # Use float32 for CPU stability
         bnb_4bit_use_double_quant=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype="float32", # Use float32 for CPU stability
         llm_int8_threshold=6.0,
+        llm_int8_has_fp16_weight=False,
     )
 
 
 def create_lora_config_from_env() -> Tuple[LoRAConfig, BitsAndBytesConfig]:
     """
-    Reads LoRA and quantization settings from environment variables.
-
-    Environment Variables:
-        LORA_R: Rank (default: 8)
-        LORA_ALPHA: Alpha (default: 32)
-        LORA_DROPOUT: Dropout (default: 0.1)
-        BATCH_SIZE: Per-device batch size (must be <= 2 for CPU constraints)
-        GRAD_ACCUMULATION: Gradient accumulation steps (default: 4)
+    Create LoRA and quantization configurations from environment variables.
 
     Returns:
-        Tuple[LoRAConfig, BitsAndBytesConfig]: Configured LoRA and Quantization objects.
+        Tuple containing LoRAConfig and BitsAndBytesConfig instances.
     """
-    # Parse LoRA parameters from environment
-    r = int(os.getenv("LORA_R", 8))
-    lora_alpha = int(os.getenv("LORA_ALPHA", 32))
-    lora_dropout = float(os.getenv("LORA_DROPOUT", 0.1))
-    batch_size = int(os.getenv("BATCH_SIZE", 2))
-    grad_accum = int(os.getenv("GRAD_ACCUMULATION", 4))
+    # Get base config from environment
+    base_config = get_config()
 
-    # Enforce CPU constraints from task description
-    if batch_size > 2:
-        raise ValueError(f"BATCH_SIZE must be <= 2 for CPU constraints. Got {batch_size}")
-    if grad_accum < 4:
-        raise ValueError(f"GRAD_ACCUMULATION must be >= 4 to compensate for small batch. Got {grad_accum}")
+    # Extract LoRA parameters from environment or use defaults
+    r = int(os.environ.get("LORA_R", 64))
+    lora_alpha = int(os.environ.get("LORA_ALPHA", 16))
+    lora_dropout = float(os.environ.get("LORA_DROPOUT", 0.1))
 
-    lora_cfg = LoRAConfig(
+    # Parse target modules from environment
+    target_modules_str = os.environ.get(
+        "LORA_TARGET_MODULES", "q_proj,k_proj,v_proj,o_proj"
+    )
+    target_modules = [m.strip() for m in target_modules_str.split(",")]
+
+    # Create LoRA configuration
+    lora_config = LoRAConfig(
         r=r,
         lora_alpha=lora_alpha,
         lora_dropout=lora_dropout,
+        target_modules=target_modules,
     )
 
-    quant_cfg = get_4bit_quantization_config()
+    # Create quantization config
+    quant_config = get_4bit_quantization_config()
 
-    return lora_cfg, quant_cfg
+    return lora_config, quant_config
 
 
-def validate_lora_config(lora_cfg: LoRAConfig, quant_cfg: BitsAndBytesConfig) -> bool:
+def validate_lora_config(
+    lora_config: LoRAConfig, quant_config: BitsAndBytesConfig
+) -> bool:
     """
-    Validates that the configuration meets project constraints (FR-003).
-
-    Checks:
-        - 4-bit quantization is enabled.
-        - Target modules are specified.
+    Validate LoRA configuration against project constraints.
 
     Args:
-        lora_cfg: LoRA configuration object.
-        quant_cfg: Quantization configuration object.
+        lora_config: LoRA configuration to validate.
+        quant_config: Quantization configuration to validate.
 
     Returns:
-        bool: True if valid.
+        bool: True if configuration is valid, False otherwise.
 
     Raises:
         ValueError: If configuration violates constraints.
     """
-    if not quant_cfg.load_in_4bit:
-        raise ValueError("4-bit quantization must be enabled (load_in_4bit=True).")
+    # Validate batch size constraint (FR-003)
+    batch_size = int(os.environ.get("TRAIN_BATCH_SIZE", 2))
+    if batch_size > 2:
+        raise ValueError(
+            f"Batch size {batch_size} exceeds maximum of 2 per FR-003"
+        )
 
-    if not lora_cfg.target_modules:
-        raise ValueError("target_modules must be specified for LoRA.")
+    # Validate gradient accumulation steps (FR-003)
+    grad_accum = int(os.environ.get("GRADIENT_ACCUMULATION_STEPS", 4))
+    if grad_accum < 4:
+        raise ValueError(
+            f"Gradient accumulation steps {grad_accum} must be at least 4 per FR-003"
+        )
+
+    # Validate 4-bit quantization is enabled
+    if not quant_config.load_in_4bit:
+        raise ValueError("4-bit quantization must be enabled per FR-003")
+
+    # Validate LoRA parameters
+    if lora_config.r <= 0:
+        raise ValueError(f"LoRA rank must be positive, got {lora_config.r}")
+
+    if lora_config.lora_alpha <= 0:
+        raise ValueError(f"LoRA alpha must be positive, got {lora_config.lora_alpha}")
+
+    if not 0 <= lora_config.lora_dropout <= 1:
+        raise ValueError(
+            f"LoRA dropout must be between 0 and 1, got {lora_config.lora_dropout}"
+        )
 
     return True
 
 
 def main() -> None:
     """
-    Entry point for CLI testing of LoRA configuration.
-    Prints the generated configuration to stdout.
+    Main function to demonstrate LoRA configuration creation and validation.
     """
-    print("Initializing LoRA Configuration for Socratic Transformers...")
-    try:
-        lora_cfg, quant_cfg = create_lora_config_from_env()
-        validate_lora_config(lora_cfg, quant_cfg)
+    print("Creating LoRA configuration...")
 
-        print(f"LoRA Config: r={lora_cfg.r}, alpha={lora_cfg.lora_alpha}, dropout={lora_cfg.lora_dropout}")
-        print(f"Target Modules: {lora_cfg.target_modules}")
-        print(f"Quantization: 4-bit enabled={quant_cfg.load_in_4bit}, type={quant_cfg.bnb_4bit_quant_type}")
-        print("Configuration validated successfully.")
-    except Exception as e:
-        print(f"Configuration Error: {e}")
-        raise
+    # Create configurations
+    lora_config, quant_config = create_lora_config_from_env()
+
+    # Validate configuration
+    try:
+        is_valid = validate_lora_config(lora_config, quant_config)
+        print(f"Configuration validation: {'PASSED' if is_valid else 'FAILED'}")
+    except ValueError as e:
+        print(f"Configuration validation FAILED: {e}")
+        return
+
+    # Display configuration details
+    print("\n=== LoRA Configuration ===")
+    print(f"Rank (r): {lora_config.r}")
+    print(f"Alpha: {lora_config.lora_alpha}")
+    print(f"Dropout: {lora_config.lora_dropout}")
+    print(f"Target Modules: {lora_config.target_modules}")
+    print(f"Task Type: {lora_config.task_type}")
+
+    print("\n=== Quantization Configuration ===")
+    print(f"4-bit Load: {quant_config.load_in_4bit}")
+    print(f"Compute Dtype: {quant_config.bnb_4bit_compute_dtype}")
+    print(f"Double Quant: {quant_config.bnb_4bit_use_double_quant}")
+    print(f"Quant Type: {quant_config.bnb_4bit_quant_type}")
+
+    # Convert to PEFT config
+    peft_config = lora_config.to_peft_config()
+    print(f"\nPEFT Config Type: {type(peft_config).__name__}")
+
+    print("\nConfiguration ready for training.")
 
 
 if __name__ == "__main__":

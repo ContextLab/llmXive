@@ -1,12 +1,23 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response contains only the task description and no actual `ls -R` output
+    or any other proof that the specified directories were created; therefore we cannot
+    verify that the required directory tree exists. The implementer must provide concrete
+    evidence (e.g., a recursive directory listing) showing all listed folders are
+    present.
+T001b:
+  c: false
+  h: 0cc941e61f7e92ed65ef820eeb3b790b1f58854af8be3d6003bd34d855339349
+  r: The required file `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
+    does not exist (it is missing), so the task of creating the project init files
+    in the specified directory is not fulfilled. The other init files are present,
+    but the missing requirements.txt makes the overall requirement incomplete.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `data/raw/`, `data/processed/`, `data/results/` directories
-    or accompanying `.gitkeep` files was provided; without these artifacts the task
-    requirement cannot be confirmed as met.
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting reports, diff logs, or updated source files are provided
-    to demonstrate that `ruff check` and `black --check` were run and that all violations
-    were fixed. The required evidence of zero linting/formatting errors is missing.
+  r: No evidence was presented showing that the `data/raw/`, `data/processed/`, and
+    `data/results/` directories (or the required `.gitkeep` placeholder files) actually
+    exist in the repository. Without these artifacts, the task requirement is not
+    satisfied. The implementer must add the three directories and place a `.gitkeep`
+    file in each (or otherwise demonstrate their presence).

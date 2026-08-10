@@ -1,4 +1,7 @@
 """
 Socratic Transformers: Dialogue-Based Selection on Belief
-Source package for the research pipeline.
+Core source package.
 """
+
+__version__ = "0.1.0"
+__author__ = "llmXive Research Team"

@@ -1,49 +1,50 @@
-"""
-Script to set up the data directory structure for the Socratic Transformers project.
-Creates the required directories and .gitkeep files to ensure they are tracked by git.
-"""
 import os
 import sys
 from pathlib import Path
 
 def create_gitkeep(directory: Path) -> None:
-    """Create a .gitkeep file in the specified directory if it doesn't exist."""
+    """
+    Creates a .gitkeep file in the specified directory to ensure
+    the directory is tracked by git even if it is empty.
+    
+    Args:
+        directory: Path object representing the directory to create .gitkeep in.
+    """
     gitkeep_path = directory / ".gitkeep"
     if not gitkeep_path.exists():
         gitkeep_path.touch()
-        print(f"Created: {gitkeep_path}")
+        print(f"Created .gitkeep in {directory}")
     else:
-        print(f"Exists: {gitkeep_path}")
+        print(f".gitkeep already exists in {directory}")
 
-def main() -> int:
-    """Main entry point to create the data directory structure."""
-    # Determine the project root relative to this script's location
-    # Script is at: code/setup_data_dirs.py (or similar in the project tree)
-    # We need to create directories under: code/data/
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent  # Assuming script is in code/
+def setup_data_directories(base_path: Path) -> None:
+    """
+    Creates the standard data directory structure: raw, processed, and results.
     
-    data_root = project_root / "data"
+    Args:
+        base_path: The root directory where 'data' subdirectory will be created.
+    """
+    data_root = base_path / "data"
+    subdirs = ["raw", "processed", "results"]
     
-    # Define the required subdirectories per task T004
-    required_dirs = [
-        data_root / "raw",
-        data_root / "processed",
-        data_root / "results"
-    ]
-    
-    print(f"Setting up data directories in: {data_root}")
-    
-    for dir_path in required_dirs:
-        # Create the directory if it doesn't exist
+    for subdir in subdirs:
+        dir_path = data_root / subdir
         dir_path.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {dir_path}")
-        
-        # Create .gitkeep file
         create_gitkeep(dir_path)
+
+def main() -> None:
+    """
+    Main entry point to execute the data directory setup.
+    Determines the project root based on the script location and runs setup.
+    """
+    # Determine project root: script is in code/, root is parent of code/
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent
     
-    print("Data directory structure setup complete.")
-    return 0
+    print(f"Project root detected at: {project_root}")
+    setup_data_directories(project_root)
+    print("Data directory setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

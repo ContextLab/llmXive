@@ -1,1 +1,3 @@
-# Test package for Socratic Transformers project
+"""
+Test suite for Socratic Transformers project.
+"""

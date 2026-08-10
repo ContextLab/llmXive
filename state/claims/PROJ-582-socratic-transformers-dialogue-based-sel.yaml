@@ -36,3 +36,484 @@
   source_type: external
   status: verified
   updated_at: '2026-07-09T10:36:28Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Instruct-v0.2 fits in 7GB RAM with 4-bit quantization
+  claim_id: c_02f2ef6f
+  context: 'Download/Load Frozen Critic Model in src/data/critic_loader.py: acquire
+    a frozen, pre-trained small model TinyLlama-1.1B-Instruct-v0.2 (verified to fit
+    in 7GB RAM with 4-bit quantization).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TinyLlama-1.1B-Instruct-v0.2 is verified to fit in 7GB RAM with 4-bit
+    quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:39:17Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset identifier is openai/gsm8k
+  claim_id: c_0f7d6d1d
+  context: Fetch checksums from state/ manifest for GSM8K (openai/gsm8k) and MATH
+    (hendrycks/math), validate raw data integrity before processing.
+  evidence:
+    entailment_evidence: GSM8K dataset identifier is openai/gsm8k
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_identifier_is_openai/gsm8k
+  kind: entity_fact
+  raw_text: The GSM8K dataset is associated with the identifier openai/gsm8k.
+  resolved_value: GSM8K dataset identifier is openai/gsm8k
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T00:39:22Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: MATH dataset identifier is hendrycks/math
+  claim_id: c_29bce545
+  context: Fetch checksums from state/ manifest for GSM8K (openai/gsm8k) and MATH
+    (hendrycks/math), validate raw data integrity before processing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_identifier_is_hendrycks/math
+  kind: entity_fact
+  raw_text: The MATH dataset is associated with the identifier hendrycks/math.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:40:23Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Model loader memory usage asserted under 7GB
+  claim_id: c_b44abfe5
+  context: Implement memory check using psutil within the loader script; assert psutil.Process().memory_info().rss
+    < 7 * 1024 * 1024 * 1024 bytes during load.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_loader_memory_usage_asserted_under_7GB
+  kind: magnitude
+  raw_text: The model loader asserts memory usage is less than 7GB during load.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:40:45Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Critic Model memory footprint under 3GB during load
+  claim_id: c_a498b315
+  context: Verify checkpoint hash matches known stable release, and confirm memory
+    footprint < 3GB during load.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critic_Model_memory_footprint_under_3GB_during_load
+  kind: magnitude
+  raw_text: The Critic Model is verified to have a memory footprint less than 3GB
+    during load.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:41:23Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Training loop hard timeout is 5 hours
+  claim_id: c_961a29de
+  context: Implement CPU-safe training loop in src/train/train_loop.py with a hard
+    timeout of 5 hours using signal.signal(signal.SIGALRM, timeout_handler).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop has a hard timeout of 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:42:12Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Training loop memory usage remains under 7GB
+  claim_id: c_45c753df
+  context: Assert that total memory usage remains < 7GB during training and that timeout
+    handler logs TIMEOUT correctly.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_loop_memory_usage_remains_under_7GB
+  kind: magnitude
+  raw_text: The training loop asserts total memory usage remains less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:42:44Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Syntactic complexity score within 5% of original
+  claim_id: c_f054d41d
+  context: Use T015a to verify token count match and T015c to verify the syntactic
+    complexity score is within 5% of the original critique.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The syntactic complexity verification requires the score to be within
+    5% of the original critique.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:42:44Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha is 0.025
+  claim_id: c_f53086cc
+  context: Perform Independent Samples t-tests (Selection vs. Ablation, Selection
+    vs. Static). Apply Bonferroni correction (alpha = 0.025).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction is applied with an alpha of 0.025.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:43:07Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA batch size less than or equal to 2
+  claim_id: c_853965d9
+  context: Implement LoRA configuration in src/train/lora_config.py with batch_size
+    <= 2, gradient_accumulation_steps = 4, and 4-bit quantization (FR-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LoRA_batch_size_less_than_or_equal_to_2
+  kind: magnitude
+  raw_text: The LoRA configuration includes a batch size less than or equal to 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:44:05Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA gradient accumulation steps equal to 4
+  claim_id: c_6b86e7d5
+  context: Implement LoRA configuration in src/train/lora_config.py with batch_size
+    <= 2, gradient_accumulation_steps = 4, and 4-bit quantization (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LoRA configuration includes gradient accumulation steps equal to 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:44:47Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA uses 4-bit quantization
+  claim_id: c_0d7be1aa
+  context: Implement LoRA configuration in src/train/lora_config.py with batch_size
+    <= 2, gradient_accumulation_steps = 4, and 4-bit quantization (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LoRA configuration uses 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:45:32Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Evaluation runs GSM8K test split
+  claim_id: c_a0f56011
+  context: Create src/eval/evaluate.py running GSM8K test split and MMLU STEM subset,
+    logging accuracy to data/results/metrics.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_runs_GSM8K_test_split
+  kind: entity_fact
+  raw_text: The evaluation script runs the GSM8K test split.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:46:32Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Evaluation runs MMLU STEM subset
+  claim_id: c_59e2c328
+  context: Create src/eval/evaluate.py running GSM8K test split and MMLU STEM subset,
+    logging accuracy to data/results/metrics.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_runs_MMLU_STEM_subset
+  kind: entity_fact
+  raw_text: The evaluation script runs the MMLU STEM subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:47:07Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Discard dialogues with critique length under 20 tokens
+  claim_id: c_506ee804
+  context: Discard dialogues where critique length < 20 tokens, lacks logical keywords
+    (e.g., contradiction, error, incorrect), or where the average log-probability
+    of generated critique tokens is below a threshold indicating low confidence.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Discard_dialogues_with_critique_length_under_20_tokens
+  kind: magnitude
+  raw_text: The quality gate discards dialogues where critique length is less than
+    20 tokens.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T00:47:52Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset identifier is openai/gsm8k
+  claim_id: c_8b574d10
+  context: 'T010 [P] Implement verify_datasets.py in src/data/verify_datasets.py:
+    Record checksums for GSM8K (openai/gsm8k) and MATH (hendrycks/math) in state/
+    manifest...'
+  evidence:
+    entailment_evidence: GSM8K dataset identifier is openai/gsm8k
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_identifier_is_openai/gsm8k
+  kind: entity_fact
+  raw_text: The GSM8K dataset is identified as openai/gsm8k.
+  resolved_value: GSM8K dataset identifier is openai/gsm8k
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T01:05:28Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: MATH dataset identifier is hendrycks/math
+  claim_id: c_40119689
+  context: 'T010 [P] Implement verify_datasets.py in src/data/verify_datasets.py:
+    Record checksums for GSM8K (openai/gsm8k) and MATH (hendrycks/math) in state/
+    manifest...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_identifier_is_hendrycks/math
+  kind: entity_fact
+  raw_text: The MATH dataset is identified as hendrycks/math.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:09Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Quality gate discards dialogues with critique length less than 20 tokens
+  claim_id: c_895256f6
+  context: 'T014b Implement self-critique quality gate in src/data/generate_dialogue_quality.py
+    that: ... Quality Gate: Discard dialogues where critique length < 20 tokens or
+    lacks logical keywords...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quality_gate_discards_dialogues_with_critique_length_less_th
+  kind: magnitude
+  raw_text: The quality gate discards dialogues where critique length is less than
+    20 tokens.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:13Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: CPU-safe training loop hard timeout is 5 hours
+  claim_id: c_6868ac2d
+  context: T021 Implement CPU-safe training loop in src/train/train_loop.py with a
+    hard timeout of 5 hours using signal.signal(signal.SIGALRM, timeout_handler).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CPU-safe training loop has a hard timeout of 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:16Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Memory monitoring samples RSS every 1 second
+  claim_id: c_7bf9df1e
+  context: T021 Implement CPU-safe training loop in src/train/train_loop.py... Implement
+    memory monitoring using psutil to sample the training process RSS every 1 second...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory monitoring samples the training process RSS every 1 second.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:23Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Maximum RSS during training must remain less than 7GB
+  claim_id: c_33f8e3f8
+  context: T021 Implement CPU-safe training loop in src/train/train_loop.py... assert
+    that the maximum RSS remains < 7GB during execution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_RSS_during_training_must_remain_less_than_7GB
+  kind: magnitude
+  raw_text: The maximum RSS during execution must remain less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:29Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA configuration batch size is less than or equal to 2
+  claim_id: c_2424c2e9
+  context: "T020 [P] Implement LoRA configuration in src/train/lora_config.py with\
+    \ batch_size \u2264 2, gradient_accumulation_steps = 4, and 4-bit quantization\
+    \ (FR-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LoRA_configuration_batch_size_is_less_than_or_equal_to_2
+  kind: magnitude
+  raw_text: The LoRA configuration uses a batch size less than or equal to 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:44Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA configuration gradient accumulation steps is 4
+  claim_id: c_05fb5e79
+  context: "T020 [P] Implement LoRA configuration in src/train/lora_config.py with\
+    \ batch_size \u2264 2, gradient_accumulation_steps = 4, and 4-bit quantization\
+    \ (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LoRA configuration uses 4 gradient accumulation steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:46Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Paired t-tests with Bonferroni correction use alpha of 0.025
+  claim_id: c_308e328f
+  context: T033 [P] Create src/utils/stats_analysis.py... Perform Paired t-tests (Selection
+    vs. Ablation, Selection vs. Static) with Bonferroni correction ($\alpha = 0.025$).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis performs Paired t-tests with Bonferroni correction
+    using an alpha of 0.025.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:07:50Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 2
+  canonical: TinyLlama-1.1B-Instruct-v0.2 fits in 7GB RAM with 4-bit quantization
+  claim_id: c_81a3c3b4
+  context: 'T046 [P] Download/Load Frozen Critic Model in src/data/critic_loader.py:
+    acquire a frozen, pre-trained small model TinyLlama-1.1B-Instruct-v0.2 (verified
+    to fit in 7GB RAM with 4-bit quantization).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TinyLlama-1.1B-Instruct-v0.2 is verified to fit in 7GB RAM with 4-bit
+    quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:08:09Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset source is openai/gsm8k
+  claim_id: c_75ae0b2c
+  context: 'T010 [P] Implement verify_datasets.py in src/data/verify_datasets.py:
+    Record checksums for GSM8K (openai/gsm8k) and MATH (hendrycks/math) in state/
+    manifest...'
+  evidence:
+    entailment_evidence: GSM8K dataset source is openai/gsm8k
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_source_is_openai/gsm8k
+  kind: entity_fact
+  raw_text: The GSM8K dataset is sourced from openai/gsm8k.
+  resolved_value: GSM8K dataset source is openai/gsm8k
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T01:08:11Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: MATH dataset source is hendrycks/math
+  claim_id: c_288568b6
+  context: 'T010 [P] Implement verify_datasets.py in src/data/verify_datasets.py:
+    Record checksums for GSM8K (openai/gsm8k) and MATH (hendrycks/math) in state/
+    manifest...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_source_is_hendrycks/math
+  kind: entity_fact
+  raw_text: The MATH dataset is sourced from hendrycks/math.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T01:11:09Z'

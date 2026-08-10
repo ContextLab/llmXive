@@ -1,160 +1,167 @@
 """
-Tests for the Model Loader Utility (T007).
+Tests for the model_loader utility.
 """
+
+import gc
 import os
 import sys
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from transformers import BitsAndBytesConfig
 
-# Ensure the project code path is available
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "projects" / "PROJ-582-socratic-transformers-dialogue-based-sel" / "code"))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from src.utils.model_loader import (
+    get_4bit_quantization_config,
     load_model,
     get_model_card,
     validate_model_compatibility,
-    _get_quantization_config,
 )
-from src.utils.config import set_global_config, SocraticConfig
-
-
-@pytest.fixture
-def mock_config_cpu():
-    """Fixture to configure the environment for CPU/low-memory mode."""
-    config = SocraticConfig(
-        use_cpu=True,
-        low_memory_mode=True,
-        model_path="test-model",
-        tokenizer_path="test-model",
-    )
-    set_global_config(config)
-    return config
-
-
-@pytest.fixture
-def mock_config_gpu():
-    """Fixture to configure the environment for standard GPU mode."""
-    config = SocraticConfig(
-        use_cpu=False,
-        low_memory_mode=False,
-        model_path="test-model",
-        tokenizer_path="test-model",
-    )
-    set_global_config(config)
-    return config
-
-
-class TestQuantizationConfig:
-    """Tests for the quantization configuration logic."""
-
-    def test_get_quantization_config_cpu_mode(self, mock_config_cpu):
-        """Verify that 4-bit config is returned when CPU/low-memory mode is active."""
-        config = _get_quantization_config()
-        assert config is not None
-        assert config.load_in_4bit is True
-        assert config.bnb_4bit_use_double_quant is True
-
-    def test_get_quantization_config_gpu_mode(self, mock_config_gpu):
-        """Verify that None is returned when not in constrained mode."""
-        config = _get_quantization_config()
-        assert config is None
 
 
 class TestModelLoader:
-    """Tests for the main loading functions."""
+    """Test cases for model_loader.py"""
 
-    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+    def test_get_4bit_quantization_config(self):
+        """Test that 4-bit quantization config is created correctly."""
+        config = get_4bit_quantization_config()
+
+        assert isinstance(config, BitsAndBytesConfig)
+        assert config.load_in_4bit is True
+        assert config.bnb_4bit_compute_dtype == torch.float16
+        assert config.bnb_4bit_use_double_quant is True
+        assert config.bnb_4bit_quant_type == "nf4"
+
     @patch("src.utils.model_loader.AutoTokenizer.from_pretrained")
-    def test_load_model_with_quantization(
-        self, mock_tokenizer, mock_model, mock_config_cpu
-    ):
-        """Test that load_model attempts to use BitsAndBytesConfig in CPU mode."""
+    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+    def test_load_model_with_mock(self, mock_model, mock_tokenizer):
+        """Test model loading with mocked dependencies."""
         # Setup mocks
-        mock_tokenizer.return_value = MagicMock(pad_token="</s>")
-        mock_model.return_value = MagicMock(
-            config=MagicMock(model_type="llama", architectures=["LlamaForCausalLM"]),
-            device_map={"": "cpu"},
+        mock_tokenizer_instance = MagicMock()
+        mock_tokenizer_instance.pad_token_id = None
+        mock_tokenizer_instance.eos_token = "<eos>"
+        mock_tokenizer.return_value = mock_tokenizer_instance
+
+        mock_model_instance = MagicMock()
+        mock_model_instance.requires_grad_ = MagicMock()
+        mock_model_instance.eval = MagicMock()
+        mock_model_instance.hf_device_map = {"": "cpu"}
+        mock_model.return_value = mock_model_instance
+
+        # Load model
+        model, tokenizer = load_model("test-model", device_map="cpu")
+
+        # Assertions
+        mock_tokenizer.assert_called_once()
+        mock_model.assert_called_once()
+        mock_model_instance.requires_grad_.assert_called_once_with(False)
+        mock_model_instance.eval.assert_called_once()
+        assert tokenizer.pad_token == "<eos>"
+
+    @patch("src.utils.model_loader.AutoConfig.from_pretrained")
+    def test_get_model_card(self, mock_config):
+        """Test retrieving model card information."""
+        # Setup mock config
+        mock_config_instance = MagicMock()
+        mock_config_instance.model_type = "llama"
+        mock_config_instance.vocab_size = 32000
+        mock_config_instance.hidden_size = 4096
+        mock_config_instance.num_attention_heads = 32
+        mock_config_instance.num_hidden_layers = 32
+        mock_config.return_value = mock_config_instance
+
+        model_card = get_model_card("test-model")
+
+        assert model_card["model_id"] == "test-model"
+        assert model_card["model_type"] == "llama"
+        assert model_card["vocab_size"] == 32000
+        assert model_card["hidden_size"] == 4096
+
+    @patch("src.utils.model_loader.get_model_card")
+    def test_validate_model_compatibility_small(self, mock_card):
+        """Test validation for a small model that fits in memory."""
+        mock_card.return_value = {
+            "model_id": "small-model",
+            "hidden_size": 512,
+            "num_attention_heads": 8,
+            "num_hidden_layers": 4,
+            "vocab_size": 1000,
+        }
+
+        is_compatible = validate_model_compatibility(
+            "small-model",
+            max_memory_gb=7.0,
+            require_4bit=True,
         )
 
-        model, tokenizer = load_model("test-model")
+        assert is_compatible is True
 
-        # Verify quantization config was passed
-        call_kwargs = mock_model.call_args
-        assert "quantization_config" in call_kwargs.kwargs
-        assert isinstance(call_kwargs.kwargs["quantization_config"], BitsAndBytesConfig)
+    @patch("src.utils.model_loader.get_model_card")
+    def test_validate_model_compatibility_large(self, mock_card):
+        """Test validation for a large model that exceeds memory."""
+        # Simulate a very large model
+        mock_card.return_value = {
+            "model_id": "huge-model",
+            "hidden_size": 8192,
+            "num_attention_heads": 64,
+            "num_hidden_layers": 80,
+            "vocab_size": 128000,
+        }
 
-    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+        is_compatible = validate_model_compatibility(
+            "huge-model",
+            max_memory_gb=7.0,
+            require_4bit=True,
+        )
+
+        # This should fail due to memory constraints
+        assert is_compatible is False
+
+    def test_validate_model_compatibility_error(self):
+        """Test validation when model card retrieval fails."""
+        with patch("src.utils.model_loader.get_model_card") as mock_card:
+            mock_card.return_value = {"model_id": "error-model", "error": "Not found"}
+
+            is_compatible = validate_model_compatibility("error-model")
+
+            assert is_compatible is False
+
     @patch("src.utils.model_loader.AutoTokenizer.from_pretrained")
-    def test_load_model_without_quantization(
-        self, mock_tokenizer, mock_model, mock_config_gpu
-    ):
-        """Test that load_model skips quantization in standard GPU mode."""
-        mock_tokenizer.return_value = MagicMock(pad_token="</s>")
-        mock_model.return_value = MagicMock(
-            config=MagicMock(model_type="llama", architectures=["LlamaForCausalLM"]),
-            device_map={"": "cuda:0"},
-        )
+    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+    def test_load_model_sets_requires_grad_false(self, mock_model, mock_tokenizer):
+        """Test that loaded model has requires_grad set to False."""
+        mock_tokenizer_instance = MagicMock()
+        mock_tokenizer_instance.pad_token_id = 1
+        mock_tokenizer.return_value = mock_tokenizer_instance
 
-        model, tokenizer = load_model("test-model")
+        mock_model_instance = MagicMock()
+        mock_model_instance.hf_device_map = {"": "cpu"}
+        mock_model.return_value = mock_model_instance
 
-        call_kwargs = mock_model.call_args
-        assert "quantization_config" not in call_kwargs.kwargs or call_kwargs.kwargs.get("quantization_config") is None
+        load_model("test-model", device_map="cpu")
 
+        # Verify requires_grad_ was called with False
+        mock_model_instance.requires_grad_.assert_called_once_with(False)
 
-class TestModelCard:
-    """Tests for model metadata extraction."""
+    @patch("src.utils.model_loader.AutoTokenizer.from_pretrained")
+    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+    def test_load_model_sets_eval_mode(self, mock_model, mock_tokenizer):
+        """Test that loaded model is set to eval mode."""
+        mock_tokenizer_instance = MagicMock()
+        mock_tokenizer_instance.pad_token_id = 1
+        mock_tokenizer.return_value = mock_tokenizer_instance
 
-    def test_get_model_card_success(self):
-        """Verify card extraction from a mock model."""
-        mock_model = MagicMock()
-        mock_model.config = MagicMock(
-            model_type="llama",
-            hidden_size=4096,
-            num_attention_heads=32,
-            num_hidden_layers=32,
-            vocab_size=32000,
-            architectures=["LlamaForCausalLM"],
-        )
-        
-        card = get_model_card(mock_model)
-        
-        assert card["model_type"] == "llama"
-        assert card["hidden_size"] == 4096
-        assert card["vocab_size"] == 32000
+        mock_model_instance = MagicMock()
+        mock_model_instance.hf_device_map = {"": "cpu"}
+        mock_model.return_value = mock_model_instance
 
-    def test_get_model_card_no_config(self):
-        """Verify graceful handling of models without config."""
-        mock_model = MagicMock(spec=[])
-        card = get_model_card(mock_model)
-        assert "error" in card
+        load_model("test-model", device_map="cpu")
 
-
-class TestCompatibility:
-    """Tests for model architecture validation."""
-
-    def test_validate_compatibility_match(self):
-        """Verify validation passes when architecture matches."""
-        mock_model = MagicMock()
-        mock_model.config = MagicMock(architectures=["LlamaForCausalLM"])
-        
-        assert validate_model_compatibility(mock_model, ["Llama"]) is True
-        assert validate_model_compatibility(mock_model, ["LlamaForCausalLM"]) is True
-
-    def test_validate_compatibility_no_match(self):
-        """Verify validation fails when architecture does not match."""
-        mock_model = MagicMock()
-        mock_model.config = MagicMock(architectures=["GPT2LMHeadModel"])
-        
-        assert validate_model_compatibility(mock_model, ["Llama"]) is False
-
-    def test_validate_compatibility_no_architectures(self):
-        """Verify validation fails if architectures list is missing."""
-        mock_model = MagicMock()
-        mock_model.config = MagicMock(architectures=[])
-        
-        assert validate_model_compatibility(mock_model, ["Llama"]) is False
+        # Verify eval was called
+        mock_model_instance.eval.assert_called_once()
