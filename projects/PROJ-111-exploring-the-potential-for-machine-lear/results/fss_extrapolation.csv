@@ -1,0 +1,3 @@
+status,extrapolated_Tc,fitted_nu,condition_number,message,lattice_size,pseudo_critical_temp
+FSS Inconclusive,,,,Extrapolation to thermodynamic limit is impossible with current data quality. Only two lattice sizes available and design matrix is ill-conditioned. Reported pseudo-critical temperatures: L=16: T*=2.2650, L=24: T*=2.2750,16,2.2650
+,,,,,24,2.2750

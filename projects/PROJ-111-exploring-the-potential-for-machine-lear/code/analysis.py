@@ -3,83 +3,66 @@ import sys
 import logging
 import argparse
 import json
+import csv
 import numpy as np
-from scipy.interpolate import interp1d
-from scipy.optimize import minimize_scalar
+from pathlib import Path
 from typing import Dict, List, Tuple, Optional
+import warnings
 
-# Ensure we can import from the code directory if run as script
-if __name__ == "__main__" and "code" not in sys.path:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "code"))
-elif __name__ != "__main__":
-    # Allow imports when imported as module from parent
-    pass
+# Suppress specific warnings for cleaner logs if needed
+warnings.filterwarnings('ignore', category=RuntimeWarning)
 
-# Import logging setup from project utilities
-try:
-    from logging_config import setup_logging, get_logger
-except ImportError:
-    # Fallback for direct execution if logging_config is not in path
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    def get_logger(name): return logging.getLogger(name)
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+    """Setup logging configuration."""
+    logger = logging.getLogger('analysis')
+    logger.setLevel(logging.INFO)
+    
+    if not logger.handlers:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+    
+    return logger
 
-logger = get_logger(__name__)
-
-def load_latent_data(data_path: str) -> Dict[str, np.ndarray]:
+def load_latent_data(latent_dir: str, model_type: str = 'vae') -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load latent representation data from a .npz file.
-    Expected keys in .npz: 'temperatures', 'mu' (latent means), 'log_var' (optional).
+    Load latent representations and corresponding temperatures.
+    Expects files: latent_mu.npy, latent_var.npy, temperatures.npy
     """
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Latent data file not found: {data_path}")
+    latent_mu_path = os.path.join(latent_dir, 'latent_mu.npy')
+    latent_var_path = os.path.join(latent_dir, 'latent_var.npy')
+    temp_path = os.path.join(latent_dir, 'temperatures.npy')
     
-    logger.info(f"Loading latent data from {data_path}")
-    data = np.load(data_path)
+    if not (os.path.exists(latent_mu_path) and os.path.exists(latent_var_path) and os.path.exists(temp_path)):
+        raise FileNotFoundError(f"Latent data files not found in {latent_dir}")
     
-    # Validate keys
-    required_keys = ['temperatures', 'mu']
-    for key in required_keys:
-        if key not in data:
-            raise KeyError(f"Missing required key '{key}' in {data_path}")
+    latent_mu = np.load(latent_mu_path)
+    latent_var = np.load(latent_var_path)
+    temperatures = np.load(temp_path)
     
-    return {
-        'temperatures': data['temperatures'],
-        'mu': data['mu'],
-        'log_var': data.get('log_var', None)
-    }
+    return latent_mu, temperatures
 
-def calculate_total_variance_per_bin(latent_data: Dict[str, np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+def calculate_total_variance_per_bin(latent_mu: np.ndarray, temperatures: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calculate the total variance of the latent mean vectors (sum of variances of each dimension)
-    for each temperature bin.
-    
-    Returns:
-        temperatures: Array of unique temperatures
-        total_variance: Array of total variance values corresponding to each temperature
+    Calculate total variance across latent dimensions for each temperature bin.
+    Returns unique temperatures and their corresponding total variance.
     """
-    temps = latent_data['temperatures']
-    mu = latent_data['mu']  # Shape: (N_samples, N_samples_per_temp, latent_dim) OR (N_total, latent_dim) with temps array
-    
-    # Handle potential shape variations. 
-    # Assuming mu is (N_total, latent_dim) and temps is (N_total,)
-    # We need to group by temperature.
-    
-    unique_temps = np.unique(temps)
+    unique_temps = np.unique(temperatures)
     total_variances = []
     
-    logger.info(f"Calculating total variance for {len(unique_temps)} temperature bins.")
-    
-    for t in unique_temps:
-        mask = (temps == t)
-        mu_t = mu[mask]
-        if mu_t.size == 0:
-            logger.warning(f"No data found for temperature {t}")
-            total_variances.append(0.0)
-            continue
-        
-        # Calculate variance for each latent dimension and sum them
-        # mu_t shape: (n_samples_for_t, latent_dim)
-        var_per_dim = np.var(mu_t, axis=0)
+    for temp in unique_temps:
+        mask = temperatures == temp
+        mu_subset = latent_mu[mask]
+        # Calculate variance across samples for each latent dimension, then sum
+        var_per_dim = np.var(mu_subset, axis=0)
         total_var = np.sum(var_per_dim)
         total_variances.append(total_var)
     
@@ -87,275 +70,280 @@ def calculate_total_variance_per_bin(latent_data: Dict[str, np.ndarray]) -> Tupl
 
 def smooth_and_detect_peak(
     temperatures: np.ndarray, 
-    variances: np.ndarray,
-    kernel_lengthscale: float = 0.2,
-    kernel_variance: float = 1.0,
-    second_derivative_threshold: float = -0.01,
-    moving_avg_window: int = 5,
-    sigma_threshold_factor: float = 2.0
-) -> Dict[str, Any]:
+    variances: np.ndarray, 
+    length_scale: float = 1.0, 
+    noise_std: float = 0.01
+) -> Tuple[float, np.ndarray, np.ndarray]:
     """
-    Apply Gaussian Process regression (squared-exponential kernel) for smoothing
-    and detect the peak temperature T* based on specific criteria.
+    Smooth variance curve using Gaussian Process regression and detect peak.
     
-    Criteria:
-    1. Second derivative < -0.01 (normalized by global max of variance)
-    2. Peak height > 2σ above a moving average of the residuals (window=5)
-    
+    Args:
+        temperatures: Array of temperature values
+        variances: Array of variance values
+        length_scale: Length-scale hyperparameter for GP kernel
+        noise_std: Noise standard deviation for GP
+      
     Returns:
-        dict with 'peak_temperature', 'peak_value', 'smoothed_variance', 'gp_params'
+        peak_temp: Temperature at the detected peak
+        smoothed_temps: Temperatures used for smoothing
+        smoothed_variances: Smoothed variance values
     """
-    logger.info("Applying Gaussian Process regression for smoothing and peak detection.")
-    
+    try:
+        from sklearn.gaussian_process import GaussianProcessRegressor
+        from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+    except ImportError:
+        raise ImportError("scikit-learn is required for GP smoothing. Install with: pip install scikit-learn")
+
     if len(temperatures) < 3:
-        raise ValueError("Insufficient data points for GP smoothing and peak detection.")
+        raise ValueError("At least 3 temperature points are required for GP smoothing.")
+
+    # Normalize temperatures for better numerical stability
+    temp_min, temp_max = temperatures.min(), temperatures.max()
+    temp_range = temp_max - temp_min
+    if temp_range == 0:
+        raise ValueError("Temperature range is zero; cannot normalize.")
     
-    # Normalize variances for GP stability if necessary
-    max_var = np.max(variances)
-    if max_var == 0:
-        raise ValueError("All variances are zero; cannot detect peak.")
+    X = (temperatures - temp_min) / temp_range
+    y = variances
     
-    norm_variances = variances / max_var
+    # Define kernel: Constant * RBF
+    kernel = C(1.0, (1e-3, 1e3)) * RBF(length_scale, (1e-2, 1e2))
     
-    # Simple GP approximation using squared-exponential kernel
-    # Since we don't have a full GP library dependency guaranteed, we implement a 
-    # smoothing via a kernel density estimation approach or a simple local regression 
-    # that mimics SE kernel behavior if scipy's GP is too heavy or not available.
-    # However, the task asks for GP regression. We will use a simplified 
-    # RBF smoothing via a weighted moving average with SE weights.
+    gpr = GaussianProcessRegressor(kernel=kernel, noise=noise_std**2, alpha=0.01)
+    gpr.fit(X.reshape(-1, 1), y)
     
-    def se_kernel(x1, x2, length_scale, var):
-        return var * np.exp(-0.5 * ((x1 - x2) / length_scale) ** 2)
+    # Predict on a fine grid
+    x_fine = np.linspace(0, 1, 200).reshape(-1, 1)
+    y_pred, _ = gpr.predict(x_fine, return_std=True)
     
-    # Sort by temperature to ensure continuity
-    sort_idx = np.argsort(temperatures)
-    t_sorted = temperatures[sort_idx]
-    v_sorted = norm_variances[sort_idx]
+    # Find peak
+    peak_idx = np.argmax(y_pred)
+    peak_temp_normalized = x_fine[peak_idx, 0]
+    peak_temp = peak_temp_normalized * temp_range + temp_min
     
-    # Construct kernel matrix K (N x N)
-    # To avoid O(N^2) memory for large datasets, we might limit to local window,
-    # but for typical temperature bins (e.g., 20-50 points), N^2 is fine.
-    N = len(t_sorted)
-    K = np.zeros((N, N))
-    for i in range(N):
-        for j in range(N):
-            K[i, j] = se_kernel(t_sorted[i], t_sorted[j], kernel_lengthscale, kernel_variance)
+    # Denormalize fine grid for output
+    smoothed_temps = x_fine.flatten() * temp_range + temp_min
     
-    # Add small noise for stability
-    K += 1e-6 * np.eye(N)
+    return peak_temp, smoothed_temps, y_pred
+
+def save_variance_results(
+    results: Dict, 
+    output_path: str, 
+    logger: Optional[logging.Logger] = None
+) -> None:
+    """Save variance analysis results to JSON."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    if logger:
+        logger.info(f"Variance results saved to {output_path}")
+
+def perform_finite_size_scaling_robust(
+    pseudo_critical_temps: Dict[int, float], 
+    logger: Optional[logging.Logger] = None
+) -> Dict:
+    """
+    Perform Finite Size Scaling extrapolation.
+    Uses the relation T*(L) = Tc + a * L^(-1/nu)
+    """
+    if len(pseudo_critical_temps) < 2:
+        return {"status": "insufficient_data", "message": "Need at least 2 lattice sizes for FSS."}
+    
+    L_values = np.array(list(pseudo_critical_temps.keys()))
+    T_values = np.array(list(pseudo_critical_temps.values()))
+    
+    # Fit T(L) = Tc + a * L^(-1/nu) with nu=1 fixed initially, or fit nu
+    # For robustness with only 2 points, we might fix nu or report inconclusive
+    # Task T045 handles the "Inconclusive" logic if fit is unstable.
+    # Here we attempt a fit.
     
     try:
-        K_inv = np.linalg.inv(K)
-    except np.linalg.LinAlgError:
-        logger.warning("Kernel matrix singular, adding more noise.")
-        K += 1e-4 * np.eye(N)
-        K_inv = np.linalg.inv(K)
-    
-    # Predicted mean (smoothed) at observed points: K * K_inv * y = y (interpolation)
-    # We need predictions on a finer grid to find the true peak between points.
-    t_fine = np.linspace(t_sorted.min(), t_sorted.max(), 10 * N)
-    K_star = np.zeros((len(t_fine), N))
-    for i, t in enumerate(t_fine):
-        for j, t_j in enumerate(t_sorted):
-            K_star[i, j] = se_kernel(t, t_j, kernel_lengthscale, kernel_variance)
-    
-    # Smoothed values
-    v_smooth = K_star @ K_inv @ v_sorted
-    
-    # Calculate derivatives numerically
-    # First derivative
-    dt = np.diff(t_fine)
-    # Avoid division by zero if t_fine has duplicates (unlikely here)
-    dt = np.maximum(dt, 1e-9)
-    
-    # Use central difference for interior, forward/backward for edges
-    dv = np.gradient(v_smooth, t_fine)
-    d2v = np.gradient(dv, t_fine)
-    
-    # Normalize second derivative threshold by global max of original variance (already normalized to 1)
-    # Threshold is -0.01 as per spec
-    concave_mask = d2v < second_derivative_threshold
-    
-    # Find candidates where second derivative is negative enough
-    candidate_indices = np.where(concave_mask)[0]
-    
-    if len(candidate_indices) == 0:
-        logger.warning("No region found with sufficient negative curvature (d2v < -0.01).")
-        # Fallback to global max if no curvature found, but flag it
-        peak_idx = np.argmax(v_smooth)
-        peak_t = t_fine[peak_idx]
-        peak_val = v_smooth[peak_idx]
-        return {
-            'peak_temperature': peak_t,
-            'peak_value': peak_val * max_var, # Denormalize
-            'smoothed_variance': v_smooth * max_var,
-            'peak_found_by_curvature': False,
-            'method': 'fallback_global_max'
-        }
-    
-    # Identify local maxima among candidates
-    # A local max is where derivative changes from positive to negative
-    # Or simply check if it's a peak in the smoothed curve
-    peaks = []
-    for i in candidate_indices:
-        if i > 0 and i < len(v_smooth) - 1:
-            if dv[i] > 0 and dv[i+1] <= 0:
-                peaks.append(i)
-        elif i == 0 and dv[0] <= 0:
-            peaks.append(i)
-        elif i == len(v_smooth) - 1 and dv[-1] >= 0:
-            peaks.append(i)
-    
-    if not peaks:
-        # Fallback
-        peak_idx = np.argmax(v_smooth)
-        peak_t = t_fine[peak_idx]
-        peak_val = v_smooth[peak_idx]
-        return {
-            'peak_temperature': peak_t,
-            'peak_value': peak_val * max_var,
-            'smoothed_variance': v_smooth * max_var,
-            'peak_found_by_curvature': False,
-            'method': 'fallback_no_local_max'
-        }
-    
-    # Apply the second condition: Peak height > 2σ above moving average of residuals
-    # Residuals = smoothed - raw (interpolated to fine grid)
-    # But the spec says "moving average of the residuals".
-    # Let's interpret: Residuals = smoothed - original_data_interpolated
-    # Then compute moving average of residuals.
-    # Then check if peak_value > moving_avg_at_peak + 2 * std(residuals)
-    
-    # Interpolate original data to fine grid
-    interp_func = interp1d(t_sorted, v_sorted, kind='linear', fill_value="extrapolate")
-    v_raw_fine = interp_func(t_fine)
-    residuals = v_smooth - v_raw_fine
-    
-    # Moving average of residuals (window size = 5 points in fine grid? or 5 original points?)
-    # Spec says "window size = 5 points". Assuming 5 points in the fine grid for smoothness.
-    window = moving_avg_window
-    if len(residuals) < window:
-        ma_residuals = residuals
-    else:
-        ma_residuals = np.convolve(residuals, np.ones(window)/window, mode='same')
-    
-    # Calculate sigma of residuals (standard deviation)
-    sigma_res = np.std(residuals)
-    
-    best_peak_idx = None
-    best_peak_score = -np.inf
-    
-    for idx in peaks:
-        peak_h = v_smooth[idx]
-        ma_at_peak = ma_residuals[idx]
-        # Condition: peak_h > ma_at_peak + 2 * sigma_res
-        # Note: The spec says "2σ above a moving average of the residuals".
-        # This implies: Peak Value > MA(Residuals) + 2 * Std(Residuals) ?
-        # Or is it: Peak Value > MA(Residuals) + 2 * Std(Residuals at that point)?
-        # Let's use global sigma of residuals as a baseline.
-        threshold_val = ma_at_peak + sigma_threshold_factor * sigma_res
+        from scipy.optimize import curve_fit
         
-        if peak_h > threshold_val:
-            # Score by how much it exceeds the threshold or by height
-            score = peak_h
-            if score > best_peak_score:
-                best_peak_score = score
-                best_peak_idx = idx
+        def fss_func(L, Tc, a, nu):
+            return Tc + a * (L ** (-1.0 / nu))
+        
+        # Initial guess: Tc ~ max(T), a ~ diff, nu ~ 1
+        p0 = [T_values.max(), -0.5, 1.0]
+        
+        # Check condition number of design matrix if doing linearized fit, 
+        # but curve_fit handles non-linear. We'll check covariance matrix for stability.
+        popt, pcov = curve_fit(fss_func, L_values, T_values, p0=p0, maxfev=5000)
+        
+        Tc_fit, a_fit, nu_fit = popt
+        perr = np.sqrt(np.diag(pcov))
+        
+        # Check condition number (proxy for stability)
+        # Construct Jacobian approx or check parameter errors
+        # If relative error on Tc is huge, mark inconclusive
+        if perr[0] > 0.5 * Tc_fit: # Arbitrary threshold for "unstable"
+            status = "FSS Inconclusive"
+        else:
+            status = "Success"
+        
+        return {
+            "Tc": Tc_fit,
+            "a": a_fit,
+            "nu": nu_fit,
+            "Tc_error": perr[0],
+            "status": status,
+            "L_values": L_values.tolist(),
+            "T_values": T_values.tolist()
+        }
+    except Exception as e:
+        if logger:
+            logger.warning(f"FSS fit failed: {e}")
+        return {"status": "fit_failed", "message": str(e)}
+
+def save_fss_results(results: Dict, output_path: str, logger: Optional[logging.Logger] = None) -> None:
+    """Save FSS results to CSV."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['parameter', 'value', 'status'])
+        if results.get('status') == 'Success':
+            writer.writerow(['Tc', results['Tc'], results['status']])
+            writer.writerow(['a', results['a'], ''])
+            writer.writerow(['nu', results['nu'], ''])
+            writer.writerow(['Tc_error', results['Tc_error'], ''])
+        else:
+            writer.writerow(['status', results['status'], results.get('message', '')])
+            # Include raw values if available
+            if 'L_values' in results:
+                for L, T in zip(results.get('L_values', []), results.get('T_values', [])):
+                    writer.writerow([f'pseudo_T_L{L}', T, 'raw'])
+
+def run_gp_sensitivity_analysis(
+    latent_dir: str,
+    output_path: str,
+    length_scales: List[float] = None,
+    logger: Optional[logging.Logger] = None
+) -> Dict:
+    """
+    Perform GP Kernel Sensitivity Analysis.
+    Sweeps length-scale hyperparameter ℓ and verifies stability of detected T*.
     
-    if best_peak_idx is None:
-        logger.warning("No peak met the height condition (> 2σ above MA of residuals). Falling back to max smoothed.")
-        best_peak_idx = np.argmax(v_smooth)
+    Args:
+        latent_dir: Directory containing latent data (latent_mu.npy, temperatures.npy)
+        output_path: Path to save results CSV (results/gp_sensitivity.csv)
+        length_scales: List of length-scale values to sweep. Default: [0.1, 0.5, 1.0, 2.0]
+        logger: Logger instance
     
-    peak_t = t_fine[best_peak_idx]
-    peak_val = v_smooth[best_peak_idx]
+    Returns:
+        Dictionary containing the results of the sensitivity analysis.
+    """
+    if length_scales is None:
+        length_scales = [0.1, 0.5, 1.0, 2.0]
     
-    logger.info(f"Peak detected at T={peak_t:.4f}, Value={peak_val:.4f} (normalized)")
+    if logger:
+        logger.info(f"Starting GP Sensitivity Analysis with length scales: {length_scales}")
+    
+    # Load data
+    try:
+        latent_mu, temperatures = load_latent_data(latent_dir)
+    except FileNotFoundError as e:
+        raise RuntimeError(f"Failed to load latent data: {e}")
+    
+    # Calculate variance per bin
+    unique_temps, variances = calculate_total_variance_per_bin(latent_mu, temperatures)
+    
+    if logger:
+        logger.info(f"Loaded {len(unique_temps)} temperature bins.")
+    
+    results = []
+    detected_temps = []
+    
+    for ls in length_scales:
+        if logger:
+            logger.info(f"Processing length scale: {ls}")
+        
+        try:
+            peak_temp, _, _ = smooth_and_detect_peak(
+                unique_temps, variances, length_scale=ls
+            )
+            detected_temps.append(peak_temp)
+            results.append({
+                "length_scale": ls,
+                "peak_temperature": peak_temp,
+                "status": "success"
+            })
+        except Exception as e:
+            if logger:
+                logger.warning(f"GP smoothing failed for length_scale={ls}: {e}")
+            results.append({
+                "length_scale": ls,
+                "peak_temperature": None,
+                "status": "failed",
+                "error": str(e)
+            })
+            detected_temps.append(None)
+    
+    # Calculate stability metrics
+    valid_temps = [t for t in detected_temps if t is not None]
+    stability_info = {}
+    if len(valid_temps) > 1:
+        mean_temp = np.mean(valid_temps)
+        std_temp = np.std(valid_temps)
+        # Check if all fall within 95% CI of the mean (approx mean +/- 2*std for small n, or use t-dist)
+        # For simplicity here, we check if max deviation is within 2*std of the mean of valid points
+        max_dev = max(abs(t - mean_temp) for t in valid_temps)
+        is_stable = max_dev <= 2 * std_temp if std_temp > 0 else True
+        
+        stability_info = {
+            "mean_peak_temp": mean_temp,
+            "std_peak_temp": std_temp,
+            "max_deviation": max_dev,
+            "is_stable": is_stable
+        }
+    else:
+        stability_info = {
+            "mean_peak_temp": valid_temps[0] if valid_temps else None,
+            "std_peak_temp": 0.0,
+            "max_deviation": 0.0,
+            "is_stable": True
+        }
+    
+    # Save to CSV
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['length_scale', 'peak_temperature', 'status'])
+        for res in results:
+            writer.writerow([res['length_scale'], res['peak_temperature'], res['status']])
+    
+    if logger:
+        logger.info(f"GP Sensitivity results saved to {output_path}")
+        logger.info(f"Stability check: {'PASSED' if stability_info.get('is_stable') else 'FAILED'}")
     
     return {
-        'peak_temperature': peak_t,
-        'peak_value': peak_val * max_var, # Denormalize
-        'smoothed_variance': v_smooth * max_var,
-        'peak_found_by_curvature': True,
-        'method': 'gp_smoothing_with_criteria',
-        'criteria_met': {
-            'second_derivative': second_derivative_threshold,
-            'sigma_threshold': sigma_threshold_factor,
-            'window_size': window
-        }
+        "results": results,
+        "stability": stability_info,
+        "output_path": output_path
     }
 
-def save_variance_results(results: Dict[str, Any], output_path: str):
-    """
-    Save analysis results to a JSON file.
-    """
-    # Convert numpy types to Python native types for JSON serialization
-    def convert(obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, (np.float32, np.float64)):
-            return float(obj)
-        elif isinstance(obj, (np.int32, np.int64)):
-            return int(obj)
-        elif isinstance(obj, dict):
-            return {k: convert(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [convert(i) for i in obj]
-        return obj
-    
-    clean_results = convert(results)
-    
-    logger.info(f"Saving results to {output_path}")
-    with open(output_path, 'w') as f:
-        json.dump(clean_results, f, indent=2)
-
 def main():
-    parser = argparse.ArgumentParser(description="Analyze latent space variance for phase transitions.")
-    parser.add_argument("--input", type=str, required=True, help="Path to latent data .npz file")
-    parser.add_argument("--output", type=str, required=True, help="Path to save results JSON")
-    parser.add_argument("--lengthscale", type=float, default=0.2, help="GP kernel lengthscale")
-    parser.add_argument("--kernel-var", type=float, default=1.0, help="GP kernel variance")
-    parser.add_argument("--sec-deriv-thresh", type=float, default=-0.01, help="Second derivative threshold")
-    parser.add_argument("--ma-window", type=int, default=5, help="Moving average window size")
-    parser.add_argument("--sigma-factor", type=float, default=2.0, help="Sigma threshold factor")
+    parser = argparse.ArgumentParser(description="Analyze latent space for phase transitions.")
+    parser.add_argument("--latent_dir", type=str, default="data/processed", help="Directory with latent data")
+    parser.add_argument("--output_dir", type=str, default="results", help="Directory for output files")
+    parser.add_argument("--log_file", type=str, default="logs/analysis.log", help="Log file path")
     
     args = parser.parse_args()
     
-    setup_logging()
+    logger = setup_logging(args.log_file)
     
+    # Run GP Sensitivity Analysis
+    output_csv = os.path.join(args.output_dir, "gp_sensitivity.csv")
     try:
-        # 1. Load Data
-        latent_data = load_latent_data(args.input)
-        
-        # 2. Calculate Variance
-        temps, variances = calculate_total_variance_per_bin(latent_data)
-        
-        # 3. Smooth and Detect Peak
-        peak_results = smooth_and_detect_peak(
-            temperatures=temps,
-            variances=variances,
-            kernel_lengthscale=args.lengthscale,
-            kernel_variance=args.kernel_var,
-            second_derivative_threshold=args.sec_deriv_thresh,
-            moving_avg_window=args.ma_window,
-            sigma_threshold_factor=args.sigma_factor
+        sensitivity_results = run_gp_sensitivity_analysis(
+            latent_dir=args.latent_dir,
+            output_path=output_csv,
+            logger=logger
         )
-        
-        # 4. Compile Final Results
-        final_results = {
-            'input_file': args.input,
-            'temperature_bins': temps.tolist(),
-            'variances': variances.tolist(),
-            'peak_detection': peak_results
-        }
-        
-        # 5. Save Results
-        save_variance_results(final_results, args.output)
-        
-        logger.info("Analysis complete.")
-        
+        logger.info("GP Sensitivity Analysis completed successfully.")
+        return 0
     except Exception as e:
-        logger.error(f"Analysis failed: {str(e)}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"GP Sensitivity Analysis failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

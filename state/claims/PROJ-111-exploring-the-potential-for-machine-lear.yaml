@@ -168,3 +168,278 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T10:13:45Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: spin configurations generated at L=16 and L=24 covering temperatures
+    T=0.1-3.0
+  claim_id: c_ec164e19
+  context: Otherwise, implement the Metropolis-Hastings algorithm to generate raw
+    spin configurations at lattice sizes L=16 and L=24, covering temperatures T=0.1-3.0.
+  evidence:
+    asserted: '16.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Generate raw spin configurations at lattice sizes L=16 and L=24, covering
+    temperatures T=0.1-3.0.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T14:39:06Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: 80/20 stratified train/validation split performed
+  claim_id: c_4e20551a
+  context: Implement code/preprocessing.py to normalize spin vectors to unit length,
+    reshape to [batch, 3, L, L], and perform an 80/20 stratified train/validation
+    split with temperature binning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform an 80/20 stratified train/validation split with temperature binning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:39:24Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: memory usage verified under 6 GB for L=24
+  claim_id: c_7d27bc3b
+  context: Integration test for end-to-end data pipeline in tests/integration/test_data_pipeline.py
+    verifying memory < 6 GB for L=24.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_verified_under_6_GB_for_L%3D24
+  kind: magnitude
+  raw_text: Verify memory usage is less than 6 GB for L=24.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:39:41Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: stratified split max absolute sample count difference <= 5
+  claim_id: c_c9736a88
+  context: "Stratified split respects the constraint max absolute difference in sample\
+    \ count between any two temperature bins \u2264 5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/stratified_split_max_absolute_sample_count_difference_%3C=_5
+  kind: magnitude
+  raw_text: Verify the maximum absolute difference in sample count between any two
+    temperature bins is less than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:40:28Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: VAE latent dimension set to 10
+  claim_id: c_004409ef
+  context: Unit test for VAE architecture (2 conv/2 deconv layers, latent dim 10)
+    in tests/unit/test_vae_model.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a VAE with a latent dimension of 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:41:01Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: Adam optimizer learning rate set to 1e-3
+  claim_id: c_b03fb6f7
+  context: Implement code/train.py with Adam optimizer (lr=1e-3), MSE loss, KL divergence,
+    and early-stopping logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use an Adam optimizer with a learning rate of 1e-3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:41:29Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: total RAM usage limited to 7 GB
+  claim_id: c_70b560d4
+  context: "Implement memory-monitoring for the entire pipeline (data loading, training,\
+    \ analysis, bootstrap) ensuring total RAM usage \u2264 7 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_RAM_usage_limited_to_7_GB
+  kind: magnitude
+  raw_text: Ensure total RAM usage is less than or equal to 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:42:00Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: pipeline execution time limit set to 6 hours
+  claim_id: c_31907979
+  context: Implement total-time monitoring for the entire pipeline (including analysis
+    & bootstrap) with a a hard time limit of approximately six hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a hard time limit of approximately six hours for the entire pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:42:00Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling performed with 1000 iterations for 95% CI
+  claim_id: c_f18acc08
+  context: Perform bootstrap resampling with 1000 iterations (as mandated by FR-006)
+    to compute the 95 % CI for T*.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform bootstrap resampling with 1000 iterations to compute the 95% CI
+    for T*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:42:23Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: dataset thinned by >= 2 * tau_int
+  claim_id: c_a80ef32f
+  context: "First thin the dataset by \u2265 2 \u03C4_int (output from T007)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/dataset_thinned_by_%3E=_2_*_tau_int
+  kind: magnitude
+  raw_text: "Thin the dataset by at least 2 times the integrated autocorrelation time\
+    \ (\u03C4_int)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:42:47Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: FSS performed using T*(L) = T_c + a L^-1/nu with nu=1
+  claim_id: c_1ea5f926
+  context: "Implement Finite-Size Scaling (FSS) using the relation T*(L) = T_c + a\
+    \ L^-1/\u03BD with \u03BD=1 (or fitted)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform Finite-Size Scaling using the relation T*(L) = T_c + a L^-1/\u03BD\
+    \ with \u03BD=1 or a fitted value."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:43:16Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: hypothesis test verifies T* within literature CI with p-value < 0.05
+  claim_id: c_1fafdda2
+  context: Explicitly perform a hypothesis test to verify if the detected T* falls
+    within the confidence interval of the literature value, satisfying the p-value
+    < 0.05 condition in SC-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify if the detected T* falls within the confidence interval of the
+    literature value satisfying a p-value < 0.05 condition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:43:16Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: GP length-scale hyperparameter swept over 0.1, 0.5, 1.0, 2.0
+  claim_id: c_494b4bf2
+  context: "Sweep the length-scale hyperparameter \u2113 \u2208 {0.1, 0.5, 1.0, 2.0}\
+    \ (normalized units) and verify that the detected T* remains stable (within the\
+    \ 95% CI)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep the Gaussian Process length-scale hyperparameter \u2113 over the\
+    \ set {0.1, 0.5, 1.0, 2.0}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:43:38Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: peak detection thresholds varied by 50% derivative and 1 sigma
+  claim_id: c_0e0b39dd
+  context: "Vary the derivative threshold by \xB1 50% and the sigma threshold by \xB1\
+    \ 1\u03C3 to ensure the 'No significant transition' flag is not an artifact of\
+    \ a single arbitrary cutoff."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Vary the derivative threshold by \xB150% and the sigma threshold by \xB1\
+    1\u03C3 for peak detection sensitivity analysis."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:43:38Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear/tasks.md
+  attempts: 1
+  canonical: magnetic susceptibility calculated as 1/N (M2 - |M|2)
+  claim_id: c_237439e1
+  context: "Add a unit test in tests/unit/test_utils.py to verify the magnetic susceptibility\
+    \ calculation \u03C7 = 1/N (\u27E8M\xB2\u27E9 - \u27E8|M|\u27E9\xB2) against a\
+    \ known analytical or numerical result for a small lattice"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: 2)
+    relation: M
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Magnetic_susceptibility_calculated_as_1/N_(M2_-_M_2)
+    source_value: https://en.wikipedia.org/wiki/magnetic_susceptibility_calculated_as_1/N_(M2_-_M_2)
+    subject: magnetic susceptibility calculated as 1/N (M2 -
+  kind: relational
+  raw_text: "Calculate magnetic susceptibility using the formula \u03C7 = (1/N) (\u27E8\
+    M\xB2\u27E9 - \u27E8|M|\u27E9\xB2)."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T14:44:35Z'

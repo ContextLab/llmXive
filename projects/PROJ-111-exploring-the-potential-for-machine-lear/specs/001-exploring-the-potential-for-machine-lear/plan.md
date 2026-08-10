@@ -17,7 +17,7 @@ This project implements a CPU-tractable unsupervised machine learning pipeline t
 **Project Type**: Computational research / data science pipeline.  
 **Performance Goals**: Total runtime ≤ 6 hours; Memory footprint ≤ 6 GB.  
 **Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; no large-LLM inference. Data must be sampled or generated on-the-fly to fit memory.  
-**Scale/Scope**: Lattice sizes L=16 and L=24; Temperature range T=0.1 to T=3.0; Latent dimension 10.
+**Scale/Scope**: Lattice sizes L=16 and L=24; Temperature range T=0.1 to T=3.0; Latent dimension to be determined through hyperparameter optimization..
 
 ## Constitution Check
 

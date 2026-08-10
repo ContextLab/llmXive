@@ -43,3 +43,11 @@ T028:
     \ after computing \u03C4_int are present; the claim provides only a textual description\
     \ without any concrete artifact (e.g., Python function, results, or iteration\
     \ count). Consequently, the required implementation and evidence are missing."
+T045:
+  c: false
+  h: 5f39e41c393287d56ba7c84211855de38b234ece1c408e47bfdf32de63b3d9e4
+  r: "The repository does not contain `results/fss_extrapolation.csv`, and the provided\
+    \ `code/analysis.py` shows no implementation that checks for only two lattice\
+    \ sizes, evaluates the condition number, or writes the required \u201CFSS Inconclusive\u201D\
+    \ status with raw pseudo\u2011critical temperatures. The task\u2019s specific\
+    \ handling and output are therefore missing."
