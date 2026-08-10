@@ -92,7 +92,7 @@ projects/PROJ-799-statistical-properties-of-integer-partit/
 2.  **Phase 1: Implementation** (Future)
     *   Implement `generate_partitions.py` (Dynamic Programming with 1D array optimization, exact integer arithmetic).
     *   Implement `feature_engineering.py` (Compute residuals and *higher-order* density features).
-    *   Implement `regression_model.py` (GAM with splines/Fourier terms, 10-fold CV, VIF check).
+    *   Implement `regression_model.py` (GAM with splines/Fourier terms, -fold CV, VIF check).
     *   Implement `visualize_results.py`.
     *   Generate checksums for `data/raw/partitions_raw.csv` and update project state.
 3.  **Phase 2: Validation** (Future)
