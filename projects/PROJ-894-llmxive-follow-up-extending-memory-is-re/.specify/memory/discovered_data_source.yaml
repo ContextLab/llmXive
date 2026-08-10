@@ -1,10 +1,10 @@
 status: none
-intent: Downloadable LoCoMo benchmark dataset from HuggingFace python package dataset
+intent: LoCoMo benchmark HuggingFace datasets download python package dataset
 required_fields:
 - id
 - question
 - context
 - answer
-cache_key: 1115efb01170ffe31eb8d0f4de8f8b0f5293d407fe8257601826bd8633a81060
-searched_at: '2026-08-05T00:09:01.321572+00:00'
+cache_key: a8bd77c7f18e0dfe64cc51af5f4a588e918f3b9d6fe5662d089588447e1dcef0
+searched_at: '2026-08-10T19:10:07.152417+00:00'
 retry_count: 1

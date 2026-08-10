@@ -43,6 +43,14 @@ properties:
   error_message:
     type: "string"
     description: "Error details if status is not completed."
+  evidence_threshold:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Evidence threshold used (only for Lazy strategy)."
+  noise_applied:
+    type: "boolean"
+    description: "Whether noise was applied to the graph."
 required:
   - task_id
   - strategy
@@ -51,4 +59,5 @@ required:
   - inference_time_seconds
   - token_count
   - status
+  - noise_applied
 additionalProperties: false

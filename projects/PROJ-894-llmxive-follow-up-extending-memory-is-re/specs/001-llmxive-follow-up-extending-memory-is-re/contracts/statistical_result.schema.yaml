@@ -9,10 +9,11 @@ properties:
   test_type:
     type: "string"
     enum:
+      - "McNemar's test"
       - "Paired t-test"
       - "Wilcoxon signed-rank test"
       - "Point-Biserial correlation"
-      - "LOESS Smoothing"
+      - "Segmented Regression"
     description: "Statistical test performed."
   p_value:
     type: "number"
@@ -21,7 +22,7 @@ properties:
     description: "P-value from the hypothesis test."
   test_statistic:
     type: "number"
-    description: "The t-statistic, W-statistic, or regression coefficient."
+    description: "The t-statistic, W-statistic, chi-square, or regression coefficient."
   correlation_coefficient:
     type: "number"
     minimum: -1.0
@@ -39,6 +40,11 @@ properties:
     type: "string"
     nullable: true
     description: "Note on power limitations if N < 30."
+  covariates:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of covariates used in regression (e.g., 'critical_path_length')."
 required:
   - comparison_pair
   - test_type

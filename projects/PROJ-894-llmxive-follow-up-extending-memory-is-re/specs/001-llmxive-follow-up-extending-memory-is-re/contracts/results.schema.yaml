@@ -1,60 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Execution Results Schema"
-description: "Schema for the output of strategy executions."
 type: "object"
 properties:
   task_id:
     type: "string"
-    description: "Foreign key to the task."
+    description: "Unique identifier for the task"
   strategy:
     type: "string"
     enum:
       - "Full"
       - "Lazy"
       - "Greedy"
-    description: "The traversal strategy used."
+    description: "The traversal strategy used"
   accuracy:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Alignment with ground truth (0.0 to 1.0)."
+    description: "Accuracy score (0.0 to 1.0)"
   nodes_visited:
     type: "integer"
     minimum: 0
-    description: "Number of nodes visited during traversal."
-  latency_seconds:
+    description: "Number of nodes visited during traversal"
+  latency_ms:
     type: "number"
-    minimum: 0.0
-    description: "Time taken for execution in seconds."
+    minimum: 0
+    description: "Execution time in milliseconds"
+  token_count:
+    type: "integer"
+    minimum: 0
+    description: "Total tokens generated/consumed (Constitution Principle VI)"
   status:
     type: "string"
     enum:
-      - "success"
+      - "completed"
       - "timeout"
+      - "degenerate"
       - "unresolved"
-      - "error"
-    description: "Execution status."
+    description: "Execution status"
   evidence_threshold:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Confidence threshold for Lazy strategy (null for others)."
-    nullable: true
-  top_k:
-    type: "integer"
-    minimum: 1
-    description: "Top-k edges for Greedy strategy (null for others)."
-    nullable: true
-  timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO8601 timestamp of execution."
+    description: "Evidence threshold used (only for Lazy strategy)"
+  noise_applied:
+    type: "boolean"
+    description: "Whether noise was applied to the graph"
 required:
   - task_id
   - strategy
   - accuracy
   - nodes_visited
-  - latency_seconds
+  - latency_ms
+  - token_count
   - status
-  - timestamp
+  - noise_applied
 additionalProperties: false
