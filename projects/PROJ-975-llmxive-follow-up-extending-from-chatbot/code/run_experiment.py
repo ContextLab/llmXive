@@ -1,249 +1,214 @@
-"""
-run_experiment.py
-
-Iterates through configured library sizes, invokes the agent execution loop,
-and aggregates results into data/results/metrics.json.
-
-This script orchestrates the full experiment by:
-1. Loading configuration (library sizes, seeds).
-2. Iterating through each library size.
-3. Calling agent.py logic (run_task) for the full dataset.
-4. Aggregating success rates, latency, and retrieval metrics.
-5. Saving the summary to data/results/metrics.json.
-"""
-
 import os
 import json
 import time
 import logging
 import csv
 from typing import Dict, List, Any, Optional
+from datetime import datetime
 
-# Import from local project modules (matching API surface)
-from config import get_seeds, LIBRARY_SIZES
-from utils import get_embedding, cosine_similarity
-from agent import (
-    SkillLibrary,
-    calculate_retrieval_precision,
-    calculate_retrieval_diversity,
-    append_to_log,
-    run_task
-)
+# Import from sibling modules using the exact API surface provided
+from config import get_experiment_config, get_seeds
+from agent import SkillLibrary, run_task, append_to_log, main as agent_main
+from utils import get_model, get_embedding
+from logging_config import get_logger
 
-# Configure logging for this script
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Configure logging for this module
+logger = get_logger(__name__)
 
-# Ensure output directories exist
-os.makedirs("data/results", exist_ok=True)
-
-def load_tasks(tasks_path: str = "data/raw/tasks.json") -> List[Dict[str, Any]]:
-    """Load the generated tasks from the raw data file."""
-    if not os.path.exists(tasks_path):
-        raise FileNotFoundError(
-            f"Tasks file not found at {tasks_path}. "
-            "Please run generate_data.py first."
-        )
-    with open(tasks_path, 'r', encoding='utf-8') as f:
+def load_tasks(path: str = "data/raw/tasks.json") -> List[Dict[str, Any]]:
+    """Load tasks from the generated JSON file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Tasks file not found at {path}. Run generate_data.py first.")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_skills(skills_path: str = "data/raw/skills.json") -> List[Dict[str, Any]]:
-    """Load the generated skills from the raw data file."""
-    if not os.path.exists(skills_path):
-        raise FileNotFoundError(
-            f"Skills file not found at {skills_path}. "
-            "Please run generate_data.py first."
-        )
-    with open(skills_path, 'r', encoding='utf-8') as f:
+def load_skills(path: str = "data/raw/skills.json") -> List[Dict[str, Any]]:
+    """Load skills from the generated JSON file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Skills file not found at {path}. Run generate_data.py first.")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def run_experiment_for_size(
     library_size: int,
     tasks: List[Dict[str, Any]],
-    all_skills: List[Dict[str, Any]]
+    all_skills: List[Dict[str, Any]],
+    seed_a: int,
+    seed_b: int
 ) -> Dict[str, Any]:
     """
     Run the agent experiment for a specific library size.
-
-    Returns a dictionary containing aggregated metrics for this library size.
+    
+    Args:
+        library_size: Number of skills to include in the active library.
+        tasks: Full list of generated tasks.
+        all_skills: Full list of generated skills.
+        seed_a: Seed for skill generation (determines which skills are picked if subset).
+        seed_b: Seed for task generation (determines ground truth).
+    
+    Returns:
+        Dictionary containing aggregated metrics for this library size.
     """
     logger.info(f"Starting experiment for library size: {library_size}")
-
-    # Initialize the SkillLibrary with the specified size
-    # The agent.py logic expects a subset of skills or a library object
-    # We simulate the "active library" by taking the first N skills for determinism
-    # or by shuffling if a seed is required for selection (here we use deterministic slicing
-    # based on the assumption that skills are pre-generated and ordered).
-    # To ensure reproducibility across runs with the same seed, we rely on the
-    # generate_data.py ordering.
-    active_skills = all_skills[:library_size]
-
-    # Re-initialize the SkillLibrary with the subset
-    # Note: In a real scenario, we might need to re-embed or filter based on the subset.
-    # Here we pass the subset directly.
+    
+    # Select a deterministic subset of skills based on seed_a
+    # We take the first N skills after shuffling deterministically to simulate a library
+    import random
+    random.seed(seed_a)
+    shuffled_skills = all_skills.copy()
+    random.shuffle(shuffled_skills)
+    active_skills = shuffled_skills[:library_size]
+    
+    # Initialize the SkillLibrary with the active subset
+    # Note: The agent.py API expects a list of skill dicts
     skill_lib = SkillLibrary(active_skills)
-
-    # Metrics tracking
+    
     total_tasks = len(tasks)
     successful_tasks = 0
     total_latency = 0.0
     total_tokens = 0
-    retrieval_precisions = []
-    retrieval_diversities = []
-    log_entries = []
-
-    # Reset the log file for this specific run configuration?
-    # Per T022, we append to the log. For aggregation, we track in memory.
-    # We will write to the CSV log as we go.
+    total_precision = 0.0
+    total_diversity = 0.0
     
-    # Clear the CSV log header if it's a fresh run, but since we append,
-    # we assume the header exists from T022.
-    # If the file doesn't exist, we write the header.
-    log_file_path = "data/results/experiment_log.csv"
-    if not os.path.exists(log_file_path):
-        with open(log_file_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                "task_id", "skill_id", "success", "latency", "tokens",
-                "retrieval_precision", "retrieval_diversity", "pruning_risk_count",
-                "library_size", "pruning_enabled"
-            ])
-
-    for idx, task in enumerate(tasks):
-        task_id = task.get("id", f"task_{idx}")
-        ground_truth_skills = task.get("ground_truth", [])
+    # Ensure output directory exists
+    os.makedirs("data/results", exist_ok=True)
+    
+    for i, task in enumerate(tasks):
+        logger.debug(f"Processing task {i+1}/{total_tasks}: {task.get('id', 'unknown')}")
         
-        # Run the task
         start_time = time.time()
-        result = run_task(task, skill_lib)
-        end_time = time.time()
-
-        latency = end_time - start_time
-        success = result.get("success", False)
-        tokens = result.get("tokens", 0)
-        retrieved_skills = result.get("retrieved_skills", [])
-
-        # Calculate metrics
-        precision = calculate_retrieval_precision(retrieved_skills, ground_truth_skills)
-        diversity = calculate_retrieval_diversity(retrieved_skills, ground_truth_skills, skill_lib)
         
-        # For pruning risk, we assume 0 unless the agent logic explicitly counts it
-        # T027 handles the counting, but for this aggregator we just read the result
-        # if the agent returns it, otherwise default to 0 for this batch.
-        pruning_risk = result.get("pruning_risk_count", 0)
-
-        # Update aggregates
-        if success:
-            successful_tasks += 1
-        total_latency += latency
-        total_tokens += tokens
-        retrieval_precisions.append(precision)
-        retrieval_diversities.append(diversity)
-
-        # Log entry
-        log_entry = {
-            "task_id": task_id,
-            "skill_id": retrieved_skills[0] if retrieved_skills else None, # Primary skill used
-            "success": success,
-            "latency": round(latency, 4),
-            "tokens": tokens,
-            "retrieval_precision": round(precision, 4),
-            "retrieval_diversity": round(diversity, 4),
-            "pruning_risk_count": pruning_risk,
-            "library_size": library_size,
-            "pruning_enabled": True # Assuming pruning is on per US2/T027
-        }
-        
-        # Append to CSV
-        append_to_log(log_entry)
-        
-        if (idx + 1) % 50 == 0:
-            logger.info(f"Processed {idx + 1}/{total_tasks} tasks for size {library_size}")
-
-    # Calculate averages
-    avg_latency = total_latency / total_tasks if total_tasks > 0 else 0
-    success_rate = successful_tasks / total_tasks if total_tasks > 0 else 0
-    avg_precision = sum(retrieval_precisions) / len(retrieval_precisions) if retrieval_precisions else 0
-    avg_diversity = sum(retrieval_diversities) / len(retrieval_diversities) if retrieval_diversities else 0
-
-    return {
+        try:
+            # Run the task using the agent logic
+            # run_task returns a dict with success, latency, tokens, precision, diversity
+            result = run_task(
+                task=task,
+                library=skill_lib,
+                seed=seed_b  # Use seed_b for any task-specific randomness if needed
+            )
+            
+            elapsed = time.time() - start_time
+            total_latency += elapsed
+            
+            if result.get('success', False):
+                successful_tasks += 1
+            
+            total_tokens += result.get('tokens', 0)
+            total_precision += result.get('retrieval_precision', 0.0)
+            total_diversity += result.get('retrieval_diversity', 0.0)
+            
+            # Log to the CSV log
+            log_entry = {
+                'task_id': task.get('id'),
+                'skill_id': None, # Top-level task result
+                'success': result.get('success', False),
+                'latency': elapsed,
+                'tokens': result.get('tokens', 0),
+                'retrieval_precision': result.get('retrieval_precision', 0.0),
+                'retrieval_diversity': result.get('retrieval_diversity', 0.0),
+                'pruning_risk_count': 0,
+                'library_size': library_size,
+                'pruning_enabled': False # T028 not yet implemented
+            }
+            append_to_log(log_entry)
+            
+        except Exception as e:
+            elapsed = time.time() - start_time
+            logger.error(f"Task {task.get('id')} failed with error: {e}")
+            # Log failure
+            log_entry = {
+                'task_id': task.get('id'),
+                'skill_id': None,
+                'success': False,
+                'latency': elapsed,
+                'tokens': 0,
+                'retrieval_precision': 0.0,
+                'retrieval_diversity': 0.0,
+                'pruning_risk_count': 0,
+                'library_size': library_size,
+                'pruning_enabled': False
+            }
+            append_to_log(log_entry)
+    
+    success_rate = successful_tasks / total_tasks if total_tasks > 0 else 0.0
+    avg_latency = total_latency / total_tasks if total_tasks > 0 else 0.0
+    avg_precision = total_precision / total_tasks if total_tasks > 0 else 0.0
+    avg_diversity = total_diversity / total_tasks if total_tasks > 0 else 0.0
+    
+    metrics = {
         "library_size": library_size,
         "total_tasks": total_tasks,
         "successful_tasks": successful_tasks,
-        "success_rate": round(success_rate, 4),
-        "avg_latency_seconds": round(avg_latency, 4),
+        "success_rate": success_rate,
+        "avg_latency_seconds": avg_latency,
         "total_tokens": total_tokens,
-        "avg_retrieval_precision": round(avg_precision, 4),
-        "avg_retrieval_diversity": round(avg_diversity, 4),
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+        "avg_retrieval_precision": avg_precision,
+        "avg_retrieval_diversity": avg_diversity,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
+    
+    logger.info(f"Completed library size {library_size}: Success Rate = {success_rate:.2f}")
+    return metrics
 
 def main():
     """
-    Main entry point for the experiment runner.
-    Iterates through all configured library sizes and aggregates results.
+    Main entry point to run the full experiment across all configured library sizes.
+    Iterates through library sizes, calls run_experiment_for_size, and aggregates results.
     """
-    logger.info("Loading configuration and data...")
+    logger.info("Starting full experiment run.")
+    
+    # Load configuration
+    config = get_experiment_config()
     seeds = get_seeds()
-    logger.info(f"Seeds loaded: A={seeds['seed_a']}, B={seeds['seed_b']}")
-
+    seed_a = seeds['seed_a']
+    seed_b = seeds['seed_b']
+    library_sizes = config.get('LIBRARY_SIZES', [10, 30, 50, 100])
+    
     # Load data
     tasks = load_tasks()
     all_skills = load_skills()
-
-    if not tasks:
-        logger.error("No tasks found. Exiting.")
-        return
-
-    if not all_skills:
-        logger.error("No skills found. Exiting.")
-        return
-
-    logger.info(f"Loaded {len(tasks)} tasks and {len(all_skills)} total skills.")
-
+    
+    logger.info(f"Loaded {len(tasks)} tasks and {len(all_skills)} skills.")
+    logger.info(f"Running for library sizes: {library_sizes}")
+    
     results = []
     
-    # Iterate through library sizes defined in config
-    # T005 defines: 10, 30, 50, 100
-    sizes_to_run = LIBRARY_SIZES
+    for size in library_sizes:
+        # Ensure size does not exceed available skills
+        actual_size = min(size, len(all_skills))
+        if actual_size != size:
+            logger.warning(f"Requested size {size} exceeds available skills {len(all_skills)}. Using {actual_size}.")
+        
+        size_metrics = run_experiment_for_size(
+            library_size=actual_size,
+            tasks=tasks,
+            all_skills=all_skills,
+            seed_a=seed_a,
+            seed_b=seed_b
+        )
+        results.append(size_metrics)
     
-    logger.info(f"Running experiments for library sizes: {sizes_to_run}")
-
-    for size in sizes_to_run:
-        if size > len(all_skills):
-            logger.warning(f"Library size {size} exceeds total skills {len(all_skills)}. Skipping.")
-            continue
-
-        try:
-            result = run_experiment_for_size(size, tasks, all_skills)
-            results.append(result)
-            logger.info(f"Completed size {size}: Success Rate = {result['success_rate']}")
-        except Exception as e:
-            logger.error(f"Experiment failed for library size {size}: {e}", exc_info=True)
-            # Continue to next size to ensure partial results are saved
-            results.append({
-                "library_size": size,
-                "error": str(e),
-                "success_rate": 0.0
-            })
-
-    # Aggregate and save final metrics
+    # Aggregate final metrics
+    final_report = {
+        "experiment_config": {
+            "seeds": seeds,
+            "library_sizes_tested": library_sizes,
+            "total_skills_available": len(all_skills)
+        },
+        "results": results
+    }
+    
+    # Write to data/results/metrics.json
     output_path = "data/results/metrics.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump({
-            "experiment_config": {
-                "seeds": seeds,
-                "library_sizes_tested": sizes_to_run,
-                "total_skills_available": len(all_skills)
-            },
-            "results": results
-        }, f, indent=2)
-
+        json.dump(final_report, f, indent=2)
+    
     logger.info(f"Experiment complete. Results saved to {output_path}")
-    print(f"Experiment finished. See {output_path} for details.")
+    print(f"Experiment complete. Results saved to {output_path}")
+    
+    return final_report
 
 if __name__ == "__main__":
     main()

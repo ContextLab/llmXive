@@ -1,13 +1,13 @@
 # llmXive: From Chatbot to Digital Colleague
-## Quick Start Guide
+## Quickstart Guide
 
-This guide provides instructions to set up the environment and run the core experiments for the llmXive project.
+This guide provides instructions for setting up and running the llmXive automated science pipeline.
 
 ### Prerequisites
 
 - Python 3.9+
-- pip (Python package installer)
-- A modern web browser (for viewing results if applicable)
+- pip (Python package manager)
+- A Unix-like environment (Linux, macOS) or WSL on Windows
 
 ### Installation
 
@@ -24,79 +24,115 @@ This guide provides instructions to set up the environment and run the core expe
  ```
 
 3. **Install dependencies**:
- Install the required packages listed in `requirements.txt`:
  ```bash
  pip install -r requirements.txt
  ```
 
-4. **Set up the project structure**:
- Ensure the necessary directories exist. Run the setup script:
- ```bash
- python code/setup_directories.py
- ```
+ *Note: `requirements.txt` contains pinned versions for reproducibility (see T002).*
 
-5. **Configure logging and contracts**:
- Initialize the logging configuration and contract schemas:
- ```bash
- python code/setup_contracts.py
- python code/verify_logging.py
- ```
+### Project Structure
+
+The project follows a standard data science layout:
+
+- `code/`: Python modules for data generation, agent execution, and analysis.
+- `data/`:
+ - `raw/`: Generated synthetic datasets (`tasks.json`, `skills.json`).
+ - `results/`: Experiment logs and analysis outputs.
+- `contracts/`: JSON schemas for data validation.
+- `tests/`: Unit and contract tests.
+- `specs/`: Design documents and requirements.
 
 ### Running the Pipeline
 
 The pipeline consists of three main phases: Data Generation, Agent Execution, and Analysis.
 
-#### Phase 1: Generate Synthetic Data
+#### 1. Generate Synthetic Data (User Story 1)
 
-Generate the skill library and task set:
+This step creates the multi-step tasks and skill library.
+
 ```bash
 python code/generate_data.py
 ```
-**Output**:
-- `data/raw/skills.json`: The generated skill library.
-- `data/raw/tasks.json`: The generated task set with ground-truth paths.
 
-#### Phase 2: Run Experiments
+**Outputs**:
+- `data/raw/tasks.json`: 500 multi-step tasks.
+- `data/raw/skills.json`: 100 Python skills with metadata.
+- `data/raw/checksums.json`: SHA-256 checksums for integrity (T042).
 
-Execute the agent across different library sizes:
+*Verify*: Ensure the files exist and check the console output for similarity metrics.
+
+#### 2. Run the Experiment (User Story 2)
+
+Execute the "Digital Colleague" agent across different library sizes.
+
 ```bash
 python code/run_experiment.py
 ```
-**Output**:
-- `data/results/experiment_log.csv`: Detailed logs of task execution.
-- `data/results/metrics.json`: Aggregated metrics for each library size.
 
-To run a baseline experiment (without pruning):
+**Outputs**:
+- `data/results/experiment_log.csv`: Detailed log of every task execution (latency, tokens, success, retrieval metrics).
+- `data/results/metrics.json`: Aggregated metrics per library size.
+
+*Note*: This script iterates through `LIBRARY_SIZES` defined in `code/config.py`.
+
+#### 3. Run Baseline (Optional - User Story 3)
+
+Run the experiment with pruning disabled for comparison.
+
 ```bash
 python code/run_baseline.py
 ```
 
-#### Phase 3: Analysis
+**Output**:
+- `data/results/experiment_log_baseline.csv`
 
-Analyze the results to identify tipping points and pruning efficacy:
+#### 4. Analyze Results (User Story 3)
+
+Perform statistical analysis to identify tipping points and pruning efficacy.
+
 ```bash
 python code/analyze.py
 ```
-**Output**:
-- `data/results/final_analysis.json`: Statistical analysis results including tipping point.
-- `data/results/sensitivity_report.json`: Sensitivity analysis across pruning thresholds.
 
-### Verification
+**Outputs**:
+- `data/results/tipping_point.json`: Calculated inflection point (x0) and model parameters.
+- `data/results/final_analysis.json`: VIF metrics, p-values, and summary.
+- `data/results/sensitivity_report.json`: Robustness check across pruning intervals.
 
-To verify the setup and reproducibility:
+### Verification & Testing
+
+Run the test suite to ensure data integrity and contract compliance.
+
 ```bash
-python -c "from code.config import get_seeds; print(get_seeds())"
-python code/verify_logging.py
+# Unit tests
+python -m pytest tests/unit/ -v
+
+# Contract tests (schema validation)
+python -m pytest tests/contract/ -v
+```
+
+### Configuration
+
+Experiment parameters are defined in `code/config.py`:
+- `SEED_A`, `SEED_B`: Random seeds for reproducibility.
+- `LIBRARY_SIZES`: List of library sizes to test (default: `[10, 30, 50, 100]`).
+- `OVERLAP_LEVEL`: Target semantic overlap for skill generation.
+
+Environment variables can override seeds:
+```bash
+export SEED_A=42
+export SEED_B=123
+python code/generate_data.py
 ```
 
 ### Troubleshooting
 
-- **Memory Errors**: If you encounter memory issues during data generation, ensure your system has sufficient RAM (recommended >8GB) or reduce the `LIBRARY_SIZES` in `code/config.py`.
-- **Missing Dependencies**: If `pip install` fails, ensure your Python version is 3.9 or higher.
-- **Logging Issues**: If `experiment_log.csv` is not created, run `python code/verify_logging.py` to diagnose configuration issues.
+- **Memory Errors**: If `generate_data.py` fails with a memory error, ensure your system has at least 6GB of free RAM. The script includes a check (T017) to fail gracefully if limits are exceeded.
+- **Schema Validation**: If contract tests fail, verify that `contracts/*.schema.yaml` files match the generated JSON structure.
+- **Reproducibility**: If results differ between runs, check that `SEED_A` and `SEED_B` are consistent in the environment or `config.py`.
 
 ### Next Steps
 
-- Review the `README.md` for detailed architecture and design documents.
-- Check `data/results/` for generated reports and metrics.
-- Run `pytest` to execute the test suite (if available).
+- Review `specs/001-gene-regulation/` for detailed design documents.
+- Read `README.md` for high-level project overview.
+- Check `data/results/final_analysis.json` for the final scientific findings.

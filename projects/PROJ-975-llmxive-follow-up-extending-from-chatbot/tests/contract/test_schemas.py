@@ -45,7 +45,7 @@ def validate_against_schema(data: Dict, schema: Dict, path: str = "") -> List[st
 
 def test_tasks_json_schema():
     """
-    Contract test validating tasks.json schema.
+    Contract test validating tasks.json schema against contracts/task.schema.yaml.
     """
     tasks_path = "data/raw/tasks.json"
     if not os.path.exists(tasks_path):
@@ -56,32 +56,14 @@ def test_tasks_json_schema():
 
     schema = load_schema("task.schema.yaml")
     
-    # The root of tasks.json is an object with 'metadata' and 'tasks'
-    # The schema might define the structure of the 'tasks' array or the whole file.
-    # Assuming the schema defines the structure of the 'tasks' array items or the file root.
-    # Based on T009, we need to validate the file structure.
+    # Validate the root object structure
+    errors = validate_against_schema(data, schema)
     
-    # Let's assume the schema defines the root object
-    if "properties" in schema:
-       # If schema expects root to be the object with metadata and tasks
-       errors = validate_against_schema(data, schema)
-    else:
-       # If schema is for the array items
-       if "tasks" in data:
-           for i, task in enumerate(data["tasks"]):
-               errors = validate_against_schema(task, schema, f"tasks[{i}]")
-               if errors:
-                   break
-           else:
-               errors = [] # Success
-       else:
-           errors = ["Missing 'tasks' key in data"]
-
-    assert len(errors) == 0, f"Schema validation failed: {errors}"
+    assert len(errors) == 0, f"Schema validation failed for tasks.json: {errors}"
 
 def test_skills_json_schema():
     """
-    Contract test validating skills.json schema and overlap metrics.
+    Contract test validating skills.json schema and overlap metrics against contracts/skill.schema.yaml.
     """
     skills_path = "data/raw/skills.json"
     if not os.path.exists(skills_path):
@@ -92,27 +74,47 @@ def test_skills_json_schema():
 
     schema = load_schema("skill.schema.yaml")
 
-    # Similar logic as tasks
-    if "properties" in schema:
-       errors = validate_against_schema(data, schema)
-    else:
-       if "skills" in data:
-           for i, skill in enumerate(data["skills"]):
-               errors = validate_against_schema(skill, schema, f"skills[{i}]")
-               if errors:
-                   break
-           else:
-               errors = []
-       else:
-           errors = ["Missing 'skills' key in data"]
-
-    assert len(errors) == 0, f"Schema validation failed: {errors}"
+    # Validate the root object structure
+    errors = validate_against_schema(data, schema)
+    
+    assert len(errors) == 0, f"Schema validation failed for skills.json: {errors}"
 
     # Check overlap metrics in metadata
     if "metadata" in data:
         meta = data["metadata"]
+        
+        # Validate required metadata fields
         assert "mean_similarity" in meta, "Missing mean_similarity in metadata"
         assert "overlap_level" in meta, "Missing overlap_level in metadata"
         assert "maximal_overlap_detected" in meta, "Missing maximal_overlap_detected in metadata"
+        assert "seed_used" in meta, "Missing seed_used in metadata"
+        assert "total_skills" in meta, "Missing total_skills in metadata"
+        
+        # Type checks for metadata values
+        assert isinstance(meta["mean_similarity"], (int, float)), "mean_similarity must be numeric"
+        assert isinstance(meta["overlap_level"], str), "overlap_level must be string"
+        assert isinstance(meta["maximal_overlap_detected"], bool), "maximal_overlap_detected must be boolean"
+        assert isinstance(meta["total_skills"], int), "total_skills must be integer"
+        
+        # Validate consistency: if maximal_overlap_detected is True, mean_similarity should be high
+        if meta["maximal_overlap_detected"]:
+            assert meta["mean_similarity"] >= 0.95, \
+                f"maximal_overlap_detected is True but mean_similarity ({meta['mean_similarity']}) < 0.95"
     else:
         pytest.fail("Missing 'metadata' key in skills.json")
+
+    # Validate skills array content
+    if "skills" in data and isinstance(data["skills"], list):
+        assert len(data["skills"]) > 0, "Skills array is empty"
+        
+        # Check first skill for required fields
+        first_skill = data["skills"][0]
+        required_fields = ["id", "name", "code", "description", "embedding_dimension"]
+        for field in required_fields:
+            assert field in first_skill, f"Missing required field '{field}' in skills"
+        
+        # Check for uniqueness of IDs
+        ids = [skill["id"] for skill in data["skills"]]
+        assert len(ids) == len(set(ids)), "Skill IDs are not unique"
+    else:
+        pytest.fail("Missing or invalid 'skills' array in skills.json")

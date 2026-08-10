@@ -807,3 +807,177 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T23:14:23Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: generate 100 skills and 500 tasks
+  claim_id: c_3f1d9deb
+  context: Implementation for User Story 1, Task T013
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generate_data.py to create exactly 100 Python functions
+    (skills) and exactly 500 multi-step tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:45:39Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: 'cosine similarity thresholds: low <0.30, medium >0.50 (>30% >0.50),
+    high >0.80 (>30% >0.80)'
+  claim_id: c_80cda41a
+  context: Implementation for User Story 1, Task T013
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Validate that mean pairwise cosine similarity matches thresholds: Low
+    <0.30, Medium >0.50 (and >30% pairs >0.50), High >0.80 (and >30% pairs >0.80).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:45:39Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: assign 3-5 skill IDs to each of 500 tasks
+  claim_id: c_74ea6c63
+  context: Implementation for User Story 1, Task T014
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign unique ground-truth solution paths (3-5 skill IDs) to each of the
+    500 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:46:15Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: set retrieval precision to 0.0 if mean pairwise similarity >= 0.95
+  claim_id: c_0ffa6207
+  context: Implementation for User Story 1, Task T016
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If mean pairwise similarity >= 0.95, set Retrieval Precision to exactly
+    0.0 for all tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:46:33Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: fail with Memory Limit Exceeded if RAM > 6 GB
+  claim_id: c_6ed17c7d
+  context: Implementation for User Story 1, Task T017
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail gracefully with 'Memory Limit Exceeded' if RAM usage exceeds 6 GB
+    during embedding calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:46:54Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: fetch top 5 skills
+  claim_id: c_08df4298
+  context: Implementation for User Story 2, Task T021
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch top-k (k=5) skills based on task embedding.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:48:31Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: retrieval diversity is inverse variance of cosine similarities of 5 retrieved
+    skills
+  claim_id: c_3e7c23ce
+  context: Implementation for User Story 2, Task T023
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Retrieval Diversity as the inverse of the variance of the cosine
+    similarities of the 5 retrieved skills against the ground-truth set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:48:58Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: iterate through library sizes 10, 30, 50, 100
+  claim_id: c_544b2a3b
+  context: Implementation for User Story 2, Task T025
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate through library sizes (10, 30, 50, 100).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:49:13Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: remove skills with usage 0 and similarity < 0.70 every 10 tasks
+  claim_id: c_5a65998a
+  context: Implementation for User Story 2, Task T028
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Remove skills where usage_count == 0 AND min_cosine_similarity < 0.70
+    after every N tasks (default 10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:49:34Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: verify VIF < 5.0 for library size and semantic overlap
+  claim_id: c_4b238796
+  context: Implementation for User Story 3, Task T032
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify VIF < 5.0 for predictors library size and semantic overlap.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:49:34Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot/tasks.md
+  attempts: 1
+  canonical: sweep pruning thresholds 5, 10, 20 tasks
+  claim_id: c_162062dd
+  context: Implementation for User Story 3, Task T035
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep pruning thresholds across a range of {5, 10, 20} tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:49:53Z'

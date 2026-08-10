@@ -1,38 +1,33 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw`, `data/results`, `code`,
-    `tests/unit`, `tests/contract`, `contracts`, `projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/`)
-    being present on disk is provided; without visible artifacts we cannot confirm
-    the structure was created.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `quickstart.md` file was presented; there is no evidence of its existence,
-    content, or installation instructions, so the required artifact is missing.
 T011:
   c: false
-  h: 50863e67dadacb46837bd7f77c3fe12e841a2591c786d2364cef274e7428ec89
+  h: 06a9f7f27ba6e0060fc30e37d10d055bb86bc22f910c183861bfb40d60f093b6
   r: The test file `tests/contract/test_schemas.py` is present, but the required schema
-    `contracts/task.schema.yaml` does not exist, causing the test to fail (or be skipped)
-    and preventing any real validation of `tasks.json`. The missing schema file must
-    be added for the contract test to be functional.
+    `contracts/task.schema.yaml` (referenced as `task.schema.yaml`) does not exist,
+    causing the test to fail when it tries to load the schema. Without the schema
+    file, the contract test cannot actually validate `tasks.json` as required. The
+    missing schema must be added for the task to be complete.
 T012:
   c: false
-  h: 50863e67dadacb46837bd7f77c3fe12e841a2591c786d2364cef274e7428ec89
-  r: "The provided `tests/contract/test_schemas.py` ends abruptly inside `test_skills_json_schema`\
-    \ and does not contain the full validation logic or overlap\u2011metric checks.\
-    \ Moreover, the required schema file `contracts/skill.schema.yaml` is absent,\
-    \ so the test cannot even load the schema. Both the test implementation and the\
-    \ referenced schema are missing, so the task is not satisfied."
+  h: 06a9f7f27ba6e0060fc30e37d10d055bb86bc22f910c183861bfb40d60f093b6
+  r: The test file `tests/contract/test_schemas.py` is present and contains a `test_skills_json_schema`
+    function, but the required schema file `contracts/skill.schema.yaml` (or `schema.yaml`)
+    is missing, so the test cannot actually validate the `skills.json` against the
+    contract. The missing schema file must be added for the task to be fulfilled.
 T015:
   c: false
-  h: a61cc0e3f7b83cdf076afc6dfc52c66c90f6af612d244591fe895a4842b266eb
+  h: a9e6cf0a5248dc1f7a013c32e7d574a7229e44dbfd6120a4397c30db3a23ab6f
   r: "The repository lacks the required output files `data/raw/skills.json` and `data/raw/tasks.json`,\
-    \ and the shown portion of `code/generate_data.py` does not contain any JSON\u2011\
-    serialization logic that writes those files (the code is truncated before any\
-    \ file\u2011output code). The task\u2019s core requirement\u2014producing the\
-    \ two JSON files with embedded metadata\u2014is therefore not satisfied."
+    \ and the provided `code/generate_data.py` snippet is truncated and does not show\
+    \ any JSON serialization logic that writes those files with the requested metadata\
+    \ (overlap level, seed). The task\u2019s core requirement is therefore not satisfied."
+T016:
+  c: false
+  h: 1c0aa8d48f764ebca1dbe4f8a6f78a5a471ddfe9a7f7787dc364699ba267c6b2
+  r: "The provided `code/generate_data.py` is truncated and does not contain the required\
+    \ detection of mean pairwise similarity \u2265\u202F0.95, the setting of Retrieval\
+    \ Precision to 0.0, deterministic tie\u2011breaking, warning log, or exit behavior.\
+    \ Moreover, the required output file `data/raw/skills.json` is absent. These essential\
+    \ artifacts and logic are missing, so the task is not satisfied."
 T032:
   c: false
   h: 90ee48ded2f6fa2f4deb7b5fdda65d18b26e901cb9777a5fc422a25bb4ea9566

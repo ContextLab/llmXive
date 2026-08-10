@@ -1,136 +1,137 @@
-import os
-import sys
-import tempfile
-import unittest
-from pathlib import Path
+import pytest
 import numpy as np
+import tempfile
+import os
+from pathlib import Path
+import healpy as hp
 
-# Ensure code/ is in path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Import the function under test from the project module
+from data_loader import downgrade_resolution
+from config import ensure_directories, PROCESSED_MAP_FILENAME
 
-from data_loader import downgrade_resolution, load_planck_map
-from config import ensure_directories
-
-class TestNsideDowngrade(unittest.TestCase):
+class TestDowngradeResolution:
     """
-    Unit test for Nside downgrade memory usage and NaN checks.
-    This test verifies that:
-    1. The downgrade operation from Nside=2048 to Nside=128 completes successfully.
-    2. The resulting map fits within memory constraints (simulated via size check).
-    3. The resulting map contains no NaN or Inf values.
-    4. The output file is written correctly.
+    Unit tests for the Nside downgrade memory usage and NaN checks.
+    Corresponds to Task T013.
     """
-
-    def setUp(self):
-        """
-        Set up test fixtures.
-        Since we cannot download the full 2GB Planck map in this unit test environment,
-        we create a synthetic valid FITS file mimicking the structure of the Planck map
-        to test the logic of `downgrade_resolution` and the integrity checks.
-        """
-        self.temp_dir = tempfile.mkdtemp()
-        self.nside_high = 2048
-        self.nside_low = 128
-        
-        # Calculate expected number of pixels
-        # Npix = 12 * Nside^2
-        self.npix_high = 12 * (self.nside_high ** 2)
-        self.npix_low = 12 * (self.nside_low ** 2)
-        
-        # Create a mock map file (simulating the masked Nside=2048 map)
-        # We use a simple pattern to ensure it's valid data
-        mock_map = np.random.randn(self.npix_high).astype(np.float32)
-        
-        # Inject a few NaNs to simulate bad pixels that should ideally be handled or checked
-        # However, the requirement is to check that the *output* has no NaNs.
-        # The downgrade function itself (via healpy) usually handles interpolation.
-        # We will create a clean map for the test to ensure the pipeline works.
-        mock_map_clean = np.random.randn(self.npix_high).astype(np.float32)
-        
-        self.input_path = os.path.join(self.temp_dir, "mock_masked_n2048.fits")
-        self.output_path = os.path.join(self.temp_dir, "mock_downgraded_n128.fits")
-        
-        # Write mock FITS file using healpy if available, otherwise use astropy
-        try:
-            import healpy as hp
-            hp.write_map(self.input_path, mock_map_clean, overwrite=True)
-            self.use_healpy = True
-        except ImportError:
-            # Fallback to astropy if healpy is not installed in test env
-            from astropy.io import fits
-            hdu = fits.PrimaryHDU(data=mock_map_clean)
-            hdu.header['NSIDE'] = self.nside_high
-            hdu.writeto(self.input_path, overwrite=True)
-            self.use_healpy = False
 
     def test_downgrade_no_nan_inf(self):
         """
-        Verify that the downgraded map contains no NaN or Inf values.
+        Verify that the downgrade process does not introduce NaN or Inf values.
         """
-        # Run the downgrade
-        if self.use_healpy:
-            # If healpy is available, we can test the actual function
-            # We need to ensure the function handles the file path correctly
-            result_map = downgrade_resolution(self.input_path, self.output_path)
+        # Setup: Create a temporary directory for test artifacts
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a mock high-resolution map (Nside=2048) with random Gaussian values
+            # This simulates the output of apply_galactic_mask (before actual download)
+            nside_in = 2048
+            nside_out = 128
+            npix_in = hp.nside2npix(nside_in)
             
-            # Check for NaN and Inf
-            self.assertFalse(np.any(np.isnan(result_map)), "Downgraded map contains NaN values")
-            self.assertFalse(np.any(np.isinf(result_map)), "Downgraded map contains Inf values")
+            # Generate realistic CMB-like random data (mean=0, std=1e-5)
+            mock_map = np.random.normal(0.0, 1e-5, npix_in).astype(np.float32)
             
-            # Verify file was written
-            self.assertTrue(os.path.exists(self.output_path), "Output file was not created")
-        else:
-            # If healpy is not available, we simulate the check logic
-            # This path ensures the test structure exists even if dependencies are missing
-            # In a real CI, healpy should be present.
-            self.skipTest("healpy not installed, skipping functional downgrade test")
+            # Inject a known valid value to ensure we aren't just testing empty arrays
+            mock_map[0] = 1.0
+
+            input_path = os.path.join(tmpdir, "test_input_n2048.fits")
+            output_path = os.path.join(tmpdir, "test_output_n128.fits")
+
+            # Save the mock high-res map
+            hp.write_map(input_path, mock_map, overwrite=True)
+
+            # Execute the downgrade
+            try:
+                downgrade_resolution(input_path, output_path, nside_out)
+            except Exception as e:
+                pytest.fail(f"downgrade_resolution raised an unexpected exception: {e}")
+
+            # Verification 1: Check if output file exists
+            assert os.path.exists(output_path), "Output FITS file was not created."
+
+            # Verification 2: Load the output and check for NaN/Inf
+            output_map = hp.read_map(output_path)
+            
+            assert not np.any(np.isnan(output_map)), "Downgraded map contains NaN values."
+            assert not np.any(np.isinf(output_map)), "Downgraded map contains Inf values."
+            
+            # Verification 3: Check shape matches expected Nside=128
+            expected_npix = hp.nside2npix(nside_out)
+            assert output_map.shape[0] == expected_npix, f"Output shape {output_map.shape[0]} != expected {expected_npix}"
 
     def test_downgrade_memory_footprint(self):
         """
-        Verify that the downgraded map size is consistent with Nside=128.
-        Nside=128 has 12 * 128^2 = 196,608 pixels.
-        As float32, this is approx 196,608 * 4 bytes = ~786 KB.
-        This is well within the <100MB RAM constraint.
+        Verify that the downgraded map fits within the expected memory constraints.
+        The task requires the Nside=128 map to fit in <100MB RAM.
+        Nside=128 -> 49152 pixels. 
+        Float64: 49152 * 8 bytes ≈ 393 KB.
+        Float32: 49152 * 4 bytes ≈ 196 KB.
+        Even with FITS overhead, this is well under 100MB.
         """
-        if self.use_healpy:
-            if not os.path.exists(self.output_path):
-                # Run downgrade first if not already done
-                downgrade_resolution(self.input_path, self.output_path)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nside_in = 2048
+            nside_out = 128
+            npix_in = hp.nside2npix(nside_in)
             
-            import healpy as hp
-            loaded_map = hp.read_map(self.output_path)
+            # Create a large mock map to simulate memory pressure during processing
+            # We create it in float64 to be conservative
+            mock_map = np.random.random(npix_in).astype(np.float64)
             
-            expected_npix = 12 * (self.nside_low ** 2)
-            self.assertEqual(len(loaded_map), expected_npix, 
-                             f"Pixel count mismatch: expected {expected_npix}, got {len(loaded_map)}")
-            
-            # Check size in bytes
-            size_bytes = loaded_map.nbytes
-            max_allowed_bytes = 100 * 1024 * 1024 # 100 MB
-            self.assertLess(size_bytes, max_allowed_bytes, 
-                            f"Map size {size_bytes} bytes exceeds 100MB limit")
-        else:
-            self.skipTest("healpy not installed, skipping memory footprint test")
+            input_path = os.path.join(tmpdir, "mem_test_in.fits")
+            output_path = os.path.join(tmpdir, "mem_test_out.fits")
 
-    def test_downgrade_preserves_structure(self):
-        """
-        Verify that the downgraded map is not empty and has reasonable statistics.
-        """
-        if self.use_healpy:
-            if not os.path.exists(self.output_path):
-                downgrade_resolution(self.input_path, self.output_path)
-            
-            import healpy as hp
-            loaded_map = hp.read_map(self.output_path)
-            
-            # Check that mean and std are finite
-            self.assertTrue(np.isfinite(np.mean(loaded_map)), "Mean is not finite")
-            self.assertTrue(np.isfinite(np.std(loaded_map)), "Std is not finite")
-            
-            # Check that variance is non-zero (since input was random)
-            self.assertGreater(np.var(loaded_map), 0, "Variance is zero, map might be empty")
-        else:
-            self.skipTest("healpy not installed, skipping structure test")
+            hp.write_map(input_path, mock_map, overwrite=True)
 
-if __name__ == "__main__":
-    unittest.main()
+            # Run downgrade
+            downgrade_resolution(input_path, output_path, nside_out)
+
+            # Load and estimate size
+            output_map = hp.read_map(output_path)
+            
+            # Calculate approximate memory usage in bytes
+            # Assuming the map is loaded into memory as a numpy array (float64 by default in healpy read)
+            memory_usage_bytes = output_map.nbytes
+            
+            limit_bytes = 100 * 1024 * 1024  # 100 MB
+
+            assert memory_usage_bytes < limit_bytes, (
+                f"Downgraded map memory usage ({memory_usage_bytes / 1024 / 1024:.2f} MB) "
+                f"exceeds the 100 MB limit."
+            )
+
+    def test_downgrade_preserves_signal_mean(self):
+        """
+        Verify that the downgraded map preserves the mean signal (within tolerance).
+        Downgrading averages pixels, so the mean should remain statistically similar
+        for a zero-mean field, or exactly preserved for a constant field.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nside_in = 2048
+            nside_out = 128
+            
+            # Create a map with a known non-zero mean to test preservation
+            base_mean = 5.0e-6  # Typical CMB temperature fluctuation scale
+            npix_in = hp.nside2npix(nside_in)
+            
+            # Create a map that is mostly constant + noise
+            mock_map = np.full(npix_in, base_mean, dtype=np.float64)
+            mock_map += np.random.normal(0, 1e-7, npix_in)
+            
+            input_path = os.path.join(tmpdir, "mean_test_in.fits")
+            output_path = os.path.join(tmpdir, "mean_test_out.fits")
+
+            hp.write_map(input_path, mock_map, overwrite=True)
+
+            downgrade_resolution(input_path, output_path, nside_out)
+
+            output_map = hp.read_map(output_path)
+            
+            original_mean = np.mean(mock_map)
+            downgraded_mean = np.mean(output_map)
+            
+            # Tolerance: The downgraded mean should be very close to the original mean
+            # Allow for slight numerical differences in the smoothing/downgrade algorithm
+            tolerance = 1e-10
+            
+            assert np.abs(original_mean - downgraded_mean) < tolerance, (
+                f"Mean signal not preserved: Original={original_mean}, Downgraded={downgraded_mean}"
+            )

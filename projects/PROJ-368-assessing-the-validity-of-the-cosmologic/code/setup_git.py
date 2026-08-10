@@ -1,31 +1,34 @@
 """
-Task T008: Initialize Git repository and create .gitignore.
-
-This script automates the initialization of the git repository,
-creation of the .gitignore file, and the initial commit.
+Git repository initialization and .gitignore management.
+Implements Task T008: Initialize git repository.
 """
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str], cwd: Path | None = None) -> None:
-    """Run a shell command and raise on failure."""
+def run_command(cmd: list, cwd: Path = None) -> None:
+    """Execute a shell command and raise on failure."""
     try:
-        print(f"Running: {' '.join(cmd)}")
-        subprocess.run(cmd, cwd=cwd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(
+            cmd,
+            cwd=cwd,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
     except subprocess.CalledProcessError as e:
-        stderr_output = e.stderr.decode('utf-8', errors='replace')
-        stdout_output = e.stdout.decode('utf-8', errors='replace')
-        print(f"Command failed: {' '.join(cmd)}")
-        print(f"stdout: {stdout_output}")
-        print(f"stderr: {stderr_output}")
-        raise RuntimeError(f"Git command failed: {e}") from e
+        print(f"Command failed: {' '.join(cmd)}", file=sys.stderr)
+        print(f"Error output: {e.stderr}", file=sys.stderr)
+        raise
 
 def ensure_gitignore(root: Path) -> None:
-    """Ensure .gitignore exists with required patterns."""
+    """Create or update .gitignore with required patterns."""
     gitignore_path = root / ".gitignore"
-    
     required_patterns = [
         "data/",
         "__pycache__/",
@@ -33,62 +36,59 @@ def ensure_gitignore(root: Path) -> None:
         "*.log"
     ]
 
+    existing_patterns = set()
     if gitignore_path.exists():
-        content = gitignore_path.read_text()
-        missing = [p for p in required_patterns if p not in content]
-        if missing:
-            print(f"Updating .gitignore with missing patterns: {missing}")
-            with open(gitignore_path, "a") as f:
-                f.write("\n# Added by T008\n")
-                for p in missing:
-                    f.write(f"{p}\n")
-        else:
-            print(".gitignore already contains all required patterns.")
+        with open(gitignore_path, 'r') as f:
+            for line in f:
+                stripped = line.strip()
+                if stripped and not stripped.startswith('#'):
+                    existing_patterns.add(stripped)
+
+    needs_update = False
+    new_lines = []
+
+    # Check if we need to add patterns
+    for pattern in required_patterns:
+        if pattern not in existing_patterns:
+            new_lines.append(pattern)
+            needs_update = True
+
+    if needs_update:
+        with open(gitignore_path, 'a') as f:
+            if new_lines and not gitignore_path.read_text().endswith('\n'):
+                f.write('\n')
+            for line in new_lines:
+                f.write(f"{line}\n")
+        print(f"Updated .gitignore with new patterns: {new_lines}")
     else:
-        print("Creating new .gitignore")
-        with open(gitignore_path, "w") as f:
-            f.write("# Data artifacts\n")
-            f.write("data/\n\n")
-            f.write("# Python cache\n")
-            f.write("__pycache__/\n")
-            f.write("*.pyc\n\n")
-            f.write("# Logs\n")
-            f.write("*.log\n")
+        print(".gitignore already contains all required patterns.")
 
 def main() -> None:
-    root = Path(__file__).resolve().parent.parent
-    print(f"Working directory: {root}")
-
-    # 1. Ensure .gitignore exists and has correct content
-    ensure_gitignore(root)
-
-    # 2. Initialize git repo if not already initialized
+    """Initialize git repo, ensure .gitignore, add files, and commit."""
+    root = Path.cwd()
+    
+    print(f"Initializing Git repository in {root}...")
+    
+    # Initialize git if not already done
     git_dir = root / ".git"
     if not git_dir.exists():
-        print("Initializing git repository...")
         run_command(["git", "init"], cwd=root)
+        print("Git repository initialized.")
     else:
-        print("Git repository already initialized.")
+        print("Git repository already exists.")
 
-    # 3. Add files
-    print("Adding files to git...")
+    # Ensure .gitignore exists and has required patterns
+    ensure_gitignore(root)
+
+    # Add all files
+    print("Adding all files to git...")
     run_command(["git", "add", "."], cwd=root)
 
-    # 4. Commit
+    # Commit
     print("Committing initial project structure...")
-    # Configure user if not set (local to repo or global)
-    try:
-        run_command(["git", "config", "user.email", "pipeline@llmxive.local"], cwd=root)
-        run_command(["git", "config", "user.name", "llmXive Pipeline"], cwd=root)
-    except RuntimeError:
-        pass # Ignore if git config fails, might be in CI with no user
+    run_command(["git", "commit", "-m", "Initial project structure"], cwd=root)
 
-    run_command(
-        ["git", "commit", "-m", "Initial project structure"],
-        cwd=root
-    )
-
-    print("Task T008 completed successfully.")
+    print("Git setup completed successfully.")
 
 if __name__ == "__main__":
     main()

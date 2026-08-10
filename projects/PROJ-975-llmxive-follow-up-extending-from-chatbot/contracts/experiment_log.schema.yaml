@@ -1,3 +1,6 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Experiment Log Schema
+description: Schema for the CSV log file recording agent execution metrics per task.
 type: object
 required:
   - task_id
@@ -13,31 +16,41 @@ required:
 properties:
   task_id:
     type: string
-    description: ID of the task being executed
+    description: The ID of the task being executed.
+    pattern: "^task_\\d+$"
   skill_id:
     type: string
-    description: ID of the skill retrieved
+    description: The primary skill attempted or the root of the solution path.
+    pattern: "^skill_\\d+$"
   success:
     type: boolean
-    description: Whether the task execution was successful
+    description: Whether the agent successfully completed the task.
   latency:
     type: number
-    description: Execution latency in seconds
+    description: Time taken to execute the task in seconds (float).
+    minimum: 0.0
   tokens:
     type: integer
-    description: Number of tokens used
+    description: Number of tokens processed/generated during the task.
+    minimum: 0
   retrieval_precision:
     type: number
-    description: Precision of the retrieval (Jaccard similarity)
+    description: Jaccard similarity between retrieved skills and ground truth (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
   retrieval_diversity:
     type: number
-    description: Diversity of retrieved skills
+    description: Inverse variance of cosine similarities of retrieved skills vs ground truth.
+    minimum: 0.0
   pruning_risk_count:
     type: integer
-    description: Count of pruned skills that had high similarity to ground truth
+    description: Count of high-similarity skills removed during the last pruning cycle.
+    minimum: 0
   library_size:
     type: integer
-    description: Size of the library at execution time
+    description: The size of the active skill library for this run.
+    minimum: 1
   pruning_enabled:
     type: boolean
-    description: Whether pruning was enabled for this run
+    description: Whether the safe pruning heuristic was active during this run.
+additionalProperties: false

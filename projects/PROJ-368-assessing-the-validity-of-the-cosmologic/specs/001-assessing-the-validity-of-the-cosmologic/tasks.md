@@ -69,11 +69,11 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [ ] T004 [P] Create all project directories: `mkdir -p data/raw data/processed data/simulations data/reports code tests`. **Verification**: Run `ls -R data code tests` to confirm the exact tree structure exists.
-- [ ] T005 [P] Create `code/pyproject.toml` with a compatible Python version (>=3.9), build system configuration (e.g., setuptools), and pinned dependencies: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`. **Requirement**: Explicitly pin versions using a `pip-tools` or `poetry` lockfile strategy (e.g., `pip-tools compile` to generate a `requirements.txt` with exact versions, or `poetry lock`), or by specifying exact version numbers (e.g., `healpy==1.16.2`, `numpy==1.26.0`) to ensure exact reproducibility as per Constitution Principle I. The task must ensure the final dependency list contains specific version numbers.
-- [ ] T007 Create `code/config.py` defining paths, random seeds, Nside constants, simulation counts, and **filename constants** for all data artifacts (e.g., `PROCESSED_MAP_FILENAME`, `MASK_STATS_FILENAME`, `MASK_VALIDATION_FILENAME`).
-- [ ] T008 [Depends on T004] Initialize git repository: `git init`. **Verification**: Create `.gitignore` with `data/`, `__pycache__/`, `*.pyc`, `*.log`. Run `git add .` and `git commit -m "Initial project structure"`.
-- [ ] T009 [P] Create `code/logging_config.py` implementing JSON format logging at INFO level.
-- [ ] T010 Create `tests/test_config.py` to validate configuration constants and paths.
+- [X] T005 [P] Create `code/pyproject.toml` with a compatible Python version (>=3.9), build system configuration (e.g., setuptools), and pinned dependencies: `healpy`, `numpy`, `scipy`, `astropy`, `requests`, `pyyaml`. **Requirement**: Explicitly pin versions using a `pip-tools` or `poetry` lockfile strategy (e.g., `pip-tools compile` to generate a `requirements.txt` with exact versions, or `poetry lock`), or by specifying exact version numbers (e.g., `healpy==1.16.2`, `numpy==1.26.0`) to ensure exact reproducibility as per Constitution Principle I. The task must ensure the final dependency list contains specific version numbers.
+- [X] T007 Create `code/config.py` defining paths, random seeds, Nside constants, simulation counts, and **filename constants** for all data artifacts (e.g., `PROCESSED_MAP_FILENAME`, `MASK_STATS_FILENAME`, `MASK_VALIDATION_FILENAME`).
+- [ ] T008 [Depends on T004] Initialize git repository: `git init`. **Verification**: Create `.gitignore` with `data/`, `__pycache__/`, `*.pyc`, `*.log`. Run `git add.` and `git commit -m "Initial project structure"`.
+- [X] T009 [P] Create `code/logging_config.py` implementing JSON format logging at INFO level.
+- [X] T010 Create `tests/test_config.py` to validate configuration constants and paths.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin. Note: US1 must complete before US2; US2 before US3.
 
@@ -89,14 +89,14 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Unit test for checksum validation in `tests/test_data_loader.py`.
-- [ ] T012 [P] [US1] Unit test for mask application and pixel exclusion in `tests/test_data_loader.py`.
-- [ ] T013 [P] [US1] Unit test for Nside downgrade memory usage and NaN checks in `tests/test_data_loader.py`.
+- [X] T011 [P] [US1] Unit test for checksum validation in `tests/test_data_loader.py`.
+- [X] T012 [P] [US1] Unit test for mask application and pixel exclusion in `tests/test_data_loader.py`.
+- [X] T013 [P] [US1] Unit test for Nside downgrade memory usage and NaN checks in `tests/test_data_loader.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `download_planck_map()` in `code/data_loader.py` to fetch Nside=2048 SMICA map from ESA archive with SHA-256 validation.
-- [ ] T015 [Depends on T014] [US1] Implement `apply_galactic_mask()` in `code/data_loader.py` using Commander mask. **Requirement**:
+- [X] T014 [US1] Implement `download_planck_map()` in `code/data_loader.py` to fetch Nside=2048 SMICA map from ESA archive with SHA-256 validation.
+- [X] T015 [Depends on T014] [US1] Implement `apply_galactic_mask()` in `code/data_loader.py` using Commander mask. **Requirement**: <!-- FAILED: unspecified -->
  1. **Fetch**: Use `healpy` or `astropy` standard loaders to fetch the Commander mask (e.g., `COM_Mask_R3.011_CMB.fits`) from the Planck archive. Do NOT hardcode specific URLs unless verified by the loader's internal resolution.
  2. **Pre-validate**: Calculate the unmasked sky fraction of the fetched mask *before* applying it to the data.
  3. **Constraint Check**: If retention < 95%, raise `ValueError` with a message detailing the actual retention %. **DO NOT** fallback to U81 or any other mask. The spec requires the Commander mask specifically. If the fetch fails or the mask is missing, raise an error immediately.
@@ -105,10 +105,10 @@ description: "Task list template for feature implementation"
  6. Save mask statistics (retention %, mask filename) to `data/processed/mask_stats.json`.
  7. Save pre-validation report to `data/processed/mask_validation_report.json`.
  **Verification**: Verify `mask_validation_report.json` confirms retention >= 95% and `mask_stats.json` contains valid data.
-- [ ] T016 [Depends on T015] [US1] Implement `downgrade_resolution()` in `code/data_loader.py` to convert masked map (from `data/processed/masked_n2048.fits`) to Nside=128 using healpy.
-- [ ] T017 [P] [US1] Add error handling for URL unavailability and checksum mismatches in `code/data_loader.py`.
-- [ ] T018 [P] [US1] Add logging for data ingestion steps in `code/data_loader.py`.
-- [ ] T019 [P] [US1] Implement `save_processed_map()` in `code/data_loader.py` to write the final Nside=128 map to `data/processed/{config.PROCESSED_MAP_FILENAME}` with FITS header metadata including provenance and checksum. **Verification**: Verify file exists, size < 150MB, and FITS header contains `provenance` and `checksum` keys.
+- [ ] T016 [Depends on T015] [US1] Implement `downgrade_resolution()` in `code/data_loader.py` to convert masked map (from `data/processed/masked_n2048.fits`) to Nside=128 using healpy. <!-- FAILED: unspecified -->
+- [X] T017 [P] [US1] Add error handling for URL unavailability and checksum mismatches in `code/data_loader.py`.
+- [X] T018 [P] [US1] Add logging for data ingestion steps in `code/data_loader.py`.
+- [X] T019 [P] [US1] Implement `save_processed_map()` in `code/data_loader.py` to write the final Nside=128 map to `data/processed/{config.PROCESSED_MAP_FILENAME}` with FITS header metadata including provenance and checksum. **Verification**: Verify file exists, size < 150MB, and FITS header contains `provenance` and `checksum` keys.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **US2 cannot start until T019 is complete.**
 
@@ -122,13 +122,13 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Unit test for `map2alm` stability and range [2, 128] in `tests/test_harmonics.py`.
-- [ ] T021 [P] [US2] Unit test for C_l positivity and length (l_max - l_min + 1) in `tests/test_harmonics.py`.
-- [ ] T022 [P] [US2] Integration test for hemispherical split generation in `tests/test_harmonics.py`.
+- [X] T020 [P] [US2] Unit test for `map2alm` stability and range [2, 128] in `tests/test_harmonics.py`.
+- [X] T021 [P] [US2] Unit test for C_l positivity and length (l_max - l_min + 1) in `tests/test_harmonics.py`.
+- [X] T022 [P] [US2] Integration test for hemispherical split generation in `tests/test_harmonics.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `compute_alm()` in `code/harmonics.py` using healpy `map2alm` with `iter=3` for l ∈ [small, 128]. **DEPENDS ON T019** (processed map file must exist).
+- [X] T023 [US2] Implement `compute_alm()` in `code/harmonics.py` using healpy `map2alm` with `iter=3` for l ∈ [small, 128]. **DEPENDS ON T019** (processed map file must exist).
 - [ ] T024 [Depends on T019, T023] [US2] Implement `compute_full_sky_cl()` in `code/harmonics.py` to derive C_l from a_lm. **Deliverable**: Save to `data/reports/full_sky_cl.npy`.
 - [ ] T025 [US2] Implement `split_hemispheres()` in `code/harmonics.py` to generate North/South and East/West pixel masks. **Verification**: Verify mask pixel counts match expected hemispherical fractions.
 - [ ] T026 [Depends on T019, T025] [US2] Implement `compute_hemisphere_cl()` in `code/harmonics.py` using pseudo-C_l (MASTER) estimator to correct for mode coupling. **Deliverable**: Save N/S and E/W spectra to `data/reports/hemisphere_cl.npy`.

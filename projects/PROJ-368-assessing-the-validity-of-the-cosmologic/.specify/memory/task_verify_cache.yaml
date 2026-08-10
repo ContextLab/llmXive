@@ -1,19 +1,24 @@
-T004:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing (`ls -R`) or any other evidence of the required folder hierarchy
-    (`code`, `tests`, `data/raw`, `data/processed`, `data/simulations`, `data/reports`,
-    `docs`) was provided, so we cannot verify that the specified project structure
-    actually exists. The implementer must supply the recursive directory listing showing
-    the exact tree.
-T016:
+  r: The provided information only shows the specification (`spec.md`) containing
+    the required statements, but there is no evidence of a `plan.md` file or its contents
+    to compare against. Without the actual `plan.md` artifact, we cannot confirm that
+    the implementation matches the specification. The missing `plan.md` (or its relevant
+    sections) must be supplied and checked for the explicit statements.
+T005:
+  c: true
+  h: b7ba081b12233bb0c9446a29fd55e62277205a91d447e56833c32bf8b568d86c
+  r: "The provided `code/pyproject.toml` exists, is non\u2011empty, and lists all\
+    \ required dependencies with exact version numbers (e.g., `healpy==1.16.5`, `numpy==1.26.4`).\
+    \ This satisfies the requirement for pinned, reproducible dependencies without\
+    \ needing a separate lockfile."
+T008:
   c: false
-  h: 0e622e8c095c3b3e2a4e9b2186b8c232624794ea103d7fe10ee23762a0a6cf00
-  r: The repository lacks the required `downgrade_resolution()` implementation in
-    `code/data_loader.py` (the file shows no such function, and the displayed code
-    is truncated before any such logic). Additionally, the source FITS file `data/processed/masked_n2048.fits`
-    does not exist, so the function could not be exercised or verified. Both the necessary
-    code and input data are missing.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No actual repository, `.gitignore` file, or commit objects were provided; the
+    claim is only a description without any tangible artifacts to verify that `git
+    init`, the ignore file creation, and the initial commit were performed.
 T024:
   c: false
   h: 8c1abaf32cc6a4ac407a661e51d49048df55598a674f3139220a3343887ba00a

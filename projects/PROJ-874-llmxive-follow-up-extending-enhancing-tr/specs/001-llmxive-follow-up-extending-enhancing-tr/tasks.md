@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory structure: `code/`, `data/`, `tests/`, `docs/` <!-- ATOMIZE: requested -->
+- [ ] T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory structure: `code/`, `data/`, `tests/`, `docs/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T001b [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/data/raw/`, `data/processed/`, `data/results/` directories
 - [X] T001c [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/tests/contract/`, `tests/integration/`, `tests/unit/` directories
 
@@ -59,8 +59,8 @@
 - [X] T004b [US0] Create `.github/workflows/ci.yml` defining the CPU and constrained RAM limits.
 - [X] T003 [P] [US0] Configure linting (ruff/flake8) and formatting (black) tools. **Depends on T004b completion**
 - [ ] T005 [P] [US0] Create `contracts/dataset.schema.yaml` and `contracts/metrics.schema.yaml`
-- [ ] T006 [P] [US0] Setup `code/utils/video.py` for frame extraction and basic video I/O
-- [ ] T008 [P] [US0] Configure error handling and logging infrastructure in `code/config.py`
+- [X] T006 [P] [US0] Setup `code/utils/video.py` for frame extraction and basic video I/O
+- [X] T008 [P] [US0] Configure error handling and logging infrastructure in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,18 +76,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data download in `tests/contract/test_download.py`
-- [ ] T011 [P] [US1] Integration test for generation pipeline in `tests/integration/test_generation.py`
+- [X] T010 [P] [US1] Contract test for data download in `tests/contract/test_download.py`
+- [X] T011 [P] [US1] Integration test for generation pipeline in `tests/integration/test_generation.py`
 
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/download.py` to fetch NarrLV/VBench datasets via HuggingFace `datasets` library, ensuring checksums match and aborting on incomplete downloads (FR-001)
 - [X] T012a [US1] Implement `code/download.py` pre-flight validation function to check for existence of *all* required dataset files (NarrLV and VBench) *before* generation begins, aborting with a clear error if any are missing (FR-001)
 - [X] T013 [US1] Implement `code/generate.py` with `--mode baseline-full` (self-reflection enabled) and `--mode baseline-naive` (self-reflection disabled) (FR-002)
-- [~] T014 [US1] Add logic to record **total end-to-end wall-clock time** per video in logs for both modes, including data loading and model initialization overhead (FR-002, Constitution Principle VI)
-- [~] T015 [US1] Add validation to ensure all required dataset files are present before generation begins (FR-001)
-- [~] T016 [US1] Add error handling for dataset download failures with clear error messages listing missing files
-- [~] T017 [US1] Implement and run a pilot study script (`code/pilot_study.py`) on N=5 samples to calculate empirical variance for power analysis, saving results to `data/pilot_variance.json`. **Output JSON MUST contain keys: 'mean', 'std', 'n_samples', 'metric_name'** (SC-006 prerequisite)
+- [ ] T014 [US1] Add logic to record **total end-to-end wall-clock time** per video in logs for both modes, including data loading and model initialization overhead (FR-002, Constitution Principle VI)
+- [ ] T015 [US1] Add validation to ensure all required dataset files are present before generation begins (FR-001)
+- [ ] T016 [US1] Add error handling for dataset download failures with clear error messages listing missing files
+- [ ] T017 [US1] Implement and run a pilot study script (`code/pilot_study.py`) on N=5 samples to calculate empirical variance for power analysis, saving results to `data/pilot_variance.json`. **Output JSON MUST contain keys: 'mean', 'std', 'n_samples', 'metric_name'** (SC-006 prerequisite)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,7 +102,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for flow field schema in `tests/contract/test_flow_schema.py`
-- [~] T019 [P] [US2] Integration test for flow correction pipeline in `tests/integration/test_flow_correction.py`
+- [ ] T019 [P] [US2] Integration test for flow correction pipeline in `tests/integration/test_flow_correction.py`
 
 ### Implementation for User Story 2
 

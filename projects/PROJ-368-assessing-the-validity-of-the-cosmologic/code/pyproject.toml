@@ -23,20 +23,20 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
-    "healpy>=1.16.0",
-    "numpy>=1.24.0",
-    "scipy>=1.10.0",
-    "astropy>=5.2.0",
-    "requests>=2.28.0",
-    "pyyaml>=6.0",
+    "healpy==1.16.5",
+    "numpy==1.26.4",
+    "scipy==1.13.1",
+    "astropy==6.0.1",
+    "requests==2.32.3",
+    "pyyaml==6.0.1",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.0.0",
-    "black>=23.0.0",
-    "pytest>=7.3.0",
-    "pytest-cov>=4.1.0",
+    "flake8==7.1.0",
+    "black==24.4.2",
+    "pytest==8.2.2",
+    "pytest-cov==5.0.0",
 ]
 
 [tool.setuptools.packages.find]

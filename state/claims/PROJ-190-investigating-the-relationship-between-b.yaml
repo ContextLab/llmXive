@@ -271,24 +271,6 @@
   updated_at: '2026-07-05T00:44:42Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
-  canonical: mean framewise displacement less than or equal to 0.2 millimeters
-  claim_id: c_bc8ffd6c
-  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
-    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Mean_framewise_displacement_less_than_or_equal_to_0.2_millim
-  kind: magnitude
-  raw_text: "mean FD \u22640.2 mm"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T00:47:03Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
   canonical: exclude subjects with mean framewise displacement greater than 0.5 millimeters
   claim_id: c_59e0f61d
   context: 'Implement exclusion logic: Filter subjects with mean FD >0.5 mm, log the
@@ -325,23 +307,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T00:47:46Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: graph density within plus or minus 1 percent of target
-  claim_id: c_952aa329
-  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
-    \ of subjects and stored with expected ranges; verify graph density is within\
-    \ \xB11% of target."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "graph density is within \xB11% of target"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T00:48:28Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
   canonical: generate binary graphs for densities 0.20 and 0.25
@@ -632,25 +597,6 @@
   updated_at: '2026-07-28T10:10:05Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 2
-  canonical: efficiency metrics computed for at least 95 percent of subjects
-  claim_id: c_dd7bb6dd
-  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
-    \ of subjects and stored with expected ranges; verify graph density is within\
-    \ \xB11% of target."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Efficiency_metrics_computed_for_at_least_95_percent_of_subje
-  kind: magnitude
-  raw_text: "efficiency metrics are computed for \u226595% of subjects"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T10:10:25Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 2
   canonical: graph density within 1 percent of target
   claim_id: c_c57fa3db
   context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
@@ -666,22 +612,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T10:10:25Z'
-- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  attempts: 1
-  canonical: binary graphs generated for densities 0.20 and 0.25
-  claim_id: c_9f49dbb2
-  context: 'T019 [US2] Implement thresholding logic: Generate binary graphs for densities
-    {, 0.20, 0.25} as required by FR-009/SC-003'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate binary graphs for densities {, 0.20, 0.25}
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T10:10:59Z'
 - artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
   attempts: 1
   canonical: frontoparietal efficiency calculated for densities 0.15, 0.20, and 0.25
@@ -803,3 +733,145 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T10:11:49Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: mean framewise displacement less than or equal to 0.2 millimeters
+  claim_id: c_bc8ffd6c
+  context: "Independent Test: Verify that downloaded and preprocessed data files exist\
+    \ with expected dimensions and quality metrics (mean FD \u22640.2 mm)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_framewise_displacement_less_than_or_equal_to_0.2_millim
+  kind: magnitude
+  raw_text: "mean FD \u22640.2 mm"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:01:16Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 3
+  canonical: efficiency metrics computed for at least 95 percent of subjects
+  claim_id: c_dd7bb6dd
+  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
+    \ of subjects and stored with expected ranges; verify graph density is within\
+    \ \xB11% of target."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Efficiency_metrics_computed_for_at_least_95_percent_of_subje
+  kind: magnitude
+  raw_text: "efficiency metrics are computed for \u226595% of subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:01:50Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: graph density within plus or minus 1 percent of target
+  claim_id: c_952aa329
+  context: "Independent Test: Verify efficiency metrics are computed for \u226595%\
+    \ of subjects and stored with expected ranges; verify graph density is within\
+    \ \xB11% of target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "graph density is within \xB11% of target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:01:50Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: dataset sampling logic for at most 500 subjects
+  claim_id: c_7f286633
+  context: "T006 Implement code/utils/sampling.py for dataset sampling logic (\u2264\
+    500 subjects)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sampling_logic_for_at_most_500_subjects
+  kind: magnitude
+  raw_text: "\u2264500 subjects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:02:55Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: subjects with mean framewise displacement greater than 0.5 millimeters
+  claim_id: c_439e26ce
+  context: 'T014a [US1] Implement exclusion logic: Filter subjects with mean FD >0.5
+    mm, log the exclusion count, and proceed; do NOT halt the pipeline if the retained
+    cohort drops below [deferred] of the original'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_mean_framewise_displacement_greater_than_0.5_m
+  kind: magnitude
+  raw_text: mean FD >0.5 mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:02:56Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 2
+  canonical: binary graphs generated for densities 0.20 and 0.25
+  claim_id: c_9f49dbb2
+  context: 'T019 [US2] Implement thresholding logic: Generate binary graphs for densities
+    {, 0.20, 0.25} as required by FR-009/SC-003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate binary graphs for densities {, 0.20, 0.25}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:09:20Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Frontoparietal Efficiency calculated for densities 0.15, 0.20, and 0.25
+  claim_id: c_c9cf4ff6
+  context: 'T021 [US2] Implement code/graph/metrics.py: Calculate Frontoparietal Efficiency
+    using Yeo atlas network definition for each density in {0.15, 0.20, 0.25} (depends
+    on T019)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 0.15, 0.20, 0.25
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:13:49Z'
+- artifact_path: projects/PROJ-190-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: dataset sampling to at most 500 subjects
+  claim_id: c_fcd31a9d
+  context: "T030 [US3] Implement adaptive logic: If dataset >500 subjects and time\
+    \ is critical, sample to \u2264500 subjects dynamically."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sampling_to_at_most_500_subjects
+  kind: magnitude
+  raw_text: 500 subjects
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T22:13:50Z'

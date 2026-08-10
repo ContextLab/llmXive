@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/`
+    directory or its subfolders (`code/`, `data/`, `tests/`, `docs/`) was provided;
+    the implementer did not supply any file listings or screenshots confirming their
+    existence. The task therefore remains unfulfilled.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that demonstrate the addition\
+    \ of wall\u2011clock timing logic, nor any sample logs showing total per\u2011\
+    video times for both modes. The required artifact (updated logging implementation\
+    \ and evidence of its output) is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided showing that a validation\
+    \ step was added to check for the presence of required dataset files before generation\
+    \ starts. The evidence consists only of high\u2011level feature specifications\
+    \ and user stories, without any concrete implementation artifact. The required\
+    \ validation functionality is therefore missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains no code, script, or documentation showing added error
+    handling for dataset download failures, nor any clear error messages that list
+    missing files. No artifact was provided to verify the required functionality.
+T017:
+  c: false
+  h: fc6fe0fbcf9f03219a97f3e2ac95d4fbf7666f4b368d1b3f26d66361ad160a8c
+  r: The repository contains the `code/pilot_study.py` script, but the required output
+    file `data/pilot_variance.json` is missing, so the pilot study was not run and
+    the empirical variance results were not saved as specified. The missing JSON (with
+    keys `mean`, `std`, `n_samples`, `metric_name`) must be generated for the task
+    to be complete.
+T019:
+  c: false
+  h: 64ea219e939947a985ccf4d3e112a100ce3a2519462f047a8dedcd7525010010
+  r: "The required file `tests/integration/test_flow_correction.py` does not exist,\
+    \ so no integration test for the flow correction pipeline is present. The task\u2019\
+    s core deliverable is missing."

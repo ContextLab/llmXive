@@ -86,7 +86,7 @@
 - [X] T014 [US1] Implement logic in `code/generate_data.py` to **assign** unique ground-truth solution paths (3-5 skill IDs) to each of the 500 tasks, ensuring this assignment uses a distinct random seed (Seed B) from the skill generation (Seed A) to guarantee independence.
 - [ ] T015 [US1] Implement JSON serialization in `code/generate_data.py` to output `data/raw/skills.json` and `data/raw/tasks.json` with embedded metadata (overlap level, seed used).
 - [ ] T016 [US1] Implement logic in `code/generate_data.py` to detect mean pairwise similarity >= 0.95. If detected: **set Retrieval Precision to exactly 0.0** for all tasks, **implement deterministic tie-breaking logic (random selection with logging)**, log a warning, and ensure the script exits with code 0 while writing `data/raw/skills.json` with a `maximal_overlap_detected: true` flag in metadata.
-- [ ] T017 [US1] Add memory pressure check in `code/generate_data.py` to detect RAM limits during embedding calculation and fail gracefully with "Memory Limit Exceeded" if > 6 GB.
+- [X] T017 [US1] Add memory pressure check in `code/generate_data.py` to detect RAM limits during embedding calculation and fail gracefully with "Memory Limit Exceeded" if > 6 GB.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,16 +100,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for `code/agent.py` verifying retrieval failure handling (missing skill) logs specific error and does not hallucinate in `tests/unit/test_agent.py`
-- [ ] T020 [P] [US2] Integration test for the full execution loop (500 tasks × 1 config) verifying `experiment_log.csv` structure in `tests/integration/test_execution.py`
+- [X] T019 [P] [US2] Unit test for `code/agent.py` verifying retrieval failure handling (missing skill) logs specific error and does not hallucinate in `tests/unit/test_agent.py`
+- [X] T020 [P] [US2] Integration test for the full execution loop (500 tasks × 1 config) verifying `experiment_log.csv` structure in `tests/integration/test_execution.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/agent.py` retrieval logic using `code/utils.py` to fetch top-k (k=5) skills based on task embedding.
-- [ ] T022 [US2] Implement logging infrastructure in `code/agent.py` to **create** `data/results/experiment_log.csv` with a header row matching the schema defined in T009.
-- [ ] T023 [US2] Implement calculation of **Retrieval Precision** (Jaccard similarity between top-k retrieved skills and ground-truth set) and **Retrieval Diversity** (inverse of the variance of the cosine similarities of the **5 retrieved skills** against the ground-truth set) in `code/agent.py` per FR-006 and SC-002, and **append** these values as new data rows to `data/results/experiment_log.csv` for every task run.
-- [ ] T024 [US2] Implement execution logic in `code/agent.py` to run the retrieved skills and compare output against the ground-truth solution path from `tasks.json`.
-- [ ] T025 [US2] Create `code/run_experiment.py` to iterate through library sizes (10, 30, 50, 100) and call `agent.py`, aggregating results into `data/results/metrics.json`.
+- [X] T021 [P] [US2] Implement `code/agent.py` retrieval logic using `code/utils.py` to fetch top-k (k=5) skills based on task embedding.
+- [X] T022 [US2] Implement logging infrastructure in `code/agent.py` to **create** `data/results/experiment_log.csv` with a header row matching the schema defined in T009.
+- [X] T023 [US2] Implement calculation of **Retrieval Precision** (Jaccard similarity between top-k retrieved skills and ground-truth set) and **Retrieval Diversity** (inverse of the variance of the cosine similarities of the **5 retrieved skills** against the ground-truth set) in `code/agent.py` per FR-006 and SC-002, and **append** these values as new data rows to `data/results/experiment_log.csv` for every task run.
+- [X] T024 [US2] Implement execution logic in `code/agent.py` to run the retrieved skills and compare output against the ground-truth solution path from `tasks.json`.
+- [X] T025 [US2] Create `code/run_experiment.py` to iterate through library sizes (10, 30, 50, 100) and call `agent.py`, aggregating results into `data/results/metrics.json`.
 - [ ] T026 [US2] Add handling for "missing skill" edge cases where the agent fails gracefully, logs the missing skill ID, and records the failure without crashing.
 - [ ] T027 [US2] **Dependency Fix**: Implement `os.fsync()` and `file.flush()` calls in `code/agent.py` and `code/run_experiment.py` to ensure `data/results/experiment_log.csv` is fully closed and flushed to disk before any downstream analysis scripts attempt to read it. This prevents race conditions.
 - [ ] T028 [US2] Implement "Safe Pruning" heuristic in `code/agent.py` that removes skills where `usage_count == 0` AND `min_cosine_similarity < 0.70` after every **N** tasks (where N is a configurable parameter, **read from config.py with default 10 to match FR-004**), per FR-004. **Explicitly log the count of pruned skills that had high similarity to ground truth to `experiment_log.csv`**.

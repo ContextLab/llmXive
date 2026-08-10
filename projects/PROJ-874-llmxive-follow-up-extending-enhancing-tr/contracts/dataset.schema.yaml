@@ -1,70 +1,95 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
-title: Dataset Manifest Schema
+title: llmXive Dataset Schema
 description: >
-  Schema for validating the manifest of downloaded datasets (NarrLV, VBench).
-  Ensures file integrity and structure before generation begins.
+  Schema defining the structure of the raw and processed datasets used in the
+  llmXive follow-up study (NarrLV and VBench).
 type: object
 required:
   - dataset_name
   - version
-  - download_timestamp
-  - files
-  - checksums
+  - source
+  - records
 properties:
   dataset_name:
     type: string
-    description: Name of the dataset (e.g., 'NarrLV', 'VBench')
+    description: Name of the dataset (e.g., "NarrLV", "VBench")
     enum:
       - NarrLV
       - VBench
   version:
     type: string
-    description: Version string of the dataset (e.g., '1.0.0')
+    description: Semantic version of the dataset snapshot
+    pattern: '^\d+\.\d+\.\d+$'
+  source:
+    type: string
+    description: Original source URL or HuggingFace ID
+    format: uri
   download_timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of when the dataset was downloaded.
-  source_url:
-    type: string
-    format: uri
-    description: The HuggingFace or external URL source.
-  files:
+    description: ISO 8601 timestamp when the dataset was downloaded
+  checksum:
+    type: object
+    required:
+      - algorithm
+      - value
+    properties:
+      algorithm:
+        type: string
+        enum:
+          - sha256
+          - md5
+      value:
+        type: string
+        description: Hexadecimal checksum string
+  records:
     type: array
-    description: List of files included in the download.
+    description: List of video records in the dataset
     items:
       type: object
       required:
-        - relative_path
-        - size_bytes
-        - file_type
+        - video_id
+        - file_path
+        - duration_seconds
+        - frame_count
+        - resolution
+        - fps
       properties:
-        relative_path:
+        video_id:
           type: string
-          description: Path relative to the dataset root.
-        size_bytes:
-          type: integer
+          description: Unique identifier for the video
+        file_path:
+          type: string
+          description: Relative path to the video file from data/raw/
+          pattern: '^data/raw/.*\.(mp4|avi|mov|mkv)$'
+        duration_seconds:
+          type: number
           minimum: 0
-          description: File size in bytes.
-        file_type:
-          type: string
-          enum:
-            - video
-            - json
-            - csv
-            - text
-            - directory
-  checksums:
-    type: object
-    description: Map of relative_path to SHA256 hash.
-    additionalProperties:
-      type: string
-      pattern: '^[a-f0-9]{64}$'
-  status:
-    type: string
-    enum:
-      - verified
-      - pending
-      - corrupted
-    default: pending
-    description: Current integrity status of the dataset.
+          description: Duration in seconds
+        frame_count:
+          type: integer
+          minimum: 1
+          description: Total number of frames
+        resolution:
+          type: object
+          required:
+            - width
+            - height
+          properties:
+            width:
+              type: integer
+              minimum: 1
+            height:
+              type: integer
+              minimum: 1
+        fps:
+          type: number
+          minimum: 0.1
+          description: Frames per second
+        metadata:
+          type: object
+          description: Optional additional metadata (e.g., prompt, seed)
+          additionalProperties: true
 additionalProperties: false

@@ -1,10 +1,8 @@
 """
-Video utility functions for frame extraction and basic video I/O.
+code/utils/video.py
 
-This module provides functions to:
-- Extract frames from video files as NumPy arrays
-- Write video files from sequences of frames
-- Get video metadata (duration, frame count, resolution)
+Utilities for frame extraction, video I/O, and metadata handling.
+Designed to work with CPU-only environments and standard video codecs.
 """
 
 import os
@@ -18,48 +16,55 @@ logger = logging.getLogger(__name__)
 
 def get_video_metadata(video_path: str) -> dict:
     """
-    Extract metadata from a video file.
-    
+    Extracts metadata from a video file.
+
     Args:
-        video_path: Path to the video file
-        
+        video_path: Path to the video file.
+
     Returns:
-        Dictionary containing:
-            - 'duration': Duration in seconds (float)
-            - 'fps': Frames per second (float)
-            - 'frame_count': Total number of frames (int)
-            - 'width': Video width in pixels (int)
-            - 'height': Video height in pixels (int)
-            - 'codec': Video codec (str)
-            
+        A dictionary containing:
+            - 'fps': Frames per second.
+            - 'width': Video width in pixels.
+            - 'height': Video height in pixels.
+            - 'frame_count': Total number of frames.
+            - 'duration': Duration in seconds.
+            - 'codec': FourCC codec string.
+
     Raises:
-        FileNotFoundError: If video file doesn't exist
-        ValueError: If video cannot be opened
+        FileNotFoundError: If the video file does not exist.
+        ValueError: If the video cannot be opened or has invalid properties.
     """
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"Video file not found: {video_path}")
-        
+
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        raise ValueError(f"Cannot open video file: {video_path}")
-        
+        raise ValueError(f"Could not open video file: {video_path}")
+
     try:
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         fps = cap.get(cv2.CAP_PROP_FPS)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        duration = frame_count / fps if fps > 0 else 0.0
-        codec = cap.get(cv2.CAP_PROP_FOURCC)
-        # Convert FOURCC code to string
-        codec_str = "".join([chr((int(codec) >> 8 * i) & 0xFF) for i in range(4)])
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        codec_fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
+        codec = chr(codec_fourcc & 0xFF) + \
+                chr((codec_fourcc >> 8) & 0xFF) + \
+                chr((codec_fourcc >> 16) & 0xFF) + \
+                chr((codec_fourcc >> 24) & 0xFF)
+
+        if fps <= 0:
+            fps = 30.0  # Fallback if fps is 0 or invalid
         
+        duration = frame_count / fps if fps > 0 else 0.0
+
         return {
-            'duration': duration,
-            'fps': fps,
-            'frame_count': frame_count,
-            'width': width,
-            'height': height,
-            'codec': codec_str
+            "fps": fps,
+            "width": width,
+            "height": height,
+            "frame_count": frame_count,
+            "duration": duration,
+            "codec": codec,
+            "path": video_path
         }
     finally:
         cap.release()
@@ -67,281 +72,277 @@ def get_video_metadata(video_path: str) -> dict:
 
 def extract_frames(
     video_path: str,
-    start_frame: Optional[int] = None,
+    start_frame: int = 0,
     end_frame: Optional[int] = None,
-    frame_stride: int = 1,
-    return_generator: bool = False
-) -> Generator[np.ndarray, None, None] | List[np.ndarray]:
+    target_fps: Optional[float] = None
+) -> Generator[np.ndarray, None, None]:
     """
-    Extract frames from a video file.
-    
+    Generator that yields frames from a video file.
+
+    This is memory efficient as it does not load all frames into RAM at once.
+
     Args:
-        video_path: Path to the video file
-        start_frame: First frame to extract (inclusive), None for start
-        end_frame: Last frame to extract (exclusive), None for end
-        frame_stride: Extract every Nth frame (default: 1)
-        return_generator: If True, return a generator; otherwise return a list
-        
-    Yields/Returns:
-        NumPy arrays of shape (H, W, 3) in BGR format
-        
+        video_path: Path to the video file.
+        start_frame: Index of the first frame to yield (inclusive).
+        end_frame: Index of the last frame to yield (exclusive). If None, yields to end.
+        target_fps: If provided, skips frames to match this FPS.
+
+    Yields:
+        np.ndarray: BGR frame images (H, W, 3).
+    
     Raises:
-        FileNotFoundError: If video file doesn't exist
-        ValueError: If video cannot be opened or invalid parameters
+        FileNotFoundError: If video file missing.
+        ValueError: If video cannot be opened.
     """
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"Video file not found: {video_path}")
-        
+
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        raise ValueError(f"Cannot open video file: {video_path}")
+        raise ValueError(f"Could not open video file: {video_path}")
+
+    try:
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
         
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    
-    # Set frame range
-    if start_frame is None:
-        start_frame = 0
-    if end_frame is None:
-        end_frame = total_frames
+        if end_frame is None:
+            end_frame = total_frames
         
-    # Validate range
-    if start_frame < 0 or start_frame >= total_frames:
-        raise ValueError(f"Invalid start_frame: {start_frame}. Video has {total_frames} frames.")
-    if end_frame <= start_frame or end_frame > total_frames:
-        raise ValueError(f"Invalid end_frame: {end_frame}. Must be in range ({start_frame}, {total_frames}].")
+        end_frame = min(end_frame, total_frames)
         
-    frames = []
-    frame_idx = 0
-    
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+        if target_fps and fps > 0:
+            skip_interval = int(fps / target_fps)
+        else:
+            skip_interval = 1
+
+        current_frame = 0
+        frame_index = 0
+
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            if current_frame >= start_frame and current_frame < end_frame:
+                if (current_frame - start_frame) % skip_interval == 0:
+                    yield frame
             
-        if frame_idx >= start_frame and frame_idx < end_frame:
-            if (frame_idx - start_frame) % frame_stride == 0:
-                if return_generator:
-                    yield frame.copy()
-                else:
-                    frames.append(frame.copy())
-                    
-        frame_idx += 1
-        
-        if frame_idx >= end_frame:
-            break
-            
-    cap.release()
-    
-    if not return_generator:
-        return frames
-    else:
-        # Generator already yielded, just return None to signal completion
-        return
-        
+            current_frame += 1
+    finally:
+        cap.release()
+
 
 def extract_frames_to_list(
     video_path: str,
-    start_frame: Optional[int] = None,
+    start_frame: int = 0,
     end_frame: Optional[int] = None,
-    frame_stride: int = 1
+    target_fps: Optional[float] = None
 ) -> List[np.ndarray]:
     """
-    Extract frames from a video file and return as a list.
+    Extracts all requested frames from a video and returns them as a list.
     
-    Convenience wrapper around extract_frames with return_generator=False.
-    
+    WARNING: This loads all frames into memory. Use `extract_frames` generator
+    for large videos to avoid OOM errors.
+
     Args:
-        video_path: Path to the video file
-        start_frame: First frame to extract (inclusive), None for start
-        end_frame: Last frame to extract (exclusive), None for end
-        frame_stride: Extract every Nth frame (default: 1)
-        
+        video_path: Path to the video file.
+        start_frame: First frame index.
+        end_frame: Last frame index (exclusive).
+        target_fps: Optional target FPS for subsampling.
+
     Returns:
-        List of NumPy arrays of shape (H, W, 3) in BGR format
-        
-    Raises:
-        FileNotFoundError: If video file doesn't exist
-        ValueError: If video cannot be opened or invalid parameters
+        List of BGR frame images.
     """
-    return list(extract_frames(
-        video_path,
-        start_frame=start_frame,
-        end_frame=end_frame,
-        frame_stride=frame_stride,
-        return_generator=False
-    ))
+    return list(extract_frames(video_path, start_frame, end_frame, target_fps))
 
 
 def write_video(
     output_path: str,
     frames: List[np.ndarray],
-    fps: float = 24.0,
-    codec: str = 'mp4v',
-    is_color: bool = True
+    fps: float = 30.0,
+    codec: str = 'mp4v'
 ) -> None:
     """
-    Write a sequence of frames to a video file.
-    
+    Writes a list of frames to a video file.
+
     Args:
-        output_path: Path to the output video file
-        frames: List of NumPy arrays (H, W, 3) in BGR format
-        fps: Frames per second (default: 24.0)
-        codec: Video codec (default: 'mp4v')
-        is_color: Whether frames are color (default: True)
-        
+        output_path: Path to save the output video.
+        frames: List of BGR frame images (H, W, 3).
+        fps: Frames per second for the output video.
+        codec: FourCC codec string (e.g., 'mp4v', 'XVID', 'MJPG').
+
     Raises:
-        ValueError: If frames list is empty or frames have inconsistent sizes
-        RuntimeError: If video writer cannot be initialized
+        ValueError: If frames list is empty or frames have inconsistent shapes.
+        RuntimeError: If video writer cannot be initialized.
     """
     if not frames:
-        raise ValueError("Frames list cannot be empty")
-        
+        raise ValueError("Cannot write video: frames list is empty.")
+
+    height, width = frames[0].shape[:2]
+    
     # Ensure output directory exists
     output_dir = os.path.dirname(output_path)
     if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        
-    # Check frame consistency
-    height, width = frames[0].shape[:2]
-    for i, frame in enumerate(frames):
-        if frame.shape[:2] != (height, width):
-            raise ValueError(
-                f"Inconsistent frame sizes at index {i}: "
-                f"expected ({height}, {width}), got {frame.shape[:2]}"
-            )
-            
-    # Initialize video writer
+        os.makedirs(output_dir, exist_ok=True)
+
     fourcc = cv2.VideoWriter_fourcc(*codec)
-    writer = cv2.VideoWriter(output_path, fourcc, fps, (width, height), is_color)
-    
-    if not writer.isOpened():
-        raise RuntimeError(f"Failed to initialize video writer for: {output_path}")
-        
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+    if not out.isOpened():
+        raise RuntimeError(f"Failed to initialize VideoWriter for {output_path}. "
+                           f"Codec: {codec}, Size: {width}x{height}")
+
     try:
         for i, frame in enumerate(frames):
-            writer.write(frame)
+            if frame.shape[:2] != (height, width):
+                logger.warning(f"Frame {i} shape mismatch. Skipping or resizing logic needed.")
+                # Optional: resize here if strict consistency is required, 
+                # but usually this indicates a logic error upstream.
+                continue
+            out.write(frame)
     finally:
-        writer.release()
-        
-    logger.info(f"Written video with {len(frames)} frames to {output_path}")
+        out.release()
+    
+    logger.info(f"Wrote video to {output_path} ({len(frames)} frames).")
 
 
 def extract_frames_from_directory(
     directory_path: str,
-    pattern: str = "*.png",
-    sort_key: Optional[str] = 'filename'
+    extension: str = '.png',
+    sort_key: Optional[str] = 'natural'
 ) -> List[np.ndarray]:
     """
-    Extract frames from image files in a directory.
-    
+    Loads frames from a directory of image files.
+
     Args:
-        directory_path: Path to directory containing image files
-        pattern: Glob pattern for image files (default: "*.png")
-        sort_key: Sorting method ('filename' or 'modification_time')
-        
+        directory_path: Path to directory containing images.
+        extension: File extension to look for (e.g., '.png', '.jpg').
+        sort_key: Sorting method. 'natural' (alphanumeric), 'lexicographic', or 'modified_time'.
+
     Returns:
-        List of NumPy arrays in sorted order
-        
+        List of BGR image arrays.
+
     Raises:
-        FileNotFoundError: If directory doesn't exist or no matching files found
+        FileNotFoundError: If directory does not exist or no images found.
     """
-    import glob
-    
-    if not os.path.exists(directory_path):
+    if not os.path.isdir(directory_path):
         raise FileNotFoundError(f"Directory not found: {directory_path}")
-        
-    files = glob.glob(os.path.join(directory_path, pattern))
+
+    files = [f for f in os.listdir(directory_path) if f.lower().endswith(extension.lower())]
     
     if not files:
-        raise FileNotFoundError(
-            f"No files matching '{pattern}' found in {directory_path}"
-        )
-        
-    # Sort files
-    if sort_key == 'filename':
+        raise FileNotFoundError(f"No files with extension '{extension}' found in {directory_path}")
+
+    if sort_key == 'natural':
+        import re
+        def natural_sort_key(s):
+            return [int(text) if text.isdigit() else text.lower()
+                    for text in re.split('([0-9]+)', s)]
+        files.sort(key=natural_sort_key)
+    elif sort_key == 'lexicographic':
         files.sort()
-    elif sort_key == 'modification_time':
-        files.sort(key=lambda f: os.path.getmtime(f))
+    elif sort_key == 'modified_time':
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(directory_path, x)))
     else:
-        raise ValueError(f"Invalid sort_key: {sort_key}")
-        
+        raise ValueError(f"Unknown sort_key: {sort_key}")
+
     frames = []
-    for file_path in files:
-        frame = cv2.imread(file_path)
-        if frame is None:
-            logger.warning(f"Failed to read image: {file_path}")
+    for f in files:
+        img_path = os.path.join(directory_path, f)
+        img = cv2.imread(img_path)
+        if img is None:
+            logger.warning(f"Failed to read image: {img_path}, skipping.")
             continue
-        frames.append(frame)
-        
-    logger.info(f"Loaded {len(frames)} frames from {directory_path}")
+        frames.append(img)
+
+    if not frames:
+        raise FileNotFoundError("No valid images could be read from the directory.")
+    
     return frames
 
 
 def resize_frames(
     frames: List[np.ndarray],
-    target_size: Tuple[int, int],
-    interpolation: int = cv2.INTER_LINEAR
+    width: Optional[int] = None,
+    height: Optional[int] = None,
+    keep_aspect_ratio: bool = True
 ) -> List[np.ndarray]:
     """
-    Resize a list of frames to a target size.
-    
+    Resizes a list of frames to specified dimensions.
+
     Args:
-        frames: List of NumPy arrays
-        target_size: Tuple (width, height)
-        interpolation: OpenCV interpolation method (default: INTER_LINEAR)
-        
+        frames: List of BGR images.
+        width: Target width.
+        height: Target height.
+        keep_aspect_ratio: If True, scales to fit within (width, height) maintaining aspect ratio.
+
     Returns:
-        List of resized frames
+        List of resized BGR images.
     """
-    width, height = target_size
+    if not frames:
+        return []
+
     resized_frames = []
-    
+    first_h, first_w = frames[0].shape[:2]
+
+    if width is None and height is None:
+        return frames
+
+    if keep_aspect_ratio:
+        if width is None:
+            scale = height / first_h
+            new_w = int(first_w * scale)
+            new_h = height
+        elif height is None:
+            scale = width / first_w
+            new_w = width
+            new_h = int(first_h * scale)
+        else:
+            # Fit within box
+            w_scale = width / first_w
+            h_scale = height / first_h
+            scale = min(w_scale, h_scale)
+            new_w = int(first_w * scale)
+            new_h = int(first_h * scale)
+    else:
+        # Force exact dimensions (may distort)
+        new_w = width if width else first_w
+        new_h = height if height else first_h
+
     for frame in frames:
-        resized = cv2.resize(frame, (width, height), interpolation=interpolation)
+        resized = cv2.resize(frame, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
         resized_frames.append(resized)
-        
+
     return resized_frames
 
 
 def get_frame_at_time(
     video_path: str,
-    timestamp_seconds: float
+    timestamp: float
 ) -> Optional[np.ndarray]:
     """
-    Extract a single frame at a specific timestamp.
-    
+    Extracts a single frame at a specific timestamp.
+
     Args:
-        video_path: Path to video file
-        timestamp_seconds: Timestamp in seconds
-        
+        video_path: Path to video file.
+        timestamp: Time in seconds.
+
     Returns:
-        Frame as NumPy array, or None if timestamp is out of range
-        
-    Raises:
-        FileNotFoundError: If video file doesn't exist
-        ValueError: If video cannot be opened
+        BGR frame image or None if timestamp is out of bounds.
     """
-    if not os.path.exists(video_path):
-        raise FileNotFoundError(f"Video file not found: {video_path}")
-        
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        raise ValueError(f"Cannot open video file: {video_path}")
-        
+        logger.error(f"Could not open video: {video_path}")
+        return None
+
     try:
         fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_idx = int(timestamp_seconds * fps)
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        frame_index = int(timestamp * fps)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
         
-        if frame_idx < 0 or frame_idx >= total_frames:
-            return None
-            
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
         ret, frame = cap.read()
-        
-        if not ret:
-            return None
-            
-        return frame
+        if ret:
+            return frame
+        return None
     finally:
         cap.release()

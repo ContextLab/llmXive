@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-368-assessing-the-validity-of-the-cosmologic",
+  "tasks": [
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "No directory listing (`ls -R`) or any other evidence of the required folder hierarchy (`code`, `tests`, `data/raw`, `data/processed`, `data/simulations`, `data/reports`, `docs`) was provided, so we cannot verify that the specified project structure actually exists. The implementer must supply the recursive directory listing showing the exact tree.",
+      "first_seen": "2026-08-10T21:35:08.978387+00:00",
+      "last_seen": "2026-08-10T21:35:08.978387+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required `downgrade_resolution()` implementation in `code/data_loader.py` (the file shows no such function, and the displayed code is truncated before any such logic). Additionally, the source FITS file `data/processed/masked_n2048.fits` does not exist, so the function could not be exercised or verified. Both the necessary code and input data are missing.",
+      "first_seen": "2026-08-10T21:35:12.970031+00:00",
+      "last_seen": "2026-08-10T21:35:12.970031+00:00"
+    }
+  ],
+  "updated_at": "2026-08-10T21:35:12.970031+00:00"
+}
