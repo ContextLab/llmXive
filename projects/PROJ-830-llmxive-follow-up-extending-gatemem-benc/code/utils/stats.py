@@ -1,415 +1,352 @@
 """
-Statistical analysis utilities for the GateMem benchmark pipeline.
+Statistical analysis utilities for GateMem benchmarking.
 
-Provides functions for normality testing, Linear Mixed-Effects modeling,
-post-hoc analysis, domain-stratified analysis, and a full orchestration pipeline
-for statistical comparison of Gatekeeper vs Baseline performance.
+Implements Shapiro-Wilk normality tests, Linear Mixed-Effects models,
+post-hoc tests, domain-stratified analysis, and the full orchestration pipeline.
 """
-
 import logging
 from typing import Dict, Any, Optional, List, Union, Tuple
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 from statsmodels.formula.api import mixedlm
-from statsmodels.stats.multicomp import pairwise_tukeyhsd
-from scipy.stats import ttest_rel, wilcoxon
+from statsmodels.stats.multitest import multipletests
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 class InfeasibleError(Exception):
     """Raised when a statistical test is infeasible due to data constraints."""
     pass
 
-def shapiro_wilk_test(scores: List[float], alpha: float = 0.05) -> Dict[str, Any]:
+def shapiro_wilk_test(values: List[float]) -> Dict[str, Any]:
     """
-    Perform Shapiro-Wilk normality test on a list of scores.
+    Perform Shapiro-Wilk normality test.
     
     Args:
-        scores: List of numerical scores to test for normality.
-        alpha: Significance level for the test (default 0.05).
+        values: List of numeric values to test for normality.
         
     Returns:
-        Dict with keys:
-            - 'is_normal': bool (True if p-value > alpha, indicating normality)
-            - 'p_value': float
-            - 'statistic': float
-            - 'sample_size': int
+        Dict with keys: 'statistic', 'p_value', 'is_normal' (bool based on alpha=0.05).
     """
-    if len(scores) < 3:
-        logger.warning("Insufficient data for Shapiro-Wilk test (n < 3). Assuming non-normal.")
+    if len(values) < 3:
+        logger.warning("Shapiro-Wilk requires at least 3 samples. Returning non-normal.")
         return {
+            'statistic': None,
+            'p_value': None,
             'is_normal': False,
-            'p_value': 0.0,
-            'statistic': 0.0,
-            'sample_size': len(scores),
-            'reason': 'Insufficient sample size'
+            'reason': 'Insufficient samples'
         }
     
     try:
-        statistic, p_value = stats.shapiro(scores)
-        is_normal = p_value > alpha
-        
-        logger.info(f"Shapiro-Wilk test: statistic={statistic:.4f}, p-value={p_value:.4f}, is_normal={is_normal}")
-        
+        stat, p_val = stats.shapiro(values)
+        is_normal = p_val > 0.05
+        logger.info(f"Shapiro-Wilk: W={stat:.4f}, p={p_val:.4f}, Normal={is_normal}")
         return {
+            'statistic': float(stat),
+            'p_value': float(p_val),
             'is_normal': is_normal,
-            'p_value': p_value,
-            'statistic': statistic,
-            'sample_size': len(scores)
+            'method': 'Shapiro-Wilk'
         }
     except Exception as e:
-        logger.error(f"Shapiro-Wilk test failed: {e}")
-        # On failure, assume non-normal to be conservative
+        logger.warning(f"Shapiro-Wilk test failed: {e}. Assuming non-normal.")
         return {
+            'statistic': None,
+            'p_value': None,
             'is_normal': False,
-            'p_value': 0.0,
-            'statistic': 0.0,
-            'sample_size': len(scores),
             'reason': str(e)
         }
 
-def fit_lmm(scores: pd.Series, method: pd.Series, episode_id: pd.Series, domain: pd.Series) -> Dict[str, Any]:
+def fit_lmm(data: pd.DataFrame, formula: str = "score ~ method + (1|Domain)") -> Dict[str, Any]:
     """
-    Fit a Linear Mixed-Effects Model (LMM) to compare methods.
-    
-    Model formula: score ~ method + (1|Episode_ID) + (1|Domain)
+    Fit a Linear Mixed-Effects Model.
     
     Args:
-        scores: Series of scores.
-        method: Series of method labels (e.g., 'gatekeeper', 'baseline').
-        episode_id: Series of episode identifiers (random effect).
-        domain: Series of domain identifiers (random effect).
-        
+        data: DataFrame containing 'score', 'method', and 'Domain' columns.
+        formula: Model formula (default: score ~ method + (1|Domain)).
+                
     Returns:
-        Dict with keys:
-            - 'success': bool
-            - 'p_value': float (p-value for method effect)
-            - 'test_statistic': float (t-statistic for method effect)
-            - 'method_used': str ('LMM')
-            - 'fallback_reason': None or str if failed
+        Dict with keys: 'p_value', 'test_statistic', 'method_used', 'converged'.
+        
+    Raises:
+        InfeasibleError: If the model cannot be fit due to data insufficiency.
     """
-    if len(scores) < 10:
-        raise InfeasibleError("Insufficient data for LMM (n < 10).")
-    
-    df = pd.DataFrame({
-        'score': scores,
-        'method': method,
-        'Episode_ID': episode_id,
-        'Domain': domain
-    })
-    
-    # Ensure categorical types for random effects
-    df['Episode_ID'] = df['Episode_ID'].astype('category')
-    df['Domain'] = df['Domain'].astype('category')
+    if len(data) < 5:
+        raise InfeasibleError("Insufficient data points for LMM (need >= 5).")
     
     try:
-        # Fit LMM: score ~ method + (1|Episode_ID) + (1|Domain)
-        model = mixedlm("score ~ C(method)", df, groups=df["Episode_ID"], 
-                        exog_re=pd.get_dummies(df["Domain"], drop_first=True))
-        result = model.fit()
+        # Check for sufficient groups
+        n_groups = data['Domain'].nunique()
+        if n_groups < 2:
+            raise InfeasibleError("Insufficient groups (Domains) for LMM (need >= 2).")
         
-        # Extract p-value and t-statistic for the method effect
-        # The coefficients table includes the intercept and method effects
+        model = mixedlm.from_formula(formula, data=data, groups=data['Domain'])
+        result = model.fit(reml=False)
+        
+        # Extract p-value for 'method'
+        # The parameters dict usually contains 'Intercept' and 'method[T.Baseline]' etc.
+        params = result.params
         p_values = result.pvalues
-        t_values = result.tvalues
         
-        # Find the p-value for the method coefficient (usually C(method)[T.<method_name>])
-        method_p_value = None
-        method_t_stat = None
+        # Find the method coefficient p-value
+        method_p = None
+        method_stat = None
         
-        for key, p_val in p_values.items():
+        for key in params.keys():
             if 'method' in key.lower():
-                method_p_value = p_val
-                method_t_stat = t_values[key]
+                method_p = p_values[key]
+                method_stat = params[key]
                 break
         
-        if method_p_value is None:
-            # Fallback: if no method effect found, use the first non-intercept p-value
-            non_intercept_pvals = {k: v for k, v in p_values.items() if k != 'Intercept'}
-            if non_intercept_pvals:
-                method_p_value = list(non_intercept_pvals.values())[0]
-                method_t_stat = list(t_values.values())[0]
-            else:
-                raise InfeasibleError("Could not identify method effect in LMM results.")
+        if method_p is None:
+            # Fallback: if no specific method term found, try to infer from summary
+            logger.warning("Could not find method coefficient in LMM results.")
+            raise InfeasibleError("LMM fitted but method coefficient not found.")
         
-        logger.info(f"LMM fit successful: p-value={method_p_value:.4f}, t-stat={method_t_stat:.4f}")
+        logger.info(f"LMM fitted: P-value={method_p:.4f}, Statistic={method_stat:.4f}")
         
         return {
-            'success': True,
-            'p_value': method_p_value,
-            'test_statistic': method_t_stat,
+            'p_value': float(method_p),
+            'test_statistic': float(method_stat),
             'method_used': 'LMM',
-            'fallback_reason': None,
-            'model_summary': str(result.summary())
+            'converged': result.converged,
+            'formula': formula
         }
         
     except Exception as e:
         error_msg = str(e)
-        logger.warning(f"LMM fitting failed: {error_msg}")
-        
-        # Check if it's a singularity issue vs. data insufficiency
-        if "Singular" in error_msg or "singular" in error_msg.lower():
-            # Try to regularize or reduce complexity
-            logger.info("Attempting to fit reduced LMM (removing Domain random effect)...")
-            try:
-                reduced_model = mixedlm("score ~ C(method)", df, groups=df["Episode_ID"])
-                reduced_result = reduced_model.fit()
-                p_values = reduced_result.pvalues
-                t_values = reduced_result.tvalues
-                
-                method_p_value = None
-                method_t_stat = None
-                for key, p_val in p_values.items():
-                    if 'method' in key.lower():
-                        method_p_value = p_val
-                        method_t_stat = t_values[key]
-                        break
-                
-                if method_p_value is None:
-                    raise InfeasibleError("Reduced LMM also failed to identify method effect.")
-                
-                logger.info(f"Reduced LMM fit successful: p-value={method_p_value:.4f}")
-                return {
-                    'success': True,
-                    'p_value': method_p_value,
-                    'test_statistic': method_t_stat,
-                    'method_used': 'LMM (Reduced)',
-                    'fallback_reason': 'Singular matrix in full model, used reduced model',
-                    'model_summary': str(reduced_result.summary())
-                }
-            except Exception as reduced_error:
-                raise InfeasibleError(f"LMM failed due to singularity and reduced model also failed: {reduced_error}")
+        # Check for specific singularity or convergence issues that might be solvable
+        if "singularity" in error_msg.lower() or "singular" in error_msg.lower():
+            logger.warning(f"LMM singular matrix: {e}. Attempting regularization or fallback.")
+            # In a real scenario, we might try to simplify the random effects here.
+            # For now, we treat it as infeasible for the full LMM path.
+            raise InfeasibleError(f"LMM infeasible due to singularity: {e}")
+        elif "fit" in error_msg.lower() and "converge" in error_msg.lower():
+            raise InfeasibleError(f"LMM failed to converge: {e}")
         else:
-            # Not a singularity issue, likely data insufficiency or other error
-            raise InfeasibleError(f"LMM infeasible: {error_msg}")
+            raise InfeasibleError(f"LMM failed: {e}")
 
-def run_post_hoc(scores_gatekeeper: List[float], scores_baseline: List[float], 
-                 is_normal: bool) -> Dict[str, Any]:
+def run_post_hoc(group1: List[float], group2: List[float], is_normal: bool) -> Dict[str, Any]:
     """
-    Run post-hoc test based on normality assumption.
+    Run post-hoc test based on normality.
     
     Args:
-        scores_gatekeeper: List of scores for Gatekeeper method.
-        scores_baseline: List of scores for Baseline method.
-        is_normal: Boolean indicating if data is normally distributed (from Shapiro-Wilk).
+        group1: Values for condition A.
+        group2: Values for condition B.
+        is_normal: Result from Shapiro-Wilk test.
         
     Returns:
-        Dict with keys:
-            - 'method_used': str ('t-test' or 'Wilcoxon')
-            - 'p_value': float
-            - 'test_statistic': float
+        Dict with keys: 'p_value', 'test_statistic', 'method_used'.
     """
-    if len(scores_gatekeeper) != len(scores_baseline):
-        logger.warning("Paired test requires equal sample sizes. Using independent test.")
-        # Fall back to independent test if sizes differ
-        if is_normal:
-            statistic, p_value = stats.ttest_ind(scores_gatekeeper, scores_baseline)
-            method_used = 'Independent t-test'
-        else:
-            statistic, p_value = stats.mannwhitneyu(scores_gatekeeper, scores_baseline)
-            method_used = 'Mann-Whitney U'
+    if len(group1) < 2 or len(group2) < 2:
+        raise InfeasibleError("Insufficient samples for post-hoc test.")
+    
+    if is_normal:
+        # Paired t-test (assuming paired data for benchmark comparison)
+        # If data is independent, use ttest_ind. Given the context of "Gatekeeper vs Baseline"
+        # on the same episodes, a paired test is appropriate.
+        try:
+            stat, p_val = stats.ttest_rel(group1, group2)
+            method = "Paired t-test"
+        except Exception:
+            # Fallback to independent if pairing fails or data not paired
+            stat, p_val = stats.ttest_ind(group1, group2)
+            method = "Independent t-test"
     else:
-        # Paired test
-        if is_normal:
-            statistic, p_value = ttest_rel(scores_gatekeeper, scores_baseline)
-            method_used = 'Paired t-test'
-        else:
-            statistic, p_value = wilcoxon(scores_gatekeeper, scores_baseline)
-            method_used = 'Wilcoxon signed-rank test'
+        # Wilcoxon signed-rank test (paired)
+        try:
+            stat, p_val = stats.wilcoxon(group1, group2)
+            method = "Wilcoxon signed-rank"
+        except Exception:
+            # Fallback to Mann-Whitney U
+            stat, p_val = stats.mannwhitneyu(group1, group2)
+            method = "Mann-Whitney U"
     
-    logger.info(f"Post-hoc test: {method_used}, p-value={p_value:.4f}, statistic={statistic:.4f}")
-    
+    logger.info(f"Post-hoc {method}: Stat={stat:.4f}, P={p_val:.4f}")
     return {
-        'method_used': method_used,
-        'p_value': p_value,
-        'test_statistic': statistic
+        'p_value': float(p_val),
+        'test_statistic': float(stat),
+        'method_used': method
     }
 
-def run_domain_stratified_analysis(results: pd.DataFrame, score_col: str = 'score', 
-                                   method_col: str = 'method', domain_col: str = 'domain') -> Dict[str, Any]:
+def pair_episodes(gatekeeper_scores: List[Dict], baseline_scores: List[Dict]) -> List[Tuple[float, float]]:
     """
-    Perform domain-stratified analysis by calculating p-values per domain and aggregating.
-    
-    This is used as a fallback when LMM is infeasible.
+    Match episodes across Gatekeeper and Baseline conditions.
     
     Args:
-        results: DataFrame with columns for score, method, and domain.
-        score_col: Name of the score column.
-        method_col: Name of the method column.
-        domain_col: Name of the domain column.
+        gatekeeper_scores: List of dicts with 'episode_id' and 'score'.
+        baseline_scores: List of dicts with 'episode_id' and 'score'.
         
     Returns:
-        Dict with keys:
-            - 'method_used': str ('Domain-Stratified')
-            - 'p_value': float (aggregated p-value, e.g., average)
-            - 'test_statistic': float (average statistic)
-            - 'domain_p_values': Dict of per-domain p-values
+        List of tuples (gatekeeper_score, baseline_score) for matched episodes.
+        
+    Raises:
+        ValueError: If episode_id is missing or mismatched.
     """
-    domains = results[domain_col].unique()
-    domain_p_values = {}
-    domain_stats = {}
-    valid_domains = 0
+    gatekeeper_map = {item['episode_id']: item['score'] for item in gatekeeper_scores}
+    baseline_map = {item['episode_id']: item['score'] for item in baseline_scores}
+    
+    common_ids = set(gatekeeper_map.keys()) & set(baseline_map.keys())
+    
+    if not common_ids:
+        raise ValueError("No matching episode IDs found between Gatekeeper and Baseline.")
+    
+    if len(common_ids) < len(gatekeeper_map) or len(common_ids) < len(baseline_map):
+        logger.warning(f"Found {len(common_ids)} matches out of {len(gatekeeper_map)} and {len(baseline_map)} episodes.")
+    
+    paired = []
+    for eid in sorted(common_ids):
+        paired.append((gatekeeper_map[eid], baseline_map[eid]))
+    
+    return paired
+
+def domain_stratified_analysis(data: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Perform domain-stratified analysis by aggregating p-values.
+    
+    Args:
+        data: DataFrame with 'score', 'method', and 'Domain'.
+        
+    Returns:
+        Dict with keys: 'p_value', 'method_used', 'aggregation_method'.
+    """
+    domains = data['Domain'].unique()
+    p_values = []
     
     for domain in domains:
-        domain_data = results[results[domain_col] == domain]
-        
-        if len(domain_data) < 4:  # Need at least 2 per group for a test
-            logger.warning(f"Skipping domain '{domain}' due to insufficient data (n={len(domain_data)}).")
+        subset = data[data['Domain'] == domain]
+        if len(subset) < 4:
+            logger.warning(f"Skipping domain {domain} due to insufficient data.")
             continue
         
-        gatekeeper_scores = domain_data[domain_data[method_col] == 'gatekeeper'][score_col].tolist()
-        baseline_scores = domain_data[domain_data[method_col] == 'baseline'][score_col].tolist()
-        
-        if len(gatekeeper_scores) < 2 or len(baseline_scores) < 2:
-            logger.warning(f"Skipping domain '{domain}' due to insufficient data per group.")
-            continue
-        
-        # Perform Wilcoxon (non-parametric) for robustness
+        # Perform independent t-test per domain
         try:
-            if len(gatekeeper_scores) == len(baseline_scores):
-                stat, p_val = wilcoxon(gatekeeper_scores, baseline_scores)
-            else:
-                stat, p_val = stats.mannwhitneyu(gatekeeper_scores, baseline_scores)
-            
-            domain_p_values[domain] = p_val
-            domain_stats[domain] = stat
-            valid_domains += 1
+            g1 = subset[subset['method'] == 'Gatekeeper']['score'].tolist()
+            g2 = subset[subset['method'] == 'Baseline']['score'].tolist()
+            if len(g1) < 2 or len(g2) < 2:
+                continue
+            _, p = stats.ttest_ind(g1, g2)
+            p_values.append(p)
         except Exception as e:
-            logger.warning(f"Post-hoc test failed for domain '{domain}': {e}")
-            continue
+            logger.warning(f"Failed to compute test for domain {domain}: {e}")
     
-    if valid_domains == 0:
-        raise InfeasibleError("No domains had sufficient data for stratified analysis.")
+    if not p_values:
+        raise InfeasibleError("No valid p-values computed for any domain.")
     
-    # Aggregate p-values using Fisher's method or simple average
-    # Using simple average for interpretability
-    avg_p_value = np.mean(list(domain_p_values.values()))
-    avg_stat = np.mean(list(domain_stats.values()))
+    # Aggregate using Fisher's method or simple average
+    # Fisher's method is more robust for combining p-values
+    try:
+        chi2, combined_p = stats.combine_pvalues(p_values, method='fisher')
+    except Exception:
+        combined_p = np.mean(p_values)
+        logger.warning("Fisher's method failed, using average p-value.")
     
-    logger.info(f"Domain-stratified analysis: {valid_domains} domains, aggregated p-value={avg_p_value:.4f}")
-    
+    logger.info(f"Stratified analysis: Combined P={combined_p:.4f} (from {len(p_values)} domains)")
     return {
-        'method_used': 'Domain-Stratified',
-        'p_value': avg_p_value,
-        'test_statistic': avg_stat,
-        'domain_p_values': domain_p_values,
-        'valid_domains': valid_domains
+        'p_value': float(combined_p),
+        'test_statistic': float(chi2) if 'chi2' in locals() else None,
+        'method_used': 'Domain-Stratified (Fisher)',
+        'aggregation_method': 'Fisher\'s method'
     }
 
-def run_full_stats_pipeline(gatekeeper_scores: List[float], baseline_scores: List[float],
-                            episode_ids: Optional[List[str]] = None,
-                            domains: Optional[List[str]] = None) -> Dict[str, Any]:
+def run_full_stats_pipeline(gatekeeper_scores: List[Dict], baseline_scores: List[Dict]) -> Dict[str, Any]:
     """
-    Orchestrate the full statistical analysis pipeline with fallback logic.
+    Orchestrate the full statistical analysis pipeline.
     
     Fallback Priority:
-    1. Linear Mixed-Effects Model (LMM)
-    2. Normality Check (Shapiro-Wilk) -> Paired t-test or Wilcoxon
+    1. LMM (Linear Mixed-Effects Model)
+    2. Normality Check (Shapiro-Wilk) -> Wilcoxon/t-test
     3. Feasibility Check -> Domain-Stratified Analysis
     
     Args:
-        gatekeeper_scores: List of scores from Gatekeeper method.
-        baseline_scores: List of scores from Baseline method.
-        episode_ids: Optional list of episode identifiers (for LMM random effects).
-        domains: Optional list of domain identifiers (for LMM random effects).
+        gatekeeper_scores: List of dicts with 'episode_id', 'score', 'Domain'.
+        baseline_scores: List of dicts with 'episode_id', 'score', 'Domain'.
         
     Returns:
-        Dict with keys:
-            - 'method_used': str (e.g., 'LMM', 'Paired t-test', 'Wilcoxon', 'Domain-Stratified')
-            - 'p_value': float
-            - 'test_statistic': float
-            - 'fallback_reason': str or None
+        Dict with keys: 'method_used', 'p_value', 'test_statistic', 'fallback_reason'.
     """
-    logger.info("Starting full statistical analysis pipeline...")
+    logger.info("Starting full stats pipeline.")
     
-    # Ensure equal lengths for paired tests
-    min_len = min(len(gatekeeper_scores), len(baseline_scores))
-    if min_len == 0:
-        raise InfeasibleError("No data available for statistical analysis.")
-    
-    gatekeeper_scores = gatekeeper_scores[:min_len]
-    baseline_scores = baseline_scores[:min_len]
-    
-    result = {
-        'method_used': None,
-        'p_value': None,
-        'test_statistic': None,
-        'fallback_reason': None
-    }
-    
-    # Priority 1: Try LMM if we have episode IDs and domains
-    if episode_ids and domains and len(episode_ids) >= 10:
-        try:
-            logger.info("Attempting LMM (Priority 1)...")
-            scores_series = pd.Series(gatekeeper_scores + baseline_scores)
-            method_series = pd.Series(['gatekeeper'] * len(gatekeeper_scores) + ['baseline'] * len(baseline_scores))
-            episode_series = pd.Series(episode_ids * 2)
-            domain_series = pd.Series(domains * 2)
-            
-            lmm_result = fit_lmm(scores_series, method_series, episode_series, domain_series)
-            
-            result['method_used'] = lmm_result['method_used']
-            result['p_value'] = lmm_result['p_value']
-            result['test_statistic'] = lmm_result['test_statistic']
-            result['fallback_reason'] = lmm_result.get('fallback_reason')
-            logger.info(f"LMM succeeded: {result['method_used']}")
-            return result
-            
-        except InfeasibleError as e:
-            logger.warning(f"LMM infeasible: {e}. Proceeding to fallback.")
-            result['fallback_reason'] = f"LMM infeasible: {e}"
-        except Exception as e:
-            logger.warning(f"LMM failed unexpectedly: {e}. Proceeding to fallback.")
-            result['fallback_reason'] = f"LMM failed: {e}"
-    
-    # Priority 2: Normality Check -> Paired t-test or Wilcoxon
-    logger.info("Performing Shapiro-Wilk normality test (Priority 2)...")
-    # Combine scores for normality test (assuming paired structure)
-    all_scores = gatekeeper_scores + baseline_scores
-    normality_result = shapiro_wilk_test(all_scores)
-    
-    if normality_result['is_normal']:
-        logger.info("Data is normal. Using Paired t-test.")
-        post_hoc_result = run_post_hoc(gatekeeper_scores, baseline_scores, is_normal=True)
-    else:
-        logger.info("Data is non-normal. Using Wilcoxon signed-rank test.")
-        post_hoc_result = run_post_hoc(gatekeeper_scores, baseline_scores, is_normal=False)
-    
-    result['method_used'] = post_hoc_result['method_used']
-    result['p_value'] = post_hoc_result['p_value']
-    result['test_statistic'] = post_hoc_result['test_statistic']
-    
-    if result['fallback_reason']:
-        result['fallback_reason'] += f"; Fallback to {result['method_used']}"
-    else:
-        result['fallback_reason'] = f"Normality check: {result['method_used']}"
-    
-    logger.info(f"Statistical analysis complete: {result['method_used']}, p={result['p_value']:.4f}")
-    return result
-
-def main():
-    """Main entry point for testing the stats pipeline."""
-    # Example usage with dummy data
-    logger.info("Running stats module self-test...")
-    
-    # Generate some dummy data
-    np.random.seed(42)
-    gatekeeper_scores = np.random.normal(0.8, 0.1, 50).tolist()
-    baseline_scores = np.random.normal(0.7, 0.15, 50).tolist()
-    episode_ids = [f"ep_{i}" for i in range(50)]
-    domains = ["medical"] * 25 + ["office"] * 25 + ["medical"] * 25 + ["office"] * 25
-    
+    # 1. Pair episodes
     try:
-        result = run_full_stats_pipeline(gatekeeper_scores, baseline_scores, episode_ids, domains)
-        print("Statistical Analysis Result:")
-        print(f"  Method: {result['method_used']}")
-        print(f"  P-value: {result['p_value']:.4f}")
-        print(f"  Test Statistic: {result['test_statistic']:.4f}")
-        print(f"  Fallback Reason: {result['fallback_reason']}")
-    except Exception as e:
-        print(f"Statistical analysis failed: {e}")
-
-if __name__ == "__main__":
-    main()
+        paired_data = pair_episodes(gatekeeper_scores, baseline_scores)
+    except ValueError as e:
+        return {
+            'method_used': 'None',
+            'p_value': None,
+            'test_statistic': None,
+            'fallback_reason': f'Pairing failed: {e}'
+        }
+    
+    if not paired_data:
+        return {
+            'method_used': 'None',
+            'p_value': None,
+            'test_statistic': None,
+            'fallback_reason': 'No paired data available'
+        }
+    
+    gatekeeper_vals = [x[0] for x in paired_data]
+    baseline_vals = [x[1] for x in paired_data]
+    
+    # Construct DataFrame for LMM and Stratified analysis
+    # We need to map domain info back. Assuming input dicts have 'Domain'
+    domain_map = {}
+    for item in gatekeeper_scores:
+        if 'episode_id' in item and 'Domain' in item:
+            domain_map[item['episode_id']] = item['Domain']
+    
+    df_data = []
+    for i, (g_val, b_val) in enumerate(paired_data):
+        eid = gatekeeper_scores[i]['episode_id'] if i < len(gatekeeper_scores) else baseline_scores[i]['episode_id']
+        dom = domain_map.get(eid, 'Unknown')
+        df_data.append({'score': g_val, 'method': 'Gatekeeper', 'Domain': dom, 'id': eid})
+        df_data.append({'score': b_val, 'method': 'Baseline', 'Domain': dom, 'id': eid})
+    
+    df = pd.DataFrame(df_data)
+    
+    # Attempt 1: LMM
+    try:
+        lmm_result = fit_lmm(df)
+        logger.info("LMM succeeded.")
+        return {
+            'method_used': lmm_result['method_used'],
+            'p_value': lmm_result['p_value'],
+            'test_statistic': lmm_result['test_statistic'],
+            'fallback_reason': None
+        }
+    except InfeasibleError as e:
+        logger.warning(f"LMM infeasible: {e}. Falling back to normality check.")
+        fallback_reason_lmm = str(e)
+    
+    # Attempt 2: Normality Check -> Paired Test
+    normality_result = shapiro_wilk_test(gatekeeper_vals + baseline_vals)
+    try:
+        post_hoc_result = run_post_hoc(gatekeeper_vals, baseline_vals, normality_result['is_normal'])
+        logger.info(f"Post-hoc test succeeded: {post_hoc_result['method_used']}.")
+        return {
+            'method_used': post_hoc_result['method_used'],
+            'p_value': post_hoc_result['p_value'],
+            'test_statistic': post_hoc_result['test_statistic'],
+            'fallback_reason': f'LMM failed ({fallback_reason_lmm}), used {post_hoc_result["method_used"]}'
+        }
+    except InfeasibleError as e:
+        logger.warning(f"Post-hoc test infeasible: {e}. Falling back to stratified analysis.")
+    
+    # Attempt 3: Domain-Stratified Analysis
+    try:
+        strat_result = domain_stratified_analysis(df)
+        logger.info("Stratified analysis succeeded.")
+        return {
+            'method_used': strat_result['method_used'],
+            'p_value': strat_result['p_value'],
+            'test_statistic': strat_result['test_statistic'],
+            'fallback_reason': f'LMM and Post-hoc failed, used {strat_result["method_used"]}'
+        }
+    except InfeasibleError as e:
+        logger.error(f"All statistical methods failed: {e}.")
+        return {
+            'method_used': 'None',
+            'p_value': None,
+            'test_statistic': None,
+            'fallback_reason': f'All methods failed: LMM({fallback_reason_lmm}), Post-hoc, Stratified({e})'
+        }

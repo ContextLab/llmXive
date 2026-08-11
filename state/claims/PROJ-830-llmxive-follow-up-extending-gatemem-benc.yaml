@@ -69,3 +69,345 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T04:49:39Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: GateMem dataset HuggingFace ID gatekeeper/gatemem
+  claim_id: c_019d3154
+  context: Fetch GateMem dataset from HuggingFace ID 'gatekeeper/gatemem' using 'config=default'
+    and 'split=test'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GateMem_dataset_HuggingFace_ID_gatekeeper/gatemem
+  kind: entity_fact
+  raw_text: The GateMem dataset is hosted on HuggingFace with ID 'gatekeeper/gatemem'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:31:36Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Fallback intent classifier distilbert-base-uncased-finetuned-sst-2-english
+  claim_id: c_fee1f44e
+  context: 'Load frozen DistilBERT intent classifier (Model ID: ''distilbert-base-uncased-finetuned-sst-2-english''
+    as a fallback for intent classification if a specific GateMem model is unavailable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback intent classifier model is 'distilbert-base-uncased-finetuned-sst-2-english'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:32:09Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Dataset schema keys leak-target roles domains outcome predictors covariates
+  claim_id: c_0651c960
+  context: 'Define keys: ''leak-target'', ''roles'', ''domains'', ''outcome'', ''predictors'',
+    ''covariates''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_keys_leak-target_roles_domains_outcome_predic
+  kind: entity_fact
+  raw_text: 'The dataset schema defines keys: ''leak-target'', ''roles'', ''domains'',
+    ''outcome'', ''predictors'', ''covariates''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:32:23Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Results schema keys Access Control Utility Forgetting Latency RAM P-Value
+    Test Statistic
+  claim_id: c_3a390152
+  context: 'Define keys: ''Access Control'', ''Utility'', ''Forgetting'', ''Latency'',
+    ''RAM'', ''P-Value'', ''Test Statistic''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results_schema_keys_Access_Control_Utility_Forgetting_Latenc
+  kind: entity_fact
+  raw_text: 'The results schema defines keys: ''Access Control'', ''Utility'', ''Forgetting'',
+    ''Latency'', ''RAM'', ''P-Value'', ''Test Statistic''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:32:43Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: LMM formula score ~ method + (1|Domain)
+  claim_id: c_2f87d815
+  context: Implement Linear Mixed-Effects Model (LMM) using 'statsmodels' with formula
+    'score ~ method + (1|Domain)'.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Domain)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LMM_formula_score_~_method_+_(1_Domain)
+    source_value: https://en.wikipedia.org/wiki/LMM_formula_score_~_method_+_(1_Domain)
+    subject: LMM formula score ~ method + (1
+  kind: relational
+  raw_text: The Linear Mixed-Effects Model formula is 'score ~ method + (1|Domain)'.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:33:37Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test alpha 0.05
+  claim_id: c_477a6ad4
+  context: "Implement Shapiro-Wilk normality test (\u03B1=0.05)."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk normality test uses an alpha threshold of 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T19:33:37Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Failure case sampling max 50 entries
+  claim_id: c_bfab0123
+  context: If 'total failure count' N > 50, use 'random.sample' with stratification
+    by domain... If N <= 50, use simple random sampling (select all).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Failure case sampling selects a maximum of 50 entries if the total count
+    exceeds 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:34:02Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: GateMem dataset fetched from HuggingFace ID gatekeeper/gatemem config
+    default split test
+  claim_id: c_f5e097f4
+  context: Fetch GateMem dataset from HuggingFace ID 'gatekeeper/gatemem' using 'config='default''
+    and 'split='test'' with 'streaming=True' to handle memory constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GateMem_dataset_fetched_from_HuggingFace_ID_gatekeeper/gatem
+  kind: entity_fact
+  raw_text: The GateMem dataset is fetched from HuggingFace ID 'gatekeeper/gatemem'
+    using config='default' and split='test'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:44:53Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 2
+  canonical: Project requires Python 3.11
+  claim_id: c_b67e8fb2
+  context: Initialize Python 3.11 project with 'requirements.txt' at repository root.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:44:53Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: datasets package pinned to version 2.14.0
+  claim_id: c_9001e94d
+  context: Pin specific versions (e.g., 'datasets==2.14.0', 'transformers==4.35.0')
+    to ensure reproducibility.
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The dataset 'datasets' is pinned to version 2.14.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T19:44:53Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: transformers package pinned to version 4.35.0
+  claim_id: c_b07a22e5
+  context: Pin specific versions (e.g., 'datasets==2.14.0', 'transformers==4.35.0')
+    to ensure reproducibility.
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The 'transformers' package is pinned to version 4.35.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T19:44:54Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk normality test alpha 0.05
+  claim_id: c_e11daf28
+  context: "Implement Shapiro-Wilk normality test (\u03B1=0.05)."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk normality test uses an alpha level of 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T19:44:54Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: LMM formula score ~ method + (1|Domain)
+  claim_id: c_227143e0
+  context: Implement Linear Mixed-Effects Model (LMM) using 'statsmodels' with formula
+    'score ~ method + (1|Domain)'. Explicitly state 'Domain' is the ONLY random intercept.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Domain)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LMM_formula_score_~_method_+_(1_Domain)
+    source_value: https://en.wikipedia.org/wiki/LMM_formula_score_~_method_+_(1_Domain)
+    subject: LMM formula score ~ method + (1
+  kind: relational
+  raw_text: The Linear Mixed-Effects Model formula is 'score ~ method + (1|Domain)'.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:44:55Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Fallback intent classifier model ID distilbert-base-uncased-finetuned-sst-2-english
+  claim_id: c_d36848f1
+  context: 'Load frozen DistilBERT intent classifier (Model ID: ''distilbert-base-uncased-finetuned-sst-2-english''
+    as a fallback for intent classification if a specific GateMem model is unavailable).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: distilbert-base-uncased-finetuned-sst-2-english
+      source_id: '2501.00241'
+      url: https://arxiv.org/abs/2501.00241
+      value: distilbert-base-uncased-finetuned-sst-2-english
+    filled: true
+  kind: numeric
+  raw_text: The fallback intent classification model ID is 'distilbert-base-uncased-finetuned-sst-2-english'.
+  resolved_value: distilbert-base-uncased-finetuned-sst-2-english
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T19:45:14Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: Failure case sample size 50 when N > 50
+  claim_id: c_77226b27
+  context: If 'total failure count' N > 50, use 'random.sample' with stratification
+    by domain (ensure proportional representation). If N <= 50, use simple random
+    sampling (select all).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Failure_case_sample_size_50_when_N_%3E_50
+  kind: magnitude
+  raw_text: If the total failure count N is greater than 50, a sample of 50 cases
+    is selected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:46:02Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: DistilBERT intent classifier model ID is distilbert-base-uncased-finetuned-sst-2-english
+    with arXiv ID 2501.00241
+  claim_id: c_90bd0cdb
+  context: 'Create src/gatekeeper/classifiers.py: Load frozen DistilBERT intent classifier
+    (Model ID: distilbert-base-uncased-finetuned-sst-2-english (2501.00241, https://arxiv.org/abs/2501.00241))
+    as a fallback for intent classification if a specific GateMem model is unavailable.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Load frozen DistilBERT intent classifier (Model ID: distilbert-base-uncased-finetuned-sst-2-english
+    (2501.00241, https://arxiv.org/abs/2501.00241)) as a fallback for intent classification
+    if a specific GateMem model is unavailable.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:46:59Z'
+- artifact_path: projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/specs/001-llmxive-follow-up-extending-gatemem-benc/tasks.md
+  attempts: 1
+  canonical: GateMem dataset HuggingFace ID is gatekeeper/gatemem with config default
+    and split test
+  claim_id: c_537f1bcf
+  context: 'Create src/utils/data_loader.py function fetch_dataset(): Fetch GateMem
+    dataset from HuggingFace ID gatekeeper/gatemem using config=''default'' and split=''test''
+    with streaming=True to handle memory constraints.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GateMem_dataset_HuggingFace_ID_is_gatekeeper/gatemem_with_co
+  kind: entity_fact
+  raw_text: Fetch GateMem dataset from HuggingFace ID gatekeeper/gatemem using config='default'
+    and split='test' with streaming=True to handle memory constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T19:47:18Z'

@@ -1,335 +1,230 @@
-"""
-Data Loader Module for GateMem Benchmark.
-
-This module orchestrates the fetching, parsing, field extraction, and validation
-of the GateMem dataset. It strictly adheres to the 'real data only' constraint:
-if the real data fetch fails, it raises an exception immediately without synthetic fallback.
-
-Public API:
-- fetch_dataset: Fetches data from HuggingFace with streaming support.
-- parse_jsonl: Parses JSONL content into episode dictionaries.
-- extract_fields: Extracts required fields from episodes.
-- validate_episode: Validates episode structure against schema.
-- run_data_loader_pipeline: Main orchestration function.
-- get_dataset_statistics: Computes basic statistics on the loaded dataset.
-"""
-
 import os
 import json
 import logging
 import sys
-from typing import Dict, List, Any, Optional, Generator, Tuple
+import hashlib
+import yaml
+from typing import Dict, List, Any, Optional
 from pathlib import Path
+import yaml
 
-# Import HuggingFace datasets for real data fetching
-from datasets import load_dataset
-
-# Import logging configuration from the project root
-from code.logging_config import setup_logging
-
-# Configure logging
-logger = setup_logging(__name__)
-
-# Constants for required fields based on spec.md and T004a
-REQUIRED_FIELDS = [
-    "leak-target",
-    "roles",
-    "domains",
-    "outcome",
-    "predictors",
-    "covariates"
-]
-
-# Path to the dataset schema contract
-SCHEMA_PATH = Path("contracts/dataset.schema.yaml")
-
+# Setup logging
+logger = logging.getLogger(__name__)
 
 def ensure_dirs():
-    """Ensure that required data directories exist."""
-    dirs = [
-        Path("data/raw"),
-        Path("data/processed"),
-        Path("data/samples")
-    ]
+    """Ensure required directories exist."""
+    dirs = ['data/raw', 'data/processed', 'data/samples', 'state', 'logs']
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+        Path(d).mkdir(parents=True, exist_ok=True)
 
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a YAML schema definition."""
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def load_schema() -> Dict[str, Any]:
+def fetch_dataset(config: str = 'default', split: str = 'test', streaming: bool = True) -> Any:
     """
-    Load and parse the dataset schema contract.
-
-    Returns:
-        Dict: The schema definition.
-
-    Raises:
-        FileNotFoundError: If the schema file is missing.
-        ValueError: If the schema file is not valid YAML.
+    Fetch GateMem dataset from HuggingFace.
+    Strictly NO synthetic fallback.
     """
-    if not SCHEMA_PATH.exists():
-        raise FileNotFoundError(f"Schema file not found: {SCHEMA_PATH}")
-
     try:
-        import yaml
-        with open(SCHEMA_PATH, 'r') as f:
-            schema = yaml.safe_load(f)
-        return schema
-    except yaml.YAMLError as e:
-        raise ValueError(f"Invalid YAML in schema file: {e}")
-
-
-def fetch_dataset(dataset_id: str = "gatekeeper/gatemem", streaming: bool = True) -> Generator[Dict[str, Any], None, None]:
-    """
-    Fetch the GateMem dataset from HuggingFace.
-
-    This function strictly enforces the 'real data only' constraint.
-    If the fetch fails (network error, missing file, etc.), it raises
-    a ConnectionError immediately. NO synthetic fallback is permitted.
-
-    Args:
-        dataset_id: The HuggingFace dataset ID.
-        streaming: If True, stream the dataset to handle memory constraints.
-
-    Returns:
-        Generator: A generator yielding episode dictionaries.
-
-    Raises:
-        ConnectionError: If the dataset cannot be fetched.
-        RuntimeError: If the dataset ID is invalid or the fetch fails.
-    """
-    logger.info(f"Attempting to fetch dataset: {dataset_id} (streaming={streaming})")
-    try:
-        # Use streaming=True to handle large datasets without loading everything into RAM
-        dataset = load_dataset(dataset_id, split="train", streaming=streaming)
-        logger.info("Dataset fetch successful.")
+        from datasets import load_dataset
+        logger.info("Fetching GateMem dataset from HuggingFace...")
+        dataset = load_dataset(
+            "gatekeeper/gatemem",
+            config=config,
+            split=split,
+            streaming=streaming
+        )
+        logger.info("Dataset fetched successfully.")
         return dataset
     except Exception as e:
-        logger.critical(f"Critical: Real Data Fetch Failed: {e}")
-        raise ConnectionError(f"Failed to fetch real dataset from HuggingFace: {e}")
+        logger.critical("Critical: Real Data Fetch Failed")
+        raise ConnectionError(f"Failed to fetch dataset: {e}")
 
-
-def parse_jsonl(jsonl_line: str, line_number: int = 0) -> Optional[Dict[str, Any]]:
+def parse_jsonl(file_path: str) -> List[Dict[str, Any]]:
     """
-    Parse a single JSONL line into an episode dictionary.
-
-    Handles malformed JSON by logging the error and returning None (recoverable).
-    Does NOT exit the program.
-
-    Args:
-        jsonl_line: The raw JSON string.
-        line_number: The line number for error reporting.
-
-    Returns:
-        Dict: The parsed episode, or None if malformed.
+    Parse JSONL files into episode dictionaries.
+    Handle malformed JSON by logging the line number and skipping the line.
     """
-    try:
-        return json.loads(jsonl_line)
-    except json.JSONDecodeError as e:
-        logger.warning(f"Malformed JSON at line {line_number}: {e}")
-        return None
-
+    episodes = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                episode = json.loads(line)
+                episodes.append(episode)
+            except json.JSONDecodeError as e:
+                logger.warning(f"Malformed JSON at line {line_num}: {e}. Skipping.")
+    return episodes
 
 def extract_fields(episode: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Explicitly extract and load required fields from an episode.
-
-    Raises ValueError if any required field is missing.
-
-    Args:
-        episode: The raw episode dictionary.
-
-    Returns:
-        Dict: A dictionary containing only the required fields.
-
-    Raises:
-        ValueError: If a required field is missing.
+    Explicitly extract and load required fields.
+    Raise ValueError if any required field is missing.
     """
+    required_fields = ['outcome', 'predictors', 'covariates', 'leak-target', 'roles', 'domains']
     extracted = {}
-    missing_fields = []
-
-    for field in REQUIRED_FIELDS:
-        if field in episode:
-            extracted[field] = episode[field]
-        else:
-            missing_fields.append(field)
-
-    if missing_fields:
-        raise ValueError(f"Missing required fields in episode: {missing_fields}")
-
-    return extracted
-
-
-def validate_episode(episode: Dict[str, Any], schema: Optional[Dict[str, Any]] = None) -> Tuple[bool, Optional[str]]:
-    """
-    Validate an episode against the schema and required fields.
-
-    Logic:
-    - If a required field is missing, raise ValueError immediately.
-    - If 'leak-target' is ambiguous (e.g., null or empty string), log and return False (exclude).
-
-    Args:
-        episode: The episode dictionary.
-        schema: Optional schema definition (loaded from contract).
-
-    Returns:
-        Tuple[bool, Optional[str]]: (is_valid, error_message)
-    """
-    # Load schema if not provided
-    if schema is None:
-        try:
-            schema = load_schema()
-        except (FileNotFoundError, ValueError) as e:
-            logger.warning(f"Could not load schema for validation: {e}. Using field presence check only.")
-            schema = None
-
-    # Check required fields
-    for field in REQUIRED_FIELDS:
+    for field in required_fields:
         if field not in episode:
             raise ValueError(f"Missing required field: {field}")
+        extracted[field] = episode[field]
+    return extracted
 
-    # Check for ambiguous leak-target
-    leak_target = episode.get("leak-target")
-    if leak_target is None or (isinstance(leak_target, str) and leak_target.strip() == ""):
-        logger.warning("validation error: 'leak-target' is ambiguous or empty. Excluding episode.")
-        return False, "Ambiguous leak-target"
-
-    # Additional schema-based validation if schema is provided
-    if schema:
-        # Basic type checking could be implemented here based on schema
-        # For now, we rely on the presence check above
-        pass
-
-    return True, None
-
-
-def run_data_loader_pipeline(dataset_id: str = "gatekeeper/gatemem", output_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def validate_checksum(raw_data_path: str, expected_hash: str, checksum_file: str) -> bool:
     """
-    Orchestrate the full data loading pipeline.
-
-    Steps:
-    1. Ensure directories exist.
-    2. Fetch dataset (real data only).
-    3. Parse and extract fields.
-    4. Validate episodes.
-    5. Return a list of valid episodes.
-
-    Args:
-        dataset_id: The HuggingFace dataset ID.
-        output_path: Optional path to save processed data (JSONL).
-
-    Returns:
-        List[Dict]: List of validated episode dictionaries.
-
-    Raises:
-        ConnectionError: If real data fetch fails.
-        ValueError: If validation fails on required fields.
+    Verify the checksum of the raw data file against the stored hash.
     """
-    ensure_dirs()
-    valid_episodes = []
-    schema = load_schema()
+    if not os.path.exists(raw_data_path):
+        logger.error(f"Raw data file not found: {raw_data_path}")
+        return False
 
-    try:
-        dataset = fetch_dataset(dataset_id, streaming=True)
-    except ConnectionError:
-        # Re-raise to ensure the pipeline fails loudly
-        raise
+    sha256_hash = hashlib.sha256()
+    with open(raw_data_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    
+    computed_hash = sha256_hash.hexdigest()
+    
+    if computed_hash != expected_hash:
+        logger.error(f"Checksum mismatch! Expected: {expected_hash}, Computed: {computed_hash}")
+        return False
+    
+    logger.info("Checksum verification passed.")
+    return True
 
-    logger.info("Starting data processing pipeline...")
-
-    for idx, item in enumerate(dataset):
-        # Parse JSON (item is already a dict from streaming, but safe to ensure)
-        episode = item if isinstance(item, dict) else json.loads(item) if isinstance(item, str) else None
-
-        if episode is None:
-            logger.warning(f"Skipping malformed item at index {idx}")
-            continue
-
-        # Extract fields (raises ValueError if missing)
-        try:
-            extracted = extract_fields(episode)
-        except ValueError as e:
-            logger.error(f"Skipping episode {idx} due to missing fields: {e}")
-            continue
-
-        # Validate episode
-        is_valid, error_msg = validate_episode(extracted, schema)
-        if is_valid:
-            valid_episodes.append(extracted)
+def validate_episode(episode: Dict[str, Any], schema: Dict[str, Any], checksum_file: str = 'state/artifact_hashes.yaml') -> Dict[str, Any]:
+    """
+    Validate presence of required fields against the schema.
+    Verify checksum of raw data before processing.
+    
+    Logic:
+    1. If field missing -> Raise ValueError with message "Missing required field: {field}".
+    2. If leak-target ambiguous -> Log "validation error" and exclude episode.
+    3. Checksum Verification: Verify checksum in state/artifact_hashes.yaml matches raw data.
+       If mismatch, raise ValueError.
+    """
+    required_fields = ['outcome', 'predictors', 'covariates', 'leak-target']
+    
+    # 1. Field Validation
+    for field in required_fields:
+        if field not in episode:
+            raise ValueError(f"Missing required field: {field}")
+    
+    # 2. Ambiguity Check for leak-target
+    # Assuming 'leak-target' is a string or list. If list is empty or None, it's ambiguous.
+    leak_target = episode.get('leak-target')
+    if leak_target is None or (isinstance(leak_target, list) and len(leak_target) == 0):
+        logger.warning("validation error: Ambiguous leak-target detected. Excluding episode.")
+        return None # Exclude this episode
+    
+    # 3. Checksum Verification
+    # We assume the raw data file path is known or passed, but for this function signature,
+    # we check the hash file existence and validity.
+    # In a real pipeline, the raw_data_path would be passed or derived.
+    # For this implementation, we assume the raw data was saved to data/raw/gatemem_test.jsonl
+    raw_data_path = 'data/raw/gatemem_test.jsonl'
+    
+    if os.path.exists(checksum_file):
+        with open(checksum_file, 'r') as f:
+            hash_data = yaml.safe_load(f)
+        
+        if 'gatemem_test' in hash_data:
+            expected_hash = hash_data['gatemem_test']
+            if not validate_checksum(raw_data_path, expected_hash, checksum_file):
+                raise ValueError("Checksum mismatch: Raw data integrity check failed.")
         else:
-            # Log and skip ambiguous episodes
-            logger.debug(f"Episode {idx} excluded: {error_msg}")
+            logger.warning("Checksum key 'gatemem_test' not found in artifact_hashes.yaml. Skipping checksum verification.")
+    else:
+        logger.warning(f"Checksum file {checksum_file} not found. Skipping checksum verification.")
 
-    logger.info(f"Pipeline complete. Loaded {len(valid_episodes)} valid episodes.")
+    # Return validated episode
+    return episode
 
-    # Save to output if path provided
-    if output_path:
-        output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, 'w', encoding='utf-8') as f:
-            for ep in valid_episodes:
-                f.write(json.dumps(ep) + '\n')
-        logger.info(f"Processed data saved to {output_path}")
-
-    return valid_episodes
-
+def run_data_loader_pipeline():
+    """Orchestrate the full data loading and validation pipeline."""
+    ensure_dirs()
+    
+    # 1. Fetch dataset (streaming)
+    # Note: Since we are streaming, we might not have a local file immediately.
+    # For checksumming, we typically need a local file.
+    # In a real scenario, we might download first, then stream, or save chunks.
+    # For this task, we assume the dataset is fetched and saved to data/raw/ if not streaming,
+    # or we handle the streaming iterator directly.
+    # Given the task requires checksumming, we assume a local file is created or expected.
+    # Let's assume the dataset is downloaded to data/raw/gatemem_test.jsonl
+    
+    # If streaming is True, we can't easily checksum a file that isn't fully downloaded yet.
+    # However, the task T006a says "Upon successful download, compute SHA256".
+    # This implies a download happens. Let's assume we fetch to a file.
+    
+    # Re-fetching logic for local file if needed (T006a logic)
+    # For T006d, we focus on validation.
+    
+    schema_path = 'contracts/dataset.schema.yaml'
+    if not os.path.exists(schema_path):
+        logger.error(f"Schema file not found: {schema_path}")
+        return
+    
+    schema = load_schema(schema_path)
+    
+    # Assume data is in data/raw/gatemem_test.jsonl
+    data_path = 'data/raw/gatemem_test.jsonl'
+    
+    if not os.path.exists(data_path):
+        logger.error(f"Data file not found: {data_path}. Please run fetch_dataset first.")
+        return
+    
+    episodes = parse_jsonl(data_path)
+    validated_episodes = []
+    
+    for i, ep in enumerate(episodes):
+        try:
+            # Extract fields first
+            extracted_ep = extract_fields(ep)
+            # Validate episode
+            validated_ep = validate_episode(extracted_ep, schema)
+            if validated_ep:
+                validated_episodes.append(validated_ep)
+        except ValueError as e:
+            logger.error(f"Episode {i} validation failed: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error processing episode {i}: {e}")
+    
+    logger.info(f"Validated {len(validated_episodes)} episodes out of {len(episodes)}.")
+    return validated_episodes
 
 def get_dataset_statistics(episodes: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Compute basic statistics on the loaded dataset.
-
-    Args:
-        episodes: List of episode dictionaries.
-
-    Returns:
-        Dict: Statistics including count, domain distribution, etc.
-    """
+    """Calculate basic statistics on the validated episodes."""
     if not episodes:
-        return {"count": 0, "domains": {}, "leak_targets": {}}
-
-    count = len(episodes)
-    domains = {}
-    leak_targets = {}
-
-    for ep in episodes:
-        # Count domains
-        domain = ep.get("domains", "unknown")
-        if isinstance(domain, list):
-            for d in domain:
-                domains[d] = domains.get(d, 0) + 1
-        else:
-            domains[domain] = domains.get(domain, 0) + 1
-
-        # Count leak targets
-        target = ep.get("leak-target", "unknown")
-        leak_targets[target] = leak_targets.get(target, 0) + 1
-
-    return {
-        "count": count,
-        "domains": domains,
-        "leak_targets": leak_targets
+        return {}
+    
+    stats = {
+        'total_episodes': len(episodes),
+        'domains': set(),
+        'leak_targets': set()
     }
-
+    
+    for ep in episodes:
+        if 'domains' in ep:
+            if isinstance(ep['domains'], list):
+                stats['domains'].update(ep['domains'])
+            else:
+                stats['domains'].add(ep['domains'])
+        if 'leak-target' in ep:
+            stats['leak_targets'].add(str(ep['leak-target']))
+    
+    stats['domains'] = list(stats['domains'])
+    stats['leak_targets'] = list(stats['leak_targets'])
+    
+    return stats
 
 def main():
-    """Main entry point for standalone execution."""
-    import argparse
+    """Entry point for data loader."""
+    logging.basicConfig(level=logging.INFO)
+    run_data_loader_pipeline()
 
-    parser = argparse.ArgumentParser(description="Run GateMem data loader pipeline.")
-    parser.add_argument("--dataset", type=str, default="gatekeeper/gatemem", help="HuggingFace dataset ID")
-    parser.add_argument("--output", type=str, default="data/processed/gatemem_episodes.jsonl", help="Output file path")
-    args = parser.parse_args()
-
-    try:
-        episodes = run_data_loader_pipeline(dataset_id=args.dataset, output_path=args.output)
-        stats = get_dataset_statistics(episodes)
-        print(json.dumps(stats, indent=2))
-    except ConnectionError as e:
-        logger.critical(f"Pipeline failed due to data fetch error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.critical(f"Pipeline failed unexpectedly: {e}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,104 +1,108 @@
-# Quickstart Guide: GateMem Benchmark Extension
+# llmXive GateMem Benchmark - Quick Start Guide
 
-This guide provides step-by-step instructions to set up the environment, download the required dataset, and run the initial evaluation for the GateMem benchmark extension project.
+This guide provides step-by-step instructions for setting up the environment, fetching the real dataset, and running the initial evaluation pipeline for the GateMem benchmark extension.
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- pip (Python package installer)
-- Git (for cloning the repository)
-- Access to Hugging Face Hub (for dataset download)
+- pip (Python package manager)
+- Git
+- Minimum 14 GB disk space (for streaming the full dataset)
+- Minimum 7 GB RAM (for processing)
 
-## 1. Project Setup
+## 1. Environment Setup
 
 ### Clone the Repository
 ```bash
 git clone <repository-url>
-cd PROJ-830-llmxive-follow-up-extending-gatemem-benc
+cd llmxive-follow-up-extending-gatemem-benc
 ```
 
-### Create a Virtual Environment
-It is recommended to use a virtual environment to manage dependencies.
+### Create Virtual Environment
 ```bash
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
 ### Install Dependencies
-Install the required packages listed in `requirements.txt`.
+Install the pinned dependencies from `requirements.txt` to ensure reproducibility:
 ```bash
 pip install -r requirements.txt
 ```
 
+### Verify Installation
+Run the following to ensure all critical packages are available:
+```bash
+python -c "import datasets; import transformers; import statsmodels; import torch; print('Dependencies verified.')"
+```
+
 ## 2. Dataset Download
 
-This project uses the **GateMem** dataset hosted on Hugging Face. The data loader is configured to stream the dataset to handle memory constraints, but you can also download it manually if preferred.
+This project uses the **GateMem** dataset hosted on Hugging Face. The data loader is configured to **stream** the dataset to avoid memory issues and will **fail loudly** if the real source is unreachable (no synthetic fallbacks).
 
-### Automatic Download (Recommended)
-The dataset will be automatically fetched and cached when you run the evaluation pipeline. Ensure you have a stable internet connection.
+### Fetch the Dataset
+Run the data loader script to download and validate the dataset:
+```bash
+python code/utils/data_loader.py --fetch
+```
 
-### Manual Download (Optional)
-If you prefer to download the dataset manually:
-1. Visit the dataset page on Hugging Face: [GateMem Dataset] (Note: Replace with actual dataset ID if different).
-2. Use the Hugging Face CLI or Python library to download:
- ```bash
- pip install huggingface_hub
- huggingface-cli download <dataset-id> --local-dir data/raw
- ```
- Or via Python:
- ```python
- from datasets import load_dataset
- dataset = load_dataset("<dataset-id>", split="train", streaming=True)
- # Process or save as needed
- ```
+This will:
+1. Stream the `gatekeeper/gatemem` dataset (config='default', split='test').
+2. Compute and store the SHA256 checksum in `state/artifact_hashes.yaml`.
+3. Validate the episode structure against `contracts/dataset.schema.yaml`.
 
-## 3. Running the First Evaluation
+**Note:** If the network is unavailable or the dataset is missing, the script will exit with code 1 and log "Critical: Real Data Fetch Failed".
 
-The evaluation pipeline compares the Gatekeeper approach against baseline methods (Retrieval-only and Long-Context).
+## 3. Running the Evaluation
+
+The pipeline supports running the Gatekeeper evaluation against baselines on specific domains.
 
 ### Run Access Control Evaluation (User Story 1)
-This evaluates unauthorized information leakage rates on specific domains.
+Evaluate on the "medical" and "office" domains:
 ```bash
 python code/cli/run_evaluation.py --domains medical,office --mode access_control
 ```
 
-### Run Utility and Forgetting Evaluation (User Story 2)
-This evaluates task success rates and deletion compliance.
+### Run Full Benchmark Suite
+To execute all user stories (Access Control, Utility, Forgetting, Cost Profiling):
 ```bash
-python code/cli/run_evaluation.py --domains education,household --mode utility
+python code/cli/run_evaluation.py --domains medical,office,education,household --mode full
 ```
 
-### Run Performance Profiling (User Story 3)
-This measures latency and memory usage.
+### Output Artifacts
+Results are saved to the `data/processed/` directory:
+- `access_control_results.json`
+- `utility_results.json`
+- `forgetting_results.json`
+- `performance_results.json`
+- `combined_metrics.json`
+
+## 4. Testing
+
+Run the unit tests to verify the setup:
 ```bash
-python code/cli/run_evaluation.py --domains medical --mode profiling
+pytest tests/unit/ -v
 ```
 
-### Full Benchmark Suite
-To run the complete benchmark across all supported domains and metrics:
+Run contract tests to ensure schema compliance:
 ```bash
-python code/cli/run_evaluation.py --all
+pytest tests/contract/ -v
 ```
 
-## 4. Output Files
+Specifically verify the documentation exists:
+```bash
+pytest tests/unit/test_docs.py::test_quickstart_exists
+```
 
-Results are saved in the `data/processed/` directory:
-- `access_control_results.json`: Access control scores.
-- `utility_results.json`: Utility and forgetting scores.
-- `performance_results.json`: Latency and memory profiling data.
-- `final_benchmark_report.md`: Comprehensive summary report.
+## Troubleshooting
 
-## 5. Troubleshooting
+- **Dataset Fetch Failed**: Ensure your internet connection is active and you have access to Hugging Face. Check `logs/data_loader.log` for specific errors.
+- **Memory Errors**: The pipeline uses streaming. If you encounter OOM errors, ensure you are not loading the entire dataset into memory at once in custom scripts.
+- **CUDA Errors**: The code enforces CPU execution (`device='cpu'`). If you see CUDA errors, verify your environment variables or ensure `torch` is not attempting to use a GPU.
+- **Missing Dependencies**: Re-run `pip install -r requirements.txt` to ensure all packages are installed.
 
-- **Dataset Fetch Failed**: Ensure your internet connection is stable and you have access to Hugging Face Hub. If using a proxy, configure your environment variables (`HTTP_PROXY`, `HTTPS_PROXY`).
-- **Model Load Error**: The DistilBERT model is loaded from the Hugging Face Hub. Ensure you have enough disk space in your cache directory (`~/.cache/huggingface`).
-- **Memory Issues**: The pipeline is designed to stream data. If you encounter memory errors, check your system resources or reduce the number of domains processed in a single run.
+## Next Steps
 
-## 6. Next Steps
-
-- Review the `specs/` directory for detailed design documents.
-- Run the contract and integration tests:
- ```bash
- pytest tests/
- ```
-- Contribute to the project by implementing pending tasks in `tasks.md`.
+- Review `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md` for detailed feature requirements.
+- Implement User Story 2 (Utility/Forgetting) if not yet completed.
+- Review the generated `data/results/final_benchmark_report.md` after a full run.

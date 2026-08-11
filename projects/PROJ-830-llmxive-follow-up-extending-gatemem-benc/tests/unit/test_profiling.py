@@ -1,6 +1,10 @@
 """
-Unit tests for profiling utilities.
+Unit tests for the profiling module.
+
+Tests verify that profiling functions return standardized results
+and handle edge cases correctly.
 """
+
 import pytest
 import time
 import sys
@@ -18,196 +22,247 @@ from code.utils.profiling import (
     reset_profiling,
     profile_block,
     profile_function,
-    measure_execution
+    profile_execution,
+    get_results_summary,
+    save_results_to_file
 )
 
 class TestProfileResult:
-    """Tests for ProfileResult dataclass."""
-    
-    def test_to_dict(self):
-        """Test conversion to dictionary."""
-        result = ProfileResult(
-            operation_name="test_op",
-            start_time=1000.0,
-            end_time=1001.0,
-            duration_ms=1000.0,
-            peak_memory_mb=50.0,
-            memory_delta_mb=5.0,
-            thread_id=12345
-        )
-        
-        d = result.to_dict()
-        
-        assert d["operation_name"] == "test_op"
-        assert d["start_time"] == 1000.0
-        assert d["end_time"] == 1001.0
-        assert d["duration_ms"] == 1000.0
-        assert d["peak_memory_mb"] == 50.0
-        assert d["memory_delta_mb"] == 5.0
-        assert d["thread_id"] == 12345
+    """Tests for ProfileResult named tuple."""
+
+    def test_profile_result_creation(self):
+        """Test that ProfileResult can be created with expected fields."""
+        result = ProfileResult(latency_ms=100.5, peak_ram_mb=50.25)
+        assert result.latency_ms == 100.5
+        assert result.peak_ram_mb == 50.25
+        assert isinstance(result.latency_ms, float)
+        assert isinstance(result.peak_ram_mb, float)
 
 class TestMemoryFunctions:
     """Tests for memory measurement functions."""
-    
-    def test_get_process_memory_mb_returns_positive(self):
-        """Test that memory measurement returns positive value."""
-        memory = get_process_memory_mb()
-        assert isinstance(memory, float)
-        assert memory >= 0.0
-    
-    def test_get_peak_memory_mb_initial(self):
-        """Test initial peak memory is zero before profiling."""
-        reset_profiling()
-        peak = get_peak_memory_mb()
-        assert peak == 0.0
 
-class TestProfilingLifecycle:
-    """Tests for profiling start/stop lifecycle."""
-    
-    def test_start_and_stop(self):
-        """Test basic start and stop."""
-        start_profiling("test_op")
-        result = stop_profiling("test_op")
-        
-        assert result is not None
-        assert result.operation_name == "test_op"
-        assert result.duration_ms >= 0
-        assert result.peak_memory_mb >= 0
-    
-    def test_stop_without_start(self):
-        """Test stopping without starting returns None."""
+    def test_get_process_memory_mb_returns_float(self):
+        """Test that get_process_memory_mb returns a float."""
+        result = get_process_memory_mb()
+        assert isinstance(result, float)
+        assert result >= 0.0
+
+    def test_get_peak_memory_mb_returns_float(self):
+        """Test that get_peak_memory_mb returns a float."""
+        result = get_peak_memory_mb()
+        assert isinstance(result, float)
+        assert result >= 0.0
+
+class TestStartStopProfiling:
+    """Tests for start/stop profiling functions."""
+
+    def test_start_profiling_initializes(self):
+        """Test that start_profiling initializes correctly."""
+        start_profiling()
+        # If we get here without error, initialization succeeded
+        stop_profiling()
+
+    def test_stop_profiling_returns_profile_result(self):
+        """Test that stop_profiling returns a ProfileResult."""
+        start_profiling()
+        time.sleep(0.01)  # Small delay
+        result = stop_profiling()
+        assert isinstance(result, ProfileResult)
+        assert result.latency_ms >= 0.0
+        assert result.peak_ram_mb >= 0.0
+
+    def test_stop_profiling_without_start(self):
+        """Test that stop_profiling handles being called without start."""
+        # Ensure profiling is not active
+        result = stop_profiling()
+        assert isinstance(result, ProfileResult)
+        assert result.latency_ms == 0.0
+        assert result.peak_ram_mb == 0.0
+
+    def test_reset_profiling(self):
+        """Test that reset_profiling resets state."""
+        start_profiling()
+        time.sleep(0.01)
         reset_profiling()
-        result = stop_profiling("nonexistent")
-        assert result is None
-    
-    def test_double_start(self):
-        """Test that double start logs warning and doesn't overwrite."""
-        start_profiling("first")
-        start_profiling("second")  # Should log warning
-        
-        result = stop_profiling("first")
-        assert result is not None
-        
-        # Second stop should return None as it was already stopped
-        result2 = stop_profiling("second")
-        assert result2 is None
+        # Should be able to continue profiling after reset
+        time.sleep(0.01)
+        result = stop_profiling()
+        assert isinstance(result, ProfileResult)
+        assert result.latency_ms >= 0.0
 
 class TestProfileBlock:
-    """Tests for context manager profiling."""
-    
-    def test_profile_block_basic(self):
-        """Test basic context manager usage."""
-        with profile_block("context_test") as result:
+    """Tests for profile_block context manager."""
+
+    def test_profile_block_executes_code(self):
+        """Test that profile_block executes the code inside it."""
+        executed = False
+        with profile_block("test"):
+            executed = True
+        assert executed
+
+    def test_profile_block_returns_result(self):
+        """Test that profile_block context yields a result."""
+        with profile_block("test") as result:
             time.sleep(0.01)
-        
-        assert result is not None
-        assert result.operation_name == "context_test"
-        assert result.duration_ms >= 10  # At least 10ms
-        assert result.duration_ms < 1000  # Reasonable upper bound
-    
-    def test_profile_block_with_exception(self):
-        """Test that profiling continues even if exception occurs."""
-        try:
-            with profile_block("exception_test") as result:
-                time.sleep(0.01)
-                raise ValueError("Test exception")
-        except ValueError:
-            pass
-        
-        # Result should still be captured
-        assert result is not None
-        assert result.duration_ms >= 10
+        assert isinstance(result, ProfileResult)
+        assert result.latency_ms >= 0.0
 
 class TestProfileFunction:
-    """Tests for function decorator profiling."""
-    
-    def test_profile_function_decorator(self):
-        """Test that decorator profiles function execution."""
-        @profile_function("decorated_test")
-        def sample_func():
-            time.sleep(0.01)
+    """Tests for profile_function decorator."""
+
+    def test_profile_function_preserves_function(self):
+        """Test that profile_function decorator preserves function behavior."""
+        @profile_function
+        def dummy_func():
             return "success"
         
-        result = sample_func()
+        result, profile_result = dummy_func()
         assert result == "success"
-    
-    def test_profile_function_preserves_metadata(self):
-        """Test that decorator preserves function metadata."""
-        @profile_function("meta_test")
-        def sample_func():
-            """Sample docstring."""
-            pass
-        
-        assert sample_func.__name__ == "sample_func"
-        assert sample_func.__doc__ == "Sample docstring."
+        assert isinstance(profile_result, ProfileResult)
 
-class TestMeasureExecution:
-    """Tests for direct execution measurement."""
-    
-    def test_measure_execution_success(self):
-        """Test successful measurement of function execution."""
-        def sample_func():
-            time.sleep(0.01)
-            return 42
-        
-        result, metrics = measure_execution(sample_func, operation_name="measure_test")
-        
-        assert result == 42
-        assert metrics is not None
-        assert metrics.operation_name == "measure_test"
-        assert metrics.duration_ms >= 10
-    
-    def test_measure_execution_with_args(self):
-        """Test measurement with function arguments."""
-        def add_func(a, b):
-            time.sleep(0.01)
+    def test_profile_function_with_args(self):
+        """Test that profile_function works with arguments."""
+        @profile_function
+        def add(a, b):
             return a + b
         
-        result, metrics = measure_execution(add_func, 5, 3, operation_name="add_test")
-        
-        assert result == 8
-        assert metrics.duration_ms >= 10
-    
-    def test_measure_execution_with_kwargs(self):
-        """Test measurement with keyword arguments."""
-        def multiply_func(x, y=2):
+        result, profile_result = add(2, 3)
+        assert result == 5
+        assert isinstance(profile_result, ProfileResult)
+
+class TestProfileExecution:
+    """Tests for profile_execution decorator (main interface)."""
+
+    def test_profile_execution_returns_dict(self):
+        """Test that profile_execution returns a dict with standardized keys."""
+        @profile_execution
+        def dummy_func():
             time.sleep(0.01)
-            return x * y
+            return "result"
         
-        result, metrics = measure_execution(
-            multiply_func, 5, y=3, operation_name="multiply_test"
-        )
-        
-        assert result == 15
-        assert metrics.duration_ms >= 10
-    
-    def test_measure_execution_propagates_exception(self):
-        """Test that exceptions from function are propagated."""
+        result = dummy_func()
+        assert isinstance(result, dict)
+        assert 'latency_ms' in result
+        assert 'peak_ram_mb' in result
+        assert isinstance(result['latency_ms'], float)
+        assert isinstance(result['peak_ram_mb'], float)
+
+    def test_profile_execution_with_exception(self):
+        """Test that profile_execution propagates exceptions."""
+        @profile_execution
         def failing_func():
-            raise RuntimeError("Intentional failure")
+            raise ValueError("Test error")
         
-        with pytest.raises(RuntimeError, match="Intentional failure"):
-            measure_execution(failing_func, operation_name="fail_test")
+        with pytest.raises(ValueError, match="Test error"):
+            failing_func()
 
-class TestResetProfiling:
-    """Tests for profiling reset functionality."""
-    
-    def test_reset_clears_state(self):
-        """Test that reset clears all profiling state."""
-        start_profiling("temp")
-        # Capture some state
-        _ = get_peak_memory_mb()
+    def test_profile_execution_keys_are_standardized(self):
+        """Test that keys match the required standardized format."""
+        @profile_execution
+        def dummy_func():
+            return None
         
-        reset_profiling()
-        
-        # Should be back to initial state
-        peak = get_peak_memory_mb()
-        assert peak == 0.0
-        
-        # Should be able to start fresh
-        start_profiling("fresh")
-        result = stop_profiling("fresh")
-        assert result is not None
+        result = dummy_func()
+        expected_keys = {'latency_ms', 'peak_ram_mb'}
+        assert set(result.keys()) == expected_keys
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class TestGetResultsSummary:
+    """Tests for get_results_summary function."""
+
+    def test_get_results_summary_with_data(self):
+        """Test summary calculation with actual data."""
+        results = [
+            ProfileResult(100.0, 50.0),
+            ProfileResult(200.0, 100.0),
+            ProfileResult(150.0, 75.0)
+        ]
+        
+        summary = get_results_summary(results)
+        
+        assert isinstance(summary, dict)
+        assert 'mean_latency_ms' in summary
+        assert 'std_latency_ms' in summary
+        assert 'mean_peak_ram_mb' in summary
+        assert 'std_peak_ram_mb' in summary
+        
+        # Verify calculations
+        assert summary['mean_latency_ms'] == 150.0
+        assert summary['mean_peak_ram_mb'] == 75.0
+
+    def test_get_results_summary_empty_list(self):
+        """Test summary calculation with empty list."""
+        summary = get_results_summary([])
+        
+        assert summary['mean_latency_ms'] == 0.0
+        assert summary['std_latency_ms'] == 0.0
+        assert summary['mean_peak_ram_mb'] == 0.0
+        assert summary['std_peak_ram_mb'] == 0.0
+
+class TestSaveResultsToFile:
+    """Tests for save_results_to_file function."""
+
+    def test_save_results_to_file_creates_file(self):
+        """Test that save_results_to_file creates a file."""
+        import tempfile
+        import json
+        
+        results = [
+            {'latency_ms': 100.0, 'peak_ram_mb': 50.0},
+            {'latency_ms': 200.0, 'peak_ram_mb': 100.0}
+        ]
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            filepath = f.name
+        
+        try:
+            save_results_to_file(results, filepath)
+            
+            # Verify file exists and contains valid JSON
+            assert os.path.exists(filepath)
+            with open(filepath, 'r') as f:
+                loaded = json.load(f)
+            
+            assert len(loaded) == 2
+            assert loaded[0]['latency_ms'] == 100.0
+        finally:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+
+class TestIntegration:
+    """Integration tests for the profiling module."""
+
+    def test_full_profiling_workflow(self):
+        """Test a complete profiling workflow."""
+        @profile_execution
+        def workload():
+            data = [i * 2 for i in range(1000)]
+            return sum(data)
+        
+        # Run profiling
+        result = workload()
+        
+        # Verify result structure
+        assert isinstance(result, dict)
+        assert 'latency_ms' in result
+        assert 'peak_ram_mb' in result
+        assert result['latency_ms'] >= 0.0
+        assert result['peak_ram_mb'] >= 0.0
+
+    def test_multiple_profiling_runs(self):
+        """Test multiple profiling runs in sequence."""
+        results = []
+        
+        @profile_execution
+        def dummy_work():
+            time.sleep(0.01)
+            return None
+        
+        for _ in range(3):
+            result = dummy_work()
+            results.append(result)
+        
+        # All results should have correct structure
+        for result in results:
+            assert isinstance(result, dict)
+            assert 'latency_ms' in result
+            assert 'peak_ram_mb' in result

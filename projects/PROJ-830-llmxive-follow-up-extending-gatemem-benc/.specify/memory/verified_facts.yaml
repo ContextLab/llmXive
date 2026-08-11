@@ -1,0 +1,5 @@
+'|base classification distilbert english fallback finetuned id intent model sst uncased':
+  quote: distilbert-base-uncased-finetuned-sst-2-english
+  source_id: '2501.00241'
+  url: https://arxiv.org/abs/2501.00241
+  value: distilbert-base-uncased-finetuned-sst-2-english

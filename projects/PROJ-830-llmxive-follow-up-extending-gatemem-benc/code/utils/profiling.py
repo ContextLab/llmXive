@@ -1,12 +1,12 @@
 """
 Profiling utilities for CPU/RAM and wall-clock time instrumentation.
 
-This module provides context managers and decorators to measure:
-- Wall-clock execution time
-- Peak and current memory usage (via tracemalloc)
-- CPU time (via time.process_time)
+This module provides standardized profiling functions to measure:
+- Wall-clock time (latency) in milliseconds
+- Peak RAM usage in megabytes
 
-All measurements are CPU-only compliant and do not require GPU resources.
+All profiling tasks in the project MUST use this module to ensure 
+identical output keys for Gatekeeper and Baselines.
 """
 
 import os
@@ -16,314 +16,284 @@ import logging
 import json
 from typing import Optional, Dict, Any, Callable, TypeVar, ContextManager, List, NamedTuple
 from contextlib import contextmanager
-from dataclasses import dataclass, asdict
+
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Type variable for decorators
+# Type variable for generic function profiling
 T = TypeVar('T')
 
-@dataclass
-class ProfileResult:
-    """Container for profiling results of a single operation."""
-    operation_name: str
-    wall_time_ms: float
-    cpu_time_ms: float
-    peak_memory_mb: float
-    current_memory_mb: float
-    timestamp: str
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
-        return asdict(self)
-    
-    def to_json(self) -> str:
-        """Convert to JSON string."""
-        return json.dumps(self.to_dict(), indent=2)
+class ProfileResult(NamedTuple):
+    """Named tuple to hold profiling results."""
+    latency_ms: float
+    peak_ram_mb: float
 
-# Global state for tracking
-_profiling_active: bool = False
+# Global state for profiling
+_profiling_active = False
 _start_time: Optional[float] = None
-_start_cpu_time: Optional[float] = None
-_start_memory: Optional[float] = None
 _peak_memory: float = 0.0
-_results: List[ProfileResult] = []
 
 def get_process_memory_mb() -> float:
     """
-    Get current process memory usage in MB using tracemalloc.
+    Get current process memory usage in MB.
     
     Returns:
-        float: Memory usage in megabytes.
+        Current memory usage in megabytes.
     """
     if not tracemalloc.is_tracing():
-        # If tracemalloc isn't active, try to get from psutil if available,
-        # otherwise return 0.0 (tracemalloc should be started by start_profiling)
-        return 0.0
+        # If tracemalloc isn't active, try psutil as fallback
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss / (1024 * 1024)
+        except ImportError:
+            logger.warning("tracemalloc not active and psutil not available. Returning 0.0")
+            return 0.0
     
-    current, peak = tracemalloc.get_traced_memory()
+    current, _ = tracemalloc.get_traced_memory()
     return current / (1024 * 1024)
 
 def get_peak_memory_mb() -> float:
     """
-    Get peak memory usage since tracing started in MB.
+    Get peak memory usage since tracemalloc started in MB.
     
     Returns:
-        float: Peak memory usage in megabytes.
+        Peak memory usage in megabytes.
     """
     if not tracemalloc.is_tracing():
-        return 0.0
+        # If tracemalloc isn't active, try psutil as fallback
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            # psutil doesn't track peak RSS easily, so we return current
+            return process.memory_info().rss / (1024 * 1024)
+        except ImportError:
+            logger.warning("tracemalloc not active and psutil not available. Returning 0.0")
+            return 0.0
     
-    current, peak = tracemalloc.get_traced_memory()
+    _, peak = tracemalloc.get_traced_memory()
     return peak / (1024 * 1024)
 
-def start_profiling():
-    """
-    Start memory and time profiling.
-    
-    Initializes tracemalloc and records start times.
-    """
-    global _profiling_active, _start_time, _start_cpu_time, _start_memory, _peak_memory
+def start_profiling() -> None:
+    """Start profiling with tracemalloc."""
+    global _profiling_active, _start_time, _peak_memory
     
     if _profiling_active:
-        logger.warning("Profiling is already active. Skipping start.")
-        return
+        logger.warning("Profiling already active. Resetting...")
+        stop_profiling()
     
     tracemalloc.start()
     _start_time = time.perf_counter()
-    _start_cpu_time = time.process_time()
-    _start_memory, _peak_memory = tracemalloc.get_traced_memory()
     _peak_memory = 0.0
-    _results.clear()
     _profiling_active = True
-    
-    logger.info("Profiling started.")
+    logger.debug("Profiling started")
 
-def stop_profiling() -> Optional[ProfileResult]:
+def stop_profiling() -> ProfileResult:
     """
-    Stop profiling and return the aggregated result.
+    Stop profiling and return results.
     
     Returns:
-        ProfileResult: Aggregated profiling data, or None if not active.
+        ProfileResult with latency_ms and peak_ram_mb.
     """
-    global _profiling_active, _start_time, _start_cpu_time, _peak_memory
+    global _profiling_active, _start_time, _peak_memory
     
     if not _profiling_active:
-        logger.warning("Profiling is not active. Cannot stop.")
-        return None
+        logger.warning("Profiling not active. Returning zero results.")
+        return ProfileResult(latency_ms=0.0, peak_ram_mb=0.0)
     
     end_time = time.perf_counter()
-    end_cpu_time = time.process_time()
-    current_memory, peak_memory = tracemalloc.get_traced_memory()
+    current, peak = tracemalloc.get_traced_memory()
     
-    wall_time_ms = (end_time - _start_time) * 1000
-    cpu_time_ms = (end_cpu_time - _start_cpu_time) * 1000
-    peak_memory_mb = peak_memory / (1024 * 1024)
-    current_memory_mb = current_memory / (1024 * 1024)
+    latency_ms = (end_time - _start_time) * 1000.0
+    peak_ram_mb = peak / (1024 * 1024)
     
-    result = ProfileResult(
-        operation_name="global_session",
-        wall_time_ms=wall_time_ms,
-        cpu_time_ms=cpu_time_ms,
-        peak_memory_mb=peak_memory_mb,
-        current_memory_mb=current_memory_mb,
-        timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    )
-    
-    _results.append(result)
-    _profiling_active = False
     tracemalloc.stop()
-    
-    logger.info(f"Profiling stopped. Peak RAM: {peak_memory_mb:.2f} MB, Wall Time: {wall_time_ms:.2f} ms.")
-    return result
-
-def reset_profiling():
-    """Reset all profiling state without stopping tracemalloc if active."""
-    global _start_time, _start_cpu_time, _peak_memory, _results
-    
+    _profiling_active = False
     _start_time = None
-    _start_cpu_time = None
-    _peak_memory = 0.0
-    _results.clear()
+    _peak_memory = peak_ram_mb
+    
+    logger.debug(f"Profiling stopped: {latency_ms:.2f}ms, {peak_ram_mb:.2f}MB peak")
+    return ProfileResult(latency_ms=latency_ms, peak_ram_mb=peak_ram_mb)
+
+def reset_profiling() -> None:
+    """Reset profiling state without stopping tracemalloc."""
+    global _start_time, _peak_memory
     
     if tracemalloc.is_tracing():
         tracemalloc.reset_peak()
-        logger.info("Profiling state reset.")
+    
+    _start_time = time.perf_counter()
+    _peak_memory = 0.0
+    logger.debug("Profiling reset")
 
 @contextmanager
-def profile_block(label: str = "unnamed_block") -> ContextManager[Optional[ProfileResult]]:
+def profile_block(label: str = "block") -> ContextManager[ProfileResult]:
     """
-    Context manager to profile a specific code block.
+    Context manager for profiling a code block.
     
     Args:
-        label: Identifier for the block being profiled.
+        label: Label for logging purposes.
         
     Yields:
-        ProfileResult: The result of the profiling for this block.
-        
-    Example:
-        with profile_block("data_loading") as result:
-            load_data()
-        print(f"Block took {result.wall_time_ms} ms")
+        ProfileResult with timing and memory info.
     """
-    if not _profiling_active:
-        logger.warning("Profiling not active. Wrapping block without timing.")
-        yield None
-        return
-    
-    start_time = time.perf_counter()
-    start_cpu = time.process_time()
-    start_mem, _ = tracemalloc.get_traced_memory()
-    
+    start_profiling()
     try:
         yield
     finally:
-        end_time = time.perf_counter()
-        end_cpu = time.process_time()
-        end_mem, peak_mem = tracemalloc.get_traced_memory()
-        
-        # Update global peak if this block exceeded it
-        global _peak_memory
-        if peak_mem > _peak_memory:
-            _peak_memory = peak_mem
-        
-        wall_time_ms = (end_time - start_time) * 1000
-        cpu_time_ms = (end_cpu - start_cpu) * 1000
-        peak_memory_mb = peak_mem / (1024 * 1024)
-        current_memory_mb = end_mem / (1024 * 1024)
-        
-        result = ProfileResult(
-            operation_name=label,
-            wall_time_ms=wall_time_ms,
-            cpu_time_ms=cpu_time_ms,
-            peak_memory_mb=peak_memory_mb,
-            current_memory_mb=current_memory_mb,
-            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        )
-        
-        _results.append(result)
-        logger.debug(f"Profiled block '{label}': {wall_time_ms:.2f} ms, {peak_memory_mb:.2f} MB peak.")
+        result = stop_profiling()
+        logger.info(f"Profile block '{label}': {result.latency_ms:.2f}ms, {result.peak_ram_mb:.2f}MB")
 
-@contextmanager
-def profile_function(label: str = None) -> ContextManager[Optional[ProfileResult]]:
+def profile_function(func: Callable[..., T]) -> Callable[..., Tuple[T, ProfileResult]]:
     """
-    Context manager specifically designed to wrap function execution.
-    Alias for profile_block but with semantic clarity for function wrapping.
+    Decorator to profile a function's execution.
     
     Args:
-        label: Optional label. If None, the function name will be used.
-    """
-    yield from profile_block(label or "function_execution")
-
-def profile_function_decorator(label: str = None) -> Callable[[Callable[[T], T]], Callable[[T], T]]:
-    """
-    Decorator to profile a function.
-    
-    Args:
-        label: Optional label. If None, the function name is used.
+        func: The function to profile.
         
     Returns:
-        Decorated function that logs profiling data.
+        Wrapped function that returns (result, ProfileResult).
     """
-    def decorator(func: Callable) -> Callable:
-        def wrapper(*args, **kwargs):
-            block_label = label or func.__name__
-            with profile_block(block_label) as result:
-                return func(*args, **kwargs)
-        return wrapper
-    return decorator
-
-def measure_execution(func: Callable, *args, **kwargs) -> Dict[str, Any]:
-    """
-    Execute a function and return its profiling results.
-    
-    Args:
-        func: The function to execute.
-        *args: Arguments to pass to the function.
-        **kwargs: Keyword arguments to pass to the function.
-        
-    Returns:
-        Dict containing execution results and profiling metrics.
-    """
-    if not _profiling_active:
+    def wrapper(*args, **kwargs) -> Tuple[T, ProfileResult]:
         start_profiling()
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            profile_result = stop_profiling()
+            logger.info(
+                f"Profile function '{func.__name__}': "
+                f"{profile_result.latency_ms:.2f}ms, {profile_result.peak_ram_mb:.2f}MB"
+            )
+        return result, profile_result
     
-    block_label = func.__name__
-    with profile_block(block_label) as result:
-        output = func(*args, **kwargs)
+    wrapper.__name__ = func.__name__
+    wrapper.__doc__ = func.__doc__
+    return wrapper
+
+def profile_execution(func: Callable[..., Any]) -> Callable[..., Dict[str, Any]]:
+    """
+    Profile a function's execution and return standardized results dict.
+    
+    This is the primary interface for profiling in the project.
+    It ensures all profiling tasks return identical output keys:
+    {'latency_ms': float, 'peak_ram_mb': float}
+    
+    Args:
+        func: The function to profile.
+        
+    Returns:
+        Wrapped function that returns a dict with standardized keys.
+    """
+    def wrapper(*args, **kwargs) -> Dict[str, Any]:
+        start_profiling()
+        try:
+            result = func(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error during execution: {e}")
+            raise
+        finally:
+            profile_result = stop_profiling()
+        
+        # Return standardized dict as required by task specification
+        return {
+            'latency_ms': profile_result.latency_ms,
+            'peak_ram_mb': profile_result.peak_ram_mb
+        }
+    
+    wrapper.__name__ = func.__name__
+    wrapper.__doc__ = func.__doc__
+    return wrapper
+
+def get_results_summary(results: List[ProfileResult]) -> Dict[str, float]:
+    """
+    Calculate summary statistics from a list of profiling results.
+    
+    Args:
+        results: List of ProfileResult objects.
+        
+    Returns:
+        Dict with mean and std dev for latency and memory.
+    """
+    if not results:
+        return {
+            'mean_latency_ms': 0.0,
+            'std_latency_ms': 0.0,
+            'mean_peak_ram_mb': 0.0,
+            'std_peak_ram_mb': 0.0
+        }
+    
+    latencies = [r.latency_ms for r in results]
+    memories = [r.peak_ram_mb for r in results]
+    
+    import numpy as np
     
     return {
-        "output": output,
-        "profile": result.to_dict() if result else {}
+        'mean_latency_ms': float(np.mean(latencies)),
+        'std_latency_ms': float(np.std(latencies)),
+        'mean_peak_ram_mb': float(np.mean(memories)),
+        'std_peak_ram_mb': float(np.std(memories))
     }
 
-def get_results_summary() -> List[Dict[str, Any]]:
-    """
-    Get a summary of all recorded profiling results.
-    
-    Returns:
-        List of dictionaries containing profile data.
-    """
-    return [r.to_dict() for r in _results]
-
-def save_results_to_file(filepath: str, results: Optional[List[ProfileResult]] = None):
+def save_results_to_file(results: List[Dict[str, Any]], filepath: str) -> None:
     """
     Save profiling results to a JSON file.
     
     Args:
-        filepath: Path to the output file.
-        results: Optional list of results. If None, uses global _results.
+        results: List of result dicts with standardized keys.
+        filepath: Path to output file.
     """
-    data = results if results is not None else _results
-    if not data:
-        logger.warning("No results to save.")
-        return
+    output_path = Path(filepath)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Ensure directory exists
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
     
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump([r.to_dict() for r in data], f, indent=2)
-    
-    logger.info(f"Profiling results saved to {filepath}")
+    logger.info(f"Saved {len(results)} profiling results to {filepath}")
 
-def main():
+def main() -> None:
     """
-    Main entry point for testing the profiling module standalone.
-    Runs a dummy task to demonstrate profiling capabilities.
+    Main function for standalone testing of profiling utilities.
+    
+    Runs a simple benchmark and prints results.
     """
-    logger.info("Running profiling module self-test...")
+    logger.info("Running profiling utility test...")
     
-    start_profiling()
+    def dummy_work():
+        """Simulate some work."""
+        data = []
+        for i in range(10000):
+            data.append(i * i)
+        return sum(data)
     
-    # Simulate a task
-    with profile_block("dummy_task_simulation"):
-        time.sleep(0.1)  # Simulate work
-        data = [i * i for i in range(10000)]  # Simulate memory usage
-        _ = sum(data)
+    # Profile the dummy work
+    results = profile_execution(dummy_work)()
     
-    result = stop_profiling()
+    print(f"Latency: {results['latency_ms']:.2f} ms")
+    print(f"Peak RAM: {results['peak_ram_mb']:.2f} MB")
     
-    if result:
-        print(f"Self-test completed.")
-        print(f"Operation: {result.operation_name}")
-        print(f"Wall Time: {result.wall_time_ms:.2f} ms")
-        print(f"Peak RAM: {result.peak_memory_mb:.2f} MB")
-        
-        # Save results
-        save_results_to_file("data/processed/profiling_self_test.json")
-    else:
-        logger.error("Self-test failed: No result returned.")
-        return 1
+    # Test context manager
+    with profile_block("test_block"):
+        time.sleep(0.1)
     
-    return 0
+    # Test decorator
+    decorated_func = profile_function(dummy_work)
+    _, profile_result = decorated_func()
+    print(f"Decorated function: {profile_result.latency_ms:.2f}ms, {profile_result.peak_ram_mb:.2f}MB")
+    
+    # Test summary
+    summary = get_results_summary([
+        ProfileResult(100.0, 50.0),
+        ProfileResult(120.0, 55.0),
+        ProfileResult(90.0, 45.0)
+    ])
+    print(f"Summary: {summary}")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    # Setup logging for standalone execution
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    main()
