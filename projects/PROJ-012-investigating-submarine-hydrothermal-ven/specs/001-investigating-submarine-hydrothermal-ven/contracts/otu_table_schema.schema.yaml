@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OTU/ASV Abundance Schema"
+description: "Schema for the OTU/ASV count matrix (sparse or dense)."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Foreign key to Sample."
+  otu_id:
+    type: "string"
+    description: "OTU or ASV identifier."
+  abundance:
+    type: "integer"
+    minimum: 0
+    description: "Raw read count for this OTU/ASV in this sample."
+  taxonomy:
+    type: "string"
+    description: "Taxonomic classification string."
+required:
+  - sample_id
+  - otu_id
+  - abundance
+additionalProperties: false

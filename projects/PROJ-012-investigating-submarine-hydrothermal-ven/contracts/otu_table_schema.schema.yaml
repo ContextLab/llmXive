@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: OTU Table Schema
+description: Schema for Operational Taxonomic Unit (OTU) or ASV count tables.
+type: object
+required:
+  - sample_id
+  - otu_id
+  - count
+properties:
+  sample_id:
+    type: string
+    description: Foreign key referencing the Sample entity.
+    pattern: "^[A-Za-z0-9_-]+$"
+  otu_id:
+    type: string
+    description: Unique identifier for the OTU or ASV.
+    pattern: "^[A-Za-z0-9_-]+$"
+  count:
+    type: integer
+    description: Read count for this OTU in the sample.
+    minimum: 0
+  taxonomy:
+    type: array
+    description: Taxonomic classification path (Kingdom to Species).
+    items:
+      type: string
+    nullable: true
+additionalProperties: false

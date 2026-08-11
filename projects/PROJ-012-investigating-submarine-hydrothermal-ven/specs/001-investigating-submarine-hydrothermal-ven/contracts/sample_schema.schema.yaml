@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sample Metadata Schema"
+description: "Schema for unified analysis-ready sample table including pH, temperature, and diversity metrics."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  deployment_event:
+    type: "string"
+    description: "ID of the deployment event."
+  sensor_id:
+    type: "string"
+    description: "ID of the sensor used."
+  coordinates:
+    type: "string"
+    description: "Geographic coordinates (lat,lon)."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "UTC timestamp of collection."
+  pH_value:
+    type: "number"
+    description: "Measured pH value."
+    minimum: 1.0
+    maximum: 10.0
+  pH_std:
+    type: "number"
+    description: "Standard deviation of pH in ±15 min window."
+  temp_value:
+    type: "number"
+    description: "Measured temperature."
+  shannon_index:
+    type: "number"
+    description: "Calculated Shannon diversity index."
+  simpson_index:
+    type: "number"
+    description: "Calculated Simpson diversity index."
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "rejected_temporal"
+      - "rejected_ph_outlier"
+      - "flagged_review"
+    description: "Status of the sample after preprocessing."
+  flag:
+    type: "string"
+    nullable: true
+    description: "Additional flags (e.g., 'associational_only', 'low_power', 'synthetic_data')."
+required:
+  - sample_id
+  - timestamp
+  - pH_value
+  - temp_value
+  - status
+additionalProperties: false

@@ -1,0 +1,15 @@
+status: none
+intent: Earth Microbiome Project 16S raw FASTQ with pH temperature metadata SILVA
+  Greengenes python package dataset
+required_fields:
+- sample_id
+- collection_timestamp
+- latitude
+- longitude
+- pH
+- temperature
+- otu_counts_or_asv_counts
+- shannon_diversity_index
+cache_key: ffcf24145e689b8dec77ced9af75a729217638821a571b4cb0314b4964e1f352
+searched_at: '2026-08-11T08:45:14.632233+00:00'
+retry_count: 1

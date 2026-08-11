@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Sample Schema
+description: Schema for environmental sample metadata including pH and temperature logs.
+type: object
+required:
+  - sample_id
+  - timestamp
+  - pH
+  - temperature
+  - location
+  - deployment_event
+  - sensor_id
+  - coordinates
+properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the sample.
+    pattern: "^[A-Za-z0-9_-]+$"
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the sample collection.
+  pH:
+    type: number
+    description: Measured pH value.
+    minimum: 0.0
+    maximum: 14.0
+  temperature:
+    type: number
+    description: Measured temperature in Celsius.
+    minimum: -2.0
+  location:
+    type: string
+    description: Name of the hydrothermal vent site.
+  deployment_event:
+    type: string
+    description: Identifier for the specific sensor deployment event.
+  sensor_id:
+    type: string
+    description: Unique ID of the sensor used for measurement.
+  coordinates:
+    type: string
+    description: Latitude and longitude coordinates (e.g., "45.123,-123.456").
+    pattern: "^-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?$"
+  fastq_path:
+    type: string
+    description: Relative path to the raw FASTQ file.
+    nullable: true
+  pH_sd:
+    type: number
+    description: Standard deviation of pH within the ±15 minute window.
+    minimum: 0.0
+  pH_heterogeneous:
+    type: boolean
+    description: Flag indicating if pH heterogeneity (SD > 0.2) is present.
+additionalProperties: false

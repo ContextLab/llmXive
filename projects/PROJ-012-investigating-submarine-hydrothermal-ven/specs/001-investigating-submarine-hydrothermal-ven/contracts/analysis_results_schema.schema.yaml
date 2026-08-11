@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical model outputs (LME, PERMANOVA, dbRDA, Mantel)."
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique ID for the analysis run."
+  model_type:
+    type: "string"
+    enum:
+      - "LME"
+      - "GLMM"
+      - "OLS"
+      - "PERMANOVA"
+      - "dbRDA"
+      - "Mantel"
+      - "PERMDISP"
+    description: "Type of statistical model used."
+  metric:
+    type: "string"
+    description: "Metric analyzed (e.g., 'shannon', 'bray_curtis')."
+  coefficient:
+    type: "number"
+    nullable: true
+    description: "Regression coefficient or F-statistic."
+  p_value:
+    type: "number"
+    description: "P-value of the test."
+  r_squared:
+    type: "number"
+    nullable: true
+    description: "R-squared value (for PERMANOVA/dbRDA)."
+  flag:
+    type: "string"
+    nullable: true
+    description: "Flags like 'associational_only', 'heteroscedastic', 'collinear', 'dispersion_confounded', 'low_power', 'synthetic_data'."
+required:
+  - analysis_id
+  - model_type
+  - metric
+  - p_value
+additionalProperties: false

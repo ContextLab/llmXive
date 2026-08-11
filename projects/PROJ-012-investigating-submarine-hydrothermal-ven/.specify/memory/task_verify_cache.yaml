@@ -1,0 +1,15 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or file listings for `data/raw/`, `data/processed/`, `code/`,
+    `tests/`, `state/`, or `results/figures/` were provided, so we cannot confirm
+    that the required project folders actually exist. The implementer must create
+    and show these directories (with at least placeholder files) to satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black\
+    \ settings, `.ruff.toml`, or a `black` config) or related setup scripts are present\
+    \ in the provided artifacts, so the requirement to configure ruff and black is\
+    \ not demonstrated. The implementer must add the appropriate configuration files\
+    \ and ensure they are non\u2011empty and correctly set up."
