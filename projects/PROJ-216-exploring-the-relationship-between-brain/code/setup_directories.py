@@ -6,10 +6,12 @@ import datetime
 
 def create_directories() -> List[str]:
     """
-    Create the required directory structure for the project.
-    Returns a list of paths that were created or verified.
+    Creates the required directory structure for the project.
+    
+    Returns:
+        List[str]: List of created directory paths relative to the current working directory.
     """
-    paths = [
+    directories = [
         'data/raw',
         'data/interim',
         'data/processed',
@@ -17,59 +19,98 @@ def create_directories() -> List[str]:
         'tests/integration',
         'reports'
     ]
+    
     created_paths = []
-    for p in paths:
-        full_path = Path(p)
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(str(full_path))
+    for dir_path in directories:
+        path = Path(dir_path)
+        path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(dir_path)
+    
     return created_paths
 
 def verify_directories(paths: List[str]) -> bool:
     """
-    Verify that all required directories exist.
-    Returns True if all exist, False otherwise.
+    Verifies that all specified directories exist and are writable.
+    
+    Args:
+        paths (List[str]): List of directory paths to verify.
+        
+    Returns:
+        bool: True if all directories exist and are writable, False otherwise.
     """
-    all_exist = True
-    for p in paths:
-        if not Path(p).is_dir():
-            all_exist = False
-            print(f"ERROR: Directory {p} does not exist.")
-    return all_exist
+    for path_str in paths:
+        path = Path(path_str)
+        if not path.is_dir():
+            return False
+        # Check writability by attempting to create a temp file
+        try:
+            test_file = path / '.write_test'
+            test_file.touch()
+            test_file.unlink()
+        except (OSError, IOError):
+            return False
+    return True
 
-def generate_verification_log(paths: List[str], output_path: str = 'data/.verify_structure.log') -> None:
+def generate_verification_log(paths: List[str], log_path: str = 'data/.verify_structure.log') -> None:
     """
-    Generate a verification log file with timestamps for each directory.
+    Generates a verification log file documenting the status of each directory.
+    
+    Args:
+        paths (List[str]): List of directory paths to log.
+        log_path (str): Path to the output log file.
     """
-    timestamp = datetime.datetime.now().isoformat()
-    log_entries = [f"{p}:{timestamp}" for p in paths]
+    log_file = Path(log_path)
+    # Ensure the parent directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
     
-    # Ensure the data directory exists before writing the log
-    Path('data').mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        f.write('\n'.join(log_entries))
-    
-    print(f"Verification log written to {output_path}")
+    with open(log_file, 'w') as f:
+        f.write(f"Verification Log Generated at: {datetime.datetime.now().isoformat()}\n")
+        f.write("=" * 60 + "\n")
+        for path_str in paths:
+            path = Path(path_str)
+            if path.is_dir():
+                status = "OK"
+            else:
+                status = "FAILED"
+            f.write(f"{status} {path_str}\n")
 
 def main():
     """
-    Main entry point to initialize the data directory structure.
+    Main execution function to create, verify, and log directory structure.
     """
-    print("Initializing data directory structure...")
+    print("Initializing directory structure...")
     
-    # Step 1: Create directories
+    # 1. Create directories
     created_paths = create_directories()
-    print(f"Created/Verified directories: {created_paths}")
+    print(f"Created directories: {created_paths}")
     
-    # Step 2: Verify directories
-    if not verify_directories(created_paths):
-        print("Verification failed. Exiting.")
+    # 2. Verify directories
+    all_valid = verify_directories(created_paths)
+    if not all_valid:
+        print("ERROR: Directory verification failed. Some directories are missing or not writable.")
         sys.exit(1)
+    print("Directory verification passed.")
     
-    # Step 3: Generate verification log
-    generate_verification_log(created_paths)
+    # 3. Generate verification log
+    log_path = 'data/.verify_structure.log'
+    generate_verification_log(created_paths, log_path)
+    print(f"Verification log written to: {log_path}")
     
-    print("Directory initialization complete.")
+    # 4. Final check as per T001 requirements
+    if not Path(log_path).exists():
+        print("CRITICAL ERROR: Verification log file was not created.")
+        sys.exit(1)
+        
+    with open(log_path, 'r') as f:
+        content = f.read()
+    
+    # Ensure all entries are OK
+    for path_str in created_paths:
+        if f"OK {path_str}" not in content:
+            print(f"CRITICAL ERROR: Log does not contain 'OK' status for {path_str}.")
+            sys.exit(1)
+            
+    print("SUCCESS: All directories created, verified, and logged successfully.")
 
 if __name__ == "__main__":
     main()

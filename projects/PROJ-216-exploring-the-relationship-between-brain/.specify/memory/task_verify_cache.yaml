@@ -1,12 +1,25 @@
-T009:
+T008a:
   c: false
-  h: 870990c588b9b8f1a8da9fc34ac9c5be7e1ec095022e2b50007303ce7a59bc11
-  r: "The `ResourceMonitor` implementation in `code/utils.py` is truncated (the `finalize`\
-    \ method is incomplete and does not write the JSON profile). The required output\
-    \ file `data/processed/resource_profile.json` is missing, and the unit test file\
-    \ `tests/unit/test_resource_monitor.py` is also truncated, so it does not fully\
-    \ verify the RAM calculations or JSON writing. The task\u2019s artifacts are therefore\
-    \ incomplete."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No file `specs/amendment-001-fluid-intelligence-n10.md` or its contents were\
+    \ presented. Consequently, the required statements about FR\u2011001, SC\u2011\
+    001, SC\u2011005, FR\u2011005, and SC\u2011004 amendments are not verifiable,\
+    \ and the verification step (writing to a temporary file and checking the content)\
+    \ is absent. The implementer must supply the actual markdown file with the explicit\
+    \ amendment text."
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/amendment-001-fluid-intelligence-n10.md` file or its contents were
+    presented; the implementer did not supply the required amendment document or any
+    proof that it was written to the specified path. The task therefore remains unfinished.
+T008c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No content from `specs/amendment-001-fluid-intelligence-n10.md` was provided,
+    so we cannot verify that the required strings (FR-001, FR-005, SC-001, SC-004)
+    are present. The implementer must supply the actual file or its relevant excerpts
+    showing those identifiers.
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

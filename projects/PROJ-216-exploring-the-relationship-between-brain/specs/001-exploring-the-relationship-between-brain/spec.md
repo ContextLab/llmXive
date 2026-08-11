@@ -69,7 +69,7 @@ The system must perform statistical correlation analysis between the computed gr
 
 - **FR-001**: System MUST attempt to download resting-state fMRI data from OpenNeuro datasets ds000224 and ds000230. It MUST validate the presence of at least one valid creativity proxy score and age/gender metadata. If fewer than 50 subjects with valid data are found, the system MUST use all available subjects (N ≥ 1) for analysis. If NO subjects with valid data are found, the system MUST halt execution with a critical error stating 'No valid data found in specified datasets' (See US-1).
 - **FR-002**: System MUST preprocess fMRI data using FSL/AFNI tools to perform motion correction, spatial normalization, and bandpass filtering (0.01-0.1 Hz) (See US-1).
-- **FR-003**: System MUST compute functional connectivity matrices and graph metrics (global efficiency, modularity, clustering coefficient) using a 200-ROI atlas (See US-2).
+- **FR-003**: System MUST compute functional connectivity matrices and graph metrics (global efficiency, modularity, clustering coefficient) using a multi-region atlas (See US-2).
 - **FR-004**: System MUST perform Pearson/Spearman correlation analysis between graph metrics and creativity proxy scores using multiple linear regression to control for age and gender. If age/gender metadata is missing for a subject, that subject is excluded from the adjusted analysis. If no valid creativity proxy scores exist in the dataset, the system MUST halt with a critical error (See US-3).
 - **FR-005**: System MUST apply False Discovery Rate (FDR) correction (Benjamini-Hochberg procedure) for multiple comparisons across all tested graph metrics and report effect sizes with 95% confidence intervals (See US-3).
 

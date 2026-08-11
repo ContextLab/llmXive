@@ -578,3 +578,344 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T23:45:06Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Download resting-state fMRI data from OpenNeuro datasets
+  claim_id: c_ed4d6ddd
+  context: 'Amended Requirement (FR-001): System MUST attempt to download resting-state
+    fMRI data from OpenNeuro datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_resting-state_fMRI_data_from_OpenNeuro_datasets
+  kind: entity_fact
+  raw_text: The system MUST attempt to download resting-state fMRI data from OpenNeuro
+    datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:34:46Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Use all available subjects if fewer than 10 found (N >= 1)
+  claim_id: c_f897b50d
+  context: "If fewer than 10 subjects with valid data are found, the system MUST use\
+    \ all available subjects (N \u2265 1) for analysis."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_all_available_subjects_if_fewer_than_10_found_(N_%3E=_1)
+  kind: magnitude
+  raw_text: "If fewer than 10 subjects with valid data are found, the system MUST\
+    \ use all available subjects (N \u2265 1) for analysis."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:35:39Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Halt execution if no valid Fluid Intelligence data found
+  claim_id: c_37898685
+  context: If NO subjects with valid data are found, the system MUST halt execution
+    with a critical error stating 'No valid Fluid Intelligence data found in specified
+    datasets'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_no_valid_Fluid_Intelligence_data_found
+  kind: entity_fact
+  raw_text: If NO subjects with valid data are found, the system MUST halt execution
+    with a critical error stating 'No valid Fluid Intelligence data found in specified
+    datasets'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:36:39Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for multiple comparisons
+  claim_id: c_89e2806b
+  context: 'Amended Requirement (FR-005): System MUST apply Bonferroni correction
+    (per Constitution Principle VII) for multiple comparisons across all tested graph
+    metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_multiple_comparisons
+  kind: entity_fact
+  raw_text: The system MUST apply Bonferroni correction for multiple comparisons across
+    all tested graph metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:37:17Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Report effect sizes with confidence intervals
+  claim_id: c_82091092
+  context: System MUST apply Bonferroni correction (per Constitution Principle VII)
+    for multiple comparisons across all tested graph metrics and report effect sizes
+    with confidence intervals.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_effect_sizes_with_confidence_intervals
+  kind: entity_fact
+  raw_text: The system MUST report effect sizes with confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:38:32Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Use 200-ROI Schaefer atlas for connectivity matrix generation
+  claim_id: c_f3320dc2
+  context: Implement connectivity matrix generation using nilearn and the 200-ROI
+    Schaefer atlas (fixed, per FR-003) in code/graph_metrics.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Connectivity matrix generation uses the 200-ROI Schaefer atlas.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:40:04Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: FSL version must be at least 6.0
+  claim_id: c_52b852a9
+  context: 'Version Constraints: FSL >= 6.0, AFNI >= 21.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FSL_version_must_be_at_least_6.0
+  kind: magnitude
+  raw_text: FSL version must be >= 6.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:41:06Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: AFNI version must be at least 21.0
+  claim_id: c_52feb2d7
+  context: 'Version Constraints: FSL >= 6.0, AFNI >= 21.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/AFNI_version_must_be_at_least_21.0
+  kind: magnitude
+  raw_text: AFNI version must be >= 21.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:41:50Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Excessive motion defined as Translation > 3mm or Rotation > 2mm
+  claim_id: c_1d27cfed
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Excessive_motion_defined_as_Translation_%3E_3mm_or_Rotation_%3E_
+  kind: entity_fact
+  raw_text: Excessive motion is defined as Translation > 3mm OR Rotation > 2mm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:42:32Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Project designed for N=10 subjects
+  claim_id: c_e9928e66
+  context: 'Feasibility: All tasks designed for N=10 subjects on CPU-only CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is designed for N=10 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:43:37Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Project has a 7GB RAM limit
+  claim_id: c_d7d38680
+  context: 'Feasibility: All tasks designed for N=10 subjects on CPU-only CI (A small
+    number of cores, 7GB RAM, 6h limit).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_has_a_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: The project has a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:44:58Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Project has a 6-hour runtime limit
+  claim_id: c_ed66e75c
+  context: 'Feasibility: All tasks designed for N=10 subjects on CPU-only CI (A small
+    number of cores, 7GB RAM, 6h limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project has a 6-hour runtime limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:45:28Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000224 primary and ds000230 fallback datasets
+  claim_id: c_d63ba428
+  context: 'Goal: Download resting-state fMRI data from OpenNeuro ds000224 (primary
+    for Fluid Intelligence), validate data, and preprocess to generate clean BOLD
+    time series.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000224_primary_and_ds000230_fallback_datasets
+  kind: entity_fact
+  raw_text: The system will use a primary dataset OpenNeuro ds000224 and a secondary
+    dataset ds000230 as a fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:50:13Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: N=10 sample limit
+  claim_id: c_15a8c561
+  context: Create config.yaml with dataset IDs (A primary dataset will be selected,
+    with a secondary dataset designated as a fallback if the primary is unavailable.)
+    and N=10 sample limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project enforces an N=10 sample limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:50:49Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 200-ROI Schaefer atlas used
+  claim_id: c_f7d4f32a
+  context: Implement connectivity matrix generation using nilearn and the 200-ROI
+    Schaefer atlas (fixed, per FR-003) in code/graph_metrics.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses the 200-ROI Schaefer atlas for connectivity matrix generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:51:35Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Motion exclusion threshold Translation > 3mm or Rotation > 2mm
+  claim_id: c_f2054f94
+  context: Implement logic to detect excessive motion (Translation > 3mm OR Rotation
+    > 2mm) on preprocessed data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_threshold_Translation_%3E_3mm_or_Rotation_%3E_2
+  kind: entity_fact
+  raw_text: Motion artifact detection flags subjects with Translation > 3mm OR Rotation
+    > 2mm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:52:21Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: FSL >= 6.0 and AFNI >= 21.0 version requirements
+  claim_id: c_76e205cb
+  context: 'Version Constraints: FSL >= 6.0, AFNI >= 21.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system requires FSL version 6.0 or higher and AFNI version 21.0 or
+    higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:52:48Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Feasibility designed for N=10 subjects, 7GB RAM, 6h limit
+  claim_id: c_2ac42a3b
+  context: 'Feasibility: All tasks designed for N=10 subjects on CPU-only CI (A small
+    number of cores, 7GB RAM, 6h limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project feasibility is designed for N=10 subjects on CPU-only CI with
+    7GB RAM and a 6h limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:53:46Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction mandated replacing FDR
+  claim_id: c_dc60d35f
+  context: 'Amended Requirement (FR-005): System MUST apply Bonferroni correction
+    (per Constitution Principle VII) for multiple comparisons across all tested graph
+    metrics and report effect sizes with confidence intervals. (Note: Original FR-005
+    requirement for FDR is amended per Plan).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_mandated_replacing_FDR
+  kind: entity_fact
+  raw_text: Bonferroni correction is mandated for multiple comparisons, replacing
+    FDR.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T00:54:22Z'

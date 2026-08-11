@@ -87,7 +87,9 @@ class TestDirectoryStructure:
         
         for p in paths:
             assert p in content
-            assert ':' in content # Check for timestamp separator
+            # The log format is "OK path" or "FAILED path", so we check for the path itself
+            # and ensure the status is present.
+            assert f"OK {p}" in content or f"FAILED {p}" in content
 
     def test_full_workflow(self):
         """Test the full workflow: create -> verify -> log."""
@@ -109,3 +111,37 @@ class TestDirectoryStructure:
         assert Path('tests/unit').exists()
         assert Path('tests/integration').exists()
         assert Path('reports').exists()
+        
+        # Verify log content specifically for T001 requirement
+        with open(log_path, 'r') as f:
+            content = f.read()
+        
+        for p in created:
+            assert f"OK {p}" in content, f"Log missing OK status for {p}"
+
+    def test_verification_log_all_ok(self):
+        """
+        Specific test to ensure that if directories are created successfully,
+        the log file contains ONLY 'OK' entries and no 'FAILED' entries.
+        This satisfies the T001 requirement: 'If data/.verify_structure.log ... 
+        does not contain 'OK' for all directories, the test MUST fail'.
+        """
+        paths = create_directories()
+        log_path = 'data/.verify_structure.log'
+        generate_verification_log(paths, log_path)
+        
+        with open(log_path, 'r') as f:
+            lines = f.readlines()
+        
+        # Skip header lines if any, look for status lines
+        status_lines = [line.strip() for line in lines if line.strip().startswith(('OK', 'FAILED'))]
+        
+        assert len(status_lines) == len(paths), "Number of status lines must match number of paths"
+        
+        for line in status_lines:
+            assert line.startswith("OK"), f"Found a FAILED entry in log: {line}"
+            # Extract path from "OK path"
+            parts = line.split(" ", 1)
+            assert len(parts) == 2, f"Invalid log format: {line}"
+            path_name = parts[1]
+            assert path_name in paths, f"Path in log not in expected list: {path_name}"
