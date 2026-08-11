@@ -1,6 +1,8 @@
 """
-Global configuration for the llmXive project.
-Defines paths, seeds, model configurations, and resource limits.
+Global configuration for llmXive Audio Interaction Model.
+
+Contains all configuration classes and utility functions for seeds,
+paths, model aliases, resource limits, and hyperparameters.
 """
 import os
 import json
@@ -8,150 +10,135 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
-# Project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
 @dataclass
 class PathConfig:
     """Configuration for file paths."""
-    data_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data")
-    processed_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "processed")
-    # Alias for processed_dir to satisfy cross-script contracts
-    processed_data_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "processed")
-    models_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "models")
-    logs_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "logs")
-    figures_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "figures")
-    state_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "state")
+    project_root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
+    code_dir: Path = field(default_factory=lambda: Path(__file__).parent)
+    data_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data")
+    processed_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "data" / "processed")
+    state_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "state")
+    figures_dir: Path = field(default_factory=lambda: Path(__file__).parent.parent / "figures")
     
-    # Tolerant attribute access for dynamic logger-style calls
-    def __getattr__(self, name: str) -> Any:
-        """
-        Provide a tolerant fallback for unknown attributes to prevent AttributeError
-        when scripts call dynamic methods (e.g., .info(), .debug()) on this config.
-        Returns a no-op callable.
-        """
-        def _noop(*args, **kwargs):
-            return None
-        return _noop
+    # Aliases for compatibility with various callers
+    @property
+    def processed_data_dir(self) -> Path:
+        """Alias for processed_dir."""
+        return self.processed_dir
 
 @dataclass
 class SeedConfig:
     """Configuration for random seeds."""
     torch_seed: int = 42
     numpy_seed: int = 42
+    python_seed: int = 42
     random_seed: int = 42
 
 @dataclass
 class ModelConfig:
-    """Configuration for model architecture and loading."""
-    teacher_model_id: str = "facebook/wav2vec2-base-960h"  # FR-001 Override
-    student_model_type: str = "compressed"
-    default_bit_width: int = 32
-    quantization_enabled: bool = True
+    """Configuration for models."""
+    teacher_model_id: str = "facebook/wav2vec2-base-960h"
+    student_model_id: str = "facebook/wav2vec2-base-960h"
+    hidden_size: int = 768
+    num_attention_heads: int = 12
+    num_hidden_layers: int = 12
 
 @dataclass
 class ResourceConfig:
     """Configuration for resource limits."""
     max_ram_gb: float = 7.0
+    max_cores: int = 2
     max_time_hours: float = 6.0
-    cpu_threads: int = 2
     batch_size: int = 8
+    use_cpu_only: bool = True
 
 @dataclass
 class PruningConfig:
-    """Configuration for model pruning."""
-    # Updated to include 0.3 as per T013 requirements
-    pruning_ratios: List[float] = field(default_factory=lambda: [0.0, 0.1, 0.2, 0.3])
+    """Configuration for pruning."""
+    pruning_ratios: List[float] = field(default_factory=lambda: [0.1, 0.2, 0.3])
+    pruning_method: str = "magnitude"
 
 @dataclass
 class DatasetConfig:
     """Configuration for datasets."""
-    subtle_cue_classes: List[str] = field(default_factory=lambda: [
-        "glass breaking", "alarm", "whisper", "screaming"
-    ])
-    control_set_classes: List[str] = field(default_factory=lambda: [
-        "engine hum", "machinery", "air conditioner"
-    ])
-    sample_size: int = 1000  # For testing
+    dataset_name: str = "esc50"
+    subtle_cue_threshold_db: float = -40.0
+    subtle_cue_threshold_hz: float = 8000.0
+    control_set_classes: List[int] = field(default_factory=lambda: [0, 1, 2])
 
 @dataclass
 class DistillationConfig:
     """Configuration for knowledge distillation."""
-    temperature: float = 4.0
-    alpha: float = 0.7  # Weight for KD loss
+    kd_alpha: float = 0.5
+    kd_temp: float = 4.0
     learning_rate: float = 1e-4
     num_epochs: int = 10
 
 @dataclass
 class EvaluationConfig:
-    """Configuration for evaluation metrics."""
-    auc_threshold: float = 0.7
-    fpr_threshold: float = 0.05
-    fnr_threshold: float = 0.1
-    # Threshold for step-change detection (T030)
-    step_change_threshold: float = 0.10  # 10% relative drop
+    """Configuration for evaluation."""
+    thresholds: List[float] = field(default_factory=lambda: [0.01, 0.05, 0.1])
+    breaking_point_threshold: float = 0.1  # 10% drop
 
-@dataclass
 class Config:
     """Main configuration container."""
-    paths: PathConfig = field(default_factory=PathConfig)
-    seeds: SeedConfig = field(default_factory=SeedConfig)
-    models: ModelConfig = field(default_factory=ModelConfig)
-    resources: ResourceConfig = field(default_factory=ResourceConfig)
-    pruning: PruningConfig = field(default_factory=PruningConfig)
-    datasets: DatasetConfig = field(default_factory=DatasetConfig)
-    distillation: DistillationConfig = field(default_factory=DistillationConfig)
-    evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
+    def __init__(self):
+        self.paths = PathConfig()
+        self.seeds = SeedConfig()
+        self.models = ModelConfig()
+        self.resources = ResourceConfig()
+        self.pruning = PruningConfig()
+        self.datasets = DatasetConfig()
+        self.distillation = DistillationConfig()
+        self.evaluation = EvaluationConfig()
 
-# Global config instance
-_config = Config()
-
-def set_seed():
-    """Set random seeds for reproducibility."""
-    import torch
-    import numpy as np
+def set_seed(seed: int = 42):
+    """Set all random seeds."""
     import random
-
-    torch.manual_seed(_config.seeds.torch_seed)
-    np.random.seed(_config.seeds.numpy_seed)
-    random.seed(_config.seeds.random_seed)
+    import numpy as np
+    import torch
     
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(_config.seeds.torch_seed)
+        torch.cuda.manual_seed_all(seed)
 
 def get_pruning_ratios() -> List[float]:
     """Get pruning ratios from config."""
-    return _config.pruning.pruning_ratios
+    return Config().pruning.pruning_ratios
 
 def get_teacher_model_id() -> str:
     """Get teacher model ID from config."""
-    return _config.models.teacher_model_id
+    return Config().models.teacher_model_id
 
-def get_resource_limits() -> Dict[str, float]:
+def get_resource_limits() -> ResourceConfig:
     """Get resource limits from config."""
-    return {
-        "max_ram_gb": _config.resources.max_ram_gb,
-        "max_time_hours": _config.resources.max_time_hours,
-        "cpu_threads": _config.resources.cpu_threads
-    }
+    return Config().resources
 
 def get_distillation_params() -> Dict[str, float]:
     """Get distillation parameters from config."""
+    cfg = Config().distillation
     return {
-        "temperature": _config.distillation.temperature,
-        "alpha": _config.distillation.alpha,
-        "learning_rate": _config.distillation.learning_rate,
-        "num_epochs": _config.distillation.num_epochs
+        'kd_alpha': cfg.kd_alpha,
+        'kd_temp': cfg.kd_temp,
+        'learning_rate': cfg.learning_rate,
+        'num_epochs': cfg.num_epochs
     }
 
 def get_path_config() -> PathConfig:
     """Get path configuration."""
-    return _config.paths
+    return Config().paths
 
 def get_dataset_config() -> DatasetConfig:
     """Get dataset configuration."""
-    return _config.datasets
+    return Config().datasets
 
 def get_evaluation_config() -> EvaluationConfig:
     """Get evaluation configuration."""
-    return _config.evaluation
+    return Config().evaluation
+
+# For backward compatibility
+path_config = get_path_config()
+resource_limits = get_resource_limits()
+distillation_params = get_distillation_params()

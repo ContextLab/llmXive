@@ -1580,3 +1580,1369 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T12:59:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: subtle cue classes defined as frequency > 8kHz or amplitude < -40dBFS
+  claim_id: c_6d4efe07
+  context: 'T021a [Shared] NEW: Implement audio feature extraction... MUST: 1) Define
+    criteria: ''Subtle Cue'' classes are those with dominant frequency > 8kHz OR amplitude
+    < -40dBFS.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/subtle_cue_classes_defined_as_frequency_%3E_8kHz_or_amplitude_
+  kind: entity_fact
+  raw_text: Subtle Cue classes are those with dominant frequency > 8kHz OR amplitude
+    < -40dBFS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:46:01Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: ci runner environment constrained to exactly 2 cores
+  claim_id: c_e9dae974
+  context: 'T019 [P] [US2] Unit test... MUST: ... 2) Verify that the CI runner environment
+    is constrained to exactly 2 cores during measurement (via os.cpu_count() or CI
+    env vars)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner environment is constrained to exactly 2 cores during measurement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:46:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: ci runner environment constrained to 7gb ram and 6h time budget
+  claim_id: c_40b01598
+  context: "T019 [P] [US2] Unit test... 3) Compare against GitHub Actions constraints\
+    \ (\u22646h, \u22647GB)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner environment is constrained to 7GB RAM and a 6-hour time
+    budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:47:02Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: teacher model is facebook/wav2vec2-base-960h
+  claim_id: c_690fac6d
+  context: 'Goal: Instantiate, compress, and train facebook/wavvec2-base-960h (verified
+    substitute for non-existent DeSTA2.5-Audio)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Teacher_model_is_facebook/wav2vec2-base-960h
+  kind: entity_fact
+  raw_text: The teacher model used is facebook/wav2vec2-base-960h.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:47:19Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: compression logic implements fp32 int8 and int4 precision levels
+  claim_id: c_e275c824
+  context: T012 [US1] Implement compression logic in code/models/compress.py using
+    torch.ao.quantization for FP32, INT8, INT4 (Dynamic Quantization).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compression_logic_implements_fp32_int8_and_int4_precision_le
+  kind: entity_fact
+  raw_text: The compression logic implements FP32, INT8, and INT4 (Dynamic Quantization)
+    precision levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:47:39Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds over 0.01 0.05 0.1
+  claim_id: c_4de15691
+  context: 'T031 [US3] Implement sensitivity analysis... MUST: 1) Sweep thresholds
+    over the fixed set {0.01, 0.05, 0.1} as mandated by FR-006 and SC-003.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps thresholds over the fixed set {0.01, 0.05,
+    0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:47:57Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: breaking point identified where relative auc drop exceeds 10%
+  claim_id: c_41e0fc58
+  context: T030 [US3] Implement step-change detection... 2) Identify the 'breaking
+    point' where relative AUC drop exceeds >10% (read threshold from config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The breaking point is identified where relative AUC drop exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:47:57Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: compression intensity score formula (1 - bits/32) * 0.5 + (1 - params/baseline_params)
+    * 0.5
+  claim_id: c_009b8bbb
+  context: 'T030 [US3] ... 2) Identify the ''breaking point''... Algorithm: Compute
+    a compression_intensity_score for each model: score = (1 - bits/32) * 0.5 + (1
+    - params/baseline_params) * 0.5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compression intensity score is calculated as (1 - bits/32) * 0.5 +
+    (1 - params/baseline_params) * 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:48:16Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: ablation logits parquet contains 1d array of floats with 6 decimal places
+  claim_id: c_9e24533e
+  context: 'T039a [US4] ... Schema: ablation_logits.parquet MUST contain columns ...
+    logits_json (JSON string of a D array of floats, 6 decimal places...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ablation logits parquet file contains a 1D array of floats with 6
+    decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:48:51Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: batch size optimization search range 1 to 64 stopping condition ram >
+    5.9gb
+  claim_id: c_c45f3a13
+  context: 'T044a1 [P] Optimize data loader batch size... Parameters: Search range
+    [1, 64], stopping condition (RAM > 5.9GB)...'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The batch size optimization search range is [1, 64] with a stopping condition
+    of RAM > 5.9GB.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:48:51Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: pruning ratios specified are 0.1 0.2 and 0.3
+  claim_id: c_f8a3f504
+  context: 'Revision Concerns (Pruning Ratios): T013 now specifies 0.1, 0.2, 0.3 ratios.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pruning ratios specified are 0.1, 0.2, and 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:49:17Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Subtle Cue definition: frequency > 8kHz OR amplitude < -40dBFS'
+  claim_id: c_5e040f15
+  context: 'Implement audio feature extraction in code/data/subtle_cue_builder.py.
+    MUST: 1) Define criteria: ''Subtle Cue'' classes are those with dominant frequency
+    > 8kHz OR amplitude < -40dBFS.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_definition:_frequency_%3E_8kHz_OR_amplitude_%3C_-40dB
+  kind: entity_fact
+  raw_text: Subtle Cue classes are those with dominant frequency > 8kHz OR amplitude
+    < -40dBFS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:51:43Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Control Set definition: low-frequency, sustained amplitude classes'
+  claim_id: c_b2efe4b4
+  context: 'Implement ''Control Set'' generator in code/data/subtle_cue_builder.py.
+    MUST: 1) Define ''Control Set'' classes as low-frequency, sustained amplitude
+    classes (e.g., ''engine hum,'' ''wind'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_Set_definition:_low-frequency,_sustained_amplitude_c
+  kind: entity_fact
+  raw_text: The Control Set classes are defined as low-frequency, sustained amplitude
+    classes (e.g., 'engine hum,' 'wind').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:52:03Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Student model precision levels: FP32, INT8, INT4'
+  claim_id: c_693e7a0d
+  context: 'Goal: Instantiate, compress, and train facebook/wavvec2-base-960h into
+    student variants with varying precision levels (FP32, INT8, INT4) and structural
+    pruning using Knowledge Distillation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Student_model_precision_levels:_FP32,_INT8,_INT4
+  kind: entity_fact
+  raw_text: The student model variants use precision levels of FP32, INT8, and INT4.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:52:25Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Teacher model: facebook/wav2vec2-base-960h'
+  claim_id: c_32322e2e
+  context: 'FR-001 Override: Load facebook/wav2vec2-base-960h as verified substitute
+    for non-existent DeSTA2.5-Audio.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Teacher_model:_facebook/wav2vec2-base-960h
+  kind: entity_fact
+  raw_text: The teacher model used is facebook/wav2vec2-base-960h.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:52:27Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'CI runner constraint: 2 cores'
+  claim_id: c_15cfb903
+  context: "Verify that the CI runner environment is constrained to exactly 2 cores\
+    \ during measurement (via os.cpu_count() or CI env vars), Compare against GitHub\
+    \ Actions constraints (\u22646h, \u22647GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner environment is constrained to exactly 2 cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:52:52Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'CI runner constraint: 7GB RAM'
+  claim_id: c_8b2e3807
+  context: "Compare against GitHub Actions constraints (\u22646h, \u22647GB), logging\
+    \ a pass/fail status per FR-004 and SC-002."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_runner_constraint:_7GB_RAM
+  kind: entity_fact
+  raw_text: The CI runner environment has a maximum RAM of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:53:12Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'CI runner constraint: 6 hours'
+  claim_id: c_4d5de868
+  context: "Compare against GitHub Actions constraints (\u22646h, \u22647GB), logging\
+    \ a pass/fail status per FR-004 and SC-002."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner environment has a maximum time budget of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:53:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Breaking point threshold: relative AUC drop > 10%'
+  claim_id: c_3e840455
+  context: Identify the 'breaking point' where relative AUC drop exceeds >10% (read
+    threshold from config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The breaking point is identified where the relative AUC drop exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:53:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: 0.01, 0.05, 0.1'
+  claim_id: c_be1905c2
+  context: Sweep thresholds over the fixed set {0.01, 0.05, 0.1} as mandated by FR-006
+    and SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps thresholds over the fixed set {0.01, 0.05,
+    0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:53:29Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Compression intensity score formula: (1 - bits/32) * 0.5 + (1 - params/baseline_params)
+    * 0.5'
+  claim_id: c_4200e221
+  context: 'Compute a compression_intensity_score for each model: score = (1 - bits/32)
+    * 0.5 + (1 - params/baseline_params) * 0.5 (weights read from config.py).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compression intensity score is calculated as (1 - bits/32) * 0.5 +
+    (1 - params/baseline_params) * 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:53:29Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Ablation logits precision: 6 decimal places'
+  claim_id: c_ee9f2d45
+  context: 'Output intermediate logits to data/processed/ablation_logits.parquet.
+    Schema: ablation_logits.parquet MUST contain columns model_id, config_id, logits_json
+    (JSON string of a D array of floats, 6 decimal places, where D is the model output
+    dimension e.g., 52 for ESC-50/UrbanSound combined classes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logits in ablation_logits.parquet are stored with 6 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:53:45Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Model output dimension: 52 classes'
+  claim_id: c_3d7efc2a
+  context: logits_json (JSON string of a D array of floats, 6 decimal places, where
+    D is the model output dimension e.g., 52 for ESC-50/UrbanSound combined classes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model output dimension D is 52 for ESC-50/UrbanSound combined classes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:53:59Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Batch size search range: 1 to 64'
+  claim_id: c_0eb68623
+  context: 'Optimize data loader batch size: Metric: Maximize throughput while keeping
+    peak RAM < 6GB. Method: Binary search on batch size. Parameters: Search range
+    [1, 64], stopping condition (RAM > 5.9GB), metric (samples/sec).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch size search range for data loader optimization is [1, 64].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:54:23Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Batch size optimization stopping condition: RAM > 5.9GB'
+  claim_id: c_83248ff7
+  context: 'Parameters: Search range [1, 64], stopping condition (RAM > 5.9GB), metric
+    (samples/sec).'
+  evidence:
+    asserted: '5.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The stopping condition for batch size optimization is peak RAM > 5.9GB.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:54:23Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Data loader peak RAM constraint: < 6GB'
+  claim_id: c_0d3f1729
+  context: 'Optimize data loader batch size: Metric: Maximize throughput while keeping
+    peak RAM < 6GB.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_loader_peak_RAM_constraint:_%3C_6GB
+  kind: magnitude
+  raw_text: The peak RAM constraint for data loader optimization is less than 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:54:46Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Pruning ratios: 0.1, 0.2, 0.3'
+  claim_id: c_54a06a1e
+  context: 'Revision Concerns (Pruning Ratios): T013 now specifies 0.1, 0.2, 0.3 ratios.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pruning ratios of 0.1, 0.2, and 0.3 are specified for structural pruning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:55:07Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'subtle cue definition: dominant frequency > 8kHz or amplitude < -40dBFS'
+  claim_id: c_b4b9fb32
+  context: 'T021a [Shared] NEW: Implement audio feature extraction... MUST: 1) Define
+    criteria: ''Subtle Cue'' classes are those with dominant frequency > 8kHz OR amplitude
+    < -40dBFS.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/subtle_cue_definition:_dominant_frequency_%3E_8kHz_or_amplitud
+  kind: entity_fact
+  raw_text: Subtle Cue classes are those with dominant frequency > 8kHz OR amplitude
+    < -40dBFS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:56:38Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: CI runner constrained to 2 cores
+  claim_id: c_63a93960
+  context: 'T019 [P] [US2] Unit test for AUC calculation and independence... MUST:
+    2) Verify that the CI runner environment is constrained to exactly 2 cores during
+    measurement (via os.cpu_count() or CI env vars)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner environment is constrained to exactly 2 cores during measurement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:56:38Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: CI runner constrained to 7GB RAM
+  claim_id: c_f5e6ad05
+  context: "T019 [P] [US2] Unit test for AUC calculation and independence... 3) Compare\
+    \ against GitHub Actions constraints (\u22646h, \u22647GB)..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_runner_constrained_to_7GB_RAM
+  kind: entity_fact
+  raw_text: The CI runner environment is constrained to a maximum of 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:57:00Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: CI runner constrained to 6 hours
+  claim_id: c_3f3ba276
+  context: "T019 [P] [US2] Unit test for AUC calculation and independence... 3) Compare\
+    \ against GitHub Actions constraints (\u22646h, \u22647GB)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner environment is constrained to a maximum time of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:57:20Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: breaking point defined by >10% relative AUC drop
+  claim_id: c_ba01b0dc
+  context: T030 [US3] Implement step-change detection... Identify the 'breaking point'
+    where relative AUC drop exceeds >10% (read threshold from config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The breaking point is identified where the relative AUC drop exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:57:20Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds 0.01, 0.05, 0.1
+  claim_id: c_b620eeb1
+  context: 'T031 [US3] Implement sensitivity analysis... MUST: 1) Sweep thresholds
+    over the fixed set {0.01, 0.05, 0.1} as mandated by FR-006 and SC-003.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps thresholds over the fixed set {0.01, 0.05,
+    0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:57:21Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: teacher model is facebook/wav2vec2-base-960h
+  claim_id: c_f184a5f3
+  context: 'T011 [US1] Staged Implementation: Implement teacher model loader... FR-001
+    Override: Load facebook/wav2vec2-base-960h as verified substitute for non-existent
+    DeSTA2.5-Audio.'
+  evidence:
+    entailment_evidence: Teacher model is facebook/wav2vec2-base-960h
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Teacher_model_is_facebook/wav2vec2-base-960h
+  kind: entity_fact
+  raw_text: The teacher model used is facebook/wav2vec2-base-960h.
+  resolved_value: teacher model is facebook/wav2vec2-base-960h
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:57:22Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: logits_json format 1D array 6 decimal places
+  claim_id: c_2cf9f1dd
+  context: 'T039a [US4] NEW: Implement re-execution of inference pipeline... Schema:
+    ablation_logits.parquet MUST contain columns model_id, config_id, logits_json
+    (JSON string of a D array of floats, 6 decimal places...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logits_json output contains a 1D array of floats with 6 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:57:40Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: batch size search range 1 to 64 stopping at RAM 5.9GB
+  claim_id: c_c11ec33c
+  context: 'T044a1 [P] Optimize data loader batch size... Parameters: Search range
+    [1, 64], stopping condition (RAM > 5.9GB)...'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The batch size search range is [1, 64] with a stopping condition of RAM
+    > 5.9GB.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:57:40Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: target peak RAM less than 6GB
+  claim_id: c_3fdfcf44
+  context: 'T044a1 [P] Optimize data loader batch size: Metric: Maximize throughput
+    while keeping peak RAM < 6GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_peak_RAM_less_than_6GB
+  kind: magnitude
+  raw_text: The target peak RAM for data loading is less than 6GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:58:04Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 0
+  canonical: batch size search range 1 to 64 stopping at RAM > 5.9GB
+  claim_id: c_1e21c91e
+  context: 'T044a1 [P] ... **Parameters**: Search range [1, 64], stopping condition
+    (RAM > 5.9GB), metric (samples/sec).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The batch size optimization search range is [1, 64] with a stopping condition
+    of RAM > 5.9GB.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:59:27Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: facebook/wav2vec2-base-960h used as substitute for DeSTA2.5-Audio
+  claim_id: c_52233d87
+  context: 'T011 [US1] **Staged Implementation**: Implement teacher model loader in
+    `code/models/teacher_loader.py`. **FR-001 Override**: Load `facebook/wav2vec2-base-960h`
+    as verified substitute for non-existent `DeSTA2.5-Audio`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model 'facebook/wav2vec2-base-960h' is used as a verified substitute
+    for the non-existent 'DeSTA2.5-Audio'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:59:46Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Subtle Cue classes defined by dominant frequency > 8kHz or amplitude
+    < -40dBFS
+  claim_id: c_e4074748
+  context: 'T021a [Shared] **NEW**: Implement audio feature extraction in `code/data/subtle_cue_builder.py`.
+    **MUST**: 1) Define criteria: "Subtle Cue" classes are those with dominant frequency
+    > 8kHz OR amplitude < -40dBFS.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_classes_defined_by_dominant_frequency_%3E_8kHz_or_a
+  kind: entity_fact
+  raw_text: Subtle Cue classes are defined as those with dominant frequency > 8kHz
+    OR amplitude < -40dBFS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:14Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: compression intensity score uses 0.5 bit-width weight and 0.5 parameter
+    weight
+  claim_id: c_b2fee1b6
+  context: 'T030 [US3] ... **Algorithm**: Compute a `compression_intensity_score`
+    for each model: `score = (1 - bits/32) * 0.5 + (1 - params/baseline_params) *
+    0.5` (weights read from `config.py`)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compression intensity score is calculated using weights of 0.5 for
+    bit-width and 0.5 for parameter count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:26Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: breaking point defined as relative AUC drop > 10%
+  claim_id: c_b19df13f
+  context: T030 [US3] ... Identify the "breaking point" where relative AUC drop exceeds
+    **>10%** (read threshold from `config.py`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The breaking point is identified where the relative AUC drop exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:26Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds 0.01, 0.05, and 0.1
+  claim_id: c_9a84cca9
+  context: T031 [US3] ... 1) Sweep thresholds over the **fixed set {0.01, 0.05, 0.1}**
+    as mandated by FR-006 and SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps thresholds over the fixed set {0.01, 0.05,
+    0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:27Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: CI runner constrained to 2 cores
+  claim_id: c_f671610f
+  context: T019 [P] [US2] ... 2) **Verify** that the CI runner environment is constrained
+    to exactly 2 cores during measurement (via `os.cpu_count()` or CI env vars)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner environment is constrained to exactly 2 cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:27Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: CI runner max RAM 7GB
+  claim_id: c_b0019829
+  context: T008b ... set `PYTHONUNBUFFERED=1`, `MAX_RAM_GB=7`, and `MAX_CORES=2`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_runner_max_RAM_7GB
+  kind: entity_fact
+  raw_text: The CI runner environment has a maximum RAM of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:29Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: pruning ratios 0.1, 0.2, and 0.3 specified
+  claim_id: c_a17061c9
+  context: 'Revision Concerns (Pruning Ratios): T013 now specifies 0.1, 0.2, 0.3 ratios.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pruning ratios of 0.1, 0.2, and 0.3 are specified for structural pruning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:29Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: logits_json column contains 1D array of floats with 6 decimal places
+  claim_id: c_f07eeac5
+  context: T039a [US4] ... `logits_json` (JSON string of a D array of floats, 6 decimal
+    places, where D is the model output dimension e.g., 52 for ESC-50/UrbanSound combined
+    classes)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logits_json column in ablation_logits.parquet contains a 1D array
+    of floats with 6 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:55Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: model output dimension 52 for ESC-50/UrbanSound combined classes
+  claim_id: c_7c845635
+  context: T039a [US4] ... `logits_json` (JSON string of a D array of floats, 6 decimal
+    places, where D is the model output dimension e.g., 52 for ESC-50/UrbanSound combined
+    classes)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model output dimension for ESC-50/UrbanSound combined classes is 52.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:00:56Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Use MelSpectrogram to classify subtle cue classes based on frequency
+    and amplitude
+  claim_id: c_2dcb6028
+  context: 'Implement audio feature extraction in code/data/subtle_cue_builder.py.
+    MUST: 1) Define criteria: ''Subtle Cue'' classes are those with dominant frequency
+    > 8kHz OR amplitude < -40dBFS. Algorithm: Use torchaudio.transforms.MelSpectrogram...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_MelSpectrogram_to_classify_subtle_cue_classes_based_on_f
+  kind: entity_fact
+  raw_text: Use torchaudio.transforms.MelSpectrogram to compute frequency bins and
+    energy levels from raw audio streams to classify classes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:06:19Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Subtle Cue classes defined as dominant frequency > 8kHz OR amplitude
+    < -40dBFS
+  claim_id: c_b1891628
+  context: 'Define criteria: ''Subtle Cue'' classes are those with dominant frequency
+    > 8kHz OR amplitude < -40dBFS. Algorithm: Use torchaudio.transforms.MelSpectrogram...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_classes_defined_as_dominant_frequency_%3E_8kHz_OR_a
+  kind: entity_fact
+  raw_text: '''Subtle Cue'' classes are those with dominant frequency > 8kHz OR amplitude
+    < -40dBFS.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:06:19Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Generate class_config_subtle.yaml with subtle_classes list
+  claim_id: c_450603df
+  context: Generate a lightweight class-configuration YAML data/processed/class_config_subtle.yaml
+    containing keys subtle_classes (list of int).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_class_config_subtle.yaml_with_subtle_classes_list
+  kind: entity_fact
+  raw_text: Generate a lightweight class-configuration YAML data/processed/class_config_subtle.yaml
+    containing keys subtle_classes (list of int).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:06:25Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Map class names to UrbanSound8K dataset IDs using datasets library or
+    hardcoded table
+  claim_id: c_cc7ca14e
+  context: Map class names to dataset IDs by loading datasets.load_dataset(...).features.class
+    or using a hardcoded mapping table for UrbanSound8K within the script.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Map_class_names_to_UrbanSound8K_dataset_IDs_using_datasets_l
+  kind: entity_fact
+  raw_text: Map class names to dataset IDs by loading datasets.load_dataset(...).features.class
+    or using a hardcoded mapping table for UrbanSound8K within the script.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:06:43Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Generate class_config_control.yaml
+  claim_id: c_9a81a410
+  context: Generate data/processed/class_config_control.yaml.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_class_config_control.yaml
+  kind: entity_fact
+  raw_text: Generate data/processed/class_config_control.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:06:59Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Generate subtle_cue_subset.parquet with checksum
+  claim_id: c_144e9b7d
+  context: 'Output: Generate data/processed/subtle_cue_subset.parquet with checksum.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_subtle_cue_subset.parquet_with_checksum
+  kind: entity_fact
+  raw_text: Generate data/processed/subtle_cue_subset.parquet with checksum.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:07:20Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Schema for subtle_cue_subset.parquet: audio_path (str), class_id (int),
+    label (int)'
+  claim_id: c_3edbc53a
+  context: 'Schema: columns: audio_path (str), class_id (int), label (int).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_for_subtle_cue_subset.parquet:_audio_path_(str),_clas
+  kind: entity_fact
+  raw_text: 'Schema: columns: audio_path (str), class_id (int), label (int).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:07:38Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Use facebook/wav2vec2-base-960h as substitute for DeSTA2.5-Audio
+  claim_id: c_0ca80164
+  context: 'FR-001 Override: Load facebook/wav2vec2-base-960h as verified substitute
+    for non-existent DeSTA2.5-Audio.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load facebook/wav2vec2-base-960h as verified substitute for non-existent
+    DeSTA2.5-Audio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:07:48Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Use torch.ao.quantization for FP32, INT8, INT4 dynamic quantization
+  claim_id: c_a6557d89
+  context: Implement compression logic in code/models/compress.py using torch.ao.quantization
+    for FP32, INT8, INT4 (Dynamic Quantization).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_torch.ao.quantization_for_FP32,_INT8,_INT4_dynamic_quant
+  kind: entity_fact
+  raw_text: Implement compression logic in code/models/compress.py using torch.ao.quantization
+    for FP32, INT8, INT4 (Dynamic Quantization).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:08:06Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Save pruned_model files to data/processed/
+  claim_id: c_e853dc2e
+  context: 'Output: Save pruned_model_{ratio}.pt to data/processed/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_pruned_model_files_to_data/processed/
+  kind: entity_fact
+  raw_text: Save pruned_model_{ratio}.pt to data/processed/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:08:39Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Save distillation_loss_curve_quant.csv
+  claim_id: c_22c7a44c
+  context: Save distillation_loss_curve_quant.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_distillation_loss_curve_quant.csv
+  kind: entity_fact
+  raw_text: Save distillation_loss_curve_quant.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:09:00Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Save distillation_loss_curve_pruned.csv
+  claim_id: c_9624464c
+  context: Save distillation_loss_curve_pruned.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_distillation_loss_curve_pruned.csv
+  kind: entity_fact
+  raw_text: Save distillation_loss_curve_pruned.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:09:21Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Save distillation_loss_curve_fp32.csv
+  claim_id: c_0c43d0b3
+  context: Save distillation_loss_curve_fp32.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_distillation_loss_curve_fp32.csv
+  kind: entity_fact
+  raw_text: Save distillation_loss_curve_fp32.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:09:35Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Verify CI runner constrained to exactly 2 cores
+  claim_id: c_23d61ac8
+  context: "Verify that the CI runner environment is constrained to exactly 2 cores\
+    \ during measurement (via os.cpu_count() or CI env vars), compare against GitHub\
+    \ Actions constraints (\u22646h, \u22647GB)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the CI runner environment is constrained to exactly 2 cores
+    during measurement (via os.cpu_count() or CI env vars).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:10:00Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Schema for robustness_metrics.csv: model_id, auc, latency_ms, ram_gb'
+  claim_id: c_b48a7ff7
+  context: 'Ensure schema: model_id, auc, latency_ms, ram_gb.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_for_robustness_metrics.csv:_model_id,_auc,_latency_ms
+  kind: entity_fact
+  raw_text: 'Schema: model_id, auc, latency_ms, ram_gb.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:10:18Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Schema for correlation_data.json: list of objects with model_id, bit_width,
+    auc, params'
+  claim_id: c_24e5f186
+  context: 'Schema: correlation_data.json MUST contain a list of objects: [{ ''model_id'':
+    str, ''bit_width'': int, ''auc'': float, ''params'': int }].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_for_correlation_data.json:_list_of_objects_with_model
+  kind: entity_fact
+  raw_text: 'Schema: correlation_data.json MUST contain a list of objects: [{ ''model_id'':
+    str, ''bit_width'': int, ''auc'': float, ''params'': int }].'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:10:31Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Identify breaking point where relative AUC drop exceeds 10%
+  claim_id: c_59f942a8
+  context: Identify the 'breaking point' where relative AUC drop exceeds >10% (read
+    threshold from config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the 'breaking point' where relative AUC drop exceeds >10% (read
+    threshold from config.py).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:10:31Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Compute compression_intensity_score using formula (1 - bits/32) * 0.5
+    + (1 - params/baseline_params) * 0.5
+  claim_id: c_132a38f8
+  context: 'Compute a compression_intensity_score for each model: score = (1 - bits/32)
+    * 0.5 + (1 - params/baseline_params) * 0.5 (weights read from config.py)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute a compression_intensity_score for each model: score = (1 - bits/32)
+    * 0.5 + (1 - params/baseline_params) * 0.5 (weights read from config.py).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:10:48Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Output sensitivity_report.csv with schema threshold, fpr, fnr, auc, model_id
+  claim_id: c_c0dfdb86
+  context: 'Output data/processed/sensitivity_report.csv with schema: threshold, fpr,
+    fnr, auc, model_id.'
+  evidence:
+    entailment_evidence: csv with schema threshold, fpr, fn
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Output_sensitivity_report.csv_with_schema_threshold,_fpr,_fn
+  kind: entity_fact
+  raw_text: 'Output data/processed/sensitivity_report.csv with schema: threshold,
+    fpr, fnr, auc, model_id.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-11T11:11:01Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Output robustness_curve.png with X-axis bit-width and Y-axis AUC
+  claim_id: c_cd7f8755
+  context: 'Output data/processed/robustness_curve.png (X-axis: bit-width, Y-axis:
+    AUC).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_robustness_curve.png_with_X-axis_bit-width_and_Y-axis
+  kind: entity_fact
+  raw_text: 'Output data/processed/robustness_curve.png (X-axis: bit-width, Y-axis:
+    AUC).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:11:18Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Create clone_model function returning deep copy of model weights
+  claim_id: c_db7f4d66
+  context: 'Implement model cloning utility in code/models/student.py: Create a function
+    clone_model(model) that returns a deep copy of the model weights to ensure state
+    isolation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_clone_model_function_returning_deep_copy_of_model_wei
+  kind: entity_fact
+  raw_text: Create a function clone_model(model) that returns a deep copy of the model
+    weights to ensure state isolation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:11:45Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'True Freezing: Set requires_grad=False and mask weights to zero for
+    early attention heads'
+  claim_id: c_5427cfcb
+  context: 'True Freezing: Set requires_grad=False on specific early attention head
+    parameters AND mask those parameters (set weights to zero) in the computation
+    graph to ensure no gradients flow...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/True_Freezing:_Set_requires_grad=False_and_mask_weights_to_z
+  kind: entity_fact
+  raw_text: 'True Freezing: Set requires_grad=False on specific early attention head
+    parameters AND mask those parameters (set weights to zero) in the computation
+    graph to ensure no gradients flow.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:12:00Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'True Pruning: Mask weights to zero for late feed-forward layers without
+    removing layers'
+  claim_id: c_58779f23
+  context: 'True Pruning: Mask specific late feed-forward layers (set weights to zero)
+    in the model architecture (do NOT remove layers) to simulate pruning...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/True_Pruning:_Mask_weights_to_zero_for_late_feed-forward_lay
+  kind: entity_fact
+  raw_text: 'True Pruning: Mask specific late feed-forward layers (set weights to
+    zero) in the model architecture (do NOT remove layers) to simulate pruning.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:12:35Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Schema for ablation_logits.parquet: model_id, config_id, logits_json
+    (D floats 6 decimals), label'
+  claim_id: c_9a675b97
+  context: 'Schema: ablation_logits.parquet MUST contain columns model_id, config_id,
+    logits_json (JSON string of a D array of floats, 6 decimal places, where D is
+    the model output dimension e.g., 52 for ESC-50/UrbanSound combined classes), label
+    (int).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Schema: ablation_logits.parquet MUST contain columns model_id, config_id,
+    logits_json (JSON string of a D array of floats, 6 decimal places, where D is
+    the model output dimension e.g., 52 for ESC-50/UrbanSound combined classes), label
+    (int).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:12:45Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Schema for ablation_metrics.csv: config_id, auc, latency_ms, ram_gb'
+  claim_id: c_a5e0327d
+  context: 'Schema: ablation_metrics.csv MUST contain columns config_id, auc, latency_ms,
+    ram_gb.'
+  evidence:
+    entailment_evidence: 'csv: config id, auc, latency ms, Add languages'
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Schema_for_ablation_metrics.csv:_config_id,_auc,_latency_ms,
+  kind: entity_fact
+  raw_text: 'Schema: ablation_metrics.csv MUST contain columns config_id, auc, latency_ms,
+    ram_gb.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-11T11:13:02Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Binary search range [1, 64] with stopping condition RAM > 5.9GB
+  claim_id: c_71cdec7f
+  context: 'Parameters: Search range [1, 64], stopping condition (RAM > 5.9GB), metric
+    (samples/sec).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Search range [1, 64], stopping condition (RAM > 5.9GB), metric (samples/sec).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T11:13:03Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Specify pruning ratios 0.1, 0.2, 0.3
+  claim_id: c_a8c9bf15
+  context: 'Revision Concerns (Pruning Ratios): T013 now specifies 0.1, 0.2, 0.3 ratios.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Specify 0.1, 0.2, 0.3 ratios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T11:13:21Z'

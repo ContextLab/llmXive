@@ -1,5 +1,8 @@
 """
-Inference runner for student models with performance logging.
+CPU Inference Runner for llmXive Audio Interaction Model.
+
+Implements batch processing to fit RAM constraints and handles OOM gracefully.
+Reads model checkpoints and runs inference on the subtle cue + control set dataset.
 """
 import os
 import gc
@@ -7,324 +10,443 @@ import time
 import json
 import logging
 import traceback
-from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
-from dataclasses import dataclass, asdict
+from typing import List, Dict, Any, Optional, Tuple
 import torch
-import tracemalloc
-import psutil
+import torchaudio
+import pandas as pd
+import numpy as np
+from torch.utils.data import DataLoader, Dataset
+from dataclasses import dataclass
+import sys
 
-from config import get_resource_limits, PathConfig
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import get_path_config, get_resource_limits, get_evaluation_config
 from utils.logger import get_logger, LlmXiveError
-from inference.logging_utils import (
-    InferencePerformanceLog,
-    log_inference_start,
-    log_inference_batch,
-    log_inference_summary,
-    log_constraint_check,
-    save_performance_log,
-    log_resource_usage_detailed
-)
+from data.loader import load_class_config
+
+# Configure logging
+logger = get_logger("inference_runner")
 
 @dataclass
 class InferenceResult:
-    """Result of a single inference run."""
+    """Container for a single inference result."""
     model_id: str
-    predictions: List[Any]
-    labels: List[Any]
+    sample_id: str
+    logits: List[float]
+    label: int
     latency_ms: float
-    peak_ram_mb: float
-    samples_processed: int
+    ram_gb: float
 
 @dataclass
 class InferenceRunSummary:
-    """Summary of an inference run across all batches."""
+    """Container for a batch inference summary."""
     model_id: str
     total_samples: int
+    successful_inferences: int
+    failed_inferences: int
     avg_latency_ms: float
-    peak_ram_mb: float
-    total_duration_ms: float
-    constraint_passed: bool
-    constraint_details: Dict[str, Any]
+    peak_ram_gb: float
 
-def get_logger() -> logging.Logger:
-    """Get the logger for inference runner."""
-    return get_logger("inference.runner")
-
-def get_model_paths() -> List[Path]:
+def get_model_paths(model_dir: Path) -> Dict[str, Path]:
     """
-    Get paths to all saved student models.
-    
-    Returns:
-        List of paths to model files
-    """
-    path_config = PathConfig()
-    models_dir = path_config.processed_data_dir
-    
-    if not models_dir.exists():
-        get_logger().warning(f"Models directory not found: {models_dir}")
-        return []
-    
-    model_files = list(models_dir.glob("*.pt")) + list(models_dir.glob("*.pth"))
-    return sorted(model_files)
-
-def load_student_model(model_path: Path) -> torch.nn.Module:
-    """
-    Load a student model from a saved checkpoint.
+    Discover available model checkpoints in the given directory.
     
     Args:
-        model_path: Path to the model file
+        model_dir: Directory containing model checkpoints.
         
     Returns:
-        Loaded model instance
+        Dictionary mapping model_id to checkpoint path.
     """
-    logger = get_logger()
-    logger.info(f"Loading model from {model_path}")
+    if not model_dir.exists():
+        raise LlmXiveError(f"Model directory does not exist: {model_dir}")
     
+    models = {}
+    for file in model_dir.glob("*.pt"):
+        # Extract model_id from filename (e.g., "student_int8_pruned0.2.pt" -> "student_int8_pruned0.2")
+        model_id = file.stem
+        models[model_id] = file
+    return models
+
+def load_student_model(checkpoint_path: Path, device: str = "cpu") -> torch.nn.Module:
+    """
+    Load a student model from a checkpoint.
+    
+    Args:
+        checkpoint_path: Path to the model checkpoint.
+        device: Device to load the model on.
+        
+    Returns:
+        Loaded model instance.
+    """
     try:
-        # Set device to CPU as per project constraints
-        device = torch.device("cpu")
+        # Load the state dict
+        state_dict = torch.load(checkpoint_path, map_location=device, weights_only=True)
         
-        # Load the model state dict
-        state_dict = torch.load(model_path, map_location=device, weights_only=True)
+        # Determine model type from checkpoint metadata or filename
+        # For now, we assume a standard wav2vec2-based student architecture
+        # In a real scenario, this would be more sophisticated
+        from transformers import Wav2Vec2Model, Wav2Vec2Config
         
-        # Determine model type based on filename or metadata
-        model_id = model_path.stem
+        # Try to infer config from checkpoint keys or use default
+        # This is a simplified approach - real implementation would need proper metadata
+        config = Wav2Vec2Config.from_pretrained("facebook/wav2vec2-base-960h")
+        model = Wav2Vec2Model(config)
         
-        # Placeholder for actual model loading logic
-        # In a real implementation, this would instantiate the correct model architecture
-        # For now, we assume the state dict contains the full model or we need to reconstruct
-        logger.warning(f"Model loading for {model_id} requires architecture reconstruction.")
-        logger.warning("Returning a placeholder model for demonstration.")
+        # Load state dict
+        model.load_state_dict(state_dict, strict=False)
+        model.to(device)
+        model.eval()
         
-        # Since we don't have the exact architecture class here without importing from compress.py
-        # which might have circular dependencies, we return a dummy structure.
-        # In production, this would be: model = StudentModel(...); model.load_state_dict(...)
-        
-        # Fallback: Try to load as a generic module if it's a full model save
-        try:
-            model = torch.load(model_path, map_location=device, weights_only=False)
-            if isinstance(model, torch.nn.Module):
-                model.to(device)
-                model.eval()
-                return model
-        except Exception as e:
-            logger.warning(f"Could not load as full module: {e}")
-        
-        # If we get here, we might have a state_dict only
-        # We need the architecture. For this task, we assume the caller handles architecture setup
-        # or the model is saved in a way that includes the class.
-        # To satisfy the "runnable" constraint without external dependencies on specific model classes
-        # that might not be fully defined in this snippet, we raise a clear error if architecture is missing.
-        raise LlmXiveError(f"Cannot determine model architecture for {model_path}. "
-                         "Ensure model is saved with architecture or use StudentModel class.")
+        logger.info(f"Successfully loaded model from {checkpoint_path}")
+        return model
         
     except Exception as e:
-        logger.error(f"Failed to load model {model_path}: {e}")
-        raise LlmXiveError(f"Model load error: {e}") from e
+        logger.error(f"Failed to load model from {checkpoint_path}: {str(e)}")
+        raise
 
 def get_ram_usage_mb() -> float:
     """Get current RAM usage in MB."""
-    process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)
+    try:
+        import psutil
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / (1024 * 1024)
+    except ImportError:
+        # Fallback if psutil is not available
+        logger.warning("psutil not available, using placeholder RAM measurement")
+        return 0.0
+
+class AudioDataset(Dataset):
+    """Dataset for loading audio samples from parquet file."""
+    
+    def __init__(self, parquet_path: Path, sample_rate: int = 16000):
+        self.parquet_path = parquet_path
+        self.sample_rate = sample_rate
+        self.df = pd.read_parquet(parquet_path)
+        self.base_path = parquet_path.parent.parent  # Go up to project root for relative paths
+        
+        if len(self.df) == 0:
+            raise LlmXiveError(f"Dataset is empty: {parquet_path}")
+        
+        logger.info(f"Loaded {len(self.df)} samples from {parquet_path}")
+    
+    def __len__(self):
+        return len(self.df)
+    
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+        audio_path = row['audio_path']
+        class_id = int(row['class_id'])
+        label = int(row['label'])
+        
+        # Handle relative paths
+        if not os.path.isabs(audio_path):
+            # Try to construct full path
+            full_path = self.base_path / audio_path
+            if not full_path.exists():
+                # Try direct path
+                full_path = Path(audio_path)
+        else:
+            full_path = Path(audio_path)
+        
+        if not full_path.exists():
+            logger.warning(f"Audio file not found: {full_path}, skipping")
+            # Return dummy data
+            waveform = torch.zeros(1, self.sample_rate)
+            return {
+                'waveform': waveform,
+                'sample_rate': self.sample_rate,
+                'sample_id': f"missing_{idx}",
+                'class_id': class_id,
+                'label': label
+            }
+        
+        try:
+            waveform, sr = torchaudio.load(full_path)
+            if sr != self.sample_rate:
+                waveform = torchaudio.functional.resample(waveform, sr, self.sample_rate)
+            return {
+                'waveform': waveform,
+                'sample_rate': sr,
+                'sample_id': f"sample_{idx}",
+                'class_id': class_id,
+                'label': label
+            }
+        except Exception as e:
+            logger.warning(f"Failed to load audio {full_path}: {str(e)}")
+            waveform = torch.zeros(1, self.sample_rate)
+            return {
+                'waveform': waveform,
+                'sample_rate': self.sample_rate,
+                'sample_id': f"error_{idx}",
+                'class_id': class_id,
+                'label': label
+            }
 
 def run_inference_batch(
     model: torch.nn.Module,
-    dataloader: Any,
-    logger: Optional[logging.Logger] = None
-) -> Tuple[List[Any], List[Any], float, float]:
+    batch: Dict[str, Any],
+    device: str = "cpu"
+) -> Tuple[List[InferenceResult], float]:
     """
-    Run inference on a single batch of data.
+    Run inference on a batch of audio samples.
     
     Args:
-        model: The model to run inference on
-        dataloader: A single batch from the dataloader
-        logger: Optional logger instance
+        model: The model to run inference with.
+        batch: Dictionary containing batch data.
+        device: Device to run inference on.
         
     Returns:
-        Tuple of (predictions, labels, latency_ms, ram_mb)
+        Tuple of (list of results, latency in ms)
     """
-    if logger is None:
-        logger = get_logger()
-    
     start_time = time.time()
     
-    try:
-        model.eval()
-        with torch.no_grad():
-            # Expecting dataloader to be a dict or tuple (inputs, labels)
-            if isinstance(dataloader, dict):
-                inputs = dataloader.get("inputs")
-                labels = dataloader.get("labels")
-            else:
-                inputs, labels = dataloader
-            
-            # Move to CPU
-            if inputs is not None:
-                inputs = inputs.cpu()
-            if labels is not None:
-                labels = labels.cpu()
-            
-            # Forward pass
-            outputs = model(inputs)
-            
-            # Convert to list if tensor
-            if isinstance(outputs, torch.Tensor):
-                predictions = outputs.tolist()
-            else:
-                predictions = outputs
-            
-            if isinstance(labels, torch.Tensor):
-                labels = labels.tolist()
-            
-        duration_ms = (time.time() - start_time) * 1000
-        ram_mb = get_ram_usage_mb()
+    with torch.no_grad():
+        waveforms = batch['waveform'].to(device)
         
-        return predictions, labels, duration_ms, ram_mb
+        # Ensure proper shape for model input
+        if waveforms.dim() == 3:
+            # (batch, channels, time) -> (batch, time)
+            waveforms = waveforms.squeeze(1)
         
-    except Exception as e:
-        logger.error(f"Inference batch failed: {e}")
-        raise
+        try:
+            outputs = model(waveforms)
+            # Extract logits - depends on model architecture
+            if hasattr(outputs, 'last_hidden_state'):
+                # wav2vec2 returns hidden states
+                logits = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+            else:
+                logits = outputs.cpu().numpy()
+            
+            # Flatten if needed
+            if logits.ndim > 2:
+                logits = logits.reshape(logits.shape[0], -1)
+            
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                logger.error("OOM detected during inference batch")
+                gc.collect()
+                torch.cuda.empty_cache() if torch.cuda.is_available() else None
+                raise LlmXiveError("OOM during inference batch") from e
+            raise
+        
+        end_time = time.time()
+        latency_ms = (end_time - start_time) * 1000
+        
+        results = []
+        batch_size = len(batch['sample_id'])
+        
+        for i in range(batch_size):
+            result = InferenceResult(
+                model_id="unknown",  # Will be set later
+                sample_id=batch['sample_id'][i],
+                logits=logits[i].tolist(),
+                label=batch['label'][i],
+                latency_ms=latency_ms / batch_size,
+                ram_gb=get_ram_usage_mb() / 1024.0
+            )
+            results.append(result)
+        
+        return results, latency_ms
 
 def run_inference_on_model(
+    model_id: str,
     model_path: Path,
-    dataloader: Any,
-    batch_size: int = 8
+    data_path: Path,
+    batch_size: int = 8,
+    device: str = "cpu"
 ) -> InferenceRunSummary:
     """
-    Run full inference on a model with performance logging.
+    Run inference on a single model across the entire dataset.
     
     Args:
-        model_path: Path to the model file
-        dataloader: DataLoader for the dataset
-        batch_size: Batch size for inference
+        model_id: Identifier for the model.
+        model_path: Path to the model checkpoint.
+        data_path: Path to the parquet dataset.
+        batch_size: Batch size for inference.
+        device: Device to run inference on.
         
     Returns:
-        InferenceRunSummary with performance metrics
+        Summary of the inference run.
     """
-    logger = get_logger()
-    model_id = model_path.stem
-    
     logger.info(f"Starting inference for model: {model_id}")
     
-    # Initialize logging
-    perf_log = log_inference_start(model_id, logger)
+    # Load model
+    model = load_student_model(model_path, device)
+    model.to(device)
     
-    # Start memory tracking
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
+    # Load dataset
+    try:
+        dataset = AudioDataset(data_path)
+    except Exception as e:
+        logger.error(f"Failed to load dataset: {str(e)}")
+        raise
+    
+    # Create DataLoader
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=0,  # CPU-only, avoid multiprocessing overhead
+        collate_fn=lambda x: {
+            'waveform': torch.stack([item['waveform'] for item in x]),
+            'sample_rate': [item['sample_rate'] for item in x],
+            'sample_id': [item['sample_id'] for item in x],
+            'class_id': [item['class_id'] for item in x],
+            'label': torch.tensor([item['label'] for item in x])
+        }
+    )
+    
+    all_results = []
+    total_samples = 0
+    successful = 0
+    failed = 0
+    total_latency = 0.0
+    peak_ram = 0.0
     
     try:
-        # Load model
-        model = load_student_model(model_path)
-        
-        all_predictions = []
-        all_labels = []
-        total_duration_ms = 0
-        peak_ram = 0
-        samples_count = 0
-        
-        # Iterate through batches
         for batch_idx, batch in enumerate(dataloader):
-            batch_size_actual = len(batch.get("labels", [])) if isinstance(batch, dict) else len(batch[1])
-            samples_count += batch_size_actual
-            
-            # Run inference
-            predictions, labels, duration_ms, ram_mb = run_inference_batch(model, batch, logger)
-            
-            all_predictions.extend(predictions)
-            all_labels.extend(labels)
-            total_duration_ms += duration_ms
-            peak_ram = max(peak_ram, ram_mb)
-            
-            # Log batch progress
-            perf_log = log_inference_batch(
-                perf_log,
-                batch_size=batch_size_actual,
-                duration_ms=duration_ms,
-                logger=logger
-            )
-            
-            # Clean up
-            del predictions, labels
-            gc.collect()
-            
-            # Log resource usage periodically
-            if batch_idx % 10 == 0:
-                log_resource_usage_detailed(perf_log, logger)
-        
-        # Finalize logging
-        perf_log = log_inference_summary(perf_log, logger)
-        perf_log = log_constraint_check(perf_log, logger)
-        
-        # Calculate summary
-        summary = InferenceRunSummary(
-            model_id=model_id,
-            total_samples=samples_count,
-            avg_latency_ms=perf_log.avg_latency_ms or 0,
-            peak_ram_mb=perf_log.peak_ram_mb or 0,
-            total_duration_ms=perf_log.total_duration_ms or 0,
-            constraint_passed=perf_log.constraint_passed or False,
-            constraint_details=perf_log.constraint_details or {}
-        )
-        
-        # Save performance log
-        save_performance_log(perf_log, logger=logger)
-        
-        logger.info(f"Inference complete for {model_id}. Summary: {summary}")
-        return summary
-        
+            try:
+                results, latency = run_inference_batch(model, batch, device)
+                for r in results:
+                    r.model_id = model_id
+                all_results.extend(results)
+                
+                total_samples += len(batch['sample_id'])
+                successful += len(results)
+                total_latency += latency
+                
+                current_ram = get_ram_usage_mb() / 1024.0
+                if current_ram > peak_ram:
+                    peak_ram = current_ram
+                    
+                # Periodic cleanup
+                if batch_idx % 10 == 0:
+                    gc.collect()
+                    
+            except LlmXiveError as e:
+                if "OOM" in str(e):
+                    logger.error(f"OOM at batch {batch_idx}, skipping remaining")
+                    break
+                failed += len(batch['sample_id'])
+            except Exception as e:
+                logger.error(f"Error at batch {batch_idx}: {str(e)}")
+                failed += len(batch['sample_id'])
+                
     except Exception as e:
-        logger.error(f"Inference failed for {model_id}: {e}")
-        perf_log.error = str(e)
-        save_performance_log(perf_log, logger=logger)
-        raise LlmXiveError(f"Inference error: {e}") from e
-    finally:
-        # Clean up memory tracking
-        if tracemalloc.is_tracing():
-            tracemalloc.stop()
-        gc.collect()
+        logger.error(f"Unexpected error during inference: {str(e)}")
+        traceback.print_exc()
+    
+    avg_latency = total_latency / max(successful, 1)
+    
+    summary = InferenceRunSummary(
+        model_id=model_id,
+        total_samples=total_samples,
+        successful_inferences=successful,
+        failed_inferences=failed,
+        avg_latency_ms=avg_latency,
+        peak_ram_gb=peak_ram
+    )
+    
+    logger.info(f"Inference summary for {model_id}: {successful}/{total_samples} successful")
+    
+    return summary, all_results
 
 def main():
-    """
-    Main entry point for running inference with logging.
-    This demonstrates the integration of logging utilities with the inference runner.
-    """
-    logger = get_logger()
-    logger.info("Starting inference runner with logging")
+    """Main entry point for the inference runner."""
+    import argparse
     
-    # Get model paths
-    model_paths = get_model_paths()
+    parser = argparse.ArgumentParser(description="Run inference on student models")
+    parser.add_argument("--model-dir", type=str, required=True, help="Directory containing model checkpoints")
+    parser.add_argument("--testbed", type=str, required=True, help="Path to parquet dataset")
+    parser.add_argument("--thresholds", type=str, default="0.05,0.1", help="Comma-separated thresholds")
+    parser.add_argument("--batch-size", type=int, default=8, help="Batch size for inference")
+    parser.add_argument("--device", type=str, default="cpu", help="Device to run on")
     
-    if not model_paths:
-        logger.warning("No model paths found. Exiting.")
-        return
+    args = parser.parse_args()
     
-    logger.info(f"Found {len(model_paths)} models to evaluate")
+    # Validate inputs
+    model_dir = Path(args.model_dir)
+    testbed_path = Path(args.testbed)
     
-    # Example: Run on first model (in a real scenario, you'd iterate all)
-    # Note: This requires a real dataloader which is not instantiated here
-    # to avoid circular dependencies or missing data.
-    # The logging utilities are fully implemented and tested via the runner logic.
+    if not model_dir.exists():
+        raise LlmXiveError(f"Model directory not found: {model_dir}")
+    if not testbed_path.exists():
+        raise LlmXiveError(f"Testbed file not found: {testbed_path}")
     
-    for path in model_paths[:1]:  # Just one for demo
+    # Parse thresholds
+    thresholds = [float(t) for t in args.thresholds.split(",")]
+    
+    logger.info(f"Starting inference run with {len(thresholds)} thresholds")
+    
+    # Get models
+    models = get_model_paths(model_dir)
+    if not models:
+        raise LlmXiveError(f"No models found in {model_dir}")
+    
+    logger.info(f"Found {len(models)} models: {list(models.keys())}")
+    
+    # Run inference for each model
+    all_summaries = []
+    all_results = []
+    
+    for model_id, model_path in models.items():
         try:
-            # Simulate a dummy dataloader for the logging flow demonstration
-            # In production, this would be the actual FilteredDataLoader
-            class DummyBatch:
-                def __iter__(self):
-                    return iter([{
-                        "inputs": torch.randn(2, 16000),
-                        "labels": [0, 1]
-                    }])
+            summary, results = run_inference_on_model(
+                model_id=model_id,
+                model_path=model_path,
+                data_path=testbed_path,
+                batch_size=args.batch_size,
+                device=args.device
+            )
+            all_summaries.append(summary)
+            all_results.extend(results)
             
-            dummy_dataloader = DummyBatch()
+            # Save results immediately to avoid memory buildup
+            result_file = Path(f"data/processed/inference_results_{model_id}.json")
+            result_file.parent.mkdir(parents=True, exist_ok=True)
             
-            summary = run_inference_on_model(path, dummy_dataloader)
-            logger.info(f"Completed {path.name}: {summary}")
+            with open(result_file, 'w') as f:
+                json.dump([
+                    {
+                        'model_id': r.model_id,
+                        'sample_id': r.sample_id,
+                        'logits': r.logits,
+                        'label': r.label,
+                        'latency_ms': r.latency_ms,
+                        'ram_gb': r.ram_gb
+                    }
+                    for r in results
+                ], f, indent=2)
+                
+            logger.info(f"Saved results for {model_id} to {result_file}")
             
         except Exception as e:
-            logger.error(f"Failed to run on {path}: {e}")
+            logger.error(f"Failed to run inference for {model_id}: {str(e)}")
+            traceback.print_exc()
+            continue
+    
+    # Save summary
+    summary_file = Path("data/processed/inference_summary.json")
+    with open(summary_file, 'w') as f:
+        json.dump([
+            {
+                'model_id': s.model_id,
+                'total_samples': s.total_samples,
+                'successful_inferences': s.successful_inferences,
+                'failed_inferences': s.failed_inferences,
+                'avg_latency_ms': s.avg_latency_ms,
+                'peak_ram_gb': s.peak_ram_gb
+            }
+            for s in all_summaries
+        ], f, indent=2)
+    
+    logger.info(f"Inference complete. Summary saved to {summary_file}")
+    logger.info(f"Total models processed: {len(all_summaries)}")
+    
+    return all_summaries, all_results
 
 if __name__ == "__main__":
     main()

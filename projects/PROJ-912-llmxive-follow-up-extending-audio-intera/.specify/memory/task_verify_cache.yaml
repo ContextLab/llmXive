@@ -18,23 +18,39 @@ T008b:
     variables for resource limits were provided. The only artifacts shown relate to
     audio model compression and evaluation, not to the required CI runner setup. The
     task therefore lacks the necessary artifact.
-T014a:
+T014b:
   c: false
-  h: bb2704dc995e310fbfea2d318b53071d7451f28f5b6e0773ddcadd4215106e47
-  r: "The provided `compress.py` only contains utility functions (quantization, pruning)\
-    \ and does not implement the required knowledge\u2011distillation training loop,\
-    \ nor does it load the teacher or student models, stream the parquet dataset,\
-    \ compute a KD loss, or write `distillation_loss_curve_quant.csv`. Additionally,\
-    \ the required data file `data/processed/subtle_cue_subset.parquet` is missing.\
-    \ These essential artifacts are absent, so the task is not satisfied."
-T021a:
+  h: 11ae4b3063858669582c18cbefcbca287b33b2d006437e028d2463467d9fa658
+  r: "The `data/processed/subtle_cue_subset.parquet` file is absent, violating the\
+    \ required streaming input step. Moreover, `code/models/compress.py` does not\
+    \ contain a full knowledge\u2011distillation training loop, KD loss computation,\
+    \ or CSV saving logic, and the configuration module is truncated (no accessible\
+    \ `KD_ALPHA`/`KD_TEMP` constants). These missing pieces prevent the task from\
+    \ being genuinely fulfilled."
+T014c:
   c: false
-  h: b42c0f5da7800a1f29f83adf09888ae2d70af1ae6b1fdfd70c9cddc959abcef0
-  r: "The provided `subtle_cue_builder.py` is truncated and does not contain the full\
-    \ logic for computing STFT peaks, RMS, classifying \u201CSubtle Cue\u201D vs \u201C\
-    Control Set\u201D, or writing the required `data/processed/class_config.yaml`.\
-    \ Moreover, the expected output YAML file is absent. The implementation is therefore\
-    \ incomplete."
+  h: 11ae4b3063858669582c18cbefcbca287b33b2d006437e028d2463467d9fa658
+  r: The `compress.py` file never defines the KD training loop, never streams the
+    required Parquet dataset, never reads `KD_ALPHA`/`KD_TEMP` (the imported helper
+    functions are missing), and does not write `distillation_loss_curve_fp32.csv`.
+    Moreover, the required data file `data/processed/subtle_cue_subset.parquet` is
+    absent, and `code/config.py` is truncated and lacks the expected accessor functions.
+    These missing pieces prevent the task from being fulfilled.
+T020:
+  c: false
+  h: 1fa7a2d1c090cc7b515eb96b23bc2c8e5f76d5e5bd212f71df5b401d6e7dd630
+  r: "The required config files `data/processed/class_config_subtle.yaml` and `data/processed/class_config_control.yaml`\
+    \ are absent, and the expected output file `data/processed/subtle_cue_subset.parquet`\
+    \ was not generated. Consequently the loader cannot perform the required filtering\
+    \ nor produce the checksum\u2011verified parquet file."
+T021c:
+  c: false
+  h: 60d73e333b9c284d6c3312458f5ad8bcf3e20a279662fb8ad094c64b8827e5a1
+  r: "The provided `subtle_cue_builder.py` only contains logic for identifying subtle\
+    \ cues and lacks any implementation that defines or generates \u201CControl Set\u201D\
+    \ classes, maps them to dataset IDs, or writes `data/processed/class_config_control.yaml`\
+    \ (the file is missing). Consequently the core requirements of the task are not\
+    \ met."
 T029:
   c: false
   h: d98c2878caf681e408b6d921acdb4cbc6e6b9067bd0b4933bcf528b4258315a7

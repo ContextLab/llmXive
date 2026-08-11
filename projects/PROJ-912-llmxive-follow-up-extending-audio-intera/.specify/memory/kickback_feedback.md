@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T020` (rejected 1x): The required `data/processed/class_config.yaml` (providing `subtle_classes` and `control_classes`) does not exist, and the expected output file `data/processed/subtle_cue_subset.parquet` (with its checksum) is also missing. Consequently the loader cannot read class definitions, stream‑filter, or verify the generated file as the task demands.
+- `T021a` (rejected 1x): The required `data/processed/class_config_subtle.yaml` file is missing, and the provided `subtle_cue_builder.py` is truncated before showing any logic that classifies classes or writes the YAML configuration. Without the YAML output, the task’s second requirement is not satisfied.
+- `T014a` (rejected 1x): The `compress.py` file does not contain a knowledge‑distillation training loop, does not load a quantized student model, does not stream the required Parquet dataset, nor compute or save the KD loss curve. Additionally, the required data file `data/processed/subtle_cue_subset.parquet` is missing, and `config.py` is truncated and does not expose the expected `KD_ALPHA`/`KD_TEMP` constants. These missing/incorrect artifacts prevent the task from being fulfilled.
 
 ## Required change
 

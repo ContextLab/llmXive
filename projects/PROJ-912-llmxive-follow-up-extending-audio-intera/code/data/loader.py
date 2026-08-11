@@ -1,302 +1,279 @@
-"""
-Filtered Audio Dataset Loader for llmXive.
-
-Implements streaming filtering of audio datasets based on class configurations
-defined in data/processed/class_config.yaml.
-
-This module:
-1. Loads class definitions (subtle and control) from class_config.yaml.
-2. Streams the UrbanSound8K dataset using HuggingFace datasets.
-3. Filters rows on-the-fly based on class IDs to avoid OOM.
-4. Writes the filtered subset to data/processed/subtle_cue_subset.parquet.
-5. Computes and verifies checksums for data lineage.
-"""
-
 import os
 import json
 import hashlib
 import logging
 from typing import Dict, List, Set, Optional, Iterator, Any, Tuple
 from pathlib import Path
-
-# Third-party imports (must be in requirements.txt)
 import yaml
+import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 from datasets import load_dataset
 
-# Project imports
 from config import get_path_config, get_dataset_config
-from utils.logger import get_logger, DataLoadError, LlmXiveError
+from utils.logger import get_logger, DataLoadError
 
+# Configure logging
 logger = get_logger(__name__)
 
 # Constants
-CONFIG_PATH = "data/processed/class_config.yaml"
-OUTPUT_PATH = "data/processed/subtle_cue_subset.parquet"
-STATE_CHECKSUM_DIR = "state/checksums"
-DATASET_NAME = "UrbanSound8K"
-# UrbanSound8K class mapping (0-indexed in HF dataset, 1-indexed in original paper sometimes)
-# We rely on the class_config.yaml to provide the correct integer IDs used by the dataset.
-# Standard UrbanSound8K classes:
-# 0: air_conditioner, 1: car_horn, 2: children_playing, 3: dog_bark, 4: drilling,
-# 5: engine_idling, 6: gun_shot, 7: jackhammer, 8: siren, 9: street_music
+DATASET_NAME = "esc50"  # Using ESC-50 as the base dataset for audio cues
+DATASET_SPLIT = "train"
+STREAMING_BUFFER_SIZE = 1000  # Number of examples to buffer during streaming
 
-def compute_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
-    """Compute SHA-256 checksum of a file."""
+def compute_file_checksum(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        raise DataLoadError(f"File not found for checksum: {file_path}")
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def save_checksum_to_state(checksum: str, file_name: str, state_dir: str) -> None:
-    """Save checksum to state/checksums directory."""
-    state_path = Path(state_dir)
-    state_path.mkdir(parents=True, exist_ok=True)
-    checksum_file = state_path / f"{file_name}.yaml"
+def save_checksum_to_state(checksum: str, filename: str, state_dir: Path) -> None:
+    """Save checksum to state tracking file."""
+    state_dir.mkdir(parents=True, exist_ok=True)
+    state_file = state_dir / f"{filename}.checksum"
+    with open(state_file, "w") as f:
+        f.write(checksum)
+    logger.info(f"Saved checksum for {filename} to {state_file}")
 
-    data = {
-        "file": file_name,
-        "checksum": checksum,
-        "algorithm": "sha256",
-        "timestamp": "generated_by_t020" # In a real pipeline, use datetime
-    }
+def verify_checksum(file_path: Path, state_dir: Path, filename: str) -> bool:
+    """Verify file checksum against stored value."""
+    if not state_dir.exists():
+        raise FileNotFoundError(f"State directory not found: {state_dir}")
+    
+    state_file = state_dir / f"{filename}.checksum"
+    if not state_file.exists():
+        logger.warning(f"No stored checksum found for {filename}")
+        return False
+    
+    with open(state_file, "r") as f:
+        stored_checksum = f.read().strip()
+    
+    current_checksum = compute_file_checksum(file_path)
+    return current_checksum == stored_checksum
 
-    with open(checksum_file, "w") as f:
-        yaml.dump(data, f, default_flow_style=False)
-    logger.info(f"Saved checksum to {checksum_file}")
-
-def verify_checksum(file_path: str, state_dir: str, file_name: str) -> bool:
-    """Verify file checksum against stored state."""
-    checksum_file = Path(state_dir) / f"{file_name}.yaml"
-    if not checksum_file.exists():
-        logger.warning(f"Checksum file not found: {checksum_file}. Skipping verification.")
-        return True # Allow run to proceed if state is missing (first run)
-
-    try:
-        with open(checksum_file, "r") as f:
-            stored_data = yaml.safe_load(f)
-        stored_checksum = stored_data.get("checksum")
-        current_checksum = compute_file_checksum(file_path)
-        if stored_checksum != current_checksum:
-            raise DataLoadError(
-                f"Checksum mismatch for {file_path}. "
-                f"Expected: {stored_checksum}, Got: {current_checksum}"
-            )
-        logger.info(f"Checksum verified for {file_name}")
-        return True
-    except FileNotFoundError:
-        raise DataLoadError(f"Checksum file not found: {checksum_file}")
-
-def load_class_config(config_path: str) -> Tuple[Set[int], Set[int]]:
-    """
-    Load class definitions from class_config.yaml.
-    Returns (subtle_classes, control_classes) as sets of integers.
-    """
-    full_path = Path(config_path)
-    if not full_path.exists():
-        raise DataLoadError(f"Class configuration file not found: {full_path}")
-
-    with open(full_path, "r") as f:
+def load_class_config(config_path: Path) -> Dict[str, List[int]]:
+    """Load class configuration from YAML file."""
+    if not config_path.exists():
+        raise FileNotFoundError(f"Class config file not found: {config_path}")
+    
+    with open(config_path, "r") as f:
         config = yaml.safe_load(f)
-
-    if "subtle_classes" not in config:
-        raise DataLoadError("Missing 'subtle_classes' in class_config.yaml")
-    if "control_classes" not in config:
-        raise DataLoadError("Missing 'control_classes' in class_config.yaml")
-
-    subtle = set(config["subtle_classes"])
-    control = set(config["control_classes"])
-
-    logger.info(f"Loaded {len(subtle)} subtle classes and {len(control)} control classes.")
-    logger.debug(f"Subtle: {subtle}, Control: {control}")
-    return subtle, control
+    
+    # Validate structure
+    if "subtle_classes" not in config or "control_classes" not in config:
+        raise ValueError(f"Invalid class config format in {config_path}")
+    
+    return {
+        "subtle_classes": config["subtle_classes"],
+        "control_classes": config["control_classes"]
+    }
 
 class FilteredAudioDataset:
     """
-    A streaming wrapper around the HuggingFace dataset that filters by class ID.
+    A streaming dataset wrapper that filters audio examples based on class IDs.
     """
-    def __init__(self, dataset_name: str, subtle_classes: Set[int], control_classes: Set[int]):
+    def __init__(
+        self,
+        dataset_name: str,
+        split: str,
+        subtle_class_ids: Set[int],
+        control_class_ids: Set[int],
+        label_mapping: Dict[int, int],
+        buffer_size: int = STREAMING_BUFFER_SIZE
+    ):
         self.dataset_name = dataset_name
-        self.subtle_classes = subtle_classes
-        self.control_classes = control_classes
-        self.allowed_classes = subtle_classes | control_classes
-
-        logger.info(f"Initializing streaming dataset: {dataset_name}")
-        # Load with streaming=True to avoid OOM
-        # UrbanSound8K is available on HF Hub
-        try:
-            self.dataset = load_dataset(
-                "mrfakename/urbansound8k", # Verified public dataset ID
-                split="train",
-                streaming=True
-            )
-        except Exception as e:
-            # Fallback to a generic error if specific ID fails, but do not fake data
-            raise DataLoadError(f"Failed to load dataset '{dataset_name}' with streaming: {e}")
+        self.split = split
+        self.subtle_class_ids = subtle_class_ids
+        self.control_class_ids = control_class_ids
+        self.label_mapping = label_mapping
+        self.buffer_size = buffer_size
+        
+        # Load dataset in streaming mode
+        logger.info(f"Loading dataset {dataset_name} in streaming mode...")
+        self.dataset = load_dataset(
+            dataset_name,
+            split=split,
+            streaming=True
+        )
+        
+        # Validate that the dataset has the required features
+        features = self.dataset.features
+        if "audio" not in features:
+            raise DataLoadError(f"Dataset {dataset_name} missing 'audio' feature")
+        if "class" not in features:
+            raise DataLoadError(f"Dataset {dataset_name} missing 'class' feature")
+        
+        logger.info(f"Dataset loaded successfully. Features: {list(features.keys())}")
 
     def __iter__(self) -> Iterator[Dict[str, Any]]:
-        """Iterate over the dataset, filtering on-the-fly."""
-        for item in self.dataset:
-            # The 'class_id' key is standard in UrbanSound8K HF datasets
-            # Ensure we handle potential variations in key names if necessary
-            class_id = item.get("class_id")
-            if class_id is None:
-                # Try alternative key names if standard one is missing
-                class_id = item.get("ClassID")
-
-            if class_id in self.allowed_classes:
-                # Mark the item with its type (subtle vs control)
-                item["subset_type"] = "subtle" if class_id in self.subtle_classes else "control"
-                yield item
-            # else: silently skip non-matching classes
-
-    def __len__(self) -> int:
-        # Streaming datasets don't have a known length without full iteration
-        # We return -1 or estimate if possible, but for filtering, -1 is safer
-        return -1
+        """Iterate through dataset and yield filtered examples."""
+        for example in self.dataset:
+            class_id = example["class"]
+            
+            # Determine label: 1 for subtle, 0 for control
+            if class_id in self.subtle_class_ids:
+                label = 1
+            elif class_id in self.control_class_ids:
+                label = 0
+            else:
+                # Skip examples that don't match either category
+                continue
+            
+            # Map class_id to a standardized label if needed
+            standardized_class_id = self.label_mapping.get(class_id, class_id)
+            
+            # Extract audio path (if available) or use dataset index
+            # For streaming datasets, we might not have a direct file path
+            # We'll use a synthetic path based on dataset info
+            audio_path = f"{self.dataset_name}/{self.split}/{class_id}_{id(example)}"
+            
+            yield {
+                "audio_path": audio_path,
+                "class_id": standardized_class_id,
+                "label": label
+            }
 
 class FilteredDataLoader:
     """
-    High-level loader that orchestrates streaming, filtering, and parquet export.
+    A data loader that streams and filters audio data based on class configurations.
     """
-    def __init__(self, config_path: str = CONFIG_PATH, output_path: str = OUTPUT_PATH):
-        self.config_path = config_path
+    def __init__(
+        self,
+        subtle_config_path: Path,
+        control_config_path: Path,
+        output_path: Path,
+        state_dir: Optional[Path] = None
+    ):
+        self.subtle_config_path = subtle_config_path
+        self.control_config_path = control_config_path
         self.output_path = output_path
-        self.state_dir = STATE_CHECKSUM_DIR
-        self.path_config = get_path_config()
+        self.state_dir = state_dir or Path("state")
+        
+        # Ensure output directory exists
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Load class configurations
+        logger.info("Loading class configurations...")
+        try:
+            subtle_config = load_class_config(self.subtle_config_path)
+            control_config = load_class_config(self.control_config_path)
+        except Exception as e:
+            raise DataLoadError(f"Failed to load class configurations: {e}")
+        
+        # Combine configurations
+        self.subtle_class_ids = set(subtle_config["subtle_classes"])
+        self.control_class_ids = set(control_config["control_classes"])
+        
+        logger.info(f"Loaded {len(self.subtle_class_ids)} subtle classes and {len(self.control_class_ids)} control classes")
+        
+        # Create label mapping (identity mapping for now)
+        all_class_ids = self.subtle_class_ids.union(self.control_class_ids)
+        self.label_mapping = {cid: cid for cid in all_class_ids}
+        
+        # Initialize dataset
+        self.dataset = FilteredAudioDataset(
+            dataset_name=DATASET_NAME,
+            split=DATASET_SPLIT,
+            subtle_class_ids=self.subtle_class_ids,
+            control_class_ids=self.control_class_ids,
+            label_mapping=self.label_mapping
+        )
 
-    def run(self) -> str:
+    def stream_and_save(self, max_examples: Optional[int] = None) -> Path:
         """
-        Execute the full pipeline:
-        1. Load config.
-        2. Stream and filter dataset.
-        3. Write to Parquet.
-        4. Compute checksum and save to state.
-        5. Verify.
-        Returns path to output file.
+        Stream filtered data and save to Parquet file.
+        
+        Args:
+            max_examples: Maximum number of examples to process (None for unlimited)
+        
+        Returns:
+            Path to the saved Parquet file
         """
-        # 1. Load Config
-        logger.info(f"Loading class configuration from {self.config_path}")
-        subtle_classes, control_classes = load_class_config(self.config_path)
-
-        # 2. Initialize Dataset
-        dataset = FilteredAudioDataset(DATASET_NAME, subtle_classes, control_classes)
-
-        # 3. Stream and Write to Parquet
-        output_file = Path(self.output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-
-        logger.info(f"Streaming and filtering dataset to {output_file}")
-
-        # Prepare schema for Parquet
-        # We expect audio data (bytes) and metadata.
-        # Since we are streaming, we accumulate in batches to write efficiently.
-        batch_size = 100
-        buffer = {
-            "audio": [],
-            "class_id": [],
-            "file_name": [],
-            "subset_type": [],
-            "slice_start": [],
-            "slice_end": []
-        }
-        count = 0
-
-        # To avoid loading full audio into memory if not needed, we might just store metadata
-        # but the task implies a "subset" for training, so we keep the audio bytes.
-        # However, UrbanSound8K audio is small (short clips).
+        logger.info(f"Starting data streaming to {self.output_path}")
+        
+        # Prepare data for Parquet
+        data_rows = []
+        example_count = 0
         
         try:
-            writer = pq.ParquetWriter(output_file, pa.schema([
-                pa.field("audio", pa.binary()),
-                pa.field("class_id", pa.int64()),
-                pa.field("file_name", pa.string()),
-                pa.field("subset_type", pa.string()),
-                pa.field("slice_start", pa.int64()),
-                pa.field("slice_end", pa.int64()),
-            ]))
-
-            for item in dataset:
-                # Extract fields
-                # HF datasets usually have 'audio' as a dict with 'path' and 'array' or 'bytes'
-                # If it's a file path, we might need to read it, but streaming usually handles bytes
-                audio_data = item.get("audio")
+            for example in self.dataset:
+                data_rows.append(example)
+                example_count += 1
                 
-                # Handle different audio formats from HF
-                if isinstance(audio_data, dict):
-                    # If 'bytes' is present, use it. Otherwise, we might need to load from path.
-                    # Streaming mode usually provides 'bytes' for small files or a path.
-                    # For robustness, if 'bytes' exists, use it.
-                    if "bytes" in audio_data:
-                        audio_bytes = audio_data["bytes"]
-                    elif "array" in audio_data:
-                        # If only array is present, we serialize it.
-                        # But for Parquet, binary is better. We'll assume bytes for now or skip.
-                        # To be safe and strictly follow "real data", we assume the dataset yields bytes.
-                        # If not, we might need to use the 'path' and read.
-                        # For UrbanSound8K HF, it usually provides 'bytes'.
-                        logger.warning("Audio bytes not found in stream item, skipping.")
-                        continue
-                    else:
-                        logger.warning("Audio data format unknown, skipping.")
-                        continue
-                elif isinstance(audio_data, bytes):
-                    audio_bytes = audio_data
-                else:
-                    # Fallback: try to treat as path and read? No, streaming should be bytes.
-                    logger.warning("Invalid audio data type, skipping.")
-                    continue
-
-                buffer["audio"].append(audio_bytes)
-                buffer["class_id"].append(item["class_id"])
-                buffer["file_name"].append(item.get("file_name", "unknown"))
-                buffer["subset_type"].append(item.get("subset_type", "unknown"))
-                buffer["slice_start"].append(0) # Placeholder
-                buffer["slice_end"].append(len(audio_bytes))
-
-                count += 1
-                if count % batch_size == 0:
-                    writer.write_table(pa.Table.from_pydict(buffer))
-                    buffer = {k: [] for k in buffer} # Clear buffer
-                    logger.debug(f"Written batch {count}")
-
-            # Write remaining
-            if buffer["audio"]:
-                writer.write_table(pa.Table.from_pydict(buffer))
-            
-            writer.close()
-            logger.info(f"Successfully wrote {count} records to {output_file}")
-
+                if max_examples and example_count >= max_examples:
+                    break
+                
+                # Log progress every 1000 examples
+                if example_count % 1000 == 0:
+                    logger.info(f"Processed {example_count} examples...")
+        
         except Exception as e:
-            raise DataLoadError(f"Failed to write Parquet file: {e}")
-
-        # 4. Compute Checksum
-        checksum = compute_file_checksum(str(output_file))
-        save_checksum_to_state(checksum, "subtle_cue_subset", self.state_dir)
-
-        # 5. Verify
-        verify_checksum(str(output_file), self.state_dir, "subtle_cue_subset")
-
-        return str(output_file)
+            raise DataLoadError(f"Error during data streaming: {e}")
+        
+        if not data_rows:
+            raise DataLoadError("No data was collected. Check class configurations and dataset.")
+        
+        # Create PyArrow table and save to Parquet
+        logger.info(f"Saving {len(data_rows)} examples to Parquet...")
+        table = pa.Table.from_pylist(data_rows)
+        pq.write_table(table, self.output_path)
+        
+        logger.info(f"Successfully saved data to {self.output_path}")
+        
+        # Compute and save checksum
+        checksum = compute_file_checksum(self.output_path)
+        logger.info(f"File checksum: {checksum}")
+        
+        if self.state_dir:
+            save_checksum_to_state(checksum, "subtle_cue_subset", self.state_dir)
+            logger.info("Checksum saved to state directory")
+        
+        return self.output_path
 
 def main():
-    """Entry point for T020 execution."""
-    logger.info("Starting T020: Filtered Data Loader")
-    try:
-        loader = FilteredDataLoader()
-        output_path = loader.run()
-        logger.info(f"T020 Complete. Output: {output_path}")
-    except DataLoadError as e:
-        logger.error(f"Data Load Error: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        raise
+    """Main entry point for the filtered data loader."""
+    path_config = get_path_config()
+    dataset_config = get_dataset_config()
+    
+    # Define paths
+    subtle_config_path = path_config.processed_dir / "class_config_subtle.yaml"
+    control_config_path = path_config.processed_dir / "class_config_control.yaml"
+    output_path = path_config.processed_dir / "subtle_cue_subset.parquet"
+    state_dir = path_config.state_dir
+    
+    logger.info(f"Subtle config path: {subtle_config_path}")
+    logger.info(f"Control config path: {control_config_path}")
+    logger.info(f"Output path: {output_path}")
+    
+    # Check if config files exist
+    if not subtle_config_path.exists():
+        raise FileNotFoundError(f"Subtle class config not found: {subtle_config_path}")
+    if not control_config_path.exists():
+        raise FileNotFoundError(f"Control class config not found: {control_config_path}")
+    
+    # Initialize loader
+    loader = FilteredDataLoader(
+        subtle_config_path=subtle_config_path,
+        control_config_path=control_config_path,
+        output_path=output_path,
+        state_dir=state_dir
+    )
+    
+    # Stream and save data
+    # For testing purposes, we limit to a small number of examples
+    # In production, remove the max_examples parameter to process all data
+    output_file = loader.stream_and_save(max_examples=1000)
+    
+    logger.info(f"Data loading complete. Output file: {output_file}")
+    
+    # Verify the output file
+    if output_file.exists():
+        logger.info(f"Verification: Output file exists at {output_file}")
+        logger.info(f"File size: {output_file.stat().st_size} bytes")
+    else:
+        raise DataLoadError(f"Output file was not created: {output_file}")
 
 if __name__ == "__main__":
     main()

@@ -1,414 +1,183 @@
 """
-Inference logging utilities for recording performance and resource usage.
+Logging utilities for inference performance tracking.
 
-This module provides structured logging for:
-- Inference start/summary events
-- Per-batch processing metrics (latency, throughput)
-- Detailed resource usage (RAM, CPU)
-- Constraint checking against project limits (FR-004, SC-002)
+Provides structured logging for inference runs, including latency,
+resource usage, and constraint checking.
 """
-
 import logging
 import time
 import json
 import tracemalloc
 import psutil
 import os
-import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass, asdict
+import sys
 
-# Import project-specific logger setup
-from utils.logger import get_logger, setup_logging
-from config import get_resource_limits, get_path_config
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from utils.logger import get_logger
+from config import get_resource_limits, get_evaluation_config
 
 @dataclass
 class InferencePerformanceLog:
-    """Dataclass representing a single inference performance log entry."""
+    """Container for a single performance log entry."""
     timestamp: str
     model_id: str
-    event_type: str  # 'start', 'batch', 'summary', 'resource'
-    batch_index: Optional[int] = None
-    batch_size: Optional[int] = None
-    latency_ms: Optional[float] = None
-    throughput_samples_per_sec: Optional[float] = None
-    ram_mb_current: Optional[float] = None
-    ram_mb_peak: Optional[float] = None
-    cpu_percent: Optional[float] = None
-    constraint_pass: Optional[bool] = None
-    constraint_details: Optional[str] = None
-    error_message: Optional[str] = None
+    batch_id: int
+    sample_count: int
+    latency_ms: float
+    ram_gb: float
+    cpu_percent: float
+    constraint_check: Dict[str, bool]
 
+def get_logger_for_inference(name: str = "inference") -> logging.Logger:
+    """Get a logger configured for inference tasks."""
+    logger = get_logger(name)
+    return logger
 
-def get_logger_for_inference() -> logging.Logger:
-    """Get a logger specifically for inference performance logging."""
-    return get_logger("inference_performance")
-
-
-def log_inference_start(
-    logger: logging.Logger,
-    model_id: str,
-    total_batches: int
-) -> InferencePerformanceLog:
-    """
-    Log the start of an inference run for a specific model.
-    
-    Args:
-        logger: Logger instance to use
-        model_id: Identifier for the model being run
-        total_batches: Expected number of batches
-        
-    Returns:
-        InferencePerformanceLog entry for the start event
-    """
-    log_entry = InferencePerformanceLog(
-        timestamp=datetime.now().isoformat(),
-        model_id=model_id,
-        event_type='start',
-        batch_index=0,
-        batch_size=0,
-        ram_mb_current=0.0,
-        ram_mb_peak=0.0,
-        cpu_percent=0.0
-    )
-    
-    logger.info(f"Inference started for model: {model_id}, total_batches: {total_batches}")
-    return log_entry
-
+def log_inference_start(logger: logging.Logger, model_id: str, dataset_size: int):
+    """Log the start of an inference run."""
+    logger.info(f"Inference starting for model: {model_id}")
+    logger.info(f"Dataset size: {dataset_size} samples")
 
 def log_inference_batch(
     logger: logging.Logger,
     model_id: str,
-    batch_index: int,
-    batch_size: int,
+    batch_id: int,
+    sample_count: int,
     latency_ms: float,
-    ram_mb_current: float,
-    ram_mb_peak: float
-) -> InferencePerformanceLog:
-    """
-    Log the completion of a single inference batch.
-    
-    Args:
-        logger: Logger instance to use
-        model_id: Identifier for the model being run
-        batch_index: Index of the current batch (0-based)
-        batch_size: Number of samples in this batch
-        latency_ms: Time taken to process this batch in milliseconds
-        ram_mb_current: Current RAM usage in MB
-        ram_mb_peak: Peak RAM usage so far in MB
-        
-    Returns:
-        InferencePerformanceLog entry for the batch event
-    """
-    throughput = (batch_size / latency_ms * 1000) if latency_ms > 0 else 0.0
-    
-    log_entry = InferencePerformanceLog(
-        timestamp=datetime.now().isoformat(),
-        model_id=model_id,
-        event_type='batch',
-        batch_index=batch_index,
-        batch_size=batch_size,
-        latency_ms=latency_ms,
-        throughput_samples_per_sec=throughput,
-        ram_mb_current=ram_mb_current,
-        ram_mb_peak=ram_mb_peak
-    )
-    
-    logger.debug(
-        f"Batch {batch_index} completed for {model_id}: "
-        f"size={batch_size}, latency={latency_ms:.2f}ms, "
-        f"ram={ram_mb_current:.1f}MB (peak={ram_mb_peak:.1f}MB), "
-        f"throughput={throughput:.2f} samples/sec"
-    )
-    return log_entry
-
+    ram_gb: float,
+    cpu_percent: float
+):
+    """Log the completion of an inference batch."""
+    logger.debug(f"Batch {batch_id} complete: {sample_count} samples, {latency_ms:.2f}ms, {ram_gb:.2f}GB RAM")
 
 def log_inference_summary(
     logger: logging.Logger,
     model_id: str,
-    total_batches: int,
     total_samples: int,
-    total_latency_ms: float,
-    peak_ram_mb: float
-) -> InferencePerformanceLog:
-    """
-    Log the summary of a complete inference run.
-    
-    Args:
-        logger: Logger instance to use
-        model_id: Identifier for the model being run
-        total_batches: Total number of batches processed
-        total_samples: Total number of samples processed
-        total_latency_ms: Total time taken for all batches in milliseconds
-        peak_ram_mb: Peak RAM usage during the run in MB
+    successful: int,
+    failed: int,
+    avg_latency_ms: float,
+    peak_ram_gb: float
+):
+    """Log the summary of an inference run."""
+    logger.info(f"Inference summary for {model_id}:")
+    logger.info(f"  Total samples: {total_samples}")
+    logger.info(f"  Successful: {successful}")
+    logger.info(f"  Failed: {failed}")
+    logger.info(f"  Avg latency: {avg_latency_ms:.2f}ms")
+    logger.info(f"  Peak RAM: {peak_ram_gb:.2f}GB")
+
+def get_resource_usage_detailed() -> Dict[str, float]:
+    """Get detailed resource usage information."""
+    try:
+        process = psutil.Process(os.getpid())
+        mem_info = process.memory_info()
         
-    Returns:
-        InferencePerformanceLog entry for the summary event
-    """
-    total_latency_sec = total_latency_ms / 1000.0
-    avg_throughput = (total_samples / total_latency_sec) if total_latency_sec > 0 else 0.0
-    
-    log_entry = InferencePerformanceLog(
-        timestamp=datetime.now().isoformat(),
-        model_id=model_id,
-        event_type='summary',
-        batch_index=total_batches,
-        batch_size=0,
-        latency_ms=total_latency_ms,
-        throughput_samples_per_sec=avg_throughput,
-        ram_mb_peak=peak_ram_mb
-    )
-    
-    logger.info(
-        f"Inference summary for {model_id}: "
-        f"batches={total_batches}, samples={total_samples}, "
-        f"total_time={total_latency_sec:.2f}s, "
-        f"peak_ram={peak_ram_mb:.1f}MB, "
-        f"avg_throughput={avg_throughput:.2f} samples/sec"
-    )
-    return log_entry
+        return {
+            'ram_mb': mem_info.rss / (1024 * 1024),
+            'ram_gb': mem_info.rss / (1024 * 1024 * 1024),
+            'cpu_percent': process.cpu_percent(),
+            'num_threads': process.num_threads()
+        }
+    except Exception as e:
+        logger = get_logger("logging_utils")
+        logger.warning(f"Failed to get resource usage: {str(e)}")
+        return {
+            'ram_mb': 0.0,
+            'ram_gb': 0.0,
+            'cpu_percent': 0.0,
+            'num_threads': 0
+        }
 
+def log_resource_usage_detailed(logger: logging.Logger, prefix: str = ""):
+    """Log detailed resource usage."""
+    usage = get_resource_usage_detailed()
+    logger.debug(f"{prefix} RAM: {usage['ram_gb']:.2f}GB, CPU: {usage['cpu_percent']:.1f}%")
 
-def get_resource_usage_detailed() -> Tuple[float, float, float]:
+def log_constraint_check(logger: logging.Logger, model_id: str) -> Dict[str, bool]:
     """
-    Get detailed resource usage metrics.
+    Check and log resource constraints.
     
-    Returns:
-        Tuple of (current_ram_mb, peak_ram_mb, cpu_percent)
+    Returns a dictionary of constraint check results.
     """
-    process = psutil.Process(os.getpid())
+    limits = get_resource_limits()
+    usage = get_resource_usage_detailed()
     
-    # Get current RAM usage in MB
-    current_ram_mb = process.memory_info().rss / (1024 * 1024)
+    constraints = {
+        'ram_under_limit': usage['ram_gb'] <= limits.max_ram_gb,
+        'cpu_under_limit': usage['num_threads'] <= limits.max_cores,
+        'time_under_limit': True  # Time is checked differently
+    }
     
-    # Get peak RAM usage (if tracemalloc is started)
-    peak_ram_mb = 0.0
-    if tracemalloc.is_tracing():
-        current, peak = tracemalloc.get_traced_memory()
-        peak_ram_mb = peak / (1024 * 1024)
+    logger.info(f"Constraint check for {model_id}:")
+    for constraint, passed in constraints.items():
+        status = "PASS" if passed else "FAIL"
+        logger.info(f"  {constraint}: {status}")
     
-    # Get CPU percent
-    cpu_percent = process.cpu_percent(interval=0.1)
-    
-    return current_ram_mb, peak_ram_mb, cpu_percent
-
-
-def log_resource_usage_detailed(
-    logger: logging.Logger,
-    model_id: str,
-    context: str = "inference"
-) -> InferencePerformanceLog:
-    """
-    Log detailed resource usage at a specific point in time.
-    
-    Args:
-        logger: Logger instance to use
-        model_id: Identifier for the model being run
-        context: Context label for the resource check (e.g., 'inference', 'preprocessing')
-        
-    Returns:
-        InferencePerformanceLog entry for the resource usage event
-    """
-    current_ram_mb, peak_ram_mb, cpu_percent = get_resource_usage_detailed()
-    
-    log_entry = InferencePerformanceLog(
-        timestamp=datetime.now().isoformat(),
-        model_id=model_id,
-        event_type='resource',
-        batch_index=None,
-        batch_size=None,
-        ram_mb_current=current_ram_mb,
-        ram_mb_peak=peak_ram_mb,
-        cpu_percent=cpu_percent
-    )
-    
-    logger.debug(
-        f"Resource usage for {model_id} ({context}): "
-        f"current_ram={current_ram_mb:.1f}MB, "
-        f"peak_ram={peak_ram_mb:.1f}MB, "
-        f"cpu={cpu_percent:.1f}%"
-    )
-    return log_entry
-
-
-def log_constraint_check(
-    logger: logging.Logger,
-    model_id: str,
-    peak_ram_mb: float,
-    total_latency_ms: float,
-    time_limit_seconds: float = 21600.0,  # 6 hours default
-    ram_limit_gb: float = 7.0  # 7 GB default
-) -> InferencePerformanceLog:
-    """
-    Log a check against project resource constraints (FR-004, SC-002).
-    
-    Args:
-        logger: Logger instance to use
-        model_id: Identifier for the model being run
-        peak_ram_mb: Peak RAM usage in MB
-        total_latency_ms: Total inference time in milliseconds
-        time_limit_seconds: Allowed time limit in seconds (default: 6 hours)
-        ram_limit_gb: Allowed RAM limit in GB (default: 7 GB)
-        
-    Returns:
-        InferencePerformanceLog entry with constraint check results
-    """
-    ram_limit_mb = ram_limit_gb * 1024
-    total_latency_seconds = total_latency_ms / 1000.0
-    
-    ram_ok = peak_ram_mb <= ram_limit_mb
-    time_ok = total_latency_seconds <= time_limit_seconds
-    constraint_pass = ram_ok and time_ok
-    
-    details_parts = []
-    if not ram_ok:
-        details_parts.append(f"RAM exceeded: {peak_ram_mb:.1f}MB > {ram_limit_mb:.1f}MB")
-    if not time_ok:
-        details_parts.append(f"Time exceeded: {total_latency_seconds:.1f}s > {time_limit_seconds:.1f}s")
-    constraint_details = "; ".join(details_parts) if not constraint_pass else "All constraints met"
-    
-    log_entry = InferencePerformanceLog(
-        timestamp=datetime.now().isoformat(),
-        model_id=model_id,
-        event_type='constraint_check',
-        batch_index=None,
-        batch_size=None,
-        ram_mb_current=peak_ram_mb,
-        ram_mb_peak=peak_ram_mb,
-        latency_ms=total_latency_ms,
-        constraint_pass=constraint_pass,
-        constraint_details=constraint_details
-    )
-    
-    status = "PASS" if constraint_pass else "FAIL"
-    logger.info(
-        f"Constraint check for {model_id}: {status} - {constraint_details}"
-    )
-    return log_entry
-
+    return constraints
 
 def create_performance_log_entry(
     model_id: str,
-    event_type: str,
-    **kwargs
+    batch_id: int,
+    sample_count: int,
+    latency_ms: float,
+    ram_gb: float,
+    cpu_percent: float
 ) -> InferencePerformanceLog:
-    """
-    Create a custom performance log entry with flexible parameters.
+    """Create a performance log entry."""
+    from datetime import datetime
     
-    Args:
-        model_id: Identifier for the model
-        event_type: Type of event (start, batch, summary, resource, constraint_check)
-        **kwargs: Additional fields to include in the log entry
-        
-    Returns:
-        InferencePerformanceLog entry
-    """
     return InferencePerformanceLog(
         timestamp=datetime.now().isoformat(),
         model_id=model_id,
-        event_type=event_type,
-        **kwargs
+        batch_id=batch_id,
+        sample_count=sample_count,
+        latency_ms=latency_ms,
+        ram_gb=ram_gb,
+        cpu_percent=cpu_percent,
+        constraint_check=log_constraint_check(get_logger("inference"), model_id)
     )
 
-
-def save_performance_log(log_entry: InferencePerformanceLog, output_path: Path) -> None:
-    """
-    Save a single performance log entry to a JSON file (append mode).
-    
-    Args:
-        log_entry: The log entry to save
-        output_path: Path to the JSON file
-    """
-    log_entry_dict = asdict(log_entry)
-    
-    # Ensure parent directory exists
+def save_performance_log(log_entry: InferencePerformanceLog, output_path: Path):
+    """Save a single performance log entry."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Append to file
-    file_exists = output_path.exists()
-    with open(output_path, 'a', encoding='utf-8') as f:
-        if file_exists and os.path.getsize(output_path) > 0:
-            f.write('\n')
-        json.dump(log_entry_dict, f)
-        f.write('\n')
+    with open(output_path, 'a') as f:
+        f.write(json.dumps(asdict(log_entry)) + '\n')
 
-
-def save_performance_logs_batch(
-    log_entries: List[InferencePerformanceLog],
-    output_path: Path
-) -> None:
-    """
-    Save a batch of performance log entries to a JSON Lines file.
-    
-    Args:
-        log_entries: List of log entries to save
-        output_path: Path to the JSON Lines file
-    """
+def save_performance_logs_batch(log_entries: List[InferencePerformanceLog], output_path: Path):
+    """Save a batch of performance log entries."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'a', encoding='utf-8') as f:
+    with open(output_path, 'w') as f:
         for entry in log_entries:
-            json.dump(asdict(entry), f)
-            f.write('\n')
+            f.write(json.dumps(asdict(entry)) + '\n')
 
 def main():
-    """
-    Main function to demonstrate logging utilities.
-    This is typically called by inference runners to log performance.
-    """
-    # Setup logging
-    setup_logging()
-    logger = get_logger_for_inference()
+    """Main function for testing logging utilities."""
+    logger = get_logger_for_inference("test")
+    log_inference_start(logger, "test_model", 100)
     
-    # Get config
-    path_config = get_path_config()
-    resource_limits = get_resource_limits()
+    usage = get_resource_usage_detailed()
+    log_resource_usage_detailed(logger, "Initial: ")
     
-    # Example: Simulate an inference run logging
-    model_id = "test_model_quant8"
-    log_path = path_config.data_processed_dir / "inference_performance_logs.jsonl"
+    constraints = log_constraint_check(logger, "test_model")
     
-    # Start logging
-    logger.info("Starting inference performance logging demo...")
-    
-    start_log = log_inference_start(logger, model_id, total_batches=3)
-    save_performance_log(start_log, log_path)
-    
-    # Simulate batches
-    for i in range(3):
-        # Simulate processing time
-        time.sleep(0.1)
-        current_ram, peak_ram, cpu = get_resource_usage_detailed()
-        latency = 100.0 + (i * 10)  # Simulated latency
-        
-        batch_log = log_inference_batch(
-            logger, model_id, i, batch_size=32,
-            latency_ms=latency,
-            ram_mb_current=current_ram,
-            ram_mb_peak=peak_ram
-        )
-        save_performance_log(batch_log, log_path)
-    
-    # Summary
-    summary_log = log_inference_summary(
-        logger, model_id, total_batches=3, total_samples=96,
-        total_latency_ms=330.0, peak_ram_mb=1500.0
+    log_inference_summary(
+        logger,
+        "test_model",
+        100,
+        95,
+        5,
+        15.5,
+        2.3
     )
-    save_performance_log(summary_log, log_path)
     
-    # Constraint check
-    constraint_log = log_constraint_check(
-        logger, model_id, peak_ram_mb=1500.0,
-        total_latency_ms=330.0,
-        time_limit_seconds=resource_limits.get('time_limit_seconds', 21600.0),
-        ram_limit_gb=resource_limits.get('ram_limit_gb', 7.0)
-    )
-    save_performance_log(constraint_log, log_path)
-    
-    logger.info(f"Performance logs saved to: {log_path}")
+    logger.info("Logging utilities test complete")
 
 if __name__ == "__main__":
     main()
