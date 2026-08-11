@@ -1,177 +1,104 @@
-# llmXive Follow-up: Extending GateMem Benchmark
+# Quickstart Guide: GateMem Benchmark Extension
 
-This guide provides step-by-step instructions for setting up the environment, downloading the GateMem dataset, and running the initial evaluation pipeline.
+This guide provides step-by-step instructions to set up the environment, download the required dataset, and run the initial evaluation for the GateMem benchmark extension project.
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- pip package manager
+- pip (Python package installer)
 - Git (for cloning the repository)
-- At least 14GB of available disk space for dataset and intermediate files
-- 7GB+ RAM recommended for CPU-only inference
+- Access to Hugging Face Hub (for dataset download)
 
 ## 1. Project Setup
 
-### Clone and Initialize
-
+### Clone the Repository
 ```bash
-# Clone the repository (replace with actual URL)
-git clone
-cd llmxive-follow-up-extending-gatemem-benc
-
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+git clone <repository-url>
+cd PROJ-830-llmxive-follow-up-extending-gatemem-benc
 ```
 
-### Verify Installation
-
+### Create a Virtual Environment
+It is recommended to use a virtual environment to manage dependencies.
 ```bash
-# Check Python version
-python --version # Should be 3.11+
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
 
-# Verify key packages
-python -c "import torch, datasets, pandas, statsmodels, scipy, pytest; print('All dependencies installed successfully')"
+### Install Dependencies
+Install the required packages listed in `requirements.txt`.
+```bash
+pip install -r requirements.txt
 ```
 
 ## 2. Dataset Download
 
-The GateMem benchmark dataset is hosted on HuggingFace. The following script downloads and validates the dataset.
+This project uses the **GateMem** dataset hosted on Hugging Face. The data loader is configured to stream the dataset to handle memory constraints, but you can also download it manually if preferred.
 
-```bash
-# Run the data loader to fetch the dataset
-python code/utils/data_loader.py
-```
+### Automatic Download (Recommended)
+The dataset will be automatically fetched and cached when you run the evaluation pipeline. Ensure you have a stable internet connection.
 
-**What this does:**
-- Downloads the raw GateMem dataset from HuggingFace (`leak-target` benchmark)
-- Saves raw JSONL files to `data/raw/`
-- Calculates SHA256 checksums for data integrity
-- Records checksums in `state/projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc.yaml`
-- Validates the dataset against the schema defined in `contracts/dataset.schema.yaml`
-
-**Expected Output:**
-- `data/raw/gatemem_raw.jsonl` (or similar)
-- `data/raw/checksums.txt`
-- `data/processed/episodes.json` (extracted features)
-- Log files in `logs/`
-
-**Note:** If the download fails, the script will raise an error and **will not** fall back to synthetic data. Ensure you have internet connectivity and sufficient disk space.
+### Manual Download (Optional)
+If you prefer to download the dataset manually:
+1. Visit the dataset page on Hugging Face: [GateMem Dataset] (Note: Replace with actual dataset ID if different).
+2. Use the Hugging Face CLI or Python library to download:
+ ```bash
+ pip install huggingface_hub
+ huggingface-cli download <dataset-id> --local-dir data/raw
+ ```
+ Or via Python:
+ ```python
+ from datasets import load_dataset
+ dataset = load_dataset("<dataset-id>", split="train", streaming=True)
+ # Process or save as needed
+ ```
 
 ## 3. Running the First Evaluation
 
-### Quick Start: Access Control Evaluation (User Story 1)
+The evaluation pipeline compares the Gatekeeper approach against baseline methods (Retrieval-only and Long-Context).
 
-Run the Gatekeeper vs. Baseline comparison on the "medical" and "office" domains:
-
+### Run Access Control Evaluation (User Story 1)
+This evaluates unauthorized information leakage rates on specific domains.
 ```bash
-python code/cli/run_evaluation.py \
- --domains medical,office \
- --metrics access_control \
- --output data/results/access_control_results.json
+python code/cli/run_evaluation.py --domains medical,office --mode access_control
 ```
 
-### Full Pipeline Execution
-
-To run all user stories (Access Control, Utility, Forgetting, and Profiling):
-
+### Run Utility and Forgetting Evaluation (User Story 2)
+This evaluates task success rates and deletion compliance.
 ```bash
-python code/cli/run_evaluation.py \
- --domains medical,office,education,household \
- --all-metrics \
- --profile \
- --output-dir data/results/
+python code/cli/run_evaluation.py --domains education,household --mode utility
 ```
 
-**Arguments:**
-- `--domains`: Comma-separated list of domains to evaluate (default: all)
-- `--metrics`: Specific metric to compute (`access_control`, `utility`, `forgetting`, `latency`, `ram`)
-- `--all-metrics`: Run all evaluations
-- `--profile`: Enable computational profiling (wall-clock time, peak RAM)
-- `--output-dir`: Directory for results (default: `data/results/`)
-
-## 4. Expected Outputs
-
-After running the evaluation, you should find the following artifacts:
-
-### Data Artifacts
-- `data/raw/gatemem_raw.jsonl` - Raw dataset
-- `data/processed/episodes.json` - Extracted features
-- `data/processed/access_control_results.json` - Access Control metrics
-- `data/processed/utility_results.json` - Utility and Forgetting metrics
-- `data/processed/performance_results.json` - Latency and RAM profiling
-- `data/results/cost_comparison.json` - Cost reduction analysis
-- `data/samples/failure_cases.json` - Stratified failure case samples
-
-### Reports
-- `data/results/final_benchmark_report.md` - Comprehensive benchmark report
-
-### Logs
-- `logs/memory_profile.log` - CPU/RAM usage over time
-- `logs/deletion_errors.log` - Malformed deletion log entries
-- `logs/pipeline.log` - General pipeline execution logs
-
-## 5. Verification
-
-### Contract Tests
-
-Verify that outputs match the expected schemas:
-
+### Run Performance Profiling (User Story 3)
+This measures latency and memory usage.
 ```bash
-# Run dataset schema validation
-python -m pytest tests/contract/test_dataset_schema.py -v
-
-# Run results schema validation
-python -m pytest tests/contract/test_results_schema.py -v
+python code/cli/run_evaluation.py --domains medical --mode profiling
 ```
 
-### Integration Tests
-
-Run a subset integration test:
-
+### Full Benchmark Suite
+To run the complete benchmark across all supported domains and metrics:
 ```bash
-python -m pytest tests/integration/test_us1_integration.py -v
+python code/cli/run_evaluation.py --all
 ```
 
-## 6. Troubleshooting
+## 4. Output Files
 
-### Common Issues
+Results are saved in the `data/processed/` directory:
+- `access_control_results.json`: Access control scores.
+- `utility_results.json`: Utility and forgetting scores.
+- `performance_results.json`: Latency and memory profiling data.
+- `final_benchmark_report.md`: Comprehensive summary report.
 
-**Issue: "ModuleNotFoundError: No module named 'datasets'"**
-- Solution: Ensure virtual environment is activated and run `pip install -r requirements.txt`
+## 5. Troubleshooting
 
-**Issue: "CUDA out of memory"**
-- Solution: The pipeline is configured for CPU-only. Ensure `torch.cuda.is_available()` is not being forced. Check `code/gatekeeper/classifier.py` for device settings.
+- **Dataset Fetch Failed**: Ensure your internet connection is stable and you have access to Hugging Face Hub. If using a proxy, configure your environment variables (`HTTP_PROXY`, `HTTPS_PROXY`).
+- **Model Load Error**: The DistilBERT model is loaded from the Hugging Face Hub. Ensure you have enough disk space in your cache directory (`~/.cache/huggingface`).
+- **Memory Issues**: The pipeline is designed to stream data. If you encounter memory errors, check your system resources or reduce the number of domains processed in a single run.
 
-**Issue: "Download failed: 404 Not Found"**
-- Solution: Verify internet connectivity. The dataset must be fetched from HuggingFace. If the dataset ID has changed, update `code/data/loader.py`.
+## 6. Next Steps
 
-**Issue: "Validation error: Missing required field"**
-- Solution: The dataset schema validation failed. Check `contracts/dataset.schema.yaml` and ensure the downloaded data matches the expected structure.
-
-### Memory Constraints
-
-If you encounter memory issues:
-- The pipeline processes data in batches. Ensure at least 7GB RAM is available.
-- Reduce the number of domains processed simultaneously.
-- Check `logs/memory_profile.log` for peak memory usage.
-
-## 7. Next Steps
-
-After completing the initial evaluation:
-
-1. Review `data/results/final_benchmark_report.md` for comprehensive analysis.
-2. Examine `data/samples/failure_cases.json` to understand error patterns.
-3. Run the full test suite: `pytest tests/ -v`
-4. Explore the statistical analysis in `data/results/cost_comparison.json`.
-
-For detailed implementation notes, refer to the `specs/` directory and the main project documentation.
-
----
-
-**Project**: PROJ-830-llmxive-follow-up-extending-gatemem-benc
-**Task**: T037a - Quickstart Documentation
-**Version**: 1.0
+- Review the `specs/` directory for detailed design documents.
+- Run the contract and integration tests:
+ ```bash
+ pytest tests/
+ ```
+- Contribute to the project by implementing pending tasks in `tasks.md`.

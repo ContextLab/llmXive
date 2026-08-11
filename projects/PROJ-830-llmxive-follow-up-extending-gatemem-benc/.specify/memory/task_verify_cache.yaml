@@ -64,10 +64,3 @@ T032:
     are missing, so there is no integration or logging functionality present. The
     task cannot be considered done until these files exist and contain the appropriate
     profiling code.
-T037a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided information contains only the task description and project specifications;\
-    \ there is no markdown file named `quickstart.md` (or any file in `docs/` or the\
-    \ repository root) present in the evidence. Consequently, the required deliverable\u2014\
-    a step\u2011by\u2011step setup and run guide\u2014is missing."

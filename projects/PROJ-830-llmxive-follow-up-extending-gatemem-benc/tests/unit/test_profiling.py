@@ -1,188 +1,213 @@
 """
 Unit tests for profiling utilities.
-
-Tests verify that:
-1. Wall-clock time is measured correctly
-2. Memory usage is tracked (non-negative)
-3. Context manager yields valid results
-4. Decorator wraps functions correctly
 """
-import time
 import pytest
-import tracemalloc
+import time
 import sys
 import os
 
-# Add project root to path for imports
+# Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from code.utils.profiling import (
-    profile_block,
-    profile_function,
+    ProfileResult,
     get_process_memory_mb,
     get_peak_memory_mb,
     start_profiling,
     stop_profiling,
-    measure_execution,
-    ProfileResult
+    reset_profiling,
+    profile_block,
+    profile_function,
+    measure_execution
 )
 
-class TestProfileBlock:
-    """Tests for the profile_block context manager."""
-
-    def test_profile_block_measures_time(self):
-        """Verify that profile_block measures non-zero duration for a sleeping function."""
-        with profile_block(label="sleep_test") as result:
-            time.sleep(0.1)
+class TestProfileResult:
+    """Tests for ProfileResult dataclass."""
+    
+    def test_to_dict(self):
+        """Test conversion to dictionary."""
+        result = ProfileResult(
+            operation_name="test_op",
+            start_time=1000.0,
+            end_time=1001.0,
+            duration_ms=1000.0,
+            peak_memory_mb=50.0,
+            memory_delta_mb=5.0,
+            thread_id=12345
+        )
         
-        assert result.duration_sec >= 0.09  # Allow small overhead
-        assert result.start_time > 0
-        assert result.end_time > result.start_time
-        assert result.duration_sec > 0
-
-    def test_profile_block_measures_memory(self):
-        """Verify that profile_block tracks memory usage."""
-        with profile_block(label="memory_test") as result:
-            # Allocate some memory
-            _ = [0] * 1000000
+        d = result.to_dict()
         
-        assert result.peak_memory_mb >= 0.0
-        assert isinstance(result.peak_memory_mb, float)
-        assert result.memory_delta_mb >= -0.1  # Allow small GC variations
-
-    def test_profile_block_returns_valid_result(self):
-        """Verify that ProfileResult contains all expected fields."""
-        with profile_block(label="validity_test") as result:
-            pass
-        
-        assert isinstance(result, ProfileResult)
-        assert hasattr(result, 'start_time')
-        assert hasattr(result, 'end_time')
-        assert hasattr(result, 'duration_sec')
-        assert hasattr(result, 'peak_memory_mb')
-        assert hasattr(result, 'memory_delta_mb')
-        assert hasattr(result, 'timestamp')
-        assert hasattr(result, 'method')
-
-    def test_profile_block_label_logging(self, caplog):
-        """Verify that profile_block logs the label."""
-        with caplog.at_level("INFO"):
-            with profile_block(label="log_test"):
-                pass
-        
-        assert "log_test" in caplog.text
-        assert "Duration" in caplog.text
-
-class TestProfileFunction:
-    """Tests for the profile_function decorator."""
-
-    def test_profile_function_wraps_correctly(self):
-        """Verify that the decorator returns a callable."""
-        @profile_function
-        def dummy_func():
-            return 42
-        
-        assert callable(dummy_func)
-        assert dummy_func() == 42
-
-    def test_profile_function_returns_result(self):
-        """Verify that decorated function returns correct value."""
-        @profile_function
-        def add(a, b):
-            return a + b
-        
-        result = add(2, 3)
-        assert result == 5
-
-    def test_profile_function_logs_execution(self, caplog):
-        """Verify that decorated function logs execution info."""
-        @profile_function
-        def test_func():
-            time.sleep(0.01)
-        
-        with caplog.at_level("INFO"):
-            test_func()
-        
-        assert "test_func" in caplog.text
+        assert d["operation_name"] == "test_op"
+        assert d["start_time"] == 1000.0
+        assert d["end_time"] == 1001.0
+        assert d["duration_ms"] == 1000.0
+        assert d["peak_memory_mb"] == 50.0
+        assert d["memory_delta_mb"] == 5.0
+        assert d["thread_id"] == 12345
 
 class TestMemoryFunctions:
-    """Tests for standalone memory measurement functions."""
-
+    """Tests for memory measurement functions."""
+    
     def test_get_process_memory_mb_returns_positive(self):
-        """Verify that get_process_memory_mb returns a non-negative float."""
-        mem = get_process_memory_mb()
-        assert isinstance(mem, float)
-        assert mem >= 0.0
-
-    def test_get_peak_memory_mb_requires_tracing(self):
-        """Verify that get_peak_memory_mb returns 0 if tracing is not active."""
-        if tracemalloc.is_tracing():
-            tracemalloc.stop()
-        
-        mem = get_peak_memory_mb()
-        assert mem == 0.0
-
-    def test_get_peak_memory_mb_returns_positive_when_tracing(self):
-        """Verify that get_peak_memory_mb returns positive value when tracing."""
-        if not tracemalloc.is_tracing():
-            tracemalloc.start()
-        
-        # Allocate memory
-        _ = [0] * 100000
-        
-        mem = get_peak_memory_mb()
-        assert isinstance(mem, float)
-        assert mem >= 0.0
-
-class TestLifecycleFunctions:
-    """Tests for start/stop/reset profiling functions."""
-
-    def test_start_profiling_starts_tracing(self):
-        """Verify that start_profiling enables tracemalloc."""
-        if tracemalloc.is_tracing():
-            tracemalloc.stop()
-        
-        start_profiling()
-        assert tracemalloc.is_tracing()
-
-    def test_stop_profiling_stops_tracing(self):
-        """Verify that stop_profiling disables tracemalloc."""
-        start_profiling()
-        stop_profiling()
-        assert not tracemalloc.is_tracing()
-
-    def test_reset_profiling_restarts_tracing(self):
-        """Verify that reset_profiling restarts tracing."""
-        if not tracemalloc.is_tracing():
-            start_profiling()
-        
-        # Allocate some memory to dirty the tracker
-        _ = [0] * 100000
-        
+        """Test that memory measurement returns positive value."""
+        memory = get_process_memory_mb()
+        assert isinstance(memory, float)
+        assert memory >= 0.0
+    
+    def test_get_peak_memory_mb_initial(self):
+        """Test initial peak memory is zero before profiling."""
         reset_profiling()
-        assert tracemalloc.is_tracing()
-        # Peak should be lower after reset (or at least fresh)
         peak = get_peak_memory_mb()
-        assert peak >= 0.0
+        assert peak == 0.0
 
-class TestMeasureExecution:
-    """Tests for the measure_execution convenience function."""
+class TestProfilingLifecycle:
+    """Tests for profiling start/stop lifecycle."""
+    
+    def test_start_and_stop(self):
+        """Test basic start and stop."""
+        start_profiling("test_op")
+        result = stop_profiling("test_op")
+        
+        assert result is not None
+        assert result.operation_name == "test_op"
+        assert result.duration_ms >= 0
+        assert result.peak_memory_mb >= 0
+    
+    def test_stop_without_start(self):
+        """Test stopping without starting returns None."""
+        reset_profiling()
+        result = stop_profiling("nonexistent")
+        assert result is None
+    
+    def test_double_start(self):
+        """Test that double start logs warning and doesn't overwrite."""
+        start_profiling("first")
+        start_profiling("second")  # Should log warning
+        
+        result = stop_profiling("first")
+        assert result is not None
+        
+        # Second stop should return None as it was already stopped
+        result2 = stop_profiling("second")
+        assert result2 is None
 
-    def test_measure_execution_returns_result(self):
-        """Verify that measure_execution returns a ProfileResult."""
-        def dummy():
+class TestProfileBlock:
+    """Tests for context manager profiling."""
+    
+    def test_profile_block_basic(self):
+        """Test basic context manager usage."""
+        with profile_block("context_test") as result:
             time.sleep(0.01)
         
-        result = measure_execution(dummy)
-        assert isinstance(result, ProfileResult)
-        assert result.duration_sec > 0
+        assert result is not None
+        assert result.operation_name == "context_test"
+        assert result.duration_ms >= 10  # At least 10ms
+        assert result.duration_ms < 1000  # Reasonable upper bound
+    
+    def test_profile_block_with_exception(self):
+        """Test that profiling continues even if exception occurs."""
+        try:
+            with profile_block("exception_test") as result:
+                time.sleep(0.01)
+                raise ValueError("Test exception")
+        except ValueError:
+            pass
+        
+        # Result should still be captured
+        assert result is not None
+        assert result.duration_ms >= 10
 
-    def test_measure_execution_passes_args(self):
-        """Verify that measure_execution passes arguments to function."""
-        def add(a, b):
+class TestProfileFunction:
+    """Tests for function decorator profiling."""
+    
+    def test_profile_function_decorator(self):
+        """Test that decorator profiles function execution."""
+        @profile_function("decorated_test")
+        def sample_func():
+            time.sleep(0.01)
+            return "success"
+        
+        result = sample_func()
+        assert result == "success"
+    
+    def test_profile_function_preserves_metadata(self):
+        """Test that decorator preserves function metadata."""
+        @profile_function("meta_test")
+        def sample_func():
+            """Sample docstring."""
+            pass
+        
+        assert sample_func.__name__ == "sample_func"
+        assert sample_func.__doc__ == "Sample docstring."
+
+class TestMeasureExecution:
+    """Tests for direct execution measurement."""
+    
+    def test_measure_execution_success(self):
+        """Test successful measurement of function execution."""
+        def sample_func():
+            time.sleep(0.01)
+            return 42
+        
+        result, metrics = measure_execution(sample_func, operation_name="measure_test")
+        
+        assert result == 42
+        assert metrics is not None
+        assert metrics.operation_name == "measure_test"
+        assert metrics.duration_ms >= 10
+    
+    def test_measure_execution_with_args(self):
+        """Test measurement with function arguments."""
+        def add_func(a, b):
+            time.sleep(0.01)
             return a + b
         
-        result = measure_execution(add, 5, 10)
-        # The function itself returns a value, but measure_execution returns ProfileResult
-        # We just verify it doesn't crash
-        assert isinstance(result, ProfileResult)
+        result, metrics = measure_execution(add_func, 5, 3, operation_name="add_test")
+        
+        assert result == 8
+        assert metrics.duration_ms >= 10
+    
+    def test_measure_execution_with_kwargs(self):
+        """Test measurement with keyword arguments."""
+        def multiply_func(x, y=2):
+            time.sleep(0.01)
+            return x * y
+        
+        result, metrics = measure_execution(
+            multiply_func, 5, y=3, operation_name="multiply_test"
+        )
+        
+        assert result == 15
+        assert metrics.duration_ms >= 10
+    
+    def test_measure_execution_propagates_exception(self):
+        """Test that exceptions from function are propagated."""
+        def failing_func():
+            raise RuntimeError("Intentional failure")
+        
+        with pytest.raises(RuntimeError, match="Intentional failure"):
+            measure_execution(failing_func, operation_name="fail_test")
+
+class TestResetProfiling:
+    """Tests for profiling reset functionality."""
+    
+    def test_reset_clears_state(self):
+        """Test that reset clears all profiling state."""
+        start_profiling("temp")
+        # Capture some state
+        _ = get_peak_memory_mb()
+        
+        reset_profiling()
+        
+        # Should be back to initial state
+        peak = get_peak_memory_mb()
+        assert peak == 0.0
+        
+        # Should be able to start fresh
+        start_profiling("fresh")
+        result = stop_profiling("fresh")
+        assert result is not None
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
