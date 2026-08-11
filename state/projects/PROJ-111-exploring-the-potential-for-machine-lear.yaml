@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T22:24:01.690391Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-111-exploring-the-potential-for-machine-lear
-last_run_id: 18c2f6e6-088b-47f4-883b-52a11c7aa980
+last_run_id: 6e608a0d-12fc-4c15-a9a2-d827142a03e6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear
 title: Exploring the Potential for Machine Learning to Identify Novel Phase Transitions
   in Isotropic Systems
-updated_at: '2026-08-10T15:12:58.996616Z'
+updated_at: '2026-08-11T01:19:35.692524Z'

@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure with exact directory tree: src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/
-- [X] T002 Initialize Python 3.9 project with requirements.txt at repository root (pymatgen==2023.9.1, pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, statsmodels==0.14.2, matplotlib==3.9.0, seaborn==0.13.2, requests==2.32.3, tqdm==4.66.5, pytest)
-- [X] T003 [P] Configure linting and formatting: create.flake8 (max-line-length=88, extend-ignore=E203) and pyproject.toml (black settings)
+- [X] T002 Initialize Python 3.9 project with requirements.txt at repository root (pymatgen==2023.9.1 [UNRESOLVED-CLAIM: c_05e09910 — status=not_enough_info], pandas==2.2.2 [UNRESOLVED-CLAIM: c_f8a13e8e — status=not_enough_info], numpy==1.26.4 [UNRESOLVED-CLAIM: c_e6d8918c — status=not_enough_info], scikit-learn==1.5.0 [UNRESOLVED-CLAIM: c_1615a8a8 — status=not_enough_info], statsmodels==0.14.2 [UNRESOLVED-CLAIM: c_c0088d2b — status=not_enough_info], matplotlib==3.9.0 [UNRESOLVED-CLAIM: c_8202704c — status=not_enough_info], seaborn==0.13.2 [UNRESOLVED-CLAIM: c_1eec5d69 — status=not_enough_info], requests==2.32.3 [UNRESOLVED-CLAIM: c_d16edb33 — status=not_enough_info], tqdm==4.66.5 [UNRESOLVED-CLAIM: c_109158f9 — status=not_enough_info], pytest)
+- [X] T003 [P] Configure linting and formatting: create.flake8 (max-line-length=88 [UNRESOLVED-CLAIM: c_720afb57 — status=not_enough_info], extend-ignore=E203) and pyproject.toml (black settings)
 
 ---
 
@@ -60,7 +60,7 @@
 - [X] T006 Implement deterministic seed handling (--seed argument) in exact modules: src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/
 - [X] T007 Setup SHA-256 checksum tracking for raw data files to state/projects/PROJ-035-exploring-the-correlation-between-crysta.yaml artifact_hashes (Constitution III)
 - [X] T008 Create base validation utilities at src/utils/validation.py with function signatures: calculate_vif(df, predictors), handle_error(message, level), setup_logger(name, level)
-- [X] T039 [P] Execute Reference-Validator Agent as blocking gate for all citations (Slack 1979, Smith et al. 2021) per Constitution II; output verification report to data/results/reference_validation.json
+- [X] T039 [P] Execute Reference-Validator Agent as blocking gate for all citations (Slack 1979, Smith et al. 2021 [UNRESOLVED-CLAIM: c_27bebbdc — status=not_enough_info]) per Constitution II; output verification report to data/results/reference_validation.json
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,11 +86,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [P] [US1] Implement src/ingest/fetch_structures.py for Materials Project API download with ABX₃ filtering, exponential backoff (max 3 retries), and error handling (FR-001)
+- [X] T011 [P] [US1] Implement src/ingest/fetch_structures.py for Materials Project API download with ABX₃ filtering, exponential backoff (max 3 retries [UNRESOLVED-CLAIM: c_ad28b265 — status=not_enough_info]), and error handling (FR-001)
 - [X] T012 [P] [US1] Implement src/ingest/fetch_thermal.py for loading literature/NIST thermal conductivity CSVs ONLY (explicitly exclude Materials Project thermal properties endpoint per FR-010) (FR-010)
 - [X] T013 [US1] Implement src/cleaning/clean_merge.py to merge structures with thermal data, remove nulls, validate geometry, enforce minimum 50 compositions, and add error handling for insufficient samples with message 'Insufficient samples: N < 50' (FR-002, FR-010, SC-001)
 - [ ] T014 [US1] Implement src/cleaning/provenance_validator.py to verify peer-reviewed/NIST source_reference for each entry (FR-010)
-- [ ] T015 [US1] Implement src/cleaning/temperature_normalize.py using Slack (1979) formula for 300K ± 10K window [UNRESOLVED-CLAIM: c_ac1d4eda — status=not_enough_info] with error handling for unknown temperature (FR-013)
+- [ ] T015 [US1] Implement src/cleaning/temperature_normalize.py using Slack (1979) [UNRESOLVED-CLAIM: c_b629d335 — status=not_enough_info] formula for 300K ± 10K [UNRESOLVED-CLAIM: c_ad21fb1b — status=not_enough_info] window with error handling for unknown temperature (FR-013)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,9 +106,9 @@
 
 ### Tests for User Story 2
 
-- [ ] T016 [US2] Unit test for descriptor calculation in tests/unit/test_descriptors.py
+- [X] T016 [US2] Unit test for descriptor calculation in tests/unit/test_descriptors.py
 - [ ] T017 [US2] Unit test for correlation analysis in tests/unit/test_analysis.py
-- [ ] T024 [US2] Unit test for sensitivity analysis in tests/unit/test_sensitivity.py verifying p-value sweep output includes results for {0.01, 0.05, 0.1} (FR-009)
+- [ ] T024 [US2] Unit test for sensitivity analysis in tests/unit/test_sensitivity.py verifying p-value sweep output includes results for {0.01, 0.05, 0.1} [UNRESOLVED-CLAIM: c_29adf3de — status=not_enough_info] (FR-009)
 
 ### Implementation for User Story 2
 
@@ -125,7 +125,7 @@
 
 ## Phase 5: User Story 3 - Regression Modeling & Validation (Priority: P3)
 
-**Goal**: Fit a multiple linear regression model using scikit-learn with 5-fold cross-validation, evaluate performance on a held-out test set, report R² and RMSE, and generate scatter plots with 95% confidence intervals
+**Goal**: Fit a multiple linear regression model using scikit-learn with {{claim:c_5cd22a61}} (2604.10702, https://arxiv.org/abs/2604.10702), evaluate performance on a held-out test set, report R² and RMSE, and generate scatter plots with 95% confidence intervals [UNRESOLVED-CLAIM: c_db4828b8 — status=not_enough_info]
 
 **Independent Test**: Execute modeling script on pre-processed dataset and verify output includes (i) cross-validated performance metrics, (ii) R² > 0.5 on the held-out test set (SC-003), (iii) RMSE value, (iv) a feature-importance report, and (v) the required scatter plots
 
@@ -141,9 +141,9 @@
 - [ ] T027 [US3] Implement src/analysis/regression.py with two functions: fit_model() for 5-fold CV (FR-005) and evaluate_test() for held-out test evaluation with R², RMSE, feature importance, and explicit SC-003 R² > 0.5 pass/fail verification (FR-006, SC-003)
 - [ ] T028 [US3] Extend src/utils/validation.py (T008, T021) with scan_causal_language(text) function that fails pipeline on prohibited keywords {cause, leads to, driven by, effect of, result of} (FR-007)
 - [ ] T029 [US3] Implement src/analysis/visualize.py for scatter plot generation for top-3 correlated descriptors with 95% CI bands (FR-012)
-- [ ] T030 [US3] Generate R² > 0.5 performance target justification citing Smith et al. 2021 to data/results/final_report.md section (FR-015, SC-003)
+- [ ] T030 [US3] Generate R² > 0.5 performance target justification citing Smith et al. 2021 [UNRESOLVED-CLAIM: c_27bebbdc — status=not_enough_info] to data/results/final_report.md section (FR-015, SC-003)
 - [ ] T031 [US3] Generate feature importance report (coefficients magnitude or permutation importance) to data/results/feature_importance.csv (FR-011)
-- [ ] T032 [US3] Save all figures as high-resolution PNG files (minimum 300 DPI) to figures/ directory (FR-012)
+- [ ] T032 [US3] Save all figures as high-resolution PNG files (minimum 300 DPI [UNRESOLVED-CLAIM: c_d770c3a8 — status=not_enough_info]) to figures/ directory (FR-012)
 
 **Checkpoint**: All user stories should now be independently functional
 

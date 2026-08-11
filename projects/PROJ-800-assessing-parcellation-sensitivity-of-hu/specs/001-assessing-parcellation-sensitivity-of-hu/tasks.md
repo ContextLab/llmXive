@@ -34,7 +34,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement base logging and error handling utilities in `code/utils/logger.py` (setup `logging` module with file and console handlers, JSON formatter).
+- [X] T005 [P] Implement base logging and error handling utilities in `code/utils/logger.py` (setup `logging` module with file and console handlers, JSON formatter).
 - [ ] T006 [P] Create configuration manager in `code/config.py` (handles paths, seeds, `default_hub_threshold` (0.10), and `sensitivity_sweep_values` ({0.05, 0.10, 0.15, 0.20}) as distinct parameters for the mandatory [deferred] to [deferred] sweep range).
 - [ ] T007 Create base data models/contracts in `code/models/` by defining classes: `AdjacencyMatrix` (fields: `matrix: np.ndarray`, `atlas_name: str`, `node_labels: list`), `HubSet` (fields: `node_ids: list`, `metric: str`, `threshold: float`), `CentralityScore` (fields: `node_id: int`, `degree: float`, `betweenness: float`).
 - [ ] T008 [P] Setup random seed pinning utility in `code/utils/seed.py` (numpy, random) (functions: `set_seed(seed: int)`).
@@ -46,9 +46,9 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Multi-Resolution Matrix Generation (Priority: P1) 🎯 MVP
 
-**Goal**: Download raw fMRI data and generate three adjacency matrices (AAL-90, Schaefer-200, Schaefer-400) for a cohort of N=20 healthy adults from OpenNeuro/HCP.
+**Goal**: Download raw fMRI data and generate three adjacency matrices (AAL-90, Schaefer-200, Schaefer-400) for a cohort of N=20 healthy adults from OpenNeuro/HCP [UNRESOLVED-CLAIM: c_36881ddf — status=not_enough_info].
 
-**Independent Test**: Verify existence of three distinct adjacency matrix files for a single subject, sharing raw source but differing in node count, within 7 GB RAM.
+**Independent Test**: Verify existence of three distinct adjacency matrix files for a single subject, sharing raw source but differing in node count, within 7 GB RAM [UNRESOLVED-CLAIM: c_9a5e4658 — status=not_enough_info].
 
 ### Tests for User Story 1 (REQUIRED - TDD) ⚠️
 
@@ -98,11 +98,11 @@
 
 **Goal**: Compute Excess Overlap indices, Spearman correlations, Spatial Spin Test, and visualizations.
 
-**Independent Test**: Run on randomized node labels; verify p-value distribution is uniform and Type I error < 5%.
+**Independent Test**: Run on randomized node labels; verify p-value distribution is uniform and {{claim:c_4f18774c}} (Wikipedia: Type I and type II errors, https://en.wikipedia.org/wiki/Type_I_and_type_II_errors).
 
 ### Tests for User Story 3 (REQUIRED - TDD) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for Jaccard/Dice calculation in `tests/unit/test_overlap_metrics.py` (test inputs: Set A={1,2,3}, Set B={2,3,4}; expected outputs: Jaccard=0.5, Dice=0.66).
+- [ ] T027 [P] [US3] Unit test for Jaccard/Dice calculation in `tests/unit/test_overlap_metrics.py` (test inputs: Set A={1,2,3}, Set B={2,3,4}; expected outputs: Jaccard=0.5, Dice=0.66 [UNRESOLVED-CLAIM: c_48c9b075 — status=not_enough_info]).
 - [ ] T028 [P] [US3] Unit test for permutation test logic (randomization control) in `tests/unit/test_permutation_test.py` (test cases: A fixed number of iterations will be performed with a deterministic random seed., verify p-value distribution is uniform).
 
 ### Implementation for User Story 3
@@ -112,7 +112,7 @@
 - [ ] T029 [P] [US3] Implement `code/overlap.py` function `compute_excess_overlap(set_a: set, set_b: set, total_nodes: int, k: int) -> float` to compute Excess Overlap index (observed overlap minus expected overlap from hypergeometric distribution) as per FR-004. **Validation**: Assert `total_nodes` equals the node count of the lower-resolution atlas before calculation. **Depends on: T023, T024**.
 - [ ] T029a [P] [US3] Implement `code/overlap.py` function `compute_overlap_coefficients(set_a: set, set_b: set) -> dict` to calculate and output **Jaccard and Dice coefficients** for hub set validation, satisfying Constitution Principle VII. Output: `data/results/overlap_coefficients.csv`. **Depends on: T023**.
 - [ ] T030 [P] [US3] [FR-005] Implement `code/overlap.py` function `compute_spearman_correlation(ranks_a: np.ndarray, ranks_b: np.ndarray) -> tuple` to compute Spearman rank correlation after spatial mapping (using `data/processed/mapping_schaefer_to_aal.npy` from T024 and aggregated vectors from T024a); input: two 1D arrays of ranks; output: `(correlation, p-value)` tuple. **Note**: This is a distinct metric from the Spatial Spin Test (T031a). **Depends on: T024, T024a, T023**.
-- [ ] T031 [US3] Implement Volumetric Spatial Spin Test engine in `code/overlap.py` with a **default of a sufficient number of iterations** as required by FR-006; **IF** the estimated runtime exceeds a substantial duration (monitored via `tracemalloc` or time tracking), **fallback to a sufficient number of iterations** and log a warning to ensure analysis completes; output `data/results/spin_test_pvalue.csv` with columns: `iteration`, `overlap_stat`, `p_value`. **Note**: This implements the significance testing component of the "Spatial Spin Test" mentioned in the Plan. **Depends on: T023, T024, T024a, T029**.
+- [ ] T031 [US3] Implement Volumetric Spatial Spin Test engine in `code/overlap.py` with a **default of a sufficient number of iterations** as required by FR-006; **IF** the estimated runtime exceeds a substantial duration (monitored via `tracemalloc` or time tracking), **fallback to a sufficient number of iterations [UNRESOLVED-CLAIM: c_2414f524 — status=not_enough_info]** and log a warning to ensure analysis completes; output `data/results/spin_test_pvalue.csv` with columns: `iteration`, `overlap_stat`, `p_value`. **Note**: This implements the significance testing component of the "Spatial Spin Test" mentioned in the Plan. **Depends on: T023, T024, T024a, T029**.
 - [ ] T033 [US3] Implement sensitivity analysis module `code/sensitivity.py` to sweep thresholds across the range defined in T006 ({0.05, 0.10, 0.15, 0.20}) AND perform fixed-cardinality comparisons (compare top N nodes where N=min cardinality across resolutions); output to `data/results/sensitivity_sweep.csv` (columns: threshold, excess_overlap, jaccard, dice, fixed_cardinality_jaccard). **Depends on: T006, T023, T029, T029a, T024a**.
 - [ ] T034 [P] [US3] Implement `code/visualize.py` function `generate_heatmap(data: np.ndarray, title: str)` to generate heatmaps of centrality correlation using `seaborn.heatmap`; output file naming convention: `data/results/heatmap_{resolution_pair}.png`. **Depends on: T030**.
 - [ ] T035 [P] [US3] Implement `code/visualize.py` function `generate_venn_diagram(set_a: set, set_b: set, title: str)` to generate Venn diagrams of hub overlap using `matplotlib_venn`; output file path: `data/results/venn_{resolution_pair}.png`. **Depends on: T029, T029a**.
@@ -128,12 +128,12 @@
 
 - [ ] T037 [P] Documentation updates in `README.md` and `docs/` (add section "Spatial Mapping" explaining the weighted-vote method and threshold logic).
 - [ ] T038 Code cleanup and refactoring (remove unused imports from all files in `code/`, optimize memory usage in `code/parcellate.py`).
-- [ ] T039 [P] Performance optimization: parallelize subject processing where safe (e.g., centrality calculation per subject); target metric: reduce peak RAM by [deferred] or complete N=20 in < 4 hours.
+- [ ] T039 [P] Performance optimization: parallelize subject processing where safe (e.g., centrality calculation per subject); target metric: reduce peak RAM by [deferred] or complete N=20 in < 4 hours [UNRESOLVED-CLAIM: c_076b903f — status=refuted].
 - [ ] T040 [P] Additional unit tests for edge cases in `tests/unit/` (test cases: N=99, N=101, corrupted file with bytes, expected behavior: skip with warning or raise error).
 - [ ] T041 [P] Run quickstart.md validation (execute `quickstart.md` commands and verify no errors; success criteria: all commands complete with exit code 0).
 - [ ] T042 [P] [FR-010] Implement `code/utils/update_state.py` to update the project state file (`state/projects/PROJ-800-assessing-parcellation-sensitivity-of-hu.yaml`) with content hashes for all generated artifacts and a timestamp after each research-stage artifact change. **Depends on: T005**.
 - [ ] T043 [P] [FR-011] Implement `code/validators/validate_citations.py` to integrate the Reference-Validator Agent; ensure all citations in `data/results/summary_report.md` are verified before artifact write; block write if any citation is unverified. **Depends on: T036**.
-- [ ] T045 [US3] [SC-005] Run full pipeline integration test on N=20 subjects with timing measurement; execute command `python code/main.py --subjects 20`; verify total runtime < 6 hours; record timing in `data/results/performance_log.json`. **Depends on: T018**.
+- [ ] T045 [US3] [SC-005] Run full pipeline integration test on N=20 subjects with timing measurement; execute command `python code/main.py --subjects 20`; verify total runtime < 6 hours [UNRESOLVED-CLAIM: c_c7db9df8 — status=not_enough_info]; record timing in `data/results/performance_log.json`. **Depends on: T018**.
 
 ---
 

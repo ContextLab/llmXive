@@ -1,75 +1,80 @@
-"""
-Project structure initialization script for llmXive research pipeline.
-Creates the required directory hierarchy and initializes Python packages.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to the script location or current working directory
-# Assuming the script is run from the project root or the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Required directories relative to project root
-REQUIRED_DIRS = [
-    "data/raw",
-    "data/processed",
-    "code",
-    "tests/unit",
-    "tests/integration",
-    "tests/contract",
-    "specs/001-gene-regulation/contracts",
-]
-
 def create_directories():
-    """Create all required directories if they do not exist."""
-    created = []
-    for dir_path in REQUIRED_DIRS:
-        full_path = PROJECT_ROOT / dir_path
+    """
+    Creates the project directory structure as defined in T001a.
+    Directories:
+      - data/raw
+      - data/processed
+      - code (already exists, but ensures path)
+      - tests/unit
+      - tests/integration
+      - tests/contract
+      - specs/001-gene-regulation/contracts
+    """
+    # Define the project root (current working directory)
+    project_root = Path.cwd()
+
+    # Define the relative paths to be created
+    directories = [
+        "data/raw",
+        "data/processed",
+        "code",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "specs/001-gene-regulation/contracts"
+    ]
+
+    created_count = 0
+    for dir_path in directories:
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path))
+            print(f"Created directory: {full_path}")
+            created_count += 1
         else:
-            # Ensure it is actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-    
-    if created:
-        print(f"Created directories: {', '.join(created)}")
-    else:
-        print("All required directories already exist.")
-    return created
+            print(f"Directory already exists: {full_path}")
+
+    return created_count
 
 def create_init_files():
-    """Create __init__.py files in code and tests directories to make them packages."""
-    init_paths = [
-        "code/__init__.py",
-        "tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py",
-        "tests/contract/__init__.py",
-        "specs/001-gene-regulation/__init__.py",
-        "specs/001-gene-regulation/contracts/__init__.py",
+    """
+    Creates empty __init__.py files in all Python package directories
+    to ensure they are recognized as packages.
+    """
+    project_root = Path.cwd()
+
+    # Directories that need __init__.py
+    init_dirs = [
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "code" # Ensure code is treated as a package if imported relative, though usually scripts
     ]
-    created = []
-    for init_path in init_paths:
-        full_path = PROJECT_ROOT / init_path
-        if not full_path.exists():
-            full_path.touch()
-            created.append(str(full_path))
-    
-    if created:
-        print(f"Created __init__.py files: {', '.join(created)}")
-    else:
-        print("All __init__.py files already exist.")
-    return created
+
+    for dir_path in init_dirs:
+        full_path = project_root / dir_path
+        if full_path.exists():
+            init_file = full_path / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
+                print(f"Created __init__.py in: {full_path}")
+            else:
+                print(f"__init__.py already exists in: {full_path}")
+        else:
+            print(f"Warning: Directory not found for init file: {full_path}")
 
 def main():
-    """Entry point for creating the project structure."""
-    print(f"Initializing project structure at: {PROJECT_ROOT}")
-    create_directories()
+    """
+    Entry point for the setup structure script.
+    """
+    print("Initializing project directory structure for PROJ-111...")
+    dirs_created = create_directories()
     create_init_files()
-    print("Project structure initialization complete.")
+    print(f"Setup complete. {dirs_created} new directories created.")
 
 if __name__ == "__main__":
     main()

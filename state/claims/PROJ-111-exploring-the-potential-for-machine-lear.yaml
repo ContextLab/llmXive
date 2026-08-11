@@ -443,3 +443,40 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T14:44:35Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/research.md
+  attempts: 1
+  canonical: critical temperature of 2D J1-J2 Heisenberg model at J2/J1=0.5 is 0.65-0.70
+    J1/kB
+  claim_id: c_0a54c24d
+  context: "Verified Tc: For J2/J1 = 0.5, the critical temperature is approximately\
+    \ Tc \u2248 0.65 - 0.70 (in units of J1/kB). Note: Exact values vary by method\
+    \ (Monte Carlo vs. Series Expansion); this range is the consensus for the transition\
+    \ region."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "For J2/J1 = 0.5, the critical temperature is approximately Tc \u2248\
+    \ 0.65 - 0.70 (in units of J1/kB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T01:14:00Z'
+- artifact_path: projects/PROJ-111-exploring-the-potential-for-machine-lear/research.md
+  attempts: 1
+  canonical: critical temperature of 2D XY model at J=1 is 0.893 J/kB
+  claim_id: c_c7c68912
+  context: "Verified TBKT: The widely accepted critical temperature for the standard\
+    \ XY model (J=1) is TBKT \u2248 0.893 (in units of J/kB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The widely accepted critical temperature for the standard XY model (J=1)\
+    \ is TBKT \u2248 0.893 (in units of J/kB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T01:14:11Z'

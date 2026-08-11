@@ -1,3 +1,43 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, scripts, model checkpoints, or analysis outputs were supplied;\
+    \ the response contains only the task description and acceptance criteria, without\
+    \ any concrete artifacts that demonstrate data acquisition, preprocessing, VAE\
+    \ training, or latent\u2011space analysis. Consequently, the required deliverables\
+    \ are missing."
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or listing of the required folders (`data/raw`, `data/processed`,
+    `code`, `tests/unit`, `tests/integration`, `tests/contract`, `specs/001-gene-regulation/contracts`)
+    was provided; therefore the claimed project structure cannot be verified as existing.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` file was presented in the evidence, and there is no indication
+    that such a skeleton with project overview and setup instructions exists or contains
+    content. The required artifact is missing, so the task is not satisfied.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`
+    with `[tool.black]` or a `.ruff.toml`/`ruff.toml`) or related setup scripts are
+    present in the provided evidence, so the required artifact is missing.
+T004c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, benchmark results, or any measurable output were provided to demonstrate
+    that the generation speed of the data pipeline or model has been validated. The
+    required artifact (e.g., a script measuring generation time and a report showing
+    it meets the specified speed criteria) is missing.
+T006e:
+  c: false
+  h: 21c36a085bfbd68fd9c256cca1b8425ffddfbb1db883848ad931e94ff337aa61
+  r: "The repository\u2019s `code/utils.py` does not contain a `write_checksums()`\
+    \ implementation (the shown file ends before such a function), and the required\
+    \ output file `data/checksums.txt` is absent. Both the function and its generated\
+    \ checksum file are missing, so the task is not fulfilled."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

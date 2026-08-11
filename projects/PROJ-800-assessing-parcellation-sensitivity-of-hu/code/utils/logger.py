@@ -3,12 +3,41 @@ Base logging and error handling utilities for the project.
 
 Provides a centralized logger configuration and custom exception classes
 to ensure consistent error reporting and debugging across the pipeline.
+Includes JSON formatting support for structured log ingestion.
 """
 
+import json
 import logging
 import sys
+from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, Any, Dict
+
+
+class JSONFormatter(logging.Formatter):
+    """
+    Custom formatter that outputs log records as JSON lines.
+    Useful for structured logging and pipeline monitoring.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        log_entry: Dict[str, Any] = {
+            "timestamp": datetime.utcfromtimestamp(record.created).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+        }
+
+        if record.exc_info:
+            log_entry["exception"] = self.formatException(record.exc_info)
+
+        if hasattr(record, "extra_data"):
+            log_entry.update(record.extra_data)
+
+        return json.dumps(log_entry)
 
 
 class PipelineError(Exception):
@@ -41,6 +70,7 @@ def get_logger(
     log_level: int = logging.INFO,
     log_file: Optional[Union[str, Path]] = None,
     include_timestamp: bool = True,
+    use_json_format: bool = False,
 ) -> logging.Logger:
     """
     Configure and return a logger instance.
@@ -50,12 +80,13 @@ def get_logger(
         log_level: Logging level (e.g., logging.DEBUG, logging.INFO).
         log_file: Optional path to write logs to. If None, logs only to stderr.
         include_timestamp: Whether to include timestamps in log format.
+        use_json_format: If True, uses JSONFormatter for structured output.
 
     Returns:
         Configured logging.Logger instance.
 
     Example:
-        >>> logger = get_logger("my_module", log_file="logs/pipeline.log")
+        >>> logger = get_logger("my_module", log_file="logs/pipeline.log", use_json_format=True)
         >>> logger.info("Processing started")
     """
     logger_name = name or "llmXive.pipeline"
@@ -70,12 +101,14 @@ def get_logger(
     logger.propagate = False  # Prevent duplicate logs from root logger
 
     # Define format string
-    if include_timestamp:
-        log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    if use_json_format:
+        formatter = JSONFormatter()
     else:
-        log_format = "%(name)s - %(levelname)s - %(message)s"
-
-    formatter = logging.Formatter(log_format, datefmt="%Y-%m-%d %H:%M:%S")
+        if include_timestamp:
+            log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        else:
+            log_format = "%(name)s - %(levelname)s - %(message)s"
+        formatter = logging.Formatter(log_format, datefmt="%Y-%m-%d %H:%M:%S")
 
     # Console handler (stderr)
     console_handler = logging.StreamHandler(sys.stderr)
@@ -100,6 +133,7 @@ def log_error_and_raise(
     error: Exception,
     message: Optional[str] = None,
     error_type: type = PipelineError,
+    extra_data: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
     Log an error message and raise a new exception.
@@ -109,10 +143,17 @@ def log_error_and_raise(
         error: The original exception causing this error.
         message: Optional custom message to log.
         error_type: The type of exception to raise (default: PipelineError).
+        extra_data: Optional dictionary of extra context to include in JSON logs.
 
     Raises:
         error_type: A new exception wrapping the original error.
     """
     full_message = message or f"Error occurred: {str(error)}"
-    logger.error(f"{full_message} | Original error: {type(error).__name__}: {error}", exc_info=True)
+    
+    # Attach extra data if using JSON formatting
+    if extra_data:
+        logger.error(full_message, extra={"extra_data": extra_data}, exc_info=True)
+    else:
+        logger.error(f"{full_message} | Original error: {type(error).__name__}: {error}", exc_info=True)
+    
     raise error_type(full_message) from error

@@ -37,7 +37,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create project directory structure: `data/raw`, `data/processed`, `code`, `tests/unit`, `tests/integration`, `tests/contract`, `specs/001-gene-regulation/contracts`.
-- [ ] T001b [P] Initialize Python 3.11 project with `torch` (CPU-only), `numpy`, `scikit-learn`, `scipy`, `pandas`, `matplotlib` dependencies in `requirements.txt`.
+- [X] T001b [P] Initialize Python 3.11 project with `torch` (CPU-only), `numpy`, `scikit-learn`, `scipy`, `pandas`, `matplotlib` dependencies in `requirements.txt`.
 - [ ] T001c [P] Create `README.md` skeleton with project overview and setup instructions.
 - [ ] T002 [P] Configure linting (ruff) and formatting (black) tools.
 
@@ -81,8 +81,8 @@
  - Profile the generation time for L=24 using the parameters in T004a-2/T004b-2.
  - **Constraint**: Must complete within 2 hours (leaving 4 hours for training/analysis).
  - **Pre-flight Check**: If the profile indicates the full run will exceed the 6-hour total budget, the task MUST output a warning and **immediately switch strategy** to either:
-   1. Use pre-computed data (if available and verified), OR
-   2. Reduce the sample count to a well-defined subset (stating the new N and representativeness).
+ 1. Use pre-computed data (if available and verified), OR
+ 2. Reduce the sample count to a well-defined subset (stating the new N and representativeness).
  - **Blocking**: Must complete before T004a-3/T004b-3 run at full scale.
 - [ ] T006e [Depends on T004a-3/T004b-3] [US1] Implement `code/utils.py` function `write_checksums()` to generate `data/checksums.txt` for **all files** in `data/raw` and `data/processed`, and verify them on load.
 - [ ] T006a [P] Create `specs/001-gene-regulation/contracts/spin-config.schema.yaml` defining fields, types, and constraints for spin configurations.
@@ -256,13 +256,13 @@
 
 - [ ] T049 [US3] **Generate Final Research Report**: Implement `code/generate_report.py` to aggregate all results from `results/` (FSS, bootstrap CI, cross-validation, sensitivity analyses) into a single `results/final_report.md`.
  - **Content Requirements**:
-  - Summary of detected $T^*$ for J1-J2 and XY models.
-  - Confidence intervals and statistical significance.
-  - Sensitivity analysis results (GP kernel, threshold).
-  - FSS extrapolation status and parameters.
-  - Explicit statement on whether a transition was detected or "No significant transition detected".
-  - Validation against literature values.
-  - **Associational framing**: Ensure no causal claims are made.
+ - Summary of detected $T^*$ for J1-J2 and XY models.
+ - Confidence intervals and statistical significance.
+ - Sensitivity analysis results (GP kernel, threshold).
+ - FSS extrapolation status and parameters.
+ - Explicit statement on whether a transition was detected or "No significant transition detected".
+ - Validation against literature values.
+ - **Associational framing**: Ensure no causal claims are made.
  - **Validation Step**: Programmatically scan the generated report for causal language (e.g., 'causes', 'drives', 'leads to'). If found, raise a `ValueError` and halt report generation.
  - **Depends on**: T028, T029, T030, T042, T043, T045.
 - [ ] T050 [US3] **Create Reproducibility Package**: Implement `code/package_reproducibility.py` to bundle all scripts, data checksums, random seeds, and configuration files into a single `reproducibility.tar.gz` archive.

@@ -1,273 +1,254 @@
-%YAML 1.2
----
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Checkpoint Schema
-description: >
-  Defines the structure, types, and constraints for model checkpoints
-  generated during the VAE training process for the J1-J2 Heisenberg and XY model analysis.
-  This schema ensures reproducibility and integrity of saved training states.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Checkpoint Schema"
+description: |
+  JSON Schema defining the structure, types, and constraints for model checkpoint
+  files saved during VAE training. This schema ensures reproducibility and
+  metadata integrity as required by Constitution Principle II and FR-003.
 type: object
 required:
   - metadata
   - model_state_dict
   - optimizer_state_dict
-  - training_metrics
-  - checksum
+  - training_stats
 additionalProperties: false
-
 properties:
   metadata:
     type: object
-    description: >
-      Metadata describing the experiment configuration, environment, and provenance
-      to ensure reproducibility.
+    description: "Metadata regarding the checkpoint creation and environment."
     required:
-      - project_id
-      - task_id
+      - version
       - timestamp
       - git_commit_hash
-      - python_version
-      - torch_version
-      - config_snapshot
+      - random_seed
       - model_architecture
-      - seed
+      - hyperparameters
+    additionalProperties: false
     properties:
-      project_id:
+      version:
         type: string
-        pattern: "^PROJ-\\d{3}-[a-z-]+$"
-        description: Unique project identifier (e.g., PROJ-111-exploring-the-potential-for-machine-lear).
-      task_id:
-        type: string
-        pattern: "^T\\d{3}[a-z]?$"
-        description: Identifier of the task generating this checkpoint (e.g., T021, T024).
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: "Semantic version of the checkpoint format."
+        const: "1.0.0"
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of when the checkpoint was saved.
+        description: "ISO 8601 timestamp of when the checkpoint was saved."
       git_commit_hash:
         type: string
         pattern: "^[a-f0-9]{40}$"
-        description: SHA-256 hash of the git commit used for this run.
-      python_version:
-        type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
-        description: Python version (e.g., 3.11.4).
-      torch_version:
-        type: string
-        description: PyTorch version (e.g., 2.0.1+cpu).
-      config_snapshot:
-        type: object
-        description: Snapshot of the configuration used (from code/config.py).
-        properties:
-          seed:
-            type: integer
-          model_type:
-            type: string
-            enum: ["VAE"]
-          latent_dim:
-            type: integer
-          batch_size:
-            type: integer
-          learning_rate:
-            type: number
-          lattice_sizes:
-            type: array
-            items:
-              type: integer
-          models:
-            type: array
-            items:
-              type: string
-            enum: ["J1-J2 Heisenberg", "XY"]
-        required:
-          - seed
-          - model_type
-          - latent_dim
+        description: "SHA-1 hash of the git commit used to generate this checkpoint."
+      random_seed:
+        type: integer
+        minimum: 0
+        description: "The global random seed used for reproducibility."
       model_architecture:
         type: object
-        description: Structural details of the VAE model.
+        description: "Configuration of the VAE architecture."
         required:
+          - latent_dim
           - encoder_layers
           - decoder_layers
-          - latent_dim
           - input_channels
+        additionalProperties: false
         properties:
-          encoder_layers:
-            type: array
-            items:
-              type: string
-            description: List of layer types (e.g., ["Conv2d", "BatchNorm2d", "ReLU", "Conv2d"]).
-          decoder_layers:
-            type: array
-            items:
-              type: string
-            description: List of layer types for the decoder.
           latent_dim:
             type: integer
             minimum: 1
+            description: "Dimensionality of the latent space (FR-003 mandates 10)."
+            const: 10
+          encoder_layers:
+            type: array
+            minItems: 2
+            maxItems: 2
+            description: "Configuration of the two convolutional encoder layers."
+            items:
+              type: object
+              required:
+                - in_channels
+                - out_channels
+                - kernel_size
+                - stride
+                - padding
+              properties:
+                in_channels:
+                  type: integer
+                out_channels:
+                  type: integer
+                kernel_size:
+                  type: integer
+                stride:
+                  type: integer
+                padding:
+                  type: integer
+          decoder_layers:
+            type: array
+            minItems: 2
+            maxItems: 2
+            description: "Configuration of the two deconvolutional decoder layers."
+            items:
+              type: object
+              required:
+                - in_channels
+                - out_channels
+                - kernel_size
+                - stride
+                - padding
+              properties:
+                in_channels:
+                  type: integer
+                out_channels:
+                  type: integer
+                kernel_size:
+                  type: integer
+                stride:
+                  type: integer
+                padding:
+                  type: integer
           input_channels:
             type: integer
-            enum: [3]
-            description: Number of input channels (3 for spin vectors).
-      seed:
-        type: integer
-        description: Random seed used for initialization.
+            const: 3
+            description: "Number of input channels (3 spin components: x, y, z)."
+      hyperparameters:
+        type: object
+        description: "Training hyperparameters active at the time of saving."
+        required:
+          - learning_rate
+          - batch_size
+          - epochs_trained
+          - loss_weights
+        additionalProperties: false
+        properties:
+          learning_rate:
+            type: number
+            minimum: 0
+            exclusiveMinimum: true
+          batch_size:
+            type: integer
+            minimum: 1
+          epochs_trained:
+            type: integer
+            minimum: 1
+          loss_weights:
+            type: object
+            description: "Weights for MSE reconstruction and KL divergence."
+            required:
+              - beta
+            additionalProperties: false
+            properties:
+              beta:
+                type: number
+                minimum: 0
+                description: "Weight for the KL divergence term."
 
   model_state_dict:
     type: object
-    description: >
-      The serialized state dictionary of the VAE model (torch.nn.Module).
-      In the actual binary payload (if using torch.save), this is the tensor data.
-      In this JSON schema context, it represents the structure of keys expected.
-      Note: Actual implementation uses torch.save() which creates a binary file,
-      but the schema documents the logical structure if inspected or converted.
-    properties:
-      keys:
-        type: array
-        items:
-          type: string
-        description: List of parameter names (e.g., "encoder.conv1.weight").
-      sizes:
-        type: array
-        items:
-          type: array
-          items:
-            type: integer
-        description: Shape of each parameter tensor corresponding to keys.
+    description: |
+      The serialized state dictionary of the PyTorch VAE model.
+      In the JSON representation, this is a dictionary where keys are parameter names
+      and values are lists representing the flattened tensor data, along with shape info.
+      (Note: In actual binary .pt files, this is a raw pickle/tensor blob. This schema
+      describes the logical structure for validation if serialized to JSON or for
+      metadata extraction).
+    # For the purpose of this schema, we define the logical constraints on the keys
+    # that MUST exist in the state_dict.
+    propertyNames:
+      pattern: "^(encoder\\.|decoder\\.|mu|log_var|bias|weight|\\.\\d+\\.)"
+    minProperties: 10
+    description: "Must contain weights and biases for encoder, decoder, and latent layers."
 
   optimizer_state_dict:
     type: object
-    description: >
-      The serialized state dictionary of the optimizer (e.g., Adam).
-    properties:
-      keys:
-        type: array
-        items:
-          type: string
-      param_groups:
-        type: array
-        items:
-          type: object
-          properties:
-            lr:
-              type: number
-            betas:
-              type: array
-              items:
-                type: number
-            eps:
-              type: number
-            weight_decay:
-              type: number
+    description: "The serialized state dictionary of the Adam optimizer."
+    propertyNames:
+      pattern: "^(state|param_groups|\\d+|step)"
+    minProperties: 1
 
-  training_metrics:
+  training_stats:
     type: object
-    description: >
-      Metrics recorded at the time of checkpointing to track convergence.
+    description: "Statistics from the training run up to this checkpoint."
     required:
       - epoch
-      - step
-      - loss
+      - total_loss
       - reconstruction_loss
-      - kl_divergence
-      - val_loss
+      - kl_loss
+      - learning_rate_current
+    additionalProperties: false
     properties:
       epoch:
         type: integer
-        minimum: 0
-        description: Current training epoch number.
-      step:
-        type: integer
-        minimum: 0
-        description: Global training step count.
-      loss:
+        minimum: 1
+      total_loss:
         type: number
-        description: Total loss (reconstruction + KL).
       reconstruction_loss:
         type: number
-        description: MSE loss component.
-      kl_divergence:
+      kl_loss:
         type: number
-        description: KL divergence component.
-      val_loss:
+      learning_rate_current:
         type: number
-        description: Validation loss at this epoch.
-      best_val_loss:
-        type: number
-        description: Best validation loss seen so far (for early stopping reference).
-      early_stopping_patience_counter:
+        minimum: 0
+      early_stopping_patience_remaining:
         type: integer
         minimum: 0
-        description: Current patience counter for early stopping.
+        description: "Remaining patience steps if early stopping is active."
 
-  checksum:
+  checksums:
     type: object
-    description: >
-      Integrity verification data for the checkpoint file.
+    description: "SHA-256 checksums for integrity verification of the binary blobs."
     required:
-      - algorithm
-      - value
-      - file_size_bytes
-      - created_at
+      - model_state_dict_sha256
+      - optimizer_state_dict_sha256
+    additionalProperties: false
     properties:
-      algorithm:
-        type: string
-        enum: ["sha256"]
-        description: Hash algorithm used.
-      value:
+      model_state_dict_sha256:
         type: string
         pattern: "^[a-f0-9]{64}$"
-        description: Hexadecimal hash of the file contents.
-      file_size_bytes:
-        type: integer
-        minimum: 1
-        description: File size in bytes.
-      created_at:
+      optimizer_state_dict_sha256:
         type: string
-        format: date-time
-        description: Timestamp when the checksum was computed.
-
-  tags:
-    type: array
-    description: Optional tags for categorization (e.g., "best", "latest", "early-stopped").
-    items:
-      type: string
-    default: []
+        pattern: "^[a-f0-9]{64}$"
 
 examples:
   - metadata:
-      project_id: "PROJ-111-exploring-the-potential-for-machine-lear"
-      task_id: "T024"
+      version: "1.0.0"
       timestamp: "2023-10-27T10:00:00Z"
-      git_commit_hash: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
-      python_version: "3.11.4"
-      torch_version: "2.0.1+cpu"
-      config_snapshot:
-        seed: 42
-        model_type: "VAE"
-        latent_dim: 10
-        batch_size: 64
-        learning_rate: 0.001
-        lattice_sizes: [16, 24]
-        models: ["J1-J2 Heisenberg", "XY"]
+      git_commit_hash: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+      random_seed: 42
       model_architecture:
-        encoder_layers: ["Conv2d", "BatchNorm2d", "ReLU", "Conv2d", "BatchNorm2d", "ReLU"]
-        decoder_layers: ["ConvTranspose2d", "BatchNorm2d", "ReLU", "ConvTranspose2d", "BatchNorm2d", "ReLU"]
         latent_dim: 10
+        encoder_layers:
+          - in_channels: 3
+            out_channels: 16
+            kernel_size: 4
+            stride: 2
+            padding: 1
+          - in_channels: 16
+            out_channels: 32
+            kernel_size: 4
+            stride: 2
+            padding: 1
+        decoder_layers:
+          - in_channels: 32
+            out_channels: 16
+            kernel_size: 4
+            stride: 2
+            padding: 1
+          - in_channels: 16
+            out_channels: 3
+            kernel_size: 4
+            stride: 2
+            padding: 1
         input_channels: 3
-      seed: 42
-    training_metrics:
+      hyperparameters:
+        learning_rate: 0.001
+        batch_size: 64
+        epochs_trained: 50
+        loss_weights:
+          beta: 0.5
+    training_stats:
       epoch: 50
-      step: 12500
-      loss: 0.123
-      reconstruction_loss: 0.098
-      kl_divergence: 0.025
-      val_loss: 0.125
-      best_val_loss: 0.120
-      early_stopping_patience_counter: 0
-    checksum:
-      algorithm: "sha256"
-      value: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-      file_size_bytes: 1048576
-      created_at: "2023-10-27T10:00:05Z"
-    tags: ["best"]
+      total_loss: 12.45
+      reconstruction_loss: 10.20
+      kl_loss: 2.25
+      learning_rate_current: 0.001
+    checksums:
+      model_state_dict_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      optimizer_state_dict_sha256: "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592"
