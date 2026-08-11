@@ -1,16 +1,6 @@
 """
 Main orchestration script for the Chess Elo Analysis Pipeline.
-
-This script coordinates the entire pipeline:
-1. Data Download (T008e)
-2. Data Parsing & Feature Extraction (T013, T014)
-3. Online Processing & Metrics (T015, T017)
-4. Model Fitting (T022)
-5. Validation (T018)
-6. Reporting (T033)
-
-It ensures that all stages complete successfully and that the final output
-passes contract validation before being saved.
+Orchestrates: Download -> Parse -> Process -> Model -> Validate -> Report.
 """
 import sys
 import logging
@@ -26,266 +16,184 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Import pipeline stages
-from src.data.download import download_chess_data, DataFetchError
-from src.data.parse import parse_pgn_iterator, process_dataframe
+# Import pipeline stages from existing modules (API surface verification)
+from src.data.download import download_chess_data
+from src.data.parse import process_dataframe
 from src.data.process import calculate_and_save_inclusion_metrics, validate_inclusion_rate
-from src.models.fit import save_model_metrics
+from src.models.fit import fit_beta_regression, fit_ridge_regression, save_model_metrics
 from src.models.validate import run_validation_pipeline
 from src.reports.generate_plots import generate_diagnostic_report
-from src.validation.validate_contracts import validate_dataframe_against_contract, load_schema
-from src.config import ensure_directories
+from src.validation.validate_contracts import validate_dataframe_against_contract
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+RESULTS_DIR = DATA_DIR / "results"
+RAW_DIR = DATA_DIR / "raw"
+CONFIG_DIR = DATA_DIR / "config"
+
+# Ensure output directories exist
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+RAW_DIR.mkdir(parents=True, exist_ok=True)
+CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 def run_download_stage():
-    """Execute the data download stage."""
-    logger.info("Starting data download stage...")
+    """Executes the data download stage."""
+    logger.info("Starting Download Stage...")
     try:
-        # This function handles the full download, streaming, and saving to parquet
-        # as implemented in T008e
+        # This function handles the full download pipeline including ID selection and validation
         output_path = download_chess_data()
-        logger.info(f"Download stage complete. Data saved to: {output_path}")
-        return output_path
-    except DataFetchError as e:
-        logger.error(f"Download stage failed: {e}")
-        sys.exit(1)
+        logger.info(f"Download stage completed. Output: {output_path}")
+        return True
     except Exception as e:
-        logger.error(f"Unexpected error during download: {e}")
-        sys.exit(1)
+        logger.error(f"Download stage failed: {e}")
+        return False
 
-def run_processing_stage(raw_data_path):
-    """Execute the data parsing and processing stage."""
-    logger.info("Starting data processing stage...")
-    
+def run_processing_stage():
+    """Executes the parsing and feature extraction stage."""
+    logger.info("Starting Processing Stage...")
     try:
-        # Load and parse the raw data
-        # The download stage saves to parquet, but we need to parse PGN
-        # If the download stage already produced a processed parquet, we might skip this
-        # However, per the pipeline design, download gets raw PGN, parse extracts features
-        
-        # For this implementation, we assume download_chess_data returns a path to raw PGN
-        # and we need to process it.
-        # If the download stage already saved a processed parquet (as per some implementations),
-        # we might need to adjust. Let's assume it returns the raw PGN file path.
-        
-        # Check if the raw file exists
-        if not Path(raw_data_path).exists():
-            logger.error(f"Raw data file not found: {raw_data_path}")
-            sys.exit(1)
-        
-        # Parse the PGN data and extract features
-        # This calls the streaming parser from T013 and the processing from T015
-        processed_df = process_dataframe(raw_data_path)
-        
-        if processed_df is None or processed_df.empty:
-            logger.error("Processing stage failed: No data processed.")
-            sys.exit(1)
-        
-        # Save inclusion metrics (T017)
-        inclusion_metrics_path = calculate_and_save_inclusion_metrics(processed_df)
-        validate_inclusion_rate(inclusion_metrics_path)
-        
-        # Save the processed dataset
-        processed_output_path = Path("data/processed/games.parquet")
-        processed_df.to_parquet(processed_output_path, index=False)
-        logger.info(f"Processing stage complete. Processed data saved to: {processed_output_path}")
-        
-        return processed_output_path, processed_df
-        
+        # Process the downloaded data (streaming or batch based on implementation in parse.py)
+        # Assumes download_chess_data leaves data in a standard location or returns path
+        # For this orchestration, we assume process_dataframe handles the flow from raw to processed
+        processed_path = process_dataframe()
+        logger.info(f"Processing stage completed. Output: {processed_path}")
+        return True
     except Exception as e:
         logger.error(f"Processing stage failed: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        return False
 
-def run_modeling_stage(processed_data_path):
-    """Execute the model fitting stage."""
-    logger.info("Starting model fitting stage...")
-    
+def run_modeling_stage():
+    """Executes the model fitting stage."""
+    logger.info("Starting Modeling Stage...")
     try:
-        # Load the processed data
-        df = pd.read_parquet(processed_data_path)
-        
-        # Fit models and save metrics (T022, T027)
-        # This function should handle both Beta and Ridge regression
-        model_metrics_path = save_model_metrics(df)
-        
-        logger.info(f"Modeling stage complete. Metrics saved to: {model_metrics_path}")
-        return model_metrics_path
-        
+        # Fit Beta and Ridge models
+        # This function is expected to load processed data, fit models, and save metrics
+        save_model_metrics() 
+        logger.info("Modeling stage completed.")
+        return True
     except Exception as e:
         logger.error(f"Modeling stage failed: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        return False
 
-def run_validation_stage(processed_data_path):
-    """Execute the contract validation stage."""
-    logger.info("Starting contract validation stage...")
-    
+def run_validation_stage():
+    """Executes the cross-validation stage."""
+    logger.info("Starting Validation Stage...")
     try:
-        # Load the processed data
-        df = pd.read_parquet(processed_data_path)
-        
-        # Load the game record schema
-        schema_path = Path("specs/contracts/game_record.schema.yaml")
-        if not schema_path.exists():
-            logger.error(f"Schema file not found: {schema_path}")
-            sys.exit(1)
-        
-        schema = load_schema(schema_path)
-        
-        # Validate the dataframe against the schema
-        is_valid = validate_dataframe_against_contract(df, schema)
-        
-        if not is_valid:
-            logger.error("Validation failed: Data does not conform to the game_record schema.")
-            sys.exit(1)
-        
-        logger.info("Validation stage complete: Data conforms to schema.")
+        run_validation_pipeline()
+        logger.info("Validation stage completed.")
         return True
-        
     except Exception as e:
         logger.error(f"Validation stage failed: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        return False
 
-def run_reporting_stage(processed_data_path, model_metrics_path):
-    """Execute the reporting stage."""
-    logger.info("Starting reporting stage...")
-    
+def run_reporting_stage():
+    """Executes the reporting and plotting stage."""
+    logger.info("Starting Reporting Stage...")
     try:
-        # Generate diagnostic report and plots (T033)
-        report_path = generate_diagnostic_report(processed_data_path, model_metrics_path)
-        
-        logger.info(f"Reporting stage complete. Report saved to: {report_path}")
-        return report_path
-        
+        generate_diagnostic_report()
+        logger.info("Reporting stage completed.")
+        return True
     except Exception as e:
         logger.error(f"Reporting stage failed: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        return False
 
-def run_final_contract_validation(processed_data_path):
-    """Run final contract validation on the saved dataset."""
-    logger.info("Running final contract validation...")
+def run_final_contract_validation():
+    """
+    Validates the final processed dataset against the schema.
+    T018 Specific Requirement: Validate before saving final parquet.
+    """
+    logger.info("Running Final Contract Validation...")
     
-    try:
-        # Load the final processed data
-        df = pd.read_parquet(processed_data_path)
-        
-        # Load the schema
-        schema_path = Path("specs/contracts/game_record.schema.yaml")
-        schema = load_schema(schema_path)
-        
-        # Validate
-        is_valid = validate_dataframe_against_contract(df, schema)
-        
-        if not is_valid:
-            logger.error("Final validation failed: Output data does not conform to schema.")
-            sys.exit(1)
-        
-        logger.info("Final validation passed.")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Final validation failed: {e}")
-        sys.exit(1)
+    processed_file = PROCESSED_DIR / "games.parquet"
+    schema_file = PROJECT_ROOT / "specs" / "contracts" / "game_record.schema.yaml"
 
-def save_final_dataset(processed_df, output_path):
-    """Save the final processed dataset."""
-    logger.info(f"Saving final dataset to: {output_path}")
-    processed_df.to_parquet(output_path, index=False)
-    logger.info("Final dataset saved.")
+    if not processed_file.exists():
+        logger.error(f"Processed file not found: {processed_file}. Cannot validate.")
+        return False
+
+    if not schema_file.exists():
+        logger.error(f"Schema file not found: {schema_file}. Cannot validate.")
+        return False
+
+    try:
+        # Load data
+        df = pd.read_parquet(processed_file)
+        
+        # Validate against contract
+        is_valid = validate_dataframe_against_contract(df, str(schema_file))
+        
+        if is_valid:
+            logger.info("Final contract validation PASSED.")
+            return True
+        else:
+            logger.error("Final contract validation FAILED. Schema mismatch detected.")
+            return False
+    except Exception as e:
+        logger.error(f"Validation process error: {e}")
+        return False
+
+def save_final_dataset():
+    """
+    Saves the final processed dataset to the declared path.
+    T018 Requirement: Ensure data/processed/games.parquet exists.
+    """
+    logger.info("Saving final dataset...")
+    # The processed stage (T013/T015) should have already saved this,
+    # but we ensure the path is correct and the file exists as a final check.
+    processed_file = PROCESSED_DIR / "games.parquet"
+    if processed_file.exists():
+        logger.info(f"Final dataset confirmed at: {processed_file}")
+        return True
+    else:
+        logger.error(f"Final dataset missing at: {processed_file}")
+        return False
 
 def main():
-    """Main entry point for the pipeline."""
     parser = argparse.ArgumentParser(description="Chess Elo Analysis Pipeline")
-    parser.add_argument("--skip-download", action="store_true", help="Skip the download stage")
-    parser.add_argument("--skip-processing", action="store_true", help="Skip the processing stage")
-    parser.add_argument("--skip-modeling", action="store_true", help="Skip the modeling stage")
-    parser.add_argument("--skip-validation", action="store_true", help="Skip the validation stage")
-    parser.add_argument("--skip-reporting", action="store_true", help="Skip the reporting stage")
-    parser.add_argument("--raw-data", type=str, help="Path to raw data file (if skipping download)")
-    parser.add_argument("--processed-data", type=str, help="Path to processed data file (if skipping processing)")
-    
+    parser.add_argument("--sample", action="store_true", help="Run in sample mode (small dataset)")
+    parser.add_argument("--config", type=str, default=None, help="Path to config file (unused in this simplified version)")
     args = parser.parse_args()
-    
-    # Ensure directories exist
-    ensure_directories()
-    
-    raw_data_path = None
-    processed_data_path = None
-    model_metrics_path = None
-    
-    # Stage 1: Download
-    if not args.skip_download:
-        raw_data_path = run_download_stage()
-    elif args.raw_data:
-        raw_data_path = args.raw_data
-        logger.info(f"Using provided raw data path: {raw_data_path}")
-    else:
-        logger.warning("Skipping download stage. Please provide --raw-data if data is not already downloaded.")
-        # We need a raw data path for the next stage
-        # If not provided, we might need to exit or assume a default
-        # For now, let's assume the user must provide it if skipping download
-        if not args.raw_data:
-            logger.error("Download skipped but no raw data path provided. Exiting.")
-            sys.exit(1)
-        raw_data_path = args.raw_data
-    
-    # Stage 2: Processing
-    if not args.skip_processing:
-        processed_data_path, processed_df = run_processing_stage(raw_data_path)
-    elif args.processed_data:
-        processed_data_path = args.processed_data
-        logger.info(f"Using provided processed data path: {processed_data_path}")
-        # Load the data for subsequent stages
-        processed_df = pd.read_parquet(processed_data_path)
-    else:
-        logger.warning("Skipping processing stage. Please provide --processed-data if data is not already processed.")
-        if not args.processed_data:
-            logger.error("Processing skipped but no processed data path provided. Exiting.")
-            sys.exit(1)
-        processed_data_path = args.processed_data
-        processed_df = pd.read_parquet(processed_data_path)
-    
-    # Stage 3: Modeling
-    if not args.skip_modeling:
-        if processed_data_path:
-            model_metrics_path = run_modeling_stage(processed_data_path)
-        else:
-            logger.error("Cannot run modeling stage without processed data.")
-            sys.exit(1)
-    elif not args.skip_reporting:
-        # If we skip modeling but do reporting, we need model metrics
-        # For now, let's assume model_metrics_path is required for reporting
-        # If not provided, we might need to exit
-        logger.warning("Modeling skipped. Reporting may fail without model metrics.")
-    
-    # Stage 4: Validation
-    if not args.skip_validation:
-        if processed_data_path:
-            run_validation_stage(processed_data_path)
-        else:
-            logger.error("Cannot run validation stage without processed data.")
-            sys.exit(1)
-    
-    # Stage 5: Reporting
-    if not args.skip_reporting:
-        if processed_data_path and model_metrics_path:
-            run_reporting_stage(processed_data_path, model_metrics_path)
-        elif processed_data_path:
-            logger.warning("Reporting requires model metrics. Skipping reporting.")
-        else:
-            logger.error("Cannot run reporting stage without processed data and model metrics.")
-            sys.exit(1)
-    
-    # Final Validation
-    if processed_data_path:
-        run_final_contract_validation(processed_data_path)
-    
+
+    logger.info("Pipeline started.")
+
+    # 1. Download
+    if not run_download_stage():
+        logger.critical("Pipeline halted at Download Stage.")
+        sys.exit(1)
+
+    # 2. Process (Parse + Feature Extraction)
+    if not run_processing_stage():
+        logger.critical("Pipeline halted at Processing Stage.")
+        sys.exit(1)
+
+    # 3. Validate Final Dataset (T018 Core Requirement)
+    if not run_final_contract_validation():
+        logger.critical("Pipeline halted: Validation Failed.")
+        sys.exit(1)
+
+    # 4. Save Final Dataset (Ensure file exists)
+    if not save_final_dataset():
+        logger.critical("Pipeline halted: Final Dataset Save Failed.")
+        sys.exit(1)
+
+    # 5. Model
+    if not run_modeling_stage():
+        logger.critical("Pipeline halted at Modeling Stage.")
+        sys.exit(1)
+
+    # 6. Validate Models
+    if not run_validation_stage():
+        logger.critical("Pipeline halted at Validation Stage.")
+        sys.exit(1)
+
+    # 7. Report
+    if not run_reporting_stage():
+        logger.critical("Pipeline halted at Reporting Stage.")
+        sys.exit(1)
+
     logger.info("Pipeline completed successfully.")
     sys.exit(0)
 

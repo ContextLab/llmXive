@@ -1,3 +1,10 @@
+T021:
+  c: false
+  h: 6269284322a4da71ad5dc5950d33d8d04f7280c1601fd80e7a8515e7a3018923
+  r: "The file `src/models/fit.py` does not contain a `collapse_eco_codes` implementation\
+    \ (only `map_eco_to_family` and `prepare_features_for_modeling` are present),\
+    \ and the required external config file `data/config/eco_mapping.json` is absent,\
+    \ so the task\u2019s core requirements are not satisfied."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -17,12 +24,6 @@ T036:
     \ present, nor any code or documentation indicating that data sampling was implemented\
     \ to achieve this limit. Without performance benchmarks or sampling logic, the\
     \ task\u2019s requirement is not satisfied."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` directory or any unit test files were provided as evidence,
-    so the required additional unit tests are missing. The task cannot be considered
-    complete without actual test artifacts in the specified location.
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

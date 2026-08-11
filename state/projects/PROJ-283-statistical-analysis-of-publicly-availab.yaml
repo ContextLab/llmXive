@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-283-statistical-analysis-of-publicly-availab
-last_run_id: e5bfdcbb-6c4a-439c-9c57-7c90642408b0
+last_run_id: cde49c6d-a427-41ec-81e4-9a6968ed45b7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-283-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction
-updated_at: '2026-08-11T01:54:11.153374Z'
+updated_at: '2026-08-11T15:22:48.405636Z'

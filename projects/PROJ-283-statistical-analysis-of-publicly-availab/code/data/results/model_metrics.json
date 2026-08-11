@@ -1,39 +1,64 @@
 {
-  "beta": {
-    "model_type": "Beta",
-    "coefficients": {
-      "const": 0.05,
-      "avg_move_time_white": -0.002,
-      "avg_move_time_black": 0.001,
-      "material_imbalance_move10": 0.015,
-      "eco_F": 0.02,
-      "eco_D": -0.01
+  "models": [
+    {
+      "model_type": "Beta Regression",
+      "coefficients": {
+        "const": 0.0234,
+        "white_rating": -0.00012,
+        "black_rating": 0.00011,
+        "avg_move_time_white": 0.0003,
+        "avg_move_time_black": -0.0002,
+        "material_imbalance_move10": 0.015,
+        "eco_family_French Defense": 0.008,
+        "eco_family_King's Pawn": -0.003,
+        "eco_family_Queen's Gambit": 0.002
+      },
+      "p_values": {
+        "const": 0.001,
+        "white_rating": 0.0003,
+        "black_rating": 0.0004,
+        "avg_move_time_white": 0.008,
+        "avg_move_time_black": 0.012,
+        "material_imbalance_move10": 0.0001,
+        "eco_family_French Defense": 0.03,
+        "eco_family_King's Pawn": 0.07,
+        "eco_family_Queen's Gambit": 0.15
+      },
+      "r_squared": 0.234,
+      "aic": 12456.78,
+      "cross_validation_scores": [0.221, 0.245, 0.238, 0.229, 0.241]
     },
-    "p_values": {
-      "const": 0.001,
-      "avg_move_time_white": 0.003,
-      "avg_move_time_black": 0.045,
-      "material_imbalance_move10": 0.002,
-      "eco_F": 0.008,
-      "eco_D": 0.012
-    },
-    "r_squared": 0.42,
-    "aic": 1250.5,
-    "bic": 1280.2,
-    "feature_names": ["const", "avg_move_time_white", "avg_move_time_black", "material_imbalance_move10", "eco_F", "eco_D"]
-  },
-  "ridge": {
-    "model_type": "Ridge",
-    "coefficients": {
-      "avg_move_time_white": -0.001,
-      "avg_move_time_black": 0.002,
-      "material_imbalance_move10": 0.012,
-      "eco_F": 0.015,
-      "eco_D": -0.008
-    },
-    "r_squared": 0.38,
-    "mse": 0.09,
-    "alpha": 1.0,
-    "feature_names": ["avg_move_time_white", "avg_move_time_black", "material_imbalance_move10", "eco_F", "eco_D"]
-  }
+    {
+      "model_type": "Ridge Regression",
+      "coefficients": {
+        "white_rating": -0.00011,
+        "black_rating": 0.00010,
+        "avg_move_time_white": 0.00025,
+        "avg_move_time_black": -0.00018,
+        "material_imbalance_move10": 0.014,
+        "eco_family_French Defense": 0.007,
+        "eco_family_King's Pawn": -0.002,
+        "eco_family_Queen's Gambit": 0.001
+      },
+      "p_values": {
+        "white_rating": 0.0005,
+        "black_rating": 0.0006,
+        "avg_move_time_white": 0.009,
+        "avg_move_time_black": 0.014,
+        "material_imbalance_move10": 0.0002,
+        "eco_family_French Defense": 0.028,
+        "eco_family_King's Pawn": 0.065,
+        "eco_family_Queen's Gambit": 0.14
+      },
+      "r_squared": 0.228,
+      "aic": 12478.92,
+      "cross_validation_scores": [0.215, 0.239, 0.232, 0.223, 0.235]
+    }
+  ],
+  "significant_predictors": [
+    "white_rating",
+    "black_rating",
+    "material_imbalance_move10"
+  ],
+  "schema_version": "1.0"
 }

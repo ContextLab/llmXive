@@ -1,18 +1,18 @@
 {
   "project_id": "PROJ-283-statistical-analysis-of-publicly-availab",
   "ok": false,
-  "reason": "3 command(s) failed: python src/data/download.py --sample-size 100 --output data/raw/sample_games.parquet (rc=1); python src/validation/validate_contracts.py --input data/processed/game_records.csv --schema contracts/game_record.schema.yaml (rc=2); python src/main.py --config config.yaml (rc=1); 2 declared deliverable(s) absent: data/processed/games.parquet; data/results/model_metrics.json",
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/models/fit.py: self-declared fabricated metric \u2014 \u201c\u2026alidation_scores'] = [0.0]  # Placeholder          metrics = {         'models': [beta_\u2026\u201d; code/src/models/metrics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Example usage with synthetic data (for demonstration)\u2026\u201d; 3 command(s) failed: python src/data/download.py --sample-size 100 --output data/raw/sample_games.parquet (rc=1); python src/validation/validate_contracts.py --input data/processed/game_records.csv --schema contracts/game_record.schema.yaml (rc=2); python src/main.py --config config.yaml (rc=1); 2 declared deliverable(s) absent: data/processed/games.parquet; data/results/model_metrics.json",
   "artifacts": [],
   "failures": [
-    "python src/data/download.py --sample-size 100 --output data/raw/sample_games.parquet -> rc=1\n    - Starting download from: https://huggingface.co/datasets/llmXive/chess-sample/resolve/main/sample_games.pgn\n2026-08-02 14:36:13,601 - INFO - Checking URL reachability: https://huggingface.co/datasets/llmXive/chess-sample/resolve/main/sample_games.pgn\n2026-08-02 14:36:13,685 - ERROR - URL returned status code: 401\n2026-08-02 14:36:13,686 - CRITICAL - HALTING: URL returned status code: 401\n2026-08-02 14:36:13,686 - ERROR - Pipeline failed: Dataset URL unreachable: URL returned status code: 401\nTrace",
+    "python src/data/download.py --sample-size 100 --output data/raw/sample_games.parquet -> rc=1\n    - Starting download from: https://huggingface.co/datasets/llmXive/chess-sample/resolve/main/sample_games.pgn\n2026-08-11 14:32:37,485 - INFO - Checking URL reachability: https://huggingface.co/datasets/llmXive/chess-sample/resolve/main/sample_games.pgn\n2026-08-11 14:32:37,583 - ERROR - URL returned status code: 401\n2026-08-11 14:32:37,583 - CRITICAL - HALTING: URL returned status code: 401\n2026-08-11 14:32:37,584 - ERROR - Pipeline failed: Dataset URL unreachable: URL returned status code: 401\nTrace",
     "python src/validation/validate_contracts.py --input data/processed/game_records.csv --schema contracts/game_record.schema.yaml -> rc=2\n    usage: validate_contracts.py [-h] --data DATA [--contracts CONTRACTS]\n                             [--format {parquet,csv}]\nvalidate_contracts.py: error: the following arguments are required: --data",
     "python src/main.py --config config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-283-statistical-analysis-of-publicly-availab/src/main.py\", line 23, in <module>\n    from src.data.download import download_lichess_data\nImportError: cannot import name 'download_lichess_data' from 'src.data.download' (/home/runner/work/llmXive/llmXive/projects/PROJ-283-statistical-analysis-of-publicly-availab/code/src/data/download.py)"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-02T14:36:16Z"
+  "updated_at": "2026-08-11T14:32:41Z"
 }
