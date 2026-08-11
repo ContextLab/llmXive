@@ -1,17 +1,10 @@
-# Python 3.11+ dependencies for Cognitive Load Optimization Project
-# Core Data & ML
-pandas>=2.0.0
-numpy>=1.24.0
-scikit-learn>=1.3.0
-lightgbm>=4.0.0
-datasets>=2.14.0
-statsmodels>=0.14.0
-
-# Text Analysis
-textstat>=0.7.0
-
-# Utilities
-requests>=2.31.0
-
-# Testing & Quality
-pytest>=7.4.0
+scikit-learn
+lightgbm
+pandas
+numpy
+textstat
+datasets
+statsmodels
+pytest
+requests
+scipy

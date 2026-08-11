@@ -199,26 +199,6 @@
   updated_at: '2026-07-04T20:41:04Z'
 - artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
   attempts: 1
-  canonical: Golden Set requires at least 50 expert-labeled interactions
-  claim_id: c_d89a22df
-  context: "T006a [P] Fetch or Verify External Golden Set: Ensure data/processed/golden_set.csv\
-    \ exists with \u226550 expert-labeled interactions. If missing, the task is blocked\
-    \ until external data is manually fetched."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Golden_Set_requires_at_least_50_expert-labeled_interactions
-  kind: magnitude
-  raw_text: "Ensure data/processed/golden_set.csv exists with \u226550 expert-labeled\
-    \ interactions."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-06T13:36:13Z'
-- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
-  attempts: 1
   canonical: Cognitive Load Estimation Model predicts continuous load scores from
     0 to 100
   claim_id: c_0762dea6
@@ -464,3 +444,174 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-06T13:43:07Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 2
+  canonical: Golden Set requires at least 50 expert-labeled interactions
+  claim_id: c_d89a22df
+  context: "T006a [P] Fetch or Verify External Golden Set: Ensure data/processed/golden_set.csv\
+    \ exists with \u226550 expert-labeled interactions. If missing, the task is blocked\
+    \ until external data is manually fetched."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Golden_Set_requires_at_least_50_expert-labeled_interactions
+  kind: magnitude
+  raw_text: "Ensure data/processed/golden_set.csv exists with \u226550 expert-labeled\
+    \ interactions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T06:34:10Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Cognitive Load Estimation Model predicts continuous load scores between
+    0 and 100
+  claim_id: c_40b13b97
+  context: "Goal: Train and validate a Cognitive Load Estimation Model predicting\
+    \ continuous load scores (0\u2013100) from interaction features, validated against\
+    \ the Golden Set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train and validate a Cognitive Load Estimation Model predicting continuous\
+    \ load scores (0\u2013100) from interaction features."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T06:34:31Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Cognitive Load Model size constraint is 500 MB RAM
+  claim_id: c_35e4499a
+  context: "T015 [US1] Implement model size constraint check (\u2264 500 MB RAM) and\
+    \ save model artifact to data/processed/load_model.pkl"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The model size is constrained to \u2264 500 MB RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T06:34:31Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Cognitive Load Model training requires sample size of at least 40
+  claim_id: c_fd7bfc6d
+  context: T016 [US1] Add error handling for missing Golden Set or insufficient sample
+    size (N < 40) with explicit reporting
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cognitive_Load_Model_training_requires_sample_size_of_at_lea
+  kind: magnitude
+  raw_text: "Model training requires a sample size of N \u2265 40."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T06:35:35Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Explanation tier generation requires Flesch-Kincaid score difference
+    of at least 5 points
+  claim_id: c_701e64f3
+  context: "Independent Test: Can be fully tested by processing a sample of instructional\
+    \ units, generating three tiers per unit, and verifying Flesch-Kincaid readability\
+    \ scores show monotonic progression with absolute differences \u2265 5 points."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Explanation_tier_generation_requires_Flesch-Kincaid_score_di
+  kind: magnitude
+  raw_text: "Explanation tier generation requires Flesch-Kincaid readability score\
+    \ differences of \u2265 5 points between tiers."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T06:35:59Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Tier fidelity requires Jaccard similarity of at least 0.85
+  claim_id: c_0643d6de
+  context: "T024 [US2] Implement fidelity checks: Jaccard similarity (\u2265 0.85)\
+    \ and semantic similarity (\u2265 0.90) against source text"
+  evidence:
+    entailment_evidence: Tier fidelity requires Jaccard similarity of at least 0.85
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Tier_fidelity_requires_Jaccard_similarity_of_at_least_0.85
+  kind: magnitude
+  raw_text: "Tier fidelity checks require Jaccard similarity \u2265 0.85 against source\
+    \ text."
+  resolved_value: Tier fidelity requires Jaccard similarity of at least 0.85
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T06:36:01Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Tier fidelity requires semantic similarity of at least 0.90
+  claim_id: c_55cdc31d
+  context: "T024 [US2] Implement fidelity checks: Jaccard similarity (\u2265 0.85)\
+    \ and semantic similarity (\u2265 0.90) against source text"
+  evidence:
+    entailment_evidence: Tier fidelity requires semantic similarity of at least 0.90
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Tier_fidelity_requires_semantic_similarity_of_at_least_0.90
+  kind: magnitude
+  raw_text: "Tier fidelity checks require semantic similarity \u2265 0.90 against\
+    \ source text."
+  resolved_value: Tier fidelity requires semantic similarity of at least 0.90
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T06:36:03Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Simulation requires replaying at least 40 historical sessions
+  claim_id: c_3aed22be
+  context: "Independent Test: Can be fully tested by running the simulation pipeline\
+    \ with N \u2265 40 historical sessions replayed, computing estimated learning\
+    \ efficiency metrics, and verifying the mixed-effects model reports Cohen's d\
+    \ and confidence intervals."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_requires_replaying_at_least_40_historical_session
+  kind: magnitude
+  raw_text: "Simulation requires replaying N \u2265 40 historical sessions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T06:37:17Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time is at most 6 hours
+  claim_id: c_bb728436
+  context: "T037a [US3] Implement Pipeline Wrapper: Create code/run_pipeline.py to\
+    \ orchestrate the full pipeline (Phases 1-5) and measure total wall-clock time.\
+    \ Assert \u2264 6h total execution time."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_is_at_most_6_hours
+  kind: magnitude
+  raw_text: "The full pipeline execution time is asserted to be \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T06:37:43Z'

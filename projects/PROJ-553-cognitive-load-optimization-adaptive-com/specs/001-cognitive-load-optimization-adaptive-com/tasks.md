@@ -65,8 +65,8 @@
 ### Implementation for User Story 1
 
 - [X] T011 [P] [US1] Implement feature engineering in `code/train_load_model.py`: log-transform latency, count errors/hints/pauses per session
-- [ ] T012 [US1] Implement Gradient Boosting Regressor (`LightGBM` with `tree_method='hist'`, `device='cpu'`) in `code/train_load_model.py`
-- [ ] T013 [US1] Implement collinearity diagnostic (VIF ≤ 5) in `code/utils.py` and `code/train_load_model.py`; add logic to flag predictors and frame descriptive relationships if VIF > 5
+- [X] T012 [US1] Implement Gradient Boosting Regressor (`LightGBM` with `tree_method='hist'`, `device='cpu'`) in `code/train_load_model.py`
+- [X] T013 [US1] Implement collinearity diagnostic (VIF ≤ 5) in `code/utils.py` and `code/train_load_model.py`; add logic to flag predictors and frame descriptive relationships if VIF > 5
 - [ ] T014 [US1] Implement model training loop with fixed seed, validation against `data/processed/golden_set.csv` (Pearson r ≥ 0.6 target)
 - [ ] T015 [US1] Implement model size constraint check (≤ 500 MB RAM) and save model artifact to `data/processed/load_model.pkl`
 - [ ] T016 [US1] Add error handling for missing Golden Set or insufficient sample size (N < 40) with explicit reporting

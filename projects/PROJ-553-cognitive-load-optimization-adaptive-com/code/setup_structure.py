@@ -1,43 +1,33 @@
-"""
-Project Structure Setup Script
-
-This script creates the necessary directory structure for the
-Cognitive Load Optimization project.
-"""
 import os
 from pathlib import Path
 
 def main():
-    """Create the project directory structure."""
-    root = Path(__file__).parent.parent
-    
-    directories = [
-        "data/raw",
-        "data/processed",
-        "data/explanation_tiers",
-        "data/simulation_results",
-        "code",
-        "tests",
-        "docs"
-    ]
-    
-    created = []
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path.relative_to(root)))
-        else:
-            # Ensure it's actually a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-    
-    if created:
-        print(f"Created directories: {', '.join(created)}")
-    else:
-        print("All required directories already exist.")
-    
-    return 0
+    """Creates the project directory structure."""
+    base_dir = Path(".")  # Current working directory
+
+    data_dir = base_dir / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    raw_dir = data_dir / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    processed_dir = data_dir / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    explanation_tiers_dir = data_dir / "explanation_tiers"
+    explanation_tiers_dir.mkdir(parents=True, exist_ok=True)
+
+    simulation_results_dir = data_dir / "simulation_results"
+    simulation_results_dir.mkdir(parents=True, exist_ok=True)
+
+    code_dir = base_dir / "code"
+    code_dir.mkdir(parents=True, exist_ok=True)
+
+    tests_dir = base_dir / "tests"
+    tests_dir.mkdir(parents=True, exist_ok=True)
+
+    docs_dir = base_dir / "docs"
+    docs_dir.mkdir(parents=True, exist_ok=True)
 
 if __name__ == "__main__":
-    exit(main())
+    main()
