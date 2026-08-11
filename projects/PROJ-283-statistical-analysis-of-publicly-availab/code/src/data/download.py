@@ -1,11 +1,16 @@
+"""
+Data download module for Lichess chess dataset.
+
+Implements streaming download, retry logic with exponential backoff,
+and metadata verification against the verified mirror.
+"""
 import os
 import sys
 import time
 import logging
 import json
 from pathlib import Path
-from typing import List, Optional
-
+from typing import Generator, List, Optional
 import requests
 from datasets import load_dataset
 
@@ -17,287 +22,339 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Configuration constants (imported from T004 conceptually, defined here for clarity)
-BASE_DELAY = 1
-MAX_RETRIES = 5
+# Constants
+DEFAULT_MAX_RETRIES = 5
+DEFAULT_BASE_DELAY = 1.0
+MEMORY_LIMIT_GB = 7.0
 SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000
-
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-# Verified Mirror URL for Lichess data (placeholder, to be replaced by actual verified source)
-# In a real scenario, this would be a specific shard or a list of shards
-# For this implementation, we assume the dataset is available via Hugging Face
-# The specific dataset ID will be determined by T008c verification
-DEFAULT_DATASET_ID = "lichess-db"  # Placeholder, actual ID might be "lichess/db" or similar
-DEFAULT_CONFIG = "2023"  # Placeholder year
-
+VERIFIED_MIRROR_URL = "https://huggingface.co/datasets/llmXive/chess-sample/resolve/main/sample_games.pgn"
+SAMPLE_CHECK_SIZE = 100  # Number of games to sample for metadata verification
 
 class DataFetchError(RuntimeError):
-    """Custom exception for data fetching failures."""
-    pass
+    """Custom exception for data fetching errors."""
+    def __init__(self, message: str, reason: Optional[str] = None):
+        super().__init__(message)
+        self.reason = reason or message
 
-
-def load_selected_ids(ids_file_path: Path) -> List[str]:
+def load_selected_ids(ids_file: str) -> List[str]:
     """
-    Load the list of selected game IDs from a text file.
-    Each line in the file should contain a single game ID.
-    """
-    if not ids_file_path.exists():
-        raise FileNotFoundError(f"Selected IDs file not found: {ids_file_path}")
-    
-    ids = []
-    with open(ids_file_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                ids.append(line)
-    
-    if not ids:
-        raise ValueError(f"No game IDs found in {ids_file_path}")
-    
-    logger.info(f"Loaded {len(ids)} game IDs from {ids_file_path}")
-    return ids
-
-
-def retry_fetch_with_backoff(
-    func,
-    *args,
-    base_delay: int = BASE_DELAY,
-    max_retries: int = MAX_RETRIES,
-    **kwargs
-):
-    """
-    Executes a function with exponential backoff retry strategy for network errors.
-    Catches requests.exceptions.Timeout, requests.exceptions.HTTPError, and ConnectionError.
+    Load selected game IDs from a text file.
     
     Args:
-        func: The function to execute.
-        *args: Positional arguments for func.
-        base_delay: Base delay in seconds.
-        max_retries: Maximum number of retry attempts.
-        **kwargs: Keyword arguments for func.
+        ids_file: Path to the file containing game IDs (one per line).
     
     Returns:
-        The result of func if successful.
+        List of game IDs.
     
     Raises:
-        DataFetchError: If all retries are exhausted.
+        FileNotFoundError: If the IDs file doesn't exist.
+        ValueError: If the file is empty.
     """
-    last_exception = None
+    path = Path(ids_file)
+    if not path.exists():
+        raise FileNotFoundError(f"Selected IDs file not found: {ids_file}")
     
-    for attempt in range(1, max_retries + 1):
+    with open(path, 'r', encoding='utf-8') as f:
+        ids = [line.strip() for line in f if line.strip()]
+    
+    if not ids:
+        raise ValueError(f"Selected IDs file is empty: {ids_file}")
+    
+    logger.info(f"Loaded {len(ids)} game IDs from {ids_file}")
+    return ids
+
+def retry_fetch_with_backoff(
+    url: str,
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    base_delay: float = DEFAULT_BASE_DELAY
+) -> Generator[bytes, None, None]:
+    """
+    Fetch data from URL with exponential backoff retry strategy.
+    
+    Args:
+        url: The URL to fetch data from.
+        max_retries: Maximum number of retry attempts.
+        base_delay: Base delay in seconds for exponential backoff.
+    
+    Yields:
+        Chunks of data from the response.
+    
+    Raises:
+        DataFetchError: If all retries fail or rate limit is exceeded.
+    """
+    attempt = 0
+    last_error = None
+    
+    while attempt < max_retries:
         try:
-            logger.info(f"Attempt {attempt}/{max_retries} to fetch data...")
-            result = func(*args, **kwargs)
-            return result
-        except (requests.exceptions.Timeout, requests.exceptions.HTTPError, ConnectionError) as e:
-            last_exception = e
-            error_code = None
-            if isinstance(e, requests.exceptions.HTTPError):
-                error_code = e.response.status_code if hasattr(e, 'response') and e.response else "Unknown"
+            logger.info(f"Attempt {attempt + 1}/{max_retries}: Fetching from {url}")
+            response = requests.get(url, stream=True, timeout=30)
             
-            logger.warning(f"Attempt {attempt} failed with error: {type(e).__name__}: {e}")
-            if error_code:
-                logger.warning(f"HTTP Status Code: {error_code}")
+            # Check for rate limiting
+            if response.status_code == 429:
+                error_msg = "Rate limit exceeded. Check for rate-limiting or API unavailability."
+                logger.error(error_msg)
+                raise DataFetchError(error_msg)
             
-            if attempt == max_retries:
-                logger.error(f"Max retries ({max_retries}) exceeded.")
-                break
+            # Check for other HTTP errors
+            response.raise_for_status()
             
+            # Stream the data
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    yield chunk
+            
+            logger.info("Download completed successfully")
+            return
+            
+        except requests.exceptions.Timeout:
+            last_error = "Request timed out"
+            logger.warning(f"Attempt {attempt + 1} failed: {last_error}")
+            
+        except requests.exceptions.HTTPError as e:
+            last_error = f"HTTP error: {str(e)}"
+            logger.warning(f"Attempt {attempt + 1} failed: {last_error}")
+            
+            # Check for 429 specifically
+            if hasattr(e, 'response') and e.response is not None and e.response.status_code == 429:
+                error_msg = "Rate limit exceeded. Check for rate-limiting or API unavailability."
+                logger.error(error_msg)
+                raise DataFetchError(error_msg)
+            
+        except ConnectionError as e:
+            last_error = f"Connection error: {str(e)}"
+            logger.warning(f"Attempt {attempt + 1} failed: {last_error}")
+            
+        except Exception as e:
+            last_error = f"Unexpected error: {str(e)}"
+            logger.warning(f"Attempt {attempt + 1} failed: {last_error}")
+        
+        attempt += 1
+        if attempt < max_retries:
             delay = base_delay * (2 ** (attempt - 1))
-            logger.info(f"Retrying in {delay} seconds...")
+            logger.info(f"Retrying in {delay:.1f} seconds...")
             time.sleep(delay)
     
-    # Determine the specific error message based on the last exception
-    if isinstance(last_exception, requests.exceptions.HTTPError):
-        status_code = last_exception.response.status_code if hasattr(last_exception, 'response') and last_exception.response else None
-        if status_code == 429:
-            raise DataFetchError("Rate limit exceeded. Check for rate-limiting or API unavailability.")
-        else:
-            raise DataFetchError(f"Download failed after retries: {last_exception}. Check for rate-limiting or API unavailability.")
-    else:
-        raise DataFetchError(f"Download failed after retries: {last_exception}. Check for rate-limiting or API unavailability.")
-
+    # All retries exhausted
+    error_msg = f"Download failed after {max_retries} retries: {last_error}. Check for rate-limiting or API unavailability."
+    logger.error(error_msg)
+    raise DataFetchError(error_msg)
 
 def verify_url_reachability(url: str) -> bool:
     """
-    Checks if a URL is reachable and returns a 200 OK status.
+    Check if a URL is reachable.
+    
+    Args:
+        url: The URL to check.
+    
+    Returns:
+        True if reachable, False otherwise.
     """
     try:
+        logger.info(f"Checking URL reachability: {url}")
         response = requests.head(url, timeout=10)
         if response.status_code == 200:
-            logger.info(f"URL is reachable: {url}")
+            logger.info(f"URL is reachable (status code: {response.status_code})")
             return True
         else:
             logger.error(f"URL returned status code: {response.status_code}")
             return False
-    except requests.exceptions.RequestException as e:
-        logger.error(f"URL reachability check failed: {e}")
-        return False
-
-
-def verify_mirror_metadata() -> bool:
-    """
-    Calls verify_mirror.py (T008c) to check the verified mirror URL for the presence
-    of move-time metadata.
-    """
-    verify_script = PROJECT_ROOT / "src" / "data" / "verify_mirror.py"
-    if not verify_script.exists():
-        logger.warning("verify_mirror.py not found. Skipping metadata verification.")
-        return True  # Proceed if script is missing to avoid blocking, though ideally it should exist
-    
-    logger.info("Running verify_mirror.py to check metadata...")
-    try:
-        # Run the script as a subprocess
-        result = os.system(f"python {verify_script}")
-        if result == 0:
-            logger.info("Metadata verification passed.")
-            return True
-        else:
-            logger.error("Metadata verification failed.")
-            return False
     except Exception as e:
-        logger.error(f"Error running verify_mirror.py: {e}")
+        logger.error(f"URL check failed: {str(e)}")
         return False
 
-
-def download_dataset_with_streaming(game_ids: List[str], output_path: Path):
+def verify_mirror_metadata(url: str, sample_size: int = SAMPLE_CHECK_SIZE) -> bool:
     """
-    Downloads Lichess data for specific game IDs using streaming to avoid loading
-    the entire dataset into memory.
+    Verify that the mirror URL contains move-time metadata.
     
     Args:
-        game_ids: List of game IDs to download.
-        output_path: Path to save the downloaded data.
-    """
-    # Note: The datasets library's load_dataset with streaming=True is used.
-    # However, filtering by specific IDs directly in the load_dataset call is not
-    # straightforward for all datasets. We will stream the dataset and filter in memory
-    # or use a custom generator if the dataset supports it.
-    # For this implementation, we assume we can filter by 'id' if the dataset has that column.
-    # If not, we might need to download shards and filter.
-    
-    # Placeholder for actual dataset loading logic
-    # This assumes the dataset has an 'id' column and we can filter
-    # In a real scenario, we might need to download specific shards or use a different approach
-    
-    # Example: loading a dataset and filtering
-    # dataset = load_dataset("lichess-db", split="train", streaming=True)
-    # filtered_dataset = dataset.filter(lambda x: x["id"] in game_ids)
-    
-    # Since we cannot know the exact structure of the dataset without loading it,
-    # we will implement a generic streaming and filtering approach.
-    
-    # For demonstration, let's assume we are downloading from a Hugging Face dataset
-    # that contains PGN files or game records.
-    # We will stream the dataset and write the relevant games to the output file.
-    
-    # This is a simplified example. In reality, the logic would be more complex.
-    # We will assume the dataset is available and has an 'id' field.
-    
-    # To satisfy the requirement of using streaming=True and not loading everything into memory,
-    # we will iterate over the dataset and write matching games to the output file.
-    
-    # NOTE: The actual dataset ID and configuration should be determined by T008c.
-    # For now, we use a placeholder.
-    dataset_id = "lichess/db"  # Placeholder
-    config_name = "2023"  # Placeholder
-    
-    try:
-        logger.info(f"Loading dataset '{dataset_id}' with streaming=True...")
-        dataset = load_dataset(dataset_id, config_name, split="train", streaming=True)
-        
-        logger.info(f"Filtering dataset for {len(game_ids)} game IDs...")
-        # Convert game_ids to a set for faster lookup
-        game_ids_set = set(game_ids)
-        
-        # Filter the dataset
-        # Note: This assumes the dataset has an 'id' column.
-        # If the dataset structure is different, this needs to be adjusted.
-        filtered_games = []
-        total_games = 0
-        matched_games = 0
-        
-        for game in dataset:
-            total_games += 1
-            if game.get("id") in game_ids_set:
-                filtered_games.append(game)
-                matched_games += 1
-                if len(filtered_games) == len(game_ids_set):
-                    break
-        
-        logger.info(f"Found {matched_games} matching games out of {total_games} scanned.")
-        
-        if matched_games == 0:
-            raise DataFetchError("No matching games found in the dataset.")
-        
-        # Write the filtered games to the output file
-        # Assuming the output format is Parquet
-        import pandas as pd
-        df = pd.DataFrame(filtered_games)
-        df.to_parquet(output_path, index=False)
-        logger.info(f"Saved {matched_games} games to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Error during dataset download: {e}")
-        raise DataFetchError(f"Download failed: {e}")
-
-
-def download_chess_data() -> str:
-    """
-    Main function to orchestrate the data download process.
+        url: The mirror URL to verify.
+        sample_size: Number of games to sample for verification.
     
     Returns:
-        Path to the downloaded data file.
+        True if move-time metadata is present for <= 5% of sampled games, False otherwise.
+    
+    Raises:
+        DataFetchError: If verification fails.
     """
-    ids_file = DATA_RAW_DIR / "selected_ids.txt"
-    output_file = DATA_RAW_DIR / "sample_games.parquet"
+    logger.info(f"Verifying mirror metadata at {url} with sample size {sample_size}")
     
-    # Verify mirror metadata before fetching
-    if not verify_mirror_metadata():
-        raise DataFetchError("Metadata verification failed. Aborting download.")
+    if not verify_url_reachability(url):
+        raise DataFetchError("Verified mirror verification failed: URL unreachable or metadata missing >5%. Pipeline HALT.")
     
-    # Load selected IDs
     try:
-        game_ids = load_selected_ids(ids_file)
-    except FileNotFoundError as e:
-        raise DataFetchError(f"Failed to load selected IDs: {e}")
-    except ValueError as e:
-        raise DataFetchError(f"Invalid selected IDs file: {e}")
+        # Load dataset in streaming mode to sample
+        dataset = load_dataset(
+            "parquet",
+            data_files={"train": url},
+            streaming=True
+        )
+        
+        # Sample a subset of games
+        sampled_games = []
+        count = 0
+        for game in dataset['train']:
+            if count >= sample_size:
+                break
+            sampled_games.append(game)
+            count += 1
+        
+        if not sampled_games:
+            raise DataFetchError("Verified mirror verification failed: No games found in sample. Pipeline HALT.")
+        
+        # Check for move-time metadata
+        missing_metadata_count = 0
+        total_checked = len(sampled_games)
+        
+        for game in sampled_games:
+            # Check if move-time related fields exist and are not null
+            has_move_time = (
+                'avg_move_time_white' in game and game['avg_move_time_white'] is not None and
+                'avg_move_time_black' in game and game['avg_move_time_black'] is not None
+            )
+            
+            if not has_move_time:
+                missing_metadata_count += 1
+        
+        missing_ratio = missing_metadata_count / total_checked
+        logger.info(f"Move-time metadata missing in {missing_ratio:.1%} of sampled games ({missing_metadata_count}/{total_checked})")
+        
+        if missing_ratio > 0.05:
+            raise DataFetchError("Verified mirror verification failed: URL unreachable or metadata missing >5%. Pipeline HALT.")
+        
+        logger.info("Mirror metadata verification passed")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Metadata verification failed: {str(e)}")
+        raise DataFetchError("Verified mirror verification failed: URL unreachable or metadata missing >5%. Pipeline HALT.")
+
+def download_dataset_with_streaming(
+    ids: List[str],
+    output_path: str,
+    base_url: str = "https://huggingface.co/datasets/llmXive/chess-sample/resolve/main/"
+) -> str:
+    """
+    Download chess dataset for specific IDs using streaming.
     
-    # Download data with streaming
-    logger.info(f"Starting download of {len(game_ids)} games...")
+    Args:
+        ids: List of game IDs to download.
+        output_path: Path to save the output file.
+        base_url: Base URL for the dataset.
+    
+    Returns:
+        Path to the downloaded file.
+    
+    Raises:
+        DataFetchError: If download fails.
+    """
+    logger.info(f"Starting download for {len(ids)} games")
+    
+    # For this implementation, we'll download the full sample file
+    # In a real scenario, we would construct URLs for individual games
+    full_url = base_url + "sample_games.pgn"
+    
+    logger.info(f"Downloading from: {full_url}")
+    
     try:
-        download_dataset_with_streaming(game_ids, output_file)
-    except DataFetchError as e:
-        logger.critical(f"Download failed: {e}")
+        # Create output directory if it doesn't exist
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        
+        # Download with retry logic
+        with open(output_path, 'wb') as f:
+            for chunk in retry_fetch_with_backoff(full_url):
+                f.write(chunk)
+        
+        logger.info(f"Downloaded data to {output_path}")
+        return output_path
+        
+    except DataFetchError:
         raise
     except Exception as e:
-        logger.critical(f"Unexpected error during download: {e}")
-        raise DataFetchError(f"Download failed with unexpected error: {e}")
-    
-    logger.info(f"Download completed successfully. Output: {output_file}")
-    return str(output_file)
+        raise DataFetchError(f"Download failed: {str(e)}")
 
-
-def main():
+def download_chess_data(
+    ids_file: str = "data/raw/selected_ids.txt",
+    output_file: str = "data/raw/sample_games.pgn",
+    verify_mirror: bool = True
+) -> str:
     """
-    Entry point for the download script.
+    Main function to download chess data.
+    
+    Args:
+        ids_file: Path to file containing selected game IDs.
+        output_file: Path to save the downloaded data.
+        verify_mirror: Whether to verify mirror metadata before downloading.
+    
+    Returns:
+        Path to the downloaded file.
+    
+    Raises:
+        DataFetchError: If any step fails.
     """
     try:
-        output_path = download_chess_data()
-        print(f"Pipeline completed successfully. Data saved to: {output_path}")
+        # Load selected IDs
+        ids = load_selected_ids(ids_file)
+        
+        # Verify mirror if requested
+        if verify_mirror:
+            verify_mirror_metadata(VERIFIED_MIRROR_URL)
+        
+        # Download data
+        output_path = download_dataset_with_streaming(ids, output_file)
+        
+        logger.info("Download completed successfully")
+        return output_path
+        
+    except FileNotFoundError as e:
+        raise DataFetchError(f"File not found: {str(e)}")
+    except ValueError as e:
+        raise DataFetchError(f"Invalid input: {str(e)}")
+    except DataFetchError:
+        raise
+    except Exception as e:
+        raise DataFetchError(f"Unexpected error during download: {str(e)}")
+
+def main():
+    """Main entry point for the download script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Download Lichess chess dataset")
+    parser.add_argument(
+        "--ids-file",
+        type=str,
+        default="data/raw/selected_ids.txt",
+        help="Path to file containing selected game IDs"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/raw/sample_games.pgn",
+        help="Path to save the downloaded data"
+    )
+    parser.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="Skip mirror verification"
+    )
+    
+    args = parser.parse_args()
+    
+    try:
+        output_path = download_chess_data(
+            ids_file=args.ids_file,
+            output_file=args.output,
+            verify_mirror=not args.no_verify
+        )
+        print(f"Download completed successfully: {output_path}")
         sys.exit(0)
+        
     except DataFetchError as e:
-        print(f"Pipeline failed: {e}", file=sys.stderr)
+        logger.critical(f"Pipeline failed: {e.reason}")
         sys.exit(1)
     except Exception as e:
-        print(f"Pipeline failed with unexpected error: {e}", file=sys.stderr)
+        logger.critical(f"Pipeline failed with unexpected error: {str(e)}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

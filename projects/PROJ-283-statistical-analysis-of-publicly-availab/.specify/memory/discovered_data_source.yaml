@@ -1,19 +1,16 @@
 status: none
-intent: Lichess Games Database HuggingFace Lichess API move times ratings download
+intent: Lichess games dataset with move times and ratings downloadable from HuggingFace
   python package dataset
 required_fields:
 - game_id
+- eco_code
 - white_rating
 - black_rating
-- eco_code
 - move_times
 - avg_move_time
 - material_imbalance_move10
 - elo_expected_prob
-- outcome
 - outcome_deviation
-- moves
-- timestamp
-cache_key: de17509e050b2ee0cbd0377b1ba1fc5574a25b7502e4106e096d67cbeaed80f2
-searched_at: '2026-08-11T14:33:29.975236+00:00'
+cache_key: 6972ce2572682e3d5ee9b0218dd59f648056d93f2997a0757793f3e42fb34f29
+searched_at: '2026-08-11T20:20:59.645795+00:00'
 retry_count: 1
