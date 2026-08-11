@@ -1,18 +1,15 @@
 status: none
-intent: download paired Arabidopsis Solanum herbivore stress GEO series Metabolomics
-  Workbench KEGG defense metabolites python package dataset
+intent: download GEO GSE21857 GSE167633 Metabolomics Workbench ST002565 KEGG pathway
+  paired expression metabolite python package dataset
 required_fields:
 - sample_id
-- organism
-- geo_series_accession
-- mw_experiment_id
+- species
 - gene_id
-- tpm_or_fpkm
-- herbivore_treatment_annotation
+- tpm_fpkm
 - metabolite_id
-- defense_compound_category
-- metabolite_concentration
-- log_transformed_metabolite_concentration
-cache_key: 293c683ba706dec560a8188dce8b06d92ef44d97da6699dd4c56c44765c34763
-searched_at: '2026-07-29T09:39:50.592663+00:00'
+- metabolite_concentration_log
+- herbivore_stress_flag
+- kegg_pathway
+cache_key: 85ea5e08d278d8e4b98bd441c12e43b309d8c3c3d36ac504c373102c351007ca
+searched_at: '2026-08-11T01:37:59.756963+00:00'
 retry_count: 1
