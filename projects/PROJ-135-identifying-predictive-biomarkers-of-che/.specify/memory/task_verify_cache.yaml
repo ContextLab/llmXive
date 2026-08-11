@@ -5,15 +5,51 @@ T008:
     and no contract test harness for validating a YAML schema are present in the provided
     evidence. The claim only contains a feature specification unrelated to setting
     up pytest or YAML schema tests, so the required artifacts are missing.
-T015:
+T011:
   c: false
-  h: 67afb3c2780a39ad8f75adb58ae201139c4731fbda5927b8f74adf21edf9a194
-  r: "The required file `src/preprocessing.py` does not exist, so no implementation\
-    \ of the harmonization logic, coverage check, or error handling is present. The\
-    \ task\u2019s core functionality is entirely missing."
-T023a:
+  h: 0515f4249ab30a85e0648a9101b021321e8fe73c155b35f7566a9695c9132f11
+  r: "The provided `tests/integration/test_feasibility_gate.py` is truncated and only\
+    \ shows the start of one test (`test_tcga_insufficient_types`) without the call\
+    \ to `run_feasibility_gate`, the assertions on `feasibility_gate.json` contents,\
+    \ or the second scenario for GEO\u202F<\u202F2. Moreover, the expected `data/feasibility_gate.json`\
+    \ file is absent, indicating the test does not actually verify the required file\
+    \ content or halting behavior. The task\u2019s full requirements are therefore\
+    \ not satisfied."
+T024c:
   c: false
-  h: c0b0d3eb2b3753381adec57d2f8f437f53f497112a6d850a667336d25785f0ea
-  r: "The required source file `src/differential_expression.py` does not exist, so\
-    \ no code was provided to run the DESeq2 Wald test or generate the expected CSV\
-    \ output files. Consequently, the task\u2019s core deliverable is missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (scripts, data files, results, or documentation) were supplied\
+    \ to demonstrate that leave\u2011one\u2011out (LOO) results were aggregated or\
+    \ that a gene panel was selected. Consequently, the required output cannot be\
+    \ verified. The implementer must provide the actual code, output files (e.g.,\
+    \ aggregated LOO metrics, selected panel list), and any accompanying summary documentation."
+T026:
+  c: false
+  h: b64d88ba327b1762e771de32601a48d7f7e24c0cd246a1d1e822cee159e7b7f5
+  r: "The required `src/meta_analysis.py` file does not exist, and `results/summary.md`\
+    \ does not contain the mandated `fallback_reason: \"intersection_empty\"` (it\
+    \ shows \u201CNone\u201D). Both the implementation and the required summary entry\
+    \ are missing."
+T027:
+  c: false
+  h: b64d88ba327b1762e771de32601a48d7f7e24c0cd246a1d1e822cee159e7b7f5
+  r: 'The required `src/meta_analysis.py` file is absent, and `results/summary.md`
+    does not contain the mandated `override_note: "REML used instead of Stouffer''s
+    per Plan Phase 2"`. Consequently, the REML implementation and documentation requirements
+    are not met.'
+T028:
+  c: false
+  h: 2e7610007e8e946d7fc12c807db0d91127febb1172f83df96af198b6db91e64a
+  r: The required implementation file `src/meta_analysis.py` does not exist, and the
+    referenced schema `contracts/gene_panel.schema.yaml` is also missing, so we cannot
+    verify that `gene_panel.json` conforms to the contract. Both artifacts must be
+    present for the task to be considered complete.
+T029:
+  c: false
+  h: 8c2472bd7f4de8cf2a5522c9079975e30f994f0220524f2ec19cae1efe1ff0cc
+  r: The provided `tests/contract/test_model_schema.py` exists, but it references
+    a schema file (`model_output.schema.yaml`) that is missing from the repository,
+    so the contract test cannot actually validate model output against the required
+    schema. Additionally, the test file is truncated, indicating it may be incomplete.
+    The missing schema file must be added (and the test completed) for the requirement
+    to be satisfied.

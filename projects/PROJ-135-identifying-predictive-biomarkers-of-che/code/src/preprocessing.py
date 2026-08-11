@@ -1,260 +1,338 @@
-"""
-Preprocessing module for chemotherapeutic biomarker discovery.
-Handles harmonization, normalization, batch correction, and data splitting.
-"""
 import os
 import sys
 import json
 import logging
 import tempfile
-import time
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Optional, Tuple, Any
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+from mygene import MyGeneInfo
 
 from src.config import get_project_root, ensure_directories
-from src.utils import setup_logging, ensure_path_exists, update_state_artifact_hashes
+from src.utils import calculate_checksum, setup_logging
 
 # Configure logging
-logger = logging.getLogger(__name__)
+logger = setup_logging("preprocessing")
+
+# Constants
+MIN_HGNC_COVERAGE = 0.95
+FEASIBILITY_GATE_PATH = "data/feasibility_gate.json"
+
 
 def load_processed_data(file_path: str) -> pd.DataFrame:
     """
-    Load a processed data file (CSV/Parquet) into a DataFrame.
+    Load a processed dataset CSV file.
     
     Args:
-        file_path: Path to the data file.
+        file_path: Path to the CSV file.
         
     Returns:
-        DataFrame with expression data.
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Input file not found: {file_path}")
-    
-    if file_path.endswith('.parquet'):
-        return pd.read_parquet(file_path)
-    else:
-        return pd.read_csv(file_path, index_col=0)
-
-def save_processed_data(df: pd.DataFrame, file_path: str) -> None:
-    """
-    Save a DataFrame to a CSV or Parquet file.
-    
-    Args:
-        df: DataFrame to save.
-        file_path: Output path.
-    """
-    ensure_path_exists(file_path)
-    if file_path.endswith('.parquet'):
-        df.to_parquet(file_path)
-    else:
-        df.to_csv(file_path)
-    logger.info(f"Saved processed data to {file_path}")
-
-def split_data_stratified(
-    df: pd.DataFrame, 
-    strata_column: str = 'response_label', 
-    test_size: float = 0.3, 
-    random_state: int = 42
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Split a DataFrame into discovery and training sets with stratification.
-    
-    This ensures the class distribution (response_label) is maintained in both sets.
-    FR-013 Compliance: Strict separation of discovery (gene selection) and 
-    training (model fitting) sets.
-    
-    Args:
-        df: Input DataFrame containing expression data and metadata.
-        strata_column: Name of the column to use for stratification (default: 'response_label').
-        test_size: Proportion of data to include in the discovery set (default: 0.3).
-        random_state: Random seed for reproducibility.
-        
-    Returns:
-        Tuple of (discovery_set, training_set) DataFrames.
+        DataFrame with gene expression data.
         
     Raises:
-        ValueError: If stratification column is missing or has insufficient samples.
-        RuntimeError: If stratification fails due to small class sizes.
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file is empty or malformed.
     """
-    if strata_column not in df.columns:
-        raise ValueError(f"Stratification column '{strata_column}' not found in data.")
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Processed data file not found: {file_path}")
     
-    # Check for minimum samples per class to allow stratified split
-    class_counts = df[strata_column].value_counts()
-    if (class_counts < 2).any():
-        # If a class has only 1 sample, stratified split is impossible
-        logger.warning("Insufficient samples in some classes for stratified split. "
-                     "Attempting non-stratified split with warning.")
-        # Fallback: if strict stratification fails, we must halt per FR-013 safety
-        raise RuntimeError(
-            f"Stratified split failed: one or more classes have < 2 samples. "
-            f"Class counts: {class_counts.to_dict()}. "
-            f"Cannot proceed without valid stratification to prevent bias."
-        )
+    df = pd.read_csv(file_path)
+    
+    if df.empty:
+        raise ValueError(f"Loaded dataset is empty: {file_path}")
+        
+    # Expected columns: sample_id, tumor_type, response_label, expression_vector (or gene columns)
+    # We assume the first column is sample_id/metadata and the rest are gene expression values
+    # or that there is a specific 'gene_id' column. 
+    # Based on context of T017/T016, we expect a matrix where rows are samples and columns are genes.
+    # However, for harmonization, we need a mapping of current IDs to HGNC.
+    # If the data is a matrix (samples x genes), the columns are gene IDs.
+    # If the data is a long format (sample, gene, value), we need to pivot.
+    # Assuming standard wide format: index=sample, columns=GeneIDs
+    
+    if 'gene_id' in df.columns:
+        # Long format: pivot to wide
+        # Expecting: sample_id, gene_id, expression_value
+        if 'sample_id' not in df.columns or 'expression_value' not in df.columns:
+            raise ValueError("Long format data missing required columns: sample_id, gene_id, expression_value")
+        df = df.pivot(index='sample_id', columns='gene_id', values='expression_value')
+        df = df.reset_index()
+        
+    return df
 
-    try:
-        discovery, training = train_test_split(
-            df, 
-            test_size=test_size, 
-            stratify=df[strata_column], 
-            random_state=random_state
-        )
-        logger.info(f"Stratified split successful. Discovery: {len(discovery)}, Training: {len(training)}")
-        return discovery, training
-    except ValueError as e:
-        # This can happen if a class has only 1 sample despite the check above
-        # (e.g., due to edge cases in split logic)
-        raise RuntimeError(f"Stratified split failed: {str(e)}. "
-                         f"Data may be too imbalanced or sparse for splitting.")
 
-def process_tumor_type_split(
-    tumor_type: str, 
-    input_path: str, 
-    output_dir: str,
-    strata_column: str = 'response_label',
-    test_size: float = 0.3,
-    random_state: int = 42
-) -> Dict[str, Any]:
+def harmonize_gene_ids(df: pd.DataFrame, gene_column: Optional[str] = None) -> Tuple[pd.DataFrame, float, List[str]]:
     """
-    Process a single tumor type: load data, split it, and save outputs.
+    Harmonize Ensembl/Entrez IDs to HGNC symbols using mygene.info.
     
     Args:
-        tumor_type: The tumor type identifier (e.g., 'BRCA', 'LUAD').
-        input_path: Path to the batch-corrected data file for this tumor type.
-        output_dir: Directory to save the split datasets.
-        strata_column: Column name for stratification.
-        test_size: Proportion for discovery set.
-        random_state: Random seed.
+        df: DataFrame containing gene expression data. Columns should be gene IDs
+            or contain a 'gene_id' column if long format.
+        gene_column: Name of the column containing gene IDs. If None, assumes 
+                     columns (excluding 'sample_id', 'tumor_type', 'response_label') are gene IDs.
+                     
+    Returns:
+        Tuple of (DataFrame with HGNC symbols, coverage_percentage, list of excluded genes)
+        
+    Raises:
+        RuntimeError: If mygene query fails completely.
+    """
+    if df.empty:
+        raise ValueError("Cannot harmonize empty DataFrame")
+
+    # Identify gene columns
+    exclude_cols = {'sample_id', 'tumor_type', 'response_label'}
+    if gene_column:
+        gene_cols = [gene_column]
+    else:
+        # Assume all columns except metadata are gene IDs
+        gene_cols = [col for col in df.columns if col not in exclude_cols]
+
+    if not gene_cols:
+        logger.warning("No gene columns found in dataset.")
+        return df, 1.0, []
+
+    total_genes = len(gene_cols)
+    if total_genes == 0:
+        return df, 1.0, []
+
+    # Prepare query list
+    query_ids = gene_cols
+    mg = MyGeneInfo()
+    
+    # Batch query mygene (max 1000 per request usually, but we can do chunked)
+    # mygene.getgenes supports multiple IDs
+    logger.info(f"Querying mygene.info for {total_genes} gene IDs...")
+    
+    # Split into chunks to avoid timeout/size limits
+    chunk_size = 1000
+    results_map = {}
+    
+    for i in range(0, len(query_ids), chunk_size):
+        chunk = query_ids[i:i+chunk_size]
+        try:
+            # querytype can be 'entrez', 'ensembl', 'symbol', etc. We try to detect or default to 'symbol'
+            # If the IDs look like Ensembl (ENSG...), we might need to specify. 
+            # mygene usually auto-detects or accepts a list.
+            # We will try to query without specifying type first, let it infer, 
+            # or we assume the input is Ensembl/Entrez as per task description.
+            # To be safe, we query all and map the 'symbol' field.
+            res = mg.getgenes(chunk, fields='symbol', as_dataframe=False)
+            
+            for item in res:
+                if 'query' in item:
+                    original_id = item['query']
+                    symbol = item.get('symbol', None)
+                    if symbol:
+                        results_map[original_id] = symbol
+                    else:
+                        # No symbol found
+                        pass
+        except Exception as e:
+            logger.error(f"Error querying mygene for chunk {i}: {e}")
+            # Continue with partial results, but log critical warning
+            continue
+
+    if not results_map:
+        logger.critical("Failed to retrieve any gene symbols from mygene.info.")
+        # If we can't map anything, coverage is 0%
+        return df, 0.0, query_ids
+
+    # Map original IDs to HGNC symbols
+    new_columns = []
+    excluded_genes = []
+    mapped_count = 0
+
+    for col in gene_cols:
+        if col in results_map:
+            new_name = results_map[col]
+            # Handle duplicates: if multiple Ensembl IDs map to same HGNC, we might need to sum or keep first
+            # For simplicity in this step, we rename. If duplicate column names occur, pandas will handle or we can aggregate.
+            # We'll assume unique mapping for now, but if duplicates happen, we rename to 'Symbol_1', etc.
+            if new_name in new_columns:
+                # Conflict resolution: append original ID
+                new_name = f"{new_name}_{col}"
+            new_columns.append(new_name)
+            mapped_count += 1
+        else:
+            excluded_genes.append(col)
+            new_columns.append(col) # Keep original if not found, or drop? 
+            # Task says: "filter if coverage <95%". It implies we keep what we can map and check coverage.
+            # If not mapped, it's excluded from the *valid* set for coverage calc.
+            # We will keep the column but mark it as unmapped? 
+            # Better: Drop unmapped columns for the harmonized dataset? 
+            # The task says "Harmonize... filter if coverage <95%".
+            # Let's keep the unmapped columns but they won't count towards the "mapped" coverage.
+            # Actually, if coverage < 95%, we exclude the *dataset*. 
+            # So we need to know the ratio of successfully mapped genes.
+            pass
+
+    # Create the new DataFrame
+    # Rename columns
+    df_harmonized = df.copy()
+    
+    # We need to map the columns in the dataframe
+    # The columns in df are the original IDs. We want to replace them with HGNC symbols.
+    # But we must preserve metadata columns.
+    
+    # Create a mapping dict for rename
+    rename_map = {}
+    final_columns = []
+    
+    for old_col, new_col in zip(gene_cols, new_columns):
+        rename_map[old_col] = new_col
+        
+    df_harmonized = df_harmonized.rename(columns=rename_map)
+    
+    # Reorder columns to put metadata first? Not strictly necessary but good practice.
+    # Calculate coverage
+    coverage = mapped_count / total_genes if total_genes > 0 else 0.0
+    
+    logger.info(f"Harmonization complete. Mapped {mapped_count}/{total_genes} genes ({coverage:.2%}).")
+    
+    return df_harmonized, coverage, excluded_genes
+
+
+def filter_low_coverage_dataset(df: pd.DataFrame, coverage: float, dataset_name: str) -> Optional[pd.DataFrame]:
+    """
+    Filter dataset if harmonization coverage is below threshold.
+    
+    Args:
+        df: Harmonized DataFrame.
+        coverage: The coverage percentage calculated.
+        dataset_name: Name of the dataset for logging.
         
     Returns:
-        Dictionary with paths to the saved files and split statistics.
+        DataFrame if coverage >= 95%, None otherwise.
     """
-    logger.info(f"Processing split for tumor type: {tumor_type}")
+    if coverage < MIN_HGNC_COVERAGE:
+        excluded_count = int(len(df.columns) * (1 - coverage))
+        logger.critical(
+            f"Dataset '{dataset_name}' has low harmonization coverage: {coverage:.2%} "
+            f"({excluded_count} genes excluded). Threshold is {MIN_HGNC_COVERAGE:.0%}."
+        )
+        return None
     
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file for {tumor_type} not found: {input_path}")
+    logger.info(f"Dataset '{dataset_name}' passed harmonization filter with {coverage:.2%} coverage.")
+    return df
+
+
+def write_feasibility_gate_partial_failure(dataset_name: str, coverage: float, excluded_count: int):
+    """
+    Write partial failure to feasibility gate JSON.
     
-    # Load data
-    df = load_processed_data(input_path)
-    logger.info(f"Loaded {len(df)} samples for {tumor_type}")
-    
-    # Perform stratified split
-    discovery_df, training_df = split_data_stratified(
-        df, 
-        strata_column=strata_column, 
-        test_size=test_size, 
-        random_state=random_state
-    )
-    
-    # Ensure output directory exists
-    ensure_path_exists(output_dir)
-    
-    # Define output paths
-    discovery_path = os.path.join(output_dir, f"{tumor_type}_discovery_set.csv")
-    training_path = os.path.join(output_dir, f"{tumor_type}_training_set.csv")
-    
-    # Save datasets
-    save_processed_data(discovery_df, discovery_path)
-    save_processed_data(training_df, training_path)
-    
-    # Calculate stats
-    stats = {
-        "tumor_type": tumor_type,
-        "total_samples": len(df),
-        "discovery_samples": len(discovery_df),
-        "training_samples": len(training_df),
-        "discovery_path": discovery_path,
-        "training_path": training_path,
-        "class_distribution_discovery": discovery_df[strata_column].value_counts().to_dict(),
-        "class_distribution_training": training_df[strata_column].value_counts().to_dict()
+    Args:
+        dataset_name: Name of the dataset that failed.
+        coverage: The coverage percentage.
+        excluded_count: Number of excluded genes.
+    """
+    gate_data = {
+        "status": "partial_failure",
+        "reason": "low_harmonization_coverage",
+        "dataset": dataset_name,
+        "coverage_percentage": coverage,
+        "excluded_genes_count": excluded_count,
+        "details": f"Coverage {coverage:.2%} is below threshold {MIN_HGNC_COVERAGE:.0%}"
     }
     
-    logger.info(f"Split complete for {tumor_type}. Discovery: {len(discovery_df)}, Training: {len(training_df)}")
-    return stats
+    project_root = get_project_root()
+    gate_path = project_root / FEASIBILITY_GATE_PATH
+    
+    # Ensure directory exists
+    gate_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write atomically
+    temp_path = gate_path.with_suffix('.tmp')
+    with open(temp_path, 'w') as f:
+        json.dump(gate_data, f, indent=2)
+    temp_path.rename(gate_path)
+    
+    logger.info(f"Written partial failure to {gate_path}")
+
+
+def process_tumor_type_harmonization(df: pd.DataFrame, tumor_type: str) -> Optional[pd.DataFrame]:
+    """
+    Process a single tumor type dataset: harmonize and check coverage.
+    
+    Args:
+        df: DataFrame for a single tumor type.
+        tumor_type: Name of the tumor type.
+        
+    Returns:
+        Processed DataFrame if successful, None if coverage is too low.
+    """
+    harmonized_df, coverage, excluded_genes = harmonize_gene_ids(df)
+    
+    if coverage < MIN_HGNC_COVERAGE:
+        write_feasibility_gate_partial_failure(
+            tumor_type, 
+            coverage, 
+            len(excluded_genes)
+        )
+        return None
+        
+    return harmonized_df
+
 
 def main():
     """
-    Main entry point for the data splitting stage (T020).
-    Reads batch-corrected data from data/processed/, splits by tumor type,
-    and saves discovery/training sets.
+    Main entry point for T015: Harmonize gene IDs for all processed datasets.
     """
-    setup_logging()
+    logger.info("Starting T015: Gene ID Harmonization")
     project_root = get_project_root()
-    input_dir = os.path.join(project_root, "data", "processed")
-    output_dir = input_dir  # Save back to processed or a subfolder if preferred
+    ensure_directories()
     
-    # Identify input files matching pattern: {tumor_type}_batch_corrected.csv
-    # Assuming T016 produced files named like this or similar.
-    # We need to find the batch-corrected files. 
-    # Based on T016, the output is likely in data/processed/.
-    # We will look for files that contain 'batch_corrected' or similar.
-    # For robustness, we assume the input to this step is the output of T016.
-    # Let's assume the files are named {tumor_type}_batch_corrected.csv
-    
-    input_files = [f for f in os.listdir(input_dir) if 'batch_corrected' in f and f.endswith('.csv')]
-    
-    if not input_files:
-        # Fallback: if no explicit 'batch_corrected' files, try to find the most recent processed files
-        # or all CSVs that look like tumor data (excluding 'discovery', 'training', 'de_results')
-        all_csvs = [f for f in os.listdir(input_dir) if f.endswith('.csv')]
-        input_files = [f for f in all_csvs if not any(kw in f for kw in ['discovery', 'training', 'de_results', 'meta'])]
-        
-        if not input_files:
-            logger.error("No input files found for splitting. Expected files like {tumor_type}_batch_corrected.csv")
-            sys.exit(1)
-    
-    logger.info(f"Found {len(input_files)} input files for splitting: {input_files}")
-    
-    results = []
-    failed_types = []
-    
-    for filename in input_files:
-        # Extract tumor type from filename
-        # Expected format: {tumor_type}_batch_corrected.csv
-        base_name = filename.replace('_batch_corrected.csv', '').replace('.csv', '')
-        tumor_type = base_name
-        
-        input_path = os.path.join(input_dir, filename)
-        
-        try:
-            stats = process_tumor_type_split(
-                tumor_type=tumor_type,
-                input_path=input_path,
-                output_dir=output_dir,
-                strata_column='response_label',
-                test_size=0.3,
-                random_state=42
-            )
-            results.append(stats)
-        except Exception as e:
-            logger.error(f"Failed to split data for {tumor_type}: {str(e)}")
-            failed_types.append(tumor_type)
-    
-    if failed_types:
-        logger.error(f"Splitting failed for tumor types: {failed_types}")
+    # Find all processed discovery sets
+    processed_dir = project_root / "data" / "processed"
+    if not processed_dir.exists():
+        logger.error("Processed data directory not found. Run data acquisition first.")
         sys.exit(1)
+        
+    discovery_files = list(processed_dir.glob("*_discovery_set.csv"))
     
-    # Save summary of splitting operation
-    summary_path = os.path.join(project_root, "results", "split_summary.json")
-    ensure_path_exists(summary_path)
+    if not discovery_files:
+        logger.warning("No discovery set files found. Skipping harmonization.")
+        sys.exit(0)
+        
+    processed_datasets = {}
+    failed_datasets = []
     
-    summary = {
-        "stage": "T020_Data_Splitting",
-        "total_tumor_types_processed": len(results),
-        "successful_splits": len(results),
-        "failed_splits": len(failed_types),
-        "details": results
-    }
-    
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Data splitting complete. Summary saved to {summary_path}")
+    for file_path in discovery_files:
+        try:
+            logger.info(f"Processing {file_path.name}...")
+            df = load_processed_data(str(file_path))
+            
+            # Extract tumor type from filename (e.g., "BRCA_discovery_set.csv" -> "BRCA")
+            tumor_type = file_path.stem.replace("_discovery_set", "")
+            
+            harmonized_df = process_tumor_type_harmonization(df, tumor_type)
+            
+            if harmonized_df is None:
+                failed_datasets.append(tumor_type)
+                # Do not save, do not proceed with this dataset
+                continue
+                
+            # Save harmonized data
+            output_path = processed_dir / f"{tumor_type}_harmonized_discovery_set.csv"
+            harmonized_df.to_csv(output_path, index=False)
+            logger.info(f"Saved harmonized data to {output_path}")
+            processed_datasets[tumor_type] = output_path
+            
+        except Exception as e:
+            logger.error(f"Error processing {file_path.name}: {e}", exc_info=True)
+            failed_datasets.append(tumor_type)
+            
+    if failed_datasets:
+        logger.warning(f"Failed harmonization for datasets: {failed_datasets}")
+        # If all failed, we might want to halt, but task says "exclude specific dataset"
+        # We proceed with the ones that passed.
+        
+    logger.info("T015 Harmonization Complete.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

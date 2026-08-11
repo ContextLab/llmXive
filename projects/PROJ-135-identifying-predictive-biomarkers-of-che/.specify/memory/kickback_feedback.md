@@ -4,10 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data_acquisition.py, state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml
-- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data_acquisition.py
-- `T020` (rejected 1x): declared artifact(s) missing/empty/invalid: src/preprocessing.py
-- `T011` (rejected 1x): The provided `tests/integration/test_feasibility_gate.py` is truncated and does not show any assertions that verify the contents of `data/feasibility_gate.json` for the two required scenarios. Moreover, the expected output file `data/feasibility_gate.json` is missing, indicating the test either never ran or does not create/check the file as required. The implementer must supply the complete test code with explicit checks of the JSON file’s `status` and `reason` fields for both TCGA‑<3 and GEO‑<2 cases, and ensure the test creates/validates the file accordingly.
+- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data_acquisition.py
+- `T015` (rejected 1x): The provided `src/preprocessing.py` contains only data loading and stratified splitting logic; it does not implement Ensembl/Entrez‑to‑HGNC harmonization, coverage calculation, conditional logging, or writing `data/feasibility_gate.json`. Moreover, the required `data/feasibility_gate.json` file is absent. These missing pieces mean the task’s core requirements are not satisfied.
+- `T023b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/differential_expression.py
 
 ## Required change
 

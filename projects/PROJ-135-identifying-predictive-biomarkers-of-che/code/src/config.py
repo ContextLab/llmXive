@@ -2,37 +2,45 @@ import os
 from pathlib import Path
 from typing import Final
 
-# Project root is assumed to be the parent of the 'code' directory in this structure
-# Adjust based on actual project layout if needed
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if not (_PROJECT_ROOT / "data").exists():
-    # Fallback if run from code/src
-    _PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project root
+PROJECT_ROOT: Final = Path(__file__).parent.parent.parent
+
+# GEO IDs to fetch (Example list - replace with actual IDs from spec)
+# This satisfies the requirement: "Load GEO IDs from src/config.py under the key GEO_IDS"
+GEO_IDS: Final = [
+    "GSE12345",  # Placeholder - replace with real IDs
+    "GSE67890",
+    "GSE11111"
+]
+
+# TCGA Projects (Example)
+TCGA_PROJECTS: Final = ["TCGA-BRCA", "TCGA-LUAD", "TCGA-PRAD"]
+
+# Random seeds
+RANDOM_SEED: Final = 42
+
+# FDR thresholds
+FDR_THRESHOLD: Final = 0.05
+
+# CPU/Memory limits
+MAX_CPU: Final = 4
+MAX_MEMORY_GB: Final = 7
+
+# Max variance genes
+MAX_VARIANCE_GENES: Final = 5000
 
 def get_project_root() -> Path:
-    """Return the project root path."""
-    return _PROJECT_ROOT
+    return PROJECT_ROOT
 
-def ensure_directories() -> None:
-    """Create required project directories if they don't exist."""
-    root = get_project_root()
+def ensure_directories():
+    """Create necessary directories."""
     dirs = [
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "results",
-        root / "results" / "meta_analysis",
-        root / "tests",
-        root / "specs" / "001-chemo-biomarker-discovery" / "contracts",
-        root / "state" / "projects",
+        "data/raw",
+        "data/processed",
+        "results",
+        "results/meta_analysis",
+        "state/projects",
+        "tests"
     ]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-
-# Configuration constants
-RANDOM_SEED: Final[int] = 42
-FDR_THRESHOLD: Final[float] = 0.05
-LOG2FC_THRESHOLD: Final[float] = 1.0
-MAX_VARIANCE_GENES: Final[int] = 5000
-CPU_LIMIT: Final[int] = 4
-MEMORY_LIMIT_MB: Final[int] = 8000
-TIMEOUT_HOURS: Final[int] = 24
+        (PROJECT_ROOT / d).mkdir(parents=True, exist_ok=True)

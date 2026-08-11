@@ -2,9 +2,13 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T014** — declared artifact(s) missing/empty/invalid: src/data_acquisition.py
-- **T015** — The required file `src/preprocessing.py` does not exist, so no implementation of the harmonization logic, coverage check, or error handling is present. The task’s core functionality is entirely missing.
-- **T017** — declared artifact(s) missing/empty/invalid: src/preprocessing.py
-- **T016** — declared artifact(s) missing/empty/invalid: src/preprocessing.py
-- **T023a** — The required source file `src/differential_expression.py` does not exist, so no code was provided to run the DESeq2 Wald test or generate the expected CSV output files. Consequently, the task’s core deliverable is missing.
+- **T012** — declared artifact(s) missing/empty/invalid: src/data_acquisition.py, state/projects/PROJ-135-identifying-predictive-biomarkers-of-che.yaml
+- **T013** — declared artifact(s) missing/empty/invalid: src/data_acquisition.py
+- **T011** — The provided `tests/integration/test_feasibility_gate.py` is truncated and only shows the start of one test (`test_tcga_insufficient_types`) without the call to `run_feasibility_gate`, the assertions on `feasibility_gate.json` contents, or the second scenario for GEO < 2. Moreover, the expected `data/feasibility_gate.json` file is absent, indicating the test does not actually verify the required file content or halting behavior. The task’s full requirements are therefore not satisfied.
 - **T023b** — declared artifact(s) missing/empty/invalid: src/differential_expression.py
+- **T024c** — No artifacts (scripts, data files, results, or documentation) were supplied to demonstrate that leave‑one‑out (LOO) results were aggregated or that a gene panel was selected. Consequently, the required output cannot be verified. The implementer must provide the actual code, output files (e.g., aggregated LOO metrics, selected panel list), and any accompanying summary documentation.
+- **T025** — declared artifact(s) missing/empty/invalid: src/meta_analysis.py
+- **T026** — The required `src/meta_analysis.py` file does not exist, and `results/summary.md` does not contain the mandated `fallback_reason: "intersection_empty"` (it shows “None”). Both the implementation and the required summary entry are missing.
+- **T027** — The required `src/meta_analysis.py` file is absent, and `results/summary.md` does not contain the mandated `override_note: "REML used instead of Stouffer's per Plan Phase 2"`. Consequently, the REML implementation and documentation requirements are not met.
+- **T028** — The required implementation file `src/meta_analysis.py` does not exist, and the referenced schema `contracts/gene_panel.schema.yaml` is also missing, so we cannot verify that `gene_panel.json` conforms to the contract. Both artifacts must be present for the task to be considered complete.
+- **T029** — The provided `tests/contract/test_model_schema.py` exists, but it references a schema file (`model_output.schema.yaml`) that is missing from the repository, so the contract test cannot actually validate model output against the required schema. Additionally, the test file is truncated, indicating it may be incomplete. The missing schema file must be added (and the test completed) for the requirement to be satisfied.

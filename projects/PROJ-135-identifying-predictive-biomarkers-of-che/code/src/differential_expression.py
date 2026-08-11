@@ -1,389 +1,328 @@
-"""
-Differential Expression Analysis Module.
-
-Implements LOO-Blind DE Analysis for cross-tumor biomarker discovery.
-"""
 import os
 import sys
 import json
 import logging
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any
+from typing import List, Dict, Any, Optional
+
 import pandas as pd
 import numpy as np
+
+# R integration for DESeq2
 import rpy2.robjects as ro
-from rpy2.robjects import pandas2ri, Formula, r
+from rpy2.robjects import pandas2ri, StrVector, FloatVector, IntVector
 from rpy2.robjects.packages import importr
 from rpy2.rinterface_lib.embedded import RRuntimeError
 
-# Import project utilities and config
+# Project utilities
 from src.config import get_project_root, ensure_directories
 from src.utils import setup_logging, watchdog, TimeoutError
 
-# Setup logging
-logger = setup_logging("differential_expression")
+# Configure logging
+logger = logging.getLogger(__name__)
 
-def setup_r_environment():
-    """Initialize R environment and load necessary packages."""
+# R Package Wrappers (Lazy load)
+def _get_r_packages():
+    """Lazy import of R packages to avoid startup overhead if not needed."""
     try:
-        # Activate pandas conversion
-        pandas2ri.activate()
-        
-        # Load R packages
-        utils = importr('utils')
-        stats = importr('stats')
+        dds = importr('DESeq2')
+        sva = importr('sva')
         base = importr('base')
-        
-        # Try to load DESeq2, install if missing
-        try:
-            deseq2 = importr('DESeq2')
-            logger.info("DESeq2 loaded successfully")
-        except ImportError:
-            logger.warning("DESeq2 not found, attempting installation...")
-            utils.install_packages('DESeq2', repos='https://cloud.r-project.org')
-            deseq2 = importr('DESeq2')
-            logger.info("DESeq2 installed and loaded")
-        
-        return deseq2, stats, base, utils
-    except Exception as e:
-        logger.error(f"Failed to setup R environment: {e}")
+        stats = importr('stats')
+        return dds, sva, base, stats
+    except ImportError as e:
+        logger.error(f"Failed to load required R packages: {e}")
         raise
 
-def load_discovery_set(tumor_type: str) -> pd.DataFrame:
+def setup_r_environment():
     """
-    Load discovery set data for a specific tumor type.
+    Initializes the R environment and pre-loads necessary libraries.
+    Raises RuntimeError if R or required packages (DESeq2, sva) are missing.
+    """
+    try:
+        # Check if R is available
+        if not ro.r['exists']("DESeq2"):
+            # Force import to trigger error if missing
+            importr('DESeq2')
+    except (RRuntimeError, ImportError) as e:
+        raise RuntimeError(
+            f"R environment not properly configured or DESeq2 missing: {e}. "
+            "Ensure rpy2, DESeq2, and sva are installed in the R environment."
+        )
+    logger.info("R environment ready.")
+
+def load_discovery_set(tumor_type: str, project_root: Path) -> pd.DataFrame:
+    """
+    Loads the discovery set for a specific tumor type.
     
     Args:
-        tumor_type: The tumor type identifier (e.g., 'BRCA', 'LUAD')
+        tumor_type: The exact string identifier for the tumor type.
+        project_root: Path to the project root directory.
         
     Returns:
-        DataFrame with expression data and response labels
+        DataFrame with columns: sample_id, tumor_type, response_label, expression_vector (or gene columns).
+        
+    Raises:
+        FileNotFoundError: If the discovery set file is missing.
+        ValueError: If required columns are missing.
     """
-    project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / f"{tumor_type}_discovery_set.csv"
+    file_path = project_root / "data" / "processed" / f"{tumor_type}_discovery_set.csv"
     
-    if not input_path.exists():
-        raise FileNotFoundError(f"Discovery set not found for {tumor_type}: {input_path}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"Discovery set file not found: {file_path}")
     
-    df = pd.read_csv(input_path)
+    df = pd.read_csv(file_path)
     
-    # Validate required columns
-    required_cols = ['sample_id', 'response_label', 'tumor_type']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {tumor_type}_discovery_set.csv: {missing}")
+    required_cols = ['sample_id', 'tumor_type', 'response_label']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
+        
+    # Expression data is expected to be in remaining columns (gene symbols)
+    # We assume the DataFrame is already normalized (VST) and batch-corrected
+    # based on the pipeline flow (T016 -> T020 -> T023b).
     
-    logger.info(f"Loaded discovery set for {tumor_type}: {len(df)} samples, {len(df.columns) - 3} genes")
+    logger.info(f"Loaded discovery set for {tumor_type}: {len(df)} samples, {len(df.columns) - 3} features.")
     return df
 
 def run_deseq2_analysis_loo(
-    dds: Any, 
-    tumor_type_held_out: str,
-    deseq2: Any,
-    stats: Any
-) -> pd.DataFrame:
+    tumor_type: str, 
+    project_root: Path, 
+    all_discovery_dfs: Dict[str, pd.DataFrame],
+    timeout_seconds: int = 3600
+) -> Optional[pd.DataFrame]:
     """
-    Run DESeq2 Wald test on the N-1 subset (excluding held-out tumor type).
+    Runs DESeq2 Wald test on the N-1 tumor types (excluding the held-out tumor_type).
+    
+    Logic:
+    1. Construct N-1 dataset by excluding the held-out tumor_type.
+    2. Run DESeq2 Wald test (FDR < 0.05, |log2FC| > 1.0).
+    3. Return significant genes.
     
     Args:
-        dds: DESeqDataSet object
-        tumor_type_held_out: The tumor type being held out
-        deseq2: DESeq2 R package
-        stats: R stats package
+        tumor_type: The tumor type to hold out.
+        project_root: Path to project root.
+        all_discovery_dfs: Dictionary mapping tumor_type -> DataFrame.
+        timeout_seconds: Timeout for the R process.
         
     Returns:
-        DataFrame with DE results (gene, log2FC, pvalue, padj)
+        DataFrame of significant genes with columns: gene, log2FoldChange, pvalue, padj.
+        Returns None if no data available or process fails.
     """
-    # Set design and run DESeq
-    try:
-        # Run DESeq2
-        dds = deseq2.DESeq(dds)
-        
-        # Extract results for the contrast (response vs reference)
-        # Assuming response_label is the condition of interest
-        res = deseq2.results(dds, name="response_label_Responder_vs_NonResponder")
-        
-        # Convert to pandas
-        res_df = pandas2ri.rpy2py_dataframe(res)
-        res_df.reset_index(inplace=True)
-        res_df.rename(columns={'index': 'gene_id'}, inplace=True)
-        
-        logger.info(f"DESeq2 analysis complete: {len(res_df)} genes tested")
-        return res_df
-        
-    except RRuntimeError as e:
-        logger.error(f"R error during DESeq2 analysis: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error during DESeq2 analysis: {e}")
-        raise
-
-def process_tumor_type_loo(
-    tumor_type: str,
-    all_discovery_data: Dict[str, pd.DataFrame],
-    deseq2: Any,
-    stats: Any,
-    base: Any,
-    output_dir: Path
-) -> bool:
-    """
-    Process a single tumor type in LOO-Blind mode.
+    # 1. Subset N-1 types
+    n_minus_1_dfs = {k: v for k, v in all_discovery_dfs.items() if k != tumor_type}
     
-    For tumor type T:
-    1. Select data from all other tumor types (N-1)
-    2. Run DESeq2 on N-1 subset
-    3. Save results to loo_iteration_{T}_de_results.csv
+    if not n_minus_1_dfs:
+        logger.warning(f"No other tumor types found to compare against {tumor_type}. Skipping.")
+        return None
     
-    Args:
-        tumor_type: The tumor type to hold out
-        all_discovery_data: Dict mapping tumor_type -> discovery DataFrame
-        deseq2: DESeq2 R package
-        stats: R stats package
-        base: R base package
-        output_dir: Directory to save results
-        
-    Returns:
-        True if successful, False otherwise
-    """
-    logger.info(f"Starting LOO-Blind analysis for held-out type: {tumor_type}")
+    # Combine data
+    combined_df = pd.concat(n_minus_1_dfs.values(), ignore_index=True)
     
-    # 1. Subset: Select data from all other tumor types (N-1)
-    n_minus_1_data = []
-    for other_type, df in all_discovery_data.items():
-        if other_type != tumor_type:
-            n_minus_1_data.append(df)
-            logger.info(f"  Included {other_type}: {len(df)} samples")
+    # Identify response column (0/1 or similar)
+    # We assume 'response_label' is numeric or binary string. Convert to numeric if needed.
+    if combined_df['response_label'].dtype == object:
+        combined_df['response_label'] = combined_df['response_label'].map({'Responder': 1, 'NonResponder': 0, 'CR': 1, 'PR': 1, 'SD': 0, 'PD': 0}).fillna(0).astype(int)
     
-    if not n_minus_1_data:
-        logger.warning(f"No N-1 data available for {tumor_type} (only one tumor type exists)")
-        return False
-    
-    combined_df = pd.concat(n_minus_1_data, ignore_index=True)
-    logger.info(f"Combined N-1 dataset: {len(combined_df)} samples across {len(n_minus_1_data)} tumor types")
-    
-    # Prepare data for DESeq2
-    # Expression matrix: genes as rows, samples as columns
-    # Metadata: sample_id, response_label, tumor_type
-    
-    # Extract gene columns (everything except metadata)
-    metadata_cols = ['sample_id', 'response_label', 'tumor_type']
-    gene_cols = [c for c in combined_df.columns if c not in metadata_cols]
+    # Separate counts (expression) and metadata
+    # Assuming gene columns are everything except sample_id, tumor_type, response_label
+    meta_cols = ['sample_id', 'tumor_type', 'response_label']
+    gene_cols = [c for c in combined_df.columns if c not in meta_cols]
     
     if len(gene_cols) == 0:
-        logger.error("No gene expression columns found in dataset")
-        return False
-    
-    # Create count matrix (genes x samples)
-    count_matrix = combined_df[gene_cols].T  # Transpose: rows=genes, cols=samples
-    col_data = combined_df[metadata_cols].set_index('sample_id')
-    
-    # Ensure response_label is a factor
-    col_data['response_label'] = col_data['response_label'].astype(str)
-    
-    # Convert to R objects
-    r_counts = pandas2ri.py2rpy(count_matrix)
-    r_col_data = pandas2ri.py2rpy(col_data)
-    
-    # Create DESeqDataSet in R
-    try:
-        # Create data frame for R
-        r_col_df = base.as_data_frame(r_col_data)
-        r_col_df = r.list(**r_col_df)
+        logger.error(f"No gene expression columns found in combined data for {tumor_type}.")
+        return None
         
-        # Create DESeqDataSet
-        dds = deseq2.DESeqDataSetFromMatrix(
-            countData=r_counts,
-            colData=r_col_df,
-            design=Formula('~ response_label')
-        )
-        
-        logger.info("DESeqDataSet created successfully")
-        
-        # Run DESeq2
-        output_file = output_dir / f"loo_iteration_{tumor_type}_de_results.csv"
-        
-        def run_analysis():
-            results = run_deseq2_analysis_loo(dds, tumor_type, deseq2, stats)
-            
-            # Filter for significant genes (FDR < 0.05, |log2FC| > 1.0)
-            significant = results[
-                (results['padj'] < 0.05) & 
-                (abs(results['log2FoldChange']) > 1.0)
-            ].copy()
-            
-            # Select relevant columns
-            significant = significant[['gene_id', 'log2FoldChange', 'pvalue', 'padj']]
-            significant['tumor_type_held_out'] = tumor_type
-            significant['n_minus_1_sample_count'] = len(combined_df)
-            
-            # Save results
-            significant.to_csv(output_file, index=False)
-            logger.info(f"Saved significant genes ({len(significant)}) to {output_file}")
-            
-            return True
-        
-        # Run with timeout watchdog
-        success = watchdog(run_analysis, timeout=3600)
-        return success
-        
-    except Exception as e:
-        logger.error(f"Failed to create or process DESeqDataSet for {tumor_type}: {e}")
-        return False
-
-def run_deseq2_analysis(
-    discovery_data_dir: Path = None,
-    output_dir: Path = None,
-    timeout_hours: float = 1.0
-):
-    """
-    Main entry point for LOO-Blind DE Analysis.
+    counts_matrix = combined_df[gene_cols].astype(float).T  # DESeq2 expects genes x samples
+    col_data = combined_df.set_index('sample_id')[['response_label']].T  # Metadata x samples
     
-    For each tumor type T:
-    1. Load discovery sets for all tumor types
-    2. For each T, run DE on N-1 subset
-    3. Save results to loo_iteration_{T}_de_results.csv
-    
-    Args:
-        discovery_data_dir: Directory containing *_discovery_set.csv files
-        output_dir: Directory to save results
-        timeout_hours: Timeout for R process
-    """
-    if discovery_data_dir is None:
-        project_root = get_project_root()
-        discovery_data_dir = project_root / "data" / "processed"
-    
-    if output_dir is None:
-        project_root = get_project_root()
-        output_dir = project_root / "data" / "processed"
-    
-    ensure_directories([output_dir])
-    
-    # Find all discovery set files
-    discovery_files = list(discovery_data_dir.glob("*_discovery_set.csv"))
-    if not discovery_files:
-        logger.error("No discovery set files found in {discovery_data_dir}")
-        sys.exit(1)
-    
-    # Extract tumor types
-    tumor_types = []
-    for f in discovery_files:
-        type_name = f.stem.replace("_discovery_set", "")
-        tumor_types.append(type_name)
-    
-    logger.info(f"Found {len(tumor_types)} tumor types: {tumor_types}")
-    
-    # Check minimum requirement for LOO
-    if len(tumor_types) < 2:
-        logger.error("LOO-Blind analysis requires at least 2 tumor types")
-        sys.exit(1)
-    
-    # Load all discovery data
-    all_discovery_data = {}
-    for tt in tumor_types:
-        try:
-            df = load_discovery_set(tt)
-            all_discovery_data[tt] = df
-        except Exception as e:
-            logger.error(f"Failed to load discovery set for {tt}: {e}")
-            # Continue with available data
-            continue
-    
-    if len(all_discovery_data) < 2:
-        logger.error("Insufficient valid discovery sets for LOO analysis")
-        sys.exit(1)
+    # Ensure column order matches
+    if not counts_matrix.columns.equals(col_data.columns):
+        # Reorder col_data to match counts_matrix columns
+        col_data = col_data[counts_matrix.columns]
     
     # Setup R environment
-    logger.info("Setting up R environment...")
     try:
-        deseq2, stats, base, utils = setup_r_environment()
-    except Exception as e:
-        logger.error(f"Failed to setup R environment: {e}")
+        dds_pkg, sva_pkg, base_pkg, stats_pkg = _get_r_packages()
+    except RuntimeError as e:
+        logger.error(f"R setup failed: {e}")
+        return None
+
+    # Convert to R objects
+    with pandas2ri.active():
+        r_counts = pandas2ri.py2rpy(counts_matrix)
+        r_coldata = pandas2ri.py2rpy(col_data)
+    
+    # Create DESeqDataSet
+    # Formula: ~ response_label
+    r_coldata['response_label'] = StrVector(col_data['response_label'].astype(str))
+    
+    # R code construction
+    r_code = f"""
+    library(DESeq2)
+    library(sva)
+    
+    # Create DESeqDataSet
+    counts <- {r_counts}
+    coldata <- {r_coldata}
+    
+    # Ensure rownames of coldata match colnames of counts
+    rownames(coldata) <- colnames(counts)
+    
+    dds <- DESeqDataSetFromMatrix(countData = counts,
+                                  colData = coldata,
+                                  design = ~ response_label)
+    
+    # Run DESeq
+    dds <- DESeq(dds)
+    
+    # Extract results (Wald test)
+    res <- results(dds, alpha=0.05)
+    
+    # Add gene names as a column
+    res_df <- as.data.frame(res)
+    res_df$gene <- rownames(res_df)
+    
+    # Filter: padj < 0.05 AND |log2FoldChange| > 1.0
+    sig <- res_df[!is.na(res_df$padj) & res_df$padj < 0.05 & abs(res_df$log2FoldChange) > 1.0, ]
+    
+    # Return as list for conversion back
+    list(
+      genes = sig$gene,
+      log2FC = sig$log2FoldChange,
+      pval = sig$pvalue,
+      padj = sig$padj
+    )
+    """
+    
+    try:
+        # Execute with watchdog
+        result = watchdog(r_code, timeout=timeout_seconds, logger=logger)
+    except TimeoutError:
+        logger.critical(f"DESeq2 analysis for {tumor_type} timed out after {timeout_seconds}s. Halting.")
         sys.exit(1)
+    except Exception as e:
+        logger.error(f"R process failed for {tumor_type}: {e}")
+        return None
     
-    # Process each tumor type in LOO mode
-    success_count = 0
-    for tumor_type in tumor_types:
-        if tumor_type not in all_discovery_data:
-            logger.warning(f"Skipping {tumor_type}: discovery set not loaded")
-            continue
+    # Convert result back to DataFrame
+    # result is a list of R vectors
+    df_res = pd.DataFrame({
+        'gene': result[0],
+        'log2FoldChange': result[1],
+        'pvalue': result[2],
+        'padj': result[3]
+    })
+    
+    logger.info(f"DESeq2 analysis for {tumor_type} (N-1={len(n_minus_1_dfs)} types) found {len(df_res)} significant genes.")
+    return df_res
+
+def process_tumor_type_loo(tumor_type: str, project_root: Path, all_discovery_dfs: Dict[str, pd.DataFrame]) -> str:
+    """
+    Wrapper to process a single tumor type LOO iteration and save results.
+    
+    Returns:
+        Path to the saved CSV file.
+    """
+    output_file = project_root / "data" / "processed" / f"loo_iteration_{tumor_type}_de_results.csv"
+    
+    try:
+        df_res = run_deseq2_analysis_loo(tumor_type, project_root, all_discovery_dfs)
         
-        logger.info(f"\n{'='*60}")
-        logger.info(f"Processing LOO iteration for held-out type: {tumor_type}")
-        logger.info(f"{'='*60}")
-        
-        success = process_tumor_type_loo(
-            tumor_type=tumor_type,
-            all_discovery_data=all_discovery_data,
-            deseq2=deseq2,
-            stats=stats,
-            base=base,
-            output_dir=output_dir
-        )
-        
-        if success:
-            success_count += 1
-            logger.info(f"✓ Successfully completed LOO iteration for {tumor_type}")
+        if df_res is not None and not df_res.empty:
+            df_res.to_csv(output_file, index=False)
+            logger.info(f"Saved LOO results for {tumor_type} to {output_file}")
+            return str(output_file)
         else:
-            logger.error(f"✗ Failed LOO iteration for {tumor_type}")
+            logger.warning(f"No significant genes found for {tumor_type}. Creating empty file.")
+            # Create empty file with headers to maintain consistency
+            pd.DataFrame(columns=['gene', 'log2FoldChange', 'pvalue', 'padj']).to_csv(output_file, index=False)
+            return str(output_file)
+            
+    except FileNotFoundError as e:
+        logger.critical(f"Critical error processing {tumor_type}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to process {tumor_type}: {e}")
+        # Decide: halt or skip? Task says "log critical error and skip this iteration"
+        # But if the file is missing, it's a data integrity issue.
+        # We log and return empty path to indicate failure for this iteration.
+        return ""
+
+def run_deseq2_analysis(project_root: Path) -> Dict[str, str]:
+    """
+    Main orchestrator for LOO-Blind DE Analysis.
+    Iterates over all tumor types found in data/processed.
     
-    logger.info(f"\n{'='*60}")
-    logger.info(f"LOO-Blind DE Analysis Complete")
-    logger.info(f"Successful iterations: {success_count}/{len(tumor_types)}")
-    logger.info(f"{'='*60}")
+    Returns:
+        Dictionary mapping tumor_type -> output_file_path.
+    """
+    ensure_directories(project_root)
     
-    # Verify output files
-    output_files = list(output_dir.glob("loo_iteration_*_de_results.csv"))
-    logger.info(f"Generated {len(output_files)} LOO result files")
+    # Discover available tumor types from discovery sets
+    processed_dir = project_root / "data" / "processed"
+    discovery_files = list(processed_dir.glob("*_discovery_set.csv"))
     
-    return len(output_files)
+    tumor_types = []
+    for f in discovery_files:
+        # Extract type from filename: {type}_discovery_set.csv
+        name = f.stem
+        if name.endswith("_discovery_set"):
+            t_type = name.replace("_discovery_set", "")
+            tumor_types.append(t_type)
+    
+    if len(tumor_types) < 2:
+        logger.error(f"Insufficient tumor types ({len(tumor_types)}) for LOO analysis. Need at least 2.")
+        return {}
+    
+    logger.info(f"Found {len(tumor_types)} tumor types for LOO analysis: {tumor_types}")
+    
+    # Load all discovery sets into memory (assuming fit in RAM as per constraints)
+    all_discovery_dfs = {}
+    for t_type in tumor_types:
+        try:
+            all_discovery_dfs[t_type] = load_discovery_set(t_type, project_root)
+        except Exception as e:
+            logger.error(f"Failed to load discovery set for {t_type}: {e}. Skipping type.")
+    
+    results = {}
+    for t_type in tumor_types:
+        logger.info(f"Starting LOO analysis for held-out type: {t_type}")
+        try:
+            out_path = process_tumor_type_loo(t_type, project_root, all_discovery_dfs)
+            if out_path:
+                results[t_type] = out_path
+        except FileNotFoundError:
+            logger.critical(f"Skipping {t_type} due to missing data.")
+            continue
+        except Exception as e:
+            logger.error(f"Error in LOO iteration for {t_type}: {e}")
+            continue
+    
+    return results
 
 def main():
-    """CLI entry point."""
-    import argparse
+    """Entry point for the differential expression script."""
+    setup_logging()
+    project_root = get_project_root()
     
-    parser = argparse.ArgumentParser(description="Run LOO-Blind DE Analysis")
-    parser.add_argument(
-        "--discovery-dir", 
-        type=str, 
-        default=None,
-        help="Directory containing discovery sets"
-    )
-    parser.add_argument(
-        "--output-dir", 
-        type=str, 
-        default=None,
-        help="Directory to save results"
-    )
-    parser.add_argument(
-        "--timeout", 
-        type=float, 
-        default=1.0,
-        help="Timeout in hours for R process"
-    )
-    
-    args = parser.parse_args()
-    
-    discovery_dir = Path(args.discovery_dir) if args.discovery_dir else None
-    output_dir = Path(args.output_dir) if args.output_dir else None
+    logger.info("Starting LOO-Blind Differential Expression Analysis (T023b).")
     
     try:
-        count = run_deseq2_analysis(
-            discovery_data_dir=discovery_dir,
-            output_dir=output_dir,
-            timeout_hours=args.timeout
-        )
-        
-        if count == 0:
-            logger.error("No LOO result files generated")
-            sys.exit(1)
-            
-    except KeyboardInterrupt:
-        logger.warning("Process interrupted by user")
-        sys.exit(130)
-    except Exception as e:
-        logger.error(f"Fatal error: {e}")
+        setup_r_environment()
+    except RuntimeError as e:
+        logger.critical(f"R Environment setup failed: {e}")
         sys.exit(1)
+    
+    results = run_deseq2_analysis(project_root)
+    
+    if not results:
+        logger.error("No LOO analysis results generated.")
+        sys.exit(1)
+    
+    logger.info(f"Successfully processed {len(results)} tumor types.")
+    logger.info("LOO-Blind DE Analysis complete.")
 
 if __name__ == "__main__":
     main()
