@@ -1,3 +1,12 @@
+"""
+Script to execute T014b: Construct and save the static skill index.
+
+This script orchestrates the loading of flattened vectors (from T013),
+computes the index structure (from T014a), and saves the result to
+data/processed/skill_index.npz.
+
+It also verifies the file existence and integrity post-generation.
+"""
 import os
 import sys
 import logging
@@ -5,12 +14,10 @@ import time
 import hashlib
 from pathlib import Path
 
-# Add project root to path if not present
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Adjust path to import from src
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.retrieval.vector_db import main as vector_db_main
+from src.retrieval.vector_db import load_flattened_vectors, compute_index_structure, prepare_for_serialization, save_index
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,75 +28,96 @@ logger = logging.getLogger(__name__)
 def verify_file_integrity(file_path: Path) -> bool:
     """
     Verify the existence and basic integrity of the generated index file.
-    Checks:
-    1. File exists
-    2. File size > 0
-    3. File is readable as npz (basic check)
+    
+    Args:
+        file_path: Path to the .npz file.
+        
+    Returns:
+        True if file exists, is non-empty, and can be loaded.
     """
     if not file_path.exists():
         logger.error(f"File does not exist: {file_path}")
         return False
-
+    
     if file_path.stat().st_size == 0:
         logger.error(f"File is empty: {file_path}")
         return False
 
     try:
         import numpy as np
-        # Attempt to load to verify format integrity
-        data = np.load(file_path, allow_pickle=True)
-        if 'vectors' not in data.files:
-            logger.error(f"File missing required 'vectors' key: {file_path}")
+        data = np.load(file_path)
+        logger.info(f"File loaded successfully. Keys: {list(data.keys())}")
+        
+        # Basic integrity check: ensure 'vectors' and 'metadata' exist and are not empty
+        if 'vectors' not in data:
+            logger.error("Missing 'vectors' key in index file.")
             return False
-        if 'metadata' not in data.files:
-            logger.error(f"File missing required 'metadata' key: {file_path}")
+        if 'metadata' not in data:
+            logger.error("Missing 'metadata' key in index file.")
             return False
         
-        # Compute SHA256 for versioning
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        
-        logger.info(f"Index file verified successfully: {file_path}")
-        logger.info(f"  - Size: {file_path.stat().st_size / 1024 / 1024:.2f} MB")
-        logger.info(f"  - Vector count: {len(data['vectors'])}")
-        logger.info(f"  - SHA256: {sha256_hash.hexdigest()[:16]}...")
+        vectors = data['vectors']
+        if vectors.size == 0:
+            logger.error("Vectors array is empty.")
+            return False
+
+        logger.info(f"Integrity verified. Shape: {vectors.shape}, Size: {file_path.stat().st_size} bytes")
         return True
     except Exception as e:
-        logger.error(f"Failed to verify file integrity: {e}")
+        logger.error(f"Failed to load or verify file integrity: {e}")
         return False
 
 def main():
-    """
-    Executes the vector_db construction and verifies the output.
-    """
-    logger.info("Starting T014b: Executing vector_db construction...")
-    start_time = time.time()
+    """Main execution entry point for T014b."""
+    logger.info("Starting T014b: Constructing Skill Vector Index")
+    
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
+    raw_data_dir = project_root / "data" / "raw"
+    processed_data_dir = project_root / "data" / "processed"
+    output_file = processed_data_dir / "skill_index.npz"
 
+    # Ensure output directory exists
+    processed_data_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Load flattened vectors (Output from T013)
+    # Expected input: data/raw/alfworld_weights.npz and data/raw/searchqa_weights.npz
+    # The load_flattened_vectors function expects the directory containing these files
+    logger.info(f"Loading flattened vectors from: {raw_data_dir}")
+    
     try:
-        # Execute the main logic from vector_db module
-        # This function is responsible for loading flattened vectors,
-        # computing the index structure, and saving to data/processed/skill_index.npz
-        vector_db_main()
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Vector DB construction completed in {elapsed:.2f} seconds.")
-
-        # Define expected output path
-        output_path = project_root / "data" / "processed" / "skill_index.npz"
-        
-        # Verify the output
-        if verify_file_integrity(output_path):
-            logger.info("T014b: SUCCESS - Index constructed and verified.")
-            return 0
-        else:
-            logger.error("T014b: FAILED - Index verification failed.")
-            return 1
-
+        vectors, metadata = load_flattened_vectors(raw_data_dir)
+        if len(vectors) == 0:
+            raise ValueError("No vectors loaded from raw data directory.")
+        logger.info(f"Loaded {len(vectors)} vectors.")
     except Exception as e:
-        logger.exception(f"T014b: FAILED with exception: {e}")
-        return 1
+        logger.error(f"Failed to load flattened vectors: {e}")
+        sys.exit(1)
+
+    # 2. Compute index structure
+    logger.info("Computing index structure...")
+    index_data = compute_index_structure(vectors, metadata)
+
+    # 3. Prepare for serialization
+    logger.info("Preparing data for serialization...")
+    serializable_data = prepare_for_serialization(index_data)
+
+    # 4. Save index
+    logger.info(f"Saving index to: {output_file}")
+    try:
+        save_index(serializable_data, output_file)
+        logger.info("Index saved successfully.")
+    except Exception as e:
+        logger.error(f"Failed to save index: {e}")
+        sys.exit(1)
+
+    # 5. Verify file existence and integrity
+    logger.info("Verifying output file integrity...")
+    if not verify_file_integrity(output_file):
+        logger.error("Verification failed. Task T014b cannot be considered complete.")
+        sys.exit(1)
+
+    logger.info("T014b completed successfully. Index constructed and verified.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,3 +1,9 @@
+"""
+Unit tests for the T014b execution script (run_t014b.py).
+
+These tests verify the logic of the script without necessarily running the full pipeline
+against large datasets, focusing on the verification and execution flow.
+"""
 import os
 import sys
 import tempfile
@@ -5,74 +11,58 @@ import pytest
 from pathlib import Path
 import numpy as np
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure we can import the script module
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from scripts.run_t014b import verify_file_integrity
 
 class TestRunT014b:
-    
-    def test_verify_file_integrity_missing_file(self):
-        """Test that verify_file_integrity returns False for missing file."""
-        result = verify_file_integrity(Path("/nonexistent/path/file.npz"))
-        assert result is False
+    """Test cases for T014b execution logic."""
 
-    def test_verify_file_integrity_empty_file(self):
-        """Test that verify_file_integrity returns False for empty file."""
-        with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-        try:
-            # Create empty file
-            tmp_path.touch()
-            result = verify_file_integrity(tmp_path)
-            assert result is False
-        finally:
-            tmp_path.unlink()
+    def test_verify_file_not_exists(self, tmp_path):
+        """Test verification fails when file does not exist."""
+        fake_path = tmp_path / "nonexistent.npz"
+        assert not verify_file_integrity(fake_path)
 
-    def test_verify_file_integrity_invalid_format(self):
-        """Test that verify_file_integrity returns False for non-npz file."""
-        with tempfile.NamedTemporaryFile(suffix=".npz", delete=False, mode='w') as tmp:
-            tmp.write("not a numpy file")
-            tmp_path = Path(tmp.name)
-        try:
-            result = verify_file_integrity(tmp_path)
-            assert result is False
-        finally:
-            tmp_path.unlink()
+    def test_verify_file_empty(self, tmp_path):
+        """Test verification fails when file is empty."""
+        fake_path = tmp_path / "empty.npz"
+        fake_path.touch()
+        assert not verify_file_integrity(fake_path)
 
-    def test_verify_file_integrity_valid(self):
-        """Test that verify_file_integrity returns True for valid npz with required keys."""
-        with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
+    def test_verify_file_corrupted(self, tmp_path):
+        """Test verification fails when file is not a valid npz."""
+        fake_path = tmp_path / "corrupted.npz"
+        with open(fake_path, 'w') as f:
+            f.write("this is not a numpy file")
+        assert not verify_file_integrity(fake_path)
+
+    def test_verify_file_valid_minimal(self, tmp_path):
+        """Test verification passes for a valid, minimal npz file."""
+        fake_path = tmp_path / "valid.npz"
         
-        try:
-            # Create a valid npz with required keys
-            data = {
-                'vectors': np.random.rand(10, 100).astype(np.float32),
-                'metadata': np.array(['test_metadata'], dtype=object)
-            }
-            np.savez(tmp_path, **data)
-            
-            result = verify_file_integrity(tmp_path)
-            assert result is True
-        finally:
-            tmp_path.unlink()
-
-    def test_verify_file_integrity_missing_keys(self):
-        """Test that verify_file_integrity returns False if required keys are missing."""
-        with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
+        # Create a minimal valid npz with required keys
+        data = {
+            'vectors': np.array([[1.0, 2.0], [3.0, 4.0]]),
+            'metadata': np.array(['task1', 'task2'])
+        }
+        np.savez(fake_path, **data)
         
-        try:
-            # Create npz with missing 'vectors' key
-            data = {
-                'other_key': np.array([1, 2, 3])
-            }
-            np.savez(tmp_path, **data)
-            
-            result = verify_file_integrity(tmp_path)
-            assert result is False
-        finally:
-            tmp_path.unlink()
+        assert verify_file_integrity(fake_path)
+
+    def test_verify_file_missing_vectors_key(self, tmp_path):
+        """Test verification fails if 'vectors' key is missing."""
+        fake_path = tmp_path / "missing_vectors.npz"
+        data = {'metadata': np.array(['task1'])}
+        np.savez(fake_path, **data)
+        assert not verify_file_integrity(fake_path)
+
+    def test_verify_file_empty_vectors(self, tmp_path):
+        """Test verification fails if 'vectors' array is empty."""
+        fake_path = tmp_path / "empty_vectors.npz"
+        data = {
+            'vectors': np.array([]),
+            'metadata': np.array([])
+        }
+        np.savez(fake_path, **data)
+        assert not verify_file_integrity(fake_path)

@@ -1375,3 +1375,577 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T08:59:13Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Base model is TinyLlama-1.1B-Chat-v1.0
+  claim_id: c_2bd5c286
+  context: 'Action: Use llama.cpp to download TinyLlama/TinyLlama-1.1B-Chat-v1.0 (exact
+    repo URL).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base model is TinyLlama/TinyLlama-1.1B-Chat-v1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:57:39Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B quantized to q4_0
+  claim_id: c_64d17b27
+  context: 'Command: ... followed by ./quantize model.gguf data/models/tinyllama-1.1b-q4_0.gguf
+    q4_0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base model is quantized to q4_0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:58:02Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Inference memory limit 7GB
+  claim_id: c_5d4fc123
+  context: 'Constraint: Ensure file size fits within 7GB RAM limit during inference.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inference_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The inference memory limit is 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:58:33Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Inference fail threshold 6.5GB
+  claim_id: c_d95bb4d9
+  context: 'Validate: Check file size and fail loudly if > 6.5 GB. ... fail loudly
+    if it exceeds 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference fail threshold is 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:58:59Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: LoRA dimensions in_features=4096 out_features=1024
+  claim_id: c_e0447577
+  context: 'Expected Dimensions: If real data is found, verify shapes match in_features=4096,
+    out_features=1024 (or log mismatch).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LoRA weight dimensions are in_features=4096 and out_features=1024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:59:30Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Reconstruction error threshold 0.05
+  claim_id: c_b72c9cce
+  context: Include logic to flag if the maximum error exceeds 0.05 (SC-005) and record
+    this flag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reconstruction error flag threshold is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:59:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Linearity correlation threshold 0.6
+  claim_id: c_16025558
+  context: Output the exact correlation value (as correlation_value) and a validity_flag
+    (True if >= 0.6, False otherwise) to data/results/linearity_check.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linearity correlation validity threshold is 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:00:29Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis k values 1 3 5 10
+  claim_id: c_4284429b
+  context: Implement sensitivity analysis logic (SC-004) for k in {1, 3, 5, 10} in
+    src/retrieval/strategies.py and src/evaluation/runner.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis uses k values of 1, 3, 5, and 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:02:31Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Evaluation N >= 5 runs per task
+  claim_id: c_2e98c4ff
+  context: Implement src/evaluation/runner.py loop to execute N >= 5 independent runs
+    per task (FR-008) and record binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation requires N >= 5 independent runs per task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:02:50Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Text embedding model all-MiniLM-L6-v2
+  claim_id: c_7071c822
+  context: Implement src/retrieval/query.py (FR-002) to generate query vectors using
+    all-MiniLM-L6-v2.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The text embedding model is all-MiniLM-L6-v2.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:03:13Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: LoRA weights from latent-skills/alfworld-weights
+  claim_id: c_09b2f1c3
+  context: 'Implement src/ingestion/download_weights.py to fetch real LoRA weights
+    from the HuggingFace dataset ''latent-skills/alfworld-weights'' (path: weights/alfworld/*.npz)
+    and ''latent-skills/searchqa-weights'' (path: weights/searchqa/*.npz) for ALFWorld
+    and Search-QA benchmarks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LoRA_weights_from_latent-skills/alfworld-weights
+  kind: entity_fact
+  raw_text: The LoRA weights are sourced from the HuggingFace dataset 'latent-skills/alfworld-weights'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:03:35Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: LoRA weights from latent-skills/searchqa-weights
+  claim_id: c_dbbea0a8
+  context: 'Implement src/ingestion/download_weights.py to fetch real LoRA weights
+    from the HuggingFace dataset ''latent-skills/alfworld-weights'' (path: weights/alfworld/*.npz)
+    and ''latent-skills/searchqa-weights'' (path: weights/searchqa/*.npz) for ALFWorld
+    and Search-QA benchmarks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LoRA_weights_from_latent-skills/searchqa-weights
+  kind: entity_fact
+  raw_text: The LoRA weights are sourced from the HuggingFace dataset 'latent-skills/searchqa-weights'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:03:59Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Baseline adapters from LatentSkill repo baseline directory
+  claim_id: c_abe9d6f9
+  context: Implement src/evaluation/download_baseline.py to download the 'standard
+    fine-tuned baseline' adapters from the LatentSkill repo's 'baseline' directory.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_adapters_from_LatentSkill_repo_baseline_directory
+  kind: entity_fact
+  raw_text: The baseline adapters are sourced from the LatentSkill repo's 'baseline'
+    directory.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:04:19Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Use all-MiniLM-L6-v2 model with arXiv ID 2607.07974 for query vector
+    generation
+  claim_id: c_08fc5b30
+  context: 'Phase 4: User Story 2 - Executing Retrieval and Interpolation Strategies.
+    T019 [US2] Implement src/retrieval/query.py (FR-002) to generate query vectors
+    using all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Implement src/retrieval/query.py to generate query vectors using all-MiniLM-L6-v2
+    (2607.07974, https://arxiv.org/abs/2607.07974).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:05:51Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Download TinyLlama/TinyLlama-1.1B-Chat-v1.0 model
+  claim_id: c_f0de5236
+  context: 'Phase 5: User Story 3 - Validating Performance via Environment Logic.
+    T026a [P] [US3] Download and convert the base LLM to GGUF format. Action: Use
+    llama.cpp to download TinyLlama/TinyLlama-1.1B-Chat-v1.0 (exact repo URL).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Download and convert the base LLM to GGUF format. Action: Use llama.cpp
+    to download TinyLlama/TinyLlama-1.1B-Chat-v1.0 (exact repo URL).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:06:09Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Verify LoRA weight dimensions match in_features 4096 and out_features
+    1024
+  claim_id: c_13db5734
+  context: 'Phase 2: Foundational (Blocking Prerequisites). T012 [US1] Implement src/ingestion/download_weights.py
+    to fetch real LoRA weights... Expected Dimensions: If real data is found, verify
+    shapes match in_features=4096, out_features=1024 (or log mismatch).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Expected Dimensions: If real data is found, verify shapes match in_features=4096,
+    out_features=1024 (or log mismatch).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:06:28Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Fail if memory usage exceeds 6.5 GB during first run
+  claim_id: c_30b6f8c8
+  context: 'Phase 5: User Story 3 - Validating Performance via Environment Logic.
+    T026a [P] [US3]... Log memory usage during the first run and fail loudly if it
+    exceeds 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log memory usage during the first run and fail loudly if it exceeds 6.5
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:06:46Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Report Pearson correlation validity flag if value is at least 0.6
+  claim_id: c_a33c00f6
+  context: 'Phase 4: User Story 2 - Executing Retrieval and Interpolation Strategies.
+    T030 [US2] Implement src/validation/linearity_check.py... Output the exact correlation
+    value (as correlation_value) and a validity_flag (True if >= 0.6, False otherwise)
+    to data/results/linearity_check.json.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_Pearson_correlation_validity_flag_if_value_is_at_leas
+  kind: magnitude
+  raw_text: Output the exact correlation value (as correlation_value) and a validity_flag
+    (True if >= 0.6, False otherwise) to data/results/linearity_check.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:07:32Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Fetch LoRA weights from latent-skills/alfworld-weights and latent-skills/searchqa-weights
+    HuggingFace datasets
+  claim_id: c_96bfd1c2
+  context: 'Phase 2: Foundational (Blocking Prerequisites). T012 [US1] Implement src/ingestion/download_weights.py
+    to fetch real LoRA weights from the HuggingFace dataset ''latent-skills/alfworld-weights''
+    (path: weights/alfworld/*.npz) and ''latent-skills/searchqa-weights'' (path: weights/searchqa/*.npz).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_LoRA_weights_from_latent-skills/alfworld-weights_and_l
+  kind: entity_fact
+  raw_text: 'Fetch real LoRA weights from the HuggingFace dataset ''latent-skills/alfworld-weights''
+    (path: weights/alfworld/*.npz) and ''latent-skills/searchqa-weights'' (path: weights/searchqa/*.npz).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:08:09Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Validate existence of weight files within dataset, not just URL reachability
+  claim_id: c_a67cf6f0
+  context: 'Phase 2: Foundational (Blocking Prerequisites). T006 [P] Create src/validate/citation_check.py
+    to verify dataset URLs listed in data_sources.yaml. Implementation: Create the
+    script to perform HTTP 200 checks AND validate the specific existence of weight
+    files within the dataset (not just URL reachability).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_existence_of_weight_files_within_dataset,_not_just
+  kind: entity_fact
+  raw_text: The script must validate the existence of weight files within the dataset
+    (not just URL reachability).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:09:15Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model identified by arXiv ID 2607.07974
+  claim_id: c_b7e9e03d
+  context: T019 [US2] Implement src/retrieval/query.py (FR-002) to generate query
+    vectors using all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: The task implements src/retrieval/query.py to generate query vectors using
+    all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:10:32Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 model downloaded from TinyLlama/TinyLlama-1.1B-Chat-v1.0
+  claim_id: c_71c54b7e
+  context: 'T026a [P] [US3] Download and convert the base LLM to GGUF format. Action:
+    Use llama.cpp to download TinyLlama/TinyLlama-1.1B-Chat-v1.0 (exact repo URL).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task downloads TinyLlama/TinyLlama-1.1B-Chat-v1.0 from the exact repo
+    URL.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:10:46Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 arXiv 2607.07974
+  claim_id: c_34cea638
+  context: Implement src/retrieval/query.py (FR-002) to generate query vectors using
+    all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: The task references the paper 'all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)'
+    for generating query vectors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T10:13:58Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: TinyLlama TinyLlama-1.1B-Chat-v1.0 download
+  claim_id: c_52585f50
+  context: 'Action: Use llama.cpp to download TinyLlama/TinyLlama-1.1B-Chat-v1.0 (exact
+    repo URL).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task specifies downloading the base LLM 'TinyLlama/TinyLlama-1.1B-Chat-v1.0'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:14:12Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: LoRA weights in_features 4096 out_features 1024
+  claim_id: c_14b9388c
+  context: 'Expected Dimensions: If real data is found, verify shapes match in_features=4096,
+    out_features=1024 (or log mismatch).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task defines specific LoRA weight dimensions as in_features=4096 and
+    out_features=1024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:14:32Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: reconstruction error threshold 0.05
+  claim_id: c_bda5c58b
+  context: Include logic to flag if the maximum error exceeds 0.05 (SC-005) and record
+    this flag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires a maximum error threshold of 0.05 for reconstruction
+    error validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:14:55Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: linearity check Pearson correlation threshold 0.6
+  claim_id: c_f7b99916
+  context: Output the exact correlation value (as correlation_value) and a validity_flag
+    (True if >= 0.6, False otherwise) to data/results/linearity_check.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires a Pearson correlation threshold of 0.6 for the linearity
+    check validity flag.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:15:36Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: inference memory failure threshold 6.5 GB
+  claim_id: c_c304b4c4
+  context: Log memory usage during the first run and fail loudly if it exceeds 6.5
+    GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task specifies a memory usage failure threshold of 6.5 GB for inference
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:15:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: minimum 5 independent runs per task
+  claim_id: c_1b82c928
+  context: Implement src/evaluation/runner.py loop to execute N >= 5 independent runs
+    per task (FR-008) and record binary outcomes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task requires a minimum of 5 independent runs per task for statistical
+    stability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:16:20Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis k values 1 3 5 10
+  claim_id: c_78d9b0ef
+  context: Implement sensitivity analysis logic (SC-004) for k in {1, 3, 5, 10} in
+    src/retrieval/strategies.py and src/evaluation/runner.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task specifies sensitivity analysis k values of 1, 3, 5, and 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:18:00Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset latent-skills/alfworld-weights
+  claim_id: c_668864fc
+  context: 'Implement src/ingestion/download_weights.py to fetch real LoRA weights
+    from the HuggingFace dataset ''latent-skills/alfworld-weights'' (path: weights/alfworld/*.npz).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_latent-skills/alfworld-weights
+  kind: entity_fact
+  raw_text: The task lists 'latent-skills/alfworld-weights' as a HuggingFace dataset
+    for fetching LoRA weights.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:18:21Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset latent-skills/searchqa-weights
+  claim_id: c_7914430e
+  context: 'Implement src/ingestion/download_weights.py to fetch real LoRA weights
+    from the ... ''latent-skills/searchqa-weights'' (path: weights/searchqa/*.npz)
+    for ALFWorld and Search-QA benchmarks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_latent-skills/searchqa-weights
+  kind: entity_fact
+  raw_text: The task lists 'latent-skills/searchqa-weights' as a HuggingFace dataset
+    for fetching LoRA weights.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T10:18:43Z'

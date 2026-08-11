@@ -15,6 +15,13 @@ T012:
     \ specified, and it saves individual `.npy` files in `data/processed/proxy_weights`\
     \ instead of a single `.npz` in `data/raw`. The task\u2019s output requirements\
     \ are therefore not met."
+T014b:
+  c: false
+  h: d3a25ae8e6b817eda42c5bdfc0a819744e1e9bc0d3e06256d0feafe849264cb8
+  r: The required output file `data/processed/skill_index.npz` is missing, and there
+    is no evidence that `src/retrieval/vector_db.py` was run or that the index was
+    created and verified. The implementer must execute the script to generate the
+    index file and provide confirmation of its existence and integrity.
 T022b:
   c: false
   h: 021df1d3f20ea2ff5b8b7eb2aafc69f14460731120f37c8f2362f960365b3874
@@ -22,30 +29,15 @@ T022b:
     \ with \u201Cw\u201D) and never reaches the code that writes the JSON result.\
     \ Consequently, `data/results/reconstruction_error.json` does not exist, so the\
     \ required output file is missing. The task is not fully implemented."
-T022d:
+T022c:
   c: false
-  h: 76566c227b2de0f66e1a1b9aac57cd708a9c73f9fe5bf1df1db781ce7805e7f9
-  r: The provided `src/validation/reconstruction_error.py` is incomplete (the `flatten_matrices`
-    function is cut off and there is no code that actually loads the inputs, computes
-    the cosine distance, and writes the result to `data/results/reconstruction_error.json`).
-    Moreover, the required output file `data/results/reconstruction_error.json` does
-    not exist. The task therefore remains unfinished.
-T022e:
-  c: false
-  h: 46f4f89e85a87db96b29084413824653b64317f685902b48bdeaafef4c5969b3
-  r: "The required output file `data/processed/eval_tasks.yaml` does not exist, so\
-    \ the held\u2011out task list was never generated. Without this file the task\u2019\
-    s core requirement is unmet. The implementer must run/finalize the script so that\
-    \ the YAML file is created and populated with the actual task IDs."
-T030:
-  c: false
-  h: de0d83b3034d86c098ba616973ddf7a50556784b157861b25428c8bd4107b4eb
-  r: "The `src/validation/linearity_check.py` file exists, but the required input\
-    \ `data/processed/pairs.yaml` is missing, causing the script to fail when run.\
-    \ Consequently no `data/results/linearity_check.json` is produced, so the task\u2019\
-    s core output (correlation value and validity flag) is absent. The implementation\
-    \ must be completed with a valid `pairs.yaml` and ensure the script writes the\
-    \ JSON result."
+  h: fc561d9c055bb139e779a5b3a74d414fe3a14c1eb257c75921ec32a3e4402166
+  r: "The script `src/validation/generate_ground_truth.py` exists, but the required\
+    \ output artifacts `data/processed/composite_ground_truth.npz` and `data/processed/pairs.yaml`\
+    \ are not present on disk. Without these files the task\u2019s core requirement\u2014\
+    generating and saving the synthetic composite adapters and their metadata\u2014\
+    is unmet. The next implementer must run the script (or ensure it creates) and\
+    \ verify that both output files are created and contain the expected data."
 T031:
   c: false
   h: 98b2ce71b433ef59428af0a80c623bb6b5966eff145771ac1bb6fcf0d3d44663
