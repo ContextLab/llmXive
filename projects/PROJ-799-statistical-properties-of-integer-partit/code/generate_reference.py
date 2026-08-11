@@ -3,7 +3,7 @@ Generate reference values for p_P(n): partitions of n into distinct prime summan
 
 This script computes exact counts for n in [1, 100] using dynamic programming
 based on the generating function:
-    \prod_{p \in \mathbb{P}} (1 + q^p)
+    \\prod_{p \\in \\mathbb{P}} (1 + q^p)
 
 The algorithm iterates over primes (from T004) and updates a 1D DP array where
 dp[n] represents the number of ways to partition n into distinct primes.
@@ -26,7 +26,7 @@ def generate_reference_values(n_max: int) -> np.ndarray:
     Compute exact p_P(n) for n in [0, n_max] using DP.
 
     dp[n] = number of partitions of n into distinct primes.
-    Generating function: \prod_{p} (1 + q^p)
+    Generating function: \\prod_{p} (1 + q^p)
     """
     # Get primes up to n_max (only primes <= n_max can contribute to partitions of n <= n_max)
     primes = generate_primes(n_max)

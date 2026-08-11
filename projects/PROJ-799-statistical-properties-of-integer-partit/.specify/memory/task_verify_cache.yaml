@@ -1,24 +1,36 @@
-T003:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
-    with Black settings, or a `setup.cfg`/`tox.ini` specifying flake8/black) are present
-    in the `projects/PROJ-799-statistical-properties-of-integer-partit/code/` directory,
-    nor any documentation showing that these tools have been scoped to that path.
-    The required artifacts are missing, so the task is not satisfied.
-T004:
+  r: No directory tree or any files were presented as evidence; the required `projects/PROJ-799-statistical-properties-of-integer-partit/`
+    hierarchy (code/, data/, tests/, docs/, state/) is missing from the provided artifacts.
+T003a:
   c: false
-  h: a7bab802d10ed2be59a39cd97c2212eedf3ada128dd161f98b5e3cb023a2eccc
-  r: "The repository contains `code/utils/prime_sieve.py` with a correct implementation\
-    \ and a main block that would write `primes.npy`, but the required output file\
-    \ `code/utils/primes.npy` is absent, so the task\u2019s primary deliverable is\
-    \ not present."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/.flake8` file is present in the provided evidence, and there is no content
+    shown that would constitute a flake8 configuration. The required linting configuration
+    file is missing, so the task is not satisfied.
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/.black` file is present in the provided artifact list; without the\
+    \ configuration file the requirement to create a Black formatter config is unmet.\
+    \ The implementer must add a non\u2011empty `code/.black` file containing valid\
+    \ Black settings."
 T006:
   c: true
-  h: 59833dd9320bbebf4ca8c0ea52bb152faf66cf7581d162c58d065804bf68fb5e
-  r: "Both required files exist at the specified paths, are non\u2011empty, and contain\
-    \ YAML\u2011formatted JSON\u2011Schema definitions appropriate for partition records\
-    \ and regression output."
+  h: ade5b562e9dc3f7a336a77f115ca355063689c583d46800d7ecbda60359b3421
+  r: "Both `data/schemas/partition_record.schema.yaml` (912\u202Fbytes) and `data/schemas/regression_output.schema.yaml`\
+    \ (2923\u202Fbytes) exist, are non\u2011empty, and contain valid JSON\u2011Schema\
+    \ definitions matching the expected file names and purpose. No required artifact\
+    \ is missing."
+T008:
+  c: false
+  h: e855f9e3bf0d76cefe56a3163a89d25392a37fe89883b54ed6c4eb9d4e19d894
+  r: "The script `code/generate_reference.py` is present and appears to implement\
+    \ the required algorithm, but the required output file `tests/data/reference_values.csv`\
+    \ is missing, so the task\u2019s primary artifact (the CSV with the computed values)\
+    \ does not exist. The implementer must run the script (or otherwise create) the\
+    \ CSV file with the correct columns and data for n\u202F=\u202F1\u2026100."
 T009:
   c: false
   h: 11b207bc50b14fe8b29c5e9527fd8b72d2d74f07b1b0ce05d1b058c484da11c7
@@ -26,35 +38,14 @@ T009:
     \ is no contract test verifying that `p_{\\mathcal{P}}(n)` matches the reference\
     \ CSV for all n\u202F=\u202F1\u2026100. The reference CSV is present, but without\
     \ the test script the task is not fulfilled."
-T009#1:
-  c: false
-  h: 11b207bc50b14fe8b29c5e9527fd8b72d2d74f07b1b0ce05d1b058c484da11c7
-  r: The required test file `tests/test_partition_logic.py` is missing, so there is
-    no contract test that loads the reference CSV and compares it to `generate_partitions.py`
-    output. The reference CSV exists, but without the test script the task is not
-    fulfilled.
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes or test output were provided; there is no `generate_partitions.py`\
-    \ file showing added validation logic, nor any evidence (e.g., diff, unit test,\
-    \ or execution log) that the script now skips values of\u202Fn with\u202Fp_{\\\
-    mathcal{P}}(n)=0 or\u202FQ_{as}(n)\u202F\u2264\u202F0. The required artifact is\
-    \ missing."
 T016b:
   c: false
-  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
-  r: "The required artifact `data/processed/features.csv` does not exist, so the validation\
-    \ of the \u201Cdistance to nearest prime\u201D and oscillatory term columns cannot\
-    \ be performed. The implementer must create the file with the appropriate non\u2011\
-    null columns before the task can be considered complete."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `generate_partitions.py` file or its contents were presented, so we cannot
-    confirm that the required comment documenting the generating function $\prod_{p\in\mathbb{P}}(1+q^p)$
-    (and distinguishing it from $\prod(1-q^k)^{-1}$) actually exists. The implementer
-    must supply the code file with the explicit comment.
+  h: 466f5d63ab5d31ffaaac1f8aa400ac5fd0d5e6678a34c520720a86a04eb81b17
+  r: "The required `data/processed/features.csv` file is missing, so the validation\
+    \ tests cannot run on real data. Moreover, the test suite does not contain a function\
+    \ named `test_features_non_null` as the task explicitly requests; it only provides\
+    \ separate column\u2011specific checks. Both the missing CSV and the absent correctly\u2011\
+    named test mean the task\u2019s requirement is not satisfied."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,17 +1,17 @@
-"""
-Project Setup Script for PROJ-799.
-Creates the required directory structure for the integer partition research project.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create the directory structure for PROJ-799."""
-    # Define the base project directory
-    base_dir = Path("projects/PROJ-799-statistical-properties-of-integer-partit")
-    
-    # Define all required subdirectories
+    """
+    Creates the complete directory structure for project PROJ-799.
+    This script is idempotent and safe to run multiple times.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    project_name = "PROJ-799-statistical-properties-of-integer-partit"
+    base_dir = project_root / project_name
+
+    # Define the required directory structure relative to base_dir
     directories = [
         "code",
         "code/utils",
@@ -21,28 +21,18 @@ def main():
         "tests",
         "tests/data",
         "docs",
-        "state/projects"
+        "state",
+        "state/projects",
     ]
-    
-    # Create each directory
-    created_count = 0
-    for subdir in directories:
-        dir_path = base_dir / subdir
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nSetup complete. Created {created_count} new directories.")
-    print(f"Project structure rooted at: {base_dir}")
-    
-    # List the final structure
-    print("\nFinal directory structure:")
-    for dir_path in base_dir.rglob("*"):
-        if dir_path.is_dir():
-            print(f"  {dir_path.relative_to(base_dir)}")
+
+    print(f"Ensuring directory structure for {project_name}...")
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"  Created/Verified: {full_path.relative_to(project_root)}")
+
+    print("Directory structure setup complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

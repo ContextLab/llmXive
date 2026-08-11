@@ -22,17 +22,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory `projects/PROJ-799-statistical-properties-of-integer-partit/` and all subdirectories listed in T001b-T001j.
-- [ ] T001b Create subdirectory `code/` inside `projects/PROJ-799-statistical-properties-of-integer-partit/`.
-- [ ] T001c Create subdirectory `code/utils/` inside `code/`.
-- [ ] T001d Create subdirectory `data/raw/` inside `projects/PROJ-799-statistical-properties-of-integer-partit/`.
-- [ ] T001e Create subdirectory `data/processed/` inside `projects/PROJ-799-statistical-properties-of-integer-partit/`.
-- [ ] T001f Create subdirectory `data/schemas/` inside `projects/PROJ-799-statistical-properties-of-integer-partit/`.
-- [ ] T001g Create subdirectory `tests/` inside `projects/PROJ-799-statistical-properties-of-integer-partit/`.
-- [ ] T001h Create subdirectory `tests/data/` inside `tests/`.
-- [ ] T001i Create subdirectory `docs/` inside `projects/PROJ-799-statistical-properties-of-integer-partit/`.
-- [ ] T001j Create subdirectory `state/projects/` inside `projects/PROJ-799-statistical-properties-of-integer-partit/`.
-- [ ] T002 Create placeholder files: `README.md`, `.gitignore`, `requirements.txt` (empty initially), `state/projects/PROJ-799.yaml` (empty initially).
+- [ ] T001 [P] Create the complete directory structure for the project: `projects/PROJ-799-statistical-properties-of-integer-partit/` and all subdirectories including `code/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/schemas/`, `tests/`, `tests/data/`, `docs/`, and `state/projects/`.
+- [X] T002 Create placeholder files: `README.md`, `.gitignore`, `requirements.txt` (empty initially), `state/projects/PROJ-799.yaml` (empty initially).
 - [ ] T003a Create `code/.flake8` configuration file for linting.
 - [ ] T003b Create `code/.black` configuration file for formatting.
 
@@ -46,11 +37,11 @@
 **Note**: Tasks T004 and T005 are independent and can run in parallel. T008 and T009 depend on T004 and must be executed sequentially after T004.
 
 - [ ] T004 Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm must mark composites iteratively starting from 2. **Output**: Save the list of primes to `code/utils/primes.npy` as a **1D `np.int32` array**. **Verification**: Ensure the file exists, dtype is `int32`, and shape matches the count of primes <= 50,000.
-- [ ] T005 Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem. The implementation must use the leading-order term derived from the generating function $\prod (1+q^p)$. Explicitly document the leading-order formula used in the code comments. **Note**: T005 is independent of T004 and can run in parallel.
-- [ ] T006 Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`.
-- [ ] T007 Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`).
-- [ ] T008 [US1] Generate Reference Data: Implement `code/generate_reference.py` to compute exact $p_{\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1, 100]** using the Sieve of Eratosthenes from T004 and a simplified DP logic. **Algorithm**: Use a 1D array DP iterating only over primes <= 100. **Output**: Save the output to `tests/data/reference_values.csv` with columns `n`, `p_P(n)`. **Verification**: Ensure the file contains a dataset of non-negative integer counts. **Requires T004 to complete.**
-- [ ] T009 [US1] Contract test: Implement `tests/test_partition_logic.py` to verify $p_{\mathcal{P}}(n)$ matches `tests/data/reference_values.csv` for **all** $n \in [1, 100]$. **Requires T008 to complete.**
+- [X] T005 Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem. The implementation must use the leading-order term derived from the generating function $\prod (1+q^p)$. Explicitly document the leading-order formula used in the code comments. **Note**: T005 is independent of T004 and can run in parallel.
+- [X] T006 Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`.
+- [X] T007 Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`).
+- [X] T008 [US1] Generate Reference Data: Implement `code/generate_reference.py` to compute exact $p_{\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1, 100]** using the Sieve of Eratosthenes from T004 and a simplified DP logic. **Algorithm**: Use a 1D array DP iterating only over primes <= 100. **Output**: Save the output to `tests/data/reference_values.csv` with columns `n`, `p_P(n)`. **Verification**: Ensure the file contains a dataset of non-negative integer counts. **Requires T004 to complete.**
+- [X] T009 [US1] Contract test: Implement `tests/test_partition_logic.py` to verify $p_{\mathcal{P}}(n)$ matches `tests/data/reference_values.csv` for **all** $n \in [1, 100]$. **Requires T008 to complete.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,12 +55,14 @@
 
 ### Tests for User Story 1
 
-- [ ] T010a [P] [US1] Integration test: Verify `generate_partitions.py` completes within 2 hours and memory < 6.5 GB in `tests/test_pipeline.py`.
-- [ ] T010b [P] [US1] Time-budget test: Verify that the DP generation phase completes within 1.5 hours (derived from SC-004 total time budget minus time for modeling/plotting) in `tests/test_pipeline.py`. **Implementation**: Use `pytest-timeout` decorator to enforce the 1.5-hour limit. Reference SC-004 for total budget context.
+- [X] T010a [P] [US1] Integration test: Verify `generate_partitions.py` completes within 2 hours and memory < 6.5 GB in `tests/test_pipeline.py`.
+- [X] T010b [P] [US1] Time-budget test: Verify that the DP generation phase completes within 1.5 hours (derived from SC-004 total time budget of 6 hours minus estimated time for US2 and US3 phases) in `tests/test_pipeline.py`. **Implementation**: Use `pytest-timeout` decorator to enforce the 1.5-hour limit. Reference SC-004 for total budget context.
+- [X] T010c [P] [US2] Time-budget test: Verify that the feature engineering and modeling phase (US2) completes within 3.5 hours (derived from SC-004 total 6h minus 1.5h DP and 1h for US3) in `tests/test_pipeline.py`.
+- [X] T010d [P] [US3] Time-budget test: Verify that the visualization phase (US3) completes within 1 hour (derived from SC-004 total 6h minus 1.5h DP and 3.5h US2) in `tests/test_pipeline.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/generate_partitions.py`:
+- [X] T011 [US1] Implement `code/generate_partitions.py`:
  - Use 1D `int64` array for DP to count partitions into distinct primes.
  - Iterate primes only (skip composites) to enforce distinct prime constraint.
  - Handle edge cases ($n < 5$ where $p_{\mathcal{P}}(n)=0$) by setting count to 0.
@@ -77,17 +70,17 @@
  - Clamp $Q_{as}(n)$ to a small positive lower bound to prevent log(0).
  - **Load `tests/data/reference_values.csv` (produced by T008) and assert exact integer match for all n in the specified range (SC-003).**
  - **Requires T004, T005, and T008 to complete.**
-- [ ] T012 [US1] Implement `code/generate_partitions.py` data export:
+- [X] T012 [US1] Implement `code/generate_partitions.py` data export:
  - Export data to `data/raw/partitions_raw.csv` with columns: `n`, `p_P(n)`, `Q_as(n)`.
  - Generate SHA-256 checksum of the output file and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.generate_partitions_raw` (format: hex string).
  - Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp.
  - **Requires T011 to complete.**
 - [ ] T013 [US1] Add validation logic to `generate_partitions.py`:
- - Implement `validate_partition_data()` function that raises `ValueError` if `p_P(n) <= 0` or `Q_as(n) <= 0` for any valid n.
- - Call this function before any log-residual calculation.
+ - Implement `validate_partition_data()` function that logs a warning and **excludes** rows where `p_P(n) <= 0` or `Q_as(n) <= 0` (consistent with FR-003 and spec Edge Cases for small n).
+ - Call this function before any log-residual calculation to ensure valid data flow.
  - **Requires T012 to complete.**
 - [ ] T031 [US1] **Research-Stage Revision**: Add a docstring to `generate_partitions.py` explaining the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$ and explicitly distinguishing it from the unrestricted partition generating function $\prod (1-q^k)^{-1}$. **Requires T011 to complete.**
-- [ ] T032 [US1] **Research-Stage Revision**: Add a configuration parameter `--n-max` to `generate_partitions.py` using `argparse` with a default set to [deferred], and explicitly log the chosen `n_max` to stdout at runtime. **Requires T011 to complete.**
+- [ ] T032 [US1] **Research-Stage Revision**: Add a configuration parameter `--n-max` to `generate_partitions.py` using `argparse` with a default set to **50000** (matching the plan's fixed scope). Explicitly log the chosen `n_max` to stdout at runtime. **Requires T011 to complete.**
 
 **Checkpoint**: US1 functional. Data generation complete.
 
@@ -101,25 +94,25 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Contract test: Verify $R(n)$ calculation handles log(0) gracefully and matches expected values for sample $n$ in `tests/test_feature_engineering.py`.
-- [ ] T015 [P] [US2] Integration test: Verify regression model outputs valid p-values and $R^$ score in `tests/test_regression_model.py`.
-- [ ] T021 [US2] Test: Verify Benjamini-Hochberg correction is applied correctly and p-values are adjusted in `tests/test_regression_model.py`. **Must be written and failing before T017c implementation.** **Note**: Not marked [P] as it depends on T017c implementation.
+- [X] T014 [P] [US2] Contract test: Verify $R(n)$ calculation handles log(0) gracefully and matches expected values for sample $n$ in `tests/test_feature_engineering.py`.
+- [X] T015 [P] [US2] Integration test: Verify regression model outputs valid p-values and $R^2$ score in `tests/test_regression_model.py`.
+- [X] T021 [US2] Test: Verify Benjamini-Hochberg correction is applied correctly and p-values are adjusted in `tests/test_regression_model.py`. **Must be written and failing before T017c implementation.** **Note**: Not marked [P] as it depends on T017c implementation.
 
 ### Implementation for User Story 2
 
-- [ ] T016a [US2] Implement `code/feature_engineering.py`:
+- [X] T016a [US2] Implement `code/feature_engineering.py`:
  - Load `data/raw/partitions_raw.csv`.
  - Compute $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for valid $n$.
  - Generate features: $\pi(n)$ (via precomputed sieve), $1/\ln(n)$.
  - Calculate 'distance to nearest prime' as the **absolute difference to the closest prime (either smaller or larger than n)**.
  - Add oscillatory features: $\sin(\log n)$, $\cos(\log n)$ to capture periodic anomalies. **Ensure these columns are saved to `data/processed/features.csv`.**
  - Save `data/processed/features.csv`.
- - **Verify** that 'distance to nearest prime' and oscillatory terms are present and non-null.
+ - **Verify** that 'distance_to_nearest_prime', 'sin_log_n', and 'cos_log_n' are present and non-null.
  - **Requires T012 completion.**
-- [ ] T016b [US2] Validate `data/processed/features.csv`: Implement `tests/test_feature_validation.py::test_features_non_null` that asserts columns 'distance_to_nearest_prime', 'sin_log_n', and 'cos_log_n' exist and are non-null in `data/processed/features.csv`. **Requires T016a to complete.**
-- [ ] T017a [US2] Implement `code/regression_model.py` (Full Model):
+- [ ] T016b [US2] Validate `data/processed/features.csv`: Implement `tests/test_feature_validation.py::test_features_non_null` that asserts columns 'distance_to_nearest_prime', 'sin_log_n', and 'cos_log_n' exist and are non-null in `data/processed/features.csv`. **Requires T016a to complete.** <!-- FAILED: unspecified -->
+- [X] T017a [US2] Implement `code/regression_model.py` (Full Model):
  - Fit Generalized Additive Model (GAM) or Linear Regression with splines for density terms.
- - **Explicitly include oscillatory terms: `sin(log(n))`, `cos(log(n))` in the model formula as required by FR-005.** Add terms: beta1*sin(log(n)) + beta2*cos(log(n)) to the linear predictor.
+ - **Explicitly include oscillatory terms: `sin(log(n))`, `cos(log(n))` in the model formula as required by FR-005. This requirement applies regardless of whether GAM or Linear Regression is chosen.** Add terms: beta1*sin(log(n)) + beta2*cos(log(n)) to the linear predictor.
  - Output coefficients, p-values, $R^2$ to `data/processed/model_results.json`.
  - **Requires T016a and T016b completion.**
 - [ ] T017b [US2] Implement `code/regression_model.py` (Null Model):
@@ -129,6 +122,7 @@
  - **Requires T016a and T016b completion.**
 - [ ] T017c [US2] Implement `code/regression_model.py` P-value Correction:
  - Apply **Benjamini-Hochberg correction (alpha=0.05)** to p-values (FR-005, SC-005).
+ - **Wait for the combined output of T017a and T017b to be written to the JSON file before applying correction.**
  - Write corrected p-values to `data/processed/model_results.json`.
  - **Requires T017a and T017b completion.**
 - [ ] T018 [US2] Implement `docs/scope_justification.md` and update `code/regression_model.py`: Explicitly define and document the asymptotic regime (small n vs large n vs transition) for the analysis. Justify the $n_{max}=50,000$ limit as a transition region where prime gaps begin to significantly impact the density of summands, distinguishing it from the unrestricted partition regime. **Addresses Reviewer Concern: "Does the current treatment account for the fact that prime gaps create 'holes'..." and "explicitly state which asymptotic regime is being targeted".**
@@ -147,13 +141,14 @@
 
 - [ ] T022 [US3] Contract test: Verify that k-fold cross-validation returns k MSE values and a mean, as described in standard validation frameworks (Bishop; Arlot & Celisse). in `tests/test_regression_model.py`. **Requires T024 to complete.**
 - [ ] T023a [P] [US3] Integration test: Verify plot generation produces a valid PNG/PDF file in `tests/test_visualize_results.py`.
-- [ ] T023b [P] [US3] Time-budget test: Verify total pipeline (DP + Model + Plot) completes within 6 hours (SC-004).
+- [ ] T023b [P] [US3] Time-budget test: Verify total pipeline (DP + Model + Plot) completes within 6 hours (SC-004). **Implementation**: Ensure the sum of time spent in T010b, T010c, and T010d does not exceed 6 hours.
 
 ### Implementation for User Story 3
 
 - [ ] T024 [US3] Implement `code/regression_model.py` (CV logic):
  - Perform k-fold cross-validation on the fitted model using scikit-learn's KFold.
  - Record MSE for each fold and mean MSE.
+ - **Explicitly record the MEAN CV MSE and the corresponding derived R^2 as the final reported metrics in `model_results.json` (overriding training scores) to satisfy SC-002.**
  - **Requires T017c completion.**
 - [ ] T025 [US3] Implement `code/visualize_results.py`:
  - Plot $n$ (x-axis) vs $R(n)$ (raw residuals) and fitted correction term.
@@ -265,7 +260,7 @@ Due to strict data dependencies (US1 -> US2 -> US3), the project follows a seque
 - Stop at any checkpoint to validate story independently
 - **Critical Constraint**: Ensure `generate_partitions.py` uses 1D array and iterates only primes to respect the "distinct prime" constraint and memory limits.
 - **Critical Constraint**: The asymptotic baseline $Q_{as}(n)$ MUST use the distinct-partition variant of Meinardus' theorem as per the spec.
-- **Critical Constraint**: The entire pipeline must complete within 6 hours (SC-004). Monitor time budgets in T010b and T023b.
+- **Critical Constraint**: The entire pipeline must complete within 6 hours (SC-004). Monitor time budgets in T010b, T010c, T010d, and T023b.
 - **Critical Constraint**: P-value correction (Benjamini-Hochberg, alpha=0.05) is mandatory (SC-005).
 - **Critical Constraint**: US2 and US3 must be executed sequentially after US1 due to strict data dependencies.
 - **Revision Constraint**: Tasks referencing non-existent reviews (T013a, T017d, T026a, T030a) have been removed or corrected to align with spec requirements.

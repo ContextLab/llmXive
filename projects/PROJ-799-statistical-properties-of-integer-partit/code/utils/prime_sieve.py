@@ -82,7 +82,8 @@ if __name__ == "__main__":
     primes = generate_primes(limit)
     
     # Convert to numpy array for efficient storage
-    primes_array = np.array(primes, dtype=np.int64)
+    # Task requires 1D np.int32 array
+    primes_array = np.array(primes, dtype=np.int32)
     
     # Determine output path relative to project root
     # The script is at code/utils/prime_sieve.py, output goes to code/utils/primes.npy
@@ -93,3 +94,5 @@ if __name__ == "__main__":
     
     print(f"Generated {len(primes)} primes up to {limit}.")
     print(f"Saved to: {output_path}")
+    print(f"Array dtype: {primes_array.dtype}")
+    print(f"Array shape: {primes_array.shape}")
