@@ -1,39 +1,22 @@
-# Spec Override: FR-007 Rejection and Correction
+# Spec Override: FR-007 Correction for Categorical Data Imputation
 
-## Overview
-This document formally documents the rejection of Functional Requirement **FR-007** regarding the imputation strategy for the `Sex` column and defines the corrected requirement to ensure methodological validity.
+## Original Requirement (REJECTED)
+**FR-007 (Original)**: "System MUST impute missing numeric covariate values (age, BMI, DQS) using the median of the available data, and missing categorical values (sex) using the median."
 
-## Original Requirement (FR-007)
-**Status**: **REJECTED**
-
-**Original Text**:
-> "The system MUST impute missing values in the `Sex` column using the **Median**."
-
-**Reason for Rejection**:
-The `Sex` column is a **categorical** (nominal) variable, typically encoded as 'M' (Male) or 'F' (Female).
-1. **Mathematical Invalidity**: The concept of a "Median" requires an ordered, numerical domain. Applying a median function to categorical strings results in a type error or an arbitrary, non-meaningful selection that does not represent the central tendency of the distribution.
-2. **Statistical Correctness**: For categorical data, the central tendency is defined by the **Mode** (the most frequently occurring value), not the median or mean.
-3. **Methodological Error**: Using a median imputation strategy for sex would introduce data corruption or pipeline failures, violating the Data Hygiene Principle III (Provenance and Correctness).
+## Reason for Rejection
+The original specification contained a methodological error: it requested the use of the **median** for imputing the categorical variable `sex`. The median is a statistical measure applicable only to ordinal or continuous numeric data. Applying a median operation to categorical data (e.g., 'M', 'F') is mathematically undefined and would result in runtime errors or nonsensical data values in the pipeline.
 
 ## Corrected Requirement
-**Status**: **APPROVED**
+**FR-007 (Corrected)**: "System MUST impute missing numeric covariate values (age, BMI, DQS) using the median of the available data, and missing categorical values (sex) using the mode."
 
-**New Requirement**:
-> "The system MUST impute missing values in the `Sex` column using the **Mode** (the most frequent category)."
-
-### Implementation Details
-- **Algorithm**: Calculate the frequency count of non-null values in the `Sex` column. Select the value with the highest count.
-- **Tie-Breaking**: If two categories have equal frequency (e.g., 50% 'M', 50% 'F'), the system MUST default to the first category encountered or raise a warning and select 'M' (standard biological default) to ensure deterministic behavior.
-- **Logging**: The imputation strategy (Mode) and the specific value used (e.g., "Imputed Sex using Mode: 'M'") MUST be logged to `provenance.log` as per Data Hygiene Principle III.
-- **Code Location**: This logic is implemented in `code/data_ingestion.py` within the `impute_missing_values` function.
+## Implementation Details
+- **Numeric Covariates**: Age, BMI, and Diet Quality Score (DQS) will continue to use the `median` strategy.
+- **Categorical Covariates**: The `sex` column will now use the `mode` (most frequent value) strategy for imputation.
 
 ## Validation
-To verify this override:
-1. Run `code/data_ingestion.py` with a dataset containing null `Sex` values.
-2. Inspect `provenance.log` for the entry confirming "Mode" strategy.
-3. Verify `data/processed/cleaned_data.csv` contains no null values in the `Sex` column and that the imputed values match the most frequent category from the original data.
+The `code/data_ingestion.py` module has been updated to explicitly apply `strategy='mode'` for the `sex` column and `strategy='median'` for numeric columns. Unit tests confirm that the most frequent category is correctly assigned to missing entries in the `sex` column.
 
-## Traceability
-- **Related Task**: T047 (Spec Override Implementation)
-- **Related Task**: T013 (Imputation Logic Implementation)
-- **Plan Reference**: Phase 3.5 - Spec Override & Correction Tasks
+## References
+- Project Plan: Phase 2, Spec Override Tasks
+- Related Task: T047
+- Implementation Module: `code/data_ingestion.py` (function: `impute_missing_values`)

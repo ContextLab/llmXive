@@ -1,0 +1,5 @@
+'|configuration define limit sample':
+  quote: DW-450 50000 3 0 0.2 0.001 quad 1 (VE) 0 1.2 0.9 1e-5 - - 256
+  source_id: '2502.13280'
+  url: https://arxiv.org/abs/2502.13280
+  value: '50000'

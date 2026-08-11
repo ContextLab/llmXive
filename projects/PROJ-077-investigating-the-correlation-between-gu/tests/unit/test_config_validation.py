@@ -1,115 +1,121 @@
+"""
+Unit tests for configuration validation logic.
+"""
 import os
 import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+# Import the module to test
+import sys
+from pathlib import Path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from config_validation import validate_directories, validate_input_files, validate_configuration
+from config import INPUT_PATHS
 
 class TestValidateDirectories:
-    def test_existing_directory(self, tmp_path):
-        """Test that an existing directory passes validation."""
-        result = validate_directories([str(tmp_path)])
-        assert result is True
+    def test_validate_directories_creates_missing(self, tmp_path):
+        """Test that validate_directories creates missing directories."""
+        # Mock the ensure_directories function to just return True
+        with patch('config_validation.ensure_directories', return_value=None):
+            # This should not raise an exception
+            result = validate_directories()
+            assert result is True
 
-    def test_missing_directory_creation(self, tmp_path):
-        """Test that a missing directory is created successfully."""
-        new_dir = tmp_path / "new_subdir"
-        assert not new_dir.exists()
-        
-        result = validate_directories([str(new_dir)])
-        
-        assert result is True
-        assert new_dir.exists()
-
-    def test_invalid_path_is_not_dir(self, tmp_path):
-        """Test that a path that is a file, not a dir, fails."""
-        file_path = tmp_path / "a_file.txt"
-        file_path.touch()
-        
-        result = validate_directories([str(file_path)])
-        
-        assert result is False
+    def test_validate_directories_failure(self, tmp_path):
+        """Test behavior when directory creation fails."""
+        with patch('config_validation.ensure_directories', side_effect=PermissionError("Mock permission error")):
+            result = validate_directories()
+            assert result is False
 
 class TestValidateInputFiles:
-    def test_existing_file(self, tmp_path):
-        """Test that an existing file passes validation."""
-        file_path = tmp_path / "test.csv"
-        file_path.touch()
-        result = validate_input_files([str(file_path)])
-        assert result is True
+    def test_validate_input_files_all_exist_and_nonempty(self, tmp_path):
+        """Test validation passes when all files exist and are non-empty."""
+        # Create temporary files for each input path
+        mock_paths = {}
+        for key in INPUT_PATHS.keys():
+            file_path = tmp_path / f"{key}.csv"
+            file_path.write_text("col1,col2\n1,2\n") # Non-empty content
+            mock_paths[key] = str(file_path)
 
-    def test_missing_file(self, tmp_path):
-        """Test that a missing file fails validation."""
-        missing_file = tmp_path / "missing.csv"
-        result = validate_input_files([str(missing_file)])
-        assert result is False
+        # Patch INPUT_PATHS to use our temp files
+        with patch('config_validation.INPUT_PATHS', mock_paths):
+            result = validate_input_files()
+            assert result is True
 
-    def test_multiple_files_partial_missing(self, tmp_path):
-        """Test that if one of multiple files is missing, validation fails."""
-        existing = tmp_path / "exists.csv"
-        existing.touch()
-        missing = tmp_path / "missing.csv"
-        
-        result = validate_input_files([str(existing), str(missing)])
-        assert result is False
+    def test_validate_input_files_missing_file(self, tmp_path):
+        """Test that FileNotFoundError is raised when a file is missing."""
+        # Create only one file, leave others missing
+        mock_paths = {}
+        for i, key in enumerate(INPUT_PATHS.keys()):
+            if i == 0:
+                file_path = tmp_path / f"{key}.csv"
+                file_path.write_text("data\n")
+                mock_paths[key] = str(file_path)
+            else:
+                mock_paths[key] = str(tmp_path / "missing.csv") # This one won't exist
+
+        with patch('config_validation.INPUT_PATHS', mock_paths):
+            with pytest.raises(FileNotFoundError, match="Missing required input files"):
+                validate_input_files()
+
+    def test_validate_input_files_empty_file(self, tmp_path):
+        """Test that ValueError is raised when a file is empty."""
+        mock_paths = {}
+        for i, key in enumerate(INPUT_PATHS.keys()):
+            file_path = tmp_path / f"{key}.csv"
+            if i == 0:
+                file_path.write_text("") # Empty file
+            else:
+                file_path.write_text("data\n")
+            mock_paths[key] = str(file_path)
+
+        with patch('config_validation.INPUT_PATHS', mock_paths):
+            with pytest.raises(ValueError, match="Empty required input files"):
+                validate_input_files()
 
 class TestValidateConfiguration:
-    def test_full_validation_success(self, monkeypatch, tmp_path):
-        """Test full validation when all requirements are met."""
-        # Mock INPUT_PATHS to point to tmp_path files
-        mock_input_paths = {
-            "microbiome": str(tmp_path / "microbiome.csv"),
-            "cognitive": str(tmp_path / "cognitive.csv")
-        }
-        
-        # Create the files
-        Path(mock_input_paths["microbiome"]).touch()
-        Path(mock_input_paths["cognitive"]).touch()
-        
-        # Mock the global variables in config_validation
-        # We need to patch the import or the module's reference
-        # Since we can't easily patch the imported module's global in a simple way without complex mocking,
-        # we will rely on the logic that if INPUT_PATHS is not a dict or empty, it defaults to checking
-        # standard files. To make this test robust, we will ensure the default check paths exist in tmp_path
-        # and mock the global INPUT_PATHS to be empty so it falls back to defaults.
-        
-        # Actually, the function validate_configuration uses INPUT_PATHS from 'config'.
-        # To make this test work without modifying the global state of 'config',
-        # we will create the default expected files in the tmp_path and ensure the function
-        # logic handles it.
-        # However, the function checks "data/raw/microbiome_data.csv" etc. relative to cwd.
-        # To test this properly, we would need to change cwd or mock Path.exists.
-        # For this unit test, we will mock the validate_input_files function to return True
-        # and validate_directories to return True to isolate the logic.
-        
-        import config_validation as cv_module
-        
-        original_validate_dirs = cv_module.validate_directories
-        original_validate_files = cv_module.validate_input_files
-        
-        cv_module.validate_directories = lambda x: True
-        cv_module.validate_input_files = lambda x: True
-        
-        try:
-            result = validate_configuration()
-            assert result is True
-        finally:
-            cv_module.validate_directories = original_validate_dirs
-            cv_module.validate_input_files = original_validate_files
+    def test_validate_configuration_success(self, tmp_path):
+        """Test full configuration validation passes."""
+        # Setup temp files
+        mock_paths = {}
+        for key in INPUT_PATHS.keys():
+            file_path = tmp_path / f"{key}.csv"
+            file_path.write_text("col1,col2\n1,2\n")
+            mock_paths[key] = str(file_path)
 
-    def test_full_validation_failure(self, monkeypatch):
-        """Test full validation when a check fails."""
-        import config_validation as cv_module
-        
-        original_validate_dirs = cv_module.validate_directories
-        original_validate_files = cv_module.validate_input_files
-        
-        cv_module.validate_directories = lambda x: False
-        cv_module.validate_input_files = lambda x: True
-        
-        try:
-            result = validate_configuration()
-            assert result is False
-        finally:
-            cv_module.validate_directories = original_validate_dirs
-            cv_module.validate_input_files = original_validate_files
+        with patch('config_validation.INPUT_PATHS', mock_paths):
+            with patch('config_validation.ensure_directories', return_value=None):
+                result = validate_configuration()
+                assert result is True
+
+    def test_validate_configuration_invalid_seed(self, tmp_path):
+        """Test validation fails with invalid RANDOM_SEED."""
+        mock_paths = {}
+        for key in INPUT_PATHS.keys():
+            file_path = tmp_path / f"{key}.csv"
+            file_path.write_text("col1,col2\n1,2\n")
+            mock_paths[key] = str(file_path)
+
+        with patch('config_validation.INPUT_PATHS', mock_paths):
+            with patch('config_validation.ensure_directories', return_value=None):
+                with patch('config_validation.RANDOM_SEED', -1):
+                    result = validate_configuration()
+                    assert result is False
+
+    def test_validate_configuration_invalid_sample_limit(self, tmp_path):
+        """Test validation fails with invalid SAMPLE_LIMIT."""
+        mock_paths = {}
+        for key in INPUT_PATHS.keys():
+            file_path = tmp_path / f"{key}.csv"
+            file_path.write_text("col1,col2\n1,2\n")
+            mock_paths[key] = str(file_path)
+
+        with patch('config_validation.INPUT_PATHS', mock_paths):
+            with patch('config_validation.ensure_directories', return_value=None):
+                with patch('config_validation.SAMPLE_LIMIT', 0):
+                    result = validate_configuration()
+                    assert result is False

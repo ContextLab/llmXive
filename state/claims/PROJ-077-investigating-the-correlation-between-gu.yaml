@@ -22,3 +22,457 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T19:32:08Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Project dependencies pinned to pandas 2.0.3, numpy 1.24.3, scikit-bio
+    0.5.9, scikit-learn 1.3.0, statsmodels 0.14.0, matplotlib 3.7.2, seaborn 0.12.2,
+    pyyaml 6.0.1, scipy 1.11.1
+  claim_id: c_df8a7f2e
+  context: 'Phase 1: Setup - Initialize Python 3.11 project'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create requirements.txt at the repository root with pinned dependencies:
+    pandas==2.0.3, numpy==1.24.3, scikit-bio==0.5.9, scikit-learn==1.3.0, statsmodels==0.14.0,
+    matplotlib==3.7.2, seaborn==0.12.2, pyyaml==6.0.1, scipy==1.11.1.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T14:50:53Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 and sample limit set to 50000 for CI memory safety
+  claim_id: c_242ce32f
+  context: 'Phase 2: Foundational - Create code/config.py defining paths and limits'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure config.py with RANDOM_SEED=42 and SAMPLE_LIMIT=50000 to ensure
+    CI memory safety.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:51:08Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Shannon index computed using scikit-bio on raw counts rather than CLR-transformed
+    data
+  claim_id: c_a129ddc7
+  context: 'Phase 2: Spec Override Tasks - Amend spec.md to remove FR-003'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_index_computed_using_scikit-bio_on_raw_counts_rather
+  kind: entity_fact
+  raw_text: System MUST compute alpha diversity (Shannon index) using scikit-bio on
+    the OTU/ASV tables using raw counts (not CLR-transformed).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:51:30Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Correlation between Raw Shannon Index and fluid intelligence measured
+    via Spearman rank correlation
+  claim_id: c_6331dbb9
+  context: 'Phase 2: Spec Override Tasks - Amend spec.md to remove SC-001'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_Raw_Shannon_Index_and_fluid_intelligence
+  kind: entity_fact
+  raw_text: The correlation coefficient and p-value between Raw Shannon Index and
+    fluid intelligence are measured against the Spearman rank correlation test results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:52:10Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Imputation of numeric covariates uses median and categorical values uses
+    mode
+  claim_id: c_e121ce01
+  context: 'Phase 2: Spec Override Tasks - Amend spec.md to remove FR-007'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Imputation_of_numeric_covariates_uses_median_and_categorical
+  kind: entity_fact
+  raw_text: System MUST impute missing numeric covariate values (age, BMI, DQS) using
+    the median of the available data, and missing categorical values (sex) using the
+    mode.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:52:50Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 'HEI-2015 DQS calculation components and point values: Total Fruits 5,
+    Whole Fruits 5, Total Vegetables 5, Greens and Beans 5, Whole Grains 10, Dairy
+    10, Total Protein Foods 5, Seafood and Plant Proteins 5, Refined Grains 10, Sodium
+    10, Empty Calories 20'
+  claim_id: c_f3f7911e
+  context: 'Phase 3: Implementation for User Story 1 - Implement DQS calculation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DQS calculation includes Total Fruits (5 pts), Whole Fruits (5 pts), Total
+    Vegetables (5 pts), Greens and Beans (5 pts), Whole Grains (10 pts), Dairy (10
+    pts), Total Protein Foods (5 pts), Seafood and Plant Proteins (5 pts), Refined
+    Grains (10 pts), Sodium (10 pts), Empty Calories (20 pts).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:53:06Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset of 20 rows generated with seed 42 showing correlation
+    of 0.8
+  claim_id: c_be87433e
+  context: 'Phase 3: Implementation for User Story 1 - Create test fixture mock_correlation.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 20 synthetic rows with a known correlation of 0.8 using np.random.seed(42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:53:29Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Spearman correlation p-value threshold set to 0.05
+  claim_id: c_56b0e987
+  context: 'Phase 4: Tests for User Story 2 - Write failing test stub test_spearman_correlation_pvalue_calc'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify p-value < 0.05 in Spearman correlation test results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:53:29Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Significant findings validated against q-value threshold of 0.05
+  claim_id: c_6593e361
+  context: 'Phase 5: Implementation for User Story 3 - Implement validation script
+    validate_sc003.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate that all reported significant findings have q_value < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:53:29Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Data completeness metric calculated as percentage of non-null rows with
+    95% pass threshold
+  claim_id: c_92f3c9ba
+  context: 'Phase 5: Implementation for User Story 3 - Implement validation script
+    validate_sc004.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate completeness metric as (non_null_rows / total_rows) * 100 and
+    log 'PASS' if > 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T14:53:56Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11
+  claim_id: c_f8559d66
+  context: 'Initialize Python 3.11 project: Create requirements.txt at the repository
+    root with pinned dependencies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:02:24Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3
+  claim_id: c_fafbc49e
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    pandas==2.0.3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:03:40Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.3
+  claim_id: c_de4e4c05
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    numpy==1.24.3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.24.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:05:28Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: scikit-bio version 0.5.9
+  claim_id: c_ad052417
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    scikit-bio==0.5.9.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scikit-bio version 0.5.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:09:54Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_9568294c
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    scikit-learn==1.3.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scikit-learn version 1.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:10:12Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0
+  claim_id: c_f52007de
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    statsmodels==0.14.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses statsmodels version 0.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:10:33Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.7.2
+  claim_id: c_b9e62624
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    matplotlib==3.7.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses matplotlib version 3.7.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:10:58Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.12.2
+  claim_id: c_49680e12
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    seaborn==0.12.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses seaborn version 0.12.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:11:15Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_9de6bfec
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    pyyaml==6.0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:11:28Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.1
+  claim_id: c_5a07868d
+  context: 'Create requirements.txt at the repository root with pinned dependencies:
+    scipy==1.11.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scipy version 1.11.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:11:49Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: sample limit of 50000
+  claim_id: c_a63786e1
+  context: Create code/config.py defining paths, RANDOM_SEED=42, and SAMPLE_LIMIT=50000
+    (Per Plan Complexity Tracking) to ensure CI memory safety.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: DW-450 50000 3 0 0.2 0.001 quad 1 (VE) 0 1.2 0.9 1e-5 - - 256
+      source_id: '2502.13280'
+      url: https://arxiv.org/abs/2502.13280
+      value: '50000'
+    filled: true
+  kind: numeric
+  raw_text: The configuration defines a sample limit of 50000.
+  resolved_value: '50000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T15:12:56Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: random seed of 42
+  claim_id: c_0471391f
+  context: Create code/config.py defining paths, RANDOM_SEED=42, and SAMPLE_LIMIT=50000
+    (Per Plan Complexity Tracking) to ensure CI memory safety.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:13:20Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: HEI-2015 DQS has 11 components
+  claim_id: c_7457c43b
+  context: 'Specific Components: Total Fruits (5 pts), Whole Fruits (5 pts), Total
+    Vegetables (5 pts), Greens and Beans (5 pts), Whole Grains (10 pts), Dairy (10
+    pts), Total Protein Foods (5 pts), Seafood and Plant Proteins (5 pts), Refined
+    Grains (10 pts), Sodium (10 pts), Empty Calories (20 pts).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HEI-2015 standard formula for DQS calculation includes 11 components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:13:41Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: mock correlation fixture seed 42, 20 rows
+  claim_id: c_1c03d825
+  context: Generate tests/fixtures/mock_correlation.csv using np.random.seed(42) to
+    create 20 synthetic rows with a known correlation of 0.8 as described in T019.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock correlation test fixture uses a seed of 42 to generate 20 synthetic
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:14:06Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: mock correlation known correlation 0.8
+  claim_id: c_ead3dc82
+  context: Generate tests/fixtures/mock_correlation.csv using np.random.seed(42) to
+    create 20 synthetic rows with a known correlation of 0.8 as described in T019.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock correlation test fixture asserts a known correlation of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:14:31Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: data completeness metric > 95%
+  claim_id: c_eb16d630
+  context: Read data/processed/cleaned_data.csv, calculate completeness metric as
+    (non_null_rows / total_rows) * 100, and log 'PASS' if > 95% against SC-004.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/data_completeness_metric_%3E_95%25
+  kind: magnitude
+  raw_text: The validation script checks for a data completeness metric greater than
+    95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T15:15:42Z'

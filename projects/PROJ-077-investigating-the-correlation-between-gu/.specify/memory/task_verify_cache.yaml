@@ -14,13 +14,13 @@ T013:
     \ requirement is not satisfied."
 T014a:
   c: false
-  h: 45fe04709913e1a2d5ecb4a8b5084b191a3ef42b00956a6462a8749d8b4395ac
-  r: "The `code/data_ingestion.py` file exists and includes a `check_dqs_availability`\
-    \ function, but the `calculate_dqs` implementation is a simplified placeholder\
-    \ (\u201CSum of normalized fruit, vegetable, grain, dairy, protein scores\u201D\
-    ) and explicitly notes that the real HEI\u20112015 logic is not implemented. The\
-    \ task required using the HEI\u20112015 standard formula, which is not fulfilled.\
-    \ The missing real scoring logic must be added for the task to be complete."
+  h: 330822ab0f14db7688d9124bfa7172ff52d1ea5f0756aa66eeb1aaef9cc7d796
+  r: "The provided `code/data_ingestion.py` only defines helper functions (`check_dqs_availability`,\
+    \ `calculate_dqs`) and does not contain any logic that checks for the presence\
+    \ of `data/raw/dietary_data.csv` (or required columns) and raises a fatal error\
+    \ when it is missing. Moreover, the required `dietary_data.csv` file is absent\
+    \ from the repository. The task\u2019s core requirement\u2014implementing a file/column\
+    \ existence check with a fatal error\u2014is therefore not satisfied."
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,3 +39,10 @@ T016:
     \ be verified as met. The implementer must supply the updated preprocessing script\
     \ (or relevant module) and evidence (e.g., unit tests or example runs) showing\
     \ the new error handling in action."
+T054:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated\u202FREADME.md file is provided; there is no evidence that explicit\
+    \ instructions for obtaining UK Biobank data, the required placement in\u202F\
+    data/raw/, or the specific microbiome, cognitive, and dietary fields have been\
+    \ added. The required documentation artifact is missing."
