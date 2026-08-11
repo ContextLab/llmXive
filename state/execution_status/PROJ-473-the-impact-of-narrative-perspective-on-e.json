@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-473-the-impact-of-narrative-perspective-on-e",
+  "ok": false,
+  "reason": "5 command(s) failed: python -m spacy download en_core_web_sm (rc=1); python code/main.py --config code/config.py (rc=1); python code/main.py --step extraction (rc=1); 2 declared deliverable(s) absent: data/processed/matching_results.json; data/processed/perspective_features.json",
+  "artifacts": [],
+  "failures": [
+    "python -m spacy download en_core_web_sm -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/.venv/bin/python: No module named spacy",
+    "python code/main.py --config code/config.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 6, in <module>\n    from extraction import extract_perspective_features\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/extraction.py\", line 1, in <module>\n    import spacy\nModuleNotFoundError: No module named 'spacy'",
+    "python code/main.py --step extraction -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 6, in <module>\n    from extraction import extract_perspective_features\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/extraction.py\", line 1, in <module>\n    import spacy\nModuleNotFoundError: No module named 'spacy'",
+    "python code/main.py --step analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 6, in <module>\n    from extraction import extract_perspective_features\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/extraction.py\", line 1, in <module>\n    import spacy\nModuleNotFoundError: No module named 'spacy'",
+    "python -m pytest tests/contract/ -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/.venv/bin/python: No module named pytest"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-11T04:39:57Z"
+}

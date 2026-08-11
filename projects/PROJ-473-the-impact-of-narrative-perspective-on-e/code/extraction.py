@@ -6,130 +6,129 @@ import json
 import os
 import logging
 
-# Configure logging for the module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Load model lazily to avoid import-time failure if not installed
+_nlp = None
 
-# Load spaCy model (ensure 'en_core_web_sm' is installed)
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    logger.error("spaCy 'en_core_web_sm' model not found. Run: python -m spacy download en_core_web_sm")
-    raise
-
-# Pronoun sets for extraction
-PRONOUNS_1ST = {"i", "me", "my", "mine", "myself", "we", "us", "our", "ours", "ourselves"}
-PRONOUNS_2ND = {"you", "your", "yours", "yourself", "yourselves"}
-PRONOUNS_3RD = {"he", "she", "it", "they", "him", "her", "them", "his", "hers", "its", "their", "theirs", "himself", "herself", "itself", "themselves", "he's", "she's", "they're"}
+def _get_nlp():
+    global _nlp
+    if _nlp is None:
+        try:
+            _nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            logger = logging.getLogger(__name__)
+            logger.critical("en_core_web_sm model not found. Please run: python -m spacy download en_core_web_sm")
+            raise
+    return _nlp
 
 def calculate_pronoun_density(text: str) -> Dict[str, float]:
     """
-    Calculate the density of 1st, 2nd, and 3rd person pronouns in the text.
-    Returns a dictionary with densities per total word count.
+    Calculate the density of first-person and third-person pronouns in the text.
+    Returns a dict with keys: 'pronoun_density_1st', 'pronoun_density_3rd'.
     """
-    if not text or not isinstance(text, str):
-        return {"pronoun_density_1st": 0.0, "pronoun_density_2nd": 0.0, "pronoun_density_3rd": 0.0}
-
-    doc = nlp(text.lower())
-    words = [token.text for token in doc if token.is_alpha and not token.is_space]
-    total_words = len(words) if words else 1  # Avoid division by zero
-
-    counts = {"1st": 0, "2nd": 0, "3rd": 0}
-
+    nlp = _get_nlp()
+    doc = nlp(text)
+    
+    first_person_pronouns = {'i', 'me', 'my', 'mine', 'myself', 'we', 'us', 'our', 'ours', 'ourselves'}
+    third_person_pronouns = {'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 
+                             'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves'}
+    
+    total_tokens = len(doc)
+    if total_tokens == 0:
+        return {'pronoun_density_1st': 0.0, 'pronoun_density_3rd': 0.0}
+    
+    count_1st = 0
+    count_3rd = 0
+    
     for token in doc:
-        if token.text.lower() in PRONOUNS_1ST:
-            counts["1st"] += 1
-        elif token.text.lower() in PRONOUNS_2ND:
-            counts["2nd"] += 1
-        elif token.text.lower() in PRONOUNS_3RD:
-            counts["3rd"] += 1
-
+        lower = token.text.lower()
+        if lower in first_person_pronouns:
+            count_1st += 1
+        elif lower in third_person_pronouns:
+            count_3rd += 1
+    
     return {
-        "pronoun_density_1st": counts["1st"] / total_words,
-        "pronoun_density_2nd": counts["2nd"] / total_words,
-        "pronoun_density_3rd": counts["3rd"] / total_words
+        'pronoun_density_1st': count_1st / total_tokens,
+        'pronoun_density_3rd': count_3rd / total_tokens
     }
 
 def calculate_narrator_distance_score(text: str) -> float:
     """
     Calculate a narrator distance score.
-    Lower score indicates closer proximity (more 1st person).
-    Higher score indicates distance (more 3rd person).
-    Formula: (3rd_density - 1st_density)
+    Lower score = closer (more first-person), Higher score = more distant (more third-person).
+    Simple heuristic: ratio of 3rd person to (1st + 3rd) pronouns.
     """
     densities = calculate_pronoun_density(text)
-    return densities["pronoun_density_3rd"] - densities["pronoun_density_1st"]
+    p1 = densities['pronoun_density_1st']
+    p3 = densities['pronoun_density_3rd']
+    
+    total = p1 + p3
+    if total == 0:
+        return 0.5 # Neutral/Omniscient default
+    
+    return p3 / total
 
 def extract_perspective_features(file_path: str) -> Optional[Dict[str, Any]]:
     """
-    Extract perspective features from a text file.
-    Returns a dictionary with story_id, features, and quality flags.
+    Extract all perspective features from a single text file.
+    Returns a dictionary with:
+      - story_id: filename without extension
+      - text_length: number of characters
+      - word_count: number of words
+      - pronoun_density_1st
+      - pronoun_density_3rd
+      - narrator_distance_score
+      - language_detected
+      - confidence_flag: "neutral/omniscient" if 1st person density is 0.0
+      - data_quality_insufficient: True if < 50 words
     """
-    logger.info(f"Processing file: {file_path}")
-
-    if not os.path.exists(file_path):
-        logger.error(f"File not found: {file_path}")
-        return None
-
+    logger = logging.getLogger(__name__)
+    
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             text = f.read()
     except Exception as e:
-        logger.error(f"Error reading file {file_path}: {e}")
+        logger.error(f"Could not read file {file_path}: {e}")
         return None
-
-    if not text or len(text.strip()) < 50:
-        logger.warning(f"File {file_path} is too short (<50 words) or empty. Skipping.")
+    
+    # Basic stats
+    word_count = len(text.split())
+    text_length = len(text)
+    
+    # Edge case: too short
+    if word_count < 50:
+        logger.warning(f"File {file_path} has fewer than 50 words. Skipping.")
         return None
-
+    
     # Language detection
     try:
-        lang = detect(text[:200]) # Detect on first 200 chars for speed
+        lang = detect(text[:1000]) # Detect on first 1000 chars for speed
         if lang != 'en':
-            logger.warning(f"File {file_path} detected as non-English ({lang}). Skipping.")
+            logger.info(f"File {file_path} detected as language {lang}. Skipping non-English.")
             return None
     except LangDetectException:
         logger.warning(f"Could not detect language for {file_path}. Skipping.")
         return None
-
-    # Extract features
-    pronoun_densities = calculate_pronoun_density(text)
-    narrator_distance = calculate_narrator_distance_score(text)
-    word_count = len([t for t in nlp(text) if t.is_alpha])
-
-    # Quality Check: Data Quality Warning (T018)
-    # Flag if the text is too short for reliable statistics or has insufficient pronoun data
-    data_quality_insufficient = False
-    if word_count < 100:
-        data_quality_insufficient = True
-        logger.warning(f"data_quality_insufficient: File {file_path} has only {word_count} words, which may be insufficient for robust perspective analysis.")
-    elif pronoun_densities["pronoun_density_1st"] == 0.0 and pronoun_densities["pronoun_density_3rd"] == 0.0:
-        data_quality_insufficient = True
-        logger.warning(f"data_quality_insufficient: File {file_path} contains no detected personal pronouns, making perspective classification unreliable.")
-
-    # Flag for neutral/omniscient (T017 requirement, implemented here as part of extraction)
-    is_neutral_omniscient = False
-    if pronoun_densities["pronoun_density_1st"] == 0.0:
-        is_neutral_omniscient = True
-        logger.info(f"Neutral/Omniscient flag set for {file_path} (1st person density is 0.0).")
-
-    story_id = os.path.basename(file_path)
-
+    
+    # Calculate features
+    pronoun_data = calculate_pronoun_density(text)
+    distance_score = calculate_narrator_distance_score(text)
+    
+    # Confidence flag
+    confidence_flag = "normal"
+    if pronoun_data['pronoun_density_1st'] == 0.0:
+        confidence_flag = "neutral/omniscient"
+    
+    story_id = os.path.splitext(os.path.basename(file_path))[0]
+    
     return {
-        "story_id": story_id,
-        "file_path": file_path,
-        "word_count": word_count,
-        "perspective_features": {
-            "pronoun_density_1st": pronoun_densities["pronoun_density_1st"],
-            "pronoun_density_2nd": pronoun_densities["pronoun_density_2nd"],
-            "pronoun_density_3rd": pronoun_densities["pronoun_density_3rd"],
-            "narrator_distance_score": narrator_distance
-        },
-        "quality_flags": {
-            "data_quality_insufficient": data_quality_insufficient,
-            "is_neutral_omniscient": is_neutral_omniscient
-        }
+        'story_id': story_id,
+        'file_path': file_path,
+        'text_length': text_length,
+        'word_count': word_count,
+        'pronoun_density_1st': pronoun_data['pronoun_density_1st'],
+        'pronoun_density_3rd': pronoun_data['pronoun_density_3rd'],
+        'narrator_distance_score': distance_score,
+        'language_detected': lang,
+        'confidence_flag': confidence_flag,
+        'data_quality_insufficient': False
     }

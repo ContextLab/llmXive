@@ -6,6 +6,8 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Any, Tuple, Optional
 import logging
+import json
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -83,3 +85,88 @@ def validate_and_clean_responses(raw_data: pd.DataFrame) -> Tuple[pd.DataFrame, 
     cleaned_df = raw_data.loc[valid_mask].copy()
     
     return cleaned_df, excluded_ids
+
+def aggregate_reader_scores(stories: List[Dict[str, Any]], responses: pd.DataFrame) -> pd.DataFrame:
+    """
+    Aggregates perspective features and reader response scores into a single aligned dataset.
+    
+    This function implements T032. It consumes:
+    - perspective_features.json (parsed into `stories` list of dicts)
+    - reader_response.csv (loaded into `responses` DataFrame)
+    
+    It produces:
+    - data/processed/aligned_dataset.csv with columns:
+      story_id, perspective_score, empathy_score, moral_judgement_score
+    
+    Args:
+        stories: List of dictionaries loaded from perspective_features.json.
+                 Each dict must contain at least 'story_id' and 'perspective_score'.
+        responses: DataFrame loaded from reader_response.csv.
+                   Must contain 'story_id', 'empathy_score', and 'moral_judgement_score'.
+    
+    Returns:
+        DataFrame containing the aligned dataset.
+    
+    Raises:
+        FileNotFoundError: If required input files are missing (checked by caller).
+        ValueError: If required columns are missing from inputs.
+    """
+    if not stories:
+        raise ValueError("The 'stories' list is empty. Cannot aggregate without perspective features.")
+    
+    if responses.empty:
+        raise ValueError("The 'responses' DataFrame is empty. Cannot aggregate without reader responses.")
+    
+    # Convert stories list to DataFrame
+    perspectives_df = pd.DataFrame(stories)
+    
+    # Validate required columns in perspectives
+    required_perspective_cols = ['story_id', 'perspective_score']
+    missing_perspective_cols = [col for col in required_perspective_cols if col not in perspectives_df.columns]
+    if missing_perspective_cols:
+        raise ValueError(f"Missing columns in perspective features: {missing_perspective_cols}")
+    
+    # Validate required columns in responses
+    required_response_cols = ['story_id', 'empathy_score', 'moral_judgement_score']
+    missing_response_cols = [col for col in required_response_cols if col not in responses.columns]
+    if missing_response_cols:
+        raise ValueError(f"Missing columns in reader responses: {missing_response_cols}")
+    
+    # Select only required columns from responses to avoid duplication
+    responses_clean = responses[required_response_cols].copy()
+    
+    # Merge on story_id
+    # Using inner join to ensure we only keep stories that have both perspective and response data
+    aligned_df = pd.merge(
+        perspectives_df[['story_id', 'perspective_score']],
+        responses_clean,
+        on='story_id',
+        how='inner'
+    )
+    
+    if aligned_df.empty:
+        logger.warning("Merge resulted in an empty DataFrame. No matching story_ids found between inputs.")
+        return aligned_df
+    
+    # Ensure numeric types for aggregation
+    aligned_df['perspective_score'] = pd.to_numeric(aligned_df['perspective_score'], errors='coerce')
+    aligned_df['empathy_score'] = pd.to_numeric(aligned_df['empathy_score'], errors='coerce')
+    aligned_df['moral_judgement_score'] = pd.to_numeric(aligned_df['moral_judgement_score'], errors='coerce')
+    
+    # Drop rows with NaN in critical columns
+    aligned_df = aligned_df.dropna(subset=['perspective_score', 'empathy_score', 'moral_judgement_score'])
+    
+    # Log aggregation stats
+    logger.info(f"Aggregation complete: {len(aligned_df)} stories aligned.")
+    logger.debug(f"Alignment stats - Mean Perspective: {aligned_df['perspective_score'].mean():.3f}, "
+                 f"Mean Empathy: {aligned_df['empathy_score'].mean():.3f}")
+    
+    # Ensure output directory exists
+    output_path = "data/processed/aligned_dataset.csv"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Write to CSV
+    aligned_df.to_csv(output_path, index=False)
+    logger.info(f"Aligned dataset written to {output_path}")
+    
+    return aligned_df

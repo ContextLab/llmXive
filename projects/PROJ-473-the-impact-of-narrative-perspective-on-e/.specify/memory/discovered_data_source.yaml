@@ -1,0 +1,19 @@
+status: none
+intent: Project Gutenberg short story corpus and Open Science Framework reader response
+  dataset python package
+required_fields:
+- story_id
+- title
+- author
+- publication_year
+- genre
+- language
+- text
+- response_id
+- participant_id
+- rating
+- comments
+- moral_judgment_score
+cache_key: 8a15713bc55e8fd869eca03887fae2fb7e25dc731c93ea33793b9993adbaef10
+searched_at: '2026-08-11T04:40:53.212837+00:00'
+retry_count: 1

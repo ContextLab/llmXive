@@ -1,11 +1,12 @@
 T016:
-  c: true
-  h: 0e7618d75730ab33c224a1439b4ff7be8c9d6cd08f479431efbaa972265688d1
-  r: "The repository contains a `code/main.py` (3.5\u202FKB) that defines a CLI entry\
-    \ point, runs the extraction on `data/raw/` files, and writes the results to `data/processed/perspective_features.json`\
-    \ as specified. The script\u2019s `_run_extraction` function creates the output\
-    \ directory, processes all `.txt` files, and dumps the JSON records to the required\
-    \ path."
+  c: false
+  h: 1beb59aee82b19a7b0343ba2a4bd4f23fb4c1d1c8f3a68db3f10fba66562f7f4
+  r: "The repository contains `code/main.py` with an extraction function that *would*\
+    \ write to `data/processed/perspective_features.json`, but the required output\
+    \ file does not exist (it is listed as missing). Without the JSON file containing\
+    \ the extracted records, the entry point does not fulfill the task\u2019s requirement.\
+    \ The next implementer should run the script (or add a `if __name__ == \"__main__\"\
+    :` block) to generate `data/processed/perspective_features.json` with actual content."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,13 +16,6 @@ T018:
     \ is not satisfied. The next implementer must add and commit the logging implementation\
     \ (e.g., a log statement in the extraction script and a sample log file) and provide\
     \ the corresponding artifact."
-T025:
-  c: false
-  h: f79f27052a4dd6bfaf8cb3fd3794aac53c051a6b4d25634859871f66d7f6f8f2
-  r: "The repository contains `code/main.py` with a \u201Cmatch\u201D sub\u2011command,\
-    \ but the implementation is truncated and never creates the required `data/processed/matching_results.json`\
-    \ (the file is absent). Without the output file, the task\u2019s core requirement\
-    \ is not satisfied."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,3 +31,20 @@ T027:
     \ artifact (e.g., function, unit test, or example output) to demonstrate that\
     \ the rule has been added to the similarity matcher. The required implementation\
     \ is therefore missing."
+T032:
+  c: false
+  h: a2e44d044b15fd502a203bdc7526c5183dbaf6883a8126680f280acac5ce7193
+  r: The repository lacks the required input files (`data/processed/perspective_features.json`,
+    `data/processed/reader_response.csv`) and the output CSV (`data/processed/aligned_dataset.csv`).
+    Moreover, the provided `code/data_collection.py` snippet does not show an implementation
+    of the `aggregate_reader_scores` function, and the file is truncated, indicating
+    the function is likely missing or incomplete.
+T042:
+  c: false
+  h: c80ee2992351d8d23d719d343253a5187dcc977ac4001fdab20250148414eece
+  r: "The repository lacks the required `data/processed/aligned_dataset.csv` file,\
+    \ so the pipeline cannot be run on the intended dataset. Moreover, the provided\
+    \ `code/main.py` is truncated and does not contain a complete CLI sub\u2011command\
+    \ (e.g., an `if __name__ == \"__main__\":` block with argparse handling) that\
+    \ would invoke the full analysis pipeline on that CSV. Both the essential data\
+    \ artifact and the full command implementation are missing."
