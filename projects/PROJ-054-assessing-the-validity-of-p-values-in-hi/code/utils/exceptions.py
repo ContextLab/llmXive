@@ -1,23 +1,19 @@
-"""
-Custom exception classes for the project.
-"""
-
 class HighDimensionalInstabilityError(Exception):
-    """Raised when condition number exceeds acceptable threshold."""
+    """Raised when high-dimensional instability is detected (e.g., condition number > 10^12)."""
     pass
 
 class SimulationError(Exception):
-    """Base class for simulation-related errors."""
+    """General simulation error."""
     pass
 
-class DataGenerationError(SimulationError):
-    """Raised when data generation fails."""
+class DataGenerationError(Exception):
+    """Error during data generation."""
     pass
 
 class HypothesisTestError(Exception):
-    """Raised when a hypothesis test fails."""
+    """Error during hypothesis testing."""
     pass
 
 class AnalysisError(Exception):
-    """Raised when p-value analysis fails."""
+    """Error during analysis."""
     pass

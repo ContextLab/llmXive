@@ -1,0 +1,9 @@
+status: none
+intent: synthetic high-dimensional data python package specify correlation matrix
+  heavy-tailed marginals python package dataset
+required_fields:
+- sample_id
+- features
+cache_key: 244ed2b0547424b92d55285569d49271db4b378a9f81cd372f7e6d433e2e50c1
+searched_at: '2026-08-11T02:47:30.933635+00:00'
+retry_count: 1
