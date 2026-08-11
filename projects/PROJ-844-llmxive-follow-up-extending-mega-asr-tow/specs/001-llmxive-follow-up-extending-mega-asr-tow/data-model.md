@@ -1,87 +1,61 @@
 # Data Model: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-## 1. Entity Definitions
+## 1. Entities & Relationships
 
 ### AudioClip
-Represents a single audio file from the source dataset.
-- **id**: Unique identifier (string)
-- **source_dataset**: Name of the source dataset (e.g., "open-asr-leaderboard")
-- **speaker_id**: Speaker identifier (string, for stratification)
-- **duration_seconds**: Length of the audio clip (float)
-- **clean_text**: Ground-truth transcript (string)
-- **audio_path**: Relative path to the raw audio file (string)
-- **split**: "train" or "test" (string, set **immediately after ingestion** and **before** any distortion)
+*   **ID**: Unique identifier (UUID or hash).
+*   **Source**: Dataset name (e.g., "ami", "commonvoice").
+*   **Path**: Local file path to raw audio.
+*   **Speaker_ID**: Identifier for speaker stratification.
+*   **Duration**: Length in seconds.
+*   **Transcript**: Ground truth text.
 
 ### DistortionVector
-Represents a specific combination of acoustic parameters.
-- **id**: Unique identifier (string)
-- **snr_db**: Signal-to-Noise Ratio in decibels (float)
-- **rt60_seconds**: Reverberation time in seconds (float)
-- **distortion_type**: Type of compound distortion (e.g., "Reverb+Noise")
-- **intensity_level**: Relative intensity within the vector (float, 0.0 to 1.0)
+*   **ID**: Composite key (AudioClip_ID + SNR + RT60).
+*   **SNR**: Signal-to-Noise Ratio in dB (float).
+*   **RT60**: Reverberation time in seconds (float).
+*   **Scenario_Index**: Integer (1-54).
 
 ### StressCurve
-A sequence of records linking an AudioClip and DistortionVector to ASR results.
-- **audio_clip_id**: Foreign key to AudioClip (string)
-- **distortion_vector_id**: Foreign key to DistortionVector (string)
-- **model_name**: ASR model used (e.g., "whisper-tiny")
-- **ss_score**: Semantic Similarity Score (float, 0.0 to 1.0)
-- **normalized_sss**: SSS normalized to baseline (float)
-- **wer**: Word Error Rate (float)
-- **hypothesis**: ASR output text (string)
-- **is_collapse**: Boolean flag indicating if collapse criteria met (bool)
-
-### RobustnessProfile
-Derived entity from model selection and fitting of a StressCurve. **This is the primary regression target.**
-- **audio_clip_id**: Foreign key to AudioClip (string)
-- **model_name**: ASR model used (string)
-- **best_fit_model_type**: "linear" or "sigmoid" (string, result of model selection)
-- **inflection_intensity**: The intensity where SSS = 0.5 (float, only for sigmoid)
-- **semantic_decay_slope**: The slope of the *selected* model at the 0.5 threshold (float)
-- **area_under_stress_curve**: The integral of the SSS curve (float)
-- **r_squared_fit**: Goodness of fit for the *selected* model (float)
-- **aic_score**: AIC of the *selected* model (float, for model selection)
+*   **AudioClip_ID**: FK to AudioClip.
+*   **DistortionVector_ID**: FK to DistortionVector.
+*   **Model_Name**: ASR model used (e.g., "whisper-tiny").
+*   **SSS**: Semantic Similarity Score (float, 0.0-1.0).
+*   **WER**: Word Error Rate (float, 0.0-1.0+).
+*   **Composite_Score**: Weighted average of SSS and Phoneme Edit Distance.
+*   **Hypothesis**: ASR output text.
+*   **Reference**: Ground truth text.
+*   **Curve_Type**: String ("sigmoid", "linear").
+*   **Max_Derivative**: Float (maximum negative derivative of SSS).
 
 ### CollapseIntensity
-Derived entity representing the failure point. **Used only for sensitivity analysis, not primary regression.**
-- **audio_clip_id**: Foreign key to AudioClip (string)
-- **model_name**: ASR model used (string)
-- **collapse_intensity_id**: Foreign key to DistortionVector where collapse occurred (string)
-- **ss_threshold**: The SSS threshold at collapse (float)
-- **wer_spike_factor**: WER multiplier at collapse (float)
-- **sensitivity_threshold**: The threshold value used in sensitivity analysis (float)
+*   **AudioClip_ID**: FK.
+*   **Model_Name**: ASR model.
+*   **Collapse_Step**: The index of the distortion vector where collapse occurred.
+*   **Collapse_Intensity**: The interpolated intensity value (float).
+*   **Reason**: "Inflection", "Threshold", "None".
+*   **Sensitivity_Flag**: Boolean (true if sensitivity analysis varied this point).
+*   **Curve_Type**: String ("sigmoid", "linear").
 
 ### CriticalInteractionVector
-Learned coefficients from the regression model.
-- **model_name**: ASR model used (string)
-- **coefficient_snr**: Coefficient for SNR (float)
-- **coefficient_rt60**: Coefficient for RT60 (float)
-- **coefficient_interaction**: Coefficient for SNR × RT60 (float)
-- **r_squared**: Model R² score (float)
-- **p_value_interaction**: Corrected p-value for interaction term (float)
+*   **Model_Name**: ASR model.
+*   **Coefficients**: JSON blob of regression coefficients (SNR, RT60, Interaction).
+*   **R2**: Model fit score.
+*   **SHAP_Importance**: JSON blob of feature importances.
+*   **FDR_Corrected**: Boolean.
 
-## 2. Relationships
+## 2. Data Flow
 
-- **AudioClip** (1) ──── (N) **StressCurve**
-- **DistortionVector** (1) ──── (N) **StressCurve**
-- **AudioClip** (1) ──── (1) **RobustnessProfile** (one set of parameters per clip/model pair)
-- **AudioClip** (1) ──── (N) **CollapseIntensity** (one per sensitivity threshold)
-- **RobustnessProfile** (N) ──── (1) **CriticalInteractionVector** (aggregated per model)
+1.  **Raw**: `data/raw/` (Downloaded Parquet files from HF).
+2.  **Interim**: `data/interim/` (Stratified sample, generated distorted audio files `.wav`).
+3.  **Derived**: `data/derived/` (Aggregated stress curves, collapse points, regression results).
+    *   `stress_curves.parquet`
+    *   `collapse_points.parquet` (Generated in Phase 2, T022)
+    *   `regression_results.json`
 
-## 3. Data Flow
+## 3. Constraints
 
-1. **Ingestion**: `AudioClip` records created from streaming source datasets.
-2. **Split**: **CRITICAL STEP**: Clips are split into Train ([deferred]) and Test ([deferred]) sets **immediately** after ingestion. No distortion vectors are generated for a clip until its split status is determined.
-3. **Distortion**: For each `AudioClip` in the **Train** set, 54 `DistortionVector` instances generated.
-4. **Stress Testing**: `StressCurve` records generated by applying distortions and running ASR.
-5. **Curve Fitting**: `RobustnessProfile` derived by fitting **both** linear and sigmoid models to the `StressCurve` data, selecting the best fit, and extracting the slope.
-6. **Collapse Detection**: `CollapseIntensity` derived from `StressCurve` where `normalized_sss < 0.5` AND `wer > 2× baseline`.
-7. **Regression**: `CriticalInteractionVector` computed from `RobustnessProfile` (features: SNR/RT60, target: `semantic_decay_slope` or `area_under_stress_curve`).
-
-## 4. Schema Constraints
-
-- **SSS Range**: `0.0 ≤ ss_score ≤ 1.0`
-- **WER Range**: `0.0 ≤ wer` (no upper bound, but typically < 2.0 for valid speech)
-- **Normalization**: `normalized_sss = ss_score / baseline_sss` (where `baseline_sss` is SSS on clean audio)
-- **Uniqueness**: `(audio_clip_id, model_name, distortion_vector_id)` must be unique in `StressCurve`.
-- **Split**: `split` must be "train" or "test".
+*   **Parquet**: All derived data must be stored in Parquet for efficient columnar access.
+*   **Immutability**: Raw files are never modified.
+*   **Checksums**: All files in `data/raw` and `data/derived` must have a `.sha256` sidecar file.
+*   **Versioning**: `code/utils/versioning.py` must update `state/` YAML files with hashes of all derived files.

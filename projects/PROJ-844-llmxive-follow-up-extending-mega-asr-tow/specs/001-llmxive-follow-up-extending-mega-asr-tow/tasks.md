@@ -209,6 +209,18 @@
 
 ---
 
+## Phase 10: GPU Offload Preparation & Real Data Verification (Revision Response)
+
+**Purpose**: Address the specific constraint regarding GPU-tractable methods that cannot be simulated on CPU. While the current plan targets CPU, this phase ensures that if the science demands a real GPU (e.g., for a larger model or full dataset streaming that exceeds CPU RAM), the pipeline is ready to offload to Kaggle without fabrication. This phase also verifies that all data sources are truly real and not synthetic placeholders.
+
+- [ ] T061 [P] [US1/US2/US3] Implement `code/gpu_offload_check.py` to detect if a task requires GPU (e.g., `device="cuda"` in config or large model loading) and raise a specific `GPU_REQUIRED` error if the current runner is CPU-only, triggering the execution stage's auto-offload mechanism to Kaggle.
+- [ ] T062 [US1] **Real Data Source Verification**: Add a pre-flight check in `code/data_loader.py` that attempts to download a single small chunk from the real dataset (LibriSpeech/CORAA) to verify network accessibility and checksum validity before starting the full pipeline. If this fails, the pipeline MUST halt with a clear error message; NO fallback to synthetic data is permitted.
+- [ ] T063 [US3] **GPU-Scaled Regression Path**: Implement a fallback path in `code/models.py` that, if a GPU is detected (via T061), switches to a larger hierarchical model or processes a larger sample size (e.g., full dataset instead of 500 clips) while maintaining the same scientific logic. This ensures the project can scale up if resources allow without changing the core hypothesis.
+- [ ] T064 [P] [US1] **Distortion Realism Validation**: Implement `code/realism_validator.py` to compare the synthetic distortion parameters (SNR/RT60) against a subset of real-world noisy audio clips (e.g., from DNS Challenge) using a spectral distance metric (Log-Mel) to ensure the synthetic data is physically realizable per FR-018.
+- [ ] T065 [US3] **Cross-Model GPU Scaling**: Extend the cross-model comparison logic (T028) to support running on a GPU if offloaded, allowing the analysis of larger ASR models (e.g., Whisper-small/base) that may not fit on the CPU runner, while keeping the CPU path for the primary "small model" hypothesis.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -222,6 +234,7 @@
 - **Execution Verification (Phase 7)**: Must be completed before final deployment to ensure CPU feasibility and data integrity
 - **Human-in-the-Loop (Phase 8)**: Must be completed to resolve unspecified logic before final validation
 - **Streamlined Data Processing (Phase 9)**: Must be completed to ensure robustness against large datasets and edge cases before final execution
+- **GPU Offload Preparation (Phase 10)**: Must be completed to ensure scalability and real-data verification before final execution on any platform
 
 ### User Story Dependencies
 
@@ -231,6 +244,7 @@
 - **Phase 7 Tasks**: Can run in parallel with Phase 6 implementation but must pass before final report generation
 - **Phase 8 Tasks**: Must be completed after Phase 5 (Human Annotation) is initiated to finalize logic
 - **Phase 9 Tasks**: Must be completed after Phase 2 (Foundational) and can run in parallel with Phase 6 implementation
+- **Phase 10 Tasks**: Can run in parallel with Phase 6-9 but must pass before any GPU offload or final scaling
 
 ### Within Each User Story
 
@@ -251,6 +265,7 @@
 - Phase 7 safety checks can run in parallel with Phase 6 implementation
 - Phase 8 tasks can run in parallel with Phase 7 execution verification
 - Phase 9 tasks can run in parallel with Phase 6 implementation
+- Phase 10 tasks can run in parallel with Phase 6-9 implementation
 
 ---
 
@@ -298,6 +313,7 @@ With multiple developers:
  - Developer D: Phase 7 Safety Gates (Execution Verification)
  - Developer E: Phase 8 Human-in-the-Loop Logic (Annotation Protocol & HVCM)
  - Developer F: Phase 9 Streamlined Data Processing (Streaming & Edge Cases)
+ - Developer G: Phase 10 GPU Offload & Real Data Verification
 3. Stories complete and integrate independently
 
 ---
@@ -311,7 +327,7 @@ With multiple developers:
 - Commit after each logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All ASR and embedding models MUST run on CPU (no CUDA/GPU). Use `whisper-tiny` and `all-MiniLM-L-v2`.
+- **Critical Constraint**: All ASR and embedding models MUST run on CPU (no CUDA/GPU) unless explicitly offloaded via T061. Use `whisper-tiny` and `all-MiniLM-L-v2`.
 - **Data Integrity**: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic data fabrication.
 - **Statistical Rigor**: Apply multiple-comparison correction and associational framing strictly.
 - **Human Validation**: FR-011 requires generating human annotations (T050b) with a **0-5 Likert scale** before US2/US3 validation. **T050c is for CI only; T050e validates CI path.**
@@ -333,3 +349,4 @@ With multiple developers:
 - **Revision Update 15**: T060 updated to remove hardcoded 0.8 threshold, requiring explicit argument.
 - **Revision Update 16**: T009 moved to Phase 2.
 - **Revision Update 17**: T019 updated to produce dual targets (SSS/WER and HVCM).
+- **Revision Update 18**: Phase 10 added to address GPU offload preparation and real data verification (T061-T065).

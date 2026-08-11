@@ -1,31 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CollapseIntensity"
-description: "Schema for identified semantic collapse points (used for sensitivity analysis only)."
-type: "object"
+title: "Collapse Point Record"
+description: "Schema for the identified semantic collapse intensity for a specific audio/model combination."
+type: object
 properties:
   audio_clip_id:
-    type: "string"
-    description: "Unique identifier for the audio clip."
+    type: string
+    description: "Unique identifier for the source audio clip."
   model_name:
-    type: "string"
+    type: string
     description: "Name of the ASR model used."
-  collapse_intensity_id:
-    type: "string"
-    description: "ID of the distortion vector where collapse occurred."
-  ss_threshold:
-    type: "number"
-    description: "The SSS threshold at collapse."
-  wer_spike_factor:
-    type: "number"
-    description: "WER multiplier at collapse (e.g., 2.0 for 2× baseline)."
-  sensitivity_threshold:
-    type: "number"
-    description: "The threshold value used in sensitivity analysis."
+  collapse_intensity:
+    type: number
+    description: "The interpolated distortion intensity where collapse occurred."
+  collapse_step_index:
+    type: integer
+    description: "The index of the distortion vector (0-53) where collapse was detected."
+  reason:
+    type: string
+    enum: ["Inflection", "Threshold", "None"]
+    description: "Method used to identify the collapse point."
+  sss_at_collapse:
+    type: number
+    description: "SSS value at the identified collapse point."
+  wer_at_collapse:
+    type: number
+    description: "WER value at the identified collapse point."
+  curve_type:
+    type: string
+    enum: ["sigmoid", "linear"]
+    description: "Morphology of the degradation curve."
+  max_derivative:
+    type: number
+    description: "Maximum negative derivative of the SSS curve."
 required:
   - audio_clip_id
   - model_name
-  - collapse_intensity_id
-  - ss_threshold
-  - wer_spike_factor
-  - sensitivity_threshold
+  - collapse_intensity
+  - collapse_step_index
+  - reason
+  - sss_at_collapse
+  - wer_at_collapse
+  - curve_type
+  - max_derivative
 additionalProperties: false

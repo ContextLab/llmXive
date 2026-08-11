@@ -1,101 +1,66 @@
 # Quickstart: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-## 1. Prerequisites
+## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to HuggingFace Hub (for dataset streaming)
-- Substantial disk space (for cached datasets and derived artifacts)
+*   Python 3.11+
+*   Git
+*   Access to Hugging Face (for dataset download).
 
-## 2. Installation
+## Installation
 
+1.  **Clone & Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r code/requirements.txt
+    ```
+
+2.  **Verify Dependencies**:
+    ```bash
+    python -c "import pyroomacoustics; import transformers; import shap; print('All dependencies OK')"
+    ```
+
+## Running the Pipeline
+
+The pipeline is orchestrated via `code/main.py`.
+
+### 1. Download & Stratify (CPU)
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd <project-root>
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python code/main.py --action download --dataset hf-audio/open-asr-leaderboard --sample-size 80
 ```
+*Output*: `data/raw/stratified_sample.parquet`
 
-**Key Dependencies**:
-- `datasets`: For streaming HuggingFace datasets
-- `transformers`: For ASR models and embeddings
-- `scikit-learn`: For regression analysis
-- `jiwer`: For WER calculation
-- `librosa`, `pyroomacoustics`: For audio distortion
-- `scipy`: For sigmoid and linear curve fitting
-- `pytest`: For testing
-
-## 3. Configuration
-
-Edit `src/lib/config.py` to set:
-- `SEED`: Random seed for reproducibility (default: 42)
-- `DATA_DIR`: Path to `data/` directory
-- `SUBSET_SIZE`: Number of audio clips to process (e.g., 500)
-- `MODELS`: List of ASR models to test (e.g., `["whisper-tiny", "distil-whisper"]`)
-
-## 4. Running the Pipeline
-
-### Step 1: Download & Stratify Data
+### 2. Generate Stress Curves
 ```bash
-python -m src.cli.main --task download --subset-size [qualitative magnitude]
+python code/main.py --action distort --snr-range -10,30 --rt60-range 0.1,0.6 --models whisper-tiny
 ```
-This streams the verified datasets, performs stratified random sampling, **splits clips into train/test sets**, and saves to `data/raw/`.
+*Output*: `data/derived/stress_curves.parquet`
 
-### Step 2: Generate Stress Curves
+### 3. Identify Collapse Points
 ```bash
-python -m src.cli.main --task stress-test --models whisper-tiny,distil-whisper
+python code/main.py --action collapse --threshold-sss 0.5 --threshold-wer-multiplier 2
 ```
-Applies multiple distortion vectors per clip, computes SSS and WER, saves to `data/derived/stress_curves.parquet`.
+*Output*: `data/derived/collapse_points.parquet`
 
-### Step 3: Fit Curves & Detect Collapse
+### 4. Regression & Analysis
 ```bash
-python -m src.cli.main --task fit-curves --models whisper-tiny,distil-whisper
-python -m src.cli.main --task detect-collapse --threshold 0.5 --wer-factor 2.0
+python code/main.py --action regress --method hierarchical --interaction-check shap
 ```
-Fits **both linear and sigmoid models**, selects the best fit, extracts the slope (SSD) and Area Under Stress Curve (AUSC), and identifies collapse points, saves to `data/derived/collapse_points.parquet`.
+*Output*: `data/derived/regression_results.json`, `figures/critical_vector.png`
 
-### Step 4: Train Regression Model
+## Testing
+
+Run the full test suite:
 ```bash
-python -m src.cli.main --task regress --interaction-term
+pytest tests/ -v
 ```
-Trains the regression model (predicting SSD/AUSC from SNR/RT60), outputs coefficients and metrics to `data/derived/regression_results.json`.
+*   **Unit Tests**: Verify distortion logic, SSS calculation, collapse algorithm.
+*   **Contract Tests**: Verify `stress_curves.parquet` schema matches `contracts/stress_curve.schema.yaml`.
 
-### Step 5: Sensitivity Analysis
-```bash
-python -m src.cli.main --task sensitivity --thresholds 0.40,0.45,0.50,0.55,0.60
-```
-Sweeps thresholds and reports variance in critical interaction vectors.
+## Troubleshooting
 
-## 5. Validation
-
-Run unit and integration tests:
-```bash
-pytest tests/unit/ -v
-pytest tests/integration/ -v
-```
-
-Validate output schemas:
-```bash
-pytest tests/contract/ -v
-```
-
-**Note**: Ensure `tests/unit/` contains `__init__.py` and `test_distortion.py`, `test_metrics.py`, `test_curve_fit.py`. Ensure `pytest.ini` is present in the root.
-
-## 6. Output Artifacts
-
-- `data/derived/stress_curves.parquet`: Full stress curve data
-- `data/derived/collapse_points.parquet`: Identified collapse intensities (for sensitivity analysis)
-- `data/derived/regression_results.json`: Model coefficients and metrics (SSD/AUSC prediction)
-- `reports/sensitivity_analysis.md`: Sensitivity analysis results
-
-## 7. Troubleshooting
-
-- **OOM Error**: Reduce `SUBSET_SIZE` in `config.py` or enable streaming explicitly.
-- **ASR Model Load Failure**: Ensure `transformers` is up-to-date; try `whisper-tiny` only.
-- **Dataset Download Slow**: Use `HF_DATASETS_OFFLINE_MODE=1` if re-running locally with cached data.
+*   **Memory Error**: Reduce `--sample-size` or enable `--streaming` in download.
+*   **CPU Timeout**: A default sample size sufficient to complete the study within 6 hours is selected. If using GPU, increase sample size.
+*   **Dataset Missing**: Ensure you are using the verified HF URLs in `research.md`.

@@ -1,19 +1,12 @@
 status: none
-intent: download CAIMAN-ASR-BackgroundNoise audio_clips sbbdata_snr_0 clean speech
-  transcripts python package dataset
+intent: download Voices-in-the-Wild-2M audio dataset for ASR research python package
+  dataset
 required_fields:
-- audio_id
+- audio_file_path
+- transcription
 - speaker_id
-- transcript
-- audio_filepath
-- sampling_rate
-- duration
 - snr
 - rt60
-- noise_type
-- reverb_type
-- asr_hypothesis
-- semantic_similarity_score
-cache_key: e49b95d6e1e710392b723c16474449ec58aa13c1a801cf56e8d92d7e89a0e33d
-searched_at: '2026-07-28T10:10:37.259745+00:00'
+cache_key: b88064cb74d1086654b48d48a92e66c993849a20e072f5665226ca36f456ac2b
+searched_at: '2026-08-11T17:49:01.399665+00:00'
 retry_count: 1

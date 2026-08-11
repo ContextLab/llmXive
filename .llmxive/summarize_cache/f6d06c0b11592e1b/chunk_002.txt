@@ -1,0 +1,8 @@
+- The "Voices-in-the-Wild-2M" dataset contains sufficient clean audio segments to support the generation of a ≥ 500 number of clips with valid ground truth transcripts for the stress testing.
+- The `all-MiniLM-L6-v2` model is a valid, CPU-tractable proxy for "semantic integrity" and its embeddings correlate sufficiently with human judgment of ASR failure for the purpose of defining the 0.5 threshold (validated via FR-011 and FR-022).
+- The 54 compound distortion scenarios (combinations of reverberation and noise) are physically realizable and cover the relevant non-linear interaction space for the research question.
+- The selected small ASR models (e.g., Whisper-tiny, Distil-Whisper) can perform inference on CPU within the 7GB RAM limit without requiring quantization or GPU acceleration.
+- The relationship between acoustic distortion parameters and semantic collapse is complex and non-linear, requiring hierarchical modeling or functional data analysis to isolate universal acoustic interactions from model-specific noise and variance in the target variable.
+- The "semantic collapse" phenomenon is consistent across different small ASR architectures, justifying the cross-model generalization check.
+- If FR-011 (human validation) fails to meet the threshold defined in FR-011, the workflow halts and requires manual intervention; the analysis will NOT proceed with a reduced dataset. The collapse threshold (0.5) is considered provisional until FR-011 is satisfied.
+- The 54 distortion scenarios are generated using the Cartesian product defined in FR-024.

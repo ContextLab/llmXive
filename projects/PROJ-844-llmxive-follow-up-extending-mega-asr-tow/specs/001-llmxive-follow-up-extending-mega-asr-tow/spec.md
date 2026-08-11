@@ -26,7 +26,7 @@
 
 **Why this priority**: This transforms raw stress curves into a binary or scalar target variable (the collapse intensity) required for the regression analysis. It isolates the specific failure event from the continuous degradation curve and ensures the target is not circularly dependent on a single metric.
 
-**Independent Test**: Can be fully tested by providing a pre-calculated stress curve where the SSS decreases monotonically from a high to a low value between two known intensity steps, and verifying that the system correctly identifies the interpolation point (or the specific step) where the normalized SSS first falls below a predefined threshold AND the WER exceeds a significant multiple of the baseline, recording this as the collapse intensity. The test must also verify that if SSS and WER disagree on the step, the system uses the linear interpolation rule defined in FR-023.
+**Independent Test**: Can be fully tested by providing a pre-calculated stress curve where the SSS decreases monotonically from a high to a low value between two known intensity steps, and verifying that the system correctly identifies the interpolation point (or the specific step) where the normalized SSS first falls below a predefined threshold AND the WER exceeds a significant multiple of the baseline, recording this as the collapse intensity. The test must also verify that if SSS and WER disagree on the step, the system uses the linear interpolation rule defined in FR-020.
 
 **Acceptance Scenarios**:
 
@@ -56,29 +56,33 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and stratify a subset of [deferred] audio clips from the "Voices-in-the-WildM" dataset, ensuring coverage of the 54 compound distortion scenarios via a metadata-based sampling strategy using a pre-computed index to stratify by speaker ID and SNR bucket, specifically ensuring inclusion of high RT60 and low SNR conditions. (See US-1)
+- **FR-001**: System MUST download and stratify a subset of ≥ 500 audio clips from the "Voices-in-the-Wild-2M" dataset, ensuring coverage of the 54 compound distortion scenarios via a metadata-based sampling strategy using a pre-computed index to stratify by speaker ID and SNR bucket, specifically ensuring inclusion of high RT60 and low SNR conditions. The sample size of ≥ 500 is required to detect a small effect size (f² ≥ 0.02) with 80% power at α=0.05 for the regression analysis in US-3. (See US-1)
 - **FR-002**: System MUST apply a series of distinct compound acoustic distortion vectors (varying reverberation time and SNR) to each clean audio clip using physical acoustic models (e.g., pyroomacoustics), incrementally increasing intensity to generate stress curves. The generation phase MUST complete within a wall-clock time of ≤ 4 hours and peak RSS memory usage of ≤ 7GB on the GitHub Actions ubuntu-latest runner. (See US-1)
 - **FR-003**: System MUST compute the Semantic Similarity Score (SSS) between the clean reference transcript and the distorted ASR hypothesis using the `all-MiniLM-L6-v2` sentence embedding model (source: Q801455, https://www.wikidata.org/wiki/Q801455). (See US-1)
-- **FR-004**: System MUST identify the "semantic collapse intensity" for each model/scenario combination primarily as the inflection point (maximum derivative) of the SSS degradation curve, and secondarily as the specific distortion intensity where the SSS first drops below 0.5 (normalized to baseline) AND is corroborated by a concurrent WER spike exceeding 2× the model's baseline WER. (See US-2)
-- **FR-005**: System MUST train a CPU-tractable regression model (e.g., scikit-learn Linear Regression, Polynomial Regression with degree ≤ 3, Decision Tree with max_depth ≤ 5, OR Gradient Boosting Regressor) to predict the collapse intensity based on the acoustic parameter vector, explicitly including engineered interaction terms (e.g., SNR × RT60, SNR², RT60²), using a stratified 80/20 split by speaker ID and distortion type for training and validation. The system MUST perform a model-agnostic test (e.g., SHAP values on the Gradient Boosting model) to confirm the form of interaction before claiming a universal vector exists. (See US-3)
+- **FR-004**: System MUST identify the "semantic collapse intensity" for each model/scenario combination by executing the deterministic algorithm defined in FR-021. (See US-2)
+- **FR-005**: System MUST train a hierarchical regression model or perform functional data analysis (FDA) to predict the collapse intensity based on the acoustic parameter vector, explicitly including engineered interaction terms (e.g., SNR × RT60, SNR², RT60²), to account for model-specific idiosyncrasies and isolate universal acoustic interactions. The system MUST use a stratified split by speaker ID and distortion type for training and validation. The system MUST perform a model-agnostic test (e.g., SHAP values) to confirm the form of interaction before claiming a universal vector exists. (See US-3)
 - **FR-006**: System MUST perform a sensitivity analysis by sweeping the inflection point detection parameters and analyzing the variance in the identified "critical interaction vector" across different curve morphologies (linear vs. sigmoid). (See US-3)
 - **FR-007**: System MUST explicitly frame all predictive findings as ASSOCIATIONAL, avoiding causal claims regarding the distortions unless randomization is explicitly modeled. (See US-3)
 - **FR-008**: System MUST perform multiple-comparison correction (e.g., Bonferroni or False Discovery Rate) when evaluating the statistical significance of the interaction effects across the 54 scenarios. (See US-3)
-- **FR-009**: System MUST validate the identified collapse intensity by confirming a concurrent spike in Word Error Rate (WER) exceeding 2× the model's baseline WER to ensure the target is not circularly dependent on the SSS metric. (See US-2)
-- **FR-010**: System MUST normalize the SSS collapse threshold (0.5) relative to each model's clean-audio baseline SSS to isolate universal acoustic interactions from model-specific embedding behaviors. (See US-3)
-- **FR-011**: System MUST validate the SSS metric against a held-out subset of at least 50 human-annotated transcripts (sourced from a public dataset like Common Voice) to ensure correlation with human judgment of semantic integrity (Pearson r ≥ 0.85) before defining the collapse threshold. (See US-1)
+- **FR-010**: System MUST normalize the SSS collapse threshold relative to each model's clean-audio baseline SSS to isolate universal acoustic interactions from model-specific embedding behaviors. (See US-3)
+- **FR-011**: System MUST validate the SSS metric against a held-out subset of [deferred] human-annotated transcripts (sourced from Common Voice, English subset, ≥ 10 words) to ensure correlation with human judgment of semantic integrity (Pearson r ≥ [deferred]). This validation is a methodological necessity to calibrate the SSS metric as a valid proxy before defining the collapse threshold. (See US-1)
 - **FR-012**: System MUST analyze the shape of the degradation curve (e.g., sigmoid vs. linear) and calculate the maximum derivative (inflection point) for every stress curve to normalize the rate of degradation across models. (See US-2)
-- **FR-013**: System MUST validate the non-linear nature of interactions by comparing the interaction term coefficient against the sum of individual coefficients to confirm synergistic failure modes, satisfying Constitution Principle VI. (See US-3)
-- **FR-016**: System MUST halt the workflow and require manual intervention if FR-011 (human validation) fails to achieve the required correlation threshold (Pearson r ≥ 0.85). (See US-1)
+- **FR-013**: System MUST explicitly validate the non-linear nature of interactions by comparing the interaction term coefficient against the sum of individual coefficients to confirm synergistic failure modes, satisfying Constitution Principle VI. (See US-3)
+- **FR-016**: System MUST halt the workflow and require manual intervention if FR-011 (human validation) fails to meet the threshold defined in FR-011 AND the fallback mechanism in FR-022 also fails to achieve the threshold for the phoneme metric (Pearson r ≥ 0.6). (See US-1)
 - **FR-017**: System MUST log a warning and proceed with the available subset, noting the missing scenarios in the final report, if the "Voices-in-the-Wild-2M" subset lacks specific distortion combinations required for the 54 scenarios. (See US-1)
-- **FR-018**: System MUST validate the realism of applied synthetic distortions against a small subset of real-world noisy audio to ensure the distortion parameters reflect actual acoustic conditions. (See US-1)
-- **FR-019**: System MUST normalize the collapse intensity metric by the curve derivative (rate of degradation) to ensure comparability across models with different degradation shapes. (See US-2)
-- **FR-020**: System MUST apply a tie-breaking rule where the inflection point (primary metric) takes precedence over the fixed SSS < 0.5 threshold (secondary metric) when defining the collapse intensity. (See US-2)
-- **FR-021**: System MUST analyze the degradation curve morphology (sigmoid vs. linear) for every stress curve and calculate the maximum derivative (inflection point) to ensure the 'collapse point' is not an artifact of a fixed cutoff. (See US-2)
-- **FR-022**: System MUST explicitly validate the non-linear nature of interactions by comparing the interaction term coefficient against the sum of individual coefficients to confirm synergistic failure modes, satisfying Constitution Principle VI. (See US-3)
-- **FR-023**: System MUST implement a deterministic interpolation rule for the 'concurrent' check: if SSS drops below 0.5 at step N and WER spikes at step N+1, the collapse intensity is defined as the linearly interpolated intensity between steps N and N+1. (See US-2)
-- **FR-024**: System MUST generate the 54 distortion scenarios using a Cartesian product of 9 SNR levels (-10dB, -5dB, 0dB, 5dB, 10dB, 15dB, 20dB, 25dB, 30dB) and 6 RT60 levels (0.1s, 0.2s, 0.3s, 0.4s, 0.5s, 0.6s). (See US-1)
-- **FR-025**: System MUST implement a fallback mechanism: if the embedding model fails to correlate with human judgment for high-reverb audio (Pearson r < 0.85), the system MUST switch to a phoneme-level edit distance metric as the primary semantic integrity measure. (See US-1)
+- **FR-018**: System MUST validate the realism of applied synthetic distortions against a subset of ≥ 50 real-world noisy audio clips (sourced from DNS Challenge or CHiME-5) to ensure the distortion parameters reflect actual acoustic conditions, using a spectral distance metric (Log-Mel) ≤ 0.15 as the pass criterion. This is essential for ensuring the physical realizability of the stress curves. (See US-1)
+- **FR-020**: System MUST implement a deterministic interpolation rule for the 'concurrent' check: if SSS drops below a predefined threshold at step N and WER spikes at the subsequent step, the collapse intensity is defined as the linearly interpolated intensity between steps N and the subsequent step. (See US-2)
+- **FR-021**: System MUST implement the following deterministic algorithm to calculate 'collapse intensity':
+    1. Calculate the first derivative of the SSS curve.
+    2. Identify the inflection point (maximum negative derivative).
+    3. If an inflection point exists AND the SSS at that point is < 0.5 AND WER > 2× baseline: Record the inflection point intensity as 'collapse intensity'.
+    4. If no inflection point exists OR the validation gate in step 3 fails: Find the first step where SSS < 0.5 AND WER > 2× baseline. If found, record the intensity (or interpolated intensity if steps differ per FR-020) as 'collapse intensity'.
+    5. If no such step exists: Record 'None'.
+    (See US-2)
+- **FR-022**: System MUST implement a fallback mechanism: if the embedding model fails to correlate with human judgment for high-reverb audio (defined as RT60 > 0.5s) with Pearson r < 0.6, the system MUST switch to a phoneme-level edit distance metric (using Montreal Forced Aligner with standard English dictionaries) as the primary semantic integrity measure for that subset. (See US-1)
+- **FR-023**: System MUST define the specific values for all `[deferred]` parameters (sample size, correlation thresholds) in the implementation plan before execution. (See US-1)
+- **FR-024**: System MUST generate the distortion scenarios using a Cartesian product of multiple SNR levels (-10dB, -5dB, 0dB, 5dB, 10dB, 15dB, 20dB, 25dB, 30dB) and 6 RT60 levels (0.1s, 0.2s, 0.3s, 0.4s, 0.5s, 0.6s). (See US-1)
+- **FR-025**: System MUST utilize a hierarchical regression model or functional data analysis approach to account for model-specific idiosyncrasies when predicting the "critical interaction vector" across different ASR architectures, ensuring the statistical method matches the research goal. (See US-3)
 
 ### Key Entities
 
@@ -92,7 +96,9 @@
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The predictive accuracy (R² score) of the regression model is measured against the held-out test set (stratified 80/20 by speaker ID and distortion type) of collapse intensities to determine if a universal interaction signature exists. (See US-3)
 - **SC-002**: The stability of the "critical interaction vector" is measured against the results of the sensitivity analysis (inflection point and curve derivative sweep) to ensure the findings are not artifacts of the curve shape. (See US-3)
@@ -102,11 +108,11 @@
 
 ## Assumptions
 
-- The "Voices-in-the-Wild-2M" dataset contains sufficient clean audio segments to support the generation of a [deferred] number of clips with valid ground truth transcripts for the stress testing.
-- The `all-MiniLM-L6-v2` model is a valid, CPU-tractable proxy for "semantic integrity" and its embeddings correlate sufficiently with human judgment of ASR failure for the purpose of defining the 0.5 threshold (validated via FR-011 and FR-025).
+- The "Voices-in-the-Wild-2M" dataset contains sufficient clean audio segments to support the generation of a ≥ 500 number of clips with valid ground truth transcripts for the stress testing.
+- The `all-MiniLM-L6-v2` model is a valid, CPU-tractable proxy for "semantic integrity" and its embeddings correlate sufficiently with human judgment of ASR failure for the purpose of defining the 0.5 threshold (validated via FR-011 and FR-022).
 - The 54 compound distortion scenarios (combinations of reverberation and noise) are physically realizable and cover the relevant non-linear interaction space for the research question.
-- The 5-10 selected small ASR models (e.g., Whisper-tiny, Distil-Whisper) can perform inference on CPU within the 7GB RAM limit without requiring quantization or GPU acceleration.
-- The relationship between acoustic distortion parameters and semantic collapse is primarily linear or low-order polynomial, allowing a simple regression model with interaction terms to capture the "critical interaction vector" effectively.
+- The selected small ASR models (e.g., Whisper-tiny, Distil-Whisper) can perform inference on CPU within the 7GB RAM limit without requiring quantization or GPU acceleration.
+- The relationship between acoustic distortion parameters and semantic collapse is complex and non-linear, requiring hierarchical modeling or functional data analysis to isolate universal acoustic interactions from model-specific noise and variance in the target variable.
 - The "semantic collapse" phenomenon is consistent across different small ASR architectures, justifying the cross-model generalization check.
-- If FR-011 (human validation) fails to achieve the required correlation threshold (Pearson r ≥ 0.85), the workflow halts and requires manual intervention; the analysis will NOT proceed with a reduced dataset. The collapse threshold (0.5) is considered provisional until FR-011 is satisfied.
+- If FR-011 (human validation) fails to meet the threshold defined in FR-011, the workflow halts and requires manual intervention; the analysis will NOT proceed with a reduced dataset. The collapse threshold (0.5) is considered provisional until FR-011 is satisfied.
 - The 54 distortion scenarios are generated using the Cartesian product defined in FR-024.

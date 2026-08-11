@@ -1,42 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StressCurve"
-description: "Schema for stress curve data linking audio clips, distortion vectors, and ASR results."
-type: "object"
+title: "Stress Curve Record"
+description: "Schema for a single stress curve record linking audio, distortion, and ASR metrics."
+type: object
 properties:
   audio_clip_id:
-    type: "string"
-    description: "Unique identifier for the audio clip."
+    type: string
+    description: "Unique identifier for the source audio clip."
   distortion_vector_id:
-    type: "string"
-    description: "Unique identifier for the distortion vector."
+    type: string
+    description: "Composite ID for SNR and RT60 combination."
+  snr_db:
+    type: number
+    description: "Signal-to-Noise Ratio in decibels."
+  rt60_sec:
+    type: number
+    description: "Reverberation time in seconds."
   model_name:
-    type: "string"
-    description: "Name of the ASR model used (e.g., 'whisper-tiny')."
-  ss_score:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
+    type: string
+    description: "Name of the ASR model used."
+  sss:
+    type: number
     description: "Semantic Similarity Score (0.0 to 1.0)."
-  normalized_sss:
-    type: "number"
-    description: "SSS normalized to baseline."
   wer:
-    type: "number"
-    minimum: 0.0
-    description: "Word Error Rate."
+    type: number
+    description: "Word Error Rate (0.0 to 1.0+)."
+  composite_score:
+    type: number
+    description: "Composite semantic integrity score (SSS + Phoneme Edit Distance)."
   hypothesis:
-    type: "string"
+    type: string
     description: "ASR output text."
-  is_collapse:
-    type: "boolean"
-    description: "True if collapse criteria met (SSS < 0.5 AND WER > 2× baseline)."
+  reference:
+    type: string
+    description: "Ground truth transcript."
+  curve_type:
+    type: string
+    enum: ["sigmoid", "linear"]
+    description: "Morphology of the degradation curve."
+  max_derivative:
+    type: number
+    description: "Maximum negative derivative of the SSS curve."
 required:
   - audio_clip_id
   - distortion_vector_id
+  - snr_db
+  - rt60_sec
   - model_name
-  - ss_score
-  - normalized_sss
+  - sss
   - wer
+  - composite_score
   - hypothesis
-  - is_collapse
+  - reference
+  - curve_type
+  - max_derivative
 additionalProperties: false
