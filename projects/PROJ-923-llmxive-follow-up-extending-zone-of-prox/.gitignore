@@ -1,22 +1,22 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# C extensions
-*.so
+# Data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/metrics/*
+!data/metrics/.gitkeep
 
-# Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
-build/
-
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
+# State
+state/projects/*
+!state/projects/.gitkeep
 
 # IDE
 .idea/
@@ -24,14 +24,6 @@ env/
 *.swp
 *.swo
 
-# Data and Logs
-data/
-logs/
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-
-# Sensitive
-*.pem
-*.key
-.env.local
+# OS
+.DS_Store
+Thumbs.db

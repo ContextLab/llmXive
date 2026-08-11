@@ -1,3 +1,1 @@
-"""
-Data generation and loading modules
-"""
+# Data package

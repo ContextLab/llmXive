@@ -9,10 +9,16 @@ CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
 def load_schema(schema_name: str):
     schema_path = CONTRACTS_DIR / f"{schema_name}.schema.yaml"
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
 def test_rollout_log_schema():
+    """
+    Contract test for rollout log schema.
+    Verifies that valid rollout log entries conform to the schema defined in T004a.
+    """
     schema = load_schema("rollout_log")
     valid_data = [
         {
@@ -31,6 +37,10 @@ def test_rollout_log_schema():
         pytest.fail(f"Schema validation failed: {e}")
 
 def test_run_metadata_schema():
+    """
+    Contract test for run metadata schema.
+    Verifies that run metadata entries conform to the schema defined in T004b.
+    """
     schema = load_schema("run_metadata")
     valid_data = {
         "run_id": "test-001",
@@ -45,6 +55,10 @@ def test_run_metadata_schema():
         pytest.fail(f"Schema validation failed: {e}")
 
 def test_aggregated_metrics_schema():
+    """
+    Contract test for aggregated metrics schema.
+    Verifies that aggregated metrics entries conform to the schema defined in T004c.
+    """
     schema = load_schema("aggregated_metrics")
     valid_data = [
         {
@@ -62,6 +76,10 @@ def test_aggregated_metrics_schema():
         pytest.fail(f"Schema validation failed: {e}")
 
 def test_convergence_result_schema():
+    """
+    Contract test for convergence result schema.
+    Verifies that convergence result entries conform to the schema defined in T004d.
+    """
     schema = load_schema("convergence_result")
     valid_data = {
         "converged": True,

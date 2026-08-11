@@ -1,3 +1,24 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/`\
+    \ directory or its contents (e.g., folders, files, or a `plan.md`\u2011based layout)\
+    \ was provided; therefore the required project structure has not been demonstrated.\
+    \ The implementer must add the actual directory with the expected sub\u2011folders\
+    \ and files as specified in `plan.md`."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml`
+    with Black settings, or CI scripts invoking ruff/black) were presented, nor any
+    evidence that the tools have been installed or run. The required artifacts to
+    demonstrate that ruff and black are configured for the project are missing.
+T009:
+  c: false
+  h: 9cf8876fecb2cf0190f032beb0a0837adaa2336d9a3c658d59ae770604353194
+  r: "The required file `code/utils/state_store.py` is missing entirely, so no State\
+    \ Store utility was provided to manage the specified YAML project file. Without\
+    \ this implementation the task\u2019s core requirement is unmet."
 T018:
   c: false
   h: 216a2c39677481752c6ecdf146ad4e9ef16033ca31a065bd27d1f00c2476ef7b

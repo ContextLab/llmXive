@@ -1,1 +1,2 @@
-# Code package for llmXive Follow-up
+# llmXive Follow-up: Extending ZPPO
+# Code package initialization

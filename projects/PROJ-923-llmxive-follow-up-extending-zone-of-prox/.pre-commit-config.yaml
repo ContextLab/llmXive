@@ -1,20 +1,38 @@
+# Pre-commit hooks configuration for automated linting and formatting
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+
 repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # If you prefer using black via pre-commit instead of ruff-format,
+        # you can swap this hook with the black one below.
+        # However, ruff can replace black entirely.
+
+  # Alternative: Use Black explicitly if ruff-format is not desired
+  # - repo: https://github.com/psf/black
+  #   rev: 23.12.1
+  #   hooks:
+  #     - id: black
+  #       language_version: python3.9
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+      - id: check-json
       - id: check-added-large-files
+        args: ['--maxkb=5000']
 
-  - repo: https://github.com/psf/black
-    rev: 24.3.0
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
     hooks:
-      - id: black
-        language_version: python3.9
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.4
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+      - id: isort
+        args: ["--profile", "black"]
+        # Note: If using ruff for import sorting, this can be removed.

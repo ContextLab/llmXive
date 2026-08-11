@@ -1,30 +1,15 @@
-project:
-  id: PROJ-923-llmxive-follow-up-extending-zone-of-prox
-  name: llmXive Follow-up: Extending Zone of Proximal Policy Optimization
-  description: Extending ZPPO with Confidence-Adaptive Pruning
-  version: 1.0.0
-versioning:
-  last_checksum: '2024-01-15T12:00:00.000000'
-  data_manifest:
-    data_directory: data
-    generated_at: '2024-01-15T12:00:00.000000'
-    total_files: 0
-    total_size_bytes: 0
-    files: []
-execution:
-  last_run: null
-  total_runs: 0
-metrics:
-  baseline:
-    runs: 0
-    avg_aucc: null
-    final_accuracy: null
-  cap:
-    runs: 0
-    avg_aucc: null
-    final_accuracy: null
-    avg_prompt_length: null
-comparison:
-  paired_ttest: null
-  effect_size: null
-  catastrophic_forgetting: null
+project_id: PROJ-923-llmxive-follow-up-extending-zone-of-prox
+name: llmXive Follow-up: Extending ZPPO
+status: active
+created_at: "2023-10-27T10:00:00Z"
+updated_at: "2023-10-27T10:00:00Z"
+version: 0.1.0
+data_manifest:
+  files: []
+  checksums: {}
+run_history: []
+configuration:
+  default_seed: 42
+  noise_sigma: 0.05
+  cap_threshold_low: 0.1
+  cap_threshold_high: 0.9

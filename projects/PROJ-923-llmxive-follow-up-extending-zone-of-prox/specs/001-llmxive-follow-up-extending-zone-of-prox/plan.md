@@ -17,7 +17,7 @@ This project implements a simulation to evaluate **Confidence-Adaptive Pruning (
 **Project Type**: Computational research simulation / CLI tool.  
 **Performance Goals**: Complete 100 simulation runs (10 tasks x 10 seeds) within 6 hours on CPU.  
 **Constraints**: Must run on CPU-only; no GPU acceleration; synthetic data generation must be deterministic via seeds; must handle edge cases (empty prompts) gracefully.  
-**Scale/Scope**: A mix of LLM/VLM tasks, 50 buffer cycles per run, 100 total runs.
+**Scale/Scope**: A mix of LLM/VLM tasks, A sufficient number of buffer cycles per run, 100 total runs.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

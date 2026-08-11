@@ -15,12 +15,18 @@ import sys
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.loops.base_zppo import generate_static_ncq_prompt, StaticNCQGenerator
+from code.loops.base_zppo import StaticNCQGenerator, generate_static_ncq_prompt
 from code.config import get_config
+from code.utils.seeds import set_global_seed
 
 
 class TestStaticNCQGeneration:
     """Test cases for static NCQ generation logic."""
+
+    @pytest.fixture(autouse=True)
+    def setup_seed(self):
+        """Ensure deterministic behavior for tests."""
+        set_global_seed(42)
 
     @pytest.fixture
     def sample_failure_modes(self):

@@ -1,197 +1,155 @@
 """
-Unit tests for the configuration loader.
+Unit tests for the configuration loader (T005).
+Verifies that Config properties return correct types and default values,
+and that reload_config raises appropriate errors.
 """
-
 import os
 import tempfile
-import yaml
-from pathlib import Path
 import pytest
+from pathlib import Path
+import yaml
 
-import sys
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from config import Config, get_config, reload_config
+# Import the module under test
+from config import Config, get_config, reload_config, CONFIG_PATH
 
 
-class TestConfigInitialization:
-    """Tests for Config class initialization."""
+class TestConfigClass:
+    """Tests for the Config class properties."""
 
-    def test_default_initialization(self, tmp_path):
-        """Test that Config initializes with defaults when no file exists."""
-        config = Config(project_root=tmp_path)
-        assert config.global_seed == 42
-        assert config.confidence_rejected == 0.1
-        assert config.confidence_accepted == 0.9
-        assert config.noise_std == 0.05
-        assert config.num_buffer_cycles == 10
+    def test_default_values(self):
+        """Test that Config initializes with expected defaults when keys are missing."""
+        data = {}
+        cfg = Config(data)
 
-    def test_custom_config_file(self, tmp_path):
-        """Test loading from a custom config file."""
-        config_content = {
-            "seeds": {"global_seed": 999},
-            "thresholds": {"confidence_rejected": 0.2},
-            "simulation": {"num_buffer_cycles": 20},
+        assert cfg.seed == 42
+        assert cfg.buffer_cycles == 100
+        assert cfg.noise_sigma == 0.05
+        assert cfg.cap_rejected_threshold == 0.1
+        assert cfg.cap_accepted_threshold == 0.9
+        assert cfg.cap_min_candidates == 1
+        assert cfg.log_level == 20  # INFO
+
+    def test_custom_values(self):
+        """Test that Config respects custom values provided in the dict."""
+        data = {
+            "project": {"seed": 123},
+            "simulation": {"buffer_cycles": 50, "noise_sigma": 0.1},
+            "caps": {"rejected_threshold": 0.05, "accepted_threshold": 0.95},
+            "logging": {"level": "DEBUG"}
         }
-        config_file = tmp_path / "custom_config.yaml"
-        with open(config_file, "w") as f:
-            yaml.dump(config_content, f)
+        cfg = Config(data)
 
-        config = Config(config_path=config_file, project_root=tmp_path)
-        assert config.global_seed == 999
-        assert config.confidence_rejected == 0.2
-        assert config.num_buffer_cycles == 20
+        assert cfg.seed == 123
+        assert cfg.buffer_cycles == 50
+        assert cfg.noise_sigma == 0.1
+        assert cfg.cap_rejected_threshold == 0.05
+        assert cfg.cap_accepted_threshold == 0.95
+        assert cfg.log_level == 10  # DEBUG
 
-    def test_nested_merge(self, tmp_path):
-        """Test that nested config values are properly merged."""
-        config_content = {
-            "seeds": {"data_seed": 777},
-            "thresholds": {"confidence_accepted": 0.95},
+    def test_paths_are_resolved(self):
+        """Test that path properties return absolute Path objects."""
+        data = {
+            "paths": {
+                "data_dir": "relative/path",
+                "output_dir": "relative/output"
+            }
         }
-        config_file = tmp_path / "config.yaml"
-        with open(config_file, "w") as f:
-            yaml.dump(config_content, f)
+        cfg = Config(data)
+        
+        assert isinstance(cfg.data_dir, Path)
+        assert cfg.data_dir.is_absolute()
+        assert isinstance(cfg.output_dir, Path)
+        assert cfg.output_dir.is_absolute()
 
-        config = Config(config_path=config_file, project_root=tmp_path)
-        # New values should be set
-        assert config.data_seed == 777
-        assert config.confidence_accepted == 0.95
-        # Default values should remain
-        assert config.global_seed == 42
-        assert config.confidence_rejected == 0.1
+class TestConfigLoader:
+    """Tests for the config loading functions."""
 
-    def test_path_resolution(self, tmp_path):
-        """Test that relative paths are resolved to absolute paths."""
-        config = Config(project_root=tmp_path)
-        data_dir = Path(config._config["paths"]["data_dir"])
-        assert data_dir.is_absolute()
-        assert data_dir == tmp_path / "data"
-
-    def test_project_root_in_config(self, tmp_path):
-        """Test that project_root in config matches the provided root."""
-        config = Config(project_root=tmp_path)
-        assert Path(config._config["paths"]["project_root"]) == tmp_path
-
-
-class TestConfigAccessors:
-    """Tests for Config property accessors."""
-
-    def test_seeds_property(self, tmp_path):
-        """Test seeds property returns correct dict."""
-        config = Config(project_root=tmp_path)
-        seeds = config.seeds
-        assert isinstance(seeds, dict)
-        assert "global_seed" in seeds
-        assert "data_seed" in seeds
-        assert "model_seed" in seeds
-
-    def test_thresholds_property(self, tmp_path):
-        """Test thresholds property returns correct dict."""
-        config = Config(project_root=tmp_path)
-        thresholds = config.thresholds
-        assert isinstance(thresholds, dict)
-        assert "confidence_rejected" in thresholds
-        assert "confidence_accepted" in thresholds
-        assert "noise_std" in thresholds
-
-    def test_simulation_property(self, tmp_path):
-        """Test simulation property returns correct dict."""
-        config = Config(project_root=tmp_path)
-        sim = config.simulation
-        assert isinstance(sim, dict)
-        assert "num_buffer_cycles" in sim
-        assert "num_tasks" in sim
-        assert "num_seeds" in sim
-
-    def test_mmlu_property(self, tmp_path):
-        """Test mmlu property returns correct dict."""
-        config = Config(project_root=tmp_path)
-        mmlu = config.mmlu
-        assert isinstance(mmlu, dict)
-        assert "dataset_name" in mmlu
-        assert "held_out_subjects" in mmlu
-
-    def test_get_method(self, tmp_path):
-        """Test the get method with dotted keys."""
-        config = Config(project_root=tmp_path)
-        assert config.get("seeds.global_seed") == 42
-        assert config.get("thresholds.confidence_rejected") == 0.1
-        assert config.get("simulation.num_buffer_cycles") == 10
-        assert config.get("nonexistent.key", "default") == "default"
-
-
-class TestConfigDirectories:
-    """Tests for directory creation."""
-
-    def test_ensure_directories(self, tmp_path):
-        """Test that ensure_directories creates all required folders."""
-        config = Config(project_root=tmp_path)
-        config.ensure_directories()
-
-        assert (tmp_path / "data").exists()
-        assert (tmp_path / "data" / "metrics").exists()
-        assert (tmp_path / "figures").exists()
-        assert (tmp_path / "data" / "logs").exists()
-        assert (tmp_path / "contracts").exists()
-        assert (tmp_path / "specs").exists()
-
-
-class TestConfigSingleton:
-    """Tests for the singleton pattern."""
-
-    def test_get_config_returns_singleton(self, tmp_path):
-        """Test that get_config returns the same instance."""
-        config1 = get_config()
-        config2 = get_config()
-        assert config1 is config2
-
-    def test_reload_config_creates_new_instance(self, tmp_path):
-        """Test that reload_config creates a new instance."""
-        config1 = get_config()
-        config2 = reload_config()
-        assert config1 is not config2
-
-    def test_get_config_with_path(self, tmp_path):
-        """Test that get_config with a path creates a new instance."""
-        config_content = {"seeds": {"global_seed": 111}}
+    def test_reload_config_success(self, tmp_path):
+        """Test successful reload from a valid config file."""
+        # Create a temporary config file
+        config_content = {
+            "project": {"seed": 999},
+            "simulation": {"buffer_cycles": 200}
+        }
         config_file = tmp_path / "test_config.yaml"
         with open(config_file, "w") as f:
             yaml.dump(config_content, f)
 
-        # Clear singleton first
-        from config import _config_instance
-        import config
-        config._config_instance = None
+        # Temporarily override CONFIG_PATH
+        original_path = CONFIG_PATH
+        # Note: We can't easily override the global CONFIG_PATH in the module 
+        # without patching, so we test the logic by creating the file at the 
+        # expected location or mocking. 
+        # For this unit test, we assume the global CONFIG_PATH is not used 
+        # directly in the test environment, or we patch it.
+        # A simpler approach for this specific test structure:
+        
+        # We will test the function logic by creating a file and ensuring 
+        # the module can load it if we point CONFIG_PATH there.
+        # Since CONFIG_PATH is a module-level constant, we need to patch it.
+        
+        import config as config_module
+        
+        # Save original
+        original_config_path = config_module.CONFIG_PATH
+        
+        try:
+            config_module.CONFIG_PATH = config_file
+            # Clear the singleton to force reload
+            config_module._config = None
+            
+            loaded_cfg = reload_config()
+            
+            assert loaded_cfg.seed == 999
+            assert loaded_cfg.buffer_cycles == 200
+        finally:
+            # Restore
+            config_module.CONFIG_PATH = original_config_path
+            config_module._config = None
 
-        config1 = get_config(config_path=config_file)
-        assert config1.global_seed == 111
+    def test_reload_config_missing_file(self, tmp_path):
+        """Test that reload_config raises FileNotFoundError if file is missing."""
+        import config as config_module
+        
+        fake_path = tmp_path / "nonexistent.yaml"
+        original_path = config_module.CONFIG_PATH
+        
+        try:
+            config_module.CONFIG_PATH = fake_path
+            config_module._config = None
+            
+            with pytest.raises(FileNotFoundError, match="Configuration file not found"):
+                reload_config()
+        finally:
+            config_module.CONFIG_PATH = original_path
+            config_module._config = None
 
-        # Get without path should return the same
-        config2 = get_config()
-        assert config2 is config1
-
-        # Get with different path should create new
-        config3 = get_config(config_path=tmp_path)
-        assert config3 is not config2
-        assert config3.global_seed == 42  # Default
-
-
-class TestConfigSerialization:
-    """Tests for config serialization."""
-
-    def test_to_dict(self, tmp_path):
-        """Test that to_dict returns a copy of the config."""
-        config = Config(project_root=tmp_path)
-        config_dict = config.to_dict()
-        assert isinstance(config_dict, dict)
-        assert "seeds" in config_dict
-        assert "thresholds" in config_dict
-        assert config_dict is not config._config
-
-    def test_repr(self, tmp_path):
-        """Test that __repr__ returns a meaningful string."""
-        config = Config(project_root=tmp_path)
-        repr_str = repr(config)
-        assert "Config" in repr_str
-        assert str(tmp_path) in repr_str
+    def test_get_config_singleton(self):
+        """Test that get_config returns the same instance."""
+        import config as config_module
+        
+        # Ensure clean state
+        original_path = config_module.CONFIG_PATH
+        config_module._config = None
+        
+        # Create a dummy config at the expected location to avoid error
+        # This is a bit hacky for a unit test but ensures we don't need 
+        # the actual project config.yaml to exist in the test environment.
+        # We'll rely on the fact that if _config is None, it calls reload_config.
+        # To avoid the FileNotFoundError, we patch CONFIG_PATH to a valid file.
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump({"project": {"seed": 1}}, f)
+            temp_path = Path(f.name)
+        
+        try:
+            config_module.CONFIG_PATH = temp_path
+            
+            cfg1 = get_config()
+            cfg2 = get_config()
+            
+            assert cfg1 is cfg2
+        finally:
+            config_module.CONFIG_PATH = original_path
+            config_module._config = None
+            temp_path.unlink()

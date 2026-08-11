@@ -244,3 +244,316 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T21:37:54Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: 'Simulation runtime constraint: 6 hours on 2-core CPU with 7GB RAM'
+  claim_id: c_b519b0e1
+  context: Notes section under Compute Constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T16:47:08Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Selects 10 tasks deterministically from MMLU
+  claim_id: c_a70f83f3
+  context: MUST select the 10 tasks deterministically (first 10 subjects alphabetically
+    from MMLU, or random sample with seed=42 if order is non-deterministic).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST select the 10 tasks deterministically (first 10 subjects alphabetically
+    from MMLU, or random sample with seed=42 if order is non-deterministic).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T16:55:20Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Confidence classification thresholds at 0.1 and 0.9
+  claim_id: c_e44e95ed
+  context: Calculates mean/variance of confidence, classifies as rejected (<0.1),
+    fluctuating ([0.1, 0.9]), or accepted (>0.9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculates mean/variance of confidence, classifies as rejected (<0.1),
+    fluctuating ([0.1, 0.9]), or accepted (>0.9).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T16:58:29Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Simulation completes within 6 hours on 2 cores with 7GB RAM
+  claim_id: c_398cf446
+  context: 'Compute Constraints: Simulation must complete within 6 hours on CPU (2
+    cores, 7GB RAM). Use streaming for MMLU if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T16:58:29Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Confidence update formula using expert gap and prompt length factor
+  claim_id: c_9c2c4367
+  context: 'Includes LLM/VLM tasks, confidence scores, ground truth. Formula: new_conf
+    = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: new_conf = current_conf + alpha * (expert_conf - current_conf)
+    * (1 - prompt_length_factor).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T16:59:10Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Simulation completes within 6 hours on 2 CPU cores with 7GB RAM
+  claim_id: c_396c8990
+  context: 'Compute Constraints: Simulation must complete within 6 hours on CPU (2
+    cores, 7GB RAM). Use streaming for MMLU if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:00:23Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: 'CAP classifier thresholds: rejected < 0.1, fluctuating 0.1 to 0.9, accepted
+    > 0.9'
+  claim_id: c_d2deb8af
+  context: T021 [US2] Implement CAP classifier in code/models/cap_classifier.py. Calculates
+    mean/variance of confidence, classifies as rejected (<0.1), fluctuating ([0.1,
+    0.9]), or accepted (>0.9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CAP classifier classifies confidence scores as rejected (<0.1), fluctuating
+    ([0.1, 0.9]), or accepted (>0.9).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:01:24Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Gaussian noise injection sigma is 0.05
+  claim_id: c_e271b6a6
+  context: "MUST include per-step Gaussian noise injection (\u03C3=0.05) into confidence\
+    \ scores as defined in T026."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Per-step Gaussian noise injection uses sigma=0.05 into confidence scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:01:26Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: 'Student confidence update formula: new_conf = current_conf + alpha *
+    (expert_conf - current_conf) * (1 - prompt_length_factor)'
+  claim_id: c_b388ed1d
+  context: 'Includes LLM/VLM tasks, confidence scores, ground truth. Formula: new_conf
+    = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formula for student confidence updates is new_conf = current_conf
+    + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:01:32Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Simulation completes within 6 hours on CPU with 2 cores and 7GB RAM
+  claim_id: c_73f62d13
+  context: 'Compute Constraints: Simulation must complete within 6 hours on CPU (2
+    cores, 7GB RAM). Use streaming for MMLU if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:05:50Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Batch runner executes 100 runs comprising 10 tasks and 10 seeds
+  claim_id: c_a8fed438
+  context: MUST call the internal run_baseline_simulation (T018) and run_cap_simulation
+    (T025) engines directly in a loop to generate the statistical distribution. MUST
+    select the 10 tasks deterministically... T031 orchestrates the 100 runs (10 tasks
+    x 10 seeds)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner script orchestrates 100 runs (10 tasks x 10 seeds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:08:10Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Batch runner selects 10 tasks deterministically using first 10 MMLU subjects
+    or seed 42
+  claim_id: c_f9a70f57
+  context: MUST select the 10 tasks deterministically (first 10 subjects alphabetically
+    from MMLU, or random sample with seed=42 if order is non-deterministic).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner selects 10 tasks deterministically (first 10 subjects
+    alphabetically from MMLU, or random sample with seed=42 if order is non-deterministic).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:08:21Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Output file data/metrics/batch_results.csv contains columns task_id,
+    seed, aucc, final_accuracy, prompt_length_avg
+  claim_id: c_49bfb130
+  context: MUST generate output file data/metrics/batch_results.csv with columns [task_id,
+    seed, aucc, final_accuracy, prompt_length_avg].
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_file_data/metrics/batch_results.csv_contains_columns
+  kind: entity_fact
+  raw_text: The system generates output file data/metrics/batch_results.csv with columns
+    [task_id, seed, aucc, final_accuracy, prompt_length_avg].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:08:26Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: 'CAP classifier thresholds: rejected below 0.1, fluctuating 0.1 to 0.9,
+    accepted above 0.9'
+  claim_id: c_e64b912f
+  context: Calculates mean/variance of confidence, classifies as rejected (<0.1),
+    fluctuating ([0.1, 0.9]), or accepted (>0.9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CAP classifier classifies candidates as rejected (<0.1), fluctuating
+    ([0.1, 0.9]), or accepted (>0.9).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:08:35Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Per-step Gaussian noise injection uses sigma of 0.05
+  claim_id: c_5f15a4f9
+  context: "MUST include per-step Gaussian noise injection (\u03C3=0.05) into confidence\
+    \ scores as defined in T026."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system implements per-step Gaussian noise injection with sigma=0.05
+    into confidence scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:08:37Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: 'Confidence update formula: new_conf = current_conf + alpha * (expert_conf
+    - current_conf) * (1 - prompt_length_factor)'
+  claim_id: c_aff1a149
+  context: 'Formula: new_conf = current_conf + alpha * (expert_conf - current_conf)
+    * (1 - prompt_length_factor). Includes LLM/VLM tasks, confidence scores, ground
+    truth.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The learning dynamics formula is new_conf = current_conf + alpha * (expert_conf
+    - current_conf) * (1 - prompt_length_factor).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:08:42Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Project dependencies include numpy, pandas, scikit-learn, tqdm, pyyaml,
+    datasets, pytest
+  claim_id: c_9245f3b2
+  context: Initialize Python project with dependencies (numpy, pandas, scikit-learn,
+    tqdm, pyyaml, datasets, pytest) in requirements.txt
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_dependencies_include_numpy,_pandas,_scikit-learn,_tq
+  kind: entity_fact
+  raw_text: The system includes dependencies numpy, pandas, scikit-learn, tqdm, pyyaml,
+    datasets, and pytest.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:08:47Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: 'Simulation completion time constraint: 6 hours on 2 cores, 7GB RAM'
+  claim_id: c_0c8ab567
+  context: 'Compute Constraints: Simulation must complete within 6 hours on CPU (2
+    cores, 7GB RAM). Use streaming for MMLU if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T17:09:31Z'

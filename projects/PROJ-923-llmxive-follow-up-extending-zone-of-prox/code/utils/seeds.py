@@ -1,3 +1,9 @@
+"""
+Deterministic random seed management module.
+
+Implements a singleton pattern for reproducible randomness across the project,
+ensuring Constitution Principle I (Reproducibility) and FR-008 (Statistical Variance).
+"""
 import random
 import os
 from typing import Optional, Dict, Any, Generator
@@ -5,6 +11,7 @@ from pathlib import Path
 import numpy as np
 from utils.logging import get_logger, info, debug
 
+# Global state for singleton pattern
 _global_seed: Optional[int] = None
 _is_deterministic: bool = False
 _logger = get_logger(__name__)
@@ -13,6 +20,13 @@ def set_global_seed(seed: Optional[int] = None, deterministic: bool = False) -> 
     """
     Sets the global random seed for Python, NumPy, and (if available) PyTorch.
     If seed is None, generates one based on system time or environment variable.
+    
+    Args:
+        seed: The seed value to use. If None, uses environment variable or defaults to 42.
+        deterministic: If True, enables deterministic behavior for PyTorch (if available).
+    
+    Returns:
+        The seed value that was set.
     """
     global _global_seed, _is_deterministic
 
@@ -63,16 +77,38 @@ def ensure_seed_set() -> int:
         set_global_seed(new_seed)
     return _global_seed
 
-def get_rng(seed: Optional[int] = None) -> Generator[np.random.Generator, None, None]:
+def get_rng(seed: Optional[int] = None) -> np.random.Generator:
     """
-    Returns a new NumPy random Generator instance seeded with the provided seed
+    Returns a NEW NumPy random Generator instance seeded with the provided seed
     or the global seed. This allows for isolated randomness per function call
     while maintaining reproducibility.
+    
+    This implements the singleton pattern for seed management:
+    - If a specific seed is provided, it uses that.
+    - If no seed is provided, it falls back to the global seed.
+    - If no global seed is set, it generates a new one (but logs a warning).
+    
+    Args:
+        seed: Optional specific seed for this generator. If None, uses global seed.
+    
+    Returns:
+        A fresh np.random.Generator instance.
+    
+    Note:
+        Returns a new Generator instance each time, not a singleton generator.
+        The 'singleton' aspect refers to the seed management, not the generator object itself.
+        This design ensures that multiple calls with the same seed produce identical sequences,
+        while different calls can have independent random streams if needed.
     """
     if seed is None:
         seed = _global_seed
+    
     if seed is None:
+        # If no global seed is set, generate one but warn
+        _logger.warning("No global seed set. Generating a temporary seed. "
+                      "For reproducibility, call set_global_seed() first.")
         seed = generate_seed()
+    
     rng = np.random.default_rng(seed)
     return rng
 

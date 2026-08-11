@@ -1,23 +1,37 @@
-# Ruff configuration for llmXive Follow-up
-line-length = 100
+# This file exists primarily for IDE integration where pyproject.toml
+# might not be picked up by some editors in nested project structures.
+# It mirrors the configuration in pyproject.toml.
+
 target-version = "py39"
+line-length = 88
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "data/",
+    "state/",
+]
 
 [lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "N",  # pep8-naming
-    "UP", # pyupgrade
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "SIM",# flake8-simplify
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+    "UP",
 ]
 ignore = [
-    "E501", # Line too long (handled by black)
-    "W505", # Line too long
+    "E501",
+    "B008",
+    "C901",
 ]
 
 [lint.isort]
-known-first-party = ["code", "tests", "contracts"]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true

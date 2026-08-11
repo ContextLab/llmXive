@@ -1,29 +1,41 @@
-# Project Configuration
+# Configuration for llmXive Follow-up: Extending Zone of Proximal Policy Optimization
+# This file defines all runtime parameters for the simulation.
+
 project:
   name: "llmxive-follow-up-extending-zone-of-prox"
   version: "1.0.0"
-  seed: 42
+  seed: 42  # Global seed for reproducibility (FR-008)
 
 paths:
   data_dir: "data"
-  code_dir: "code"
   output_dir: "data/metrics"
   figures_dir: "data/figures"
+  state_dir: "state"
   contracts_dir: "contracts"
 
 simulation:
+  # Number of buffer cycles (training steps) per run
   buffer_cycles: 100
-  batch_size: 32
+  # Standard deviation for Gaussian noise injection into confidence scores
   noise_sigma: 0.05
-  confidence_thresholds:
-    rejected: 0.1
-    accepted: 0.9
-  min_prompt_candidates: 1
+  # Learning rate for student confidence update (alpha in formula)
+  learning_rate: 0.1
+  # Prompt length factor scaling (0.0 to 1.0)
+  prompt_length_factor: 0.5
 
 mmlu:
-  dataset_name: "cais/mmlu"
-  held_out_subset: "high_school_mathematics"
-  streaming: true
+  # Subset of MMLU to use for the main training task
+  subset: "high_school_mathematics"
+  # Subset for held-out evaluation (to check catastrophic forgetting)
+  held_out_subset: "high_school_computer_science"
+  # Number of samples to process per run (streaming limit)
+  max_samples: 1000
+
+caps:
+  # Confidence Adaptive Pruning thresholds
+  rejected_threshold: 0.1  # < 0.1 -> Consistently Rejected
+  accepted_threshold: 0.9  # > 0.9 -> Consistently Accepted
+  min_candidates: 1        # Minimum candidates to retain if all pruned (FR-007)
 
 logging:
   level: "INFO"
