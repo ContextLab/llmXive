@@ -1,330 +1,239 @@
-# Output Schema for Statistical Analysis Results
+# Output Schema for Nostalgia and Cognitive Flexibility Study
 # Generated for PROJ-524
-# Defines the structure of statistical reports and analysis outputs
+# Defines the structure of statistical analysis results and reports
 
-$schema: http://json-schema.org/draft-07/schema#
-title: StatisticalAnalysisOutput
-description: Statistical analysis results comparing nostalgia vs control conditions on cognitive flexibility metrics
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema"
+description: "Schema for the statistical analysis output including t-test results, effect sizes, and power analysis."
+
 type: object
+required:
+  - analysis_metadata
+  - group_statistics
+  - hypothesis_tests
+  - effect_sizes
+  - power_analysis
 
 properties:
-  metadata:
+  analysis_metadata:
     type: object
-    description: Output metadata
+    required:
+      - timestamp
+      - dataset_version
+      - analysis_type
     properties:
-      analysis_version:
-        type: string
-        description: Version of analysis pipeline
-      generated_at:
+      timestamp:
         type: string
         format: date-time
-        description: Timestamp of generation
       dataset_version:
         type: string
-        description: Version of input dataset
-      sample_sizes:
-        type: object
-        properties:
-          nostalgia:
-            type: integer
-          control:
-            type: integer
-        required:
-          - nostalgia
-          - control
-    required:
-      - analysis_version
-      - generated_at
-      - sample_sizes
-
-  welch_t_test_results:
+      analysis_type:
+        type: string
+        enum:
+          - welch_t_test
+          - bonferroni_corrected
+          - effect_size_analysis
+          - power_analysis
+      software_version:
+        type: string
+      python_version:
+        type: string
+        
+  group_statistics:
     type: object
-    description: Results from Welch's independent samples t-test
+    required:
+      - nostalgia
+      - control
     properties:
-      perseverative_errors:
+      nostalgia:
         type: object
-        properties:
-          t_statistic:
-            type: number
-            format: float
-          degrees_of_freedom:
-            type: number
-            format: float
-          p_value:
-            type: number
-            format: float
-          mean_nostalgia:
-            type: number
-          mean_control:
-            type: number
-          std_nostalgia:
-            type: number
-          std_control:
-            type: number
         required:
-          - t_statistic
-          - degrees_of_freedom
-          - p_value
-      categories_completed:
+          - n
+          - mean_perseverative_errors
+          - mean_categories_completed
+          - std_perseverative_errors
+          - std_categories_completed
+        properties:
+          n:
+            type: integer
+          mean_perseverative_errors:
+            type: number
+          mean_categories_completed:
+            type: number
+          std_perseverative_errors:
+            type: number
+          std_categories_completed:
+            type: number
+      control:
         type: object
-        properties:
-          t_statistic:
-            type: number
-            format: float
-          degrees_of_freedom:
-            type: number
-            format: float
-          p_value:
-            type: number
-            format: float
-          mean_nostalgia:
-            type: number
-          mean_control:
-            type: number
-          std_nostalgia:
-            type: number
-          std_control:
-            type: number
         required:
-          - t_statistic
-          - degrees_of_freedom
-          - p_value
+          - n
+          - mean_perseverative_errors
+          - mean_categories_completed
+          - std_perseverative_errors
+          - std_categories_completed
+        properties:
+          n:
+            type: integer
+          mean_perseverative_errors:
+            type: number
+          mean_categories_completed:
+            type: number
+          std_perseverative_errors:
+            type: number
+          std_categories_completed:
+            type: number
+            
+  hypothesis_tests:
+    type: object
     required:
       - perseverative_errors
       - categories_completed
-
-  bonferroni_corrected:
-    type: object
-    description: Bonferroni-corrected p-values
     properties:
       perseverative_errors:
-        type: number
-        format: float
+        type: object
+        required:
+          - t_statistic
+          - p_value
+          - degrees_of_freedom
+          - corrected_p_value
+          - significant
+        properties:
+          t_statistic:
+            type: number
+          p_value:
+            type: number
+          degrees_of_freedom:
+            type: number
+          corrected_p_value:
+            type: number
+          significant:
+            type: boolean
+          method:
+            type: string
+            enum:
+              - welch_independent_samples
       categories_completed:
-        type: number
-        format: float
-      significance_threshold:
-        type: number
-        format: float
-        description: Original alpha level (e.g., 0.05)
-      corrected_threshold:
-        type: number
-        format: float
-        description: Bonferroni-adjusted alpha
-    required:
-      - perseverative_errors
-      - categories_completed
-      - significance_threshold
-      - corrected_threshold
-
+        type: object
+        required:
+          - t_statistic
+          - p_value
+          - degrees_of_freedom
+          - corrected_p_value
+          - significant
+        properties:
+          t_statistic:
+            type: number
+          p_value:
+            type: number
+          degrees_of_freedom:
+            type: number
+          corrected_p_value:
+            type: number
+          significant:
+            type: boolean
+          method:
+            type: string
+            enum:
+              - welch_independent_samples
+              - bonferroni_corrected
+              
   effect_sizes:
     type: object
-    description: Cohen's d effect sizes with confidence intervals
-    properties:
-      perseverative_errors:
-        type: object
-        properties:
-          cohens_d:
-            type: number
-            format: float
-          ci_95_lower:
-            type: number
-            format: float
-          ci_95_upper:
-            type: number
-            format: float
-          interpretation:
-            type: string
-            enum: [negligible, small, medium, large, very_large]
-        required:
-          - cohens_d
-          - ci_95_lower
-          - ci_95_upper
-          - interpretation
-      categories_completed:
-        type: object
-        properties:
-          cohens_d:
-            type: number
-            format: float
-          ci_95_lower:
-            type: number
-            format: float
-          ci_95_upper:
-            type: number
-            format: float
-          interpretation:
-            type: string
-            enum: [negligible, small, medium, large, very_large]
-        required:
-          - cohens_d
-          - ci_95_lower
-          - ci_95_upper
-          - interpretation
     required:
       - perseverative_errors
       - categories_completed
-
+    properties:
+      perseverative_errors:
+        type: object
+        required:
+          - cohen_d
+          - ci_lower
+          - ci_upper
+        properties:
+          cohen_d:
+            type: number
+          ci_lower:
+            type: number
+          ci_upper:
+            type: number
+          confidence_level:
+            type: number
+            default: 0.95
+      categories_completed:
+        type: object
+        required:
+          - cohen_d
+          - ci_lower
+          - ci_upper
+        properties:
+          cohen_d:
+            type: number
+          ci_lower:
+            type: number
+          ci_upper:
+            type: number
+          confidence_level:
+            type: number
+            default: 0.95
+            
   power_analysis:
     type: object
-    description: Statistical power and MDES results
-    properties:
-      perseverative_errors:
-        type: object
-        properties:
-          observed_power:
-            type: number
-            format: float
-          mdes_at_alpha_05:
-            type: number
-            format: float
-          mdes_at_alpha_01:
-            type: number
-            format: float
-          achieved_power_threshold:
-            type: number
-            format: float
-            description: Power achieved at standard thresholds
-        required:
-          - observed_power
-          - mdes_at_alpha_05
-      categories_completed:
-        type: object
-        properties:
-          observed_power:
-            type: number
-            format: float
-          mdes_at_alpha_05:
-            type: number
-            format: float
-          mdes_at_alpha_01:
-            type: number
-            format: float
-          achieved_power_threshold:
-            type: number
-            format: float
-        required:
-          - observed_power
-          - mdes_at_alpha_05
     required:
-      - perseverative_errors
-      - categories_completed
-
+      - achieved_power
+      - minimum_detectable_effect
+    properties:
+      achieved_power:
+        type: object
+        required:
+          - perseverative_errors
+          - categories_completed
+        properties:
+          perseverative_errors:
+            type: number
+          categories_completed:
+            type: number
+      minimum_detectable_effect:
+        type: object
+        required:
+          - perseverative_errors
+          - categories_completed
+        properties:
+          perseverative_errors:
+            type: number
+          categories_completed:
+            type: number
+          power_level:
+            type: number
+            default: 0.80
+            
   sensitivity_analysis:
     type: object
-    description: Results from sensitivity sweep across thresholds
+    required:
+      - threshold_sweep
+      - borderline_status
     properties:
-      thresholds_tested:
-        type: array
-        items:
-          type: number
-          format: float
-      results:
+      threshold_sweep:
         type: array
         items:
           type: object
           properties:
             threshold:
               type: number
-              format: float
-            perseverative_errors_significant:
+            significant_pe:
               type: boolean
-            categories_completed_significant:
+            significant_cc:
               type: boolean
-          required:
-            - threshold
-            - perseverative_errors_significant
-            - categories_completed_significant
-      stability_summary:
+      borderline_status:
         type: object
         properties:
-          is_threshold_sensitive:
+          is_sensitive_to_threshold:
             type: boolean
-            description: True if p-value is borderline (~0.05)
-          stable_metrics:
-            type: array
-            items:
-              type: string
-          unstable_metrics:
-            type: array
-            items:
-              type: string
-        required:
-          - is_threshold_sensitive
-    required:
-      - thresholds_tested
-      - results
-      - stability_summary
-
-  robustness_check:
-    type: object
-    description: Results from MMSE-based robustness check
-    properties:
-      mmse_threshold_used:
-        type: integer
-        description: MMSE cutoff (e.g., 24)
-      participants_excluded:
-        type: integer
-      analysis_re_run:
-        type: boolean
-      results_summary:
-        type: object
-        properties:
-          perseverative_errors:
-            type: object
-            properties:
-              p_value_original:
-                type: number
-              p_value_robust:
-                type: number
-              difference:
-                type: number
-            required:
-              - p_value_original
-              - p_value_robust
-              - difference
-          categories_completed:
-            type: object
-            properties:
-              p_value_original:
-                type: number
-              p_value_robust:
-                type: number
-              difference:
-                type: number
-            required:
-              - p_value_original
-              - p_value_robust
-              - difference
-    required:
-      - mmse_threshold_used
-      - participants_excluded
-      - analysis_re_run
-
-  conclusions:
-    type: object
-    description: Summary conclusions
-    properties:
-      primary_finding:
-        type: string
-      effect_magnitude:
-        type: string
-      statistical_power_adequate:
-        type: boolean
-      robustness_verified:
-        type: boolean
-      sensitivity_notes:
-        type: string
-    required:
-      - primary_finding
-      - effect_magnitude
-      - statistical_power_adequate
-      - robustness_verified
-
-required:
-  - metadata
-  - welch_t_test_results
-  - bonferroni_corrected
-  - effect_sizes
-  - power_analysis
-  - conclusions
+          borderline_range:
+            type: string
+            
+additionalProperties: false
+metadata:
+  version: "1.0.0"
+  generated_at: "2024-01-01T00:00:00Z"
+  source: "spec.md Input/Output Schema"

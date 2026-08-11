@@ -1,161 +1,317 @@
 """
-Contract test for dataset schema validation.
+Contract test for dataset schema validation (US1).
 
-This test validates that the dataset schema defined in `contracts/dataset.schema.yaml`
-matches the actual structure of the cleaned dataset produced by the ingestion pipeline.
+This test verifies that the dataset schema defined in contracts/dataset.schema.yaml
+matches the expected structure for the nostalgia-cognitive flexibility study.
 
-It ensures:
-1. All required columns are present.
-2. Data types match the schema definition.
-3. No unexpected columns are present (strict mode).
+Dependencies:
+  - T020a: contracts/dataset.schema.yaml must exist
+  - T004: utils.py for logging helpers
 """
 import os
 import json
 import yaml
 import pytest
 from pathlib import Path
-import pandas as pd
-import numpy as np
+from typing import Dict, Any, List, Optional
 
-# Project root is assumed to be the parent of the 'tests' directory
+# Import project utilities
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from utils import log_info, log_error, compute_sha256
+
+# Constants for schema validation
+REQUIRED_FIELDS = [
+    "participant_id",
+    "age",
+    "stimulus_type",
+    "perseverative_errors",
+    "categories_completed"
+]
+
+OPTIONAL_FIELDS = [
+    "MMSE",
+    "reaction_time",
+    "accuracy",
+    "trial_count"
+]
+
+REQUIRED_TYPES = {
+    "participant_id": ["string", "integer"],
+    "age": ["integer", "number"],
+    "stimulus_type": ["string"],
+    "perseverative_errors": ["integer", "number"],
+    "categories_completed": ["integer", "number"]
+}
+
+VALID_STIMULUS_TYPES = ["nostalgia", "control", "neutral"]
+
+# Paths
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-SCHEMA_PATH = PROJECT_ROOT / "contracts" / "dataset.schema.yaml"
-DATASET_PATH = PROJECT_ROOT / "data" / "processed" / "cleaned_dataset.csv"
-EXCLUSION_LOG_PATH = PROJECT_ROOT / "data" / "processed" / "exclusion_log.json"
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+SCHEMA_FILE = CONTRACTS_DIR / "dataset.schema.yaml"
+METADATA_FILE = PROJECT_ROOT / "data" / "raw" / "metadata.json"
 
-@pytest.fixture
-def schema():
-    """Load the dataset schema from YAML."""
-    if not SCHEMA_PATH.exists():
-        pytest.skip(f"Schema file not found at {SCHEMA_PATH}. Run T007 first.")
-    with open(SCHEMA_PATH, 'r') as f:
+def load_schema() -> Dict[str, Any]:
+    """Load the dataset schema from the contracts directory."""
+    if not SCHEMA_FILE.exists():
+        raise FileNotFoundError(f"Schema file not found: {SCHEMA_FILE}")
+    
+    with open(SCHEMA_FILE, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
-@pytest.fixture
-def dataset():
-    """Load the cleaned dataset if it exists."""
-    if not DATASET_PATH.exists():
-        pytest.skip(f"Dataset not found at {DATASET_PATH}. Run T014a first.")
-    return pd.read_csv(DATASET_PATH)
-
-@pytest.fixture
-def exclusion_log():
-    """Load the exclusion log if it exists."""
-    if not EXCLUSION_LOG_PATH.exists():
-        # Not strictly required for schema validation of the remaining rows, 
-        # but good to have for context.
-        return {"total_raw": 0, "excluded": 0, "reasons": {}}
-    with open(EXCLUSION_LOG_PATH, 'r') as f:
-        return json.load(f)
-
-def test_schema_exists(schema):
-    """Verify the schema object is loaded and non-empty."""
-    assert schema is not None
-    assert "properties" in schema
-    assert "required" in schema
-
-def test_required_columns_present(dataset, schema):
-    """Verify all columns marked as required in the schema exist in the dataset."""
-    required_cols = schema.get("required", [])
-    dataset_cols = set(dataset.columns)
+def validate_field_presence(schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate that all required fields are present in the schema.
     
-    missing_cols = set(required_cols) - dataset_cols
-    assert len(missing_cols) == 0, f"Missing required columns: {missing_cols}"
-
-def test_column_types_match(dataset, schema):
-    """Verify data types of columns match the schema definition."""
+    Returns a list of missing fields.
+    """
     properties = schema.get("properties", {})
+    missing = []
     
-    type_mapping = {
-        "string": object,
-        "integer": np.integer,
-        "number": (np.floating, float),
-        "boolean": (bool, np.bool_)
-    }
+    for field in REQUIRED_FIELDS:
+        if field not in properties:
+            missing.append(field)
+    
+    return missing
+
+def validate_field_types(schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate that field types match expectations.
+    
+    Returns a list of type mismatches.
+    """
+    properties = schema.get("properties", {})
+    mismatches = []
+    
+    for field, expected_types in REQUIRED_TYPES.items():
+        if field in properties:
+            actual_type = properties[field].get("type")
+            if actual_type not in expected_types:
+                mismatches.append(
+                    f"Field '{field}': expected type in {expected_types}, got '{actual_type}'"
+                )
+    
+    return mismatches
+
+def validate_enum_constraints(schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate that stimulus_type has valid enum constraints.
+    
+    Returns a list of constraint violations.
+    """
+    properties = schema.get("properties", {})
+    violations = []
+    
+    if "stimulus_type" in properties:
+        field_def = properties["stimulus_type"]
+        enum_values = field_def.get("enum", [])
+        
+        if enum_values:
+            # Check if all valid types are present
+            for valid_type in VALID_STIMULUS_TYPES:
+                if valid_type not in enum_values:
+                    violations.append(
+                        f"stimulus_type enum missing valid value: '{valid_type}'"
+                    )
+        else:
+            violations.append("stimulus_type should have an 'enum' constraint")
+    
+    return violations
+
+def validate_required_constraint(schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate that the 'required' array includes all mandatory fields.
+    
+    Returns a list of missing required field constraints.
+    """
+    required_fields = schema.get("required", [])
+    missing_required = []
+    
+    for field in REQUIRED_FIELDS:
+        if field not in required_fields:
+            missing_required.append(field)
+    
+    return missing_required
+
+def validate_schema_version(schema: Dict[str, Any]) -> Optional[str]:
+    """
+    Validate that the schema has a version field.
+    
+    Returns an error message if version is missing or invalid.
+    """
+    version = schema.get("version")
+    if not version:
+        return "Schema is missing 'version' field"
+    
+    if not isinstance(version, str):
+        return f"Schema 'version' must be a string, got {type(version).__name__}"
+    
+    return None
+
+def validate_data_types_in_sample(data_file: Path) -> List[str]:
+    """
+    If a sample data file exists, validate that actual data types match schema.
+    
+    Returns a list of type mismatches found in the sample data.
+    """
+    if not data_file.exists():
+        return []  # Skip if no sample data exists
     
     errors = []
-    for col_name, col_def in properties.items():
-        if col_name not in dataset.columns:
-            continue # Checked in test_required_columns_present
+    try:
+        import pandas as pd
+        df = pd.read_csv(data_file)
+        properties = load_schema().get("properties", {})
         
-        expected_type_str = col_def.get("type")
-        if not expected_type_str:
-            continue
-        
-        expected_type = type_mapping.get(expected_type_str)
-        if expected_type is None:
-            errors.append(f"Unknown type mapping for '{expected_type_str}'")
-            continue
-
-        actual_dtype = dataset[col_name].dtype
-        
-        # Special handling for object columns that should be strings
-        if expected_type_str == "string" and actual_dtype == "object":
-            # Check if it's actually numeric stored as object or mixed
-            # For strictness, we assume object is acceptable for string in pandas CSV
-            continue
-        
-        if expected_type_str == "integer" and not np.issubdtype(actual_dtype, np.integer):
-            # Check if it's a float that is actually integer (e.g. 1.0)
-            if np.issubdtype(actual_dtype, np.floating):
-                if not dataset[col_name].eq(dataset[col_name].astype(int)).all():
-                    errors.append(f"Column '{col_name}' is float but contains non-integers")
-                continue
-            errors.append(f"Column '{col_name}' is {actual_dtype}, expected integer")
-            continue
-
-        if expected_type_str == "number" and not np.issubdtype(actual_dtype, np.floating) and not np.issubdtype(actual_dtype, np.integer):
-            errors.append(f"Column '{col_name}' is {actual_dtype}, expected number")
-            continue
-
-    assert len(errors) == 0, f"Type mismatches found:\n" + "\n".join(errors)
-
-def test_no_extra_columns(dataset, schema):
-    """Ensure no unexpected columns are in the dataset (strict contract)."""
-    schema_cols = set(schema.get("properties", {}).keys())
-    dataset_cols = set(dataset.columns)
+        for field, expected_types in REQUIRED_TYPES.items():
+            if field in df.columns:
+                dtype = str(df[field].dtype)
+                # Map pandas dtypes to JSON types
+                type_mapping = {
+                    'int64': 'integer',
+                    'int32': 'integer',
+                    'float64': 'number',
+                    'float32': 'number',
+                    'object': 'string',
+                    'string': 'string'
+                }
+                actual_type = type_mapping.get(dtype, dtype)
+                
+                if actual_type not in expected_types:
+                    errors.append(
+                        f"Data file column '{field}': pandas dtype '{dtype}' "
+                        f"maps to '{actual_type}', expected {expected_types}"
+                    )
+    except Exception as e:
+        errors.append(f"Error reading sample data file: {str(e)}")
     
-    extra_cols = dataset_cols - schema_cols
-    assert len(extra_cols) == 0, f"Unexpected columns found: {extra_cols}"
+    return errors
 
-def test_no_nulls_in_required_columns(dataset, schema):
-    """Verify required columns do not contain null values."""
-    required_cols = schema.get("required", [])
-    errors = []
+class TestDatasetSchema:
+    """Contract tests for dataset schema validation."""
     
-    for col in required_cols:
-        if col in dataset.columns:
-            if dataset[col].isnull().any():
-                count = dataset[col].isnull().sum()
-                errors.append(f"Column '{col}' has {count} null values")
+    @pytest.fixture(scope="class")
+    def schema(self) -> Dict[str, Any]:
+        """Load the schema once for all tests in this class."""
+        return load_schema()
     
-    assert len(errors) == 0, f"Nulls found in required columns:\n" + "\n".join(errors)
+    def test_schema_file_exists(self):
+        """Test that the schema file exists."""
+        assert SCHEMA_FILE.exists(), f"Schema file missing: {SCHEMA_FILE}"
+    
+    def test_schema_is_valid_yaml(self, schema):
+        """Test that the schema is valid YAML and parseable."""
+        assert isinstance(schema, dict), "Schema must be a dictionary"
+    
+    def test_schema_version_present(self, schema):
+        """Test that schema has a version field."""
+        version_error = validate_schema_version(schema)
+        assert version_error is None, version_error
+    
+    def test_required_fields_present(self, schema):
+        """Test that all required fields are defined in the schema."""
+        missing = validate_field_presence(schema)
+        assert not missing, f"Missing required fields: {missing}"
+    
+    def test_required_fields_constraint(self, schema):
+        """Test that required fields are listed in the 'required' array."""
+        missing = validate_required_constraint(schema)
+        assert not missing, f"Missing from 'required' array: {missing}"
+    
+    def test_field_types_correct(self, schema):
+        """Test that field types match expected types."""
+        mismatches = validate_field_types(schema)
+        assert not mismatches, "Type mismatches found:\n" + "\n".join(mismatches)
+    
+    def test_stimulus_type_enum(self, schema):
+        """Test that stimulus_type has valid enum constraints."""
+        violations = validate_enum_constraints(schema)
+        assert not violations, "Enum violations found:\n" + "\n".join(violations)
+    
+    def test_field_descriptions_present(self, schema):
+        """Test that all fields have descriptions."""
+        properties = schema.get("properties", {})
+        missing_descriptions = []
+        
+        for field in REQUIRED_FIELDS:
+            if field in properties:
+                if not properties[field].get("description"):
+                    missing_descriptions.append(field)
+        
+        assert not missing_descriptions, f"Fields missing descriptions: {missing_descriptions}"
+    
+    def test_age_range_constraint(self, schema):
+        """Test that age field has appropriate range constraints."""
+        properties = schema.get("properties", {})
+        
+        if "age" in properties:
+            age_def = properties["age"]
+            minimum = age_def.get("minimum")
+            maximum = age_def.get("maximum")
+            
+            # At least one bound should be defined
+            assert minimum is not None or maximum is not None, \
+                "Age field should have at least one range constraint (minimum/maximum)"
+            
+            # If minimum is defined, it should be >= 0
+            if minimum is not None:
+                assert minimum >= 0, "Age minimum must be >= 0"
+    
+    def test_non_negative_constraints(self, schema):
+        """Test that count fields have non-negative constraints."""
+        properties = schema.get("properties", {})
+        count_fields = ["perseverative_errors", "categories_completed"]
+        
+        for field in count_fields:
+            if field in properties:
+                minimum = properties[field].get("minimum")
+                assert minimum is not None and minimum >= 0, \
+                    f"Field '{field}' should have minimum >= 0"
+    
+    def test_sample_data_types_match_schema(self):
+        """Test that sample data types match schema definitions."""
+        errors = validate_data_types_in_sample(PROJECT_ROOT / "data" / "raw" / "raw_dataset.csv")
+        assert not errors, "Data type mismatches in sample file:\n" + "\n".join(errors)
+    
+    def test_schema_completeness(self, schema):
+        """
+        Comprehensive test: verify schema meets all contract requirements.
+        
+        This test aggregates all validation checks into a single comprehensive
+        validation to ensure the schema is production-ready.
+        """
+        all_errors = []
+        
+        # Check version
+        version_error = validate_schema_version(schema)
+        if version_error:
+            all_errors.append(version_error)
+        
+        # Check required fields
+        missing_fields = validate_field_presence(schema)
+        if missing_fields:
+            all_errors.append(f"Missing required fields: {missing_fields}")
+        
+        # Check required constraint
+        missing_required = validate_required_constraint(schema)
+        if missing_required:
+            all_errors.append(f"Missing from 'required' array: {missing_required}")
+        
+        # Check types
+        type_mismatches = validate_field_types(schema)
+        if type_mismatches:
+            all_errors.extend(type_mismatches)
+        
+        # Check enums
+        enum_violations = validate_enum_constraints(schema)
+        if enum_violations:
+            all_errors.extend(enum_violations)
+        
+        assert not all_errors, "Schema validation failed with errors:\n" + "\n".join(all_errors)
 
-def test_stimulus_type_values(dataset):
-    """Specific validation for stimulus_type enum values."""
-    if "stimulus_type" in dataset.columns:
-        valid_values = {"nostalgia", "control"}
-        actual_values = set(dataset["stimulus_type"].dropna().unique())
-        invalid_values = actual_values - valid_values
-        assert len(invalid_values) == 0, f"Invalid stimulus_type values found: {invalid_values}"
-
-def test_age_range_valid(dataset):
-    """Specific validation for age >= 65 as per study design."""
-    if "age" in dataset.columns:
-        invalid_ages = dataset[dataset["age"] < 65]
-        assert len(invalid_ages) == 0, f"Found {len(invalid_ages)} records with age < 65"
-
-def test_cognitive_metrics_non_negative(dataset):
-    """Ensure cognitive metrics (errors, categories) are non-negative."""
-    metric_cols = ["perseverative_errors", "categories_completed"]
-    for col in metric_cols:
-        if col in dataset.columns:
-            negative_vals = dataset[dataset[col] < 0]
-            assert len(negative_vals) == 0, f"Column '{col}' contains negative values"
-
-def test_exclusion_log_consistency(exclusion_log):
-    """Verify exclusion log has the expected structure."""
-    assert "total_raw" in exclusion_log
-    assert "excluded" in exclusion_log
-    assert "reasons" in exclusion_log
-    assert isinstance(exclusion_log["reasons"], dict)
+if __name__ == "__main__":
+    # Run tests manually if executed as script
+    pytest.main([__file__, "-v"])

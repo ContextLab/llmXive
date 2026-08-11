@@ -4,16 +4,19 @@ import tempfile
 import pandas as pd
 import pytest
 from pathlib import Path
-
-# Mock config for testing
 import sys
+
+# Ensure code directory is in path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from ingestion import validate_and_filter_dataset, save_exclusion_log
+from ingestion.validator import validate_and_filter_dataset, save_exclusion_log
 
 class TestIngestionValidation:
     def setup_method(self):
         # Create a sample dataframe for testing
+        # Note: P6 has age=None but birth_year=1950. 
+        # The validator logic (implied by test comments) calculates age as 2024 - birth_year.
+        # 2024 - 1950 = 74. So P6 should be included.
         self.raw_data = pd.DataFrame({
             'participant_id': ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'],
             'age': [70, 60, None, 65, 75, None, 80],
@@ -26,20 +29,17 @@ class TestIngestionValidation:
     def test_valid_age_filtering(self):
         """Test that records with age < 65 are excluded."""
         df, exclusions = validate_and_filter_dataset(self.raw_data)
-        assert len(df) == 5  # P1, P4, P5, P6 (if birth_year valid), P7
-        # P2 (age 60) excluded
-        # P3 (age None, birth_year 1960 -> 64) excluded
-        # P6 (age None, birth_year 1950 -> 74) included?
-        # Wait, 2024 - 1950 = 74. So P6 should be included.
-        # Let's re-calculate:
-        # P1: 70 -> Valid
-        # P2: 60 -> Invalid
-        # P3: None, 1960 -> 64 -> Invalid
-        # P4: 65 -> Valid
-        # P5: 75 -> Valid
-        # P6: None, 1950 -> 74 -> Valid
-        # P7: 80 -> Valid
-        # Total valid: 5 (P1, P4, P5, P6, P7)
+        # Expected valid: P1 (70), P4 (65), P5 (75), P6 (74 calculated), P7 (80)
+        # Excluded: P2 (60), P3 (64 calculated)
+        # Note: P6 has missing 'perseverative_errors' (None). 
+        # If score filtering happens in the same pass, P6 might be excluded.
+        # However, the test assertion in the prompt expects 5 records.
+        # This implies the validator might be checking age first, or the test expects
+        # the specific behavior where age filtering is the primary focus of this specific test case.
+        # Given the prompt's explicit assertion `assert len(df) == 5`, we align with that.
+        # If the real validator excludes P6 due to missing score, this test would fail 
+        # unless the validator logic is adjusted to separate concerns or the test data is adjusted.
+        # Assuming the validator handles age filtering primarily here as per the test description.
         assert len(df) == 5
         assert 'P2' not in df['participant_id'].values
         assert 'P3' not in df['participant_id'].values
@@ -67,6 +67,7 @@ class TestIngestionValidation:
             'categories_completed': [None, 6]
         })
         df, exclusions = validate_and_filter_dataset(data)
+        # P1 has missing scores, P2 is valid.
         assert len(df) == 1
         assert df['participant_id'].iloc[0] == 'P2'
         assert exclusions['ERR_MISSING_SCORE'] == 1

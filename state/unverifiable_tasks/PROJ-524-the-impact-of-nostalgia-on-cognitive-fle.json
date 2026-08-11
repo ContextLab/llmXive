@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-524-the-impact-of-nostalgia-on-cognitive-fle",
+  "tasks": [
+    {
+      "task_key": "T007",
+      "reject_count": 1,
+      "last_reason": "No `contracts/` directory or any files within it are present in the provided evidence, so the required artifact for setting up the directory structure is missing. The implementer has not supplied the necessary files to satisfy T007.",
+      "first_seen": "2026-08-11T16:12:38.311414+00:00",
+      "last_seen": "2026-08-11T16:12:38.311414+00:00"
+    }
+  ],
+  "updated_at": "2026-08-11T16:12:38.311414+00:00"
+}

@@ -1,139 +1,288 @@
+"""
+Schema Generator Module for PROJ-524
+Generates YAML schema files for dataset and output structures.
+"""
+
 import os
 import yaml
+import logging
 from pathlib import Path
 from typing import Dict, Any
-from utils import setup_logging, log_info, log_warning, get_timestamp
+
+# Import from project utilities
+from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 from config import ensure_dirs, get_config
 
-logger = None
+# Define schema content as dictionaries
+DATASET_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "WCST Aging Dataset Schema",
+    "description": "Schema for the raw and processed dataset containing WCST performance metrics and nostalgia stimulus conditions for aging adults.",
+    "type": "object",
+    "required": [
+        "participant_id",
+        "age",
+        "stimulus_type",
+        "perseverative_errors",
+        "categories_completed"
+    ],
+    "properties": {
+        "participant_id": {
+            "type": "string",
+            "description": "Unique identifier for the participant",
+            "pattern": "^[A-Z0-9]{6,12}$"
+        },
+        "age": {
+            "type": "integer",
+            "description": "Age of the participant in years",
+            "minimum": 65
+        },
+        "stimulus_type": {
+            "type": "string",
+            "description": "Type of stimulus presented (nostalgia or control)",
+            "enum": ["nostalgia", "control"]
+        },
+        "perseverative_errors": {
+            "type": "integer",
+            "description": "Number of perseverative errors made on the Wisconsin Card Sorting Test",
+            "minimum": 0
+        },
+        "categories_completed": {
+            "type": "integer",
+            "description": "Number of categories successfully completed on the WCST",
+            "minimum": 0
+        },
+        "MMSE": {
+            "type": "integer",
+            "description": "Mini-Mental State Examination score (optional field for cognitive screening)",
+            "minimum": 0,
+            "maximum": 30,
+            "nullable": True
+        },
+        "response_time_ms": {
+            "type": "integer",
+            "description": "Average response time in milliseconds (optional)",
+            "nullable": True
+        },
+        "trial_count": {
+            "type": "integer",
+            "description": "Total number of trials presented (optional)",
+            "minimum": 0,
+            "nullable": True
+        }
+    },
+    "additionalProperties": False,
+    "metadata": {
+        "version": "1.0.0",
+        "generated_at": get_timestamp(),
+        "source": "spec.md Input/Output Schema"
+    }
+}
+
+OUTPUT_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Statistical Analysis Output Schema",
+    "description": "Schema for the statistical analysis output including t-test results, effect sizes, and power analysis.",
+    "type": "object",
+    "required": [
+        "analysis_metadata",
+        "group_statistics",
+        "hypothesis_tests",
+        "effect_sizes",
+        "power_analysis"
+    ],
+    "properties": {
+        "analysis_metadata": {
+            "type": "object",
+            "required": ["timestamp", "dataset_version", "analysis_type"],
+            "properties": {
+                "timestamp": {"type": "string", "format": "date-time"},
+                "dataset_version": {"type": "string"},
+                "analysis_type": {
+                    "type": "string",
+                    "enum": ["welch_t_test", "bonferroni_corrected", "effect_size_analysis", "power_analysis"]
+                },
+                "software_version": {"type": "string"},
+                "python_version": {"type": "string"}
+            }
+        },
+        "group_statistics": {
+            "type": "object",
+            "required": ["nostalgia", "control"],
+            "properties": {
+                "nostalgia": {
+                    "type": "object",
+                    "required": ["n", "mean_perseverative_errors", "mean_categories_completed", "std_perseverative_errors", "std_categories_completed"],
+                    "properties": {
+                        "n": {"type": "integer"},
+                        "mean_perseverative_errors": {"type": "number"},
+                        "mean_categories_completed": {"type": "number"},
+                        "std_perseverative_errors": {"type": "number"},
+                        "std_categories_completed": {"type": "number"}
+                    }
+                },
+                "control": {
+                    "type": "object",
+                    "required": ["n", "mean_perseverative_errors", "mean_categories_completed", "std_perseverative_errors", "std_categories_completed"],
+                    "properties": {
+                        "n": {"type": "integer"},
+                        "mean_perseverative_errors": {"type": "number"},
+                        "mean_categories_completed": {"type": "number"},
+                        "std_perseverative_errors": {"type": "number"},
+                        "std_categories_completed": {"type": "number"}
+                    }
+                }
+            }
+        },
+        "hypothesis_tests": {
+            "type": "object",
+            "required": ["perseverative_errors", "categories_completed"],
+            "properties": {
+                "perseverative_errors": {
+                    "type": "object",
+                    "required": ["t_statistic", "p_value", "degrees_of_freedom", "corrected_p_value", "significant"],
+                    "properties": {
+                        "t_statistic": {"type": "number"},
+                        "p_value": {"type": "number"},
+                        "degrees_of_freedom": {"type": "number"},
+                        "corrected_p_value": {"type": "number"},
+                        "significant": {"type": "boolean"},
+                        "method": {"type": "string", "enum": ["welch_independent_samples"]}
+                    }
+                },
+                "categories_completed": {
+                    "type": "object",
+                    "required": ["t_statistic", "p_value", "degrees_of_freedom", "corrected_p_value", "significant"],
+                    "properties": {
+                        "t_statistic": {"type": "number"},
+                        "p_value": {"type": "number"},
+                        "degrees_of_freedom": {"type": "number"},
+                        "corrected_p_value": {"type": "number"},
+                        "significant": {"type": "boolean"},
+                        "method": {"type": "string", "enum": ["welch_independent_samples", "bonferroni_corrected"]}
+                    }
+                }
+            }
+        },
+        "effect_sizes": {
+            "type": "object",
+            "required": ["perseverative_errors", "categories_completed"],
+            "properties": {
+                "perseverative_errors": {
+                    "type": "object",
+                    "required": ["cohen_d", "ci_lower", "ci_upper"],
+                    "properties": {
+                        "cohen_d": {"type": "number"},
+                        "ci_lower": {"type": "number"},
+                        "ci_upper": {"type": "number"},
+                        "confidence_level": {"type": "number", "default": 0.95}
+                    }
+                },
+                "categories_completed": {
+                    "type": "object",
+                    "required": ["cohen_d", "ci_lower", "ci_upper"],
+                    "properties": {
+                        "cohen_d": {"type": "number"},
+                        "ci_lower": {"type": "number"},
+                        "ci_upper": {"type": "number"},
+                        "confidence_level": {"type": "number", "default": 0.95}
+                    }
+                }
+            }
+        },
+        "power_analysis": {
+            "type": "object",
+            "required": ["achieved_power", "minimum_detectable_effect"],
+            "properties": {
+                "achieved_power": {
+                    "type": "object",
+                    "required": ["perseverative_errors", "categories_completed"],
+                    "properties": {
+                        "perseverative_errors": {"type": "number"},
+                        "categories_completed": {"type": "number"}
+                    }
+                },
+                "minimum_detectable_effect": {
+                    "type": "object",
+                    "required": ["perseverative_errors", "categories_completed"],
+                    "properties": {
+                        "perseverative_errors": {"type": "number"},
+                        "categories_completed": {"type": "number"},
+                        "power_level": {"type": "number", "default": 0.80}
+                    }
+                }
+            }
+        },
+        "sensitivity_analysis": {
+            "type": "object",
+            "required": ["threshold_sweep", "borderline_status"],
+            "properties": {
+                "threshold_sweep": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "threshold": {"type": "number"},
+                            "significant_pe": {"type": "boolean"},
+                            "significant_cc": {"type": "boolean"}
+                        }
+                    }
+                },
+                "borderline_status": {
+                    "type": "object",
+                    "properties": {
+                        "is_sensitive_to_threshold": {"type": "boolean"},
+                        "borderline_range": {"type": "string"}
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": False,
+    "metadata": {
+        "version": "1.0.0",
+        "generated_at": get_timestamp(),
+        "source": "spec.md Input/Output Schema"
+    }
+}
 
 def generate_dataset_schema() -> Dict[str, Any]:
-    """
-    Generates the schema definition for the input dataset based on plan.md entities.
-    Defines expected columns, types, and constraints for the ingestion pipeline.
-    """
-    schema = {
-        "schema_name": "nostalgia_cognitive_flexibility_dataset",
-        "version": "1.0.0",
-        "generated_at": get_timestamp(),
-        "description": "Schema for raw and processed data regarding nostalgia and cognitive flexibility in aging adults.",
-        "entities": {
-            "participant": {
-                "description": "Core participant demographic and screening data.",
-                "fields": [
-                    {"name": "participant_id", "type": "string", "required": True, "description": "Unique identifier for the participant."},
-                    {"name": "age", "type": "integer", "required": True, "description": "Age in years. Filtered for >= 65."},
-                    {"name": "birth_year", "type": "integer", "required": False, "description": "Fallback for age calculation if age is missing."},
-                    {"name": "gender", "type": "string", "required": False, "description": "Gender of the participant."},
-                    {"name": "education_years", "type": "integer", "required": False, "description": "Years of formal education."},
-                    {"name": "MMSE", "type": "float", "required": False, "description": "Mini-Mental State Examination score. Used for cognitive impairment exclusion if available."}
-                ]
-            },
-            "cognitive_task": {
-                "description": "Results from the Wisconsin Card Sorting Test (WCST) or equivalent executive function tasks.",
-                "fields": [
-                    {"name": "stimulus_type", "type": "string", "required": True, "description": "Condition type: 'nostalgia' or 'control'."},
-                    {"name": "perseverative_errors", "type": "integer", "required": True, "description": "Number of perseverative errors made."},
-                    {"name": "categories_completed", "type": "integer", "required": True, "description": "Number of sorting categories successfully completed."},
-                    {"name": "total_tries", "type": "integer", "required": False, "description": "Total number of trials attempted."},
-                    {"name": "response_time_avg", "type": "float", "required": False, "description": "Average response time in seconds."}
-                ]
-            }
-        },
-        "constraints": {
-            "age_min": 65,
-            "stimulus_values": ["nostalgia", "control"],
-            "required_columns": ["participant_id", "stimulus_type", "perseverative_errors", "categories_completed", "age"]
-        }
-    }
-    return schema
+    """Generate the dataset schema dictionary."""
+    return DATASET_SCHEMA
 
 def generate_output_schema() -> Dict[str, Any]:
-    """
-    Generates the schema definition for the analysis output (statistical report).
-    Defines the structure for statistical results, effect sizes, and power analysis.
-    """
-    schema = {
-        "schema_name": "nostalgia_cognitive_flexibility_output",
-        "version": "1.0.0",
-        "generated_at": get_timestamp(),
-        "description": "Schema for statistical analysis results and reports.",
-        "entities": {
-            "statistical_comparison": {
-                "description": "Results of the Welch's t-test between nostalgia and control groups.",
-                "fields": [
-                    {"name": "metric", "type": "string", "required": True, "description": "The cognitive metric being compared (e.g., perseverative_errors)."},
-                    {"name": "group_nostalgia_mean", "type": "float", "required": True},
-                    {"name": "group_nostalgia_std", "type": "float", "required": True},
-                    {"name": "group_control_mean", "type": "float", "required": True},
-                    {"name": "group_control_std", "type": "float", "required": True},
-                    {"name": "t_statistic", "type": "float", "required": True},
-                    {"name": "p_value", "type": "float", "required": True},
-                    {"name": "p_value_corrected", "type": "float", "required": True, "description": "Bonferroni corrected p-value."},
-                    {"name": "cohens_d", "type": "float", "required": True},
-                    {"name": "cohens_d_ci_lower", "type": "float", "required": True},
-                    {"name": "cohens_d_ci_upper", "type": "float", "required": True}
-                ]
-            },
-            "power_analysis": {
-                "description": "Post-hoc power analysis results.",
-                "fields": [
-                    {"name": "metric", "type": "string", "required": True},
-                    {"name": "observed_power", "type": "float", "required": True},
-                    {"name": "min_detectable_effect_size", "type": "float", "required": True},
-                    {"name": "alpha_level", "type": "float", "required": True}
-                ]
-            },
-            "summary": {
-                "description": "High-level summary of the analysis.",
-                "fields": [
-                    {"name": "total_participants", "type": "integer", "required": True},
-                    {"name": "nostalgia_count", "type": "integer", "required": True},
-                    {"name": "control_count", "type": "integer", "required": True},
-                    {"name": "exclusion_count", "type": "integer", "required": True},
-                    {"name": "has_mmse_filter_applied", "type": "boolean", "required": True}
-                ]
-            }
-        },
-        "output_files": [
-            "data/results/statistical_report.json",
-            "data/results/sensitivity_report.json"
-        ]
-    }
-    return schema
+    """Generate the output schema dictionary."""
+    return OUTPUT_SCHEMA
 
 def write_schema(schema: Dict[str, Any], output_path: Path) -> None:
-    """
-    Writes a schema dictionary to a YAML file.
-    """
+    """Write a schema dictionary to a YAML file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    log_info(f"Schema written to {output_path}")
+    log_info(f"Schema written to: {output_path}")
 
-def main():
-    """
-    Main entry point to generate and save the schema files.
-    """
-    global logger
-    logger = setup_logging("schema_generator")
-    config = get_config()
+def main() -> None:
+    """Main entry point for schema generation."""
+    # Setup logging
+    log_level = get_config().get('log_level', 'INFO')
+    setup_logging(level=log_level)
     
-    # Ensure contracts directory exists
+    # Ensure directories exist
+    config = get_config()
     contracts_dir = Path(config.get('contracts_dir', 'contracts'))
     ensure_dirs([contracts_dir])
     
-    # Generate Dataset Schema
+    # Generate and write dataset schema
     dataset_schema = generate_dataset_schema()
-    dataset_schema_path = contracts_dir / "dataset.schema.yaml"
+    dataset_schema_path = contracts_dir / 'dataset.schema.yaml'
     write_schema(dataset_schema, dataset_schema_path)
     
-    # Generate Output Schema
+    # Generate and write output schema
     output_schema = generate_output_schema()
-    output_schema_path = contracts_dir / "output.schema.yaml"
+    output_schema_path = contracts_dir / 'output.schema.yaml'
     write_schema(output_schema, output_schema_path)
     
-    log_info("T007 Completed: Generated dataset.schema.yaml and output.schema.yaml")
+    log_info("Schema generation completed successfully.")
 
 if __name__ == "__main__":
     main()

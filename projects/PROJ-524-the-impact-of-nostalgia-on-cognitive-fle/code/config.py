@@ -1,5 +1,9 @@
 """
 Configuration management for the project.
+Handles environment variables, paths, and runtime settings.
+
+Note: Do not store runtime flags here (e.g., simulation_mode, exclusion counts).
+Those belong in data metadata files (e.g., data/raw/metadata.json).
 """
 import os
 import logging
@@ -8,55 +12,62 @@ from typing import Optional, Dict, Any
 
 from utils import setup_logging, log_info, log_warning
 
-_config: Optional[Dict[str, Any]] = None
-_logger: Optional[logging.Logger] = None
-
-
-def load_config() -> Dict[str, Any]:
-    """
-    Loads configuration from environment variables and defaults.
-    """
-    global _config
-    if _config is not None:
-        return _config
-
-    _config = {
-        "paths": {
-            "raw": os.getenv("RAW_DATA_DIR", "data/raw"),
-            "processed": os.getenv("PROCESSED_DATA_DIR", "data/processed"),
-            "results": os.getenv("RESULTS_DATA_DIR", "data/results"),
-            "stimuli": os.getenv("STIMULI_DIR", "data/stimuli"),
-            "code": os.getenv("CODE_DIR", "code"),
-            "tests": os.getenv("TESTS_DIR", "tests"),
-        },
-        "settings": {
-            "min_age": int(os.getenv("MIN_AGE", "65")),
-            "mmse_threshold": int(os.getenv("MMSE_THRESHOLD", "24")),
-            "data_source_url": os.getenv("DATA_SOURCE_URL", ""),
-            "log_level": os.getenv("LOG_LEVEL", "INFO"),
-        }
-    }
-    return _config
-
 
 def get_config() -> Dict[str, Any]:
     """
-    Returns the global configuration dictionary.
+    Load configuration from environment variables and defaults.
+    
+    Returns:
+        Dictionary containing configuration parameters.
     """
-    return load_config()
+    base_path = os.getenv("PROJECT_ROOT", ".")
+    
+    config = {
+        "base_path": base_path,
+        "data_path": os.path.join(base_path, "data"),
+        "code_path": os.path.join(base_path, "code"),
+        "tests_path": os.path.join(base_path, "tests"),
+        "contracts_path": os.path.join(base_path, "contracts"),
+        "paper_path": os.path.join(base_path, "paper"),
+        "mmse_threshold": get_env_int("MMSE_THRESHOLD", 24),
+        "data_source_url": get_env_str("DATA_SOURCE_URL", ""),
+        "log_level": get_log_level(),
+    }
+    
+    return config
+
+
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Load configuration from a YAML file if provided, otherwise use defaults.
+    
+    Args:
+        config_path: Path to the configuration file.
+        
+    Returns:
+        Configuration dictionary.
+    """
+    if config_path and os.path.exists(config_path):
+        import yaml
+        with open(config_path, 'r') as f:
+            file_config = yaml.safe_load(f)
+            return {**get_config(), **file_config}
+    return get_config()
+
+
+def get_config_value(key: str, default: Any = None) -> Any:
+    """Get a specific configuration value."""
+    config = get_config()
+    return config.get(key, default)
 
 
 def get_env_str(key: str, default: str = "") -> str:
-    """
-    Retrieves a string environment variable.
-    """
+    """Get an environment variable as a string."""
     return os.getenv(key, default)
 
 
 def get_env_int(key: str, default: int = 0) -> int:
-    """
-    Retrieves an integer environment variable.
-    """
+    """Get an environment variable as an integer."""
     try:
         return int(os.getenv(key, default))
     except ValueError:
@@ -64,9 +75,7 @@ def get_env_int(key: str, default: int = 0) -> int:
 
 
 def get_env_float(key: str, default: float = 0.0) -> float:
-    """
-    Retrieves a float environment variable.
-    """
+    """Get an environment variable as a float."""
     try:
         return float(os.getenv(key, default))
     except ValueError:
@@ -74,35 +83,23 @@ def get_env_float(key: str, default: float = 0.0) -> float:
 
 
 def get_env_bool(key: str, default: bool = False) -> bool:
-    """
-    Retrieves a boolean environment variable.
-    """
-    val = os.getenv(key, "").lower()
-    if val in ("true", "1", "yes"):
-        return True
-    elif val in ("false", "0", "no"):
-        return False
-    return default
+    """Get an environment variable as a boolean."""
+    val = os.getenv(key, str(default)).lower()
+    return val in ('true', '1', 'yes', 'on')
 
 
 def get_mmse_threshold() -> int:
-    """
-    Returns the MMSE threshold for cognitive impairment filtering.
-    """
+    """Get the MMSE threshold for cognitive impairment."""
     return get_env_int("MMSE_THRESHOLD", 24)
 
 
 def get_data_source_url() -> str:
-    """
-    Returns the URL for the data source.
-    """
+    """Get the data source URL from environment."""
     return get_env_str("DATA_SOURCE_URL", "")
 
 
 def get_log_level() -> int:
-    """
-    Returns the logging level based on environment variable.
-    """
+    """Get the logging level from environment."""
     level_str = get_env_str("LOG_LEVEL", "INFO").upper()
     levels = {
         "DEBUG": logging.DEBUG,
@@ -114,15 +111,23 @@ def get_log_level() -> int:
     return levels.get(level_str, logging.INFO)
 
 
-def ensure_dirs() -> None:
+def ensure_dirs():
     """
-    Ensures all required directories exist based on configuration.
+    Ensure all required directories exist.
+    This is a helper that can be called during initialization.
     """
     config = get_config()
-    paths = config.get("paths", {})
+    required_dirs = [
+        config["data_path"],
+        os.path.join(config["data_path"], "raw"),
+        os.path.join(config["data_path"], "processed"),
+        os.path.join(config["data_path"], "results"),
+        os.path.join(config["data_path"], "stimuli"),
+        config["code_path"],
+        config["tests_path"],
+        config["contracts_path"],
+        config["paper_path"],
+    ]
     
-    for dir_name, dir_path in paths.items():
-        path_obj = Path(dir_path)
-        if not path_obj.exists():
-            path_obj.mkdir(parents=True, exist_ok=True)
-            log_info(f"Created directory: {path_obj}")
+    for dir_path in required_dirs:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)

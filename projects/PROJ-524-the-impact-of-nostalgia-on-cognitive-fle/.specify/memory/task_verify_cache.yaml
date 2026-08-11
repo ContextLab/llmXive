@@ -1,41 +1,24 @@
-T001a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/raw/` directory is provided; the artifact list is empty
-    and there is no confirmation that the required folder was created. The implementer
-    must create the directory (or show its existence) to satisfy the task.
-T001b:
+  r: "No directory listings or file system evidence were provided showing that the\
+    \ required folders (`data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`,\
+    \ `contracts/`, `code/`, `tests/`, `paper/`) actually exist; the claim alone is\
+    \ insufficient. The implementer must supply proof (e.g., a directory tree snapshot)\
+    \ that these directories have been created and are non\u2011empty."
+T010a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/processed/` directory being present was provided; the\
-    \ implementer\u2019s claim is unsubstantiated and no artifact confirming the directory\u2019\
-    s existence is shown. The required directory must be created and verified (e.g.,\
-    \ by listing its path)."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `data/results/` directory actually exists; the
-    implementer did not supply any filesystem listing, screenshot, or code confirming
-    creation of the required folder. The task remains unverified.
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `data/stimuli/` directory actually exists; the\
-    \ implementer did not supply any filesystem listing, creation script, or confirmation\
-    \ that the required directory was created. The task remains undone until the directory\
-    \ is present and non\u2011empty (or at least created)."
+  h: 0baccae73f95007f78df01b62f299ae1a1e969c8124e6ad40aae2af016ef78af
+  r: The raw dataset and metadata/exclusion logs are present and correctly indicate
+    a simulation fallback, but there is no evidence of the required dynamic search
+    of OpenML/HuggingFace, and the referenced `code/synthetic_data.py` script is missing,
+    so the fallback generation step is not demonstrably performed as specified.
 T012d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No code, script, or data artifact was provided that shows the MMSE column is
     checked, records with `MMSE < 24` are excluded, and the count of excluded records
     is returned to shared state. The required implementation and output are missing.
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration file, or log output was provided that checks for an \u2018\
-    MMSE\u2019 column, sets a `has_mmse` flag, or emits the `ERR_MMSE_MISSING` warning.\
-    \ The required implementation artifact is missing, so the task is not satisfied."
 T014b:
   c: false
   h: 7c9b3e70db77951e20702e58c9ca933c41716bfdbab6f4796e642a4eab22cf29
@@ -64,6 +47,20 @@ T020:
     \ is present. The implementer provided no code, results, or documentation that\
     \ demonstrates the required effect\u2011size calculations, so the task is not\
     \ satisfied."
+T020b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a file at `specs/001-nostalgia-cognitive-flexibility/data-model.md`
+    is provided, nor any excerpt showing the required documentation of entities, relationships,
+    and the optional `MMSE` field. The implementer must create and supply this markdown
+    file with the specified content.
+T020c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/001-nostalgia-cognitive-flexibility/quickstart.md` file was presented,\
+    \ nor any excerpt of its contents showing installation steps, dependency installation,\
+    \ and a \u201CHello World\u201D ingestion example. Without the required markdown\
+    \ artifact, the task is not satisfied."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,20 +74,3 @@ T025:
     in the repository, so the integration test for the sensitivity analysis pipeline
     is missing. The task cannot be considered completed until this file is added with
     appropriate test code.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., code, logs, screenshots, or test results) was provided to\
-    \ demonstrate that a dynamic search for the keywords \u201CWCST\u201D and \u201C\
-    aging\u201D actually works. Without concrete evidence of the search functionality\
-    \ being verified, the requirement is not satisfied. The implementer must supply\
-    \ the relevant implementation and proof (e.g., query output, test script, or log)\
-    \ showing successful retrieval of data using those keywords."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is provided; the evidence contains only the original\
-    \ specification excerpt and task description, with no indication that the document\
-    \ was edited to replace references to paired t\u2011tests with Welch\u2019s independent\u2011\
-    samples t\u2011test or that FR\u2011002 and US\u20112 were revised accordingly.\
-    \ The required artifact is missing."

@@ -1,43 +1,95 @@
 # Data Model: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
 
-## Entity Definitions
+**Version**: 1.0
+**Generated**: Based on Specification `spec.md` and Task `T020a` (Dataset Schema)
+**Project**: PROJ-524
 
-### Participant
-Represents an individual in the study.
-- `participant_id`: Unique identifier (string, required)
-- `age`: Age in years (integer, required, ≥ 65)
-- `baseline_cognitive_score`: Optional baseline cognitive score (float, nullable)
-- `stimulus_exposure`: Boolean indicating exposure to nostalgia stimulus (boolean, required)
-- `mmse_score`: Mini-Mental State Examination score (integer, nullable, used for exclusion)
+## 1. Overview
 
-### Stimulus
-Represents a specific nostalgia induction item.
-- `stimulus_id`: Unique identifier (string, required)
-- `type`: "nostalgia" or "control" (string, required)
-- `source_url`: Original source URL (string, required, verified)
-- `checksum`: SHA-256 hash of file (string, required)
-- `file_path`: Local path in `data/stimuli/` (string, required)
+This document defines the logical data model for the study investigating the impact of nostalgia on cognitive flexibility in aging adults. The model centers on participant performance data collected via the Wisconsin Card Sorting Test (WCST) under two distinct stimulus conditions: **Nostalgia** and **Control**.
 
-### PerformanceMetric
-Represents a behavioral outcome from WCST.
-- `metric_name`: "perseverative_errors" or "categories_completed" (string, required)
-- `value`: Numeric score (float, required)
-- `stimulus_condition`: "nostalgia" or "control" (string, required)
-  - **Note**: This field replaces the previous "condition" (pre/post) to align with the **between-subjects** design. Participants are assigned to a stimulus condition, not measured pre/post.
-- `participant_id`: Foreign key to Participant (string, required)
-- `stimulus_id`: Foreign key to Stimulus (string, required)
+The data model supports a between-subjects experimental design where participants are assigned to one condition, and their cognitive flexibility is measured using standard WCST metrics.
 
-## Data Flow
+## 2. Core Entities
 
-1. **Raw Ingestion**: Raw CSV/JSON files loaded into `data/raw/`.
-2. **Validation**: Age ≥ 65, non-null metrics, stimulus type present. Excluded records logged.
-3. **Processing**: Cleaned data written to `data/processed/` with checksums.
-4. **Analysis**: Statistical tests run on processed data; results written to `data/results/`.
-5. **Reporting**: Final report generated from `data/results/`; no hand-typed numbers.
+### 2.1 Participant
+Represents an individual subject in the study.
 
-## Data Hygiene Rules
+| Attribute | Type | Constraints | Description |
+|:--- |:--- |:--- |:--- |
+| `participant_id` | String (UUID) | **Primary Key**, Unique, Non-Null | Unique identifier for the participant. |
+| `age` | Integer | **Required**, $\ge$ 65 | Age of the participant at the time of testing. |
+| `stimulus_type` | String | **Required**, Enum: `['nostalgia', 'control']` | The experimental condition assigned to the participant. |
+| `mmse` | Integer | **Optional**, Range: 0-30 | Mini-Mental State Examination score. Used to screen for cognitive impairment. |
 
-- **Immutability**: Raw data never modified; derivations written to new files.
-- **Checksums**: All files in `data/` checksummed (SHA-256); hashes recorded in `state/`.
-- **PII**: No personally identifiable information allowed in committed data.
-- **Versioning**: Every artifact change updates `state/` timestamp.
+### 2.2 CognitivePerformance
+Represents the outcome metrics for a participant's performance on the WCST.
+
+| Attribute | Type | Constraints | Description |
+|:--- |:--- |:--- |:--- |
+| `participant_id` | String (UUID) | **Foreign Key** -> Participant | Links performance to the specific participant. |
+| `perseverative_errors` | Integer | **Required**, $\ge$ 0 | Number of perseverative errors (repeating a previously correct rule). |
+| `categories_completed` | Integer | **Required**, $\ge$ 0 | Number of sorting categories successfully completed. |
+
+## 3. Relationships
+
+- **Participant (1) ↔ (N) CognitivePerformance**:
+ In this specific implementation, the model assumes a **1:1** relationship for the primary analysis (one performance record per participant). If longitudinal data is added in future phases, this relationship would expand to 1:N.
+
+- **Data Flow**:
+ 1. **Raw Ingestion**: Data is fetched from external sources (OpenML/HuggingFace) containing columns mapping to the `Participant` and `CognitivePerformance` attributes.
+ 2. **Validation & Filtering**:
+ - `age` must be $\ge$ 65.
+ - `stimulus_type` must be valid.
+ - `perseverative_errors` and `categories_completed` must be non-null.
+ 3. **MMSE Conditional Logic**:
+ - The `mmse` field is **optional** in the source data.
+ - If `mmse` is present, records with `mmse < 24` are excluded (indicating cognitive impairment).
+ - If `mmse` is absent, this exclusion step is skipped, and a flag `has_mmse = false` is recorded.
+
+## 4. Field Specifications & Constraints
+
+### 4.1 Required Fields
+- `participant_id`: Must be unique across the dataset.
+- `age`: Must be an integer $\ge$ 65. Records failing this are excluded.
+- `stimulus_type`: Must be either "nostalgia" or "control".
+- `perseverative_errors`: Must be a non-negative integer.
+- `categories_completed`: Must be a non-negative integer.
+
+### 4.2 Optional Fields (Conditional)
+- `mmse`:
+ - **Nature**: Optional. The dataset may or may not include this column.
+ - **Handling**:
+ - If present: Values $< 24$ trigger exclusion (log `ERR_MMSE_IMPAIRED`).
+ - If absent: The pipeline proceeds without MMSE filtering (log `SKIP_MMSE_EXCLUSION`).
+ - **Storage**: The presence/absence of this column is tracked in `data/processed/mmse_flag.json`.
+
+## 5. Schema Mapping (Source to Internal)
+
+The ingestion pipeline (`code/ingestion.py`) maps external column names to this internal model:
+
+| Internal Field | Source Column (Expected) | Transformation |
+|:--- |:--- |:--- |
+| `participant_id` | `participant_id`, `id`, `subject_id` | String normalization |
+| `age` | `age` | Cast to Integer |
+| `stimulus_type` | `stimulus_type`, `condition`, `group` | Lowercase, Enum validation |
+| `perseverative_errors` | `perseverative_errors`, `pe` | Cast to Integer |
+| `categories_completed` | `categories_completed`, `cc` | Cast to Integer |
+| `mmse` | `mmse`, `mini_mental_state` | Cast to Integer (Optional) |
+
+## 6. Data Integrity Rules
+
+1. **Age Constraint**: No record with `age < 65` is allowed in the final `cleaned_dataset.csv`.
+2. **Score Constraint**: No record with null `perseverative_errors` or `categories_completed` is allowed.
+3. **MMSE Constraint**: If the `mmse` column exists, no record with `mmse < 24` is allowed in the final cleaned dataset.
+4. **Stimulus Balance**: The dataset should contain records for both "nostalgia" and "control" groups to enable Welch's t-test.
+
+## 7. File Artifacts
+
+The data model is realized through the following files:
+
+- **Raw Data**: `data/raw/raw_dataset.csv` (Unfiltered source data)
+- **Intermediate**: `data/processed/cleaned_dataset_intermediate.csv` (Post-age/score filter, pre-MMSE filter if applicable)
+- **Final Output**: `data/processed/cleaned_dataset.csv` (Fully filtered dataset)
+- **Flags**: `data/processed/mmse_flag.json` (Tracks if MMSE exclusion was applied)
+- **Exclusion Log**: `data/processed/exclusion_log.json` (Counts of excluded records per reason)

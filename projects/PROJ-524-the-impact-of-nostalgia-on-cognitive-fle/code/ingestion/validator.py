@@ -1,52 +1,34 @@
-"""
-Schema Validation Module for Nostalgia-Cognitive Flexibility Study.
-
-This module handles all data validation and filtering operations,
-separating validation logic from fetching to improve modularity.
-
-Includes:
-- Schema validation (required columns, types)
-- Data filtering (age, MMSE, nulls)
-- Exclusion logging
-- Cleaning pipeline
-"""
 import os
 import json
 import logging
 import hashlib
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, List
+
 import pandas as pd
 import numpy as np
 
-# Import shared exceptions and config
-try:
-    from config import get_config, get_mmse_threshold, get_env_bool
-    from utils import setup_logging, log_info, log_warning, log_error, compute_sha256
-except ImportError:
-    import sys
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from config import get_config, get_mmse_threshold, get_env_bool
-    from utils import setup_logging, log_info, log_warning, log_error, compute_sha256
+from utils import setup_logging, log_info, log_warning, log_error
+from config import get_config, get_mmse_threshold
 
-# Re-define exceptions if not imported (should be in ingestion.py or fetcher.py)
+logger = logging.getLogger(__name__)
+
 class DataFetchError(Exception):
     pass
+
 class DataGapError(Exception):
     pass
 
-logger = logging.getLogger(__name__)
+class SchemaValidationError(Exception):
+    pass
 
 REQUIRED_COLUMNS = ['age', 'stimulus_type', 'perseverative_errors', 'categories_completed']
 OPTIONAL_COLUMNS = ['MMSE', 'participant_id']
 
 def validate_schema(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Validate that the DataFrame contains required columns.
+    Validate that the dataframe contains required columns.
     
-    Args:
-        df: Input DataFrame.
-        
     Returns:
         Tuple of (is_valid, list_of_missing_columns)
     """
@@ -55,173 +37,113 @@ def validate_schema(df: pd.DataFrame) -> Tuple[bool, List[str]]:
         if col not in df.columns:
             missing.append(col)
     
-    is_valid = len(missing) == 0
-    if not is_valid:
-        log_error(logger, f"Schema validation failed. Missing columns: {missing}")
-    else:
-        log_info(logger, "Schema validation passed.")
+    if missing:
+        log_error(f"Schema validation failed. Missing columns: {missing}")
+        return False, missing
     
-    return is_valid, missing
+    log_info("Schema validation passed.")
+    return True, []
 
-def validate_and_filter_dataset(df: pd.DataFrame, metadata: Dict[str, Any]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def validate_and_filter_dataset(df: pd.DataFrame, simulation_mode: bool) -> Tuple[pd.DataFrame, Dict[str, int]]:
     """
-    Main validation and filtering pipeline.
-    
-    Steps:
-    1. Validate schema (required columns).
-    2. Filter by age >= 65.
-    3. Filter by non-null scores.
-    4. Filter by MMSE >= 24 (if MMSE column exists).
-    5. Generate exclusion log.
+    Validate data and apply filtering rules.
     
     Args:
-        df: Raw DataFrame.
-        metadata: Dataset metadata.
+        df: Input dataframe.
+        simulation_mode: If True, log SIMULATION_FALLBACK but don't fail.
         
     Returns:
-        Tuple of (cleaned_df, updated_metadata)
-        
-    Raises:
-        DataFetchError: If schema is invalid.
+        Tuple of (filtered_df, exclusion_counts)
     """
-    log_info(logger, "Starting validation and filtering pipeline.")
+    exclusion_counts = {}
     
-    # 1. Schema Validation
-    is_valid, missing_cols = validate_schema(df)
-    if not is_valid:
-        raise DataFetchError(f"Invalid schema. Missing columns: {missing_cols}")
-    
-    # Initialize exclusion counts
-    exclusion_counts = {
-        "ERR_MISSING_AGE_FIELD": 0,
-        "ERR_MISSING_SCORE": 0,
-        "ERR_MMSE_IMPAIRED": 0,
-        "total_raw": len(df)
-    }
-    
-    # 2. Age Filtering (>= 65)
-    initial_count = len(df)
+    # Check for age field
     if 'age' not in df.columns:
-        log_error(logger, "ERR_MISSING_AGE_FIELD: 'age' column not found.")
-        exclusion_counts["ERR_MISSING_AGE_FIELD"] = initial_count
-        df = df.iloc[:0] # Empty dataframe
+        exclusion_counts['ERR_MISSING_AGE_FIELD'] = len(df)
+        log_error("ERR_MISSING_AGE_FIELD: 'age' column missing from dataset.")
+        return pd.DataFrame(), exclusion_counts
+    
+    # Filter age >= 65
+    total_before = len(df)
+    df_valid_age = df[df['age'] >= 65].copy()
+    excluded_age = total_before - len(df_valid_age)
+    exclusion_counts['ERR_MISSING_AGE_FIELD'] = excluded_age
+    log_info(f"Excluded {excluded_age} records with age < 65.")
+    
+    # Filter missing stimulus_type
+    total_before = len(df_valid_age)
+    df_valid_stim = df_valid_age.dropna(subset=['stimulus_type']).copy()
+    excluded_stim = total_before - len(df_valid_stim)
+    exclusion_counts['ERR_MISSING_STIMULUS_TYPE'] = excluded_stim
+    log_info(f"Excluded {excluded_stim} records with missing stimulus_type.")
+    
+    # Filter missing scores
+    total_before = len(df_valid_stim)
+    df_valid_scores = df_valid_stim.dropna(subset=['perseverative_errors', 'categories_completed']).copy()
+    excluded_scores = total_before - len(df_valid_scores)
+    exclusion_counts['ERR_MISSING_SCORE'] = excluded_scores
+    log_info(f"Excluded {excluded_scores} records with missing cognitive scores.")
+    
+    # Handle MMSE if present
+    mmse_flag = False
+    if 'MMSE' in df_valid_scores.columns:
+        mmse_flag = True
+        total_before = len(df_valid_scores)
+        df_valid_mmse = df_valid_scores[df_valid_scores['MMSE'] >= 24].copy()
+        excluded_mmse = total_before - len(df_valid_mmse)
+        exclusion_counts['ERR_MMSE_IMPAIRED'] = excluded_mmse
+        log_info(f"Excluded {excluded_mmse} records with MMSE < 24.")
+        df_valid_scores = df_valid_mmse
     else:
-        df['age'] = pd.to_numeric(df['age'], errors='coerce')
-        df_before = df.copy()
-        df = df[df['age'] >= 65]
-        excluded = len(df_before) - len(df)
-        exclusion_counts["ERR_MISSING_AGE_FIELD"] = excluded # Reusing key for age filter as per task T012a
-        log_info(logger, f"Age filter: Excluded {excluded} records (age < 65 or null).")
+        exclusion_counts['ERR_MMSE_IMPAIRED'] = 0
+        log_info("MMSE column not present. Skipping MMSE exclusion.")
     
-    if len(df) == 0:
-        log_warning(logger, "No records remaining after age filtering.")
-        # Still proceed to generate exclusion log
+    if simulation_mode:
+        exclusion_counts['SIMULATION_FALLBACK'] = 1
+        log_warning("SIMULATION_FALLBACK: Using synthetic data for pipeline validation.")
     
-    # 3. Score Filtering (non-null)
-    score_cols = ['perseverative_errors', 'categories_completed']
-    df_before = df.copy()
-    # Check for nulls in score columns
-    mask = df[score_cols].notna().all(axis=1)
-    df = df[mask]
-    excluded = len(df_before) - len(df)
-    exclusion_counts["ERR_MISSING_SCORE"] = excluded
-    log_info(logger, f"Score filter: Excluded {excluded} records with null scores.")
-    
-    if len(df) == 0:
-        log_warning(logger, "No records remaining after score filtering.")
-    
-    # 4. MMSE Filtering (if column exists)
-    mmse_threshold = get_mmse_threshold()
-    if 'MMSE' in df.columns:
-        df['MMSE'] = pd.to_numeric(df['MMSE'], errors='coerce')
-        df_before = df.copy()
-        df = df[df['MMSE'] >= mmse_threshold]
-        excluded = len(df_before) - len(df)
-        exclusion_counts["ERR_MMSE_IMPAIRED"] = excluded
-        log_info(logger, f"MMSE filter (threshold={mmse_threshold}): Excluded {excluded} records.")
-    else:
-        log_warning(logger, "MMSE column not found. Skipping MMSE filter.")
-        # T013b logic: Set flag in metadata
-        metadata['has_mmse'] = False
-    metadata['has_mmse'] = 'MMSE' in df.columns if 'has_mmse' not in metadata else metadata['has_mmse']
-    
-    # 5. Update Metadata
-    metadata['valid_records'] = len(df)
-    metadata['exclusion_counts'] = exclusion_counts
-    
-    # 6. Generate Exclusion Log
-    save_exclusion_log(exclusion_counts)
-    
-    log_info(logger, f"Validation complete. {len(df)} records remaining.")
-    return df, metadata
+    return df_valid_scores, exclusion_counts
 
-def save_exclusion_log(counts: Dict[str, Any]) -> None:
-    """
-    Save exclusion counts to data/processed/exclusion_log.json.
-    
-    Args:
-        counts: Dictionary of exclusion counts.
-    """
-    output_path = Path("data/processed/exclusion_log.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(counts, f, indent=2)
-    log_info(logger, f"Exclusion log saved to {output_path}")
+def save_exclusion_log(exclusion_counts: Dict[str, int], path: str) -> None:
+    """Save exclusion log to JSON file."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(exclusion_counts, f, indent=2)
+    log_info(f"Exclusion log saved to {path}")
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+def clean_data(df: pd.DataFrame, simulation_mode: bool) -> Tuple[pd.DataFrame, Dict[str, int]]:
     """
-    Perform final cleaning: ensure types, handle participant_id.
+    Main cleaning pipeline.
     
-    Args:
-        df: Input DataFrame.
-        
     Returns:
-        Cleaned DataFrame.
+        Tuple of (cleaned_df, exclusion_counts)
     """
-    # Ensure participant_id exists
-    if 'participant_id' not in df.columns:
-        df['participant_id'] = [f"P{i:04d}" for i in range(len(df))]
+    # Validate schema
+    is_valid, missing = validate_schema(df)
+    if not is_valid:
+        raise SchemaValidationError(f"Schema validation failed. Missing: {missing}")
     
-    # Ensure stimulus_type is string
-    if 'stimulus_type' in df.columns:
-        df['stimulus_type'] = df['stimulus_type'].astype(str)
+    # Filter and validate
+    cleaned_df, counts = validate_and_filter_dataset(df, simulation_mode)
     
-    # Ensure numeric columns are numeric
-    num_cols = ['age', 'perseverative_errors', 'categories_completed', 'MMSE']
-    for col in num_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    return df
+    return cleaned_df, counts
 
 def calculate_validity_metrics(raw_count: int, valid_count: int) -> Dict[str, Any]:
-    """
-    Calculate validity metrics.
+    """Calculate validity metrics."""
+    if raw_count == 0:
+        return {"validity_percentage": 0.0, "raw_count": 0, "valid_count": 0}
     
-    Args:
-        raw_count: Total raw records.
-        valid_count: Total valid records.
-        
-    Returns:
-        Dictionary of metrics.
-    """
-    percentage = (valid_count / raw_count * 100) if raw_count > 0 else 0.0
-    metrics = {
-        "total_raw": raw_count,
-        "total_valid": valid_count,
+    percentage = (valid_count / raw_count) * 100
+    return {
         "validity_percentage": round(percentage, 2),
-        "target_met": percentage >= 90.0 # SC-001
+        "raw_count": raw_count,
+        "valid_count": valid_count,
+        "excluded_count": raw_count - valid_count
     }
-    return metrics
 
-def save_validity_metrics(metrics: Dict[str, Any]) -> None:
-    """
-    Save validity metrics to data/processed/validity_metrics.json.
-    """
-    output_path = Path("data/processed/validity_metrics.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
+def save_validity_metrics(metrics: Dict[str, Any], path: str) -> None:
+    """Save validity metrics to JSON."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
         json.dump(metrics, f, indent=2)
-    log_info(logger, f"Validity metrics saved to {output_path}")
+    log_info(f"Validity metrics saved to {path}")

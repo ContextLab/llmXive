@@ -1,91 +1,67 @@
-# Dataset Schema for Nostalgia-Cognitive Flexibility Study
+# Dataset Schema for Nostalgia and Cognitive Flexibility Study
 # Generated for PROJ-524
-# Defines the structure of the cleaned dataset used in analysis
+# Based on Input/Output Schema requirements from spec.md
 
-$schema: http://json-schema.org/draft-07/schema#
-title: NostalgiaCognitiveFlexibilityDataset
-description: Cleaned dataset containing participant data, stimulus conditions, and cognitive metrics for aging adults (age >= 65)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WCST Aging Dataset Schema"
+description: "Schema for the raw and processed dataset containing WCST performance metrics and nostalgia stimulus conditions for aging adults."
+
 type: object
+required:
+  - participant_id
+  - age
+  - stimulus_type
+  - perseverative_errors
+  - categories_completed
 
 properties:
-  metadata:
-    type: object
-    description: Dataset-level metadata
-    properties:
-      version:
-        type: string
-        description: Schema version
-      generated_at:
-        type: string
-        format: date-time
-        description: Timestamp of generation
-      source:
-        type: string
-        description: Original data source (OpenML, HuggingFace, local file)
-      checksum:
-        type: string
-        description: SHA-256 checksum of raw data
-      has_mmse:
-        type: boolean
-        description: Whether MMSE column was present in source
-      total_raw_records:
-        type: integer
-        description: Total records in raw input
-      excluded_records:
-        type: integer
-        description: Number of records excluded during filtering
-      validity_percentage:
-        type: number
-        format: float
-        description: Percentage of valid records
-    required:
-      - version
-      - generated_at
-      - source
-      - has_mmse
-
-  participants:
-    type: array
-    description: List of participant records
-    items:
-      type: object
-      properties:
-        participant_id:
-          type: string
-          description: Unique identifier for the participant
-        stimulus_type:
-          type: string
-          enum: [nostalgia, control]
-          description: Condition assigned to participant
-        perseverative_errors:
-          type: integer
-          description: Number of perseverative errors on WCST
-        categories_completed:
-          type: integer
-          description: Number of categories completed on WCST
-        age:
-          type: integer
-          minimum: 65
-          description: Age of participant at time of testing
-        mmse_score:
-          type: integer
-          minimum: 0
-          maximum: 30
-          nullable: true
-          description: Mini-Mental State Examination score (optional)
-        exclusion_reasons:
-          type: array
-          items:
-            type: string
-          description: List of reasons if participant was excluded
-      required:
-        - participant_id
-        - stimulus_type
-        - perseverative_errors
-        - categories_completed
-        - age
-    minItems: 1
-
-required:
-  - metadata
-  - participants
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant"
+    pattern: "^[A-Z0-9]{6,12}$"
+    
+  age:
+    type: integer
+    description: "Age of the participant in years"
+    minimum: 65
+    
+  stimulus_type:
+    type: string
+    description: "Type of stimulus presented (nostalgia or control)"
+    enum:
+      - nostalgia
+      - control
+    
+  perseverative_errors:
+    type: integer
+    description: "Number of perseverative errors made on the Wisconsin Card Sorting Test"
+    minimum: 0
+    
+  categories_completed:
+    type: integer
+    description: "Number of categories successfully completed on the WCST"
+    minimum: 0
+    
+  MMSE:
+    type: integer
+    description: "Mini-Mental State Examination score (optional field for cognitive screening)"
+    minimum: 0
+    maximum: 30
+    nullable: true
+    
+  response_time_ms:
+    type: integer
+    description: "Average response time in milliseconds (optional)"
+    nullable: true
+    
+  trial_count:
+    type: integer
+    description: "Total number of trials presented (optional)"
+    minimum: 0
+    nullable: true
+    
+additionalProperties: false
+metadata:
+  version: "1.0.0"
+  generated_at: "2024-01-01T00:00:00Z"
+  source: "spec.md Input/Output Schema"

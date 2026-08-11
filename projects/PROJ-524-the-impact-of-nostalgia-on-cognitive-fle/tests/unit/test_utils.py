@@ -1,18 +1,20 @@
 """
-Unit tests for code/utils.py utility functions.
-Tests logging, checksums, and versioning.
+Unit tests for code/utils.py.
 """
-import pytest
-import hashlib
 import os
-import sys
+import tempfile
+import logging
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from code.utils import (
+# Import the module under test
+from utils import (
+    setup_logging,
+    log_info,
+    log_debug,
+    log_warning,
+    log_error,
+    log_critical,
     compute_sha256,
     verify_checksum,
     get_version,
@@ -20,81 +22,102 @@ from code.utils import (
 )
 
 
+class TestLogging:
+    def test_setup_logging_console_only(self):
+        """Test that setup_logging creates a console handler."""
+        logger = setup_logging(level=logging.INFO)
+        assert logger.name == "nostalgia_cognitive"
+        assert len(logger.handlers) >= 1
+        
+        # Verify console handler exists
+        has_console = any(
+            isinstance(h, logging.StreamHandler) and 
+            not isinstance(h, logging.FileHandler)
+            for h in logger.handlers
+        )
+        assert has_console
+
+    def test_setup_logging_with_file(self):
+        """Test that setup_logging creates a file handler when path is provided."""
+        with tempfile.NamedTemporaryFile(suffix='.log', delete=False) as tmp:
+            tmp_path = tmp.name
+        
+        try:
+            logger = setup_logging(level=logging.INFO, log_file=tmp_path)
+            has_file = any(
+                isinstance(h, logging.FileHandler)
+                for h in logger.handlers
+            )
+            assert has_file
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    def test_log_levels(self):
+        """Test that all log level helpers work."""
+        logger = setup_logging(level=logging.DEBUG)
+        
+        # These should not raise exceptions
+        log_info(logger, "Test info")
+        log_debug(logger, "Test debug")
+        log_warning(logger, "Test warning")
+        log_error(logger, "Test error")
+        log_critical(logger, "Test critical")
+
+
 class TestChecksum:
-    def test_compute_sha256_string(self):
-        """Test SHA-256 computation for a string."""
-        test_string = "Hello, World!"
-        expected_hash = hashlib.sha256(test_string.encode()).hexdigest()
+    def test_compute_sha256(self):
+        """Test SHA-256 computation on a known file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp:
+            tmp.write("Hello, World!")
+            tmp_path = tmp.name
+        
+        try:
+            checksum = compute_sha256(tmp_path)
+            # Known SHA-256 for "Hello, World!"
+            expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+            assert checksum == expected
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
-        result = compute_sha256(test_string)
-        assert result == expected_hash
+    def test_verify_checksum_true(self):
+        """Test verify_checksum returns True for correct checksum."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp:
+            tmp.write("Test content")
+            tmp_path = tmp.name
+        
+        try:
+            checksum = compute_sha256(tmp_path)
+            assert verify_checksum(tmp_path, checksum) is True
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
-    def test_compute_sha256_bytes(self):
-        """Test SHA-256 computation for bytes."""
-        test_bytes = b"Hello, World!"
-        expected_hash = hashlib.sha256(test_bytes).hexdigest()
-
-        result = compute_sha256(test_bytes)
-        assert result == expected_hash
-
-    def test_verify_checksum_valid(self):
-        """Test checksum verification with valid hash."""
-        data = "Test data for verification"
-        hash_val = compute_sha256(data)
-
-        assert verify_checksum(data, hash_val) is True
-
-    def test_verify_checksum_invalid(self):
-        """Test checksum verification with invalid hash."""
-        data = "Test data for verification"
-        invalid_hash = "a" * 64
-
-        assert verify_checksum(data, invalid_hash) is False
-
-    def test_compute_sha256_file(self):
-        """Test SHA-256 computation for a file."""
-        with patch('code.utils.Path') as mock_path:
-            mock_file = MagicMock()
-            mock_file.read_bytes.return_value = b"File content"
-            mock_path.return_value.open.return_value.__enter__.return_value = mock_file
-
-            expected_hash = hashlib.sha256(b"File content").hexdigest()
-            result = compute_sha256(Path("test.txt"))
-
-            assert result == expected_hash
+    def test_verify_checksum_false(self):
+        """Test verify_checksum returns False for incorrect checksum."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as tmp:
+            tmp.write("Test content")
+            tmp_path = tmp.name
+        
+        try:
+            assert verify_checksum(tmp_path, "invalid_checksum") is False
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
 
 class TestVersioning:
     def test_get_version(self):
-        """Test version retrieval."""
+        """Test that get_version returns a string."""
         version = get_version()
         assert isinstance(version, str)
         assert len(version) > 0
 
     def test_get_timestamp(self):
-        """Test timestamp generation."""
+        """Test that get_timestamp returns a valid ISO format string."""
         timestamp = get_timestamp()
         assert isinstance(timestamp, str)
         assert len(timestamp) > 0
-        # Should be in ISO format or similar
-        assert 'T' in timestamp or '-' in timestamp
-
-
-class TestLogging:
-    def test_logging_setup(self):
-        """Test that logging is properly configured."""
-        from code.utils import setup_logging, log_info, log_warning, log_error
-
-        logger = setup_logging("test_logger")
-        assert logger is not None
-        assert logger.name == "test_logger"
-
-    def test_log_functions_exist(self):
-        """Test that log functions exist and are callable."""
-        from code.utils import log_info, log_debug, log_warning, log_error, log_critical
-
-        assert callable(log_info)
-        assert callable(log_debug)
-        assert callable(log_warning)
-        assert callable(log_error)
-        assert callable(log_critical)
+        # Basic check for ISO format (contains 'T' or '-' or ':')
+        assert any(c in timestamp for c in ['T', '-', ':'])
