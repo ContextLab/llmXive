@@ -34,7 +34,9 @@ Chen & Wang (n.d.). This study will utilize a curated collection of benchmark im
 
 ## Constitution Check
 
-*Gates determined based on `projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/.specify/memory/constitution.md`*
+*Gates determined based on `projects/PROJ-llmxive-follow-up-extending-rethinking-c/.specify/memory/constitution.md
+
+The specific value to remove/generalize: a specific project identifier`*
 
 | Principle | Status | Action / Reference |
 | :--- | :--- | :--- |

@@ -89,7 +89,7 @@
 
 - **SC-001**: Inference latency reduction is measured against the dynamic DAR baseline to report the percentage reduction; **Hypothesis Target**: reduction ≥ 40% on CPU-only hardware (See FR-004, US-2).
 - **SC-002**: Generation quality degradation is measured against the dynamic DAR baseline via FID to report the absolute difference; **Hypothesis Target**: difference < 0.1 points (See FR-005, US-2).
-- **SC-003**: Statistical significance of the FID difference is measured by reporting mean and standard deviation across multiple random seeds, with optional non-parametric bootstrap (1000 resamples) (See FR-006, US-3).
+- **SC-003**: Statistical significance of the FID difference is measured by reporting mean and standard deviation across multiple random seeds, with optional non-parametric bootstrap (a sufficient number of resamples) (See FR-006, US-3).
 - **SC-004**: Robustness of the static map is measured against the variation in FID scores when the clustering distance threshold is swept over a range of low magnitudes. (See FR-007, US-3).
 - **SC-005**: Memory usage during tracing is measured against the available RAM limit of the GitHub Actions free-tier runner to ensure the analysis completes without OOM errors (See FR-001, Assumptions).
 

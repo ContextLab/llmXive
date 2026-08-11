@@ -6,215 +6,267 @@ from typing import Dict, Any, Optional, Tuple, List
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_routing_cache(cache_dir: str) -> List[np.ndarray]:
+def load_routing_cache(cache_dir: str) -> Dict[str, np.ndarray]:
     """
-    Load all .npy or .pt files from the routing cache directory.
-    Returns a list of numpy arrays.
+    Load all routing cache files from the specified directory.
+    
+    Args:
+        cache_dir: Path to the routing cache directory.
+        
+    Returns:
+        Dictionary mapping image indices to routing tensors.
     """
     cache_path = Path(cache_dir)
     if not cache_path.exists():
-        raise FileNotFoundError(f"Routing cache directory not found: {cache_path}")
+        raise FileNotFoundError(f"Routing cache directory not found: {cache_dir}")
     
-    tensors = []
-    for file_path in cache_path.glob("*.npy"):
-        logger.info(f"Loading {file_path}")
-        tensors.append(np.load(file_path))
+    routing_data = {}
+    for file in cache_path.glob("*.npy"):
+        try:
+            idx = int(file.stem)
+            routing_data[idx] = np.load(file)
+            logger.info(f"Loaded routing data for image {idx}: shape {routing_data[idx].shape}")
+        except Exception as e:
+            logger.error(f"Failed to load {file}: {e}")
     
-    for file_path in cache_path.glob("*.pt"):
-        import torch
-        logger.info(f"Loading {file_path}")
-        tensor = torch.load(file_path, map_location='cpu')
-        if isinstance(tensor, torch.Tensor):
-            tensors.append(tensor.numpy())
-        else:
-            # Handle dict/list structures if necessary, assuming single tensor per file for now
-            logger.warning(f"Skipping non-tensor object in {file_path}")
+    if not routing_data:
+        raise ValueError("No valid routing data files found in cache directory")
     
-    if not tensors:
-        raise ValueError(f"No routing tensors found in {cache_path}")
-    
-    return tensors
+    return routing_data
 
-def compute_mean_routing_vectors(tensors: List[np.ndarray]) -> np.ndarray:
+def compute_mean_routing_vectors(routing_data: Dict[str, np.ndarray]) -> np.ndarray:
     """
-    Compute the mean routing vector across all images/blocks for each timestep.
-    Input: List of arrays with shape [blocks, timesteps, history_dim]
-    Output: Array with shape [timesteps, history_dim]
+    Compute the mean routing vector across all images and blocks for each timestep.
+    
+    Args:
+        routing_data: Dictionary of routing tensors.
+        
+    Returns:
+        Mean routing vector array of shape [timesteps, history_dim].
     """
-    if not tensors:
-        raise ValueError("No tensors provided to compute mean routing vectors.")
+    if not routing_data:
+        raise ValueError("No routing data provided for mean computation")
     
-    # Stack all tensors: shape [num_images, blocks, timesteps, history_dim]
-    stacked = np.stack(tensors, axis=0)
-    num_images, num_blocks, num_timesteps, history_dim = stacked.shape
+    # Stack all routing data (assuming consistent shape across images)
+    all_vectors = list(routing_data.values())
+    stacked = np.stack(all_vectors, axis=0)  # Shape: [num_images, num_blocks, num_timesteps, history_dim]
     
-    logger.info(f"Stacked shape: {stacked.shape}")
+    # Average over images and blocks
+    mean_vectors = np.mean(stacked, axis=(0, 1))  # Shape: [num_timesteps, history_dim]
     
-    # Mean over images and blocks -> [timesteps, history_dim]
-    # axis 0 (images) and axis 1 (blocks)
-    mean_vectors = np.mean(stacked, axis=(0, 1))
-    
-    logger.info(f"Mean vectors shape: {mean_vectors.shape}")
+    logger.info(f"Computed mean routing vectors: shape {mean_vectors.shape}")
     return mean_vectors
 
-def perform_clustering(mean_vectors: np.ndarray, min_k: int = 2, max_k: int = 10) -> Tuple[Optional[np.ndarray], Optional[int], float]:
+def perform_clustering(mean_vectors: np.ndarray, max_k: int = 10) -> Tuple[Optional[KMeans], float, int]:
     """
-    Apply k-means clustering to group timesteps based on the mean vector.
-    Returns (cluster_centers, best_k, silhouette_score) or (None, None, -1.0) if null hypothesis.
+    Perform k-means clustering on mean routing vectors to find optimal k.
+    
+    Args:
+        mean_vectors: Mean routing vectors of shape [timesteps, history_dim].
+        max_k: Maximum number of clusters to try.
+        
+    Returns:
+        Tuple of (best_kmeans_model, silhouette_score, optimal_k) or (None, 0.0, 0) if clustering fails.
     """
-    n_timesteps = mean_vectors.shape[0]
+    if mean_vectors.shape[0] < 2:
+        logger.warning("Not enough timesteps for clustering")
+        return None, 0.0, 0
     
-    # Null hypothesis check 1: Not enough timesteps to cluster meaningfully
-    if n_timesteps < min_k:
-        logger.warning(f"Null Hypothesis: Number of timesteps ({n_timesteps}) < min_k ({min_k}).")
-        return None, None, -1.0
+    best_k = 0
+    best_score = -1
+    best_model = None
     
-    best_score = -1.0
-    best_k = None
-    best_centers = None
-    best_labels = None
+    # Try different k values
+    for k in range(2, min(max_k + 1, mean_vectors.shape[0])):
+        try:
+            kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+            labels = kmeans.fit_predict(mean_vectors)
+            
+            # Compute silhouette score
+            score = silhouette_score(mean_vectors, labels)
+            
+            if score > best_score:
+                best_score = score
+                best_k = k
+                best_model = kmeans
+                
+            logger.info(f"k={k}, silhouette_score={score:.4f}")
+            
+        except Exception as e:
+            logger.warning(f"Clustering failed for k={k}: {e}")
+            continue
     
-    # Try different k values to find the best silhouette score
-    # We only care if we can find a valid clustering (k >= 2 and score >= 0.25)
-    search_range = range(min_k, min(max_k + 1, n_timesteps))
+    if best_model is None:
+        logger.warning("No valid clustering found")
+        return None, 0.0, 0
     
-    for k in search_range:
-        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-        labels = kmeans.fit_predict(mean_vectors)
-        score = silhouette_score(mean_vectors, labels)
-        
-        logger.info(f"K={k}, Silhouette Score={score:.4f}")
-        
-        if score > best_score:
-            best_score = score
-            best_k = k
-            best_centers = kmeans.cluster_centers_
-            best_labels = labels
-    
-    # Null hypothesis check 2: Silhouette score too low
-    if best_score < 0.25:
-        logger.warning(f"Null Hypothesis: Best silhouette score ({best_score:.4f}) < 0.25.")
-        return None, None, best_score
-    
-    logger.info(f"Clustering successful: k={best_k}, score={best_score:.4f}")
-    return best_centers, best_k, best_score
+    logger.info(f"Best clustering: k={best_k}, silhouette_score={best_score:.4f}")
+    return best_model, best_score, best_k
 
 def generate_global_average(mean_vectors: np.ndarray) -> np.ndarray:
     """
-    Generate a global average vector as a fallback for the canonical map.
-    Returns an array of shape [history_dim] (or [1, history_dim] for consistency).
+    Generate a global average routing vector as fallback.
+    
+    Args:
+        mean_vectors: Mean routing vectors.
+        
+    Returns:
+        Global average vector of shape [history_dim].
     """
-    # Mean over timesteps -> [history_dim]
     global_avg = np.mean(mean_vectors, axis=0)
-    logger.info(f"Generated global average vector of shape {global_avg.shape}")
+    logger.info(f"Generated global average vector: shape {global_avg.shape}")
     return global_avg
 
-def save_cluster_centers(centers: np.ndarray, k: int, score: float, output_path: str):
+def save_cluster_centers(model: KMeans, output_path: str, k: int):
     """
     Save cluster centers to a JSON file.
+    
+    Args:
+        model: Trained KMeans model.
+        output_path: Path to save the JSON file.
+        k: Number of clusters.
     """
+    centers = model.cluster_centers_.tolist()
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    data = {
-        "k": k,
-        "silhouette_score": float(score),
-        "cluster_centers": centers.tolist()
+    with open(output_file, 'w') as f:
+        json.dump({
+            'num_clusters': k,
+            'cluster_centers': centers,
+            'feature_dim': len(centers[0])
+        }, f, indent=2)
+    
+    logger.info(f"Saved cluster centers to {output_path}")
+
+def save_null_hypothesis_flag(output_path: str, is_null: bool, score: float, threshold: float = 0.25):
+    """
+    Save a flag indicating whether the null hypothesis condition was met.
+    
+    Args:
+        output_path: Path to save the JSON flag file.
+        is_null: True if silhouette score < threshold (null hypothesis condition met).
+        score: The actual silhouette score.
+        threshold: The threshold for null hypothesis detection.
+    """
+    flag_data = {
+        'null_hypothesis_detected': is_null,
+        'silhouette_score': float(score),
+        'threshold': float(threshold),
+        'message': f"Null hypothesis detected: silhouette score ({score:.4f}) < threshold ({threshold})" if is_null 
+                   else f"Clustering valid: silhouette score ({score:.4f}) >= threshold ({threshold})"
     }
     
-    with open(output_file, 'w') as f:
-        json.dump(data, f, indent=2)
-    
-    logger.info(f"Saved cluster centers to {output_file}")
-
-def save_null_hypothesis_flag(score: float, output_path: str):
-    """
-    Save a flag indicating the null hypothesis condition was met.
-    """
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    data = {
-        "null_hypothesis_detected": True,
-        "reason": "Silhouette score below threshold (0.25) or insufficient timesteps",
-        "silhouette_score": float(score),
-        "fallback_action": "global_average_vector"
-    }
-    
     with open(output_file, 'w') as f:
-        json.dump(data, f, indent=2)
+        json.dump(flag_data, f, indent=2)
     
-    logger.info(f"Saved null hypothesis flag to {output_file}")
-
-def run_clustering_analysis(cache_dir: str, output_dir: str):
-    """
-    Main orchestration function for clustering analysis.
-    1. Load routing tensors.
-    2. Compute mean routing vectors.
-    3. Perform clustering.
-    4. Handle null hypothesis or save results.
-    """
-    logger.info(f"Starting clustering analysis on {cache_dir}")
-    
-    # 1. Load
-    tensors = load_routing_cache(cache_dir)
-    
-    # 2. Compute Mean
-    mean_vectors = compute_mean_routing_vectors(tensors)
-    
-    # 3. Cluster
-    centers, k, score = perform_clustering(mean_vectors)
-    
-    # 4. Output
-    centers_path = Path(output_dir) / "cluster_centers.json"
-    flag_path = Path(output_dir) / "null_hypothesis_flag.json"
-    
-    if centers is not None and k is not None:
-        save_cluster_centers(centers, k, score, str(centers_path))
-        print(f"Silhouette score: {score:.4f}")
-        logger.info("Clustering completed successfully.")
+    if is_null:
+        logger.warning(f"NULL HYPOTHESIS DETECTED: {flag_data['message']}")
     else:
-        # Null hypothesis case
-        logger.warning("Null hypothesis detected. Generating global average vector.")
-        save_null_hypothesis_flag(score, str(flag_path))
-        
-        # Even in null case, we might want to save the global average for downstream use
-        # The canonical_map.py task will likely read this or the flag.
-        # Let's save the global average as a single cluster center for compatibility
-        global_avg = generate_global_average(mean_vectors)
-        global_avg_path = Path(output_dir) / "cluster_centers.json" # Overwrite or specific name?
-        # T012 spec says: "handle null hypothesis ... by generating global average vector"
-        # And "Save cluster centers to data/routing_cache/cluster_centers.json"
-        # We will save the global average as the 'center' if null, but flag it.
-        # Actually, the spec says "handle ... by generating global average vector".
-        # It implies the output should be the global average if clustering fails.
-        # Let's save the global average to the same file but note the fallback.
-        
-        fallback_data = {
-            "k": 1,
-            "silhouette_score": float(score),
-            "fallback": True,
-            "cluster_centers": global_avg.tolist()
-        }
-        with open(global_avg_path, 'w') as f:
-            json.dump(fallback_data, f, indent=2)
-        
-        print(f"Silhouette score: {score:.4f} (Null Hypothesis: Global Average Used)")
-        logger.info("Null hypothesis handled. Global average saved.")
+        logger.info(f"Clustering validation passed: {flag_data['message']}")
+
+def run_clustering_analysis(
+    cache_dir: str, 
+    output_dir: str, 
+    silhouette_threshold: float = 0.25
+) -> Dict[str, Any]:
+    """
+    Run the full clustering analysis pipeline including null hypothesis validation.
     
-    return centers, k, score
+    Args:
+        cache_dir: Path to routing cache directory.
+        output_dir: Path to save results.
+        silhouette_threshold: Threshold for null hypothesis detection.
+        
+    Returns:
+        Dictionary with analysis results.
+    """
+    logger.info(f"Starting clustering analysis with cache_dir={cache_dir}, output_dir={output_dir}")
+    
+    # Load routing data
+    routing_data = load_routing_cache(cache_dir)
+    
+    # Compute mean vectors
+    mean_vectors = compute_mean_routing_vectors(routing_data)
+    
+    # Perform clustering
+    model, score, k = perform_clustering(mean_vectors)
+    
+    # Prepare output paths
+    cache_path = Path(output_dir)
+    cache_path.mkdir(parents=True, exist_ok=True)
+    
+    cluster_centers_path = str(cache_path / "cluster_centers.json")
+    null_flag_path = str(cache_path / "null_hypothesis_flag.json")
+    
+    # Check for null hypothesis condition
+    is_null_hypothesis = (k < 2) or (score < silhouette_threshold)
+    
+    # Save null hypothesis flag
+    save_null_hypothesis_flag(null_flag_path, is_null_hypothesis, score, silhouette_threshold)
+    
+    if is_null_hypothesis:
+        logger.warning("Null hypothesis condition met. Generating global average fallback.")
+        global_avg = generate_global_average(mean_vectors)
+        
+        # Save global average as cluster centers (single "cluster")
+        with open(cluster_centers_path, 'w') as f:
+            json.dump({
+                'num_clusters': 1,
+                'cluster_centers': [global_avg.tolist()],
+                'feature_dim': len(global_avg),
+                'fallback_reason': 'null_hypothesis',
+                'silhouette_score': float(score),
+                'threshold': float(silhouette_threshold)
+            }, f, indent=2)
+        
+        logger.info(f"Saved global average fallback to {cluster_centers_path}")
+        
+        return {
+            'status': 'null_hypothesis',
+            'silhouette_score': float(score),
+            'threshold': float(silhouette_threshold),
+            'num_clusters': 1,
+            'fallback_used': True,
+            'global_average_vector': global_avg.tolist()
+        }
+    else:
+        # Save cluster centers
+        save_cluster_centers(model, cluster_centers_path, k)
+        
+        return {
+            'status': 'success',
+            'silhouette_score': float(score),
+            'threshold': float(silhouette_threshold),
+            'num_clusters': k,
+            'fallback_used': False
+        }
 
 def main():
-    # Default paths relative to project root (assuming script runs from code/)
-    # Or use environment variables/config if available.
-    # For T012, we assume standard paths defined in tasks.md
-    cache_dir = "data/routing_cache"
-    output_dir = "data/routing_cache"
+    """Main entry point for clustering analysis."""
+    import argparse
     
-    run_clustering_analysis(cache_dir, output_dir)
+    parser = argparse.ArgumentParser(description="Run clustering analysis on routing cache")
+    parser.add_argument('--cache-dir', type=str, required=True, help='Path to routing cache directory')
+    parser.add_argument('--output-dir', type=str, required=True, help='Path to save results')
+    parser.add_argument('--threshold', type=float, default=0.25, help='Silhouette score threshold for null hypothesis')
+    
+    args = parser.parse_args()
+    
+    results = run_clustering_analysis(
+        cache_dir=args.cache_dir,
+        output_dir=args.output_dir,
+        silhouette_threshold=args.threshold
+    )
+    
+    print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

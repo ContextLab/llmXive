@@ -1,25 +1,11 @@
-T012:
+T011:
   c: false
-  h: b52c4e9d5da78fdf80501bd8deb986719ae67132afd04588eeb1efb9bed357d9
-  r: "The repository contains a partially\u2011implemented `clustering.py` (the file\
-    \ is truncated and does not show saving of cluster centers or handling of the\
-    \ null\u2011hypothesis case), and the required output file `data/routing_cache/cluster_centers.json`\
-    \ is missing. The task\u2019s verification step (saving JSON and printing the\
-    \ silhouette score) is therefore not fulfilled."
-T013:
-  c: false
-  h: 003ffd7fea0b0d34d58099de37107b3120e7a2d50febd78ab1b61cae5fd2a02c
-  r: "The required output file `data/routing_cache/canonical_map.json` is absent,\
-    \ and the provided `canonical_map.py` is truncated (e.g., ends with an incomplete\
-    \ `logger.warnin` line), indicating the implementation is unfinished. The task\u2019\
-    s verification condition is not satisfied."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, log files, or documentation showing that progress\u2011\
-    \ and memory\u2011usage logging was added is present. The claim lacks any concrete\
-    \ artifact (e.g., modified source files, logging output, or test results) to demonstrate\
-    \ that OOM\u2011prevention logging now exists."
+  h: 972a3bbb04c06c4f20062bdb86d35a5b25d920dfd969e2ebff91580aa389c5c4
+  r: "The repository contains a `tracing.py` file, but it is truncated and shows no\
+    \ evidence of iterating over 100 ImageNet validation images, saving routing matrices,\
+    \ or producing the required log files. Both `data/results/tracing_log.jsonl` and\
+    \ `data/results/memory_profile_raw.jsonl` are missing, and there are no routing\
+    \ cache files in `data/routing_cache/`. The task\u2019s core outputs are absent."
 T017:
   c: false
   h: 5439a9acc7939eae102461b42ac18f65594af7ccd4a9e3017cfd8489084cd7cc
@@ -27,31 +13,14 @@ T017:
     does not exist in the repository, so no test code or FID verification is present.
     The task cannot be considered done until the specified test file is created with
     functional code that computes and asserts FID on dummy samples.
-T018:
-  c: false
-  h: 818867cf9f9d5c9101c1bbf3ead4230f5c2faeda2b29fc9cc66c3cd9d51a6782
-  r: "The `static_model.py` file exists but the required `data/routing_cache/canonical_map.json`\
-    \ is missing, so the class cannot load the static routing map. Moreover, the implementation\
-    \ is truncated and does not show a complete injection of static routing or removal\
-    \ of the per\u2011timestep softmax, preventing verification that the model can\
-    \ be instantiated and run without dynamic routing. The missing JSON file and incomplete\
-    \ code must be provided to satisfy the task."
 T019:
   c: false
-  h: 07c01515f97ea56666e71dbace1ac9f3aee94b31ed842e2f740bb39cba304192
-  r: "The provided `benchmark.py` is incomplete (truncated) and depends on a missing\
-    \ `src/metrics.py`. Moreover, the required output files `data/results/benchmark_results.csv`\
-    \ and `data/results/benchmark_results.json` are absent, and there is no evidence\
-    \ that the script writes the specified columns or handles high\u2011FID degradation\
-    \ as described. The task requirements are therefore not met."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or test artifacts were provided that demonstrate error\
-    \ handling for FID degradation >\u202F0.5. The claim lacks any implementation\
-    \ file, unit test, or documentation showing that such high\u2011FID cases are\
-    \ caught and reported as a negative result without halting, so the requirement\
-    \ is not satisfied."
+  h: ebb12a8bf597fbdb076ef842d6ecbbf77a1044c5dd483f5a7d5d149ee54cb927
+  r: "The repository lacks a functional `src/metrics.py`, and the required result\
+    \ files `data/results/benchmark_results.csv` and `.json` are not present. Moreover,\
+    \ `benchmark.py` contains placeholder generation logic and does not actually run\
+    \ inference, compute FID, or write the specified schema, so the task\u2019s core\
+    \ requirements are unmet."
 T025:
   c: false
   h: 9415cfeb28213ddbcb93ef9309d23db8fb7aca7ace720b1ea508b72c4246cd1d
@@ -61,3 +30,9 @@ T025:
     FID scores, compute paired differences, and write a JSON with the keys `mean`,
     `std`, and `bootstrap_results`. The implementer must add the execution logic and
     generate the specified JSON file.
+T037:
+  c: false
+  h: 0b6740802decca809d87e0a94d6a7134acdef36c0aa661753a4e5daf61cda49c
+  r: The required file `src/tracing.py` is missing entirely, so there is no code to
+    verify batch size, memory logging, or RAM usage. Without the artifact, the task
+    cannot be considered fulfilled.
