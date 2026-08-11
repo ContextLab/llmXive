@@ -1,6 +1,6 @@
 status: none
-intent: Project Gutenberg short story corpus and Open Science Framework reader response
-  dataset python package
+intent: Project Gutenberg short stories dataset Reader response dataset Moral Stories
+  validation python package dataset
 required_fields:
 - story_id
 - title
@@ -8,12 +8,12 @@ required_fields:
 - publication_year
 - genre
 - language
-- text
+- full_text
 - response_id
 - participant_id
-- rating
-- comments
-- moral_judgment_score
-cache_key: 8a15713bc55e8fd869eca03887fae2fb7e25dc731c93ea33793b9993adbaef10
-searched_at: '2026-08-11T04:40:53.212837+00:00'
+- story_id (foreign key)
+- rating_score
+- response_text
+cache_key: bc483fdca723f171c98a489464c12ae351a1fed8c9e0d72e421e9cd32fcdadb2
+searched_at: '2026-08-11T18:23:22.581039+00:00'
 retry_count: 1

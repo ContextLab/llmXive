@@ -4,3 +4,4 @@ pandas  # auto-added: imported by run-book but missing from venv
 requests  # auto-added: imported by run-book but missing from venv
 scikit-learn  # auto-added: imported by run-book but missing from venv
 spacy  # auto-added: imported by run-book but missing from venv
+analysis  # auto-added: imported by run-book but missing from venv

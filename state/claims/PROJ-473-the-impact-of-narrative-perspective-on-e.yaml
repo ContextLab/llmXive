@@ -777,3 +777,174 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T04:50:08Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: first-person density scores correlate >= 0.85 with human annotations
+    on 50 manually annotated stories
+  claim_id: c_74cd3511
+  context: "Independent Test: The pipeline can be tested by processing a small, manually\
+    \ annotated sample of 50 stories and verifying that the computed 'first-person\
+    \ density' scores correlate \u2265 0.85 with human annotations of perspective\
+    \ type."
+  evidence:
+    asserted: '50.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The pipeline can be tested by processing a small, manually annotated\
+    \ sample of 50 stories and verifying that the computed 'first-person density'\
+    \ scores correlate \u2265 0.85 with human annotations of perspective type."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T18:24:01Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: computed first-person density scores correlate >= 0.85 with human annotations
+    on exactly 50 manually annotated stories
+  claim_id: c_e484c72d
+  context: "T010 [US1] Validation test: Process `data/gold_standard/human_annotations.json`\
+    \ (a set of exactly 50 manually annotated stories) and verify that the computed\
+    \ 'first-person density' scores correlate \u2265 0.85 with human annotations,\
+    \ satisfying SC-001."
+  evidence:
+    asserted: '50.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: "Process `data/gold_standard/human_annotations.json` (a set of exactly\
+    \ 50 manually annotated stories) and verify that the computed 'first-person density'\
+    \ scores correlate \u2265 0.85 with human annotations"
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T18:24:01Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: text-similarity matching logic verifies a precision >= 0.9 against gold
+    standard manually annotated story-judgement pairs
+  claim_id: c_f7e18a61
+  context: "Independent Test: The matching logic can be tested by running it against\
+    \ a 'gold standard' a subset of manually annotated story-judgement pairs, verifying\
+    \ a precision \u2265 0.9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The matching logic can be tested by running it against a 'gold standard'\
+    \ a subset of manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T18:24:01Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: raise DataQualityError if text length is less than 50 words
+  claim_id: c_212213b5
+  context: 'T015 [US1] Implement `code/extraction.py` function `extract_perspective_features(file_path)`
+    handling edge cases (<50 words, mixed language). **Logic**: If text length < 50
+    words, raise a `DataQualityError` and log ''data_quality_insufficient''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_DataQualityError_if_text_length_is_less_than_50_words
+  kind: magnitude
+  raw_text: If text length < 50 words, raise a `DataQualityError`
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T18:24:50Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: output JSON schema includes story_id, raw_text truncated to 500 characters,
+    pronoun_density_1st, pronoun_density_3rd, narrator_distance_score, and confidence_flag
+  claim_id: c_752e9a72
+  context: 'T016 [US1] Create `code/main.py` entry point to run extraction on the
+    `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`.
+    **CLI**: `python code/main.py extract --input-dir data/raw --output data/processed/perspective_features.json`.
+    **Schema**: Output JSON must be a list of objects with keys `story_id`, `raw_text`
+    (truncated to first 500 characters), `pronoun_density_1st`, `pronoun_density_3rd`,
+    `narrator_distance_score`, `confidence_flag`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output JSON must be a list of objects with keys `story_id`, `raw_text`
+    (truncated to first 500 characters), `pronoun_density_1st`, `pronoun_density_3rd`,
+    `narrator_distance_score`, `confidence_flag`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T18:25:05Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: exclude unmatched stories if similarity is less than 0.3
+  claim_id: c_21a18095
+  context: T026 [US2] Add logic to exclude unmatched stories (similarity < 0.3) and
+    log them as 'unmatched' to `data/logs/matching.log`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_unmatched_stories_if_similarity_is_less_than_0.3
+  kind: magnitude
+  raw_text: Add logic to exclude unmatched stories (similarity < 0.3) and log them
+    as 'unmatched' to `data/logs/matching.log`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T18:25:41Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: warn if Variance Inflation Factor is greater than 5.0
+  claim_id: c_1d895dfe
+  context: 'T039 [US3] Implement `code/analysis.py` function `calculate_vif(dataset_path)`
+    (FR-007). **Logic**: Calculate VIF for predictors. Warn if VIF > 5.0.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warn_if_Variance_Inflation_Factor_is_greater_than_5.0
+  kind: magnitude
+  raw_text: Warn if VIF > 5.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T18:26:12Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: create scatter plot with regression line and 95% confidence interval
+    ribbon
+  claim_id: c_da5e91d5
+  context: 'T040 [US3] Implement `code/visualization.py` function `generate_scatter_plot(dataset_path)`
+    (FR-005). **Logic**: Create scatter plot with regression line and 95% CI ribbon.
+    Save to `data/artifacts/regression_plot.png`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create scatter plot with regression line and 95% CI ribbon.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T18:26:12Z'
