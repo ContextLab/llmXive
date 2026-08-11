@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.22983",
+  "judged_at": "2026-08-11T11:30:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "This paper is a canonical reference for the domain of nuclear beta decay and explicitly lists \"fundamental symmetries\" as a primary research motivation, satisfying criteria (d) for foundational methodology/framework and (e) for studying the empirical population (beta decay) relevant to the user's question about time-reversal symmetry violations.",
+  "relevant": true
+}
