@@ -1,12 +1,16 @@
 """
-Unit tests for utils/logging.py
+Unit tests for utils/logging.py structured logging functionality.
 """
+
 import unittest
 import os
 import json
 import tempfile
 import shutil
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
+
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from utils.logging import (
     get_log_path,
@@ -16,189 +20,161 @@ from utils.logging import (
     log_cycle_summary,
     get_cycle_history,
     log_error,
-    log_warning,
+    log_warning
 )
-from config import get_config, set_config, PathConfig
+from config import get_config, PathConfig
+
+
+class MockConfig:
+    """Mock config for testing without full config initialization."""
+    class MockPathConfig:
+        logs_dir = ""
+        checkpoints_dir = ""
+
+    path_config = MockPathConfig()
 
 
 class TestLogging(unittest.TestCase):
-    def setUp(self):
-        # Create a temporary directory for testing
-        self.test_dir = tempfile.mkdtemp()
-        self.results_path = os.path.join(self.test_dir, "results")
-        os.makedirs(self.results_path)
+    """Test suite for logging utilities."""
 
-        # Patch config to use our temp directory
-        self.original_config = get_config()
-        test_config = PathConfig(
-            code_path=self.test_dir,
-            data_raw_path=os.path.join(self.test_dir, "data", "raw"),
-            data_processed_path=os.path.join(self.test_dir, "data", "processed"),
-            results_path=self.results_path,
-            specs_path=os.path.join(self.test_dir, "specs"),
-            tests_path=os.path.join(self.test_dir, "tests"),
-        )
-        # Mock the config object
+    def setUp(self):
+        """Set up test fixtures."""
+        self.test_dir = tempfile.mkdtemp()
+        self.logs_dir = os.path.join(self.test_dir, "logs")
+        self.checkpoints_dir = os.path.join(self.test_dir, "checkpoints")
+        os.makedirs(self.logs_dir, exist_ok=True)
+        os.makedirs(self.checkpoints_dir, exist_ok=True)
+
+        # Mock config paths
+        self.original_config = None
+        try:
+            from config import get_config
+            self.original_config = get_config()
+        except:
+            pass
+
+        # Patch config
+        mock_path_config = MagicMock()
+        mock_path_config.logs_dir = self.logs_dir
+        mock_path_config.checkpoints_dir = self.checkpoints_dir
+
         mock_config = MagicMock()
-        mock_config.results_path = self.results_path
-        self.mock_config = mock_config
+        mock_config.path_config = mock_path_config
+
+        self.config_patcher = patch('utils.logging.get_config', return_value=mock_config)
+        self.config_patcher.start()
 
     def tearDown(self):
-        # Clean up temp directory
-        shutil.rmtree(self.test_dir)
+        """Clean up test fixtures."""
+        self.config_patcher.stop()
+        shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    @patch("utils.logging.get_config")
-    def test_get_log_path(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        path = get_log_path()
-        expected = os.path.join(self.results_path, "logs")
-        self.assertEqual(path, expected)
+    def test_get_log_path(self):
+        """Test that get_log_path generates correct file paths."""
+        path = get_log_path(1)
+        self.assertTrue(path.endswith("cycle_1.log"))
+        self.assertTrue(os.path.dirname(path).startswith(self.logs_dir))
 
-    @patch("utils.logging.get_config")
-    def test_init_cycle_logger_creates_file(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
+    def test_init_cycle_logger_creates_file(self):
+        """Test that init_cycle_logger creates a log file."""
         logger = init_cycle_logger(1)
-        log_file = os.path.join(self.results_path, "logs", "cycle_1.log")
-        self.assertTrue(os.path.exists(log_file))
-        self.assertIsInstance(logger, MagicMock) or hasattr(logger, "info")
+        log_path = get_log_path(1)
+        self.assertTrue(os.path.exists(log_path))
 
-    @patch("utils.logging.get_config")
-    def test_init_cycle_logger_json_format(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        logger = init_cycle_logger(2)
-        update_cycle_log(logger, "Test message", {"key": "value"})
+    def test_update_cycle_log_writes_json(self):
+        """Test that update_cycle_log writes structured JSON entries."""
+        logger = init_cycle_logger(1)
+        update_cycle_log(1, "test_event", {"metric": 0.95}, logger)
 
-        log_file = os.path.join(self.results_path, "logs", "cycle_2.log")
-        self.assertTrue(os.path.exists(log_file))
+        log_path = get_log_path(1)
+        with open(log_path, 'r') as f:
+            content = f.read().strip()
+            entry = json.loads(content)
 
-        with open(log_file, "r") as f:
-            line = f.readline().strip()
-            entry = json.loads(line)
-
-        self.assertEqual(entry["message"], "Test message")
-        self.assertEqual(entry["key"], "value")
-        self.assertEqual(entry["cycle"], 2)
+        self.assertEqual(entry["event"], "test_event")
+        self.assertEqual(entry["metrics"]["metric"], 0.95)
         self.assertIn("timestamp", entry)
         self.assertEqual(entry["level"], "INFO")
 
-    @patch("utils.logging.get_config")
-    def test_checkpoint_model_state(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        model_state = {"layer1.weight": [1, 2, 3], "layer2.bias": [0.5]}
-        path = checkpoint_model_state(3, model_state)
+    def test_checkpoint_model_state_saves_file(self):
+        """Test that checkpoint_model_state saves model state."""
+        model_state = {
+            "weights": {"layer1": [1.0, 2.0]},
+            "cycle": 1,
+            "param_count": 124000000
+        }
+        path = checkpoint_model_state(1, model_state)
 
-        expected_path = os.path.join(
-            self.results_path, "checkpoints", "cycle_3_model.pt"
-        )
-        self.assertEqual(path, expected_path)
         self.assertTrue(os.path.exists(path))
+        with open(path, 'r') as f:
+            saved_state = json.load(f)
 
-    @patch("utils.logging.get_config")
-    def test_log_cycle_summary(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        logger = init_cycle_logger(4)
+        self.assertEqual(saved_state["cycle"], 1)
+        self.assertEqual(saved_state["param_count"], 124000000)
 
-        metrics = {"GSM8K": 0.85, "ARC": 0.92}
-        log_cycle_summary(
-            logger,
-            cycle_number=4,
-            metrics=metrics,
-            modification_type="layer_add",
-            param_count=120000000,
-            training_time_seconds=3600.5,
-            status="completed"
-        )
+    def test_log_cycle_summary(self):
+        """Test log_cycle_summary writes summary data."""
+        summary = {
+            "status": "completed",
+            "duration_seconds": 120.5,
+            "final_loss": 0.45
+        }
+        logger = init_cycle_logger(1)
+        log_cycle_summary(1, summary, logger)
 
-        log_file = os.path.join(self.results_path, "logs", "cycle_4.log")
-        with open(log_file, "r") as f:
-            lines = f.readlines()
+        history = get_cycle_history(1)
+        summary_entries = [e for e in history if e.get("event") == "CYCLE_SUMMARY"]
+        self.assertEqual(len(summary_entries), 1)
+        self.assertEqual(summary_entries[0]["metrics"]["status"], "completed")
 
-        # Find the summary line
-        summary_line = None
-        for line in lines:
-            entry = json.loads(line.strip())
-            if entry.get("cycle") == 4 and "metrics" in entry:
-                summary_line = entry
-                break
+    def test_get_cycle_history_empty(self):
+        """Test get_cycle_history returns empty list for non-existent log."""
+        history = get_cycle_history(999)
+        self.assertEqual(history, [])
 
-        self.assertIsNotNone(summary_line)
-        self.assertEqual(summary_line["metrics"]["GSM8K"], 0.85)
-        self.assertEqual(summary_line["modification_type"], "layer_add")
-        self.assertEqual(summary_line["status"], "completed")
+    def test_log_error(self):
+        """Test log_error writes error entries."""
+        logger = init_cycle_logger(1)
+        log_error(1, "Division by zero", "ZeroDivisionError", logger)
 
-    @patch("utils.logging.get_config")
-    def test_get_cycle_history(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        # Create some mock log files
-        log_dir = os.path.join(self.results_path, "logs")
-        os.makedirs(log_dir)
+        history = get_cycle_history(1)
+        error_entries = [e for e in history if e.get("event") == "ERROR"]
+        self.assertEqual(len(error_entries), 1)
+        self.assertEqual(error_entries[0]["metrics"]["error_message"], "Division by zero")
+        self.assertEqual(error_entries[0]["metrics"]["error_type"], "ZeroDivisionError")
 
-        with open(os.path.join(log_dir, "cycle_1.log"), "w") as f:
-            f.write('{"message": "start", "cycle": 1}\n')
-            f.write('{"message": "end", "cycle": 1}\n')
+    def test_log_warning(self):
+        """Test log_warning writes warning entries."""
+        logger = init_cycle_logger(1)
+        log_warning(1, "RAM usage high", "ResourceWarning", logger)
 
-        with open(os.path.join(log_dir, "cycle_2.log"), "w") as f:
-            f.write('{"message": "start", "cycle": 2}\n')
+        history = get_cycle_history(1)
+        warning_entries = [e for e in history if e.get("event") == "WARNING"]
+        self.assertEqual(len(warning_entries), 1)
+        self.assertEqual(warning_entries[0]["metrics"]["warning_message"], "RAM usage high")
 
-        history = get_cycle_history()
+    def test_multiple_log_entries(self):
+        """Test that multiple log entries are appended correctly."""
+        logger = init_cycle_logger(1)
+        update_cycle_log(1, "start", {"step": 1}, logger)
+        update_cycle_log(1, "process", {"step": 2}, logger)
+        update_cycle_log(1, "end", {"step": 3}, logger)
+
+        history = get_cycle_history(1)
         self.assertEqual(len(history), 3)
-        self.assertEqual(history[0]["message"], "start")
-        self.assertEqual(history[0]["cycle"], 1)
-        self.assertEqual(history[2]["message"], "start")
-        self.assertEqual(history[2]["cycle"], 2)
+        self.assertEqual(history[0]["metrics"]["step"], 1)
+        self.assertEqual(history[1]["metrics"]["step"], 2)
+        self.assertEqual(history[2]["metrics"]["step"], 3)
 
-    @patch("utils.logging.get_config")
-    def test_log_error(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        logger = init_cycle_logger(5)
-        try:
-            raise ValueError("Test error")
-        except Exception as e:
-            log_error(logger, "Something went wrong", e)
+    def test_json_format_valid(self):
+        """Test that all log entries are valid JSON."""
+        logger = init_cycle_logger(1)
+        update_cycle_log(1, "test", {"data": [1, 2, 3]}, logger)
 
-        log_file = os.path.join(self.results_path, "logs", "cycle_5.log")
-        with open(log_file, "r") as f:
-            lines = f.readlines()
-
-        error_entry = None
-        for line in lines:
-            entry = json.loads(line.strip())
-            if entry.get("level") == "ERROR":
-                error_entry = entry
-                break
-
-        self.assertIsNotNone(error_entry)
-        self.assertEqual(error_entry["message"], "Something went wrong")
-        self.assertEqual(error_entry["exception_type"], "ValueError")
-        self.assertEqual(error_entry["exception_message"], "Test error")
-
-    @patch("utils.logging.get_config")
-    def test_log_warning(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        logger = init_cycle_logger(6)
-        log_warning(logger, "This is a warning")
-
-        log_file = os.path.join(self.results_path, "logs", "cycle_6.log")
-        with open(log_file, "r") as f:
-            line = f.readline().strip()
-            entry = json.loads(line)
-
-        self.assertEqual(entry["level"], "WARNING")
-        self.assertEqual(entry["message"], "This is a warning")
-
-    @patch("utils.logging.get_config")
-    def test_malformed_json_skipped_in_history(self, mock_get_config):
-        mock_get_config.return_value = self.mock_config
-        log_dir = os.path.join(self.results_path, "logs")
-        os.makedirs(log_dir)
-
-        with open(os.path.join(log_dir, "cycle_7.log"), "w") as f:
-            f.write('{"valid": true}\n')
-            f.write('this is not json\n')
-            f.write('{"also_valid": true}\n')
-
-        history = get_cycle_history()
-        # Should only include the two valid JSON lines
-        self.assertEqual(len(history), 2)
-        self.assertEqual(history[0]["valid"], True)
-        self.assertEqual(history[1]["also_valid"], True)
+        log_path = get_log_path(1)
+        with open(log_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    # Should not raise
+                    json.loads(line)

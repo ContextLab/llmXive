@@ -17,9 +17,9 @@ The researcher MUST be able to download a base model (GPT 124M), apply a single 
 
 **Acceptance Scenarios**:
 
-1. **Given** a GPT-2 124M checkpoint is available on HuggingFace, **When** the pipeline downloads it, prompts the model to propose a modification (validated by FR-021), applies it, and re-trains for 1 epoch on a subset of [deferred] samples from OpenWebText, **Then** the modified model MUST be evaluated on GSM8K (subset of 100 samples), ARC-Challenge (subset of 100 samples), and BoolQ (subset of 500 samples) within 2 hours on a GitHub Actions free-tier runner (ubuntu-latest).
+1. **Given** a GPT-2 124M checkpoint is available on HuggingFace, **When** the pipeline downloads it, prompts the model to propose a modification (validated by FR-021), applies it, and re-trains for an epoch on a subset of [deferred] samples from OpenWebText, **Then** the modified model MUST be evaluated on GSMK (subset of 100 samples), ARC-Challenge (subset of samples), and BoolQ (subset of samples) within 2 hours on a GitHub Actions free-tier runner (ubuntu-latest).
 2. **Given** baseline metrics are recorded before modification, **When** the modified model completes training, **Then** the system MUST output accuracy for GSM8K, ARC-Challenge, and ECE for BoolQ with ≥3 decimal precision, derived from the specified sample sizes.
-3. **Given** paired bootstrap statistical testing is configured, **When** baseline and post-modification metrics are available, **Then** the system MUST compute p-values for performance differences with significance threshold α = 0.05, bootstrapping over test set samples with 1,000 resamples.
+3. **Given** paired bootstrap statistical testing is configured, **When** baseline and post-modification metrics are available, **Then** the system MUST compute p-values for performance differences with significance threshold α = 0.05, bootstrapping over test set samples with a sufficient number of resamples.
 
 ---
 
@@ -69,12 +69,12 @@ The researcher MUST be able to compute cost-effectiveness metrics (performance p
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download GPT 124M checkpoint from HuggingFace and load it into CPU-compatible PyTorch environment. The system MUST perform a 'Model Loader' step that explicitly sets device='cpu' and verifies the device is CPU (See US-1).
+- **FR-001**: System MUST download a GPT checkpoint from HuggingFace and load it into a CPU-compatible PyTorch environment. The system MUST perform a 'Model Loader' step that explicitly sets device='cpu' and verifies the device is CPU (See US-1).
 - **FR-002**: System MUST apply exactly one valid architectural modification (type and magnitude determined by the model's self-prompted suggestion, distinct in type or magnitude from all previous cycles) per cycle attempt. Distinctness is defined as 'Hamming distance ≥ 1 on the architecture config vector or >5% change in parameter count' (See US-2).
 - **FR-003**: System MUST constrain total parameter count increase to ≤30% above original GPT-2 baseline across all cycles. This check MUST occur BEFORE applying the modification. System MUST reject if >30%. Justification: Common practice in parameter-efficient fine-tuning to avoid over-parameterization (See US-2).
 - **FR-004**: System MUST re-train each modified model for exactly 1 epoch on OpenWebText subset ([deferred] samples) with AdamW optimizer, batch size 4, learning rate 5e-5. The system MUST perform a 'Training Configuration' step that validates these hyperparameters before training (See US-1).
-- **FR-005**: System MUST evaluate each cycle on GSM8K (subset of 100 samples, metric: reasoning accuracy), ARC-Challenge (subset of 100 samples, metric: reasoning accuracy), and BoolQ (subset of 500 samples, metric: calibration ECE). The system MUST perform an 'Evaluation Phase' that executes these benchmarks in the order: GSM8K, ARC-Challenge, BoolQ (See US-1).
-- **FR-006**: System MUST perform paired bootstrap statistical comparison between successive cycles with significance threshold α = 0.05, using 1,000 resamples with replacement. The system MUST execute this test in a dedicated 'Statistical Analysis' step (See US-1).
+- **FR-005**: System MUST evaluate each cycle on GSMK (subset of 100 samples, metric: reasoning accuracy), ARC-Challenge (subset of 100 samples, metric: reasoning accuracy), and BoolQ (subset of 500 samples, metric: calibration ECE). The system MUST perform an 'Evaluation Phase' that executes these benchmarks in the order: GSM8K, ARC-Challenge, BoolQ (See US-1).
+- **FR-006**: System MUST perform paired bootstrap statistical comparison between successive cycles with significance threshold α = 0.05, using a sufficient number of resamples with replacement. The system MUST execute this test in a dedicated 'Statistical Analysis' step (See US-1).
 - **FR-007**: System MUST repeat the modify-train-evaluate loop for exactly three attempted cycles. A 'failed cycle' (where training failed 2 times) counts as one of the three attempted cycles (See US-2).
 - **FR-008**: System MUST record FLOPs and parameter count for each cycle to enable cost-effectiveness analysis. FLOPs MUST be calculated via torch.profiler (or equivalent) and recorded with 2 decimal precision (See US-3).
 - **FR-009**: System MUST fit a linear regression model to performance trajectories and report the slope, intercept, R-squared, and trend direction (improving/declining/flat). If the linear fit fails (e.g., NaN slope), report 'N/A' for slope and 'inconclusive' for trend (See US-2).
@@ -125,4 +125,4 @@ The researcher MUST be able to compute cost-effectiveness metrics (performance p
 - Constitution Principle III (Data Hygiene) is satisfied by checksumming downloaded datasets and recording the hash in `data/`.
 - Constitution Principle IV (Single Source of Truth) is satisfied by validating all data outputs against contracts in `contracts/`.
 - The [deferred] parameter constraint is justified by common practice in parameter-efficient fine-tuning to avoid over-parameterization (See FR-003).
-- The 6-hour time target is a feasibility constraint; the primary success criterion is the completion of the experiment (valid trajectory record), even if it exceeds 6 hours (See SC-005).
+- The time target is a feasibility constraint.; the primary success criterion is the completion of the experiment (valid trajectory record), even if it exceeds 6 hours (See SC-005).

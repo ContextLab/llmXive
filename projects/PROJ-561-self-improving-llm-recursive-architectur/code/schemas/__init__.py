@@ -1,1 +1,1 @@
-# schemas package
+# Schemas package initialization

@@ -6,13 +6,13 @@
 
 ## Summary
 
-This project implements a recursive pipeline where a GPT model proposes its own architectural modifications, which are validated by an external oracle, re-trained on a subset of OpenWebText, and evaluated on Wikitext-2 (replacing GSM8K/ARC/BoolQ due to statistical validity concerns). The plan covers three attempted cycles, tracking performance trajectories, parameter counts, and compute efficiency (FLOPs/time). The implementation strictly adheres to CPU-first constraints (GitHub Actions free-tier) and uses verified open datasets.
+This project implements a recursive pipeline where a GPT model proposes its own architectural modifications, which are validated by an external oracle, re-trained on a subset of OpenWebText, and evaluated on a standard English language modeling benchmark dataset. (replacing GSMK/ARC/BoolQ due to statistical validity concerns). The plan covers three attempted cycles, tracking performance trajectories, parameter counts, and compute efficiency (FLOPs/time). The implementation strictly adheres to CPU-first constraints (GitHub Actions free-tier) and uses verified open datasets.
 
 **Critical Methodological Shift**: The original spec's use of GSM8K/ARC/BoolQ accuracy on a base GPT-2 model is scientifically invalid (signal indistinguishable from zero). The evaluation metrics have been changed to **Perplexity (PPL)** on **Wikitext-2**, which is statistically robust, aligns with the language modeling training objective, and allows for valid detection of architectural improvements.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+  
+**Language/Version**: Python +  
 **Primary Dependencies**: `transformers`, `torch` (CPU), `datasets`, `scikit-learn`, `pandas`, `numpy`, `psutil`, `hydra-core` (for config), `pytest`  
 **Storage**: Local filesystem (`data/`, `results/`, `models/`); no external DB.  
 **Testing**: `pytest` with unit tests for validators, logging, and rollback logic.  

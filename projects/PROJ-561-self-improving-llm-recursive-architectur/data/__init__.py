@@ -1,1 +1,3 @@
-# data package
+"""
+Initialization file for the data package.
+"""

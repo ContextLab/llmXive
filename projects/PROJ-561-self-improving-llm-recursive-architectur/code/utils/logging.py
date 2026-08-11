@@ -1,220 +1,108 @@
-"""
-Structured logging and checkpointing for self-improving LLM cycles.
-
-This module provides functions to:
-- Initialize cycle-specific loggers
-- Write structured JSON logs for each cycle
-- Checkpoint model states
-- Log cycle summaries, errors, and warnings
-- Retrieve cycle history
-"""
 import json
 import os
 import time
 import logging
 from datetime import datetime
 from typing import Dict, Any, Optional, List
-
 from config import get_config
 
-
-def get_log_path() -> str:
-    """Return the path to the logs directory."""
+def get_log_path(cycle_number: int) -> str:
+    """Get the path for cycle log file."""
     config = get_config()
-    return os.path.join(config.results_path, "logs")
-
-
-def init_cycle_logger(cycle_number: int) -> logging.Logger:
-    """
-    Initialize a structured JSON logger for a specific cycle.
-
-    Args:
-        cycle_number: The current cycle number.
-
-    Returns:
-        A logger configured to write JSON-formatted logs to results/logs/cycle_{N}.log.
-    """
-    log_dir = get_log_path()
+    log_dir = config.paths.logs_dir
     os.makedirs(log_dir, exist_ok=True)
+    return os.path.join(log_dir, f"cycle_{cycle_number}.log")
 
-    log_file = os.path.join(log_dir, f"cycle_{cycle_number}.log")
-
-    logger = logging.getLogger(f"cycle_{cycle_number}")
+def init_cycle_logger(log_path: str) -> logging.Logger:
+    """Initialize a logger for a specific cycle."""
+    logger = logging.getLogger(f"cycle_{os.path.basename(log_path)}")
     logger.setLevel(logging.INFO)
-
-    # Remove existing handlers to avoid duplicates
+    
+    # Clear existing handlers
     logger.handlers = []
-
-    # Create file handler with JSON formatting
-    handler = logging.FileHandler(log_file)
-    handler.setLevel(logging.INFO)
-
-    # Custom formatter to output JSON
-    class JsonFormatter(logging.Formatter):
+    
+    # File handler
+    file_handler = logging.FileHandler(log_path, mode='w')
+    file_handler.setLevel(logging.INFO)
+    
+    # JSON formatter
+    class JSONFormatter(logging.Formatter):
         def format(self, record):
             log_entry = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now().isoformat(),
                 "level": record.levelname,
-                "message": record.getMessage(),
-                "cycle": cycle_number,
+                "message": record.getMessage()
             }
-            # Add extra fields if present
-            if hasattr(record, "extra_data"):
-                log_entry.update(record.extra_data)
             return json.dumps(log_entry)
-
-    formatter = JsonFormatter()
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
+    
+    file_handler.setFormatter(JSONFormatter())
+    logger.addHandler(file_handler)
+    
     return logger
 
+def update_cycle_log(log_path: str, cycle_number: int, data: Dict[str, Any]) -> None:
+    """Update cycle log with new data."""
+    log_file = get_log_path(cycle_number)
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    
+    with open(log_file, 'a') as f:
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "cycle_number": cycle_number,
+            **data
+        }
+        f.write(json.dumps(entry) + "\n")
 
-def update_cycle_log(logger: logging.Logger, message: str, extra_data: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Update the cycle log with a new entry.
-
-    Args:
-        logger: The logger instance for the cycle.
-        message: The log message.
-        extra_data: Optional dictionary of additional fields to include.
-    """
-    if extra_data:
-        record = logger.makeRecord(
-            logger.name, logging.INFO, "", 0, message, (), None
-        )
-        record.extra_data = extra_data
-        logger.handle(record)
-    else:
-        logger.info(message)
-
-
-def checkpoint_model_state(cycle_number: int, model_state: Dict[str, Any]) -> str:
-    """
-    Save a checkpoint of the model state to disk.
-
-    Args:
-        cycle_number: The current cycle number.
-        model_state: The state dictionary to save.
-
-    Returns:
-        The path to the saved checkpoint file.
-    """
-    checkpoint_dir = os.path.join(get_config().results_path, "checkpoints")
+def checkpoint_model_state(cycle_number: int, state: Dict[str, Any]) -> str:
+    """Save model checkpoint."""
+    config = get_config()
+    checkpoint_dir = config.paths.checkpoints_dir
     os.makedirs(checkpoint_dir, exist_ok=True)
-
-    checkpoint_path = os.path.join(checkpoint_dir, f"cycle_{cycle_number}_model.pt")
-
-    # Save using standard torch format (assuming model_state is a state_dict)
-    import torch
-    torch.save(model_state, checkpoint_path)
-
+    
+    checkpoint_path = os.path.join(checkpoint_dir, f"cycle_{cycle_number}.pt")
+    
+    with open(checkpoint_path, 'w') as f:
+        json.dump(state, f)
+    
     return checkpoint_path
 
-
-def log_cycle_summary(
-    logger: logging.Logger,
-    cycle_number: int,
-    metrics: Dict[str, float],
-    modification_type: str,
-    param_count: int,
-    training_time_seconds: float,
-    status: str = "completed"
-) -> None:
-    """
-    Log a structured summary of the cycle.
-
-    Args:
-        logger: The cycle logger.
-        cycle_number: The cycle number.
-        metrics: Dictionary of benchmark metrics (e.g., GSM8K, ARC).
-        modification_type: Type of architectural modification applied.
-        param_count: Total parameter count after modification.
-        training_time_seconds: Wall-clock time for the cycle.
-        status: Status of the cycle (e.g., "completed", "timeout", "failed").
-    """
-    summary_data = {
+def log_cycle_summary(cycle_number: int, metrics: Dict[str, Any]) -> None:
+    """Log cycle summary to the cycle log file."""
+    log_path = get_log_path(cycle_number)
+    logger = init_cycle_logger(log_path)
+    
+    summary = {
         "cycle_number": cycle_number,
-        "modification_type": modification_type,
-        "param_count": param_count,
-        "training_time_seconds": training_time_seconds,
-        "status": status,
-        "metrics": metrics,
+        "timestamp": datetime.now().isoformat(),
+        "metrics": metrics
     }
-    update_cycle_log(
-        logger,
-        "Cycle summary",
-        extra_data=summary_data
-    )
+    
+    logger.info(json.dumps(summary))
 
-
-def get_cycle_history() -> List[Dict[str, Any]]:
-    """
-    Read all cycle log files and return their history.
-
-    Returns:
-        A list of log entries from all cycle logs.
-    """
-    log_dir = get_log_path()
+def get_cycle_history(cycle_number: int) -> List[Dict[str, Any]]:
+    """Get history of a specific cycle from log file."""
+    log_path = get_log_path(cycle_number)
+    
+    if not os.path.exists(log_path):
+        return []
+    
     history = []
-
-    if not os.path.exists(log_dir):
-        return history
-
-    log_files = sorted([
-        f for f in os.listdir(log_dir)
-        if f.startswith("cycle_") and f.endswith(".log")
-    ])
-
-    for log_file in log_files:
-        file_path = os.path.join(log_dir, log_file)
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if line:
-                        try:
-                            entry = json.loads(line)
-                            history.append(entry)
-                        except json.JSONDecodeError:
-                            # Skip malformed lines
-                            continue
-        except IOError:
-            continue
-
+    with open(log_path, 'r') as f:
+        for line in f:
+            try:
+                entry = json.loads(line.strip())
+                history.append(entry)
+            except json.JSONDecodeError:
+                continue
+    
     return history
 
+def log_error(log_path: str, message: str) -> None:
+    """Log an error message to the cycle log."""
+    logger = init_cycle_logger(log_path)
+    logger.error(message)
 
-def log_error(logger: logging.Logger, error_msg: str, exception: Optional[Exception] = None) -> None:
-    """
-    Log an error message.
-
-    Args:
-        logger: The logger instance.
-        error_msg: The error message.
-        exception: Optional exception object to include details.
-    """
-    extra = {}
-    if exception:
-        extra["exception_type"] = type(exception).__name__
-        extra["exception_message"] = str(exception)
-
-    if extra:
-        record = logger.makeRecord(
-            logger.name, logging.ERROR, "", 0, error_msg, (), None
-        )
-        record.extra_data = extra
-        logger.handle(record)
-    else:
-        logger.error(error_msg)
-
-
-def log_warning(logger: logging.Logger, warning_msg: str) -> None:
-    """
-    Log a warning message.
-
-    Args:
-        logger: The logger instance.
-        warning_msg: The warning message.
-    """
-    logger.warning(warning_msg)
+def log_warning(log_path: str, message: str) -> None:
+    """Log a warning message to the cycle log."""
+    logger = init_cycle_logger(log_path)
+    logger.warning(message)

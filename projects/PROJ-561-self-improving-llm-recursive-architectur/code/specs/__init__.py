@@ -1,1 +1,3 @@
-# Specs package initialization
+"""
+Initialization file for the specs package.
+"""

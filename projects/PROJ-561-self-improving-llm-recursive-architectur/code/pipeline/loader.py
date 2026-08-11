@@ -1,215 +1,105 @@
-"""
-Dataset loaders for the self-improving LLM pipeline.
-Implements fail-fast logic for missing data and retry logic for transient network errors.
-"""
 import time
 import random
 import os
+import logging
 from functools import wraps
 from typing import Callable, Any, Optional, Dict, List
-from datasets import load_dataset, Dataset
 
-# Custom exception for transient errors to distinguish from missing data
+import torch
+from datasets import load_dataset
+
+from pipeline.attempt_tracker import check_attempt_limit, AttemptLimitExceeded
+
+# Configure logging for this module
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 class HFTransientError(Exception):
-    """Raised when a transient network error occurs during dataset loading."""
+    """Custom exception for transient HuggingFace API errors."""
     pass
 
 def with_exponential_backoff(func: Callable) -> Callable:
     """
-    Decorator implementing exponential backoff for HuggingFace API calls.
-    Uses T005b configuration: initial_delay=30s, max_retries=5.
+    Wrapper that implements exponential backoff for HuggingFace API calls.
+    Initial delay: 30s, Max retries: 5.
+    Uses T005b logic.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        initial_delay = 30.0
         max_retries = 5
+        initial_delay = 30
         current_delay = initial_delay
-        
-        for attempt in range(max_retries + 1):
+
+        for attempt in range(1, max_retries + 1):
             try:
                 return func(*args, **kwargs)
-            except Exception as e:
-                # Check if this is a transient error (network, timeout, etc.)
-                error_str = str(e).lower()
-                is_transient = (
-                    'timeout' in error_str or 
-                    'connection' in error_str or 
-                    'network' in error_str or 
-                    'rate limit' in error_str or
-                    '503' in error_str or
-                    '504' in error_str
-                )
-                
-                if not is_transient or attempt == max_retries:
-                    # If not transient or max retries reached, raise immediately
+            except (ConnectionError, TimeoutError, HFTransientError) as e:
+                if attempt == max_retries:
+                    logger.error(f"Failed after {max_retries} retries for {func.__name__}: {e}")
                     raise
-                
-                # Transient error and more retries available
-                wait_time = current_delay + random.uniform(0, 1.0)  # Add jitter
-                print(f"Transient error in {func.__name__}: {e}. "
-                      f"Retrying in {wait_time:.2f}s (attempt {attempt + 1}/{max_retries})")
-                time.sleep(wait_time)
+                logger.warning(f"Attempt {attempt}/{max_retries} failed for {func.__name__}: {e}. Retrying in {current_delay}s...")
+                time.sleep(current_delay)
                 current_delay *= 2  # Exponential backoff
-        
-        raise HFTransientError(f"Failed after {max_retries} retries")
+        return None
     return wrapper
 
 @with_exponential_backoff
-def load_openwebtext(split: str = "train", streaming: bool = False) -> Dataset:
+def load_openwebtext() -> Any:
     """
-    Load OpenWebText dataset from HuggingFace.
-    
-    Args:
-        split: Dataset split to load (default: "train")
-        streaming: If True, stream the dataset instead of loading all into memory
-        
-    Returns:
-        Dataset object containing the OpenWebText data
-        
-    Raises:
-        FileNotFoundError: If the dataset cannot be found or accessed
-        HFTransientError: If transient network errors persist after retries
+    Loads the OpenWebText dataset from HuggingFace.
     """
-    try:
-        # OpenWebText is available via the 'openwebtext' dataset on HuggingFace
-        dataset = load_dataset(
-            "openwebtext",
-            split=split,
-            streaming=streaming
-        )
-        return dataset
-    except FileNotFoundError:
-        # Re-raise immediately - no synthetic fallback
-        raise FileNotFoundError(
-            "OpenWebText dataset not found. "
-            "Ensure internet connection and HuggingFace access. "
-            "No synthetic fallback is provided."
-        )
-    except Exception as e:
-        # Let the decorator handle transient errors
-        raise e
+    logger.info("Loading OpenWebText dataset...")
+    # Using streaming to handle large dataset efficiently as per constraints
+    return load_dataset("openwebtext", split="train", streaming=True)
 
 @with_exponential_backoff
-def load_gsm8k(split: str = "train", streaming: bool = False) -> Dataset:
+def load_gsm8k() -> Any:
     """
-    Load GSM8K (Grade School Math 8K) dataset from HuggingFace.
-    
-    Args:
-        split: Dataset split to load (default: "train")
-        streaming: If True, stream the dataset instead of loading all into memory
-        
-    Returns:
-        Dataset object containing the GSM8K data
-        
-    Raises:
-        FileNotFoundError: If the dataset cannot be found or accessed
-        HFTransientError: If transient network errors persist after retries
+    Loads the GSM8K dataset from HuggingFace.
     """
-    try:
-        # GSM8K is available via the 'gsm8k' dataset on HuggingFace
-        dataset = load_dataset(
-            "gsm8k",
-            "main",  # The main split
-            split=split,
-            streaming=streaming
-        )
-        return dataset
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            "GSM8K dataset not found. "
-            "Ensure internet connection and HuggingFace access. "
-            "No synthetic fallback is provided."
-        )
-    except Exception as e:
-        raise e
+    logger.info("Loading GSM8K dataset...")
+    return load_dataset("gsm8k", "main", split="train", streaming=True)
 
 @with_exponential_backoff
-def load_arc_challenge(split: str = "train", streaming: bool = False) -> Dataset:
+def load_arc_challenge() -> Any:
     """
-    Load ARC-Challenge dataset from HuggingFace.
-    
-    Args:
-        split: Dataset split to load (default: "train")
-        streaming: If True, stream the dataset instead of loading all into memory
-        
-    Returns:
-        Dataset object containing the ARC-Challenge data
-        
-    Raises:
-        FileNotFoundError: If the dataset cannot be found or accessed
-        HFTransientError: If transient network errors persist after retries
+    Loads the ARC-Challenge dataset from HuggingFace.
     """
-    try:
-        # ARC Challenge is available via the 'ai2_arc' dataset on HuggingFace
-        dataset = load_dataset(
-            "ai2_arc",
-            "ARC-Challenge",
-            split=split,
-            streaming=streaming
-        )
-        return dataset
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            "ARC-Challenge dataset not found. "
-            "Ensure internet connection and HuggingFace access. "
-            "No synthetic fallback is provided."
-        )
-    except Exception as e:
-        raise e
+    logger.info("Loading ARC-Challenge dataset...")
+    return load_dataset("ai2_arc", "ARC-Challenge", split="test", streaming=True)
 
 @with_exponential_backoff
-def load_wikitext2(split: str = "train", streaming: bool = False) -> Dataset:
+def load_wikitext2() -> Any:
     """
-    Load Wikitext-2 dataset from HuggingFace.
-    
-    Args:
-        split: Dataset split to load (default: "train")
-        streaming: If True, stream the dataset instead of loading all into memory
-        
-    Returns:
-        Dataset object containing the Wikitext-2 data
-        
-    Raises:
-        FileNotFoundError: If the dataset cannot be found or accessed
-        HFTransientError: If transient network errors persist after retries
+    Loads the Wikitext-2 dataset (used for BoolQ proxy/ECE in this context) from HuggingFace.
+    Note: Task description mentions BoolQ, but evaluator.py uses wikitext2_ece.
+    We load wikitext2 as the primary text corpus for evaluation metrics.
     """
-    try:
-        # Wikitext-2 is available via the 'wikitext' dataset on HuggingFace
-        dataset = load_dataset(
-            "wikitext",
-            "wikitext-2-raw-v1",
-            split=split,
-            streaming=streaming
-        )
-        return dataset
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            "Wikitext-2 dataset not found. "
-            "Ensure internet connection and HuggingFace access. "
-            "No synthetic fallback is provided."
-        )
-    except Exception as e:
-        raise e
+    logger.info("Loading Wikitext-2 dataset...")
+    return load_dataset("wikitext", "wikitext-2-raw-v1", split="test", streaming=True)
 
-def load_all_datasets(streaming: bool = False) -> Dict[str, Dataset]:
+def load_local_dataset(path: str) -> Any:
     """
-    Load all required datasets for the pipeline.
-    
-    Args:
-        streaming: If True, stream datasets instead of loading all into memory
-        
-    Returns:
-        Dictionary mapping dataset names to Dataset objects
-        
-    Raises:
-        FileNotFoundError: If any dataset cannot be found (fail-fast)
-        HFTransientError: If transient network errors persist after retries
+    Loads a local dataset file.
+    Fail-Fast Logic: Raises FileNotFoundError immediately if file is missing.
+    No synthetic fallback.
     """
-    datasets = {}
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Dataset file not found: {path}")
     
-    datasets["openwebtext"] = load_openwebtext(streaming=streaming)
-    datasets["gsm8k"] = load_gsm8k(streaming=streaming)
-    datasets["arc_challenge"] = load_arc_challenge(streaming=streaming)
-    datasets["wikitext2"] = load_wikitext2(streaming=streaming)
-    
+    logger.info(f"Loading local dataset from {path}")
+    # Assuming JSON format for local datasets as per verification task
+    return load_dataset("json", data_files={"train": path}, split="train")
+
+def load_all_datasets() -> Dict[str, Any]:
+    """
+    Loads all required datasets (OpenWebText, GSM8K, ARC-Challenge, Wikitext2).
+    Returns a dictionary of datasets.
+    """
+    datasets = {
+        "openwebtext": load_openwebtext(),
+        "gsm8k": load_gsm8k(),
+        "arc_challenge": load_arc_challenge(),
+        "wikitext2": load_wikitext2()
+    }
     return datasets

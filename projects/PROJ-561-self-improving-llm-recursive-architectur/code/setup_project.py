@@ -1,71 +1,58 @@
+"""
+Project setup script for llmXive automated science pipeline.
+Creates the required directory structure and initializes __init__.py files.
+"""
 import os
 import sys
 from pathlib import Path
 
+# Define the root directory (assumed to be the project root)
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+# Define the directory structure to create
+DIRECTORIES = [
+    "code",
+    "data/raw",
+    "data/processed",
+    "results",
+    "specs",
+    "tests",
+    "tests/unit",
+    "tests/integration",
+]
+
 def create_project_structure():
-    """
-    Creates the required project directory structure and initializes __init__.py files.
-    This implements Task T001: Create project structure per implementation plan.
-    
-    Directories created:
-    - code/
-    - data/raw/
-    - data/processed/
-    - results/
-    - specs/
-    - tests/
-    - tests/unit/
-    - tests/integration/
-    """
-    # Define the root directory (project root)
-    root = Path(__file__).parent.parent
-    
-    # Define the required directories relative to the root
-    directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "results",
-        "specs",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-    ]
-    
-    created_count = 0
-    skipped_count = 0
-    
-    print(f"Creating project structure in: {root}")
-    
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"  Directory already exists: {full_path}")
-            skipped_count += 1
+    """Create all required directories and __init__.py files."""
+    created_dirs = []
+    created_files = []
+
+    for dir_name in DIRECTORIES:
+        dir_path = ROOT_DIR / dir_name
         
-        # Create __init__.py in each directory to make them Python packages
-        # Note: We create __init__.py in all directories as per task requirement
-        init_file = full_path / "__init__.py"
+        # Create directory if it doesn't exist
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(dir_path.relative_to(ROOT_DIR)))
+            print(f"Created directory: {dir_path.relative_to(ROOT_DIR)}")
+        
+        # Create __init__.py in each directory
+        init_file = dir_path / "__init__.py"
         if not init_file.exists():
-            init_file.write_text("# Package initialization\n")
-            print(f"  Created __init__.py: {init_file}")
-            created_count += 1
-        else:
-            print(f"  __init__.py already exists: {init_file}")
-            skipped_count += 1
+            # Create an empty __init__.py or with a simple docstring
+            init_file.write_text(f'"""\nInitialization file for {dir_path.name}.\n"""\n')
+            created_files.append(str(init_file.relative_to(ROOT_DIR)))
+            print(f"Created __init__.py: {init_file.relative_to(ROOT_DIR)}")
     
-    print(f"\nSummary: Created {created_count} items, Skipped {skipped_count} items")
-    return True
+    print(f"\nSummary:")
+    print(f"  Directories created: {len(created_dirs)}")
+    print(f"  __init__.py files created: {len(created_files)}")
+    return len(created_dirs) + len(created_files) > 0
 
 if __name__ == "__main__":
     success = create_project_structure()
     if success:
-        print("Project structure created successfully.")
+        print("\nProject structure setup completed successfully.")
         sys.exit(0)
     else:
-        print("Failed to create project structure.")
-        sys.exit(1)
+        print("\nProject structure already exists or no changes were made.")
+        sys.exit(0)

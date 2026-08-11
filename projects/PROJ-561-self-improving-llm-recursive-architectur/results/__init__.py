@@ -1,1 +1,3 @@
-# Results package initialization
+"""
+Initialization file for the results package.
+"""

@@ -1,1 +1,3 @@
-# Processed data package initialization
+"""
+Initialization file for the processed data package.
+"""

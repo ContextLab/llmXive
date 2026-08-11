@@ -1,1 +1,3 @@
-# Raw data package initialization
+"""
+Initialization file for the raw data package.
+"""
