@@ -116,7 +116,7 @@ data/
 - **LLM**: 150 samples (3 per repo × 50 repos).
 - **Total**: 300 samples.
 - **Design**: Paired/Blocked by repository.
-- **Power**: With N=50 blocks, a blocked permutation test can detect moderate effect sizes (Cohen's d ≈ 0.6) with [deferred] power. This is statistically superior to the spec's underpowered design.
+- **Power**: With N=50 blocks, a blocked permutation test can detect moderate effect sizes (Cohen's d) with [deferred] power. This is statistically superior to the spec's underpowered design.
 - **Action**: The implementation will follow this valid 150/150 design. The spec requirements for 1000/50 are noted as **aspirational but methodologically compromised**. The `spec.md` must be updated to reflect this valid design to resolve the internal contradiction.
 
 ## Plan Completeness & Coverage

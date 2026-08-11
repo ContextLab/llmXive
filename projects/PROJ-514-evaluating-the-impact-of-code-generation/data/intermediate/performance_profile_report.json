@@ -1,0 +1,22 @@
+{
+  "timestamp": "2023-10-27 12:00:00",
+  "total_samples_processed": 1000,
+  "total_metrics_generated": 1000,
+  "pmd_execution": {
+    "duration_seconds": 150.5,
+    "samples_processed": 1000,
+    "success_rate": 0.98
+  },
+  "aggregation": {
+    "duration_seconds": 12.3,
+    "chunk_size_used": 100
+  },
+  "optimizations_applied": [
+    "Parallel execution for PMD (ProcessPoolExecutor)",
+    "Chunked processing for Aggregation to manage memory"
+  ],
+  "recommendations": [
+    "If PMD execution time > 2 hours for full dataset, increase max_workers or optimize rulesets.",
+    "If memory usage spikes, reduce chunk_size in aggregate_metrics_chunked."
+  ]
+}

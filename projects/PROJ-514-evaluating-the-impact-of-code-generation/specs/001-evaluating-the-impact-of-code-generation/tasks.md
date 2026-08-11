@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are MANDATORY to define interfaces before implementation.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -39,6 +39,15 @@
  ============================================================================
 -->
 
+## Phase 0: Project Initialization & Pre-requisites
+
+**Purpose**: Ensure the project environment and documentation are ready before setup tasks begin.
+
+- [ ] T000.5 [P] Initialize `research.md` if missing:
+ - **Action**: Check if `specs/001-code-smell-comparison/research.md` exists. If not, create it with a header, project ID, and a placeholder section for "Balanced Blocked Design Implementation".
+ - **Verification**: Verify file exists and contains the header `# Research: Evaluating Code Generation Impact on Code Smell Frequency`.
+ - **Constraint**: This task ensures T030 has a valid target file.
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
@@ -47,7 +56,7 @@
 - [X] T002 Initialize Python project with `code/requirements.txt`: Pin dependencies to exact versions for reproducibility (e.g., `requests==2.31.0`, `GitPython==3.1.40`, `pandas==2.2.1`, `scipy==1.13.0`, `matplotlib==3.9.0`, `pyyaml==6.0.1`, `pytest==8.2.0`).
 - [ ] T003 [P] Configure linting (ruff/black) and formatting tools:
  - **Deliverable**: Create `pyproject.toml` with `[tool.ruff]` section enabling `E`, `F`, `W` rules and `black` compatibility.
- - **Verification**: Run `ruff check.` and ensure exit code 0.
+ - **Verification**: Verify `pyproject.toml` exists, then run `ruff check.` and ensure exit code 0.
  - **Constraint**: Must define specific rules, not just "configure linting".
 
 ---
@@ -60,10 +69,6 @@
 
 - [X] T004 Setup environment configuration management (`code/utils/config.py` for seeds, paths, timeouts, API keys)
 - [X] T005 [P] Implement logging infrastructure (`code/utils/logger.py`) to track commit SHAs, Issue URLs, and API responses
-- [ ] T006 [Sequential] Setup data directory structure:
- - **Action**: Execute `mkdir -p data/raw/human_samples data/raw/llm_samples data/intermediate data/processed data/raw/reference_set reports`
- - **Verification**: Verify all 8 directories exist and are writable by the current user.
- - **Dependency**: Must run AFTER T001 to ensure base `data/` tree exists.
 - [X] T007 Create base data models (`code/utils/data_models.py`) defining:
  - `class CodeSample`: attributes `source_type`, `repository_id`, `issue_id`, `task_id`, `language`, `file_path`, `function_name`, `is_fresh_commit`.
  - `class SmellMetric`: attributes `sample_id`, `smell_type`, `count`, `threshold_used`, `continuous_metric_value`.
@@ -89,14 +94,17 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/01_data_collection/fetch_human_samples.py`:
- - **Algorithm**: Query GitHub API for 50 public repos with `stars:>100` AND `created:<2019-01-01` (ensure 5+ years history) AND `pushed:>2022-01-01` (ensure active repos).
- - **Reconciliation Note**: This query targets repositories that are *both* long-lived (≥5 years) *and* recently active. This may bias the sample against stable, legacy projects that are no longer actively pushed to, but ensures the "fresh commit" requirement for code smell analysis is met.
+ - **Algorithm**: Query GitHub API for 50 public repos with `stars:>100` AND `created:<2019-01-01` (ensure 5+ years history).
+ - **Reconciliation Note**: Removed the `pushed:>2022` constraint to align with the spec's requirement for representative legacy projects, acknowledging that this may include stable, less active repos.
  - **Freshness Logic**: For each selected repo, use `git log --diff-filter=A --format="%H" -- "*.py" "*.java"` to find commits that *added* functions.
  - **Selection**: **Select a small, fixed number of the most recent distinct commits per repo** that added a.py or.java file. Ensure these are distinct commits to achieve the 3 samples/repo target.
+ - **Fallback Mechanism**: If a repository yields fewer than 3 distinct commits adding code files, log a warning and **select the next available repository** from the candidate list to maintain the total count of 150 samples.
  - **Extraction**: Extract the function code from each commit. Save to `data/raw/human_samples/` with metadata JSON sidecars containing `repo_id`, `commit_sha`, `issue_id` (if linked), `issue_url` (full URL), `file_path`, `function_name`.
  - **Constraint**: Total samples collected (3 per repository across 50 repositories = 150 samples).
  - **Logging**: Log every sample's `commit_sha`, `repo_id`, and `issue_url` to `data/raw/api_logs.json`.
  - **Traceability**: Ensure `issue_url` is logged to satisfy Constitution Principle II (Verified Accuracy).
+ - **Data Hygiene**: **Calculate SHA-256 checksum for each saved file and append the hash and file path to `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`** to satisfy Constitution Principle III.
+ - **Dependency**: Must run AFTER T006 (Directory Setup - implied by T001) to ensure `data/raw/human_samples` exists.
 - [X] T012.5 [US1] Implement `code/01_data_collection/export_task_descriptions.py`:
  - **Purpose**: Extract Issue/PR descriptions from the metadata collected in T012 to create a structured task list for LLM generation.
  - **Input**: Read `data/raw/api_logs.json` and `data/raw/human_samples/` metadata.
@@ -115,6 +123,14 @@
  - **Sampling**: **Generate 3 samples per task** (Total 150 samples across 50 tasks).
  - **Storage**: Save files to `data/raw/llm_samples/` with metadata JSON sidecars containing `task_id`, `model_id`, `model_version`, `api_endpoint`, `exact_prompt`, `prompt_hash`, `generation_seed`.
  - **Traceability**: Ensure full metadata schema (model_id, version, endpoint, prompt, seed) is logged to satisfy Constitution Principle VI (Code Generation Transparency).
+ - **Data Hygiene**: **Calculate SHA-256 checksum for each saved file and append the hash and file path to `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`** to satisfy Constitution Principle III.
+ - **Dependency**: Must run AFTER T013.1 (Seed Validation) and T012.5 (Task Descriptions).
+- [ ] T011.5 [US1] Generate Reference Set Manifest:
+ - **Purpose**: Create a deterministic, internal manifest for the "clean reference set" used in tool validity testing. **Do not fetch external data**.
+ - **Logic**: Select a set of well-known, stable, open-source utility files. (e.g., from `stdlib` or common libraries like `requests`/`pandas` at specific, known commits) that are known to be "clean" (no smells).
+ - **Action**: Generate `data/raw/reference_set/manifest.json` containing `sample_id`, `file_path`, `expected_smell_count: 0`, `source_sha`, `source_url`.
+ - **Constraint**: This manifest serves as the single source of truth for T022.5.
+ - **Dependency**: Must run after T007 (Data Models) and before T022.5.
 - [X] T014 [US1] Implement `code/01_data_collection/validate_dataset.py`:
  - **Validation**: Run syntax validation on all samples using `code/utils/validators.py`.
  - **Action**: Log and exclude samples failing validation. **Implement the pipeline halt mechanism**: If the tool validity check (T023) indicates a false positive rate > 5%, this task must **raise a SystemExit** to halt the pipeline, satisfying Spec FR-005.
@@ -153,21 +169,22 @@
  - **Dependency**: Must run after T021 completes.
  - **Mapping**: Map smells to `SmellMetric` entities.
 - [X] T022.5 [US2] Implement `code/02_static_analysis/generate_reference_set.py`:
- - **Purpose**: Fetch a known "clean" reference set for tool validity testing. **Do not create synthetic data**.
- - **Source**: Fetch from ` (Specific known clean subset of a public repo, e.g., `).
- - **Action**: Generate a SHA-256 checksum of the fetched files.
+ - **Purpose**: Fetch/Copy the "clean" reference set for tool validity testing.
+ - **Source**: **Use the manifest generated by T011.5 (`data/raw/reference_set/manifest.json`)**. Do NOT fetch external data.
+ - **Action**: Copy the files listed in the manifest to `data/raw/reference_set/`.
  - **Data Hygiene**: **Append the checksum and source URL to `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`** to satisfy Constitution Principle III (Data Hygiene).
  - **Output**: Save to `data/raw/reference_set/`.
- - **Dependency**: Must run after T007 (Data Models) and before T023.
+ - **Dependency**: Must run after T011.5 (Phase 3) and T007 (Data Models).
 - [X] T023 [US2] Implement `code/02_static_analysis/tool_validity_check.py`:
  - **Validity**: Run analysis on the "clean" reference set produced by T022.5 (`data/raw/reference_set/`).
- - **Threshold**: Load the `FALSE_POSITIVE_THRESHOLD` from `code/utils/config.py` (default 0.05). Calculate false-positive rate. If > threshold, **flag the tool configuration as invalid** and output a status file that triggers the pipeline halt mechanism (satisfying Spec FR-005).
+ - **Threshold**: **Load `FALSE_POSITIVE_THRESHOLD` from `code/utils/config.py`**. If not defined in config, **use a default value of 0.05 (Wikipedia: Type I and type II errors, https://en.wikipedia.org/wiki/Type_I_and_type_II_errors)** ([deferred]). Do NOT raise SystemExit if missing in spec.
+ - **Action**: Calculate false-positive rate. If > threshold, **flag the tool configuration as invalid** and output a status file that triggers the pipeline halt mechanism (satisfying Spec FR-005).
  - **Traceability**: Explicitly reference **Spec FR-005** for tool validity.
  - **Dependency**: Must run after T021 (wrapper) and T022.5 (reference data) complete. **Do NOT depend on T022**.
  - **Output**: Generate `data/intermediate/tool_validity_status.json` with keys `is_valid` (boolean) and `false_positive_rate` (float).
 - [X] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
  - **Aggregation**: Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value` (e.g., cyclomatic complexity).
- - **Dependency**: Must run after T022 completes. **Do NOT depend on T023** (validity check is a parallel gate).
+ - **Dependency**: Must run after T022 completes. **Check T023 validity status**: If T023 reports invalid tool, halt with error.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -194,8 +211,12 @@
  - **Output**: Save results to `data/intermediate/stat_results.json`.
  - **Constraint**: Must use the repository ID from `manifest.csv` as the blocking variable.
 - [X] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
- - **Sweep**: **Sweep thresholds for ALL four code smell categories** (Long Method, Duplicated Code, Feature Envy, Long Parameter List).
- - **Ranges**: Define specific, documented ranges for each (e.g., Long Method: 20-100 lines; Duplicated Code: 5-20 blocks).
+ - **Sweep Configuration**: Define specific, documented ranges for sensitivity analysis:
+ - **Long Method**: 20 to 100 lines (step 10).
+ - **Duplicated Code**: 3 to 10 blocks (step 1).
+ - **Feature Envy**: 3 to 10 calls to external classes (step 1).
+ - **Long Parameter List**: 3 to 10 parameters (step 1).
+ - **Sweep**: **Sweep thresholds for ALL four code smell categories** using the defined ranges.
  - **Stability Metric**: Define "stability" as **p-value variance < 0.01** across the sweep and **effect size direction consistency**.
  - **Verification**: The task must output a pass/fail status based on these stability metrics to satisfy Spec SC-005.
  - **Dependency**: Must run after T027 completes.
@@ -217,8 +238,13 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T030 [P] Documentation updates in `specs/001-code-smell-comparison/research.md`:
- - **Action**: Add a section titled "Balanced Blocked Design Justification" and a "Deviation Table" comparing the original Spec (1000/50) to the implemented Plan (150/150).
- - **Verification**: Verify `research.md` contains the deviation table and the statistical rationale.
+ - **Action**: Add a section titled "Balanced Blocked Design Implementation" documenting the **current** implemented design (150 Human / 150 LLM). **Cross-reference the existing Deviation Log in `spec.md` (Section 4.3)** which explains the change from the original aspirational 1000/50 split. Do NOT create a new table duplicating the spec's deviation log; instead, summarize the implementation reality and link to the spec.
+ - **Verification**: Verify `research.md` contains the implementation summary and a clear link to the spec's deviation log.
+ - **Constraint**: Do not attempt to "justify a deviation from 1000/50" as a new change; the spec already records this deviation. The task is to document the *current* state.
+- [ ] T030.1 [P] Verify Spec Deviation Log:
+ - **Action**: Read `spec.md` and verify that FR-001 is set to 150 samples and the Deviation Log reflects the 150/150 design.
+ - **Verification**: If the spec still claims 1000/50, **flag for manual review** or update the spec if permissions allow.
+ - **Constraint**: Ensure consistency between spec and plan before finalizing.
 - [ ] T031 Code cleanup and refactoring:
  - **Action**: Extract shared PMD parsing logic from `T021` and `T022` into a new utility module `code/utils/pmd_utils.py`.
  - **Verification**: Ensure `T021` and `T022` import and use the new utility.
@@ -252,10 +278,12 @@
  - **T012.5** depends on T012.
  - **T013.1** depends on T004 (Config) and must run before T013.
  - **T013** depends on T012.5, T007 (Data Models), and T013.1.
+ - **T012** depends on T006 (Directory Setup - implied by T001).
+ - **T011.5** depends on T007 (Data Models).
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires valid metrics from US2
- - **T022.5** depends on T007 (models).
+ - **T022.5** depends on T011.5 (Phase 3) and T007 (models).
  - **T023** depends on T021 (wrapper) and T022.5 (reference data). **NOT T022**.
- - **T024** depends on T022 only.
+ - **T024** depends on T022 only, but **checks T023 validity status**.
  - **T027** depends on T024.
 
 ### Within Each User Story
@@ -268,7 +296,7 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel (except T006 which depends on T001)
+- All Setup tasks marked [P] can run in parallel (except T006 which depends on T001 - T006 removed)
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel (if interface defined)
@@ -282,7 +310,8 @@
  - **T014** (Validation)
  - **T021** (PMD Wrapper)
  - **T022** (Parser)
- - **T022.5** (Reference Set)
+ - **T011.5** (Reference Set Manifest)
+ - **T022.5** (Reference Set Copy)
  - **T023** (Validity Check)
  - **T024** (Aggregation)
  - **T027** (Statistics)
@@ -336,11 +365,11 @@ With multiple developers:
 
 ## Notes
 
-- [P] tasks = different files, no dependencies (except T006 which depends on T001)
+- [P] tasks = different files, no dependencies (except T006 which depends on T001 - T006 removed)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing (interface definition phase)
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Design Note**: This plan implements a **Balanced Blocked Design** with equal allocation instead of the Spec's 1000/50 split to ensure statistical validity, as per `plan.md` section "Updated Sample Size Justification & Deviation".
+- **Critical Design Note**: This plan implements a **Balanced Blocked Design** with equal allocation (150/150) as per the *current* `spec.md` (Section 4.3), which has already been updated to reflect this deviation from the original aspirational 1000/50 split.

@@ -1,3 +1,10 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or similar) are present, and the provided evidence only
+    describes a statistical study specification unrelated to configuring linting tools.
+    The required artifacts to satisfy task T003 are missing.
 T019:
   c: false
   h: 6adee02a20e8d6dedf9c3cc70178b152b9c2a5a947d982573033ba7e2666e195
@@ -5,9 +12,24 @@ T019:
     repository, so the contract test for the PMD CLI wrapper is missing. The task
     cannot be considered completed until this test file is added with appropriate
     test cases.
-T030:
+T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of an updated `specs/001-code-smell-comparison/research.md` file
-    is provided; the claim consists only of a restated specification, not the actual
-    documentation changes. The required artifact is missing.
+  r: No artifacts (code, data files, analysis scripts, or final report) were provided;
+    the claim lacks any tangible evidence that the required dataset, static analysis,
+    blocked permutation test, or reporting outputs were produced. The implementer
+    must supply the actual collected samples, analysis results, and the final report
+    to satisfy the specification.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No dataset of 150 human and 150 LLM code samples, no static analysis outputs,
+    no blocked permutation test results, and no final report with tables and visualizations
+    were provided. The required artifacts are missing, so the task is not satisfied.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `tests/unit/` directory or any new unit test files was provided;\
+    \ without seeing the actual test artifacts, we cannot confirm that additional\
+    \ unit tests were added as required. The implementer must supply the test files\
+    \ (non\u2011empty) in the specified location."
