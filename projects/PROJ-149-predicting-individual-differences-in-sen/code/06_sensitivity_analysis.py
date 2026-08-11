@@ -1,17 +1,13 @@
 """
-T028: Sensitivity Analysis - P-value Threshold Sweep
+T028: Sensitivity Analysis for P-value Thresholds
 
-This script implements FR-009: Sweep p-value threshold from a stringent to a lenient level.
-It consumes correlation results (with Bonferroni correction) and model results to determine
-at what threshold the findings become non-significant.
+Implements a sweep of p-value thresholds from 0.01 to 0.10 (step 0.01)
+on the correlation results generated in T020/T025 to determine
+the stability of significant findings.
 
-Dependencies:
-- data/processed/correlations.csv (from T021/T025)
-- data/processed/model_results.json (from T017/T019)
-- code/config.py (for paths and seeds)
-- code/utils/stats_helpers.py (for statistical utilities if needed)
+Input: data/processed/correlations.csv (from T025)
+Output: data/processed/sensitivity_results.json
 """
-
 import os
 import sys
 import json
@@ -20,164 +16,157 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Add project root to path if running as script
+# Add project root to path for imports
 project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from config import get_path, get_seed
-from utils.stats_helpers import bonferroni_correct
+from config import get_path, ensure_dirs
 
 def load_correlations():
-    """Load the correlation results from T021/T025."""
-    path = get_path("correlations.csv")
+    """Load the correlation results from T025."""
+    path = get_path("processed", "correlations.csv")
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Required input file not found: {path}")
+        raise FileNotFoundError(
+            f"Required input file not found: {path}. "
+            "Please ensure T025 (generate_final_correlation_outputs) has completed successfully."
+        )
     df = pd.read_csv(path)
     
-    # Ensure we have the necessary columns
-    required_cols = ['band', 'r_value', 'p_value', 'bonferroni_p_value', 'significant']
+    # Validate expected columns
+    required_cols = ['band', 'correlation', 'p_value', 'significant']
     missing = [c for c in required_cols if c not in df.columns]
     if missing:
-        raise ValueError(f"Correlations file missing required columns: {missing}")
+        raise ValueError(f"Missing required columns in {path}: {missing}")
     
     return df
 
-def load_model_results():
-    """Load the main model results to get baseline R2."""
-    path = get_path("model_results.json")
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Required input file not found: {path}")
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def run_sensitivity_sweep(correlations_df, thresholds):
+def run_sensitivity_sweep(correlations_df, start=0.01, end=0.10, step=0.01):
     """
-    Sweep through p-value thresholds and count how many correlations remain significant.
+    Sweep p-value thresholds and count significant correlations at each step.
     
     Args:
-        correlations_df: DataFrame with correlation results
-        thresholds: List of p-value thresholds to test (e.g., [0.001, 0.005, 0.01, ... 0.05])
-        
+        correlations_df: DataFrame with 'p_value' and 'significant' columns
+        start: Start of threshold range (inclusive)
+        end: End of threshold range (inclusive)
+        step: Step size for the sweep
+    
     Returns:
-        DataFrame with sensitivity analysis results
+        DataFrame with columns: threshold, count_significant, count_total, proportion
     """
+    thresholds = np.arange(start, end + step/2, step) # +epsilon to include end
     results = []
     
-    # Use Bonferroni corrected p-values for significance determination
-    # as per FR-006 specification
-    p_col = 'bonferroni_p_value' if 'bonferroni_p_value' in correlations_df.columns else 'p_value'
+    total_correlations = len(correlations_df)
     
-    for thresh in thresholds:
-        significant_count = (correlations_df[p_col] < thresh).sum()
-        significant_bands = correlations_df[correlations_df[p_col] < thresh]['band'].tolist()
+    for threshold in thresholds:
+        # Count how many p-values are <= threshold
+        count_sig = (correlations_df['p_value'] <= threshold).sum()
+        proportion = count_sig / total_correlations if total_correlations > 0 else 0.0
         
         results.append({
-            'threshold': thresh,
-            'significant_count': int(significant_count),
-            'significant_bands': significant_bands,
-            'is_any_significant': bool(significant_count > 0)
+            'threshold': round(threshold, 2),
+            'count_significant': int(count_sig),
+            'count_total': int(total_correlations),
+            'proportion_significant': round(proportion, 4)
         })
     
     return pd.DataFrame(results)
 
-def find_critical_threshold(correlations_df):
+def find_critical_threshold(sensitivity_df, target_count=None, target_proportion=None):
     """
-    Find the exact threshold where the result becomes non-significant.
-    This identifies the most stringent threshold at which we still have significance.
+    Identify the threshold where results change significance status.
+    
+    If target_count is provided, finds the lowest threshold where count >= target_count.
+    If target_proportion is provided, finds the lowest threshold where proportion >= target_proportion.
+    
+    Returns:
+        dict with critical_threshold and description
     """
-    p_col = 'bonferroni_p_value' if 'bonferroni_p_value' in correlations_df.columns else 'p_value'
+    if target_count is not None:
+        # Find first row where count >= target
+        mask = sensitivity_df['count_significant'] >= target_count
+        if mask.any():
+            first_idx = mask.idxmax()
+            return {
+                'critical_threshold': float(sensitivity_df.loc[first_idx, 'threshold']),
+                'description': f"Lowest threshold where significant count >= {target_count}"
+            }
     
-    # Sort by p-value to find the most significant results
-    sorted_df = correlations_df.sort_values(by=p_col)
+    if target_proportion is not None:
+        # Find first row where proportion >= target
+        mask = sensitivity_df['proportion_significant'] >= target_proportion
+        if mask.any():
+            first_idx = mask.idxmax()
+            return {
+                'critical_threshold': float(sensitivity_df.loc[first_idx, 'threshold']),
+                'description': f"Lowest threshold where proportion >= {target_proportion}"
+            }
     
-    if len(sorted_df) == 0:
-        return None, []
-    
-    # Find the largest p-value that is still < 0.05 (standard threshold)
-    significant_rows = sorted_df[sorted_df[p_col] < 0.05]
-    
-    if significant_rows.empty:
-        return 0.0, []
-    
-    # The critical threshold is the maximum p-value among significant results + epsilon
-    # effectively the point just before it becomes non-significant
-    max_sig_p = significant_rows[p_col].max()
-    
-    # Return the bands that are significant at standard 0.05 threshold
-    sig_bands = significant_rows['band'].tolist()
-    
-    return max_sig_p, sig_bands
+    return {
+        'critical_threshold': None,
+        'description': "No critical threshold found for specified targets"
+    }
 
 def main():
-    """Main entry point for sensitivity analysis."""
-    parser = argparse.ArgumentParser(description="Sensitivity Analysis: P-value Threshold Sweep")
-    parser.add_argument('--output', type=str, default=None, help="Output CSV path (default: from config)")
+    parser = argparse.ArgumentParser(description="T028: Sensitivity Analysis for P-value Thresholds")
+    parser.add_argument('--start', type=float, default=0.01, help="Start of p-value threshold sweep")
+    parser.add_argument('--end', type=float, default=0.10, help="End of p-value threshold sweep")
+    parser.add_argument('--step', type=float, default=0.01, help="Step size for sweep")
+    parser.add_argument('--output', type=str, default=None, help="Output file path (default: data/processed/sensitivity_results.json)")
     args = parser.parse_args()
 
-    # Set seed for reproducibility
-    seed = get_seed()
-    np.random.seed(seed)
-
-    print(f"Starting Sensitivity Analysis (T028) with seed {seed}...")
-
-    # Define sweep range: from very stringent (0.001) to lenient (0.10)
-    # Including the standard 0.05 and the Bonferroni corrected 0.0083
-    thresholds = [0.001, 0.005, 0.0083, 0.01, 0.02, 0.025, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10]
-    
+    print("Loading correlations data...")
     try:
-        # Load dependencies
         correlations_df = load_correlations()
-        model_results = load_model_results()
-        
-        print(f"Loaded {len(correlations_df)} correlation results.")
-        
-        # Run sensitivity sweep
-        sensitivity_df = run_sensitivity_sweep(correlations_df, thresholds)
-        
-        # Find critical threshold
-        critical_thresh, critical_bands = find_critical_threshold(correlations_df)
-        
-        # Prepare summary output
-        summary = {
-            'total_bands_tested': len(correlations_df),
-            'baseline_significant_at_0.05': int((correlations_df['bonferroni_p_value'] < 0.05).sum()),
-            'critical_threshold': critical_thresh,
-            'bands_significant_at_critical': critical_bands,
-            'sensitivity_results': sensitivity_df.to_dict(orient='records')
-        }
-        
-        # Save results
-        output_path = args.output if args.output else get_path("sensitivity_analysis.csv")
-        output_dir = Path(output_path).parent
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save detailed CSV
-        sensitivity_df.to_csv(output_path, index=False)
-        print(f"Saved sensitivity analysis to: {output_path}")
-        
-        # Save JSON summary for downstream tasks (T029, T031)
-        json_path = str(output_path).replace('.csv', '_summary.json')
-        with open(json_path, 'w') as f:
-            json.dump(summary, f, indent=2)
-        print(f"Saved summary to: {json_path}")
-        
-        # Print summary to console
-        print("\n--- Sensitivity Analysis Summary ---")
-        print(f"Bands significant at standard 0.05: {summary['baseline_significant_at_0.05']}")
-        print(f"Critical threshold (max p for sig): {summary['critical_threshold']:.4f}")
-        print(f"Bands at critical threshold: {summary['bands_significant_at_critical']}")
-        print("\nThreshold Sweep:")
-        print(sensitivity_df.to_string(index=False))
-        
-        return 0
-
-    except FileNotFoundError as e:
+        print(f"Loaded {len(correlations_df)} correlations.")
+    except (FileNotFoundError, ValueError) as e:
         print(f"Error: {e}")
-        print("Ensure T021 (Bonferroni correction) and T025 (correlation outputs) have completed.")
-        return 1
-    except Exception as e:
-        print(f"Unexpected error during sensitivity analysis: {e}")
-        raise
+        sys.exit(1)
+
+    print(f"Running sensitivity sweep from {args.start} to {args.end} (step {args.step})...")
+    sensitivity_results = run_sensitivity_sweep(
+        correlations_df, 
+        start=args.start, 
+        end=args.end, 
+        step=args.step
+    )
+
+    # Determine critical threshold (where count becomes non-zero)
+    critical_info = find_critical_threshold(sensitivity_results, target_count=1)
+    
+    # Prepare final output
+    output_data = {
+        'sweep_parameters': {
+            'start': args.start,
+            'end': args.end,
+            'step': args.step
+        },
+        'total_correlations_tested': int(len(correlations_df)),
+        'results': sensitivity_results.to_dict(orient='records'),
+        'critical_threshold_info': critical_info
+    }
+
+    # Determine output path
+    if args.output:
+        out_path = Path(args.output)
+    else:
+        out_path = get_path("processed", "sensitivity_results.json")
+    
+    # Ensure directory exists
+    ensure_dirs(out_path)
+
+    print(f"Writing results to {out_path}...")
+    with open(out_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+
+    print("Sensitivity analysis complete.")
+    print(f"  Total correlations: {len(correlations_df)}")
+    print(f"  Thresholds tested: {len(sensitivity_results)}")
+    if critical_info['critical_threshold']:
+        print(f"  Critical threshold (count >= 1): {critical_info['critical_threshold']}")
+    
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

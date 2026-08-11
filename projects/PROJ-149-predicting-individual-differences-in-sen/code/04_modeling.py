@@ -1,3 +1,11 @@
+"""
+code/04_modeling.py
+Implements Multiple Linear Regression with 5-fold cross-validation.
+
+Outputs:
+    data/interim/split_indices.json
+    data/processed/model_results.json (partial)
+"""
 import os
 import sys
 import json
@@ -5,210 +13,189 @@ import argparse
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, Tuple, List
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.model_selection import KFold, cross_val_score
 from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.preprocessing import StandardScaler
-import config
-from utils.stats_helpers import calculate_sample_size_for_r2
-
-# Ensure paths are resolved relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CONFIG = config.load_config()
+from config import set_global_seed, get_seed, get_path, ensure_dirs
 
 def load_features(filepath: str) -> pd.DataFrame:
     """
     Load the processed features dataset.
-    Expects a CSV with 'participant_id', 'median_rt', and band power columns.
+    Expects columns: participant_id, median_rt, delta, theta, alpha, low_beta, high_beta, gamma (or CLR variants).
     """
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Feature file not found: {filepath}")
+        raise FileNotFoundError(f"Features file not found: {filepath}")
     
     df = pd.read_csv(filepath)
     
-    # Required columns check
+    # Validate required columns
     required_cols = ['participant_id', 'median_rt']
-    # Identify band columns (delta, theta, alpha, low_beta, high_beta, gamma, etc.)
-    # Based on T015 output, we expect relative/CLR transformed bands
+    # Check for at least one band power column
     band_cols = [c for c in df.columns if any(b in c.lower() for b in ['delta', 'theta', 'alpha', 'beta', 'gamma'])]
     
-    if not all(c in df.columns for c in required_cols):
-        raise ValueError(f"Missing required columns: {required_cols}")
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Missing required columns. Found: {list(df.columns)}")
+    
     if len(band_cols) == 0:
         raise ValueError("No band power columns found in features file.")
-    
+        
     return df, band_cols
 
-def prepare_data(df: pd.DataFrame, feature_cols: List[str], target_col: str = 'median_rt') -> Tuple[np.ndarray, np.ndarray]:
+def prepare_data(df: pd.DataFrame, feature_cols: list) -> tuple:
     """
     Prepare X (features) and y (target) arrays.
-    Handles missing values by dropping rows (strict requirement: no nulls allowed).
+    Handles NaNs by dropping rows (as per strict validation in T016).
     """
-    # Drop rows with any NaN in features or target
-    clean_df = df.dropna(subset=feature_cols + [target_col])
+    # Drop rows with any NaN in the selected columns
+    cols_to_use = ['median_rt'] + feature_cols
+    clean_df = df[cols_to_use].dropna()
     
     if clean_df.empty:
-        raise ValueError("No valid data rows remaining after dropping NaNs.")
-    
+        raise ValueError("No valid data rows after dropping NaNs.")
+        
+    y = clean_df['median_rt'].values
     X = clean_df[feature_cols].values
-    y = clean_df[target_col].values
     
     return X, y, clean_df['participant_id'].values
 
-def fit_model_with_cv(X: np.ndarray, y: np.ndarray, n_folds: int = 5, random_state: int = 42) -> Dict[str, Any]:
+def fit_model_with_cv(X: np.ndarray, y: np.ndarray, n_folds: int = 5, random_state: int = 42) -> dict:
     """
     Fit Multiple Linear Regression with K-Fold Cross-Validation.
-    Returns metrics and split indices.
+    
+    Returns a dictionary containing:
+      - fold_scores: list of R2 scores per fold
+      - mean_r2: float
+      - std_r2: float
+      - rmse_cv: float (root mean squared error averaged over folds)
+      - split_indices: dict mapping fold index to train/test indices
+      - cv_model: the fitted LinearRegression object (optional, not saved to JSON)
     """
-    # Initialize KFold
+    set_global_seed(random_state)
+    
     kf = KFold(n_splits=n_folds, shuffle=True, random_state=random_state)
     
-    # Store split indices for reproducibility/debugging (T022 dependency)
-    split_indices = {
-        "folds": []
-    }
-    
-    # Store fold scores
     fold_scores = []
-    fold_models = []
+    fold_rmse = []
+    split_indices = {}
     
-    # Scale features for consistency (though OLS is scale-invariant for R2, good practice)
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    # We need to store the split indices for later permutation tests (T022)
+    # We'll store them as relative positions in the clean_df (which we don't have here directly, 
+    # but we can store the indices relative to the input X array)
+    
+    # To ensure we can reconstruct splits later, we store indices of the input arrays
+    # Note: The caller (main) is responsible for mapping these back to participant_ids if needed.
     
     for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
-        X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
+        X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
         
-        # Store indices (relative to the clean_df order)
-        split_indices["folds"].append({
-            "fold": fold_idx + 1,
-            "train_indices": train_idx.tolist(),
-            "test_indices": test_idx.tolist()
-        })
-        
-        # Fit model
         model = LinearRegression()
         model.fit(X_train, y_train)
         
-        # Predict and score
         y_pred = model.predict(X_test)
         r2 = r2_score(y_test, y_pred)
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
         
-        fold_scores.append({"fold": fold_idx + 1, "r2": r2, "rmse": rmse})
-        fold_models.append({
-            "coefficients": model.coef_.tolist(),
-            "intercept": float(model.intercept_)
-        })
-    
-    # Aggregate metrics
-    mean_r2 = float(np.mean([f["r2"] for f in fold_scores]))
-    std_r2 = float(np.std([f["r2"] for f in fold_scores]))
-    mean_rmse = float(np.mean([f["rmse"] for f in fold_scores]))
-    
-    # Fit final model on full data for coefficient reporting
-    final_model = LinearRegression()
-    final_model.fit(X_scaled, y)
-    
+        fold_scores.append(r2)
+        fold_rmse.append(rmse)
+        
+        # Store indices relative to the input X array
+        split_indices[str(fold_idx)] = {
+            "train": train_idx.tolist(),
+            "test": test_idx.tolist()
+        }
+        
+        # Optional: print progress
+        # print(f"Fold {fold_idx}: R² = {r2:.4f}, RMSE = {rmse:.4f}")
+
     results = {
-        "model_type": "Multiple Linear Regression",
-        "cv_method": "K-Fold",
+        "fold_scores": fold_scores,
+        "mean_r2": float(np.mean(fold_scores)),
+        "std_r2": float(np.std(fold_scores)),
+        "rmse_cv": float(np.mean(fold_rmse)),
+        "split_indices": split_indices,
         "n_folds": n_folds,
         "n_samples": len(y),
-        "n_features": X.shape[1],
-        "metrics": {
-            "mean_r2": mean_r2,
-            "std_r2": std_r2,
-            "mean_rmse": mean_rmse,
-            "adjusted_r2": float(1 - (1 - mean_r2) * (len(y) - 1) / (len(y) - X.shape[1] - 1)) if len(y) > X.shape[1] + 1 else None
-        },
-        "fold_results": fold_scores,
-        "final_model": {
-            "coefficients": final_model.coef_.tolist(),
-            "intercept": float(final_model.intercept_)
-        },
-        "split_indices": split_indices
+        "n_features": X.shape[1]
     }
     
     return results
 
-def save_results(results: Dict[str, Any], output_path: str, split_path: str):
+def save_results(results: dict, output_path: str, split_path: str):
     """
     Save model results and split indices to JSON files.
     """
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Ensure directories exist
+    ensure_dirs([output_path, split_path])
     
-    # Save main results
+    # Save split indices separately as required by T017/T022
+    with open(split_path, 'w') as f:
+        json.dump(results['split_indices'], f, indent=2)
+    
+    # Prepare partial model results (excluding split_indices to keep file clean, 
+    # though spec says partial results go here, we'll include metrics)
+    partial_results = {
+        "model_type": "Multiple Linear Regression",
+        "cv_method": "KFold",
+        "n_folds": results['n_folds'],
+        "mean_r2": results['mean_r2'],
+        "std_r2": results['std_r2'],
+        "rmse_cv": results['rmse_cv'],
+        "n_samples": results['n_samples'],
+        "n_features": results['n_features']
+        # split_indices is saved separately
+    }
+    
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    # Save split indices separately if requested (T022 dependency)
-    if split_path:
-        os.makedirs(os.path.dirname(split_path), exist_ok=True)
-        with open(split_path, 'w') as f:
-            json.dump(results["split_indices"], f, indent=2)
+        json.dump(partial_results, f, indent=2)
 
 def main():
-    parser = argparse.ArgumentParser(description="Fit predictive models on EEG features.")
-    parser.add_argument("--input", type=str, default="data/processed/features.csv",
-                        help="Path to input features CSV")
-    parser.add_argument("--output", type=str, default="data/processed/model_results.json",
-                        help="Path to output model results JSON")
-    parser.add_argument("--splits", type=str, default="data/interim/split_indices.json",
-                        help="Path to save split indices JSON")
+    parser = argparse.ArgumentParser(description="Fit MLR model with 5-fold CV")
+    parser.add_argument("--input", type=str, default=None, 
+                        help="Path to features.csv. If None, uses config path.")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Path to model_results.json. If None, uses config path.")
+    parser.add_argument("--splits", type=str, default=None,
+                        help="Path to split_indices.json. If None, uses config path.")
     parser.add_argument("--folds", type=int, default=5,
-                        help="Number of CV folds")
-    parser.add_argument("--seed", type=int, default=None,
-                        help="Random seed for reproducibility")
+                        help="Number of CV folds (default: 5)")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed")
     
     args = parser.parse_args()
     
-    # Set global seed if provided
-    if args.seed is not None:
-        config.set_global_seed(args.seed)
-        seed = args.seed
-    else:
-        seed = config.get_seed()
+    # Resolve paths
+    input_path = args.input or get_path("processed_features")
+    output_path = args.output or get_path("model_results")
+    split_path = args.splits or get_path("split_indices")
     
-    print(f"Loading features from {args.input}...")
+    print(f"Loading features from: {input_path}")
     try:
-        df, band_cols = load_features(args.input)
+        df, band_cols = load_features(input_path)
     except Exception as e:
-        print(f"ERROR: Failed to load features: {e}")
+        print(f"Error loading features: {e}")
+        sys.exit(1)
+        
+    print(f"Found {len(df)} participants and {len(band_cols)} band features: {band_cols}")
+    
+    X, y, participant_ids = prepare_data(df, band_cols)
+    print(f"Prepared data: X shape {X.shape}, y shape {y.shape}")
+    
+    if X.shape[0] < args.folds:
+        print(f"Error: Not enough samples ({X.shape[0]}) for {args.folds} folds.")
         sys.exit(1)
     
-    print(f"Found {len(band_cols)} band features: {band_cols}")
+    print(f"Fitting model with {args.folds}-fold CV...")
+    results = fit_model_with_cv(X, y, n_folds=args.folds, random_state=args.seed)
     
-    print("Preparing data...")
-    try:
-        X, y, pids = prepare_data(df, band_cols, target_col='median_rt')
-    except Exception as e:
-        print(f"ERROR: Failed to prepare data: {e}")
-        sys.exit(1)
+    print(f"Mean R²: {results['mean_r2']:.4f} (+/- {results['std_r2']:.4f})")
+    print(f"Mean RMSE: {results['rmse_cv']:.4f}")
     
-    print(f"Data shape: {X.shape}, Target shape: {y.shape}")
+    print(f"Saving results to: {output_path}")
+    print(f"Saving split indices to: {split_path}")
+    save_results(results, output_path, split_path)
     
-    print(f"Fitting Multiple Linear Regression with {args.folds}-fold CV...")
-    try:
-        results = fit_model_with_cv(X, y, n_folds=args.folds, random_state=seed)
-    except Exception as e:
-        print(f"ERROR: Model fitting failed: {e}")
-        sys.exit(1)
-    
-    print(f"Saving results to {args.output}...")
-    try:
-        save_results(results, args.output, args.splits)
-    except Exception as e:
-        print(f"ERROR: Failed to save results: {e}")
-        sys.exit(1)
-    
-    print("Modeling complete.")
-    print(f"Mean R²: {results['metrics']['mean_r2']:.4f} (+/- {results['metrics']['std_r2']:.4f})")
-    print(f"Adjusted R²: {results['metrics']['adjusted_r2']:.4f}")
-    print(f"Split indices saved to {args.splits}")
+    print("Task T017 completed successfully.")
 
 if __name__ == "__main__":
     main()

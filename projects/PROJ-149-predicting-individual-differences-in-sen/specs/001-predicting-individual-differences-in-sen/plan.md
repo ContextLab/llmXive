@@ -100,7 +100,7 @@ data/
 
 ### Phase 1: Preprocessing & Feature Extraction (FR-002, FR-003, FR-004, FR-010)
 *   **Action**: Apply band-pass (1-40Hz) and notch filters. Reject channels with variance > 3 SD. Exclude participants if the **ratio of rejected channels (channels_rejected / total_channels) > 0.30**, matching the invariant in `data-model.md`.
-* **Action**: Compute Welch's PSD on continuous 5-minute epochs using **2-second windows** with **[deferred] overlap** (per Constitution Principle VI). The **overlap parameter is [deferred]** in the spec but fixed here to [deferred] for standardization; code will default to [deferred] unless overridden by config.
+* **Action**: Compute Welch's PSD on continuous -minute epochs using **2-second windows** with **[deferred] overlap** (per Constitution Principle VI). The **overlap parameter is [deferred]** in the spec but fixed here to [deferred] for standardization; code will default to [deferred] unless overridden by config.
 *   **Action**: Extract median RT, exclude outliers (<100ms, >2000ms), exclude participants if <70% trials remain.
 *   **Action**: Calculate relative power (band/total) and **apply Centered Log-Ratio (CLR) transformation** to handle compositional data constraints before modeling.
 *   **Output**: `data/processed/features.csv` (with CLR-transformed features).
@@ -123,4 +123,4 @@ data/
 *   **Output**: `data/processed/final_report.md`.
 
 ## Compute Feasibility Note
-The plan explicitly avoids GPU-dependent libraries. `mne` and `scikit-learn` are used in CPU-only mode. Data is processed in chunks if necessary to stay within 7 GB RAM. A large-scale permutation test is optimized using vectorized numpy operations to ensure completion within a feasible time limit on a 2-core runner..
+The plan explicitly avoids GPU-dependent libraries. `mne` and `scikit-learn` are used in CPU-only mode. Data is processed in chunks if necessary to stay within 7 GB RAM. A large-scale permutation test is optimized using vectorized numpy operations to ensure completion within a feasible time limit on a standard compute runner..

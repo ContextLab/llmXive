@@ -1,39 +1,41 @@
-T008a:
+T016:
   c: false
-  h: 9019438f850b31e784a8af14c877f0560a81b1fd09f98395cd05b72570f66b13
-  r: "The repository contains `code/00_feasibility_check_join.py`, but the script\
-    \ is truncated and does not implement the required join or write `data/interim/joined_metadata.csv`\
-    \ (the file is missing). Likewise, the expected `data/processed/feasibility_report.md`\
-    \ is not present. Consequently the task\u2019s output artifacts and core functionality\
-    \ are absent."
-T008b:
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: The required artifact `data/processed/features.csv` is missing, so there is no
+    file to validate for nulls, column correctness, or RT range. Without the CSV,
+    the schema validation task cannot be performed.
+T017:
   c: false
-  h: 24f179ffafcde68327f7f6f56e9b0d1d479e4e7ef6467496067be823c93d4777
-  r: "The repository contains the required Python script, but the expected output\
-    \ file `data/processed/feasibility_report.md` is absent, and the shown portion\
-    \ of the script is truncated before any code that writes the markdown report.\
-    \ Without a generated report file, the task\u2019s requirement is not satisfied."
-T009:
+  h: 3fd6fb140b68706ee75f8a63e4bfd4c03406f577a6e11d730b6860ebb97c1864
+  r: "The repository contains a partially\u2011written `code/04_modeling.py`, but\
+    \ the required input file `data/processed/features.csv` is absent, and the script\
+    \ never produces the declared output files `data/interim/split_indices.json` and\
+    \ `data/processed/model_results.json`. Without the input data and the generated\
+    \ result files, the task\u2019s core requirement\u2014fitting the regression with\
+    \ 5\u2011fold CV and saving the split indices and model results\u2014is not satisfied.\
+    \ The next implementer must provide a valid `features.csv` and ensure the script\
+    \ writes the two JSON output files."
+T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.env` template file was provided or described in the evidence; the task\
-    \ required a non\u2011empty `.env` template for environment configuration, which\
-    \ is absent. The implementer needs to add a properly formatted `.env` file (e.g.,\
-    \ with placeholder variables) to satisfy T009."
-T012:
-  c: false
-  h: c7fdc944b1bfd8e95a81bf63ec4fb65bdc1436f7b23a5f56447fb8083eb72d73
-  r: "The required output file `data/interim/eeg_psd.csv` does not exist, and the\
-    \ provided `code/03_extract_features.py` is truncated before any band\u2011power\
-    \ aggregation or CSV writing logic, so it does not demonstrably meet the specification\
-    \ (5\u2011minute epochs, band aggregation, use of `config.OVERLAP_SECONDS`, preserving\
-    \ deferred status). The task therefore remains unfinished."
-T023:
+  r: No code, notebook, script, or output files implementing LASSO regression with
+    lambda tuning and reporting RMSE are present; the only content is the task description
+    and specifications, which does not constitute the required artifact. The implementer
+    must provide the actual implementation and its results.
+T019:
   c: false
   h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
-  r: "The required output file `data/processed/model_results.json` is missing, so\
-    \ no post\u2011hoc power analysis results are provided. The task\u2019s core artifact\
-    \ does not exist, making the implementation incomplete."
+  r: "The required artifact `data/processed/model_results.json` does not exist, so\
+    \ the adjusted R\xB2 and optimal lambda have not been logged as specified. The\
+    \ task therefore remains unfinished."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, results file, or any other artifact demonstrating that a Bonferroni\
+    \ correction (0.05/6\u202F=\u202F0.0083) was actually computed and that significant\
+    \ results were flagged is present. The implementer\u2019s claim cannot be verified\
+    \ because the required output (e.g., a script, log, or CSV with adjusted p\u2011\
+    values and significance flags) is missing."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,3 +43,40 @@ T024:
     /\u03B2 interaction analysis and the F\u2011test comparison (FR\u2011012) were\
     \ provided. The claim lacks any tangible artifact showing the analysis runs after\
     \ T019, so the required functionality is not demonstrated."
+T026:
+  c: false
+  h: eaed584b5bc2b35fdc88bf03f969852a9398d4453c8ce5b2a953888f851966fe
+  r: "The repository contains a `code/05_robustness_analysis.py`, but it writes outputs\
+    \ to `data/processed/` (and a JSON) instead of the required `data/interim/robustness/`,\
+    \ and the expected files `data/interim/robustness_features.csv` and `data/processed/robustness_report.csv`\
+    \ are not present on disk. The task\u2019s output artifacts are therefore missing\
+    \ or misplaced."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or report was provided that actually compares R\xB2 stability\
+    \ or calculates the percentage difference in alpha\u2011power means (FR\u2011\
+    008). The required artifact is missing, so the task is not satisfied."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual artifact (e.g., a sensitivity plot image, data file, or written report)\
+    \ was provided; the response contains only the task description and specifications,\
+    \ without the required output showing the threshold where results become non\u2011\
+    significant. The implementer must supply the generated plot and accompanying report."
+T031:
+  c: false
+  h: 974d22f557fa1958f2738fb8c15b62c99902bd8964151b595aa78674760447f7
+  r: The repository contains the implementation `code/07_generate_report.py`, but
+    the required output file `data/processed/final_report.md` is absent. Since the
+    task explicitly demands that the script produce this markdown report, the missing
+    artifact means the requirement is not satisfied. The next implementer must ensure
+    the script runs successfully after T030 and creates the `final_report.md` file
+    with the aggregated metrics.
+T032:
+  c: false
+  h: 34857c223d77bcab7486dac7accd0b576d2daa0d92be8373d915ec294f99d761
+  r: "The required artifact `data/processed/verification_log.json` is missing, so\
+    \ there is no evidence that the pipeline was run, resource usage was logged, or\
+    \ the failure conditions were checked. Without this file the task\u2019s verification\
+    \ requirements are not satisfied."

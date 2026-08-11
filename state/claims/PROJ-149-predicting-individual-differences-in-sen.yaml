@@ -456,3 +456,170 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T17:02:12Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10,000 shuffles on held-out test set
+  claim_id: c_748bb70e
+  context: "REVISED: T022 clarified to ensure permutation test uses 10,000 shuffles\
+    \ on the held-out test set and assesses significance of the full model's R\xB2\
+    \ distribution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task implements permutation tests with 10,000 shuffles on the held-out
+    test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:40:41Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction threshold 0.0083 for 6 bands
+  claim_id: c_76faa95c
+  context: 'REVISED: T021 clarified to ensure Bonferroni correction is applied for
+    6 bands (0.05/6 = 0.0083) and significant results are flagged in correlations.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for 6 bands using a threshold of 0.0083
+    (0.05/6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:40:43Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: "Power analysis for R\xB2 0.10 with power 0.80"
+  claim_id: c_8ef73f6c
+  context: "REVISED: T023 clarified to ensure post-hoc power analysis estimates sample\
+    \ size required for R\xB2=0.10 with power \u2265 0.80 and reports this in model_results.json."
+  evidence:
+    candidates:
+    - - ''
+      - 0.8
+    - - ''
+      - 0.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_for_R%C2%B2_0.10_with_power_0.80
+  kind: magnitude
+  raw_text: "Post-hoc power analysis estimates the sample size required for an R\xB2\
+    \ of 0.10 with power greater than or equal to 0.80."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-11T12:40:52Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion if less than 70% trials remain
+  claim_id: c_bbb8b9a3
+  context: "REVISED: T013 clarified to ensure behavioral metrics are computed only\
+    \ for participants with sufficient trials (\u226570%) after outlier exclusion,\
+    \ and outputs behavioral_exclusion_log.csv."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participant_exclusion_if_less_than_70%25_trials_remain
+  kind: magnitude
+  raw_text: Participants are excluded if fewer than 70% of trials remain after outlier
+    exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:41:02Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion if channel rejection ratio exceeds 0.30
+  claim_id: c_122217a3
+  context: implement participant exclusion logic (drop if ratio of rejected channels
+    (channels_rejected / total_channels) > 0.30) (FR-002, Constitution VI).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participants are excluded if the ratio of rejected channels to total channels
+    exceeds 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:41:07Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Behavioral outlier thresholds 100ms and 2000ms
+  claim_id: c_2a1a2296
+  context: 'T013 [P] [US1] Implement behavioral parsing: extract median RT, exclude
+    outliers (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004).'
+  evidence:
+    candidates:
+    - - Behavioral outlier thresholds 100ms and
+      - 2000.0
+    - - Log in Behavioral outlier thresholds
+      - 100.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Behavioral_outlier_thresholds_100ms_and_2000ms
+  kind: magnitude
+  raw_text: Behavioral outliers are defined as reaction times less than 100ms or greater
+    than 2000ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-11T12:41:12Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis p-value sweep 0.01 to 0.10 step 0.01
+  claim_id: c_2dedb57d
+  context: 'REVISED: T028 clarified to ensure sensitivity analysis sweeps p-value
+    thresholds from 0.01 to 0.10 in 0.01 increments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps p-value thresholds from 0.01 to 0.10 in steps
+    of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:41:17Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Non-linear analysis polynomial degree 2 for alpha and beta
+  claim_id: c_4faf18d9
+  context: 'REVISED: T024 clarified to ensure non-linear analysis uses polynomial
+    terms of degree 2 for alpha and beta bands and compares models using an F-test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Non-linear interaction analysis uses polynomial terms of degree 2 for
+    alpha and beta bands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:41:22Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Pipeline failure thresholds 6 hours runtime and 7 GB RAM
+  claim_id: c_ac23c266
+  context: Task must FAIL if runtime > 6 hours or RAM > 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline fails if runtime exceeds 6 hours or RAM usage exceeds 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:41:24Z'
