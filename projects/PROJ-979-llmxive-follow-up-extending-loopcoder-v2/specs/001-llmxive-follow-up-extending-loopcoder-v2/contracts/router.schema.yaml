@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RouterPrediction"
+type: object
+properties:
+  problem_id:
+    type: string
+    description: "Unique identifier for the problem."
+  predicted_k:
+    type: integer
+    description: "Predicted optimal loop count."
+    enum: [1, 2, 3]
+  actual_k:
+    type: integer
+    description: "True optimal loop count."
+  is_correct_prediction:
+    type: boolean
+    description: "Whether predicted_k matches actual_k."
+  flops_savings:
+    type: number
+    description: "Relative FLOPs savings compared to static k=2 baseline."
+required:
+  - problem_id
+  - predicted_k
+  - actual_k
+  - is_correct_prediction
+  - flops_savings

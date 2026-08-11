@@ -1,62 +1,67 @@
-# Data Model: llmXive follow-up: extending "LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali"
+# Data Model: llmXive follow-up: extending "LoopCoder-v2"
 
 ## Overview
 
-This document defines the data structures used to store raw inputs, computed metrics, and analysis results. All data is stored in CSV/Parquet formats for efficient I/O and version control.
+This document defines the data structures, schemas, and transformation pipelines required for the project. All data is stored in `data/` (raw) and `data/processed/` (derivations).
 
-## Entities
+## Entity Definitions
 
-### 1. InputProblem
-Represents a single code generation problem from the dataset.
-- `problem_id`: Unique identifier (e.g., "humaneval_0").
-- `source`: Dataset name (e.g., "HumanEval", "MBPP").
-- `prompt`: The natural language prompt.
-- `canonical_solution`: The reference code solution.
-- `difficulty`: (Optional) Difficulty label if available in the dataset.
+### InputProblem
+Represents a code generation problem.
+- `problem_id`: Unique identifier (e.g., "HumanEval/0").
+- `prompt`: The problem description string.
+- `reference_solution`: The ground truth code string.
+- `difficulty_stratum`: Categorical label (e.g., "easy", "medium", "hard") based on baseline pass rates.
+- `dataset`: Source dataset name ("HumanEval" or "MBPP").
 
-### 2. EntropyProxy
-Stores the semantic entropy calculation for a specific problem.
-- `problem_id`: FK to `InputProblem`.
-- `entropy_value`: Scalar float (Shannon entropy).
-- `num_clusters`: Number of semantic clusters found.
-- `num_samples`: Total samples generated (should be 10).
-- `exclusion_reason`: String if sample was excluded (e.g., "zero_entropy", "underpowered").
-- `execution_failed_count`: Integer count of samples that failed execution (for debugging).
+### ConvergenceTrajectory
+Represents the model's performance over loop counts.
+- `problem_id`: Link to `InputProblem`.
+- `loop_count`: Integer ($k$).
+- `output`: Generated code string.
+- `is_correct`: Boolean (1 if matches reference, 0 otherwise).
+- `converged`: Boolean (True if `is_correct` is True at this $k$ and previous were False).
+- `censored`: Boolean (True if $k=k_{max}$ and not converged).
 
-### 3. ConvergenceTrajectory
-Stores the iterative refinement results.
-- `problem_id`: FK to `InputProblem`.
-- `loop_count`: Integer ($k \in \{1, 2, 3\}$).
-- `is_correct`: Boolean (True if output matches canonical solution).
-- `converged_at`: Integer (The first $k$ where `is_correct` is True, or `null` if never).
-- `output_hash`: SHA256 hash of the generated output (for reproducibility).
+### EntropyProxy
+Represents the semantic uncertainty metric.
+- `problem_id`: Link to `InputProblem`.
+- `num_samples`: Integer ($N$).
+- `cluster_ids`: List of integers (cluster assignment for each sample).
+- `entropy_value`: Float (Shannon entropy).
+- `exclusion_reason`: String (if excluded, e.g., "deterministic").
 
-### 4. RouterResult
-Stores the output of the dynamic routing simulation.
-- `problem_id`: FK to `InputProblem`.
-- `predicted_k`: Integer predicted by the logistic regression model.
-- `actual_k`: Integer (ground truth convergence step, mapped to 4 if non-convergence).
-- `flops_saved`: Integer (FLOPs saved by predicting `predicted_k` vs static baseline).
-- `accuracy_delta`: Float (Change in accuracy vs baseline).
-- `is_underpowered`: Boolean (True if the stratum size was < 50).
+### RuntimeMetrics
+Represents computational resource usage (SC-005).
+- `task_name`: String (e.g., "entropy_extraction", "convergence_tracking").
+- `duration_ms`: Integer (execution time in milliseconds).
+- `peak_memory_mb`: Float (peak RAM/VRAM usage in MB).
+- `device`: String ("cpu" or "cuda").
 
-## File Layout
+## Data Pipeline
 
-```text
-data/
-├── raw/
-│   ├── humaneval.parquet       # Raw HumanEval dataset
-│   └── mbpp.parquet            # Raw MBPP dataset
-├── processed/
-│   ├── entropy_results.csv     # Aggregated entropy per problem
-│   ├── convergence_results.csv # Aggregated convergence per problem
-│   └── router_simulation.csv   # Router predictions and metrics
-└── checksums.txt               # SHA256 checksums for all files
-```
+1. **Ingestion**: Download HumanEval/MBPP from verified URLs. Parse into `InputProblem` objects.
+2. **Entropy Generation**: Run `code/src/entropy.py` -> `data/processed/entropy_results.csv`.
+3. **Convergence Generation**: Run `code/src/inference.py` -> `data/processed/convergence_results_core.csv` and `convergence_results_sensitivity.csv`.
+4. **Router Training**: Run `code/src/router.py` -> `data/processed/router_model.pkl`, `router_metrics.json`.
+5. **Robustness**: Run `code/src/robustness.py` -> `data/processed/sensitivity_sweep.json`.
+6. **Metrics Logging**: Run `code/src/utils.py` (logging) -> `data/processed/runtime_metrics.json`.
 
-## Data Flow
+## Data Hygiene & Checksums
 
-1. **Ingestion**: Raw datasets are downloaded and stored in `data/raw/`.
-2. **Entropy Calculation**: `code/src/entropy.py` reads `raw/`, generates samples, and writes `entropy_results.csv`. **Strictly separates** from convergence tracking.
-3. **Convergence Tracking**: `code/src/inference.py` reads `raw/`, runs iterative loops, and writes `convergence_results.csv`.
-4. **Analysis**: `code/src/analysis.py` joins `entropy_results.csv` and `convergence_results.csv` to compute correlations and train the router, writing `router_simulation.csv`.
+- **Raw Data**: `data/raw/humaneval.parquet`, `data/raw/mbpp.jsonl`. Checksums recorded in `state/...yaml`.
+- **Processed Data**: All derived files are checksummed. No in-place modifications.
+- **PII**: None expected (code datasets are synthetic).
+
+## File Formats
+
+- **CSV**: Comma-separated, UTF-8, header row.
+- **Parquet**: Apache Parquet (for raw dataset).
+- **JSON**: Standard JSON for metrics and configuration.
+- **Pickle**: Python pickle (for model artifacts, versioned).
+
+## Configuration
+
+- `max_mbpp_samples`: Integer. Maximum number of MBPP samples to process. Default: 500.
+- `max_samples`: Integer. Maximum total samples (HumanEval + MBPP subset).
+- `k_max`: Integer. Maximum loop count for convergence (default 3).

@@ -1,43 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Output Schema"
-description: "Schema for the final analysis output (router simulation results)"
-type: "object"
+title: "ConvergenceTrajectory"
+type: object
 properties:
   problem_id:
-    type: "string"
-    description: "Unique identifier for the problem"
-  predicted_k:
-    type: "integer"
-    description: "Predicted optimal loop count by the router"
-  actual_k:
-    type: "integer"
-    description: "Ground truth convergence step (mapped to 4 if non-convergence)"
-  flops_saved:
-    type: "integer"
-    description: "FLOPs saved compared to static k=2 baseline"
-  accuracy_delta:
-    type: "number"
-    description: "Difference in accuracy vs static baseline"
-  correlation_rho:
-    type: "number"
-    description: "Spearman correlation coefficient"
-  p_value:
-    type: "number"
-    description: "P-value for the correlation test (permutation test)"
-  is_significant:
-    type: "boolean"
-    description: "True if p_value < 0.05 (after correction)"
-  is_underpowered:
-    type: "boolean"
-    description: "True if the stratum sample size was < 50"
+    type: string
+    description: "Unique identifier for the problem."
+  k:
+    type: integer
+    description: "Loop count (1, 2, 3, or 4)."
+    enum: [1, 2, 3, 4]
+  is_correct:
+    type: boolean
+    description: "Whether the generated code passed unit tests."
+  converged_at:
+    type: integer
+    description: "First k where is_correct is true, or -1 if never."
+  is_censored:
+    type: boolean
+    description: "True if converged_at is -1, indicating k > k_max."
+  runtime_ms:
+    type: number
+    description: "Execution time in milliseconds."
+    minimum: 0
 required:
   - problem_id
-  - predicted_k
-  - actual_k
-  - flops_saved
-  - accuracy_delta
-  - correlation_rho
-  - p_value
-  - is_significant
-  - is_underpowered
-additionalProperties: false
+  - k
+  - is_correct
+  - converged_at
+  - is_censored
+  - runtime_ms

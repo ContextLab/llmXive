@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RouterMetrics Schema"
+description: "Schema for router simulation metrics"
+type: "object"
+properties:
+  accuracy:
+    type: "number"
+    description: "Prediction accuracy of the logistic regression model"
+  flops_savings_percent:
+    type: "number"
+    description: "Percentage reduction in FLOPs compared to oracle"
+  accuracy_difference:
+    type: "number"
+    description: "Difference in accuracy vs. static baseline"
+  non_inferiority_passed:
+    type: "boolean"
+    description: "Whether accuracy difference is within delta=0.05"
+  p_value:
+    type: "number"
+    description: "P-value for the non-inferiority test"
+required:
+  - accuracy
+  - flops_savings_percent
+  - accuracy_difference
+  - non_inferiority_passed
+  - p_value
+additionalProperties: false
