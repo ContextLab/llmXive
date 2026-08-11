@@ -1,48 +1,84 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Refinement Cycle Trajectory"
-description: "Schema for results/trajectory.json"
-type: "array"
-items:
-  type: "object"
-  required:
-    - "cycle_number"
-    - "parameter_count"
-    - "gsm8k_accuracy"
-    - "arc_accuracy"
-    - "ece_boolq"
-    - "flops"
-    - "training_time_seconds"
-  properties:
-    cycle_number:
-      type: "integer"
-      minimum: 0
-      description: "Cycle index (0 is baseline)"
-    parameter_count:
-      type: "integer"
-      minimum: 0
-      description: "Total trainable parameters"
-    gsm8k_accuracy:
-      type: "number"
-      minimum: 0
-      maximum: 1
-      description: "Accuracy on GSM8K (100 samples)"
-    arc_accuracy:
-      type: "number"
-      minimum: 0
-      maximum: 1
-      description: "Accuracy on ARC-Challenge (100 samples)"
-    ece_boolq:
-      type: "number"
-      minimum: 0
-      maximum: 1
-      description: "Expected Calibration Error on BoolQ (500 samples)"
-    flops:
-      type: "number"
-      minimum: 0
-      description: "Total FLOPs for the training epoch"
-    training_time_seconds:
-      type: "number"
-      minimum: 0
-      description: "Wall-clock training time in seconds"
-  additionalProperties: false
-
+title: "Trajectory Result Schema"
+type: object
+properties:
+  cycles:
+    type: array
+    items:
+      type: object
+      properties:
+        cycle_number:
+          type: integer
+          minimum: 0
+        pre_modification_params:
+          type: integer
+          minimum: 0
+        post_modification_params:
+          type: integer
+          minimum: 0
+        architecture_modification:
+          type: string
+        training_duration:
+          type: number
+          minimum: 0
+        flops:
+          type: number
+          minimum: 0
+        evaluation_results:
+          type: array
+          items:
+            type: object
+            properties:
+              benchmark_name:
+                type: string
+                enum: ["Wikitext-2"]
+              ppl:
+                type: number
+              sample_size:
+                type: integer
+              p_value_vs_predecessor:
+                type: number
+                nullable: true
+            required:
+              - benchmark_name
+              - ppl
+              - sample_size
+        success_status:
+          type: boolean
+        failure_reason:
+          type: string
+          nullable: true
+      required:
+        - cycle_number
+        - pre_modification_params
+        - post_modification_params
+        - evaluation_results
+        - success_status
+  trend_direction:
+    type: object
+    properties:
+      direction:
+        type: string
+        enum: ["improving", "declining", "flat", "inconclusive"]
+    required:
+      - direction
+  cost_effectiveness:
+    type: array
+    items:
+      type: object
+      properties:
+        cycle_number:
+          type: integer
+        ppl_per_flop:
+          type: number
+        ppl_per_hour:
+          type: number
+      required:
+        - cycle_number
+        - ppl_per_flop
+        - ppl_per_hour
+required:
+  - cycles
+  - trend_direction
+  - cost_effectiveness
+additionalProperties: false

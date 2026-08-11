@@ -10,15 +10,12 @@ properties:
   benchmark_name:
     type: "string"
     enum:
-      - "GSM8K"
-      - "ARC-Challenge"
       - "Wikitext-2"
     description: "The benchmark being evaluated."
-  accuracy:
+  ppl:
     type: "number"
     minimum: 0.0
-    maximum: 1.0
-    description: "Accuracy or PPL value (0.0 to 1.0 for accuracy; PPL can be >1)."
+    description: "Perplexity value (PPL)."
   samples_evaluated:
     type: "integer"
     minimum: 1
@@ -27,7 +24,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "P-value from paired bootstrap test vs baseline."
+    description: "P-value from bootstrap test vs baseline."
   is_significant:
     type: "boolean"
     description: "Whether the improvement is statistically significant (p < 0.05)."
@@ -40,7 +37,7 @@ properties:
 required:
   - "cycle_number"
   - "benchmark_name"
-  - "accuracy"
+  - "ppl"
   - "samples_evaluated"
   - "p_value_vs_baseline"
   - "is_significant"

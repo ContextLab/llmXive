@@ -2,66 +2,70 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Sufficient RAM (GitHub Actions free-tier compatible)
-- Internet access (for HuggingFace datasets)
+- Python 3.10+
+- Git
+- Access to a GitHub Actions runner (or local machine with sufficient RAM)
 
 ## Installation
 
-1.  **Clone and Setup**:
+1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-561-self-improving-llm-recursive-architectur
     ```
 
-2.  **Create Virtual Environment**:
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install Dependencies**:
+3.  **Install dependencies**:
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: `requirements.txt` pins `torch` to CPU-only version (`--index-url https://download.pytorch.org/whl/cpu`).*
 
 ## Running the Pipeline
 
-### 1. Run Single Cycle (Baseline + Cycle 1)
+### Single Cycle (Baseline + 1 Refinement)
+
+To run a single refinement cycle (Cycle 1) for testing:
+
 ```bash
 python code/main.py --cycles 1
 ```
-- Downloads GPT.
-- Evaluates baseline.
-- Proposes and applies one modification.
-- Trains and evaluates.
-- Outputs `results/trajectory.json` and `results/logs/cycle_1.log`.
 
-### 2. Run Full 3-Cycle Experiment
+### Full Experiment (3 Cycles)
+
+To run the full experiment (3 cycles, with early termination if degradation detected):
+
 ```bash
 python code/main.py --cycles 3
 ```
-- Executes the recursive loop up to 3 times.
-- Handles retries and early termination if degradation > 5%.
 
-### 3. Validate Outputs
-```bash
-pytest code/tests/
-```
-- Runs unit tests for config, logging, and external validator.
-- Verifies that `results/trajectory.json` matches the `contracts/trajectory.schema.yaml`.
-
-## Configuration
+### Configuration
 
 Edit `code/config.py` to adjust:
-- `BASE_MODEL_NAME`: "gpt2" (default)
-- `TRAINING_SAMPLES`: Number of OpenWebText samples (default: 100000)
-- `MAX_PARAM_INCREASE`: 0.30
-- `SEED`: 42 (fixed for reproducibility)
+- `TRAINING_SAMPLES`: Number of OpenWebText samples (default: 5000).
+- `MAX_PARAM_INCREASE`: Max parameter increase percentage (default: 30).
+- `SIGNIFICANCE_THRESHOLD`: Alpha for bootstrap (default: 0.05).
+
+## Output
+
+- **Results**: `results/trajectory.json` contains the full performance trajectory.
+- **Logs**: `results/logs/` contains detailed logs for each cycle.
+- **Models**: `results/models/` contains checkpoints for each cycle.
+
+## Verification
+
+To verify the results:
+
+1.  Check `results/trajectory.json` for the `trend_direction`.
+2.  Verify that `p_value_vs_predecessor` is < 0.05 (or corrected threshold) for claimed improvements.
+3.  Ensure `cost_effectiveness` metrics are recorded.
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `TRAINING_SAMPLES` in `config.py` or enable gradient checkpointing (already default).
-- **HF Rate Limit**: The system implements exponential backoff (initial interval, doubling subsequent intervals...). If it fails, wait 5 minutes and retry.
-- **Training Failure**: The system automatically retries up to 2 times. If it persists, the cycle is marked "failed" and the pipeline proceeds.
+- **Memory Error**: Reduce `TRAINING_SAMPLES` or ensure streaming is enabled.
+- **Training Failure**: The pipeline automatically retries up to 2 times. If it fails, check `results/logs/cycle_N.log`.
+- **API Rate Limit**: The pipeline implements exponential backoff. If it fails, check internet connectivity.

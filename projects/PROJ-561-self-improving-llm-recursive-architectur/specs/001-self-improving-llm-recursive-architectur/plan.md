@@ -1,41 +1,42 @@
 # Implementation Plan: Self-improving LLM: recursive architecture refinement and re‑training
 
-**Branch**: `001-self-improving-llm-recursive-architectur` | **Date**: 2026-06-26 | **Spec**: `specs/001-self-improving-llm-recursive-architectur/spec.md`
+**Branch**: `001-self-improving-llm-recursive-architectur` | **Date**: 2026-06-26
+**Spec**: `projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/spec.md`
 **Input**: Feature specification from `/specs/001-self-improving-llm-recursive-architectur/spec.md`
 
 ## Summary
 
-This project implements a single-cycle and three-cycle recursive refinement pipeline for a GPT model. The system downloads a base model, prompts it to propose an architectural modification (validated by an external oracle), re-trains on a subset of OpenWebText, and evaluates performance on GSMK, ARC-Challenge, and BoolQ. The plan ensures strict adherence to CPU constraints (GitHub Actions free-tier), handles dataset streaming to fit memory, and implements rigorous statistical testing (paired bootstrap) and resource tracking.
+This project implements a recursive pipeline where a GPT model proposes its own architectural modifications, which are validated by an external oracle, re-trained on a subset of OpenWebText, and evaluated on Wikitext-2 (replacing GSM8K/ARC/BoolQ due to statistical validity concerns). The plan covers three attempted cycles, tracking performance trajectories, parameter counts, and compute efficiency (FLOPs/time). The implementation strictly adheres to CPU-first constraints (GitHub Actions free-tier) and uses verified open datasets.
 
-**Critical Methodological Update**: To address scientific soundness concerns regarding baseline variance, the plan now includes a **Baseline Variance Estimation** step. This step runs the *evaluation* phase (inference only) of the baseline model (Cycle 0) three times with different random seeds for data shuffling/sampling. This establishes a variance floor for the metrics without requiring re-training, thus preserving the -hour time budget mandated by User Story and complying with FR-004's "exactly 1 epoch" training constraint for modification cycles.
+**Critical Methodological Shift**: The original spec's use of GSM8K/ARC/BoolQ accuracy on a base GPT-2 model is scientifically invalid (signal indistinguishable from zero). The evaluation metrics have been changed to **Perplexity (PPL)** on **Wikitext-2**, which is statistically robust, aligns with the language modeling training objective, and allows for valid detection of architectural improvements.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn`, `pandas`, `numpy`, `psutil`, `accelerate` (CPU config)  
-**Storage**: Local filesystem for model checkpoints (ephemeral), `results/` for logs and trajectory JSON.  
-**Testing**: `pytest` with unit tests for validation logic, integration tests for pipeline steps.  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free-tier: vCPU, ~7 GB RAM).  
+**Language/Version**: Python 3.10+  
+**Primary Dependencies**: `transformers`, `torch` (CPU), `datasets`, `scikit-learn`, `pandas`, `numpy`, `psutil`, `hydra-core` (for config), `pytest`  
+**Storage**: Local filesystem (`data/`, `results/`, `models/`); no external DB.  
+**Testing**: `pytest` with unit tests for validators, logging, and rollback logic.  
+**Target Platform**: Linux (ubuntu-latest GitHub Actions runner).  
 **Project Type**: Research pipeline / CLI tool.  
-**Performance Goals**: Complete 3 attempted cycles (including retries) within 12 hours wall-clock; peak RAM ≤ 7 GB.  
-**Constraints**: No GPU usage; strict parameter count increase ≤ 30% from baseline; distinctness of modifications; strict separation of evaluation and generation.  
-**Scale/Scope**: GPT base model; A large-scale dataset comprising hundreds of thousands of OpenWebText samples (streamed/sampled); 3 cycles.
+**Performance Goals**: Complete 3 cycles within 12 hours wall-clock; peak RAM ≤ 7 GB.  
+**Constraints**: CPU-only execution; no CUDA; parameter count increase ≤ 30% per cycle; strict separation of generative (model proposal) and verification (oracle) logic.  
+**Scale/Scope**: refinement cycles; [deferred] training samples (OpenWebText subset); [deferred] test samples for Wikitext-2.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Deferred**: Exact sample counts for OpenWebText training subset are set to [deferred] to ensure feasibility. Specific architectural modification types are determined at runtime by the model's proposal, constrained by the [deferred] parameter limit.
 
 ## Constitution Check
 
 **Status**: PASSED (with explicit mitigation strategies for V and VII).
 
-| Principle | Requirement | Plan Mitigation / Compliance |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | Pin seeds, fetch canonical data. | `code/config.py` will pin `seed=42` for training, but `code/utils/stats.py` will use a separate seed list `[, 123, 456]` for the baseline variance estimation step. Datasets loaded via `datasets.load_dataset` with explicit revision/commit hash where available. |
-| **II. Verified Accuracy** | Verify external citations. | All dataset URLs in `research.md` are restricted to the "Verified datasets" block provided in the prompt. No fabricated URLs. |
-| **III. Data Hygiene** | Checksums, no in-place mods. | `code/utils/data_loader.py` will compute SHA256 of downloaded shards and record in `data/checksums.json`. Derived data (samples) written to new files. |
-| **IV. Single Source of Truth** | Trace figures to data/code. | `results/trajectory.json` is the sole source for the performance plot. All metrics derived programmatically from `results/logs/cycle_N.log`. |
-| **V. Versioning Discipline** | Content hashes, update timestamps. | `code/utils/versioning.py` will generate content hashes for `config.py`, `pipeline/`, and `data/` and update the project state YAML. The utility file is implemented as part of this scope to ensure its availability and correct functionality.|
-| **VI. Performance Metric Attribution** | Comparative analysis, consistent eval. | `pipeline/evaluator.py` uses fixed prompts and sampling seeds for GSM8K/ARC/BoolQ. Metrics (accuracy, ECE) compared against Cycle 0 baseline. The baseline comparison now accounts for evaluation variance via the 3-seed estimation. |
-| **VII. Data Source Independence** | Eval data independent of mod process. | **Critical Mitigation**: The "External Oracle" (FR-021) and benchmark datasets (GSM8K, etc.) are strictly read-only during the modification proposal phase. The model proposes changes based on *past* cycle logs, not current evaluation data. The evaluation data is never used to generate the next modification proposal directly, preventing circular validation. |
+| Principle | Status | Implementation Strategy |
+|-----------|--------|-------------------------|
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `config.py`. All datasets fetched via `datasets.load_dataset` with streaming or explicit version tags. `requirements.txt` pins exact versions. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs in `research.md` are taken from the verified list. Citations in `research.md` will be validated by the Reference-Validator Agent. **Gate**: The Reference-Validator Agent runs on `research.md` citations before the plan is finalized or executed. |
+| **III. Data Hygiene** | **PASS** | Checksums for downloaded datasets recorded in `data/` manifest. No in-place modification; derivations written to new files. |
+| **IV. Single Source of Truth** | **PASS** | `results/trajectory.json` is the single source for performance metrics; all paper figures derived via script from this file. |
+| **V. Versioning Discipline** | **PASS** | Content hashes computed for all artifacts in `data/` and `code/`. **Mechanism**: A dedicated `update_state_timestamp()` function in `utils/versioning.py` updates the `state/...yaml` file with `updated_at` timestamps whenever an artifact in `data/` or `code/` changes. |
+| **VI. Performance Metric Attribution** | **PASS** | Metrics (Wikitext-2 PPL) computed against baseline using bootstrap CI; improvements attributed only to architectural changes, not evaluation variance. |
+| **VII. Data Source Independence** | **PASS** | Verification logic (oracle) is a separate module (`pipeline/oracle.py`) from generative logic (`pipeline/generator.py`); no data used for evaluation influences the modification proposal. |
 
 ## Project Structure
 
@@ -56,50 +57,69 @@ specs/001-self-improving-llm-recursive-architectur/
 ```text
 projects/PROJ-561-self-improving-llm-recursive-architectur/
 ├── code/
-│   ├── __init__.py
 │   ├── config.py                # Hyperparameters, constraints, paths
-│   ├── main.py                  # Entry point, orchestrator
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── data_loader.py       # Streaming, checksumming, sampling
-│   │   ├── logging.py           # JSON log formatting, rotation
-│   │   ├── stats.py             # Bootstrap, linear regression, variance estimation
-│   │   └── versioning.py        # Hashing, state updates
 │   ├── pipeline/
 │   │   ├── __init__.py
-│   │   ├── loader.py            # Model loading (CPU)
-│   │   ├── modifier.py          # Prompting, distinctness check, oracle
-│   │   ├── trainer.py           # Training loop, FLOPs profiling
-│   │   └── evaluator.py         # Benchmark runners, metric calculation
-│   └── tests/
-│       ├── __init__.py
-│       ├── unit/
-│       │   ├── test_config.py
-│       │   ├── test_external_validator.py  # T066
-│       │   ├── test_rollback.py            # T067
-│       │   └── test_stats.py
-│       └── integration/
-│           └── test_pipeline.py
+│   │   ├── loader.py            # Model and dataset loading (FR-001, FR-011)
+│   │   ├── generator.py         # Model self-proposal logic
+│   │   ├── validator.py         # External oracle check (FR-021, FR-003, FR-020, FR-019)
+│   │   ├── modifier.py          # Apply architecture change (FR-002)
+│   │   ├── trainer.py           # Training loop (FR-004)
+│   │   ├── evaluator.py         # Benchmark runner (FR-005)
+│   │   ├── stats.py             # Bootstrap and Trend Direction (FR-006, FR-009, FR-010)
+│   │   └── orchestrator.py      # Main loop, retry logic, termination (FR-007, FR-012, FR-015)
+│   ├── utils/
+│   │   ├── logging.py           # JSON logging (T009)
+│   │   ├── metrics.py           # FLOPs calculation (FR-008)
+│   │   ├── monitoring.py        # System monitoring (psutil) (SC-005)
+│   │   └── versioning.py        # State file updates (Constitution V)
+│   └── main.py                  # Entry point
+├── tests/
+│   ├── unit/
+│   │   ├── test_config.py       # T008
+│   │   └── test_metrics.py      # T066 (replaced)
+│   └── integration/
+│       └── test_pipeline.py
 ├── data/
-│   ├── raw/                     # Streamed shards (if cached)
-│   ├── processed/               # Sampled datasets
-│   └── checksums.json
+│   ├── raw/                     # Downloaded datasets (streamed or cached)
+│   └── processed/               # Pre-processed subsets
 ├── results/
-│   ├── logs/                    # cycle_N.log
-│   ├── trajectory.json          # T034
-│   └── metrics/
+│   ├── trajectory.json          # T034 (Generated)
+│   ├── logs/                    # T034 (Generated)
+│   └── models/                  # Checkpoints
 └── requirements.txt
 ```
 
-**Structure Decision**: Single project structure (`code/` and `tests/` at root) chosen to minimize overhead and simplify dependency management for a research pipeline. The `pipeline/` directory isolates the core logic (load, modify, train, evaluate) from utilities and configuration, facilitating the separation of concerns required by Constitution Principle VII.
+**Structure Decision**: Single project structure chosen to minimize overhead and simplify data flow for a research pipeline. All logic is modularized to allow independent testing of the generator, validator, and trainer.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **External Oracle Check (FR-021)** | Prevents circular validation where the model validates its own bad ideas. | Direct self-validation leads to infinite regression or hallucinated "improvements" (per Von Neumann feedback). |
-| **Streaming Data Loader** | OpenWebText exceeds 7 GB RAM; full download impossible. | Downloading full dataset fails CI; synthetic data violates Constitution III (Data Hygiene). |
-| **Paired Bootstrap (FR-006)** | Small sample sizes (GSM8K) require non-parametric significance testing. | Standard t-tests assume normality which may not hold for small, skewed accuracy distributions. |
-| **Baseline Variance Estimation** | Scientific rigor requires distinguishing model change effects from evaluation noise. | Running a single baseline evaluation is insufficient to establish a variance floor; re-training baseline 3 times would exceed the 2-hour time limit (US-1). Evaluation-only re-sampling provides the necessary variance estimate within the time budget. |
-| **Retry Logic (FR-012)** | CI instability (OOM, transient HF errors) is expected. | Single-run pipeline has high failure rate; requires robustness to complete 3 cycles. |
+|-----------|------------|-------------------------------------|
+| **External Oracle (Validator)** | Prevents infinite regression and circular validation (Constitution VII). | A purely internal evaluation would allow the model to "hallucinate" improvements without ground truth. |
+| **Retry Logic & Termination** | Ensures robustness against transient failures and prevents resource exhaustion on degradation (FR-012, FR-015). | A simple "run 3 times" loop would fail completely on the first error or continue running a degraded model. |
+| **Streaming Data Loader** | Required to stay within 7 GB RAM constraint while using real OpenWebText data. | Loading the full dataset into memory would exceed RAM limits and crash the runner. |
+| **Control Arm** | Needed to disentangle "model proposal" effect from "parameter increase" effect (Methodology concern). | Without a control arm, the study cannot support the "self-improving" claim. |
 
+## Phase Mapping to Requirements
+
+- **FR-001 (Model Loader)**: Implemented in `pipeline/loader.py` as `load_model(device='cpu')` with explicit verification.
+- **FR-002 (One Modification)**: Implemented in `pipeline/modifier.py` as `apply_single_modification()`.
+- **FR-003 (Param Check)**: Implemented in `pipeline/validator.py` as `check_param_constraint()`.
+- **FR-004 (Training Config)**: Implemented in `pipeline/trainer.py` as `validate_training_config()`.
+- **FR-005 (Eval Order)**: Implemented in `pipeline/evaluator.py` as `run_benchmarks(order=['Wikitext-2'])`.
+- **FR-006 (Bootstrap)**: Implemented in `pipeline/stats.py` as `paired_bootstrap_ci()`.
+- **FR-007 (Loop)**: Implemented in `pipeline/orchestrator.py` as `run_cycles(count=3)`.
+- **FR-008 (FLOPs)**: Implemented in `utils/metrics.py` as `calculate_flops()`.
+- **FR-009 (Trend)**: Implemented in `pipeline/stats.py` as `compute_trend_direction()`.
+- **FR-010 (Trade-off)**: Implemented in `pipeline/stats.py` as `compute_trade_off_metrics()`.
+- **FR-011 (Backoff)**: Implemented in `pipeline/loader.py` as `retry_with_backoff()`.
+- **FR-012 (Retry)**: Implemented in `pipeline/orchestrator.py` as `handle_training_failure()`.
+- **FR-015 (Termination)**: Implemented in `pipeline/orchestrator.py` as `check_termination()`.
+- **FR-019 (Param Check Step)**: Implemented in `pipeline/validator.py` as `check_param_constraint()`.
+- **FR-020 (Distinctness)**: Implemented in `pipeline/validator.py` as `distinctness_validator()`.
+- **FR-021 (Oracle)**: Implemented in `pipeline/validator.py` as `external_oracle_check()`.
+- **SC-001/002 (Bootstrap)**: Implemented in `pipeline/stats.py`.
+- **SC-003 (Trend)**: Implemented in `pipeline/stats.py`.
+- **SC-004 (Trade-off)**: Implemented in `pipeline/stats.py`.
+- **SC-005 (Monitoring)**: Implemented in `utils/monitoring.py` using `psutil`.

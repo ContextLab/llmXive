@@ -2,76 +2,75 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and file formats used throughout the project. All data flows are validated against `contracts/` schemas.
+This document defines the data structures, schemas, and flow for the recursive refinement pipeline. All data artifacts are versioned and checksummed.
 
-## Entity Definitions
+## Core Entities
 
 ### 1. ModelCheckpoint
-Represents a saved state of the model after a cycle.
-- `cycle_number`: int (0, 1, 2, 3)
-- `parameter_count`: int (total trainable params)
-- `architecture_modification`: str (description of change, e.g., "hidden_size + 64")
-- `training_time_seconds`: float
-- `flops`: float (total FLOPs for the epoch)
-- `status`: str ("success", "failed", "early_terminated")
+Represents a trained model instance at a specific cycle.
+- **cycle_number**: Integer (0, 1, 2, 3)
+- **parameter_count**: Integer (total parameters)
+- **architecture_modification**: String (JSON or description of the change)
+- **training_time**: Float (seconds)
+- **flops**: Float (total FLOPs for training)
+- **checkpoint_path**: String (relative path to saved weights)
 
 ### 2. PerformanceMetric
-Represents evaluation results for a specific benchmark.
-- `cycle_number`: int
-- `benchmark_name`: str ("GSM8K", "ARC-Challenge", "BoolQ")
-- `accuracy_or_ECE`: float (accuracy for GSM8K/ARC, ECE for BoolQ)
-- `p_value_vs_baseline`: float (or null for Cycle 0)
-- `sample_size`: int
+Represents evaluation results for a specific cycle and benchmark.
+- **cycle_number**: Integer
+- **benchmark_name**: Enum ["Wikitext-2"]
+- **ppl**: Float (Perplexity)
+- **p_value_vs_predecessor**: Float (p-value from bootstrap test, null for Cycle 0)
+- **sample_size**: Integer (number of samples used)
 
 ### 3. RefinementCycle
-Aggregates data for a single iteration.
-- `cycle_number`: int
-- `pre_modification_params`: int
-- `post_modification_params`: int
-- `training_duration_seconds`: float
-- `evaluation_results`: list[PerformanceMetric]
-- `success_status`: str
-- `log_file_path`: str
+Aggregates all data for one iteration of the pipeline.
+- **cycle_number**: Integer
+- **pre_modification_params**: Integer
+- **post_modification_params**: Integer
+- **training_duration**: Float
+- **evaluation_results**: List[PerformanceMetric]
+- **success_status**: Boolean (true if training and evaluation completed)
+- **failure_reason**: String (if success_status is false)
+- **modification_proposal**: String (raw proposal from model)
+- **oracle_validation**: Boolean (result of external check)
 
-## File Formats
-
-### `results/trajectory.json`
-A JSON array containing one object per completed cycle (including failed ones with null metrics).
-```json
-[
-  {
-    "cycle_number": 0,
-    "parameter_count": 117000000,
-    "gsm8k_accuracy": 0.123,
-    "arc_accuracy": 0.345,
-    "ece_boolq": 0.056,
-    "flops": 1.23e15,
-    "training_time_seconds": 7200.5
-  },
-  ...
-]
-```
-
-### `results/logs/cycle_N.log`
-A JSON Lines (`.jsonl`) file where each line is a structured log event.
-```json
-{"timestamp": "2026-06-26T10:00:00Z", "level": "INFO", "event": "cycle_start", "cycle": 1}
-{"timestamp": "2026-06-26T10:05:00Z", "level": "INFO", "event": "proposal_received", "modification": "add_layer"}
-{"timestamp": "2026-06-26T10:10:00Z", "level": "INFO", "event": "training_complete", "duration": 3600}
-```
-
-### `data/checksums.json`
-A JSON object mapping dataset filenames to SHA256 hashes.
-```json
-{
-  "openwebtext/train-00000-of-00080.parquet": "abc123...",
-  "gsm8k/test-00000-of-00001.parquet": "def456..."
-}
-```
+### 4. Trajectory
+Aggregated results for the entire experiment.
+- **cycles**: List[RefinementCycle]
+- **trend_direction**: Enum ["improving", "declining", "flat", "inconclusive"]
+- **cost_effectiveness**: List[Object] (ppl_per_flop, ppl_per_hour)
 
 ## Data Flow Diagram (Conceptual)
 
-1.  **Ingest**: `utils/data_loader.py` -> Stream -> `data/processed/` (sampled)
-2.  **Process**: `pipeline/trainer.py` -> `results/logs/cycle_N.log`
-3.  **Evaluate**: `pipeline/evaluator.py` -> `results/trajectory.json`
-4.  **Validate**: `contracts/` schemas verify all outputs before finalization.
+1.  **Input**: `config.py` (hyperparameters), `data/raw/` (datasets).
+2.  **Processing**:
+    -   `pipeline/loader.py`: Loads model and datasets.
+    -   `pipeline/generator.py`: Generates modification proposal.
+    -   `pipeline/validator.py`: Validates proposal.
+    -   `pipeline/trainer.py`: Trains model, logs FLOPs/time.
+    -   `pipeline/evaluator.py`: Evaluates on benchmarks.
+    -   `pipeline/stats.py`: Computes bootstrap p-values and trend direction.
+3.  **Output**:
+    -   `results/trajectory.json`: Aggregated results.
+    -   `results/logs/cycle_N.log`: Detailed logs per cycle.
+    -   `data/processed/`: Checksummed dataset subsets.
+
+## Contracts
+
+The following contracts define the expected format of output files.
+
+### `results/trajectory.json` Schema
+- **Type**: Object
+- **Properties**:
+    - `cycles`: Array of `RefinementCycle` objects.
+    - `trend_direction`: Object with `slope` (N/A), `trend_direction`.
+    - `cost_effectiveness`: Array of objects with `ppl_per_flop`, `ppl_per_hour`.
+
+### `results/logs/cycle_N.log` Schema
+- **Type**: JSON Lines (one JSON object per line)
+- **Properties**:
+    - `timestamp`: ISO 8601 string.
+    - `cycle`: Integer.
+    - `event`: String (e.g., "proposal", "validation", "training_start", "training_end", "evaluation").
+    - `data`: Object (context-specific data).

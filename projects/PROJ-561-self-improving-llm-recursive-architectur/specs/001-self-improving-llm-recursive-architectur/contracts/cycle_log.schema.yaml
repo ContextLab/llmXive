@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cycle Log Entry Schema"
+type: object
+properties:
+  timestamp:
+    type: string
+    format: date-time
+  cycle:
+    type: integer
+    minimum: 0
+  event:
+    type: string
+    enum: ["proposal", "validation", "training_start", "training_end", "evaluation", "retry", "failure", "success"]
+  data:
+    type: object
+    additionalProperties: true
+required:
+  - timestamp
+  - cycle
+  - event
+  - data
+additionalProperties: false

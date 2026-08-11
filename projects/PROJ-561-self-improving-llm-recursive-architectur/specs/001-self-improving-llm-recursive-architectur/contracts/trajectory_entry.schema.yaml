@@ -8,18 +8,10 @@ properties:
   param_count:
     type: integer
     description: Total number of parameters in the model.
-  gsm8k_accuracy:
-    type: number
-    format: float
-    description: Accuracy on GSM8K benchmark.
-  arc_challenge_accuracy:
-    type: number
-    format: float
-    description: Accuracy on ARC-Challenge benchmark.
   ppl:
     type: number
     format: float
-    description: "Perplexity (PPL) on Wikitext-2 (replaces ECE)."
+    description: "Perplexity (PPL) on Wikitext-2."
   flops:
     type: number
     format: float
@@ -37,18 +29,16 @@ properties:
     properties:
       performance_per_flop:
         type: number
-        description: "Accuracy (GSM8K) / FLOPs."
+        description: "PPL (Wikitext-2) / FLOPs."
       performance_per_hour:
         type: number
-        description: "Accuracy (GSM8K) / Training Time (hours)."
+        description: "PPL (Wikitext-2) / Training Time (hours)."
     required:
       - performance_per_flop
       - performance_per_hour
 required:
   - cycle_number
   - param_count
-  - gsm8k_accuracy
-  - arc_challenge_accuracy
   - ppl
   - flops
   - training_time
