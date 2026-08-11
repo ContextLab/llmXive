@@ -1,8 +1,6 @@
 """
-FR-007 Associational Framing Warning Utilities.
-
-This module provides utilities to inject mandatory associational warnings
-into various output formats (JSON, YAML, text) to comply with FR-007.
+FR-007 Warning Injection Utilities.
+Ensures associational framing warnings are injected into outputs.
 """
 import logging
 import json
@@ -13,147 +11,102 @@ from datetime import datetime
 
 from utils.logging_config import get_logger
 
-# Standard warning text for FR-007 compliance
+logger = get_logger(__name__)
+
 ASSOCIATIONAL_WARNING_TEXT = (
     "NOTE: Results are associational, not causal. "
     "Correlations observed in this analysis do not imply causation."
 )
 
-
 def get_warning_header() -> str:
-    """Return a formatted header for associational warnings."""
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return f"[FR-007 WARNING] ({timestamp}) {ASSOCIATIONAL_WARNING_TEXT}"
+    """Returns the standard warning header string."""
+    return ASSOCIATIONAL_WARNING_TEXT
 
-
-def inject_warning_into_json_output(
-    data: Dict[str, Any],
-    field_name: str = "warning",
-    overwrite: bool = False
-) -> Dict[str, Any]:
+def inject_warning_into_json_output(data: Dict[str, Any], warning_key: str = "associational_warning") -> Dict[str, Any]:
     """
-    Inject the FR-007 warning into a JSON-serializable dictionary.
+    Injects the associational warning into a JSON-compatible dictionary.
     
     Args:
-        data: The dictionary to modify.
-        field_name: Key under which to store the warning.
-        overwrite: If True, overwrite existing field; else skip if exists.
+        data: The dictionary to inject the warning into.
+        warning_key: The key name for the warning.
     
     Returns:
-        Modified dictionary.
+        The modified dictionary with the warning injected.
     """
-    logger = get_logger(__name__)
+    if not isinstance(data, dict):
+        raise TypeError("Data must be a dictionary for JSON injection.")
     
-    if field_name in data and not overwrite:
-        logger.debug(f"Warning field '{field_name}' already exists; skipping.")
-        return data
-    
-    data[field_name] = {
-        "code": "FR-007",
-        "message": ASSOCIATIONAL_WARNING_TEXT,
-        "timestamp": datetime.now().isoformat()
+    data[warning_key] = {
+        "text": ASSOCIATIONAL_WARNING_TEXT,
+        "timestamp": datetime.utcnow().isoformat(),
+        "type": "associational_framing"
     }
-    logger.debug(f"Injected FR-007 warning into '{field_name}'.")
+    logger.info(f"Injected associational warning into JSON output.")
     return data
 
-
-def inject_warning_into_yaml_output(
-    data: Dict[str, Any],
-    output_path: Path,
-    field_name: str = "warning"
-) -> None:
+def inject_warning_into_yaml_output(data: Dict[str, Any], warning_key: str = "associational_warning") -> Dict[str, Any]:
     """
-    Inject the FR-007 warning into a YAML file.
+    Injects the associational warning into a YAML-compatible dictionary.
     
     Args:
-        data: Dictionary to save with warning.
-        output_path: Path to the output YAML file.
-        field_name: Key under which to store the warning.
+        data: The dictionary to inject the warning into.
+        warning_key: The key name for the warning.
+    
+    Returns:
+        The modified dictionary with the warning injected.
     """
-    logger = get_logger(__name__)
+    if not isinstance(data, dict):
+        raise TypeError("Data must be a dictionary for YAML injection.")
     
-    inject_warning_into_json_output(data, field_name, overwrite=True)
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Saved YAML output with FR-007 warning to {output_path}")
+    data[warning_key] = {
+        "text": ASSOCIATIONAL_WARNING_TEXT,
+        "timestamp": datetime.utcnow().isoformat(),
+        "type": "associational_framing"
+    }
+    logger.info(f"Injected associational warning into YAML output.")
+    return data
 
-
-def add_warning_to_text_file(
-    text_content: str,
-    output_path: Path,
-    position: str = "top"
-) -> None:
+def add_warning_to_text_file(file_path: Path, warning_text: Optional[str] = None) -> None:
     """
-    Add the FR-007 warning to a text file.
+    Appends the associational warning to the end of a text file.
     
     Args:
-        text_content: Original text content.
-        output_path: Path to the output file.
-        position: Where to insert warning ('top' or 'bottom').
+        file_path: Path to the text file.
+        warning_text: Optional custom warning text. Defaults to standard warning.
     """
-    logger = get_logger(__name__)
+    if warning_text is None:
+        warning_text = ASSOCIATIONAL_WARNING_TEXT
     
-    warning_header = get_warning_header()
-    
-    if position == "top":
-        final_content = f"{warning_header}\n\n{text_content}"
-    else:
-        final_content = f"{text_content}\n\n{warning_header}"
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(final_content)
-    
-    logger.info(f"Saved text output with FR-007 warning to {output_path}")
-
+    try:
+        with open(file_path, 'a', encoding='utf-8') as f:
+            f.write("\n\n" + warning_text + "\n")
+        logger.info(f"Appended warning to text file: {file_path}")
+    except Exception as e:
+        logger.error(f"Failed to append warning to {file_path}: {e}")
+        raise
 
 def main():
-    """Run self-tests for FR-007 warning injection."""
-    logger = get_logger(__name__)
-    logger.info("Running FR-007 warning utility tests...")
+    """Simple test runner to verify warning injection logic."""
+    logger.info("Running FR-007 Warning Injection tests...")
     
     # Test JSON injection
-    test_data = {"metric": 0.85, "model": "XGBoost"}
-    result = inject_warning_into_json_output(test_data)
-    assert "warning" in result
-    assert result["warning"]["code"] == "FR-007"
-    logger.info("JSON injection test passed.")
+    test_data = {"model": "XGBoost", "r2": 0.85}
+    injected_json = inject_warning_into_json_output(test_data)
+    assert "associational_warning" in injected_json
+    assert injected_json["associational_warning"]["text"] == ASSOCIATIONAL_WARNING_TEXT
     
     # Test YAML injection
-    import tempfile
-    with tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as tmp:
-        tmp_path = Path(tmp.name)
+    test_yaml = {"model": "Linear", "rmse": 5.2}
+    injected_yaml = inject_warning_into_yaml_output(test_yaml)
+    assert "associational_warning" in injected_yaml
     
-    inject_warning_into_yaml_output(test_data, tmp_path)
-    assert tmp_path.exists()
-    with open(tmp_path, 'r') as f:
-        loaded = yaml.safe_load(f)
-    assert "warning" in loaded
-    logger.info("YAML injection test passed.")
-    
-    # Cleanup
-    tmp_path.unlink()
-    
-    # Test Text injection
-    with tempfile.NamedTemporaryFile(suffix='.txt', delete=False, mode='w') as tmp:
-        tmp_path = Path(tmp.name)
-        tmp.write("Sample report content.")
-    
-    add_warning_to_text_file("Sample report content.", tmp_path)
-    assert tmp_path.exists()
-    with open(tmp_path, 'r') as f:
-        content = f.read()
+    # Test text file
+    test_file = Path("data/processed/test_warning.txt")
+    test_file.parent.mkdir(parents=True, exist_ok=True)
+    test_file.write_text("Initial content")
+    add_warning_to_text_file(test_file)
+    content = test_file.read_text()
     assert ASSOCIATIONAL_WARNING_TEXT in content
-    logger.info("Text injection test passed.")
     
-    # Cleanup
-    tmp_path.unlink()
-    
-    logger.info("All FR-007 warning utility tests passed.")
-
-
-if __name__ == "__main__":
-    main()
+    logger.info("All FR-007 warning injection tests passed.")
+    return True

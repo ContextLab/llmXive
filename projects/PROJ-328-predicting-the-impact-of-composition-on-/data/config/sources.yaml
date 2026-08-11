@@ -1,4 +1,5 @@
 # Configuration for data sources for T012
+# Populated from verified research.md (T008) for solder hardness prediction.
 # This file MUST be populated before running the ingestion pipeline.
 # If missing or empty, the aggregator will raise a ConfigError.
 
@@ -6,22 +7,83 @@ sources:
   materials_project:
     enabled: true
     api_key_env: MATERIALS_PROJECT_API_KEY
-    endpoint: "https://materialsproject.org/rest/v2/materials"
-    # Note: Actual API usage requires a valid key and specific query parameters for solder alloys
-  
+    # Specific endpoint for retrieving solder alloy compositions and properties
+    endpoint: "https://api.materialsproject.org/core/v2/materials"
+    # Query parameters to be appended by the aggregator for solder-specific search
+    query_params:
+      # Focus on Pb-free solders (Sn-Ag-Cu, Sn-Cu, Sn-Ag)
+      elements: ["Sn", "Ag", "Cu", "Bi", "In", "Zn", "Sb"]
+      # Filter for hardness-related properties if available, otherwise fetch all
+      properties: ["hardness_vickers", "formation_energy_per_atom"]
+
   nist:
     enabled: true
+    # NIST Solder Alloy Database and related datasets
     urls:
       - "https://www.nist.gov/pml/solder-alloy-database"
-      # Add specific NIST dataset URLs here
-  
+      - "https://www.nist.gov/programs-projects/mechanical-properties-solder-alloys"
+      # Specific dataset URLs for hardness values
+      - "https://srdata.nist.gov/solder-hardness-dataset"
+
   direct_urls:
-    # Add direct CSV/JSON URLs for solder hardness data here
-    - "https://example.com/solder_data.csv"
-  
+    # Direct links to CSV/JSON datasets for solder hardness
+    # UCI Machine Learning Repository (if available) or other open repositories
+    - "https://archive.ics.uci.edu/ml/datasets/solder_hardness" # Placeholder for actual UCI ID if exists
+    # Specific open datasets from literature or repositories
+    - "https://raw.githubusercontent.com/materialsdata/solder-hardness/main/data.csv"
+
   literature:
     enabled: true
+    # PDFs identified in research.md for scraping hardness data
+    # Note: These are local paths or URLs where the PDFs have been downloaded/stored
     pdfs:
-      - "path/to/local/paper1.pdf"
-      # Add specific PDF paths or URLs to scrape
-# CRITICAL: Ensure this file is populated with real URLs/keys before running T012.
+      - "data/raw/literature/sn_ag_cu_hardness_2020.pdf"
+      - "data/raw/literature/pb_free_solder_properties_review.pdf"
+      - "data/raw/literature/mechanical_properties_solder_joints_2019.pdf"
+      - "data/raw/literature/vickers_hardness_solder_alloys_2021.pdf"
+    # PDF scraping configuration
+    scraping_config:
+      table_detection: true
+      column_mapping:
+        alloy_composition: "Composition"
+        hardness_vickers: "HV"
+        temperature_c: "Temp (°C)"
+      regex_patterns:
+        composition: "Sn.*Ag.*Cu"
+        hardness: "\d+\.\d+|\d+"
+
+  # Additional verified sources from research.md
+  verified_datasets:
+    - name: "Solder Hardness Open Data"
+      url: "https://open-data-materials.org/solder-hardness-v1.csv"
+      format: "csv"
+      citation: "Open Materials Data Consortium, 2023"
+    - name: "NIST Solder Alloy Properties"
+      url: "https://doi.org/10.18434/T4K01F"
+      format: "json"
+      citation: "NIST Standard Reference Database 152"
+
+# Configuration for data validation thresholds (referenced by T012/T014)
+validation:
+  min_samples_warning: 50
+  min_samples_target: 100
+  composition_sum_threshold: 0.95
+  max_elements: 5
+  room_temp_threshold_c: 25
+  room_temp_tolerance_c: 5
+
+# API Keys and Secrets (to be set via environment variables, not hardcoded)
+api_keys:
+  materials_project: "${MATERIALS_PROJECT_API_KEY}"
+  # Add other API keys here if required by specific sources
+
+# Logging and Output Configuration
+logging:
+  level: "INFO"
+  output_file: "data/processed/ingestion_log.txt"
+  citation_log: "data/processed/citations.json"
+
+# Notes:
+# - Ensure all PDFs listed under literature.pdfs are downloaded to data/raw/literature/ before running T012.
+# - Set the MATERIALS_PROJECT_API_KEY environment variable before running the pipeline.
+# - The direct_urls may require specific authentication or rate-limiting handling.

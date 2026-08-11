@@ -1,74 +1,73 @@
 import os
 import sys
+import logging
 from pathlib import Path
+from utils.logging_config import get_logger
 
-def main():
+def setup_directories(project_root: Path) -> None:
     """
-    Create the project directory structure for PROJ-328.
-    Ensures all required folders exist relative to the project root.
+    Creates the required directory structure for the PROJ-328 project.
+    This function ensures all necessary folders exist before any data processing
+    or model training begins.
     """
-    # Determine project root based on where this script is located
-    # Assuming this script is at: code/setup_project_structure.py
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-
-    # Define the project-specific root directory name
-    project_name = "PROJ-328-predicting-the-impact-of-composition-on-"
-    project_specific_root = project_root / project_name
-
-    # Define required directories
-    required_dirs = [
-        "data",
+    logger = get_logger(__name__)
+    
+    # Define the specific directories required by T001
+    # Note: The task specifies `projects/PROJ-328-predicting-the-impact-of-composition-on-/` as the root context,
+    # but the execution environment is `code/`. We create the structure relative to the project root.
+    # The task lists: `data/raw`, `data/processed`, `data/outputs`, `code/`, `code/ingestion`, 
+    # `code/features`, `code/models`, `code/evaluation`, `code/visualization`, `tests/`, `models/`.
+    
+    directories = [
         "data/raw",
         "data/processed",
         "data/outputs",
-        "data/config",
-        "data/checksums",
-        "code",
+        "code/ingestion",
+        "code/features",
+        "code/models",
+        "code/evaluation",
+        "code/visualization",
         "tests",
-        "models",
-        "docs",
-        "specs",
+        "models"
     ]
+    
+    created_count = 0
+    skipped_count = 0
 
-    print(f"Ensuring project structure at: {project_specific_root}")
-
-    for dir_name in required_dirs:
-        dir_path = project_specific_root / dir_name
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"  [OK] Created/Verified: {dir_path}")
-        except OSError as e:
-            print(f"  [ERROR] Failed to create {dir_path}: {e}")
-            sys.exit(1)
-
-    # Create placeholder __init__.py files to make them packages where appropriate
-    # We treat 'code' and 'tests' as Python packages
-    init_files = [
-        project_specific_root / "code" / "__init__.py",
-        project_specific_root / "tests" / "__init__.py",
-        project_specific_root / "models" / "__init__.py",
-    ]
-
-    for init_file in init_files:
-        if not init_file.exists():
-            init_file.touch()
-            print(f"  [OK] Created placeholder: {init_file}")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_count += 1
         else:
-            print(f"  [SKIP] Exists: {init_file}")
+            logger.debug(f"Directory already exists: {full_path}")
+            skipped_count += 1
 
-    # Create a .gitkeep in data directories to ensure they are tracked by git
-    # even if empty
-    data_subdirs = ["raw", "processed", "outputs", "config", "checksums"]
-    for subdir in data_subdirs:
-        keep_file = project_specific_root / "data" / subdir / ".gitkeep"
-        if not keep_file.exists():
-            keep_file.touch()
-            print(f"  [OK] Created .gitkeep: {keep_file}")
+    logger.info(f"Directory setup complete. Created: {created_count}, Skipped: {skipped_count}")
 
-    print("\nProject structure setup complete.")
-    return 0
+def main():
+    """
+    Entry point for the project structure setup script.
+    """
+    # Determine project root (assuming script is run from the root or 'code' directory)
+    # We look for the root by checking if 'data' and 'code' exist relative to the script location
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent if (script_dir / "data").exists() else script_dir
+
+    # If we are in 'code/', project_root is the parent. If we are at root, it's here.
+    # The task implies we are setting up the structure from the project root.
+    
+    logger = get_logger(__name__)
+    logger.info(f"Starting project structure setup from: {project_root}")
+    
+    try:
+        setup_directories(project_root)
+        logger.info("Project structure setup completed successfully.")
+        return 0
+    except Exception as e:
+        logger.error(f"Failed to setup project structure: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

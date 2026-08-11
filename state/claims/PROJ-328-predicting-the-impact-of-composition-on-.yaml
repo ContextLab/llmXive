@@ -1,0 +1,84 @@
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/docs/research.md
+  attempts: 1
+  canonical: UCI Machine Learning Repository published by Dua and Graff in 2019
+  claim_id: c_c439b1a1
+  context: UCI Machine Learning Repository - Solder Datasets section describing the
+    source of solder defects datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dua, D. and Graff, C. (2019). UCI Machine Learning Repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:07:23Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/docs/research.md
+  attempts: 1
+  canonical: Materials Project described in APL Materials volume 1 issue 1 by Jain
+    et al in 2013
+  claim_id: c_dd002451
+  context: Materials Project section describing computed properties of inorganic materials.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Jain, A. et al. (2013). Commentary: The Materials Project: A materials
+    genome approach to accelerating materials innovation. APL Materials, 1(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:10:08Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/docs/research.md
+  attempts: 1
+  canonical: Vickers Hardness of Lead-Free Solder Alloys published in Journal of Electronic
+    Materials volume 34 issue 5 pages 615-622 in 2005
+  claim_id: c_39dc47a1
+  context: Literature Sources section listing the paper on Vickers Hardness of Lead-Free
+    Solder Alloys.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Journal of Electronic Materials volume 34 issue 5 pages 615-622 in 2005
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Vickers_Hardness_of_Lead-Free_Solder_Alloys_published_in_Jou
+    source_value: https://en.wikipedia.org/wiki/Vickers_Hardness_of_Lead-Free_Solder_Alloys_published_in_Jou
+    subject: Vickers Hardness of Lead-Free Solder Alloys
+  kind: relational
+  raw_text: Zeng, K., & Stierman, R. (2005). Vickers Hardness of Lead-Free Solder
+    Alloys. Journal of Electronic Materials, 34(5), 615-622.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:12:54Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/docs/research.md
+  attempts: 1
+  canonical: 'Lead-free solders in microelectronics published in Materials Science
+    and Engineering: R: Reports volume 27 issues 5-6 pages 95-141 in 2000'
+  claim_id: c_141b4422
+  context: Literature Sources section listing the paper on Composition-Hardness Relationships
+    in Sn-Ag-Cu Solder Systems.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: 'Materials Science and Engineering: R: Reports volume 27 issues 5-6 pages
+      95-141 in 2000'
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Lead-free_solders_in_microelectronics_published_in_Materials
+    source_value: https://en.wikipedia.org/wiki/Lead-free_solders_in_microelectronics_published_in_Materials
+    subject: Lead-free solders in microelectronics
+  kind: relational
+  raw_text: 'Abtew, M., & Selvaduray, G. (2000). Lead-free solders in microelectronics.
+    Materials Science and Engineering: R: Reports, 27(5-6), 95-141.'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T09:14:52Z'

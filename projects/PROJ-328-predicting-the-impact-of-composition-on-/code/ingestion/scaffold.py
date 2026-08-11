@@ -1,80 +1,70 @@
+"""
+Scaffold module for setting up ingestion directory structure.
+
+This task (T005) creates the foundational folder structure and placeholder files
+for the ingestion pipeline: __init__.py, aggregator.py, cleaner.py, validator.py.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
-from seed import init_reproducibility
-from ingestion.aggregator import LiteratureAggregator, main as run_aggregator
 
-def setup_directories(root: Path) -> None:
+from seed import init_reproducibility
+from utils.logging_config import get_logger
+from config import get_data_raw_dir, get_data_processed_dir
+
+def setup_directories():
     """
-    Create the directory structure required for the ingestion pipeline.
+    Create the required directory structure for the ingestion pipeline.
     
-    This scaffolds the `code/ingestion/` sub-structure and ensures
-    data directories exist for raw, processed, and log outputs.
-    
-    Args:
-        root: The project root path (e.g., projects/PROJ-328-...)
+    Creates:
+    - code/ingestion/ (already exists as this file is in it)
+    - data/raw/
+    - data/processed/
+    - data/processed/validation_logs/
+    - data/checksums/
     """
-    dirs_to_create = [
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "data" / "processed" / "validation_logs",
-        root / "data" / "config",
-        root / "data" / "checksums",
-        root / "code" / "ingestion",
-        root / "models",
+    logger = get_logger(__name__)
+    init_reproducibility(42)
+    
+    # Project root directories
+    project_root = Path(__file__).parent.parent.parent
+    data_dir = project_root / "data"
+    
+    # Create directories
+    directories = [
+        data_dir / "raw",
+        data_dir / "processed",
+        data_dir / "processed" / "validation_logs",
+        data_dir / "checksums",
+        data_dir / "config",
+        data_dir / "outputs",
+        project_root / "models"
     ]
     
-    logger = logging.getLogger(__name__)
-    logger.info(f"Setting up directories in {root}")
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {directory}")
     
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {dir_path}")
-        
-    # Ensure __init__.py exists for ingestion package if not present
-    init_file = root / "code" / "ingestion" / "__init__.py"
-    if not init_file.exists():
-        init_file.touch()
-        logger.info(f"Created package init file: {init_file}")
+    # Initialize checksums file if not exists
+    checksums_file = data_dir / "checksums" / "checksums.txt"
+    if not checksums_file.exists():
+        checksums_file.touch()
+        logger.info(f"Created checksums file: {checksums_file}")
+    
+    # Create empty ingestion log
+    ingestion_log = data_dir / "processed" / "ingestion_log.txt"
+    if not ingestion_log.exists():
+        ingestion_log.touch()
+        logger.info(f"Created ingestion log: {ingestion_log}")
+    
+    logger.info("Scaffolding complete. Directory structure ready.")
+    return True
 
 def main():
-    """
-    Entry point for T005: Ingestion Scaffolding.
-    
-    1. Initializes reproducibility seeds.
-    2. Sets up required directory structure.
-    3. Instantiates the LiteratureAggregator (scaffold check).
-    """
-    # Initialize seeds
-    init_reproducibility()
-    
-    # Determine project root relative to this file
-    # Assuming code/ is in the project root or parent
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-    
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting Ingestion Scaffolding for project: {project_root}")
-    
-    # Setup directories
-    setup_directories(project_root)
-    
-    # Verify LiteratureAggregator scaffold is importable and instantiable
-    try:
-        aggregator = LiteratureAggregator(config_path=project_root / "data" / "config" / "sources.yaml")
-        logger.info("LiteratureAggregator scaffold instantiated successfully.")
-    except Exception as e:
-        # Expected if sources.yaml is missing (T009 handles config, T012 handles missing config error)
-        # We just need to ensure the class structure exists and imports work.
-        logger.warning(f"LiteratureAggregator instantiation failed (expected if config missing): {e}")
-    
-    logger.info("Ingestion scaffolding complete.")
+    """Main entry point for scaffold setup."""
+    logging.basicConfig(level=logging.INFO)
+    setup_directories()
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
     main()

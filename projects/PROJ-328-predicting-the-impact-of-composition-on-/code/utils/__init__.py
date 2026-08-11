@@ -1,23 +1,21 @@
 """
-Utility module for the Solder Hardness Prediction Pipeline.
-
-Provides error handling, logging configuration, and common helpers.
+Utilities package for the Solder Hardness Prediction Pipeline.
 """
 from utils.error_handlers import (
     SolderPipelineError,
+    ConfigurationError,
     DataValidationError,
     IngestionError,
-    ModelTrainingError,
-    ConfigurationError
+    ModelTrainingError
 )
-from utils.logging_config import setup_logging, get_logger
+from utils.reference_validator import ConstitutionError, validate_research_md
 
 __all__ = [
-    "SolderPipelineError",
-    "DataValidationError",
-    "IngestionError",
-    "ModelTrainingError",
-    "ConfigurationError",
-    "setup_logging",
-    "get_logger"
+    'SolderPipelineError',
+    'ConfigurationError',
+    'DataValidationError',
+    'IngestionError',
+    'ModelTrainingError',
+    'ConstitutionError',
+    'validate_research_md'
 ]

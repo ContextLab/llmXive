@@ -1,1 +1,3 @@
-# Root package for the codebase
+"""
+Root package for the code modules.
+"""

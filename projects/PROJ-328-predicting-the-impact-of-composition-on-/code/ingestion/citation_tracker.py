@@ -1,7 +1,3 @@
-"""
-Citation tracking module for the ingestion pipeline.
-Provides functionality to register, track, and save data source citations.
-"""
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -9,199 +5,185 @@ from datetime import datetime
 import json
 import csv
 
-from config import get_data_processed_dir
-from utils.logging_config import get_logger
-
-CITATION_LOG_FILE = "data/processed/citations.json"
-CITATION_CSV_FILE = "data/processed/citations.csv"
-
-
 class CitationTracker:
     """
-    Tracks and manages data source citations for the ingestion pipeline.
+    Tracks data source citations and fetch status for reproducibility and 
+    audit purposes. This is a lightweight version that can be used independently
+    of the full IngestionLogger.
     """
-    
-    def __init__(self):
-        self.citations: dict = {}
-        self.processed_dir = get_data_processed_dir()
-        self.citation_file = self.processed_dir / CITATION_LOG_FILE
-        self.citation_csv_file = self.processed_dir / CITATION_CSV_FILE
-        self.logger = get_logger("ingestion")
-    
-    def add_citation(self, source_name: str, citation_info: dict):
+
+    def __init__(self, log_file: Path):
+        self.log_file = log_file
+        self._ensure_log_file()
+
+    def _ensure_log_file(self):
+        """Ensure the citation log file exists and is initialized."""
+        if not self.log_file.exists():
+            self.log_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.log_file, 'w') as f:
+                json.dump({"sources": [], "timestamp": datetime.now().isoformat()}, f, indent=2)
+
+    def add_citation(self, source_name: str, url: str, status: str,
+                   records_fetched: int = 0, error: Optional[str] = None,
+                   timestamp: Optional[str] = None):
         """
-        Add a citation for a data source.
-        
+        Add a citation entry to the log.
+
         Args:
-            source_name: Unique identifier for the source
-            citation_info: Dictionary with citation metadata (authors, year, title, url, etc.)
+            source_name: Name of the data source (e.g., 'NIST', 'Materials Project')
+            url: URL or identifier for the source
+            status: 'SUCCESS', 'FAILED', or 'PARTIAL'
+            records_fetched: Number of records successfully retrieved
+            error: Error message if status is FAILED or PARTIAL
+            timestamp: ISO format timestamp (defaults to now)
         """
-        citation_info['_added_at'] = datetime.now().isoformat()
-        citation_info['_source_name'] = source_name
-        self.citations[source_name] = citation_info
-        self.logger.debug(f"Citation added for source: {source_name}")
-    
-    def save_to_file(self):
-        """Save all citations to both JSON and CSV files."""
-        if not self.processed_dir.exists():
-            self.processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save as JSON
-        with open(self.citation_file, 'w', encoding='utf-8') as f:
-            json.dump(self.citations, f, indent=2, default=str)
-        
-        # Save as CSV for easier inspection
-        self._save_to_csv()
-        
-        self.logger.info(f"CITATIONS_SAVED | Total citations: {len(self.citations)} | File: {self.citation_file}")
-    
-    def _save_to_csv(self):
-        """Save citations to a CSV file."""
-        if not self.citations:
-            return
-        
-        fieldnames = ['source_name', 'authors', 'year', 'title', 'url', 'type', '_added_at']
-        
-        with open(self.citation_csv_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
+        try:
+            with open(self.log_file, 'r') as f:
+                data = json.load(f)
             
-            for source_name, info in self.citations.items():
-                row = {'source_name': source_name}
-                row.update(info)
-                writer.writerow(row)
-        
-        self.logger.debug(f"Citations saved to CSV: {self.citation_csv_file}")
-    
-    def get_summary(self) -> dict:
-        """
-        Get a summary of all citations (excluding internal fields).
-        
-        Returns:
-            Dictionary with source names and their public citation metadata
-        """
-        return {
-            source: {
-                k: v for k, v in info.items() 
-                if not k.startswith('_')
+            entry = {
+                "source_name": source_name,
+                "url": url,
+                "status": status,
+                "records_fetched": records_fetched,
+                "error": error,
+                "timestamp": timestamp or datetime.now().isoformat()
             }
-            for source, info in self.citations.items()
-        }
-    
-    def load_from_file(self) -> bool:
+            
+            data["sources"].append(entry)
+            data["timestamp"] = datetime.now().isoformat()
+            
+            with open(self.log_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logging.error(f"Failed to add citation: {e}")
+
+    def get_summary(self) -> Dict[str, Any]:
         """
-        Load citations from the JSON file if it exists.
-        
+        Get a summary of all citations.
+
         Returns:
-            True if loaded successfully, False otherwise
+            Dictionary with summary statistics and list of all sources
         """
-        if not self.citation_file.exists():
-            self.logger.debug("No existing citation file found")
-            return False
+        try:
+            with open(self.log_file, 'r') as f:
+                data = json.load(f)
+            
+            summary = {
+                "total_sources": len(data["sources"]),
+                "successful": sum(1 for s in data["sources"] if s["status"] == "SUCCESS"),
+                "failed": sum(1 for s in data["sources"] if s["status"] == "FAILED"),
+                "partial": sum(1 for s in data["sources"] if s["status"] == "PARTIAL"),
+                "total_records": sum(s.get("records_fetched", 0) for s in data["sources"]),
+                "sources": data["sources"]
+            }
+            return summary
+        except Exception as e:
+            return {"error": str(e)}
+
+    def export_to_csv(self, output_path: Optional[Path] = None) -> Path:
+        """
+        Export citation log to CSV format.
+
+        Args:
+            output_path: Path for the CSV file (defaults to log_file with .csv extension)
+
+        Returns:
+            Path to the exported CSV file
+        """
+        if output_path is None:
+            output_path = self.log_file.with_suffix('.csv')
         
         try:
-            with open(self.citation_file, 'r', encoding='utf-8') as f:
-                self.citations = json.load(f)
-            self.logger.info(f"Citations loaded from file: {len(self.citations)} sources")
-            return True
+            with open(self.log_file, 'r') as f:
+                data = json.load(f)
+            
+            with open(output_path, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=[
+                    "source_name", "url", "status", "records_fetched", "error", "timestamp"
+                ])
+                writer.writeheader()
+                writer.writerows(data["sources"])
+            
+            return output_path
         except Exception as e:
-            self.logger.error(f"Failed to load citations: {e}")
-            return False
-    
-    def get_citation_string(self, source_name: str) -> Optional[str]:
-        """
-        Get a formatted citation string for a specific source.
-        
-        Args:
-            source_name: The source identifier
-        
-        Returns:
-            Formatted citation string or None if not found
-        """
-        if source_name not in self.citations:
-            return None
-        
-        info = self.citations[source_name]
-        authors = info.get('authors', ['Unknown'])
-        year = info.get('year', 'n.d.')
-        title = info.get('title', 'Untitled')
-        
-        return f"{', '.join(authors)} ({year}). {title}."
-    
-    def get_all_citation_strings(self) -> List[str]:
-        """
-        Get formatted citation strings for all sources.
-        
-        Returns:
-            List of formatted citation strings
-        """
-        return [
-            self.get_citation_string(name) 
-            for name in self.citations.keys()
-            if self.get_citation_string(name)
-        ]
+            logging.error(f"Failed to export citations to CSV: {e}")
+            raise
 
 
-# Global tracker instance
-_tracker_instance: Optional[CitationTracker] = None
+# Global tracker instance (singleton pattern)
+_global_tracker: Optional[CitationTracker] = None
 
 
-def get_tracker() -> CitationTracker:
-    """Get the global citation tracker instance."""
-    global _tracker_instance
-    if _tracker_instance is None:
-        _tracker_instance = CitationTracker()
-    return _tracker_instance
+def get_tracker(log_file: Optional[Path] = None) -> CitationTracker:
+    """
+    Get or create the global citation tracker instance.
+
+    Args:
+        log_file: Path to the citation log file
+
+    Returns:
+        CitationTracker instance
+    """
+    global _global_tracker
+    if _global_tracker is None:
+        if log_file is None:
+            from pathlib import Path
+            log_file = Path("data/processed/source_citations.json")
+        _global_tracker = CitationTracker(log_file)
+    return _global_tracker
 
 
 def reset_tracker():
-    """Reset the global citation tracker instance."""
-    global _tracker_instance
-    _tracker_instance = CitationTracker()
+    """Reset the global tracker (useful for testing)."""
+    global _global_tracker
+    _global_tracker = None
 
 
 def main():
-    """
-    Main entry point for testing the citation tracker.
-    """
-    tracker = get_tracker()
+    """Test the citation tracker."""
+    from pathlib import Path
+    
+    # Use a test file
+    test_file = Path("data/processed/test_citations.json")
+    tracker = CitationTracker(test_file)
     
     # Add test citations
     tracker.add_citation(
-        "Materials Project",
-        {
-            "authors": ["Jain, A.", "Ong, S.P.", "Hautier, G.", "Chen, W.", "Richie, V.D."],
-            "year": 2013,
-            "title": "Commentary: The Materials Project: A materials genome approach to accelerating materials innovation",
-            "url": "https://doi.org/10.1063/1.4812323",
-            "type": "journal"
-        }
+        source_name="Test Source 1",
+        url="https://example.com/data1",
+        status="SUCCESS",
+        records_fetched=100
     )
     
     tracker.add_citation(
-        "NIST",
-        {
-            "authors": ["National Institute of Standards and Technology"],
-            "year": 2023,
-            "title": "NIST Solder Alloy Database",
-            "url": "https://www.nist.gov/",
-            "type": "database"
-        }
+        source_name="Test Source 2",
+        url="https://example.com/data2",
+        status="FAILED",
+        error="Connection timeout",
+        records_fetched=0
     )
     
-    tracker.save_to_file()
+    tracker.add_citation(
+        source_name="Test Source 3",
+        url="https://example.com/data3",
+        status="PARTIAL",
+        error="Some records missing",
+        records_fetched=50
+    )
     
-    print("Citation Tracker Test")
-    print("=" * 50)
-    print("Summary:")
-    for source, info in tracker.get_summary().items():
-        print(f"  {source}: {info.get('title', 'N/A')}")
+    # Get summary
+    summary = tracker.get_summary()
+    print("Citation Summary:")
+    print(json.dumps(summary, indent=2))
     
-    print("\nFormatted Citations:")
-    for citation in tracker.get_all_citation_strings():
-        print(f"  {citation}")
+    # Export to CSV
+    csv_path = tracker.export_to_csv()
+    print(f"\nCitations exported to: {csv_path}")
     
-    print("\nTest completed successfully.")
+    # Cleanup
+    test_file.unlink(missing_ok=True)
+    csv_path.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

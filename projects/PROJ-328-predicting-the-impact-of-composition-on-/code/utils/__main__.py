@@ -1,5 +1,6 @@
 """
-CLI entry point for utility module testing and configuration.
+Entry point for testing the Utils module.
+Runs self-tests for error handling and warning injection.
 """
 import sys
 import logging
@@ -8,65 +9,75 @@ from pathlib import Path
 from utils.logging_config import setup_logging, get_logger
 from utils.error_handlers import (
     SolderPipelineError,
+    ConfigurationError,
     DataValidationError,
     IngestionError,
-    ModelTrainingError,
-    ConfigurationError
+    ModelTrainingError
 )
 from utils.fr007_warnings import main as run_warning_tests
 
-
 def test_error_handling():
-    """Test that custom exceptions work as expected."""
-    logger = get_logger("utils_test")
-    
-    logger.info("Testing custom exception hierarchy...")
+    """Tests the custom exception hierarchy."""
+    logger = get_logger(__name__)
+    logger.info("Testing custom error handlers...")
     
     try:
-        try:
-            raise ConfigurationError("Missing config key", {"key": "API_KEY"})
-        except ConfigurationError as e:
-            logger.warning(f"Caught ConfigurationError: {e}")
-        
-        try:
-            raise DataValidationError("Invalid composition sum", {"sum": 0.9, "expected": 1.0})
-        except DataValidationError as e:
-            logger.warning(f"Caught DataValidationError: {e}")
-        
-        try:
-            raise IngestionError("Failed to fetch from NIST", {"source": "NIST", "status": 404})
-        except IngestionError as e:
-            logger.warning(f"Caught IngestionError: {e}")
-        
-        try:
-            raise ModelTrainingError("XGBoost failed to converge", {"iterations": 1000})
-        except ModelTrainingError as e:
-            logger.warning(f"Caught ModelTrainingError: {e}")
-        
-        logger.info("All exception tests passed.")
+        raise ConfigurationError("Test config error", {"key": "value"})
+    except SolderPipelineError as e:
+        assert e.message == "Configuration Error: Test config error"
+        assert e.details == {"key": "value"}
+        logger.info("ConfigurationError hierarchy test passed.")
     
-    except Exception as e:
-        logger.error(f"Unexpected error during test: {e}")
-        raise
-
+    try:
+        raise DataValidationError("Test data error")
+    except SolderPipelineError as e:
+        assert "Data Validation Error" in str(e)
+        logger.info("DataValidationError hierarchy test passed.")
+    
+    try:
+        raise IngestionError("Test ingestion error")
+    except SolderPipelineError as e:
+        assert "Ingestion Error" in str(e)
+        logger.info("IngestionError hierarchy test passed.")
+    
+    try:
+        raise ModelTrainingError("Test training error")
+    except SolderPipelineError as e:
+        assert "Model Training Error" in str(e)
+        logger.info("ModelTrainingError hierarchy test passed.")
+    
+    logger.info("All error handler tests passed.")
+    return True
 
 def main():
-    """Main entry point for utility module."""
-    # Initialize logging
-    project_root = Path(__file__).resolve().parent.parent.parent
-    setup_logging(project_root=project_root)
-    logger = get_logger("utils_main")
+    """Main entry point for utils testing."""
+    # Ensure logging is set up
+    setup_logging()
+    logger = get_logger(__name__)
     
-    logger.info("Starting utility module CLI...")
+    logger.info("Starting Utils Module Self-Tests...")
     
-    # Run tests
-    test_error_handling()
+    success = True
+    try:
+        if not test_error_handling():
+            success = False
+    except Exception as e:
+        logger.error(f"Error handler test failed: {e}", exc_info=True)
+        success = False
     
-    # Run FR007 warning tests
-    run_warning_tests()
+    try:
+        if not run_warning_tests():
+            success = False
+    except Exception as e:
+        logger.error(f"Warning injection test failed: {e}", exc_info=True)
+        success = False
     
-    logger.info("Utility module CLI completed successfully.")
-
+    if success:
+        logger.info("Utils Module Self-Tests: PASSED")
+        return 0
+    else:
+        logger.error("Utils Module Self-Tests: FAILED")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

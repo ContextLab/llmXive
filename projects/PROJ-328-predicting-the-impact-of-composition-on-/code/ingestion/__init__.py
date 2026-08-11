@@ -1,26 +1,47 @@
 """
-Ingestion module for solder hardness data pipeline.
+Ingestion module for solder hardness data aggregation and validation.
 
-This package handles:
-- Data aggregation from multiple sources (T012)
-- Data cleaning and standardization (T013)
-- Validation logic (T014)
-- Scaffolding and directory setup (T005)
+This module provides the core infrastructure for fetching, cleaning,
+and validating solder alloy composition and hardness data from various sources.
 """
-from .aggregator import LiteratureAggregator
-from .cleaner import DataCleaner
-from .validator import DataValidator, DataInsufficientError
-from .saver import save_raw_data_with_checksums, save_validated_data
-from .scaffold import setup_directories
+
+from .aggregator import LiteratureAggregator, main as aggregator_main
+from .cleaner import DataCleaner, main as cleaner_main
+from .validator import DataValidator, DataInsufficientError, main as validator_main
+from .citation_tracker import CitationTracker, get_tracker, reset_tracker
+from .logger_setup import IngestionLogger, setup_ingestion_logging
+from .saver import calculate_md5, save_raw_data_with_checksums, save_validated_data
 from .pipeline_runner import run_pipeline
+from .generate_validation_report import generate_validation_report, save_report
 
 __all__ = [
-    "LiteratureAggregator",
-    "DataCleaner",
-    "DataValidator",
-    "DataInsufficientError",
-    "save_raw_data_with_checksums",
-    "save_validated_data",
-    "setup_directories",
-    "run_pipeline",
+    'LiteratureAggregator',
+    'DataCleaner', 
+    'DataValidator',
+    'DataInsufficientError',
+    'CitationTracker',
+    'get_tracker',
+    'reset_tracker',
+    'IngestionLogger',
+    'setup_ingestion_logging',
+    'calculate_md5',
+    'save_raw_data_with_checksums',
+    'save_validated_data',
+    'run_pipeline',
+    'generate_validation_report',
+    'save_report',
+    'aggregator_main',
+    'cleaner_main',
+    'validator_main'
 ]
+
+# Initialize logger when module is imported
+def _setup_module_logging():
+    """Set up logging for the ingestion module."""
+    try:
+        setup_ingestion_logging()
+    except Exception:
+        # Logger might already be configured
+        pass
+
+_setup_module_logging()
