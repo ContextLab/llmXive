@@ -1,3 +1,28 @@
+T014:
+  c: false
+  h: 8832814dea3540bdabd058134e1fe6a04066a9aabd331c1f030e79ee6a18557b
+  r: "The current `clean.py` does not contain any logic to detect a missing `measurement_method`,\
+    \ attempt inference using source metadata, validate it against `VALID_MEASUREMENT_METHODS`,\
+    \ or exclude the record with a logged reason. The `exclusion_log.txt` file is\
+    \ also absent, indicating the exclusion\u2011logging step is never exercised.\
+    \ Implement the inference/exclusion flow and ensure the log file is written as\
+    \ specified."
+T015:
+  c: false
+  h: 055e8d12011815896bc45e3fef82accbd7e5c1680e2c2b8ea3ab83cad6a1efca
+  r: "The repository lacks the required output files (`data/logs/exclusion_log.txt`\
+    \ and `data/processed/alloys_clean.parquet`). Moreover, the provided `code/data/clean.py`\
+    \ excerpt shows only helper functions and does not contain the orchestration steps\
+    \ (running T010\u2011T014, invoking T016, reading the exclusion log, counting\
+    \ rows, halting on <50, or saving the parquet file). These essential pieces are\
+    \ missing, so the task is not genuinely completed."
+T016:
+  c: true
+  h: eaafccad8ad32f1cc7b1cefe53c0b134cca9c771fc3100e4e980f7bc34c696ef
+  r: "The `code/data/clean.py` file defines a fully\u2011implemented `log_exclusion`\
+    \ function that writes (or creates) `exclusion_log.txt` in the logs directory,\
+    \ adding a CSV header if needed and appending rows in the required `step,count,reason`\
+    \ format. No placeholder or stub code is present, satisfying the task\u2019s specification."
 T018:
   c: false
   h: 0898ad9ccc6832c86260b967c3d3bab79758aa2e66cc436f6e2457577f45568e
@@ -5,14 +30,28 @@ T018:
     \ log or `max_depth=5` adjustment) and the expected output file `data/processed/alloys_clean.parquet`\
     \ is missing, indicating the pipeline did not produce the required artifact. Additionally,\
     \ the final generic exception block is incomplete."
+T023c:
+  c: false
+  h: d6577bdb14cfef5ad26061412536d484212685ab047e94c30a07dac9ca1af1b2
+  r: The provided `code/modeling.py` snippet computes `cv_mae` but does not contain
+    any conditional check, warning log, or code to write a flag to `data/processed/model_metrics.json`.
+    Moreover, the required `data/processed/model_metrics.json` file is absent. Both
+    the flagging behavior and the output artifact are missing.
 T024:
   c: false
-  h: 8b62d11a6bdcb8beb3fde4462cbd7bd5415ac2cbce1f633083f1b944e38c8c30
-  r: The `code/modeling.py` file ends abruptly at the start of a `save_model` function
-    and does not contain a complete implementation that writes the trained model to
-    `models/rf_model.pkl`. Additionally, the expected serialized model file `models/rf_model.pkl`
-    is missing from the repository. Both the required code and the resulting artifact
-    are absent.
+  h: 4b40af452d619f87692da7b01ab4393b0e920c0eccd1eef7349b61f758041f4e
+  r: "The provided `code/modeling.py` does not contain any logic that creates the\
+    \ `models/` directory or calls `joblib.dump` to save a trained model, and the\
+    \ expected output file `models/rf_model.pkl` is absent from the repository. Consequently,\
+    \ the task\u2019s serialization requirement is not satisfied."
+T032:
+  c: false
+  h: 858ecbcfceb690a236e315e7b54134448f77c7a95ec387e7241d1497884e96e3
+  r: The quickstart guide does not list the exact command `python code/cli/model_cli.py`
+    (it lists other scripts instead) and the required `code/cli/model_cli.py` file
+    is missing entirely. Additionally, the extraction step includes an extra `--extract`
+    flag, deviating from the exact command line the task specifies. These gaps mean
+    the documentation and CLI interface are not fully updated as required.
 T045:
   c: false
   h: 9b9c10eb13ffb7e1186f3096f707548fe8dad1e6ac543bac1c49c2115dfea379
@@ -22,3 +61,10 @@ T045:
     Additionally, `docs/quickstart.md` does not reference this CLI entry point, contradicting
     the requirement that it be callable as documented. The missing `_download_logic.py`
     file and incorrect import prevent the task from being genuinely completed.
+T046:
+  c: false
+  h: 3026bde80b9206a3857b0529e772c7690e353cc9b4adea009a58e0e3cbcd683c
+  r: The `code/cli/clean_cli.py` script is present and correctly defines the required
+    argparse flags, but the expected output artifact `data/processed/alloys_clean.parquet`
+    does not exist, so the CLI does not produce the required Parquet file. The missing
+    output file must be generated for the task to be considered complete.

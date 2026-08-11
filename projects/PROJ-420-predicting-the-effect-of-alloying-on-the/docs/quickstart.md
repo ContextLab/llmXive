@@ -1,45 +1,64 @@
-# Quickstart Guide: Predicting Poisson's Ratio of Aluminum Alloys
+# Quickstart Guide: Predicting the Effect of Alloying on Poisson's Ratio
 
-## Prerequisites
+This guide provides the steps to install dependencies, configure the environment, and run the full research pipeline for predicting the Poisson's ratio of aluminum alloys.
 
-- Python 3.11+
-- pip
+## 1. Install Requirements
 
-## Installation
-
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-## Execution
-
-Run the full pipeline to extract data, clean it, train the model, and generate the report:
+Ensure you are in the project root directory. Create a virtual environment and install the required dependencies:
 
 ```bash
-python code/main.py
+python -m venv.venv
+source.venv/bin/activate # On Windows:.venv\Scripts\activate
+pip install -r code/requirements.txt
 ```
 
-### Individual Steps
+## 2. Set MP_API_KEY
 
-- **Data Extraction**:
- ```bash
- python code/data/download.py
- ```
- *Produces*: `data/raw/openml_aluminum.json`
+The data extraction step requires an API key for the Materials Project. Set this environment variable before running the extraction script:
 
-- **Data Cleaning**:
- ```bash
- python code/data/clean.py
- ```
- *Produces*: `data/processed/filtered_alloys.csv`
+```bash
+export MP_API_KEY="your_materials_project_api_key_here"
+```
 
-- **Modeling & Analysis**:
- (Included in `main.py`)
+## 3. Run Data Extraction
 
-## Output Artifacts
+Extract raw alloy data from the configured sources (Materials Project and NIST):
 
-- `data/processed/filtered_alloys.csv`: Cleaned dataset.
-- `results/final_report.md`: Final analysis report.
-- `results/metrics.json`: Model performance metrics.
+```bash
+python code/cli/download_cli.py
+```
+
+*Output*: `data/raw/alloys_raw.parquet`
+
+## 4. Run Data Cleaning
+
+Clean, filter, and transform the raw data into a processed dataset:
+
+```bash
+python code/cli/clean_cli.py
+```
+
+*Output*: `data/processed/alloys_clean.parquet`
+
+## 5. Run Modeling Pipeline
+
+Train the Random Forest model, evaluate performance, and save results:
+
+```bash
+python code/cli/model_cli.py
+```
+
+*Outputs*:
+- `models/rf_model.pkl` (Trained model)
+- `data/processed/model_metrics.json` (Performance metrics)
+- `results/feature_importance.json` (Feature importance scores)
+- `results/final_report.md` (Final research report)
+
+## Verification
+
+After completing all steps, verify that the following files exist:
+- `data/processed/alloys_clean.parquet`
+- `models/rf_model.pkl`
+- `results/final_report.md`
+
+If any step fails, check `data/logs/exclusion_log.txt` for filtering details and `data/logs/pipeline.log` for execution errors.

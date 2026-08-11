@@ -1,190 +1,260 @@
+"""Modeling module for training and evaluating Random Forest models."""
 import logging
 import pickle
 import json
 import time
+import os
 from pathlib import Path
-from typing import Tuple, Dict, Any, Optional
-
-import numpy as np
+from typing import Dict, List, Any, Tuple, Optional
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import mean_absolute_error
-
 from config import get_config
-from logging_config import get_logger
-from schemas.alloy_record import ModelMetrics
+from logging_config import setup_logging, get_logger
 
-logger = get_logger(__name__)
-config = get_config()
+# Initialize logger
+logger = setup_logging()
+if logger is None:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
-def load_features_and_target() -> Tuple[pd.DataFrame, pd.Series]:
+def load_features_and_target(data_path: Optional[Path] = None):
     """
-    Load the ILR-transformed features and the target variable (Poisson's ratio)
-    from the cleaned dataset.
-    """
-    data_path = config.data_processed / "filtered_alloys.csv"
-    if not data_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {data_path}")
-
-    df = pd.read_csv(data_path)
-
-    # Identify ILR columns (usually prefixed with 'ilr_' or similar based on T019)
-    # Assuming T019 creates columns named 'ilr_0', 'ilr_1', etc. or similar.
-    # We look for the target column specifically.
-    target_col = "poissons_ratio"
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in {data_path}")
-
-    # Select feature columns: exclude target and any non-feature columns
-    # Based on T019, we expect ILR transformed columns.
-    # We assume the DataFrame contains the ILR columns and the target.
-    feature_cols = [col for col in df.columns if col != target_col and col != "material_id"]
+    Load features (ILR-transformed) and target (Poisson's ratio) from cleaned data.
     
-    X = df[feature_cols]
-    y = df[target_col]
-
-    logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features.")
+    Args:
+        data_path: Path to the cleaned parquet file
+        
+    Returns:
+        Tuple of (X, y) where X is the feature matrix and y is the target
+    """
+    config = get_config()
+    
+    if data_path is None:
+        data_path = config.data_processed_dir / "alloys_clean.parquet"
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Cleaned data not found at {data_path}. Run cleaning pipeline first.")
+    
+    df = pd.read_parquet(data_path)
+    
+    # ILR feature columns
+    ilr_features = ['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']
+    
+    # Check if required columns exist
+    if not all(col in df.columns for col in ilr_features):
+        raise ValueError(f"ILR features not found in data. Columns: {df.columns.tolist()}")
+    
+    if 'poisson_ratio' not in df.columns:
+        raise ValueError("poisson_ratio column not found in data")
+    
+    X = df[ilr_features]
+    y = df['poisson_ratio']
+    
+    logger.info(f"Loaded {len(X)} samples with {len(ilr_features)} features")
+    
     return X, y
 
-def train_random_forest_with_cv(X: pd.DataFrame, y: pd.Series, cv_folds: int = 5) -> RandomForestRegressor:
+def train_random_forest_with_cv(X: pd.DataFrame, y: pd.Series, n_estimators: int = 100, 
+                                max_depth: Optional[int] = None, random_state: int = 42, 
+                                n_folds: int = 5) -> Tuple[Any, Dict[str, float]]:
     """
-    Train a Random Forest Regressor with k-fold cross-validation.
-    Returns the trained model.
-    """
-    logger.info(f"Starting Random Forest training with {cv_folds}-fold CV.")
+    Train Random Forest with k-fold cross-validation.
     
+    Args:
+        X: Feature matrix
+        y: Target vector
+        n_estimators: Number of trees in the forest
+        max_depth: Maximum depth of trees
+        random_state: Random seed
+        n_folds: Number of CV folds
+        
+    Returns:
+        Tuple of (trained_model, cv_metrics)
+    """
+    logger.info(f"Training Random Forest with {n_estimators} estimators...")
+    
+    # Initialize model
     model = RandomForestRegressor(
-        n_estimators=100,
-        max_depth=None,
-        random_state=config.random_seed,
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        random_state=random_state,
         n_jobs=-1
     )
-
-    # Perform cross-validation
-    cv_scores = cross_val_score(model, X, y, cv=cv_folds, scoring='neg_mean_absolute_error')
-    mae_scores = -cv_scores
-    mean_mae = np.mean(mae_scores)
-    std_mae = np.std(mae_scores)
-
-    logger.info(f"CV MAE: {mean_mae:.4f} (+/- {std_mae:.4f})")
-
+    
+    # Cross-validation
+    cv_scores = cross_val_score(model, X, y, cv=n_folds, scoring='neg_mean_absolute_error')
+    cv_mae = -np.mean(cv_scores)
+    cv_std = np.std(cv_scores)
+    
+    logger.info(f"CV MAE: {cv_mae:.4f} (+/- {cv_std:.4f})")
+    
     # Train on full data
     model.fit(X, y)
-    logger.info("Random Forest model trained successfully.")
-    return model
+    
+    cv_metrics = {
+        'cv_mae': float(cv_mae),
+        'cv_std': float(cv_std),
+        'n_folds': n_folds
+    }
+    
+    return model, cv_metrics
 
-def evaluate_model_on_test(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: pd.Series) -> float:
+def evaluate_model_on_test(model: Any, X_test: pd.DataFrame, y_test: pd.Series) -> Dict[str, float]:
     """
-    Evaluate the trained model on a held-out test set.
-    Returns the Mean Absolute Error (MAE).
+    Evaluate model on test set.
+    
+    Args:
+        model: Trained model
+        X_test: Test features
+        y_test: Test targets
+        
+    Returns:
+        Dictionary of evaluation metrics
     """
-    logger.info("Evaluating model on test set...")
     y_pred = model.predict(X_test)
-    mae = mean_absolute_error(y_test, y_pred)
-    logger.info(f"Test Set MAE: {mae:.4f}")
-    return mae
-
-def save_model(model: RandomForestRegressor, output_path: Optional[Path] = None) -> Path:
-    """
-    Serialize the trained model to disk.
-    """
-    if output_path is None:
-        output_path = config.models_dir / "rf_model.pkl"
+    test_mae = mean_absolute_error(y_test, y_pred)
     
+    logger.info(f"Test MAE: {test_mae:.4f}")
+    
+    return {
+        'test_mae': float(test_mae),
+        'test_size': len(y_test)
+    }
+
+def save_model(model: Any, model_path: Optional[Path] = None):
+    """
+    Save trained model to disk.
+    
+    Args:
+        model: Trained model
+        model_path: Path to save model
+    """
+    config = get_config()
+    
+    if model_path is None:
+        model_path = config.models_dir / "rf_model.pkl"
+    
+    # Ensure directory exists
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(model_path, 'wb') as f:
+        pickle.dump(model, f, protocol=3)
+    
+    logger.info(f"Model saved to {model_path}")
+
+def save_model_metrics(cv_metrics: Dict[str, float], test_metrics: Dict[str, float], 
+                      mae_flag: bool, output_path: Optional[Path] = None):
+    """
+    Save model metrics to JSON.
+    
+    Args:
+        cv_metrics: Cross-validation metrics
+        test_metrics: Test set metrics
+        mae_flag: Whether CV MAE exceeds threshold
+        output_path: Path to save metrics
+    """
+    config = get_config()
+    
+    if output_path is None:
+        output_path = config.data_processed_dir / "model_metrics.json"
+    
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'wb') as f:
-        pickle.dump(model, f)
+    metrics = {
+        'cv_mae': cv_metrics['cv_mae'],
+        'cv_std': cv_metrics['cv_std'],
+        'test_mae': test_metrics['test_mae'],
+        'test_size': test_metrics['test_size'],
+        'mae_flag': mae_flag
+    }
     
-    logger.info(f"Model saved to {output_path}")
-    return output_path
-
-def save_model_metrics(metrics_dict: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
-    """
-    Save the ModelMetrics object (as a dictionary) to a JSON file.
-    This satisfies T025: saving results to docs/outputs/model_metrics.json.
-    """
-    if output_path is None:
-        output_path = config.docs_outputs / "model_metrics.json"
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Ensure the directory exists
     with open(output_path, 'w') as f:
-        json.dump(metrics_dict, f, indent=2)
+        json.dump(metrics, f, indent=2)
     
     logger.info(f"Model metrics saved to {output_path}")
-    return output_path
 
-def run_modeling_pipeline() -> Dict[str, Any]:
+def run_modeling_pipeline(data_path: Optional[Path] = None, 
+                         model_path: Optional[Path] = None,
+                         metrics_path: Optional[Path] = None):
     """
-    Orchestrate the modeling pipeline:
+    Run the full modeling pipeline.
+    
+    Steps:
     1. Load features and target
     2. Train/test split
-    3. Train model with CV
+    3. Train Random Forest with CV
     4. Evaluate on test set
-    5. Save model
-    6. Save metrics (T025)
+    5. Check MAE threshold
+    6. Save model and metrics
+    
+    Args:
+        data_path: Path to cleaned data
+        model_path: Path to save model
+        metrics_path: Path to save metrics
     """
-    logger.info("Starting modeling pipeline...")
+    config = get_config()
     
-    # 1. Load Data
-    X, y = load_features_and_target()
+    if data_path is None:
+        data_path = config.data_processed_dir / "alloys_clean.parquet"
     
-    # 2. Train/Test Split
+    if model_path is None:
+        model_path = config.models_dir / "rf_model.pkl"
+    
+    if metrics_path is None:
+        metrics_path = config.data_processed_dir / "model_metrics.json"
+    
+    logger.info("Starting modeling pipeline")
+    
+    # Load data
+    X, y = load_features_and_target(data_path)
+    
+    # Train/test split (80/20)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=config.random_seed
     )
-    logger.info(f"Split data: {len(X_train)} train, {len(X_test)} test.")
     
-    # 3. Train Model
-    model = train_random_forest_with_cv(X_train, y_train)
+    logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
     
-    # 4. Evaluate
-    test_mae = evaluate_model_on_test(model, X_test, y_test)
+    # Train model with CV
+    model, cv_metrics = train_random_forest_with_cv(X_train, y_train)
     
-    # 5. Save Model
-    save_model(model)
+    # Evaluate on test set
+    test_metrics = evaluate_model_on_test(model, X_test, y_test)
     
-    # 6. Prepare and Save Metrics (T025)
-    metrics_dict = {
-        "model_type": "RandomForestRegressor",
-        "cv_folds": 5,
-        "cv_mae_mean": float(np.mean(cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_absolute_error') * -1)),
-        "cv_mae_std": float(np.std(cross_val_score(model, X_train, y_train, cv=5, scoring='neg_mean_absolute_error') * -1)),
-        "test_mae": float(test_mae),
-        "n_train_samples": len(X_train),
-        "n_test_samples": len(X_test),
-        "random_seed": config.random_seed,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    # Check MAE threshold
+    mae_flag = cv_metrics['cv_mae'] > config.mae_threshold
+    if mae_flag:
+        logger.warning(f"Methodological Concern: CV MAE ({cv_metrics['cv_mae']:.4f}) exceeds threshold ({config.mae_threshold})")
+    
+    # Save model
+    save_model(model, model_path)
+    
+    # Save metrics
+    save_model_metrics(cv_metrics, test_metrics, mae_flag, metrics_path)
+    
+    logger.info("Modeling pipeline completed successfully")
+    
+    return {
+        'model': model,
+        'cv_metrics': cv_metrics,
+        'test_metrics': test_metrics,
+        'mae_flag': mae_flag
     }
-    
-    # Convert to ModelMetrics if needed, but saving dict is sufficient for JSON
-    # The schema defines ModelMetrics, we can instantiate it for validation if desired,
-    # but saving the dict directly is robust.
-    # Let's validate against the schema to be safe, then save.
-    try:
-        metrics_obj = ModelMetrics(**metrics_dict)
-        metrics_dict = metrics_obj.model_dump()
-    except Exception as e:
-        logger.warning(f"Metrics object validation warning: {e}. Saving raw dict.")
-    
-    save_model_metrics(metrics_dict)
-    
-    logger.info("Modeling pipeline completed successfully.")
-    return metrics_dict
 
 def main():
-    """
-    Entry point for the modeling script.
-    """
-    setup = get_logger("main")
-    setup.info("Running modeling main...")
+    """Main entry point for modeling."""
+    logger.info("Starting modeling pipeline")
+    
     try:
-        run_modeling_pipeline()
+        results = run_modeling_pipeline()
+        logger.info("Modeling pipeline completed successfully")
+        return results
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        logger.error(f"Modeling pipeline failed: {e}")
         raise
 
 if __name__ == "__main__":

@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "symbol": "data_processed",
+    "owner": "Config"
+  },
+  {
+    "symbol": "setup_logging",
+    "owner": null
+  }
+]
