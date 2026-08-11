@@ -8,8 +8,7 @@ scipy
 pymatgen
 arxiv
 pdfplumber
+psutil
 python-dotenv
 jsonschema
 numpy
-matplotlib
-seaborn

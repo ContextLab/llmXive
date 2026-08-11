@@ -1,68 +1,167 @@
 # Data Gap Protocol
 
+This document describes the protocol for detecting insufficient data, generating the
+Data Availability Report, and halting the pipeline to prevent training on
+statistically invalid sample sizes.
+
 ## Overview
 
-This document defines the Data Gap Protocol for the "Predicting the Impact of Composition on the Weibull Modulus of Ceramics" project. The protocol ensures that the pipeline halts gracefully and reports insufficient data before attempting to run modeling tasks that require a minimum dataset size.
+The pipeline enforces a minimum dataset size of **N >= 30** valid ceramic entries
+before proceeding to modeling. This threshold ensures statistical significance for
+cross-validation and model evaluation.
 
-## Trigger Condition
+If the total number of valid entries (after ingestion, cleaning, and descriptor
+computation) is less than 30, the pipeline:
+1. Generates a `data/reports/data_availability_report.json`
+2. Halts execution with a clear error message
+3. Logs the event to `logs/data_gap.log`
 
-The protocol is triggered when the total number of valid entries (`N`) after data ingestion and cleaning is **less than 30**.
+## Trigger Conditions
 
-## Execution Flow
-
-1. **Data Ingestion**: All data sources (Materials Project, NIST, arXiv, Curated Literature) are fetched and merged.
-2. **Data Cleaning**: The `clean_data()` function in `code/ingestion.py` filters for valid stoichiometry and required fields.
-3. **Gap Check**: The `validate_data_gap()` function is called with the cleaned dataset.
-4. **Decision**:
- - If `N >= 30`: The pipeline proceeds to descriptor computation and modeling.
- - If `N < 30`: The pipeline triggers the Data Gap Protocol.
-
-## Halting Logic
-
-When `N < 30`:
-1. The `generate_data_availability_report()` function is called immediately.
-2. A JSON report is written to `data/reports/data_availability_report.json`.
-3. The pipeline logs: `INFO: PROJECT_HALTED: Insufficient data (N={N})`.
-4. The process exits with code `1` (`sys.exit(1)`).
-5. No further modeling or analysis tasks are executed.
+The protocol is triggered when:
+- Total valid rows in `data/processed/step4_final.csv` < 30
+- OR total valid rows in `data/raw/combined_raw.csv` (pre-cleaning) < 30
+- OR after filtering for `sample_count >= 30` per entry, the total row count is < 30
 
 ## Report Schema
 
-The `data/reports/data_availability_report.json` file must contain the following fields:
+The `data/reports/data_availability_report.json` file contains:
 
 ```json
 {
- "total_sources": "<integer>",
- "valid_entries": "<integer>",
- "reason_code": "<string>",
- "timestamp": "<ISO 8601 datetime string>"
+ "status": "HALTED",
+ "reason": "Insufficient data: N < 30",
+ "timestamp": "ISO-8601 timestamp",
+ "data_sources": {
+ "materials_project": {
+ "raw_count": <int>,
+ "valid_count": <int>
+ },
+ "nist": {
+ "raw_count": <int>,
+ "valid_count": <int>
+ },
+ "arxiv": {
+ "raw_count": <int>,
+ "valid_count": <int>
+ },
+ "curated_literature": {
+ "raw_count": <int>,
+ "valid_count": <int>
+ }
+ },
+ "total_valid_entries": <int>,
+ "minimum_required": 30,
+ "deficit": <int>,
+ "recommendations": [
+ "Expand data sources",
+ "Relax filtering criteria (with caution)",
+ "Use transfer learning from related domains"
+ ]
 }
 ```
 
-### Field Definitions
-
-- **`total_sources`**: The count of distinct data sources that were successfully fetched and merged.
-- **`valid_entries`**: The number of rows in the dataset that passed the cleaning filters (valid stoichiometry, non-null Weibull modulus, etc.).
-- **`reason_code`**: A machine-readable code indicating the specific reason for the halt.
- - `DATA_GAP_INSUFFICIENT_ENTRIES`: The primary reason when `N < 30`.
-- **`timestamp`**: The UTC timestamp when the report was generated, in ISO 8601 format (e.g., `2023-10-27T10:00:00Z`).
-
 ## Implementation Details
 
-The protocol is implemented in `code/ingestion.py`:
+### 1. Validation Function
 
-- **`validate_data_gap(df)`**: Checks the length of the input DataFrame. If `len(df) < 30`, it calls `generate_data_availability_report()` and exits.
-- **`generate_data_availability_report(total_sources, valid_entries)`**: Constructs the JSON object and writes it to `data/reports/data_availability_report.json`.
+The `validate_data_gap()` function in `code/ingestion.py` performs the check:
 
-## Verification
+```python
+def validate_data_gap(input_path: str, min_entries: int = 30) -> bool:
+ """
+ Validates that the input dataset has at least min_entries rows.
+ Returns True if valid, False otherwise.
+ """
+ df = pd.read_csv(input_path)
+ if len(df) < min_entries:
+ generate_data_availability_report(len(df), min_entries)
+ return False
+ return True
+```
 
-To verify the protocol works correctly:
-1. Ensure the pipeline has processed data.
-2. If the dataset is small (or if a test file like `data/raw/test_n29.csv` with 29 rows is used), the pipeline should halt.
-3. Check that `data/reports/data_availability_report.json` exists and contains valid JSON with the required schema.
-4. Confirm the process exit code was `1`.
+### 2. Report Generation
 
-## Dependencies
+The `generate_data_availability_report()` function creates the JSON artifact:
 
-- This protocol must be implemented and verified before T047 (Update `docs/data_gap_protocol.md` with exact report generation steps).
-- It depends on T017 (Implement `validate_data_gap()`) and T017b (Implement `generate_data_availability_report()`).
+```python
+def generate_data_availability_report(current_count: int, min_required: int):
+ """
+ Generates the data availability report and writes it to disk.
+ """
+ report = {
+ "status": "HALTED",
+ "reason": f"Insufficient data: N={current_count} < {min_required}",
+ "timestamp": datetime.now().isoformat(),
+ "total_valid_entries": current_count,
+ "minimum_required": min_required,
+ "deficit": min_required - current_count,
+ "recommendations": [
+ "Expand data sources",
+ "Relax filtering criteria (with caution)",
+ "Use transfer learning from related domains"
+ ]
+ }
+
+ output_path = Path("data/reports/data_availability_report.json")
+ output_path.parent.mkdir(parents=True, exist_ok=True)
+
+ with open(output_path, "w") as f:
+ json.dump(report, f, indent=2)
+
+ logger.error(f"Data gap detected. Report written to {output_path}")
+ raise RuntimeError(f"Pipeline halted: Insufficient data ({current_count} < {min_required})")
+```
+
+### 3. Pipeline Integration
+
+The validation is integrated into the main pipeline flow:
+
+```python
+def main():
+ #... data fetching and cleaning steps...
+
+ # Validate data gap
+ cleaned_data_path = Path("data/processed/step4_final.csv")
+ if not validate_data_gap(str(cleaned_data_path)):
+ # validate_data_gap() raises RuntimeError if check fails
+ return
+
+ # Proceed to modeling only if validation passes
+ run_modeling_pipeline()
+```
+
+## Execution Flow
+
+1. **Ingestion Phase**: Data is fetched from all sources and combined into `data/raw/combined_raw.csv`
+2. **Cleaning Phase**: Data is cleaned and processed into `data/processed/step4_final.csv`
+3. **Validation**: `validate_data_gap()` checks the row count
+4. **Decision**:
+ - If N >= 30: Pipeline continues to modeling
+ - If N < 30: Report is generated, pipeline halts
+
+## Recovery Actions
+
+If the pipeline halts due to data gap:
+
+1. Review `data/reports/data_availability_report.json` for detailed statistics
+2. Check `logs/data_gap.log` for source-specific counts
+3. Consider:
+ - Adding more data sources
+ - Adjusting filtering criteria (e.g., lowering sample_count threshold)
+ - Using synthetic data augmentation (only for research, not production)
+4. Re-run the pipeline after making changes
+
+## Compliance
+
+This protocol satisfies:
+- **FR-003**: Minimum dataset size requirement
+- **Plan Phase 0, Task 0.2**: Data gap handling
+- **Constitution Principle II**: Data quality enforcement
+
+## Related Files
+
+- `code/ingestion.py` - Contains `validate_data_gap()` and `generate_data_availability_report()`
+- `data/reports/data_availability_report.json` - Generated report
+- `logs/data_gap.log` - Execution logs
+- `tasks.md` - Task T017 and T017b implementation details

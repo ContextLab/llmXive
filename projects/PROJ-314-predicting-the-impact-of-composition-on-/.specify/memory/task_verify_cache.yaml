@@ -24,20 +24,36 @@ T016c:
     provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
     entities, their relationships, and validation rules is missing. The task is not
     satisfied.
-T017b:
+T017:
   c: false
-  h: abb15362a421e476868216aabfa3b01c8459e054d87514dd7fb127b26c08ba6a
-  r: The repository lacks the required `data/reports/data_availability_report.json`
-    file, and the provided `code/ingestion.py` excerpt does not contain an implementation
-    of `generate_data_availability_report()` that would create this file. Both the
-    artifact and the function are missing, so the task is not satisfied.
-T018e:
+  h: ae5f312e2f3db641fa4461b0c7206ba68ee66e6a3190fa9e1e715678cdd94efb
+  r: The repository lacks the required `data/raw/combined_raw.csv` file, and the provided
+    `code/ingestion.py` does not contain an implementation of `validate_data_gap()`
+    (the function is absent in the shown code). Both the input data and the specified
+    function are missing, so the task is not fulfilled.
+T018c:
   c: false
-  h: dee7e99333de3e0e19a0670834f675b31c53cf6cfd4b3a11f04af1669f607c5c
-  r: "The repository lacks the required `data/raw/arxiv_raw.json` output file, and\
-    \ the `fetch_arxiv_data()` implementation in `code/ingestion.py` is truncated\
-    \ before it filters rows, raises errors, and writes the JSON/CSV result, so the\
-    \ task\u2019s specifications are not fully met."
+  h: 66f04050ceaedd9971b8fad0704f46ab4c8cdd259e4208e6abfd43357a76f148
+  r: "The `fetch_materials_project_data()` function in `code/ingestion.py` is truncated\
+    \ and never writes the fetched JSON to `data/raw/materials_project_raw.json`.\
+    \ Moreover, the required output file `data/raw/materials_project_raw.json` does\
+    \ not exist. The task\u2019s core requirements (filtering, error handling, and\
+    \ saving the raw JSON) are therefore not satisfied."
+T018d:
+  c: false
+  h: 3c7fcc7f1f111296f9d8019b0c914f7a242a9ab87d5af9496261347c3eb4d690
+  r: "The repository\u2019s `code/ingestion.py` does not contain a `fetch_nist_data()`\
+    \ implementation (the file is truncated before any such function and only shows\
+    \ other utilities). Additionally, the required output file `data/raw/nist_raw.json`\
+    \ is absent. Both the function implementation and the expected raw data artifact\
+    \ are missing, so the task is not satisfied."
+T018g:
+  c: false
+  h: a272af4398eba439991b36f1c519f832682a5912bc23639f2809044051b9b596
+  r: The repository lacks a `fetch_curated_literature_data()` implementation in `code/ingestion.py`
+    (the file ends before such a function appears) and the required output file `data/raw/curated_literature_raw.json`
+    does not exist. Both the core function and its output artifact are missing, so
+    the task is not satisfied.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -61,6 +77,13 @@ T028b:
     \ implementation, and the required output file `data/results/baseline_metrics.json`\
     \ is absent. Consequently the task\u2019s core requirement\u2014creating the baseline\
     \ predictor and saving its MAE\u2014is not satisfied."
+T029:
+  c: false
+  h: 7985835745ca391baf55be5ef4b71e036994c6ee5e69cb5c028afd2557f9cd91
+  r: "The repository lacks a `run_permutation_test()` implementation in `code/modeling.py`\
+    \ (the provided excerpt shows no such function) and the required output file `data/results/permutation_test_report.json`\
+    \ does not exist. Consequently the permutation\u2011test logic and reporting artifact\
+    \ are missing."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -85,16 +108,10 @@ T044:
     alone is insufficient; the task demanded execution of the script and the resulting
     updated YAML file, which is missing. The next implementer must run the script
     and ensure the YAML file is created with the `data_hashes` and `code_hashes` entries.
-T049:
+T055:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, tests, or documentation were provided that demonstrate\
-    \ a \u201Cfail loudly\u201D policy preventing synthetic data fallback; the claim\
-    \ lacks any concrete artifact to verify the requirement. The task remains unimplemented."
-T052:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no code, script, or configuration file that implements\
-    \ a memory\u2011usage check against `config.MEMORY_LIMIT_GB`. No artifact exists\
-    \ on disk to verify the check, nor any evidence that the dependency T017 is integrated.\
-    \ Consequently the required memory\u2011limit enforcement is missing."
+  r: "No evidence of a `logs/sampling_log.txt` file (or any code implementing the\
+    \ fallback sampling with `itertools.islice`) was provided; thus the required artifact\
+    \ is missing, and the task\u2019s logging and sampling requirements have not been\
+    \ demonstrated."
