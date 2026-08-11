@@ -92,7 +92,7 @@ The researcher MUST be able to execute a multiple linear regression and ANOVA on
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The system's ability to calculate and report an R² value from a regression model trained on the physical execution data is measured against the requirement to produce valid statistical output explaining the variance in throughput (See US-3).
-- **SC-002**: The validation module's ability to calculate the deviation between the empirical throughput curve and the theoretical capacity bound (Ong & Motani, 2007, parameterized with measured bandwidth and SNR) is measured against the requirement to confirm the empirical data does not violate information-theoretic limits (See US-3).
+- **SC-002**: The validation module's ability to calculate the deviation between the empirical throughput curve and the theoretical capacity bound (Ong & Motani, parameterized with measured bandwidth and SNR) is measured against the requirement to confirm the empirical data does not violate information-theoretic limits. (See US-3).
 - **SC-003**: The coordination overhead ratio is measured across varying granularity settings to identify the non-linear "sweet spot" where overhead is minimized relative to parallelism gains (See US-2).
 - **SC-004**: The total wall-clock time of the physical execution and analysis pipeline is measured against a predefined CI time limit to ensure feasibility on free-tier hardware. (See US-1).
 - **SC-005**: The statistical significance of granularity differences is measured against a p-value threshold of <0.05 via ANOVA to confirm that observed effects are not due to chance (See US-3).
