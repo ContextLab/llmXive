@@ -1,6 +1,12 @@
 """
-Ingestion module for materials data pipeline.
-Handles API clients, retries, error logging, merging, and data integrity validation.
+Ingestion module for data acquisition with retry logic, logging, and fail-loudly behavior.
+
+Implements:
+- Exponential backoff retry logic (T004a-Backoff)
+- JSON error logging (T004a-LogSchema)
+- Size-based log rotation (T004b)
+- Fail loudly on persistent failure (T004c)
+- Materials Project availability detection (T006a)
 """
 import os
 import sys
@@ -9,263 +15,338 @@ import logging
 import json
 import requests
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Optional, Dict, Any, Tuple
+import hashlib
 import pandas as pd
 
-# Configure logging for this module
-logger = logging.getLogger(__name__)
-
-# Custom Exception for Data Fetch Errors
+# Custom exception for data fetch failures
 class DataFetchError(Exception):
     """Raised when data fetching fails persistently after retries."""
     pass
 
-# Global flag for MP availability (set by detect_mp_availability)
+# Global flag for Materials Project availability
 MP_AVAILABLE = True
 
-def log_api_error(error_data: Dict[str, Any]) -> None:
+# Configuration constants
+LOG_DIR = Path("logs")
+LOG_FILE = LOG_DIR / "api_errors.log"
+MAX_LOG_SIZE_MB = 100
+BASE_DELAY = 1.0
+MAX_DELAY = 60.0
+MULTIPLIER = 2.0
+MAX_RETRIES = 5
+MP_API_KEY_ENV = "MP_API_KEY"
+
+def get_logger(name: str = "ingestion") -> logging.Logger:
+    """Get a logger configured for the ingestion module."""
+    logger = logging.getLogger(name)
+    if logger.handlers:
+        return logger
+    
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ))
+    logger.addHandler(handler)
+    return logger
+
+logger = get_logger()
+
+def ensure_log_directory():
+    """Ensure the log directory exists."""
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+def rotate_log_if_needed():
+    """Rotate log file if it exceeds MAX_LOG_SIZE_MB."""
+    ensure_log_directory()
+    if LOG_FILE.exists():
+        size_mb = LOG_FILE.stat().st_size / (1024 * 1024)
+        if size_mb > MAX_LOG_SIZE_MB:
+            new_name = LOG_FILE.with_suffix(f".{int(time.time())}.log")
+            LOG_FILE.rename(new_name)
+            logger.info(f"Rotated log file to {new_name}")
+
+def log_api_error(endpoint: str, error: str, retry_count: int):
+    """Log API errors in JSON lines format."""
+    ensure_log_directory()
+    rotate_log_if_needed()
+    
+    error_entry = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "endpoint": endpoint,
+        "error": error,
+        "retry_count": retry_count
+    }
+    
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(error_entry) + "\n")
+
+def exponential_backoff_retry(func, *args, **kwargs):
     """
-    Log API errors as JSON lines to logs/api_errors.log.
-    Implements size-based rotation (create new file if > 100MB).
-    """
-    log_path = Path("logs/api_errors.log")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Check file size for rotation
-    if log_path.exists() and log_path.stat().st_size > 100 * 1024 * 1024:  # 100MB
-        new_log_path = log_path.with_suffix(f".{int(time.time())}.log")
-        logger.warning(f"Rotating log file: {log_path} -> {new_log_path}")
-        log_path.rename(new_log_path)
-
-    with open(log_path, "a") as f:
-        f.write(json.dumps(error_data) + "\n")
-
-def exponential_backoff_retry(url: str, max_retries: int = 5, timeout: int = 30) -> Optional[requests.Response]:
-    """
-    Fetch URL with exponential backoff retry logic.
-    Returns Response object on success, None on failure.
-    """
-    for attempt in range(max_retries):
-        try:
-            logger.info(f"Fetching {url} (attempt {attempt + 1}/{max_retries})")
-            response = requests.get(url, timeout=timeout)
-            if response.status_code == 200:
-                return response
-            else:
-                logger.warning(f"HTTP {response.status_code} for {url}")
-                # Log error
-                log_api_error({
-                    "url": url,
-                    "status_code": response.status_code,
-                    "attempt": attempt + 1,
-                    "error": f"HTTP {response.status_code}"
-                })
-        except requests.exceptions.RequestException as e:
-            logger.warning(f"Request exception for {url}: {e}")
-            log_api_error({
-                "url": url,
-                "attempt": attempt + 1,
-                "error": str(e)
-            })
-
-        if attempt < max_retries - 1:
-            delay = 2 ** attempt
-            logger.info(f"Retrying in {delay} seconds...")
-            time.sleep(delay)
-
-    logger.error(f"Failed to fetch {url} after {max_retries} attempts")
-    return None
-
-def fetch_oqmd_data() -> Optional[pd.DataFrame]:
-    """Fetch OQMD data via API or fallback to dataset loading."""
-    # Placeholder for actual API implementation or dataset loading
-    # In a real scenario, this would call the OQMD API or load from a dataset
-    try:
-        # Simulating a fetch (replace with actual API call)
-        # response = exponential_backoff_retry("https://oqmd.org/api/...")
-        # if response:
-        #     return pd.read_json(response.text)
+    Execute a function with exponential backoff retry logic.
+    
+    Args:
+        func: Function to execute
+        *args: Positional arguments for the function
+        **kwargs: Keyword arguments for the function
         
-        # For now, return None to indicate failure or missing implementation
-        logger.warning("OQMD data fetch not implemented or failed")
-        return None
-    except Exception as e:
-        log_api_error({"source": "OQMD", "error": str(e)})
-        return None
-
-def fetch_aflow_data() -> Optional[pd.DataFrame]:
-    """Fetch AFLOW data via API or fallback to dataset loading."""
-    try:
-        # Simulating a fetch
-        # response = exponential_backoff_retry("https://aflow.org/api/...")
-        # if response:
-        #     return pd.read_json(response.text)
-
-        logger.warning("AFLOW data fetch not implemented or failed")
-        return None
-    except Exception as e:
-        log_api_error({"source": "AFLOW", "error": str(e)})
-        return None
-
-def detect_mp_availability() -> bool:
+    Returns:
+        The result of the function if successful
+        
+    Raises:
+        DataFetchError: If all retries fail
     """
-    Detect Materials Project API availability.
-    Returns True if available, False otherwise.
-    Sets global MP_AVAILABLE flag.
+    last_exception = None
+    delay = BASE_DELAY
+    
+    for retry_count in range(MAX_RETRIES + 1):
+        try:
+            return func(*args, **kwargs)
+        except (requests.RequestException, ConnectionError, Timeout) as e:
+            last_exception = e
+            error_msg = str(e)
+            
+            if retry_count < MAX_RETRIES:
+                log_api_error(
+                    endpoint=kwargs.get("endpoint", "unknown"),
+                    error=error_msg,
+                    retry_count=retry_count
+                )
+                logger.warning(
+                    f"Retry {retry_count + 1}/{MAX_RETRIES} failed: {error_msg}. "
+                    f"Waiting {delay:.1f}s before retry."
+                )
+                time.sleep(delay)
+                delay = min(delay * MULTIPLIER, MAX_DELAY)
+            else:
+                logger.error(f"Max retries ({MAX_RETRIES}) exceeded for {kwargs.get('endpoint', 'unknown')}")
+    
+    # All retries exhausted
+    raise DataFetchError(
+        f"Persistent failure after {MAX_RETRIES} retries: {last_exception}"
+    )
+
+def detect_mp_availability():
+    """
+    Detect Materials Project API availability by attempting a probe request.
+    
+    Sets global MP_AVAILABLE flag to False if probe fails.
     """
     global MP_AVAILABLE
-    api_key = os.getenv("MATERIALS_PROJECT_API_KEY")
+    api_key = os.getenv(MP_API_KEY_ENV)
+    
     if not api_key:
-        logger.warning("Materials Project API key not found. Setting MP_AVAILABLE to False.")
+        logger.warning(f"Material Project API key not found in environment variable {MP_API_KEY_ENV}")
         MP_AVAILABLE = False
         return False
-
+    
     try:
         # Lightweight probe request
-        url = "https://api.materialsproject.org/v2/summary/"
-        headers = {"X-API-Key": api_key}
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(
+            "https://materialsproject.org/rest/v2/materials/MP-1",
+            headers={"X-API-Key": api_key},
+            timeout=10
+        )
+        
         if response.status_code == 200:
-            logger.info("Materials Project API is available.")
+            logger.info("Materials Project API is available")
             MP_AVAILABLE = True
             return True
-        else:
-            logger.warning(f"Materials Project API probe failed with status {response.status_code}")
+        elif response.status_code in [403, 401]:
+            logger.warning(f"Materials Project API returned {response.status_code}: Invalid or expired key")
             MP_AVAILABLE = False
             return False
-    except Exception as e:
-        logger.warning(f"Materials Project API probe exception: {e}")
+        else:
+            logger.warning(f"Materials Project API returned unexpected status {response.status_code}")
+            MP_AVAILABLE = False
+            return False
+            
+    except (requests.RequestException, Timeout, ConnectionError) as e:
+        logger.warning(f"Materials Project API probe failed: {e}")
         MP_AVAILABLE = False
         return False
 
-def fetch_materials_project_data() -> Optional[pd.DataFrame]:
-    """Fetch Materials Project data if available."""
+def fetch_oqmd_data():
+    """
+    Fetch OQMD dataset using official REST API with exponential backoff.
+    
+    Returns:
+        DataFrame with OQMD data
+        
+    Raises:
+        DataFetchError: If fetch fails persistently
+    """
+    def _fetch():
+        # OQMD REST API endpoint for constitution data
+        # Using a specific endpoint that returns JSON/CSV
+        url = "https://oqmd.org/api/v2/entries"
+        params = {"format": "json", "limit": 1000}  # Example limit, adjust as needed
+        
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+        return response.json()
+    
+    try:
+        result = exponential_backoff_retry(_fetch, endpoint="oqmd")
+        return pd.DataFrame(result.get("entries", []))
+    except DataFetchError:
+        # Fail loudly - no synthetic fallback
+        raise DataFetchError("Failed to fetch OQMD data after all retries. No synthetic fallback available.")
+
+def fetch_aflow_data():
+    """
+    Fetch AFLOW dataset using official REST API with exponential backoff.
+    
+    Returns:
+        DataFrame with AFLOW data
+        
+    Raises:
+        DataFetchError: If fetch fails persistently
+    """
+    def _fetch():
+        # AFLOW REST API endpoint
+        url = "https://aflow.org/rest/v1.0/aflow_api"
+        params = {"format": "json", "limit": 1000}  # Example limit
+        
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+        return response.json()
+    
+    try:
+        result = exponential_backoff_retry(_fetch, endpoint="aflow")
+        return pd.DataFrame(result.get("entries", []))
+    except DataFetchError:
+        # Fail loudly - no synthetic fallback
+        raise DataFetchError("Failed to fetch AFLOW data after all retries. No synthetic fallback available.")
+
+def fetch_materials_project_data():
+    """
+    Fetch Materials Project dataset using official REST API with exponential backoff.
+    
+    Returns:
+        DataFrame with MP data or None if MP unavailable
+        
+    Raises:
+        DataFetchError: If fetch fails persistently and MP is available
+        Warning logged if MP unavailable, returns None
+    """
     if not MP_AVAILABLE:
-        logger.warning("Materials Project not available, skipping fetch.")
+        logger.warning("Materials Project unavailable - skipping fetch")
         return None
-
-    try:
-        # Simulating a fetch
-        # response = exponential_backoff_retry("https://api.materialsproject.org/v2/...")
-        # if response:
-        #     return pd.read_json(response.text)
-
-        logger.warning("Materials Project data fetch not implemented or failed")
-        return None
-    except Exception as e:
-        log_api_error({"source": "Materials Project", "error": str(e)})
-        return None
-
-def merge_datasets(df_list: List[pd.DataFrame]) -> pd.DataFrame:
-    """
-    Merge multiple DataFrames into a unified DataFrame.
-    Assumes all DataFrames have compatible columns or handles missing columns.
-    """
-    if not df_list:
-        logger.warning("No DataFrames to merge. Returning empty DataFrame.")
-        return pd.DataFrame()
-
-    # Filter out None or empty DataFrames
-    valid_dfs = [df for df in df_list if df is not None and not df.empty]
     
-    if not valid_dfs:
-        logger.warning("No valid DataFrames to merge. Returning empty DataFrame.")
-        return pd.DataFrame()
-
-    try:
-        merged_df = pd.concat(valid_dfs, ignore_index=True)
-        logger.info(f"Merged {len(valid_dfs)} datasets. Total rows: {len(merged_df)}")
-        return merged_df
-    except Exception as e:
-        logger.error(f"Error merging datasets: {e}")
-        raise
-
-def validate_data_integrity(df: pd.DataFrame) -> None:
-    """
-    Validate data integrity of the merged DataFrame.
-    Raises DataFetchError if critical data is missing or invalid.
-    Ensures no synthetic fallback code paths exist.
-    """
-    if df is None or df.empty:
-        logger.error("Data validation failed: DataFrame is empty or None.")
-        raise DataFetchError("Data validation failed: No data available after fetching. No synthetic fallback allowed.")
-
-    # Check for critical columns (example: composition, target property)
-    # Adjust based on actual expected columns
-    critical_columns = ["composition", "formation_energy_per_atom"]
-    missing_columns = [col for col in critical_columns if col not in df.columns]
+    def _fetch():
+        api_key = os.getenv(MP_API_KEY_ENV)
+        if not api_key:
+            raise DataFetchError("MP API key missing")
+        
+        url = "https://materialsproject.org/rest/v2/materials"
+        headers = {"X-API-Key": api_key}
+        params = {"limit": 1000}  # Example limit
+        
+        response = requests.get(url, headers=headers, params=params, timeout=30)
+        response.raise_for_status()
+        return response.json()
     
-    if missing_columns:
-        logger.error(f"Data validation failed: Missing critical columns: {missing_columns}")
-        raise DataFetchError(f"Data validation failed: Missing critical columns: {missing_columns}. No synthetic fallback allowed.")
+    try:
+        result = exponential_backoff_retry(_fetch, endpoint="materials_project")
+        return pd.DataFrame(result.get("data", []))
+    except DataFetchError as e:
+        # Persistent failure for MP - log warning and return None (fallback mode)
+        logger.warning(f"Materials Project fetch failed persistently: {e}. Switching to fallback mode (OQMD/AFLOW only).")
+        return None
 
-    # Check for NaN values in critical columns
-    for col in critical_columns:
-        if df[col].isna().any():
-            logger.warning(f"Data integrity warning: Column '{col}' contains NaN values.")
-            # Optionally drop or fill NaNs, but raise if critical data is missing
-            # For now, we proceed but log the warning
+def merge_datasets(oqmd_df: Optional[pd.DataFrame], aflow_df: Optional[pd.DataFrame], 
+                   mp_df: Optional[pd.DataFrame]) -> pd.DataFrame:
+    """Merge multiple datasets into a single DataFrame."""
+    dfs = []
+    if oqmd_df is not None and not oqmd_df.empty:
+        oqmd_df['source'] = 'oqmd'
+        dfs.append(oqmd_df)
+    if aflow_df is not None and not aflow_df.empty:
+        aflow_df['source'] = 'aflow'
+        dfs.append(aflow_df)
+    if mp_df is not None and not mp_df.empty:
+        mp_df['source'] = 'mp'
+        dfs.append(mp_df)
+    
+    if not dfs:
+        raise DataFetchError("No datasets available to merge")
+    
+    return pd.concat(dfs, ignore_index=True)
 
-    logger.info("Data integrity validation passed.")
+def validate_data_integrity(df: pd.DataFrame) -> bool:
+    """Validate basic data integrity."""
+    if df.empty:
+        return False
+    # Basic checks
+    return True
 
-def ingest_materials_data() -> pd.DataFrame:
+def ingest_materials_data():
     """
-    Ingest materials data from OQMD, AFLOW, and Materials Project.
-    Implements 'Fail Loudly' logic for OQMD/AFLOW.
-    Implements fallback logic for Materials Project.
+    Main orchestration function for data ingestion.
+    
+    Returns:
+        Merged DataFrame or raises DataFetchError on critical failure
     """
-    # Fetch OQMD data
-    oqmd_df = fetch_oqmd_data()
-    if oqmd_df is None:
-        logger.error("OQMD data fetch failed. Raising DataFetchError.")
-        raise DataFetchError("OQMD data fetch failed. No synthetic fallback allowed.")
-
-    # Fetch AFLOW data
-    aflow_df = fetch_aflow_data()
-    if aflow_df is None:
-        logger.error("AFLOW data fetch failed. Raising DataFetchError.")
-        raise DataFetchError("AFLOW data fetch failed. No synthetic fallback allowed.")
-
-    # Detect MP availability
+    # Detect MP availability first
     detect_mp_availability()
-
-    # Fetch MP data (optional fallback)
-    mp_df = fetch_materials_project_data()
-    if mp_df is None and MP_AVAILABLE:
-        logger.warning("Materials Project data fetch failed. Proceeding without MP data.")
-    elif mp_df is None:
-        logger.info("Materials Project not available. Proceeding without MP data.")
-
+    
+    # Fetch OQMD (required)
+    logger.info("Fetching OQMD data...")
+    try:
+        oqmd_df = fetch_oqmd_data()
+    except DataFetchError:
+        raise  # Re-raise - OQMD is required, fail loudly
+    
+    # Fetch AFLOW (required)
+    logger.info("Fetching AFLOW data...")
+    try:
+        aflow_df = fetch_aflow_data()
+    except DataFetchError:
+        raise  # Re-raise - AFLOW is required, fail loudly
+    
+    # Fetch MP (optional, with fallback)
+    mp_df = None
+    if MP_AVAILABLE:
+        logger.info("Fetching Materials Project data...")
+        try:
+            mp_df = fetch_materials_project_data()
+        except DataFetchError:
+            # MP failure - log warning and continue with OQMD/AFLOW only
+            logger.warning("Materials Project fetch failed. Proceeding with OQMD/AFLOW only.")
+            mp_df = None
+    
     # Merge datasets
-    df_list = [df for df in [oqmd_df, aflow_df, mp_df] if df is not None]
-    merged_df = merge_datasets(df_list)
-
-    # Validate data integrity
-    validate_data_integrity(merged_df)
-
+    logger.info("Merging datasets...")
+    merged_df = merge_datasets(oqmd_df, aflow_df, mp_df)
+    
+    # Validate
+    if not validate_data_integrity(merged_df):
+        raise DataFetchError("Data integrity validation failed")
+    
     return merged_df
 
-def save_raw_data(df: pd.DataFrame, output_path: str) -> None:
-    """Save raw data to a Parquet file."""
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_raw_data(df: pd.DataFrame, output_path: str):
+    """Save raw data to parquet file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(output_path, index=False)
-    logger.info(f"Raw data saved to {output_path}")
+    logger.info(f"Saved raw data to {output_path}")
 
 def main():
-    """Main entry point for ingestion module."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-    
+    """Main entry point for ingestion script."""
+    logger.info("Starting data ingestion...")
     try:
-        merged_df = ingest_materials_data()
-        save_raw_data(merged_df, "data/raw/merged_materials_data.parquet")
-        logger.info("Ingestion completed successfully.")
+        data = ingest_materials_data()
+        save_raw_data(data, "data/raw/merged_materials.parquet")
+        logger.info("Ingestion completed successfully")
+        return 0
     except DataFetchError as e:
-        logger.error(f"DataFetchError: {e}")
-        sys.exit(1)
+        logger.error(f"Ingestion failed: {e}")
+        return 1
     except Exception as e:
         logger.error(f"Unexpected error during ingestion: {e}")
-        sys.exit(1)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

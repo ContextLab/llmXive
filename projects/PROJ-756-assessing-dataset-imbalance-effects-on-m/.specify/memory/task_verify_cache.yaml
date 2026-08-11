@@ -6,14 +6,22 @@ T006c:
     \ `data/raw/oqmd.parquet` and `data/raw/aflow.parquet`. Moreover, the required\
     \ parquet files are absent from `data/raw/`. Without evidence that the implementation\
     \ actually creates those files, the task\u2019s core requirement is unmet."
-T008:
+T008a:
   c: false
-  h: 7174580481928ef9ddaf6b836abeac0b7b6ef79f81896830be574aa6389b90a3
-  r: "The repository contains a partially\u2011written `code/imbalance.py` that stops\
-    \ mid\u2011function and does not implement the Gini\u2011coefficient calculations,\
-    \ negative\u2011value handling, or the required CSV outputs. Moreover, the expected\
-    \ result files `results/target_imbalance_scores.csv` and `results/compositional_imbalance_score.csv`\
-    \ are absent. The task\u2019s core outputs are therefore not produced."
+  h: 53341d82f5342d73a2f54286204dbc8375f5b74cadd83ed489c5fa0728fa5d81
+  r: "The provided `code/imbalance.py` contains functions that compute the Gini\u2011\
+    based target imbalance scores and correctly skip properties with fewer than 100\
+    \ samples, but the script does not produce (or the repository does not contain)\
+    \ the required `results/target_imbalance_scores.csv` file. The CSV output artifact\
+    \ is missing, so the task\u2019s deliverable is not satisfied."
+T008b:
+  c: false
+  h: 0db5481170c3e568ce5afb5233da5ffbebecd28842a08838c746c72c7bfda2af
+  r: "The repository lacks the required input file `data/processed/descriptors.parquet`\
+    \ and the expected output `results/compositional_imbalance_score.csv`. Moreover,\
+    \ `code/imbalance.py` is truncated and never completes the compositional imbalance\
+    \ calculation (no K\u2011Means clustering with k=50 or Gini of cluster counts).\
+    \ The implementation does not fulfill the specified task."
 T012:
   c: false
   h: a5322a39bab5d625eb6c11f185fc43858f1fcf0976b2e937caa6ae24050a0ff2
@@ -62,3 +70,10 @@ T036:
     \ `code/shap_analysis.py` is truncated and does not show the target computation\
     \ or the write\u2011out of the parquet file. These essential artifacts must be\
     \ added for the task to be considered complete."
+T043a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md file or its contents were provided for inspection, so we cannot\
+    \ confirm that it contains the required setup instructions, directory layout description,\
+    \ and quick\u2011start command examples. The implementer must supply the updated\
+    \ README.md (non\u2011empty) showing those sections."

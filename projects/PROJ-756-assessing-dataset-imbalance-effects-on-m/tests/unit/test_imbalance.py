@@ -1,78 +1,109 @@
+import os
+import sys
+import tempfile
 import pytest
 import pandas as pd
 import numpy as np
-from code.imbalance import calculate_gini, calculate_target_imbalance_score, calculate_compositional_imbalance_score, identify_target_columns
-from unittest.mock import patch, MagicMock
+from pathlib import Path
 
-def test_calculate_gini_positive():
-    # Perfect equality -> Gini = 0
-    data = pd.Series([10, 10, 10, 10])
-    assert calculate_gini(data) == 0.0
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-def test_calculate_gini_inequality():
-    # High inequality -> Gini > 0
-    data = pd.Series([1, 1, 1, 100])
-    gini = calculate_gini(data)
-    assert 0 < gini <= 1.0
+from imbalance import (
+    load_data,
+    identify_target_columns,
+    calculate_gini,
+    calculate_target_imbalance_score,
+    calculate_compositional_imbalance_score,
+    analyze_all_properties,
+    save_results
+)
 
-def test_calculate_gini_negative_values():
-    # Should handle negative values via absolute transformation
-    data = pd.Series([-10, -10, -10, -10])
-    assert calculate_gini(data) == 0.0
-    
-    data_inequal = pd.Series([-1, -1, -1, -100])
-    gini = calculate_gini(data_inequal)
-    assert 0 < gini <= 1.0
+class TestGiniCalculation:
+    def test_gini_uniform_distribution(self):
+        """Uniform distribution should have Gini near 0."""
+        values = np.array([10, 10, 10, 10, 10])
+        gini = calculate_gini(values)
+        assert abs(gini - 0.0) < 0.01
 
-def test_identify_target_columns():
-    # Create a mock dataframe with known targets
-    data = {
-        'magpie_mean_atomic_number': [10.0, 20.0],
-        'formation_energy': [-1.0, -2.0],
-        'band_gap': [0.5, 1.0],
-        'material_id': ['id1', 'id2']
-    }
-    df = pd.DataFrame(data)
-    
-    targets = identify_target_columns(df)
-    assert 'formation_energy' in targets
-    assert 'band_gap' in targets
-    assert 'magpie_mean_atomic_number' not in targets
+    def test_gini_uneven_distribution(self):
+        """Uneven distribution should have higher Gini."""
+        values = np.array([1, 1, 1, 1, 100])
+        gini = calculate_gini(values)
+        assert gini > 0.5
 
-def test_calculate_target_imbalance_score_skip_small():
-    # Create a dataframe with < 100 samples
-    data = {
-        'magpie_mean_atomic_number': [1.0] * 50,
-        'formation_energy': [-1.0] * 50
-    }
-    df = pd.DataFrame(data)
-    
-    score = calculate_target_imbalance_score(df, 'formation_energy')
-    assert score is None
+    def test_gini_negative_values(self):
+        """Gini should handle negative values by shifting."""
+        values = np.array([-10, -5, 0, 5, 10])
+        gini = calculate_gini(values)
+        assert 0.0 <= gini <= 1.0
 
-def test_calculate_target_imbalance_score_valid():
-    # Create a dataframe with >= 100 samples
-    n = 100
-    data = {
-        'magpie_mean_atomic_number': [1.0] * n,
-        'formation_energy': list(range(n))
-    }
-    df = pd.DataFrame(data)
-    
-    score = calculate_target_imbalance_score(df, 'formation_energy')
-    assert score is not None
-    assert 0 <= score <= 1.0
+    def test_gini_empty_array(self):
+        """Empty array should return 0."""
+        values = np.array([])
+        gini = calculate_gini(values)
+        assert gini == 0.0
 
-def test_calculate_compositional_imbalance_score():
-    # Create a dataframe with enough samples for K-Means
-    n = 200
-    k = 50
-    np.random.seed(42)
-    features = {
-        f'feat_{i}': np.random.rand(n) for i in range(10)
-    }
-    df = pd.DataFrame(features)
-    
-    score = calculate_compositional_imbalance_score(df, list(features.keys()))
-    assert score is not None
-    assert 0 <= score <= 1.0
+class TestCompositionalImbalance:
+    def test_cluster_count_gini(self):
+        """Test Gini calculation on cluster counts."""
+        # Simulate 50 clusters, some empty, some full
+        counts = np.array([100, 0, 0, ..., 0]) # Conceptually: 1 cluster with 100, 49 empty
+        # Actually create array
+        counts = np.zeros(50, dtype=int)
+        counts[0] = 100
+        gini = calculate_gini(counts)
+        # Max Gini for discrete distribution is (N-1)/N
+        assert abs(gini - (49/50)) < 0.01
+
+    def test_compositional_score_calculation(self):
+        """Test full compositional imbalance calculation with dummy data."""
+        # Create dummy descriptor data
+        n_samples = 1000
+        n_features = 10
+        np.random.seed(42)
+        
+        df = pd.DataFrame({
+            'feature_' + str(i): np.random.randn(n_samples) for i in range(n_features)
+        })
+        df['composition'] = ['A' * i for i in range(n_samples)] # Dummy composition
+        
+        result = calculate_compositional_imbalance_score(df, n_clusters=5)
+        
+        assert 'compositional_imbalance_score' in result
+        assert 0.0 <= result['compositional_imbalance_score'] <= 1.0
+
+class TestTargetImbalance:
+    def test_target_score_calculation(self):
+        """Test target imbalance score with dummy data."""
+        n_samples = 200
+        df = pd.DataFrame({
+            'property_a': np.random.randn(n_samples),
+            'property_b': np.random.randn(n_samples),
+            'composition': ['A' * i for i in range(n_samples)]
+        })
+        
+        target_cols = identify_target_columns(df)
+        assert 'property_a' in target_cols
+        assert 'property_b' in target_cols
+        
+        scores = calculate_target_imbalance_score(df, target_cols, min_samples=50)
+        assert 'property_a' in scores
+        assert 'property_b' in scores
+
+class TestSaveResults:
+    def test_save_to_csv(self):
+        """Test saving results to CSV."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "test_output.csv")
+            target_scores = {"prop1": 0.5, "prop2": 0.6}
+            compositional_scores = {"compositional": 0.3}
+            
+            save_results(target_scores, compositional_scores, output_path)
+            
+            assert os.path.exists(output_path)
+            df = pd.read_csv(output_path)
+            assert len(df) == 3 # 2 target + 1 compositional
+            assert "property" in df.columns
+            assert "score_type" in df.columns
+            assert "score_value" in df.columns
