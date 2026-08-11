@@ -1,11 +1,12 @@
-- artifact_hash: 2808e8e14db5f3c103deafc04bb1d1d8821daccb85a18207493ef83e49a4d00c
+- artifact_hash: 1e8be99930478d97648d5b6adedc2afd41414710b73a2090386a8fdc415c3dcf
   artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Power - Wikidata
+  fetched_title: '[2410.12381] HumanEval-V: Benchmarking High-Level Visual Reasoning
+    with Complex Diagrams in Coding Tasks'
   kind: url
-  value: https://www.wikidata.org/wiki/Q42506454
+  value: https://arxiv.org/abs/2410.12381
   verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q42506454
-  verified_at: '2026-08-10T07:14:51.581224Z'
+  verified_against_url: https://arxiv.org/abs/2410.12381
+  verified_at: '2026-08-11T21:03:54.769891Z'

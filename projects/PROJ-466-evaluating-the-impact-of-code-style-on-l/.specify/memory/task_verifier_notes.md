@@ -2,5 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T024a** — The repository lacks the required `data/processed/samples_all.csv` and the resulting `data/processed/metrics_all.csv`. Moreover, `code/analysis/metrics.py` is truncated and contains no logic to read the “all samples” CSV, compute per‑task/style mean AST and entropy, and write the aggregated metrics file. These essential artifacts are missing, so the task is not fulfilled.
-- **T017b** — The repository lacks the required input `data/processed/samples_valid.csv` and the output `data/processed/metrics_valid.csv`. Moreover, `code/analysis/metrics.py` is truncated (ends mid‑function) and does not contain logic to read the valid samples, compute per‑task/style mean AST edit distance and mean n‑gram entropy, and write the aggregated results. These essential components are missing, so the task is not genuinely completed.
+- **T050** — declared artifact(s) missing/empty/invalid: code/utils/memory_monitor.py

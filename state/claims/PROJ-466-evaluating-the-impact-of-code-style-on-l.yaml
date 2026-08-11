@@ -3627,22 +3627,6 @@
   updated_at: '2026-07-24T09:42:09Z'
 - artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
   attempts: 1
-  canonical: Sensitivity analysis sweeps alpha over 0.01, 0.05, and 0.1
-  claim_id: c_5a89fec9
-  context: Implementation for User Story 3, Task T031a
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement sensitivity analysis: sweep \u03B1 over the set [0.01, 0.05,\
-    \ 0.1] and record the count of significant tasks for each."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-24T09:42:09Z'
-- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
-  attempts: 1
   canonical: Bias flag set if pass rate difference between style groups exceeds 0.10
   claim_id: c_6e33ff99
   context: Implementation for User Story 1, Task T019
@@ -3981,3 +3965,347 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T07:14:51Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset size is 164 tasks
+  claim_id: c_82b0ec66
+  context: Implement `code/analysis/stats.py` **Kruskal-Wallis H-test** using `scipy`
+    to compare diversity distributions across three style groups (FR-006, US-3) on
+    the **full HumanEval dataset (N=164 tasks)**.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: manEval (Chen et al., 2021) with 164 tasks,
+      source_id: '2410.12381'
+      url: https://arxiv.org/abs/2410.12381
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The full HumanEval dataset contains 164 tasks.
+  resolved_value: '164'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T21:00:17Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Power analysis effect size is 0.25
+  claim_id: c_663d8108
+  context: Implement a script in `code/analysis/power.py` that calculates the required
+    sample size for Kruskal-Wallis (Power analysis uses alpha=0.05, power=0.8, **effect_size=0.25**
+    [Standard Medium Effect]) using `statsmodels.stats.power`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculation uses an effect size of 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:01:11Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Power analysis statistical power is 0.8
+  claim_id: c_ed93c1a9
+  context: Implement a script in `code/analysis/power.py` that calculates the required
+    sample size for Kruskal-Wallis (Power analysis uses alpha=0.05, power=0.8, **effect_size=0.25**
+    [Standard Medium Effect]) using `statsmodels.stats.power`.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis calculation uses a statistical power of 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T21:01:19Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha is 0.05
+  claim_id: c_5c5151f6
+  context: Implement a script in `code/analysis/power.py` that calculates the required
+    sample size for Kruskal-Wallis (Power analysis uses alpha=0.05, power=0.8, **effect_size=0.25**
+    [Standard Medium Effect]) using `statsmodels.stats.power`.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis calculation uses an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T21:01:27Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Generation samples per task per style is 20
+  claim_id: c_06cba369
+  context: 'Implement `code/generation/generator.py` generation loop: generate **20**
+    samples per task per style (T=0.7, seed=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation loop generates 20 samples per task per style.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:01:48Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Task timeout limit is 5 minutes
+  claim_id: c_15d1b037
+  context: Implement `code/utils/timeout_decorator.py` to enforce **5-minute** per-task
+    limits and handle graceful skips.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout limit per task is 5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:02:08Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis alpha sweep values are 0.01, 0.05, 0.1
+  claim_id: c_500f7626
+  context: "Implement sensitivity analysis: sweep \u03B1 over the set **[0.01, 0.05,\
+    \ 0.1]** and record the count of significant tasks for each."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps alpha over the set [0.01, 0.05, 0.1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:02:31Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Bias flag threshold is 0.10
+  claim_id: c_0b0cd1a0
+  context: Implement `code/generation/pipeline.py` to calculate pass rates; if the
+    difference between any two style groups exceeds a substantial threshold (**0.10**
+    or 10 percentage points), set a `bias_flag` variable.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bias flag is set if the difference between any two style groups exceeds
+    0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:02:53Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Model incapability threshold is 0.01
+  claim_id: c_bdb1d34b
+  context: 'If **any** style group has `pass_rate < 0.01`, **LOG** "Model Incapability:
+    Pass rate < 1%" to `data/logs/pipeline.log`, **SET** a "Model Incapability" flag,
+    and **CONTINUE** the pipeline (do NOT exit).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_incapability_threshold_is_0.01
+  kind: magnitude
+  raw_text: The model incapability flag is set if the pass rate is less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:03:21Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 0
+  canonical: Flag model incapability if pass rate is less than 1%
+  claim_id: c_6a49f9f1
+  context: Implementation for User Story 1, Task T018
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'If any style group has pass_rate < 0.01, LOG ''Model Incapability: Pass
+    rate < 1%'' to data/logs/pipeline.log.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T21:04:11Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.25 for Standard Medium Effect
+  claim_id: c_816eb1c3
+  context: Implementation for User Story 3, Task T033a
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/power.py that calculates the required sample size
+    for Kruskal-Wallis (Power analysis uses alpha=0.05, power=0.8, effect_size=0.25
+    [Standard Medium Effect]) using statsmodels.stats.power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:09:35Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis sweeps alpha over 0.01, 0.05, and 0.1
+  claim_id: c_5a89fec9
+  context: Implementation for User Story 3, Task T031a
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis: sweep \u03B1 over the set [0.01, 0.05,\
+    \ 0.1] and record the count of significant tasks for each."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:10:51Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Generate 20 samples per task per style
+  claim_id: c_6e521fc6
+  context: Implementation for User Story 1, Task T014
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/generation/generator.py generation loop: generate 20 samples
+    per task per style (T=0.7, seed=42).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:14:46Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Verify generated sample count is exactly 20
+  claim_id: c_b9765963
+  context: Implementation for User Story 1, Task T014b
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generation/generator.py to explicitly verify that the generated
+    sample count per task/style is exactly 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:14:53Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Enforce 5-minute timeout per task
+  claim_id: c_3062ddfb
+  context: Implementation for User Story 1, Task T015
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generation/generator.py timeout integration using code/utils/timeout_decorator.py
+    to enforce a 5-minute timeout per task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:14:56Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Set bias flag if difference between style groups exceeds 10 percentage
+    points
+  claim_id: c_d4549518
+  context: Implementation for User Story 1, Task T019
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement code/generation/pipeline.py to calculate pass rates; if the
+    difference between any two style groups exceeds a substantial threshold (0.10
+    or 10 percentage points), set a bias_flag variable.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T21:14:57Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Use Python 3.11 virtual environment
+  claim_id: c_462e30e0
+  context: Phase 1, Task T002
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 virtual environment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:15:04Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Write bias flag to JSON file
+  claim_id: c_2005b954
+  context: Implementation for User Story 1, Task T019b
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_bias_flag_to_JSON_file
+  kind: entity_fact
+  raw_text: 'Implement code/generation/generator.py to write the bias_flag to a JSON
+    file data/processed/bias_flag.json with schema {"flag": <bool>}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T21:15:15Z'
