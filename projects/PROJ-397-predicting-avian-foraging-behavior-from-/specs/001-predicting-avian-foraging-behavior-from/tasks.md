@@ -45,7 +45,7 @@
 
 - [ ] T001a [P] Create directory structure: `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/{data,models,viz,notebooks,utils,tests}` by running `mkdir -p` and `touch` commands for each subdirectory to ensure the folder hierarchy exists.
 - [ ] T001b [P] Create placeholder files: `requirements.txt` (containing base dependencies: pandas, numpy, scikit-learn, geopandas, rasterio, requests, matplotlib, seaborn, pyyaml, jupyter), `run_pipeline.sh`, and `README.md` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`.
-- [ ] T002 Initialize Python 3.11 project: Add `pandas`, `geopandas`, `scikit-learn`, `rasterio`, `requests`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `jupyter` to `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt` and verify `python --version` returns 3.11.x. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T002 Initialize Python 3.11 project: Add `pandas`, `geopandas`, `scikit-learn`, `rasterio`, `requests`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `jupyter` to `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt` and verify `python --version` returns 3.11.x. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T003 [P] Configure linting and formatting: Create `pyproject.toml` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` with `[tool.black] line-length=88` and `[tool.ruff]` rules enabled.
 
 ---
@@ -182,7 +182,7 @@
 ```bash
 # Launch all data download tasks for User Story 1 together:
 Task: "Implement data/download_ebd.py to fetch EBD data via HTTPS or verified S3 fallback"
-Task: "Implement data/download_nlcd.py to fetch NLCD 2019 land cover data from USGS EarthExplorer "
+Task: "fetch NLCD 2019 land cover data from USGS EarthExplorer "
 Task: "Implement data/fetch_guild_mapping.py to download external guild lookup"
 ```
 

@@ -1,138 +1,62 @@
-# Predicting Avian Foraging Guilds from Public eBird Data and Land Cover Maps
+# Predicting Avian Foraging Behavior from Public eBird Data and Land Cover Maps
 
-**Project ID**: PROJ-397
-
-## Overview
-
-This project implements a machine learning pipeline to predict avian foraging guilds based on land cover data derived from eBird observations and NLCD (National Land Cover Database) 2019. The pipeline processes raw observational data, merges it with spatial land cover information, trains a Random Forest classifier, and evaluates performance using a rigorous Across-Species Permutation Test.
+## Project Overview
+This project implements a machine learning pipeline to predict avian foraging guilds based on land cover data derived from eBird observations and NLCD land cover maps.
 
 ## Prerequisites
-
-- **Python**: Version 3.11.x is required.
-- **System Dependencies**: Ensure `gdal` and `proj` libraries are installed on your system (required by `geopandas` and `rasterio`).
- - Ubuntu/Debian: `sudo apt-get install libgdal-dev libproj-dev`
- - macOS (Homebrew): `brew install gdal proj`
- - Windows: Install via Conda or ensure GDAL is in your PATH.
+- Python 3.11.x
+- pip
 
 ## Installation
-
-1. **Clone the repository** and navigate to the project directory:
+1. Clone the repository.
+2. Navigate to the `code` directory:
  ```bash
- git clone <repository-url>
  cd projects/PROJ-397-predicting-avian-foraging-behavior-from-/code
  ```
-
-2. **Create a virtual environment**:
+3. Create a virtual environment and activate it:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-3. **Install dependencies**:
+4. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Usage
-
-### Running the Full Pipeline
-
-Execute the orchestration script to run the entire workflow from data download to visualization:
-
+## Running the Pipeline
+Execute the full pipeline using the provided shell script:
 ```bash
 bash run_pipeline.sh
 ```
 
-This script performs the following steps:
-1. Downloads eBird EBD data.
-2. Downloads NLCD 2019 land cover data.
-3. Fetches foraging guild mappings.
-4. Filters data for top 25 species.
-5. Merges data and calculates 100m buffer land cover proportions.
-6. Filters for statistical power (≥50 observations per species).
-7. Aggregates data into species profiles.
-8. Trains a Random Forest classifier.
-9. Evaluates the model and runs the permutation test.
-10. Generates visualizations and reports.
-
-### Running Individual Scripts
-
-You can also run specific steps of the pipeline manually:
-
-- **Data Download**:
- ```bash
- python data/download_ebd.py
- python data/download_nlcd.py
- python data/fetch_guild_mapping.py
- ```
-
-- **Data Processing**:
- ```bash
- python data/fetch_top_25.py
- python data/merge_and_buffer.py
- python data/aggregate.py
- python data/extract_top_species.py
- ```
-
-- **Modeling**:
- ```bash
- python models/train.py
- python models/evaluate.py
- ```
-
-- **Visualization**:
- ```bash
- python viz/plot_confusion.py
- python viz/plot_importance.py
- python viz/map_habitat.py
- ```
-
-## Project Structure
-
-```text
-code/
-├── data/ # Data processing scripts
-│ ├── download_ebd.py
-│ ├── download_nlcd.py
-│ ├── fetch_guild_mapping.py
-│ ├── fetch_top_25.py
-│ ├── merge_and_buffer.py
-│ ├── aggregate.py
-│ └── extract_top_species.py
-├── models/ # Machine learning scripts
-│ ├── train.py
-│ └── evaluate.py
-├── viz/ # Visualization scripts
-│ ├── plot_confusion.py
-│ ├── plot_importance.py
-│ └── map_habitat.py
-├── utils/ # Utility modules
-│ ├── config.py
-│ └── provenance.py
-├── tests/ # Unit tests
-├── notebooks/ # Jupyter notebooks for analysis
-├── data/ # Data directories (created at runtime)
-│ ├── raw/
-│ ├── processed/
-│ └── metadata.yaml
-├── models/ # Saved models
-├── viz/ # Output figures
-├── docs/ # Documentation and reports
-├── requirements.txt # Python dependencies
-├── run_pipeline.sh # Orchestration script
-└── README.md
+Alternatively, run individual steps manually:
+```bash
+python data/download_ebd.py
+python data/download_nlcd.py
+python data/fetch_guild_mapping.py
+python data/filter_top_25.py
+python data/merge_and_buffer.py
+python data/aggregate.py
+python data/extract_top_species.py
+python models/train.py
+python models/evaluate.py
+python viz/plot_confusion.py
+python viz/plot_importance.py
+python viz/map_habitat.py
 ```
 
-## Data Sources
+## Project Structure
+- `data/`: Scripts for downloading and processing data.
+- `models/`: Scripts for training and evaluating ML models.
+- `viz/`: Scripts for generating visualizations.
+- `utils/`: Utility functions for configuration and provenance.
+- `tests/`: Unit tests for various components.
+- `notebooks/`: Jupyter notebooks for analysis.
 
-- **eBird Basic Dataset (EBD)**: Downloaded from the Cornell Lab of Ornithology eBird website.
-- **NLCD 2019**: Downloaded from the USGS EarthExplorer.
-- **Foraging Guild Mapping**: Retrieved from the Cornell Lab of Ornithology (Birds of the World).
+## Data Sources
+- **eBird EBD**: Downloaded from the official eBird S3 bucket.
+- **NLCD 2019**: Downloaded from USGS EarthExplorer.
+- **Foraging Guilds**: Retrieved from the Cornell Lab of Ornithology.
 
 ## License
-
-This project is licensed under the MIT License.
-
-## Contact
-
-For questions or issues, please open an issue in the repository.
+[Insert License Information Here]

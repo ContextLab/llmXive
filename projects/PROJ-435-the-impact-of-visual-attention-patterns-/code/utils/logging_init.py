@@ -6,10 +6,14 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+class ConfigError(Exception):
+    """Raised when a configuration file is missing required keys or is invalid."""
+    pass
+
 def get_project_root() -> Path:
     """Return the project root directory (parent of 'code')."""
     current_file = Path(__file__).resolve()
-    # Assume structure: code/utils/logging_init.py -> root is 2 levels up
+    # Structure: code/utils/logging_init.py -> root is 2 levels up
     return current_file.parent.parent.parent
 
 def load_logging_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
@@ -26,6 +30,7 @@ def load_logging_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     Raises:
         FileNotFoundError: If the config file does not exist.
         yaml.YAMLError: If the config file is not valid YAML.
+        ConfigError: If required keys are missing from the config.
     """
     if config_path is None:
         root = get_project_root()
@@ -36,6 +41,12 @@ def load_logging_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     
     with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
+        
+    # Validate required keys per task specification
+    required_keys = ['version', 'formatters', 'handlers', 'loggers', 'root']
+    missing_keys = [key for key in required_keys if key not in config]
+    if missing_keys:
+        raise ConfigError(f"Logging configuration is missing required keys: {missing_keys}")
         
     # Ensure paths in config are absolute or resolved relative to project root
     if 'handlers' in config:
@@ -52,15 +63,15 @@ def setup_global_logger() -> logging.Logger:
     """
     Initialize the global logging system based on code/config/logging_config.yaml.
     
-    This function loads the configuration, applies it to the root logger,
-    and returns the configured logger instance.
+    This function loads the configuration, validates required keys, applies it 
+    to the root logger, and returns the configured logger instance.
     
     Returns:
         The root logger instance, now configured.
         
     Raises:
         FileNotFoundError: If logging_config.yaml is missing.
-        KeyError: If required sections are missing from the config.
+        ConfigError: If required sections are missing from the config.
         ValueError: If the configuration is invalid.
     """
     config = load_logging_config()
@@ -85,6 +96,13 @@ def main() -> None:
         logger.error("This is a test error message.")
         print(f"Logger name: {logger.name}")
         print(f"Logger level: {logging.getLevelName(logger.level)}")
+        print("Logging initialization test passed.")
+    except ConfigError as e:
+        print(f"Configuration error: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"File not found error: {e}")
+        sys.exit(1)
     except Exception as e:
         print(f"Failed to initialize logging: {e}")
         sys.exit(1)

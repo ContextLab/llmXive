@@ -119,7 +119,7 @@ The system measures and reports structural correlates of spatial organization to
 - A range of random seeds provides sufficient statistical power for paired t-tests; if power is insufficient, this limitation is documented in results
 - Multiple comparison correction uses Bonferroni method as default; Holm-Bonferroni is used if Bonferroni is overly conservative (α < 0.001)
 - The spatial memory grid uses 8×8 = 64 slots; if slot capacity is exceeded, FIFO eviction is applied (see Edge Cases). This eviction policy is essential to test the spatial capacity hypothesis and is not merely an implementation detail.
-- All datasets are publicly available and accessible without authentication; if access fails, the pipeline logs the error and skips that dataset. Canonical IDs: 'facebook/babi', 'cse-lambada', 'allenai/c4' (as a proxy for Story Cloze if the original is unavailable).
+- All datasets are publicly available and accessible without authentication; if access fails, the pipeline logs the error and skips that dataset. Canonical IDs: 'facebook/babi', 'cse-lambada', 'allenai/c' (as a proxy for Story Cloze if the original is unavailable).
 - The spatial embedding module uses cosine similarity for retrieval; alternative metrics (Euclidean, dot product) are not tested in this iteration
 - Statistical analysis uses scipy.stats for t-tests; if normality assumptions are violated, non-parametric alternatives are documented
 - The binding problem (spatial tags integrating with distributed representations) is addressed via soft-addressed read mechanisms; explicit binding architectures are deferred to future work

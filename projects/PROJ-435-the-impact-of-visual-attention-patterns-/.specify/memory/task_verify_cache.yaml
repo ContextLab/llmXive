@@ -13,6 +13,13 @@ T004:
     checks, raises `DataInvalidError` with missing items, or writes `state/schema_validation.json`.
     Moreover, the required input file `data/raw/eye_tracking_raw.parquet` is missing,
     so the script cannot be executed as specified. The task therefore remains unfinished.
+T004b:
+  c: false
+  h: ee753e1098c5d943c51cd8e2444d6849f242716f1e8d1ad323a506226145aaf6
+  r: "The required input file `data/raw/eye_tracking_raw.parquet` does not exist,\
+    \ and the expected output `data/derived/empirical_outcomes.csv` is also missing,\
+    \ so the extraction and writing steps cannot have been performed. The task\u2019\
+    s core artifact is absent."
 T005:
   c: false
   h: 7443f2e3a49bf50d9dd9e441a1262551652a88c6907d3459fb4026e3692750e7
@@ -46,15 +53,12 @@ T015:
     \ and other bounding boxes\u2014is missing."
 T018:
   c: false
-  h: 27503bcc5e3e739b84979bc65d40b635d1b75d531731a6fc6e7309c583d008fe
-  r: "The provided `code/02_preprocess_gaze.py` is truncated and does not show the\
-    \ full implementation (e.g., the I\u2011VT detection with a 100\u202Fms threshold,\
-    \ participant filtering, ROI mapping, logging, and writing `data/derived/preprocessed_gaze.csv`\
-    \ with the required columns). Additionally, the required input file `data/raw/eye_tracking_raw.parquet`\
-    \ and the expected output CSV are missing, so the script cannot be verified as\
-    \ functional. The next implementer must supply the complete script logic and ensure\
-    \ the input and output files exist (or can be generated) and meet the specified\
-    \ schema."
+  h: 03b37e32981f01050f78df20606ba25afd84eaea335f00ede1fa4718c1855fa1
+  r: "The repository contains a `code/02_preprocess_gaze.py` file, but it is truncated\
+    \ and does not show the full implementation of data\u2011loss filtering, ROI mapping,\
+    \ or edge\u2011case handling, and the required output `data/derived/preprocessed_gaze.csv`\
+    \ (and the exclusion log) are absent. Without these artifacts the task\u2019s\
+    \ deliverables are not satisfied."
 T020:
   c: false
   h: b16b552bd50c30bf0d3765252607a5c2aa63d15725801054d91cfd3baef8a163
@@ -85,6 +89,14 @@ T039:
     \ code is truncated, leaving uncertainty about the full implementation of the\
     \ CI\u2011overlap summary. The missing CSV (and thus no generated JSON) means\
     \ the task\u2019s requirements are not satisfied."
+T040:
+  c: false
+  h: 0ce498f3399aeb10bd61456a629543fb8030b9714ed5539b7b933e94fe9b9f32
+  r: "The required input `data/derived/preprocessed_gaze.csv` does not exist, so the\
+    \ script cannot compute the report, and no `output/data_quality_report.csv` is\
+    \ present. Additionally, the provided `code/02_data_quality_report.py` is truncated\
+    \ and does not show the final logic that writes the CSV. The task\u2019s core\
+    \ output is therefore missing."
 T045:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

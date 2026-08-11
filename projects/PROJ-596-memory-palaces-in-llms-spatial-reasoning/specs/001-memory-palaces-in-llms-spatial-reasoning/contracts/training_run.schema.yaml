@@ -36,7 +36,10 @@ properties:
       subsampling_rate:
         type: number
         format: float
- description: "Fraction of data used (e.g., 0.1 for [deferred] cap)."
+        description: "Fraction of data used (e.g., 0.1 for [deferred] cap)."
+      cap_reason:
+        type: string
+        description: "Reason for capping (e.g., 'RAM_exceeded', 'default')."
   resource_usage:
     type: object
     properties:

@@ -1,10 +1,16 @@
 status: none
-intent: download bAbI task 3 dataset python package dataset
+intent: download huggingface datasets bAbI LAMBADA Story Cloze python package dataset
 required_fields:
-- story
+- input_text
 - question
 - answer
-- supporting_facts
-cache_key: 9e3b5e3203c8424fdb22e7d6b693800a5891f60f9384403990a087b543e4a6a5
-searched_at: '2026-07-24T16:11:55.625180+00:00'
+- choice_a
+- choice_b
+- choice_c
+- choice_d
+- label
+- story_id
+- metadata
+cache_key: 9c2647611a9a95acfa2f06c1a3a500f7e0e4e0ebbec2740aa6230a626adda88f
+searched_at: '2026-08-11T03:55:32.835706+00:00'
 retry_count: 1

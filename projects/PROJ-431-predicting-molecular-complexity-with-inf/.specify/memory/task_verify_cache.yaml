@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`data/raw`, `data/processed`,
+    `results/models`, `results/reports`, `results/plots`, `code`, `tests`) is provided;
+    the claim lacks any artifact listing or screenshots confirming the folders exist.
+    The task cannot be considered complete until the actual project directories are
+    created and shown.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only the feature specification and user\u2011story\
+    \ details; there are no linting or formatting configuration files (e.g., `.flake8`,\
+    \ `pyproject.toml` with Black settings, or a pre\u2011commit hook) and no evidence\
+    \ that flake8/black have been set up or run. These required artifacts are missing,\
+    \ so the task is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`data/raw`, `data/processed`,
+    `results/models`, `results/reports`, `results/plots`) is present in the provided
+    artifacts; the implementer did not supply any files or listings showing these
+    folders exist. The task therefore remains unfulfilled.
+T019:
+  c: false
+  h: 5951cb6e0a2261bc09c43e0fcfbc4dd0d6111155b28f3a5a484ffcb23cbb5466
+  r: "The required artifact `tests/unit/test_model.py` does not exist on disk, so\
+    \ no unit test for the Bonferroni and Benjamini\u2011Hochberg correction logic\
+    \ is provided. The task therefore remains unfinished."
+T023:
+  c: false
+  h: a8837afbaefb5266e994bcf60f1e5099b713dcfc6d081e6cf8f695ac7bf6539d
+  r: The repository lacks the required `data/processed/enriched.csv` file, and `code/model.py`
+    does not contain a `train_model` CLI command (only helper functions are present).
+    Both the input data and the specified CLI entry point are missing, so the task
+    is not fulfilled.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `ridge_logS.pkl` or `ridge_logP.pkl` files, nor any JSON/report containing\
+    \ RMSE and Pearson\u202Fr values, are present. Consequently the required calculation\
+    \ of metrics on the test set and saving of the model artifacts has not been demonstrated."

@@ -2,93 +2,137 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and flows for the Memory Palaces project. It ensures that all data is consistent, traceable, and compliant with the project's constitution.
+This document defines the data structures, schemas, and storage formats used in the project. All data is stored in `data/` (raw) and `artifacts/results/` (processed).
 
-## Core Entities
+## Raw Data
 
-### MemorySlot
-Represents a discrete location in the 2-D grid.
-- `x`: Integer (0-7)
-- `y`: Integer (0-7)
-- `embedding`: Float32 tensor (vector of size 768)
-- `content`: String (episodic chunk text)
-- `timestamp`: Float (order of assignment)
+-   **bAbI Task 3**: Downloaded from `facebook/babi` and stored as parquet.
+-   **LAMBADA**: Downloaded from `EleutherAI/lambada_openai` and stored as parquet.
+-   **Story Cloze**: Downloaded from `rocstories` and stored as parquet.
+-   **Checksums**: SHA-256 checksums are recorded for all raw files in `state/...yaml`.
 
-### EpisodicChunk
-A text unit assigned to a memory slot.
-- `id`: String (unique identifier)
-- `text`: String
-- `slot_coords`: Tuple (x, y)
-- `temporal_order`: Integer
+## Processed Data
 
-### RecallAccuracy
-Metric computed per sample.
-- `dataset`: String (e.g., "babi", "lambada")
-- `seed`: Integer (0-4)
-- `variant`: String ("spatial", "baseline")
-- `accuracy`: Float (0.0-1.0)
-- `interference_distance`: Float (optional)
+### 1. Model Checkpoints
 
-## Data Flow
+-   **Format**: Hugging Face `transformers` checkpoint (`.bin`, `.json`).
+-   **Location**: `code/models/spatial/` and `code/models/non_spatial/`.
+-   **Naming**: `model_seed_{seed}_variant_{variant}.pt`.
 
-1. **Download**: Datasets are fetched from Hugging Face via `datasets.load_dataset(streaming=True)`.
-2. **Preprocess**: Text is chunked into `EpisodicChunk` objects. Coordinates are assigned via hashing.
-3. **Train**: Models are trained on chunks. Memory slots are updated.
-4. **Evaluate**: Exact-match recall is computed. Interference distance is measured.
-5. **Analyze**: Metrics are aggregated. Statistical tests are performed.
-6. **Log**: Results are written to `data/results/` in JSON format.
+### 2. Evaluation Results
 
-## Schema Definitions
+-   **Format**: JSON.
+-   **Location**: `artifacts/results/run_summary.json`.
+-   **Schema**: See `contracts/results.schema.yaml`.
+
+### 3. Structural Metrics (Per-Epoch)
+
+-   **Format**: JSON.
+-   **Location**: `artifacts/metrics/epoch_{epoch}.json`.
+-   **Content**: Slot occupancy, coordinate variance, interference distance per sample.
+-   **Schema**: See `contracts/epoch_metrics.schema.yaml`.
+
+### 4. Training Run Logs
+
+-   **Format**: JSON.
+-   **Location**: `artifacts/logs/training_run_{run_id}.json`.
+-   **Content**: Hyperparameters, resource usage, subsampling rate.
+-   **Schema**: See `contracts/training_run.schema.yaml`.
+
+## Contracts
+
+The following contracts define the structure of the data.
 
 ### Dataset Schema
+
 ```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
 properties:
   dataset_name:
     type: string
-    description: "Name of the dataset (e.g., 'babi', 'lambada')"
-  split:
+    description: "Name of the dataset (e.g., 'babi_task3')"
+  source_url:
     type: string
-    description: "Data split (e.g., 'train', 'test')"
+    description: "Verified URL or Hugging Face ID"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw file"
   num_samples:
     type: integer
-    description: "Number of samples in the split"
-  features:
-    type: array
-    items:
-      type: string
-    description: "List of feature names (e.g., 'text', 'label')"
+    description: "Total number of samples in the dataset"
 ```
 
-### Result Schema
+### Model Output Schema
+
 ```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
 properties:
-  run_id:
-    type: string
-    description: "Unique identifier for the run"
-  dataset:
-    type: string
   seed:
     type: integer
+    description: "Random seed used for this run"
   variant:
     type: string
-  accuracy:
+    enum: ["spatial", "non_spatial"]
+    description: "Model variant"
+  dataset:
+    type: string
+    description: "Dataset name"
+  recall_accuracy:
     type: number
     description: "Exact-match recall accuracy"
   interference_distance:
     type: number
     description: "Drop in recall under interference"
   slot_occupancy:
-    type: object
-    description: "Distribution of slot usage"
+    type: array
+    items:
+      type: integer
+    description: "Count of items per slot"
+  coordinate_variance:
+    type: number
+    description: "Trace of the 2D covariance matrix"
+```
+
+### Results Schema
+
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Unique ID for the experiment run"
   timestamp:
     type: string
     format: date-time
+    description: "UTC timestamp of the run"
+  datasets:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        spatial_mean:
+          type: number
+        spatial_std:
+          type: number
+        non_spatial_mean:
+          type: number
+        non_spatial_std:
+          type: number
+        p_value:
+          type: number
+        effect_size:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+        interference_spatial:
+          type: number
+        interference_non_spatial:
+          type: number
 ```
-
-## Data Hygiene
-
-- **Checksums**: All downloaded datasets are checksummed and recorded in `state/`.
-- **Immutability**: Raw data is never modified. Derivations are written to new files.
-- **PII**: No personally identifying information is stored.

@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  seed:
+    type: integer
+    description: "Random seed used for this run"
+  variant:
+    type: string
+    enum: ["spatial", "non_spatial"]
+    description: "Model variant"
+  dataset:
+    type: string
+    description: "Dataset name"
+  recall_accuracy:
+    type: number
+    description: "Exact-match recall accuracy"
+  interference_distance:
+    type: number
+    description: "Drop in recall under interference"
+  slot_occupancy:
+    type: array
+    items:
+      type: integer
+    description: "Count of items per slot"
+  coordinate_variance:
+    type: number
+    description: "Trace of the 2D covariance matrix"
+required:
+  - seed
+  - variant
+  - dataset
+  - recall_accuracy
+  - interference_distance
+  - slot_occupancy
+  - coordinate_variance

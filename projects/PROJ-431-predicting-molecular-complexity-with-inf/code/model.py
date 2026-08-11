@@ -6,295 +6,263 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 from scipy.stats import pearsonr
-from scipy import stats
+import logging
+
+logger = logging.getLogger(__name__)
 
 def train_ridge_model(
-    X: np.ndarray, y: np.ndarray, alpha: float = 1.0, seed: int = 42
-) -> Tuple[Ridge, Dict[str, Any]]:
+    X: np.ndarray,
+    y: np.ndarray,
+    alpha: float = 1.0,
+    random_state: int = 42
+) -> Tuple[Ridge, Dict[str, float]]:
     """
-    Train a Ridge Regression model and return the model and metrics.
-    
+    Train a Ridge Regression model and compute metrics.
+
     Args:
         X: Feature matrix (n_samples, n_features)
         y: Target vector (n_samples,)
         alpha: Regularization strength
-        seed: Random seed for reproducibility
-    
+        random_state: Random seed for reproducibility
+
     Returns:
-        Tuple of (trained model, metrics dict with rmse, r, p_value)
+        Tuple of (trained model, metrics dict with 'rmse', 'pearson_r')
     """
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=seed
+        X, y, test_size=0.2, random_state=random_state
     )
-    
+
     model = Ridge(alpha=alpha)
     model.fit(X_train, y_train)
-    
+
     y_pred = model.predict(X_test)
-    
-    # Calculate RMSE
-    rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
-    
-    # Calculate Pearson r and p-value
-    r, p_value = pearsonr(y_test, y_pred)
-    
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    pearson_r, _ = pearsonr(y_test, y_pred)
+
     metrics = {
-        "rmse": float(rmse),
-        "r": float(r),
-        "p_value": float(p_value),
-        "n_train": len(y_train),
-        "n_test": len(y_test),
-        "alpha": float(alpha)
+        'rmse': float(rmse),
+        'pearson_r': float(pearson_r)
     }
-    
+
     return model, metrics
 
 def compute_bonferroni_pvalue(p_value: float, n_tests: int) -> float:
     """
-    Apply Bonferroni correction to a p-value.
-    
+    Compute Bonferroni-adjusted p-value.
+
     Args:
         p_value: Raw p-value
-        n_tests: Total number of tests performed
-    
-    Returns:
-        Bonferroni-adjusted p-value (capped at 1.0)
-    """
-    adjusted = p_value * n_tests
-    return min(adjusted, 1.0)
+        n_tests: Number of hypothesis tests performed
 
-def compute_benjamini_hochberg_pvalues(
-    p_values: List[float], alpha: float = 0.05
-) -> List[Dict[str, Any]]:
+    Returns:
+        Adjusted p-value (capped at 1.0)
     """
-    Apply Benjamini-Hochberg FDR correction to a list of p-values.
-    
+    return min(p_value * n_tests, 1.0)
+
+def compute_benjamini_hochberg_pvalues(p_values: List[float]) -> List[float]:
+    """
+    Compute Benjamini-Hochberg (FDR) adjusted p-values.
+
     Args:
         p_values: List of raw p-values
-        alpha: Significance level for FDR control
-    
+
     Returns:
-        List of dicts with 'raw_p', 'bh_p', 'significant' for each test
+        List of adjusted p-values
     """
     n = len(p_values)
     if n == 0:
         return []
-    
-    # Sort p-values and keep track of original indices
-    indexed_pvals = list(enumerate(p_values))
-    sorted_pvals = sorted(indexed_pvals, key=lambda x: x[1])
-    
-    bh_pvalues = []
-    for rank, (idx, p_val) in enumerate(sorted_pvals, start=1):
-        # BH critical value
-        bh_val = (rank / n) * alpha
-        bh_p = min(p_val * (n / rank), 1.0)
-        bh_pvalues.append({
-            "index": idx,
-            "raw_p": float(p_val),
-            "bh_p": float(bh_p),
-            "critical_value": float(bh_val)
-        })
-    
-    # Sort back to original order
-    bh_pvalues_sorted = sorted(bh_pvalues, key=lambda x: x["index"])
-    return bh_pvalues_sorted
+
+    indexed_pvals = sorted(enumerate(p_values), key=lambda x: x[1])
+    adjusted = [0.0] * n
+    last_idx = indexed_pvals[-1][0]
+    adjusted[last_idx] = min(p_values[last_idx] * n, 1.0)
+
+    for i in range(n - 2, -1, -1):
+        idx, pval = indexed_pvals[i]
+        adjusted[idx] = min(pval * n / (i + 1), adjusted[indexed_pvals[i + 1][0]])
+
+    return adjusted
 
 def run_sensitivity_analysis(
-    X: np.ndarray, y: np.ndarray, alpha_values: List[float], seed: int = 42
+    data_path: str,
+    output_path: str,
+    alpha_range: Optional[List[float]] = None,
+    feature_col: str = 'atom_entropy',
+    target_col: str = 'logS'
 ) -> Dict[str, Any]:
     """
-    Run sensitivity analysis across different alpha values.
-    
+    Perform sensitivity analysis by sweeping across alpha values.
+
     Args:
-        X: Feature matrix
-        y: Target vector
-        alpha_values: List of alpha values to test
-        seed: Random seed
-    
+        data_path: Path to the enriched CSV file
+        output_path: Path to save the sensitivity sweep JSON report
+        alpha_range: List of alpha values to sweep (low, medium, high)
+        feature_col: Name of the entropy feature column
+        target_col: Name of the target property column
+
     Returns:
-        Dict with sensitivity metrics (range, mean, stability)
+        Dictionary containing sensitivity metrics
     """
-    results = []
-    for alpha in alpha_values:
-        _, metrics = train_ridge_model(X, y, alpha=alpha, seed=seed)
-        results.append({
-            "alpha": alpha,
-            "rmse": metrics["rmse"],
-            "r": metrics["r"],
-            "p_value": metrics["p_value"]
-        })
-    
-    rmse_values = [r["rmse"] for r in results]
-    r_values = [r["r"] for r in results]
-    
-    # Calculate relative range (stability metric)
-    rmse_range = (max(rmse_values) - min(rmse_values)) / (np.mean(rmse_values) + 1e-8)
-    r_range = (max(r_values) - min(r_values)) / (np.mean(r_values) + 1e-8)
-    
-    return {
-        "alpha_sweep": results,
-        "rmse_relative_range": float(rmse_range),
-        "r_relative_range": float(r_range),
-        "stability_rmse": "stable" if rmse_range < 0.1 else "unstable",
-        "stability_r": "stable" if r_range < 0.1 else "unstable"
+    if alpha_range is None:
+        # Default sweep: low (0.1), medium (1.0), high (10.0)
+        alpha_range = [0.1, 1.0, 10.0]
+
+    logger.info(f"Loading data from {data_path}")
+    df = pd.read_csv(data_path)
+
+    # Drop rows with missing values in feature or target
+    df = df.dropna(subset=[feature_col, target_col])
+
+    if len(df) == 0:
+        raise ValueError("No valid data points after dropping NaNs.")
+
+    X = df[[feature_col]].values
+    y = df[target_col].values
+
+    results = {
+        'alpha_values': alpha_range,
+        'metrics': []
     }
+
+    rmse_list = []
+    pearson_list = []
+
+    for alpha in alpha_range:
+        logger.info(f"Training model with alpha={alpha}")
+        model, metrics = train_ridge_model(X, y, alpha=alpha)
+
+        result_entry = {
+            'alpha': alpha,
+            'rmse': metrics['rmse'],
+            'pearson_r': metrics['pearson_r']
+        }
+        results['metrics'].append(result_entry)
+        rmse_list.append(metrics['rmse'])
+        pearson_list.append(metrics['pearson_r'])
+
+    # Calculate stability metrics
+    rmse_mean = np.mean(rmse_list)
+    rmse_range = (max(rmse_list) - min(rmse_list)) / rmse_mean if rmse_mean != 0 else 0.0
+
+    pearson_mean = np.mean(pearson_list)
+    pearson_range = (max(pearson_list) - min(pearson_list)) / abs(pearson_mean) if pearson_mean != 0 else 0.0
+
+    stability_metrics = {
+        'rmse_relative_range': float(rmse_range),
+        'pearson_relative_range': float(pearson_range),
+        'rmse_mean': float(rmse_mean),
+        'pearson_mean': float(pearson_mean),
+        'rmse_min': float(min(rmse_list)),
+        'rmse_max': float(max(rmse_list)),
+        'pearson_min': float(min(pearson_list)),
+        'pearson_max': float(max(pearson_list))
+    }
+
+    results['stability_metrics'] = stability_metrics
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    logger.info(f"Sensitivity analysis results saved to {output_path}")
+
+    return results
 
 def train_models_from_csv(
     data_path: str,
+    model_dir: str,
+    report_path: str,
     feature_cols: List[str],
-    target_col: str,
-    output_model_path: str,
-    output_metrics_path: str,
-    alpha: float = 1.0,
-    seed: int = 42
+    target_cols: List[str],
+    alpha: float = 1.0
 ) -> Dict[str, Any]:
     """
-    Train models from a CSV file and save results.
-    
+    Train Ridge models for multiple targets and save artifacts.
+
     Args:
-        data_path: Path to input CSV
+        data_path: Path to enriched CSV
+        model_dir: Directory to save model pickles
+        report_path: Path to save JSON report
         feature_cols: List of feature column names
-        target_col: Target column name
-        output_model_path: Path to save model pickle
-        output_metrics_path: Path to save metrics JSON
-        alpha: Ridge alpha parameter
-        seed: Random seed
-    
+        target_cols: List of target column names
+        alpha: Ridge regularization parameter
+
     Returns:
-        Metrics dictionary
+        Dictionary of metrics for all models
     """
+    os.makedirs(model_dir, exist_ok=True)
+
     df = pd.read_csv(data_path)
-    
-    # Drop rows with missing values in features or target
-    mask = df[feature_cols + [target_col]].notna().all(axis=1)
-    df_clean = df[mask]
-    
-    X = df_clean[feature_cols].values
-    y = df_clean[target_col].values
-    
-    model, metrics = train_ridge_model(X, y, alpha=alpha, seed=seed)
-    
-    # Save model
-    os.makedirs(os.path.dirname(output_model_path), exist_ok=True)
-    with open(output_model_path, 'wb') as f:
-        pickle.dump(model, f)
-    
-    # Save metrics
-    os.makedirs(os.path.dirname(output_metrics_path), exist_ok=True)
-    with open(output_metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    return metrics
+    df = df.dropna(subset=feature_cols + target_cols)
+
+    X = df[feature_cols].values
+
+    all_metrics = {}
+
+    for target in target_cols:
+        y = df[target].values
+        model, metrics = train_ridge_model(X, y, alpha=alpha)
+
+        model_path = os.path.join(model_dir, f'ridge_{target}.pkl')
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+
+        all_metrics[target] = metrics
+        logger.info(f"Trained model for {target}: RMSE={metrics['rmse']:.4f}, r={metrics['pearson_r']:.4f}")
+
+    with open(report_path, 'w') as f:
+        json.dump(all_metrics, f, indent=2)
+
+    return all_metrics
 
 def run_full_analysis(
     data_path: str,
-    feature_col: str,
-    target_col: str,
-    output_dir: str,
-    alpha: float = 1.0,
-    seed: int = 42
+    model_dir: str,
+    report_path: str,
+    sensitivity_path: str,
+    feature_cols: List[str],
+    target_cols: List[str],
+    alpha: float = 1.0
 ) -> Dict[str, Any]:
     """
-    Run full analysis including model training, baseline comparison, and report generation.
-    
+    Run full analysis: train models and perform sensitivity sweep.
+
     Args:
         data_path: Path to enriched CSV
-        feature_col: Name of entropy feature column (e.g., 'atom_entropy')
-        target_col: Name of target column (e.g., 'logS')
-        output_dir: Directory to save outputs
-        alpha: Ridge alpha parameter
-        seed: Random seed
-    
+        model_dir: Directory for model files
+        report_path: Path for main metrics JSON
+        sensitivity_path: Path for sensitivity sweep JSON
+        feature_cols: Feature columns
+        target_cols: Target columns
+        alpha: Default alpha for model training
+
     Returns:
-        Complete analysis report dictionary
+        Combined analysis results
     """
-    from baseline import run_baseline_analysis, compute_partial_correlation
-    
-    # Load data
-    df = pd.read_csv(data_path)
-    
-    # Prepare features and target
-    feature_cols = [feature_col]
-    mask = df[feature_cols + [target_col]].notna().all(axis=1)
-    df_clean = df[mask]
-    
-    X = df_clean[feature_cols].values
-    y = df_clean[target_col].values
-    
-    # Train main model
-    model, main_metrics = train_ridge_model(X, y, alpha=alpha, seed=seed)
-    
-    # Run baseline analysis
-    baseline_results = run_baseline_analysis(
-        data_path=data_path,
-        target_col=target_col,
-        output_dir=output_dir,
-        seed=seed
+    # Train main models
+    metrics = train_models_from_csv(
+        data_path, model_dir, report_path, feature_cols, target_cols, alpha
     )
-    
-    # Compute partial correlation (controlling for molecular weight)
-    partial_corr = None
-    if 'molecular_weight' in df_clean.columns:
-        mw = df_clean['molecular_weight'].values
-        partial_corr = compute_partial_correlation(
-            X.flatten(), y, mw
+
+    # Run sensitivity analysis for each target using the primary feature
+    sensitivity_results = {}
+    for target in target_cols:
+        logger.info(f"Running sensitivity analysis for {target}")
+        sweep_data = run_sensitivity_analysis(
+            data_path=data_path,
+            output_path=sensitivity_path.replace('.json', f'_{target}.json'),
+            alpha_range=[0.1, 1.0, 10.0],
+            feature_col=feature_cols[0],
+            target_col=target
         )
-    
-    # Calculate Bonferroni-adjusted p-value (2 tests: logS and logP typically)
-    bonf_p = compute_bonferroni_pvalue(main_metrics["p_value"], n_tests=2)
-    
-    # Calculate Benjamini-Hochberg adjusted p-values
-    # We'll compare entropy vs size baseline p-values
-    all_p_values = [main_metrics["p_value"]]
-    if 'baseline_metrics' in baseline_results:
-        for baseline_name, bm in baseline_results['baseline_metrics'].items():
-            if 'p_value' in bm:
-                all_p_values.append(bm['p_value'])
-    
-    bh_results = compute_benjamini_hochberg_pvalues(all_p_values)
-    
-    # Determine if entropy model beats size baseline (Scientific Success Criterion)
-    size_baseline_rmse = baseline_results.get('size_baseline_rmse', float('inf'))
-    entropy_beats_size = main_metrics["rmse"] < size_baseline_rmse
-    
-    # Construct Entropy-vs-Size comparison table
-    comparison_table = {
-        "model": "Entropy (Ridge)",
-        "rmse": main_metrics["rmse"],
-        "r": main_metrics["r"],
-        "p_value": main_metrics["p_value"],
-        "bonferroni_p": bonf_p,
-        "size_baseline_rmse": size_baseline_rmse,
-        "entropy_beats_size": entropy_beats_size
+        sensitivity_results[target] = sweep_data['stability_metrics']
+
+    return {
+        'model_metrics': metrics,
+        'sensitivity_analysis': sensitivity_results
     }
-    
-    # Build final report
-    report = {
-        "target_property": target_col,
-        "model_type": "Ridge Regression",
-        "alpha": alpha,
-        "n_samples": len(y),
-        "train_size": main_metrics["n_train"],
-        "test_size": main_metrics["n_test"],
-        "metrics": {
-            "rmse": main_metrics["rmse"],
-            "pearson_r": main_metrics["r"],
-            "p_value": main_metrics["p_value"],
-            "bonferroni_adjusted_p": bonf_p
-        },
-        "benjamini_hochberg_adjusted": bh_results,
-        "partial_correlation_with_mw": partial_corr,
-        "baseline_comparison": baseline_results,
-        "entropy_vs_size_comparison": comparison_table,
-        "scientific_success": entropy_beats_size
-    }
-    
-    # Save report
-    report_path = os.path.join(output_dir, "metrics.json")
-    os.makedirs(os.path.dirname(report_path), exist_ok=True)
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    return report

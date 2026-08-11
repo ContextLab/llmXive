@@ -1,0 +1,87 @@
+- artifact_path: projects/PROJ-431-predicting-molecular-complexity-with-inf/docs/research.md
+  attempts: 1
+  canonical: ESOL dataset contains approximately 1128 drug-like molecules
+  claim_id: c_d645a7c0
+  context: Section 3.1 Data Source describes the dataset used for the analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis utilizes the ESOL (Estimated SOLubility) dataset, a standard
+    benchmark in cheminformatics containing experimental logS values and SMILES strings
+    for approximately 1,128 drug-like molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:28:49Z'
+- artifact_path: projects/PROJ-431-predicting-molecular-complexity-with-inf/docs/research.md
+  attempts: 1
+  canonical: Molecules parsed from SMILES into RDKit Mol objects
+  claim_id: c_b5af7d58
+  context: Section 3.2 Feature Engineering describes the graph construction process.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Molecules_parsed_from_SMILES_into_RDKit_Mol_objects
+  kind: entity_fact
+  raw_text: Molecules are parsed from SMILES into RDKit Mol objects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:29:33Z'
+- artifact_path: projects/PROJ-431-predicting-molecular-complexity-with-inf/docs/research.md
+  attempts: 1
+  canonical: Validation used 80/20 Train/Test split with random seed 42
+  claim_id: c_96ecf512
+  context: Section 3.3 Modeling details the validation strategy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation used an 80/20 Train/Test split with random seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:30:14Z'
+- artifact_path: projects/PROJ-431-predicting-molecular-complexity-with-inf/docs/research.md
+  attempts: 1
+  canonical: Calculating degree distributions is O(N)
+  claim_id: c_4941667c
+  context: Under the section 'Justification for Selection' for Shannon Entropy, the
+    text notes the computational tractability of the metric.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculating_degree_distributions_is_O(N)
+  kind: entity_fact
+  raw_text: Calculating degree distributions is O(N) where N is the number of atoms,
+    making it feasible for high-throughput screening of millions of molecules.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:32:17Z'
+- artifact_path: projects/PROJ-431-predicting-molecular-complexity-with-inf/docs/research.md
+  attempts: 1
+  canonical: Calculating MI for all pairs of structural features scales poorly (O(N^2)
+    or worse)
+  claim_id: c_9325019c
+  context: Under the section 'Why Not Selected' for Mutual Information, the text cites
+    computational cost as a limiting factor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculating MI for all pairs of structural features scales poorly (O(N^2)
+    or worse) and often requires discretization or binning strategies that introduce
+    arbitrary hyperparameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:32:54Z'

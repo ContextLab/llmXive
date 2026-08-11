@@ -13,8 +13,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T019** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_slr_data.csv, data/processed/.checksums.json
 - **T023** — declared artifact(s) missing/empty/invalid: models/dynamics.py
 - **T024** — declared artifact(s) missing/empty/invalid: models/estimator.py
-- **T025** — No code defining `extract_joint_parameters` or any related file was provided; the required function, its return dictionary, and the extraction of `ac`, `g`, and covariance from an `OrbitSolution` are absent. The task therefore lacks the necessary artifact.
-- **T026** — No `analysis/eotvos.py` file was presented, and there is no evidence that such a module exists or contains the required logic to compute η = |a_c| / g and its 95 % confidence interval from the joint covariance matrix. The task therefore remains unfulfilled.
-- **T027** — No code, script, or documentation implementing the required fallback logic (relax tolerance, log warning, output best‑fit) was provided; the evidence consists only of the task description and specifications, with no tangible artifact to verify that the feature was actually built. The implementer must supply the implementation (e.g., source file, unit tests, and example run logs) for review.
-- **T028** — declared artifact(s) missing/empty/invalid: data/results/orbit_solutions.json, data/results/eotvos_metrics.json
-- **T032** — No `analysis/validation.py` file or its contents were presented, and there is no evidence that the required F‑test and BIC model‑comparison functionality has been implemented. The task’s deliverable is missing, so the requirement is not satisfied.

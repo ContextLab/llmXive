@@ -1,178 +1,192 @@
+"""
+Extract Empirical Outcome (Task T004b)
+
+Loads the raw eye-tracking dataset, extracts belief ratings and headline text,
+handles common column aliases, and writes the derived empirical outcomes CSV.
+"""
+
 import os
 import sys
 import logging
 import hashlib
 import json
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import shared utilities from the project structure
+from utils.logging_init import setup_global_logger
+from utils.config_loader import load_config
 
-# Column aliases for belief_rating mapping
-BELIEF_RATING_ALIASES = [
-    'belief_rating',
-    'rating',
-    'response',
-    'belief_score',
-    'trust_score',
-    'credibility_rating',
-    'credibility_score'
-]
-
-REQUIRED_COLUMNS = ['participant_id', 'headline_id', 'belief_rating', 'headline_text']
-
-
+# Custom exception for data missing scenarios
 class DataMissingError(Exception):
-    """Raised when required data columns are missing and cannot be mapped."""
+    """Raised when required data or columns are missing."""
     pass
 
-
 def get_project_root() -> Path:
-    """Determine the project root directory."""
-    current = Path(__file__).resolve()
-    # Assume structure: code/01_extract_empirical_outcome.py -> project root is parent of code/
-    return current.parent.parent
+    """Returns the project root directory (parent of 'code')."""
+    return Path(__file__).resolve().parent.parent
 
-
-def load_raw_data(input_path: Path) -> pd.DataFrame:
+def load_raw_data(raw_path: Path) -> pd.DataFrame:
     """
-    Load the raw eye-tracking dataset from a Parquet file.
+    Loads the raw eye-tracking dataset from a Parquet file.
 
     Args:
-        input_path: Path to the raw parquet file.
+        raw_path: Path to the raw parquet file.
 
     Returns:
-        DataFrame containing the raw data.
+        Loaded DataFrame.
 
     Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file format is unsupported or data cannot be read.
+        DataMissingError: If the file does not exist or cannot be read.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading raw data from {input_path}")
+    if not raw_path.exists():
+        raise DataMissingError(f"Raw data file not found: {raw_path}")
+    
     try:
-        df = pd.read_parquet(input_path)
-        logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+        df = pd.read_parquet(raw_path)
         return df
     except Exception as e:
-        raise ValueError(f"Failed to read parquet file: {e}") from e
+        raise DataMissingError(f"Failed to read raw data from {raw_path}: {e}")
 
-
-def verify_schema(df: pd.DataFrame) -> Tuple[bool, str]:
+def verify_schema(df: pd.DataFrame, logger: logging.Logger) -> Tuple[str, bool]:
     """
-    Verify that the dataframe contains the necessary columns for outcome extraction.
-    Attempts to map common aliases to 'belief_rating' if the exact name is missing.
+    Verifies that the dataframe contains the required columns for empirical outcome extraction.
+    Handles common aliases for 'belief_rating' and 'headline_text'.
 
     Args:
-        df: The input dataframe.
+        df: The raw dataframe.
+        logger: Logger instance.
 
     Returns:
-        Tuple of (success: bool, message: str)
+        Tuple of (canonical_belief_col, canonical_headline_col) if valid, else raises DataMissingError.
     """
-    required_static = ['participant_id', 'headline_id', 'headline_text']
-    available_cols = set(df.columns)
-
-    # Check static requirements
-    missing_static = [col for col in required_static if col not in available_cols]
-    if missing_static:
-        return False, f"Missing required static columns: {missing_static}"
-
-    # Check for belief_rating or its aliases
-    found_rating_col = None
-    for alias in BELIEF_RATING_ALIASES:
-        if alias in available_cols:
-            found_rating_col = alias
+    required_cols = set(df.columns)
+    
+    # Define aliases for belief_rating
+    belief_aliases = ['belief_rating', 'belief', 'rating', 'self_reported_belief']
+    belief_col = None
+    for alias in belief_aliases:
+        if alias in required_cols:
+            belief_col = alias
+            if alias != 'belief_rating':
+                logger.warning(f"Column '{alias}' found. Mapping to 'belief_rating'.")
             break
-
-    if found_rating_col is None:
-        available_str = ", ".join(sorted(available_cols))
+    
+    if not belief_col:
         raise DataMissingError(
-            f"Could not find 'belief_rating' or any of its aliases {BELIEF_RATING_ALIASES}. "
-            f"Available columns: {available_str}"
+            f"Missing required column for belief. Searched for: {belief_aliases}. "
+            f"Available columns: {list(df.columns)}"
         )
 
-    if found_rating_col != 'belief_rating':
-        logger.warning(f"Mapping column '{found_rating_col}' to 'belief_rating'")
-        df['belief_rating'] = df[found_rating_col]
+    # Define aliases for headline_text
+    headline_aliases = ['headline_text', 'headline', 'text', 'stimulus_text']
+    headline_col = None
+    for alias in headline_aliases:
+        if alias in required_cols:
+            headline_col = alias
+            if alias != 'headline_text':
+                logger.warning(f"Column '{alias}' found. Mapping to 'headline_text'.")
+            break
+    
+    if not headline_col:
+        raise DataMissingError(
+            f"Missing required column for headline text. Searched for: {headline_aliases}. "
+            f"Available columns: {list(df.columns)}"
+        )
 
-    return True, "Schema verified successfully"
+    # Check for participant_id and headline_id
+    if 'participant_id' not in required_cols:
+        raise DataMissingError("Missing required column 'participant_id'")
+    if 'headline_id' not in required_cols:
+        raise DataMissingError("Missing required column 'headline_id'")
 
+    return belief_col, headline_col
 
-def extract_outcomes(df: pd.DataFrame) -> pd.DataFrame:
+def extract_outcomes(
+    df: pd.DataFrame, 
+    belief_col: str, 
+    headline_col: str, 
+    logger: logging.Logger
+) -> pd.DataFrame:
     """
-    Extract the specific columns required for empirical outcomes.
+    Extracts the required columns and renames them to the canonical schema.
 
     Args:
-        df: The validated dataframe.
+        df: Raw dataframe.
+        belief_col: Canonical name for the belief column.
+        headline_col: Canonical name for the headline column.
+        logger: Logger instance.
 
     Returns:
-        DataFrame with columns: participant_id, headline_id, belief_rating, headline_text
+        DataFrame with columns: participant_id, headline_id, belief_rating, headline_text.
     """
-    outcome_df = df[REQUIRED_COLUMNS].copy()
+    outcome_df = df[['participant_id', 'headline_id', belief_col, headline_col]].copy()
+    outcome_df.rename(columns={
+        belief_col: 'belief_rating',
+        headline_col: 'headline_text'
+    }, inplace=True)
 
-    # Ensure correct data types if possible
-    if 'belief_rating' in outcome_df.columns:
-        # Try to convert to numeric, coercing errors to NaN (which we might drop later if needed)
-        outcome_df['belief_rating'] = pd.to_numeric(outcome_df['belief_rating'], errors='coerce')
-
-    logger.info(f"Extracted outcomes shape: {outcome_df.shape}")
+    # Ensure types
+    outcome_df['belief_rating'] = pd.to_numeric(outcome_df['belief_rating'], errors='coerce')
+    
+    logger.info(f"Extracted {len(outcome_df)} rows for empirical outcomes.")
     return outcome_df
 
-
 def main():
-    """Main entry point for the empirical outcome extraction script."""
+    """Main entry point for the empirical outcome extraction task."""
     project_root = get_project_root()
-    input_path = project_root / "data" / "raw" / "eye_tracking_raw.parquet"
-    output_path = project_root / "data" / "derived" / "empirical_outcomes.csv"
+    
+    # Setup logging
+    logger = setup_global_logger("empirical_outcome_extractor")
+    logger.info("Starting empirical outcome extraction (Task T004b).")
+
+    # Load configuration
+    try:
+        config = load_config(project_root / "code" / "config.yaml")
+        random_seed = config.get("random_seed", 42)
+        logger.info(f"Random seed set to: {random_seed}")
+    except Exception as e:
+        logger.warning(f"Could not load config.yaml: {e}. Proceeding with defaults.")
+
+    # Define paths
+    raw_data_path = project_root / "data" / "raw" / "eye_tracking_raw.parquet"
+    output_dir = project_root / "data" / "derived"
+    output_path = output_dir / "empirical_outcomes.csv"
 
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Starting empirical outcome extraction. Input: {input_path}")
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        # 1. Load raw data
-        df = load_raw_data(input_path)
+        # Load data
+        logger.info(f"Loading raw data from {raw_data_path}...")
+        df = load_raw_data(raw_data_path)
 
-        # 2. Verify schema and map aliases
-        # This may raise DataMissingError if no mapping is found
-        success, msg = verify_schema(df)
-        if not success:
-            raise DataMissingError(msg)
+        # Verify schema
+        logger.info("Verifying dataset schema...")
+        belief_col, headline_col = verify_schema(df, logger)
 
-        # 3. Extract outcomes
-        outcome_df = extract_outcomes(df)
+        # Extract outcomes
+        logger.info("Extracting outcomes...")
+        outcome_df = extract_outcomes(df, belief_col, headline_col, logger)
 
-        # 4. Drop any rows where belief_rating became NaN during conversion (if applicable)
-        initial_count = len(outcome_df)
-        outcome_df = outcome_df.dropna(subset=['belief_rating'])
-        dropped_count = initial_count - len(outcome_df)
-        if dropped_count > 0:
-            logger.warning(f"Dropped {dropped_count} rows due to missing/invalid belief_rating")
-
-        # 5. Save to CSV
+        # Write output
+        logger.info(f"Writing empirical outcomes to {output_path}...")
         outcome_df.to_csv(output_path, index=False)
-        logger.info(f"Successfully wrote {len(outcome_df)} rows to {output_path}")
+        
+        # Log success
+        logger.info(f"Task T004b completed successfully. Output: {output_path}")
+        print(f"Success: {output_path}")
 
     except DataMissingError as e:
-        logger.error(f"Data schema error: {e}")
-        raise
-    except FileNotFoundError as e:
-        logger.error(f"File not found error: {e}")
-        raise
+        logger.error(f"Data validation failed: {e}")
+        print(f"Error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during extraction: {e}")
-        raise
-
+        logger.error(f"Unexpected error during extraction: {e}", exc_info=True)
+        print(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,37 +1,19 @@
 # Project Configuration
-# This file contains all configurable parameters for the eye-tracking analysis pipeline.
-
-# I-VT Fixation Detection Parameters
-# Per spec FR-001: Only duration threshold is used.
-ivt_duration_threshold: 100  # milliseconds
-
-# Data Quality Thresholds
-data_loss_threshold_percent: 20.0
-
-# Reproducibility
 random_seed: 42
 
-# ROI Configuration
-roi_types:
-  - source_attribution
-  - other
+# Dataset Source
+dataset_url: "https://huggingface.co/datasets/eye-tracking/visual-attention-misleading-headlines/resolve/main/data/eye_tracking_raw.parquet"
 
-# ROI Definitions (coordinates in pixels, assuming 1000x1000 screen)
-rois:
-  source_attribution:
-    x_min: 0
-    x_max: 200
-    y_min: 0
-    y_max: 100
-  other:
-    x_min: 200
-    x_max: 1000
-    y_min: 0
-    y_max: 1000
+# Fixation Detection Parameters
+ivt_duration_threshold: 100  # milliseconds
+idt_dispersion_threshold: 35 # pixels
+
+# ROI Definitions (matching the dataset schema)
+roi_definitions:
+  - name: "source_attribution"
+    coordinates: [[0.0, 0.0], [1.0, 0.2], [1.0, 0.3], [0.0, 0.3]]
+  - name: "headline_body"
+    coordinates: [[0.0, 0.4], [1.0, 0.4], [1.0, 0.8], [0.0, 0.8]]
 
 # Logging Configuration
-logging:
-  level: INFO
-  pipeline_log: logs/pipeline.log
-  quality_log: logs/quality.log
-  exclusion_log: logs/exclusions.log
+logging_config_path: "code/config/logging_config.yaml"

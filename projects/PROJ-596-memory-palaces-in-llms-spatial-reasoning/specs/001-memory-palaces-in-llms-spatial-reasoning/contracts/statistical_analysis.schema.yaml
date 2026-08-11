@@ -4,7 +4,7 @@ type: "object"
 properties:
   test_name:
     type: "string"
-    description: "Name of the statistical test (e.g., 'paired_t_test')"
+    description: "Name of the statistical test (e.g., 'paired_t_test', 'permutation_test')"
   dataset:
     type: "string"
   p_value:

@@ -200,61 +200,6 @@
   updated_at: '2026-07-03T16:39:30Z'
 - artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
   attempts: 1
-  canonical: Download foraging guild lookup table from Cornell Lab of Ornithology
-  claim_id: c_71814780
-  context: T008 [P] Implement data/fetch_guild_mapping.py to download the external
-    foraging guild lookup table from the Cornell Lab of Ornithology (Birds of the
-    World) via the defined HTTPS URL, validate its schema (species_id, foraging_guild),
-    and save to data/processed/guild_mapping.csv.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Download_foraging_guild_lookup_table_from_Cornell_Lab_of_Orn
-  kind: entity_fact
-  raw_text: Implement data/fetch_guild_mapping.py to download the external foraging
-    guild lookup table from the Cornell Lab of Ornithology (Birds of the World) via
-    the defined HTTPS URL
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T07:29:22Z'
-- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
-  attempts: 1
-  canonical: Fetch NLCD 2019 land cover data from USGS EarthExplorer
-  claim_id: c_87d667d8
-  context: T012 [P] [US1] Implement data/download_nlcd.py to fetch NLCD 2019 land
-    cover data from USGS EarthExplorer and generate checksums.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: fetch NLCD 2019 land cover data from USGS EarthExplorer
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T07:29:47Z'
-- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
-  attempts: 1
-  canonical: Across-Species Permutation test with 1000 iterations
-  claim_id: c_99a925c5
-  context: "T021 [US2] Implement models/evaluate.py Across-Species Permutation test\
-    \ logic with 1000 iterations, shuffling guild labels across species, and calculate\
-    \ p-value against \u03B1 = 0.05 (1411.7565, https://arxiv.org/abs/1411.7565) threshold."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Across-Species Permutation test logic with 1000 iterations
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-18T07:30:00Z'
-- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
-  attempts: 1
   canonical: Calculate p-value against alpha 0.05 threshold
   claim_id: c_c103bb68
   context: "T021 [US2] Implement models/evaluate.py Across-Species Permutation test\
@@ -939,3 +884,282 @@
   source_type: external
   status: verified
   updated_at: '2026-08-03T10:38:12Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 2
+  canonical: Download foraging guild lookup table from Cornell Lab of Ornithology
+  claim_id: c_71814780
+  context: T008 [P] Implement data/fetch_guild_mapping.py to download the external
+    foraging guild lookup table from the Cornell Lab of Ornithology (Birds of the
+    World) via the defined HTTPS URL, validate its schema (species_id, foraging_guild),
+    and save to data/processed/guild_mapping.csv.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q2997535
+        url: https://www.wikidata.org/wiki/Q2997535
+        value: https://www.birds.cornell.edu/
+      quote: 'P856: https://www.macaulaylibrary.org/'
+      source_id: Q111982999
+      url: https://www.wikidata.org/wiki/Q111982999
+      value: https://www.macaulaylibrary.org/
+    filled: true
+  kind: entity_fact
+  raw_text: Implement data/fetch_guild_mapping.py to download the external foraging
+    guild lookup table from the Cornell Lab of Ornithology (Birds of the World) via
+    the defined HTTPS URL
+  resolved_value: https://www.macaulaylibrary.org/
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T04:34:23Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Fetch EBD data from official eBird HTTPS URL
+  claim_id: c_6cee2017
+  context: T011 [P] [US1] Implement data/download_ebd.py to fetch EBD data from official
+    eBird HTTPS URL (or verified S3 fallback per Plan 'Risks & Mitigations' if official
+    fails) and generate checksums in data/metadata.yaml.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_EBD_data_from_official_eBird_HTTPS_URL
+  kind: entity_fact
+  raw_text: Implement data/download_ebd.py to fetch EBD data from official eBird HTTPS
+    URL
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:35:10Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 2
+  canonical: Fetch NLCD 2019 land cover data from USGS EarthExplorer
+  claim_id: c_87d667d8
+  context: T012 [P] [US1] Implement data/download_nlcd.py to fetch NLCD 2019 land
+    cover data from USGS EarthExplorer and generate checksums.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch NLCD 2019 land cover data from USGS EarthExplorer
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:41:58Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 2
+  canonical: Across-Species Permutation test with 1000 iterations
+  claim_id: c_99a925c5
+  context: "T021 [US2] Implement models/evaluate.py Across-Species Permutation test\
+    \ logic with 1000 iterations, shuffling guild labels across species, and calculate\
+    \ p-value against \u03B1 = 0.05 (1411.7565, https://arxiv.org/abs/1411.7565) threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Across-Species Permutation test logic with 1000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:42:30Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: permutation test uses 1000 iterations
+  claim_id: c_37069225
+  context: "Implement models/evaluate.py Across-Species Permutation test logic with\
+    \ 1000 iterations, shuffling guild labels across species, and calculate p-value\
+    \ against \u03B1 = 0.05 (1411.7565, https://arxiv.org/abs/1411.7565) threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:43:57Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: significance threshold alpha 0.05
+  claim_id: c_16bdcf4a
+  context: "Implement models/evaluate.py Across-Species Permutation test logic with\
+    \ 1000 iterations, shuffling guild labels across species, and calculate p-value\
+    \ against \u03B1 = 0.05 (1411.7565, https://arxiv.org/abs/1411.7565) threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The significance threshold for the permutation test is \u03B1 = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:44:32Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: filter statistical power 50 observations per species
+  claim_id: c_107728d3
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_statistical_power_50_observations_per_species
+  kind: magnitude
+  raw_text: The project filters for statistical power with at least 50 observations
+    per species.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:45:09Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: select top 25 species by observation count
+  claim_id: c_5507b942
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project selects the top 25 species by observation count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:45:51Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: merge data within 100m buffers
+  claim_id: c_f04b6fce
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project merges data within 100m buffers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:52:45Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: use NLCD 2019 land cover data
+  claim_id: c_a8ce8927
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses NLCD 2019 land cover data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:53:08Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: foraging guild lookup table from Cornell Lab of Ornithology Birds of
+    the World
+  claim_id: c_266245fc
+  context: Implement data/fetch_guild_mapping.py to download the external foraging
+    guild lookup table from the Cornell Lab of Ornithology (Birds of the World) via
+    the defined HTTPS URL, validate its schema (species_id, foraging_guild), and save
+    to data/processed/guild_mapping.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Foraging_guild_lookup_table_from_Cornell_Lab_of_Ornithology
+  kind: entity_fact
+  raw_text: The foraging guild lookup table is downloaded from the Cornell Lab of
+    Ornithology (Birds of the World).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:53:51Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: random forest trained 5-fold cross-validation
+  claim_id: c_f26efbcb
+  context: Implement models/train.py to load data/processed/species_profiles.csv (from
+    T016), train a Random Forest (5-fold CV, CPU-only), and save the model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest classifier is trained using 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:54:27Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: visualize confusion matrix top 2 species
+  claim_id: c_f4368e77
+  context: Implement viz/plot_confusion.py to generate the confusion matrix image
+    (predicted vs actual foraging guilds) for the top 2 species (using model from
+    T019).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The visualization scope is filtered to the top 2 species for the confusion
+    matrix.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:55:39Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: optimize buffer calculation runtime less than 6 hours
+  claim_id: c_968d9071
+  context: 'Performance optimization: Profile merge_and_buffer.py and optimize buffer
+    calculation using vectorization; verify total runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_buffer_calculation_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The project targets a total runtime of less than 6 hours for buffer calculations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:56:28Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: reduce cyclomatic complexity below 10
+  claim_id: c_83197e71
+  context: 'Code cleanup and refactoring in code/: Remove unused imports and refactor
+    merge_and_buffer.py to reduce cyclomatic complexity below 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets a cyclomatic complexity below 10 for merge_and_buffer.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T04:56:47Z'

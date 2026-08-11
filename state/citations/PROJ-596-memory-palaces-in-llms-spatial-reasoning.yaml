@@ -1,1 +1,11 @@
-[]
+- artifact_hash: b4f123e78e3b112e16cee704ef9c73801e13bba01b8913197d9d431a44eb3c31
+  artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-08-11T04:22:06.295445Z'

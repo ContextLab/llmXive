@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create project directory structure: `data/raw`, `data/processed`, `results/models`, `results/reports`, `results/plots`, `code`, `tests` (Reference: `projects/PROJ-431-predicting-molecular-complexity-with-inf/`)
-- [ ] T001b Create `scripts/init_structure.sh` to automate directory creation and initial file scaffolding
+- [X] T001b Create `scripts/init_structure.sh` to automate directory creation and initial file scaffolding
 - [X] T002 Create `code/requirements.txt` containing pinned versions of rdkit, pandas, numpy, scikit-learn, matplotlib, pyyaml
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
@@ -56,12 +56,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils.py` for logging, SMILES validation (RDKit), file I/O, and **mandatory dataset verification hard gate**: Abort execution with error if input CSV lacks `smiles`, `logS`, or `logP` columns (FR-008, Plan: Dataset Verification)
+- [X] T004 [P] Implement `code/utils.py` for logging, SMILES validation (RDKit), file I/O, and **mandatory dataset verification hard gate**: Abort execution with error if input CSV lacks `smiles`, `logS`, or `logP` columns (FR-008, Plan: Dataset Verification)
 - [X] T005 Create `code/entropy.py` skeleton with function signatures for `compute_atom_entropy` and `compute_bond_entropy` (FR-002, FR-003)
 - [X] T006 Create `code/model.py` skeleton for Ridge Regression training and sensitivity analysis (FR-006, FR-011)
 - [X] T007 Create `code/viz.py` skeleton for scatter plot generation with regression lines (FR-007)
 - [X] T008 Create `code/cli.py` entry point with sub-commands `compute_entropy`, `train_model`, `plot_correlation` (FR-009)
-- [~] T009 Setup data directory structure (`data/raw`, `data/processed`, `results/models`, `results/reports`, `results/plots`)
+- [ ] T009 Setup data directory structure (`data/raw`, `data/processed`, `results/models`, `results/reports`, `results/plots`)
 - [X] T034 [Rev] **Clarify Information Metrics (Code)**: Update `code/entropy.py` docstrings to explicitly document that "entropy" refers to **Shannon entropy of degree distributions** (topological) (FR-002, FR-003)
 - [X] T035 [Rev] **Clarify Information Metrics (Doc)**: Update `docs/data-model.md` to explicitly document the entropy definition (FR-002, FR-003)
 
@@ -104,14 +104,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T018 [P] [US2] Unit test for 80/20 train/test split with seed 42 in `tests/unit/test_model.py`
-- [~] T019 [P] [US2] Unit test for Bonferroni and Benjamini-Hochberg correction logic in `tests/unit/test_model.py`
+- [ ] T019 [P] [US2] Unit test for Bonferroni and Benjamini-Hochberg correction logic in `tests/unit/test_model.py`
 - [X] T020 [P] [US2] Integration test for model training and report generation in `tests/integration/test_model.py`
 - [X] T021 [P] [US2] Integration test for baseline comparison (Mean, MW+Atom Count) in `tests/integration/test_baseline.py`
 
 ### Implementation for User Story 2
 
-- [~] T023 [US2] Implement `train_model` CLI command with 80/20 split (seed 42) and Ridge Regression (α=1.0) in `code/model.py`. **Input**: Requires output from T017 (`data/processed/enriched.csv`). (FR-005, FR-006)
-- [~] T024 [US2] Implement calculation of RMSE and Pearson r on test set, saving `ridge_logS.pkl` and `ridge_logP.pkl` (FR-006)
+- [ ] T023 [US2] Implement `train_model` CLI command with 80/20 split (seed 42) and Ridge Regression (α=1.0) in `code/model.py`. **Input**: Requires output from T017 (`data/processed/enriched.csv`). (FR-005, FR-006)
+- [ ] T024 [US2] Implement calculation of RMSE and Pearson r on test set, saving `ridge_logS.pkl` and `ridge_logP.pkl` (FR-006)
 - [~] T025 [US2] Implement baseline models (Mean, MW-only, MW+Atom Count) and Partial Correlation analysis to control for molecular size (Plan: Baseline & Confounding Control). **Output**: Generate baseline metrics for comparison. (Plan: Statistical Methodology)
 - [ ] T027 [US2] Implement sensitivity analysis sweep across alpha values spanning low, medium, and high magnitudes.. **Metric**: Calculate relative range ((max - min) / mean) for RMSE and Pearson r. **Output**: Append stability metrics to `results/reports/sensitivity_sweep.json`. (FR-011, SC-010)
 - [ ] T026 [US2] Implement JSON report generation. **Content**: Include RMSE, Pearson r, Bonferroni-adjusted p-values, **Benjamini-Hochberg (FDR) adjusted p-values**, and the **Entropy-vs-Size comparison table**. **Logic**: Evaluate Scientific Success Criterion (Entropy RMSE < Size baseline RMSE). **Output**: Save to `results/reports/metrics.json`. (FR-006, FR-010, Plan: Baseline & Confounding Control)
@@ -146,8 +146,8 @@
 
 **Purpose**: Address specific reviewer concerns regarding information-theoretic definitions and statistical rigor.
 
-- [ ] T038 [P] [Rev] **Finalize Justification**: Update `docs/research.md` with the final justification based on actual correlation results (Plan: Justify Metric Selection)
-- [ ] T039 [P] [Rev] **Explicitly Enumerate Candidate Measures**: In `docs/research.md`, create a section comparing Shannon Entropy (degree distribution), Mutual Information, and Algorithmic Complexity (Kolmogorov) to justify why Shannon degree entropy was chosen for solubility/permeability prediction, addressing the reviewer's concern about "formal framing" (Review: john-von-neumann-simulated)
+- [X] T038 [P] [Rev] **Finalize Justification**: Update `docs/research.md` with the final justification based on actual correlation results (Plan: Justify Metric Selection)
+- [X] T039 [P] [Rev] **Explicitly Enumerate Candidate Measures**: In `docs/research.md`, create a section comparing Shannon Entropy (degree distribution), Mutual Information, and Algorithmic Complexity (Kolmogorov) to justify why Shannon degree entropy was chosen for solubility/permeability prediction, addressing the reviewer's concern about "formal framing" (Review: john-von-neumann-simulated)
 - [ ] T040 [P] [Rev] **Define Structural vs. Functional Information**: In `docs/research.md`, add a subsection distinguishing "structural information" (topological graph properties) from "functional information" (physicochemical outcome) and explain how the chosen metric bridges this gap, directly addressing the reviewer's analogy to self-reproducing automata (Review: john-von-neumann-simulated)
 
 ---
