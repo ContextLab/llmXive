@@ -10,5 +10,7 @@ arxiv
 pdfplumber
 psutil
 python-dotenv
-jsonschema
+joblib
 numpy
+matplotlib
+psutil

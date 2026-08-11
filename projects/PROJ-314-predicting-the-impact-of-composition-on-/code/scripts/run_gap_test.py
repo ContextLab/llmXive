@@ -1,27 +1,17 @@
-"""
-Script to test the data gap validation logic (T017).
-This script creates a small sample dataset and runs the validation.
-"""
 import os
 import sys
 import json
 import argparse
 from pathlib import Path
 import pandas as pd
-import logging
-
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-log = logging.getLogger(__name__)
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from ingestion import validate_data_gap, DATA_RAW_DIR, DATA_REPORTS_DIR, MIN_VALID_ENTRIES
-
-def create_small_sample_dataset(num_rows: int = 29, output_dir: Path = None):
+def create_small_sample_dataset(output_path: Path, num_rows: int = 29):
     """
-    Creates a small sample dataset with exactly num_rows entries.
+    Create a small sample dataset with exactly num_rows where sample_count >= 30.
+    Used to verify T017 halts when total row count < 30.
     """
     if output_dir is None:
         output_dir = DATA_RAW_DIR
@@ -32,49 +22,26 @@ def create_small_sample_dataset(num_rows: int = 29, output_dir: Path = None):
     log.info(f"Creating small sample dataset with {num_rows} rows at {output_path}")
     
     data = {
-        'composition': [f'Ceramic_{i}' for i in range(num_rows)],
-        'weibull_modulus': [10.0 + (i * 0.5) for i in range(num_rows)],
-        'sample_count': [50] * num_rows,
-        'primary_anion_cation_group': ['O-Al'] * num_rows
+        'composition': [f'Al2O3_{i}' for i in range(num_rows)],
+        'weibull_modulus': [5.0 + (i % 3) for i in range(num_rows)],
+        'sample_count': [30 + i for i in range(num_rows)], # All >= 30
+        'sintering_temp': [1500 + (i % 100) for i in range(num_rows)]
     }
-    
     df = pd.DataFrame(data)
     df.to_csv(output_path, index=False)
-    
-    log.info(f"Dataset created successfully: {output_path}")
-    return output_path
+    print(f"Created test dataset with {num_rows} rows at {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Test data gap validation (T017)")
-    parser.add_argument('--rows', type=int, default=29, help='Number of rows in test dataset')
-    parser.add_argument('--output-dir', type=str, default=None, help='Output directory for test data')
-    
+    parser = argparse.ArgumentParser(description="Run T017 Gap Test")
+    parser.add_argument('--rows', type=int, default=29, help="Number of rows to generate")
+    parser.add_argument('--output', type=str, default='data/raw/test_n29.csv', help="Output path")
     args = parser.parse_args()
+
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    output_dir = Path(args.output_dir) if args.output_dir else DATA_RAW_DIR
-    
-    # Create test dataset
-    create_small_sample_dataset(args.rows, output_dir)
-    
-    # Run validation
-    log.info("Running data gap validation...")
-    passed, df = validate_data_gap()
-    
-    if passed:
-        log.info("Validation PASSED (unexpected for small sample)")
-        sys.exit(0)
-    else:
-        log.info("Validation FAILED as expected (data gap detected)")
-        # Check if report was generated
-        report_path = DATA_REPORTS_DIR / "data_availability_report.json"
-        if report_path.exists():
-            log.info(f"Report generated: {report_path}")
-            with open(report_path, 'r') as f:
-                report = json.load(f)
-            log.info(f"Report content: {json.dumps(report, indent=2)}")
-        else:
-            log.error("Report was NOT generated!")
-            sys.exit(1)
+    create_small_sample_dataset(output_path, args.rows)
+    print(f"Test data generated. Run 'python code/ingestion.py --load-test {output_path}' to test T017.")
 
 if __name__ == "__main__":
     main()

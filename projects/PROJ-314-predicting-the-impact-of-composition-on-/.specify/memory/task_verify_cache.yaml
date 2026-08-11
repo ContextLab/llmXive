@@ -24,36 +24,29 @@ T016c:
     provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
     entities, their relationships, and validation rules is missing. The task is not
     satisfied.
-T017:
-  c: false
-  h: ae5f312e2f3db641fa4461b0c7206ba68ee66e6a3190fa9e1e715678cdd94efb
-  r: The repository lacks the required `data/raw/combined_raw.csv` file, and the provided
-    `code/ingestion.py` does not contain an implementation of `validate_data_gap()`
-    (the function is absent in the shown code). Both the input data and the specified
-    function are missing, so the task is not fulfilled.
 T018c:
   c: false
-  h: 66f04050ceaedd9971b8fad0704f46ab4c8cdd259e4208e6abfd43357a76f148
-  r: "The `fetch_materials_project_data()` function in `code/ingestion.py` is truncated\
-    \ and never writes the fetched JSON to `data/raw/materials_project_raw.json`.\
-    \ Moreover, the required output file `data/raw/materials_project_raw.json` does\
-    \ not exist. The task\u2019s core requirements (filtering, error handling, and\
-    \ saving the raw JSON) are therefore not satisfied."
+  h: 863d6116562d7c902c8f07f72ee5711ef47dcd53003d61e4a55a2bd972fd3157
+  r: "The repository lacks a `fetch_materials_project_data()` implementation in `code/ingestion.py`\
+    \ (the shown code only contains NIST\u2011related helpers and is truncated before\
+    \ any such function) and the required output file `data/raw/materials_project_raw.json`\
+    \ does not exist. Both the core function and its raw JSON output are missing,\
+    \ so the task is not satisfied."
 T018d:
   c: false
-  h: 3c7fcc7f1f111296f9d8019b0c914f7a242a9ab87d5af9496261347c3eb4d690
-  r: "The repository\u2019s `code/ingestion.py` does not contain a `fetch_nist_data()`\
-    \ implementation (the file is truncated before any such function and only shows\
-    \ other utilities). Additionally, the required output file `data/raw/nist_raw.json`\
-    \ is absent. Both the function implementation and the expected raw data artifact\
-    \ are missing, so the task is not satisfied."
+  h: 9f1fb6b8974abebd467f301473a323c1c82619d6a63808239b2c008ba90eaaea
+  r: The `fetch_nist_data()` function in `code/ingestion.py` does not use `requests`,
+    does not parse all required columns (`sample_count`, `sintering_temp`), does not
+    write the raw response to `data/raw/nist_raw.json`, and the fallback logic is
+    not invoked. Moreover, the expected output file `data/raw/nist_raw.json` is missing.
 T018g:
   c: false
-  h: a272af4398eba439991b36f1c519f832682a5912bc23639f2809044051b9b596
-  r: The repository lacks a `fetch_curated_literature_data()` implementation in `code/ingestion.py`
-    (the file ends before such a function appears) and the required output file `data/raw/curated_literature_raw.json`
-    does not exist. Both the core function and its output artifact are missing, so
-    the task is not satisfied.
+  h: 82094d849d192c7bc2dc3f8a4b427c7fdacc0446cb84ebc4e2b0ed5a73231f0e
+  r: "The repository lacks a `fetch_curated_literature_data()` implementation in `code/ingestion.py`\
+    \ (the shown code only contains NIST\u2011related helpers and is truncated before\
+    \ any such function). Moreover, the required output file `data/raw/curated_literature_raw.json`\
+    \ does not exist. Both the function and its expected output are missing, so the\
+    \ task is not satisfied."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -79,11 +72,19 @@ T028b:
     \ predictor and saving its MAE\u2014is not satisfied."
 T029:
   c: false
-  h: 7985835745ca391baf55be5ef4b71e036994c6ee5e69cb5c028afd2557f9cd91
-  r: "The repository lacks a `run_permutation_test()` implementation in `code/modeling.py`\
-    \ (the provided excerpt shows no such function) and the required output file `data/results/permutation_test_report.json`\
-    \ does not exist. Consequently the permutation\u2011test logic and reporting artifact\
-    \ are missing."
+  h: 08d8004df6404951ccc9ec8e52b2a2c07ab4e02c85372a2b8710aedeed58b6f8
+  r: "The repository lacks the required `data/results/permutation_test_report.json`\
+    \ file, and a review of `code/modeling.py` shows no `run_permutation_test()` implementation\
+    \ (the shown code only defines data loading and split preparation). Consequently,\
+    \ the task\u2019s core functionality and output are missing."
+T030:
+  c: false
+  h: 118f401b0ea736b9b3902ee9a6a2f6ea8487178b38167877d1d910cd48a594b5
+  r: "The `check_leakage` function in `code/diagnostics.py` is truncated and never\
+    \ writes the required `data/results/leakage_check.json`. Moreover, the expected\
+    \ warning message and the exact 10\u202F% drop logic are not fully implemented,\
+    \ and the output file is missing. The task\u2019s core requirements are therefore\
+    \ not satisfied."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -111,7 +112,18 @@ T044:
 T055:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `logs/sampling_log.txt` file (or any code implementing the\
-    \ fallback sampling with `itertools.islice`) was provided; thus the required artifact\
-    \ is missing, and the task\u2019s logging and sampling requirements have not been\
-    \ demonstrated."
+  r: "No code, configuration, tests, or documentation were provided that demonstrate\
+    \ a \u201Cfail loudly\u201D policy preventing synthetic data fallback; the claim\
+    \ lacks any concrete artifact to verify the requirement. The task remains unimplemented."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided showing that `train_models`\
+    \ and `run_permutation_test` are now wrapped in a timeout handler limiting execution\
+    \ to 6\u202Fhours. The required runtime\u2011enforcement implementation is missing."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., script, function, test, or documentation) was provided that
+    checks the NIST ceramic data URL for reachability or validates its content before
+    download. Without such evidence, the requirement is not satisfied.

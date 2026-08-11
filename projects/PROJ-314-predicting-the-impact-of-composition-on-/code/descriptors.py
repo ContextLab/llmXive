@@ -1,216 +1,231 @@
+"""
+Descriptor computation module for ceramic properties.
+Calculates elemental descriptors based on stoichiometry.
+"""
 import pandas as pd
 import logging
 from typing import Dict, Any, List, Optional
-from chemparse import Composition
 import numpy as np
 from collections import defaultdict
-import os
-import sys
-
-# Import configuration utilities
-try:
-    from config import get_config_value, get_float_config
-except ImportError:
-    # Fallback for direct execution or different import context
-    import os
-    def get_config_value(key, default=None):
-        return os.getenv(key, default)
-    def get_float_config(key, default=None):
-        val = os.getenv(key, default)
-        return float(val) if val is not None else default
+from chemparse import parse_formula
+from pymatgen.core import Composition as PmgComposition
+from code.config import get_config_value
 
 logger = logging.getLogger(__name__)
 
-# Periodic table data for atomic properties
-# Source: Standard IUPAC values (approximate for common oxidation states where necessary)
-ATOMIC_PROPERTIES = {
-    'H': {'radius': 37.0, 'electronegativity': 2.20, 'valence_electrons': 1},
-    'He': {'radius': 32.0, 'electronegativity': None, 'valence_electrons': 0}, # Noble gas, often 0 valence in compounds
-    'Li': {'radius': 152.0, 'electronegativity': 0.98, 'valence_electrons': 1},
-    'Be': {'radius': 112.0, 'electronegativity': 1.57, 'valence_electrons': 2},
-    'B': {'radius': 85.0, 'electronegativity': 2.04, 'valence_electrons': 3},
-    'C': {'radius': 77.0, 'electronegativity': 2.55, 'valence_electrons': 4},
-    'N': {'radius': 75.0, 'electronegativity': 3.04, 'valence_electrons': 5},
-    'O': {'radius': 73.0, 'electronegativity': 3.44, 'valence_electrons': 6},
-    'F': {'radius': 72.0, 'electronegativity': 3.98, 'valence_electrons': 7},
-    'Ne': {'radius': 71.0, 'electronegativity': None, 'valence_electrons': 0},
-    'Na': {'radius': 186.0, 'electronegativity': 0.93, 'valence_electrons': 1},
-    'Mg': {'radius': 160.0, 'electronegativity': 1.31, 'valence_electrons': 2},
-    'Al': {'radius': 143.0, 'electronegativity': 1.61, 'valence_electrons': 3},
-    'Si': {'radius': 117.0, 'electronegativity': 1.90, 'valence_electrons': 4},
-    'P': {'radius': 110.0, 'electronegativity': 2.19, 'valence_electrons': 5},
-    'S': {'radius': 104.0, 'electronegativity': 2.58, 'valence_electrons': 6},
-    'Cl': {'radius': 99.0, 'electronegativity': 3.16, 'valence_electrons': 7},
-    'Ar': {'radius': 98.0, 'electronegativity': None, 'valence_electrons': 0},
-    'K': {'radius': 227.0, 'electronegativity': 0.82, 'valence_electrons': 1},
-    'Ca': {'radius': 197.0, 'electronegativity': 1.00, 'valence_electrons': 2},
-    'Sc': {'radius': 162.0, 'electronegativity': 1.36, 'valence_electrons': 3},
-    'Ti': {'radius': 147.0, 'electronegativity': 1.54, 'valence_electrons': 4},
-    'V': {'radius': 134.0, 'electronegativity': 1.63, 'valence_electrons': 5},
-    'Cr': {'radius': 128.0, 'electronegativity': 1.66, 'valence_electrons': 6},
-    'Mn': {'radius': 127.0, 'electronegativity': 1.55, 'valence_electrons': 7},
-    'Fe': {'radius': 126.0, 'electronegativity': 1.83, 'valence_electrons': 8}, # Commonly 2 or 3, but group valence is 8
-    'Co': {'radius': 125.0, 'electronegativity': 1.88, 'valence_electrons': 9},
-    'Ni': {'radius': 124.0, 'electronegativity': 1.91, 'valence_electrons': 10},
-    'Cu': {'radius': 128.0, 'electronegativity': 1.90, 'valence_electrons': 11},
-    'Zn': {'radius': 134.0, 'electronegativity': 1.65, 'valence_electrons': 12},
-    'Ga': {'radius': 135.0, 'electronegativity': 1.81, 'valence_electrons': 3},
-    'Ge': {'radius': 122.0, 'electronegativity': 2.01, 'valence_electrons': 4},
-    'As': {'radius': 121.0, 'electronegativity': 2.18, 'valence_electrons': 5},
-    'Se': {'radius': 117.0, 'electronegativity': 2.55, 'valence_electrons': 6},
-    'Br': {'radius': 114.0, 'electronegativity': 2.96, 'valence_electrons': 7},
-    'Kr': {'radius': 110.0, 'electronegativity': 3.00, 'valence_electrons': 0},
-    'Rb': {'radius': 248.0, 'electronegativity': 0.82, 'valence_electrons': 1},
-    'Sr': {'radius': 215.0, 'electronegativity': 0.95, 'valence_electrons': 2},
-    'Y': {'radius': 180.0, 'electronegativity': 1.22, 'valence_electrons': 3},
-    'Zr': {'radius': 160.0, 'electronegativity': 1.33, 'valence_electrons': 4},
-    'Nb': {'radius': 146.0, 'electronegativity': 1.60, 'valence_electrons': 5},
-    'Mo': {'radius': 139.0, 'electronegativity': 2.16, 'valence_electrons': 6},
-    'Tc': {'radius': 136.0, 'electronegativity': 1.90, 'valence_electrons': 7},
-    'Ru': {'radius': 134.0, 'electronegativity': 2.20, 'valence_electrons': 8},
-    'Rh': {'radius': 134.0, 'electronegativity': 2.28, 'valence_electrons': 9},
-    'Pd': {'radius': 137.0, 'electronegativity': 2.20, 'valence_electrons': 10},
-    'Ag': {'radius': 144.0, 'electronegativity': 1.93, 'valence_electrons': 11},
-    'Cd': {'radius': 151.0, 'electronegativity': 1.69, 'valence_electrons': 12},
-    'In': {'radius': 167.0, 'electronegativity': 1.78, 'valence_electrons': 3},
-    'Sn': {'radius': 140.0, 'electronegativity': 1.96, 'valence_electrons': 4},
-    'Sb': {'radius': 140.0, 'electronegativity': 2.05, 'valence_electrons': 5},
-    'Te': {'radius': 136.0, 'electronegativity': 2.10, 'valence_electrons': 6},
-    'I': {'radius': 133.0, 'electronegativity': 2.66, 'valence_electrons': 7},
-    'Xe': {'radius': 130.0, 'electronegativity': 2.60, 'valence_electrons': 0},
-    'Cs': {'radius': 265.0, 'electronegativity': 0.79, 'valence_electrons': 1},
-    'Ba': {'radius': 222.0, 'electronegativity': 0.89, 'valence_electrons': 2},
-    'La': {'radius': 187.0, 'electronegativity': 1.10, 'valence_electrons': 3},
-    'Ce': {'radius': 181.0, 'electronegativity': 1.12, 'valence_electrons': 4},
-    'Pr': {'radius': 182.0, 'electronegativity': 1.13, 'valence_electrons': 3},
-    'Nd': {'radius': 181.0, 'electronegativity': 1.14, 'valence_electrons': 3},
-    'Pm': {'radius': 183.0, 'electronegativity': 1.13, 'valence_electrons': 3},
-    'Sm': {'radius': 180.0, 'electronegativity': 1.17, 'valence_electrons': 3},
-    'Eu': {'radius': 199.0, 'electronegativity': 1.20, 'valence_electrons': 3},
-    'Gd': {'radius': 180.0, 'electronegativity': 1.20, 'valence_electrons': 3},
-    'Tb': {'radius': 175.0, 'electronegativity': 1.20, 'valence_electrons': 3},
-    'Dy': {'radius': 178.0, 'electronegativity': 1.22, 'valence_electrons': 3},
-    'Ho': {'radius': 176.0, 'electronegativity': 1.23, 'valence_electrons': 3},
-    'Er': {'radius': 176.0, 'electronegativity': 1.24, 'valence_electrons': 3},
-    'Tm': {'radius': 176.0, 'electronegativity': 1.25, 'valence_electrons': 3},
-    'Yb': {'radius': 194.0, 'electronegativity': 1.10, 'valence_electrons': 3},
-    'Lu': {'radius': 174.0, 'electronegativity': 1.27, 'valence_electrons': 3},
-    'Hf': {'radius': 159.0, 'electronegativity': 1.30, 'valence_electrons': 4},
-    'Ta': {'radius': 146.0, 'electronegativity': 1.50, 'valence_electrons': 5},
-    'W': {'radius': 139.0, 'electronegativity': 2.36, 'valence_electrons': 6},
-    'Re': {'radius': 137.0, 'electronegativity': 1.90, 'valence_electrons': 7},
-    'Os': {'radius': 135.0, 'electronegativity': 2.20, 'valence_electrons': 8},
-    'Ir': {'radius': 136.0, 'electronegativity': 2.20, 'valence_electrons': 9},
-    'Pt': {'radius': 139.0, 'electronegativity': 2.28, 'valence_electrons': 10},
-    'Au': {'radius': 144.0, 'electronegativity': 2.54, 'valence_electrons': 11},
-    'Hg': {'radius': 151.0, 'electronegativity': 2.00, 'valence_electrons': 12},
-    'Tl': {'radius': 170.0, 'electronegativity': 2.04, 'valence_electrons': 3},
-    'Pb': {'radius': 147.0, 'electronegativity': 2.33, 'valence_electrons': 4},
-    'Bi': {'radius': 146.0, 'electronegativity': 2.02, 'valence_electrons': 5},
-    'Po': {'radius': 140.0, 'electronegativity': 2.00, 'valence_electrons': 6},
-    'At': {'radius': 140.0, 'electronegativity': 2.20, 'valence_electrons': 7},
-    'Rn': {'radius': 140.0, 'electronegativity': 2.20, 'valence_electrons': 0},
+# Periodic table data for electronegativity (Pauling scale)
+# Source: Standard chemical data
+ELECTRONEGATIVITY_DATA = {
+    'H': 2.20, 'He': None,
+    'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98, 'Ne': None,
+    'Na': 0.93, 'Mg': 1.31, 'Al': 1.61, 'Si': 1.90, 'P': 2.19, 'S': 2.58, 'Cl': 3.16, 'Ar': None,
+    'K': 0.82, 'Ca': 1.00, 'Sc': 1.36, 'Ti': 1.54, 'V': 1.63, 'Cr': 1.66, 'Mn': 1.55, 'Fe': 1.83, 'Co': 1.88, 'Ni': 1.91, 'Cu': 1.90, 'Zn': 1.65, 'Ga': 1.81, 'Ge': 2.01, 'As': 2.18, 'Se': 2.55, 'Br': 2.96, 'Kr': 3.00,
+    'Rb': 0.82, 'Sr': 0.95, 'Y': 1.22, 'Zr': 1.33, 'Nb': 1.60, 'Mo': 2.16, 'Tc': 1.90, 'Ru': 2.20, 'Rh': 2.28, 'Pd': 2.20, 'Ag': 1.93, 'Cd': 1.69, 'In': 1.78, 'Sn': 1.96, 'Sb': 2.05, 'Te': 2.10, 'I': 2.66, 'Xe': 2.60,
+    'Cs': 0.79, 'Ba': 0.89, 'La': 1.10, 'Ce': 1.12, 'Pr': 1.13, 'Nd': 1.14, 'Pm': None, 'Sm': 1.17, 'Eu': None, 'Gd': 1.20, 'Tb': 1.20, 'Dy': 1.22, 'Ho': 1.23, 'Er': 1.24, 'Tm': 1.25, 'Yb': None, 'Lu': 1.27,
+    'Hf': 1.30, 'Ta': 1.50, 'W': 2.36, 'Re': 1.90, 'Os': 2.20, 'Ir': 2.20, 'Pt': 2.28, 'Au': 2.54, 'Hg': 2.00, 'Tl': 1.62, 'Pb': 2.33, 'Bi': 2.02, 'Po': 2.00, 'At': 2.20, 'Rn': None,
+    'Fr': 0.70, 'Ra': 0.90, 'Ac': 1.10, 'Th': 1.30, 'Pa': 1.50, 'U': 1.38, 'Np': 1.36, 'Pu': 1.28, 'Am': 1.30, 'Cm': 1.30, 'Bk': None, 'Cf': None, 'Es': None, 'Fm': None, 'Md': None, 'No': None, 'Lr': None,
+    'Rf': None, 'Db': None, 'Sg': None, 'Bh': None, 'Hs': None, 'Mt': None, 'Ds': None, 'Rg': None, 'Cn': None, 'Nh': None, 'Fl': None, 'Mc': None, 'Lv': None, 'Ts': None, 'Og': None
 }
 
-def get_valence_electrons(element: str) -> Optional[int]:
+def compute_mean_atomic_radius(composition_str: str) -> Optional[float]:
     """
-    Retrieve the number of valence electrons for a given element.
-    Returns None if the element is not found or is a noble gas (often 0 in this context).
+    Calculate the mean atomic radius from a composition string.
+    Uses stoichiometry-weighted average of elemental atomic radii.
     """
-    element = element.upper()
-    if element in ATOMIC_PROPERTIES:
-        return ATOMIC_PROPERTIES[element].get('valence_electrons')
-    logger.warning(f"Valence electrons not found for element: {element}")
-    return None
+    try:
+        parsed = parse_formula(composition_str)
+        if not parsed:
+            return None
+
+        # Atomic radii (pm) - empirical values
+        ATOMIC_RADIUS_DATA = {
+            'H': 37, 'He': 32,
+            'Li': 152, 'Be': 112, 'B': 85, 'C': 77, 'N': 75, 'O': 73, 'F': 72, 'Ne': 71,
+            'Na': 186, 'Mg': 160, 'Al': 143, 'Si': 117, 'P': 110, 'S': 104, 'Cl': 99, 'Ar': 97,
+            'K': 227, 'Ca': 197, 'Sc': 162, 'Ti': 147, 'V': 134, 'Cr': 128, 'Mn': 127, 'Fe': 126, 'Co': 125, 'Ni': 124, 'Cu': 128, 'Zn': 134, 'Ga': 135, 'Ge': 122, 'As': 121, 'Se': 117, 'Br': 114, 'Kr': 110,
+            'Rb': 248, 'Sr': 215, 'Y': 180, 'Zr': 160, 'Nb': 146, 'Mo': 139, 'Tc': 136, 'Ru': 134, 'Rh': 134, 'Pd': 137, 'Ag': 144, 'Cd': 151, 'In': 167, 'Sn': 140, 'Sb': 140, 'Te': 136, 'I': 133, 'Xe': 130,
+            'Cs': 265, 'Ba': 222, 'La': 187, 'Ce': 182, 'Pr': 182, 'Nd': 181, 'Pm': 180, 'Sm': 180, 'Eu': 199, 'Gd': 179, 'Tb': 177, 'Dy': 177, 'Ho': 176, 'Er': 176, 'Tm': 175, 'Yb': 194, 'Lu': 174,
+            'Hf': 159, 'Ta': 146, 'W': 139, 'Re': 137, 'Os': 135, 'Ir': 136, 'Pt': 139, 'Au': 144, 'Hg': 151, 'Tl': 170, 'Pb': 175, 'Bi': 156, 'Po': 167, 'At': 145, 'Rn': 140
+        }
+
+        total_weight = 0.0
+        weighted_sum = 0.0
+        count = 0
+
+        for element, amount in parsed.items():
+            if element in ATOMIC_RADIUS_DATA:
+                radius = ATOMIC_RADIUS_DATA[element]
+                weighted_sum += radius * amount
+                total_weight += amount
+                count += 1
+
+        if total_weight == 0:
+            return None
+
+        return weighted_sum / total_weight
+    except Exception as e:
+        logger.warning(f"Failed to compute mean atomic radius for {composition_str}: {e}")
+        return None
+
+def compute_electronegativity_std(composition_str: str) -> Optional[float]:
+    """
+    Calculate the standard deviation of electronegativity from stoichiometry.
+    
+    Args:
+        composition_str: Chemical formula string (e.g., 'Al2O3')
+        
+    Returns:
+        Standard deviation of electronegativity values weighted by stoichiometry,
+        or None if computation fails.
+    """
+    try:
+        parsed = parse_formula(composition_str)
+        if not parsed:
+            return None
+
+        electronegativity_values = []
+        weights = []
+
+        for element, amount in parsed.items():
+            if element in ELECTRONEGATIVITY_DATA:
+                en_val = ELECTRONEGATIVITY_DATA[element]
+                if en_val is not None:
+                    # Add the value 'amount' times to the list for weighted calculation
+                    # Or use weighted mean/variance formula directly
+                    electronegativity_values.extend([en_val] * amount)
+                    weights.extend([1] * amount)
+
+        if len(electronegativity_values) < 2:
+            return 0.0
+
+        # Calculate weighted standard deviation
+        # Using numpy for convenience
+        values = np.array(electronegativity_values)
+        
+        # Weighted mean
+        mean_en = np.average(values)
+        
+        # Weighted variance
+        variance = np.average((values - mean_en) ** 2)
+        
+        std_en = np.sqrt(variance)
+        
+        return float(std_en)
+    except Exception as e:
+        logger.warning(f"Failed to compute electronegativity std for {composition_str}: {e}")
+        return None
 
 def compute_valence_electron_concentration(composition_str: str) -> Optional[float]:
     """
-    Calculate the Valence Electron Concentration (VEC) for a given composition string.
-    VEC = (Total Valence Electrons) / (Total Number of Atoms)
-
+    Calculate the Valence Electron Concentration (VEC).
+    VEC = Total valence electrons / Total number of atoms.
+    
     Args:
-        composition_str (str): Chemical composition string (e.g., 'Al2O3', 'BaTiO3').
-
+        composition_str: Chemical formula string
+        
     Returns:
-        float or None: The calculated VEC, or None if calculation fails.
+        VEC value or None if computation fails.
     """
-    if not composition_str or not isinstance(composition_str, str):
-        logger.error(f"Invalid composition string: {composition_str}")
-        return None
-
     try:
-        parsed = Composition(composition_str)
-    except Exception as e:
-        logger.error(f"Failed to parse composition '{composition_str}': {e}")
-        return None
-
-    total_valence = 0.0
-    total_atoms = 0.0
-
-    for element, count in parsed.items():
-        valence = get_valence_electrons(element)
-        if valence is None:
-            # If we can't determine valence, we cannot compute VEC accurately
-            logger.warning(f"Cannot compute VEC for {composition_str}: missing valence for {element}")
+        parsed = parse_formula(composition_str)
+        if not parsed:
             return None
 
-        total_valence += valence * count
-        total_atoms += count
+        # Valence electrons for common elements (simplified)
+        VALENCE_ELECTRONS = {
+            'H': 1, 'He': 8,
+            'Li': 1, 'Be': 2, 'B': 3, 'C': 4, 'N': 5, 'O': 6, 'F': 7, 'Ne': 8,
+            'Na': 1, 'Mg': 2, 'Al': 3, 'Si': 4, 'P': 5, 'S': 6, 'Cl': 7, 'Ar': 8,
+            'K': 1, 'Ca': 2, 'Sc': 3, 'Ti': 4, 'V': 5, 'Cr': 6, 'Mn': 7, 'Fe': 8, 'Co': 9, 'Ni': 10, 'Cu': 11, 'Zn': 12,
+            'Ga': 3, 'Ge': 4, 'As': 5, 'Se': 6, 'Br': 7, 'Kr': 8,
+            'Rb': 1, 'Sr': 2, 'Y': 3, 'Zr': 4, 'Nb': 5, 'Mo': 6, 'Tc': 7, 'Ru': 8, 'Rh': 9, 'Pd': 10, 'Ag': 11, 'Cd': 12,
+            'In': 3, 'Sn': 4, 'Sb': 5, 'Te': 6, 'I': 7, 'Xe': 8,
+            'Cs': 1, 'Ba': 2, 'La': 3, 'Ce': 4, 'Pr': 4, 'Nd': 4, 'Sm': 4, 'Eu': 3, 'Gd': 4, 'Tb': 4, 'Dy': 4, 'Ho': 4, 'Er': 4, 'Tm': 4, 'Yb': 3, 'Lu': 4,
+            'Hf': 4, 'Ta': 5, 'W': 6, 'Re': 7, 'Os': 8, 'Ir': 9, 'Pt': 10, 'Au': 11, 'Hg': 12,
+            'Tl': 3, 'Pb': 4, 'Bi': 5, 'Po': 6
+        }
 
-    if total_atoms == 0:
-        logger.warning(f"Total atoms is zero for composition: {composition_str}")
+        total_valence = 0
+        total_atoms = 0
+
+        for element, amount in parsed.items():
+            if element in VALENCE_ELECTRONS:
+                total_valence += VALENCE_ELECTRONS[element] * amount
+                total_atoms += amount
+
+        if total_atoms == 0:
+            return None
+
+        return float(total_valence / total_atoms)
+    except Exception as e:
+        logger.warning(f"Failed to compute VEC for {composition_str}: {e}")
         return None
-
-    return total_valence / total_atoms
 
 def compute_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute all compositional descriptors for the dataset.
-    Includes: mean_atomic_radius, electronegativity_std, valence_electron_concentration.
-
+    Compute all descriptors for a DataFrame of ceramic entries.
+    
     Args:
-        df (pd.DataFrame): DataFrame containing a 'composition' column.
-
+        df: DataFrame with a 'composition' column
+        
     Returns:
-        pd.DataFrame: DataFrame with new descriptor columns appended.
+        DataFrame with added descriptor columns
     """
-    logger.info("Computing compositional descriptors...")
-
-    # Apply VEC calculation
+    logger.info(f"Computing descriptors for {len(df)} entries...")
+    
+    # Apply descriptor calculations
+    df['mean_atomic_radius'] = df['composition'].apply(compute_mean_atomic_radius)
+    df['electronegativity_std'] = df['composition'].apply(compute_electronegativity_std)
     df['valence_electron_concentration'] = df['composition'].apply(compute_valence_electron_concentration)
-
-    # Note: mean_atomic_radius and electronegativity_std are implemented in T019a and T019b.
-    # This function ensures VEC is computed and added to the dataframe.
-    # If other descriptors are missing in the dataframe, they should be handled by their respective functions
-    # or a combined pipeline, but for T019c, we focus on VEC.
-
+    
+    # Log results
+    missing_radius = df['mean_atomic_radius'].isna().sum()
+    missing_en = df['electronegativity_std'].isna().sum()
+    missing_vec = df['valence_electron_concentration'].isna().sum()
+    
+    logger.info(f"Descriptor computation complete. Missing: Radius={missing_radius}, EN_Std={missing_en}, VEC={missing_vec}")
+    
     return df
 
 def main():
     """
-    Main entry point for descriptor computation if run as a script.
-    Expects a CSV file path as an argument or uses a default path.
+    Main entry point for descriptor computation.
+    Loads processed data, computes descriptors, and saves the result.
     """
     import argparse
-
-    parser = argparse.ArgumentParser(description="Compute compositional descriptors.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input CSV file")
-    parser.add_argument("--output", type=str, required=True, help="Path to output CSV file")
+    from pathlib import Path
+    
+    parser = argparse.ArgumentParser(description="Compute descriptors for ceramic data")
+    parser.add_argument("--input", type=str, default="data/processed/step4_final.csv",
+                      help="Input CSV file path")
+    parser.add_argument("--output", type=str, default="data/processed/descriptors_computed.csv",
+                      help="Output CSV file path")
     args = parser.parse_args()
-
-    logging.basicConfig(level=logging.INFO)
-
-    try:
-        df = pd.read_csv(args.input)
-        if 'composition' not in df.columns:
-            raise ValueError("Input CSV must contain a 'composition' column.")
-
-        df = compute_descriptors(df)
-        df.to_csv(args.output, index=False)
-        logger.info(f"Descriptors computed and saved to {args.output}")
-    except Exception as e:
-        logger.error(f"Error in descriptor computation: {e}")
-        sys.exit(1)
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        return 1
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load data
+    logger.info(f"Loading data from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    # Compute descriptors
+    df = compute_descriptors(df)
+    
+    # Save results
+    logger.info(f"Saving results to {output_path}")
+    df.to_csv(output_path, index=False)
+    
+    logger.info("Descriptor computation completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())
