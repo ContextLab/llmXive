@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): The repository contains a partially implemented `code/analysis.py` that performs t‑tests but does not show any statsmodels linear regression, and the function is incomplete (truncated). Moreover, the required output file `data/processed/baseline_metrics.json` is absent, so the baseline metrics are not written to disk. The task’s core requirements are therefore unmet.
+- `T038` (rejected 1x): No `research.md` (or `quickstart.md`) content was provided; thus the required selection rationale, performance comparison, and command‑line flags are absent. The implementer must supply the updated markdown files containing the specified details.
 
 ## Required change
 

@@ -30,7 +30,7 @@ properties:
         description: "Variance Inflation Factors for linear model descriptors."
       sensitivity_analysis:
         type: array
-        description: "Results for alpha sweeps (a small alpha setting, low values such as 0.1)."
+        description: "Results for alpha sweeps (a small alpha setting, low values)."
     required:
       - permutation_p_values
       - bootstrap_ci

@@ -7,13 +7,13 @@ T004:
     \ specification, and no required artifact is missing."
 T010:
   c: false
-  h: b5f878dd6ab48758b07418b770cfb7dd4466bedc4f27e60a63dede6c0c80fdb5
-  r: "The repository lacks the required `data/raw/HCP_MMP1.0_Glasser2016.zip` file,\
-    \ so the script cannot verify its presence. Moreover, the provided `preprocess_dMRI.py`\
-    \ only contains download/verification utilities and does not implement the conversion\
-    \ of `.tck` tractography files to HCP\u2011MMP adjacency matrices with MRtrix3\u2019\
-    s `tck2connectome`. Both the essential data file and the core processing logic\
-    \ are missing."
+  h: 8a93c6872fb563426a131b3a07a0f81026a6d08f1ec7a0305c03bb5bfa0cce17
+  r: "The `preprocess_dMRI.py` script is present but only partially shown and does\
+    \ not demonstrate the required `tck2connectome` conversion logic. Moreover, the\
+    \ mandatory HCP\u2011MMP parcellation zip (`data/raw/HCP_MMP1.0_Glasser2016.zip`)\
+    \ is missing from the repository, so the script cannot actually verify its presence.\
+    \ The implementation must include the full conversion steps and ensure the parcellation\
+    \ file exists (or is correctly downloaded)."
 T029c:
   c: false
   h: 4eef444f4d472665c65a0a3ff4e795b617456bea5e94e60a8fae4fc359eff815

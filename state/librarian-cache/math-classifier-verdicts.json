@@ -215,6 +215,10 @@
     "classified_at": "2026-08-03T13:15:53Z",
     "verdict": false
   },
+  "PROJ-1051-llmxive-follow-up-extending-scalable-vis::1.6.0": {
+    "classified_at": "2026-08-11T10:12:56Z",
+    "verdict": false
+  },
   "PROJ-1052-llmxive-follow-up-extending-long-horizon::1.6.0": {
     "classified_at": "2026-08-03T16:26:45Z",
     "verdict": false

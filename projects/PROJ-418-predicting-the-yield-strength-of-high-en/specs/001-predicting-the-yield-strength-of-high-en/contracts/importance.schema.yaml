@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Permutation Importance Results"
+type: array
+items:
+  type: object
+  required:
+    - feature
+    - mean_importance
+    - std_importance
+    - raw_p
+    - bonferroni_p
+  additionalProperties: false
+  properties:
+    feature:
+      type: string
+    mean_importance:
+      type: number
+    std_importance:
+      type: number
+    raw_p:
+      type: number
+      minimum: 0
+      maximum: 1
+    bonferroni_p:
+      type: number
+      minimum: 0
+      maximum: 1

@@ -1,0 +1,5 @@
+'|apply band eeg filter hz pass pipeline preprocessing real up':
+  quote: as the numbers between 0 . 53 Hz and 40 Hz with the step size of 1 Hz. This
+  source_id: '1604.08500'
+  url: https://arxiv.org/abs/1604.08500
+  value: '40'

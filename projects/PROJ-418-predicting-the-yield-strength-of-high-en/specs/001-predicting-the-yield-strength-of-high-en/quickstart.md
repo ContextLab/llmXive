@@ -1,57 +1,92 @@
 # Quickstart: Predicting HEA Yield Strength
 
-These instructions assume you are running on a fresh GitHub Actions runner or a local Linux environment with **Python 3.11** and **git** installed.
+This guide walks you through reproducing the full pipeline on a fresh GitHub Actions runner (or locally).
 
-## 1. Clone the repository
-```bash
-git clone
-cd heas-yield-predictor
-```
+## Prerequisites
+- Python 3.11
+- Git
+- Internet access (to download OpenML dataset & elemental property table)
 
-## 2. Set up the Python environment
+## Setup
+
 ```bash
-python -m venv.venv
-source.venv/bin/activate
+# Clone the repository
+git clone https://github.com/yourorg/hea-yield-prediction.git
+cd hea-yield-prediction
+
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install exact dependencies
 pip install -r requirements.txt
 ```
 
-## 3. Provide the curated dataset
-Place the curated CSV (matching `contracts/dataset.schema.yaml`) at:
+## Run the End‑to‑End Pipeline
 
-```
-data/raw/heas_raw.csv
-```
-
-If you do not have the file, the pipeline will abort with a clear error (FR‑009).
-
-## 4. Run the full pipeline
 ```bash
-python -m src.cli run \
- --data data/raw/heas_raw.csv \
- --elemental data/elemental_properties.csv \
- --output-dir outputs/
+# Execute the main script (all steps are sequenced)
+python scripts/run_pipeline.py \
+  --seed 42 \
+  --n_estimators 500 \
+  --n_permutations 1000 \
+  --output_dir output/
 ```
 
-The command performs:
-1. Validation of inputs (FR‑013, FR‑009).
-2. Descriptor computation (FR‑002).
-3. Train‑test split, Random Forest training (FR‑003).
-4. k‑fold cross‑validation and bootstrap confidence intervals (SC‑001, SC‑002).
-5. Permutation importance with many permutations (FR‑005, FR‑012) and t‑tests (FR‑006).
-6. Manifest generation (FR‑007) and markdown report creation (FR‑008).
+The script will:
 
-## 5. Inspect results
-- `outputs/report.md` – full analysis, performance metrics, top‑stable features, runtime summary.
-- `outputs/manifest.json` – reproducibility record.
-- `outputs/model.joblib` – trained model (can be loaded with `joblib.load`).
+1. **Download** and checksum‑verify the OpenML HEA yield‑strength dataset (ID 4539) and the elemental property table (HuggingFace URL).  
+2. **Validate** raw inputs against `dataset.schema.yaml`, `elemental_properties.schema.yaml`, and `hea_composition.schema.yaml`; abort with a clear error if any required field is missing (FR‑009) or if duplicate rows are detected (deduplication).  
+3. **Compute** deterministic descriptors (mixing entropy, atomic size mismatch, electronegativity variance, VEC, melting‑temperature variance) using the single elemental property table; output validated against `descriptor.schema.yaml`.  
+4. **Split** the data (**[deferred] train / [deferred] test**, fixed seed) before any model training; perform k‑fold cross‑validation on the training portion; train a Random Forest and store the model artifact (`random_forest.joblib`).
+5. **Evaluate** on the held‑out test set, writing `output/metrics/performance.json` (validated against `performance.schema.yaml`).  
+6. **Compute** permutation importance with exactly 1 000 permutations per feature **on the held‑out test set**, deriving empirical mean/std, performing a two‑tailed t‑test (normality checked) and applying Bonferroni correction; results saved to `output/metrics/importance.json` (validated against `importance.schema.yaml`).  
+7. **Generate** a markdown report (`output/report/report.md`) summarizing dataset statistics, model performance, VIF analysis, importance rankings (with traceability IDs), and the reproducibility manifest.  
+8. **Create** `output/manifest/manifest.json` recording random seeds, hyper‑parameters, software versions, timestamps, SHA‑256 checksums of all key artifacts, and a `traceability` map linking each figure/table to its source row and code hash.  
+9. **Record** total runtime in `output/runtime/runtime.json` (validated against `runtime.schema.yaml`).  
+10. **Lint** (`ruff`) and **format** (`black`) the codebase; ensure ≤ 5 warnings and that the lint/formatting status is reflected in `runtime.json`.
 
-## 6. Run the test suite (optional)
+## Verify Results
+
 ```bash
-pytest -vv
+# Check that all success criteria are met
+cat output/report/report.md | grep "R²"
+cat output/report/report.md | grep "Pearson r"
+cat output/report/report.md | grep "p‑value"
+cat output/runtime/runtime.json
 ```
-All contract‑validation tests must pass; lint warnings must be ≤ 5 (SC‑008).
 
-## 7. Re‑run for stability check
-Execute the pipeline three times (e.g., via a loop) and compare the top feature rankings. The maximum rank difference must be ≤ 1 (SC‑006). The quickstart script `scripts/stability_check.sh` automates this.
+Expected (or better) values:
 
----
+- R² ≥ 0.6  
+- |r| ≥ 0.5  
+- Importance p‑values (Bonferroni‑corrected) < 0.05 for flagged features  
+- Runtime ≤ 7200 seconds  
+
+## Linting & Formatting (Quality Checks)
+
+```bash
+# Lint (ruff) – must produce ≤ 5 warnings; capture output
+ruff src/ tests/ > logs/ruff.log || true
+# Check warning count
+grep -c "warning" logs/ruff.log || true
+# Formatting check (black) – must pass
+black --check src/ tests/ > logs/black.log || true
+```
+
+Both commands will exit with status 0 if the warning count is ≤ 5 and formatting is correct. The logs are saved under `logs/` for audit.
+
+## Re‑run for Stability Check
+
+Run the pipeline three times with the same seed to confirm top‑5 feature ranking stability (SC‑006). The `report.md` will list the rankings; the rank‑difference across runs should be ≤ 1.
+
+```bash
+for i in {1..3}; do
+  python scripts/run_pipeline.py --seed 42 --output_dir output/run_$i
+done
+# Compare rankings in output/run_*/report.md
+```
+
+The manifest’s `traceability` section records the IDs used for each ranking table, enabling automated comparison.
+
+--- 

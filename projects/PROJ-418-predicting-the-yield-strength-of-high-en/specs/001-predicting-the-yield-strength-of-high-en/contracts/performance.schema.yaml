@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Metrics"
+type: object
+required:
+  - r2
+  - pearson_r
+  - pearson_p
+  - r2_ci
+  - r_ci
+additionalProperties: false
+properties:
+  r2:
+    type: number
+    minimum: -1
+    maximum: 1
+  pearson_r:
+    type: number
+    minimum: -1
+    maximum: 1
+  pearson_p:
+    type: number
+    minimum: 0
+    maximum: 1
+  r2_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Bootstrap 95% CI for R²."
+  r_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Bootstrap 95% CI for Pearson r."

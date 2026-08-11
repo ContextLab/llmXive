@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2108.10904",
+  "judged_at": "2026-08-11T10:13:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper belongs in the literature review because it is a foundational methodology paper (Category d) and a canonical study (Category e) on scalable visual-language pretraining using weak supervision, which directly addresses the core technical theme of the user's question regarding \"Scalable Visual Pretraining for Language Intelligence.\" Even though it does not mention \"llmXive\" specifically, it establishes the empirical baseline and state-of-the-art framework for the exact mechanism (scalabl",
+  "relevant": true
+}

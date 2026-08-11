@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.09657",
+  "judged_at": "2026-08-11T10:13:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper is the foundational work (\"Scalable Visual Pretraining for Language Intelligence\") that the user's question explicitly references as the subject of a follow-up study, making it the canonical prior work required for any literature review on extending this specific research. It satisfies criteria (d) as the foundational methodology paper and (e) as the empirical population study for the domain of visual pretraining for language intelligence.",
+  "relevant": true
+}

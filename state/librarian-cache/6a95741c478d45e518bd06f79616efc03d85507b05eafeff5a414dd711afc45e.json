@@ -1,0 +1,676 @@
+{
+  "fetched_at": "2026-08-11T10:13:25Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intelligence\"",
+      "target_n": 5
+    },
+    "duration_seconds": 57.7,
+    "ended_at": "2026-08-11T10:13:25Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Scalable Visual Language Model Pretraining"
+        ],
+        [
+          2,
+          "Multimodal pretraining for large language models"
+        ],
+        [
+          3,
+          "Vision-language representation learning"
+        ],
+        [
+          4,
+          "Large-scale visual-language foundation models"
+        ],
+        [
+          5,
+          "Efficient visual pretraining for NLP"
+        ],
+        [
+          6,
+          "Cross-modal pretraining for language intelligence"
+        ],
+        [
+          7,
+          "Scaling laws for vision-language models"
+        ],
+        [
+          8,
+          "Visual instruction tuning for LLMs"
+        ],
+        [
+          9,
+          "Joint image-text pretraining at scale"
+        ],
+        [
+          10,
+          "Multimodal foundation model architectures"
+        ],
+        [
+          11,
+          "Visual understanding in large language models"
+        ],
+        [
+          12,
+          "Scalable contrastive learning for vision and language"
+        ],
+        [
+          13,
+          "Pretraining strategies for multimodal transformers"
+        ],
+        [
+          14,
+          "Vision-enabled language intelligence"
+        ],
+        [
+          15,
+          "Large-scale multimodal dataset pretraining"
+        ],
+        [
+          16,
+          "Unified visual and textual pretraining"
+        ],
+        [
+          17,
+          "Efficient multimodal representation learning"
+        ],
+        [
+          18,
+          "Vision-language alignment in pretraining"
+        ],
+        [
+          19,
+          "Scalable architecture for multimodal AI"
+        ],
+        [
+          20,
+          "Next-generation visual-language pretraining frameworks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Scalable Visual Language Model Pretraining": 5,
+        "llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intelligence\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal pretraining visual language alignment",
+      "CLIP contrastive learning image-text retrieval",
+      "vision-language foundation model transfer learning",
+      "zero-shot classification downstream task evaluation",
+      "cross-modal representation learning data efficiency"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2601.21725"
+      ]
+    },
+    "per_query_hit_count": {
+      "CLIP contrastive learning image-text retrieval": 3,
+      "cross-modal representation learning data efficiency": 3,
+      "llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intelligence\" computer science": 3,
+      "multimodal pretraining visual language alignment": 3,
+      "vision-language foundation model transfer learning": 3,
+      "zero-shot classification downstream task evaluation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2504.09480",
+          "rationale": "The paper is a general review of Vision-Language Models (VLMs) for object detection and segmentation, which does not address the user's specific question regarding the \"llmXive\" follow-up or the specific work \"Scalable Visual Pretraining for Language Intelligence.\" While it shares the broad domain of vision-language models, it fails to meet criteria (a) or (b) because it does not measure the same specific mechanism, pretraining scale, or architectural properties implied by the user's specific fo",
+          "title": "Vision-Language Model for Object Detection and Segmentation: A Review and Evaluation"
+        },
+        {
+          "primary_pointer": "2310.14025",
+          "rationale": "The paper focuses on a specific downstream application (Visual Word Sense Disambiguation) using LLMs and multimodal retrieval, whereas the user's question targets the foundational methodology of \"Scalable Visual Pretraining\" for language intelligence. While both involve LLMs and vision, the candidate paper does not address the pretraining mechanism, scalability, or the specific architectural framework implied by the user's reference to the \"Scalable Visual Pretraining\" paper, failing to meet the",
+          "title": "Large Language Models and Multimodal Retrieval for Visual Word Sense Disambiguation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-11T10:12:27Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+      "raw": "llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intelligence\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) can handle a wide variety of general tasks with simple prompts, without the need for task-specific training. Multimodal Large Language Models (MLLMs), built upon LLMs, have demonstrated impressive potential in tackling complex tasks involving visual, auditory, and textual data. However, critical issues related to truthfulness, safety, o1-like reasoning, and alignment with human preference remain insufficiently addressed. This gap has spurred the emergence of various alignment algorithms, each targeting different application scenarios and optimization goals. Recent studies have shown that alignment algorithms are a powerful approach to resolving the aforementioned challenges. In this paper, we aim to provide a comprehensive and systematic review of alignment algorithms for MLLMs. Specifically, we explore four key aspects: (1) the application scenarios covered by alignment algorithms, including general image understanding, multi-image, video, and audio, and extended multimodal applications; (2) the core factors in constructing alignment datasets, including data sources, model responses, and preference annotations; (3) the benchmarks used to evaluate alignment algorithms; and (4) a discussion of potential future directions for the development of alignment algorithms. This work seeks to help researchers organize current advancements in the field and inspire better alignment methods. The project page of this paper is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models/tree/Alignment.",
+          "claimed_authors": [
+            "Tao Yu",
+            "Yi-Fan Zhang",
+            "Chaoyou Fu",
+            "Junkang Wu",
+            "Jinda Lu",
+            "Kun Wang",
+            "Xingyu Lu",
+            "Yunhang Shen",
+            "Guibin Zhang",
+            "Dingjie Song",
+            "Yibo Yan",
+            "Tianlong Xu",
+            "Qingsong Wen",
+            "Zhang Zhang",
+            "Yan Huang",
+            "Liang Wang",
+            "Tieniu Tan"
+          ],
+          "claimed_title": "Aligning Multimodal LLM with Human Preference: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.14504"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Aligning Multimodal LLM with Human Preference: A Survey')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose LogicVista, an evaluation benchmark that assesses the integrated logical reasoning capabilities of multimodal large language models (MLLMs) in Visual contexts. Recent advancements in MLLMs have demonstrated various fascinating abilities, from crafting poetry based on an image to performing mathematical reasoning. However, there is still a lack of systematic evaluation of MLLMs' proficiency in logical reasoning tasks, which are essential for activities like navigation and puzzle-solving. Thus we evaluate general logical cognition abilities across 5 logical reasoning tasks encompassing 9 different capabilities, using a sample of 448 multiple-choice questions. Each question is annotated with the correct answer and the human-written reasoning behind the selection, enabling both open-ended and multiple-choice evaluation. A total of 8 MLLMs are comprehensively evaluated using LogicVista. Code and Data Available at https://github.com/Yijia-Xiao/LogicVista.",
+          "claimed_authors": [
+            "Yijia Xiao",
+            "Edward Sun",
+            "Tianyu Liu",
+            "Wei Wang"
+          ],
+          "claimed_title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04973"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contrastive learning operates on a simple yet effective principle: Embeddings of positive pairs are pulled together, while those of negative pairs are pushed apart. In this paper, we propose a unified framework for understanding contrastive learning through the lens of cosine similarity, and present two key theoretical insights derived from this framework. First, in full-batch settings, we show that perfect alignment of positive pairs is unattainable when negative-pair similarities fall below a threshold, and this misalignment can be mitigated by incorporating within-view negative pairs into the objective. Second, in mini-batch settings, smaller batch sizes induce stronger separation among negative pairs in the embedding space, i.e., higher variance in their similarities, which in turn degrades the quality of learned representations compared to full-batch settings. To address this, we propose an auxiliary loss that reduces the variance of negative-pair similarities in mini-batch settings. Empirical results show that incorporating the proposed loss improves performance in small-batch settings.",
+          "claimed_authors": [
+            "Chungpa Lee",
+            "Sehee Lim",
+            "Kibok Lee",
+            "Jy-yong Sohn"
+          ],
+          "claimed_title": "On the Similarities of Embeddings in Contrastive Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09781"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='On the Similarities of Embeddings in Contrastive Learning')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-modal retrieval maps data under different modality via semantic relevance. Existing approaches implicitly assume that data pairs are well-aligned and ignore the widely existing annotation noise, i.e., noisy correspondence (NC). Consequently, it inevitably causes performance degradation. Despite attempts that employ the co-teaching paradigm with identical architectures to provide distinct data perspectives, the differences between these architectures are primarily stemmed from random initialization. Thus, the model becomes increasingly homogeneous along with the training process. Consequently, the additional information brought by this paradigm is severely limited. In order to resolve this problem, we introduce a Tripartite learning with Semantic Variation Consistency (TSVC) for robust image-text retrieval. We design a tripartite cooperative learning mechanism comprising a Coordinator, a Master, and an Assistant model. The Coordinator distributes data, and the Assistant model supports the Master model's noisy label prediction with diverse data. Moreover, we introduce a soft label estimation method based on mutual information variation, which quantifies the noise in new samples and assigns corresponding soft labels. We also present a new loss function to enhance robustness and optimize training effectiveness. Extensive experiments on three widely used datasets demonstrate that, even at increasing noise ratios, TSVC exhibits significant advantages in retrieval accuracy and maintains stable training performance.",
+          "claimed_authors": [
+            "Shuai Lyu",
+            "Zijing Tian",
+            "Zhonghong Ou",
+            "Yifan Zhu",
+            "Xiao Zhang",
+            "Qiankun Ha",
+            "Haoran Luo",
+            "Meina Song"
+          ],
+          "claimed_title": "TSVC:Tripartite Learning with Semantic Variation Consistency for Robust Image-Text Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.10935"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='TSVC:Tripartite Learning with Semantic Variation Consistency for Robust Image-Text Retrieval')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision-Language Pre-training (VLP) models like CLIP have significantly advanced Remote Sensing Image-Text Retrieval (RSITR). However, existing methods predominantly rely on coarse-grained global alignment, which often overlooks the dense, multi-scale semantics inherent in overhead imagery. Moreover, adapting these heavy models via full fine-tuning incurs prohibitive computational costs and risks catastrophic forgetting. To address these challenges, we propose MPS-CLIP, a parameter-efficient framework designed to shift the retrieval paradigm from global matching to keyword-guided fine-grained alignment. Specifically, we leverage a Large Language Model (LLM) to extract core semantic keywords, guiding the Segment Anything Model (SamGeo) to generate semantically relevant sub-perspectives. To efficiently adapt the frozen backbone, we introduce a Gated Global Attention (G^2A) adapter, which captures global context and long-range dependencies with minimal overhead. Furthermore, a Multi-Perspective Representation (MPR) module aggregates these local cues into robust multi-perspective embeddings. The framework is optimized via a hybrid objective combining multi-perspective contrastive and weighted triplet losses, which dynamically selects maximum-response perspectives to suppress noise and enforce precise semantic matching. Extensive experiments on the RSICD and RSITMD benchmarks demonstrate that MPS-CLIP achieves state-of-the-art performance with 35.18% and 48.40% mean Recall (mR), respectively, significantly outperforming full fine-tuning baselines and recent competitive methods. Code is available at https://github.com/Lcrucial1f/MPS-CLIP.",
+          "claimed_authors": [
+            "Yifan Li",
+            "Shiying Wang",
+            "Jianqiang Huang"
+          ],
+          "claimed_title": "Multi-Perspective Subimage CLIP with Keyword Guidance for Remote Sensing Image-Text Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.18190"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Multi-Perspective Subimage CLIP with Keyword Guidance for Remote Sensing Image-Text Retrieval')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-08-11T10:12:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-11T10:12:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-08-11T10:12:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-label topic classification without labeled training data is a challenging task, specially when documents contain complex relational information. We present a zero-shot multi-label topic classification framework and systematically investigate how per-article knowledge graph augmentation affects its performance. The base framework classifies topics in documents without labeled training data and has four variants: article-only classification, keyword-enhanced classification, and self-consistency decoding variants of both. Then, we augment each base variant with per article knowledge graph. This graph is extracted from the input document through a pipeline similar to KGGen based on subject-predicate-object triples. We test all eight methods, four base and four graph augmented on fifteen LLMs and eight multi-label datasets across different domains. For the base framework, keyword-enhanced classification (AK) is the best performing method, and six out of fifteen LLMs surpass the sentence-encoder baseline. Graph augmentation has positive and negative impacts on small and large models, respectively. This shows that larger models already contain enough relational information from pretraining. Furthermore, the self-consistency decoding variant does not show performance improvements in any experiment while increasing computation costs about fivefold.",
+          "claimed_authors": [
+            "Shahana Akter",
+            "Yatharth Vohra",
+            "Ankita Shukla",
+            "Souvika Sarkar"
+          ],
+          "claimed_title": "Knowledge Graph-Enhanced Zero-Shot Topic Classification: A Multi-Strategy Comparative Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.30465"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Knowledge Graph-Enhanced Zero-Shot Topic Classification: A Multi-Strategy Comparative Study')",
+        "failed_at": "2026-08-11T10:12:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the challenges of learning representations for recipes and food images in the cross-modal retrieval problem. As the relationship between a recipe and its cooked dish is cause-and-effect, treating a recipe as a text source describing the visual appearance of a dish for learning representation, as the existing approaches, will create bias misleading image-and-recipe similarity judgment. Specifically, a food image may not equally capture every detail in a recipe, due to factors such as the cooking process, dish presentation, and image-capturing conditions. The current representation learning tends to capture dominant visual-text alignment while overlooking subtle variations that determine retrieval relevance. In this paper, we model such bias in cross-modal representation learning using causal theory. The causal view of this problem suggests ingredients as one of the confounder sources and a simple backdoor adjustment can alleviate the bias. By causal intervention, we reformulate the conventional model for food-to-recipe retrieval with an additional term to remove the potential bias in similarity judgment. Based on this theory-informed formulation, we empirically prove the oracle performance of retrieval on the Recipe1M dataset to be MedR=1 across the testing data sizes of 1K, 10K, and even 50K. We also propose a plug-and-play neural module, which is essentially a multi-label ingredient classifier for debiasing. New state-of-the-art search performances are reported on the Recipe1M dataset.",
+          "claimed_authors": [
+            "Qing Wang",
+            "Chong-Wah Ngo",
+            "Ee-Peng Lim"
+          ],
+          "claimed_title": "Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.15201"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval')",
+        "failed_at": "2026-08-11T10:12:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-08-11T10:12:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Scalable Visual Pretraining for Language Intellige', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-08-11T10:12:57Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fei Wang",
+            "Liang Ding",
+            "Jun Rao",
+            "Ye Liu",
+            "Li Shen",
+            "Changxing Ding"
+          ],
+          "title": "Can Linguistic Knowledge Improve Multimodal Alignment in Vision-Language Pretraining?",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2308.12898",
+        "summary": "The multimedia community has shown a significant interest in perceiving and representing the physical world with multimodal pretrained neural network models, and among them, the visual-language pertaining (VLP) is, currently, the most captivating topic. However, there have been few endeavors dedicated to the exploration of 1) whether essential linguistic knowledge (e.g., semantics and syntax) can be extracted during VLP, and 2) how such linguistic knowledge impact or enhance the multimodal alignment. In response, here we aim to elucidate the impact of comprehensive linguistic knowledge, including semantic expression and syntactic structure, on multimodal alignment. Specifically, we design and release the SNARE, the first large-scale multimodal alignment probing benchmark, to detect the vital linguistic components, e.g., lexical, semantic, and syntax knowledge, containing four tasks: Semantic structure, Negation logic, Attribute ownership, and Relationship composition. Based on our proposed probing benchmarks, our holistic analyses of five advanced VLP models illustrate that the VLP model: i) shows insensitivity towards complex syntax structures and relies on content words for sentence comprehension; ii) demonstrates limited comprehension of combinations between sentences and negations; iii) faces challenges in determining the presence of actions or spatial relationships within visual information and struggles with verifying the correctness of triple combinations. We make our benchmark and code available at \\url{https://github.com/WangFei-2019/SNARE/}.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2308.12898",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T10:12:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Eugene Lee",
+            "Ting-Yu Chang",
+            "Jui-Huang Tsai",
+            "Jiajie Diao",
+            "Chen-Yi Lee"
+          ],
+          "title": "Hierarchical Pre-Training of Vision Encoders with Large Language Model",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.00086",
+        "summary": "The field of computer vision has experienced significant advancements through scalable vision encoders and multimodal pre-training frameworks. However, existing approaches often treat vision encoders and large language models (LLMs) as independent modules, limiting the integration of hierarchical visual features. In this work, we propose HIVE (Hierarchical Pre-Training of Vision Encoders), a novel framework that enhances vision-language alignment by introducing hierarchical cross-attention between the vision encoder and LLM. Unlike conventional methods that flatten image embeddings, HIVE enables structured feature fusion across multiple layers, improving gradient flow and representation learning. To optimize this interaction, we introduce a three-stage training strategy that progressively aligns the vision encoder with the LLM, ensuring stable optimization and effective multimodal fusion. Empirical evaluations demonstrate that HIVE achieves superior performance not only in image classification but also on various vision-language tasks, outperforming self-attention-based methods in benchmarks such as MME, GQA, OK-VQA, and ScienceQA. Our results highlight the benefits of hierarchical feature integration, paving the way for more efficient and expressive vision-language models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.00086",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T10:12:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiming Zhang",
+            "Zhonghan Zhao",
+            "Wenwei Zhang",
+            "Haiteng Zhao",
+            "Tianyang Lin",
+            "Huanze Tang",
+            "Yunhua Zhou",
+            "Demin Song",
+            "Kuikun Liu",
+            "Haochen Ye",
+            "Haian Huang",
+            "Yuzhe Gu",
+            "Haijun Lv",
+            "Qipeng Guo",
+            "Bin Liu",
+            "Gaoang Wang",
+            "Kai Chen"
+          ],
+          "title": "Scalable Visual Pretraining for Language Intelligence",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.09657",
+        "summary": "The rapid progress of large foundation models has been driven predominantly by pretraining on large-scale text corpora. However, many forms of knowledge are conveyed through visual representations, where figures, typeset equations, and page layouts carry rich information that cannot be faithfully or completely captured by text alone. Yet current pretraining approaches discard these visual cues by converting visually rich sources, such as documents and web pages, into plain text for learning language intelligence. This paper challenges the default assumption that language models must be trained on text-only representations and shows that Visual Pretraining is a scalable learner for foundation model intelligence. To this end, we conduct a systematic study of unsupervised visual pretraining paradigms that directly leverage visual documents without text extraction. Across multiple backbones and benchmarks, visual pretraining on the same underlying corpora consistently outperforms text-only pretraining, offering an efficient pathway to scalable language intelligence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.09657",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T10:13:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alex Wang",
+            "Jan Hula",
+            "Patrick Xia",
+            "Raghavendra Pappagari",
+            "R. Thomas McCoy",
+            "Roma Patel",
+            "Najoung Kim",
+            "Ian Tenney",
+            "Yinghui Huang",
+            "Katherin Yu",
+            "Shuning Jin",
+            "Berlin Chen",
+            "Benjamin Van Durme",
+            "Edouard Grave",
+            "Ellie Pavlick",
+            "Samuel R. Bowman"
+          ],
+          "title": "Can You Tell Me How to Get Past Sesame Street? Sentence-Level Pretraining Beyond Language Modeling",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1812.10860",
+        "summary": "Natural language understanding has recently seen a surge of progress with the use of sentence encoders like ELMo (Peters et al., 2018a) and BERT (Devlin et al., 2019) which are pretrained on variants of language modeling. We conduct the first large-scale systematic study of candidate pretraining tasks, comparing 19 different tasks both as alternatives and complements to language modeling. Our primary results support the use language modeling, especially when combined with pretraining on additional labeled-data tasks. However, our results are mixed across pretraining tasks and show some concerning trends: In ELMo's pretrain-then-freeze paradigm, random baselines are worryingly strong and results vary strikingly across target tasks. In addition, fine-tuning BERT on an intermediate task often negatively impacts downstream transfer. In a more positive trend, we see modest gains from multitask training, suggesting the development of more sophisticated multitask and transfer learning techniques as an avenue for further research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1812.10860",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T10:13:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liangze Jiang",
+            "Zachary Shinnick",
+            "Anton van den Hengel",
+            "Hemanth Saratchandran",
+            "Damien Teney"
+          ],
+          "title": "Procedural Pretraining: Warming Up Language Models with Abstract Data",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.21725",
+        "summary": "Pretraining language models directly on web-scale corpora is the de facto paradigm. We study an alternative where the model is initially exposed to abstract structured data to ease the subsequent acquisition of rich semantic knowledge, much like humans learning simple logic and mathematics before higher reasoning. We focus on procedural data, generated by formal languages and other simple algorithms, as such abstract data. We first diagnose the algorithmic skills that different forms of procedural data can improve, often significantly. For example, the accuracy of context recall (Needle-in-a-haystack) jumps from 10 to 98% when a model is pretrained on Dyck sequences (balanced brackets). Second, we study how these gains are reflected in pretraining larger models (up to 1.3B). We find that front-loading as little as 0.1 to 0.3% procedural data significantly outperforms standard pretraining on natural language, code, and informal mathematics (C4, CodeParrot, and DeepMind-Math datasets). Notably, this also enables the models to reach the same loss value with only 55/67/86% of the original data and thus a comparable reduction in FLOPs. Third, we explore the mechanisms behind the benefits and find that procedural pretraining instills non-trivial structure in both attention and MLP layers. The former is particularly important for structured domains (e.g. code), and the latter for language. Finally, we lay a path for combining multiple forms of procedural data. Our results show that procedural pretraining is a simple, lightweight means of improving performance and accelerating language model pretraining, ultimately suggesting the promise of disentangling knowledge acquisition from reasoning in LLMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.21725",
+          "http_status": 200,
+          "pdf_sample_score": 0.3555,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T10:13:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zirui Wang",
+            "Jiahui Yu",
+            "Adams Wei Yu",
+            "Zihang Dai",
+            "Yulia Tsvetkov",
+            "Yuan Cao"
+          ],
+          "title": "SimVLM: Simple Visual Language Model Pretraining with Weak Supervision",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2108.10904",
+        "summary": "With recent progress in joint modeling of visual and textual representations, Vision-Language Pretraining (VLP) has achieved impressive performance on many multimodal downstream tasks. However, the requirement for expensive annotations including clean image captions and regional labels limits the scalability of existing approaches, and complicates the pretraining procedure with the introduction of multiple dataset-specific objectives. In this work, we relax these constraints and present a minimalist pretraining framework, named Simple Visual Language Model (SimVLM). Unlike prior work, SimVLM reduces the training complexity by exploiting large-scale weak supervision, and is trained end-to-end with a single prefix language modeling objective. Without utilizing extra data or task-specific customization, the resulting model significantly outperforms previous pretraining methods and achieves new state-of-the-art results on a wide range of discriminative and generative vision-language benchmarks, including VQA (+3.74% vqa-score), NLVR2 (+1.17% accuracy), SNLI-VE (+1.37% accuracy) and image captioning tasks (+10.1% average CIDEr score). Furthermore, we demonstrate that SimVLM acquires strong generalization and transfer ability, enabling zero-shot behavior including open-ended visual question answering and cross-modality transfer.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2108.10904",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T10:13:04Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

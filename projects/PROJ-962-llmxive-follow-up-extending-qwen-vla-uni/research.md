@@ -1,110 +1,114 @@
 # Research Methodology: Non-Neural Approximation of VLA Priors
 
-## Overview
+## Executive Summary
+This document outlines the methodology used to approximate VLA (Vision-Language-Action) priors using non-neural, lightweight models. The approach focuses on clustering behavioral trajectories and fitting interpretable models (Decision Trees or Gaussian Mixture Models) to map text instructions to action sequences.
 
-This document outlines the methodology, selection rationale, and execution parameters for the **llmXive** pipeline (Project: `PROJ-962-llmxive-follow-up-extending-qwen-vla-uni`). The pipeline implements a non-neural approximation of Vision-Language-Action (VLA) priors, specifically targeting CPU-only execution while maintaining statistical validity against a VLA proxy baseline.
+## 1. Dataset Ingestion and Clustering Strategy
 
-## 1. Dataset Ingestion and Clustering (US1)
+### 1.1 Data Source
+The primary dataset is **Qwen-VLA/Hy-Embodied**, accessed via HuggingFace. The dataset contains paired text instructions and action sequences for robotic manipulation tasks.
 
-### Data Source
-- **Dataset**: `Qwen/Qwen-VLA` (HuggingFace)
-- **Mode**: Streaming (`streaming=True`) to handle datasets >7GB without full RAM load.
-- **Features**: Text instructions paired with high-dimensional action sequences.
+### 1.2 Kinematic Feature Extraction
+From raw action sequences, we extract:
+- **Velocity**: First derivative of joint positions
+- **Acceleration**: Second derivative of joint positions
+- **Joint Angles**: Normalized to [-1, 1] range
 
-### Clustering Strategy (FR-002a)
-The pipeline employs an **Adaptive K-Reduction Loop** to determine the optimal number of behavioral clusters:
-1. **Initialization**: Start with $k_{max} = 50$.
-2. **Metric**: Silhouette Score (measures cluster cohesion and separation).
-3. **Loop**:
- - If Silhouette Score $< 0.25$ AND $k > 1$:
- - Decrement $k$ by 1.
- - Re-run K-means clustering.
- - Else: Break loop.
-4. **Fallback**: If $k=1$ is reached with a score $< 0.25$, the system logs a "degenerate clustering" warning. As per **FR-002a**, no Hierarchical Agglomerative Clustering (HAC) fallback is triggered unless explicitly configured as a secondary mitigation (Task T016b).
-5. **Output**: Cluster assignments saved to `data/processed/assignments.parquet` and metadata to `data/results/clustering_method_log.json`.
+Normalization is performed using min-max scaling based on physical joint limits to ensure features are within valid bounds.
 
-## 2. Non-Neural Model Selection (US2)
+### 1.3 Adaptive Clustering (K-Means with Reduction)
+We employ an adaptive K-means clustering strategy to determine the optimal number of behavioral clusters:
 
-### Model Candidates
-For each behavioral cluster, the pipeline fits a lightweight probabilistic model mapping frozen BERT text embeddings to action distributions. The candidates are:
-1. **Decision Tree (DT) Regressor**: Fast inference, interpretable, but limited by axis-aligned splits.
-2. **Conditional Gaussian Mixture Model (CGMM)**: Captures multi-modal action distributions, higher computational cost.
+1. **Initialization**: Start with $k=50$ clusters.
+2. **Silhouette Evaluation**: Calculate the silhouette score for the current $k$.
+3. **Adaptive Reduction**:
+ - If $score < 0.25$ and $k > 1$, reduce $k$ by 1.
+ - Repeat steps 2-3 until $score \geq 0.25$ or $k=1$.
+4. **Fallback**: If $k=1$ is reached with $score < 0.25$, log a "degenerate clustering" warning and proceed.
+5. **HAC Fallback**: If K-means fails completely, Hierarchical Agglomerative Clustering (HAC) with Ward linkage is triggered as a robustness measure.
 
-### Selection Rationale (Sequential Fallback Logic)
-To satisfy the CPU-only constraint (SC-003) and efficiency requirements, the pipeline uses a **Sequential Model Training** strategy (Task T022):
-1. **Train Decision Tree First**:
- - Evaluate on held-out validation set.
- - **Criteria**: $R^2 \geq 0.6$ AND Inference Time $< 2.0$s/prompt.
- - **Action**: If criteria met, **select DT** and skip CGMM training for this cluster.
-2. **Fallback to CGMM**:
- - Triggered only if DT fails the criteria.
- - Train CGMM and evaluate.
- - **Action**: If CGMM $R^2 \geq 0.6$, **select CGMM**.
-3. **Failure Handling**: If neither model meets the $R^2 \geq 0.6$ threshold, the cluster is flagged with a "Model Failure" warning, and the model with the highest $R^2$ is selected as a best-effort approximation.
+**Output**: Cluster assignments are saved to `data/processed/assignments.parquet` and cluster metadata to `data/processed/clusters.json`.
 
-**Rationale**: This approach prioritizes the lighter-weight Decision Tree, only incurring the computational cost of CGMM training when necessary to achieve the required predictive fidelity. This minimizes aggregate training time and memory footprint on CPU hardware.
+## 2. Model Selection Rationale (Decision Tree vs. GMM)
 
-## 3. Statistical Evaluation (US3)
+### 2.1 Sequential Model Training Strategy
+To satisfy the CPU-only constraint (SC-003) and minimize computational cost, we implement a **sequential fallback** strategy for each cluster:
 
-### Baselines
-1. **VLA Proxy**: Ground-truth action sequences from the `Qwen/Qwen-VLA` dataset (Task T032d). Serves as the "gold standard" without requiring GPU inference.
-2. **Random Baseline**: Uniform sampling within joint limits (Task T032).
-3. **Non-Neural Model**: The output of the selected DT/CGMM pipeline.
+1. **Train Decision Tree (DT)**:
+ - Input: BERT embeddings of text instructions.
+ - Output: Action sequence parameters.
+ - **Success Criteria**: $R^2 \geq 0.6$ AND inference time $< 2s$/prompt.
+ - If criteria met: **Select DT** and stop training for this cluster.
 
-### Statistical Test
-- **Method**: **Paired T-Tests** (`scipy.stats.ttest_rel`).
-- **Comparison**: Success rates (binary: success/failure) of Non-Neural vs. Random vs. VLA Proxy.
-- **Alignment**: Strict verification that prompt IDs are identical across all three baselines before testing (Task T035a).
-- **Output**: P-values and confidence intervals saved to `data/results/evaluation_report.md`.
+2. **Train Conditional Gaussian Mixture Model (CGMM)** (Fallback):
+ - Only trained if DT fails the success criteria.
+ - **Success Criteria**: $R^2 \geq 0.6$.
+ - If criteria met: **Select CGMM**.
 
-## 4. Execution Instructions
+3. **Failure Handling**:
+ - If neither model meets $R^2 \geq 0.6$, the model with the highest $R^2$ is selected, and a "Model Failure" warning is logged.
 
-The pipeline is designed for sequential execution. Ensure all prerequisites (Python 3.9+, dependencies in `requirements.txt`) are installed.
+### 2.2 Selection Rationale Summary
+| Model | Pros | Cons | Selection Trigger |
+|-------|------|------|-------------------|
+| **Decision Tree** | Fast inference, interpretable, low memory | May struggle with complex, continuous distributions | Primary choice if $R^2 \geq 0.6$ |
+| **GMM** | Handles multi-modal distributions, probabilistic | Slower inference, higher memory | Fallback if DT fails $R^2$ threshold |
 
-### Command-Line Flags
+**Outcome**: The final model for each cluster is recorded in `data/results/model_selection_decision.md` with the specific $R^2$ and inference time metrics that justified the selection.
 
-| Flag | Description | Default |
-|:--- |:--- |:--- |
-| `--seed` | Global random seed for reproducibility | `42` |
-| `--max-k` | Maximum clusters for K-means | `50` |
-| `--silhouette-threshold` | Minimum silhouette score to stop k-reduction | `0.25` |
-| `--cpu-only` | Force CPU execution (enforced by default) | `True` |
-| `--baseline` | Baseline type for simulation (`vla_proxy`, `random`, `all`) | `all` |
+## 3. Statistical Evaluation and Comparison
 
-### Pipeline Steps
+### 3.1 Baselines
+Three baselines are compared:
+1. **Non-Neural Model**: The pipeline's output (DT or CGMM).
+2. **Random Baseline**: Uniform sampling within joint limits (reproducible via fixed seed).
+3. **VLA Proxy**: Ground-truth action sequences from the dataset (serving as the "ideal" VLA output without GPU inference).
 
-1. **Ingestion & Clustering**:
- ```bash
- python code/01_ingest_cluster.py --seed 42 --max-k 50
- ```
- *Outputs*: `data/processed/clusters.json`, `data/processed/assignments.parquet`
+### 3.2 Paired T-Tests
+To validate the hypothesis that the non-neural model outperforms the random baseline and approximates the VLA proxy, we perform **Paired T-Tests** on binary success rates.
 
-2. **Embedding Generation**:
- ```bash
- python code/02_train_models.py --stage embeddings
- ```
- *Outputs*: `data/processed/train_embeddings.parquet`
+- **Method**: `scipy.stats.ttest_rel`
+- **Data Alignment**: Prompt IDs are strictly aligned across all three baselines to ensure valid pairing.
+- **Metric**: Success rate (1 = success, 0 = failure/collision).
+- **Significance**: $p < 0.05$ indicates a statistically significant difference.
 
-3. **Model Training (Sequential Selection)**:
- ```bash
- python code/02_train_models.py --stage train
- ```
- *Outputs*: `artifacts/models/cluster_{id}_selected.pkl`, `data/results/model_selection_decision.md`
+### 3.3 Fidelity Metrics
+Trajectory fidelity is calculated as the percentage of kinematic features within a specified error margin of the VLA proxy.
 
-4. **Inference**:
- ```bash
- python code/03_inference.py --prompt "grasp the red cup"
- ```
- *Outputs*: Trajectory arrays (stdout or `data/results/inference_output.parquet`)
+## 4. Execution Command-Line Flags
 
-5. **Simulation & Evaluation**:
- ```bash
- python code/04_simulate_eval.py --baseline all
- ```
- *Outputs*: `data/results/simulation_logs.csv`, `data/results/evaluation_report.md`
+The pipeline is executed via the following command-line interface:
 
-## 5. Known Limitations
+```bash
+# Full Pipeline Execution
+python code/01_ingest_cluster.py --dataset "Qwen/Qwen-VLA" --max-clusters 50
+python code/02_train_models.py --bert-model "bert-base-uncased" --r2-threshold 0.6
+python code/04_simulate_eval.py --mode evaluate --baseline data/processed/vla_proxy_baseline.parquet
+```
 
-- **CPU Constraints**: All BERT embeddings and model training are forced to CPU. Large-scale parallelism is not utilized.
-- **Clustering Degeneracy**: If the data distribution is unimodal, the adaptive k-reduction may result in $k=1$, limiting behavioral segmentation.
-- **VLA Proxy**: Uses ground-truth data as a proxy; does not account for inference-time stochasticity of the original VLA model.
+**Key Flags**:
+- `--dataset`: HuggingFace dataset ID.
+- `--max-clusters`: Maximum K for clustering.
+- `--silhouette-threshold`: Minimum silhouette score (default 0.25).
+- `--r2-threshold`: Minimum R² for model selection (default 0.6).
+- `--mode`: Execution mode (`generate_baseline` or `evaluate`).
+
+## 5. Limitations and Future Work
+
+### 5.1 CPU-Only Constraints
+The pipeline is strictly CPU-bound. This limits:
+- **BERT Embedding Speed**: Inference is slower compared to GPU-accelerated setups.
+- **Model Training**: Large clusters may take longer to train, though the sequential fallback mitigates this.
+
+### 5.2 Clustering Heuristics
+The silhouette score threshold (0.25) is a heuristic. In cases of degenerate clustering ($k=1$), the HAC fallback provides robustness but may not capture complex manifold structures as effectively as neural methods.
+
+### 5.3 Recommendations for Next Phase
+- **Algorithmic Optimization**: Explore model pruning and quantization for CPU performance.
+- **Feature Engineering**: Investigate additional kinematic features to improve clustering quality.
+- **Data Augmentation**: Synthetic data generation (within physical bounds) to improve model robustness in sparse clusters.
+
+## 6. References
+- Qwen-VLA Dataset: https://huggingface.co/datasets/Qwen/Qwen-VLA
+- Scikit-learn Documentation: Clustering and Model Selection
+- SciPy Stats: Paired T-Test Implementation

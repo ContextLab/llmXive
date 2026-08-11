@@ -119,12 +119,12 @@
  - **Depends on**: T009.
 - [X] T011b [US1] **Conditional: Process Real EEG (Fallback Only)**: Implement `code/data/preprocess_EEG.py` to download and preprocess **real** resting-state EEG recordings from **OpenNeuro ds004231** (FR-002). **Logic**:
  1) Run **only if** T011a reports `has_real_data: true` (rare, expected to be false).
- 2) Preprocess (MNE band-pass within a low-frequency range up to 40Hz, downsample to 250Hz, ICA).
+ 2) Preprocess (MNE band-pass within a low-frequency range up to 40 (1604.08500, https://arxiv.org/abs/1604.08500) Hz, downsample to 250Hz, ICA).
  3) **Save Intermediate**: Save `data/processed/eeg/sub-{id}/eeg_raw_pre_ica.fif` (before ICA) for threshold calculation.
  4) Save `data/processed/eeg/sub-{id}/eeg_cleaned.fif` (after ICA).
  - **Output**: `eeg_cleaned.fif`.
  - **Depends on**: T011a (condition: `has_real_data: true`).
-- [ ] T011c [US1] **Primary: Simulate EEG**: Implement `code/data/simulate_EEG.py` to generate synthetic resting-state EEG time-series from the preprocessed structural connectomes (T010) using a **linear neural mass model**. **Logic**:
+- [X] T011c [US1] **Primary: Simulate EEG**: Implement `code/data/simulate_EEG.py` to generate synthetic resting-state EEG time-series from the preprocessed structural connectomes (T010) using a **linear neural mass model**. **Logic**:
  1) Run **only if** T011a reports `has_real_data: false` (expected path).
  2) Read structural adjacency matrices from T010.
  3) Simulate time-series for each node using `SIMULATION_MODEL_PARAMS` from T004.
@@ -132,10 +132,10 @@
  - **MUST** use pinned random seeds.
  - **MUST** be fully scripted and deterministic to adhere to Constitution Principle VI spirit for synthetic data.
  - **Depends on**: T011a (condition: `has_real_data: false`), T010.
-- [ ] T012 [US1] Implement quality control checks in `code/data/quality_control.py`. **Real Data**: Exclude participants with >30% channels removed after ICA. **Simulated Data**: Exclude participants with disconnected structural graphs. **MUST** calculate and output the proportion of participants with complete pipelines (SC-004). **Treat simulation generation as a valid EEG pipeline for SC-004 calculation**.
+- [X] T012 [US1] Implement quality control checks in `code/data/quality_control.py`. **Real Data**: Exclude participants with >30% channels removed after ICA. **Simulated Data**: Exclude participants with disconnected structural graphs. **MUST** calculate and output the proportion of participants with complete pipelines (SC-004). **Treat simulation generation as a valid EEG pipeline for SC-004 calculation**.
  - **Output**: `data/processed/usable_subjects.json` containing list of valid subject IDs.
  - **Depends on**: T010, T011b, T011c.
-- [ ] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and cleaned (real or simulated) EEG time-series (US-1, AC2, AC3). **Depends on**: T010, T011b, T011c.
+- [X] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and cleaned (real or simulated) EEG time-series (US-1, AC2, AC3). **Depends on**: T010, T011b, T011c. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data pipeline complete, real or simulated data processed)
 
@@ -145,7 +145,7 @@
 
 **Purpose**: Enforce minimum sample size before statistical analysis.
 
-- [ ] T029c [US3] **Runtime Gate: Sample Size Check**: Implement the 'Sample Size Check' in `code/main.py` as an explicit **runtime gate** task. **Logic**:
+- [X] T029c [US3] **Runtime Gate: Sample Size Check**: Implement the 'Sample Size Check' in `code/main.py` as an explicit **runtime gate** task. **Logic**:
  1) Count usable subjects N from `data/processed/usable_subjects.json` (produced by T012).
  2) Read `N_MIN` from `code/config.py`.
  3) If N < N_MIN: **GENERATE** `data/results/insufficient_sample_report.md` documenting the limited sample size and proceed to analysis **IF** N > 0. If N = 0: **HALT** with error.
@@ -250,7 +250,7 @@
 
 ### Implementation for Final Validation
 
-- [ ] T047 [P] [US1] **Implement Strict Data Source Fallback Prevention**: Update `code/data/download.py` to remove ANY `try/except` blocks that might catch network errors and fall back to `generate_synthetic_*()` or placeholder data. **Logic**: If the fetch from OpenNeuro fails (timeout, 404, etc.), the script MUST raise a `ConnectionError` or `FileNotFoundError` immediately. **No silent fallbacks**. This ensures the "Fail Loudly" rule is enforced. **Depends on**: T009.
+- [X] T047 [P] [US1] **Implement Strict Data Source Fallback Prevention**: Update `code/data/download.py` to remove ANY `try/except` blocks that might catch network errors and fall back to `generate_synthetic_*()` or placeholder data. **Logic**: If the fetch from OpenNeuro fails (timeout, 404, etc.), the script MUST raise a `ConnectionError` or `FileNotFoundError` immediately. **No silent fallbacks**. This ensures the "Fail Loudly" rule is enforced. **Depends on**: T009.
 - [ ] T048 [P] [US1] **Implement Real Data Streaming Verification**: Update `code/data/download.py` to explicitly log the chunking strategy used for datasets > 100MB. **Logic**: Verify that `datasets.load_dataset(..., streaming=True)` is used for large files and that Memory usage remains within reasonable bounds during the download/processing loop. **Depends on**: T009, T041.
 - [ ] T049 [P] [US3] **Implement Collinearity Report Suppression Logic**: Update `code/analysis/report.py` to explicitly check `data/results/collinearity_status.json` before generating any text about "independent predictive effects". **Logic**: If `high_collinearity` is true, the report MUST state: "High collinearity (VIF >= 5) detected between degree and clustering coefficient. Independent predictive effects are not claimed." **Depends on**: T021, T023.
 - [ ] T050 [US3] **Final Pipeline Integration Test**: Run a full end-to-end test of the pipeline with a small synthetic dataset (N=5) to verify that the routing logic (T011a, T029c) correctly switches between Real/Simulation paths and that the final report is generated without errors. **Depends on**: All previous tasks.

@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Runtime Record"
+type: object
+required:
+  - total_seconds
+  - status
+additionalProperties: false
+properties:
+  total_seconds:
+    type: number
+    minimum: 0
+    description: "Wall‑clock runtime of the full pipeline."
+  status:
+    type: string
+    enum: ["pass", "fail"]
+    description: "Overall status; 'pass' requires all success criteria met."

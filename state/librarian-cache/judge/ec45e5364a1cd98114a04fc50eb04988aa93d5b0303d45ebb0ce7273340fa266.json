@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.12898",
+  "judged_at": "2026-08-11T10:13:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the core mechanism of the user's question: the role of linguistic knowledge (semantics and syntax) in visual-language pretraining (VLP), which is the specific domain of \"Scalable Visual Pretraining for Language Intelligence.\" It satisfies criteria (a) and (b) by empirically measuring how linguistic components impact multimodal alignment, providing essential context for any follow-up work extending this specific pretraining paradigm",
+  "relevant": true
+}

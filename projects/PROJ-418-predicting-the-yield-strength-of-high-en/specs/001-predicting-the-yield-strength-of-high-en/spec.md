@@ -4,7 +4,7 @@
 *What is the predictive performance of a machine‑learning model for estimating the yield strength of single‑phase high‑entropy alloys (HEAs) from their elemental composition?* (See US-1)
 
 **Restated Idea:**
-The original proposal aims to develop a fast, composition‑only predictor of HEA yield strength to enable rapid screening of candidate alloys for experimental synthesis. Expected performance targets are a coefficient of determination **R² ≥ 0.6**, absolute Pearson correlation **|r| ≥ 0.5**, and statistical significance **p < 0.05** on a held‑out test set, with a complete end‑to‑end run time of **≤ 2 hours** on an 8‑core CPU.
+The original proposal aims to develop a fast, composition‑only predictor of HEA yield strength to enable rapid screening of candidate alloys for experimental synthesis. Expected performance targets are a coefficient of determination **R² ≥ 0.6**, absolute Pearson correlation **|r| ≥ 0.5**, and statistical significance **p < 0.05** on a held‑out test set, with a complete end‑to‑end run time of **≤ 2 hours** on an Multi‑core CPU.
 
 **Expected Results (restated):**
 The system should achieve a coefficient of determination **R² ≥ 0.6**, an absolute Pearson correlation **|r| ≥ 0.5**, and statistical significance **p < 0.05** on the held‑out test set. The end‑to‑end pipeline must complete within **2 hours** on an 8‑core CPU, and the top‑5 feature rankings should be stable (rank‑difference ≤ 1) across three independent runs. No missing‑field validation errors should occur, and the reproducibility manifest must be present and correct.
@@ -90,7 +90,7 @@ The system should achieve a coefficient of determination **R² ≥ 0.6**, an
 
 - **FR-001**: The system **MUST** download and validate the curated HEA yield‑strength dataset containing experimentally measured `yield_strength` values. (See US‑1)
 - **FR-002**: The system **MUST** compute composition‑based descriptors for each alloy entry according to `elemental_properties.schema.yaml`. (See US‑1)
-- **FR-003**: The system **MUST** train a Random Forest regression model using 5‑fold cross‑validation and store the trained model artifact. (See US‑1)
+- **FR-003**: The system **MUST** train a Random Forest regression model using k‑fold cross‑validation (with the number of folds to be determined during the implementation phase). and store the trained model artifact. (See US‑1)
 - **FR-004**: The system **MUST** evaluate the model on a held‑out test set and report R², Pearson r, and associated p‑value. (See US‑1)
 - **FR-005**: The system **MUST** compute permutation importance for each descriptor with exactly **1000 permutations** per feature. (See US‑1)
 - **FR-006**: The system **MUST** perform a two‑tailed t‑test on permutation importance scores with significance level α = 0.05 and flag features with p < 0.05. (See US‑1)
