@@ -1,98 +1,118 @@
 """
-Unit tests for Power Analysis (T036).
+Unit tests for PowerCalculator in code/analysis/power_analysis.py.
 """
+
 import pytest
 import pandas as pd
 import numpy as np
 import json
-from pathlib import Path
-import sys
 import os
-
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+import tempfile
+from pathlib import Path
 
 from code.analysis.power_analysis import PowerCalculator
 
 class TestPowerCalculator:
-    @pytest.fixture
-    def small_df(self):
-        """Create a small dataframe (N=10) to test UNDERPOWERED flag."""
-        data = {
-            'participant_id': [f'P{i}' for i in range(10)],
-            'disability_type': ['visual'] * 5 + ['motor'] * 5,
-            'sequence': ['trad_exp'] * 5 + ['exp_trad'] * 5
-        }
-        return pd.DataFrame(data)
+    """Tests for PowerCalculator class methods."""
 
     @pytest.fixture
-    def large_df(self):
-        """Create a large dataframe (N=50) to test OK flag."""
-        n = 50
-        data = {
-            'participant_id': [f'P{i}' for i in range(n)],
-            'disability_type': ['visual'] * 25 + ['motor'] * 25,
-            'sequence': ['trad_exp'] * 25 + ['exp_trad'] * 25
-        }
-        return pd.DataFrame(data)
+    def calculator(self):
+        return PowerCalculator(alpha=0.05, power_target=0.80)
 
-    def test_calculate_power_rm_anova_small_n(self, small_df):
-        """Test power calculation with small N returns low power."""
-        calc = PowerCalculator()
-        # N=10, effect_size=0.06 (small)
-        power = calc.calculate_power_rm_anova(n=10, effect_size=0.06)
-        # With N=10 and small effect, power should be very low
-        assert power < 0.5
-
-    def test_calculate_power_rm_anova_large_n(self, large_df):
-        """Test power calculation with large N returns higher power."""
-        calc = PowerCalculator()
-        # N=50, effect_size=0.06
-        power = calc.calculate_power_rm_anova(n=50, effect_size=0.06)
-        # Power should be higher than small N case
-        assert power > 0.1
-
-    def test_analyze_power_flags_underpowered(self, small_df):
-        """Test that N < 30 is flagged as UNDERPOWERED."""
-        calc = PowerCalculator()
-        results = calc.analyze_power(small_df, effect_size=0.06)
+    def test_compute_effect_size_etasquared(self, calculator):
+        """Test eta-squared calculation from F-stat and df."""
+        # Example: F=5.0, df_num=1, df_denom=20
+        # eta^2 = (5 * 1) / (5 * 1 + 20) = 5 / 25 = 0.2
+        f_stat = 5.0
+        df_num = 1
+        df_denom = 20
+        expected = 0.2
         
-        total_flag = [r for r in results if r['subgroup'] == 'Total Sample'][0]
-        assert total_flag['flag'] == 'UNDERPOWERED'
-        assert total_flag['N'] == 10
+        result = calculator.compute_effect_size_etasquared(f_stat, df_num, df_denom)
+        assert np.isclose(result, expected, atol=1e-6)
 
-    def test_analyze_power_ok_for_large(self, large_df):
-        """Test that N >= 30 is evaluated, potentially OK if power > 0.8."""
-        calc = PowerCalculator()
-        results = calc.analyze_power(large_df, effect_size=0.2) # Use larger effect for OK flag
-        
-        total_flag = [r for r in results if r['subgroup'] == 'Total Sample'][0]
-        assert total_flag['N'] == 50
-        # With N=50 and effect=0.2, power should be decent
-        # We just assert it's not flagged as UNDERPOWERED due to N < 30
-        assert total_flag['flag'] != 'UNDERPOWERED' or total_flag.get('power', 0) >= 0.8
+    def test_compute_effect_size_zero_f(self, calculator):
+        """Test eta-squared when F is 0."""
+        result = calculator.compute_effect_size_etasquared(0.0, 1, 20)
+        assert result == 0.0
 
-    def test_subgroup_disability_underpowered(self, small_df):
-        """Test subgroup analysis flags small disability groups."""
-        calc = PowerCalculator()
-        results = calc.analyze_power(small_df)
+    def test_compute_power_basic(self, calculator):
+        """Test power calculation with known parameters."""
+        # Large effect should yield high power with sufficient N
+        f_stat = 10.0
+        df_num = 1
+        df_denom = 29 # N=30, k=2
+        n_subjects = 30
+        n_conditions = 2
         
-        disability_flags = [r for r in results if r['subgroup'].startswith('Disability:')]
-        assert len(disability_flags) == 2 # visual, motor
-        for flag in disability_flags:
-            assert flag['flag'] == 'UNDERPOWERED'
-            assert flag['N'] == 5
+        power = calculator.compute_power(f_stat, df_num, df_denom, n_subjects, n_conditions)
+        assert 0.0 <= power <= 1.0
+        # With F=10 and N=30, power should be reasonably high (> 0.5)
+        assert power > 0.5
 
-    def test_output_structure(self, small_df):
-        """Test the structure of the output dictionary."""
-        calc = PowerCalculator()
-        results = calc.analyze_power(small_df)
-        
-        required_keys = {'subgroup', 'N', 'flag', 'message'}
-        for item in results:
-            assert required_keys.issubset(item.keys())
-            assert isinstance(item['N'], int)
-            assert isinstance(item['flag'], str)
-            assert item['flag'] in ['UNDERPOWERED', 'OK']
+    def test_analyze_creates_file(self, calculator):
+        """Test that analyze() creates the output JSON file with correct keys."""
+        # Create a temporary CSV
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "metrics_summary.csv")
+            output_path = os.path.join(tmpdir, "power_flags.json")
+            
+            # Create dummy metrics_summary.csv
+            df = pd.DataFrame({
+                'metric': ['completion_time', 'error_count', 'sus_score'],
+                'F_stat': [5.0, 3.5, 8.0],
+                'p_val': [0.03, 0.07, 0.001],
+                'df_num': [1, 1, 1],
+                'df_denom': [29, 29, 29],
+                'n_subjects': [30, 30, 30],
+                'n_conditions': [2, 2, 2]
+            })
+            df.to_csv(input_path, index=False)
+            
+            result = calculator.analyze(input_path, output_path)
+            
+            # Check file exists
+            assert os.path.exists(output_path)
+            
+            # Check JSON content
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            
+            assert 'power' in data
+            assert 'required_N' in data
+            assert 'effect_size' in data
+            assert 'flag' in data
+            assert 'details' in data
+            
+            # Check types
+            assert isinstance(data['power'], float)
+            assert isinstance(data['required_N'], int)
+            assert isinstance(data['effect_size'], float)
+            assert isinstance(data['flag'], str)
+
+    def test_analyze_underpowered_flag(self, calculator):
+        """Test that underpowered results get the correct flag."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "metrics_summary.csv")
+            output_path = os.path.join(tmpdir, "power_flags.json")
+            
+            # Create data with small N (10) -> likely underpowered
+            df = pd.DataFrame({
+                'metric': ['completion_time'],
+                'F_stat': [1.5], # Small effect
+                'p_val': [0.25],
+                'df_num': [1],
+                'df_denom': [9], # N=10
+                'n_subjects': [10],
+                'n_conditions': [2]
+            })
+            df.to_csv(input_path, index=False)
+            
+            result = calculator.analyze(input_path, output_path)
+            
+            # With N=10 and small F, flag should be underpowered or sample_too_small
+            assert result['flag'] in ['underpowered', 'sample_too_small']
+            assert result['observed_N'] == 10
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

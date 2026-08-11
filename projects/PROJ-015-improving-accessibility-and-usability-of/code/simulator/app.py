@@ -4,139 +4,71 @@ import sys
 from datetime import datetime
 import json
 import uuid
-import os
 
-# Import existing API surface
-from simulator.counterbalance import LatinSquareCounterbalancer
-from simulator.xai_overlay import RuleBasedXAIOverlayGenerator
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from simulator.validator import validate_session, load_schema
+from simulator.session_logger import log_session
+from simulator.accessibility import render_accessibility_settings, render_disability_selector
+from simulator.input import capture_input, calculate_sus_score
+from simulator.state import init_state, increment_phase, switch_sequence, manage_state
+from simulator.metrics_collector import MetricsCollector
+from simulator.tasks.gene_task import render_task, validate_task_completion, calculate_task_metrics
 from simulator.interfaces.traditional import TraditionalInterface
 from simulator.interfaces.explainable import ExplainableInterface
-from simulator.session_logger import SessionLogger
-from simulator.input import capture_input, calculate_sus_score
-from simulator.state import manage_state
-from simulator.accessibility import render_accessibility_settings, render_disability_selector
-from simulator.metrics_collector import MetricsCollector
+from simulator.counterbalance import LatinSquareCounterbalancer
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def init_session_state():
-    """Initialize Streamlit session state if not present."""
-    if 'participant_id' not in st.session_state:
-        st.session_state.participant_id = None
-    if 'disability_type' not in st.session_state:
-        st.session_state.disability_type = None
-    if 'sequence' not in st.session_state:
-        st.session_state.sequence = None
-    if 'current_phase' not in st.session_state:
-        st.session_state.current_phase = 0
-    if 'interface_variant' not in st.session_state:
-        st.session_state.interface_variant = None
-    if 'session_data' not in st.session_state:
-        st.session_state.session_data = {}
-    if 'metrics' not in st.session_state:
-        st.session_state.metrics = {}
-    if 'xai_overlay' not in st.session_state:
-        st.session_state.xai_overlay = None
-    if 'start_time' not in st.session_state:
-        st.session_state.start_time = None
-
 def setup_page():
-    """Configure Streamlit page layout and title."""
-    st.set_page_config(page_title="Usability Study", layout="wide")
-    st.title("Complex Systems Usability & Accessibility Study")
-
-def render_consent():
-    """Render consent form."""
-    st.header("Consent Form")
-    st.write("This study investigates the usability of complex computer systems.")
-    if st.button("I Consent to Participate"):
-        st.session_state.consent_given = True
-        return True
-    return False
-
-def render_login():
-    """Render participant login."""
-    st.header("Participant Login")
-    pid = st.text_input("Enter Participant ID")
-    if st.button("Start Session") and pid:
-        st.session_state.participant_id = pid
-        return True
-    return False
-
-def determine_sequence(participant_id):
-    """
-    Determine the interface sequence using Latin Square Counterbalancing.
-    Returns a list of interface types in order (e.g., ['traditional', 'explainable']).
-    """
-    counterbalancer = LatinSquareCounterbalancer()
-    sequence_str = counterbalancer.assign_sequence(participant_id)
-    # Sequence string is like "Traditional->Explainable" or "Explainable->Traditional"
-    parts = sequence_str.split("->")
-    mapping = {
-        "Traditional": "traditional",
-        "Explainable": "explainable"
-    }
-    return [mapping[p.strip()] for p in parts]
+    st.set_page_config(page_title="Gene Regulation Accessibility Study", layout="wide")
+    st.title("Gene Regulation Interface Usability Study")
+    init_state()
 
 def render_intro():
-    """Render introduction screen."""
-    st.header("Study Introduction")
-    st.write("You will be asked to perform tasks using two different interface styles.")
-    if st.button("Begin Task"):
-        return True
-    return False
+    st.markdown("""
+    ### Welcome to the Study
+    This study evaluates the usability of gene regulation interfaces for people with disabilities.
+    Please read the consent form below carefully.
+    """)
 
-def render_interface_task(interface_type, task_input):
-    """
-    Render the appropriate interface (Traditional or Explainable) and return metrics.
-    This function integrates the XAI Overlay Generator for the Explainable interface.
-    """
-    logger.info(f"Rendering interface: {interface_type}")
+def render_consent():
+    st.markdown("### Consent Form")
+    st.info("I understand that my participation is voluntary and that I can withdraw at any time.")
+    consent = st.checkbox("I consent to participate in this study.")
+    return consent
 
-    # Initialize metrics collector
-    collector = MetricsCollector()
+def render_login():
+    st.text_input("Participant ID (leave blank to generate random ID)")
+    return st.text_input("Participant ID (leave blank to generate random ID)")
 
+def render_disability_type_selection():
+    return render_disability_selector()
+
+def determine_sequence():
+    if 'counterbalancer' not in st.session_state:
+        st.session_state.counterbalancer = LatinSquareCounterbalancer()
+    return st.session_state.counterbalancer.get_sequence(st.session_state.participant_id)
+
+def render_interface(interface_type: str, task_input: dict):
     if interface_type == "traditional":
-        interface = TraditionalInterface()
-        # Traditional interface does not use XAI overlays
-        st.subheader("Traditional Interface")
-        # Render task (simplified for this task)
-        st.write("Perform the task using the Traditional interface.")
-        if st.button("Complete Task"):
-            # In a real scenario, we would measure time and errors here
-            # For this integration task, we simulate the completion event
-            return collector.collect_metrics(
-                interface_type="traditional",
-                error_count=0,
-                completion_time=10.0, # Placeholder for real measurement logic
-                explanation_engagement=0.0
-            )
-    elif interface_type == "explainable":
-        interface = ExplainableInterface()
-        # INTEGRATION: Call RuleBasedXAIOverlayGenerator
-        overlay_generator = RuleBasedXAIOverlayGenerator()
-        xai_overlay = overlay_generator.generate_overlay(task_input)
-        st.session_state.xai_overlay = xai_overlay
+        return TraditionalInterface().render(task_input)
+    else:
+        return ExplainableInterface().render(task_input)
 
-        st.subheader("Explainable Interface with XAI Overlays")
-        st.write("Perform the task using the Explainable interface.")
-        st.write("XAI Overlay Data:", json.dumps(xai_overlay, indent=2, default=str))
-
-        if st.button("Complete Task"):
-            # Measure engagement time with the explanation (real measurement logic)
-            # For this task, we assume the user interacted with the overlay
-            return collector.collect_metrics(
-                interface_type="explainable",
-                error_count=0,
-                completion_time=8.0, # Placeholder for real measurement logic
-                explanation_engagement=5.0 # Real measurement would go here
-            )
-    return None
+def render_interface_task(interface_variant: str):
+    task_input = {
+        "gene_data": "sample_gene_expression_data",
+        "target": "upregulate"
+    }
+    return render_interface(interface_variant, task_input)
 
 def render_sus_questionnaire():
-    """Render SUS questionnaire and calculate score."""
-    st.header("System Usability Scale (SUS)")
+    st.subheader("System Usability Scale (SUS)")
     sus_questions = [
         "I think that I would like to use this system frequently.",
         "I found the system unnecessarily complex.",
@@ -151,97 +83,126 @@ def render_sus_questionnaire():
     ]
     responses = []
     for i, q in enumerate(sus_questions):
-        val = st.slider(f"Question {i+1}: {q}", 1, 5, 3)
-        responses.append(val)
-
-    if st.button("Submit SUS"):
-        score_data = calculate_sus_score(responses)
-        st.session_state.sus_score = score_data['score']
-        st.success(f"SUS Score: {st.session_state.sus_score}")
-        return True
-    return False
+        st.write(f"{i+1}. {q}")
+        resp = st.slider(f"Rating (1-5) for question {i+1}", 1, 5, 3, key=f"sus_{i}")
+        responses.append(resp)
+    return responses
 
 def render_complete():
-    """Render completion screen."""
-    st.header("Session Complete")
-    st.write("Thank you for participating.")
-    st.write(f"Sequence Order: {st.session_state.get('sequence_order', [])}")
-    if st.button("End Session"):
+    st.success("Thank you for participating!")
+    st.markdown("Your session has been recorded.")
+
+def generate_recruitment_link():
+    return "https://example.com/recruit"
+
+def submit_session_data(session_data: dict):
+    """
+    Submits session data after validating it against the schema.
+    Raises ValueError if validation fails.
+    """
+    logger.info("Validating session data before submission...")
+    try:
+        is_valid = validate_session(session_data)
+        if not is_valid:
+            error_msg = f"Session validation failed for participant {session_data.get('participant_id', 'unknown')}. Data does not conform to schema."
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        
+        logger.info("Session data validated successfully. Writing to data/raw/...")
+        log_session(session_data)
+        logger.info("Session data written successfully.")
         return True
-    return False
+    except ValueError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during submission: {str(e)}")
+        raise
 
 def main():
-    """Main Streamlit application flow."""
     setup_page()
-    init_session_state()
-
-    # 1. Consent
-    if not st.session_state.get('consent_given', False):
-        if not render_consent():
-            st.stop()
-
-    # 2. Login
-    if not st.session_state.participant_id:
-        if not render_login():
-            st.stop()
-
-    # 3. Accessibility Settings
-    st.session_state.accessibility_settings = render_accessibility_settings()
-    st.session_state.disability_type = render_disability_selector()
-
-    # 4. Determine Sequence (Counterbalancing)
-    participant_id = st.session_state.participant_id
-    if 'sequence' not in st.session_state:
-        st.session_state.sequence = determine_sequence(participant_id)
-        st.session_state.sequence_order = [1, 2] # Log order 1->2
-
-    # 5. Manage State for Phase
-    state_data = manage_state()
-    current_phase = state_data['current_phase']
-    current_interface = state_data['interface_variant']
-
-    # 6. Intro
-    if current_phase == 0:
-        if not render_intro():
-            st.stop()
-        st.session_state.current_phase = 1
-        st.rerun()
-
-    # 7. Task Execution (Iterate through sequence)
-    if current_phase < len(st.session_state.sequence):
-        interface_type = st.session_state.sequence[current_phase]
-        task_input = {"difficulty": "medium", "task_id": "T001"}
-
-        # INTEGRATION: Call XAI Overlay Generator for Explainable interface
-        # This is handled inside render_interface_task via RuleBasedXAIOverlayGenerator
-
-        st.session_state.start_time = datetime.now()
-        metrics = render_interface_task(interface_type, task_input)
-
-        if metrics:
-            st.session_state.metrics[interface_type] = metrics
-            st.session_state.current_phase += 1
+    
+    if 'step' not in st.session_state:
+        st.session_state.step = 'intro'
+    
+    if st.session_state.step == 'intro':
+        render_intro()
+        if st.button("Read Consent"):
+            st.session_state.step = 'consent'
             st.rerun()
-        else:
-            st.warning("Task not completed yet.")
-
-    # 8. SUS
-    if current_phase == len(st.session_state.sequence):
-        if not render_sus_questionnaire():
+    
+    elif st.session_state.step == 'consent':
+        consent = render_consent()
+        if consent:
+            st.session_state.consent_status = True
+            st.session_state.step = 'login'
+            st.rerun()
+        elif st.button("Decline"):
+            st.info("You have declined to participate. Thank you.")
             st.stop()
-        st.session_state.current_phase += 1
+    
+    elif st.session_state.step == 'login':
+        p_id = render_login()
+        if not p_id:
+            p_id = str(uuid.uuid4())[:8]
+        st.session_state.participant_id = p_id
+        st.session_state.step = 'disability'
         st.rerun()
-
-    # 9. Complete
-    if current_phase > len(st.session_state.sequence):
-        if not render_complete():
-            st.stop()
-        # Log session data
-        logger.info(f"Logging session for {participant_id}")
-        logger.info(f"Sequence: {st.session_state.sequence}")
-        logger.info(f"Sequence Order: {st.session_state.sequence_order}")
-        # In a real run, this would write to data/raw/
-        st.success("Session data logged successfully.")
+    
+    elif st.session_state.step == 'disability':
+        disability_type = render_disability_type_selection()
+        st.session_state.disability_type = disability_type
+        st.session_state.step = 'accessibility'
+        st.rerun()
+    
+    elif st.session_state.step == 'accessibility':
+        render_accessibility_settings()
+        if st.button("Start Task"):
+            st.session_state.step = 'task'
+            st.session_state.current_sequence = determine_sequence()
+            st.session_state.current_phase = 0
+            manage_state()
+            st.rerun()
+    
+    elif st.session_state.step == 'task':
+        interface_variant = manage_state()
+        render_interface_task(interface_variant)
+        
+        if st.button("Complete Task"):
+            # Collect metrics
+            collector = MetricsCollector()
+            metrics = collector.calculate_task_metrics()
+            
+            # Collect SUS
+            sus_responses = render_sus_questionnaire()
+            sus_result = calculate_sus_score(sus_responses)
+            
+            # Capture input
+            input_data = capture_input()
+            
+            # Prepare session data
+            session_data = {
+                "participant_id": st.session_state.participant_id,
+                "disability_type": st.session_state.disability_type,
+                "interface_type": interface_variant,
+                "consent_status": st.session_state.consent_status,
+                "metrics": metrics,
+                "sus_score": sus_result['score'],
+                "status": "complete",
+                "timestamp": datetime.now().isoformat(),
+                "input_events": input_data.get('input_events', [])
+            }
+            
+            try:
+                submit_session_data(session_data)
+                st.session_state.step = 'complete'
+                st.rerun()
+            except ValueError as e:
+                st.error(f"Submission failed: {str(e)}")
+                st.stop()
+    
+    elif st.session_state.step == 'complete':
+        render_complete()
 
 if __name__ == "__main__":
     main()

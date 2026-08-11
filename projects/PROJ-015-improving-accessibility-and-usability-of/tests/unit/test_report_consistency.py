@@ -1,277 +1,110 @@
-"""
-Unit tests for T113: Report Consistency Check.
-"""
 import pytest
-import json
-import hashlib
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import json
+import tempfile
+from pathlib import Path
+import hashlib
 
-# Add the project root to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from analysis.report_consistency_check import (
+# Import the functions we are testing
+from code.analysis.report_consistency_check import (
     compute_file_checksum,
     verify_consistency,
-    main
+    get_expected_checksums
 )
 
-@pytest.fixture
-def temp_dir(tmp_path):
-    """Create a temporary directory for test files."""
-    return tmp_path
+def compute_sha256(content: str) -> str:
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
 
 @pytest.fixture
-def create_test_files(temp_dir):
-    """Create test files for consistency checking."""
-    # Create CSV files
-    csv1 = temp_dir / "metrics_summary.csv"
-    csv1.write_text("metric,value\ntime,100\nerrors,5\n")
-    
-    csv2 = temp_dir / "descriptive_stats.csv"
-    csv2.write_text("stat,value\nmean,50\nstd,10\n")
-    
-    # Create report
-    report = temp_dir / "report.txt"
-    report.write_text("Summary report\n")
-    
-    # Create state file
-    state_file = temp_dir / "state.json"
-    
-    return {
-        "csv1": csv1,
-        "csv2": csv2,
-        "report": report,
-        "state": state_file,
-        "temp_dir": temp_dir
-    }
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 def test_compute_file_checksum(temp_dir):
-    """Test checksum computation."""
-    test_file = temp_dir / "test.txt"
-    test_file.write_text("Hello, World!")
+    """Test that checksum is computed correctly and is deterministic."""
+    file_path = temp_dir / "test.txt"
+    content = "Hello, World!"
+    file_path.write_text(content)
     
-    checksum = compute_file_checksum(test_file)
-    assert checksum is not None
-    assert len(checksum) == 64  # SHA-256 hex length
+    checksum = compute_file_checksum(file_path)
+    expected = compute_sha256(content)
     
-    # Verify checksum is correct
-    expected = hashlib.sha256(b"Hello, World!").hexdigest()
     assert checksum == expected
+    assert len(checksum) == 64  # SHA-256 hex length
 
-def test_compute_file_checksum_missing_file(temp_dir):
-    """Test checksum computation for missing file."""
-    checksum = compute_file_checksum(temp_dir / "nonexistent.txt")
-    assert checksum is None
+def test_compute_file_checksum_missing_file():
+    """Test that FileNotFoundError is raised for missing file."""
+    with pytest.raises(FileNotFoundError):
+        compute_file_checksum(Path("nonexistent_file.txt"))
 
-def test_verify_consistency_initial_run(create_test_files):
-    """Test consistency verification on initial run (no state file)."""
-    files = create_test_files
+def test_verify_consistency_missing_report(temp_dir):
+    """Test that verification fails if report is missing."""
+    metrics = temp_dir / "metrics_summary.csv"
+    metrics.write_text("metric,F_stat,p_val\ntest,1.0,0.5")
     
-    success, message = verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
+    descriptive = temp_dir / "descriptive_stats.csv"
+    descriptive.write_text("stat,value\nmean,1.0")
     
-    assert success is True
-    assert "Initial state created" in message
+    report = temp_dir / "report_summary.txt"
     
-    # Verify state file was created
-    assert files["state"].exists()
+    is_consistent, message = verify_consistency(report, metrics, descriptive)
     
-    # Verify state file content
-    with open(files["state"]) as f:
-        state = json.load(f)
-    
-    assert "csv_checksums" in state
-    assert "report_checksum" in state
-    assert len(state["csv_checksums"]) == 2
+    assert not is_consistent
+    assert "Missing required file: report_summary.txt" in message
 
-def test_verify_consistency_matching(create_test_files):
-    """Test consistency verification when everything matches."""
-    files = create_test_files
+def test_verify_consistency_success(temp_dir):
+    """Test that verification passes when all files exist and are valid."""
+    report = temp_dir / "report_summary.txt"
+    report.write_text("Analysis Report\nF-stat: 1.0\np-value: 0.5\nANOVA results included.")
     
-    # First run to create state
-    verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
+    metrics = temp_dir / "metrics_summary.csv"
+    metrics.write_text("metric,F_stat,p_val\ntest,1.0,0.5")
     
-    # Second run should succeed
-    success, message = verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
+    descriptive = temp_dir / "descriptive_stats.csv"
+    descriptive.write_text("stat,value\nmean,1.0")
     
-    assert success is True
-    assert "verified successfully" in message
+    is_consistent, message = verify_consistency(report, metrics, descriptive)
+    
+    assert is_consistent
+    assert "Consistent" in message
 
-def test_verify_consistency_csv_changed(create_test_files):
-    """Test consistency verification when CSV content changes."""
-    files = create_test_files
+def test_verify_consistency_checksum_mismatch(temp_dir):
+    """Test that verification fails if checksums don't match expected."""
+    report = temp_dir / "report_summary.txt"
+    report.write_text("Report Content A")
     
-    # First run to create state
-    verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
+    metrics = temp_dir / "metrics_summary.csv"
+    metrics.write_text("data")
+    
+    descriptive = temp_dir / "descriptive_stats.csv"
+    descriptive.write_text("data")
+    
+    # Create expected checksums that DO NOT match the current files
+    wrong_checksums = {
+        "report_summary.txt": "0000000000000000000000000000000000000000000000000000000000000000",
+        "metrics_summary.csv": "1111111111111111111111111111111111111111111111111111111111111111",
+        "descriptive_stats_explanation_engagement.csv": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+    
+    is_consistent, message = verify_consistency(
+        report, metrics, descriptive, expected_checksums=wrong_checksums
     )
     
-    # Change CSV content
-    files["csv1"].write_text("metric,value\ntime,200\nerrors,10\n")
-    
-    # Second run should fail
-    success, message = verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
-    
-    assert success is False
-    assert "has changed since report generation" in message
+    assert not is_consistent
+    assert "Checksum mismatch" in message
 
-def test_verify_consistency_report_changed(create_test_files):
-    """Test consistency verification when report content changes."""
-    files = create_test_files
+def test_verify_consistency_empty_report(temp_dir):
+    """Test that verification fails if report is empty."""
+    report = temp_dir / "report_summary.txt"
+    report.write_text("")  # Empty file
     
-    # First run to create state
-    verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
+    metrics = temp_dir / "metrics_summary.csv"
+    metrics.write_text("data")
     
-    # Change report content
-    files["report"].write_text("Modified report\n")
+    descriptive = temp_dir / "descriptive_stats.csv"
+    descriptive.write_text("data")
     
-    # Second run should fail
-    success, message = verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
+    is_consistent, message = verify_consistency(report, metrics, descriptive)
     
-    assert success is False
-    assert "Report checksum mismatch" in message
-
-def test_verify_consistency_missing_csv(create_test_files):
-    """Test consistency verification when a CSV is missing."""
-    files = create_test_files
-    
-    # First run to create state
-    verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
-    
-    # Remove CSV
-    files["csv1"].unlink()
-    
-    # Second run should fail
-    success, message = verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
-    
-    assert success is False
-    assert "not found" in message
-
-def test_verify_consistency_missing_report(create_test_files):
-    """Test consistency verification when report is missing."""
-    files = create_test_files
-    
-    # First run to create state
-    verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
-    
-    # Remove report
-    files["report"].unlink()
-    
-    # Second run should fail
-    success, message = verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
-    
-    assert success is False
-    assert "not found" in message
-
-def test_verify_consistency_new_csv(create_test_files):
-    """Test consistency verification when a new CSV is added."""
-    files = create_test_files
-    
-    # First run to create state
-    verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"]],
-        files["state"]
-    )
-    
-    # Add new CSV
-    new_csv = files["temp_dir"] / "new.csv"
-    new_csv.write_text("new,data\n")
-    
-    # Second run should fail
-    success, message = verify_consistency(
-        files["report"],
-        [files["csv1"], files["csv2"], new_csv],
-        files["state"]
-    )
-    
-    assert success is False
-    assert "New CSV detected" in message
-
-def test_main_success(temp_dir, capsys):
-    """Test main function on success."""
-    # Create files
-    csv1 = temp_dir / "metrics_summary.csv"
-    csv1.write_text("metric,value\ntime,100\n")
-    
-    report = temp_dir / "report.txt"
-    report.write_text("Report\n")
-    
-    state = temp_dir / "state.json"
-    
-    # First run to create state
-    with patch("sys.argv", [
-        "report_consistency_check.py",
-        "--report", str(report),
-        "--csv", str(csv1),
-        "--state", str(state)
-    ]):
-        main()
-    
-    captured = capsys.readouterr()
-    assert "[SUCCESS]" in captured.out
-
-def test_main_failure_missing_csv(temp_dir, capsys, capfd):
-    """Test main function on failure (missing CSV)."""
-    report = temp_dir / "report.txt"
-    report.write_text("Report\n")
-    
-    state = temp_dir / "state.json"
-    
-    # First run to create state with missing CSV
-    with patch("sys.argv", [
-        "report_consistency_check.py",
-        "--report", str(report),
-        "--csv", str(temp_dir / "missing.csv"),
-        "--state", str(state)
-    ]):
-        with pytest.raises(SystemExit) as excinfo:
-            main()
-    
-    assert excinfo.value.code == 1
-    captured = capsys.readouterr()
-    assert "[FAILURE]" in captured.err
+    assert not is_consistent
+    assert "report_summary.txt is empty" in message
