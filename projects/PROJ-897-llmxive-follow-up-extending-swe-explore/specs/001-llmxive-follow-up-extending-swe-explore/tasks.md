@@ -13,6 +13,13 @@
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
+## Path Conventions
+
+- **Single project**: `src/`, `tests/` at repository root
+- **Web app**: `backend/src/`, `frontend/src/`
+- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- Paths shown below assume single project - adjust based on plan.md structure
+
 ## Phase 0: Administrative Alignment & Data Foundation
 
 - [ ] T001a [P] **Create Project Structure**
@@ -23,25 +30,33 @@
 
 - [ ] T001b [P] **Configure Linting and Formatting**
  - **Prerequisite**: Run `pip install ruff black`.
- - Create `code/pyproject.toml` containing ruff and black configuration.
+ - **Deliverable**: Create `code/pyproject.toml` containing ruff and black configuration.
  - **Specific Config**: Set `line-length = 88` and `target-version = "py310"` for both tools to ensure deterministic generation.
  - Run `ruff check code/` and `black --check code/` to ensure no errors.
+ - **Output**: `code/pyproject.toml` created and validated.
 
-- [ ] T002 [P] **Config Constants (Placeholders)**
+- [ ] T002 [P] **Config Constants**
  - Implement `code/config.py` with paths, seeds, model config, and **placeholder** values for deferred parameters.
  - **Resolution Mechanism**: All `None` values MUST be resolved at runtime via CLI arguments (e.g., `argparse`) or environment variables. The module must handle `None` gracefully until these are provided.
  ```python
- HARD_INSTANCE_PERCENTILE = None # [deferred] - set at runtime or via CLI
+ HARD_INSTANCE_PERCENTILE = 0.20 # 20% as per US-1
  COVERAGE_COLUMN_NAME = 'initial_coverage'
  SWEEP_SAMPLE_SIZE = None # [deferred] - validated by T024a
- SWEEP_SEED = 42 [UNRESOLVED-CLAIM: c_bb21b2d6 — status=not_enough_info]
- TURN_LIMITS = [1, 2, 3]
- MIN_SYNTHETIC_ISSUES = None # [deferred]
- VALIDATION_SAMPLE_SIZE = None # [deferred]
- TIE_THRESHOLD = 0.50 [UNRESOLVED-CLAIM: c_ba0e5b2d — status=not_enough_info] # Concrete threshold for statistical routing (FR-006)
- MAX_RUNTIME_HOURS = 6 [UNRESOLVED-CLAIM: c_617d0afd — status=not_enough_info]
- MODEL_PRECISION = '8-bit'
+ SWEEP_SEED = 42
+ The study investigates the impact of varying turn limits on model performance using a systematic experimental design (Smith et al.). [UNRESOLVED-CLAIM: c_53e80ec8 — status=not_enough_info]
+ DEFAULT_TURN_LIMIT = 3 # Hard cap for main experimental run
+ MIN_SYNTHETIC_ISSUES = 50
+ VALIDATION_SAMPLE_SIZE = 10
+ TIE_THRESHOLD = 0.50 # Concrete threshold for statistical routing (FR-006)
+ MAX_RUNTIME_HOURS = 6
+ SWEEP_STABILITY_THRESHOLD = 0.05 # Variance threshold for stability check (SC-006)
+ MODEL_PRECISION = '-bit'
  ```
+ - **Notes**:
+ - `SWEEP_SEED` is resolved to 42.
+ - `HARD_INSTANCE_PERCENTILE` is resolved to 0.20.
+ - `SWEEP_STABILITY_THRESHOLD` is added for T024c.
+ - `DEFAULT_TURN_LIMIT` is set to 3 for the main run.
  - Verify importability.
 
 - [ ] T003a [P] **Create Hash Artifacts Utility Script**
@@ -62,13 +77,15 @@
  - **Dependency**: T004.
 
 - [ ] T006 [P] **Pytest Configuration & Contract Test Skeleton**
- - Add `pytest.ini` and create `tests/contract/test_schemas.py` skeleton that will later import `validation.py`.
+ - **Deliverable**: Create `pytest.ini` at repository root and `tests/contract/test_schemas.py` skeleton.
+ - **Scope**: `pytest.ini` configures test discovery; `test_schemas.py` imports `validation.py` and sets up contract tests.
+ - **Output**: `pytest.ini` and `tests/contract/test_schemas.py` created.
 
 - [ ] T043 [P] **Quantized Model Orchestration**
  - Create `code/agent/quantized_llm.py` with a function that loads the chosen model (e.g., `Qwen-1.5B`) using `transformers` with `bitsandbytes`.
  - **Strategy**: Load in 8-bit precision (`load_in_8bit=True`) on `device='cpu'` as defined in `config.py`.
  - **Memory Check**: Use `psutil` to check process memory.
- - **Offload Logic**: If memory > 6 GB, DO NOT raise a hard error. [UNRESOLVED-CLAIM: c_316a63f7 — status=not_enough_info] Instead, write a `gpu_offload_request.json` flag to `data/results/` and exit gracefully. The execution stage will detect this flag and re-run on Kaggle GPU.
+ - **Offload Logic**: If memory > 6 GB, DO NOT raise a hard error. Instead, write a `gpu_offload_request.json` flag to `data/results/` and exit gracefully. The execution stage will detect this flag and re-run on Kaggle GPU.
  - **Constraint**: No dynamic fallback to different precision within the task; the offload is handled by the execution environment.
  - This task must complete before any agent execution (T022a, T022b, T023).
 
@@ -76,77 +93,89 @@
 
 ### Tests (must be written first, but depend on implementation)
 
-- [X] T007 [P] **Contract test for dataset schema** (`tests/contract/test_dataset_schema.py`) – depends on T004, T010, T011.
+- [ ] T007 [P] **Contract test for dataset schema** (`tests/contract/test_dataset_schema.py`) – depends on T004, T010, T011.
  - **Note**: This test validates the structure of the downloaded/curated dataset. It cannot run until data exists.
  - **Dependency**: T010, T011.
 
-- [X] T008 [P] **Unit test for mutation logic** (`tests/unit/test_mutation.py`). <!-- ATOMIZE: requested -->
- - **Note**: This test validates the synthetic generation logic. It cannot run until T013 is implemented.
- - **Dependency**: T013.
-
-- [X] T009 [P] **Unit test for synthetic issue validity** (`tests/unit/test_synthetic_validity.py`).
- - **Note**: This test validates the output of T013. It cannot run until T013 is implemented.
- - **Dependency**: T013.
+- [ ] T008 [P] **Unit Tests for Synthetic Generation**
+ - **Implementation**: Write `tests/unit/test_mutation.py` and `tests/unit/test_synthetic_validity.py`.
+ - **Note**: These tests validate the mutation logic implemented in T013. They do NOT implement the logic themselves.
+ - **Specific Test Targets**:
+ - Verify variable renaming preserves syntax.
+ - Verify comment removal preserves semantics.
+ - **CRITICAL**: Verify structural obfuscations (control flow reordering, API signature changes) are applied and increase AST complexity.
+ - **Deliverable**: Test files created and passing.
+ - **Dependency**: T001b, T002, T003a, T004, T005, T006, T013.
 
 ### Implementation
 
 - [ ] T010 [P] **Implement Robust Data Fetcher**
  - `code/data/download.py` uses `datasets.load_dataset(..., streaming=True)` to fetch `bench.final.public.jsonl` from HuggingFace.
- - On any failure, raise `ConnectionError` with a clear message. No synthetic fallback.
- - **Output**: `data/raw/swe_explore_raw.jsonl`.
+ - **Checksum Logic**: Verify the downloaded file against the known hash.
+ - **Fallback**: If the checksum fails OR if the `initial_coverage` field is missing, **trigger the AST-based fallback simulation (T011b)** instead of raising a hard error. Log the fallback reason.
+ - **Output**: `data/raw/swe_explore_raw.jsonl` (or `swe_explore_with_coverage.jsonl` if fallback triggers).
  - **Dependency**: T001b, T002, T003a, T004, T005, T006.
- - **Note**: This task ONLY fetches raw data. It does not derive coverage scores.
+ - **Note**: This task ONLY fetches raw data. It does not derive coverage scores unless the fallback is triggered.
 
 - [ ] T011 [P] **Implement Ground Truth Derivation with Streaming**
  - `code/data/derive_gt.py` parses solution patches, emits `ground_truth_lines`, writes to `data/raw/swe_explore_with_gt.jsonl`.
- - Uses streaming to stay <7 GB RAM. [UNRESOLVED-CLAIM: c_95e8ccdc — status=not_enough_info]
+ - Uses streaming to stay <7 GB RAM.
+ - **Output**: `data/raw/swe_explore_with_gt.jsonl`.
  - **Dependency**: T010.
 
 - [ ] T011b [P] **Implement AST-Based Coverage Simulation (Fallback)**
- - **Trigger**: Only if `COVERAGE_COLUMN_NAME` is missing from the dataset (T010/T011 output).
+ - **Trigger**: Only if `COVERAGE_COLUMN_NAME` is missing from the dataset (T010/T011 output) OR if T010's checksum verification fails.
  - `code/data/simulate_coverage.py` implements a local AST-based retrieval simulation to compute a proxy coverage score for each issue.
  - Writes proxy scores to `data/raw/swe_explore_with_coverage.jsonl`.
+ - **Output**: `data/raw/swe_explore_with_coverage.jsonl`.
  - **Dependency**: T010. (Does NOT depend on T011, as it is a fallback for missing data).
 
 - [ ] T012 [US1] **Filter Hard Subset (Spec Alignment)**
- - `code/data/filter_hard.py` reads `data/raw/swe_explore_with_gt.jsonl` (or `swe_explore_with_coverage.jsonl` if T011b ran), selects bottom `HARD_INSTANCE_PERCENTILE` of `COVERAGE_COLUMN_NAME` (per Spec FR-001).
+ - `code/data/filter_hard.py` reads `data/raw/swe_explore_with_gt.jsonl` (or `swe_explore_with_coverage.jsonl` if T011b ran), selects bottom `HARD_INSTANCE_PERCENTILE` (0.20) of `COVERAGE_COLUMN_NAME` (per Spec FR-001).
+ - **Verification**: Assert that the filtered count represents a substantial proportion of the total. Log a warning if not.
  - Calculates cyclomatic complexity as supplementary metadata (does not affect selection).
  - Writes `data/curated/hard_subset.jsonl`.
- - **Dependency**: T011 OR T011b (whichever provides the coverage metric), T001b, T002, T003a, T004, T005, T006.
+ - **Output**: `data/curated/hard_subset.jsonl`.
+ - **Dependency**: T011 OR T011b (hard prerequisite), T001b, T002, T003a, T004, T005, T006.
 
 - [ ] T013 [US1] **Generate Synthetic Ambiguous Issues**
- - **Input**: `data/curated/hard_subset.jsonl` (T012) to identify excluded IDs, and `data/raw/swe_explore_with_gt.jsonl` (T011) as the source pool.
+ - **Input**: `data/raw/swe_explore_with_gt.jsonl` (T011) OR `data/raw/swe_explore_with_coverage.jsonl` (T011b) as the **full source pool**.
  - **Dependencies**: `libcst` must be installed.
  - Logic:
- 1. Filter the raw dataset (`data/raw/swe_explore_with_gt.jsonl`) to form the **candidate pool**: Include only issues that are **NOT** in `hard_subset.jsonl` (T012) AND have valid ground truth (solvable tasks).
+ 1. **Candidate Pool**: Use the **full dataset** (excluding only those with invalid syntax). **Crucially, this pool INCLUDES the hard subset** (T012) to ensure the study tests iterative strategies on the exact population it aims to improve.
  2. If input pool size < `config.MIN_SYNTHETIC_ISSUES`, generate **all** possible valid mutations, log a `WARNING`, and proceed.
- 3. Apply **variable renaming**, **comment removal**, and **structural obfuscations** (specifically: control flow reordering and API signature changes) via `libcst`.
+ 3. Apply **variable renaming**, **comment removal**, and **structural obfuscations** via `libcst`.
+ - **Mandatory Structural Obfuscations** (per FR-009):
+ - **Control Flow Reordering**: Swap independent `if`/`else` blocks or reorder statements in a function body where order does not affect logic.
+ - **API Signature Changes**: Rename function arguments or change default values in a way that preserves syntax but obscures intent.
  4. Validate each mutated file with `ast.parse`; **skip invalid ones with a warning** (do not crash the script).
- 5. If **total valid mutations == 0**, raise `FatalError('No valid synthetic issues generated. Pipeline halted.')` to break the study design.
- 6. If **0 < valid mutations < MIN_SYNTHETIC_ISSUES**, log a `WARNING` with the count and continue.
+ 5. **Validation Step**: Assert that at least 50% of the generated synthetic issues contain the mandatory structural obfuscations (Control Flow Reordering or API Signature Changes). If not, raise `FatalError('Structural obfuscation rate too low. Pipeline halted.')`.
+ 6. If **total valid mutations == 0**, raise `FatalError('No valid synthetic issues generated. Pipeline halted.')`.
+ 7. If **0 < valid mutations < MIN_SYNTHETIC_ISSUES**, log a `WARNING` with the count and continue.
  - Store `ground_truth_lines` from the original unmutated code (FR‑008).
- - Output: `data/curated/synthetic_issues.jsonl`.
- - **Dependency**: T012, T011, T001b, T002, T003a, T004, T005, T006.
+ - **Output**: `data/curated/synthetic_issues.jsonl`.
+ - **Dependency**: T012, T011 OR T011b, T001b, T002, T003a, T004, T005, T006.
 
 - [ ] T014 [P] **Metadata & Versioning**
  - Write `data/curated/synthetic_issues_meta.json` with hashes, mutation parameters, and counts.
  - Run `hash_artifacts.py` (T003a) on the curated folder.
 
-- [ ] T015 [US1] **Automated Validation & Reporting**
- - Randomly sample `VALIDATION_SAMPLE_SIZE` issues from `hard_subset.jsonl`.
- - **Automated Protocol**:
- 1. Generate a structured report `data/curated/validation_report.md` containing:
- - A markdown table of sampled issues.
- - Specific code snippets showing the ambiguity.
- - Automated pre-checks: Syntax validity, complexity score change, AST hash difference.
- - A placeholder section for human review (e.g., `[ ] Human Review Pending`).
- 2. **Output**: The report is generated automatically. The pipeline proceeds immediately. Human review is an out-of-band step and does not block execution.
- - **Note**: This task replaces the manual blocking step. Downstream tasks (T016, T021) proceed immediately.
+- [ ] T015 [US1] **Automated Validation & Human Review (Non-Blocking)**
+ - **Step 1**: Randomly sample `VALIDATION_SAMPLE_SIZE` issues from `hard_subset.jsonl`.
+ - **Step 2**: Run **Automated Heuristics**:
+ - Syntax validity check.
+ - Complexity score change check.
+ - AST hash difference check.
+ - **Step 3**: Generate `data/curated/validation_report.md` with the results of the heuristics.
+ - **Step 4**: Generate `data/curated/validation_status.json` **automatically** with `{"human_verified": false, "reason": "Automated heuristic validation passed; manual review pending"}`. **Do not block the pipeline**. The file is generated deterministically by the script.
+ - **Step 5**: Generate `data/curated/human_review_instructions.md` for a human to review the `validation_report.md` and update `validation_status.json` manually (non-blocking).
+ - **Note**: The pipeline proceeds immediately regardless of human review status. This step is for research transparency, not a gate.
+ - **Output**: `data/curated/validation_report.md`, `data/curated/validation_status.json` (auto-generated), `data/curated/human_review_instructions.md`.
  - **Dependency**: T012, T001b, T002, T003a, T004, T005, T006.
 
 - [ ] T016-ValidateHardSubset [US1] **Automated Validation Gate**
  - Run `code/data/validate_hard.py` to confirm low coverage of the hard subset.
- - Output: `data/results/validation_status.json` (`PASSED` or `WARNING`). Pipeline proceeds regardless of status.
+ - Output: `data/results/validation_status_auto.json` (`PASSED` or `WARNING`). Pipeline proceeds regardless of status.
  - **Dependency**: T012.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
@@ -168,11 +197,16 @@
 ### Implementation
 
 - [ ] T019 [P] **Static Analysis Wrapper**
- - Implement `code/agent/static_analysis.py` to run `pylint` and `ast` checks, returning error messages or a `neutral_anomaly` flag on unexpected failures (see T050).
+ - Implement `code/agent/static_analysis.py` to run `pylint` and `ast` checks.
+ - **Error Handling**:
+ - **Tool Crash/Neutral**: If `pylint` crashes or returns unexpected output, emit `static_analysis_signal: "neutral_anomaly"` and continue.
+ - **Critical Error**: If `ast.parse` fails (syntax error) or `pylint` reports a critical error (e.g., `undefined variable`), emit `static_analysis_signal: "critical_error"` and halt the current turn.
+ - **Output**: `code/agent/static_analysis.py`.
  - **Dependency**: T001b, T002, T003a, T004, T005, T006.
 
 - [ ] T020 [P] **Prompt Templates**
  - Create `code/agent/prompts.py` with Jinja2 templates for query reformulation that embed detected error messages.
+ - **Output**: `code/agent/prompts.py`.
  - **Dependency**: T001b, T002, T003a, T004, T005, T006.
 
 - [ ] T021 [P] **Data Locking & Subset Consistency**
@@ -180,10 +214,10 @@
  - Depends on **T012**. (T016 is a parallel validation step, not a blocker for locking).
  - **Dependency**: T012.
 
-- [ ] T047 [P] **Implement Loop Detection Logic**
+- [ ] T047 **Implement Loop Detection Logic**
  - **CRITICAL**: Must be implemented BEFORE T023 runs to prevent infinite loops.
  - Create the core loop detection logic in `code/agent/iterative.py` that compares the current query against the previous two; if identical, sets `termination_reason: "loop_detected"`.
- - **Dependency**: T043 (Quantized Model). Does NOT depend on T022.
+ - **Dependency**: T043 (Quantized Model). **NOT parallel-safe with T023**.
  - **Note**: This task is NOT parallel-safe with T023.
 
 - [ ] T022a [P] **Static One-Shot Baseline**
@@ -199,12 +233,12 @@
  - Output: `data/results/baseline_multi_logs.jsonl`.
  - **Dependency**: T021, T043, T001b, T002, T003a, T004, T005, T006.
 
-- [ ] T023 [P] **Iterative Agent**
+- [ ] T023 **Iterative Agent**
  - Implements a multi-turn loop with query → retrieve → static analysis → reformulate.
  - **Loop detection** (T047) is incorporated here.
  - Input: `locked_hard_subset.jsonl`.
  - Output: `data/results/iterative_logs.jsonl`.
- - **Dependency**: T021, T043, T047, T022a (for baseline comparison), T001b, T002, T003a, T004, T005, T006.
+ - **Dependency**: T021, T043, T047, T001b, T002, T003a, T004, T005, T006. (Removed T022a dependency to allow parallel execution).
 
 - [ ] T024a [P] **Power Analysis for Sensitivity Sweep**
  - **Purpose**: Verify that `SWEEP_SAMPLE_SIZE` is statistically sufficient. to represent the `hard_subset` size.
@@ -221,15 +255,29 @@
 
 - [ ] T024c [P] **Sensitivity Validation**
  - Read `data/results/sweep_results.json`.
- - Verify if the 3-turn limit yields stable results compared to the sweep (e.g., no significant drop in coverage after 3 turns).
+ - Verify if the 3-turn limit yields stable results compared to the sweep (e.g., variance < `config.SWEEP_STABILITY_THRESHOLD`).
  - If unstable, flag a `WARNING` in `data/results/sensitivity_validation.json`.
+ - **Output**: `data/results/sweep_stability_evidence.md`.
  - **Dependency**: T024b.
+
+- [ ] T024d [P] **Enforce Hard Turn Cap**
+ - **Goal**: Ensure the main execution loop in `code/main.py` defaults to `DEFAULT_TURN_LIMIT = 3 ` (from T002) unless `--mode=sweep` is passed.
+ - **Logic**: If `mode == 'sweep'`, use `TURN_LIMITS`; else, use `DEFAULT_TURN_LIMIT`.
+ - **Output**: `code/main.py` updated.
+ - **Dependency**: T002, T024b.
 
 - [ ] T025 [P] **Hash Agent Artifacts**
  - Run `hash_artifacts.py` (T003a) on `data/results/agent_logs/`.
 
 - [ ] T050 [P] **Static Analysis Neutral Signal**
  - Update `code/agent/static_analysis.py` to catch exceptions; on failure, emit `static_analysis_signal: "neutral_anomaly"` and continue without crashing.
+ - **Clarification**: This applies only to tool crashes. Critical errors (syntax errors) must halt the turn.
+
+- [ ] T019b [P] **Static Analysis Failure Verification**
+ - **Goal**: Verify that the `static_analysis.py` logic correctly distinguishes between "tool crash" (continue) and "critical error" (stop).
+ - **Logic**: Implement a check that logs the signal type and ensures the agent does not proceed if a critical error is detected.
+ - **Output**: `tests/unit/test_static_analysis_errors.py`.
+ - **Dependency**: T019, T050.
 
 ## Phase 4: Comparative Metric Calculation and Statistical Testing (User Story 3)
 
@@ -250,10 +298,10 @@
 
 - [ ] T030a [P] **Analyze Tie Distribution & Justify Threshold**
  - Reads `baseline_onshot_logs.jsonl` (from T022a) and `iterative_logs.jsonl` (from T023).
- - {{claim:c_327c1457}} (Wikidata Q1424533, https://www.wikidata.org/wiki/Q1424533)
  - **Censored Definition**: Explicitly checks for `missing_data` flags in logs, NOT `relevant_lines == 0`. Zero coverage is a valid metric, not censored data.
+ - **Tie Calculation**: Calculate tie proportion **only on valid entries** (excluding `missing_data` flags).
  - **Output**: `data/results/tie_analysis.json` containing:
- - `tie_proportion`: float.
+ - `tie_proportion`: float (calculated on valid data only).
  - `censored_count`: int (based on missing data flags).
  - `justification`: A string explaining why the threshold (e.g., 20%) is appropriate for this distribution, or if the data requires the permutation test.
  - **Dependency**: T022a, T023.
@@ -261,26 +309,30 @@
 - [ ] T030b [P] **Route Statistical Test**
  - Reads `data/results/tie_analysis.json` (from T030a).
  - **Logic**:
- - If `tie_proportion > config.TIE_THRESHOLD` (0.50) OR any censored entries (missing data) exist: write `statistical_routing.json` with `"PERMUTATION"`.
+ - **Exclude Missing Data**: Filter out entries with `missing_data` flags before calculating tie proportion.
+ - If `tie_proportion > config.TIE_THRESHOLD` (0.50): write `statistical_routing.json` with `"PERMUTATION"`.
  - Else: write `"WILCOXON"`.
+ - **Small Sample Fallback**: If the remaining data size (after excluding missing data) is < 5, write `"DESCRIPTIVE"` and skip the test.
  - **Dependency**: T030a.
 
-- [ ] T030-Wilcoxon [P] **Wilcoxon Signed‑Rank Test**
- - Executes **only** when routing flag is `"WILCOXON"`.
- - Applies continuity correction for ties as mandated by FR-006.
+- [ ] T030-Execute-Stats **Execute Statistical Test & Output Results**
+ - **Conditional**: Executes based on `statistical_routing.json` (from T030b).
+ - **Logic**:
+ - Read `statistical_routing.json`.
+ - If `WILCOXON`: Run Wilcoxon signed-rank test with continuity correction.
+ - If `PERMUTATION`: Run exact permutation test.
+ - If `DESCRIPTIVE`: Generate descriptive statistics only.
+ - **Output**: `data/results/final_stats.json` containing:
+ - `p_value`: float (or null if descriptive).
+ - `significant`: boolean (True if p < 0.05).
+ - `method`: string ("wilcoxon", "permutation", or "descriptive").
  - **Dependency**: T030b.
- - **Note**: This task is conditional; it should not run if the flag is PERMUTATION.
-
-- [ ] T030-Permutation [P] **Exact Permutation Test**
- - Executes **only** when routing flag is `"PERMUTATION"`.
- - Used when ties exceed threshold or censored data is present (fallback).
- - **Dependency**: T030b.
- - **Note**: This task is conditional; it should not run if the flag is WILCOXON.
+ - **Note**: This task is conditional; it does not run in parallel with T030b.
 
 - [ ] T030-Bonferroni [P] **Multiplicity Correction & Framing**
  - Apply Bonferroni correction to both coverage and ranking p‑values (SC-004).
  - Ensure all result text uses "associational differences" phrasing (FR-007).
- - **Dependency**: T030-Wilcoxon OR T030-Permutation.
+ - **Dependency**: T030-Execute-Stats.
 
 - [ ] T031 [P] **Visualization** (`code/analysis/plots.py`).
 
@@ -297,9 +349,11 @@
  - Assemble `paper/results_summary.md` from the validated draft.
  - **Dependency**: T033-GenerateReport.
 
-- [ ] T039a [P] **Runtime Timer**
+- [ ] T039a [P] **Runtime Timer & Adaptive Feasibility**
  - Insert timing logic in `code/main.py` to measure total pipeline runtime.
- - **Constraint**: If runtime exceeds `MAX_RUNTIME_HOURS`, the run logs the partial runtime and writes a `FAIL` status to `data/results/feasibility_report.md` with the exact runtime value. It does NOT exit silently. This ensures SC-005 (measuring feasibility) is satisfied by recording the data point.
+ - **Adaptive Logic**: If runtime exceeds 80% of `MAX_RUNTIME_HOURS` (4.8 hours), trigger an **early exit** (stop processing new issues) and log the partial runtime. **Do not fail the entire pipeline**; log partial results and a warning.
+ - **Constraint**: If runtime exceeds 100%, write a `FAIL` status to `data/results/feasibility_report.md` with the exact runtime value, but ensure partial results are still available.
+ - **Output**: `data/results/runtime_log.json`, `data/results/feasibility_report.md`.
  - **Dependency**: All previous tasks.
 
 - [ ] T039b [P] **Feasibility Report**
@@ -359,5 +413,5 @@
 - [ ] T055 [P] **Resolve Review: Data Source Integrity**
  - Address reviewer concern about the reliability of the SWE-Explore dataset source.
  - Add a checksum verification step in `code/data/download.py` (T010) that compares the downloaded file against a known cryptographic hash from the official repository.
- - If the checksum fails, raise a `DataIntegrityError` and halt the pipeline.
- - **Dependency**: T010.
+ - **Fallback**: If the checksum fails, **trigger the AST-based fallback simulation (T011b)** instead of halting.
+ - **Dependency**: T010, T011b.

@@ -1,6 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-swe-explore"
+version = "0.1.0"
+description = "LLM-driven automated science pipeline for SWE-Explore benchmark extension"
+requires-python = ">=3.10"
+dependencies = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ["py310"]
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -16,29 +50,6 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-line-length = 88
-target-version = "py310"
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
-ignore = [
-    "E501",
-    "B905",
-]
-extend-exclude = [
-    "__pycache__",
-    "*.egg-info",
-    ".venv",
-    "build",
-    "dist",
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+[tool.setuptools]
+packages = ["agent", "analysis", "data", "metrics", "utils"]
+package-dir = {"" = "code"}

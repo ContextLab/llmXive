@@ -1,33 +1,33 @@
-# llmXive: Follow-up: Extending SWE-Explore
+# llmXive: SWE-Explore Extension
 
-This project implements an automated science pipeline to benchmark how coding agents explore repositories, extending the "SWE-Explore" study.
+This project extends the "SWE-Explore" benchmark to investigate iterative exploration strategies for coding agents.
 
 ## Project Structure
 
-The project follows a standard data science structure:
-- `code/`: Source code, modules, and scripts.
-- `data/raw/`: Raw data fetched from external sources.
-- `data/curated/`: Cleaned, filtered, and derived datasets.
-- `data/results/`: Intermediate and final analysis results.
+- `code/`: Source code for data processing, agents, and analysis.
+- `data/raw/`: Raw downloaded datasets.
+- `data/curated/`: Curated and processed datasets.
+- `data/results/`: Experiment outputs and logs.
 - `tests/`: Unit, integration, and contract tests.
-- `specs/`: Design documents and schema contracts.
+- `specs/`: Design documents and contracts.
 
-## Setup
+## Quick Start
 
 1. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
 
-2. Initialize project structure (if not already done):
+2. Create project structure (if not already present):
  ```bash
  python code/setup_project_structure.py
  ```
 
-## Execution
+3. Run the pipeline (see `docs/quickstart.md` for full details).
 
-Refer to `docs/quickstart.md` for the full pipeline execution commands.
+## Verification
 
-## License
-
-MIT License
+Run the verification script to ensure structure is correct:
+```bash
+python code/validate_quickstart.py
+```

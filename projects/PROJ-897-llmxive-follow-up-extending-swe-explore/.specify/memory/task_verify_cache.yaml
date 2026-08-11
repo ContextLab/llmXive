@@ -1,9 +1,18 @@
-T001a:
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files, directories, or any scaffold (e.g., README, src/, data/, scripts/)\
-    \ are present in the provided evidence. Without a tangible project structure,\
-    \ the requirement to \u201CCreate Project Structure\u201D is not satisfied."
+  r: "No linting or formatting configuration files (e.g., `.pylintrc`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present, nor any documentation\
+    \ showing they have been set up. The provided artifacts only describe higher\u2011\
+    level benchmark user stories and contain no concrete lint/format setup, so the\
+    \ task requirement is not satisfied."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or documentation were supplied that demonstrate the creation\
+    \ of the curated \u201Chard\u201D subset, the synthetic mutation logic, the iterative\
+    \ agent execution loop, or the comparative metric calculations. The claim lacks\
+    \ any tangible artifacts to verify that the required functionality exists."
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

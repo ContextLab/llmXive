@@ -1,99 +1,125 @@
 """
-Unit tests for the configuration module (T002).
-Verifies that constants are defined, paths resolve correctly,
-and deferred parameters handle None/Env vars gracefully.
+Unit tests for code/config.py
 """
 import os
 import sys
+import argparse
 from pathlib import Path
 import pytest
 
-# Ensure code/ is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code to path if running from tests/
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from config import (
     HARD_INSTANCE_PERCENTILE,
     COVERAGE_COLUMN_NAME,
-    SWEEP_SAMPLE_SIZE,
     SWEEP_SEED,
-    TURN_LIMITS,
-    MIN_SYNTHETIC_ISSUES,
-    VALIDATION_SAMPLE_SIZE,
+    DEFAULT_TURN_LIMIT,
     TIE_THRESHOLD,
     MAX_RUNTIME_HOURS,
-    MODEL_PRECISION,
-    get_path,
-    ensure_directories,
+    SWEEP_STABILITY_THRESHOLD,
     resolve_deferred_config,
+    get_path,
     get_config_summary,
-    DATA_RAW,
-    DATA_CURATED,
+    ensure_directories,
+    PROJECT_ROOT
 )
 
+class TestConfigConstants:
+    """Test that hardcoded constants match specification."""
 
-def test_constant_values():
-    """Verify that concrete constants have the expected values."""
-    assert COVERAGE_COLUMN_NAME == 'initial_coverage'
-    assert SWEEP_SEED == 42
-    assert TURN_LIMITS == [1, 2, 3]
-    assert TIE_THRESHOLD == 0.50
-    assert MAX_RUNTIME_HOURS == 6
-    assert MODEL_PRECISION == '8-bit'
+    def test_hard_instance_percentile(self):
+        assert HARD_INSTANCE_PERCENTILE == 0.20
 
-def test_deferred_constants_are_none():
-    """Verify that deferred constants are initially None."""
-    assert HARD_INSTANCE_PERCENTILE is None
-    assert SWEEP_SAMPLE_SIZE is None
-    assert MIN_SYNTHETIC_ISSUES is None
-    assert VALIDATION_SAMPLE_SIZE is None
+    def test_coverage_column_name(self):
+        assert COVERAGE_COLUMN_NAME == 'initial_coverage'
 
-def test_get_path():
-    """Verify path construction logic."""
-    base = Path("/root")
-    result = get_path(base, "sub", "file.txt")
-    assert result == Path("/root/sub/file.txt")
+    def test_sweep_seed(self):
+        assert SWEEP_SEED == 42
 
-def test_ensure_directories_creates_folders(tmp_path):
-    """Verify that ensure_directories creates the required folders."""
-    # Temporarily override DATA_ROOT for this test
-    import config
-    original_data_root = config.DATA_ROOT
-    config.DATA_ROOT = tmp_path
-    config.DATA_RAW = tmp_path / "raw"
-    config.DATA_CURATED = tmp_path / "curated"
-    config.DATA_RESULTS = tmp_path / "results"
-    config.STATE_ROOT = tmp_path / "state"
-    config.PAPER_ROOT = tmp_path / "paper"
-    config.DATA_FIGURES = tmp_path / "figures"
+    def test_default_turn_limit(self):
+        assert DEFAULT_TURN_LIMIT == 3
 
-    try:
-        ensure_directories()
-        assert (tmp_path / "raw").exists()
-        assert (tmp_path / "curated").exists()
-        assert (tmp_path / "results").exists()
-        assert (tmp_path / "state").exists()
-        assert (tmp_path / "paper").exists()
-        assert (tmp_path / "figures").exists()
-    finally:
-        # Restore original
-        config.DATA_ROOT = original_data_root
+    def test_tie_threshold(self):
+        assert TIE_THRESHOLD == 0.50
 
-def test_resolve_deferred_config_with_env_vars(monkeypatch):
-    """Test that environment variables correctly override None defaults."""
-    monkeypatch.setenv("HARD_INSTANCE_PERCENTILE", "0.15")
-    monkeypatch.setenv("SWEEP_SAMPLE_SIZE", "100")
-    
-    resolved = resolve_deferred_config()
-    
-    assert resolved["HARD_INSTANCE_PERCENTILE"] == 0.15
-    assert resolved["SWEEP_SAMPLE_SIZE"] == 100
-    # Others should remain None if not set
-    assert resolved.get("MIN_SYNTHETIC_ISSUES") is None
+    def test_max_runtime_hours(self):
+        assert MAX_RUNTIME_HOURS == 6.0
 
-def test_get_config_summary():
-    """Verify that get_config_summary returns a valid dictionary."""
-    summary = get_config_summary()
-    assert isinstance(summary, dict)
-    assert "hard_instance_percentile" in summary
-    assert "sweep_seed" in summary
-    assert summary["sweep_seed"] == 42
+    def test_sweep_stability_threshold(self):
+        assert SWEEP_STABILITY_THRESHOLD == 0.05
+
+class TestConfigResolution:
+    """Test CLI and env var resolution logic."""
+
+    def test_resolve_no_args_uses_defaults(self):
+        args = argparse.Namespace(
+            sweep_sample_size=None,
+            model_precision=None,
+            max_runtime_hours=None,
+            turn_limit=None,
+            mode="full"
+        )
+        overrides = resolve_deferred_config(args)
+        # Should be empty if no args and no env vars set
+        assert len(overrides) == 0
+
+    def test_resolve_cli_args(self):
+        args = argparse.Namespace(
+            sweep_sample_size=100,
+            model_precision="4-bit",
+            max_runtime_hours=12.0,
+            turn_limit=5,
+            mode="full"
+        )
+        overrides = resolve_deferred_config(args)
+        assert overrides['SWEEP_SAMPLE_SIZE'] == 100
+        assert overrides['MODEL_PRECISION'] == "4-bit"
+        assert overrides['MAX_RUNTIME_HOURS'] == 12.0
+        assert overrides['DEFAULT_TURN_LIMIT'] == 5
+
+    def test_resolve_env_vars(self):
+        # Set env vars
+        old_env = os.environ.get('SWEEP_SAMPLE_SIZE')
+        os.environ['SWEEP_SAMPLE_SIZE'] = "50"
+        
+        try:
+            args = argparse.Namespace(
+                sweep_sample_size=None,
+                model_precision=None,
+                max_runtime_hours=None,
+                turn_limit=None,
+                mode="full"
+            )
+            overrides = resolve_deferred_config(args)
+            assert overrides['SWEEP_SAMPLE_SIZE'] == 50
+        finally:
+            # Restore env
+            if old_env is None:
+                os.environ.pop('SWEEP_SAMPLE_SIZE', None)
+            else:
+                os.environ['SWEEP_SAMPLE_SIZE'] = old_env
+
+class TestPathResolution:
+    """Test path generation."""
+
+    def test_get_path_creates_dir(self, tmp_path):
+        # Temporarily override PROJECT_ROOT for testing
+        # Note: In real execution, this creates dirs under the actual project root.
+        # Here we just test that the function logic works.
+        # We can't easily mock the global PROJECT_ROOT without reloading the module.
+        # Instead, we assert that get_path returns a Path object.
+        p = get_path(Path("test_dir"))
+        assert isinstance(p, Path)
+        assert p.exists()
+        assert p.is_dir()
+
+class TestConfigSummary:
+    """Test config summary generation."""
+
+    def test_get_config_summary_returns_dict(self):
+        summary = get_config_summary()
+        assert isinstance(summary, dict)
+        assert 'hard_instance_percentile' in summary
+        assert 'paths' in summary
+        assert summary['hard_instance_percentile'] == 0.20

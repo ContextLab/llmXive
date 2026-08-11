@@ -4126,3 +4126,361 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T06:31:15Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Study investigates impact of varying turn limits on model performance
+    using systematic experimental design
+  claim_id: c_b4da8730
+  context: 'HARD_INSTANCE_PERCENTILE = 0.20 # 20% as per US-1 ... The study investigates
+    the impact of varying turn limits on model performance using a systematic experimental
+    design (Smith et al.). DEFAULT_TURN_LIMIT = 3'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_impact_of_varying_turn_limits_on_model_pe
+  kind: entity_fact
+  raw_text: The study investigates the impact of varying turn limits on model performance
+    using a systematic experimental design (Smith et al.).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:00:23Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Hard instance percentile set to 0.20
+  claim_id: c_3b88e2e5
+  context: 'HARD_INSTANCE_PERCENTILE = 0.20 # 20% as per US-1 ... Notes: HARD_INSTANCE_PERCENTILE
+    is resolved to 0.20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HARD_INSTANCE_PERCENTILE = 0.20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:01:22Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Sweep seed set to 42
+  claim_id: c_75ffba83
+  context: 'SWEEP_SEED = 42 ... Notes: SWEEP_SEED is resolved to 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SWEEP_SEED = 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:03:46Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Default turn limit set to 3
+  claim_id: c_f26a7e22
+  context: 'DEFAULT_TURN_LIMIT = 3 # Hard cap for main experimental run ... Notes:
+    DEFAULT_TURN_LIMIT is set to 3 for the main run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DEFAULT_TURN_LIMIT = 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:00Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Minimum synthetic issues set to 50
+  claim_id: c_1d4aec22
+  context: MIN_SYNTHETIC_ISSUES = 50 ... If input pool size < config.MIN_SYNTHETIC_ISSUES,
+    generate all possible valid mutations
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MIN_SYNTHETIC_ISSUES = 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:05Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Validation sample size set to 10
+  claim_id: c_1dbda82c
+  context: 'VALIDATION_SAMPLE_SIZE = 10 ... Step 1: Randomly sample VALIDATION_SAMPLE_SIZE
+    issues from hard_subset.jsonl.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VALIDATION_SAMPLE_SIZE = 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:10Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Tie threshold set to 0.50
+  claim_id: c_d51636a2
+  context: 'TIE_THRESHOLD = 0.50 # Concrete threshold for statistical routing (FR-006)
+    ... If tie_proportion > config.TIE_THRESHOLD (0.50): write statistical_routing.json
+    with PERMUTATION.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TIE_THRESHOLD = 0.50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:15Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Maximum runtime hours set to 6
+  claim_id: c_77354c60
+  context: MAX_RUNTIME_HOURS = 6 ... If runtime exceeds 80% of MAX_RUNTIME_HOURS (4.8
+    hours), trigger an early exit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MAX_RUNTIME_HOURS = 6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:19Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Sweep stability threshold set to 0.05
+  claim_id: c_546edce5
+  context: 'SWEEP_STABILITY_THRESHOLD = 0.05 # Variance threshold for stability check
+    (SC-006) ... Verify if the 3-turn limit yields stable results compared to the
+    sweep (e.g., variance < config.SWEEP_STABILITY_THRESHOLD).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SWEEP_STABILITY_THRESHOLD = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:24Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: System does not raise hard error if memory exceeds 6 GB
+  claim_id: c_463f96dd
+  context: 'Memory Check: Use psutil to check process memory. If memory > 6 GB, DO
+    NOT raise a hard error. Instead, write a gpu_offload_request.json flag'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory > 6 GB, DO NOT raise a hard error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:25Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: At least 50 percent of generated synthetic issues must contain mandatory
+    structural obfuscations
+  claim_id: c_af72623f
+  context: 'Validation Step: Assert that at least 50% of the generated synthetic issues
+    contain the mandatory structural obfuscations (Control Flow Reordering or API
+    Signature Changes).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_50_percent_of_generated_synthetic_issues_must_conta
+  kind: magnitude
+  raw_text: Verify that at least 50% of the generated synthetic issues contain the
+    mandatory structural obfuscations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:30Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Statistical test skipped if remaining data size is less than 5
+  claim_id: c_620aec11
+  context: 'Small Sample Fallback: If the remaining data size (after excluding missing
+    data) is < 5, write DESCRIPTIVE and skip the test.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_test_skipped_if_remaining_data_size_is_less_than
+  kind: magnitude
+  raw_text: If the remaining data size (after excluding missing data) is < 5, write
+    DESCRIPTIVE and skip the test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:39Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Run sweep on small subset of 5 issues to verify turn limits configuration
+  claim_id: c_b05d8b1c
+  context: Add a task to run the sweep on a small subset (N=5) to verify the TURN_LIMITS
+    configuration before full execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a task to run the sweep on a small subset (N=5) to verify the TURN_LIMITS
+    configuration before full execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:43Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Study investigates impact of varying turn limits on model performance
+    using systematic experimental design by Smith et al.
+  claim_id: c_74f126d1
+  context: Config Constants implementation details and resolution mechanisms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_impact_of_varying_turn_limits_on_model_pe
+  kind: entity_fact
+  raw_text: The study investigates the impact of varying turn limits on model performance
+    using a systematic experimental design (Smith et al.).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:05:56Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Study investigates impact of varying turn limits on model performance
+    using systematic experimental design
+  claim_id: c_53e80ec8
+  context: 'Implementation of config.py with placeholder values for deferred parameters.
+    The study investigates the impact of varying turn limits on model performance
+    using a systematic experimental design (Smith et al.). DEFAULT_TURN_LIMIT = 3
+    # Hard cap for main experimental run'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_impact_of_varying_turn_limits_on_model_pe
+  kind: entity_fact
+  raw_text: The study investigates the impact of varying turn limits on model performance
+    using a systematic experimental design (Smith et al.).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:07:22Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: SWEEP_SAMPLE_SIZE issues sampled stratified by complexity quartiles
+  claim_id: c_a8ba7f6b
+  context: "T024b [P] Turn\u2011Limit Sweep. Sample SWEEP_SAMPLE_SIZE issues (seed\
+    \ SWEEP_SEED) stratified by complexity quartiles."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SWEEP_SAMPLE_SIZE_issues_sampled_stratified_by_complexity_qu
+  kind: entity_fact
+  raw_text: T024b samples SWEEP_SAMPLE_SIZE issues stratified by complexity quartiles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:09:47Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test used if tie proportion <= 0.50
+  claim_id: c_c85419e9
+  context: 'T030b [P] Route Statistical Test. If tie_proportion > config.TIE_THRESHOLD
+    (0.50): write statistical_routing.json with PERMUTATION. Else: write WILCOXON.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_used_if_tie_proportion_%3C=_0.50
+  kind: magnitude
+  raw_text: T030b routes to 'WILCOXON' test if tie proportion is less than or equal
+    to 0.50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:10:40Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Early exit triggered if runtime exceeds 4.8 hours
+  claim_id: c_7a2914da
+  context: T039a [P] Runtime Timer & Adaptive Feasibility. If runtime exceeds 80%
+    of MAX_RUNTIME_HOURS (4.8 hours), trigger an early exit (stop processing new issues)
+    and log the partial runtime.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T039a triggers an early exit if runtime exceeds 80% of MAX_RUNTIME_HOURS
+    (4.8 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:10:50Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Tie proportion calculated on valid entries excluding missing data
+  claim_id: c_4f5c5a0c
+  context: 'T030a [P] Analyze Tie Distribution & Justify Threshold. Tie Calculation:
+    Calculate tie proportion only on valid entries (excluding missing_data flags).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tie_proportion_calculated_on_valid_entries_excluding_missing
+  kind: entity_fact
+  raw_text: T030a calculates tie proportion only on valid entries, excluding missing_data
+    flags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:11:13Z'
+- artifact_path: projects/PROJ-897-llmxive-follow-up-extending-swe-explore/specs/001-llmxive-follow-up-extending-swe-explore/tasks.md
+  attempts: 1
+  canonical: Descriptive statistics used if data size < 5
+  claim_id: c_69bcdd6f
+  context: 'T030b [P] Route Statistical Test. Small Sample Fallback: If the remaining
+    data size (after excluding missing data) is < 5, write DESCRIPTIVE and skip the
+    test.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Descriptive_statistics_used_if_data_size_%3C_5
+  kind: magnitude
+  raw_text: T030b routes to 'DESCRIPTIVE' statistics if the remaining data size after
+    excluding missing data is less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T08:11:34Z'
