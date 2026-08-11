@@ -76,16 +76,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Contract test for schema validation in `tests/contract/test_schemas.py` (validates aligned_dataset.schema.yaml)
-- [ ] T010 [P] [US1] Integration test for data alignment in `tests/integration/test_pipeline.py` (verifies temporal/spatial alignment logic) <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Integration test for data alignment in `tests/integration/test_pipeline.py` (verifies temporal/spatial alignment logic) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [ ] T011a [US1] Fetch NOAA/Copernicus reanalysis data (temperature, salinity, nutrients) from verified source using `datasets.load_dataset("copernicus-marine/global-reanalysis-phyto")` to `data/raw/reanalysis.nc` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T011a [US1] Fetch NOAA/Copernicus reanalysis data (temperature, salinity, nutrients) from verified source using `datasets.load_dataset("copernicus-marine/global-reanalysis-phyto")` to `data/raw/reanalysis.nc` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T011b [US1] Fetch MODIS Aqua/Terra ocean color data from verified source using `datasets.load_dataset("nasa-modis/MODIS-Aqua-Chlorophyll")` to `data/raw/modis.nc`
-- [ ] T011 [US1] Fetch SeaBASS in-situ data (Chl-a, SST, Salinity) from HuggingFace datasets (`seabass/seabass`) to `data/raw/seabass.csv` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T011 [US1] Fetch SeaBASS in-situ data (Chl-a, SST, Salinity) from HuggingFace datasets (`seabass/seabass`) to `data/raw/seabass.csv` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T012 [US1] Implement spatial/temporal alignment in `code/02_preprocessing.py` (grid reanalysis and MODIS to a coarser resolution, create monthly composites, linear interpolation for gaps ≤2 months with error quantification saved to `data/logs/interpolation_error.log`, flag larger gaps for exclusion)
 - [X] T013a [US1] Validate ≥10-year temporal overlap in `code/02_preprocessing.py` and implement stratified train/val/test split logic by ocean basin, outputting split indices
-- [~] T013 [US1] Implement basin stratification and unified masking in `code/02_preprocessing.py` (retain basin ID, apply unified missing data mask across all three sources, exclude grid cells with missing in-situ data, monitor memory usage and enforce GB RAM limit with logging to `data/logs/memory_enforcement.log`)
+- [ ] T013 [US1] Implement basin stratification and unified masking in `code/02_preprocessing.py` (retain basin ID, apply unified missing data mask across all three sources, exclude grid cells with missing in-situ data, monitor memory usage and enforce GB RAM limit with logging to `data/logs/memory_enforcement.log`)
 - [ ] T014 [US1] Generate final aligned dataset artifact in `data/processed/aligned_dataset.nc` (verify no missing values due to misalignment)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

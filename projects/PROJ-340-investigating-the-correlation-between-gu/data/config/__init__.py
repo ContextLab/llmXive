@@ -1,2 +1,3 @@
-# Configuration data directory
-pass
+"""
+Configuration storage
+"""

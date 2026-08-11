@@ -1,3 +1,7 @@
+"""
+Fetches MODIS Aqua/Terra ocean color data from the NASA MODIS dataset on HuggingFace.
+Saves the result to data/raw/modis.nc.
+"""
 import os
 import sys
 import logging
@@ -5,142 +9,149 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 
-# Ensure we can import from utils if needed, though this script is standalone
-# The API surface indicates we import 'from 01_fetch_modis import fetch_modis_data, main'
-# So we must define these at module level.
-
-# Add project root to path to allow relative imports if this file is run as script
-# but also to allow importing from utils if we needed to (not needed for this specific task logic)
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from utils.logging_config import get_logger
-
-# The task requires fetching MODIS data using datasets.load_dataset
-# We need to add 'datasets' to requirements if not present, but the task
-# implies we should use the provided API surface or standard libraries.
-# Since T002 added 'datasets' to requirements.txt, we can import it.
+# Ensure the project root is in the path for relative imports if run as a script
+# However, the prompt indicates imports like 'from utils.config import ...'
+# We assume the runner sets PYTHONPATH or runs from project root.
+# We will use absolute imports relative to the project structure as per the API surface.
 try:
-    from datasets import load_dataset
+    from utils.logging_config import get_logger
+    from utils.config import get_config
 except ImportError:
-    # Fallback if not installed, though T002 should have ensured it
-    print("Error: 'datasets' library not found. Please ensure it is installed.")
-    sys.exit(1)
+    # Fallback for direct execution if utils not in path yet, though T002/T004 should exist
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    class FakeConfig:
+        @staticmethod
+        def get_config():
+            return {'ram_limit_gb': 7.0}
+    get_config = FakeConfig.get_config
 
-logger = get_logger(__name__)
+logger = get_logger("01_fetch_modis")
 
 def fetch_modis_data(output_path: Path) -> None:
     """
-    Fetches MODIS Aqua/Terra ocean color data from the verified HuggingFace source
-    and saves it to the specified output path as a NetCDF file.
-
-    Source: 'nasa-modis/MODIS-Aqua-Chlorophyll'
-    Output: data/raw/modis.nc
-
-    This function:
-    1. Loads the dataset using the 'datasets' library.
-    2. Converts the data to an xarray Dataset.
-    3. Ensures necessary coordinates (latitude, longitude, time) exist.
-    4. Saves to NetCDF format.
+    Fetches MODIS Aqua/Terra ocean color data and saves it to a NetCDF file.
+    
+    Args:
+        output_path: Path where the resulting .nc file will be saved.
     """
     logger.info(f"Starting MODIS data fetch to {output_path}")
-
-    # Ensure output directory exists
+    
+    # Verify output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     try:
-        # Load the dataset from HuggingFace
-        # The task specifies "nasa-modis/MODIS-Aqua-Chlorophyll"
-        # We assume this dataset exists and returns a format compatible with xarray
-        dataset = load_dataset("nasa-modis/MODIS-Aqua-Chlorophyll", split="train") # Adjust split if needed
-
-        # Convert to pandas DataFrame first if it's a DatasetDict or similar
-        # The 'datasets' library returns a Dataset object which can be converted to pandas
-        df = dataset.to_pandas()
-
-        logger.info(f"Loaded MODIS dataset with {len(df)} rows")
-
-        # We need to convert this to an xarray Dataset suitable for oceanographic analysis.
-        # Typically, this involves reshaping or ensuring we have lat, lon, time dimensions.
-        # Since we don't know the exact schema of the HuggingFace dataset, we assume
-        # standard columns like 'latitude', 'longitude', 'time', 'chlorophyll' exist.
-        # If the dataset structure is different, this might need adjustment.
-        # However, for the purpose of this task, we will create a minimal valid NetCDF
-        # that represents the data we fetched.
-
-        # Check for required columns
-        required_cols = ['latitude', 'longitude', 'time', 'chlorophyll']
-        missing_cols = [col for col in required_cols if col not in df.columns]
-
-        if missing_cols:
-            logger.warning(f"Missing expected columns: {missing_cols}. Attempting to map or use available data.")
-            # If columns are missing, we might need to map them or raise an error.
-            # For now, let's assume the dataset has them or similar names.
-            # If the dataset is actually a 3D array (time, lat, lon), the conversion might be different.
-            # Let's try a generic approach: assume the dataset has lat/lon/time and a data variable.
-
+        # Use the verified source as per task description
+        # The task explicitly mentions: datasets.load_dataset("nasa-modis/MODIS-Aqua-Chlorophyll")
+        # We assume 'datasets' is installed (T002 requirements)
+        from datasets import load_dataset
+        
+        logger.info("Loading dataset from nasa-modis/MODIS-Aqua-Chlorophyll...")
+        
+        # Load the dataset. We use streaming to handle potential size issues,
+        # but we must materialize it to save as a single NetCDF.
+        # If the dataset is too large, we might need to sample, but the task
+        # asks for the data. We will attempt to load the full dataset if possible.
+        # If it fails due to memory, we will let it crash (fail loudly) as per constraints.
+        
+        dataset = load_dataset("nasa-modis/MODIS-Aqua-Chlorophyll", split="train", streaming=False)
+        
         # Convert to xarray
-        # If the dataset is tabular (rows = observations), we might need to group by time/lat/lon
-        # or simply save as a point dataset.
-        # Let's assume we want a gridded or point dataset in NetCDF.
+        # The dataset structure from HF usually has 'image' or similar keys.
+        # We need to inspect the features or assume a standard structure for MODIS Chlorophyll.
+        # Common structure: 'lat', 'lon', 'time', 'chlorophyll_a'
+        
+        # Convert to pandas then to xarray for easier manipulation if needed,
+        # or directly construct xarray if the dataset is tabular.
+        # Assuming the HF dataset is tabular (Arrow format) with coordinates.
+        
+        df = dataset.to_pandas()
+        
+        # Check for required columns. If they don't exist, we might need to adapt.
+        # Standard MODIS L3/L4 products usually have: time, lat, lon, chlorophyll
+        required_cols = ['time', 'lat', 'lon', 'chlorophyll_a']
+        missing = [c for c in required_cols if c not in df.columns]
+        
+        if missing:
+            # Fallback: try to find similar columns or raise error
+            logger.warning(f"Expected columns {required_cols} not found. Available: {df.columns.tolist()}")
+            # Attempt to map common variations
+            if 'chlorophyll' in df.columns:
+                df['chlorophyll_a'] = df['chlorophyll']
+            if 'chlor_a' in df.columns:
+                df['chlorophyll_a'] = df['chlor_a']
+            
+            if 'chlorophyll_a' not in df.columns:
+                raise ValueError(f"Could not identify chlorophyll column. Available: {df.columns.tolist()}")
+            
+            if 'time' not in df.columns:
+                if 'datetime' in df.columns:
+                    df['time'] = df['datetime']
+                elif 'date' in df.columns:
+                    df['time'] = df['date']
+                else:
+                    raise ValueError("Could not identify time column.")
+                    
+            if 'lat' not in df.columns:
+                if 'latitude' in df.columns:
+                    df['lat'] = df['latitude']
+                else:
+                    raise ValueError("Could not identify latitude column.")
+                    
+            if 'lon' not in df.columns:
+                if 'longitude' in df.columns:
+                    df['lon'] = df['longitude']
+                else:
+                    raise ValueError("Could not identify longitude column.")
 
-        # Attempt to create an xarray dataset from the dataframe
-        # We'll use 'time', 'latitude', 'longitude' as coordinates if they exist
-        xds = df.set_index(['time', 'latitude', 'longitude']).to_xarray()
-
-        # If the dataset doesn't have these as indices, we might need to handle it differently.
-        # Let's try a more robust conversion if the above fails.
-        # However, for the sake of this implementation, we assume the dataset structure allows this.
-        # If the dataset is already gridded, we might just need to rename variables.
-
-        # Rename variables to standard names if necessary
-        # Assuming 'chlorophyll' is the main variable
-        if 'chlorophyll' in xds.data_vars:
-            xds = xds.rename({'chlorophyll': 'chlorophyll_a'})
-        else:
-            # If the variable name is different, try to find the first data variable
-            if len(xds.data_vars) > 0:
-                var_name = list(xds.data_vars.keys())[0]
-                xds = xds.rename({var_name: 'chlorophyll_a'})
-                logger.warning(f"Renamed variable '{var_name}' to 'chlorophyll_a'")
-
-        # Ensure dimensions are named correctly
-        # Often datasets have 'lat', 'lon', 'time' or 'latitude', 'longitude', 'time'
-        # We'll assume the index conversion handled this, but let's double check.
-        # If the dataset was tabular, the index becomes dimensions.
-
-        # Add metadata
-        xds.attrs['source'] = 'nasa-modis/MODIS-Aqua-Chlorophyll'
-        xds.attrs['description'] = 'MODIS Aqua/Terra Ocean Color Data'
-        if 'chlorophyll_a' in xds.data_vars:
-            xds['chlorophyll_a'].attrs['units'] = 'mg/m^3'
-
-        logger.info(f"Saving MODIS data to {output_path}")
-        xds.to_netcdf(output_path, format='NETCDF4')
+        # Create xarray dataset
+        # We assume the data is already gridded or we need to structure it.
+        # If it's point data, we might need to unstack or reshape.
+        # For now, we assume it's a 1D list of observations or a 2D grid.
+        # Let's try to construct a standard structure: (time, lat, lon)
+        
+        # If the data is already in a grid format in the dataset, we can use it directly.
+        # If not, we might need to pivot.
+        # Given the task is "Fetch ... to modis.nc", we will create a valid NetCDF.
+        
+        # Attempt to create a simple xarray from the dataframe
+        # Assuming unique time/lat/lon combinations or a flat list that needs reshaping
+        # If the dataset is large, this might be heavy.
+        
+        # Let's try to convert to xarray directly
+        ds = df.set_index(['time', 'lat', 'lon']).to_xarray()
+        
+        # Ensure chlorophyll_a is the main data variable
+        if 'chlorophyll_a' not in ds.data_vars:
+            # Try to find the column that holds the value
+            val_col = [c for c in df.columns if c not in ['time', 'lat', 'lon']][0]
+            ds = df.set_index(['time', 'lat', 'lon'])[val_col].to_xarray()
+            ds = ds.rename(val_col, 'chlorophyll_a')
+        
+        # Add attributes
+        ds.attrs['source'] = "nasa-modis/MODIS-Aqua-Chlorophyll"
+        ds['chlorophyll_a'].attrs['units'] = 'mg/m^3'
+        ds['chlorophyll_a'].attrs['long_name'] = 'Chlorophyll-a concentration'
+        
+        logger.info(f"Dataset shape: {ds.chunks}")
+        logger.info(f"Saving to {output_path}...")
+        
+        # Save to NetCDF
+        ds.to_netcdf(output_path, engine='netcdf4')
+        
         logger.info(f"Successfully saved MODIS data to {output_path}")
-
+        
     except Exception as e:
-        logger.error(f"Failed to fetch or save MODIS data: {e}")
-        # Re-raise or exit depending on desired behavior
-        # For a research pipeline, we might want to fail loudly
-        raise RuntimeError(f"Error fetching MODIS data: {e}") from e
+        logger.error(f"Failed to fetch or save MODIS data: {e}", exc_info=True)
+        # Fail loudly as per constraints
+        raise
 
 def main():
-    """
-    Main entry point for the MODIS data fetching script.
-    """
-    # Define output path relative to project root
-    # The task specifies: data/raw/modis.nc
-    output_path = Path("data/raw/modis.nc")
-
-    # If running as a script from the 'code' directory, we might need to adjust
-    # But the task says "relative to the project root".
-    # Let's assume the script is run from the project root or the path is absolute.
-    # To be safe, we can resolve the path relative to the current working directory.
-    # However, the task implies the script should write to data/raw/modis.nc.
-    # Let's make sure the directory exists.
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    """Main entry point for the script."""
+    config = get_config()
+    output_dir = Path("data/raw")
+    output_path = output_dir / "modis.nc"
+    
     fetch_modis_data(output_path)
 
 if __name__ == "__main__":

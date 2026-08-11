@@ -1,0 +1,17 @@
+T012:
+  c: false
+  h: d5c60a26b556100b26cf8c20fe8a6895462bf5abd04ed060fa87416538141844
+  r: "The provided `code/02_preprocessing.py` is truncated and does not show implementation\
+    \ of linear interpolation for \u22642\u2011month gaps, error quantification, or\
+    \ flagging of larger gaps. Moreover, the required `data/logs/interpolation_error.log`\
+    \ file is absent. The task\u2019s core requirements are therefore not satisfied."
+T013:
+  c: false
+  h: 6d61ce4af7bf18e3a089c596d854956ee324e0b42eb40be0bc28b5186044c4b1
+  r: "The provided `code/02_preprocessing.py` snippet shows only data loading, grid\
+    \ coarsening, and a partially\u2011implemented composite function; there is no\
+    \ evidence of basin stratification, unified masking across the three data sources,\
+    \ or exclusion of cells missing in\u2011situ data. Moreover, the required log\
+    \ file `data/logs/memory_enforcement.log` does not exist, indicating that memory\u2011\
+    usage monitoring and enforcement were not implemented. The task therefore remains\
+    \ unfinished."

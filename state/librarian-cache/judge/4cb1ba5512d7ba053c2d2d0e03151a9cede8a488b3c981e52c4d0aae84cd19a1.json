@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.03988",
+  "judged_at": "2026-08-11T21:56:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"imaginative perception tokens enhance spatial reasoning in multimodal \" computer science",
+  "rationale": "This paper is the foundational source for the specific mechanism (\"Imaginative Perception Tokens\") and the exact research direction (\"extending...\") mentioned in the user's question, satisfying criteria (d) as the canonical reference and (a) as it measures the same algorithmic property and spatial reasoning capability. The user's query explicitly frames their work as a \"follow-up\" to this specific study, making it the essential prior work for any literature review on this topic.",
+  "relevant": true
+}

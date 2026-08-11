@@ -1,10 +1,3 @@
-"""
-projection_utils.py
-
-Utilities for SVD-based subspace projection and gradient constraint logic.
-Handles layer-wise SVD, variance thresholding, and fallback strategies for flat spectra.
-"""
-
 import os
 import logging
 import numpy as np
@@ -19,227 +12,207 @@ def perform_layerwise_svd(
     target_variance: float = 0.80,
     max_rank: int = 50,
     fallback_rank: int = 10
-) -> Tuple[Dict[str, np.ndarray], Dict[str, int], bool]:
+) -> Tuple[Dict[str, np.ndarray], Dict[str, int], Dict[str, float]]:
     """
     Perform SVD on accumulated update matrices for each layer.
     
     Args:
         updates: Dictionary mapping layer names to update tensors (Delta W).
         target_variance: Target cumulative explained variance (default 0.80).
-        max_rank: Maximum rank to consider for variance calculation (default 50).
-        fallback_rank: Rank to use if spectrum is too flat (default 10).
+        max_rank: Maximum rank to consider (default 50).
+        fallback_rank: Rank to use if flat spectrum detected (default 10).
         
     Returns:
-      - subspace_basis: Dict mapping layer names to (k x n) basis matrices (numpy).
-      - ranks_used: Dict mapping layer names to the selected rank k.
-      - fallback_triggered: Boolean indicating if any layer triggered the flat-spectrum fallback.
+        Tuple of:
+            - subspace_bases: Dict mapping layer names to subspace matrices (k x n_params).
+            - selected_ranks: Dict mapping layer names to selected k.
+            - explained_variances: Dict mapping layer names to achieved variance.
     """
-    subspace_basis = {}
-    ranks_used = {}
-    fallback_triggered = False
-
+    subspace_bases = {}
+    selected_ranks = {}
+    explained_variances = {}
+    
     for layer_name, delta_w in updates.items():
-        # Ensure tensor is on CPU and contiguous
-        if delta_w.device.type != 'cpu':
-            delta_w = delta_w.cpu()
-        delta_w = delta_w.contiguous()
-
-        # Flatten to 2D if necessary (assuming weight matrices are 2D or can be treated as such)
-        # If delta_w is [out_features, in_features], keep as is.
-        # If it's higher dimensional (e.g. conv), we might need to flatten appropriately.
-        # For this task, we assume standard linear layer weights [out, in].
+        # Ensure tensor is 2D (flatten if necessary)
         if delta_w.dim() > 2:
-            # Flatten all but the last dimension to treat as a matrix of vectors
-            original_shape = delta_w.shape
-            delta_w_flat = delta_w.view(delta_w.shape[0], -1)
-            logger.warning(f"Layer {layer_name} has dim > 2. Flattening to {delta_w_flat.shape} for SVD.")
-        else:
-            delta_w_flat = delta_w
-            original_shape = None
-
+            delta_w = delta_w.view(delta_w.shape[0], -1)
+        elif delta_w.dim() == 1:
+            delta_w = delta_w.unsqueeze(0)
+        
+        # Convert to numpy for SVD
+        delta_np = delta_w.detach().cpu().numpy().astype(np.float64)
+        
         # Perform SVD
-        # U: [m, k], S: [k], Vt: [k, n]
-        # Use torch.svd for stability or torch.linalg.svd
         try:
-            U, S, Vt = torch.linalg.svd(delta_w_flat, full_matrices=False)
-        except RuntimeError as e:
+            U, S, Vt = np.linalg.svd(delta_np, full_matrices=False)
+        except np.linalg.LinAlgError as e:
             logger.error(f"SVD failed for layer {layer_name}: {e}")
             raise
-
-        # Convert to numpy for variance calculation
-        S_np = S.numpy()
-        total_variance = np.sum(S_np ** 2)
         
+        # Calculate total variance
+        total_variance = np.sum(S ** 2)
         if total_variance == 0:
-            logger.warning(f"Layer {layer_name} has zero variance. Using fallback rank {fallback_rank}.")
-            k = fallback_rank
-            # Create a random orthogonal basis if variance is zero to avoid NaNs
-            # Or just take the top k rows of Vt (which might be zero)
-            # Better: take top k from Vt, if S is zero, Vt is arbitrary but we need a valid projection.
-            # We'll take the first k rows of Vt.
-            basis = Vt[:k, :].numpy()
-            subspace_basis[layer_name] = basis
-            ranks_used[layer_name] = k
-            fallback_triggered = True
+            logger.warning(f"Zero variance in updates for layer {layer_name}. Using fallback rank.")
+            # Return a zero matrix of fallback rank
+            n_params = delta_np.shape[1]
+            subspace_bases[layer_name] = np.zeros((fallback_rank, n_params), dtype=np.float64)
+            selected_ranks[layer_name] = fallback_rank
+            explained_variances[layer_name] = 0.0
             continue
-
-        cumulative_variance = np.cumsum(S_np ** 2) / total_variance
         
-        # Find k such that cumulative variance >= target_variance
-        # Limit search to max_rank
-        search_limit = min(len(cumulative_variance), max_rank)
+        # Calculate cumulative explained variance
+        cumulative_variance = np.cumsum(S ** 2) / total_variance
         
-        # Check if we can meet the target within max_rank
-        if cumulative_variance[search_limit - 1] < target_variance:
-            # Flat spectrum detected: even at max_rank, we haven't reached 80%
-            logger.warning(
-                f"Flat spectrum detected for layer {layer_name}. "
-                f"Max variance at k={search_limit} is {cumulative_variance[search_limit-1]:.4f} < {target_variance}. "
-                f"Using fixed fallback rank k={fallback_rank}."
-            )
-            k = fallback_rank
-            fallback_triggered = True
-        else:
-            # Find the first index where cumulative variance >= target
-            # np.searchsorted returns the index to insert to maintain order.
-            # We want the first index where value >= target.
-            k_idx = np.searchsorted(cumulative_variance, target_variance, side='left')
-            # Ensure k is at least 1 and within bounds
-            k = max(1, min(k_idx + 1, search_limit))
-            
-            # Double check: if k_idx is 0, we take 1. If k_idx is search_limit-1, we take search_limit.
-            # Actually, if cumulative_variance[0] >= target, k_idx=0, we want k=1.
-            # If cumulative_variance[search_limit-1] < target, we are in the fallback branch above.
-            # So here, k_idx is valid.
-            # However, searchsorted returns index. If we need k elements, and index is i, we take i+1 elements?
-            # Example: cum = [0.1, 0.4, 0.85], target=0.8. searchsorted -> 2. We want k=3 (indices 0,1,2).
-            # So k = k_idx + 1.
-            # But if cum[0] >= 0.8, searchsorted -> 0. k=1. Correct.
-            k = k_idx + 1
-
-        # Extract top-k right singular vectors (rows of Vt)
-        # Vt shape: [k, n] where n is number of parameters
-        top_k_vectors = Vt[:k, :]
+        # Find the smallest k such that cumulative variance >= target
+        selected_k = None
+        achieved_variance = 0.0
         
-        subspace_basis[layer_name] = top_k_vectors.numpy()
-        ranks_used[layer_name] = k
-
-    return subspace_basis, ranks_used, fallback_triggered
+        # Search up to min(max_rank, number of singular values)
+        search_limit = min(max_rank, len(S))
+        
+        for k in range(1, search_limit + 1):
+            cum_var = cumulative_variance[k - 1]
+            if cum_var >= target_variance:
+                selected_k = k
+                achieved_variance = cum_var
+                break
+        
+        # Fallback logic for flat spectrum
+        if selected_k is None:
+            # Check if the spectrum is flat (cumulative variance < target even at max_rank)
+            max_cum_var = cumulative_variance[-1]
+            if max_cum_var < target_variance:
+                logger.warning(
+                    f"Flat spectrum detected for layer {layer_name}: "
+                    f"max cumulative variance {max_cum_var:.4f} < target {target_variance}. "
+                    f"Using fixed k={fallback_rank}."
+                )
+                selected_k = fallback_rank
+                # Recalculate achieved variance for the fallback rank
+                if fallback_rank <= len(S):
+                    achieved_variance = cumulative_variance[fallback_rank - 1]
+                else:
+                    achieved_variance = max_cum_var
+            else:
+                # This case should theoretically not be reached if the loop logic is correct,
+                # but as a safety fallback:
+                logger.warning(
+                    f"Could not determine rank for layer {layer_name}. Using fallback k={fallback_rank}."
+                )
+                selected_k = fallback_rank
+                if fallback_rank <= len(S):
+                    achieved_variance = cumulative_variance[fallback_rank - 1]
+                else:
+                    achieved_variance = 1.0 # Cap at 1.0 if we took all available
+        
+        # Construct subspace basis (k x n_params)
+        # U is (m, k), S is (k,), Vt is (k, n)
+        # We want the basis in the parameter space (rows of Vt scaled by S)
+        # Or simply the top k right singular vectors (Vt[:k])
+        # The task asks for "stable subspace matrix (shape k x n_params)"
+        # Vt has shape (k, n_params) for the top k components
+        subspace_basis = Vt[:selected_k, :]
+        
+        subspace_bases[layer_name] = subspace_basis
+        selected_ranks[layer_name] = selected_k
+        explained_variances[layer_name] = achieved_variance
+        
+        logger.info(
+            f"Layer {layer_name}: Selected k={selected_k}, "
+            f"Achieved variance={achieved_variance:.4f}"
+        )
+    
+    return subspace_bases, selected_ranks, explained_variances
 
 def project_gradient_to_subspace(
     gradient: torch.Tensor,
-    basis: np.ndarray,
-    layer_name: str
+    subspace_basis: np.ndarray
 ) -> torch.Tensor:
     """
     Project a gradient vector onto the subspace defined by the basis.
     
     Args:
         gradient: The gradient tensor to project.
-        basis: The subspace basis matrix (k x n) from perform_layerwise_svd.
-        layer_name: Name of the layer for logging.
+        subspace_basis: The subspace basis matrix (k x n_params).
         
     Returns:
-        projected_gradient: The gradient projected onto the subspace.
+        The projected gradient tensor.
     """
-    if gradient.device.type != 'cpu':
-        gradient = gradient.cpu()
+    # Flatten gradient
+    grad_flat = gradient.detach().cpu().numpy().flatten().astype(np.float64)
     
-    # Flatten gradient to match basis dimensions
-    if gradient.dim() > 2:
-        grad_flat = gradient.view(gradient.shape[0], -1)
-    else:
-        grad_flat = gradient
-
-    grad_vec = grad_flat.view(-1) # [n]
-    basis_tensor = torch.from_numpy(basis).to(grad_vec.dtype) # [k, n]
+    # Ensure basis is 2D
+    if subspace_basis.ndim != 2:
+        raise ValueError(f"Subspace basis must be 2D, got {subspace_basis.ndim}D")
     
-    # Project: p = B^T (B B^T)^{-1} B g
-    # Since B has orthonormal rows (from SVD of Vt), B B^T = I.
-    # So p = B^T (B g)
-    # B g is a vector of size k: dot products of basis vectors with gradient
-    coeffs = torch.matmul(basis_tensor, grad_vec) # [k]
-    projected = torch.matmul(basis_tensor.t(), coeffs) # [n]
+    # Project: P = V^T (V V^T)^-1 V g
+    # Since V (rows of subspace_basis) are orthonormal (from SVD), V V^T = I
+    # So projection is simply V^T (V g) -> reconstruct in original space?
+    # Wait, standard projection onto row space of V (where V is k x n):
+    # proj = V^T (V V^T)^-1 V x. If V has orthonormal rows, V V^T = I.
+    # proj = V^T V x.
     
-    # Reshape back to original shape
-    if gradient.dim() > 2:
-        projected = projected.view(gradient.shape)
-    else:
-        projected = projected.view(gradient.shape)
-        
-    return projected
+    # Calculate coefficients: c = V * x
+    coefficients = np.dot(subspace_basis, grad_flat)
+    
+    # Reconstruct: x_proj = V^T * c
+    projected_flat = np.dot(subspace_basis.T, coefficients)
+    
+    # Reshape back to original gradient shape
+    projected_tensor = torch.tensor(
+        projected_flat.reshape(gradient.shape),
+        dtype=gradient.dtype,
+        device=gradient.device
+    )
+    
+    return projected_tensor
 
 def save_subspace_artifacts(
-    subspace_basis: Dict[str, np.ndarray],
-    ranks_used: Dict[str, int],
-    output_dir: str,
-    seed: int
-) -> None:
+    subspace_bases: Dict[str, np.ndarray],
+    selected_ranks: Dict[str, int],
+    explained_variances: Dict[str, float],
+    output_dir: str
+) -> Path:
     """
-    Save the computed subspace bases and metadata to disk.
+    Save subspace artifacts to disk.
     
     Args:
-        subspace_basis: Dict of layer_name -> basis matrix.
-        ranks_used: Dict of layer_name -> rank k.
+        subspace_bases: Dict of layer names to basis matrices.
+        selected_ranks: Dict of layer names to selected ranks.
+        explained_variances: Dict of layer names to achieved variances.
         output_dir: Directory to save artifacts.
-        seed: The random seed used for this run.
+        
+    Returns:
+        Path to the saved summary file.
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     
-    # Save basis matrices
-    for layer_name, basis in subspace_basis.items():
+    # Save individual bases
+    for layer_name, basis in subspace_bases.items():
         safe_name = layer_name.replace("/", "_").replace(".", "_")
-        filename = f"subspace_{safe_name}_seed{seed}.npy"
-        np.save(output_path / filename, basis)
-        logger.info(f"Saved subspace basis for {layer_name} to {filename} (k={ranks_used[layer_name]})")
+        np.save(output_path / f"subspace_{safe_name}.npy", basis)
     
     # Save metadata
     metadata = {
-        "seed": seed,
-        "ranks_used": ranks_used,
-        "total_layers": len(subspace_basis)
+        "selected_ranks": selected_ranks,
+        "explained_variances": explained_variances
     }
-    with open(output_path / f"subspace_metadata_seed{seed}.json", "w") as f:
+    
+    import json
+    with open(output_path / "subspace_metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
-    logger.info(f"Saved subspace metadata to subspace_metadata_seed{seed}.json")
+        
+    logger.info(f"Saved subspace artifacts to {output_path}")
+    return output_path / "subspace_metadata.json"
 
 def main():
-    """
-    Main entry point for testing projection utilities.
-    """
-    import json
-    from src.utils.seeds import set_seed
-
+    """Main entry point for testing projection utilities."""
     logging.basicConfig(level=logging.INFO)
     
-    # Test with synthetic data to verify fallback logic
-    set_seed(42)
-    
-    # Create dummy updates
-    dummy_updates = {
-        "layer_0": torch.randn(100, 100),
-        "layer_1": torch.randn(50, 50),
-    }
-    
-    # Force a flat spectrum scenario by making S decay very slowly or be uniform
-    # We'll mock the SVD to simulate a flat spectrum for testing
-    # But for now, let's just run the real logic on random data
-    # Random data usually has a decent spectrum, but let's try to trigger fallback if possible
-    # Or just verify the logic runs without crashing.
-    
-    try:
-        basis, ranks, fallback = perform_layerwise_svd(dummy_updates, target_variance=0.99, max_rank=50, fallback_rank=10)
-        logger.info(f"Fallback triggered: {fallback}")
-        logger.info(f"Ranks used: {ranks}")
-        
-        # Verify shapes
-        for name, b in basis.items():
-            logger.info(f"Layer {name}: basis shape {b.shape}, rank {ranks[name]}")
-            
-    except Exception as e:
-        logger.error(f"Test failed: {e}")
-        raise
+    # Example usage
+    logger.info("Projection utilities module loaded.")
+    logger.info("Use perform_layerwise_svd, project_gradient_to_subspace, or save_subspace_artifacts.")
 
 if __name__ == "__main__":
     main()

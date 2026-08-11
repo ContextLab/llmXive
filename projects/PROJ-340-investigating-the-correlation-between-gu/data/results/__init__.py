@@ -1,2 +1,3 @@
-# Results data directory
-pass
+"""
+Results storage
+"""

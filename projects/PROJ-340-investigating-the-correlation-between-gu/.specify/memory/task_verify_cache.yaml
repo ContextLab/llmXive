@@ -1,32 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing a `code/` directory or an `__init__.py` file was provided;\
-    \ the evidence list is empty, so the required files cannot be confirmed to exist.\
-    \ The implementer must add the `code/` folder with a non\u2011empty `__init__.py`\
-    \ inside."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `tests/` directory or its required sub\u2011folders (`contract/`,\
-    \ `unit/`, `integration/`) was provided; the implementer\u2019s claim cannot be\
-    \ verified from the supplied artifacts. The missing directory structure must be\
-    \ added and shown."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/` directory or its required subfolders (`raw/`, `processed/`,\
-    \ `results/`, `config/`) was provided; the implementer\u2019s claim is unsupported\
-    \ by any visible artifacts."
-T002b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file or virtual environment configuration (e.g., `requirements.txt`,\
-    \ `pyproject.toml`, or `venv/` setup script) was presented. Without these artifacts,\
-    \ the claim that the task \u201CCreate `.gitignore` and initialize virtualenv\
-    \ configuration\u201D is fulfilled cannot be verified. The next implementer must\
-    \ add a proper `.gitignore` file and provide the necessary virtual environment\
-    \ setup files."
 T004a:
   c: false
   h: 0ce1a30fb709057bb330bc4b5b914bd227efbb3d8828db88649c8c231ef6e304

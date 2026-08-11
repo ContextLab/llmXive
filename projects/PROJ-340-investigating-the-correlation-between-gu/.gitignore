@@ -7,10 +7,22 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
 .eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
 *.egg
-MANIFEST
 
 # PyInstaller
 *.manifest
@@ -22,13 +34,12 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.tox/
-.nox/
 .coverage
 .coverage.*
+cache/
+nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -45,37 +56,43 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # pyenv
 .python-version
 
-# Cython debug symbols
-cython_debug/
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Project specific
-data/raw/*.csv
-data/raw/*.parquet
+data/raw/real_data.csv
 data/processed/*.parquet
 data/results/*.json
-data/results/*.md
 data/metadata/*.json
-data/config/*.yaml
 data/citations/*.yaml
-data/state/*.yaml
-state/
-logs/
-*.log
-.DS_Store
-Thumbs.db
+code/__init__.py
+tests/__init__.py

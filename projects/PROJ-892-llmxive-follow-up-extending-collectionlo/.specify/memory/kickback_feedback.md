@@ -1,9 +1,13 @@
-# Unresolved panel concerns (address in this revision)
+# Re-plan: task(s) could not be made to pass verification — adjust the approach
 
-The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
 
-**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+## Repeatedly-unverifiable tasks
 
-## Unresolved concerns
+- `T007b` (rejected 1x): The `data/models/adapter_fp16.safetensors` file is missing (size 0) and `state/artifacts.yaml` records a hash of an empty file. Moreover, `code/data_loader.py` contains only placeholder stubs and does not implement the required copy/rename‑and‑hash logic. The task’s core requirement is therefore not satisfied.
+- `T009` (rejected 1x): The `data/models/adapter_fp16.safetensors` file is absent, and `code/data_loader.py` contains only stub functions (e.g., truncated `quantize_adapter_fp16_to_int8` and no implementation that loads the adapter, extracts per‑effect LoRA matrices, runs SVD, or writes `subspace_ranks.json`). Thus the required functionality is not actually provided.
 
-- The plan identifies a conflict between Spec FR-006 (BHM) and Constitution Principle VII (ANOVA) and proposes a 'Constitution Amendment' task. However, the plan does not justify *why* ANOVA is scientifically invalid for this specific design beyond 'N=10 is too small'. If the design is reduced to N=5, ANOVA is indeed impossible, but the plan fails to demonstrate that BHM is a *valid* alternative for N=5. The methodology relies on a statistical technique (BHM) that is itself underpowered for the proposed sample size, creating a 'double failure' where neither the mandated nor the proposed method can answer the research question.
+## Required change
+
+Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
+

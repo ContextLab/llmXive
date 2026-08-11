@@ -1,0 +1,383 @@
+{
+  "fetched_at": "2026-08-11T21:56:18Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal \"",
+      "target_n": 5
+    },
+    "duration_seconds": 358.699,
+    "ended_at": "2026-08-11T21:56:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "imaginative perception tokens for spatial reasoning"
+        ],
+        [
+          2,
+          "multimodal large language models spatial understanding"
+        ],
+        [
+          3,
+          "synthetic perception tokens in vision-language models"
+        ],
+        [
+          4,
+          "enhancing spatial reasoning with auxiliary tokens"
+        ],
+        [
+          5,
+          "token-based spatial reasoning in multimodal AI"
+        ],
+        [
+          6,
+          "imaginative reasoning in vision-language transformers"
+        ],
+        [
+          7,
+          "multimodal reasoning with learned perception embeddings"
+        ],
+        [
+          8,
+          "spatial cognition in large multimodal models"
+        ],
+        [
+          9,
+          "augmenting VLMs with specialized reasoning tokens"
+        ],
+        [
+          10,
+          "generative spatial reasoning in multimodal transformers"
+        ],
+        [
+          11,
+          "perception token injection for 3D reasoning"
+        ],
+        [
+          12,
+          "visual reasoning via token manipulation in LLMs"
+        ],
+        [
+          13,
+          "multimodal chain-of-thought with perception tokens"
+        ],
+        [
+          14,
+          "improving geometric understanding in vision-language models"
+        ],
+        [
+          15,
+          "latent space manipulation for spatial tasks in VLMs"
+        ],
+        [
+          16,
+          "token-level interventions for spatial reasoning"
+        ],
+        [
+          17,
+          "synthetic visual tokens for improved reasoning"
+        ],
+        [
+          18,
+          "multimodal reasoning mechanisms beyond standard attention"
+        ],
+        [
+          19,
+          "token-enhanced spatial inference in AI"
+        ],
+        [
+          20,
+          "bridging visual perception and spatial logic with tokens"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "imaginative perception tokens for spatial reasoning": 4,
+        "llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal \" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "imaginative perception tokens multimodal reasoning",
+      "spatial reasoning visual language model benchmarks",
+      "latent space navigation geometric understanding VLM",
+      "spatial generalization VLM evaluation metric",
+      "token augmentation hallucination reduction multimodal"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.03988"
+      ]
+    },
+    "per_query_hit_count": {
+      "imaginative perception tokens multimodal reasoning": 3,
+      "latent space navigation geometric understanding VLM": 0,
+      "llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal \" computer science": 3,
+      "spatial generalization VLM evaluation metric": 0,
+      "spatial reasoning visual language model benchmarks": 0,
+      "token augmentation hallucination reduction multimodal": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-11T21:50:19Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"imaginative perception tokens enhance spatial reasoning in multimodal \" computer science",
+      "raw": "llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal \" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reas', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-11T21:54:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reas', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-11T21:54:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reas', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-11T21:54:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reasoning lies at the heart of intelligence, shaping the ability to make decisions, draw conclusions, and generalize across domains. In artificial intelligence, as systems increasingly operate in open, uncertain, and multimodal environments, reasoning becomes essential for enabling robust and adaptive behavior. Large Multimodal Reasoning Models (LMRMs) have emerged as a promising paradigm, integrating modalities such as text, images, audio, and video to support complex reasoning capabilities and aiming to achieve comprehensive perception, precise understanding, and deep reasoning. As research advances, multimodal reasoning has rapidly evolved from modular, perception-driven pipelines to unified, language-centric frameworks that offer more coherent cross-modal understanding. While instruction tuning and reinforcement learning have improved model reasoning, significant challenges remain in omni-modal generalization, reasoning depth, and agentic behavior. To address these issues, we present a comprehensive and structured survey of multimodal reasoning research, organized around a four-stage developmental roadmap that reflects the field's shifting design philosophies and emerging capabilities. First, we review early efforts based on task-specific modules, where reasoning was implicitly embedded across stages of representation, alignment, and fusion. Next, we examine recent approaches that unify reasoning into multimodal LLMs, with advances such as Multimodal Chain-of-Thought (MCoT) and multimodal reinforcement learning enabling richer and more structured reasoning chains. Finally, drawing on empirical insights from challenging benchmarks and experimental cases of OpenAI O3 and O4-mini, we discuss the conceptual direction of native large multimodal reasoning models (N-LMRMs), which aim to support scalable, agentic, and adaptive reasoning and planning in complex, real-world environments.",
+          "claimed_authors": [
+            "Yunxin Li",
+            "Zhenyu Liu",
+            "Zitao Li",
+            "Xuanyu Zhang",
+            "Zhenran Xu",
+            "Xinyu Chen",
+            "Haoyuan Shi",
+            "Shenyuan Jiang",
+            "Xintong Wang",
+            "Jifang Wang",
+            "Shouzheng Huang",
+            "Xinping Zhao",
+            "Borui Jiang",
+            "Lanqing Hong",
+            "Longyue Wang",
+            "Zhuotao Tian",
+            "Baoxing Huai",
+            "Wenhan Luo",
+            "Weihua Luo",
+            "Zheng Zhang",
+            "Baotian Hu",
+            "Min Zhang"
+          ],
+          "claimed_title": "Perception, Reason, Think, and Plan: A Survey on Large Multimodal Reasoning Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.04921"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reas', candidate_title='Perception, Reason, Think, and Plan: A Survey on Large Multimodal Reasoning Models')",
+        "failed_at": "2026-08-11T21:54:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Imaginative Perception Tokens Enhance Spatial Reas', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-11T21:54:25Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mahtab Bigverdi",
+            "Linjie Li",
+            "Weikai Huang",
+            "Yiming Liu",
+            "Jaemin Cho",
+            "Jieyu Zhang",
+            "Tuhin Kundu",
+            "Chris Dangjoo Kim",
+            "Zelun Luo",
+            "Linda Shapiro",
+            "Ranjay Krishna"
+          ],
+          "title": "Imaginative Perception Tokens Enhance Spatial Reasoning in Multimodal Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.03988",
+        "summary": "Vision language models (VLMs) excel at many tasks but still struggle with spatial reasoning when critical information is not directly observable. Many such problems require imaginative perception: inferring what would be seen from an unseen viewpoint, tracing paths through occluded spaces, or integrating partial observations into a coherent spatial representation. We introduce Imaginative Perception Tokens (IPT), intermediate perceptual representations that externalize what a VLM would perceive under alternative spatial configurations while remaining consistent with the observed input.\n  To study this capability, we formulate three tasks, Perspective Taking (PET), Path Tracing (PT), and Multiview Counting (MVC), and construct datasets of approximately 20K examples with ground truth imaginations, answers, and evaluation benchmarks. Using the unified VLM BAGEL as the backbone, IPT supervision consistently improves spatial reasoning and often outperforms textual chain of thought training, even without generating images at inference time. On MVC, IPT improves accuracy by 3.4% and achieves competitive performance with strong closed-source models on PT. We further find that combining IPT and label-only supervision yields additional gains, whereas textual chain of thought can substantially degrade performance, suggesting a modality mismatch when spatial computation is forced through language. Overall, IPT provides a principled supervision signal for reasoning about unobserved spatial structure, improving generalization while producing interpretable intermediate representations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.03988",
+          "http_status": 200,
+          "pdf_sample_score": 0.2671,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T21:54:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoxing Lian",
+            "Aidong Yang",
+            "Jun Zhu",
+            "Peng Wang",
+            "Yue Zhang"
+          ],
+          "title": "Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.13782",
+        "summary": "Large language models (LLMs) and vision language models (VLMs), such as DeepSeek R1,OpenAI o3, and Gemini 2.5 Pro, have demonstrated remarkable reasoning capabilities across logical inference, problem solving, and decision making. However, spatial reasoning:a fundamental component of human cognition that includes mental rotation, navigation, and spatial relationship comprehension remains a significant challenge for current advanced VLMs. We hypothesize that imagination, the internal simulation of spatial states, is the dominant reasoning mechanism within a spatial world model. To test this hypothesis and systematically probe current VLM spatial reasoning mechanisms, we introduce SpatiaLite, a fully synthetic benchmark that jointly measures spatial reasoning accuracy and reasoning efficiency. Comprehensive experiments reveal three key findings. First, advanced VLMs predominantly rely on linguistic representations for reasoning and imagination, resulting in significant deficiencies on visual centric tasks that demand perceptual spatial relations and 3D geometry transformations such as mental rotation or projection prediction. Second, advanced VLMs exhibit severe inefficiency in their current spatial reasoning mechanisms, with token usage growing rapidly as transformation complexity increases. Third, we propose an Imagery Driven Framework (IDF) for data synthesis and training, which can implicitly construct an internal world model that is critical for spatial reasoning in VLMs. Building on SpatiaLite, this work delineates the spatial reasoning limits and patterns of advanced VLMs, identifies key shortcomings, and informs future advances",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.13782",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T21:56:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenxi Wu",
+            "Jingjing Zhang",
+            "Martim Brandão"
+          ],
+          "title": "Evaluating VLMs' Spatial Reasoning Over Robot Motion: A Step Towards Robot Planning with Motion Preferences",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.13100",
+        "summary": "Understanding user instructions and object spatial relations in surrounding environments is crucial for intelligent robot systems to assist humans in various tasks. The natural language and spatial reasoning capabilities of Vision-Language Models (VLMs) have the potential to enhance the generalization of robot planners on new tasks, objects, and motion specifications. While foundation models have been applied to task planning, it is still unclear the degree to which they have the capability of spatial reasoning required to enforce user preferences or constraints on motion, such as desired distances from objects, topological properties, or motion style preferences. In this paper, we evaluate the capability of four state-of-the-art VLMs at spatial reasoning over robot motion, using four different querying methods. Our results show that, with the highest-performing querying method, Qwen2.5-VL achieves 71.4% accuracy zero-shot and 75% on a smaller model after fine-tuning, and GPT-4o leads to lower performance. We evaluate two types of motion preferences (object-proximity and path-style), and we also analyze the trade-off between accuracy and computation cost in number of tokens. This work shows some promise in the potential of VLM integration with robot motion planning pipelines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.13100",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T21:56:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Janner",
+            "Karthik Narasimhan",
+            "Regina Barzilay"
+          ],
+          "title": "Representation Learning for Grounded Spatial Reasoning",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1707.03938",
+        "summary": "The interpretation of spatial references is highly contextual, requiring joint inference over both language and the environment. We consider the task of spatial reasoning in a simulated environment, where an agent can act and receive rewards. The proposed model learns a representation of the world steered by instruction text. This design allows for precise alignment of local neighborhoods with corresponding verbalizations, while also handling global references in the instructions. We train our model with reinforcement learning using a variant of generalized value iteration. The model outperforms state-of-the-art approaches on several metrics, yielding a 45% reduction in goal localization error.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1707.03938",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-11T21:56:02Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"imaginative perception tokens enhance spatial reasoning in multimodal \" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

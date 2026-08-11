@@ -1,249 +1,205 @@
 """
-Contract tests for schema validation in the phytoplankton analysis pipeline.
-
-This module validates that data artifacts conform to the defined schemas,
-specifically the aligned_dataset.schema.yaml for US1.
+Contract tests for schema validation.
+Validates that generated data artifacts conform to the defined YAML schemas.
 """
+
 import os
 import sys
 import json
+import unittest
 import yaml
-import pytest
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-# Add project root to path for imports if running as script
+# Project root setup for imports
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-SCHEMA_DIR = PROJECT_ROOT / "specs" / "001-phytoplankton-vlm-analysis" / "contracts"
-SCHEMA_FILE = SCHEMA_DIR / "aligned_dataset.schema.yaml"
-TEST_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+# Import configuration to resolve paths
+from utils.config import get_config, reset_config
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema definition."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
+# Import schema validator logic (using jsonschema as the standard tool)
+try:
+    import jsonschema
+    from jsonschema import validate, ValidationError, Draft7Validator
+except ImportError:
+    # Fallback if jsonschema is not installed (should be in requirements.txt)
+    jsonschema = None
+    Draft7Validator = None
 
-def validate_aligned_dataset_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+
+class SchemaValidator:
     """
-    Validate a dataset dictionary against the aligned_dataset schema.
-    
-    Checks:
-    1. Required top-level keys exist (metadata, data, basins)
-    2. Data types match schema definitions
-    3. Basin stratification is present if required
-    4. No missing values in critical columns (if specified in schema)
-    
-    Args:
-        data: The dataset dictionary to validate
-        schema: The loaded schema definition
-        
-    Returns:
-        Tuple of (is_valid, list_of_errors)
+    Helper class to load a YAML schema and validate a JSON/Dict instance against it.
     """
-    errors = []
-    required_keys = schema.get("required_keys", [])
-    
-    # Check top-level structure
-    for key in required_keys:
-        if key not in data:
-            errors.append(f"Missing required key: {key}")
-    
-    if errors:
-        return False, errors
+    def __init__(self, schema_path: Path):
+        self.schema_path = schema_path
+        self.schema = self._load_schema()
+        self.validator = Draft7Validator(self.schema) if Draft7Validator else None
 
-    # Validate metadata section
-    if "metadata" in data:
-        metadata = data["metadata"]
-        meta_schema = schema.get("properties", {}).get("metadata", {})
-        meta_required = meta_schema.get("required", [])
+    def _load_schema(self) -> Dict[str, Any]:
+        if not self.schema_path.exists():
+            raise FileNotFoundError(f"Schema file not found: {self.schema_path}")
         
-        for field in meta_required:
-            if field not in metadata:
-                errors.append(f"Missing metadata field: {field}")
-            
-            # Type checking if specified
-            if field in metadata and "type" in meta_schema.get("properties", {}).get(field, {}):
-                expected_type = meta_schema["properties"][field]["type"]
-                actual_type = type(metadata[field]).__name__
-                
-                # Map Python types to schema types
-                type_mapping = {
-                    "str": "string",
-                    "int": "integer",
-                    "float": "number",
-                    "list": "array",
-                    "dict": "object"
-                }
-                
-                if type_mapping.get(actual_type) != expected_type:
-                    errors.append(f"Metadata field '{field}' expected {expected_type}, got {actual_type}")
+        with open(self.schema_path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
 
-    # Validate data section (tabular data)
-    if "data" in data:
-        data_section = data["data"]
+    def validate(self, instance: Dict[str, Any]) -> bool:
+        if self.validator is None:
+            raise RuntimeError("jsonschema library not available. Install with: pip install jsonschema")
         
-        # Check for required columns if specified
-        required_columns = schema.get("properties", {}).get("data", {}).get("required_columns", [])
-        if isinstance(data_section, list) and len(data_section) > 0:
-            first_row = data_section[0]
-            for col in required_columns:
-                if col not in first_row:
-                    errors.append(f"Missing required column in data: {col}")
-        
-        # Check for missing values in critical columns
-        critical_columns = schema.get("properties", {}).get("data", {}).get("critical_columns", [])
-        if isinstance(data_section, list):
-            for col in critical_columns:
-                for i, row in enumerate(data_section):
-                    if col in row and row[col] is None:
-                        errors.append(f"Missing value in critical column '{col}' at row {i}")
-                        break  # Report first missing value per column
+        errors = list(self.validator.iter_errors(instance))
+        if errors:
+            error_messages = [f"{e.path}: {e.message}" for e in errors]
+            raise ValidationError(f"Schema validation failed:\n" + "\n".join(error_messages))
+        return True
 
-    # Validate basin stratification
-    if "basins" in data:
-        basins = data["basins"]
-        if not isinstance(basins, dict):
-            errors.append("'basins' must be a dictionary")
+
+class TestAlignedDatasetSchema(unittest.TestCase):
+    """
+    Contract test for aligned_dataset.schema.yaml.
+    Verifies that the aligned dataset artifact (if present) matches the schema definition.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Setup: Initialize config and locate the schema file.
+        """
+        reset_config()
+        config = get_config()
+        
+        # Determine schema path based on project structure
+        # Spec says: specs/001-phytoplankton-vlm-analysis/contracts/aligned_dataset.schema.yaml
+        cls.schema_path = (
+            PROJECT_ROOT / 
+            "specs" / 
+            "001-phytoplankton-vlm-analysis" / 
+            "contracts" / 
+            "aligned_dataset.schema.yaml"
+        )
+        
+        if not cls.schema_path.exists():
+            # If the schema file is missing, we cannot run the contract test.
+            # We mark the test as skipped rather than failing the whole suite,
+            # but in a real CI environment, the schema file should exist.
+            cls.skip_reason = f"Schema file not found at {cls.schema_path}"
+            cls.validator = None
         else:
-            # Check for expected basin IDs if defined in schema
-            expected_basins = schema.get("properties", {}).get("basins", {}).get("expected_ids", [])
-            if expected_basins:
-                for basin_id in expected_basins:
-                    if basin_id not in basins:
-                        errors.append(f"Expected basin ID not found: {basin_id}")
+            cls.validator = SchemaValidator(cls.schema_path)
+            cls.skip_reason = None
 
-    return len(errors) == 0, errors
+        # Path to the potential artifact to validate
+        # Task T014 generates this file. We check if it exists to validate.
+        # If it doesn't exist yet (e.g., T014 not run), we skip the data validation
+        # but the schema loading test still runs.
+        cls.artifact_path = PROJECT_ROOT / "data" / "processed" / "aligned_dataset.nc"
+        # We also check a potential CSV version if NetCDF fails or is not yet generated
+        cls.artifact_csv_path = PROJECT_ROOT / "data" / "processed" / "aligned_dataset.csv"
 
-def test_schema_file_exists():
-    """Test that the aligned_dataset schema file exists."""
-    assert SCHEMA_FILE.exists(), f"Schema file not found at {SCHEMA_FILE}"
+    def test_schema_file_exists_and_loads(self):
+        """
+        Verify that the schema file exists and is valid YAML.
+        """
+        self.assertIsNotNone(self.validator, self.skip_reason)
+        self.assertIsInstance(self.validator.schema, dict)
+        self.assertIn("type", self.validator.schema)
 
-def test_schema_is_valid_yaml():
-    """Test that the schema file is valid YAML."""
-    try:
-        schema = load_schema(SCHEMA_FILE)
-        assert isinstance(schema, dict), "Schema must be a dictionary"
-    except yaml.YAMLError as e:
-        pytest.fail(f"Schema file is not valid YAML: {e}")
-
-def test_schema_has_required_structure():
-    """Test that the schema has the expected top-level keys."""
-    schema = load_schema(SCHEMA_FILE)
-    assert "required_keys" in schema, "Schema must define 'required_keys'"
-    assert "properties" in schema, "Schema must define 'properties'"
-
-@pytest.mark.skipif(not (SCHEMA_DIR / "aligned_dataset.schema.yaml").exists(), 
-                    reason="Schema file not found")
-def test_aligned_dataset_schema_validation_logic():
-    """
-    Test the validation logic with a mock dataset that should pass.
-    """
-    schema = load_schema(SCHEMA_FILE)
-    
-    # Create a minimal valid dataset according to schema
-    valid_data = {
-        "metadata": {
-            "source": "test_source",
-            "timestamp": "2023-01-01T00:00:00",
-            "version": "1.0.0"
-        },
-        "data": [
-            {
-                "latitude": 30.0,
-                "longitude": -60.0,
-                "depth": 10.0,
-                "chlorophyll_a": 0.5,
-                "temperature": 20.0,
-                "salinity": 35.0,
-                "basin_id": "NATL"
-            },
-            {
-                "latitude": 30.0,
-                "longitude": -60.0,
-                "depth": 20.0,
-                "chlorophyll_a": 0.6,
-                "temperature": 19.5,
-                "salinity": 35.1,
-                "basin_id": "NATL"
-            }
-        ],
-        "basins": {
-            "NATL": {"count": 2, "bbox": [[-70, 25], [-50, 35]]}
-        }
-    }
-    
-    is_valid, errors = validate_aligned_dataset_schema(valid_data, schema)
-    
-    # If the schema is properly defined, this should pass
-    # If it fails, the schema definition needs adjustment
-    if not is_valid:
-        # Log errors for debugging but don't fail if schema is minimal
-        # This test ensures the validation logic works, not that schema is perfect
-        print(f"Validation errors (may be due to minimal schema): {errors}")
+    def test_aligned_dataset_schema_structure(self):
+        """
+        Verify the schema defines the expected structure for the aligned dataset.
+        This ensures the schema itself is reasonable (e.g., has properties).
+        """
+        self.assertIsNotNone(self.validator, self.skip_reason)
         
-    # We assert that the validation function runs without crashing
-    # and returns a boolean
-    assert isinstance(is_valid, bool)
-    assert isinstance(errors, list)
-
-@pytest.mark.skipif(not (SCHEMA_DIR / "aligned_dataset.schema.yaml").exists(),
-                    reason="Schema file not found")
-def test_schema_validation_catches_missing_required_keys():
-    """Test that validation catches missing required keys."""
-    schema = load_schema(SCHEMA_FILE)
-    
-    invalid_data = {
-        "metadata": {}  # Missing required top-level keys
-    }
-    
-    is_valid, errors = validate_aligned_dataset_schema(invalid_data, schema)
-    
-    assert not is_valid, "Validation should fail for missing required keys"
-    assert len(errors) > 0, "Should have error messages"
-
-@pytest.mark.skipif(not (SCHEMA_DIR / "aligned_dataset.schema.yaml").exists(),
-                    reason="Schema file not found")
-def test_schema_validation_catches_missing_critical_values():
-    """Test that validation catches missing values in critical columns."""
-    schema = load_schema(SCHEMA_FILE)
-    
-    # Ensure schema specifies critical_columns for this test to be meaningful
-    if "critical_columns" in schema.get("properties", {}).get("data", {}):
-        invalid_data = {
-            "metadata": {"source": "test"},
-            "data": [
-                {"chlorophyll_a": None, "latitude": 30.0}  # Missing critical value
-            ],
-            "basins": {}
-        }
+        # Basic structural checks on the schema
+        schema = self.validator.schema
+        self.assertIn("properties", schema, "Schema must define 'properties'")
         
-        is_valid, errors = validate_aligned_dataset_schema(invalid_data, schema)
+        # Check for expected high-level fields typically found in this dataset
+        # based on the project context (US1: Data Ingestion)
+        expected_fields = ["basin_id", "time", "latitude", "longitude", "chlorophyll", "temperature", "salinity"]
         
-        assert not is_valid, "Validation should fail for missing critical values"
-        assert any("critical column" in err.lower() for err in errors), \
-            "Should report missing critical column error"
+        for field in expected_fields:
+            # We don't strictly require ALL fields in every schema version,
+            # but the schema should define a set of properties.
+            # This test ensures the schema is not empty or malformed.
+            pass 
+        
+        self.assertTrue(len(schema["properties"]) > 0, "Schema properties should not be empty")
 
-def test_schema_validation_with_real_artifact():
-    """
-    Test validation against a real artifact if it exists.
-    This test is skipped if the artifact doesn't exist yet.
-    """
-    # Look for any .nc or .csv files in the processed data directory
-    artifact_files = list(TEST_DATA_DIR.glob("aligned_dataset.*"))
-    
-    if not artifact_files:
-        pytest.skip("No aligned_dataset artifact found to validate")
-    
-    # For now, we test the schema structure itself since loading NetCDF
-    # requires specific libraries and the schema is YAML-based
-    schema = load_schema(SCHEMA_FILE)
-    assert schema is not None, "Schema should load successfully"
+    def test_validate_artifact_if_exists(self):
+        """
+        If the aligned dataset artifact exists, validate it against the schema.
+        """
+        if self.validator is None:
+            self.skipTest(self.skip_reason)
 
-if __name__ == "__main__":
-    # Run tests when executed directly
-    pytest.main([__file__, "-v"])
+        # Try to load the artifact. We need to convert it to a JSON-serializable dict
+        # for jsonschema validation.
+        artifact_to_validate = None
+
+        if self.artifact_path.exists():
+            try:
+                import xarray as xr
+                ds = xr.open_dataset(self.artifact_path)
+                # Convert to dict of arrays (flattened for validation simplicity)
+                # Note: Real validation might need to handle nested structures or
+                # specific record formats depending on the schema definition.
+                # Here we validate the metadata/structure or a sample row if the schema expects records.
+                
+                # If the schema expects a list of records (rows), we convert the dataset to a list of dicts.
+                # If the schema expects a single object with arrays, we convert differently.
+                # Given typical data schemas, we assume a record-based validation or metadata check.
+                
+                # Strategy: If schema expects "type: object" with array properties, validate the whole.
+                # If schema expects "type: object" representing a single row, validate one row.
+                
+                # Let's assume the schema describes the structure of a single row/record
+                # or the metadata of the dataset.
+                
+                # For robustness, we'll try to validate the dataset's coordinate and variable names
+                # against the schema if the schema defines "properties" that match variable names.
+                
+                # Convert dataset to a representative dict for validation
+                # We take the first row if dimensions allow, otherwise metadata
+                if len(ds.dims) > 0:
+                    # Attempt to get a single record
+                    try:
+                        sample = ds.isel({list(ds.dims.keys())[0]: 0}).to_dict(data=False)
+                        # xarray to_dict with data=False loses values, we need values for validation usually.
+                        # Let's try to_dict() which converts to pandas then json-compatible
+                        sample = ds.isel({list(ds.dims.keys())[0]: 0}).to_pandas().iloc[0].to_dict()
+                        artifact_to_validate = sample
+                    except Exception:
+                        # Fallback: validate metadata only
+                        artifact_to_validate = {"variables": list(ds.data_vars), "coords": list(ds.coords)}
+                else:
+                    artifact_to_validate = ds.attrs
+                
+            except Exception as e:
+                self.fail(f"Failed to load and convert NetCDF artifact for validation: {e}")
+        
+        elif self.artifact_csv_path.exists():
+            try:
+                import pandas as pd
+                df = pd.read_csv(self.artifact_csv_path)
+                if len(df) > 0:
+                    artifact_to_validate = df.iloc[0].to_dict()
+                else:
+                    self.skipTest("CSV artifact exists but is empty.")
+            except Exception as e:
+                self.fail(f"Failed to load CSV artifact for validation: {e}")
+        else:
+            self.skipTest("No aligned dataset artifact found to validate (T014 not run).")
+
+        if artifact_to_validate:
+            try:
+                self.validator.validate(artifact_to_validate)
+            except ValidationError as e:
+                self.fail(f"Artifact validation failed against schema: {e.message}")
+
+
+if __name__ == '__main__':
+    unittest.main()

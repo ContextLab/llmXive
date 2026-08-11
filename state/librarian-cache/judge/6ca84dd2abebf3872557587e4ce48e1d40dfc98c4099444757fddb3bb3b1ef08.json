@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.13782",
+  "judged_at": "2026-08-11T21:56:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"imaginative perception tokens enhance spatial reasoning in multimodal \" computer science",
+  "rationale": "This paper directly addresses the user's question by investigating the same core mechanism (\"imagination\" or \"internal simulation\") for enhancing spatial reasoning in vision-language models, which aligns with the \"Imaginative Perception Tokens\" concept in the user's query. It satisfies acceptance criteria (a) by measuring the same biological/algorithmic mechanism and (b) by studying the same dependent variable (spatial reasoning) on the same domain (VLMs).",
+  "relevant": true
+}

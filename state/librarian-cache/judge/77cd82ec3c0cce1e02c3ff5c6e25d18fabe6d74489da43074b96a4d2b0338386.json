@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1707.03938",
+  "judged_at": "2026-08-11T21:56:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"imaginative perception tokens enhance spatial reasoning in multimodal \" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of spatial reasoning in multimodal (language + environment) settings, which is the specific domain and dependent variable of the user's question regarding \"Imaginative Perception Tokens\" for spatial reasoning. Even though it uses different terminology (e.g., \"grounded spatial reasoning\" and \"reinforcement learning\" instead of \"tokens\"), it provides the canonical prior work on the underlying task and variables the use",
+  "relevant": true
+}

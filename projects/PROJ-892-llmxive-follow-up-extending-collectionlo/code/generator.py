@@ -4,127 +4,337 @@ from PIL import Image
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 import logging
-from data_loader import load_adapter_weights, save_adapter_weights
-from state_manager import compute_sha256, register_artifact
 
+from config import load_config
+from data_loader import load_adapter_weights, get_collection_lora_adapter
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def generate_images(model, adapter, prompt: str, seed: int, output_dir: str) -> str:
-    """Generate a single image using the provided model and adapter."""
+def _ensure_device():
+    """Select CPU or CUDA device."""
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    return torch.device("cpu")
+
+def generate_reference_image(output_path: str) -> str:
+    """
+    Generate a single 'known reference' image using a fixed seed from config.yaml.
+    This image serves as the ground truth for LPIPS self-consistency checks.
+
+    Args:
+        output_path: Path where the generated image will be saved.
+
+    Returns:
+        Path to the saved image.
+    """
+    config = load_config()
+    seed = config.get("seed", 42)
+    prompt = config.get("reference_prompt", "a high quality photograph of a cat")
+    base_model_id = config.get("base_model_id", "runwayml/stable-diffusion-v1-5")
+    adapter_path = config.get("adapter_path", "data/models/adapter_fp16.safetensors")
+    num_steps = config.get("num_inference_steps", 50)
+    guidance = config.get("guidance_scale", 7.5)
+    width = config.get("image_width", 512)
+    height = config.get("image_height", 512)
+
+    device = _ensure_device()
+    logger.info(f"Using device: {device}")
+
+    # Load base model
+    logger.info(f"Loading base model: {base_model_id}")
+    from diffusers import StableDiffusionPipeline
+    pipe = StableDiffusionPipeline.from_pretrained(
+        base_model_id,
+        torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
+        safety_checker=None,
+        requires_safety_checker=False
+    )
+    pipe = pipe.to(device)
+
+    # Load LoRA adapter
+    logger.info(f"Loading adapter: {adapter_path}")
+    adapter_weights = load_adapter_weights(adapter_path)
+    pipe.load_lora_weights(adapter_weights)
+    pipe.set_adapters(["default"])
+
     # Set seed for reproducibility
-    torch.manual_seed(seed)
-    
-    # Prepare pipeline
-    pipe = model.to('cpu')
-    pipe.load_lora_weights(adapter)
-    
-    # Generate image
+    generator = torch.Generator(device=device).manual_seed(seed)
+
+    logger.info(f"Generating reference image with prompt: '{prompt}' (seed={seed})")
     image = pipe(
-        prompt,
-        num_inference_steps=50,
-        guidance_scale=7.5,
-        generator=torch.Generator(device='cpu').manual_seed(seed)
+        prompt=prompt,
+        generator=generator,
+        num_inference_steps=num_steps,
+        guidance_scale=guidance,
+        width=width,
+        height=height
     ).images[0]
-    
+
+    # Ensure output directory exists
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
     # Save image
-    output_path = Path(output_dir) / f"{prompt.replace(' ', '_')}.png"
     image.save(output_path)
-    
-    # Register artifact
-    image_hash = compute_sha256(output_path)
-    register_artifact(
-        output_path, 
-        {'prompt': prompt, 'type': 'generated', 'seed': seed},
-        image_hash
-    )
-    
-    return str(output_path)
+    logger.info(f"Reference image saved to: {output_path}")
 
-def generate_reference_image(model, adapter, seed: int, prompt: str, output_path: str):
-    """Generate a single reference image for baseline consistency checks."""
-    torch.manual_seed(seed)
-    
-    pipe = model.to('cpu')
-    pipe.load_lora_weights(adapter)
-    
-    image = pipe(
-        prompt,
-        num_inference_steps=50,
-        guidance_scale=7.5,
-        generator=torch.Generator(device='cpu').manual_seed(seed)
-    ).images[0]
-    
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    image.save(output_path)
-    
-    # Register artifact
-    image_hash = compute_sha256(output_path)
-    register_artifact(
-        output_path, 
-        {'prompt': prompt, 'type': 'baseline_reference', 'seed': seed},
-        image_hash
-    )
-    
-    logger.info(f"Generated baseline reference image: {output_path} (SHA-256: {image_hash})")
+    return output_path
 
-def generate_fp16_reference_images(model, adapter, prompts: List[str], seed: int, output_dir: str) -> Dict[str, str]:
-    """Generate reference images for all prompts in FP16."""
+def generate_fp16_baseline_images(output_dir: str) -> List[str]:
+    """
+    Generate images using the fixed prompt list from config.yaml with FP16 adapter.
+    Used for baseline fidelity measurement.
+
+    Args:
+        output_dir: Directory where generated images will be saved.
+
+    Returns:
+        List of paths to saved images.
+    """
+    config = load_config()
+    prompts = config.get("effect_prompts", [])
+    base_model_id = config.get("base_model_id", "runwayml/stable-diffusion-v1-5")
+    adapter_path = config.get("adapter_path", "data/models/adapter_fp16.safetensors")
+    num_steps = config.get("num_inference_steps", 50)
+    guidance = config.get("guidance_scale", 7.5)
+    width = config.get("image_width", 512)
+    height = config.get("image_height", 512)
+
+    device = _ensure_device()
+    logger.info(f"Using device: {device}")
+
+    # Load base model
+    logger.info(f"Loading base model: {base_model_id}")
+    from diffusers import StableDiffusionPipeline
+    pipe = StableDiffusionPipeline.from_pretrained(
+        base_model_id,
+        torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
+        safety_checker=None,
+        requires_safety_checker=False
+    )
+    pipe = pipe.to(device)
+
+    # Load LoRA adapter
+    logger.info(f"Loading adapter: {adapter_path}")
+    adapter_weights = load_adapter_weights(adapter_path)
+    pipe.load_lora_weights(adapter_weights)
+    pipe.set_adapters(["default"])
+
+    output_dir_obj = Path(output_dir)
+    output_dir_obj.mkdir(parents=True, exist_ok=True)
+
+    saved_paths = []
+    for i, prompt in enumerate(prompts):
+        logger.info(f"Generating baseline image {i+1}/{len(prompts)}: '{prompt}'")
+        # Use a deterministic seed based on index for reproducibility
+        generator = torch.Generator(device=device).manual_seed(42 + i)
+        image = pipe(
+            prompt=prompt,
+            generator=generator,
+            num_inference_steps=num_steps,
+            guidance_scale=guidance,
+            width=width,
+            height=height
+        ).images[0]
+
+        filename = f"baseline_{i:03d}.png"
+        filepath = output_dir_obj / filename
+        image.save(filepath)
+        saved_paths.append(str(filepath))
+
+    return saved_paths
+
+def generate_fp16_reference_images(output_dir: str) -> Dict[str, str]:
+    """
+    Generate and save a set of 'FP16 Reference Images' for all effect prompts.
+    Required for CESR calculation in US2.
+
+    Args:
+        output_dir: Directory where reference images will be saved.
+
+    Returns:
+        Dictionary mapping prompt text to saved image path.
+    """
+    config = load_config()
+    prompts = config.get("effect_prompts", [])
+    base_model_id = config.get("base_model_id", "runwayml/stable-diffusion-v1-5")
+    adapter_path = config.get("adapter_path", "data/models/adapter_fp16.safetensors")
+    num_steps = config.get("num_inference_steps", 50)
+    guidance = config.get("guidance_scale", 7.5)
+    width = config.get("image_width", 512)
+    height = config.get("image_height", 512)
+
+    device = _ensure_device()
+    logger.info(f"Using device: {device}")
+
+    # Load base model
+    logger.info(f"Loading base model: {base_model_id}")
+    from diffusers import StableDiffusionPipeline
+    pipe = StableDiffusionPipeline.from_pretrained(
+        base_model_id,
+        torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
+        safety_checker=None,
+        requires_safety_checker=False
+    )
+    pipe = pipe.to(device)
+
+    # Load LoRA adapter
+    logger.info(f"Loading adapter: {adapter_path}")
+    adapter_weights = load_adapter_weights(adapter_path)
+    pipe.load_lora_weights(adapter_weights)
+    pipe.set_adapters(["default"])
+
+    output_dir_obj = Path(output_dir)
+    output_dir_obj.mkdir(parents=True, exist_ok=True)
+
     results = {}
-    
-    for prompt in prompts:
-        output_path = Path(output_dir) / f"{prompt.replace(' ', '_')}.png"
-        results[prompt] = generate_images(model, adapter, prompt, seed, str(output_dir))
-    
-    logger.info(f"Generated {len(prompts)} FP16 reference images")
+    for i, prompt in enumerate(prompts):
+        logger.info(f"Generating FP16 reference for prompt: '{prompt}'")
+        generator = torch.Generator(device=device).manual_seed(100 + i)
+        image = pipe(
+            prompt=prompt,
+            generator=generator,
+            num_inference_steps=num_steps,
+            guidance_scale=guidance,
+            width=width,
+            height=height
+        ).images[0]
+
+        # Sanitize filename
+        safe_prompt = prompt.replace(" ", "_").replace(":", "_")[:50]
+        filename = f"ref_{safe_prompt}.png"
+        filepath = output_dir_obj / filename
+        image.save(filepath)
+        results[prompt] = str(filepath)
+
     return results
 
-def generate_images_for_adapters(model, adapter_paths: Dict[str, str], prompts: List[str], base_seed: int, output_base_dir: str) -> Dict[str, Dict[str, str]]:
+def generate_images_for_adapters(adapter_paths: Dict[str, str], output_dir: str) -> Dict[str, List[str]]:
     """
-    Generate images for multiple quantized adapters (INT8, INT4) using the same prompt list.
-    
+    Generate images for multiple adapters (e.g., INT8, INT4) using the prompt list.
+
     Args:
-        model: The base DiffusionPipeline model (loaded on CPU).
-        adapter_paths: A dictionary mapping quantization level (e.g., 'int8', 'int4') 
-                       to the path of the quantized adapter weights.
-        prompts: List of effect prompts from config.yaml.
-        base_seed: Base seed value for reproducibility.
-        output_base_dir: Base directory where results will be saved (e.g., 'data/generated').
-    
+        adapter_paths: Dictionary mapping adapter name to path.
+        output_dir: Directory where generated images will be saved.
+
     Returns:
-        A nested dictionary: {quantization_level: {prompt: output_path}}
+        Dictionary mapping adapter name to list of saved image paths.
     """
+    config = load_config()
+    prompts = config.get("effect_prompts", [])
+    base_model_id = config.get("base_model_id", "runwayml/stable-diffusion-v1-5")
+    num_steps = config.get("num_inference_steps", 50)
+    guidance = config.get("guidance_scale", 7.5)
+    width = config.get("image_width", 512)
+    height = config.get("image_height", 512)
+
+    device = _ensure_device()
+
+    output_dir_obj = Path(output_dir)
+    output_dir_obj.mkdir(parents=True, exist_ok=True)
+
     all_results = {}
-    
-    for quant_level, adapter_path in adapter_paths.items():
-        logger.info(f"Starting generation for {quant_level.upper()} adapter: {adapter_path}")
-        
-        # Create output directory for this quantization level
-        output_dir = Path(output_base_dir) / quant_level
-        os.makedirs(output_dir, exist_ok=True)
-        
-        level_results = {}
-        
-        for idx, prompt in enumerate(prompts):
-            # Derive a deterministic seed for this prompt within this level
-            # Using the base_seed + index to ensure different prompts get different seeds
-            # but the same prompt/level combo always gets the same seed.
-            seed = base_seed + idx
-            
-            logger.info(f"Generating image for prompt '{prompt}' with seed {seed}")
-            
-            try:
-                # Call the existing generate_images function which handles pipeline setup
-                # Note: We pass the specific quantized adapter path
-                output_path = generate_images(model, adapter_path, prompt, seed, str(output_dir))
-                level_results[prompt] = output_path
-            except Exception as e:
-                logger.error(f"Failed to generate image for {quant_level}/{prompt}: {e}")
-                # We do not raise here; the main loop in main.py will handle OOM/SIGKILL
-                # and skip this specific item, but we log the failure.
-                level_results[prompt] = None
-        
-        all_results[quant_level] = level_results
-        logger.info(f"Completed generation for {quant_level.upper()}. Saved to {output_dir}")
-    
+
+    for adapter_name, adapter_path in adapter_paths.items():
+        logger.info(f"Processing adapter: {adapter_name} ({adapter_path})")
+
+        # Load base model
+        logger.info(f"Loading base model: {base_model_id}")
+        from diffusers import StableDiffusionPipeline
+        pipe = StableDiffusionPipeline.from_pretrained(
+            base_model_id,
+            torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
+            safety_checker=None,
+            requires_safety_checker=False
+        )
+        pipe = pipe.to(device)
+
+        # Load LoRA adapter
+        logger.info(f"Loading adapter: {adapter_path}")
+        adapter_weights = load_adapter_weights(adapter_path)
+        pipe.load_lora_weights(adapter_weights)
+        pipe.set_adapters(["default"])
+
+        saved_paths = []
+        for i, prompt in enumerate(prompts):
+            logger.info(f"Generating image for '{prompt}' with {adapter_name}")
+            generator = torch.Generator(device=device).manual_seed(200 + i)
+            image = pipe(
+                prompt=prompt,
+                generator=generator,
+                num_inference_steps=num_steps,
+                guidance_scale=guidance,
+                width=width,
+                height=height
+            ).images[0]
+
+            safe_prompt = prompt.replace(" ", "_").replace(":", "_")[:40]
+            filename = f"{adapter_name}_{i:03d}_{safe_prompt}.png"
+            filepath = output_dir_obj / filename
+            image.save(filepath)
+            saved_paths.append(str(filepath))
+
+        all_results[adapter_name] = saved_paths
+
     return all_results
+
+def generate_images(prompts: List[str], adapter_path: str, output_dir: str, seed_offset: int = 0) -> List[str]:
+    """
+    Generic image generation function for a list of prompts and a single adapter.
+
+    Args:
+        prompts: List of prompts to generate images for.
+        adapter_path: Path to the LoRA adapter.
+        output_dir: Directory to save images.
+        seed_offset: Offset added to the base seed (42) for each prompt.
+
+    Returns:
+        List of paths to saved images.
+    """
+    config = load_config()
+    base_model_id = config.get("base_model_id", "runwayml/stable-diffusion-v1-5")
+    num_steps = config.get("num_inference_steps", 50)
+    guidance = config.get("guidance_scale", 7.5)
+    width = config.get("image_width", 512)
+    height = config.get("image_height", 512)
+    base_seed = config.get("seed", 42)
+
+    device = _ensure_device()
+
+    logger.info(f"Loading base model: {base_model_id}")
+    from diffusers import StableDiffusionPipeline
+    pipe = StableDiffusionPipeline.from_pretrained(
+        base_model_id,
+        torch_dtype=torch.float16 if device.type == "cuda" else torch.float32,
+        safety_checker=None,
+        requires_safety_checker=False
+    )
+    pipe = pipe.to(device)
+
+    logger.info(f"Loading adapter: {adapter_path}")
+    adapter_weights = load_adapter_weights(adapter_path)
+    pipe.load_lora_weights(adapter_weights)
+    pipe.set_adapters(["default"])
+
+    output_dir_obj = Path(output_dir)
+    output_dir_obj.mkdir(parents=True, exist_ok=True)
+
+    saved_paths = []
+    for i, prompt in enumerate(prompts):
+        generator = torch.Generator(device=device).manual_seed(base_seed + seed_offset + i)
+        image = pipe(
+            prompt=prompt,
+            generator=generator,
+            num_inference_steps=num_steps,
+            guidance_scale=guidance,
+            width=width,
+            height=height
+        ).images[0]
+
+        filename = f"gen_{i:03d}.png"
+        filepath = output_dir_obj / filename
+        image.save(filepath)
+        saved_paths.append(str(filepath))
+
+    return saved_paths

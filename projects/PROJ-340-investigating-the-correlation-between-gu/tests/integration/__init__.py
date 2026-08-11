@@ -1,3 +1,3 @@
 """
-Integration tests: Verify interactions between multiple components.
+Integration tests
 """
