@@ -1,0 +1,67 @@
+# Analysis Output Schema for Gut Microbiome & Cognitive Flexibility Study
+# Defines the structure of analysis results
+
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResult
+description: Schema for the analysis results (correlation, regression, etc.)
+
+type: object
+required:
+  - analysis_type
+  - correlation_coefficient
+  - p_value
+  - adjusted_p_value
+  - confidence_interval
+properties:
+  analysis_type:
+    type: string
+    description: Type of analysis performed (e.g., "correlation", "regression", "permanova")
+  metric_name:
+    type: string
+    description: Name of the diversity metric or variable analyzed
+  outcome_variable:
+    type: string
+    description: Name of the outcome variable (e.g., "cognitive_score")
+  correlation_coefficient:
+    type: number
+    description: Correlation coefficient (Pearson or Spearman)
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Raw p-value
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Benjamini-Hochberg adjusted p-value
+  confidence_interval:
+    type: object
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+        description: Lower bound of the confidence interval
+      upper:
+        type: number
+        description: Upper bound of the confidence interval
+  sample_size:
+    type: integer
+    minimum: 1
+    description: Number of samples used in the analysis
+  method_details:
+    type: object
+    description: Additional details about the analysis method
+    properties:
+      test_statistic:
+        type: number
+      degrees_of_freedom:
+        type: integer
+      model_formula:
+        type: string
+      covariates:
+        type: array
+        items:
+          type: string

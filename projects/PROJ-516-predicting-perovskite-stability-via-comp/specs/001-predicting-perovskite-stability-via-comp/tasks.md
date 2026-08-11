@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-516-predicting-perovskite-stability-via-comp/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-516-predicting-perovskite-stability-via-comp/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python 3.11 project with dependencies (`code/requirements.txt`)
 - [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
 
@@ -39,9 +39,9 @@
 - [ ] T004 Implement `state_manager.py` to compute SHA-256 hashes for derived artifacts and update `state/...yaml`
 - [ ] T005 Create `contracts/descriptor.schema.yaml` defining the schema for `CompositionalDescriptor` entities
 - [ ] T005b Create `contracts/metadata.schema.yaml` defining the schema for `PerovskiteEntry` instrumentation metadata (TGA model, uncertainty)
-- [ ] T006 Implement `code/utils/data_fetcher.py` with retry logic: multiple retries with exponential backoff (increasing intervals) for API unavailability
+- [X] T006 Implement `code/utils/data_fetcher.py` with retry logic: multiple retries with exponential backoff (increasing intervals) for API unavailability
 - [X] T007 Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic A/B/X site assignment
-- [~] T008 Setup environment configuration management for API keys (Materials Project, NREL) in `.env`
+- [ ] T008 Setup environment configuration management for API keys (Materials Project, NREL) in `.env`
 - [X] T009 Implement `code/utils/checksum_verifier.py` to validate raw data integrity against source checksums
 - [X] T009b Implement `code/utils/validator.py` to perform 'title-token-overlap' validation (≥ 0.7 threshold) against primary source citations before processing data
 
@@ -66,7 +66,7 @@
 - [ ] T013a [US1] Implement parsing logic to extract TGA model and precision (±5°C to ±10°C) from source metadata into a structured object and write to `data/raw/metadata.json`
 - [ ] T013b [US1] Write parsed instrumentation metadata to `data/raw/metadata.json` adhering to `contracts/metadata.schema.yaml`
 - [ ] T013c [US1] Implement logic to flag entries using the default ±10°C uncertainty bound in `data/raw/uncertainty_flags.json` and ensure this flag is propagated for weighting
-- [~] T014 [US1] Implement `code/feature_engineering.py` to compute atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, **first** ionization energy), and variance metrics; write output to `data/processed/descriptors.csv`
+- [ ] T014 [US1] Implement `code/feature_engineering.py` to compute atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, **first** ionization energy), and variance metrics; write output to `data/processed/descriptors.csv`
 - [ ] T014b [US1] Implement verification logic to confirm 'first ionization energy' column is present in `data/processed/descriptors.csv` matching FR-002 requirements
 - [~] T015 [US1] Implement logic to exclude entries with ≥2 missing descriptor values and log exclusion counts
 - [~] T016 [US1] Implement VIF diagnostic computation; flag descriptors with VIF > 5 and implement feature removal or Elastic Net fallback; write report to `data/processed/vif_report.csv`
@@ -84,13 +84,13 @@
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for grid search hyperparameter limit enforcement (≤10 combos) in `tests/unit/test_model_training.py`
-- [ ] T019 [P] [US2] Integration test for full pipeline runtime (must complete ≤ 6 hours) in `tests/integration/test_pipeline_runtime.py`
+- [X] T018 [P] [US2] Unit test for grid search hyperparameter limit enforcement (≤10 combos) in `tests/unit/test_model_training.py`
+- [~] T019 [P] [US2] Integration test for full pipeline runtime (must complete ≤ 6 hours) in `tests/integration/test_pipeline_runtime.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/model_training.py` with Random Forest, Gradient Boosting, and Elastic Net using `scikit-learn`; apply sample weights (1/σ) for Elastic Net and use custom wrappers for RF/GB to support sample weights; ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution
-- [ ] T021 [US2] Configure k-fold cross-validation with stratification by perovskite family
+- [X] T020 [US2] Implement `code/model_training.py` with Random Forest, Gradient Boosting, and Elastic Net using `scikit-learn`; apply sample weights (1/σ) for Elastic Net and use custom wrappers for RF/GB to support sample weights; ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution
+- [~] T021 [US2] Configure k-fold cross-validation with stratification by perovskite family
 - [ ] T022 [US2] Implement grid search with a hard cap of ≤10 hyperparameter combinations per model
 - [ ] T023 [US2] Implement metric tracking (RMSE, R², MAE) and logging of best hyperparameters
 - [ ] T024 [US2] Ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution

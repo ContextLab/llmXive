@@ -2,9 +2,16 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a [P] Create project directory structure (`src/`, `tests/`, `data/raw`, `data/processed`, `data/results`)** — No evidence of the required directories (`src/`, `tests/`, `data/raw`, `data/processed`, `data/results`) is provided; without visible artifacts we cannot confirm the structure was created.
-- **T001b [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, scikit-learn, scipy, statsmodels, biom-format, numpy, matplotlib, seaborn, pyyaml)** — No `requirements.txt` file (or any other artifact) was provided showing a Python 3.11 project with the listed dependencies pinned to specific versions. The task’s core deliverable is missing.
-- **T002 [P] Configure linting (ruff) and formatting (black) tools** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or similar) were provided, nor any evidence that `ruff` and `black` have been set up for the project. The required artifacts are missing, so the task is not satisfied.
-- **T003 Create `contracts/dataset.schema.yaml` defining Participant and MicrobiomeProfile entities** — The claim provides no `contracts/dataset.schema.yaml` file or its contents; without the schema defining the Participant and MicrobiomeProfile entities, the required artifact is missing. The next implementer must create the YAML schema file with the appropriate entity definitions.
-- **T004 Create `contracts/analysis_output.schema.yaml` defining AnalysisResult entity** — No `contracts/analysis_output.schema.yaml` file content was provided; the claim lacks the required schema definition for the AnalysisResult entity. The artifact is missing, so the task is not satisfied.
-- **T005 [P] Implement `src/utils/config.py` with fixed random seeds and path configurations** — No `src/utils/config.py` file or its contents were provided; without the actual module we cannot confirm that fixed random seeds and path configurations were implemented. The required artifact is missing.
+- **T001a** — No directory structure (`src/`, `tests/`, `data/raw`, `data/processed`, `data/results`) is shown or referenced in the provided artifacts; the implementer only supplied a feature specification without any file system evidence. The required folders are missing.
+- **T002** — No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, or a pre‑commit hook) were supplied, nor any evidence that the tools have been installed or integrated into the project. The required artifacts to demonstrate that ruff and black are configured are missing.
+- **T003** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T004** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T005** — declared artifact(s) missing/empty/invalid: src/utils/config.py
+- **T006** — No pytest configuration file (e.g., `pytest.ini` or `pyproject.toml` with pytest settings) or test directory (e.g., `tests/` with placeholder test modules) was provided. Without these artifacts the requirement to set up pytest and its test structure is not satisfied.
+- **T010** — The required artifacts (`data/processed/filtered_cohort.csv`, `contracts/dataset.schema.yaml`, and the test file `tests/contract/test_schemas.py`) are all missing, so no contract test can be run or validated. The task’s core deliverable is absent.
+- **T011** — declared artifact(s) missing/empty/invalid: src/data/synthetic_gen.py
+- **T012** — declared artifact(s) missing/empty/invalid: src/data/ingestion.py
+- **T013** — declared artifact(s) missing/empty/invalid: src/data/filtering.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/data/filtering.py
+- **T015** — The required file `src/data/filtering.py` does not exist, so no logic, imputation handling, or logging has been implemented. The task’s core artifact is missing entirely.
+- **T016** — The required artifact `tests/unit/test_diversity.py` does not exist on disk, so no unit tests for Shannon, Simpson, or Chao1 calculations are present. The task cannot be considered fulfilled until this file is created with appropriate test cases.

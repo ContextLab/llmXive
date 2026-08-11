@@ -1,94 +1,51 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: PerovskiteEntry
+title: PerovskiteEntry Instrumentation Metadata
 description: >
-  Schema for PerovskiteEntry instrumentation metadata.
-  Defines the structure for TGA (Thermogravimetric Analysis) model,
-  uncertainty bounds, and measurement precision required for rigorous
-  stability analysis.
+  Schema for instrumentation metadata extracted from source data,
+  specifically focusing on TGA model and measurement uncertainty.
+  Adheres to the requirements of US1 and the feedback from reviewer marie-curie-simulated
+  regarding the critical nature of instrument precision.
 type: object
 required:
-  - formula
+  - entry_id
+  - source
   - tga_model
   - uncertainty
+  - uncertainty_source
 properties:
-  formula:
+  entry_id:
     type: string
-    description: >
-      The chemical formula of the perovskite (e.g., "CsPbI3").
-      Must match the format used in the source dataset.
-    pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
+    description: Unique identifier for the perovskite entry (matches source data).
+  source:
+    type: string
+    description: Original data source (e.g., NREL, Materials Project).
   tga_model:
     type: string
-    description: >
-      The specific model of the Thermogravimetric Analyzer used.
-      Examples: "TA Instruments Q500", "Mettler Toledo TGA/DSC 3+",
-      "Netzsch STA 449 F3".
-      If the model is unknown, use "unknown".
+    description: Specific model of the Thermogravimetric Analyzer used.
     minLength: 1
   uncertainty:
-    type: object
+    type: number
     description: >
-      The measurement uncertainty for the thermal decomposition temperature (T_d).
-      Represents the precision of the instrument reading.
-    required:
-      - value
-      - unit
-    properties:
-      value:
-        type: number
-        description: >
-          The numerical value of the uncertainty (e.g., 5.0 for ±5°C).
-          Must be non-negative.
-        minimum: 0
-      unit:
-        type: string
-        description: >
-          The unit of the uncertainty. Must be "C" (Celsius) or "K" (Kelvin).
-        enum:
-          - C
-          - K
-      source:
-        type: string
-        description: >
-          Indicates the source of the uncertainty value.
-          "instrument_spec": Derived from the manufacturer's specification for the model.
-          "reported": Explicitly reported in the source literature.
-          "default": A default fallback value (e.g., ±10°C) used when specific data is missing.
-        enum:
-          - instrument_spec
-          - reported
-          - default
-    additionalProperties: false
-  precision_range:
-    type: object
+      The uncertainty bound (± value) for the TGA temperature measurement (T_d).
+      Represents the precision of the instrument or the estimated error margin.
+      Unit: degrees Celsius (°C).
+    minimum: 0
+  uncertainty_source:
+    type: string
+    enum:
+      - explicit
+      - default
     description: >
-      Optional range if the uncertainty is reported as a range (e.g., ±5 to ±10).
-      If present, overrides the single 'uncertainty' value for weighting purposes.
-    required:
-      - min_value
-      - max_value
-      - unit
-    properties:
-      min_value:
-        type: number
-        minimum: 0
-      max_value:
-        type: number
-        minimum: 0
-      unit:
-        type: string
-        enum:
-          - C
-          - K
-    additionalProperties: false
+      Indicates whether the uncertainty was explicitly stated in the source
+      (explicit) or assigned a default fallback value (default) due to missing info.
+  instrument_manufacturer:
+    type: string
+    description: Optional manufacturer name if available.
   notes:
     type: string
-    description: >
-      Optional free-text notes regarding the instrumentation or measurement conditions.
-    minLength: 0
-  source_citation:
+    description: Optional notes regarding the measurement conditions or instrument calibration.
+  extracted_at:
     type: string
-    description: >
-      DOI or citation key for the source of this metadata entry.
-    minLength: 1
+    format: date-time
+    description: ISO 8601 timestamp of when the metadata was extracted.
 additionalProperties: false

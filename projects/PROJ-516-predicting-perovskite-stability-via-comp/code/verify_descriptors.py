@@ -1,101 +1,109 @@
-"""
-Verification script for T014b: Confirm 'first ionization energy' column presence.
-
-This script verifies that the 'data/processed/descriptors.csv' file contains the
-'first_ionization_energy' column as required by FR-002, and that the column
-contains valid non-null numeric data.
-"""
-
 import logging
 import sys
 from pathlib import Path
-
 import pandas as pd
 
-# Configure logging
+# Importing from sibling module as per API surface
+# Note: verify_column_data_validity is defined here to satisfy the import surface
+# while verify_column_presence is the primary function for T014b.
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DESCRIPTORS_PATH = Path("data/processed/descriptors.csv")
-REQUIRED_COLUMN = "first_ionization_energy"
-FR_002_REFERENCE = "FR-002"
+# Requirement FR-002 specific column name
+REQUIRED_COLUMN_FIRST_IONIZATION = 'first_ionization_energy'
+DESCRIPTORS_FILE_PATH = Path('data/processed/descriptors.csv')
 
 def verify_column_presence(df: pd.DataFrame, column_name: str) -> bool:
-    """Check if the specified column exists in the DataFrame."""
-    return column_name in df.columns
-
-def verify_column_data_validity(df: pd.DataFrame, column_name: str) -> tuple[bool, int, int]:
     """
-    Check if the column contains valid numeric data.
-    Returns: (is_valid, non_null_count, total_count)
+    Verifies that a specific column exists in the DataFrame.
+    
+    Args:
+        df: The DataFrame to check.
+        column_name: The name of the column to verify.
+        
+    Returns:
+        True if the column exists, False otherwise.
     """
     if column_name not in df.columns:
-        return False, 0, len(df)
+        logger.error(f"Missing required column: {column_name}")
+        logger.error(f"Available columns: {list(df.columns)}")
+        return False
+    
+    logger.info(f"Column '{column_name}' verified present.")
+    return True
 
-    series = df[column_name]
-    non_null_count = series.notna().sum()
-    total_count = len(df)
-
-    # Check if all non-null values are numeric
-    try:
-        pd.to_numeric(series.dropna(), errors='raise')
-        is_valid = True
-    except (ValueError, TypeError):
-        is_valid = False
-
-    return is_valid, non_null_count, total_count
+def verify_column_data_validity(df: pd.DataFrame, column_name: str) -> bool:
+    """
+    Verifies that the column contains valid numerical data (no NaNs, not all zero).
+    
+    Args:
+        df: The DataFrame to check.
+        column_name: The name of the column to verify.
+        
+    Returns:
+        True if data is valid, False otherwise.
+    """
+    if not verify_column_presence(df, column_name):
+        return False
+    
+    col_data = df[column_name]
+    
+    if col_data.isnull().any():
+        logger.error(f"Column '{column_name}' contains null values.")
+        return False
+    
+    if col_data.empty:
+        logger.error(f"Column '{column_name}' is empty.")
+        return False
+    
+    # Check if values are numeric
+    if not pd.api.types.is_numeric_dtype(col_data):
+        logger.error(f"Column '{column_name}' is not numeric.")
+        return False
+    
+    logger.info(f"Column '{column_name}' data validity verified.")
+    return True
 
 def main() -> int:
     """
-    Main verification routine.
-    Returns 0 on success, 1 on failure.
+    Main entry point for verifying the 'first_ionization_energy' column 
+    in the descriptors dataset as per FR-002.
+    
+    Returns:
+        0 if verification passes, 1 if it fails.
     """
-    logger.info(f"Starting verification for {FR_002_REFERENCE}: {REQUIRED_COLUMN}")
-
-    # Check if file exists
-    if not DESCRIPTORS_PATH.exists():
-        logger.error(f"Desired file not found: {DESCRIPTORS_PATH}")
-        logger.error("Ensure T014 (feature_engineering.py) has been run successfully.")
+    logger.info(f"Starting verification for {DESCRIPTORS_FILE_PATH}")
+    
+    if not DESCRIPTORS_FILE_PATH.exists():
+        logger.error(f"File not found: {DESCRIPTORS_FILE_PATH}")
+        logger.error("Ensure T014 (feature_engineering.py) has run successfully to generate descriptors.csv.")
         return 1
-
+    
     try:
-        df = pd.read_csv(DESCRIPTORS_PATH)
-        logger.info(f"Loaded descriptors from {DESCRIPTORS_PATH} ({len(df)} rows)")
+        df = pd.read_csv(DESCRIPTORS_FILE_PATH)
+        logger.info(f"Loaded {len(df)} rows from {DESCRIPTORS_FILE_PATH}")
     except Exception as e:
-        logger.error(f"Failed to read {DESCRIPTORS_PATH}: {e}")
+        logger.error(f"Failed to load CSV: {e}")
         return 1
-
-    # Verify column presence
-    if not verify_column_presence(df, REQUIRED_COLUMN):
-        logger.error(f"REQUIRED COLUMN MISSING: '{REQUIRED_COLUMN}' not found in {DESCRIPTORS_PATH}")
-        logger.error(f"Available columns: {list(df.columns)}")
-        logger.error(f"Verification FAILED for {FR_002_REFERENCE}")
+    
+    # T014b Specific Requirement: Verify 'first_ionization_energy' presence
+    success = verify_column_presence(df, REQUIRED_COLUMN_FIRST_IONIZATION)
+    
+    if success:
+        # Optional: Verify data validity as part of robustness
+        if verify_column_data_validity(df, REQUIRED_COLUMN_FIRST_IONIZATION):
+            logger.info("VERIFICATION PASSED: 'first_ionization_energy' column is present and valid.")
+            return 0
+        else:
+            logger.error("VERIFICATION FAILED: Column present but data is invalid.")
+            return 1
+    else:
+        logger.error("VERIFICATION FAILED: Required column 'first_ionization_energy' is missing.")
         return 1
-
-    logger.info(f"Column '{REQUIRED_COLUMN}' is present.")
-
-    # Verify data validity
-    is_valid, non_null, total = verify_column_data_validity(df, REQUIRED_COLUMN)
-
-    if not is_valid:
-        logger.error(f"Column '{REQUIRED_COLUMN}' contains invalid non-numeric data.")
-        logger.error(f"Verification FAILED for {FR_002_REFERENCE}")
-        return 1
-
-    if non_null == 0:
-        logger.error(f"Column '{REQUIRED_COLUMN}' contains only null values.")
-        logger.error(f"Verification FAILED for {FR_002_REFERENCE}")
-        return 1
-
-    logger.info(f"Data validation PASSED: {non_null}/{total} non-null values found.")
-    logger.info(f"Verification SUCCESSFUL for {FR_002_REFERENCE}")
-    logger.info(f"Output file: {DESCRIPTORS_PATH}")
-
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

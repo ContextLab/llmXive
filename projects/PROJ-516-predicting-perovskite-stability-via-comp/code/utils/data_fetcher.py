@@ -93,10 +93,11 @@ def fetch_with_retry(
             if attempt == max_retries:
                 raise FetchError(f"Unexpected error after {max_retries + 1} attempts: {e}")
 
-        # Wait before retrying
+        # Wait before retrying with exponential backoff
         if attempt < max_retries:
             logger.info(f"Retrying in {current_delay:.2f} seconds...")
             time.sleep(current_delay)
+            # Exponentially increase delay, capped at max_delay
             current_delay = min(current_delay * backoff_factor, max_delay)
 
         attempt += 1

@@ -1,0 +1,40 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`src/`, `tests/`, `data/raw`, `data/processed`, `data/results`)
+    is shown or referenced in the provided artifacts; the implementer only supplied
+    a feature specification without any file system evidence. The required folders
+    are missing.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black\
+    \ settings, `.ruff.toml`, or a pre\u2011commit hook) were supplied, nor any evidence\
+    \ that the tools have been installed or integrated into the project. The required\
+    \ artifacts to demonstrate that ruff and black are configured are missing."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration file (e.g.,\u202F`pytest.ini` or `pyproject.toml` with\
+    \ pytest settings) or test directory (e.g.,\u202F`tests/` with placeholder test\
+    \ modules) was provided. Without these artifacts the requirement to set up pytest\
+    \ and its test structure is not satisfied."
+T010:
+  c: false
+  h: 9d815303fb1a416dfe3b4cbdef8c49adf90c54d8626934fa340d999e6693fa5e
+  r: "The required artifacts (`data/processed/filtered_cohort.csv`, `contracts/dataset.schema.yaml`,\
+    \ and the test file `tests/contract/test_schemas.py`) are all missing, so no contract\
+    \ test can be run or validated. The task\u2019s core deliverable is absent."
+T015:
+  c: false
+  h: cc1428c13f076ffb3ba9bfe9c25430769a8a5ee4f96c5c232e454cd0b9891d37
+  r: "The required file `src/data/filtering.py` does not exist, so no logic, imputation\
+    \ handling, or logging has been implemented. The task\u2019s core artifact is\
+    \ missing entirely."
+T016:
+  c: false
+  h: ea0e63a6d4f487eb3c4163ff5f430b90c9239fab55c5483eaac91e653cc7dda7
+  r: The required artifact `tests/unit/test_diversity.py` does not exist on disk,
+    so no unit tests for Shannon, Simpson, or Chao1 calculations are present. The
+    task cannot be considered fulfilled until this file is created with appropriate
+    test cases.

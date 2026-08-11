@@ -1,146 +1,101 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: CompositionalDescriptor
 description: |
-  Schema for compositional fingerprint descriptors derived from perovskite formulas.
-  These descriptors capture atomic fractions, weighted averages, and variance metrics
-  of elemental properties to predict thermal decomposition temperature (T_d).
+  Schema for CompositionalDescriptor entities representing
+  computed compositional fingerprints for perovskite stability analysis.
+  Defines elemental fractions, weighted averages, and variance metrics
+  derived from chemical formulas.
 type: object
 required:
   - formula
   - atomic_fraction_A
   - atomic_fraction_B
   - atomic_fraction_X
-  - weighted_ionic_radius_A
-  - weighted_ionic_radius_B
-  - weighted_ionic_radius_X
-  - weighted_electronegativity_A
-  - weighted_electronegativity_B
-  - weighted_electronegativity_X
-  - weighted_formation_enthalpy_A
-  - weighted_formation_enthalpy_B
-  - weighted_formation_enthalpy_X
-  - weighted_first_ionization_energy_A
-  - weighted_first_ionization_energy_B
-  - weighted_first_ionization_energy_X
+  - weighted_ionic_radius
+  - weighted_electronegativity
+  - weighted_formation_enthalpy
+  - weighted_first_ionization_energy
   - variance_ionic_radius
   - variance_electronegativity
-  - variance_formation_enthalpy
-  - variance_first_ionization_energy
-  - tolerance_factor
-  - octahedral_factor
 properties:
   formula:
     type: string
-    description: The chemical formula string (e.g., 'CsPbI3').
-    pattern: '^[A-Za-z0-9]+$'
+    description: "Normalized chemical formula (e.g., 'CsPbI3')"
+    pattern: "^[A-Za-z0-9_]+$"
   
   atomic_fraction_A:
     type: number
-    description: Atomic fraction of the A-site cation.
+    description: "Atomic fraction of the A-site cation"
     minimum: 0.0
     maximum: 1.0
   
   atomic_fraction_B:
     type: number
-    description: Atomic fraction of the B-site cation.
+    description: "Atomic fraction of the B-site cation"
     minimum: 0.0
     maximum: 1.0
   
   atomic_fraction_X:
     type: number
-    description: Atomic fraction of the X-site anion.
+    description: "Atomic fraction of the X-site anion"
     minimum: 0.0
     maximum: 1.0
   
-  weighted_ionic_radius_A:
+  weighted_ionic_radius:
     type: number
-    description: Weighted average ionic radius for A-site (Å).
+    description: "Composition-weighted average ionic radius (Angstroms)"
   
-  weighted_ionic_radius_B:
+  weighted_electronegativity:
     type: number
-    description: Weighted average ionic radius for B-site (Å).
+    description: "Composition-weighted average electronegativity (Pauling scale)"
   
-  weighted_ionic_radius_X:
+  weighted_formation_enthalpy:
     type: number
-    description: Weighted average ionic radius for X-site (Å).
+    description: "Composition-weighted average formation enthalpy (eV/atom)"
   
-  weighted_electronegativity_A:
+  weighted_first_ionization_energy:
     type: number
-    description: Weighted average electronegativity (Pauling scale) for A-site.
-  
-  weighted_electronegativity_B:
-    type: number
-    description: Weighted average electronegativity (Pauling scale) for B-site.
-  
-  weighted_electronegativity_X:
-    type: number
-    description: Weighted average electronegativity (Pauling scale) for X-site.
-  
-  weighted_formation_enthalpy_A:
-    type: number
-    description: Weighted average formation enthalpy (eV/atom) for A-site.
-  
-  weighted_formation_enthalpy_B:
-    type: number
-    description: Weighted average formation enthalpy (eV/atom) for B-site.
-  
-  weighted_formation_enthalpy_X:
-    type: number
-    description: Weighted average formation enthalpy (eV/atom) for X-site.
-  
-  weighted_first_ionization_energy_A:
-    type: number
-    description: Weighted average first ionization energy (eV) for A-site.
-  
-  weighted_first_ionization_energy_B:
-    type: number
-    description: Weighted average first ionization energy (eV) for B-site.
-  
-  weighted_first_ionization_energy_X:
-    type: number
-    description: Weighted average first ionization energy (eV) for X-site.
+    description: "Composition-weighted average first ionization energy (eV)"
   
   variance_ionic_radius:
     type: number
-    description: Variance of ionic radius across the composition.
+    description: "Variance of ionic radii across the composition"
     minimum: 0.0
   
   variance_electronegativity:
     type: number
-    description: Variance of electronegativity across the composition.
+    description: "Variance of electronegativity across the composition"
     minimum: 0.0
   
-  variance_formation_enthalpy:
+  t_d:
     type: number
-    description: Variance of formation enthalpy across the composition.
-    minimum: 0.0
+    nullable: true
+    description: "Thermal decomposition temperature (°C) from TGA, if available"
   
-  variance_first_ionization_energy:
+  t_d_uncertainty:
     type: number
-    description: Variance of first ionization energy across the composition.
-    minimum: 0.0
+    nullable: true
+    description: "Uncertainty bound for T_d (±°C), derived from instrument metadata"
   
-  tolerance_factor:
-    type: number
-    description: Goldschmidt tolerance factor (t).
+  perovskite_family:
+    type: string
+    description: "Classification of perovskite family (e.g., 'halide', 'oxide')"
+    enum:
+      - halide
+      - oxide
+      - nitride
+      - other
   
-  octahedral_factor:
-    type: number
-    description: Octahedral factor (μ).
+  source_id:
+    type: string
+    description: "Unique identifier from the source database (e.g., NREL ID)"
   
-  # Optional fields that may be present if computed
-  vif_scores:
-    type: object
-    description: Variance Inflation Factor scores for each descriptor.
-    additionalProperties:
-      type: number
+  computed_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when descriptors were computed"
   
-  is_valid:
-    type: boolean
-    description: Whether the descriptor passed all validation checks.
-  
-  missing_descriptors:
-    type: array
-    description: List of descriptor names that were missing or could not be computed.
-    items:
-      type: string
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw input data used for this computation"
+additionalProperties: false

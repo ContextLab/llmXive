@@ -1,0 +1,83 @@
+# Dataset Schema for Gut Microbiome & Cognitive Flexibility Study
+# Defines the structure of participant and microbiome profile data
+
+$schema: http://json-schema.org/draft-07/schema#
+title: GutMicrobiomeCognitiveFlexibilityDataset
+description: Schema for the gut microbiome and cognitive flexibility study dataset
+
+definitions:
+  Participant:
+    type: object
+    required:
+      - participant_id
+      - age
+      - sex
+      - BMI
+    properties:
+      participant_id:
+        type: string
+        description: Unique identifier for the participant
+      age:
+        type: integer
+        minimum: 0
+        description: Age of the participant in years
+      sex:
+        type: string
+        enum: ["M", "F", "Other"]
+        description: Biological sex of the participant
+      BMI:
+        type: number
+        minimum: 0
+        description: Body Mass Index
+      fiber:
+        type: number
+        minimum: 0
+        description: Daily fiber intake in grams
+      antibiotics:
+        type: integer
+        minimum: 0
+        description: Number of antibiotic courses in the last year
+
+  MicrobiomeProfile:
+    type: object
+    required:
+      - participant_id
+      - shannon_diversity
+      - simpson_diversity
+      - chao1
+    properties:
+      participant_id:
+        type: string
+        description: Unique identifier for the participant (foreign key to Participant)
+      shannon_diversity:
+        type: number
+        minimum: 0
+        description: Shannon diversity index
+      simpson_diversity:
+        type: number
+        minimum: 0
+        description: Simpson diversity index
+      chao1:
+        type: number
+        minimum: 0
+        description: Chao1 richness estimator
+
+  CognitiveProfile:
+    type: object
+    required:
+      - participant_id
+      - cognitive_score
+    properties:
+      participant_id:
+        type: string
+        description: Unique identifier for the participant (foreign key to Participant)
+      cognitive_score:
+        type: number
+        minimum: 0
+        maximum: 100
+        description: Cognitive flexibility score (0-100 scale)
+
+oneOf:
+  - $ref: "#/definitions/Participant"
+  - $ref: "#/definitions/MicrobiomeProfile"
+  - $ref: "#/definitions/CognitiveProfile"

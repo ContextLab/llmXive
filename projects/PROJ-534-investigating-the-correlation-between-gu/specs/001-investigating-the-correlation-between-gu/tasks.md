@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create project directory structure (`src/`, `tests/`, `data/raw`, `data/processed`, `data/results`)
-- [ ] T001b [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, scikit-learn, scipy, statsmodels, biom-format, numpy, matplotlib, seaborn, pyyaml)
+- [X] T001b [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, scikit-learn, scipy, statsmodels, biom-format, numpy, matplotlib, seaborn, pyyaml)
 - [ ] T002 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -58,7 +58,7 @@
 - [ ] T003 Create `contracts/dataset.schema.yaml` defining Participant and MicrobiomeProfile entities
 - [ ] T004 Create `contracts/analysis_output.schema.yaml` defining AnalysisResult entity
 - [ ] T005 [P] Implement `src/utils/config.py` with fixed random seeds and path configurations
-- [~] T006 [P] Setup `pytest` configuration and test directory structure
+- [ ] T006 [P] Setup `pytest` configuration and test directory structure
 - [X] T007 Implement data validation utilities in `src/utils/validation.py` to enforce schema contracts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -77,7 +77,7 @@
 
 - [X] T008 [P] [US1] Unit test for age filtering logic in `tests/unit/test_filtering.py`
 - [X] T009 [P] [US1] Unit test for null-value exclusion in `tests/unit/test_filtering.py`
-- [~] T010 [P] [US1] Contract test validating `data/processed/filtered_cohort.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
+- [ ] T010 [P] [US1] Contract test validating `data/processed/filtered_cohort.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -85,7 +85,7 @@
 - [ ] T012 [US1] Implement `src/data/ingestion.py` to load synthetic data and merge on participant ID
 - [ ] T013 [US1] Implement `src/data/filtering.py` to filter for age >= 65, non-null Shannon/Cognitive scores, and required covariates (age, sex, BMI, fiber, antibiotics)
 - [ ] T014 [US1] Add logic in `src/data/filtering.py` to handle zero-variance datasets by flagging and skipping correlation (Edge Case)
-- [~] T015 [US1] Add logic in `src/data/filtering.py` to handle missing covariates via listwise deletion (default) or mean imputation, with the choice explicitly logged to `logs/filtering.log`
+- [ ] T015 [US1] Add logic in `src/data/filtering.py` to handle missing covariates via listwise deletion (default) or mean imputation, with the choice explicitly logged to `logs/filtering.log`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,9 +99,9 @@
 
 ### Tests for User Story 2
 
-- [~] T016 [P] [US2] Unit test for Shannon/Simpson/Chao1 calculation in `tests/unit/test_diversity.py`
-- [ ] T017 [P] [US2] Unit test for Pearson/Spearman auto-switch logic (skewness/Shapiro-Wilk) and logging of the switch in `tests/unit/test_correlation.py`
-- [ ] T018 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`
+- [ ] T016 [P] [US2] Unit test for Shannon/Simpson/Chao1 calculation in `tests/unit/test_diversity.py`
+- [~] T017 [P] [US2] Unit test for Pearson/Spearman auto-switch logic (skewness/Shapiro-Wilk) and logging of the switch in `tests/unit/test_correlation.py`
+- [~] T018 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`
 - [ ] T027 [P] [US2] Contract test validating `data/results/correlation_results.json` against `contracts/analysis_output.schema.yaml` in `tests/contract/test_schemas.py`
 
 ### Implementation for User Story 2

@@ -1,11 +1,9 @@
 """
-T013c: Implement logic to flag entries using the default ±10°C uncertainty bound.
+Uncertainty flagging module for perovskite stability analysis.
 
-This module reads the parsed instrumentation metadata from `data/raw/metadata.json`,
-identifies entries where the uncertainty was not explicitly extracted (defaulting
-to the project standard of ±10°C), and writes a flagging report to
-`data/raw/uncertainty_flags.json`. It ensures this flag is propagated for
-downstream model weighting (Task T020).
+This module identifies entries where the TGA uncertainty was not explicitly
+parsed and flags them as using the default ±10°C bound. These flags are
+essential for downstream model weighting (1/σ).
 """
 import json
 import logging
@@ -14,133 +12,119 @@ from typing import Any, Dict, List, Optional
 
 from data_ingestion_metadata import parse_uncertainty, extract_instrument_model
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_UNCERTAINTY = 10.0  # °C
-DEFAULT_FLAG_KEY = "uses_default_uncertainty"
-UNCERTAINTY_KEY = "T_d_uncertainty"
-METADATA_PATH = Path("data/raw/metadata.json")
-FLAG_OUTPUT_PATH = Path("data/raw/uncertainty_flags.json")
+# Constants matching the project specification
+DEFAULT_UNCERTAINTY_CELSIUS = 10.0
+DEFAULT_FLAG_VALUE = "default_bound"
+EXPLICIT_FLAG_VALUE = "explicit_bound"
 
-def load_metadata() -> List[Dict[str, Any]]:
-    """Load parsed metadata from the JSON file generated in T013b."""
-    if not METADATA_PATH.exists():
-        raise FileNotFoundError(
-            f"Metadata file not found at {METADATA_PATH}. "
-            "Please ensure T013b (data_ingestion_metadata.py) has been executed."
-        )
-    
-    with open(METADATA_PATH, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Ensure we have a list of entries
-    if isinstance(data, dict) and "entries" in data:
-        return data["entries"]
-    elif isinstance(data, list):
-        return data
-    else:
-        raise ValueError(f"Unexpected metadata format in {METADATA_PATH}")
-
-def flag_default_uncertainty_entries(metadata_entries: List[Dict[str, Any]]) -> Dict[str, Any]:
+def load_metadata(metadata_path: Path) -> List[Dict[str, Any]]:
     """
-    Iterate through metadata entries and flag those using the default ±10°C uncertainty.
+    Load the parsed metadata JSON file.
+
+    Args:
+        metadata_path: Path to the metadata JSON file.
+
+    Returns:
+        List of metadata entries.
+
+    Raises:
+        FileNotFoundError: If the metadata file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
     
-    Logic:
-    1. Check if 'uncertainty' key exists in the entry.
-    2. If missing or None, assign DEFAULT_UNCERTAINTY (10.0) and set the flag.
-    3. If present, verify it's a number; if not, fallback to default and flag.
-    4. Construct the output structure including the flag and the effective uncertainty.
+    with open(metadata_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def flag_default_uncertainty_entries(metadata: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Identify entries that rely on the default uncertainty bound.
+
+    This function iterates through the metadata entries. If an entry's
+    uncertainty field is missing, None, or explicitly indicates a default
+    value, it is flagged. Otherwise, it is marked as explicit.
+
+    Args:
+        metadata: List of metadata dictionaries containing 'uncertainty' info.
+
+    Returns:
+        List of entries with an added 'uncertainty_flag' field.
     """
     flagged_entries = []
     default_count = 0
     explicit_count = 0
 
-    for entry in metadata_entries:
-        # Extract the raw uncertainty value if present
-        raw_uncertainty = entry.get(UNCERTAINTY_KEY)
+    for entry in metadata:
+        entry_copy = entry.copy()
+        uncertainty_str = entry_copy.get('uncertainty')
         
-        is_default = False
-        effective_uncertainty = None
-
-        if raw_uncertainty is None:
-            # No uncertainty found, apply default
-            effective_uncertainty = DEFAULT_UNCERTAINTY
-            is_default = True
-        elif isinstance(raw_uncertainty, (int, float)):
-            # Valid explicit uncertainty
-            effective_uncertainty = float(raw_uncertainty)
-            is_default = (effective_uncertainty == DEFAULT_UNCERTAINTY)
-            # Note: If the explicit value happens to be exactly 10.0, 
-            # we still treat it as explicit unless we have a source flag.
-            # However, for safety in weighting, we only flag as 'default' 
-            # if it was missing or unparseable. 
-            # Re-reading task: "flag entries using the default ... bound".
-            # Usually implies missing data. We will flag only if it was missing.
-            is_default = False 
-        else:
-            # Invalid type, fallback to default
-            effective_uncertainty = DEFAULT_UNCERTAINTY
-            is_default = True
-
-        if is_default:
+        # Parse the uncertainty to check if it's a real value or missing
+        parsed = parse_uncertainty(uncertainty_str)
+        
+        if parsed is None or parsed.get('value') is None:
+            # No valid uncertainty found, must use default
+            entry_copy['uncertainty_flag'] = DEFAULT_FLAG_VALUE
+            entry_copy['T_d_uncertainty'] = DEFAULT_UNCERTAINTY_CELSIUS
             default_count += 1
-            entry["T_d_uncertainty"] = effective_uncertainty
-            entry[DEFAULT_FLAG_KEY] = True
         else:
+            # Valid uncertainty found
+            entry_copy['uncertainty_flag'] = EXPLICIT_FLAG_VALUE
+            entry_copy['T_d_uncertainty'] = parsed.get('value')
             explicit_count += 1
-            entry["T_d_uncertainty"] = effective_uncertainty
-            entry[DEFAULT_FLAG_KEY] = False
+        
+        flagged_entries.append(entry_copy)
 
-        flagged_entries.append(entry)
+    logger.info(f"Flagging complete: {default_count} entries use default ±{DEFAULT_UNCERTAINTY_CELSIUS}°C, "
+                f"{explicit_count} entries have explicit bounds.")
+    
+    return flagged_entries
 
-    logger.info(f"Processed {len(metadata_entries)} entries: {default_count} default, {explicit_count} explicit.")
+def save_flags(flagged_entries: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Save the flagged entries to a JSON file.
 
-    return {
-        "flagged_entries": flagged_entries,
-        "summary": {
-            "total_entries": len(metadata_entries),
-            "default_uncertainty_count": default_count,
-            "explicit_uncertainty_count": explicit_count,
-            "default_bound_value": DEFAULT_UNCERTAINTY
-        }
-    }
-
-def save_flags(result: Dict[str, Any]) -> None:
-    """Save the flagging results to the output JSON file."""
-    FLAG_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(FLAG_OUTPUT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
-    logger.info(f"Saved uncertainty flags to {FLAG_OUTPUT_PATH}")
+    Args:
+        flagged_entries: List of entries with uncertainty flags.
+        output_path: Path to the output JSON file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(flagged_entries, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Uncertainty flags saved to {output_path}")
 
 def main() -> None:
-    """Main entry point for T013c."""
-    logger.info("Starting T013c: Uncertainty Flagging")
+    """
+    Main entry point for the uncertainty flagging process.
     
+    Reads from data/raw/metadata.json and writes to data/raw/uncertainty_flags.json.
+    """
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    metadata_path = base_dir / "data" / "raw" / "metadata.json"
+    output_path = base_dir / "data" / "raw" / "uncertainty_flags.json"
+
+    logger.info(f"Loading metadata from {metadata_path}")
     try:
-        entries = load_metadata()
-        result = flag_default_uncertainty_entries(entries)
-        save_flags(result)
-        
-        # Log summary for verification
-        summary = result["summary"]
-        logger.info(f"Summary: {summary['default_uncertainty_count']} entries using default ±{summary['default_bound_value']}°C.")
-        logger.info("T013c completed successfully.")
-        
+        metadata = load_metadata(metadata_path)
     except FileNotFoundError as e:
-        logger.error(str(e))
+        logger.error(f"Failed to load metadata: {e}")
         raise
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse metadata JSON: {e}")
+        logger.error(f"Invalid JSON in metadata file: {e}")
         raise
-    except Exception as e:
-        logger.error(f"Unexpected error during uncertainty flagging: {e}")
-        raise
+
+    logger.info("Flagging entries with default uncertainty bounds...")
+    flagged_entries = flag_default_uncertainty_entries(metadata)
+
+    logger.info(f"Saving results to {output_path}")
+    save_flags(flagged_entries, output_path)
+
+    logger.info("Uncertainty flagging process completed successfully.")
 
 if __name__ == "__main__":
     main()

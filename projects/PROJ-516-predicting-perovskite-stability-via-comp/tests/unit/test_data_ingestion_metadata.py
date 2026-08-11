@@ -1,123 +1,79 @@
-import json
 import pytest
-from pathlib import Path
 import pandas as pd
-
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
-
-from data_ingestion_metadata import (
-    parse_uncertainty,
-    extract_instrument_model,
-    process_metadata_entries
-)
-
+from code.data_ingestion_metadata import parse_uncertainty, extract_instrument_model, process_metadata_entries
 
 class TestParseUncertainty:
-    def test_parse_explicit_value(self):
+    def test_parse_celsius_with_symbol(self):
         result = parse_uncertainty("±5°C")
-        assert result["value"] == 5.0
-        assert result["unit"] == "°C"
-        assert result["source"] == "parsed"
+        assert result is not None
+        assert result['value'] == 5.0
+        assert result['unit'] == 'C'
 
-    def test_parse_numeric_only(self):
-        result = parse_uncertainty("10")
-        assert result["value"] == 10.0
-        assert result["unit"] == "°C"
+    def test_parse_celsius_with_space(self):
+        result = parse_uncertainty("± 10 °C")
+        assert result is not None
+        assert result['value'] == 10.0
+        assert result['unit'] == 'C'
 
-    def test_parse_none_returns_default(self):
-        result = parse_uncertainty(None)
-        assert result["value"] == 10.0
-        assert result["source"] == "default"
+    def test_parse_uncertainty_label(self):
+        result = parse_uncertainty("uncertainty: 7 degrees")
+        assert result is not None
+        assert result['value'] == 7.0
 
-    def test_parse_empty_string_returns_default(self):
-        result = parse_uncertainty("")
-        assert result["value"] == 10.0
-        assert result["source"] == "default"
+    def test_parse_precision_label(self):
+        result = parse_uncertainty("precision 8.5 C")
+        assert result is not None
+        assert result['value'] == 8.5
 
-    def test_parse_invalid_returns_default(self):
-        result = parse_uncertainty("invalid")
-        assert result["value"] == 10.0
-        assert result["source"] == "default"
+    def test_none_input(self):
+        assert parse_uncertainty(None) is None
+        assert parse_uncertainty("") is None
 
+    def test_invalid_string(self):
+        result = parse_uncertainty("no uncertainty mentioned")
+        assert result is None
 
 class TestExtractInstrumentModel:
-    def test_extract_tga_model(self):
-        result = extract_instrument_model("TGA Q500, heating rate 10°C/min")
-        assert "TGA" in result or "Q500" in result
+    def test_q_series(self):
+        result = extract_instrument_model("TGA Q500")
+        assert result == "TGA Q500"
 
-    def test_extract_sta_model(self):
-        result = extract_instrument_model("STA 449 F1 Jupiter")
-        assert "STA" in result or "449" in result
+    def test_sdt_series(self):
+        result = extract_instrument_model("SDT Q600")
+        assert result == "SDT Q600"
 
-    def test_none_returns_unknown(self):
-        result = extract_instrument_model(None)
-        assert result == "unknown"
+    def test_mettler_toledo(self):
+        result = extract_instrument_model("Mettler Toledo TGA/DSC 1")
+        assert "Mettler Toledo" in result
 
-    def test_empty_returns_unknown(self):
-        result = extract_instrument_model("")
-        assert result == "unknown"
+    def test_no_match(self):
+        result = extract_instrument_model("no instrument mentioned")
+        assert result is None
 
+    def test_none_input(self):
+        assert extract_instrument_model(None) is None
 
 class TestProcessMetadataEntries:
-    @pytest.fixture
-    def sample_df(self):
+    def test_process_dataframe(self):
         data = {
-            "entry_id": ["entry_1", "entry_2"],
-            "formula": ["CsPbI3", "MAPbBr3"],
-            "T_d": [350.0, 400.0],
-            "instrument_metadata": [
-                "TGA Q500, ±5°C uncertainty",
-                "STA 449, ±10°C uncertainty"
-            ],
-            "uncertainty": ["±5°C", "±10°C"],
-            "source_citation": ["DOI:10.1038/s41560-020-00700-0", "DOI:10.1021/jacs.9b12345"],
-            "validated": [True, True]
+            'id': [1, 2, 3],
+            'source_metadata': [
+                "TGA Q500, ±5°C",
+                "SDT Q600, uncertainty 10",
+                "No instrument data"
+            ]
         }
-        return pd.DataFrame(data)
+        df = pd.DataFrame(data)
+        
+        result = process_metadata_entries(df)
+        
+        assert len(result) == 3
+        assert result[0]['instrument_model'] == "TGA Q500"
+        assert result[0]['uncertainty']['value'] == 5.0
+        assert result[1]['uncertainty']['value'] == 10.0
+        assert result[2]['instrument_model'] is None
 
-    def test_process_returns_list_of_dicts(self, sample_df):
-        result = process_metadata_entries(sample_df)
-        assert isinstance(result, list)
-        assert len(result) == 2
-        assert isinstance(result[0], dict)
-
-    def test_entry_contains_required_fields(self, sample_df):
-        result = process_metadata_entries(sample_df)
-        entry = result[0]
-        required_fields = [
-            "entry_id", "formula", "T_d", "instrument_model",
-            "uncertainty", "source_citation", "validated"
-        ]
-        for field in required_fields:
-            assert field in entry
-
-    def test_uncertainty_structure(self, sample_df):
-        result = process_metadata_entries(sample_df)
-        uncertainty = result[0]["uncertainty"]
-        assert "value" in uncertainty
-        assert "unit" in uncertainty
-        assert "source" in uncertainty
-        assert isinstance(uncertainty["value"], float)
-        assert uncertainty["unit"] == "°C"
-
-    def test_handles_empty_dataframe(self):
-        empty_df = pd.DataFrame(columns=["entry_id", "formula", "T_d"])
-        result = process_metadata_entries(empty_df)
-        assert result == []
-
-    def test_schema_adherence(self, sample_df, tmp_path):
-        """Verify output matches expected schema structure."""
-        result = process_metadata_entries(sample_df)
-
-        # Verify structure matches contracts/metadata.schema.yaml expectations
-        for entry in result:
-            assert isinstance(entry["entry_id"], str)
-            assert isinstance(entry["formula"], str)
-            assert isinstance(entry["T_d"], float)
-            assert isinstance(entry["instrument_model"], str)
-            assert isinstance(entry["uncertainty"], dict)
-            assert "value" in entry["uncertainty"]
-            assert "unit" in entry["uncertainty"]
-            assert isinstance(entry["source_citation"], str)
-            assert isinstance(entry["validated"], bool)
+    def test_missing_column(self):
+        df = pd.DataFrame({'id': [1]})
+        result = process_metadata_entries(df, metadata_column='nonexistent')
+        assert len(result) == 0

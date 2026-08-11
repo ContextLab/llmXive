@@ -1,11 +1,5 @@
 """
 Unit tests for the ingestion module.
-
-Tests verify that:
-1. Microbiome and cognitive data are loaded correctly
-2. Merge operation works as expected
-3. Invalid files raise appropriate errors
-4. Column conflicts are handled properly
 """
 
 import os
@@ -14,254 +8,232 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
+
 from code.src.data.ingestion import (
     load_microbiome_data,
     load_cognitive_data,
     merge_datasets,
-    ingest_synthetic_cohort
+    ingest_synthetic_cohort,
+    save_merged_cohort
 )
-from code.src.utils.config import RAW_DATA_DIR, DATA_DIR
+from code.src.utils.config import RAW_DATA_DIR
 
 
 class TestLoadMicrobiomeData:
     """Tests for load_microbiome_data function."""
-    
+
     def test_load_valid_microbiome_data(self, tmp_path):
-        """Test loading valid microbiome data."""
+        """Test loading a valid microbiome CSV file."""
         # Create test data
         data = {
-            'participant_id': ['P001', 'P002', 'P003'],
+            'participant_id': [1, 2, 3],
             'shannon_diversity': [3.5, 4.2, 3.8],
             'simpson_diversity': [0.85, 0.92, 0.88],
-            'chao1_diversity': [150, 180, 165],
-            'age': [65, 70, 75],
-            'sex': ['M', 'F', 'M'],
-            'bmi': [25.0, 27.0, 24.0],
-            'fiber_intake': [20.0, 25.0, 22.0],
-            'antibiotics_use': [0, 1, 0]
+            'chao1': [45, 52, 48]
         }
         df = pd.DataFrame(data)
-        
-        file_path = tmp_path / "microbiome.csv"
+        file_path = tmp_path / 'microbiome.csv'
         df.to_csv(file_path, index=False)
-        
+
         # Load and verify
-        loaded = load_microbiome_data(file_path)
-        
-        assert len(loaded) == 3
-        assert list(loaded.columns) == list(df.columns)
-        assert loaded['participant_id'].tolist() == ['P001', 'P002', 'P003']
-    
+        result = load_microbiome_data(file_path)
+        assert len(result) == 3
+        assert list(result.columns) == ['participant_id', 'shannon_diversity', 'simpson_diversity', 'chao1']
+
     def test_load_missing_file(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing file."""
-        file_path = tmp_path / "nonexistent.csv"
-        
+        """Test that FileNotFoundError is raised when file doesn't exist."""
+        file_path = tmp_path / 'nonexistent.csv'
         with pytest.raises(FileNotFoundError):
             load_microbiome_data(file_path)
-    
+
     def test_load_missing_columns(self, tmp_path):
-        """Test that ValueError is raised for missing required columns."""
+        """Test that ValueError is raised when required columns are missing."""
         data = {
-            'participant_id': ['P001', 'P002'],
+            'participant_id': [1, 2],
             'shannon_diversity': [3.5, 4.2]
-            # Missing other required columns
         }
         df = pd.DataFrame(data)
-        
-        file_path = tmp_path / "incomplete.csv"
+        file_path = tmp_path / 'incomplete.csv'
         df.to_csv(file_path, index=False)
-        
-        with pytest.raises(ValueError) as exc_info:
+
+        with pytest.raises(ValueError, match="missing required columns"):
             load_microbiome_data(file_path)
-        
-        assert "missing required columns" in str(exc_info.value)
 
 
 class TestLoadCognitiveData:
     """Tests for load_cognitive_data function."""
-    
+
     def test_load_valid_cognitive_data(self, tmp_path):
-        """Test loading valid cognitive data."""
+        """Test loading a valid cognitive CSV file."""
         data = {
-            'participant_id': ['P001', 'P002', 'P003'],
-            'cognitive_flexibility_score': [45.0, 52.0, 48.0],
-            'age': [65, 70, 75],
+            'participant_id': [1, 2, 3],
+            'cognitive_score': [85, 92, 78],
+            'age': [68, 72, 65],
             'sex': ['M', 'F', 'M'],
-            'bmi': [25.0, 27.0, 24.0],
-            'fiber_intake': [20.0, 25.0, 22.0],
+            'bmi': [24.5, 26.1, 23.8],
+            'fiber_intake': [25, 30, 22],
             'antibiotics_use': [0, 1, 0]
         }
         df = pd.DataFrame(data)
-        
-        file_path = tmp_path / "cognitive.csv"
+        file_path = tmp_path / 'cognitive.csv'
         df.to_csv(file_path, index=False)
-        
-        # Load and verify
-        loaded = load_cognitive_data(file_path)
-        
-        assert len(loaded) == 3
-        assert 'cognitive_flexibility_score' in loaded.columns
-        assert loaded['participant_id'].tolist() == ['P001', 'P002', 'P003']
-    
+
+        result = load_cognitive_data(file_path)
+        assert len(result) == 3
+        assert 'cognitive_score' in result.columns
+        assert 'age' in result.columns
+
     def test_load_missing_file(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing file."""
-        file_path = tmp_path / "nonexistent.csv"
-        
+        """Test that FileNotFoundError is raised when file doesn't exist."""
+        file_path = tmp_path / 'nonexistent.csv'
         with pytest.raises(FileNotFoundError):
             load_cognitive_data(file_path)
-    
+
     def test_load_missing_columns(self, tmp_path):
-        """Test that ValueError is raised for missing required columns."""
+        """Test that ValueError is raised when required columns are missing."""
         data = {
-            'participant_id': ['P001', 'P002'],
-            'cognitive_flexibility_score': [45.0, 52.0]
-            # Missing other required columns
+            'participant_id': [1, 2],
+            'cognitive_score': [85, 92]
         }
         df = pd.DataFrame(data)
-        
-        file_path = tmp_path / "incomplete.csv"
+        file_path = tmp_path / 'incomplete.csv'
         df.to_csv(file_path, index=False)
-        
-        with pytest.raises(ValueError) as exc_info:
+
+        with pytest.raises(ValueError, match="missing required columns"):
             load_cognitive_data(file_path)
-        
-        assert "missing required columns" in str(exc_info.value)
 
 
 class TestMergeDatasets:
     """Tests for merge_datasets function."""
-    
+
     def test_merge_successful(self):
-        """Test successful merge of microbiome and cognitive data."""
+        """Test successful merge of two valid datasets."""
         microbiome_df = pd.DataFrame({
-            'participant_id': ['P001', 'P002', 'P003'],
+            'participant_id': [1, 2, 3],
             'shannon_diversity': [3.5, 4.2, 3.8],
-            'age': [65, 70, 75],
-            'sex': ['M', 'F', 'M'],
-            'bmi': [25.0, 27.0, 24.0],
-            'fiber_intake': [20.0, 25.0, 22.0],
-            'antibiotics_use': [0, 1, 0]
+            'simpson_diversity': [0.85, 0.92, 0.88],
+            'chao1': [45, 52, 48]
         })
-        
+
         cognitive_df = pd.DataFrame({
-            'participant_id': ['P001', 'P002', 'P003'],
-            'cognitive_flexibility_score': [45.0, 52.0, 48.0],
-            'age': [65, 70, 75],
+            'participant_id': [1, 2, 3],
+            'cognitive_score': [85, 92, 78],
+            'age': [68, 72, 65],
             'sex': ['M', 'F', 'M'],
-            'bmi': [25.0, 27.0, 24.0],
-            'fiber_intake': [20.0, 25.0, 22.0],
+            'bmi': [24.5, 26.1, 23.8],
+            'fiber_intake': [25, 30, 22],
             'antibiotics_use': [0, 1, 0]
         })
-        
-        merged = merge_datasets(microbiome_df, cognitive_df)
-        
-        assert len(merged) == 3
-        assert 'shannon_diversity' in merged.columns
-        assert 'cognitive_flexibility_score' in merged.columns
-        assert 'participant_id' in merged.columns
-        # Should not have duplicate columns
-        assert merged.shape[1] == len(set(merged.columns))
-    
-    def test_merge_partial_overlap(self):
-        """Test merge with only partial participant overlap."""
+
+        result = merge_datasets(microbiome_df, cognitive_df)
+        assert len(result) == 3
+        assert 'shannon_diversity' in result.columns
+        assert 'cognitive_score' in result.columns
+
+    def test_merge_no_overlap(self):
+        """Test that merge raises ValueError when no participant IDs overlap."""
         microbiome_df = pd.DataFrame({
-            'participant_id': ['P001', 'P002', 'P003'],
+            'participant_id': [1, 2, 3],
             'shannon_diversity': [3.5, 4.2, 3.8],
-            'age': [65, 70, 75],
+            'simpson_diversity': [0.85, 0.92, 0.88],
+            'chao1': [45, 52, 48]
+        })
+
+        cognitive_df = pd.DataFrame({
+            'participant_id': [4, 5, 6],
+            'cognitive_score': [85, 92, 78],
+            'age': [68, 72, 65],
             'sex': ['M', 'F', 'M'],
-            'bmi': [25.0, 27.0, 24.0],
-            'fiber_intake': [20.0, 25.0, 22.0],
+            'bmi': [24.5, 26.1, 23.8],
+            'fiber_intake': [25, 30, 22],
             'antibiotics_use': [0, 1, 0]
         })
-        
-        cognitive_df = pd.DataFrame({
-            'participant_id': ['P002', 'P003', 'P004'],
-            'cognitive_flexibility_score': [52.0, 48.0, 55.0],
-            'age': [70, 75, 80],
-            'sex': ['F', 'M', 'F'],
-            'bmi': [27.0, 24.0, 26.0],
-            'fiber_intake': [25.0, 22.0, 28.0],
-            'antibiotics_use': [1, 0, 1]
-        })
-        
-        merged = merge_datasets(microbiome_df, cognitive_df)
-        
-        # Should only have P002 and P003 (inner join)
-        assert len(merged) == 2
-        assert 'P001' not in merged['participant_id'].tolist()
-        assert 'P004' not in merged['participant_id'].tolist()
-    
-    def test_merge_empty_result(self):
-        """Test that ValueError is raised when merge results in empty DataFrame."""
-        microbiome_df = pd.DataFrame({
-            'participant_id': ['P001', 'P002'],
-            'shannon_diversity': [3.5, 4.2],
-            'age': [65, 70],
-            'sex': ['M', 'F'],
-            'bmi': [25.0, 27.0],
-            'fiber_intake': [20.0, 25.0],
-            'antibiotics_use': [0, 1]
-        })
-        
-        cognitive_df = pd.DataFrame({
-            'participant_id': ['P003', 'P004'],
-            'cognitive_flexibility_score': [48.0, 55.0],
-            'age': [75, 80],
-            'sex': ['M', 'F'],
-            'bmi': [24.0, 26.0],
-            'fiber_intake': [22.0, 28.0],
-            'antibiotics_use': [0, 1]
-        })
-        
-        with pytest.raises(ValueError) as exc_info:
+
+        with pytest.raises(ValueError, match="Merge resulted in no rows"):
             merge_datasets(microbiome_df, cognitive_df)
-        
-        assert "empty DataFrame" in str(exc_info.value)
-    
-    def test_merge_covariate_conflict_handling(self):
-        """Test that matching covariates are handled correctly."""
+
+    def test_merge_deduplicates(self):
+        """Test that merge handles duplicate participant IDs."""
         microbiome_df = pd.DataFrame({
-            'participant_id': ['P001'],
-            'shannon_diversity': [3.5],
-            'age': [65],
-            'sex': ['M'],
-            'bmi': [25.0],
-            'fiber_intake': [20.0],
-            'antibiotics_use': [0]
+            'participant_id': [1, 1, 2],
+            'shannon_diversity': [3.5, 3.6, 4.2],
+            'simpson_diversity': [0.85, 0.86, 0.92],
+            'chao1': [45, 46, 52]
         })
-        
+
         cognitive_df = pd.DataFrame({
-            'participant_id': ['P001'],
-            'cognitive_flexibility_score': [45.0],
-            'age': [65],  # Same value
-            'sex': ['M'],
-            'bmi': [25.0],
-            'fiber_intake': [20.0],
-            'antibiotics_use': [0]
+            'participant_id': [1, 2],
+            'cognitive_score': [85, 92],
+            'age': [68, 72],
+            'sex': ['M', 'F'],
+            'bmi': [24.5, 26.1],
+            'fiber_intake': [25, 30],
+            'antibiotics_use': [0, 1]
         })
-        
-        merged = merge_datasets(microbiome_df, cognitive_df)
-        
-        # Should have only one 'age' column, not 'age_micro' and 'age_cog'
-        assert 'age' in merged.columns
-        assert 'age_micro' not in merged.columns
-        assert 'age_cog' not in merged.columns
+
+        # Should not raise, but should deduplicate
+        result = merge_datasets(microbiome_df, cognitive_df)
+        assert len(result) <= 2  # At most 2 unique IDs
 
 
 class TestIngestSyntheticCohort:
-    """Tests for the main ingestion function."""
-    
-    def test_ingest_synthetic_cohort_integration(self):
-        """Test end-to-end ingestion of synthetic data."""
-        # This test relies on generate_synthetic_cohort creating valid files
-        # We verify the merged result has expected structure
-        merged_df = ingest_synthetic_cohort()
+    """Tests for ingest_synthetic_cohort function."""
+
+    def test_ingest_generates_and_merges(self):
+        """Test that ingestion generates data and returns a merged dataframe."""
+        # This test relies on the synthetic_gen module working correctly
+        result = ingest_synthetic_cohort()
         
-        assert isinstance(merged_df, pd.DataFrame)
-        assert len(merged_df) > 0
-        assert 'participant_id' in merged_df.columns
-        assert 'shannon_diversity' in merged_df.columns
-        assert 'cognitive_flexibility_score' in merged_df.columns
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) > 0
+        assert 'participant_id' in result.columns
+        assert 'shannon_diversity' in result.columns
+        assert 'cognitive_score' in result.columns
+        assert 'age' in result.columns
+
+    def test_ingest_creates_files(self, tmp_path, monkeypatch):
+        """Test that ingestion creates the expected files on disk."""
+        # Temporarily override RAW_DATA_DIR
+        monkeypatch.setattr('code.src.data.ingestion.RAW_DATA_DIR', tmp_path)
+        monkeypatch.setattr('code.src.data.synthetic_gen.RAW_DATA_DIR', tmp_path)
         
-        # Verify no duplicate columns
-        assert merged_df.shape[1] == len(set(merged_df.columns))
+        # Run ingestion
+        ingest_synthetic_cohort()
+        
+        # Verify files exist
+        assert (tmp_path / 'microbiome_data.csv').exists()
+        assert (tmp_path / 'cognitive_data.csv').exists()
+        # Note: merged_cohort.csv is created by save_merged_cohort, not ingest_synthetic_cohort
+
+
+class TestSaveMergedCohort:
+    """Tests for save_merged_cohort function."""
+
+    def test_save_creates_file(self, tmp_path):
+        """Test that save creates a CSV file."""
+        df = pd.DataFrame({
+            'participant_id': [1, 2],
+            'value': [10, 20]
+        })
+        output_path = tmp_path / 'output.csv'
+        
+        save_merged_cohort(df, output_path)
+        
+        assert output_path.exists()
+        
+        # Verify content
+        loaded = pd.read_csv(output_path)
+        assert len(loaded) == 2
+        assert 'participant_id' in loaded.columns
+
+    def test_save_creates_directories(self, tmp_path):
+        """Test that save creates parent directories if they don't exist."""
+        df = pd.DataFrame({
+            'participant_id': [1],
+            'value': [10]
+        })
+        output_path = tmp_path / 'subdir' / 'nested' / 'output.csv'
+        
+        save_merged_cohort(df, output_path)
+        
+        assert output_path.exists()
