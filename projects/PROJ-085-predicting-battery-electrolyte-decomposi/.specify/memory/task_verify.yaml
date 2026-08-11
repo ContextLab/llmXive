@@ -1,3 +1,12 @@
-T008 Configure logging infrastructure to capture warnings for missing geometric data and metallic behavior outliers: 1
-T009 Setup environment configuration management for random seeds and dataset URLs: 1
-T010 [P] [US1] Unit test for decomposition energy formula in `tests/unit/test_target_calc.py`: 1
+T008: 1
+T009: 1
+T011#1: 1
+T012: 1
+T017: 1
+T018: 1
+T019: 1
+T024: 1
+T025: 1
+T026: 1
+T030: 1
+T033: 1

@@ -15,29 +15,26 @@ T007:
     \ task\u2019s deliverable is not satisfied."
 T009a:
   c: false
-  h: ea6cffe82bbd8d426903ed7b0ce88328291abf62e931168dc23a0c3a59dddb84
-  r: The `injector.py` contains placeholder logic (e.g., `load_raw_planbench_xl` returns
-    an empty list, `main` is unfinished and truncated) and never actually loads or
-    processes real data. Moreover, the required output file `data/derived/implicit_failure_subset.jsonl`
-    is missing. The implementation does not fulfill the specification of loading raw
-    data, injecting errors, and saving the resulting JSONL.
+  h: 643858190dbef521f7c78c293643e9133d17031ec344341b5da99ff4754a4618
+  r: "The required output file `data/derived/implicit_failure_subset.jsonl` does not\
+    \ exist, and the provided `injector.py` snippet is incomplete (it stops before\
+    \ any injection or saving logic). Without the generated JSONL file and full implementation,\
+    \ the task\u2019s requirements are not met."
 T009b:
   c: false
-  h: cae29a84b437f639e90e893bef8cb4e34ac7ea10b4032ca861742e2abdf0f63a
-  r: "The required `data/derived/implicit_failure_subset.jsonl` file is absent, so\
-    \ the indexer cannot parse any data, and consequently `data/derived/failure_signatures.json`\
-    \ is never created. Moreover, the implementation uses a placeholder `\"unknown_tool\"\
-    ` instead of mapping real tool identifiers, and stores patterns as keys rather\
-    \ than following the specified schema. These issues mean the task\u2019s requirements\
-    \ are not met."
+  h: bd2882461fc447b36e00a273aad97499e893eb600f4414ec6bd7e15020427e16
+  r: The required input `data/derived/implicit_failure_subset.jsonl` does not exist,
+    nor does the expected output `data/derived/failure_signatures.json`. Moreover,
+    while `indexer.py` contains loading and extraction helpers, it lacks any implementation
+    that writes the extracted signatures to the JSON file, so the core requirement
+    is unmet.
 T010:
   c: false
-  h: 6e23a980403ea8fd0521b58446ebab70dbc82306248fafd530b391c1b79672dc
-  r: "The repository contains the `tests/unit/test_loader.py` contract test, but the\
-    \ required data file `data/derived/implicit_failure_subset.jsonl` does not exist,\
-    \ so the test cannot actually verify loading of the implicit\u2011failure subset.\
-    \ The missing derived data file must be generated or added for the task to be\
-    \ satisfied."
+  h: 5e81ad97a63d553fa35f16242f9f47a03e9fc40ed006d4f1b23d0b013135e004
+  r: The test file `tests/unit/test_loader.py` is present, but the required data file
+    `data/derived/implicit_failure_subset.jsonl` does not exist, causing the fixture
+    to fail and the contract test to be unusable. The missing dataset prevents the
+    test from verifying the loader as required.
 T013:
   c: false
   h: 0870f0c85de101102e930077d840f70834ea80c4ce3f05dca872b883e92d3835
@@ -45,3 +42,27 @@ T013:
     is missing, and consequently the expected output log `data/logs/baseline_execution.jsonl`
     was never created. Without the input dataset the runner cannot execute, so the
     task is not genuinely fulfilled.
+T018:
+  c: false
+  h: 1d0d3134a7641c9dc115ca61a95ef7467b86b0e36660e6ae66b6c0c9424b3dcd
+  r: "The `augmented.py` file exists and contains a signature\u2011checking routine,\
+    \ but the required `data/derived/failure_signatures.json` file is missing, so\
+    \ the agent cannot perform the mandated lookup. Moreover, the matching logic uses\
+    \ substring/regex search rather than enforcing a 100\u202F% exact match, and the\
+    \ recovery method is only a placeholder. Both the data file and correct matching\
+    \ behavior need to be added for the task to be satisfied."
+T020:
+  c: false
+  h: 564038821ae9f66444249d5338c6179ba9e937124349f0146478d3dd293333c9
+  r: The `run_augmented.py` script is present, but the required input file `data/derived/implicit_failure_subset.jsonl`
+    does not exist, and the expected output log `data/logs/augmented_execution.jsonl`
+    was never created. Without the input dataset and resulting log, the runner cannot
+    be verified as processing the data as required.
+T024:
+  c: false
+  h: e942a8e2183004ca92374c788e2d6e3d36da87fb34775b2f477ad1324ef18e07
+  r: The `log_parser.py` is only partially shown (the `get_aggregated_counts` function
+    is truncated) and the required log files `data/logs/baseline_execution.jsonl`
+    and `data/logs/augmented_execution.jsonl` are absent, so the parser cannot actually
+    aggregate the needed success/failure counts. The missing files and incomplete
+    code must be provided for the task to be considered complete.

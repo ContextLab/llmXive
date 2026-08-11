@@ -1,124 +1,192 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Unified Plant Root Architecture Dataset
-description: >
-  Schema for the unified dataset combining genomic (SNP) and phenotypic
-  root system architecture data. Used to validate data produced by
-  code/preprocess.py before model training.
+%YAML 1.2
+---
+# Schema for Unified Dataset: Genomic + Phenotypic Data
+# Used by code/preprocess.py to validate data before model training
+# Corresponds to T008 requirement
+
 type: object
 required:
+  - accessions
+  - genotypes
+  - phenotypes
   - metadata
-  - columns
-  - data
+  - split_info
+additionalProperties: false
+
 properties:
+  accessions:
+    type: object
+    description: "List of unique accession IDs included in the dataset"
+    required:
+      - ids
+      - count
+    properties:
+      ids:
+        type: array
+        description: "Unique accession identifiers (e.g., 'Col-0', 'Ler-0')"
+        items:
+          type: string
+          pattern: "^[A-Za-z0-9_-]+$"
+        minItems: 1
+      count:
+        type: integer
+        description: "Total number of unique accessions"
+        minimum: 1
+
+  genotypes:
+    type: object
+    description: "Encoded genotype matrix (0, 1, 2) per accession per marker"
+    required:
+      - markers
+      - encoding
+      - matrix
+    properties:
+      markers:
+        type: array
+        description: "List of SNP/variant markers used"
+        items:
+          type: string
+          pattern: "^[A-Za-z0-9_:.-]+$"
+        minItems: 1
+      encoding:
+        type: object
+        description: "Mapping of genotype values to biological meaning"
+        properties:
+          0:
+            type: string
+            const: "homozygous_reference"
+          1:
+            type: string
+            const: "heterozygous"
+          2:
+            type: string
+            const: "homozygous_alternative"
+        required:
+          - 0
+          - 1
+          - 2
+      matrix:
+        type: object
+        description: "Sparse or dense genotype data (accession -> marker -> value)"
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: integer
+            enum: [0, 1, 2, null]
+            description: "0=ref, 1=hetero, 2=alt, null=missing"
+
+  phenotypes:
+    type: object
+    description: "Root architecture measurements per accession per condition"
+    required:
+      - traits
+      - conditions
+      - values
+    properties:
+      traits:
+        type: array
+        description: "Measured root traits (e.g., 'primary_length', 'lateral_count')"
+        items:
+          type: string
+          pattern: "^[a-z_]+$"
+        minItems: 1
+      conditions:
+        type: array
+        description: "Nutrient/environmental conditions (e.g., 'low_n', 'high_p')"
+        items:
+          type: string
+          pattern: "^[a-z0-9_]+$"
+        minItems: 1
+      values:
+        type: object
+        description: "Phenotypic measurements (accession -> condition -> trait -> value)"
+        additionalProperties:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: number
+              description: "Numeric measurement value"
+
   metadata:
     type: object
+    description: "Dataset provenance and processing flags"
     required:
       - source
       - generated_at
       - real_data_flag
-      - nutrient_conditions
+      - preprocessing_version
     properties:
       source:
-        type: string
-        description: Source identifier (e.g., '1001Genomes', 'ATRDB', 'mock')
-        enum:
-          - 1001Genomes
-          - ATRDB
-          - mock
-          - hybrid
+        type: object
+        description: "Original data sources (1001 Genomes, ATRDB, etc.)"
+        properties:
+          genomics:
+            type: string
+            description: "Genomic data source URL or package"
+          phenomics:
+            type: string
+            description: "Phenotypic data source URL or package"
+        required:
+          - genomics
+          - phenomics
       generated_at:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation
+        description: "ISO 8601 timestamp of dataset creation"
+        pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
       real_data_flag:
         type: boolean
-        description: True if data comes from real external sources, False if mock
-      nutrient_conditions:
-        type: array
-        items:
-          type: string
-        description: List of nutrient conditions included (e.g., 'LowP', 'HighN')
-      row_count:
-        type: integer
-        minimum: 0
-        description: Total number of samples
-      feature_count:
-        type: integer
-        minimum: 0
-        description: Total number of genomic features
-  columns:
-    type: object
-    description: Definitions of expected columns and their types
-    required:
-      - accession_id
-      - genotype_features
-      - phenotype_targets
-      - metadata_cols
-    properties:
-      accession_id:
-        type: object
-        properties:
-          name:
-            type: string
-          dtype:
-            type: string
-            enum: [string, object]
-          description:
-            type: string
-      genotype_features:
-        type: array
-        description: List of SNP column names (encoded as 0, 1, 2)
-        items:
-          type: string
-      phenotype_targets:
-        type: array
-        description: List of root architecture trait column names
-        items:
-          type: string
-      metadata_cols:
-        type: array
-        description: Additional metadata columns (e.g., environment, condition)
-        items:
-          type: string
-  data:
-    type: object
-    description: Structure of the tabular data
-    required:
-      - sample_format
-      - constraints
-    properties:
-      sample_format:
+        description: "True if data is from real sources, False if synthetic/mock"
+      preprocessing_version:
         type: string
-        description: Expected format of the data rows
-      constraints:
+        description: "Version of preprocessing pipeline used"
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+      excluded_accessions:
+        type: array
+        description: "Accessions excluded due to missingness or mismatch"
+        items:
+          type: string
+
+  split_info:
+    type: object
+    description: "Stratified train/val/test split metadata"
+    required:
+      - strategy
+      - ratios
+      - seeds
+    properties:
+      strategy:
+        type: string
+        description: "Splitting strategy used"
+        enum:
+          - stratified_by_condition
+          - random
+      ratios:
         type: object
-        description: Validation constraints for data values
+        description: "Train/val/test split ratios"
         properties:
-          genotype_encoding:
-            type: object
-            properties:
-              allowed_values:
-                type: array
-                items:
-                  type: integer
-                enum: [0, 1, 2]
-              description:
-                type: string
-                enum:
-                  - '0: Homozygous Reference'
-                  - '1: Heterozygous'
-                  - '2: Homozygous Alternative'
-          missingness_threshold:
+          train:
             type: number
             minimum: 0
             maximum: 1
-            description: Maximum allowed fraction of missing values (e.g., 0.05)
-          phenotype_range:
-            type: object
-            description: Expected range for continuous phenotype traits
-            properties:
-              min:
-                type: number
-              max:
-                type: number
-additionalProperties: false
+          val:
+            type: number
+            minimum: 0
+            maximum: 1
+          test:
+            type: number
+            minimum: 0
+            maximum: 1
+        required:
+          - train
+          - val
+          - test
+      seeds:
+        type: object
+        description: "Random seeds used for reproducibility"
+        properties:
+          split:
+            type: integer
+            minimum: 0
+        required:
+          - split

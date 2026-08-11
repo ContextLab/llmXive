@@ -1,284 +1,202 @@
 """
-Structured logging utility for degenerate dialogue events.
+Structured logging utility for Socratic Transformers project.
 
-This module implements a JSON-based logging formatter and helper utilities
-to handle dialogue events in the Socratic Transformers pipeline. Events are
-logged as JSON lines (one JSON object per line) following the schema:
+Handles degenerate dialogue events as JSON lines following the schema:
 {"event_type": str, "timestamp": str, "details": dict}
 """
-
 import json
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 
 class SocraticJsonFormatter(logging.Formatter):
     """
-    Custom JSON formatter for structured logging of dialogue events.
-
-    Formats log records as JSON lines with the schema:
+    Custom JSON formatter for structured logging.
+    
+    Formats log records as JSON lines with the required schema:
     {
-        "event_type": str,       # Derived from log level or custom field
-        "timestamp": str,         # ISO 8601 timestamp
-        "details": dict           # Contains message and extra context
+        "event_type": str,      # Log level name (INFO, ERROR, etc.)
+        "timestamp": str,        # ISO format timestamp
+        "details": dict          # Additional context from log record
     }
     """
-
-    def __init__(self, event_type_prefix: str = "socratic"):
-        """
-        Initialize the formatter.
-
-        Args:
-            event_type_prefix: Prefix for event_type field (e.g., "socratic_debug")
-        """
-        super().__init__()
-        self.event_type_prefix = event_type_prefix
-
+    
     def format(self, record: logging.LogRecord) -> str:
-        """
-        Format a log record as a JSON line.
-
-        Args:
-            record: The log record to format
-
-        Returns:
-            JSON string representation of the log record
-        """
-        # Build the event_type from log level
-        level_name = record.levelname.lower()
-        event_type = f"{self.event_type_prefix}_{level_name}"
-
-        # Build the details dictionary
-        details: Dict[str, Any] = {
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
-        }
-
-        # Add any extra fields passed via extra={}
-        if hasattr(record, "details"):
-            if isinstance(record.details, dict):
-                details.update(record.details)
-            else:
-                details["extra_data"] = record.details
-
-        # Create the event object
-        event = {
-            "event_type": event_type,
+        """Format a log record as a JSON line."""
+        event_data = {
+            "event_type": record.levelname,
             "timestamp": datetime.utcnow().isoformat() + "Z",
-            "details": details,
+            "details": {
+                "message": record.getMessage(),
+                "logger": record.name,
+                "module": record.module,
+                "function": record.funcName,
+                "line": record.lineno
+            }
         }
+        
+        # Add exception info if present
+        if record.exc_info:
+            event_data["details"]["exception"] = self.formatException(record.exc_info)
+        
+        # Add extra fields if present
+        if hasattr(record, 'extra_data'):
+            event_data["details"].update(record.extra_data)
+        
+        return json.dumps(event_data)
 
-        return json.dumps(event, ensure_ascii=False, default=str)
 
-
-class SocraticLogger:
+class SocraticLogger(logging.Logger):
     """
-    Utility class for managing structured dialogue event logging.
-
-    Provides a consistent interface for creating and configuring loggers
-    that output JSON lines to files or stdout.
+    Custom logger class with additional helper methods for dialogue events.
     """
-
-    def __init__(self, name: str = "socratic_dialogue"):
+    
+    def log_event(self, event_type: str, message: str, **kwargs: Any) -> None:
         """
-        Initialize the logger manager.
-
+        Log a structured event with additional details.
+        
         Args:
-            name: Name for the logger instance
+            event_type: Type of event (e.g., "critique_generated", "quality_gate_failed")
+            message: Main message text
+            **kwargs: Additional details to include in the event
         """
-        self.name = name
-        self._logger: Optional[logging.Logger] = None
-
-    def get_logger(
-        self,
-        log_path: Optional[Union[str, Path]] = None,
-        level: int = logging.INFO,
-        include_stdout: bool = True,
-        event_type_prefix: str = "socratic",
-    ) -> logging.Logger:
-        """
-        Get or create a configured logger instance.
-
-        Args:
-            log_path: Path to log file (optional). If None, only stdout is used.
-            level: Logging level (e.g., logging.DEBUG, logging.INFO)
-            include_stdout: Whether to also log to stdout
-            event_type_prefix: Prefix for event_type field in JSON
-
-        Returns:
-            Configured logger instance
-        """
-        if self._logger is not None:
-            return self._logger
-
-        # Create logger
-        logger = logging.getLogger(self.name)
-        logger.setLevel(level)
-        logger.propagate = False  # Prevent duplicate logs
-
-        # Clear any existing handlers
-        logger.handlers.clear()
-
-        # Create formatter
-        formatter = SocraticJsonFormatter(event_type_prefix=event_type_prefix)
-
-        # Add file handler if path provided
-        if log_path:
-            log_file = Path(log_path)
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-
-            file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
-            file_handler.setFormatter(formatter)
-            file_handler.setLevel(level)
-            logger.addHandler(file_handler)
-
-        # Add stdout handler if requested
-        if include_stdout:
-            stdout_handler = logging.StreamHandler(sys.stdout)
-            stdout_handler.setFormatter(formatter)
-            stdout_handler.setLevel(level)
-            logger.addHandler(stdout_handler)
-
-        self._logger = logger
-        return logger
-
-    def log_event(
-        self,
-        event_type: str,
-        details: Dict[str, Any],
-        level: int = logging.INFO,
-        message: Optional[str] = None,
-    ) -> None:
-        """
-        Log a structured dialogue event.
-
-        Args:
-            event_type: Type of event (e.g., "critique_generated", "dialogue_step")
-            details: Dictionary of event-specific details
-            level: Logging level
-            message: Optional message to include in details
-        """
-        if self._logger is None:
-            # Initialize with defaults if not set up
-            self.get_logger()
-
-        # Prepare the log record
-        log_message = message or details.get("message", event_type)
-
-        # Log with extra details
-        self._logger.log(
-            level,
-            log_message,
-            extra={"details": details},
-        )
+        extra = kwargs.pop('extra', {})
+        extra['event_type'] = event_type
+        extra.update(kwargs)
+        
+        self.info(message, extra={'extra_data': extra})
 
 
-# Global logger instance
-_global_logger: Optional[SocraticLogger] = None
+# Register custom logger class
+logging.setLoggerClass(SocraticLogger)
 
 
-def get_logger(name: str = "socratic_dialogue") -> SocraticLogger:
+def get_logger(name: str, log_file: Optional[str] = None) -> SocraticLogger:
     """
-    Get or create the global SocraticLogger instance.
-
+    Get or create a logger with optional JSON file handler.
+    
     Args:
-        name: Name for the logger instance
-
+        name: Logger name (typically __name__)
+        log_file: Optional path to log file. If provided, logs are written as JSON lines.
+    
     Returns:
-        SocraticLogger instance
+        Configured SocraticLogger instance
     """
-    global _global_logger
-    if _global_logger is None:
-        _global_logger = SocraticLogger(name)
-    return _global_logger
+    logger = logging.getLogger(name)
+    
+    # Avoid adding duplicate handlers
+    if logger.handlers:
+        return logger
+    
+    logger.setLevel(logging.DEBUG)
+    
+    # Console handler with standard formatting
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    
+    # File handler with JSON formatting if log_file specified
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(SocraticJsonFormatter())
+        logger.addHandler(file_handler)
+    
+    return logger
 
 
 def log_event(
+    logger: logging.Logger,
     event_type: str,
-    details: Dict[str, Any],
-    level: int = logging.INFO,
-    message: Optional[str] = None,
-    logger_name: str = "socratic_dialogue",
+    message: str,
+    **kwargs: Any
 ) -> None:
     """
-    Convenience function to log a structured dialogue event.
-
+    Convenience function to log a structured event.
+    
     Args:
-        event_type: Type of event (e.g., "critique_generated", "dialogue_step")
-        details: Dictionary of event-specific details
-        level: Logging level
-        message: Optional message to include
-        logger_name: Name of the logger to use
+        logger: Logger instance to use
+        event_type: Type of event
+        message: Main message text
+        **kwargs: Additional details
     """
-    logger_instance = get_logger(logger_name)
-    logger_instance.log_event(event_type, details, level, message)
+    if isinstance(logger, SocraticLogger):
+        logger.log_event(event_type, message, **kwargs)
+    else:
+        extra = {'extra_data': {'event_type': event_type, **kwargs}}
+        logger.info(message, extra=extra)
 
 
 def init_default_logger(
-    log_dir: Union[str, Path] = "data/logs",
-    level: int = logging.INFO,
-) -> logging.Logger:
+    project_root: Optional[Path] = None,
+    log_dir_name: str = "logs"
+) -> SocraticLogger:
     """
-    Initialize a default logger with file output.
-
+    Initialize the default logger for the project.
+    
     Args:
-        log_dir: Directory to store log files
-        level: Logging level
-
+        project_root: Root directory of the project. Defaults to current working directory.
+        log_dir_name: Name of the directory to store logs.
+    
     Returns:
-        Configured logger instance
+        Configured default logger
     """
-    log_path = Path(log_dir) / "dialogue_events.jsonl"
-    logger_instance = get_logger()
-    return logger_instance.get_logger(
-        log_path=log_path,
-        level=level,
-        include_stdout=True,
-    )
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    log_dir = project_root / log_dir_name
+    log_file = log_dir / "events.jsonl"
+    
+    return get_logger("socratic", str(log_file))
 
 
-# Module-level convenience function for direct logging
 def main() -> None:
     """
-    Demo function showing how to use the structured logger.
+    Demonstration of the logging utility.
     """
-    # Initialize logger
     logger = init_default_logger()
-
-    # Log some example events
-    logger.log_event(
-        event_type="dialogue_started",
-        details={
-            "question_id": "gsm8k_12345",
-            "question": "What is 2+2?",
-            "initial_answer": "4",
-        },
-        message="Starting dialogue for question",
+    
+    logger.info("Logger initialized successfully")
+    
+    log_event(
+        logger,
+        "dialogue_start",
+        "Beginning dialogue generation process",
+        sample_id="12345",
+        dataset="gsm8k"
     )
-
-    logger.log_event(
-        event_type="critique_generated",
-        details={
-            "critique_tokens": 45,
-            "keywords_found": ["contradiction", "error"],
-            "quality_score": 0.85,
-        },
-        message="Critique generated successfully",
+    
+    log_event(
+        logger,
+        "critique_generated",
+        "Critique generated for initial answer",
+        critique_length=45,
+        has_logical_keywords=True
     )
-
-    logger.log_event(
-        event_type="dialogue_completed",
-        details={
-            "revised_answer": "The answer is 4",
-            "total_turns": 3,
-        },
-        message="Dialogue completed",
+    
+    try:
+        # Simulate an error
+        raise ValueError("Test error for demonstration")
+    except Exception:
+        logger.exception("Error occurred during processing")
+    
+    log_event(
+        logger,
+        "dialogue_complete",
+        "Dialogue generation completed successfully",
+        final_score=0.85
     )
 
 

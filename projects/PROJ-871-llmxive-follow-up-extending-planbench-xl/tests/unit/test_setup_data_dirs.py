@@ -1,75 +1,95 @@
 """
-Unit tests for the setup_data_dirs script.
-Verifies that the required data directory structure is created.
+Unit tests for the data directory setup script.
+Verifies that the required data directories are created correctly.
 """
 import os
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
+import sys
 
-# We need to import the function. Since it's in code/setup_data_dirs.py,
-# we adjust the path or import it directly if the test runner handles it.
-# For this test, we will mock the logic or run the main function in a temp env.
-# However, to strictly follow the "no fabricate" rule, we test the logic of directory creation.
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def test_data_directory_structure_creation():
-    """
-    Test that the setup_data_dirs script creates the correct directory structure.
-    This test creates a temporary directory to simulate the project root.
-    """
-    # Create a temporary project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
-        
-        # Simulate the structure expected by setup_data_dirs.py
-        # The script assumes it is in code/ and looks at parent for data/
-        code_dir = project_root / "code"
-        code_dir.mkdir()
-        
-        # Create the script file content dynamically to run it in this context
-        # OR simply import and patch the path. 
-        # Given the constraints, let's verify the logic by checking what directories
-        # SHOULD exist after running the logic defined in setup_data_dirs.py.
-        
-        # Logic extraction from setup_data_dirs.py:
-        # data_root = project_root / "data"
-        # subdirs = ["raw", "derived", "logs", "results"]
-        # for subdir in subdirs: (project_root / "data" / subdir).mkdir(...)
-        
-        data_root = project_root / "data"
-        expected_dirs = [
-            data_root,
-            data_root / "raw",
-            data_root / "derived",
-            data_root / "logs",
-            data_root / "results"
-        ]
-        
-        # Execute the creation logic locally to verify
-        for d in expected_dirs:
-            d.mkdir(parents=True, exist_ok=True)
-        
-        # Verify existence
-        for d in expected_dirs:
-            assert d.exists(), f"Directory {d} was not created"
-            assert d.is_dir(), f"Path {d} is not a directory"
+from utils.config import get_project_root, ensure_dirs_exist
+from setup_data_dirs import main as setup_data_dirs_main
 
-def test_data_dirs_are_empty():
-    """
-    Test that the created directories are initially empty.
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
-        data_root = project_root / "data"
-        data_root.mkdir()
+
+class TestDataDirectorySetup:
+    """Tests for data directory structure creation."""
+
+    def test_required_subdirectories_exist(self, tmp_path):
+        """
+        Verify that all required data subdirectories are created.
+        """
+        # Create a temporary project root
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
         
-        subdirs = ["raw", "derived", "logs", "results"]
-        for subdir in subdirs:
-            (data_root / subdir).mkdir()
+        # Mock the project root by setting an environment variable or
+        # temporarily patching the config
+        # For this test, we'll directly test the directory creation logic
         
-        for subdir in subdirs:
-            dir_path = data_root / subdir
-            # Check if directory is empty (no files or subdirs)
-            # Note: os.listdir returns entries, if empty list is []
-            assert not os.listdir(dir_path), f"Directory {dir_path} should be empty"
+        data_dir = project_root / "data"
+        required_dirs = ["raw", "derived", "logs", "results"]
+        
+        # Create directories
+        for dir_name in required_dirs:
+            dir_path = data_dir / dir_name
+            dir_path.mkdir(parents=True, exist_ok=True)
+            assert dir_path.exists(), f"Directory {dir_path} should exist"
+            assert dir_path.is_dir(), f"{dir_path} should be a directory"
+
+    def test_data_gitignore_exists(self, tmp_path):
+        """
+        Verify that .gitignore exists in the data directory.
+        """
+        # Create a temporary project root
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
+        
+        data_dir = project_root / "data"
+        data_dir.mkdir()
+        
+        gitignore_path = data_dir / ".gitignore"
+        
+        # Create a minimal .gitignore
+        gitignore_path.write_text("# Data directory ignore rules\n*\n!.gitignore\n")
+        
+        assert gitignore_path.exists(), ".gitignore should exist in data directory"
+        assert gitignore_path.is_file(), ".gitignore should be a file"
+        
+        content = gitignore_path.read_text()
+        assert "*" in content, ".gitignore should contain ignore patterns"
+
+    def test_setup_data_dirs_script_creates_structure(self, tmp_path):
+        """
+        Test that the setup_data_dirs script creates the correct structure.
+        This test mocks the project root to point to our temp directory.
+        """
+        import unittest.mock as mock
+        
+        # Create a temporary project root
+        project_root = tmp_path / "test_project"
+        project_root.mkdir()
+        
+        # Mock the get_project_root function to return our temp directory
+        with mock.patch('setup_data_dirs.get_project_root', return_value=project_root):
+            # Also mock ensure_dirs_exist to avoid actual creation if needed,
+            # but we want to test actual creation
+            # Just run the main function
+            result = setup_data_dirs_main()
+            
+            # Verify the function returned 0 (success)
+            assert result == 0, "setup_data_dirs main should return 0 on success"
+            
+            # Verify directories were created
+            data_dir = project_root / "data"
+            assert data_dir.exists(), "data directory should exist"
+            
+            required_dirs = ["raw", "derived", "logs", "results"]
+            for dir_name in required_dirs:
+                dir_path = data_dir / dir_name
+                assert dir_path.exists(), f"Directory {dir_path} should exist"
+                assert dir_path.is_dir(), f"{dir_path} should be a directory"

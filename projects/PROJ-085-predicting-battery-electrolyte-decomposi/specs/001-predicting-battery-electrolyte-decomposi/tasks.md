@@ -82,17 +82,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for decomposition energy formula in `tests/unit/test_target_calc.py`
-- [~] T011 [P] [US1] Integration test for data ingestion pipeline on sample subset in `tests/integration/test_ingestion.py` <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Unit test for decomposition energy formula in `tests/unit/test_target_calc.py`
+- [ ] T011 [P] [US1] Integration test for data ingestion pipeline on sample subset in `tests/integration/test_ingestion.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [~] T012 [P] [US1] Implement `code/data/ingestion.py` to fetch and filter DFT data from HuggingFace dataset ID: `materialsproject/mp-dft-electrolytes`. **Fallback**: If fetch fails, use local mock CSV `data/raw/mock_electrolytes.csv` with schema matching the expected DFT output (FR-001, FR-008). <!-- FAILED: unspecified -->
+- [ ] T012 [P] [US1] Implement `code/data/ingestion.py` to fetch and filter DFT data from HuggingFace dataset ID: `materialsproject/mp-dft-electrolytes`. **Fallback**: If fetch fails, use local mock CSV `data/raw/mock_electrolytes.csv` with schema matching the expected DFT output (FR-001, FR-008). <!-- FAILED: unspecified -->
 - [X] T013 [P] [US1] Implement deduplication logic in `code/data/ingestion.py` based on molecule ID and potential
 - [X] T014 [US1] Implement `code/data/descriptors.py` to extract HOMO, LUMO, band gap, bond lengths, angles, dihedrals using `pymatgen`/`RDKit` (FR-003)
 - [X] T015 [US1] Implement logic in `code/data/descriptors.py` to extract specific geometric features (including bond lengths, bond angles, and dihedral angles) to meet FR-003 minimum count. Flag/exclude metallic (zero/negative gap) outliers.
 - [X] T016 [US1] Implement `code/data/target_calc.py` to calculate $E_{decomp}$ using `code/utils/reactions.yaml` (populated in T011) and stoichiometry heuristic for $\phi \in \{0, 2, 4\}$ V (FR-002, FR-008). The heuristic selects the correct reaction entry from the YAML based on molecule ID and potential. <!-- FAILED: unspecified -->
-- [~] T017 [US1] Add validation logic to ensure feature matrix has no missing values before output
+- [ ] T017 [US1] Add validation logic to ensure feature matrix has no missing values before output
 - [ ] T018 [US1] Split data into Train/Validation/Held-Out sets (e.g., a majority portion for training with smaller portions for validation and held-out evaluation) and save processed feature matrix, targets, and the held-out set to `data/processed/electrolyte_features.csv` and `data/processed/electrolyte_heldout.csv`
 - [ ] T019 [US1] Implement stratification logic to split data into 'Low' (using low-voltage data) and 'High' (using high-voltage data) bins. **Deviation**: Explicitly map the spec's '3-5V' range requirement to the available 4V data point due to data constraints. Save bin assignments to `data/processed/bins.csv`.
 
@@ -115,7 +115,7 @@
 
 - [X] T022 [P] [US2] Implement `code/models/trainer.py` to train Random Forest with 5-fold CV and hyperparameter tuning using GridSearchCV (search space: n_estimators=[low, medium, high], max_depth=[10, 20, None]). **Bin Logic**: Explicitly map all requests for the 'High-potential (3-5V)' range to the available 4V data point by filtering data where `potential == 4`. **Deviation**: Note that the spec's 3-5V range is approximated by the single 4V point due to data constraints. (FR-004)
 - [X] T023 [US2] Implement `code/models/evaluator.py` to calculate permutation importance for each bin (FR-005). **Dependency**: Requires model artifact from T022.
-- [~] T024 [US2] Implement logic to identify descriptors entering top 3 in high-potential (4V) but absent in low-potential (0-2V). **Deviation**: Explicitly reference spec's 3-5V range and note the mapping to 4V data point as a known limitation.
+- [ ] T024 [US2] Implement logic to identify descriptors entering top 3 in high-potential (4V) but absent in low-potential (0-2V). **Deviation**: Explicitly reference spec's 3-5V range and note the mapping to 4V data point as a known limitation.
 - [ ] T025 [US2] Generate heatmap visualization of top features per bin using `seaborn` and save to `data/validation/feature_importance_heatmap.png`
 - [ ] T026 [US2] Save model artifacts, R² scores, and importance maps to `data/processed/model_run.json`
 

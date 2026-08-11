@@ -61,12 +61,12 @@
 
 - [ ] T008 [P] Create `contracts/unified_dataset.schema.yaml` defining schema for unified data
 - [ ] T009 [P] Create `contracts/model_output.schema.yaml` defining schema for model results
-- [ ] T010 [P] Implement `code/download.py` with full fetch logic for 1001 Genomes/ATRDB
-- [ ] T011 [P] Implement `code/mock_data.py` to generate synthetic data with correct schema
-- [ ] T012 [P] Implement fallback logic in `code/download.py` to trigger mock data if fetch fails
+- [X] T010 [P] Implement `code/download.py` with full fetch logic for 1001 Genomes/ATRDB
+- [X] T011 [P] Implement `code/mock_data.py` to generate synthetic data with correct schema
+- [X] T012 [P] Implement fallback logic in `code/download.py` to trigger mock data if fetch fails <!-- FAILED: unspecified -->
 - [X] T013 [P] Implement `code/verify_fit.py` to check variable existence, log errors, and return status code
 - [X] T014 [P] Implement explicit verification task in `code/download.py` to confirm real source reachability before fallback
-- [~] T015 Setup `pytest` configuration in `projects/PROJ-410-predicting-plant-root-system-architectur/`
+- [ ] T015 Setup `pytest` configuration in `projects/PROJ-410-predicting-plant-root-system-architectur/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -93,7 +93,7 @@
 - [ ] T021 [US1] Save `data/processed/unified_dataset.parquet` with metadata flag (real vs. mock)
 - [X] T022 [US1] Implement stratified split logic (80/10/10 train/val/test) per nutrient condition in `code/preprocess.py` (FR-003)
 - [ ] T023 [US1] Save `data/processed/train.parquet`, `val.parquet`, `test.parquet` per nutrient condition
-- [~] T024 [US1] Add logging for excluded accessions and missing data counts (Edge Case: naming inconsistencies)
+- [ ] T024 [US1] Add logging for excluded accessions and missing data counts (Edge Case: naming inconsistencies)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,7 +108,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T025 [P] [US2] Unit test for L1/L2 regularization application in `tests/unit/test_train.py`
-- [ ] T026 [P] [US2] Integration test for model training loop per nutrient condition in `tests/integration/test_training.py`
+- [X] T026 [P] [US2] Integration test for model training loop per nutrient condition in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
@@ -120,7 +120,7 @@
 - [ ] T032 [US2] Implement PCA/L1 regularization strictly for Linear Models if features > 5000; save transformed features to `data/processed/pca_features.parquet` (FR-010)
 - [ ] T033 [US2] Load null model metrics from `data/processed/null_model_metrics.csv` and compare against trained models (FR-005, SC-001)
 - [X] T034 [US2] Implement 95% CI calculation method in `code/evaluate.py`
-- [~] T035 [US2] Implement cross-validation scoring for each model/condition (SC-003)
+- [ ] T035 [US2] Implement cross-validation scoring for each model/condition (SC-003)
 - [ ] T036 [US2] Save `data/processed/model_metrics.csv` with performance rankings per condition
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -142,11 +142,11 @@
 
 - [X] T039 [US3] Implement variance filtering in `code/evaluate.py`
 - [X] T040 [US3] Implement nested loop logic (feature selection inside permutation) in `code/evaluate.py` (Plan Phase 5)
-- [~] T041 [US3] Execute a permutation test for each model/condition; calculate p-values (FR-007, SC-002)
-- [~] T042 [US3] Apply Benjamini-Hochberg correction to model-level tests (one per condition) (Plan Phase 5)
+- [ ] T041 [US3] Execute a permutation test for each model/condition; calculate p-values (FR-007, SC-002)
+- [ ] T042 [US3] Apply Benjamini-Hochberg correction to model-level tests (one per condition) (Plan Phase 5)
 - [X] T043 [US3] Implement SHAP value calculation for tree models in `code/visualize.py` (FR-006)
 - [X] T044 [US3] Implement Lasso coefficient extraction for linear models in `code/visualize.py` (FR-006)
-- [~] T045 [US3] Perform Stability Selection with multiple bootstrap samples to rank marker stability. (SC-004)
+- [ ] T045 [US3] Perform Stability Selection with multiple bootstrap samples to rank marker stability. (SC-004)
 - [ ] T046 [US3] Generate feature importance plot in `code/visualize.py`
 - [ ] T047 [US3] Generate prediction vs. actual scatter plot in `code/visualize.py`
 - [ ] T048 [US3] Append standardized disclaimer: "Findings are associational and do not imply causation" to all reports (FR-009)

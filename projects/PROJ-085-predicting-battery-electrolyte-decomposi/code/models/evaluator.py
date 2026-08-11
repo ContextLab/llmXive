@@ -1,206 +1,202 @@
-"""
-Model Evaluation Module.
-
-Handles internal validation, sensitivity analysis, and report generation.
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
-import pandas as pd
+
 import numpy as np
-import joblib
+import pandas as pd
+from sklearn.metrics import mean_absolute_error, r2_score
 
-# Add project root to path
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import project config utilities
+try:
+    from config import get_project_root, get_processed_dir, get_validation_dir
+except ImportError:
+    # Fallback for direct execution context if needed, though standard is via project root
+    from pathlib import Path
+    import sys
+    # Adjust path if running from code/
+    if 'code' in str(Path.cwd()):
+        sys.path.insert(0, str(Path.cwd().parent))
+    from config import get_project_root, get_processed_dir, get_validation_dir
 
-from config import get_data_dir, get_project_root
-from utils.logging_config import get_logger
+# Import logging utilities
+try:
+    from utils.logging_config import get_logger
+except ImportError:
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
-
-def load_model_artifacts(model_path: str) -> Any:
+def load_model_artifacts() -> Dict[str, Any]:
     """
-    Load a trained model from disk.
+    Load the model artifacts saved in T026.
+    Expects: data/processed/model_run.json
+    Returns: Dictionary containing model parameters, feature names, and training metadata.
     """
-    return joblib.load(model_path)
-
-
-def load_heldout_data(csv_path: Optional[str] = None) -> pd.DataFrame:
-    """
-    Load the held-out dataset.
-    """
-    if csv_path is None:
-        data_dir = get_data_dir()
-        csv_path = data_dir / "processed" / "electrolyte_heldout.csv"
-        
-    path = Path(csv_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Held-out data not found at {path}")
-        
-    return pd.read_csv(csv_path)
-
-
-def calculate_internal_metrics(model: Any, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
-    """
-    Calculate R² and MAE for internal validation.
-    """
-    from sklearn.metrics import r2_score, mean_absolute_error
-    
-    y_pred = model.predict(X)
-    r2 = r2_score(y, y_pred)
-    mae = mean_absolute_error(y, y_pred)
-    
-    return {
-        'r2_score': float(r2),
-        'mae': float(mae),
-        'note': 'Internal Consistency (DFT vs DFT)'
-    }
-
-
-def run_internal_validation(bin_type: str = "low") -> Dict[str, Any]:
-    """
-    Run internal validation for a specific bin.
-    """
-    # Load model
-    data_dir = get_data_dir()
-    model_path = data_dir / "processed" / "random_forest_model.joblib"
-    
+    model_path = get_processed_dir() / "model_run.json"
     if not model_path.exists():
-        raise FileNotFoundError(f"Model not found at {model_path}")
-        
-    model = load_model_artifacts(str(model_path))
+        raise FileNotFoundError(f"Model artifact not found at {model_path}. "
+                                "Please ensure T026 has been completed successfully.")
     
-    # Load held-out data (assuming we split earlier, or use the same data for demo)
-    # For this task, we assume the split data exists or we re-split
-    # Since T018 creates heldout, we load it
-    try:
-        df_heldout = load_heldout_data()
-    except FileNotFoundError:
-        logger.warning("Held-out data not found. Using full processed data for validation.")
-        df_heldout = pd.read_csv(data_dir / "processed" / "electrolyte_features.csv")
-        
-    # Filter for bin
-    if bin_type == "low":
-        df_bin = df_heldout[df_heldout['potential_v'].isin([0, 2])]
-    else:
-        df_bin = df_heldout[df_heldout['potential_v'] == 4]
-        
-    # Prepare features
-    feature_cols = [c for c in df_bin.columns if c not in ['molecule_id', 'potential_v', 'e_decomp_ev', 'is_metallic']]
-    target_col = 'e_decomp_ev'
-    
-    if target_col not in df_bin.columns:
-        raise ValueError(f"Target column {target_col} not found in heldout data")
-        
-    X = df_bin[feature_cols].values
-    y = df_bin[target_col].values
-    
-    # Calculate metrics
-    metrics = calculate_internal_metrics(model, X, y)
-    
-    logger.info(f"Internal Validation ({bin_type}): R²={metrics['r2_score']:.4f}, MAE={metrics['mae']:.4f}")
-    
-    return metrics
+    logger.info(f"Loading model artifacts from {model_path}")
+    with open(model_path, 'r') as f:
+        return json.load(f)
 
-
-def run_sensitivity_analysis(thresholds: List[float] = [0.45, 0.50, 0.55]) -> Dict[str, Any]:
+def load_heldout_data() -> pd.DataFrame:
     """
-    Perform sensitivity analysis on the decomposition energy stability cutoff.
+    Load the held-out dataset generated in T018.
+    Expects: data/processed/electrolyte_heldout.csv
+    Returns: DataFrame with features and target (E_decomp).
+    """
+    heldout_path = get_processed_dir() / "electrolyte_heldout.csv"
+    if not heldout_path.exists():
+        raise FileNotFoundError(f"Held-out data not found at {heldout_path}. "
+                                "Please ensure T018 has been completed successfully.")
+    
+    logger.info(f"Loading held-out data from {heldout_path}")
+    df = pd.read_csv(heldout_path)
+    
+    # Verify required columns
+    required_cols = ['E_decomp']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Held-out data missing required columns: {missing}")
+    
+    return df
+
+def calculate_internal_metrics(model_artifacts: Dict[str, Any], 
+                               heldout_data: pd.DataFrame) -> Dict[str, float]:
+    """
+    Calculate MAE and R² for the internal validation set.
+    
+    Deviation Note:
+    - Metric labeled as 'Internal Consistency MAE' to reflect that this is 
+      DFT-to-DFT validation, not experimental validation.
+    - SC-003 (Experimental MAE) is unmet due to data gap (no experimental onset potentials).
     
     Args:
-        thresholds: List of thresholds to sweep.
-        
+        model_artifacts: Dictionary from load_model_artifacts containing 'feature_names' and potentially 'model_params'
+        heldout_data: DataFrame containing features and 'E_decomp' target
+    
     Returns:
-        Dictionary of results.
+        Dictionary with 'mae' and 'r2' scores.
     """
-    # Load model
-    data_dir = get_data_dir()
-    model_path = data_dir / "processed" / "random_forest_model.joblib"
+    feature_names = model_artifacts.get('feature_names', [])
+    if not feature_names:
+        # Fallback: try to infer from dataframe columns excluding target
+        feature_names = [c for c in heldout_data.columns if c != 'E_decomp']
     
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model not found at {model_path}")
-        
-    model = load_model_artifacts(str(model_path))
+    # Filter for existing features in case of slight mismatch
+    available_features = [f for f in feature_names if f in heldout_data.columns]
+    if len(available_features) != len(feature_names):
+        missing_features = set(feature_names) - set(available_features)
+        logger.warning(f"Missing features in heldout data: {missing_features}. Using available: {available_features}")
     
-    # Get feature importance
-    try:
-        importances = model.feature_importances_
-    except AttributeError:
-        logger.warning("Model does not have feature_importances_ attribute.")
-        return {}
-        
-    results = {}
-    for thresh in thresholds:
-        # Simulate a stability check based on the threshold
-        # In a real scenario, this would filter features or retrain
-        # Here we just record the threshold and the top features
-        top_indices = np.argsort(importances)[::-1][:3]
-        top_features = [f"Feature_{i}" for i in top_indices] # Placeholder names
-        
-        results[str(thresh)] = {
-            'threshold': thresh,
-            'top_3_features': top_features,
-            'stability_note': 'Rank stability check placeholder'
-        }
-        
-    return results
-
-
-def save_sensitivity_report(results: Dict[str, Any], output_path: Optional[str] = None):
-    """
-    Save the sensitivity analysis report.
-    """
-    if output_path is None:
-        data_dir = get_data_dir()
-        output_path = data_dir / "validation" / "sensitivity_report.md"
+    X = heldout_data[available_features]
+    y = heldout_data['E_decomp']
+    
+    # Reconstruct model or use stored predictions if available
+    # T026 saves model artifacts. We assume the model object is pickled or 
+    # we need to reconstruct. Since we don't have the pickle path here, 
+    # we assume the 'model_run.json' might contain predictions or we need to reload the model.
+    # However, T026 description says "Save model artifacts... to model_run.json". 
+    # Usually, sklearn models are pickled. Let's assume the JSON contains metadata 
+    # and we need to load the actual model from a pickle if it exists, 
+    # OR we rely on the JSON containing the predictions if T026 did that.
+    
+    # Check if predictions are stored in the JSON (common in lightweight pipelines)
+    if 'predictions' in model_artifacts:
+        y_pred = np.array(model_artifacts['predictions'])
+        if len(y_pred) != len(y):
+            raise ValueError(f"Prediction length mismatch: {len(y_pred)} vs {len(y)}")
     else:
-        output_path = Path(output_path)
-        
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Try to load the actual model from a pickle file if T026 saved one
+        # Convention: data/processed/model.pkl or similar
+        # Since T026 only mentions model_run.json, we might need to reconstruct the model 
+        # or assume the JSON has the necessary info. 
+        # Let's attempt to load a standard pickle if it exists.
+        import pickle
+        model_path = get_processed_dir() / "model.pkl"
+        if model_path.exists():
+            with open(model_path, 'rb') as f:
+                model = pickle.load(f)
+            y_pred = model.predict(X)
+        else:
+            # If no model pickle and no predictions in JSON, we cannot calculate metrics.
+            # This implies T026 might have failed to save the model object, only metadata.
+            # We raise an error to force a fix in T026 or this task.
+            raise FileNotFoundError(
+                "Model artifact (model.pkl) not found and predictions not in model_run.json. "
+                "T026 must save the trained model object or its predictions."
+            )
     
-    content = "# Sensitivity Analysis Report\n\n"
-    content += "This report details the sensitivity of feature importance rankings to the decomposition energy stability cutoff.\n\n"
-    content += "## Threshold Sweep\n\n"
+    mae = mean_absolute_error(y, y_pred)
+    r2 = r2_score(y, y_pred)
     
-    for thresh, data in results.items():
-        content += f"### Threshold: {data['threshold']} eV\n"
-        content += f"- Top 3 Features: {', '.join(data['top_3_features'])}\n"
-        content += f"- Note: {data['stability_note']}\n\n"
-        
-    content += "## Deviation Note\n"
-    content += "FR-006 and SC-003 (External Validation) could not be fulfilled due to unavailability of experimental onset potential datasets. "
-    content += "Internal DFT validation was used as a fallback.\n"
-    
-    with open(output_path, 'w') as f:
-        f.write(content)
-        
-    logger.info(f"Sensitivity report saved to {output_path}")
-
-
-def run_evaluator_pipeline(bin_type: str = "low", output_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Run the full evaluator pipeline.
-    """
-    # 1. Internal Validation
-    metrics = run_internal_validation(bin_type)
-    
-    # 2. Sensitivity Analysis
-    sensitivity_results = run_sensitivity_analysis()
-    
-    # 3. Save Report
-    save_sensitivity_report(sensitivity_results, output_path)
+    logger.info(f"Internal Validation Metrics - MAE: {mae:.4f}, R²: {r2:.4f}")
     
     return {
-        'validation_metrics': metrics,
-        'sensitivity_results': sensitivity_results
+        "mae": float(mae),
+        "r2": float(r2),
+        "metric_label": "Internal Consistency MAE",
+        "deviation_note": "SC-003 (Experimental MAE) unmet due to data gap. Using DFT-to-DFT internal validation."
     }
 
+def run_internal_validation() -> Dict[str, Any]:
+    """
+    Orchestrates the internal validation process for T030.
+    """
+    logger.info("Starting internal validation (T030)...")
+    
+    try:
+        # 1. Load artifacts
+        model_artifacts = load_model_artifacts()
+        heldout_data = load_heldout_data()
+        
+        # 2. Calculate metrics
+        metrics = calculate_internal_metrics(model_artifacts, heldout_data)
+        
+        # 3. Log deviation warning
+        logger.warning(metrics.get('deviation_note', ''))
+        
+        # 4. Save results to a specific output file for T030
+        # T030 requirement: "Implement calculation of MAE and R²... Dependency: Read model artifact"
+        # We save the results to data/validation/internal_validation_metrics.json
+        output_dir = get_validation_dir()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / "internal_validation_metrics.json"
+        
+        result_payload = {
+            "task_id": "T030",
+            "description": "Internal Consistency Validation",
+            "metrics": metrics,
+            "sample_size": len(heldout_data),
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+        
+        with open(output_path, 'w') as f:
+            json.dump(result_payload, f, indent=2)
+        
+        logger.info(f"Internal validation metrics saved to {output_path}")
+        return result_payload
+        
+    except Exception as e:
+        logger.error(f"Internal validation failed: {str(e)}", exc_info=True)
+        raise
+
+def run_evaluator_pipeline() -> Dict[str, Any]:
+    """
+    Main entry point for the evaluator module.
+    Currently focuses on T030 (Internal Validation).
+    Can be extended for sensitivity analysis (T031) later.
+    """
+    return run_internal_validation()
 
 if __name__ == "__main__":
-    print("Running Evaluator Pipeline...")
-    run_evaluator_pipeline()
+    # Run when executed directly
+    result = run_evaluator_pipeline()
+    print(json.dumps(result, indent=2))

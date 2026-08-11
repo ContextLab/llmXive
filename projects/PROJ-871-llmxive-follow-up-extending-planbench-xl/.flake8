@@ -1,14 +1,13 @@
 [flake8]
-max-line-length = 100
+max-line-length = 88
 extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
     venv,
     .venv,
-    data,
     build,
     dist
 per-file-ignores =
-    # Allow higher line length in tests for readability
+    # Allow long lines in docstrings or specific test files if needed
     tests/*: E501

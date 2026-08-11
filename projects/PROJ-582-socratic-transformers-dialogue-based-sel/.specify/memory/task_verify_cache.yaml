@@ -8,11 +8,12 @@ T001a:
     present.
 T001b:
   c: false
-  h: 0cc941e61f7e92ed65ef820eeb3b790b1f58854af8be3d6003bd34d855339349
-  r: The required file `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
-    does not exist (it is missing), so the task of creating the project init files
-    in the specified directory is not fulfilled. The other init files are present,
-    but the missing requirements.txt makes the overall requirement incomplete.
+  h: e07d1399c6da2ac8b742d6f7b9aed80b36692b93d5e4532abdb8a6fca0027f35
+  r: The evidence shows that `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
+    does not exist, even though the task explicitly requires this file (and its sibling
+    `src/__init__.py` and `tests/__init__.py`) at that path. The missing `requirements.txt`
+    means the verification step fails. The implementer must create the required file
+    (and ensure the other two files are also present at the specified location).
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,16 +1,3 @@
-T005a:
-  c: false
-  h: c05101ce8274d55ad6ce70b6639be6d1eed28f48762d1261c82a9e92c485d515
-  r: "The required file `data/derived/synthetic_queries_warmup.json` does not exist,\
-    \ and there is no evidence in `code/data/generator.py` that it has been extended\
-    \ to produce a 100\u2011query warm\u2011up set. The deliverable is missing, so\
-    \ the task is not satisfied."
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/manifest.json` file or `state/hashes/` directory was provided, and\
-    \ there is no evidence that SHA\u2011256 hashes for files in `data/` and `code/`\
-    \ were computed. The required artifact is missing, so the task is not satisfied."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,15 +6,13 @@ T011:
     compute and verify file checksums). The claim lacks the actual artifacts needed
     to satisfy the task.
 T014:
-  c: false
-  h: 0f6ebb048e7c5e4be38125674147cf890fd54d02925e052477ac544a6cec762f
-  r: "The `loaders.py` file provides a concrete parsing function, but the supplied\
-    \ `synthetic_queries_test.json` is only a 5\u2011entry sample and contains a trailing\
-    \ comment, which is not valid JSON and would cause `json.load` to fail. The task\
-    \ required full parsing of the complete 500\u2011entry test set; the current artifact\
-    \ does not contain the full dataset nor a valid JSON file. The implementer must\
-    \ provide a complete, comment\u2011free `synthetic_queries_test.json` with all\
-    \ 500 entries and ensure the loader can successfully parse it."
+  c: true
+  h: 8da6b8f9cd7dfa39f7e3b2a1e11153e40dcfb6e3fa92074e3e4325d896d4f218
+  r: The repository contains `code/data/loaders.py` with a `load_benchmark_queries`
+    function that reads the JSON file, validates its list structure, and constructs
+    `BenchmarkQuery` objects via `BenchmarkQuery.from_dict`, plus a `load_test_set`
+    helper that points to `data/derived/synthetic_queries_test.json`. The JSON test
+    set file exists and holds the expected objects (500 entries, sample shown).
 T016:
   c: false
   h: 80859ef64310abbc28ee62277b641f00c2a8a64dd96599c6c5955769ec344180

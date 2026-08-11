@@ -1,160 +1,174 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
 description: |
-  Schema defining the structure of model results and metrics produced by the
-  plant root architecture prediction pipeline. This schema covers both
-  per-condition model performance metrics and feature importance data.
+  Schema defining the structure of model performance metrics and results
+  produced by the training and evaluation pipeline (code/train.py, code/evaluate.py).
+  This schema ensures consistency across model comparisons, null model baselines,
+  and final result reporting.
 type: object
 required:
   - metadata
-  - models
+  - model_results
 properties:
   metadata:
     type: object
-    description: Execution and data provenance information
+    description: Metadata about the run, data source, and configuration.
     required:
       - timestamp
-      - pipeline_version
       - data_source
+      - nutrient_condition
+      - random_seed
+      - pipeline_version
     properties:
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of when the model was trained/evaluated
-      pipeline_version:
-        type: string
-        description: Version of the pipeline used (e.g., from git commit or config)
+        description: ISO 8601 timestamp of when the model was trained/evaluated.
       data_source:
         type: string
-        description: Path or identifier of the input dataset used
+        description: Identifier for the dataset version used (e.g., 'unified_v1', 'mock_v1').
       nutrient_condition:
         type: string
-        description: The specific nutrient condition for this model run
+        description: The specific nutrient condition this model was trained on (e.g., 'low_phosphate', 'high_nitrogen').
       random_seed:
         type: integer
-        description: Random seed used for reproducibility
+        description: The random seed used for reproducibility.
+      pipeline_version:
+        type: string
+        description: Version tag of the training pipeline code.
+      split_ratios:
+        type: object
+        description: Ratios used for train/val/test splits.
+        properties:
+          train:
+            type: number
+            minimum: 0
+            maximum: 1
+          val:
+            type: number
+            minimum: 0
+            maximum: 1
+          test:
+            type: number
+            minimum: 0
+            maximum: 1
       hyperparameters:
         type: object
-        description: Dictionary of hyperparameters used for this model
+        description: Dictionary of hyperparameters used for this specific model run.
         additionalProperties: true
-  models:
+
+  model_results:
     type: array
-    description: List of model results (one per model type trained)
+    description: List of performance metrics for each model run.
     items:
       type: object
       required:
         - model_type
+        - model_id
         - metrics
+        - cv_scores
       properties:
         model_type:
           type: string
           enum:
-            - null_model
-            - lasso
-            - elastic_net
-            - random_forest
-            - gradient_boosting
-          description: Type of model trained
+            - NullModel
+            - Lasso
+            - ElasticNet
+            - Ridge
+            - RandomForest
+            - GradientBoosting
+          description: The type of algorithm used.
+        model_id:
+          type: string
+          description: Unique identifier for this specific model instance (e.g., 'lasso_alpha0.1').
         metrics:
           type: object
-          description: Performance metrics for this model
+          description: Primary performance metrics on the test set.
           required:
-            - r_squared
+            - r2_score
             - mae
             - rmse
           properties:
-            r_squared:
+            r2_score:
               type: number
-              format: float
-              description: Coefficient of determination (R²)
-            adjusted_r_squared:
-              type: number
-              format: float
-              description: Adjusted R² for models with multiple predictors
+              description: Coefficient of determination.
             mae:
               type: number
-              format: float
-              description: Mean Absolute Error
+              description: Mean Absolute Error.
             rmse:
               type: number
-              format: float
-              description: Root Mean Squared Error
-            cv_r_squared_mean:
+              description: Root Mean Squared Error.
+            fit_time_seconds:
               type: number
-              format: float
-              description: Mean R² from cross-validation
-            cv_r_squared_std:
+              description: Time taken to train the model.
+        cv_scores:
+          type: object
+          description: Cross-validation statistics.
+          required:
+            - mean_r2
+            - std_r2
+            - mean_mae
+            - std_mae
+          properties:
+            mean_r2:
               type: number
-              format: float
-              description: Standard deviation of R² from cross-validation
-            p_value:
+            std_r2:
               type: number
-              format: float
-              description: P-value from permutation test against null model
-            is_significant:
-              type: boolean
-              description: Whether the model significantly outperforms the null model (p < 0.05)
-            null_model_r_squared:
+            mean_mae:
               type: number
-              format: float
-              description: R² of the null model for comparison
+            std_mae:
+              type: number
+            n_folds:
+              type: integer
+              minimum: 2
         feature_importance:
           type: array
-          description: List of top features and their importance scores
+          description: Top N features by importance (optional, for tree/linear models).
           items:
             type: object
-            required:
-              - feature_name
-              - importance_score
             properties:
               feature_name:
                 type: string
-                description: Name of the genomic marker or feature
               importance_score:
                 type: number
-                format: float
-                description: Importance score (SHAP value, coefficient magnitude, or permutation importance)
-              p_value:
-                type: number
-                format: float
-                description: P-value for feature significance (if available)
-              is_significant:
-                type: boolean
-                description: Whether the feature is statistically significant after correction
-        model_artifact_path:
-          type: string
-          description: Relative path to the saved model file (e.g., pickle or joblib)
-        prediction_stats:
+              rank:
+                type: integer
+        shap_summary:
           type: object
-          description: Statistics about the predictions made by this model
+          description: Summary statistics for SHAP values (if calculated).
           properties:
-            min_prediction:
-              type: number
-              format: float
-            max_prediction:
-              type: number
-              format: float
-            mean_prediction:
-              type: number
-              format: float
-            std_prediction:
-              type: number
-              format: float
-  summary:
+            mean_abs_shap:
+              type: array
+              items:
+                type: number
+              description: Mean absolute SHAP values per feature.
+            feature_names:
+              type: array
+              items:
+                type: string
+              description: Corresponding feature names.
+
+  null_model_comparison:
     type: object
-    description: High-level summary of the best performing model per condition
+    description: Comparison against the null model baseline.
     properties:
-      best_model_type:
-        type: string
-        description: Type of the best performing model
-      best_r_squared:
+      null_model_r2:
         type: number
-        format: float
-        description: R² of the best model
-      significant_markers_count:
-        type: integer
-        description: Number of statistically significant genomic markers identified
-      environmental_dominance_flag:
+      null_model_mae:
+        type: number
+      improvement_r2:
+        type: number
+        description: Difference in R2 between trained model and null model.
+      significant_improvement:
         type: boolean
-        description: True if no models significantly outperformed the null model
+        description: Whether the improvement is statistically significant (p < 0.05).
+      p_value:
+        type: number
+        description: P-value from the significance test (e.g., permutation test).
+
+  warnings:
+    type: array
+    description: Any warnings generated during training or evaluation.
+    items:
+      type: string
 additionalProperties: false

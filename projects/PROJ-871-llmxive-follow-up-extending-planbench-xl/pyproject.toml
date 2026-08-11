@@ -5,7 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-planbench-xl"
 version = "0.1.0"
-description = "Extending PlanBench-XL for LLM Agent Evaluation"
+description = "Extending PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "datasets==2.14.0",
@@ -21,8 +22,8 @@ dependencies = [
 ]
 
 [tool.black]
-line-length = 100
-target-version = ['py39', 'py310', 'py311']
+line-length = 88
+target-version = ['py39', 'py310']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -31,24 +32,21 @@ exclude = '''
   | \.mypy_cache
   | \.tox
   | \.venv
-  | venv
   | _build
   | buck-out
   | build
   | dist
-  | data
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-skip_gitignore = true
-skip = ["venv", ".venv", "data"]
+line_length = 88
+known_first_party = ["agents", "analysis", "dataset", "utils"]
+skip = [".git", "venv", ".venv", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"

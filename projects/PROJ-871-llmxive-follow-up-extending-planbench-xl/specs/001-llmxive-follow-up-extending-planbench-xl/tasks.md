@@ -76,7 +76,7 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement baseline agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py` using internal LLM reasoning only (no external index access). **Model**: Llama-3-8B-Quantized (4-bit if available on CPU, else 8-bit), **Params**: max_tokens=512, temperature=0.7.
-- [ ] T013 [US1] Implement baseline execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_baseline.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/baseline_execution.jsonl`
+- [ ] T013 [US1] Implement baseline execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_baseline.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/baseline_execution.jsonl` <!-- FAILED: unspecified -->
 - [ ] T014 [US1] Add validation to ensure baseline agent does NOT access `data/derived/failure_signatures.json` (enforces isolation) - **Note**: This task depends on T012/T013 completion.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -91,9 +91,9 @@
 
 ### Implementation for User Story 2
 
-- [~] T018 [US2] Implement augmented agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py` with string-matching check against `data/derived/failure_signatures.json` post-invocation. **Matching**: Exact string match or regex if pattern contains wildcards. **Threshold**: 100% match required to trigger recovery.
+- [ ] T018 [US2] Implement augmented agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py` with string-matching check against `data/derived/failure_signatures.json` post-invocation. **Matching**: Exact string match or regex if pattern contains wildcards. **Threshold**: 100% match required to trigger recovery.
 - [X] T019 [US2] Implement recovery strategy logic in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py` (re-plan or tool substitution, NOT returning ground truth directly)
-- [~] T020 [US2] Implement augmented execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_augmented.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/augmented_execution.jsonl`
+- [ ] T020 [US2] Implement augmented execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_augmented.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/augmented_execution.jsonl`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,7 +110,7 @@
 - [X] T021 [P] [US3] Unit test for statistical analysis in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_stats.py` (verifies z-test and Fisher calculation logic)
 - [X] T022 [P] [US3] Integration test for report generation in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/integration/test_analysis_report.py`
 - [X] T023 [P] [US3] Implement statistical analysis module in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/stats.py`: **Logic**: Count events from logs. If n < 30, use `scipy.stats.fisher_exact`; otherwise, use `scipy.stats.proportions_ztest`. Output p-value and test type.
-- [~] T024 [US3] Implement log parser in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/log_parser.py` to aggregate success/failure counts from `data/logs/baseline_execution.jsonl` and `data/logs/augmented_execution.jsonl` for input to the statistical test (conditional logic in T023).
+- [ ] T024 [US3] Implement log parser in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/log_parser.py` to aggregate success/failure counts from `data/logs/baseline_execution.jsonl` and `data/logs/augmented_execution.jsonl` for input to the statistical test (conditional logic in T023).
 - [~] T025 [US3] Implement report generator in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/report.py` to output final results (success rates, difference, p-value, test type, conclusion) to `data/results/final_report.json`
 - [~] T026 [US3] Implement main experiment runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/run_experiment.py` to orchestrate: Load -> Inject/Index -> Baseline Run -> Augmented Run -> Analysis -> Report
 

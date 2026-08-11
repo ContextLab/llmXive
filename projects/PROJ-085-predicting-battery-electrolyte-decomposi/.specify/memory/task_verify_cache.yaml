@@ -1,0 +1,46 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging configuration file, code snippet, or documentation was provided that
+    sets up a logging infrastructure to emit warnings for missing geometric data or
+    metallic behavior outliers. The required artifact is missing, so the task is not
+    satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration artifact (e.g., a `.env`, `config.yaml`, or Python module) defining
+    random seeds and dataset URLs is present in the provided evidence, nor any documentation
+    describing such setup. Consequently the requirement to establish environment configuration
+    management is not satisfied.
+T011#1:
+  c: false
+  h: edcdbdb6594ecf02f2889568900891dd003b0525a7142704ed8dff98ad44b429
+  r: "The required file `tests/integration/test_ingestion.py` does not exist, so no\
+    \ integration test is present to verify the data ingestion pipeline. The task\u2019\
+    s core artifact is missing, making the claim of completion invalid."
+T012:
+  c: false
+  h: 468bcac03552b61e23a2976d939c95be4d2fc36b9c0320d83a5984cab6bfe15d
+  r: The repository contains `code/data/ingestion.py`, but the required fallback file
+    `data/raw/mock_electrolytes.csv` is absent, so the script cannot satisfy the fallback
+    behavior. Additionally, the provided source is truncated, leaving uncertainty
+    about proper filtering logic. The missing mock CSV must be added (with the correct
+    schema) and the script verified to fully implement the task.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test output was provided showing that a validation step was
+    added to check for missing values in the feature matrix before it is written out.
+    Without an artifact (e.g., a function, unit test, or log demonstrating the check),
+    we cannot confirm the requirement was implemented. The next implementer must add
+    and commit the validation logic and supply the corresponding code or test evidence.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or report was provided that implements the required logic to\
+    \ find descriptors that enter the top\u20113 importance at the high\u2011potential\
+    \ (4\u202FV) bin but are absent from the low\u2011potential (0\u20112\u202FV)\
+    \ bin, nor any documentation explicitly referencing the spec\u2019s 3\u20115\u202F\
+    V range and the known 4\u202FV mapping limitation. The implementer must supply\
+    \ the actual implementation (e.g., a script or notebook) and its output demonstrating\
+    \ the identified descriptors and the required spec commentary."

@@ -1,4 +1,4 @@
-- artifact_hash: c5297c2a1f52c8038f78ed48846d7e7e772bdeb24b04bde6148dc83a1af0cbdd
+- artifact_hash: b5e4e6ba3f14d60c6f6cfbdecc764800b854b4bf58cd5b987df5341033011102
   artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://arxiv.org/abs/2509.23775
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2509.23775
-  verified_at: '2026-08-03T01:10:32.183096Z'
+  verified_at: '2026-08-11T16:24:47.034256Z'

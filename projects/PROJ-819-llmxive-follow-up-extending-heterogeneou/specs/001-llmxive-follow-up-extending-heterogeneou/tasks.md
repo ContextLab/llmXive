@@ -66,9 +66,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement full `BenchmarkQuery` entity parsing logic in `code/data/loaders.py` to ingest `data/derived/synthetic_queries_test.json` (Test Set).
+- [X] T014 [US1] Implement full `BenchmarkQuery` entity parsing logic in `code/data/loaders.py` to ingest `data/derived/synthetic_queries_test.json` (Test Set).
 - [X] T015 [US1] Implement embedding generation using a sentence-transformer model in `code/cache/utils.py` (CPU-only).
-- [ ] T016 [US1] Implement cache population logic (Warm-up Phase) in `code/cache/semantic_cache.py` using `data/derived/synthetic_queries_warmup.json`.
+- [ ] T016 [US1] Implement cache population logic (Warm-up Phase) in `code/cache/semantic_cache.py` using `data/derived/synthetic_queries_warmup.json`. <!-- FAILED: unspecified -->
 - [X] T017 [US1] Implement cache retrieval logic with a configurable similarity threshold in `code/cache/semantic_cache.py`. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
