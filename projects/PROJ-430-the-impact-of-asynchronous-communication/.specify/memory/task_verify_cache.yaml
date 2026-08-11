@@ -1,42 +1,33 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree was provided, and there is no evidence that the required `projects/PROJ-430-the-impact-of-asynchronous-communication`
+    folder hierarchy (code, data, tests, docs, config) was actually created. The implementer
+    must show the `tree` output confirming the structure exists.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `venv/` directory or any virtual\u2011environment files is\
+    \ provided; the implementer only states the command was run. The required artifact\
+    \ (the created Python\u202F3.11 virtual environment) is missing, so the task is\
+    \ not satisfied."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` folder, its subdirectories, a `.gitignore` with the
+    specified patterns, or a `.gitkeep` file in `validation/` was provided; without
+    these artifacts the requirement cannot be confirmed as met.
+T012:
+  c: false
+  h: c1d9001660ed2cd6cfb0b49cb445d1bf31d15fa62e9376e1effd40e8c358b5d3
+  r: The provided `code/metrics.py` defines `identify_pairs_and_calculate_metrics`
+    instead of the required `calculate_and_persist_pair_metrics`, and the file `data/derived/timestamp_features.parquet`
+    does not exist, so the expected output artifact is missing. The implementation
+    does not demonstrably produce the required schema or persist the results.
 T015:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file was provided that performs the weighted\u2011\
-    mean aggregation of pair\u2011level response\u2011time variances into a project\u2011\
-    level metric, as required by task T015. The evidence consists only of the task\
-    \ description; the actual implementation artifact is missing."
-T015a:
-  c: false
-  h: 599e5435f4ae69674fdcdad2b321f70449f9628e5a02138d80860351534dc99c
-  r: "The required file `data/derived/timestamp_features.parquet` does not exist,\
-    \ so the intermediate timestamp-derived features have not been persisted as specified.\
-    \ The task\u2019s core deliverable is missing."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation showing added error handling for GitHub\
-    \ API rate limits or chunking logic for datasets >100\u202Fk events is present.\
-    \ The claim lacks any artifact (e.g., updated ingestion script, tests, or logs)\
-    \ that demonstrates the required OOM\u2011prevention measures, so the task is\
-    \ not satisfied."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only the task description and specification excerpt;
-    there are no code, scripts, or generated files that implement the sampling logic
-    or produce the request file (schema and sampling list) required for external human
-    annotation. Consequently, the core deliverable is missing.
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or documentation were provided that implement the required\
-    \ multi\u2011modal validation logic to align VADER sentiment scores with the manual\
-    \ ground\u2011truth annotations (FR\u2011009). The evidence lacks any artifact\
-    \ (e.g., a script, notebook, or output CSV) demonstrating the alignment process,\
-    \ so the task is not satisfied."
-T023a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or result files were provided that compute the Spearman correlation\
-    \ between VADER and manual scores, nor any pass/fail output against the \u03C1\
-    \u202F\u2265\u202F0.5 threshold. The required artifact is missing."
+  h: 29453d0cdee41454fb8cab9327e64ee9469d24002a2368f01e602f89c37cf0af
+  r: "The required output file `data/derived/project_metrics.csv` does not exist,\
+    \ so there is no evidence of a `median_variance` column or any aggregated project\u2011\
+    level metrics. Consequently the verification test cannot be run. The task needs\
+    \ the CSV file with the correct median aggregation."

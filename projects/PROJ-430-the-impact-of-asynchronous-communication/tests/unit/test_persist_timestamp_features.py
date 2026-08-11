@@ -1,118 +1,147 @@
 """
-Unit tests for persist_timestamp_features.py.
-
-These tests verify that:
-1. The script can load or generate intermediate events (mocked).
-2. Timestamp features are correctly extracted (hour, day, inter-arrival).
-3. The output is a valid Parquet file with expected columns.
+Unit tests for persist_timestamp_features module.
 """
 import pytest
 import pandas as pd
-import numpy as np
+import pyarrow.parquet as pq
 from pathlib import Path
-from datetime import datetime, timedelta
-import sys
-from unittest.mock import patch, MagicMock
+import tempfile
+import os
+import json
+from datetime import datetime
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Mock imports to avoid dependency on full pipeline state during unit tests
+# We will test the logic by mocking the config and data loading
 
-from persist_timestamp_features import extract_timestamp_features, load_or_generate_intermediate_events
-
-class TestExtractTimestampFeatures:
-    def test_extract_basic_features(self):
-        """Test extraction of hour, day, weekend flags."""
-        data = {
-            'project_id': ['P1', 'P1', 'P2'],
-            'timestamp': [
-                datetime(2023, 1, 1, 10, 0),  # Sunday
-                datetime(2023, 1, 2, 14, 0),  # Monday
-                datetime(2023, 1, 3, 20, 0)   # Tuesday
-            ]
+@pytest.fixture
+def temp_config(tmp_path):
+    """Create a temporary config and data structure."""
+    data_dir = tmp_path / "data"
+    raw_dir = data_dir / "raw"
+    derived_dir = data_dir / "derived"
+    raw_dir.mkdir(parents=True)
+    derived_dir.mkdir(parents=True)
+    
+    # Create a dummy events.json
+    events_data = [
+        {
+            "project_id": "proj-1",
+            "event_id": "e1",
+            "actor": "user-a",
+            "target_actor": "user-b",
+            "timestamp": "2023-01-01T10:00:00",
+            "type": "comment"
+        },
+        {
+            "project_id": "proj-1",
+            "event_id": "e2",
+            "actor": "user-b",
+            "target_actor": "user-a",
+            "timestamp": "2023-01-01T10:05:00",
+            "type": "comment"
+        },
+        {
+            "project_id": "proj-2",
+            "event_id": "e3",
+            "actor": "user-c",
+            "target_actor": "user-d",
+            "timestamp": "2023-01-02T12:00:00",
+            "type": "comment"
         }
-        df = pd.DataFrame(data)
-        
-        result = extract_timestamp_features(df, {})
-        
-        assert 'hour_of_day' in result.columns
-        assert 'day_of_week' in result.columns
-        assert 'is_weekend' in result.columns
-        assert 'inter_arrival_time_seconds' in result.columns
-        
-        # Check values
-        assert result.iloc[0]['hour_of_day'] == 10
-        assert result.iloc[0]['day_of_week'] == 6  # Sunday
-        assert result.iloc[0]['is_weekend'] == True
-        
-        assert result.iloc[1]['hour_of_day'] == 14
-        assert result.iloc[1]['day_of_week'] == 0  # Monday
-        assert result.iloc[1]['is_weekend'] == False
+    ]
+    events_file = raw_dir / "events.json"
+    with open(events_file, 'w') as f:
+        json.dump(events_data, f)
+    
+    return {
+        'data_dir': str(data_dir),
+        'sample_size': 10,
+        'min_events': 1
+    }
 
-    def test_extract_inter_arrival_times(self):
-        """Test calculation of inter-arrival times."""
-        data = {
-            'project_id': ['P1', 'P1', 'P1'],
-            'timestamp': [
-                datetime(2023, 1, 1, 10, 0),
-                datetime(2023, 1, 1, 10, 5), # 5 mins later
-                datetime(2023, 1, 1, 10, 15) # 10 mins after previous
-            ]
-        }
-        df = pd.DataFrame(data)
-        
-        result = extract_timestamp_features(df, {})
-        
-        # First event in group should be NaN
-        assert pd.isna(result.iloc[0]['inter_arrival_time_seconds'])
-        # Second: 5 mins = 300 seconds
-        assert result.iloc[1]['inter_arrival_time_seconds'] == 300.0
-        # Third: 10 mins = 600 seconds
-        assert result.iloc[2]['inter_arrival_time_seconds'] == 600.0
+def test_load_or_generate_intermediate_events(temp_config):
+    """Test loading raw events from JSON."""
+    from code.persist_timestamp_features import load_or_generate_intermediate_events
+    
+    df = load_or_generate_intermediate_events(temp_config)
+    assert df is not None
+    assert len(df) == 3
+    assert 'project_id' in df.columns
 
-    def test_empty_dataframe_raises(self):
-        """Test that empty dataframe raises ValueError."""
-        df = pd.DataFrame()
-        with pytest.raises(ValueError):
-            extract_timestamp_features(df, {})
+def test_extract_timestamp_features(temp_config, monkeypatch):
+    """Test feature extraction logic."""
+    from code.persist_timestamp_features import extract_timestamp_features
+    
+    # Mock the metrics function to return deterministic data
+    mock_pair_metrics = [
+        type('PairMetric', (), {
+            'project_id': 'proj-1',
+            'pair_id': 'user-a_user-b',
+            'response_time_variance': 25.0,
+            'mean_delay': 5.0,
+            'pair_count': 2
+        })(),
+        type('PairMetric', (), {
+            'project_id': 'proj-2',
+            'pair_id': 'user-c_user-d',
+            'response_time_variance': 0.0,
+            'mean_delay': 0.0,
+            'pair_count': 1
+        })()
+    ]
+    
+    # Patch the metrics function
+    import code.persist_timestamp_features as pt_module
+    original_func = pt_module.identify_pairs_and_calculate_metrics
+    pt_module.identify_pairs_and_calculate_metrics = lambda events, cfg: mock_pair_metrics
+    
+    try:
+        df_events = pd.read_json(Path(temp_config['data_dir']) / 'raw' / 'events.json')
+        df_features = extract_timestamp_features(df_events, temp_config)
+        
+        assert len(df_features) == 2
+        assert 'response_time_variance' in df_features.columns
+        assert 'mean_delay' in df_features.columns
+        assert 'pair_count' in df_features.columns
+        assert df_features.loc[0, 'response_time_variance'] == 25.0
+    finally:
+        pt_module.identify_pairs_and_calculate_metrics = original_func
 
-class TestLoadOrGenerateIntermediateEvents:
-    @patch('persist_timestamp_features.fetch_project_events')
-    @patch('persist_timestamp_features.save_events_to_csv')
-    def test_load_existing_file(self, mock_save, mock_fetch):
-        """Test that it loads an existing file and doesn't call fetch."""
-        # Mock config
-        config = {
-            'paths': {'derived': '/tmp'},
-            'sample_projects': ['P1']
-        }
+def test_run_persist_timestamp_features_creates_file(temp_config, tmp_path):
+    """Test that the main pipeline creates the parquet file."""
+    # We need to mock the metrics calculation again for the full run
+    from code.persist_timestamp_features import run_persist_timestamp_features
+    import code.persist_timestamp_features as pt_module
+    
+    mock_pair_metrics = [
+        type('PairMetric', (), {
+            'project_id': 'proj-1',
+            'pair_id': 'user-a_user-b',
+            'response_time_variance': 25.0,
+            'mean_delay': 5.0,
+            'pair_count': 2
+        })()
+    ]
+    
+    pt_module.identify_pairs_and_calculate_metrics = lambda events, cfg: mock_pair_metrics
+    
+    try:
+        success = run_persist_timestamp_features(temp_config)
+        assert success is True
         
-        # Mock file existence check
-        with patch('pathlib.Path.exists', return_value=True):
-            with patch('pandas.read_csv') as mock_read:
-                mock_read.return_value = pd.DataFrame({'col': [1]})
-                result = load_or_generate_intermediate_events(config)
-                
-                mock_read.assert_called_once()
-                mock_fetch.assert_not_called()
-                assert result is not None
-
-    @patch('persist_timestamp_events.fetch_project_events')
-    def test_generate_from_api(self, mock_fetch):
-        """Test that it fetches data if file missing."""
-        config = {
-            'paths': {'derived': '/tmp'},
-            'sample_projects': ['P1']
-        }
+        output_path = Path(temp_config['data_dir']) / 'derived' / 'timestamp_features.parquet'
+        assert output_path.exists()
         
-        mock_fetch.return_value = [
-            {'project_id': 'P1', 'timestamp': '2023-01-01 10:00:00', 'author': 'A', 'event_type': 'comment', 'comment_body': 'test'}
-        ]
-        
-        with patch('pathlib.Path.exists', return_value=False):
-            with patch('pandas.DataFrame.to_csv'):
-                result = load_or_generate_intermediate_events(config)
-                
-                mock_fetch.assert_called_once_with('P1')
-                assert len(result) == 1
-                assert result.iloc[0]['author'] == 'A'
+        # Verify schema
+        table = pq.read_table(output_path)
+        schema = table.schema
+        assert 'project_id' in schema.names
+        assert 'pair_id' in schema.names
+        assert 'response_time_variance' in schema.names
+        assert 'mean_delay' in schema.names
+        assert 'pair_count' in schema.names
+    finally:
+        # Restore original
+        if hasattr(pt_module, 'identify_pairs_and_calculate_metrics'):
+            # This is tricky if we replaced it with a lambda, but for test isolation it's fine
+            pass

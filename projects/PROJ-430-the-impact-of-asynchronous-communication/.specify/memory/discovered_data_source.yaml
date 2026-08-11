@@ -1,16 +1,19 @@
 status: none
-intent: GitHub Archive GHTorrent GitHub API timestamps for issues pull requests comments
-  python package dataset
+intent: download GitHub repository metadata issues pull requests comments GHTorrent
+  GHArchive python package dataset
 required_fields:
-- repo_id
-- repo_name
+- repository_id
+- repository_name
+- issue_id
+- pull_request_id
+- comment_id
 - event_type
-- event_id
-- actor_login
 - created_at
+- author_login
+- author_id
 - issue_number
 - pull_number
-- comment_id
-cache_key: 1013940dd8faa5ecf0eb803849df47fed7e09f47bbb52abce45b1bcb6144f91f
-searched_at: '2026-08-10T21:34:57.463667+00:00'
+- parent_id
+cache_key: bb4941965b4bc66d0d7e01eae3d11552763001cc51faf3e4b1663cc452709c36
+searched_at: '2026-08-11T06:56:28.021632+00:00'
 retry_count: 1

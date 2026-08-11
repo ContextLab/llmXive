@@ -1,56 +1,21 @@
-# Data Directory Structure
-# This file ensures that data files are not tracked by Git,
-# while preserving the directory structure.
+# Ignore all data files by default
+# Specific files must be explicitly kept via .gitkeep in subdirectories
 
-# Raw data: Downloaded from external sources (GitHub API, etc.)
+# Raw data: Ignore all generated raw data
 raw/*
 !raw/.gitkeep
 
-# Derived data: Processed and transformed data
+# Derived data: Ignore all processed data
 derived/*
 !derived/.gitkeep
 
-# Validation data: Ground truth, manual annotations, test datasets
+# Validation data: Ignore all validation files
 validation/*
 !validation/.gitkeep
 
-# Temporary processing files
-*.tmp
-*.temp
-*.part
+# Logs: Ignore all log files
+logs/*
+!logs/.gitkeep
 
-# Cache files
-.cache/
-
-# Large binary files (parquet, pickle, etc.)
-*.parquet
-*.pkl
-*.pickle
-*.feather
-*.h5
-*.hdf5
-
-# Log files generated during data processing
-*.log
-
-# IDE and editor files
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*~
-
-# Python cache in data directories
-__pycache__/
-*.py[cod]
-$py.class
-
-# Jupyter notebook checkpoints
-.ipynb_checkpoints/
-
-# Environment-specific files
-.env
-*.env
-
-# Exclude all files except .gitkeep in subdirectories
-!**/.gitkeep
+# Explicitly keep placeholder files
+**/.gitkeep

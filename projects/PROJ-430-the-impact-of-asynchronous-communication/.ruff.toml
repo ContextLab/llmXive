@@ -1,21 +1,30 @@
-# Ruff configuration file
-line-length = 100
-target-version = "py311"
-
 [lint]
 select = [
-    "E", # pycodestyle errors
-    "W", # pycodestyle warnings
-    "F", # Pyflakes
-    "I", # isort
-    "B", # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
+  "RUF",# ruff-specific rules
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+  "E501", # line too long (handled by black)
+  "B008", # do not perform function calls in argument defaults (common in data science)
 ]
+exclude = [
+  "venv",
+  ".venv",
+  "build",
+  "dist",
+  ".git",
+]
+unfixable = ["F401"] # Do not auto-remove unused imports (sometimes needed for APIs)
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow asserts in tests
 
 [lint.isort]
-known-first-party = ["code", "tests"]
+known-first-party = ["code"]
+force-single-line = true

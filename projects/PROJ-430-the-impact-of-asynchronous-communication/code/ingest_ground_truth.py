@@ -1,123 +1,133 @@
 """
-Ingest external human-annotated ground truth data for cohesion validation.
+Ingest Manual Ground Truth Data (Task T022b)
 
-This script loads the manual ground truth CSV from data/validation/manual_ground_truth.csv,
-validates its schema, and logs the ingestion statistics.
-
-Required columns: project_id, comment_id, manual_cohesion_score
+Implements logic to load `data/validation/manual_ground_truth.csv` if present,
+validate its schema against `contracts/validation.schema.yaml`, and return
+the validated dataframe.
 """
 import logging
 import sys
 from pathlib import Path
 from typing import Optional, List, Dict, Any
-
 import pandas as pd
-
+import yaml
 from config import get_config, ensure_directories_exist
 from utils.logger import get_logger
 
-REQUIRED_COLUMNS = {"project_id", "comment_id", "manual_cohesion_score"}
+logger = get_logger(__name__)
 
-def load_ground_truth(path: Optional[Path] = None) -> pd.DataFrame:
+def load_ground_truth(config: Optional[Dict[str, Any]] = None) -> Optional[pd.DataFrame]:
     """
-    Load the manual ground truth CSV from disk.
+    Load manual ground truth data if it exists.
 
     Args:
-        path: Optional path to the CSV file. If None, uses the configured path.
+        config: Optional configuration dictionary. If None, loads from defaults.
 
     Returns:
-        DataFrame containing the ground truth data.
+        pd.DataFrame: The loaded ground truth data if present.
+        None: If the file does not exist.
 
     Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the schema is invalid.
+        ValueError: If the file exists but fails schema validation.
+        FileNotFoundError: If the file is missing and no synthetic fallback is requested (handled by caller).
     """
-    config = get_config()
-    if path is None:
-        path = config["paths"]["validation_dir"] / "manual_ground_truth.csv"
+    cfg = config if config else get_config()
+    data_dir = Path(cfg.get("data_dir", "data"))
+    ground_truth_path = data_dir / "validation" / "manual_ground_truth.csv"
 
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Ground truth file not found at {path}. "
-            "Ensure the external human annotation CSV has been placed here."
-        )
+    # Ensure directory exists to avoid errors if path is weird, though we are reading
+    ensure_directories_exist([ground_truth_path.parent])
 
-    df = pd.read_csv(path)
+    if not ground_truth_path.exists():
+        logger.info(f"Manual ground truth file not found at {ground_truth_path}. "
+                    "Proceeding to synthetic fallback logic in caller (T022c).")
+        return None
 
-    # Validate schema
-    missing_cols = REQUIRED_COLUMNS - set(df.columns)
-    if missing_cols:
-        raise ValueError(
-            f"Ground truth CSV is missing required columns: {missing_cols}. "
-            f"Required columns: {REQUIRED_COLUMNS}"
-        )
-
-    # Validate data types and basic constraints
-    if df["manual_cohesion_score"].isna().any():
-        logging.warning("Ground truth contains NaN values in manual_cohesion_score column.")
-    
-    if (df["manual_cohesion_score"] < 0).any() or (df["manual_cohesion_score"] > 1).any():
-        logging.warning("Some manual_cohesion_score values are outside the expected [0, 1] range.")
-
-    return df
-
-def log_ingestion_stats(df: pd.DataFrame, logger: logging.Logger) -> None:
-    """Log statistics about the ingested ground truth data."""
-    total_rows = len(df)
-    unique_projects = df["project_id"].nunique()
-    unique_comments = df["comment_id"].nunique()
-    score_mean = df["manual_cohesion_score"].mean()
-    score_std = df["manual_cohesion_score"].std()
-
-    logger.info(f"Ground truth ingestion complete.")
-    logger.info(f"  Total records: {total_rows}")
-    logger.info(f"  Unique projects: {unique_projects}")
-    logger.info(f"  Unique comments: {unique_comments}")
-    logger.info(f"  Score mean: {score_mean:.4f}")
-    logger.info(f"  Score std: {score_std:.4f}")
-
-def run_ingest_ground_truth(output_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Main entry point for the ground truth ingestion pipeline.
-
-    Args:
-        output_path: Optional path to save a cleaned/validated version of the data.
-                    If None, the original file is not modified.
-
-    Returns:
-        The loaded and validated DataFrame.
-    """
-    logger = get_logger(__name__)
-    logger.info("Starting ground truth ingestion pipeline.")
+    logger.info(f"Loading manual ground truth from {ground_truth_path}")
 
     try:
-        df = load_ground_truth(output_path)
-        log_ingestion_stats(df, logger)
-
-        # Ensure directories exist if we are writing output
-        if output_path:
-            ensure_directories_exist([output_path.parent])
-            df.to_csv(output_path, index=False)
-            logger.info(f"Saved validated ground truth to {output_path}")
-
-        logger.info("Ground truth ingestion pipeline completed successfully.")
-        return df
-
-    except FileNotFoundError as e:
-        logger.error(f"Failed to load ground truth: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        raise
+        df = pd.read_csv(ground_truth_path)
     except Exception as e:
-        logger.exception(f"Unexpected error during ground truth ingestion: {e}")
+        logger.error(f"Failed to read manual ground truth CSV: {e}")
         raise
 
-def main() -> None:
+    # Validate Schema
+    schema_path = Path("contracts/validation.schema.yaml")
+    if schema_path.exists():
+        try:
+            with open(schema_path, 'r') as f:
+                schema = yaml.safe_load(f)
+        except Exception as e:
+            logger.warning(f"Could not load validation schema for checking: {e}")
+            schema = None
+    else:
+        logger.warning(f"Validation schema not found at {schema_path}. Skipping schema validation.")
+        schema = None
+
+    if schema:
+        required_columns = schema.get("required_columns", [])
+        missing_cols = [col for col in required_columns if col not in df.columns]
+
+        if missing_cols:
+            error_msg = f"Ground truth file missing required columns: {missing_cols}. " \
+                        f"Expected: {required_columns}. Found: {list(df.columns)}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Type checks if defined in schema
+        column_types = schema.get("column_types", {})
+        for col, expected_type in column_types.items():
+            if col in df.columns:
+                if expected_type == "int" and not pd.api.types.is_integer_dtype(df[col]):
+                    logger.warning(f"Column {col} is not integer type, attempting cast.")
+                    try:
+                        df[col] = pd.to_numeric(df[col], errors='raise').astype(int)
+                    except:
+                        raise ValueError(f"Column {col} cannot be cast to integer as required.")
+                elif expected_type == "float" and not pd.api.types.is_float_dtype(df[col]):
+                    try:
+                        df[col] = pd.to_numeric(df[col], errors='raise')
+                    except:
+                        raise ValueError(f"Column {col} cannot be cast to float as required.")
+
+    logger.info(f"Successfully loaded and validated {len(df)} rows of ground truth data.")
+    return df
+
+def log_ingestion_stats(df: Optional[pd.DataFrame]) -> None:
+    """Log statistics about the loaded ground truth."""
+    if df is None:
+        logger.info("No ground truth data loaded.")
+        return
+
+    logger.info(f"Ground truth stats: {len(df)} rows, {len(df.columns)} columns.")
+    if 'project_id' in df.columns:
+        logger.info(f"Unique projects: {df['project_id'].nunique()}")
+    if 'sentiment_score' in df.columns:
+        logger.info(f"Sentiment range: [{df['sentiment_score'].min():.2f}, {df['sentiment_score'].max():.2f}]")
+
+def run_ingest_ground_truth(config: Optional[Dict[str, Any]] = None) -> Optional[pd.DataFrame]:
+    """
+    Main entry point for the ground truth ingestion pipeline.
+    Returns the validated dataframe or None.
+    """
+    df = load_ground_truth(config)
+    log_ingestion_stats(df)
+    return df
+
+def main():
     """CLI entry point."""
-    config = get_config()
-    ground_truth_path = config["paths"]["validation_dir"] / "manual_ground_truth.csv"
-    run_ingest_ground_truth(ground_truth_path)
+    logger.info("Starting Manual Ground Truth Ingestion (T022b)")
+    try:
+        df = run_ingest_ground_truth()
+        if df is not None:
+            logger.info("Ingestion successful.")
+            # Optional: print head for verification
+            logger.info(df.head().to_string())
+        else:
+            logger.info("Ingestion skipped (file not found).")
+    except Exception as e:
+        logger.critical(f"Ingestion failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

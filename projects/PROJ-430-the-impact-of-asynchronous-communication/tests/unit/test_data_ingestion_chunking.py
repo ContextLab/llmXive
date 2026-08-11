@@ -1,128 +1,158 @@
 """
-Unit tests for data ingestion chunking and rate limit handling.
+Unit tests for T016: Error handling for API rate limits and large datasets (chunking).
+
+Verifies:
+1. is_bot_actor correctly identifies bots.
+2. filter_bot_events removes bot events.
+3. fetch_project_events_chunked yields chunks and handles rate limits.
+4. Memory management logic (thresholds) is respected.
 """
 import pytest
+import time
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime
-from pathlib import Path
-import sys
+import json
 import os
+import sys
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from data_ingestion import (
-    is_bot_actor,
-    filter_bot_events,
-    fetch_project_events_chunked,
-    ingest_sample_projects,
-    CHUNK_SIZE
-)
-from models import EventType
-from utils.github_client import GitHubRateLimitError
+from code.data_ingestion import is_bot_actor, filter_bot_events, fetch_project_events_chunked, ingest_sample_projects
+from code.utils.github_client import GitHubRateLimitError, GitHubClient
+from code.models import Event
 
 class TestBotFiltering:
-    def test_is_bot_actor_true_suffix(self):
-        assert is_bot_actor("dependabot[bot]") is True
-        assert is_bot_actor("my-bot[bot]") is True
+    def test_is_bot_actor_login_suffix(self):
+        """Test detection of [bot] suffix in login."""
+        assert is_bot_actor({'login': 'dependabot[bot]'}) is True
+        assert is_bot_actor({'login': 'github-actions[bot]'}) is True
+        assert is_bot_actor({'login': 'regular-user'}) is False
+        assert is_bot_actor({'login': 'bot'}) is False  # Just "bot" without suffix is not a bot by this rule
 
-    def test_is_bot_actor_true_prefix(self):
-        assert is_bot_actor("dependabot") is True
-        assert is_bot_actor("renovate-bot") is True
-        assert is_bot_actor("codecov-io") is True
+    def test_is_bot_actor_type_bot(self):
+        """Test detection of type 'Bot'."""
+        assert is_bot_actor({'type': 'Bot'}) is True
+        assert is_bot_actor({'type': 'User'}) is False
+        assert is_bot_actor({'type': 'bot'}) is True  # Case insensitive
 
-    def test_is_bot_actor_false(self):
-        assert is_bot_actor("torvalds") is False
-        assert is_bot_actor("octocat") is False
-        assert is_bot_actor("user123") is False
-
-    def test_is_bot_actor_empty(self):
-        assert is_bot_actor("") is True
-        assert is_bot_actor(None) is True
+    def test_is_bot_actor_empty_data(self):
+        """Test handling of empty or missing data."""
+        assert is_bot_actor({}) is False
+        assert is_bot_actor(None) is False
+        assert is_bot_actor({'login': None}) is False
 
     def test_filter_bot_events(self):
+        """Test that filter_bot_events removes bot events."""
         events = [
-            {"actor": {"login": "user1"}},
-            {"actor": {"login": "bot[bot]"}},
-            {"actor": {"login": "user2"}},
-            {"actor": {"login": "dependabot"}},
+            {'actor': {'login': 'user1', 'type': 'User'}},
+            {'actor': {'login': 'bot-user[bot]', 'type': 'Bot'}},
+            {'actor': {'login': 'user2', 'type': 'User'}},
+            {'actor': {'type': 'Bot'}}, # No login, but type is Bot
         ]
+        
         filtered = filter_bot_events(events)
+        
         assert len(filtered) == 2
-        assert filtered[0]["actor"]["login"] == "user1"
-        assert filtered[1]["actor"]["login"] == "user2"
+        assert filtered[0]['actor']['login'] == 'user1'
+        assert filtered[1]['actor']['login'] == 'user2'
 
-class TestChunkingAndRateLimits:
-    @patch('data_ingestion.create_client')
-    def test_fetch_project_events_chunked_rate_limit_retry(self, mock_create_client):
-        """Test that rate limit errors trigger a wait and retry."""
+class TestChunkedFetching:
+    @pytest.fixture
+    def mock_client(self):
+        client = Mock(spec=GitHubClient)
+        return client
+
+    def test_fetch_yields_chunks(self, mock_client):
+        """Test that fetch_project_events_chunked yields lists of events."""
+        mock_client.get_events.return_value = [
+            {'id': 1, 'actor': {'login': 'u1'}},
+            {'id': 2, 'actor': {'login': 'u2'}},
+        ]
+        
+        generator = fetch_project_events_chunked(mock_client, 'test/repo', chunk_size=100)
+        chunks = list(generator)
+        
+        assert len(chunks) == 1
+        assert len(chunks[0]) == 2
+
+    def test_fetch_stops_at_threshold(self, mock_client):
+        """Test that fetching stops if total events exceed MAX_EVENTS_THRESHOLD."""
+        # Mock to return 100k+ events over multiple pages
+        def mock_get_events(*args, **kwargs):
+            return [{'id': i, 'actor': {'login': 'u'}} for i in range(100100)]
+        
+        mock_client.get_events = mock_get_events
+        
+        # This should stop after hitting the threshold inside the generator
+        # We expect it to yield at least one chunk, then stop
+        generator = fetch_project_events_chunked(mock_client, 'test/repo', chunk_size=100)
+        chunks = list(generator)
+        
+        # The generator logic checks total_fetched. 
+        # Since we return 100100 in one call (simulating a very large page or first call),
+        # it should detect the threshold and stop.
+        # Note: In a real scenario, get_events returns max 100 per page.
+        # Here we simulate a scenario where the check logic is triggered.
+        # If the mock returns > 100k in the first chunk, the loop breaks immediately after yield.
+        assert len(chunks) >= 1
+        total_events = sum(len(c) for c in chunks)
+        # Should be close to threshold but not exceed it significantly if logic is correct
+        # Actually, the logic: total_fetched += len(events); yield; check threshold.
+        # So it yields the chunk that pushes it over, then breaks.
+        assert total_events >= 100000 
+
+    def test_rate_limit_retry(self, mock_client):
+        """Test that rate limit errors cause a retry."""
+        call_count = 0
+        
+        def side_effect(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise GitHubRateLimitError("Rate limit exceeded")
+            return [{'id': 1, 'actor': {'login': 'u'}}]
+        
+        mock_client.get_events.side_effect = side_effect
+        
+        # Patch time.sleep to avoid actual waiting
+        with patch('code.data_ingestion.time.sleep') as mock_sleep:
+            generator = fetch_project_events_chunked(mock_client, 'test/repo')
+            chunks = list(generator)
+            
+            assert call_count == 2  # First fail, second success
+            mock_sleep.assert_called_once()
+            assert len(chunks) == 1
+
+class TestIngestSampleProjects:
+    @patch('code.data_ingestion.GitHubClient')
+    @patch('code.data_ingestion.ensure_directories_exist')
+    @patch('code.data_ingestion.get_config')
+    def test_ingest_handles_errors_gracefully(self, mock_config, mock_ensure, mock_client_class):
+        """Test that ingest_sample_projects continues if one project fails."""
+        mock_config.return_value = {
+            'github_token': 'fake_token',
+            'raw_events_path': '/tmp/test_events.json'
+        }
+        
         mock_client = Mock()
-        mock_create_client.return_value = mock_client
+        mock_client_class.return_value = mock_client
         
-        # Simulate a rate limit error on the first request, then success
-        mock_response_fail = Mock()
-        mock_response_fail.status_code = 200
-        mock_response_fail.json.return_value = [] # Empty to stop loop after retry logic check? 
-        # Actually, let's test the loop behavior with a mock that raises the error
+        # First project fails, second succeeds
+        mock_client.get_events.side_effect = [
+            Exception("API Error"), # Project 1
+            [{'id': 1, 'actor': {'login': 'u'}}] # Project 2
+        ]
         
-        def mock_request_side_effect(*args, **kwargs):
-            # First call raises error
-            if not hasattr(mock_request_side_effect, 'called'):
-                mock_request_side_effect.called = True
-                raise GitHubRateLimitError("Rate limit exceeded", wait_time=0.01)
-            # Subsequent calls return empty list to stop loop
-            mock_resp = Mock()
-            mock_resp.status_code = 200
-            mock_resp.json.return_value = []
-            return mock_resp
-
-        mock_client._request.side_effect = mock_request_side_effect
+        stats = ingest_sample_projects(['proj1', 'proj2'], '/tmp/test_events.json')
         
-        events_gen = fetch_project_events_chunked(mock_client, "owner/repo")
+        assert stats['projects_processed'] == 1
+        assert len(stats['errors']) == 1
+        assert 'proj1' in stats['errors'][0]
         
-        # The generator should handle the error and continue
-        try:
-            next(events_gen)
-        except StopIteration:
-            pass # Expected if loop breaks
-        
-        # Verify _request was called at least twice (once failed, once success)
-        assert mock_client._request.call_count >= 2
-
-    @patch('data_ingestion.create_client')
-    def test_ingest_sample_projects_large_dataset_handling(self, mock_create_client):
-        """Test that ingestion handles large datasets without OOM by processing in chunks."""
-        mock_client = Mock()
-        mock_create_client.return_value = mock_client
-        
-        # Mock a large dataset scenario
-        def mock_request_side_effect(*args, **kwargs):
-            mock_resp = Mock()
-            mock_resp.status_code = 200
-            # Return a small chunk to simulate pagination
-            mock_resp.json.return_value = [
-                {"id": str(i), "type": "IssuesEvent", "created_at": "2023-01-01T00:00:00Z", 
-                 "actor": {"login": f"user{i}"}, "repo": {"name": "test/repo"}, 
-                 "payload": {"action": "opened"}}
-                for i in range(100)
-            ]
-            return mock_resp
-
-        mock_client._request.side_effect = mock_request_side_effect
-        
-        # Mock the sleep to avoid waiting in tests
-        with patch('data_ingestion.time.sleep'):
-            results = ingest_sample_projects(
-                sample_repos=["test/repo"],
-                event_types=[EventType.ISSUES],
-                since=datetime.now(),
-                until=datetime.now()
-            )
-        
-        assert results["total_projects_processed"] == 1
-        assert results["projects"]["test/repo"]["status"] == "success"
-        # The logic should have fetched multiple pages until empty
-
-    def test_chunk_size_constant(self):
-        """Verify the chunk size constant is set to 100k."""
-        assert CHUNK_SIZE == 100000
+        # Verify output file was created with the successful data
+        assert os.path.exists('/tmp/test_events.json')
+        with open('/tmp/test_events.json', 'r') as f:
+            data = json.load(f)
+            assert len(data) == 1
