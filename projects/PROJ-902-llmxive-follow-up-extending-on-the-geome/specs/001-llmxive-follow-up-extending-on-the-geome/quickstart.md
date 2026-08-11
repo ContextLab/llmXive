@@ -1,65 +1,83 @@
-# Quickstart: llmXive follow-up: extending "On the Geometry of On-Policy Distillation"
+# Quickstart: llmXive Geometry Extension
 
-## Prerequisites
-- Python 3.11 installed (GitHub Actions provides this).
-- `git` clone of the repository.
-- Internet access (to download GSM8K parquet files).
+This guide reproduces the full experimental pipeline on a fresh GitHub Actions runner or a local Linux environment.
 
-## Setup (one‑time)
+## 1. Clone the Repository
 ```bash
-# Clone the repo (if not already)
 git clone
 cd llmxive-geometry-extension
+```
 
-# Create a virtualenv and install pinned dependencies
+## 2. Set Up the Python Environment
+```bash
 python -m venv.venv
 source.venv/bin/activate
-pip install -r requirements.txt # includes llama-cpp-python for CPU‑only 4‑bit GGML
+pip install -r requirements.txt
 ```
+*The `requirements.txt` pins exact versions (see `requirements.txt`).*
 
-## Run the Full Experiment Pipeline
+## 3. Verify Data Integrity
 ```bash
-# Step 0: Verify checksums (optional but required by Constitution)
-python -m src.utils.checksum_verify data/checksums.txt
-
-# Step 1: Download GSM8K (cached under data/raw/)
 python -m src.data.download_gsm8k
-
-# Step 2: Run the OPD baseline & compute subspace masks (includes sensitivity sweep)
-python -m src.train.opd_baseline --seeds data/metadata/seeds.json --epochs 3
-python -m src.data.svd_compute --thresholds 0.90 0.95 0.99 # per‑seed masks are saved as subspace_mask_{seed}.json
-
-# Step 3: Run constrained experiments (Frozen‑Subspace OPD, SFT, Random)
-python -m src.train.frozen_subspace_opd --seeds data/metadata/seeds.json
-python -m src.train.frozen_subspace_sft --seeds data/metadata/seeds.json # uses each seed’s OPD mask
-python -m src.train.frozen_subspace_random --seeds data/metadata/seeds.json # uses fixed random mask
-
-# Step 4: Evaluate & compute statistics
-python -m src.eval.evaluate --heldout data/raw/gsm8k_test.parquet
-python -m src.eval.stats
-
-# Step 5: Merge per‑run CSVs into the unified summary (required for contract validation)
-python -m src.utils.merge_summary # creates results/experiment_summary.csv
-
-# Step 6: Generate report artifacts (figures, tables)
-python -m src.utils.generate_report
+# Output shows SHA‑256 verification success and caches the dataset under data/gsm8k/
 ```
 
-All scripts automatically:
-- Log peak RAM and wall‑clock time (`resource_usage.csv`).
-- Store random seeds and model hashes for reproducibility.
-- Abort with a clear error if RAM > 7 GB or wall‑clock > 6 h (CI enforcement).
-
-## CI Execution
-The repository includes a GitHub Actions workflow (`.github/workflows/ci.yml`) that runs the above commands on an `ubuntu-latest` runner with a timeout of 360 minutes. The workflow fails if any contract validation (`pytest -k contract`) or resource limit is violated.
-
-## Re‑Running a Single Condition
-To reproduce a specific condition (e.g., Frozen‑Subspace OPD with seed 7):
+## 4. Run a Single Condition Locally (optional)
+Example: run the full‑parameter OPD baseline for seed 0.
 ```bash
-python -m src.train.frozen_subspace_opd --seed 7
+python -m src.training.opd \
+ --seed 0 \
+ --epochs 2 \
+ --batch-size 8 \
+ --output results/opd_full_0.json
 ```
-All intermediate files are cached under `data/` so subsequent runs are fast.
+The script prints peak RAM, wall‑clock time, per‑epoch loss, ΔL, and plateau detection. The JSON file conforms to `contracts/experiment_results.schema.yaml`.
 
----
+## 5. Execute the Full CI Matrix Locally (for debugging)
+```bash
+# The helper script runs the same matrix as the CI workflow:
+python scripts/run_matrix.py
+```
+`run_matrix.py` iterates over all conditions and seeds, respecting the **≤ 15 seeds per job** limit (the full experiment uses 30 seeds per condition split across two parallel jobs).
 
+## 6. Run the GitHub Actions Workflow
+Push a branch to trigger CI, or run manually:
+```bash
+git checkout -b test-run
+git add.
+git commit -m "trigger CI"
+git push origin test-run
+# In the GitHub UI, go to Actions → ci.yml → "Run workflow"
+```
+The workflow will:
+1. Install dependencies.
+2. Download and checksum GSM8K.
+3. Execute each condition in parallel jobs (≤ 15 seeds per job).
+4. Validate each result JSON against **both** `contracts/experiment.schema.yaml` **and** `contracts/experiment_results.schema.yaml`.
+5. Aggregate all metrics into `state.yaml` and upload it as an artifact.
 
+## 7. Inspect Results
+After CI finishes, download the `state.yaml` artifact and view:
+```bash
+cat state.yaml
+```
+Key sections:
+* `experiment_results` – per‑seed metrics (accuracy, RAM, time, loss, ΔL, plateau epoch).
+* `analysis` – power, TOST, t‑test outcomes, normality diagnostics, and “inconclusive” flags.
+* `resource_usage` – confirms compliance with the stipulated GB / 6 h limits.
+
+## 8. Re‑run a Specific Seed (e.g., to debug a failure)
+```bash
+python -m src.training.frozen_sft \
+ --seed 12 \
+ --mask-file results/mask.json \
+ --epochs 2 \
+ --output results/frozen_sft_12.json
+```
+
+## 9. Reproduce Figures (optional)
+```bash
+python -m src.analysis.plot_results --state state.yaml --output-dir results/figures
+```
+
+All commands are deterministic; the same `state.yaml` will be generated on any runner that follows the steps above.

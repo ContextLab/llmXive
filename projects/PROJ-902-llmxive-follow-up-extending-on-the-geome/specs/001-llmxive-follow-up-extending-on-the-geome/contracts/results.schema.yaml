@@ -1,12 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Experiment Result Schema"
-description: "Schema for per‑seed JSON artifacts produced by the llmXive geometry extension pipeline."
+title: "Aggregated Experiment Results Schema"
+description: "CSV schema for aggregated results of the geometry extension study."
 type: object
 properties:
+  run_id:
+    type: string
+    description: "Unique identifier `<seed>_<condition>`."
   seed:
     type: integer
     minimum: 0
-    description: "Random seed used for this run."
+    description: "Random seed used for the run."
   condition:
     type: string
     enum:
@@ -19,7 +22,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "Cumulative variance explained by the selected subspace."
+    description: "Cumulative variance captured by the selected subspace (0‑1)."
   k_selected:
     type: integer
     minimum: 1
@@ -32,36 +35,37 @@ properties:
   peak_ram_mb:
     type: number
     minimum: 0
-    description: "Maximum resident set size (VmRSS) observed during the run, in megabytes."
+    description: "Maximum resident memory usage (MiB)."
   wall_time_sec:
     type: number
     minimum: 0
-    description: "Total wall‑clock time for the run, in seconds."
+    description: "Total wall‑clock time (seconds)."
   loss_plateau_epoch:
     type: integer
     minimum: 1
-    description: "Epoch at which loss plateau is first detected."
+    description: "Epoch where loss plateau was first detected."
   tost_p_lower:
     type: [number, "null"]
     minimum: 0
     maximum: 1
-    description: "One‑sided p‑value for the lower bound of the TOST equivalence test (null: μ_frozen ≤ μ_full − Δ)."
+    description: "Lower‑side p‑value of the TOST equivalence test (null if not applicable)."
   tost_p_upper:
     type: [number, "null"]
     minimum: 0
     maximum: 1
-    description: "One‑sided p‑value for the upper bound of the TOST equivalence test (null: μ_frozen ≥ μ_full + Δ)."
-  t_test_p:
+    description: "Upper‑side p‑value of the TOST equivalence test (null if not applicable)."
+  ttest_pvalue:
     type: [number, "null"]
     minimum: 0
     maximum: 1
-    description: "Two‑sample (paired) t‑test p‑value for SFT comparisons."
+    description: "Two‑sample (paired) t‑test p‑value for SFT comparisons (null if not applicable)."
   power:
     type: number
     minimum: 0
     maximum: 1
-    description: "Achieved statistical power for the equivalence or t‑test."
+    description: "Achieved statistical power for the primary hypothesis test."
 required:
+  - run_id
   - seed
   - condition
   - variance_explained

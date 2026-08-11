@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExperimentResults"
+description: "Per‑run metrics for a single experimental condition."
+type: object
+properties:
+  condition:
+    type: string
+    description: "One of: opd_full, frozen_opd, frozen_sft, random_sft."
+  seed:
+    type: integer
+    description: "Random seed used for this run."
+  accuracy:
+    type: number
+    description: "Test accuracy on the held‑out generalization subset (0‑1)."
+  peak_ram_gb:
+    type: number
+    description: "Maximum resident memory (GiB) recorded during the run."
+  wall_time_sec:
+    type: number
+    description: "Total wall‑clock time (seconds) for the run."
+  loss_per_epoch:
+    type: array
+    items:
+      type: number
+    description: "List of loss values (one per epoch)."
+  delta_loss:
+    type: array
+    items:
+      type: number
+    description: "ΔL = loss_i − loss_{i‑1} for each epoch i>0."
+  plateau_epoch:
+    type: [integer, "null"]
+    description: "First epoch where ΔL < 0.001 for two consecutive epochs; null if never plateaued."
+required:
+  - condition
+  - seed
+  - accuracy
+  - peak_ram_gb
+  - wall_time_sec
+  - loss_per_epoch
+  - delta_loss
+  - plateau_epoch
+additionalProperties: false

@@ -1,42 +1,132 @@
-# Data Model: llmXive follow-up: extending "On the Geometry of On-Policy Distillation"
+# Data Model: llmXive follow‑up – extending “On the Geometry of On‑Policy Distillation”
 
-## Raw Data Assets
-| Asset | Description | Location | Checksum (sha256) |
-|-------|-------------|----------|-------------------|
-| GSM8K train parquet | Full training set of GSM8K reasoning problems | `data/raw/gsm8k_train.parquet` | `{{sha256_of_train_parquet}}` |
-| GSM8K test parquet | Full test set (used for held‑out generalization subset) | `data/raw/gsm8k_test.parquet` | `{{sha256_of_test_parquet}}` |
-| Seed list | JSON file enumerating the seeds used across all experiments | `data/metadata/seeds.json` | `{{sha256_of_seeds_json}}` |
+## 1. GSM8K Dataset Schema
+| Field | Type | Description |
+|-------|------|-------------|
+| `question` | string | Natural‑language math problem statement. |
+| `answer` | string | Ground‑truth solution (may contain LaTeX). |
+| `category` *(optional)* | string | Difficulty tier supplied by the original dataset. |
+| `id` | string | Unique identifier for the example. |
 
-## Derived Data Assets
-| Asset | Generation Step | Format | Key Fields |
-|-------|-----------------|--------|------------|
-| `subspace_mask_{seed}.json` | Layer‑wise SVD on first 3 epochs of OPD baseline **per seed** | JSON | `layer_name`, `mask_vector` (binary 0/1), `k`, `variance_explained` |
-| `mask_random.json` | Random binary mask of same dimensionality as OPD mask, generated once with fixed seed (`mask_seed = 9999`) | JSON | Same schema as `subspace_mask_{seed}.json` |
-| `model_checkpoints/` | Saved after each epoch for every seed & condition (FR‑002, FR‑004, FR‑005) | GGML 4‑bit binary files (`*.ggml`) | `run_id`, `seed`, `epoch`, `condition` |
-| `results/accuracy.csv` | Accuracy on held‑out generalization subset per run | CSV | `run_id`, `seed`, `condition`, `accuracy` |
-| `results/loss_trajectory.csv` | Epoch‑wise loss per run | CSV | `run_id`, `seed`, `condition`, `epoch`, `loss` |
-| `results/resource_usage.csv` | Peak RAM (MB) and wall‑clock time (sec) per run | CSV | `run_id`, `seed`, `condition`, `peak_ram_mb`, `wall_time_sec` |
-| `results/experiment_summary.csv` | **Unified artifact** containing **all** fields required by `contracts/experiment.schema.yaml` for each run (including variance explained, TOST p‑values, power, t‑test p‑value, accuracy drop, plateau epoch) | CSV | `run_id`, `seed`, `condition`, `epoch`, `accuracy`, `loss`, `peak_ram_mb`, `wall_time_sec`, `variance_explained`, `tost_p_lower`, `tost_p_upper`, `power`, `t_test_p`, `accuracy_drop_pp`, `plateau_epoch` |
-| `results/statistics.json` | Summary of TOST, power, t‑tests, plateau epochs (overall) | JSON | `tost_p_lower`, `tost_p_upper`, `power`, `t_test_p`, `accuracy_drop_pp`, `plateau_epoch` |
+*The dataset is accessed via `datasets.load_dataset("openai/gsm8k", "main")`. The loader returns a `DatasetDict` with splits `train`, `test`.*
 
-All derived files are version‑hashed (e.g., `accuracy_{{hash}}.csv`) and referenced in the final report.
-
-## Schema References
-- `contracts/experiment.schema.yaml` defines the required columns and data types for each CSV/JSON asset (see contract file).  
-- Checksums are stored in `data/checksums.txt` and verified at pipeline start.
-
-## Data Flow Diagram (textual)
-```
-download_gsm8k.py  --> raw parquet files
-opd_baseline.py    --> per‑layer deltas (saved as .npy)
-svd_compute.py     --> subspace_mask_{seed}.json (+ sensitivity sweep, per‑seed)
-mask.py            --> apply binary mask during training
-train/*.py         --> model checkpoints + loss logs
-evaluate.py        --> accuracy.csv, loss_trajectory.csv
-stats.py           --> statistics.json, experiment_summary.csv
-resource_monitor.py--> resource_usage.csv
+## 2. Subspace Mask Schema (`mask.json`)
+```yaml
+type: object
+description: "Binary mask per model layer indicating which parameters are trainable."
+properties:
+  layer_name:
+    type: array
+    items:
+      type: boolean
+    description: "Boolean mask for the flattened weight matrix of the layer."
+required:
+  - layer_name
+additionalProperties: false
 ```
 
----
+## 3. Experiment Result Schema (`contracts/experiment_results.schema.yaml`)
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExperimentResults"
+description: "Per‑run metrics for a single experimental condition."
+type: object
+properties:
+  condition:
+    type: string
+    description: "One of: opd_full, frozen_opd, frozen_sft, random_sft."
+  seed:
+    type: integer
+    description: "Random seed used for this run."
+  accuracy:
+    type: number
+    description: "Test accuracy on the held‑out generalization subset (0‑1)."
+  peak_ram_gb:
+    type: number
+    description: "Maximum resident memory (GiB) recorded during the run."
+  wall_time_sec:
+    type: number
+    description: "Total wall‑clock time (seconds) for the run."
+  loss_per_epoch:
+    type: array
+    items:
+      type: number
+    description: "List of loss values (one per epoch)."
+  delta_loss:
+    type: array
+    items:
+      type: number
+    description: "ΔL = loss_i − loss_{i‑1} for each epoch i>0."
+  plateau_epoch:
+    type: [integer, "null"]
+    description: "First epoch where ΔL < 0.001 for two consecutive epochs; null if never plateaued."
+required:
+  - condition
+  - seed
+  - accuracy
+  - peak_ram_gb
+  - wall_time_sec
+  - loss_per_epoch
+  - delta_loss
+  - plateau_epoch
+additionalProperties: false
+```
 
+## 4. Authority Artifact (`state.yaml`)
+`state.yaml` aggregates all experiment results and analysis:
 
+```yaml
+metadata:
+  generated_at: "2026-08-11T12:00:00Z"
+  git_commit: "<SHA>"
+  config_hash: "<hash>"
+experiment_results:
+  - condition: opd_full
+    seed: 0
+    accuracy: high
+    peak_ram_gb: on the order of a few gigabytes
+    wall_time_sec: appropriate duration for the planned experiments
+    loss_per_epoch: [higher loss, moderate loss, 1.62]
+    delta_loss: [a modest negative value]
+    plateau_epoch: null
+  # ... more entries for each seed & condition ...
+analysis:
+  power_opd: elevated (qualitative assessment)
+  tost:
+    p_lower: a qualitatively low probability threshold.
+    p_upper: a modest upper bound
+    decision: "equivalent"
+    inconclusive: false
+  sft_opd_mask:
+    mean_drop: a modest reduction
+    t_stat: a modest positive value
+    p_value: indicative of a non‑significant result
+    decision: "no significant drop"
+    inconclusive: false
+  sft_random_mask:
+    mean_drop: a modest reduction.
+    t_stat: significant (indicating a statistically notable effect)
+    p_value: indicates statistical significance.
+    decision: "significant drop"
+    inconclusive: false
+  sensitivity:
+    variance_thresholds: [a lower variance capture level (qualitatively high), 0.99]
+    tost_results:
+      - threshold: 0.90
+        p_lower: 0.07
+        p_upper: 0.09
+        decision: "non‑equivalent"
+      - threshold: 0.95
+        p_lower: 0.032
+        p_upper: 0.041
+        decision: "equivalent"
+      - threshold: 0.99
+        p_lower: 0.12
+        p_upper: 0.15
+        decision: "non‑equivalent"
+resource_usage:
+  max_peak_ram_gb: sufficient to accommodate the anticipated workload.
+  max_wall_time_sec: a sufficiently large maximum wall‑time
+```
+
+*All fields are validated against the schemas above during CI (`jsonschema` library).*

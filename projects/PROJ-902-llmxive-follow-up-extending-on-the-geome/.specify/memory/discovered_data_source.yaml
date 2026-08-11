@@ -1,9 +1,25 @@
-status: none
-intent: download GSM8K math word problem dataset python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  ds_dict = load_dataset("openai/gsm8k", "main")
+
+  total = sum(len(ds) for ds in ds_dict.values())
+
+  print(f"RECORDS={total}")
+
+  first_split = next(iter(ds_dict.values()))
+
+  print("FIELDS=" + ",".join(first_split.column_names))'
+record_count: 8792
+sample_fields:
+- question
+- answer
+field_coverage: 1.0
 required_fields:
 - question
 - answer
-- id
-cache_key: 310a9c596f64c94316912b12f4cf83f4b0ecfd47017b962014a9ba7d0b3eb2f0
-searched_at: '2026-08-04T11:54:49.179950+00:00'
-retry_count: 1
+intent: download GSM8K math word problem dataset via huggingface python package dataset
+cache_key: 59373a5f6a884fbb9ecc3344899e9f368e9c1d0967610152045954001c8629c8

@@ -1,43 +1,34 @@
-# Implementation Plan: llmXive follow-up: extending "On the Geometry of On-Policy Distillation"
+# Implementation Plan: llmXive follow-up – extending “On the Geometry of On‑Policy Distillation”
 
-**Branch**: `001-llmxive-geometry-extension` | **Date**: 2026-08-04 | **Spec**: [link to spec.md]  
+**Branch**: `001-llmxive-geometry-extension` | **Date**: 2026‑08‑11 | **Spec**: `specs/001-llmxive-geometry-extension/spec.md`  
 **Input**: Feature specification from `/specs/001-llmxive-geometry-extension/spec.md`
 
 ## Summary
-The project will empirically test whether the low‑dimensional subspace identified by the early updates of On‑Policy Distillation (OPD) is sufficient for full‑parameter performance, and whether this sufficiency is specific to OPD versus generic low‑rank adaptation.  Three user stories drive the work:
+The project must (1) download and verify the GSM8K dataset, (2) run a full‑parameter On‑Policy Distillation (OPD) baseline on a **TinyLlama‑430M** model using **8‑bit CPU‑compatible quantization**, (3) derive a low‑rank subspace mask from **10** independent “mask‑derivation” seeds using layer‑wise randomized SVD, (4) train **Frozen‑Subspace OPD**, **Frozen‑Subspace SFT**, and **Random‑Mask SFT** models under the derived mask, (5) log detailed loss‑landscape metrics (per‑epoch loss, ΔL, plateau epoch), (6) conduct power analyses, equivalence (TOST) and difference (paired t‑test) statistical tests (with normality diagnostics and non‑parametric fall‑backs), (7) enforce all limits on a free‑tier GitHub Actions runner, and (8) produce a single authoritative `state.yaml` artifact validated against **both** `contracts/experiment.schema.yaml` **and** `contracts/experiment_results.schema.yaml`.
 
-1. **US‑1** – Verify subspace sufficiency via a Frozen‑Subspace OPD run and a paired TOST equivalence test (FR‑001 – FR‑011, SC‑001 – SC‑006).  
-2. **US‑2** – Compare OPD‑derived subspace to a random subspace under Supervised Fine‑Tuning (SFT) using paired two‑sample t‑tests (FR‑005, FR‑006, SC‑002).  
-3. **US‑3** – Demonstrate that the full pipeline executes on a CPU‑only GitHub Actions runner within 7 GB RAM and 6 h wall‑clock time (FR‑007, FR‑009, SC‑003 – SC‑004).
-
-All steps are designed for CPU‑first execution; no GPU is required.  The TinyLlama model will be loaded in low-precision GGML format via `llama-cpp-python` (CPU-compatible) to stay within memory constraints.
+All functional requirements (FR‑001 → FR‑021) and success criteria (SC‑001 → SC‑006) are addressed by the phases below.
 
 ## Technical Context
-- **Language/Version**: Python 3.11, Bash scripts for CI orchestration.  
-- **Primary Dependencies**:  
-  - `datasets==2.20.0` – data loading & streaming.  
-  - `torch==2.3.0` (CPU‑only wheel) – model forward/backward passes.  
-  - `llama-cpp-python==0.2.0` – CPU‑compatible 4‑bit GGML loading of TinyLlama‑1.1B.  
-  - `scipy==1.14.0`, `statsmodels==0.14.2` – statistical tests (paired TOST, paired t‑test, power analysis).  
-  - `numpy==2.0.0`, `pandas==2.2.2` – data handling.  
-  - `tqdm==4.66.5` – progress bars.  
-- **Storage**: Project‑local `data/` directory (cached dataset files, intermediate SVD results, model checkpoints).  
-- **Testing**: `pytest==8.2.2` with contract validation against `contracts/experiment.schema.yaml`.  
-- **Target Platform**: Linux (`ubuntu-latest`) GitHub Actions runner (multiple vCPU cores, ~7 GB RAM).  
-- **Performance Goals**: Peak RAM ≤ 7 GB, wall‑clock ≤ 6 h per full experiment set (Multiple seeds × Multiple protocols).  
-- **Constraints**: CPU‑only, no external GPU; all data must be fetched from the verified URLs listed in the spec.  
-- **Scale/Scope**: Multiple random seeds per condition, subspace dimensionality determined by ≥ 95 % variance threshold (sensitivity sweep included).
+| Item | Detail |
+|------|--------|
+| **Language/Version** | Python 3.11 |
+| **Primary Dependencies** | `datasets==2.19.0`, `torch==2.3.0`, `bitsandbytes==0.43.1` (8‑bit CPU quantization), `scipy==1.13.0`, `statsmodels==0.14.2`, `pyyaml==6.0.2`, `tqdm`, `numpy`, `pandas` |
+| **Storage** | Filesystem‑based `data/` and `results/` directories (no DB) |
+| **Testing** | `pytest`, `jsonschema` for contract validation |
+| **Target Platform** | Linux (Ubuntu‑latest) GitHub Actions runner (2 CPU cores, ~7 GB RAM, ~ modest‑size storage disk) |
+| **Constraints** | CPU‑only execution; bitsandbytes 8‑bit works on CPU without CUDA. |
+| **Scale/Scope** | **30** evaluation seeds per condition, split into **2** CI jobs of **≤ 15** seeds each; **2** epochs per run; model TinyLlama‑large (≈ several hundred M parameters). |
 
 ## Constitution Check
-| Principle | Reference in Plan |
-|-----------|-------------------|
-| I. Reproducibility | All scripts are deterministic with seeded RNG; data is downloaded from canonical URLs; `requirements.txt` pins exact versions. |
-| II. Verified Accuracy | All citations (He 2023, etc.) are from the spec; no new external references introduced. |
-| III. Data Hygiene | Datasets are checksum‑verified (`sha256` stored in `data/checksums.txt`) and transformations write new files. |
-| IV. Single Source of Truth | Every figure/table in the eventual paper will be generated from the CSVs produced in `results/` and linked to the exact run IDs. |
-| V. Versioning Discipline | All artifacts (model checkpoints, masks, result files) are named with content hashes; CI caches are cleared per run. |
-| VI. Geometric Subspace Validation | US‑1 and US‑2 explicitly implement the equivalence and control comparisons required by this principle. |
-| VII. Extreme Resource Constraints Verification | FR‑007 and FR‑009 enforce RAM/CPU limits; CI job timeout set to 360 min. |
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| **I. Reproducibility** | All random seeds are listed in `src/config.py`; dataset download is deterministic; CI matrix enumerates every condition and seed. |
+| **II. Verified Accuracy** | Citations (He 2023, Halko 2011) are pre‑validated; dataset URLs are taken from the verified block. |
+| **III. Data Hygiene** | `data/checksums.txt` stores SHA‑256 hashes; `src/data/download_gsm8k.py` validates them; no in‑place mutation. |
+| **IV. Single Source of Truth** | All metrics, figures, and tables are written to `state.yaml`; contracts enforce that every downstream artifact derives from it. |
+| **V. Versioning Discipline** | `state.yaml` includes a content hash; any change triggers CI re‑run; `requirements.txt` pins exact versions. |
+| **VI. Geometric Subspace Validation** | Implements paired‑seed TOST equivalence (OPD) and paired t‑tests (SFT) with proper controls, including a random‑mask baseline. |
+| **VII. Extreme Resource Constraints Verification** | RAM and wall‑clock are measured via `src/utils/logging.py`; CI fails any job exceeding 7 GB or 6 h. |
 
 ## Project Structure
 ```text
@@ -47,78 +38,127 @@ specs/001-llmxive-geometry-extension/
 ├── data-model.md
 ├── quickstart.md
 └── contracts/
-    └── experiment.schema.yaml
+    ├── experiment.schema.yaml
+    ├── experiment_results.schema.yaml
+    └── results.schema.yaml
 
 src/
-├── __main__.py               # entry point `python -m src`
+├── __init__.py
+├── config.py                # seed lists, hyper‑params
 ├── data/
-│   ├── download_gsm8k.py
-│   └── svd_compute.py
-├── model/
-│   ├── load_model.py
-│   └── mask.py               # binary mask utilities (per‑seed)
-├── train/
-│   ├── opd_baseline.py
-│   ├── frozen_subspace_opd.py
-│   ├── frozen_subspace_sft.py
-│   └── frozen_subspace_random.py
-├── eval/
-│   ├── evaluate.py
-│   └── stats.py              # paired TOST, paired t‑test, power, plateau detection
-└── utils/
-    ├── logging.py
-    └── resource_monitor.py   # VmRSS tracking
+│   └── download_gsm8k.py
+├── models/
+│   └── tinyllama.py         # 8‑bit CPU quantized TinyLlama‑430M
+├── training/
+│   ├── opd.py               # full‑parameter OPD
+│   ├── frozen_opd.py        # frozen‑subspace OPD
+│   ├── sft_frozen.py        # frozen‑subspace SFT
+│   └── sft_random.py        # random‑mask SFT
+├── utils/
+│   ├── logging.py           # RAM, wall‑time, loss logging
+│   └── svd.py               # layer‑wise randomized SVD
+└── analysis/
+    └── stats.py             # power, TOST, t‑test, normality diagnostics
 
 tests/
 ├── contract/
 │   └── test_experiment_schema.py
 └── unit/
-    └── test_mask.py
-```
+    └── test_svd.py
 
-**Structure Decision**: A single‑project layout is sufficient; all code lives under `src/` and is importable as a module. No separate backend/frontend components are needed.
+data/
+├── checksums.txt
+└── gsm8k/                  # cached dataset files
 
-## Mapping of Functional Requirements & Success Criteria
-| FR ID | Description (condensed) | Plan Phase / Script |
-|-------|--------------------------|---------------------|
-| FR-001 | Download GSM8K via `datasets` | `src/data/download_gsm8k.py` (Phase 0) |
-| FR-002 | Run OPD baseline (full‑parameter) | `src/train/opd_baseline.py` (Phase 1) |
-| FR-003 | Layer‑wise randomized SVD on the initial epochs | `src/data/svd_compute.py` (Phase 1) |
-| FR-004 | Binary mask applying identified subspace (per‑seed) | `src/model/mask.py` (Phase 1) |
-| FR-005 | SFT constrained to OPD mask (per‑seed) **generated per‑seed** | `src/train/frozen_subspace_sft.py` (Phase 2) |
-| FR-006 | Paired TOST equivalence & paired t‑tests (with power analysis) | `src/eval/stats.py` (Phase 3) |
-| FR-007 | Log peak RAM & wall‑clock time | `src/utils/resource_monitor.py` (instrumented across all phases) |
-| FR-008 | Sensitivity sweep over variance thresholds | `src/data/svd_compute.py` with `--thresholds` flag (Phase 1) |
-| FR-009 | Pre‑test power analysis (≥ 0.80) for both OPD and SFT; contingency if σ unknown | `src/eval/stats.py` (Phase 3, before tests) |
-| FR-010 | Loss‑trajectory analysis (plateau detection) | `src/eval/evaluate.py` (Phase 3) |
-| FR-011 | Report achieved power & interpret “inconclusive” | `src/eval/stats.py` (Phase 3) |
+results/
+├── logs/
+└── state.yaml
 
-| SC ID | Measured Outcome | Source in Plan |
-|-------|------------------|----------------|
-| SC-001 | Paired TOST equivalence (Δ=0.02) between Full‑OPD & Frozen‑OPD | FR‑006, Phase 3 |
-| SC-002 | Paired SFT accuracy drop & paired t‑test vs. baseline (±3 pp) | FR‑005, FR‑006, Phase 3 |
-| SC-003 | Peak RAM ≤ 7 GB | FR‑007, Phase 0‑3 |
-| SC-004 | Wall‑clock ≤ 6 h | FR‑007, CI timeout set |
-| SC-005 | ≥ 95 % variance explained by selected subspace | FR‑003, Phase 1 |
-| SC-006 | Consistency of TOST across sensitivity thresholds | FR‑008, Phase 3 |
+.github/
+└── workflows/
+    └── ci.yml
 
-## Phase Overview & Timeline (CPU‑first)
-| Phase | Tasks | Expected Duration (CPU) |
-|-------|-------|--------------------------|
-| 0 – Setup | Install dependencies, verify checksums, download GSM8K (streamed) | ≤ 30 min |
-| 1 – Baseline & Subspace Discovery | Run Full‑Parameter OPD (multiple seeds, several epochs), collect per‑layer deltas, compute randomized SVD **per seed**, determine minimal *k* for ≥ 95 % variance, produce binary mask per seed, perform sensitivity sweep | ≤ 2 h |
-| 2 – Constrained Training | Run Frozen‑Subspace OPD (multiple seeds), Frozen‑Subspace SFT (multiple seeds, using each seed's OPD mask), Frozen‑Subspace Random (multiple seeds, using fixed‑seed random mask) | ≤ 2 h |
-| 3 – Evaluation & Statistics | Compute accuracy on held‑out GSM8K generalization subset, run power analysis, **paired** TOST, **paired** t‑tests, loss‑plateau detection, aggregate logs, generate figures & tables | ≤ 1 h |
-| 4 – Unified Summary & CI Validation | Merge per‑run CSVs into `results/experiment_summary.csv` (covers all schema fields), execute full pipeline on GitHub Actions runner, assert RAM/time limits, run contract tests | ≤ 30 min |
+README.md
+requirements.txt
+pyproject.toml
+.ruf​f.toml      # linting configuration
 
-All phases respect the 7 GB RAM ceiling; memory‑heavy steps (SVD) stream per‑layer tensors and use low‑rank sketches to stay within limits.
+## Phases
 
-## Additional Notes
-- **Randomness control**: Seeds covering the full designated interval are used across all runs.; the same seed is applied to model initialization, data shuffling, and mask generation (both OPD‑derived and random masks).  
-- **Resource monitoring**: `src/utils/resource_monitor.py` records maximum VmRSS (via `/proc/self/status`) and wall‑clock time for each script; CI asserts the limits.  
-- **Unified artifact**: `results/experiment_summary.csv` consolidates all per‑run metrics required by `contracts/experiment.schema.yaml`, ensuring contract compliance.  
-- **Edge‑Case Handling**: See research.md for detailed detection and mitigation strategies (insufficient variance, high seed variance, loss divergence, random mask reproducibility).  
+### Phase 0 – Environment & Data Setup
+1. Install dependencies from `requirements.txt`.
+2. Run `python -m src.data.download_gsm8k` – downloads GSM8K via `datasets.load_dataset("openai/gsm8k")`, validates SHA‑256 against `data/checksums.txt`, caches locally.
 
----
+### Phase 1 – Full‑Parameter OPD Baseline
+* Load TinyLlama‑430M with bitsandbytes 8‑bit CPU quantization (`bnb.nn.Linear8bit`).
+* Train for **2 epochs** (batch = 8) using KL‑divergence OPD loss.
+* Record per‑epoch loss, ΔL, plateau epoch (ΔL < 0.001 for two consecutive epochs) via `src/utils/logging.py`.
+* Save metrics to `results/opd_full_<seed>.json` (conforms to `experiment_results.schema.yaml`).
 
+### Phase 2 – Subspace Mask Derivation
+* For each of **10** mask‑derivation seeds, collect per‑layer weight deltas `Δθ` after every OPD update step in the first **2** epochs.
+* Apply layer‑wise **randomized SVD** (`scipy.sparse.linalg.svds`) with streaming to keep peak RAM ≤ 7 GB.
+* Increase target rank until cumulative variance ≥ 95 % (primary) and also evaluate at 90 % and 99 % for sensitivity (SC‑006).
+* Build a **binary mask** (`mask.json`) where entries belonging to the selected singular vectors are `true`; all others `false`. Store mask under `results/mask.json`.
 
+### Phase 3 – Frozen‑Subspace Training
+* **Frozen‑Subspace OPD**: Apply mask, train OPD loss for 2 epochs, same hyper‑parameters as Phase 1.
+* **Frozen‑Subspace SFT**: Same mask, train with standard cross‑entropy SFT loss.
+* **Random‑Mask SFT**: Generate a random binary mask of identical dimensionality (seeded), train with SFT loss.
+
+All runs use the **same data shuffling** and **identical initialization** across seeds. Each condition is executed in CI matrix jobs with **≤ 15 seeds** per job (splitting the required 30 seeds across two parallel jobs per condition).
+
+### Phase 4 – Evaluation
+* Evaluate each trained model on the **held‑out generalization subset** of GSM8K (stratified by difficulty, fixed seed). Compute **accuracy** (exact‑match) per seed.
+* Log peak RAM (`peak_ram_gb`) and total wall‑clock (`wall_time_sec`) via `logging.py`.
+
+### Phase 5 – Loss‑Landscape Logging (FR‑010)
+* `src/utils/logging.py` writes a JSON‑lines file per run containing:
+  * `loss_per_epoch` (list of loss values)
+  * `delta_loss` (ΔL per epoch)
+  * `plateau_epoch` (first epoch where ΔL < 0.001 for two consecutive epochs, or `null`)
+* These fields are included in `state.yaml` and validated against `experiment_results.schema.yaml`.
+
+### Phase 6 – Statistical Analysis
+| Test | Comparison | Metric | Method |
+|------|------------|--------|--------|
+| **Normality diagnostics** | All seed‑wise accuracy differences | Shapiro‑Wilk, QQ‑plot | If p > 0.05 → assume normal; else use Wilcoxon signed‑rank. |
+| **TOST Equivalence** | Frozen‑Subspace OPD vs. Full‑Parameter OPD (paired) | Accuracy difference | Paired TOST, Δ = 0.02, α = 0.05; fallback to Wilcoxon‑based equivalence if non‑normal. |
+| **Paired t‑test / Wilcoxon** | Frozen‑Subspace SFT vs. Full‑Parameter OPD | Accuracy drop | Paired t‑test (α = 0.05) or Wilcoxon if normality fails. |
+| **Paired t‑test / Wilcoxon** | Random‑Mask SFT vs. Full‑Parameter OPD | Accuracy drop | Same as above. |
+| **Sensitivity sweep** | Across variance thresholds {0.90, 0.95, 0.99} | Accuracy difference | Apply Bonferroni correction (α/3). |
+
+*Power analysis*: Prior to each test, compute required N using `statsmodels.stats.power.TTestPower` with effect size δ (0.02 for OPD, 0.03 for SFT), σ = 0.015 (He 2023), α = 0.05. With **N = 30** seeds, report achieved power; if power < 0.80 (the conventional target), flag the result as **“inconclusive”** (FR‑009, FR‑011, FR‑021).
+
+### Phase 7 – CI & Reproducibility
+* `.github/workflows/ci.yml` creates a matrix:
+  - Conditions: `opd_full`, `frozen_opd`, `frozen_sft`, `random_sft`
+  - Seeds per job: **≤ 15** (two jobs per condition to cover 30 seeds)
+* Each job runs the full pipeline for its assigned seeds, validates the resulting JSON against **both** `contracts/experiment.schema.yaml` **and** `contracts/experiment_results.schema.yaml`. Failures abort the job.
+* After all jobs finish, a aggregation step merges all per‑run JSON files into a single `state.yaml` artifact and uploads it.
+
+## Compute Feasibility Decision
+All heavy computations are **CPU‑first** using 8‑bit quantization on TinyLlama‑430M, which fits comfortably within 7 GB RAM. No GPU is required; the plan therefore stays on the free‑tier runner. If any step unexpectedly exceeds limits, CI will fail and the design will be revisited.
+
+## Expected Deliverables
+* `state.yaml` containing:
+  * Per‑seed accuracies, RAM, time, loss metrics, plateau epoch.
+  * Subspace mask summary (`k`, variance explained).
+  * Power analysis results.
+  * Statistical test outcomes (p‑values, decisions, “inconclusive” flags).
+* Figures (accuracy distributions, loss trajectories, variance‑explained sweep) under `results/figures/`.
+* Fully validated CI workflow and contract schemas.
+
+--- 
+
+## Constitution Check (re‑affirmed)
+
+| Principle | Satisfaction |
+|-----------|---------------|
+| I. Reproducibility | Deterministic seeds, dataset download, CI matrix. |
+| II. Verified Accuracy | Citations pre‑validated; dataset URLs from verified block. |
+| III. Data Hygiene | Checksums, no in‑place mutation. |
+| IV. Single Source of Truth | All metrics in `state.yaml`. |
+| V. Versioning Discipline | Content hashes, pinned dependencies. |
+| VI. Geometric Subspace Validation | Paired‑seed TOST and controls with random mask. |
+| VII. Extreme Resource Constraints Verification | RAM & time logged; CI enforces limits. |
