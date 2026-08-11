@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Comparison Log Entry"
+description: "Schema for a single line in data/processed/comparison_log.jsonl"
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Unique identifier for the pair (hash of doc_a_id + doc_b_id)"
+  doc_a_id:
+    type: "string"
+    description: "ID of the first document"
+  doc_b_id:
+    type: "string"
+    description: "ID of the second document"
+  similarity_score:
+    type: "number"
+    description: "Cosine similarity between the two documents"
+    minimum: 0.0
+    maximum: 1.0
+  is_wasted:
+    type: "boolean"
+    description: "True if similarity_score > 0.95"
+  validation_status:
+    type: "string"
+    enum:
+      - "unvalidated"
+      - "validated_llm"
+      - "validated_proxy"
+    description: "Status of the ground truth validation"
+  llm_consensus:
+    type:
+      - "string"
+      - "null"
+    description: "Result of LLM consensus if validated, otherwise null"
+    enum:
+      - "agree"
+      - "disagree"
+      - "null"
+required:
+  - pair_id
+  - doc_a_id
+  - doc_b_id
+  - similarity_score
+  - is_wasted
+  - validation_status

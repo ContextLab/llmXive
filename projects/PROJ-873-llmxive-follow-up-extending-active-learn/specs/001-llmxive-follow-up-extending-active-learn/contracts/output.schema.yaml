@@ -46,6 +46,30 @@ properties:
   correlation_p_value:
     type: number
     description: "P-value for the correlation test (if applicable)."
+  threshold_sweep_results:
+    type: array
+    description: "Results of the threshold sensitivity sweep (SC-005)."
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+        ndcg_recovery:
+          type: number
+        wasted_ratio:
+          type: number
+  validation_accuracy:
+    type: object
+    description: "Precision and Recall of the proxy validation (if applicable)."
+    properties:
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
 required:
   - run_id
   - seed

@@ -2,81 +2,104 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline, from raw BEIR ingestion to final statistical outputs. All data is stored in `data/` with strict versioning.
+This document defines the data structures used throughout the pipeline, ensuring consistency between the data loader, the injection module, the ranker, and the metrics calculator. All data is stored in JSON/JSONL format for portability and versioning.
 
-## Entities
+## Entity Definitions
 
-### 1. Document
-Represents a single passage in the retrieval candidate list.
-- **id**: `str` (Unique identifier, e.g., `scifact_123`)
-- **text**: `str` (The full text of the passage)
-- **source**: `str` (e.g., `scifact`, `synthetic_cluster_1`)
-- **is_synthetic**: `bool` (True if generated via synonym/shuffling)
-- **parent_document_id**: `str` (Optional. ID of the original document if this is a synthetic variant; null otherwise. Used to track lineage.)
-- **cluster_id**: `str` (Optional. Cluster ID assigned by MinHash-LSH; null if not clustered yet. Used for flat schema representation.)
+### 1. Document (Raw & Processed)
+Represents a single passage from the BEIR corpus.
+- **id**: `str` (Unique identifier from BEIR, e.g., "doc_123")
+- **text**: `str` (Full text of the passage)
+- **query_id**: `str` (Optional, if part of a specific query)
+- **metadata**: `dict` (Optional, e.g., source, original length)
+- **validation_score**: `float` (Optional, cosine similarity to original for injected docs)
 
-### 2. ComparisonPair
-Represents a pairwise comparison made by the active ranker.
-- **id**: `str` (UUID)
+### 2. Candidate List
+A collection of documents associated with a specific query.
+- **query_id**: `str`
+- **documents**: `list[Document]`
+- **redundancy_level**: `float` (0.0 to 1.0, percentage of near-duplicates)
+- **injection_method**: `str` (e.g., "back_translation", "semantic_perturbation")
+
+### 3. Comparison Pair
+A tuple of two documents compared by the active ranker.
+- **pair_id**: `str` (Unique hash of the pair)
 - **doc_a_id**: `str`
 - **doc_b_id**: `str`
-- **ranker_decision**: `str` ("a_wins", "b_wins", "tie")
-- **cosine_similarity**: `float` (0.0 to 1.0)
-- **is_wasted**: `bool` (True if `cosine_similarity` > 0.95. This is the operational classification.)
-- **llm_consensus_label**: `str` (Optional. Ground truth label from stratified sampling: "wasted" if tie/low-conf, "informative" otherwise.)
+- **similarity_score**: `float` (Cosine similarity)
+- **is_wasted**: `bool` (True if `similarity_score > 0.95`)
+- **validation_status**: `str` ("unvalidated", "validated_llm", "validated_proxy")
+- **llm_consensus**: `str` (Optional, "agree", "disagree", "null")
 
-### 3. Cluster
-Represents a group of near-duplicate documents identified by MinHash-LSH.
-- **cluster_id**: `str` (e.g., `cluster_1`)
-- **member_ids**: `List[str]`
-- **representative_id**: `str` (The document chosen to represent the cluster, selected by highest similarity to centroid.)
-- **representative_selection_strategy**: `str` (e.g., "centroid_similarity", "relevance_score")
-- **minhash_jaccard_score**: `float` (Internal consistency score)
+### 4. Cluster
+A group of near-duplicate documents identified by MinHash-LSH.
+- **cluster_id**: `str`
+- **member_ids**: `list[str]`
+- **representative_id**: `str` (The document selected for ranking)
+- **jaccard_min**: `float` (Minimum Jaccard similarity within cluster)
 
-### 4. RunMetric
-Aggregated metrics for a single execution run.
-- **run_id**: `str` (UUID)
-- **seed**: `int`
-- **variant**: `str` ("baseline", "clustering_aided", "unique_baseline")
-- **n_calls**: `int`
-- **n_wasted**: `int`
+### 5. Metrics Snapshot
+Aggregated results for a single run.
+- **run_id**: `str` (Random seed)
+- **dataset**: `str` (e.g., "scifact")
+- **redundancy_level**: `float`
+- **total_calls**: `int`
+- **wasted_calls**: `int`
 - **wasted_ratio**: `float`
 - **ndcg_at_10**: `float`
-- **runtime_seconds**: `float`
+- **execution_time_seconds**: `float`
 - **peak_memory_mb**: `float`
+- **validation_method**: `str` ("proxy_only", "llm_consensus", "hybrid")
+- **proxy_accuracy**: `dict` (Optional, {"precision": float, "recall": float} if validated)
+- **unvalidated_flag**: `bool` (True if proxy-only due to resource constraints)
 
-### 5. StatisticalTestResult
-Results of hypothesis testing.
-- **test_id**: `str`
-- **test_type**: `str` ("wilcoxon_ndcg", "wilcoxon_wasted")
-- **variant_a**: `str`
-- **variant_b**: `str`
-- **p_value**: `float`
-- **statistic**: `float`
-- **is_significant**: `bool` (p < 0.05)
-
-### 6. CorrelationResult
-Results of the correlation analysis between MinHash and Cosine similarity.
-- **analysis_id**: `str`
+### 6. Sample Config
+Configuration for the LLM consensus sample.
 - **sample_size**: `int`
-- **correlation_coefficient**: `float` (Pearson or Spearman)
-- **p_value**: `float`
-- **description**: `str` (Summary of the correlation strength)
+- **skip_validation**: `bool` (True if no flagged pairs or resource constraints)
+- **reason**: `str` (e.g., "zero_flagged_pairs", "ram_limit_exceeded")
+
+## File Schemas
+
+### `data/processed/comparison_log.jsonl`
+Each line is a `Comparison Pair` object.
+- **Format**: JSONL (one JSON object per line).
+- **Purpose**: The single source of truth for all pairwise comparisons.
+
+### `data/processed/injected_datasets.json`
+A dictionary mapping dataset names to their injected candidate lists.
+- **Format**: JSON.
+- **Structure**: `{ "scifact": [Candidate List 1, ...], "nfcorpus": [...] }`
+
+### `data/processed/resource_log.json`
+Log of resource usage (RAM, time) for the entire pipeline.
+- **Format**: JSON.
+- **Structure**: `{ "max_ram_mb": float, "total_time_seconds": float, "timeout_triggered": bool }`
+
+### `data/results/flagged_pairs_count.json`
+Aggregated count of wasted pairs.
+- **Format**: JSON.
+- **Structure**: `{ "total_flagged": int, "total_pairs": int, "ratio": float, "validation_status": str, "unvalidated_flag": bool }`
+
+### `data/results/sample_config.json`
+Configuration for the consensus sample.
+- **Format**: JSON.
+- **Structure**: `{ "sample_size": int, "skip_validation": bool, "reason": str }`
+
+### `data/results/consensus_sample.json`
+List of pairs selected for LLM validation.
+- **Format**: JSON.
+- **Structure**: `{ "pairs": [Comparison Pair, ...] }` (Can be empty list if `skip_validation` is true).
+
+### `data/results/final_report.json`
+The final aggregated results across all seeds and datasets.
+- **Format**: JSON.
+- **Structure**: `{ "runs": [Metrics Snapshot, ...], "statistical_summary": { ... }, "threshold_sweep_results": [...] }`
 
 ## Data Flow
 
-1. **Ingestion**: `data/raw/beir_scifact.parquet` -> `Document` objects.
-2. **Synthesis**: `Document` objects -> `Document` (with synthetic variants, `parent_document_id` set) -> `data/processed/redundant_scifact.parquet`.
-3. **Clustering**: `redundant_scifact.parquet` -> `Cluster` objects (via MinHash-LSH).
-4. **Ranking**: `Cluster` or `Redundant` list -> `ComparisonPair` objects (via Active Ranker).
-5. **Aggregation**: `ComparisonPair` objects -> `RunMetric` objects.
-6. **Analysis**: `RunMetric` objects (across seeds) -> `StatisticalTestResult`.
-7. **Correlation**: Labeled subset of `ComparisonPair` objects -> `CorrelationResult`.
-
-## Storage Format
-
-- **Raw Data**: Parquet (BEIR native format).
-- **Processed Data**: Parquet (for fast I/O).
-- **Intermediate/Logs**: JSONL (for streaming analysis).
-- **Final Results**: CSV (for statistical analysis and plotting).
-- **Correlation Analysis**: JSON (`data/results/correlation_analysis.json`).
+1. **Load**: `data/raw/` (BEIR) -> `data/processed/injected_datasets.json` (via `data_loader.py`).
+2. **Cluster**: `injected_datasets.json` -> `data/processed/clusters.json` (via `minhash_pipeline.py`).
+3. **Rank**: `clusters.json` -> `data/processed/comparison_log.jsonl` (via `ranker.py`).
+4. **Evaluate**: `comparison_log.jsonl` + `data/raw/qrels` -> `data/results/flagged_pairs_count.json`, `data/results/final_report.json` (via `metrics.py`).
+5. **Monitor**: `resource_log.json` written by `resource_monitor.py` at the end of the pipeline.
