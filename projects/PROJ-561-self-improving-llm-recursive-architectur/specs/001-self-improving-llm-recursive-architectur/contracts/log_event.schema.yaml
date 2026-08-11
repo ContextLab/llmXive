@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Log Event"
+description: "Schema for results/logs/cycle_N.log (JSON Lines)"
+type: "object"
+required:
+  - "timestamp"
+  - "level"
+  - "event"
+properties:
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp"
+  level:
+    type: "string"
+    enum:
+      - "DEBUG"
+      - "INFO"
+      - "WARNING"
+      - "ERROR"
+      - "CRITICAL"
+    description: "Log severity level"
+  event:
+    type: "string"
+    description: "Event type (e.g., 'cycle_start', 'proposal_received', 'training_complete')"
+  message:
+    type: "string"
+    description: "Optional human-readable message"
+  details:
+    type: "object"
+    description: "Optional structured details"
+additionalProperties: true

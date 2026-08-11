@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Refinement Cycle Trajectory"
+description: "Schema for results/trajectory.json"
+type: "array"
+items:
+  type: "object"
+  required:
+    - "cycle_number"
+    - "parameter_count"
+    - "gsm8k_accuracy"
+    - "arc_accuracy"
+    - "ece_boolq"
+    - "flops"
+    - "training_time_seconds"
+  properties:
+    cycle_number:
+      type: "integer"
+      minimum: 0
+      description: "Cycle index (0 is baseline)"
+    parameter_count:
+      type: "integer"
+      minimum: 0
+      description: "Total trainable parameters"
+    gsm8k_accuracy:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "Accuracy on GSM8K (100 samples)"
+    arc_accuracy:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "Accuracy on ARC-Challenge (100 samples)"
+    ece_boolq:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "Expected Calibration Error on BoolQ (500 samples)"
+    flops:
+      type: "number"
+      minimum: 0
+      description: "Total FLOPs for the training epoch"
+    training_time_seconds:
+      type: "number"
+      minimum: 0
+      description: "Wall-clock training time in seconds"
+  additionalProperties: false
+

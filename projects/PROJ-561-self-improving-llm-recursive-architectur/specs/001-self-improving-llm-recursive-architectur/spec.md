@@ -69,7 +69,7 @@ The researcher MUST be able to compute cost-effectiveness metrics (performance p
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download GPT-2 124M checkpoint from HuggingFace and load it into CPU-compatible PyTorch environment. The system MUST perform a 'Model Loader' step that explicitly sets device='cpu' and verifies the device is CPU (See US-1).
+- **FR-001**: System MUST download GPT checkpoint from HuggingFace and load it into CPU-compatible PyTorch environment. The system MUST perform a 'Model Loader' step that explicitly sets device='cpu' and verifies the device is CPU (See US-1).
 - **FR-002**: System MUST apply exactly one valid architectural modification (type and magnitude determined by the model's self-prompted suggestion, distinct in type or magnitude from all previous cycles) per cycle attempt. Distinctness is defined as 'Hamming distance ≥ 1 on the architecture config vector or >5% change in parameter count' (See US-2).
 - **FR-003**: System MUST constrain total parameter count increase to ≤30% above original GPT-2 baseline across all cycles. This check MUST occur BEFORE applying the modification. System MUST reject if >30%. Justification: Common practice in parameter-efficient fine-tuning to avoid over-parameterization (See US-2).
 - **FR-004**: System MUST re-train each modified model for exactly 1 epoch on OpenWebText subset ([deferred] samples) with AdamW optimizer, batch size 4, learning rate 5e-5. The system MUST perform a 'Training Configuration' step that validates these hyperparameters before training (See US-1).

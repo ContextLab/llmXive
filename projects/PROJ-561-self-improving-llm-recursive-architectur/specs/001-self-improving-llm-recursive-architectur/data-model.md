@@ -1,51 +1,77 @@
-# Data Model: Self-improving LLM
+# Data Model: Self-improving LLM: recursive architecture refinement and re‑training
 
-## Entities
+## Overview
 
-### ModelCheckpoint
+This document defines the data structures, schemas, and file formats used throughout the project. All data flows are validated against `contracts/` schemas.
 
-Represents a trained model instance.
+## Entity Definitions
 
-| Attribute           | Type     | Description                                       |
-|---------------------|----------|---------------------------------------------------|
-| `cycle_number`      | Integer  | The iteration number of the refinement cycle.       |
-| `parameter_count`   | Integer  | Total number of parameters in the model.           |
-| `architecture_modification` | String  | Description of the architectural change applied.|
-| `training_time`     | Float    | Time taken to train the model (seconds).            |
-| `flops`              | Float    | Number of floating-point operations performed during training.|
+### 1. ModelCheckpoint
+Represents a saved state of the model after a cycle.
+- `cycle_number`: int (0, 1, 2, 3)
+- `parameter_count`: int (total trainable params)
+- `architecture_modification`: str (description of change, e.g., "hidden_size + 64")
+- `training_time_seconds`: float
+- `flops`: float (total FLOPs for the epoch)
+- `status`: str ("success", "failed", "early_terminated")
 
-### PerformanceMetric
+### 2. PerformanceMetric
+Represents evaluation results for a specific benchmark.
+- `cycle_number`: int
+- `benchmark_name`: str ("GSM8K", "ARC-Challenge", "BoolQ")
+- `accuracy_or_ECE`: float (accuracy for GSM8K/ARC, ECE for BoolQ)
+- `p_value_vs_baseline`: float (or null for Cycle 0)
+- `sample_size`: int
 
-Represents evaluation results.
+### 3. RefinementCycle
+Aggregates data for a single iteration.
+- `cycle_number`: int
+- `pre_modification_params`: int
+- `post_modification_params`: int
+- `training_duration_seconds`: float
+- `evaluation_results`: list[PerformanceMetric]
+- `success_status`: str
+- `log_file_path`: str
 
-| Attribute        | Type     | Description                                  |
-|------------------|----------|----------------------------------------------|
-| `cycle_number`   | Integer  | The iteration number of the refinement cycle.|
-| `benchmark_name` | String   | Name of the benchmark (GSM8K, ARC-Challenge, Wikitext-2). |
-| `accuracy_or_ppl`| Float    | Accuracy (for reasoning) or Perplexity (for Wikitext-2). |
-| `p_value_vs_baseline` | Float  | P-value from paired bootstrap test.            |
+## File Formats
 
-### RefinementCycle
+### `results/trajectory.json`
+A JSON array containing one object per completed cycle (including failed ones with null metrics).
+```json
+[
+  {
+    "cycle_number": 0,
+    "parameter_count": 117000000,
+    "gsm8k_accuracy": 0.123,
+    "arc_accuracy": 0.345,
+    "ece_boolq": 0.056,
+    "flops": 1.23e15,
+    "training_time_seconds": 7200.5
+  },
+  ...
+]
+```
 
-Represents one iteration of the pipeline.
+### `results/logs/cycle_N.log`
+A JSON Lines (`.jsonl`) file where each line is a structured log event.
+```json
+{"timestamp": "2026-06-26T10:00:00Z", "level": "INFO", "event": "cycle_start", "cycle": 1}
+{"timestamp": "2026-06-26T10:05:00Z", "level": "INFO", "event": "proposal_received", "modification": "add_layer"}
+{"timestamp": "2026-06-26T10:10:00Z", "level": "INFO", "event": "training_complete", "duration": 3600}
+```
 
-| Attribute          | Type     | Description                                  |
-|--------------------|----------|----------------------------------------------|
-| `cycle_number`     | Integer  | The iteration number of the refinement cycle.|
-| `pre_modification_params` | Integer | Parameter count before modification        |
-| `post_modification_params`|Integer|Parameter count after modifcation            |
-| `training_duration`| Float    | Training time for this cycle                 |
-| `evaluation_results`| List     | List of PerformanceMetric objects.          |
-| `success_status`   | Boolean  | Indicates whether the cycle completed successfully.|
+### `data/checksums.json`
+A JSON object mapping dataset filenames to SHA256 hashes.
+```json
+{
+  "openwebtext/train-00000-of-00080.parquet": "abc123...",
+  "gsm8k/test-00000-of-00001.parquet": "def456..."
+}
+```
 
-## Data Flow
+## Data Flow Diagram (Conceptual)
 
-1.  **Raw Data**: OpenWebText, GSM8K, ARC-Challenge, Wikitext-2 (downloaded from Hugging Face Datasets).
-2.  **Processed Data**: Training data subset (OpenWebText) for each cycle; evaluation datasets preprocessed for benchmarking.
-3.  **Model Checkpoints**: Saved after each training iteration.
-4.  **Performance Metrics**: Calculated and stored after evaluation.
-5. **Trajectory Data**: Aggregated performance metrics across cycles to analyze trends.
-
-## Schema Definitions (contracts/trajectory_entry.schema.yaml)
-
-The `trajectory_entry.schema.yaml` defines the structure of the output JSON, including `plateau_cycle_index` and `trade_off_metrics`.
+1.  **Ingest**: `utils/data_loader.py` -> Stream -> `data/processed/` (sampled)
+2.  **Process**: `pipeline/trainer.py` -> `results/logs/cycle_N.log`
+3.  **Evaluate**: `pipeline/evaluator.py` -> `results/trajectory.json`
+4.  **Validate**: `contracts/` schemas verify all outputs before finalization.

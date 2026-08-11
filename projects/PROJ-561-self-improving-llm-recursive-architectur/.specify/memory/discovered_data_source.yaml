@@ -1,29 +1,17 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset
-
-
-  ds_dict = load_dataset("openai/gsm8k", "main")
-
-  total_records = sum(len(split) for split in ds_dict.values())
-
-  sample_fields = next(iter(ds_dict.values())).column_names
-
-
-  print(f"RECORDS={total_records}")
-
-  print(f"FIELDS={'',''.join(sample_fields)}")'
-record_count: 8792
-sample_fields:
-- question
-- answer
-field_coverage: 0.5
+status: none
+intent: pip install huggingface datasets library OpenWebText GSM8K ARC-Challenge BoolQ
+  python package dataset
 required_fields:
-- text
-- question
-- answer
-- choices
-intent: OpenWebText GSM8K ARC-Challenge Wikitext-2 HuggingFace datasets python package
-  dataset
-cache_key: 548a05b401e5cfe2d83b22400c37203cc287b16f0aade29f4b7d2cf7fb486d8c
+- 'OpenWebText: text'
+- 'GSM8K: question'
+- 'GSM8K: answer'
+- 'ARC-Challenge: question'
+- 'ARC-Challenge: choices'
+- 'ARC-Challenge: answerKey'
+- 'BoolQ: question'
+- 'BoolQ: passage'
+- 'BoolQ: label'
+- 'Wikitext-2: text'
+cache_key: a40f048dfe353905a83f2b3a0a8f184465e784a8b6eb27067339b0ff1ab89a7e
+searched_at: '2026-08-11T03:45:30.232852+00:00'
+retry_count: 1
