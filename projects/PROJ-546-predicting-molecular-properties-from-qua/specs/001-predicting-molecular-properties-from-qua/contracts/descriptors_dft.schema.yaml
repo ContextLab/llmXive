@@ -1,0 +1,43 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: High-Level DFT Descriptors Schema
+type: object
+properties:
+  molecule_id:
+    type: string
+    description: "Unique identifier for the molecule"
+  smiles:
+    type: string
+    description: "Canonical SMILES representation"
+  HOMO_energy:
+    type: number
+    description: "HOMO energy in eV"
+  LUMO_energy:
+    type: number
+    description: "LUMO energy in eV"
+  mayer_bond_order:
+    type: number
+    description: "Mayer bond order (dimensionless)"
+  method:
+    type: string
+    description: "Computational method used"
+    enum:
+      - Psi4
+  scaling_factor:
+    type: number
+    description: "Scaling factor for normalization (default 1.0)"
+  status:
+    type: string
+    description: "Status of the calculation: success or failure"
+    enum:
+      - success
+      - failure
+required:
+  - molecule_id
+  - smiles
+  - HOMO_energy
+  - LUMO_energy
+  - mayer_bond_order
+  - method
+  - scaling_factor
+  - status
+additionalProperties: false

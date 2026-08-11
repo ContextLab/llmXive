@@ -1,5 +1,10 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-08-06T10:05:27.202732+00:00'
-retry_count: 3
+intent: Zenodo Experimental Barrier Dataset HOMO LUMO reference datasets DFTB+ parameters
+  python package dataset
+required_fields:
+- smiles
+- experimental_barrier
+- reaction_id
+cache_key: 9c8cc83b3092f56e90cb458363f07ce386b91e30b87595986f1a59082f246e21
+searched_at: '2026-08-11T08:15:04.530143+00:00'
+retry_count: 1

@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Report Schema"
+description: "Schema for the model evaluation and t-test results."
+type: "object"
+properties:
+  mae_semi:
+    type: "number"
+    description: "Mean Absolute Error of the Semi-Empirical model."
+  mae_dft:
+    type: "number"
+    description: "Mean Absolute Error of the DFT model."
+  t_test:
+    type: "object"
+    properties:
+      statistic:
+        type: "number"
+        description: "t-statistic value."
+      p_value:
+        type: "number"
+        description: "p-value from the paired t-test."
+      null_hypothesis:
+        type: "string"
+        description: "Statement of the null hypothesis."
+      significance_level:
+        type: "number"
+        description: "Alpha level (e.g., 0.05)."
+    required:
+      - statistic
+      - p_value
+      - null_hypothesis
+      - significance_level
+  models_compared:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of models compared."
+required:
+  - mae_semi
+  - mae_dft
+  - t_test
+  - models_compared
+additionalProperties: false

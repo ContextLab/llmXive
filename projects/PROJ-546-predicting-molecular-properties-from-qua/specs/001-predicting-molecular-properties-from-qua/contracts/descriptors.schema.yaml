@@ -20,8 +20,12 @@ items:
       type: number
       format: float
       description: Averaged Mayer bond order (dimensionless).
+    molecule_id:
+      type: string
+      description: "Unique identifier for the molecule"
   required:
     - smiles
     - HOMO_energy
     - LUMO_energy
     - mayer_bond_order
+    - molecule_id
