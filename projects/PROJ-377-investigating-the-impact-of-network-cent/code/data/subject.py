@@ -1,107 +1,89 @@
 """
-Subject data model.
+Data model for a single research subject.
 
-Represents a single participant in the motor memory consolidation study,
-including demographic information, behavioral scores, and processing status.
+Encapsulates subject demographics, behavioral scores, and preprocessing metadata.
 """
-
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any
 import numpy as np
 from pathlib import Path
 
+
 @dataclass
 class Subject:
     """
-    Represents a study participant.
-    
+    Represents a single participant in the motor memory consolidation study.
+
     Attributes:
-        subject_id: Unique identifier (e.g., 'sub-001')
-        age: Age in years
-        sex: Biological sex ('M' or 'F')
-        pre_motor_score: Pre-training motor task score
-        post_motor_score: Post-training motor task score
-        improvement_score: Calculated improvement (post - pre)
-        fmriprep_path: Path to fMRIPrep processed data directory
-        connectivity_matrix_path: Path to saved connectivity matrix
-        excluded: Whether subject was excluded from analysis
-        exclusion_reason: Reason for exclusion if applicable
-        metadata: Additional key-value pairs
+        subject_id (str): Unique identifier (e.g., 'sub-01').
+        age (int): Age in years.
+        sex (str): Biological sex ('M' or 'F').
+        pre_score (float): Pre-training behavioral score.
+        post_score (float): Post-training behavioral score.
+        improvement (float): Calculated improvement (post - pre).
+        mean_fd (float): Mean Framewise Displacement from fMRIPrep.
+        excluded (bool): Flag indicating if subject was excluded from analysis.
+        exclusion_reason (Optional[str]): Reason for exclusion if applicable.
+        raw_data_path (Optional[Path]): Path to the subject's raw/preprocessed directory.
     """
     subject_id: str
-    age: Optional[float] = None
+    age: Optional[int] = None
     sex: Optional[str] = None
-    pre_motor_score: Optional[float] = None
-    post_motor_score: Optional[float] = None
-    improvement_score: Optional[float] = None
-    fmriprep_path: Optional[Path] = None
-    connectivity_matrix_path: Optional[Path] = None
+    pre_score: Optional[float] = None
+    post_score: Optional[float] = None
+    improvement: Optional[float] = None
+    mean_fd: Optional[float] = None
     excluded: bool = False
     exclusion_reason: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    raw_data_path: Optional[Path] = None
+
     def __post_init__(self):
-        """Initialize derived fields and convert paths."""
-        if self.fmriprep_path:
-            self.fmriprep_path = Path(self.fmriprep_path)
-        if self.connectivity_matrix_path:
-            self.connectivity_matrix_path = Path(self.connectivity_matrix_path)
-        
-        # Calculate improvement if both scores are available
-        if (self.pre_motor_score is not None and 
-            self.post_motor_score is not None):
-            self.improvement_score = self.post_motor_score - self.pre_motor_score
-    
-    @property
-    def is_valid_for_analysis(self) -> bool:
-        """Check if subject has all required data for analysis."""
-        if self.excluded:
+        """Calculate improvement score if both pre and post scores are available."""
+        if self.pre_score is not None and self.post_score is not None:
+            self.improvement = float(self.post_score - self.pre_score)
+
+    def validate(self, fd_threshold: float = 0.2) -> bool:
+        """
+        Validate subject data against quality thresholds.
+
+        Args:
+            fd_threshold: Maximum allowed mean Framewise Displacement.
+
+        Returns:
+            bool: True if subject is valid, False otherwise.
+        """
+        if self.pre_score is None or self.post_score is None:
+            self.excluded = True
+            self.exclusion_reason = "Missing behavioral scores"
             return False
-        
-        required_fields = [
-            'pre_motor_score', 'post_motor_score', 
-            'fmriprep_path', 'connectivity_matrix_path'
-        ]
-        
-        for field_name in required_fields:
-            value = getattr(self, field_name)
-            if value is None:
-                return False
-            
-            # Check if path exists for path fields
-            if isinstance(value, Path) and not value.exists():
-                return False
-        
+
+        if self.mean_fd is not None and self.mean_fd > fd_threshold:
+            self.excluded = True
+            self.exclusion_reason = f"Mean FD ({self.mean_fd:.3f}) exceeds threshold ({fd_threshold})"
+            return False
+
+        if self.age is None:
+            self.excluded = True
+            self.exclusion_reason = "Missing age"
+            return False
+
+        if self.sex is None:
+            self.excluded = True
+            self.exclusion_reason = "Missing sex"
+            return False
+
         return True
-    
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert subject to dictionary representation."""
+        """Convert subject to a dictionary for serialization."""
         return {
             'subject_id': self.subject_id,
             'age': self.age,
             'sex': self.sex,
-            'pre_motor_score': self.pre_motor_score,
-            'post_motor_score': self.post_motor_score,
-            'improvement_score': self.improvement_score,
-            'fmriprep_path': str(self.fmriprep_path) if self.fmriprep_path else None,
-            'connectivity_matrix_path': str(self.connectivity_matrix_path) if self.connectivity_matrix_path else None,
+            'pre_score': self.pre_score,
+            'post_score': self.post_score,
+            'improvement': self.improvement,
+            'mean_fd': self.mean_fd,
             'excluded': self.excluded,
-            'exclusion_reason': self.exclusion_reason,
-            'metadata': self.metadata
+            'exclusion_reason': self.exclusion_reason
         }
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Subject':
-        """Create Subject instance from dictionary."""
-        return cls(
-            subject_id=data['subject_id'],
-            age=data.get('age'),
-            sex=data.get('sex'),
-            pre_motor_score=data.get('pre_motor_score'),
-            post_motor_score=data.get('post_motor_score'),
-            fmriprep_path=data.get('fmriprep_path'),
-            connectivity_matrix_path=data.get('connectivity_matrix_path'),
-            excluded=data.get('excluded', False),
-            exclusion_reason=data.get('exclusion_reason'),
-            metadata=data.get('metadata', {})
-        )

@@ -423,3 +423,161 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T16:54:20Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_51270c0a
+  context: Initialize Python 3.11 project with requirements.txt (pymatgen, scikit-learn,
+    pandas, numpy, scipy, datasets, matplotlib, seaborn, pytest)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:43:22Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Sample 5000 unique 5-element combinations
+  claim_id: c_ad51b082
+  context: Sample 5000 unique 5-element combinations from the periodic table using
+    a fixed random seed (42). Filter for those present in the hmao proxy index but
+    NOT in heas_train.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project samples 5000 unique 5-element combinations from the periodic
+    table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:45:37Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Fixed random seed 42 used for sampling
+  claim_id: c_189be5ca
+  context: Sample 5000 unique 5-element combinations from the periodic table using
+    a fixed random seed (42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a fixed random seed of 42 for sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:50:03Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Clamp near-zero values to 1e-6
+  claim_id: c_70d798a3
+  context: Ensure code/feature_engineering.py clamps near-zero values to 1e-6 to prevent
+    numerical instability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project clamps near-zero values to 1e-6 to prevent numerical instability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:58:12Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7GB
+  claim_id: c_29745404
+  context: Profile code/data_ingestion.py and optimize streaming logic to ensure <7GB
+    RAM usage
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7GB
+  kind: magnitude
+  raw_text: The project ensures RAM usage is less than 7GB during streaming.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:58:49Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Filter candidates where variance <= 10th percentile threshold
+  claim_id: c_954da1cc
+  context: Filter candidates where variance <= 10th percentile threshold (from T035a's
+    data/processed/variance_threshold.json) BEFORE ranking.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_candidates_where_variance_%3C=_10th_percentile_threshol
+  kind: magnitude
+  raw_text: The project filters candidates where variance is less than or equal to
+    the 10th percentile threshold.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:59:08Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Generate top 100 novel candidates
+  claim_id: c_69bf346c
+  context: 'Output: data/processed/top_100_novel_candidates.csv with columns: composition_string,
+    predicted_energy, variance, convex_hull_distance, rank.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project generates a ranked list of the top 100 novel candidates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T12:59:31Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation
+  claim_id: c_2dcbbaab
+  context: Verify 5-fold CV R^2 is calculated, model artifacts (.pkl) are generated,
+    and execution completes within 6 hours on CPU without GPU errors.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The project uses a 5-fold cross-validation method for model training.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-11T13:00:16Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Execution completes within 6 hours on CPU
+  claim_id: c_4f43c452
+  context: Verify 5-fold CV R^2 is calculated, model artifacts (.pkl) are generated,
+    and execution completes within 6 hours on CPU without GPU errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project execution is expected to complete within 6 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-11T13:00:36Z'

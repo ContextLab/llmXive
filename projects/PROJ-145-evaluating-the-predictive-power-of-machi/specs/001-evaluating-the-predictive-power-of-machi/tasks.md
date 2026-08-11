@@ -82,11 +82,11 @@
 
 - [X] T012 [US1] Implement `code/data_ingestion.py` to load `hmao/all_apis_for_multiapi` using `datasets.load_dataset(..., streaming=True)`. **Mapping**: `formation_energy_per_atom` -> `target_energy`, `mixing_enthalpy` -> `target_hmix`. Filter for + element systems.
 - [ ] T013 [US1] Implement filtering logic in `code/data_ingestion.py` to select 5+ element systems and export to `data/processed/heas_train.csv`
-- [ ] T014 [US1] **Sample** 5000 unique 5-element combinations from the periodic table using a fixed random seed (42). Filter for those present in the `hmao` proxy index but NOT in `heas_train.csv`. Export to `data/processed/holdout_known.csv`. **Constraint**: Must use a fixed random seed for reproducibility. <!-- FAILED: unspecified -->
+- [ ] T014 [US1] **Sample** 5000 unique 5-element combinations from the periodic table using a fixed random seed (42). Filter for those present in the `hmao` proxy index but NOT in `heas_train.csv`. Export to `data/processed/holdout_known.csv`. **Constraint**: Must use a fixed random seed for reproducibility. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T014a [US1] Implement the sampling logic in `code/data_ingestion.py` to generate exactly 5000 unique 5-element combinations.
 - [ ] T015 [US1] **Sample** 5000 unique 5-element combinations from the periodic table using a fixed random seed (42). Filter for those NOT present in `heas_train.csv` AND NOT present in the `hmao` proxy index (simulating a "Not Found" response). Export to `data/processed/true_novel.csv`. **Constraint**: Must use a fixed random seed for reproducibility. <!-- FAILED: unspecified -->
 - [X] T016 [US1] Implement streaming integrity check in `code/data_ingestion.py`: Validate the dataset checksum against the known SHA256 hash in `config.py` and implement mock backoff logging (for spec compliance) if the static fetch fails. **Remove** live API retry logic as the source is static.
-- [ ] T017 [US1] Implement strict composition string comparison check to prevent hash collisions in `code/data_ingestion.py`. **Output**: Produce a `deduplicated composition index` artifact consumed by T018.
+- [X] T017 [US1] Implement strict composition string comparison check to prevent hash collisions in `code/data_ingestion.py`. **Output**: Produce a `deduplicated composition index` artifact consumed by T018.
 - [ ] T018 [US1] Add validation script `code/validate_splits.py` to verify disjoint sets and `hmao` proxy existence for holdout/novel sets.
 - [ ] T019a [US1] **Documentation**: Create `docs/api_deviation.md` explicitly documenting the deviation from live "Materials Project/AFLOW API" verification to static `hmao` proxy verification for CI reproducibility, referencing FR-001 and US-1.
 

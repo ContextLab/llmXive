@@ -1,199 +1,116 @@
 """
-ConnectivityMatrix data model.
+Data model for a functional connectivity matrix.
 
-Represents a functional connectivity matrix for a subject,
-including the matrix data, region labels, and metadata.
+Encapsulates connectivity data derived from fMRI time-series for a specific subject.
 """
-
 import numpy as np
 from typing import Optional, List, Tuple
 import os
 from pathlib import Path
 
+
 class ConnectivityMatrix:
     """
-    Functional connectivity matrix for a subject.
-    
+    Represents a functional connectivity matrix for a subject.
+
     Attributes:
-        subject_id: Associated subject identifier
-        matrix: 2D numpy array of connectivity values (n_regions x n_regions)
-        region_labels: List of region names corresponding to matrix indices
-        atlas_name: Name of the atlas used (e.g., 'AAL3')
-        matrix_type: Type of connectivity (e.g., 'correlation', 'partial')
-        path: Path to saved matrix file
+        subject_id (str): Unique identifier of the subject.
+        matrix (np.ndarray): 2D numpy array of connectivity values (N_nodes x N_nodes).
+        atlas_name (str): Name of the atlas used (e.g., 'AAL3').
+        node_names (List[str]): Optional list of region names corresponding to matrix indices.
+        file_path (Optional[Path]): Path where the matrix is saved on disk.
     """
-    
     def __init__(
         self,
         subject_id: str,
         matrix: np.ndarray,
-        region_labels: List[str],
         atlas_name: str = "AAL3",
-        matrix_type: str = "correlation",
-        path: Optional[Path] = None
+        node_names: Optional[List[str]] = None,
+        file_path: Optional[Path] = None
     ):
         """
         Initialize a ConnectivityMatrix.
-        
+
         Args:
-            subject_id: Unique subject identifier
-            matrix: 2D connectivity matrix (n x n)
-            region_labels: List of region names
-            atlas_name: Name of the atlas used
-            matrix_type: Type of connectivity measure
-            path: Optional path where matrix is saved
-        
-        Raises:
-            ValueError: If matrix dimensions don't match region labels
+            subject_id: Unique subject identifier.
+            matrix: 2D numpy array of connectivity values.
+            atlas_name: Name of the parcellation atlas.
+            node_names: List of region names.
+            file_path: Path to save/load the matrix.
         """
         self.subject_id = subject_id
         self.atlas_name = atlas_name
-        self.matrix_type = matrix_type
-        self.path = Path(path) if path else None
-        
-        # Validate and set matrix
+        self.node_names = node_names
+        self.file_path = file_path
+
+        # Validate and store matrix
         if not isinstance(matrix, np.ndarray):
-            matrix = np.array(matrix)
-        
-        if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:
-            raise ValueError("Matrix must be 2D and square")
-        
-        if len(region_labels) != matrix.shape[0]:
-            raise ValueError(
-                f"Number of region labels ({len(region_labels)}) must match "
-                f"matrix dimension ({matrix.shape[0]})"
-            )
-        
-        self.matrix = matrix.astype(np.float32)
-        self.region_labels = region_labels
-    
+            raise TypeError("Matrix must be a numpy array")
+        if matrix.ndim != 2:
+            raise ValueError("Matrix must be 2D")
+        if matrix.shape[0] != matrix.shape[1]:
+            raise ValueError("Matrix must be square")
+
+        self.matrix = matrix.astype(np.float32)  # Memory efficient storage
+
     @property
-    def n_regions(self) -> int:
-        """Number of brain regions in the matrix."""
+    def shape(self) -> Tuple[int, int]:
+        """Return the shape of the matrix."""
+        return self.matrix.shape
+
+    @property
+    def n_nodes(self) -> int:
+        """Return the number of nodes in the graph."""
         return self.matrix.shape[0]
-    
-    @property
-    def is_symmetric(self) -> bool:
-        """Check if matrix is symmetric."""
-        return np.allclose(self.matrix, self.matrix.T)
-    
-    def get_upper_triangular(self) -> np.ndarray:
+
+    def save(self, path: Optional[Path] = None) -> None:
         """
-        Extract upper triangular part of the matrix (excluding diagonal).
-        
-        Returns:
-            1D array of upper triangular values
-        """
-        return self.matrix[np.triu_indices(self.n_regions, k=1)]
-    
-    def get_region_connectivity(self, region_idx: int) -> np.ndarray:
-        """
-        Get connectivity values for a specific region.
-        
+        Save the connectivity matrix to disk.
+
         Args:
-            region_idx: Index of the region
-        
-        Returns:
-            1D array of connectivity values for that region
+            path: Destination path. If None, uses self.file_path.
         """
-        if not 0 <= region_idx < self.n_regions:
-            raise IndexError(f"Region index {region_idx} out of bounds")
-        
-        return self.matrix[region_idx, :]
-    
-    def get_region_pair_connectivity(self, idx1: int, idx2: int) -> float:
-        """
-        Get connectivity between two specific regions.
-        
-        Args:
-            idx1: Index of first region
-            idx2: Index of second region
-        
-        Returns:
-            Connectivity value between the two regions
-        """
-        return float(self.matrix[idx1, idx2])
-    
-    def save(self, path: Optional[Path] = None) -> Path:
-        """
-        Save connectivity matrix to disk.
-        
-        Args:
-            path: Optional path to save to. If None, uses self.path.
-        
-        Returns:
-            Path where matrix was saved
-        
-        Raises:
-            ValueError: If no path is provided
-        """
-        save_path = Path(path) if path else self.path
-        
+        save_path = path or self.file_path
         if save_path is None:
-            raise ValueError("No save path provided")
-        
+            raise ValueError("No file path provided to save the matrix")
+
         # Ensure directory exists
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Save matrix and metadata
-        np.savez_compressed(
-            save_path,
-            matrix=self.matrix,
-            region_labels=np.array(self.region_labels),
-            atlas_name=self.atlas_name,
-            matrix_type=self.matrix_type,
-            subject_id=self.subject_id
-        )
-        
-        self.path = save_path
-        return save_path
-    
+
+        np.save(str(save_path), self.matrix)
+        self.file_path = save_path
+
     @classmethod
-    def load(cls, path: Path) -> 'ConnectivityMatrix':
+    def load(cls, file_path: Path, subject_id: str, atlas_name: str = "AAL3") -> 'ConnectivityMatrix':
         """
         Load a connectivity matrix from disk.
-        
+
         Args:
-            path: Path to the saved .npz file
-        
+            file_path: Path to the .npy file.
+            subject_id: Subject ID to associate with the matrix.
+            atlas_name: Atlas name associated with the matrix.
+
         Returns:
-            ConnectivityMatrix instance
+            ConnectivityMatrix instance.
         """
-        path = Path(path)
-        
-        if not path.exists():
-            raise FileNotFoundError(f"Matrix file not found: {path}")
-        
-        data = np.load(path, allow_pickle=True)
-        
-        matrix = data['matrix']
-        region_labels = list(data['region_labels'])
-        atlas_name = str(data['atlas_name'])
-        matrix_type = str(data['matrix_type'])
-        subject_id = str(data['subject_id'])
-        
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Connectivity matrix file not found: {file_path}")
+
+        matrix = np.load(str(file_path))
         return cls(
             subject_id=subject_id,
             matrix=matrix,
-            region_labels=region_labels,
             atlas_name=atlas_name,
-            matrix_type=matrix_type,
-            path=path
+            file_path=file_path
         )
-    
-    def to_dict(self) -> dict:
-        """Convert to dictionary representation."""
-        return {
-            'subject_id': self.subject_id,
-            'atlas_name': self.atlas_name,
-            'matrix_type': self.matrix_type,
-            'n_regions': self.n_regions,
-            'region_labels': self.region_labels,
-            'path': str(self.path) if self.path else None
-        }
-    
-    def __repr__(self) -> str:
-        return (
-            f"ConnectivityMatrix(subject_id='{self.subject_id}', "
-            f"n_regions={self.n_regions}, atlas='{self.atlas_name}')"
-        )
+
+    def to_sparse_dict(self) -> dict:
+        """
+        Convert the matrix to a sparse dictionary representation (for specific analyses).
+        Only includes non-zero values.
+        """
+        sparse_data = {}
+        indices = np.argwhere(self.matrix != 0)
+        for i, j in indices:
+            sparse_data[f"{i}_{j}"] = float(self.matrix[i, j])
+        return sparse_data

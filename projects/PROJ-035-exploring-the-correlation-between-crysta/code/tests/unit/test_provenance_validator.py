@@ -1,12 +1,11 @@
 """
-Unit tests for the provenance_validator module.
+Unit tests for the provenance validator module.
 """
 import pytest
 import pandas as pd
 import tempfile
 from pathlib import Path
 import json
-
 from cleaning.provenance_validator import (
     is_valid_source_reference,
     validate_provenance,
@@ -14,179 +13,170 @@ from cleaning.provenance_validator import (
     save_validation_report
 )
 
-
 class TestIsValidSourceReference:
     """Tests for is_valid_source_reference function."""
-
-    def test_valid_doi(self):
-        """Test that DOI references are considered valid."""
-        is_valid, reason = is_valid_source_reference("https://doi.org/10.1038/s41586-021-00000-0")
-        assert is_valid is True
-        assert "DOI" in reason
-
-    def test_valid_nist(self):
-        """Test that NIST references are considered valid."""
-        is_valid, reason = is_valid_source_reference("NIST Standard Reference Database 69")
-        assert is_valid is True
-        assert "NIST" in reason
-
-    def test_valid_journal_name(self):
-        """Test that journal names are considered valid."""
-        is_valid, reason = is_valid_source_reference("Physical Review B, 123, 456 (2020)")
-        assert is_valid is True
-        assert "keyword" in reason
-
-    def test_invalid_empty(self):
-        """Test that empty references are invalid."""
-        is_valid, reason = is_valid_source_reference("")
-        assert is_valid is False
-        assert "Missing" in reason or "empty" in reason.lower()
-
-    def test_invalid_none(self):
-        """Test that None references are invalid."""
-        is_valid, reason = is_valid_source_reference(None)
-        assert is_valid is False
-        assert "Missing" in reason or "empty" in reason.lower()
-
-    def test_invalid_unknown_source(self):
-        """Test that unknown sources are invalid."""
-        is_valid, reason = is_valid_source_reference("Unknown blog post about crystals")
-        assert is_valid is False
-        assert "does not match" in reason.lower()
-
+    
+    def test_valid_nist_reference(self):
+        """Test valid NIST reference."""
+        assert is_valid_source_reference("NIST Crystal Data") is True
+        assert is_valid_source_reference("National Institute of Standards and Technology") is True
+    
+    def test_valid_doi_reference(self):
+        """Test valid DOI reference."""
+        assert is_valid_source_reference("doi:10.1063/1.4812345") is True
+        assert is_valid_source_reference("https://doi.org/10.1021/acs.chemmater.1c01234") is True
+    
+    def test_valid_journal_reference(self):
+        """Test valid journal reference."""
+        assert is_valid_source_reference("J. Chem. Phys. 145, 123456 (2016)") is True
+        assert is_valid_source_reference("Phys. Rev. B 98, 12345 (2018)") is True
+        assert is_valid_source_reference("Nature 580, 123 (2020)") is True
+    
+    def test_valid_arxiv_reference(self):
+        """Test valid arXiv reference."""
+        assert is_valid_source_reference("arXiv:2103.12345") is True
+        assert is_valid_source_reference("https://arxiv.org/abs/2103.12345") is True
+    
+    def test_valid_author_year_reference(self):
+        """Test valid author-year reference."""
+        assert is_valid_source_reference("Smith et al. 2021") is True
+        assert is_valid_source_reference("Johnson, A. 2019") is True
+    
+    def test_invalid_empty_reference(self):
+        """Test invalid empty reference."""
+        assert is_valid_source_reference("") is False
+        assert is_valid_source_reference("   ") is False
+        assert is_valid_source_reference(None) is False
+    
+    def test_invalid_generic_reference(self):
+        """Test invalid generic reference."""
+        assert is_valid_source_reference("Some random text") is False
+        assert is_valid_source_reference("website.com") is False
 
 class TestValidateProvenance:
     """Tests for validate_provenance function."""
-
-    def test_all_valid(self):
-        """Test validation with all valid entries."""
+    
+    def test_validate_with_valid_references(self):
+        """Test validation with all valid references."""
         df = pd.DataFrame({
-            "structure_id": ["1", "2", "3"],
-            "thermal_conductivity": [1.0, 2.0, 3.0],
-            "source_reference": [
-                "https://doi.org/10.1038/s41586-021-00000-0",
-                "NIST Standard Reference Database 69",
-                "Physical Review B, 123, 456 (2020)"
+            'source_reference': [
+                "doi:10.1063/1.4812345",
+                "NIST Crystal Data",
+                "J. Chem. Phys. 145, 12345 (2016)"
             ]
         })
-
-        validated_df, report = validate_provenance(df)
-
-        assert report["total_entries"] == 3
-        assert report["valid_entries"] == 3
-        assert report["invalid_entries"] == 0
-        assert report["all_valid"] is True
-
-    def test_mixed_validity(self):
-        """Test validation with mixed valid and invalid entries."""
+        
+        df_validated, errors = validate_provenance(df)
+        
+        assert 'provenance_valid' in df_validated.columns
+        assert all(df_validated['provenance_valid'] == True)
+        assert len(errors) == 0
+    
+    def test_validate_with_invalid_references(self):
+        """Test validation with invalid references."""
         df = pd.DataFrame({
-            "structure_id": ["1", "2", "3"],
-            "thermal_conductivity": [1.0, 2.0, 3.0],
-            "source_reference": [
-                "https://doi.org/10.1038/s41586-021-00000-0",
-                "Unknown blog",
-                "NIST Standard Reference Database 69"
+            'source_reference': [
+                "doi:10.1063/1.4812345",
+                "invalid reference",
+                "NIST Crystal Data"
             ]
         })
-
-        validated_df, report = validate_provenance(df)
-
-        assert report["total_entries"] == 3
-        assert report["valid_entries"] == 2
-        assert report["invalid_entries"] == 1
-        assert report["all_valid"] is False
-        assert len(report["invalid_details"]) == 1
-
-    def test_all_invalid_raises_error(self):
-        """Test that all invalid entries raise a ValueError."""
+        
+        df_validated, errors = validate_provenance(df)
+        
+        assert 'provenance_valid' in df_validated.columns
+        assert df_validated['provenance_valid'].sum() == 2
+        assert len(errors) == 1
+        assert errors[0]['error_type'] == 'invalid_source_reference'
+    
+    def test_validate_missing_column(self):
+        """Test validation when source_reference column is missing."""
         df = pd.DataFrame({
-            "structure_id": ["1", "2", "3"],
-            "thermal_conductivity": [1.0, 2.0, 3.0],
-            "source_reference": [
-                "Unknown blog 1",
-                "Unknown blog 2",
-                "Unknown blog 3"
-            ]
+            'other_column': [1, 2, 3]
         })
-
-        with pytest.raises(ValueError, match="No valid peer-reviewed or NIST sources found"):
-            validate_provenance(df)
-
-    def test_missing_columns_raises_error(self):
-        """Test that missing required columns raise a ValueError."""
-        df = pd.DataFrame({
-            "structure_id": ["1", "2", "3"],
-            "thermal_conductivity": [1.0, 2.0, 3.0]
-            # Missing source_reference
-        })
-
-        with pytest.raises(ValueError, match="Missing required columns"):
-            validate_provenance(df)
-
+        
+        df_validated, errors = validate_provenance(df)
+        
+        assert 'provenance_valid' in df_validated.columns
+        assert all(df_validated['provenance_valid'] == False)
+        assert len(errors) == 1
+        assert errors[0]['error_type'] == 'missing_column'
 
 class TestFilterValidProvenance:
     """Tests for filter_valid_provenance function."""
-
-    def test_filter_removes_invalid(self):
-        """Test that filtering removes invalid entries."""
+    
+    def test_filter_valid_entries(self):
+        """Test filtering keeps only valid entries."""
         df = pd.DataFrame({
-            "structure_id": ["1", "2", "3", "4"],
-            "thermal_conductivity": [1.0, 2.0, 3.0, 4.0],
-            "source_reference": [
-                "https://doi.org/10.1038/s41586-021-00000-0",
-                "Unknown blog",
-                "NIST Standard Reference Database 69",
-                "Another invalid source"
-            ]
+            'source_reference': [
+                "doi:10.1063/1.4812345",
+                "invalid reference",
+                "NIST Crystal Data"
+            ],
+            'provenance_valid': [True, False, True]
         })
-
-        filtered_df = filter_valid_provenance(df)
-
-        assert len(filtered_df) == 2
-        assert all(
-            is_valid_source_reference(ref)[0]
-            for ref in filtered_df["source_reference"]
-        )
-
-    def test_filter_preserves_valid(self):
-        """Test that filtering preserves all valid entries."""
+        
+        df_filtered = filter_valid_provenance(df)
+        
+        assert len(df_filtered) == 2
+        assert all(df_filtered['provenance_valid'] == True)
+    
+    def test_filter_insufficient_samples(self):
+        """Test filtering raises error when too few valid samples."""
+        # Create exactly 49 valid entries
+        valid_refs = ["doi:10.1063/1.4812345"] * 49
         df = pd.DataFrame({
-            "structure_id": ["1", "2"],
-            "thermal_conductivity": [1.0, 2.0],
-            "source_reference": [
-                "https://doi.org/10.1038/s41586-021-00000-0",
-                "NIST Standard Reference Database 69"
-            ]
+            'source_reference': valid_refs,
+            'provenance_valid': [True] * 49
         })
-
-        filtered_df = filter_valid_provenance(df)
-
-        assert len(filtered_df) == 2
-        assert list(filtered_df["structure_id"]) == ["1", "2"]
-
+        
+        with pytest.raises(ValueError, match="Insufficient valid samples"):
+            filter_valid_provenance(df)
+    
+    def test_filter_missing_column(self):
+        """Test filtering raises error when provenance_valid column is missing."""
+        df = pd.DataFrame({
+            'source_reference': ["doi:10.1063/1.4812345"]
+        })
+        
+        with pytest.raises(ValueError, match="DataFrame must have 'provenance_valid' column"):
+            filter_valid_provenance(df)
 
 class TestSaveValidationReport:
     """Tests for save_validation_report function."""
-
-    def test_save_report(self):
-        """Test that the report is saved correctly."""
-        report = {
-            "total_entries": 10,
-            "valid_entries": 8,
-            "invalid_entries": 2,
-            "validity_rate": 0.8,
-            "invalid_details": [],
-            "all_valid": False
-        }
-
+    
+    def test_save_report_creates_file(self):
+        """Test that save_report creates the expected file."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_report.json"
-            save_validation_report(report, output_path)
-
+            output_path = Path(tmpdir) / "results" / "validation_report.json"
+            errors = [
+                {'error_type': 'invalid_source_reference', 'message': 'Test error'}
+            ]
+            
+            save_validation_report(errors, output_path)
+            
             assert output_path.exists()
-            with open(output_path, "r") as f:
-                saved_report = json.load(f)
-
-            assert saved_report["total_entries"] == 10
-            assert saved_report["valid_entries"] == 8
-            assert saved_report["invalid_entries"] == 2
+            
+            with open(output_path, 'r') as f:
+                report = json.load(f)
+            
+            assert 'validation_timestamp' in report
+            assert 'total_errors' in report
+            assert report['total_errors'] == 1
+            assert 'errors' in report
+            assert len(report['errors']) == 1
+    
+    def test_save_report_empty_errors(self):
+        """Test saving report with no errors."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "results" / "validation_report.json"
+            errors = []
+            
+            save_validation_report(errors, output_path)
+            
+            assert output_path.exists()
+            
+            with open(output_path, 'r') as f:
+                report = json.load(f)
+            
+            assert report['total_errors'] == 0

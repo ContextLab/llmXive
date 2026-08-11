@@ -1,0 +1,51 @@
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or output files were provided that demonstrate\
+    \ a validation step enforcing \u2265\u202F80\u202F% subject retention or handling\
+    \ missing behavioral data gracefully. The claim lacks any concrete artifact (e.g.,\
+    \ a Python module, unit test, log output, or documentation) showing the required\
+    \ checks and error handling, so the task is not satisfied."
+T019:
+  c: false
+  h: 35e37675f164893352f2cc7f07bf422df5cdbbb86a1d28e5ba8c524625478516
+  r: The repository lacks the required `data/processed/connectivity/subject_id_matrix.npy`
+    file, and `code/analysis/centrality.py` does not contain any implementation that
+    extracts a functional connectivity matrix with `nilearn.connectome.ConnectivityMeasure`
+    for the full AAL3 atlas nor saves it to the specified path. The script only loads
+    an existing matrix and computes centrality metrics. The core extraction step is
+    missing.
+T020:
+  c: false
+  h: 502ba774681af3c6e573e9f2657d2509778e46504bc97d994edae0227091f12c
+  r: "The required output file `data/processed/centrality/subject_id_metrics.csv`\
+    \ does not exist, and the provided `code/analysis/centrality.py` only defines\
+    \ functions that compute centrality and return them as dictionaries\u2014it never\
+    \ iterates over all ~90 regions for every subject nor writes the raw metrics to\
+    \ the specified CSV. The task\u2019s persistence requirement is therefore unmet."
+T021:
+  c: false
+  h: 97ac5f144cb04d63a3ce9fb25327cd382ac84cdfe8e998d06774e5c5fb3b8e47
+  r: "The required output file `data/processed/behavioral/fd_mean.csv` does not exist,\
+    \ and the provided snippet of `code/analysis/centrality.py` does not show any\
+    \ code that writes the calculated mean FD values to that CSV path. Without the\
+    \ CSV artifact, the task\u2019s requirement is not satisfied."
+T022:
+  c: false
+  h: de649812b650a34722755c57674119892e1e0be17e2edb852bc6519ecab2eebd
+  r: "The required input file `data/processed/centrality/subject_id_metrics.csv` does\
+    \ not exist, nor does the expected output `data/processed/centrality/model_predictors.csv`.\
+    \ Moreover, the provided `code/analysis/centrality.py` contains only connectivity\
+    \ loading and centrality computation; it lacks any VIF calculation, PCA fallback,\
+    \ or code that reads the raw metrics CSV and writes the predictor CSV. The task\u2019\
+    s core requirements are therefore unmet."
+T024:
+  c: false
+  h: 1e27b86c47247c40f7209049a9f875cec508e9f047c6b1f73a623e8a60ae8665
+  r: "The repository contains a partially implemented `code/analysis/regression.py`\
+    \ (functions for loading data are present but the regression fitting, conditional\
+    \ formula logic, and CSV export are not shown and appear incomplete). Moreover,\
+    \ the required output file `data/processed/regression/linear_model_summary.csv`\
+    \ is absent. The task\u2019s core deliverable\u2014a linear regression model with\
+    \ the specified conditional formula and a saved summary CSV\u2014has not been\
+    \ provided."

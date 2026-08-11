@@ -1,0 +1,6 @@
+T021:
+  c: false
+  h: 3b8e9d0c0492c7bf205bea2dcf40fb75772675dd2553e01efb90ac157fd29d90
+  r: "The required file `src/utils/validation.py` does not exist, so the VIF exclusion\
+    \ logic and causal\u2011language scanner functions cannot be present. The task\u2019\
+    s core artifact is missing entirely."

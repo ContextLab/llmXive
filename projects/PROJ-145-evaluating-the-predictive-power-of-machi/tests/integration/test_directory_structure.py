@@ -1,52 +1,61 @@
 """
-Integration tests to verify the full project structure including dependencies.
+Integration test to verify the directory structure is correctly set up.
+This test runs the setup script and verifies the file system state.
 """
-import pytest
+import os
+import subprocess
+import tempfile
 from pathlib import Path
+import pytest
 
-def test_full_directory_tree(project_root):
-    """Verify the complete expected directory tree exists."""
-    expected_dirs = [
-        "code",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/models",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "specs"
-    ]
-    
-    for dir_path in expected_dirs:
-        full_path = project_root / dir_path
-        assert full_path.exists(), f"Directory {dir_path} does not exist"
-        assert full_path.is_dir(), f"{dir_path} is not a directory"
-
-def test_package_initialization(project_root):
-    """Verify all necessary __init__.py files are present for package structure."""
-    init_files = [
-        "tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py",
-        "code/__init__.py"
-    ]
-    
-    for file_path in init_files:
-        full_path = project_root / file_path
-        assert full_path.exists(), f"File {file_path} does not exist"
+def test_full_directory_setup():
+    """
+    Run the setup_dirs script in a temporary environment and verify
+    that all required directories are created.
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # Create a mock project structure in the temp dir
+        # We need to place setup_dirs.py in a 'code' folder relative to tmp_dir
+        # to mimic the real project structure, or adjust the script logic.
+        # However, the script uses __file__ to find the root.
+        # Let's create the 'code' dir and move the script there.
         
-        # Verify the file is not empty (basic check)
-        content = full_path.read_text()
-        # We accept comments or docstrings, but it should exist
-        # The task requirement is to create them, content is minimal
+        code_dir = Path(tmp_dir) / "code"
+        code_dir.mkdir()
+        
+        # Copy the script content into the temp location
+        script_content = Path("code/setup_dirs.py").read_text()
+        script_path = code_dir / "setup_dirs.py"
+        script_path.write_text(script_content)
 
-def test_pytest_can_discover_tests(project_root):
-    """Verify that pytest can discover tests in the structure."""
-    # This is a meta-test; if we are running, pytest found this file
-    # We can assert that test discovery would work by checking structure
-    unit_test_file = project_root / "tests" / "unit" / "test_directory_structure.py"
-    integration_test_file = project_root / "tests" / "integration" / "test_directory_structure.py"
-    
-    assert unit_test_file.exists(), "Unit test file missing"
-    assert integration_test_file.exists(), "Integration test file missing"
+        # Run the script
+        # Note: In a real CI/CD, we would run `python code/setup_dirs.py` from root.
+        # Here we run it from the code dir, but the script resolves parent.
+        result = subprocess.run(
+            ["python", str(script_path)],
+            cwd=str(code_dir),
+            capture_output=True,
+            text=True
+        )
+
+        # Check execution success
+        assert result.returncode == 0, f"Script failed: {result.stderr}"
+
+        # Verify directories exist relative to tmp_dir (which is the root)
+        root = Path(tmp_dir)
+        expected_dirs = [
+            "code",
+            "data/raw",
+            "data/processed",
+            "data/models",
+            "tests/unit",
+            "tests/integration",
+            "specs"
+        ]
+
+        for d in expected_dirs:
+            assert (root / d).exists(), f"Required directory {d} was not created"
+        
+        # Verify nested structures
+        assert (root / "data" / "raw").exists()
+        assert (root / "tests" / "unit").exists()
