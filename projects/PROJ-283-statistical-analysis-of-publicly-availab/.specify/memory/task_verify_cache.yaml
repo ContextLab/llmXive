@@ -1,3 +1,26 @@
+T013:
+  c: false
+  h: 0be7d88cf49208871af59f92f358643b7956b89f7de4a7c8da4403fc3206101d
+  r: "The `src/data/parse.py` file contains only imports and a `pass` statement\u2014\
+    no `parse_pgn_stream` implementation or any logic to produce `GameRecord` objects.\
+    \ Additionally, the required `src/data/models.py` (defining the `GameRecord` TypedDict)\
+    \ and the schema file `specs/contracts/game_record.schema.yaml` are missing entirely.\
+    \ Consequently, none of the functional, type, or schema requirements are satisfied."
+T015:
+  c: false
+  h: 101a9c1f20d4225321433b2054c38ee4f95b63d859668b651844f369d5a6e621
+  r: "The provided `src/data/process.py` contains utility functions but no `OnlineAccumulator`\
+    \ class or `process_stream` implementation, and the required output files `data/processed/games.parquet`\
+    \ and `data/results/inclusion_counts.json` are absent. Consequently the task\u2019\
+    s core functionality and deliverables are not satisfied."
+T017:
+  c: false
+  h: 3d8d6403edb72d397b0fc6c98bd41775e79110e2537c09c3b65d5cf4aae24638
+  r: "The repository lacks the required `save_inclusion_metrics` function in `src/data/process.py`\
+    \ (the file ends before any such implementation) and the expected output files\
+    \ `data/results/inclusion_counts.json` and `data/results/inclusion_metrics.json`\
+    \ are absent. Consequently the task\u2019s core logic, file creation, and validation\
+    \ steps are not present."
 T021:
   c: false
   h: 6269284322a4da71ad5dc5950d33d8d04f7280c1601fd80e7a8515e7a3018923
@@ -5,6 +28,24 @@ T021:
     \ (only `map_eco_to_family` and `prepare_features_for_modeling` are present),\
     \ and the required external config file `data/config/eco_mapping.json` is absent,\
     \ so the task\u2019s core requirements are not satisfied."
+T025:
+  c: false
+  h: 253399e81af28d86c8a35ff60b3fc80209a108760c20862f79c6068ec1c1e2b3
+  r: "The file `src/reports/sensitivity.py` lacks a `run_sensitivity_analysis` function,\
+    \ does not use configurable thresholds from `config.py`, defaults to the wrong\
+    \ threshold set, never writes results to `data/results/sensitivity_analysis.json`,\
+    \ and omits required delta reporting, NaN handling, validation\u2011gate error\
+    \ raising, and full pairwise Jaccard calculations. The expected JSON output file\
+    \ is also missing."
+T027:
+  c: false
+  h: e2093a664a8f7ed39d74efbf42204e579904c50b9b5279f33017981b11229734
+  r: "The repository lacks the required `data/results/model_metrics.json` and the\
+    \ schema file `model_output.schema.yaml`. Moreover, the provided `src/models/fit.py`\
+    \ only contains feature\u2011preparation utilities and does not implement aggregation\
+    \ of coefficients, p\u2011values, AIC, cross\u2011validation scores, calculation\
+    \ of `significant_predictors`, JSON saving, or schema validation as mandated by\
+    \ the task. These core functionalities and artifacts are missing."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
