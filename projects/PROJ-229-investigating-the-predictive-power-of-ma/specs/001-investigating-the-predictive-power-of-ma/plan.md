@@ -1,27 +1,22 @@
 # Implementation Plan: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials
 
 **Branch**: `001-phase-change-predictive-power` | **Date**: 2026-07-13 | **Spec**: `specs/001-phase-change-predictive-power/spec.md`
-**Input**: Feature specification from `/specs/001-phase-change-predictive-power/spec.md`
 
 ## Summary
 
-This project investigates the **associational predictive power** of machine learning (ML) for identifying novel phase-change materials (PCMs). The approach involves retrieving materials data (melting points, heat capacity) from the Materials Project API, computing elemental and structural descriptors (including crystal graphs), and training both black-box baselines (Random Forest, Gradient Boosting) and interpretable models (SHAP, PySR symbolic regression). 
-
-**Critical Methodological Note**: Due to the observational nature of the data, all findings will be framed as **associational predictors** and **statistical correlations**, not causal "governing factors" or "explanatory formulas". The project explicitly avoids causal claims regarding phase-change suitability.
-
-The core research goal is to derive explicit mathematical formulas or ranked feature lists that **correlate** with phase-change properties, validated against an independent set of literature PCMs. All computations are constrained to run on a CPU-only GitHub Actions free-tier runner with limited CPU and memory resources (time limit).
+This project investigates the predictive power of machine learning (ML) to identify novel phase-change materials (PCMs) by analyzing structural and compositional descriptors. The approach involves retrieving materials data from the Materials Project (MP) API, computing elemental and graph-based descriptors, training baseline (Random Forest, Gradient Boosting) and interpretable models (SHAP, PySR symbolic regression), and validating derived rules against an independent literature set. The implementation prioritizes CPU-first execution within GitHub Actions constraints (limited CPU, constrained RAM) and includes a GPU escape hatch via Kaggle for any CUDA-restricted operations, though the primary plan targets CPU-tractable methods.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml`  
-**Storage**: Local CSV/Parquet files (within `data/`), GitHub Actions ephemeral storage.  
-**Testing**: `pytest` (unit tests for data pipelines, integration tests for model training).  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
-**Project Type**: Computational research pipeline / CLI.  
-**Performance Goals**: Complete data retrieval, feature engineering, model training, and validation within 6 hours; memory usage < 7 GB.  
-**Constraints**: No GPU; no deep learning training from scratch; dataset subset to fit RAM; symbolic regression time-bounded.  
-**Scale/Scope**: A large set of compounds in the training set; A set of external validation compounds.
+**Primary Dependencies**: `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `pyyaml`, `requests`, `huggingface_hub`  
+**Storage**: Local file system (CSV/Parquet/JSON) under `data/`  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Computational research pipeline  
+**Performance Goals**: Complete data retrieval and feature engineering within 2 hours; model training within 2 hours; symbolic regression within 4 hours.  
+**Constraints**: ≤7 GB RAM, ≤14 GB disk, no local GPU (unless offloaded to Kaggle).  
+**Scale/Scope**: [deferred]–[deferred] compounds from MP; external validation set of a representative number of literature PCMs (or a random sample of materials).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -29,15 +24,13 @@ The core research goal is to derive explicit mathematical formulas or ranked fea
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Random seeds pinned in `code/`. External datasets fetched via verified URLs or API keys stored in secrets. `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | **Pass** | All dataset URLs in `research.md` are from the verified list (Materials Project API and specific literature DOI). Citations validated against primary sources before analysis. |
-| **III. Data Hygiene** | **Pass** | Raw data checksums recorded in `state/`. Transformations produce new files (e.g., `raw.json` -> `features.csv`). No in-place modification. |
-| **IV. Single Source of Truth** | **Pass** | Figures/stats in `paper/` will trace to `data/` and `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **Pass** | Content hashes for artifacts. `state` updated on artifact changes. |
-| **VI. Numerical Stability** | **Pass** | Explicit checks for `nan`/`inf` in `pymatgen` graph construction. Logging and fallback protocols for unstable features. |
-| **VII. Independent Physical Validation** | **Pass** | A held-out set of literature PCMs (external to training) will be used to validate derived rules. |
+- **Principle I (Reproducibility (NON-NEGOTIABLE))**: All random seeds will be pinned in `code/`. External datasets (MP, NIST) will be fetched via programmatic APIs or verified URLs. `requirements.txt` will pin versions.
+- **Principle II (Verified Accuracy)**: Citations in `research.md` and `data-model.md` will be verified by the Reference-Validator Agent against the primary source. The plan does not rely on a 'Verified datasets' block in the prompt for verification; the Agent performs this.
+- **Principle III (Data Hygiene)**: Raw data will be stored in `data/raw/` with checksums. Derivations (features, models) will be written to new files in `data/processed/` and `data/results/`. No in-place modification.
+- **Principle IV (Single Source of Truth)**: Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in this project's `data/` and one block in this project's `code/`. Derived numbers MUST NOT be hand-typed into the paper.
+- **Principle V (Versioning Discipline)**: Artifacts will be content-hashed. The `state` file will be updated by the Advancement-Evaluator Agent on artifact changes, not by implementation scripts.
+- **Principle VI (Numerical Stability)**: The feature extraction pipeline will include explicit checks for `nan`/`inf` in graph representations and elemental descriptors, logging and handling them per a documented protocol.
+- **Principle VII (Independent Physical Validation)**: A separate set of known PCMs from literature (or a random sample of materials) will be used for validation, excluded from all training, validation, and test splits. The rules derived from symbolic regression will be tested against this set.
 
 ## Project Structure
 
@@ -51,101 +44,125 @@ specs/001-phase-change-predictive-power/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output
+│   ├── model_output.schema.yaml
+│   ├── validation_result.schema.yaml
+│   └── target_decision.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+projects/PROJ-229-investigating-the-predictive-power-of-ma/
 ├── data/
-│   ├── fetch_materials_project.py
-│   ├── compute_descriptors.py
-│   └── load_external_validation.py
-├── models/
-│   ├── train_baselines.py
-│   ├── train_symbolic.py
-│   └── evaluate.py
-├── utils/
-│   ├── graph_utils.py
-│   ├── stability_checks.py
-│   └── collinearity_utils.py
-├── config.yaml
-└── main.py
-
-tests/
-├── contract/
-│   ├── test_dataset_schema.py
-│   └── test_model_output_schema.py
-├── integration/
-│   └── test_pipeline.py
-└── unit/
-    ├── test_descriptors.py
-    └── test_stability.py
+│   ├── raw/             # Raw downloads (MP API, NIST, Literature)
+│   ├── processed/       # Feature-engineered datasets
+│   ├── results/         # Model outputs, metrics, formulas
+│   └── external/        # Literature PCM data (if separate)
+├── code/
+│   ├── data/            # Retrieval and preprocessing scripts
+│   ├── models/          # Training, SHAP, PySR scripts
+│   ├── utils/           # Feature extraction, graph building, validation
+│   └── main.py          # Orchestration entry point
+├── tests/
+│   ├── unit/            # Unit tests for features, models
+│   ├── integration/     # Integration tests for pipeline
+│   └── contract/        # Schema validation tests
+├── config.yaml          # Configuration for thresholds, seeds
+├── requirements.txt     # Dependencies
+└── README.md            # Project overview
 ```
 
-**Structure Decision**: Single project structure (`code/`) is selected to minimize overhead and fit within the 6-hour CI window. The separation of `data/`, `models/`, and `utils/` ensures modularity while keeping the import path simple for the runner.
+**Structure Decision**: Single project structure chosen for simplicity and alignment with the computational research nature of the project. All code is modularized into `data`, `models`, and `utils` for clarity.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Symbolic Regression (PySR)** | Required for explicit mathematical formulas (FR-003, FR-007). | Standard regression (linear/polynomial) cannot discover non-linear, interpretable governing factors without human bias in feature selection. |
-| **Crystal Graph Features** | Required to capture structural context (FR-002). | Elemental descriptors alone are insufficient for phase-change properties which depend on bonding topology. |
-| **External Validation Set** | Required for Principle VII. | Using the same test set for training and validation would lead to overfitting and invalid scientific claims. |
+|-----------|------------|-------------------------------------|
+| None | The project scope is contained within CPU constraints and open datasets. | N/A |
 
-## Phased Implementation Plan
+## Phases and Tasks
 
-### Phase 0: Research & Feasibility (Days 1-2)
-*Goal: Confirm dataset availability, variable fit, and target consistency.*
-1.  **Dataset Verification**: 
-    *   **Verify Access**: Confirm access to the **Materials Project API** (primary source) and the specific literature review (DOI: 10.1016/j.matt.2024.01.001) for the external validation set.
-    *   **Exclusion**: Explicitly **exclude** the `nist_800_53` and other irrelevant security/LLM datasets from the "Verified datasets" block, as they are out of scope for materials science.
-    *   **Variable Fit**: Confirm the presence of `melting_point`, `heat_capacity`, and `latent_heat` (or proxies) in the Materials Project data subset.
-2.  **Variable Fit Analysis**: Check if the verified datasets contain the required predictors (atomic number, electronegativity, radius, crystal graph). If `latent_heat` is missing in the primary source, confirm the proxy strategy (US-1).
-3.  **Target Consistency Check**: **CRITICAL STEP**. Empirically calculate the Pearson correlation between `melting_point` and `latent_heat` in the overlapping subset of the training data. 
-    *   **If r ≥ 0.6**: Proceed with `latent_heat` as the validation target for SC-003.
-    *   **If r < 0.6**: Switch the validation target for SC-003 to `melting_point` (ranking accuracy on A selection of high-melting-point PCMs will be identified to address the research question: What are the most promising phase change materials for high-temperature thermal energy storage? The study will employ a systematic literature review and comparative analysis methodology. References: [Citations preserved verbatim].) and flag the limitation. This prevents a logical dead-end where the project fails its own success metric due to a weak proxy.
-4.  **Compute Feasibility**: Benchmark `pymatgen` graph generation and PySR on a representative sample of compounds to ensure it fits within the 7 GB RAM / 6h CPU constraint.
+### Phase 0: Setup
+- **T001a**: Create data directories (`data/raw`, `data/processed`, `data/results`, `data/external`).
+- **T001b**: Create code directories (`code/data`, `code/models`, `code/utils`).
+- **T001c**: Create test directories (`tests/unit`, `tests/integration`, `tests/contract`).
+- **T003**: Configure linting and formatting tools (create `pyproject.toml` with flake8 and black configs).
 
-### Phase 1: Data Engineering & Model Design (Days 3-5)
-*Goal: Build the data pipeline and define the data model.*
-1.  **Data Retrieval**: Implement `fetch_materials_project.py` to download compounds with melting points. Handle API rate limits.
-2.  **Feature Engineering**: Implement `compute_descriptors.py` to generate elemental and graph features. Implement stability checks (Principle VI).
-3.  **Multicollinearity Regularization**: Implement `collinearity_utils.py` to perform Variance Inflation Factor (VIF) analysis. Remove features with VIF > 5 or apply L1 regularization before symbolic regression to prevent spurious formulas from dependent descriptors (FR-006).
-4.  **Schema Definition**: Define `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml`.
-5.  **Baseline Training**: Implement `train_baselines.py` (Random Forest, Gradient Boosting) with SHAP analysis.
-6.  **Symbolic Regression**: Implement `train_symbolic.py` using PySR with a strict time budget and the regularized feature set.
+### Phase 0.5: Target Consistency Check & Literature Data Acquisition
+- **T005a**: Fetch a sample of Materials Project data (e.g., first 1000 compounds) to calculate Pearson correlation between `melting_point` and `latent_heat` (if available). Write `data/results/target_decision.json` with the selected target variable (`latent_heat` or `melting_point`) and the correlation value.
+- **T013**: Fetch literature PCM data from a verified source (e.g., Hugging Face dataset or DOI). If inaccessible, log a warning and proceed to use a pre-defined fallback set of PCMs.
+- **T013a**: Map the literature data to the target variable using `data/results/target_decision.json`. Write `data/results/mapping_log.json`.
+- **T013b**: If the target variable is `melting_point` (fallback), write `data/results/fallback_decision.json` to indicate the change in research scope. Do not mutate `target_decision.json`.
 
-### Phase 2: Validation & Analysis (Days 6-7)
-*Goal: Validate findings and perform sensitivity analysis.*
-1.  **External Validation**: Load a representative set of literature PCMs. Apply derived rules. 
-    *   **Target**: If Phase 0 passed (r ≥ 0.6), validate against `latent_heat` ranking. If Phase 0 failed (r < 0.6), validate against `melting_point` ranking.
-    *   **Metric**: Accuracy on the **top 10** highest-value PCMs (resolving SC-003's deferred value).
-2.  **Sensitivity Analysis**: Sweep feature importance thresholds (FR-004) and report false-positive/negative rates.
-3.  **Collinearity Check**: Final diagnostic check for definitional dependencies (FR-006).
-4.  **Report Generation**: Compile results into `research.md` and `paper/` drafts, explicitly framing results as associational.
+### Phase 1: Data Retrieval and Preprocessing
+- **T011a**: Retrieve full Materials Project data for compounds with melting point and heat capacity data. Limit to [deferred] compounds.
+- **T012**: Compute elemental and structural descriptors. Check for numerical stability (nan/inf) and handle them.
 
-### Phase 3: Finalization (Day 8)
-*Goal: Ensure reproducibility and cleanup.*
-1.  **Reproducibility Check**: Run the full pipeline end-to-end on a fresh runner.
-2.  **Hygiene**: Verify checksums and artifact hashes.
-3.  **Documentation**: Finalize `quickstart.md` and `data-model.md`.
+### Phase 2: Feature Engineering and Collinearity Check
+- **T014**: Aggregate graph representations into scalar descriptors for PySR.
+- **T015**: Perform collinearity check on predictors. Write `data/results/collinearity_report.json` with flagged dependencies and adjusted interpretation text.
 
-## FR/SC Coverage Matrix
+### Phase 3: Model Training
+- **T017**: Train baseline models (Random Forest, Gradient Boosting).
+- **T018**: Train interpretable models (SHAP, PySR). If PySR fails, fallback to Lasso regression.
+- **T019**: Generate `data/results/symbolic_formula.json` (or `data/results/lasso_formula.json` if PySR fails).
 
-| ID | Requirement | Plan Step Addressing It |
-| :--- | :--- | :--- |
-| **FR-001** | Retrieve Materials Project data | Phase 1, Step 1: `fetch_materials_project.py` |
-| **FR-002** | Compute descriptors & graphs | Phase 1, Step 2: `compute_descriptors.py` |
-| **FR-003** | Train baselines & interpretable models | Phase 1, Step 5 & 6: `train_baselines.py`, `train_symbolic.py` |
-| **FR-004** | Sensitivity analysis on thresholds | Phase 2, Step 2: Threshold sweep logic |
-| **FR-005** | Validate against literature PCMs | Phase 2, Step 1: External validation logic |
-| **FR-006** | Flag collinearity | Phase 1, Step 3 & Phase 2, Step 3: VIF analysis |
-| **FR-007** | Output explicit formulas/associational framing | Phase 1, Step 6 & Phase 2: PySR output + associational framing |
-| **SC-001** | Correlation measurement | Phase 2, Step 1: Pearson correlation calculation |
-| **SC-002** | R² comparison (t-test) | Phase 2, Step 1: Model comparison metrics |
-| **SC-003** | Generalization accuracy (≥60% on top 10) | Phase 2, Step 1: External ranking accuracy on **top 10** PCMs |
-| **SC-004** | Robustness of thresholds | Phase 2, Step 2: Sensitivity report |
-| **SC-005** | Compute feasibility | Phase 0, Step 4: Benchmarking & Phase 1 constraints |
+### Phase 4: Validation and Sensitivity Analysis
+- **T023**: Validate derived rules against the literature set. Use `data/results/target_decision.json` to determine the target variable. Calculate Spearman correlation and ranking accuracy (if applicable).
+- **T024**: Perform sensitivity analysis on feature importance thresholds. Read thresholds from `config.yaml` and target from `data/results/target_decision.json`. Write `data/results/sensitivity_analysis.json`.
+- **T025**: Perform multicollinearity test (train model with and without `melting_point`). Write `data/results/multicollinearity_test.json`.
+
+### Phase 5: Feasibility and Reporting
+- **T026a**: Measure computational feasibility (time, memory). Write `data/results/feasibility_report.json`.
+- **T026c**: Generate the final report. Read the 'Critical Methodological Note' from `plan.md` and inject it verbatim into the report. Ensure all statistics trace to specific data rows and code blocks.
+
+## Reproducibility Requirements
+
+- A `requirements.txt` (or `pyproject.toml`) at `projects/PROJ-229-investigating-the-predictive-power-of-ma/code/`
+  pins every Python dependency.
+- The Code-Execution Agent runs each task in an isolated virtualenv built
+  from this requirements file; no global packages are assumed.
+- Every notebook or script under `code/` is runnable end-to-end without
+  manual intervention.
+
+## Data Hygiene
+
+- Every file under `data/` is checksummed in the project's
+  `state/projects/PROJ-229-investigating-the-predictive-power-of-ma.yaml` `artifact_hashes` map.
+- Raw data is preserved unchanged; derivations are written to new
+  filenames.
+- No commits are accepted that fail the Repository-Hygiene Agent's PII
+  scan.
+
+## Verified Accuracy Gate
+
+The Reference-Validator Agent runs at three points:
+
+1. On every artifact write that introduces or modifies citations.
+2. Inside the Advancement-Evaluator before awarding any review point.
+3. As a blocking gate on the `research_review` → `research_accepted`
+   transition.
+
+A reviewer's score MUST be set to 0.0 if the reviewed artifact has any
+citation in `unreachable` or `mismatch` status.
+
+## Versioning
+
+This constitution carries its own semver. Initial version:
+**1.0.0** — ratified 2026-07-13.
+
+Amendments follow the parent llmXive constitution's amendment procedure
+(open a PR; update the version line; record a Sync Impact Report).
+
+## Governance
+
+The Advancement-Evaluator Agent is the sole writer of this project's
+`current_stage`. The principal agent for this project is
+**flesh_out**.
+
+Review-point thresholds for this project follow `web/about.html`. The
+parser at `src/llmxive/config.py` is the single source these numbers
+flow from.
+
+**Project ID**: PROJ-229-investigating-the-predictive-power-of-ma | **Field**: materials science | **Ratified**: 2026-07-13

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Result Schema"
+type: "object"
+properties:
+  validation_set_source:
+    type: "string"
+    description: "Source of the validation set (e.g., 'Literature', 'NIST', 'Fallback')"
+  ranking_accuracy:
+    type: ["number", "null"]
+    description: "Percentage of top-k PCMs correctly ranked (null if not applicable)"
+  spearman_correlation:
+    type: "number"
+    description: "Spearman correlation between predicted and actual values"
+  false_positive_rate:
+    type: "number"
+    description: "False positive rate for the derived rules"
+  false_negative_rate:
+    type: "number"
+    description: "False negative rate for the derived rules"
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the sensitivity analysis on feature importance thresholds"
+    properties:
+      thresholds:
+        type: "array"
+        items:
+          type: "number"
+      false_positive_rates:
+        type: "array"
+        items:
+          type: "number"
+      false_negative_rates:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - "thresholds"
+      - "false_positive_rates"
+      - "false_negative_rates"
+  associational_framing_note:
+    type: "string"
+    description: "Exact text of the Critical Methodological Note from the Plan, verbatim."
+required:
+  - "validation_set_source"
+  - "spearman_correlation"
+  - "false_positive_rate"
+  - "false_negative_rate"
+  - "sensitivity_analysis"
+  - "associational_framing_note"
+additionalProperties: false
+description: "Schema for validation results, including Spearman correlation, error rates, and sensitivity analysis. Must include the exact associational framing note."
