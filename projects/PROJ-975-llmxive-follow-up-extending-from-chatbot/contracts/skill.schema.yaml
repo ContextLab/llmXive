@@ -1,67 +1,23 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Skill Library Schema
-type: object
-required:
-  - metadata
-  - skills
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Skill Schema"
+type: "object"
 properties:
-  metadata:
-    type: object
-    required:
-      - mean_similarity
-      - overlap_level
-      - maximal_overlap_detected
-      - seed_used
-    properties:
-      mean_similarity:
-        type: number
-        description: Mean pairwise cosine similarity of all skill embeddings
-      overlap_level:
-        type: string
-        description: Configured overlap level (Low, Medium, High)
-      maximal_overlap_detected:
-        type: boolean
-        description: Flag indicating if mean similarity >= 0.95 was detected
-      seed_used:
-        type: integer
-        description: Random seed used for generation
-      total_skills:
-        type: integer
-        description: Total number of skills generated
-      timestamp:
-        type: string
-        format: date-time
-        description: Generation timestamp
-  skills:
-    type: array
-    minItems: 1
-    description: List of skill objects
+  skill_id:
+    type: "string"
+    description: "Unique identifier for the skill"
+  function_code:
+    type: "string"
+    description: "Python code snippet for the skill"
+  embedding_vector:
+    type: "array"
     items:
-      type: object
-      required:
-        - id
-        - name
-        - code
-        - description
-        - embedding_dimension
-      properties:
-        id:
-          type: integer
-          description: Unique skill identifier
-        name:
-          type: string
-          description: Human-readable name
-        description:
-          type: string
-          description: Functional description
-        code:
-          type: string
-          description: Python source code of the skill
-        embedding_dimension:
-          type: integer
-          description: Dimension of the embedding vector
-        embedding:
-          type: array
-          items:
-            type: number
-          description: Embedding vector (optional, may be omitted for storage efficiency)
+      type: "number"
+    description: "Vector representation of the skill"
+  usage_count:
+    type: "integer"
+    description: "Number of times the skill has been used"
+required:
+  - skill_id
+  - function_code
+  - embedding_vector
+  - usage_count

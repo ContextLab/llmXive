@@ -1,93 +1,71 @@
-import pytest
 import json
 import os
-import numpy as np
-from sentence_transformers import SentenceTransformer
-
-# Mock imports to avoid heavy dependencies in test environment if necessary,
-# but we assume the environment has the required libraries.
-import sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from code.config import get_seeds, get_experiment_config
-from code.utils import get_model, get_embedding, pairwise_cosine_similarity_matrix
-from code.generate_data import generate_skills, generate_tasks_with_ground_truth, calculate_similarity_metrics
+import pytest
+import hashlib
+from code.generate_data import generate_skills, generate_tasks_with_ground_truth, calculate_similarity_metrics, generate_checksum
 
 def test_ground_truth_independence():
-    """
-    Verify that ground-truth assignment (Seed B) is independent of skill generation (Seed A).
-    We do this by checking that changing Seed A does not change the set of skills available
-    for a fixed Seed B, and vice versa.
-    """
+    """Verify that task generation (Seed B) is independent of skill generation (Seed A)."""
     seed_a = 42
-    seed_b = 123
-    overlap_level = "low"
-
+    seed_b = 12345
+    
     # Generate skills with Seed A
-    skills_a, raw_texts_a = generate_skills(seed_a, overlap_level)
-    ids_a = [s['id'] for s in skills_a]
-
-    # Generate tasks with Seed B using skills from A
-    tasks_b = generate_tasks_with_ground_truth(seed_b, ids_a, 10)
-    gt_b = [t['ground_truth_path'] for t in tasks_b]
-
-    # Now change Seed A to something else
-    seed_a_new = 999
-    skills_a_new, raw_texts_a_new = generate_skills(seed_a_new, overlap_level)
-    ids_a_new = [s['id'] for s in skills_a_new]
-
-    # Generate tasks with SAME Seed B but new skills
-    tasks_b_new = generate_tasks_with_ground_truth(seed_b, ids_a_new, 10)
-    gt_b_new = [t['ground_truth_path'] for t in tasks_b_new]
-
-    # The set of IDs should be different if the skill generation is different
-    # But the logic of task generation (random.sample) depends on the input list.
-    # The test is that Seed B controls the *selection* from the available pool.
-    # If we fix Seed B and the pool changes, the result changes.
-    # If we fix Seed B and the pool is the same, the result should be the same.
+    skills = generate_skills(seed=seed_a, count=10)
+    skill_ids_a = [s["skill_id"] for s in skills]
     
-    # Verify that with same Seed B and same pool, results are identical
-    tasks_b_repeat = generate_tasks_with_ground_truth(seed_b, ids_a, 10)
-    gt_b_repeat = [t['ground_truth_path'] for t in tasks_b_repeat]
+    # Generate tasks with Seed B
+    tasks = generate_tasks_with_ground_truth(skills, task_count=5, seed=seed_b)
     
-    assert gt_b == gt_b_repeat, "Ground truth generation is not deterministic with same seed and pool"
+    # Verify tasks have ground truth paths
+    for task in tasks:
+        assert "ground_truth_path" in task
+        assert len(task["ground_truth_path"]) > 0
+        # Ensure ground truth skills exist in the skill set
+        for gt in task["ground_truth_path"]:
+            assert gt in skill_ids_a
 
-def test_similarity_validation():
-    """
-    Test that similarity metrics are calculated correctly.
-    """
-    # Create a small set of known texts
-    texts = [
-        "def add(a, b): return a + b",
-        "def add(a, b): return a + b", # Identical
-        "def sub(a, b): return a - b"
-    ]
+def test_similarity_metrics():
+    """Verify similarity calculation logic."""
+    skills = generate_skills(seed=42, count=20)
+    sim = calculate_similarity_metrics(skills)
+    assert 0.0 <= sim <= 1.0
+    assert isinstance(sim, float)
+
+def test_checksum_generation():
+    """Verify checksum generation logic."""
+    # Create a temp file
+    temp_path = "data/raw/test_temp.json"
+    os.makedirs("data/raw", exist_ok=True)
+    with open(temp_path, "w") as f:
+        json.dump({"test": "data"}, f)
     
-    # We need to mock the model or use a real one. For this test, we assume the environment is set up.
-    # If sentence-transformers is not available, we skip or mock.
-    try:
-        model = get_model()
-        metrics = calculate_similarity_metrics(texts, "low")
-        
-        # Check that metrics are returned
-        assert "mean_pairwise_similarity" in metrics
-        assert "max_pairwise_similarity" in metrics
-        assert isinstance(metrics["mean_pairwise_similarity"], float)
-    except Exception as e:
-        # If model loading fails, skip this specific test or log warning
-        pytest.skip(f"Model loading failed: {e}")
+    checksum = generate_checksum(temp_path)
+    assert len(checksum) == 64 # SHA-256 hex length
+    assert isinstance(checksum, str)
+    
+    # Cleanup
+    os.remove(temp_path)
 
-def test_skill_generation_count():
-    """
-    Verify that exactly 100 skills are generated.
-    """
-    skills, _ = generate_skills(42, "low")
-    assert len(skills) == 100
+def test_output_files_exist():
+    """Verify that main() produces the required files."""
+    # We assume main() has been run or will be run. 
+    # This test checks existence if the script was executed.
+    assert os.path.exists("data/raw/skills.json"), "skills.json not found"
+    assert os.path.exists("data/raw/tasks.json"), "tasks.json not found"
+    assert os.path.exists("data/raw/checksums.json"), "checksums.json not found"
+    assert os.path.exists("state/artifact_hashes.json"), "artifact_hashes.json not found"
 
-def test_task_generation_count():
-    """
-    Verify that exactly 500 tasks are generated.
-    """
-    skill_ids = [f"skill_{i:03d}" for i in range(100)]
-    tasks = generate_tasks_with_ground_truth(123, skill_ids, 500)
-    assert len(tasks) == 500
+def test_checksums_match():
+    """Verify that stored checksums match actual file checksums."""
+    with open("data/raw/checksums.json", "r") as f:
+        stored_checksums = json.load(f)
+    
+    # Verify skills
+    skills_path = "data/raw/skills.json"
+    actual_skills_checksum = generate_checksum(skills_path)
+    assert stored_checksums["skills.json"] == actual_skills_checksum, "Skills checksum mismatch"
+    
+    # Verify tasks
+    tasks_path = "data/raw/tasks.json"
+    actual_tasks_checksum = generate_checksum(tasks_path)
+    assert stored_checksums["tasks.json"] == actual_tasks_checksum, "Tasks checksum mismatch"

@@ -19,7 +19,7 @@ This feature implements a reproducible synthetic experimental environment to tes
 **Project Type**: Computational Research / CLI Tool  
 **Performance Goals**: Complete full experiment (500 tasks × 4 library sizes × 2 conditions) in < 4 hours on 2 vCPU.  
 **Constraints**: No GPU usage; memory footprint < 6 GB during embedding calculation; deterministic random seeds.  
-**Scale/Scope**: 500 synthetic tasks, 100 skills, 4 experimental configurations, 1 statistical model.
+**Scale/Scope**: A set of synthetic tasks, a diverse range of skills, 4 experimental configurations, 1 statistical model.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

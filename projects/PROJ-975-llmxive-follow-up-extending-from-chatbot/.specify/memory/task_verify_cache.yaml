@@ -1,33 +1,26 @@
-T011:
+T001:
   c: false
-  h: 06a9f7f27ba6e0060fc30e37d10d055bb86bc22f910c183861bfb40d60f093b6
-  r: The test file `tests/contract/test_schemas.py` is present, but the required schema
-    `contracts/task.schema.yaml` (referenced as `task.schema.yaml`) does not exist,
-    causing the test to fail when it tries to load the schema. Without the schema
-    file, the contract test cannot actually validate `tasks.json` as required. The
-    missing schema must be added for the task to be complete.
-T012:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or file system snapshots were provided showing the required\
+    \ subdirectories (`data/raw`, `data/results`, `code`, `tests/unit`, `tests/contract`,\
+    \ `contracts`). Without concrete evidence that these folders exist and are non\u2011\
+    empty, the task requirement is not satisfied. The implementer must supply a directory\
+    \ tree view or similar proof that the specified subdirectories have been created\
+    \ in the repository."
+T003:
   c: false
-  h: 06a9f7f27ba6e0060fc30e37d10d055bb86bc22f910c183861bfb40d60f093b6
-  r: The test file `tests/contract/test_schemas.py` is present and contains a `test_skills_json_schema`
-    function, but the required schema file `contracts/skill.schema.yaml` (or `schema.yaml`)
-    is missing, so the test cannot actually validate the `skills.json` against the
-    contract. The missing schema file must be added for the task to be fulfilled.
-T015:
-  c: false
-  h: a9e6cf0a5248dc1f7a013c32e7d574a7229e44dbfd6120a4397c30db3a23ab6f
-  r: "The repository lacks the required output files `data/raw/skills.json` and `data/raw/tasks.json`,\
-    \ and the provided `code/generate_data.py` snippet is truncated and does not show\
-    \ any JSON serialization logic that writes those files with the requested metadata\
-    \ (overlap level, seed). The task\u2019s core requirement is therefore not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file was presented; there is no evidence of a non\u2011empty\
+    \ markdown document containing placeholder text and installation instructions,\
+    \ which is the explicit deliverable of task T003. The required artifact is missing."
 T016:
   c: false
-  h: 1c0aa8d48f764ebca1dbe4f8a6f78a5a471ddfe9a7f7787dc364699ba267c6b2
-  r: "The provided `code/generate_data.py` is truncated and does not contain the required\
-    \ detection of mean pairwise similarity \u2265\u202F0.95, the setting of Retrieval\
-    \ Precision to 0.0, deterministic tie\u2011breaking, warning log, or exit behavior.\
-    \ Moreover, the required output file `data/raw/skills.json` is absent. These essential\
-    \ artifacts and logic are missing, so the task is not satisfied."
+  h: 61c4802eb00d18738b51453650d2973dc34bc3fe32ec312e65013d642dac32d6
+  r: "The repository lacks `data/raw/tasks.json`, so the required `maximal_overlap_detected`\
+    \ flag cannot be verified. Moreover, the shown portion of `code/generate_data.py`\
+    \ does not contain any implementation for detecting mean pairwise similarity \u2265\
+    \u202F0.95, updating `tasks.json`, logging a warning, or exiting with code\u202F\
+    0. The task\u2019s core functionality is therefore missing."
 T032:
   c: false
   h: 90ee48ded2f6fa2f4deb7b5fdda65d18b26e901cb9777a5fc422a25bb4ea9566

@@ -1,66 +1,68 @@
+"""
+setup_contracts.py
+
+Initializes the schema files if they don't exist (T009).
+"""
 import os
 import yaml
-import logging
 
-# Ensure logging is configured if not already
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+SCHEMAS = {
+    "task.schema.yaml": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Task Schema",
+        "type": "object",
+        "properties": {
+            "task_id": {"type": "string"},
+            "description": {"type": "string"},
+            "ground_truth_path": {"type": "array", "items": {"type": "string"}},
+            "complexity": {"type": "integer"}
+        },
+        "required": ["task_id", "description", "ground_truth_path", "complexity"]
+    },
+    "skill.schema.yaml": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Skill Schema",
+        "type": "object",
+        "properties": {
+            "skill_id": {"type": "string"},
+            "function_code": {"type": "string"},
+            "embedding_vector": {"type": "array", "items": {"type": "number"}},
+            "usage_count": {"type": "integer"}
+        },
+        "required": ["skill_id", "function_code", "embedding_vector", "usage_count"]
+    },
+    "experiment_log.schema.yaml": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Experiment Log Entry Schema",
+        "type": "object",
+        "properties": {
+            "task_id": {"type": "string"},
+            "skill_id": {"type": "string"},
+            "success": {"type": "boolean"},
+            "latency": {"type": "number"},
+            "tokens": {"type": "integer"},
+            "retrieval_precision": {"type": "number"},
+            "retrieval_diversity": {"type": "number"},
+            "pruning_risk_count": {"type": "integer"},
+            "library_size": {"type": "integer"},
+            "pruning_enabled": {"type": "boolean"}
+        },
+        "required": ["task_id", "skill_id", "success", "latency", "tokens", "retrieval_precision", "retrieval_diversity", "pruning_risk_count", "library_size", "pruning_enabled"]
+    }
+}
 
 def main():
-    """
-    Validates and ensures the contract schemas exist in the contracts/ directory.
-    This script is a placeholder to trigger the creation or verification of schema files.
-    Since the schemas are defined as artifacts in T009, this script ensures they are loadable.
-    """
     contracts_dir = "contracts"
-    schema_files = [
-        "task.schema.yaml",
-        "skill.schema.yaml",
-        "experiment_log.schema.yaml"
-    ]
-
-    logger.info(f"Checking for schema files in {contracts_dir}...")
-
-    if not os.path.exists(contracts_dir):
-        logger.error(f"Directory {contracts_dir} does not exist. Please run T001 first.")
-        return False
-
-    all_found = True
-    for filename in schema_files:
+    os.makedirs(contracts_dir, exist_ok=True)
+    
+    for filename, schema in SCHEMAS.items():
         filepath = os.path.join(contracts_dir, filename)
-        if os.path.exists(filepath):
-            try:
-                with open(filepath, 'r') as f:
-                    schema = yaml.safe_load(f)
-                logger.info(f"Found valid YAML schema: {filename}")
-                # Basic validation check: ensure 'properties' exist for experiment_log
-                if filename == "experiment_log.schema.yaml":
-                    required_props = [
-                        "task_id", "skill_id", "success", "latency", "tokens",
-                        "retrieval_precision", "retrieval_diversity",
-                        "pruning_risk_count", "library_size", "pruning_enabled"
-                    ]
-                    if "properties" in schema:
-                        missing = [p for p in required_props if p not in schema["properties"]]
-                        if missing:
-                            logger.error(f"Schema {filename} missing required properties: {missing}")
-                            all_found = False
-                        else:
-                            logger.info(f"Schema {filename} contains all required properties.")
-            except yaml.YAMLError as e:
-                logger.error(f"Invalid YAML in {filename}: {e}")
-                all_found = False
+        if not os.path.exists(filepath):
+            with open(filepath, 'w') as f:
+                yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
+            print(f"Created schema: {filepath}")
         else:
-            logger.error(f"Missing schema file: {filename}")
-            all_found = False
-
-    if all_found:
-        logger.info("All contract schemas are present and valid.")
-        return True
-    else:
-        logger.error("Schema validation failed.")
-        return False
+            print(f"Schema already exists: {filepath}")
 
 if __name__ == "__main__":
-    success = main()
-    exit(0 if success else 1)
+    main()
