@@ -1,71 +1,59 @@
-schema_name: ball_milling_dataset
-version: 1.0.0
-description: Schema for ball milling particle size distribution dataset
-fields:
-  - name: experiment_id
-    type: string
-    required: true
-    description: Unique identifier for the experiment
-  - name: source
-    type: string
-    required: true
-    description: Source system name (e.g., Materials Project, NIST, arXiv)
-  - name: source_id
-    type: string
-    required: true
-    description: Unique identifier within the source system
-  - name: material_type
-    type: string
-    required: true
-    description: Type of material being milled
-  - name: milling_speed
-    type: float
-    required: true
-    description: Milling speed in RPM
-  - name: milling_time
-    type: float
-    required: true
-    description: Milling duration in hours
-  - name: ball_to_powder_ratio
-    type: float
-    required: true
-    description: Ratio of ball mass to powder mass
-  - name: youngs_modulus
-    type: float
-    required: true
-    description: Young's modulus of the material in GPa
-  - name: density
-    type: float
-    required: true
-    description: Density of the material in g/cm³
-  - name: d10
-    type: float
-    required: true
-    description: Particle size at 10th percentile in micrometers
-  - name: d50
-    type: float
-    required: true
-    description: Particle size at 50th percentile (median) in micrometers
-  - name: d90
-    type: float
-    required: true
-    description: Particle size at 90th percentile in micrometers
-  - name: process_duration
-    type: float
-    required: false
-    description: Total process duration in hours (may be NaN if not available)
-constraints:
-  - field: d10
-    condition: d10 >= 0
-  - field: d50
-    condition: d50 >= 0
-  - field: d90
-    condition: d90 >= 0
-  - field: d10
-    condition: d10 <= d50
-  - field: d50
-    condition: d50 <= d90
-  - field: milling_speed
-    condition: milling_speed > 0
-  - field: milling_time
-    condition: milling_time > 0
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ball Milling Dataset Schema"
+description: "Schema for the ball milling particle size distribution dataset."
+type: "object"
+required:
+  - experiment_id
+  - source
+  - source_id
+  - material_type
+  - milling_speed
+  - milling_time
+  - ball_to_powder_ratio
+  - youngs_modulus
+  - density
+  - d10
+  - d50
+  - d90
+  - process_duration
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique identifier for the experiment."
+  source:
+    type: "string"
+    description: "Name of the data source (e.g., 'Materials Project', 'NIST', 'arXiv')."
+  source_id:
+    type: "string"
+    description: "Unique identifier for the record within the source."
+  material_type:
+    type: "string"
+    description: "Type of material processed."
+  milling_speed:
+    type: ["number", "null"]
+    description: "Milling speed in RPM."
+  milling_time:
+    type: ["number", "null"]
+    description: "Milling time in hours."
+  ball_to_powder_ratio:
+    type: ["number", "null"]
+    description: "Ratio of ball mass to powder mass."
+  youngs_modulus:
+    type: ["number", "null"]
+    description: "Young's modulus of the material in GPa."
+  density:
+    type: ["number", "null"]
+    description: "Density of the material in g/cm³."
+  d10:
+    type: ["number", "null"]
+    description: "10th percentile of particle size distribution in micrometers."
+  d50:
+    type: ["number", "null"]
+    description: "50th percentile (median) of particle size distribution in micrometers."
+  d90:
+    type: ["number", "null"]
+    description: "90th percentile of particle size distribution in micrometers."
+  process_duration:
+    type: ["number", "null"]
+    description: "Total process duration in minutes."
+additionalProperties: true

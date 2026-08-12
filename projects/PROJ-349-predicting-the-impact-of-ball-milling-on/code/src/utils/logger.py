@@ -1,68 +1,96 @@
+"""
+Logging infrastructure for the project.
+Implements T006.
+"""
 import logging
 import os
 from pathlib import Path
 from typing import Optional, Union
 
-_logger_instance = None
-_log_level = logging.INFO
+# Global logger instance
+_logger: Optional[logging.Logger] = None
+_log_level: int = logging.INFO
 
 def get_module_logger(name: str) -> logging.Logger:
     """
-    Returns a logger instance for the given module name.
-    Ensures the logger is configured with the project's settings.
+    Get a logger for a specific module.
+    Ensures the root logger is configured.
+
+    Args:
+        name: The name of the module (usually __name__).
+
+    Returns:
+        A configured Logger instance.
     """
-    global _logger_instance
-    if _logger_instance is None:
-        _configure_root_logger()
-        _logger_instance = logging.getLogger("project_root")
-    
-    logger = logging.getLogger(name)
-    logger.handlers = [] 
-    logger.propagate = False
-    
-    # Add a handler if not already present to ensure it logs
-    # In a complex app, we might manage handlers globally, 
-    # but here we ensure the specific logger has a stream handler.
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(_log_level)
-    
-    return logger
+    global _logger
+    if _logger is None:
+        _setup_root_logger()
 
-def _configure_root_logger():
-    global _logger_instance
-    if _logger_instance is not None:
+    return logging.getLogger(name)
+
+def _setup_root_logger() -> None:
+    """
+    Configure the root logger with a standard handler and format.
+    """
+    global _logger
+    if _logger is not None:
         return
-    
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
-    
-    if not root_logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        root_logger.addHandler(handler)
 
-def set_log_level(level: Union[int, str]):
+    # Create logs directory if it doesn't exist
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(_log_level)
+
+    # Clear existing handlers to avoid duplicates
+    if root_logger.hasHandlers():
+        root_logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(_log_level)
+    console_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    console_handler.setFormatter(console_formatter)
+    root_logger.addHandler(console_handler)
+
+    # File handler
+    file_handler = logging.FileHandler(log_dir / "pipeline.log")
+    file_handler.setLevel(_log_level)
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    file_handler.setFormatter(file_formatter)
+    root_logger.addHandler(file_handler)
+
+    _logger = root_logger
+
+def set_log_level(level: Union[str, int]) -> None:
+    """
+    Set the global log level.
+
+    Args:
+        level: Log level as string (e.g., 'DEBUG') or int.
+    """
     global _log_level
     if isinstance(level, str):
-        _log_level = getattr(logging, level.upper())
-    else:
-        _log_level = level
-    
-    logging.getLogger("project_root").setLevel(_log_level)
-    for handler in logging.getLogger("project_root").handlers:
-        handler.setLevel(_log_level)
+        level = getattr(logging, level.upper(), logging.INFO)
+    _log_level = level
 
-def reset_logger():
-    global _logger_instance, _log_level
-    _logger_instance = None
-    _log_level = logging.INFO
-    logging.getLogger().handlers = []
+    # Update existing handlers if logger is already set
+    if _logger:
+        for handler in _logger.handlers:
+            handler.setLevel(_log_level)
+
+def reset_logger() -> None:
+    """
+    Reset the logger configuration. Useful for testing.
+    """
+    global _logger
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+    root_logger.setLevel(logging.NOTSET)
+    _logger = None

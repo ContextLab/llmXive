@@ -12,7 +12,7 @@ import json
 import logging
 
 # Import the specific exceptions defined in the project API
-# Note: Using the path provided in the API surface list
+# Using the path provided in the API surface list
 from code.src.exceptions import (
     DataIngestionError,
     SourceConnectionError,
@@ -23,7 +23,7 @@ from code.src.exceptions import (
 )
 
 # Import the error handler to be tested
-# Note: Using the path provided in the API surface list
+# Using the path provided in the API surface list
 from code.src.utils.error_handler import handle_ingestion_errors
 
 class MockIngestor:

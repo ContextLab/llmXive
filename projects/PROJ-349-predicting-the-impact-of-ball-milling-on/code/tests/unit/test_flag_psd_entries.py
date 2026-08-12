@@ -1,7 +1,6 @@
 """
 Unit tests for the flagging logic (T014b).
 """
-
 import json
 import os
 import tempfile
@@ -12,125 +11,132 @@ import pytest
 from src.ingest.flag_psd_entries import (
     compute_blob_hash,
     flag_entry,
-    run_flagging_pipeline,
-    FLAGGED_OUTPUT_PATH,
-    DETECTED_IMAGES_INPUT_PATH
+    run_flagging_pipeline
 )
 
 
 @pytest.fixture
-def temp_image_file(tmp_path):
-    """Create a temporary image file."""
-    img_path = tmp_path / "test_image.png"
-    img_path.write_bytes(b"fake_image_content")
-    return str(img_path)
+def temp_image_file():
+    """Create a temporary image file for testing."""
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+        f.write(b"fake_image_data_12345")
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
 
 @pytest.fixture
-def temp_detected_images_json(tmp_path):
-    """Create a temporary detected images JSON file."""
-    detected_path = tmp_path / "detected_psd_images.json"
-    data = [
-        {
-            "image_path": str(tmp_path / "img1.png"),
-            "source_name": "TestSource",
-            "source_id": "test_123"
-        },
-        {
-            "image_path": str(tmp_path / "img2.png"),
-            "source_name": "TestSource",
-            "source_id": "test_456"
-        }
-    ]
-    detected_path.write_text(json.dumps(data))
-    return detected_path
+def temp_detected_images_json():
+    """Create a temporary JSON file with detected image paths."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix=".json", delete=False) as f:
+        json.dump(["/path/to/image1.png", "/path/to/image2.png"], f)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
 
 @pytest.fixture
-def temp_output_dir(tmp_path):
-    """Create a temporary output directory."""
-    return tmp_path
+def temp_output_dir():
+    """Create a temporary directory for output."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    # Cleanup handled by caller or pytest fixture finalizer if needed
+    # os.rmdir(temp_dir) # Avoid recursive removal issues if not empty
 
 
 def test_compute_blob_hash(temp_image_file):
-    """Test SHA256 hash computation."""
-    hash_val = compute_blob_hash(temp_image_file)
-    assert len(hash_val) == 64  # SHA256 hex length
-    assert all(c in '0123456789abcdef' for c in hash_val)
+    """Test that compute_blob_hash returns a valid SHA-256 hex string."""
+    result = compute_blob_hash(temp_image_file)
+    assert isinstance(result, str)
+    assert len(result) == 64  # SHA-256 hex length
+    assert all(c in '0123456789abcdef' for c in result)
 
 
 def test_compute_blob_hash_missing_file():
-    """Test hash computation with missing file."""
+    """Test that compute_blob_hash raises FileNotFoundError for missing files."""
     with pytest.raises(FileNotFoundError):
-        compute_blob_hash("non_existent_file.png")
+        compute_blob_hash("/nonexistent/path/file.png")
 
 
 def test_flag_entry_schema(temp_image_file):
-    """Test that flag_entry produces correct schema."""
-    result = flag_entry(
-        image_path=temp_image_file,
-        source_name="TestSource",
-        source_id="test_123"
-    )
-    
-    assert "experiment_id" in result
-    assert "source" in result
-    assert "issue_type" in result
-    assert "raw_blob_hash" in result
-    
-    assert result["source"] == "TestSource"
-    assert result["issue_type"] == "unstructured_psd_image"
-    assert len(result["experiment_id"]) == 12
+    """Test that flag_entry returns a dict with the correct schema."""
+    entry = flag_entry(temp_image_file, source="TestSource")
+    assert "experiment_id" in entry
+    assert "source" in entry
+    assert "issue_type" in entry
+    assert "raw_blob_hash" in entry
+    assert entry["source"] == "TestSource"
+    assert entry["issue_type"] == "unstructured_psd_image"
+    assert len(entry["raw_blob_hash"]) == 64
 
 
 def test_flag_entry_with_metadata(temp_image_file):
-    """Test flag_entry with specific metadata."""
-    result = flag_entry(
-        image_path=temp_image_file,
-        source_name="arXiv",
-        source_id="2301.12345",
-        issue_type="custom_issue"
-    )
-    
-    assert result["source"] == "arXiv"
-    assert result["source_id"] == "2301.12345" # Note: source_id is stored in entry for reference
-    assert result["issue_type"] == "custom_issue"
+    """Test flag_entry with custom issue type."""
+    entry = flag_entry(temp_image_file, source="TestSource", issue_type="custom_issue")
+    assert entry["issue_type"] == "custom_issue"
+    assert entry["source"] == "TestSource"
 
 
-def test_run_flagging_pipeline(temp_detected_images_json, temp_image_file, temp_output_dir):
+def test_run_flagging_pipeline(temp_detected_images_json, temp_output_dir):
     """Test the full flagging pipeline."""
-    # Mock the input path and output path
-    with patch('src.ingest.flag_psd_entries.DETECTED_IMAGES_INPUT_PATH', temp_detected_images_json):
-        with patch('src.ingest.flag_psd_entries.FLAGGED_OUTPUT_PATH', temp_output_dir / "flagged.json"):
-            # Create dummy image files
-            img1 = temp_detected_images_json.parent / "img1.png"
-            img2 = temp_detected_images_json.parent / "img2.png"
-            img1.write_bytes(b"content1")
-            img2.write_bytes(b"content2")
-            
-            flagged_entries = run_flagging_pipeline()
-            
-            assert len(flagged_entries) == 2
-            
-            # Verify output file exists
-            output_path = temp_output_dir / "flagged.json"
-            assert output_path.exists()
-            
-            with open(output_path, "r") as f:
-                saved_data = json.load(f)
-            
-            assert len(saved_data) == 2
-            assert all("experiment_id" in entry for entry in saved_data)
-            assert all("source" in entry for entry in saved_data)
-            assert all("issue_type" in entry for entry in saved_data)
-            assert all("raw_blob_hash" in entry for entry in saved_data)
+    output_path = os.path.join(temp_output_dir, "flagged_psd.json")
+
+    # Mock os.path.exists to return True for the fake paths in the JSON
+    # since the paths in temp_detected_images_json are fake
+    with patch('os.path.exists', return_value=True):
+        # We also need to mock the file reading for hashing since the paths don't exist on disk
+        # But compute_blob_hash checks os.path.exists first.
+        # Let's create actual temp files for the paths in the JSON to make the test robust
+        pass
+
+    # Better approach: Create actual temp files and update the JSON
+    with tempfile.TemporaryDirectory() as actual_temp_dir:
+        img1_path = os.path.join(actual_temp_dir, "image1.png")
+        img2_path = os.path.join(actual_temp_dir, "image2.png")
+
+        with open(img1_path, 'wb') as f:
+            f.write(b"data1")
+        with open(img2_path, 'wb') as f:
+            f.write(b"data2")
+
+        # Update the JSON to point to real files
+        real_detected_json = os.path.join(actual_temp_dir, "detected.json")
+        with open(real_detected_json, 'w') as f:
+            json.dump([img1_path, img2_path], f)
+
+        output_path = os.path.join(actual_temp_dir, "flagged.json")
+
+        flagged_entries = run_flagging_pipeline(
+            detected_images_path=real_detected_json,
+            output_path=output_path
+        )
+
+        assert len(flagged_entries) == 2
+        assert os.path.exists(output_path)
+
+        with open(output_path, 'r') as f:
+            saved_data = json.load(f)
+
+        assert len(saved_data) == 2
+        for entry in saved_data:
+            assert "experiment_id" in entry
+            assert "source" in entry
+            assert "issue_type" in entry
+            assert "raw_blob_hash" in entry
+            assert len(entry["raw_blob_hash"]) == 64
 
 
-def test_run_flagging_pipeline_missing_file(temp_output_dir):
-    """Test pipeline when input file is missing."""
-    with patch('src.ingest.flag_psd_entries.DETECTED_IMAGES_INPUT_PATH', temp_output_dir / "missing.json"):
-        with patch('src.ingest.flag_psd_entries.FLAGGED_OUTPUT_PATH', temp_output_dir / "flagged.json"):
-            flagged_entries = run_flagging_pipeline()
-            
-            assert flagged_entries == []
-            assert (temp_output_dir / "flagged.json").exists()
+def test_run_flagging_pipeline_no_input_file(temp_output_dir):
+    """Test pipeline when input file does not exist."""
+    output_path = os.path.join(temp_output_dir, "flagged.json")
+    non_existent_input = os.path.join(temp_output_dir, "non_existent.json")
+
+    flagged_entries = run_flagging_pipeline(
+        detected_images_path=non_existent_input,
+        output_path=output_path
+    )
+
+    assert flagged_entries == []
+    assert os.path.exists(output_path)
+    with open(output_path, 'r') as f:
+        assert json.load(f) == []

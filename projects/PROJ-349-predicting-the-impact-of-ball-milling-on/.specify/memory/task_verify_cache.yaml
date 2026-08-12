@@ -1,3 +1,17 @@
+T007a:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: "The required schema file `contracts/dataset.schema.yaml` does not exist (only\
+    \ a missing `schema.yaml` is noted), so the explicit field definitions are absent.\
+    \ The task\u2019s core artifact is missing, making the implementation incomplete."
+T007b:
+  c: false
+  h: 21965c8039b30fd94590e57e0250424e0424260a0d0fa194bef0d42e2b7c3064
+  r: The repository lacks the required `contracts/dataset.schema.yaml` file, so the
+    validation code cannot actually enforce the schema. Moreover, the provided `validate_schema.py`
+    excerpt does not show a `validate_schema(dataframe)` function that raises `InsufficientDataError`
+    as specified, leaving its implementation unverified. The missing schema file and
+    uncertain presence of the required function mean the task is not genuinely completed.
 T009:
   c: false
   h: 427b4689638c2d79a4d7019a5d0d16f6f07f2b7d7204b9d6da17cfaa18186f97
@@ -5,14 +19,20 @@ T009:
     configuration management is not set up as specified, even though `config.yaml`
     is present and contains the needed keys. The missing `settings.py` must be added
     (e.g., loading the YAML, exposing the configuration) to satisfy the task.
-T012:
+T009b:
   c: false
-  h: 74e9e94ace5f9bb0b942d7c4f924093f158935f54bc4a0fc2c7488ecf56086cc
-  r: The repository contains `src/ingest/materials_project.py`, but the script does
-    not appear to write any data to `data/raw/materials_project_raw.json` (the file
-    is missing) and the visible code does not extract the required fields (milling_speed,
-    milling_time, etc.) or accumulate online statistics. Consequently the mandatory
-    output artifact is absent and the implementation does not meet the task specifications.
+  h: 427b4689638c2d79a4d7019a5d0d16f6f07f2b7d7204b9d6da17cfaa18186f97
+  r: "The required file `src/config/settings.py` does not exist, so there is no `load_config()`\
+    \ implementation to parse and validate `config.yaml`. Consequently the task\u2019\
+    s core deliverable is missing."
+T010:
+  c: false
+  h: 7614a2274f4f60a95cb97c289e1d5e081d5c97b579728fa4abe109d6f3087084
+  r: The test file does not contain the required `test_schema_validation_passes(df)`
+    implementation (the visible excerpt ends abruptly and no such function is defined).
+    Moreover, the referenced schema file `contracts/dataset.schema.yaml` is missing
+    from the repository, so the test could not even load the schema. Both the artifact
+    and its content fail to meet the task specifications.
 T013:
   c: false
   h: a9f988f436e6c792d252e1eb38993442d7052bd1b9d9107e1020a7dc71eaa4e4
@@ -21,29 +41,12 @@ T013:
     \ warning \u201CSource skipped: NIST (no rows or error)\u201D, and there is no\
     \ `contracts/dataset.schema.yaml` file to validate the output schema. These missing\
     \ pieces prevent the task from being fully satisfied."
-T013b:
-  c: false
-  h: 79ea8be052a89279b9ab64d2c6da4c5efda04978405b1691c780bdbe8a645a1a
-  r: "The repository contains `src/ingest/arxiv_extractor.py`, but the required output\
-    \ file `data/raw/arxiv_tables.json` does not exist, so the script\u2019s result\
-    \ cannot be verified and the task\u2019s core output is missing. The implementer\
-    \ must generate the JSON file with at least one valid row (including `source_name`\
-    \ and `source_id`)."
 T014c:
   c: false
-  h: 99ffba469182e2c2c2310d0f454238fe0ac0feec27be32a7c42f4d17ea1eb119
-  r: "The required artifact `tests/unit/test_ocr.py` does not exist, so there is no\
-    \ test file to verify the OCR extraction functionality. The task\u2019s core requirement\u2014\
-    a unit test file that runs and checks regex parsing and unit handling\u2014is\
-    \ missing."
-T014c#1:
-  c: false
-  h: ce05033e3d0e57e4a381c36380994994bcedeccb92512741c30a638b5a602894
-  r: "The required source file `src/ingest/ocr_fallback.py` and its unit\u2011test\
-    \ `tests/unit/test_ocr.py` are both missing, so no extraction logic or tests exist.\
-    \ Additionally, the config key referenced in the task (`ocr_enabled`) does not\
-    \ appear in `config.yaml` (the file defines `ocr.fallback_enabled` instead). Consequently\
-    \ the implementation cannot be verified and the task is not fulfilled."
+  h: 72119b24bfa11fb8d4580141adcd2761151b0aa7dc77c209149d9d0d1730374b
+  r: The required source file `src/ingest/ocr_fallback.py` and its unit test `tests/unit/test_ocr.py`
+    are both absent, so no extraction logic or tests exist to satisfy the specification.
+    The task must be completed by adding the implementation and corresponding tests.
 T015a:
   c: false
   h: aebb4ee2278a8cc858fd39f2098954a90bdd6ae04b96b46f47d8b381a0096d8e

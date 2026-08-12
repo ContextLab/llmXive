@@ -1,0 +1,58 @@
+# Configuration for Ball Milling Impact Prediction Pipeline
+# This file controls API endpoints, resource limits, and fallback behaviors.
+
+# API Endpoints Configuration
+api:
+  materials_project:
+    base_url: "https://next-gen.materialsproject.org/api/v2/materials"
+    api_key_env_var: "MP_API_KEY"
+    timeout_seconds: 30
+  nist:
+    base_url: "https://srdata.nist.gov/solubility/iupac/SearchAPI"
+    timeout_seconds: 30
+  arxiv:
+    base_url: "http://export.arxiv.org/api/query"
+    timeout_seconds: 30
+
+# Resource Limits for Gaussian Process Regression (GPR)
+# If GPR training exceeds these limits, the pipeline will fallback to Random Forest.
+gpr_max_runtime: 1800  # seconds (30 minutes)
+gpr_max_memory: 5.0    # GB (RSS memory limit)
+
+# OCR Fallback Settings
+# If enabled, the pipeline will attempt to extract PSD data from images
+# when structured data is missing. If disabled, such entries are flagged for manual review.
+ocr:
+  fallback_enabled: false
+  # Additional OCR settings (if enabled)
+  languages: ["eng"]
+  gpu_enabled: false  # Set to true if running on a GPU-enabled environment
+
+# Data Paths (Relative to project root)
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  splits: "data/splits"
+  results: "results"
+  figures: "figures"
+  config: "src/config/config.yaml"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/pipeline.log"
+
+# Experimental Settings
+experiment:
+  seed: 42
+  random_state: 42
+  n_repeats: 5
+  n_splits: 10
+
+# Validation Thresholds
+validation:
+  min_dataset_size: 150
+  target_dataset_size: 500
+  max_plot_size_mb: 10
+  ci_timeout_minutes: 360

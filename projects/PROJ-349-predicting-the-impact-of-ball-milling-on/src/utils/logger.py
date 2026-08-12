@@ -1,157 +1,73 @@
 """
-Logging infrastructure for the Ball Milling PSD Prediction project.
-
-Provides a centralized logging configuration that supports:
-- Console and file output
-- Configurable log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- Consistent formatting across the application
-- Environment variable override for log level
-
-Usage:
-    from src.utils.logger import get_logger
-    logger = get_logger(__name__)
-    logger.info("Starting process...")
+Logging utilities for the ball milling prediction pipeline.
 """
 
 import logging
 import os
-import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
-# Project root directory (assuming src/utils is two levels deep)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-LOGS_DIR = PROJECT_ROOT / "logs"
-
-# Default configuration
-DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Environment variable to override log level
-LOG_LEVEL_ENV_VAR = "BALL_MILLING_LOG_LEVEL"
-
-# Ensure logs directory exists
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-# Cache for configured logger to avoid re-configuration
-_configured = False
+# Global logger instance
+_logger: Optional[logging.Logger] = None
+_log_level: int = logging.INFO
 
 
-def _get_log_level_from_env() -> int:
+def get_module_logger(name: str) -> logging.Logger:
     """
-    Retrieve log level from environment variable.
+    Get a logger instance for a specific module.
+
+    Args:
+        name: Module name (usually __name__).
 
     Returns:
-        int: Logging level constant (e.g., logging.INFO)
-
-    Raises:
-        ValueError: If the environment variable contains an invalid level.
+        Configured logger instance.
     """
-    level_str = os.getenv(LOG_LEVEL_ENV_VAR, "").upper()
-    if not level_str:
-        return DEFAULT_LOG_LEVEL
-
-    level_map = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "WARN": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL,
-        "FATAL": logging.CRITICAL,
-    }
-
-    if level_str not in level_map:
-        raise ValueError(
-            f"Invalid log level '{level_str}' in environment variable "
-            f"'{LOG_LEVEL_ENV_VAR}'. Valid values: {list(level_map.keys())}"
+    logger = logging.getLogger(name)
+    
+    if not logger.handlers:
+        logger.setLevel(_log_level)
+        
+        # Create console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(_log_level)
+        
+        # Create formatter
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
+        console_handler.setFormatter(formatter)
+        
+        # Add handler to logger
+        logger.addHandler(console_handler)
+    
+    return logger
 
-    return level_map[level_str]
 
-
-def _setup_logging(log_level: Optional[int] = None) -> None:
+def set_log_level(level: Union[int, str]) -> None:
     """
-    Configure the root logger with console and file handlers.
+    Set the global log level.
 
     Args:
-        log_level: Optional logging level. If None, uses environment variable
-                   or defaults to INFO.
+        level: Log level as integer or string (e.g., 'DEBUG', 'INFO').
     """
-    global _configured
-
-    if _configured:
-        return
-
-    # Determine effective log level
-    if log_level is None:
-        try:
-            log_level = _get_log_level_from_env()
-        except ValueError as e:
-            # Fallback to default if env var is invalid
-            print(f"Warning: {e}. Using default level: {DEFAULT_LOG_LEVEL}", file=sys.stderr)
-            log_level = DEFAULT_LOG_LEVEL
-
-    # Create root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-
-    # Clear existing handlers to avoid duplicates in interactive environments
-    root_logger.handlers.clear()
-
-    # Create formatter
-    formatter = logging.Formatter(
-        fmt=DEFAULT_LOG_FORMAT,
-        datefmt=DEFAULT_DATE_FORMAT
-    )
-
-    # Console Handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(formatter)
-    root_logger.addHandler(console_handler)
-
-    # File Handler (rotating to prevent huge log files)
-    log_file = LOGS_DIR / "app.log"
-    file_handler = logging.handlers.RotatingFileHandler(
-        log_file,
-        maxBytes=10 * 1024 * 1024,  # 10 MB
-        backupCount=5
-    )
-    file_handler.setLevel(log_level)
-    file_handler.setFormatter(formatter)
-    root_logger.addHandler(file_handler)
-
-    _configured = True
+    global _log_level
+    
+    if isinstance(level, str):
+        _log_level = getattr(logging, level.upper(), logging.INFO)
+    else:
+        _log_level = level
+    
+    # Update all existing handlers
+    for logger in logging.root.manager.loggerDict.values():
+        if isinstance(logger, logging.Logger):
+            logger.setLevel(_log_level)
+            for handler in logger.handlers:
+                handler.setLevel(_log_level)
 
 
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger instance with the specified name.
-
-    This function ensures the logging infrastructure is set up before
-    returning the logger.
-
-    Args:
-        name: The name of the logger (typically __name__).
-
-    Returns:
-        logging.Logger: A configured logger instance.
-    """
-    _setup_logging()
-    return logging.getLogger(name)
-
-
-def set_log_level(level: int) -> None:
-    """
-    Dynamically set the log level for all handlers.
-
-    Args:
-        level: The new logging level (e.g., logging.DEBUG).
-    """
-    _setup_logging(level)
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    for handler in root_logger.handlers:
-        handler.setLevel(level)
+def reset_logger() -> None:
+    """Reset the logger configuration to defaults."""
+    global _logger, _log_level
+    _logger = None
+    _log_level = logging.INFO
+    logging.root.handlers = []
