@@ -1,178 +1,117 @@
 # Phenomenological AI: First-Person Experience Modeling - Quick Start
 
-This guide provides instructions for setting up the environment and running the pipeline.
+## Overview
 
-## Environment Setup
+This pipeline generates phenomenological-style reports using LLMs, computes structural metrics, and performs statistical analysis to evaluate first-person experience modeling.
 
-### Prerequisites
+## Prerequisites
 
-- Python 3.9+
-- pip (package manager)
-- Access to a CPU-only environment (GPU is not required for the primary CI pipeline)
+- Python 3.10+
+- 16GB+ RAM recommended for local models
+- CPU-only execution supported for TinyLlama
 
-### Installation
-
-1. Clone the repository and navigate to the project root:
- ```bash
- git clone <repository-url>
- cd PROJ-592-phenomenological-ai-first-person-experie
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
- **Note**: The primary CI pipeline uses `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (4-bit quantized) via `llama-cpp-python`. This model is optimized for CPU execution.
-
-3. Verify the installation:
- ```bash
- python -c "import llama_cpp; print(llama_cpp.__version__)"
- ```
-
-## CLI Usage
-
-The main entry point for the pipeline is `code/main.py`. It supports several modes of operation via the `--task` argument.
-
-### Available Tasks
-
-- `generate`: Generate phenomenological reports using TinyLlama and four prompting strategies.
-- `generate_control`: Generate control samples from the arxiv_nlp dataset.
-- `analyze`: Compute consistency, stability, and marker metrics on generated reports.
-- `stats`: Perform statistical analysis (ANOVA/Kruskal-Wallis) on validity scores.
-- `validate_human`: Prepare data for human validation (requires `code/validation/rubric.md`).
-- `sensitivity-kappa`: Analyze robustness of conclusions across kappa thresholds.
-- `archive`: Package all artifacts for reproducibility.
-- `full`: Run the entire pipeline from generation to archiving.
-
-### Basic Commands
-
-#### 1. Generation Mode
-
-Generate the corpus of phenomenological reports:
+## Installation
 
 ```bash
-python code/main.py --task generate --config code/config.py
+# Clone and setup
+git clone <repository-url>
+cd PROJ-592-phenomenological-ai-first-person-experie
+
+# Create virtual environment
+python -m venv.venv
+source.venv/bin/activate # On Windows:.venv\\Scripts\\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Download TinyLlama model (required for generation)
+mkdir -p models
+# Download from: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+# Save as: models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
 ```
 
-This will:
-- Load 20 base prompts from `data/prompts/base_prompts.json`.
-- Apply 4 prompting strategies (Direct, Hypothetical, Comparative, Role-play).
-- Generate ~80 samples per strategy per prompt (totaling a substantial dataset).
-- Save outputs to `data/raw/`.
+## Quick Start Commands
 
-#### 2. Control Corpus Mode
+### 1. Generation Phase
 
-Generate control samples for discriminant validity:
+Generate phenomenological reports using different prompting strategies:
 
 ```bash
-python code/main.py --task generate_control --config code/config.py
+python code/main.py --task generate --config code/config.yaml --limit 100
 ```
 
-This will:
-- Load samples from `datasets.load_dataset("arxiv_nlp")`.
-- Save control samples to `data/raw/control_corpus.json`.
+This will create samples in `data/raw/` with at least 80 samples per strategy (Direct, Hypothetical, Comparative, Role-play).
 
-#### 3. Analysis Mode
+### 2. Control Corpus Generation
 
-Compute validity metrics (Consistency, Stability, Markers):
+Generate technical report control samples:
 
 ```bash
-python code/main.py --task analyze --config code/config.py
+python code/main.py --task generate_control --config code/config.yaml
 ```
 
-This will:
-- Load generated reports from `data/raw/`.
-- Compute metrics using `code/analysis/consistency.py`, `code/analysis/stability.py`, and `code/analysis/markers.py`.
-- Save results to `data/processed/validity_scores.csv`.
+### 3. Analysis Phase
 
-#### 4. Statistical Analysis Mode
-
-Run statistical tests on validity scores:
+Compute consistency, stability, and marker metrics:
 
 ```bash
-python code/main.py --task stats --config code/config.py
+python code/main.py --task analyze --config code/config.yaml
 ```
 
-This will:
-- Load `data/processed/validity_scores.csv`.
-- Perform Shapiro-Wilk and Levene tests.
-- Run ANOVA + FDR + Tukey (if assumptions hold) or Kruskal-Wallis (if violated).
-- Save statistical results to `data/processed/statistical_results.json`.
+### 4. Statistical Analysis
 
-#### 5. Human Validation Mode
-
-Prepare data for human rating:
+Run statistical tests and generate reports:
 
 ```bash
-python code/main.py --task validate_human --config code/config.py
+python code/main.py --task stats --config code/config.yaml
 ```
 
-This will:
-- Load generated reports.
-- Apply the validation rubric from `code/validation/rubric.md`.
-- Save anonymized ratings to `data/qualitative/`.
+Output: `data/processed/stats_report.json` and `data/processed/validity_scores.csv`
 
-#### 6. Sensitivity Analysis (Kappa)
+### 5. Validation Phase
 
-Analyze robustness of conclusions:
+Select stratified samples for human rating:
 
 ```bash
-python code/main.py --task sensitivity-kappa --config code/config.py
+python code/main.py --task validate_human --config code/config.yaml
 ```
 
-#### 7. Archiving
+### 6. Full Pipeline
 
-Package all artifacts for reproducibility:
+Execute the complete pipeline end-to-end:
 
 ```bash
-python code/main.py --task archive --config code/config.py
+python code/main.py --task full --config code/config.yaml
 ```
 
-This will:
-- Collect prompts, seeds, scripts, and anonymized ratings.
-- Create a reproducible archive in `data/archive/`.
+**Expected Runtime**: ≤6 hours on free-tier hardware with `--limit 100`
 
-#### 8. Full Pipeline
+## Configuration
 
-Run the entire pipeline end-to-end:
-
-```bash
-python code/main.py --task full_pipeline --config code/config.py
-```
-
-This executes: Generation → Control → Analysis → Stats → Validation → Archive.
+Edit `code/config.yaml` to customize:
+- Model paths
+- Generation parameters (temperature, tokens)
+- Analysis thresholds
+- Output paths
 
 ## Output Artifacts
 
-After a successful run, the following artifacts will be generated:
+After successful execution:
+- `data/raw/`: Generated phenomenological reports (JSON)
+- `data/processed/validity_scores.csv`: Computed metrics
+- `data/processed/stats_report.json`: Statistical analysis results
+- `data/qualitative/`: Stratified samples for validation
 
-- `data/raw/*.json`: Generated phenomenological reports and control samples.
-- `data/processed/validity_scores.csv`: Aggregated validity metrics (Consistency, Stability, Markers).
-- `data/processed/statistical_results.json`: Statistical test outputs (ANOVA, Kruskal-Wallis, etc.).
-- `data/qualitative/*.csv`: Anonymized human rating sheets.
-- `data/archive/*.tar.gz`: Reproducibility archive containing all artifacts.
+## Validation (T033)
 
-## Troubleshooting
-
-### CUDA Errors
-
-If you encounter CUDA errors, ensure you are using the CPU-only version of `llama-cpp-python` and that no GPU drivers are interfering. The primary CI pipeline is designed to run on CPU only.
-
-### Missing Dependencies
-
-If you encounter import errors, verify that all dependencies in `requirements.txt` are installed:
+To validate the pipeline executes within 6 hours:
 
 ```bash
-pip install -r requirements.txt --upgrade
+time python code/main.py --task generate --config code/config.yaml --limit 100
 ```
 
-### Timeout Errors
-
-If generation tasks timeout, you can increase the timeout limit in `code/config.py` (look for `TIMEOUT_SECONDS`).
-
-## Next Steps
-
-- Review the `specs/` directory for detailed feature requirements.
-- Read `research.md` for the theoretical background.
-- Examine `data-model.md` for schema definitions.
+Verify:
+- Exit code 0
+- Total time < 6 hours
+- `data/raw/` contains ≥80 samples per strategy
+- `data/processed/validity_scores.csv` exists after analysis

@@ -107,7 +107,7 @@ def retry_on_failure(
             for attempt in range(max_attempts):
                 try:
                     return func(*args, **kwargs)
-                except exceptions as e:
+                except Exception as e:
                     last_exception = e
                     if attempt < max_attempts - 1:
                         if logger:
@@ -138,10 +138,9 @@ def clear_warnings() -> None:
 
 
 def export_warning_log(path: str) -> None:
-    import json
-    warnings = get_captured_warnings()
+    warnings_list = get_captured_warnings()
     with open(path, "w") as f:
-        json.dump(warnings, f, indent=2)
+        json.dump(warnings_list, f, indent=2)
 
 
 def log_retry_attempts(

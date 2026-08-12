@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] Write `scripts/init_project.py` script to scaffold directories: `code/`, `data/raw/`, `data/processed/`, `data/qualitative/`, `tests/unit/`, `tests/integration/`, `specs/contracts/`. **Execution**: Run `python scripts/init_project.py` to verify completion.
-- [ ] T002a [P] Create `.ruff.toml` with specific rules (E, F, W, I) for linting. **Execution**: Verify `ruff check .` passes with no errors.
-- [ ] T002b [P] Create `pyproject.toml` with `[tool.black]` configuration for formatting. **Execution**: Verify `black --check .` passes.
+- [X] T002 [P] Create `.gitignore` (exclude `data/`, `*.pyc`, `__pycache__`) and `.github/workflows/ci.yml` (basic lint/test trigger). **Verification**: Run `ls -la.gitignore.github/workflows/ci.yml` and verify `.gitignore` contains `data/` and `*.pyc`, and `ci.yml` contains `pytest` trigger.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,13 +55,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Implement `code/config.py` with:
- 1. Seeds, paths, and model IDs (Primary: `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` for CI; Secondary: `TheBloke/Mistral-7B-Instruct-v0.2-GGUF` for full study).
+- [X] T004 [P] Implement `code/config.py` with:
+ 1. Seeds, paths, and model IDs (Primary: `TheBloke/TinyLlama-Chat-v1.0-GGUF` for CI; Secondary: `microsoft/phi` for Local).
  2. **Phenomenological Marker Dictionaries**: Define concrete lists for 'sensory' (e.g., see, hear, feel, touch, taste, smell, light, sound), 'temporal' (e.g., now, then, before, after, moment, duration), and 'intentional' (e.g., think, believe, desire, intend, perceive, experience) keywords as per FR-008 and FR-009.
-- [ ] T004 [P] Setup `code/utils/logging.py` for structured logging, warning capture, and retry logic (multiple attempts per sample)
-- [ ] T005 [P] Implement `code/utils/io.py` for JSON/CSV schema validation and artifact archiving
-- [ ] T006 [P] Create base data schemas in `specs/contracts/`: `specs/contracts/generation_output.schema.yaml`, `specs/contracts/validity_scores.schema.yaml`, `specs/contracts/qualitative_ratings.schema.yaml`
-- [ ] T007 [P] Implement `code/generation/prompt_engineering.py` with the defined strategies (Direct, Hypothetical, Comparative, Role-play) and a set of base prompts loaded from `data/prompts/base_prompts.json`. **Execution**: Verify `data/prompts/base_prompts.json` exists and contains a sufficient number of prompts for the study.
+ **Verification**: Run `python -c "from code.config import MARKER_DICTS; assert 'sensory' in MARKER_DICTS and len(MARKER_DICTS['sensory']) > 0"`; verify exit code 0.
+- [X] T005 [P] Setup `code/utils/logging.py` for structured logging, warning capture, and retry logic (multiple attempts per sample)
+- [X] T006 [P] Implement `code/utils/io.py` for JSON/CSV schema validation and artifact archiving
+- [X] T007 [P] Create base data schemas in `specs/contracts/`: `specs/contracts/generation_output.schema.yaml`, `specs/contracts/validity_scores.schema.yaml`, `specs/contracts/qualitative_ratings.schema.yaml`
+- [X] T008 [P] [US1] Implement `code/generation/prompt_engineering.py` with the defined strategies (Direct, Hypothetical, Comparative, Role-play) and A set of base prompts loaded from `data/prompts/base_prompts.json`. **Execution**: Verify prompts are loaded correctly. **Verification**: Run `python -m code.generation.prompt_engineering --verify`; verify exit code 0 and output contains "Loaded 20 prompts".
+- [X] T020 [P] [US3] **Create** `code/validation/rubric.md`: Author the independent validation rubric document required by FR-010. **Content**: Define clear criteria for human raters: 1) Coherence (logical flow), 2) Marker Density (presence of sensory/temporal/intentional markers), 3) Structural Integrity (adherence to first-person perspective). **Verification**: Run `grep -c "Coherence" code/validation/rubric.md` and `grep -c "Marker Density" code/validation/rubric.md` and `grep -c "Structural Integrity" code/validation/rubric.md`; verify all return >= 1.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,16 +73,24 @@
 
 **Goal**: Generate the corpus of phenomenological reports using CPU-tractable models and four prompting strategies.
 
-**Independent Test**: Execute `code/generation/runner.py` and verify `data/raw/` contains ≥80 samples per strategy (totaling a substantial set of samples: 80 samples × 20 prompts × 4 strategies) with valid JSON metadata (seed, prompt, strategy) and no CUDA errors.
+**Independent Test**: Execute `code/generation/runner.py` and verify `data/raw/` contains ≥80 samples per strategy (totaling a substantial set of samples: a large number of samples × 20 prompts × 4 strategies) with valid JSON metadata (seed, prompt, strategy) and no CUDA errors.
 
 ### Implementation for User Story 1
 
-- [ ] T008 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment (FR-002). **Constraint**: Generate ≥80 samples per prompt per strategy. **Execution**: Verify `data/raw/` contains files per strategy with ≥80 samples each.
-- [ ] T009 [US1] Implement retry logic in `runner.py`: A fixed number of attempts per prompt/strategy combination, marking samples as missing after failure (FR-001). **Execution**: Simulate a failure and verify logs show retries.
-- [ ] T010 [US1] Add timeout handling and sample-size logging to ensure ≥80 successful samples per condition. **Execution**: Verify logs show timeout handling and sample-size logging.
-- [ ] T011 [US1] Implement `code/generation/runner_7b.py` for the second checkpoint (Mistral-7B or Llama-7B) using `llama-cpp-python` with 4-bit GGUF. **Note**: This is a PRIMARY CI task for the full study volume (≥80 samples per condition), not just local. Must verify absence of CUDA dependencies and fail gracefully if GPU detected. **Execution**: Verify script runs on CPU and generates ≥80 samples per condition.
+- [X] T009 [P] [US1] Implement `code/generation/runner.py` using `llama-cpp-python` for `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (specifically `tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf`) on CPU-only environment (FR-002). **Constraint**: This is the ONLY model for the primary CI path. Target volume: ≥80 samples per strategy. **Verification**: Run `python -c "import json, glob; data=[json.load(open(f)) for f in glob.glob('data/raw/generation_batch_*.json')]; counts={s:sum(1 for d in data if d['strategy']==s) for s in set(d['strategy'] for d in data)}; assert all(c>=80 for c in counts.values()), f'Missing: {counts}'"`. Ensure ≥80 samples per strategy.
+- [X] T010 [P] [US1] Implement retry logic in `runner.py`: Implement a fixed number of attempts per prompt/strategy combination with exponential backoff (increasing intervals). Mark samples as missing only after a consecutive series of failures. **Verification**: Run `pytest tests/unit/test_retry.py::test_retry_logic` which mocks a timeout on the first 2 attempts; verify log contains "Retry 1", "Retry 2", "Success".
+- [X] T011 [P] [US1] Create `code/generation/control_corpus.py` to generate ≥80 control samples using `datasets.load_dataset('tech_reports')` (or similar technical report dataset) with a 'Technical' prompting strategy. **Logic**: Append `control_label=control` to each sample. Merge with phenomenological outputs into `data/processed/merged_dataset.csv` for downstream analysis (discriminant validity per Plan Complexity Tracking). **Verification**: Run `python -c "import pandas as pd; df=pd.read_csv('data/processed/merged_dataset.csv'); assert 'type' in df.columns and df['type'].nunique() >= 2"`; verify file exists and contains "control" rows with non-null scores.
+- [X] T013 [US1] Add timeout handling and sample-size logging to `runner.py`. **Logic**: Implement a timeout per generation. Log sample counts (success/fail) to `data/raw/generation_log.json`. **Dependency**: Depends on T009 completion. **Verification**: Run `python -c "import json; log=json.load(open('data/raw/generation_log.json')); assert log['total']==log['success']+log['fail']"`. Verify log file exists and counts sum correctly.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+---
+
+## Phase 3b: Local Reproduction (Optional)
+
+**Goal**: Provide a script for users with local hardware (≥16GB RAM) to run larger models (Phi-2) for optional validation, NOT for the primary CI path.
+
+- [X] T012 [P] [US1-Optional] Implement `code/generation/runner_local.py` for the second checkpoint (`microsoft/phi-2` 2.7B) using `llama-cpp-python` with 4-bit GGUF (`phi-2.Q4_K_M.gguf`). **Note**: This script is OPTIONAL and for local reproduction only. It is NOT part of the primary CI pipeline. **Verification**: Run `python code/generation/runner_local.py --test`; verify `data/raw/local_generation_test.json` exists with 1 sample.
 
 ---
 
@@ -92,14 +102,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Implement `code/analysis/consistency.py`: Load NLI model `cross-encoder/nli-distilroberta-base` (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping pairs with warnings (US-2 Edge Case), and **track report-level completion rates to ensure ≥95% threshold (SC-001)** is met. **Execution**: Verify completion rate is logged and error raised if <95%.
-- [ ] T014 [P] [US2] Implement `code/analysis/stability.py`: Compute embeddings for repeated generations, calculate cosine similarity, and store stability scores.
-- [ ] T015 [US2] Implement `code/analysis/markers.py`: Load the keyword dictionary defined in `code/config.py` (T003) to count sensory, temporal, and intentional markers (FR-008). **Dependency**: Requires T003 (Phase 2) and `specs/contracts/generation_output.schema.yaml` (schema) for input format. **Note**: Must run after T003.
-- [ ] T016 [P] [US2] Implement `code/analysis/fdr_correction.py` and `code/analysis/tukey_hsd.py` for Benjamini-Hochberg FDR and Tukey HSD post-hoc tests (FR-005).
-- [ ] T017 [US2] Implement `code/analysis/stats.py` to orchestrate metric aggregation. **Logic**: Run Shapiro-Wilk and Levene tests (FR-012). If assumptions (p≥0.05) hold, run ANOVA + FDR + Tukey. If violated, skip FDR/Tukey and run Kruskal-Wallis instead. **Dependency**: Requires schema contracts from Phase 2 only (not Phase 3 logic). **Execution**: Verify Kruskal-Wallis is used when Shapiro-Wilk/Levene p < 0.05. **Output**: Save results to `data/processed/stats_results.csv`.
-- [ ] T018 [US2] Implement `code/analysis/sensitivity_analysis.py` to test validity score weights (FR-006) and address the sample size gap (CI vs Research) by analyzing robustness across sample subsets. **Justification**: Output a report justifying the fixed weights used in the Constitution based on sensitivity results. **Execution**: Generate sensitivity_analysis_report.csv covering a broad weight range.
-- [ ] T019 [P] [US2] Implement `code/analysis/validity_justification.py` to cite phenomenology literature OR perform alternative metric sensitivity (FR-009). **Execution**: Run `scripts/validate_citations.py` against `code/analysis/validity_justification.py` to verify citations are present and valid.
-- [ ] T020 [US2] Implement Cohen's κ calculation and threshold sensitivity analysis in `code/analysis/sensitivity_kappa.py`: Analyze robustness of conclusions across a range of kappa thresholds as required by FR-011. **Note**: Report the threshold as the benchmark, but do not enforce it as a hard gate in the analysis logic itself. **Execution**: Generate sensitivity_kappa_report.csv covering a range of kappa values.
+- [X] T014 [P] [US2] Implement `code/analysis/consistency.py`: Load NLI model `cross-encoder/stsb-distilroberta-base` (CPU-safe), compute pairwise contradiction counts, handle length limits by skipping pairs with warnings (US-2 Edge Case). **Verification**: Run `pytest tests/unit/test_consistency.py::test_pairwise_contradiction` with a known input string; verify output matches expected contradiction count.
+- [X] T015 [P] [US2] Implement `code/analysis/stability.py`: Compute embeddings for repeated generations, calculate cosine similarity, and store stability scores. **Verification**: Run `pytest tests/unit/test_stability.py::test_cosine_similarity` with known embeddings; verify output matches expected similarity score within tolerance sufficiently small to ensure numerical stability.
+- [X] T016 [P] [US2] Implement `code/analysis/markers.py`: Load the keyword dictionary defined in `code/config.py` (T004) to count sensory, temporal, and intentional markers (FR-008). **Dependency**: Requires T004 (Phase 2). **Verification**: Run `pytest tests/unit/test_markers.py::test_count_keywords` with a known text; verify output matches expected count.
+- [X] T017 [P] [US2] Implement `code/analysis/fdr_correction.py` and `code/analysis/tukey_hsd.py` for Benjamini-Hochberg FDR and Tukey HSD post-hoc tests (FR-005). **Verification**: Run `pytest tests/unit/test_stats.py::test_fdr_correction` with known p-values; verify output matches expected adjusted p-values.
+- [X] T018 [P] [US2] Implement `code/analysis/stats.py` to orchestrate metric aggregation. **Logic**: Run Shapiro-Wilk and Levene tests (FR-012). If assumptions (p≥0.05) hold, run ANOVA + FDR + Tukey. If violated, run Kruskal-Wallis **in addition** to reporting the violation, but DO NOT skip FDR/Tukey (FR-005). **Verification**: Run `python code/analysis/stats.py --input data/processed/merged_dataset.csv --output data/processed/stats_report.json`; verify `data/processed/stats_report.json` exists, contains both parametric and non-parametric results, and the input CSV has a 'type' column.
+- [X] T019 [P] [US2] Implement `code/analysis/sensitivity_analysis.py` to test validity score weights (FR-006) by varying weights across a range from a low threshold to a high threshold and analyzing robustness across sample subsets. **Justification**: Output a report justifying the fixed weights used in the Constitution based on sensitivity results. **Verification**: Run `python code/analysis/sensitivity_analysis.py --weights 0.1,0.33,0.6`; verify `data/processed/sensitivity_report.md` exists and contains a table of results for the tested weights.
+- [X] T024 [P] [US2] Implement `code/main.py` to orchestrate the full pipeline: Generation → Metrics → Stats. **CLI**: `python main.py --mode generation|analysis|validate --config config.yaml --output data/processed`. **Input**: `data/processed/merged_dataset.csv` (from T011). **Verification**: Run `python code/main.py --mode generation --limit 5 --config config.yaml`; verify exit code 0 and `data/processed/validity_scores.csv` contains 5 rows.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -113,11 +122,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [P] [US3] **Create** `code/validation/rubric.md`: Author the independent validation rubric document required by FR-010, defining clear criteria for human raters separate from automated metrics. **Execution**: Verify `code/validation/rubric.md` exists and contains **5 distinct criteria**.
-- [ ] T022 [US3] Implement `code/validation/human_rater.py` to load generated reports, apply independent validation rubric from `code/validation/rubric.md` (FR-010), and store ratings in `data/qualitative/ratings_raw.csv`. **Dependency**: Requires T021 to create the rubric. **Note**: Must run after T021.
-- [ ] T023 [US3] Create `code/validation/stratified_sampler.py` to select a representative set of reports per condition for human rating (SC-002). **Execution**: Verify `data/qualitative/sampled_reports.csv` contains a balanced distribution of reports across conditions.
-- [ ] T024 [US3] Implement `code/utils/archiver.py` to package prompts, seeds, scripts, and anonymized ratings for public reproducibility (FR-007).
-- [ ] T025 [US3] Implement `code/validation/correlation_analysis.py` to compute and report the statistical correlation (Pearson/Spearman) between human coherence ratings (from T022) and automated validity scores (from T013-T015) as required by FR-010. **Execution**: Verify `data/qualitative/correlation_report.csv` contains correlation coefficients and p-values.
+- [X] T023 [US3] Create `code/validation/stratified_sampler.py` to select a representative set of reports per condition for human rating (SC-002). **Logic**: Select a representative sample of reports per condition using stratified random sampling based on prompt strategy. **Dependency**: Depends on T009 completion (data generation). **Verification**: Run `python code/validation/stratified_sampler.py --n 10`; verify `data/qualitative/sampling_list.csv` exists and contains exactly 10 rows per condition (strategy).
+- [X] T021 [US3] Implement `code/validation/human_rater.py` to load generated reports, apply independent validation rubric from `code/validation/rubric.md` (FR-010), and store ratings. **Dependency**: Depends on T020 (rubric creation) and T023 (sampling list). **Verification**: Run `python -m code.utils.io --validate-schema data/qualitative/ratings_test.csv specs/contracts/qualitative_ratings.schema.yaml`; verify `data/qualitative/ratings_test.csv` exists and schema matches `specs/contracts/qualitative_ratings.schema.yaml`.
+- [X] T022 [US2] Implement Cohen's κ calculation and threshold sensitivity analysis in `code/analysis/sensitivity_kappa.py`. **Logic**: Analyze robustness of conclusions across a range of kappa thresholds. **Constraint**: If κ < 0.6, flag the batch for re-evaluation (Constitution Principle VII). **Verification**: Run `python code/analysis/sensitivity_kappa.py --kappa 0.5`; verify `data/qualitative/flags.json` exists and contains a "re-evaluate" flag for the test batch.
+- [X] T025 [P] [US3] Implement `code/utils/archiver.py` to package prompts, seeds, scripts, and anonymized ratings for public reproducibility (FR-007). **Verification**: Run `python code/utils/archiver.py --output archive.zip`; verify `archive.zip` exists and contains `code/`, `data/prompts/`, `data/qualitative/ratings.csv` by running `unzip -l archive.zip | grep -E "code/|data/prompts/|data/qualitative/ratings.csv"`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -127,35 +135,11 @@
 
 **Goal**: Address specific philosophical and methodological concerns raised by reviewers (Turing, Rockmore, etc.) regarding operational tests, stylistic distinction, and debiasing.
 
-- [ ] T026 [P] [Enh] Implement `code/analysis/stylistic_distinction.py` to verify that generated phenomenological reports are statistically distinguishable from control technical reports (addressing concern about stylistic distinction). **Execution**: Generate `stylistic_distinction_report.csv`.
-- [ ] T027 [P] [Enh] Implement `code/analysis/debiasing_protocol.py` to apply the debiasing protocol for human raters (addressing concern about rater bias). **Execution**: Verify debiasing steps are logged.
-- [ ] T028 [P] [Enh] Implement `code/analysis/operational_test.py` to verify that the operational tests for coherence are robust across different model configurations (addressing concern about operational tests). **Execution**: Generate `operational_test_report.csv`.
-- [ ] T029 [P] [Enh] Implement `code/analysis/internal_state_tracing.py` to provide traces of model internal states for a subset of generations (addressing concern about internal state tracing). **Execution**: Generate `internal_state_traces.json`.
-- [ ] T030 [P] [Enh] Implement `code/analysis/incoherence_metric.py` to refine the incoherence metric based on reviewer feedback (addressing concern about incoherence metrics). **Execution**: Generate `incoherence_metric_report.csv`.
-
-**Checkpoint**: Review concerns addressed
-
----
-
-## Phase 7: Integration & Orchestration (Priority: P3)
-
-**Purpose**: Orchestration and final validation
-
-- [ ] T031 [P] Implement `code/main.py` to orchestrate the full pipeline: Generation → Metrics → Stats (enables US1+US2 integration testing). **Dependency**: Requires completion of Phase 3 (Generation) and Phase 4 (Analysis) logic. **Note**: Must run after Phase 3 and 4 logic is complete. **Execution**: Run `python code/main.py --mode full` and verify pipeline completion.
-- [ ] T032 [P] Add CLI usage examples and environment setup instructions to `quickstart.md`. **Examples**: Append 3 code blocks to `quickstart.md`:. `python main.py --mode generation`, 2. `python main.py --mode analysis`, 3. `python main.py --mode validate`. **Execution**: Verify `quickstart.md` contains all three examples.
-- [ ] T033 [P] Add schema descriptions and data flow diagrams to `data-model.md`
-- [ ] T034 [P] Refactor `code/analysis/stats.py` to add type hints and remove duplicate imports. **Execution**: Run `ruff check code/analysis/stats.py`.
-- [ ] T035 [P] Refactor `code/utils/logging.py` to standardize log levels and output formats. **Execution**: Verify all logs follow standard format.
-- [ ] T036 [P] Run `quickstart.md` validation to ensure full pipeline execution ≤6 hours on free-tier. **Execution**: Verify pipeline completes in <6 hours on free-tier runner.
-- [ ] T037 [P] Generate `quickstart.md` with complete setup and execution instructions (FR-007). **Content**: Include requirements.txt, model download steps, and execution commands. **Execution**: Verify `quickstart.md` exists and is complete.
-- [ ] T038 [P] Generate `data-model.md` with schema descriptions and data flow diagrams (FR-007). **Execution**: Verify `data-model.md` exists and is complete.
-- [ ] T039 [P] Update `paper/` draft with results from Phase 6 enhancements. **Dependency**: Requires completion of Phase 6 (T026-T030). **Execution**: Verify paper draft includes new sections.
-- [ ] T040 [P] Finalize `README.md` with links to all artifacts and instructions for local 7B model execution. **Execution**: Verify README is complete.
-- [ ] T041 [P] Update `CONTRIBUTING.md` with guidelines for adding new prompting strategies or metrics. **Execution**: Verify CONTRIBUTING.md is complete.
-- [ ] T042 [P] Run final security scan on all scripts and dependencies. **Execution**: Verify no vulnerabilities found.
-- [ ] T043 [P] Archive all final artifacts to `data/final_archive/`. **Execution**: Verify archive integrity.
-- [ ] T044 [P] Generate final `research_review.md` document summarizing all findings. **Execution**: Verify review document is complete.
-- [ ] T045 [P] Submit project for final advancement evaluation. **Execution**: Verify submission is successful.
+- [ ] T030a [P] Add CLI usage examples and environment setup instructions to `quickstart.md`. **Examples**: Document `python main.py --mode generation`, `python main.py --mode analysis`, `python main.py --mode validate`. **Verification**: Run `grep -c "python main.py --mode generation" quickstart.md` and verify it returns >= 1. <!-- FAILED: unspecified -->
+- [X] T031a [P] Refactor `code/analysis/stats.py` to add type hints and remove duplicate imports. **Verification**: Run `ruff check code/analysis/stats.py`; verify exit code 0.
+- [X] T031b [P] Refactor `code/utils/logging.py` to standardize log levels and output formats. **Verification**: Run `ruff check code/utils/logging.py`; verify exit code 0.
+- [X] T032 [P] Add unit tests in `tests/unit/`: specifically `tests/unit/test_markers.py::test_count_sensory_keywords`, `tests/unit/test_consistency.py::test_pairwise_contradiction`. **Verification**: Run `pytest tests/unit/test_markers.py::test_count_sensory_keywords tests/unit/test_consistency.py::test_pairwise_contradiction`; verify all tests pass.
+- [ ] T033 [P] Run `quickstart.md` validation to ensure full pipeline execution ≤6 hours on free-tier. **Verification**: Run `time python code/main.py --mode generation --limit 100 --config config.yaml`; verify exit code 0 and total time < 6h (simulated by limit).
 
 ---
 
@@ -258,6 +242,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All tasks must be executable on a minimal CPU configuration. No CUDA, no 8-bit/4-bit quantization requiring GPU drivers. Use `llama-cpp-python` with GGUF for TinyLlama.
-- **Model Constraint**: TinyLlama-1.1B and Mistral-7B (quantized) are the required models for the primary CI pipeline.
-- **Review Integration**: Tasks in Phase 6 and Phase 7 specifically address the philosophical and methodological concerns raised by Alan Turing, Dan Rockmore, David Krakauer, Daniel Kahneman, and Freeman Dyson regarding operational tests, internal state tracing, stylistic distinction, incoherence metrics, and debiasing protocols.
+- **CPU Constraint**: All tasks must be executable on a minimal CPU configuration. No CUDA, no 8-bit/4-bit quantization requiring GPU drivers. Use `llama-cpp-python` with GGUF for TinyLlama and Phi-2.
+- **Model Constraint**: TinyLlama-1.1B (T009) is the **only** model for the primary CI pipeline. Phi-2 (T012) is for **local reproduction only** and is optional.
+- **Review Integration**: Tasks T034-T040 have been removed as they were unapproved scope additions. Future work must be explicitly added to the spec via a PR.

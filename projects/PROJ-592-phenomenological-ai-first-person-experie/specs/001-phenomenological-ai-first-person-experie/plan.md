@@ -7,7 +7,10 @@
 
 This project implements a computational pipeline to generate and evaluate first-person phenomenological reports using four prompting strategies across two open-source LLMs. The system operates on a CPU-only environment (GitHub Actions free-tier) using **Q4_K** quantization (Verified Facts: 2606.12280) for inference.
 
-**Pilot vs. Full Study**: Due to the strict 6-hour compute limit on the free-tier runner, the **Pilot Study** (N=20 per condition) is executed first to validate the pipeline and estimate effect sizes. The **Full Study** (N=80 per condition, per FR-001) is contingent on the Pilot's power analysis and potential GPU offload (Kaggle). This plan explicitly acknowledges the deviation from FR-001 for the initial run as a "Compute Feasibility Waiver" to prevent total pipeline failure, with the Pilot serving as a formal power analysis step.
+**Generation Strategy**: The pipeline targets the generation of **[deferred] raw samples** (80 samples × 4 strategies × 20 prompts) using `TinyLlama-1.1B` exclusively for the automated CI pipeline.
+- **Primary Execution**: The automated pipeline uses `TinyLlama` via `llama-cpp-python` (low-bit GGUF) to ensure feasibility on the GitHub Actions free-tier (2 CPU, ~7GB RAM).
+- **Local Reproduction**: The specification's original target models (`Mistral-7B`, `Llama-7B`) are acknowledged as requiring >14GB RAM. They are **excluded** from the automated CI path to prevent OOM/Timeout failures. Users with local hardware (≥16GB RAM) may optionally run these models via a separate script (`code/generation/runner_local.py`), but results from these models are not required for the primary research validity.
+- **Analysis Target**: The ANOVA is designed to run on a minimum of **[deferred] valid samples** (128 per condition) to ensure statistical power (80% at α=0.05, MDES f=0.25).
 
 The system computes three validity metrics:
 1.  **Logical Coherence**: Measured via NLI (secondary/exploratory).
@@ -18,17 +21,21 @@ The plan strictly adheres to the project constitution's reproducibility and data
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `torch` (CPU), `sentence-transformers`, `scikit-learn`, `pandas`, `numpy`, `llama-cpp-python` (for GGUF), `statsmodels`, `nlm`  
-**Storage**: Local file system (`data/` for raw/generated data, `src/contracts/` for schemas)  
-**Testing**: `pytest` (unit tests for metric computation, integration tests for pipeline flow)  
-**Target Platform**: Linux server (GitHub Actions free-tier: 2 vCPU, ~7 GB RAM)  
-**Project Type**: Research pipeline / CLI  
-**Performance Goals**: Pilot execution ≤ 6 hours; generation of ≥ 20 samples per condition; metric computation on full dataset within memory limits.  
-**Constraints**: No CUDA dependencies for Pilot; strict memory footprint (< 7 GB RAM); CPU-only inference for LLMs (using GGUF quantization Q4_K); statistical rigor (FDR correction, assumption checks).  
-**Scale/Scope**: Pilot: 4 strategies × 2 models × 20 samples = 160 reports; Full: reports (contingent).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Language/Version**: Python  
+**Primary Dependencies**: `transformers` (CPU-optimized), `llama-cpp-python` (for GGUF 1.1B models), `sentence-transformers`, `scikit-learn`, `pandas`, `nltk`, `torch` (CPU wheels), `datasets`, `statsmodels`  
+**Storage**: Local file system (`data/` for artifacts, `code/` for scripts), CSV/JSON formats  
+**Testing**: `pytest` (unit tests for metric logic, integration tests for pipeline flow)  
+**Target Platform**: Linux (Ubuntu 22.04) on GitHub Actions free-tier (2 CPU, ~7GB RAM)  
+**Project Type**: Computational research pipeline / CLI  
+**Performance Goals**: 
+- **Target Volume**: [deferred] raw samples (FR-001).
+- **Analysis Volume**: Minimum 1,024 valid samples (Power Target).
+- **Runtime**: ≤ 6 hours (CI timeout).
+- **Memory**: < 6GB per process (sequential model loading).  
+**Constraints**: 
+- NO GPU, NO CUDA.
+- **Model Selection**: `TinyLlama-1.1B` is the **only** model used in the automated pipeline. Larger models are excluded from CI due to RAM constraints (memory requirements exceeding available capacity).
+- **Sequential Execution**: NLI and Embedding models are loaded/unloaded sequentially to prevent OOM during analysis.
 
 ## Constitution Check
 
@@ -103,12 +110,13 @@ requirements.txt
 
 ## Complexity Tracking
 
-| Feature | Why Needed | Simpler Alternative Rejected Because | Schema Contract |
-|-----------|------------|-------------------------------------|-----------------|
-| GGUF Quantization | Required for CPU inference of 7B models within RAM limits | Full precision models exceed substantial RAM requirements.; CPU-only float is too slow for 640 samples. | `generation_output.schema.yaml` |
-| Retry Logic (FR-001) | Ensures ≥20 successful samples per condition despite transient failures | Simple "fail-fast" would result in insufficient data for statistical power. | `generation_output.schema.yaml` (status field) |
-| Sensitivity Analysis (FR-006, FR-011) | Validates robustness of validity scores and κ thresholds | Fixed thresholds without sensitivity analysis lack phenomenological validity justification. | `validity_scores.schema.yaml` (weights object) |
-| Linear Mixed-Effects Model | Handles nested data structure (repeated generations per prompt) AND controls for Model ID to prevent confounding | Standard ANOVA violates independence assumption (pseudoreplication) and fails to control for model architecture differences. | `metric.schema.yaml` (aggregation logic) |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **CPU-only inference for TinyLlama (GGUF)** | Spec requires 7B models, but CI has 7GB RAM. 7B models are infeasible. | Using large language models in FP/FP is impossible (14-28GB RAM). `llama-cpp-python` with 4-bit GGUF for TinyLlama is the only CPU-safe method that fits the CI box. |
+| **Four prompting strategies + 1 model** | Spec requires comparison of strategies. | Reducing strategies would invalidate the ANOVA design (independent variable manipulation). We compare strategies *within* the TinyLlama architecture to test the "Phenomenological Style" hypothesis. |
+| **Three distinct validity metrics** | Constitution Principle VI requires all three. | Using a single metric would fail the "Phenomenological Validity" non-negotiable. |
+| **Control Corpus Generation** | Required for discriminant validity (methodology-87fdb544). | Without a control, we cannot distinguish 'phenomenological style' from 'general text quality'. |
+| **Sequential Model Loading** | Required to prevent OOM during analysis (data_resources-36182768). | Loading NLI and Embedding models simultaneously exceeds 7GB RAM. |
 
 ## Unresolved panel concerns (addressed)
 
