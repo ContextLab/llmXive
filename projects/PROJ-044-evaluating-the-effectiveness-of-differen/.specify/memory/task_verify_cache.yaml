@@ -6,11 +6,11 @@ T001:
     Without this artifact the completion criterion cannot be verified.
 T011:
   c: false
-  h: 3be833e5366418bad18803c88a6b856d75e0fb2370d87a56ac33cb00fc920c7d
-  r: The required output files `data/raw/femnist.parquet` and `data/raw/femnist.sha256`
-    are not present on disk, and the provided `code/data/download.py` is truncated
-    and does not show a complete implementation of the download, conversion to Parquet,
-    and checksum generation. The task therefore remains unfinished.
+  h: 6ad0d24580ea174af92635172638a19dc81037eab3155ae7cba4e357a5ec5469
+  r: "The repository contains a `download.py` implementation, but the required output\
+    \ files `data/raw/femnist.parquet` and `data/raw/femnist.sha256` are absent, so\
+    \ the task\u2019s completion criterion is not satisfied. The downloader has not\
+    \ been executed to produce the real dataset files."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,3 +30,17 @@ T029:
   r: No updated `README.md` or files under `docs/` were provided or referenced; the
     evidence contains only the feature specification and no documentation artifacts,
     so the required documentation updates are missing.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit test files or code were presented in `tests/unit/`; the claim provides\
+    \ only a description of the intended tests, but no actual test artifacts exist\
+    \ to verify edge\u2011case handling for missing classes or timeout triggers. The\
+    \ required test files are missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a validation report, logs, or updated quickstart.md) was\
+    \ provided to demonstrate that the quickstart.md was executed and its end\u2011\
+    to\u2011end reproducibility was verified. Without such evidence, the task requirement\
+    \ is not satisfied."

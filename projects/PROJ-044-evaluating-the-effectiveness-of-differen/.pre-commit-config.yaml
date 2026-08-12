@@ -1,21 +1,88 @@
+# Pre-commit configuration for llmXive project
+# Implements T003: Configure linting (black, ruff) and formatting tools
+# Requirement: Must include hooks for black, ruff, and pre-commit-hooks
+
 repos:
+  # Standard pre-commit hooks (security, formatting, etc.)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
+        name: Check trailing whitespace
+        description: Trims trailing whitespace.
       - id: end-of-file-fixer
+        name: Check end of file
+        description: Ensures that a file is either empty, or ends with one newline.
       - id: check-yaml
+        name: Check YAML syntax
+        description: Validates YAML files.
+      - id: check-json
+        name: Check JSON syntax
+        description: Validates JSON files.
+      - id: check-toml
+        name: Check TOML syntax
+        description: Validates TOML files.
       - id: check-added-large-files
+        name: Check for large files
+        description: Prevents giant files from being committed.
+        args: ['--maxkb=1024']
+      - id: detect-private-key
+        name: Detect private keys
+        description: Checks for the existence of private keys.
+      - id: mixed-line-ending
+        name: Check line endings
+        description: Ensures that files use consistent line endings.
+        args: ['--fix=lf']
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.4
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
-
+  # Code formatting with Black
   - repo: https://github.com/psf/black
-    rev: 24.3.0
+    rev: 23.12.1
     hooks:
       - id: black
+        name: Format code with Black
+        description: Enforces consistent Python code style.
         language_version: python3.10
+
+  # Linting with Ruff (fast, comprehensive linter)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.9
+    hooks:
+      - id: ruff
+        name: Lint code with Ruff
+        description: Enforces code quality and style rules.
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        name: Format code with Ruff
+        description: Alternative formatter (optional, can replace black if desired)
+
+  # Additional security checks
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        name: Lint with Flake8
+        description: Check for style and syntax errors (legacy compatibility)
+        args: ['--max-line-length=88', '--ignore=E501,W503']
+
+  # Python specific checks
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        name: Type check with MyPy
+        description: Static type checker for Python
+        args: ['--ignore-missing-imports']
+        additional_dependencies: [types-requests, types-setuptools]
+
+# Default settings for all hooks
+default_language_version:
+  python: python3.10
+
+# Stages configuration
+default_stages: [commit]
+
+# Fail fast configuration
+fail_fast: false
+
+# Minimum version of pre-commit required
+minimum_pre_commit_version: 2.9.0

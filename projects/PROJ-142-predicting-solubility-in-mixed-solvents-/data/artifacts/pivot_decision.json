@@ -1,0 +1,4 @@
+{
+  "status": "pivoted",
+  "reason": "Mixed-solvent entries count (42) is below the mandatory threshold of 100. Dataset re-scoped to Pure Solvent prediction as per T017 logic."
+}

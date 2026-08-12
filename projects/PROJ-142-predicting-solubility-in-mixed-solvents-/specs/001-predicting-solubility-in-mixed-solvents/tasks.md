@@ -86,13 +86,13 @@
 
 - [ ] T011 [US1] Implement `code/01_data_ingestion.py`: fetch EPA data (DSSTox excluded per Plan) and filter for molecules with MW < 500 Da <!-- FAILED: unspecified -->
 - [X] T011b [US1] **Formal Scope Amendment**: Create or update `specs/001-predicting-solubility-in-mixed-solvents/spec.md` to explicitly document the exclusion of DSSTox from FR-001, citing the Plan's "Assumptions & Gaps" section.
-- [ ] T012 [US1] Implement composition validation in `code/01_data_ingestion.py`: reject or normalize rows where composition sum != 1.0 (within tolerance) and write filtered data to `data/processed/cleaned_compositions.csv` <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`; drop rows if imputation fails; log imputation rate to `data/artifacts/imputation_log.txt`.
+- [ ] T012 [US1] Implement composition validation in `code/01_data_ingestion.py`: reject or normalize rows where composition sum != 1.0 (within tolerance) and write filtered data to `data/processed/cleaned_compositions.csv` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`; drop rows if imputation fails; log imputation rate to `data/artifacts/imputation_log.txt`. <!-- FAILED: unspecified -->
  - **Failure Mode**: If imputation rate > 15%, write `ERROR: Imputation rate exceeded [deferred]` to `data/artifacts/imputation_error.log` and exit with code 1.
  - Target imputation rate <15%.
 - [X] T014 [US1] Implement `code/02_feature_engineering.py` to compute Morgan fingerprints and topological indices using RDKit
 - [X] T015 [US1] Implement composition-weighted solvent descriptor calculation in `code/02_feature_engineering.py` (weighted average of properties * mole fractions)
-- [ ] T016 [US1] Implement explicit interaction term generation (polynomial, ratio) in `code/02_feature_engineering.py` **IF** mixed-solvent data exists; otherwise, apply to pure solvent descriptors; append columns to `data/processed/solubility_features.csv`
+- [X] T016 [US1] Implement explicit interaction term generation (polynomial, ratio) in `code/02_feature_engineering.py` **IF** mixed-solvent data exists; otherwise, apply to pure solvent descriptors; append columns to `data/processed/solubility_features.csv`
 - [X] T017 [US1] Implement pivot logic in `code/02_feature_engineering.py`: if mixed-solvent entries < 100, flag dataset as "Pure Solvent", drop the "non-linear mixing" hypothesis per Plan. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 4, column 5:
  * Implemented `execute_pivot_l...
@@ -103,8 +103,8 @@ expected alphabetic or numeric character, but found ' '
  ^) -->
  - **Mandatory Deliverable**: Write a JSON flag file `data/artifacts/pivot_decision.json` with schema: `{"status": "pivoted" | "normal", "reason": "string"}`.
  - This file acts as the hard trigger signal for downstream re-scoping tasks.
-- [ ] T017b [US1] **Re-scope Tasks**: If `data/artifacts/pivot_decision.json` indicates "pivoted", update `tasks.md` to redefine US2/US3 success criteria for pure solvents and disable mixed-solvent specific deliverables.
-- [ ] T017c [US1] **Verify Pivot Execution**: Before Phase 4 starts, verify that `data/artifacts/pivot_decision.json` exists and that `tasks.md` has been updated (if pivoted). If not, block execution and report error.
+- [X] T017b [US1] **Re-scope Tasks**: If `data/artifacts/pivot_decision.json` indicates "pivoted", update `tasks.md` to redefine US2/US3 success criteria for pure solvents and disable mixed-solvent specific deliverables.
+- [X] T017c [US1] **Verify Pivot Execution**: Before Phase 4 starts, verify that `data/artifacts/pivot_decision.json` exists and that `tasks.md` has been updated (if pivoted). If not, block execution and report error.
 - [ ] T018 [US1] Write final processed dataset to `data/processed/solubility_features.csv` with checksum
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -158,10 +158,10 @@ expected alphabetic or numeric character, but found ' '
 
 - [ ] T029 [US3] **Input Dependency**: Read `data/artifacts/trained_models.pkl` (best model). Implement SHAP value computation in `code/04_evaluation.py`.
 - [ ] T030 [US3] Generate SHAP summary plot and feature importance table in `data/artifacts/shap_analysis.png` and `shap_ranking.json`
-- [~] T031 [US3] Filter and rank top 5 interaction terms contributing to model variance; append to `data/artifacts/shap_ranking.json`
+- [ ] T031 [US3] Filter and rank top 5 interaction terms contributing to model variance; append to `data/artifacts/shap_ranking.json`
 - [ ] T032 [US3] **Input Dependency**: Read `shap_ranking.json`. Implement sensitivity analysis in `code/04_evaluation.py`: identify top-ranked terms at representative low, medium, and high thresholds <!-- FAILED: unspecified -->
-- [~] T033 [US3] **Input Dependency**: Read sensitivity analysis results. Calculate Jaccard similarity between top-5 term sets at different thresholds; report minimum Jaccard similarity (target ≥0.6 per SC-004); append metrics to `data/artifacts/shap_ranking.json`
-- [~] T034 [US3] **Input Dependency**: Read SHAP values across CV folds. Calculate Spearman rank correlation of **feature rankings** (stability) across CV folds to verify stability (target >0.8 per SC-002); compare result against threshold and record pass/fail; append to `data/artifacts/shap_ranking.json`
+- [ ] T033 [US3] **Input Dependency**: Read sensitivity analysis results. Calculate Jaccard similarity between top-5 term sets at different thresholds; report minimum Jaccard similarity (target ≥0.6 per SC-004); append metrics to `data/artifacts/shap_ranking.json`
+- [ ] T034 [US3] **Input Dependency**: Read SHAP values across CV folds. Calculate Spearman rank correlation of **feature rankings** (stability) across CV folds to verify stability (target >0.8 per SC-002); compare result against threshold and record pass/fail; append to `data/artifacts/shap_ranking.json`
 - [ ] T035 [US3] Generate final research report in `data/artifacts/final_report.md` containing RMSE, R², p-values, and top interaction terms
 
 **Checkpoint**: All user stories should now be independently functional
@@ -172,8 +172,8 @@ expected alphabetic or numeric character, but found ' '
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T036 [P] Update `research.md`: append verified source URLs and pivot decisions to the "Data Sources" section
-- [~] T037 Ensure type hints are added to `code/utils/*.py` and remove unused imports
+- [ ] T036 [P] Update `research.md`: append verified source URLs and pivot decisions to the "Data Sources" section
+- [ ] T037 Ensure type hints are added to `code/utils/*.py` and remove unused imports
 - [X] T038 [P] Refactor `code/02_feature_engineering.py` to use batch processing for RDKit calls (batch size 1000).
  - **Dependency**: Depends on completion of T014-T016.
  - **Goal**: Targeting a reduction in **wall-clock time** for the feature engineering step.

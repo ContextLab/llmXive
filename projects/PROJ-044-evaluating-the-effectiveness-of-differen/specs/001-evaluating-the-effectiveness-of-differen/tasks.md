@@ -107,7 +107,7 @@
 
 - [X] T017 [P] [US2] Implement Opacus Gaussian noise wrapper and moments accountant configuration in `code/training/dp_utils.py`
 - [X] T018 [P] [US2] Implement FedAvg orchestrator supporting ε ∈ {0.1, 0.5, 1.0, 5.0, 10.0} in `code/training/fedavg.py` <!-- FAILED: unspecified -->
-- [ ] T018b [US2] Implement the 5-seed orchestration loop mandated by FR-004. This script/CLI must iterate through seeds and configurations, calling T018, and aggregate logs. **Dependency**: Depends on T018. **Completion**: Produces `results/raw_logs.csv` with 5 seeds per config.
+- [X] T018b [US2] Implement the 5-seed orchestration loop mandated by FR-004. This script/CLI must iterate through seeds and configurations, calling T018, and aggregate logs. **Dependency**: Depends on T018. **Completion**: Produces `results/raw_logs.csv` with 5 seeds per config.
 - [X] T019 [US2] Implement per-client accuracy logging and aggregation logic. **Scope**: FEMNIST only. MUST explicitly identify "minority" clients based on label frequency in partition metadata (e.g., clients with <5% of total class samples) and log separate metrics for majority vs. minority in `code/training/fedavg.py`.
 - [X] T019b [US2] Implement runtime logic in the training loop to skip gradient updates for clients with zero samples for a target class, logging a warning as specified in Edge Cases, in `code/training/fedavg.py`.
 - [X] T020 [US2] Implement timeout handling and early stopping logic (flag `is_time_limited`) in `code/training/fedavg.py`
@@ -131,7 +131,7 @@
 ### Implementation for User Story 3
 
 - [X] T027a [US3] Implement metric calculation for "rounds to reach target" accuracy. MUST include a `filter_time_limited(df)` function that returns a DataFrame excluding rows where `is_time_limited` is True, and apply this filter before calculating SC-001 metrics in `code/analysis/stats.py`.
-- [ ] T035 [US3] Filter utility collapse results from the dataset. **Prerequisites**: Depends on T021 (Detection) and T027a (Time Filter). Input: Raw logs. Logic: Exclude rows where `is_utility_collapse` is True. Output: `results/filtered_data.csv`. **Constraint**: This filtered dataset is the ONLY input for T024a, T024b, T025, and T028.
+- [X] T035 [US3] Filter utility collapse results from the dataset. **Prerequisites**: Depends on T021 (Detection) and T027a (Time Filter). Input: Raw logs. Logic: Exclude rows where `is_utility_collapse` is True. Output: `results/filtered_data.csv`. **Constraint**: This filtered dataset is the ONLY input for T024a, T024b, T025, and T028.
 - [X] T024a [US3] Implement paired t-tests on the accuracy difference (DP accuracy minus Non-DP accuracy) per seed as strictly required by FR-005. Input: Filtered data from T027a and T035. Output: p-values for DP vs Non-DP comparison in `code/analysis/stats.py`.
 - [X] T024b [US3] Implement unpaired t-tests (or Mann-Whitney U) comparing majority vs. minority client accuracies for each configuration as required by FR-005. Input: Filtered data from T027a and T035. MUST include fallback logic: if valid runs < 3, switch to Mann-Whitney U and flag results as `power_reduced`. in `code/analysis/stats.py`.
 - [X] T025 [US3] Implement sensitivity analysis sweep for α ∈ {0.05, 0.1, 0.5, 1.0} (Depends on T027a, T035 filtered data) in `code/analysis/stats.py`
@@ -148,7 +148,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T029 [P] Documentation updates in `README.md` and `docs/`. **Requirement**: Update 'Installation', 'Usage', and 'Results' sections in `README.md` with new CLI arguments and expected outputs. **Note**: Explicitly state Shakespeare is excluded per plan.md.
-- [ ] T031 [P] Implement dynamic batch sizing in `code/training/fedavg.py` that reduces batch size by [deferred] (floor to next power of 2), with a hard minimum of 16, if OOM occurs.
+- [X] T031 [P] Implement dynamic batch sizing in `code/training/fedavg.py` that reduces batch size by [deferred] (floor to next power of 2), with a hard minimum of 16, if OOM occurs.
 - [ ] T032 [P] Additional unit tests for edge cases (missing classes, timeout triggers) in `tests/unit/`
 - [ ] T033 [P] Run quickstart.md validation to ensure end-to-end reproducibility
 

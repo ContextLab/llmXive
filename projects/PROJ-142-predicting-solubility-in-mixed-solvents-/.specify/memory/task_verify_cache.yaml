@@ -40,3 +40,33 @@ T023:
     evaluation script cannot load any models. Moreover, `code/04_evaluation.py` is
     incomplete (syntax errors, truncated logic, missing implementation of metric calculations).
     Both the necessary artifact and a functional evaluation implementation are absent.
+T031:
+  c: false
+  h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228
+  r: "The required artifact `data/artifacts/shap_ranking.json` is missing, so no ranking\
+    \ of interaction terms has been produced or stored. The task\u2019s deliverable\
+    \ is absent."
+T033:
+  c: false
+  h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228
+  r: "The required output file `data/artifacts/shap_ranking.json` is missing, so no\
+    \ Jaccard similarity metrics have been recorded. Without this artifact the task\u2019\
+    s deliverable is not present."
+T034:
+  c: false
+  h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228
+  r: "The required output file `data/artifacts/shap_ranking.json` is missing, so no\
+    \ SHAP ranking stability calculation or pass/fail record was produced. Without\
+    \ this artifact the task\u2019s core requirement is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or its contents were provided, so we cannot confirm that\
+    \ verified source URLs and pivot decisions were actually appended to the \u201C\
+    Data Sources\u201D section as required. The necessary artifact is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `code/utils/` Python files was provided, and there is no indication
+    that type hints were added or unused imports were removed. The required artifacts
+    (the updated source files) are missing, so the task is not satisfied.
