@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-430-the-impact-of-asynchronous-communication",
+  "tasks": [
+    {
+      "task_key": "T021b",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required input data files (`data/derived/pair_sentiment.parquet` and `data/derived/project_metrics.csv`) and the expected output file (`data/derived/project_cohesion_scores.csv`). Moreover, the provided `code/sentiment.py` excerpt does not show any implementation of the project\u2011level weighted\u2011average aggregation described in the task. Without these artifacts, the task\u2019s requirements are not met.",
+      "first_seen": "2026-08-12T23:05:19.767743+00:00",
+      "last_seen": "2026-08-12T23:05:19.767743+00:00"
+    }
+  ],
+  "updated_at": "2026-08-12T23:05:19.767743+00:00"
+}

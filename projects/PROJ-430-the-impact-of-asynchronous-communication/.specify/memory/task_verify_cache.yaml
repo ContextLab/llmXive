@@ -17,6 +17,14 @@ T006:
   r: No evidence of a `data/` folder, its subdirectories, a `.gitignore` with the
     specified patterns, or a `.gitkeep` file in `validation/` was provided; without
     these artifacts the requirement cannot be confirmed as met.
+T010:
+  c: false
+  h: efbfe78de3206169ae8c933250ed2f17a8ac9241015cf30d9892ee32bf6709fb
+  r: "The required output file `data/raw/events.json` does not exist, and the provided\
+    \ `code/data_ingestion.py` is only partially shown (truncated) with no visible\
+    \ logic that writes the JSON file, handles the `--fetch` CLI flag, uses the specified\
+    \ sample repo IDs, or computes the inter\u2011arrival time variance. Consequently\
+    \ the task\u2019s core deliverables are missing."
 T012:
   c: false
   h: c1d9001660ed2cd6cfb0b49cb445d1bf31d15fa62e9376e1effd40e8c358b5d3

@@ -1,0 +1,121 @@
+- artifact_path: projects/PROJ-430-the-impact-of-asynchronous-communication/specs/001-the-impact-of-asynchronous-communication/tasks.md
+  attempts: 1
+  canonical: data processing must fit within 7 GB RAM
+  claim_id: c_4d5c1a0e
+  context: 'Notes section: Critical Constraint: All data processing must fit within
+    7 GB RAM; implement chunking for large datasets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All data processing must fit within 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:02:53Z'
+- artifact_path: projects/PROJ-430-the-impact-of-asynchronous-communication/specs/001-the-impact-of-asynchronous-communication/tasks.md
+  attempts: 1
+  canonical: peak RAM must be less than 6.0 GB during full run
+  claim_id: c_8d970317
+  context: 'T036b [P] VERIFICATION: Add test to assert peak_ram < 6.0 GB during full
+    run using tracemalloc or memory_profiler.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_must_be_less_than_6.0_GB_during_full_run
+  kind: magnitude
+  raw_text: Peak RAM must be less than 6.0 GB during full run.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:03:18Z'
+- artifact_path: projects/PROJ-430-the-impact-of-asynchronous-communication/specs/001-the-impact-of-asynchronous-communication/tasks.md
+  attempts: 1
+  canonical: runtime must be less than 5.5 hours
+  claim_id: c_006ccc57
+  context: T037d [P] Optimize identified bottlenecks to ensure runtime < 5.5 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_must_be_less_than_5.5_hours
+  kind: magnitude
+  raw_text: Runtime must be less than 5.5 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:04:07Z'
+- artifact_path: projects/PROJ-430-the-impact-of-asynchronous-communication/specs/001-the-impact-of-asynchronous-communication/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction threshold is p_i <= (i/m)*q
+  claim_id: c_7de42a89
+  context: 'T029 [US3] Implement Benjamini-Hochberg correction for secondary hypothesis
+    tests: 1) Calculate stratified correlations... 3) Sort p-values, calculate thresholds
+    p_i <= (i/m)*q.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_threshold_is_p_i_%3C=_(i/m)*q
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg correction identifies significant results where p_i
+    <= (i/m)*q.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:04:40Z'
+- artifact_path: projects/PROJ-430-the-impact-of-asynchronous-communication/specs/001-the-impact-of-asynchronous-communication/tasks.md
+  attempts: 1
+  canonical: VADER scores correlation threshold with manual scores is 0.5
+  claim_id: c_87b20524
+  context: "T023b [US2] VALIDATION & FLAG: Calculate Spearman correlation (\u03C1\
+    ) between VADER scores and manual scores. Logic: If \u03C1 < 0.5, FLAG as FAILED_VALIDATION."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VADER scores must correlate with manual trend with a threshold of 0.5
+    for validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:05:14Z'
+- artifact_path: projects/PROJ-430-the-impact-of-asynchronous-communication/specs/001-the-impact-of-asynchronous-communication/tasks.md
+  attempts: 1
+  canonical: language detection confidence threshold is 0.95
+  claim_id: c_eaec38fe
+  context: "T018 [P] [US2] Implement language detection filter in code/sentiment.py\
+    \ using langdetect (confidence \u2265 0.95) (FR-011)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Language detection filter uses langdetect with confidence \u2265 0.95."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:05:14Z'
+- artifact_path: projects/PROJ-430-the-impact-of-asynchronous-communication/specs/001-the-impact-of-asynchronous-communication/tasks.md
+  attempts: 1
+  canonical: stratified results by language Python JS Go and size tier <10 >=10 contributors
+  claim_id: c_3f47130a
+  context: "T031 [US3] STRATIFIED CALCULATION & MERGE: Filter data by language in\
+    \ {Python, JS, Go} and team_size tier (<10, \u226510)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Stratified results are calculated by language (Python, JS, Go) and size\
+    \ tier (<10 contributors, \u226510 contributors)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:05:14Z'

@@ -2,9 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No directory tree was provided, and there is no evidence that the required `projects/PROJ-430-the-impact-of-asynchronous-communication` folder hierarchy (code, data, tests, docs, config) was actually created. The implementer must show the `tree` output confirming the structure exists.
-- **T010** — The `code/data_ingestion.py` file is only partially implemented and contains placeholder code without real GitHub fetching logic, and the required output file `data/raw/events.json` does not exist. Consequently the script cannot be run to produce the non‑empty JSON event log as specified.
-- **T012** — The provided `code/metrics.py` defines `identify_pairs_and_calculate_metrics` instead of the required `calculate_and_persist_pair_metrics`, and the file `data/derived/timestamp_features.parquet` does not exist, so the expected output artifact is missing. The implementation does not demonstrably produce the required schema or persist the results.
-- **T015** — The required output file `data/derived/project_metrics.csv` does not exist, so there is no evidence of a `median_variance` column or any aggregated project‑level metrics. Consequently the verification test cannot be run. The task needs the CSV file with the correct median aggregation.
-- **T021b** — declared artifact(s) missing/empty/invalid: data/derived/pair_sentiment.parquet, data/derived/timestamp_features.parquet
-- **T022b** — declared artifact(s) missing/empty/invalid: data/validation/manual_ground_truth.csv, schema.yaml
+- **T010** — The required output file `data/raw/events.json` does not exist, and the provided `code/data_ingestion.py` is only partially shown (truncated) with no visible logic that writes the JSON file, handles the `--fetch` CLI flag, uses the specified sample repo IDs, or computes the inter‑arrival time variance. Consequently the task’s core deliverables are missing.
+- **T010b** — declared artifact(s) missing/empty/invalid: tests/unit/test_ground_truth.py
+- **T015** — declared artifact(s) missing/empty/invalid: data/derived/project_metrics.csv
+- **T016** — declared artifact(s) missing/empty/invalid: data/logs/rate_limit_events.log
+- **T021b** — The repository lacks the required input data files (`data/derived/pair_sentiment.parquet` and `data/derived/project_metrics.csv`) and the expected output file (`data/derived/project_cohesion_scores.csv`). Moreover, the provided `code/sentiment.py` excerpt does not show any implementation of the project‑level weighted‑average aggregation described in the task. Without these artifacts, the task’s requirements are not met.
