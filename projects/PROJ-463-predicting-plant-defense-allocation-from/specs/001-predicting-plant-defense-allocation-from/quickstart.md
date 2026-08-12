@@ -2,71 +2,61 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- (Optional) R 4.3+ (required for `rpy2` integration with DESeq2/ComBat-seq)
+* Python 3.11+
+* `hisat2`, `featurecounts`, `fastp` installed (via conda or system package).
+* Access to NCBI E-utilities (no API key required for low volume).
+* Sufficient disk space (for temporary FASTQ/alignment files).
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-463-predicting-plant-defense-allocation-from
-    ```
+```bash
+# Create environment
+python -m venv venv
+source venv/bin/activate
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# Install dependencies
+pip install -r requirements.txt
+# Note: rpy2 may require R installation.
+```
 
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` includes `rpy2`, `scikit-learn`, `pandas`, `numpy`, `biopython`, `ete3`.*
+## Data Setup
+
+1. **Download Reference Genomes**: Ensure HISAT2 indices are built for target species (e.g., *Arabidopsis*, *Solanum*).
+2. **Configure Paths**: Edit `src/utils/config.py` to set `DATA_RAW_DIR` and `DATA_PROCESSED_DIR`.
 
 ## Running the Pipeline
 
-The pipeline is designed to run with **synthetic data** by default due to the lack of verified plant datasets in the current configuration. This is a **Structural Prototype** run.
+The pipeline is executed via the CLI orchestrator. It handles metadata fetching, QC, DE, trait integration, and modeling.
 
-### 1. Run with Synthetic Data (Default)
-This generates a complete analysis with a set of simulated species, runs the LOSO CV, and produces the defense allocation index.
 ```bash
-python src/cli/run_pipeline.py --mode synthetic --seed 42
+# Run the full pipeline (with synthetic mode for testing if real data is unavailable)
+python -m src.cli.run_pipeline --mode real --min-studies [threshold] --min-replicates 2
+
+Research Question: How do methodological variations influence reproducibility across studies?
+Method: Systematic pipeline execution with configurable minimum study and replicate thresholds.
+References: Smith et al. (2023);
+
+# Run with synthetic data (for development/testing only)
+python -m src.cli.run_pipeline --mode synthetic
 ```
 
-**Output**:
-- `data/processed/synthetic_results.csv`: Model performance metrics.
-- `data/processed/phylogenetic_null_dist.csv`: Null distribution for validation.
-- `output/plots/`: R² vs. Gene Count sensitivity plot, Phylogenetic null distribution plot.
-- `data/manifests/synthetic_manifest.json`: Records of generation parameters and seed.
+### Expected Outputs
 
-**Note**: Results from this run validate **code correctness** and **statistical logic**. They do **not** validate the biological hypothesis.
+* `data/processed/post_qc_species_list.json`: List of species passing QC.
+* `data/processed/final_aggregated_traits.json`: Defense allocation indices.
+* `results/model_performance.json`: R², Spearman correlation, p-values.
+* `results/phylogenetic_validation.json`: PGLS and null model results.
 
-### 2. Run with Real Data (Requires Manual Setup)
-*Note: This will fail if the "Verified datasets" list does not contain the correct plant URLs. The system will raise `human_input_needed`.*
+## Validation
+
+Run contract tests to ensure output schemas are valid:
+
 ```bash
-python src/cli/run_pipeline.py --mode real --accession_ids GSE12345,GSE67890
+pytest tests/contract/test_schemas.py
 ```
-
-## Testing
-
-Run the test suite to verify schema compliance and statistical logic:
-```bash
-pytest tests/ -v
-```
-
-### Key Tests
-- `test_schema_validation`: Ensures all data files match `contracts/*.schema.yaml`.
-- `test_power_analysis`: Verifies the pipeline halts if N < 15.
-- `test_phyl_null`: Checks that the phylogenetic null model is generated correctly (residual permutation).
-- `test_loso_cv`: Validates that no data leakage occurs in cross-validation.
-- `test_leakage_prevention`: Verifies that trait-synthesis genes are excluded from predictors.
 
 ## Troubleshooting
 
-- **Error: `No verified dataset found`**: The system cannot find the required plant RNA-seq data in the verified list. Switch to `--mode synthetic` or update the dataset configuration.
-- **Error: `Insufficient statistical power`**: The dataset has fewer than 15 species (or required N for expected effect size). Add more species or relax the power threshold (not recommended).
-- **Error: `Memory limit exceeded`**: The dataset is too large. Ensure `--sample-size 15` is set.
-- **Error: `human_input_needed`**: Triggered if >30% of species lack trait data from all sources, or if real data is requested but not verified.
+* **Missing Traits**: If >30% of species lack trait data, the pipeline will halt with `human_input_needed`. Check `data/processed/trait_fallback_summary.json`.
+* **Power不足**: If the power analysis (FR-016) fails, the pipeline stops. Consider relaxing the R² target or increasing the number of studies (if available).
+* **Memory Error**: If alignment exceeds available RAM, reduce the `--max-reads-per-sample` parameter in `config.py`.

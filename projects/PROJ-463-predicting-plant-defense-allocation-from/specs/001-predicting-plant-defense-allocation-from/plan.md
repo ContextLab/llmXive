@@ -5,43 +5,35 @@
 
 ## Summary
 
-This feature implements a computational pipeline to predict plant defense allocation (chemical vs. physical) using tissue-specific transcriptomic responses to herbivory. The system downloads and preprocesses public RNA-seq data (FASTQ), performs differential expression analysis (DESeq), constructs herbivore-response vectors, and trains regularized models (Elastic Net, Random Forest) to predict a derived Defense Allocation Index.
-
-**Current Status**: **Structural Prototype**. Due to the absence of verified plant herbivory RNA-seq datasets in the provided "Verified datasets" block, the current implementation uses **synthetic data** to validate the code structure, schema compliance, and statistical logic (LOSO, PGLS, Power Analysis). The scientific hypothesis *cannot* be validated until verified real data is provided.
-
-The plan strictly adheres to the project constitution, ensuring reproducibility, data hygiene, and statistical rigor (power analysis, phylogenetic null models, FWER correction) while remaining computationally feasible on CPU-only free-tier CI.
+This project implements a computational pipeline to predict plant defense allocation strategies (chemical vs. physical) based on tissue-specific transcriptomic responses to chewing versus piercing-sucking herbivores. The approach involves downloading raw RNA-seq data from NCBI GEO/SRA (prioritizing verified accession IDs), preprocessing it (QC, alignment, quantification with median depth downsampling), performing batch correction (only when not confounded with species), deriving herbivore-response vectors (Chewing - Piercing) from differentially expressed genes (excluding biosynthetic pathways of target traits), and training regularized regression models (Elastic Net, Random Forest) with **Clade-Stratified Leave-One-Species-Out (LOSO)** cross-validation. The pipeline includes rigorous statistical validation (bootstrapped LOSO, phylogenetic null models, power analysis based on phylogenetic lambda) and strict data gating mechanisms to ensure feasibility and reproducibility.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `biopython`, `rpy2` (for DESeq2/ComBat-seq via R), `requests`, `tqdm`, `pyyaml`, `seaborn`, `matplotlib`, `ete3` (for phylogeny), `pydantic` (for schema validation).  
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/traits`); JSON/CSV/Parquet formats.  
-**Testing**: `pytest` (unit), `pytest-benchmark` (optional), schema validation via `jsonschema`.  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM).  
-**Project Type**: Data analysis pipeline / Research tool.  
-**Performance Goals**: Complete full pipeline on a sampled subset (≤15 species) within 6 hours; RAM usage < 6GB.  
-**Constraints**: No GPU; no large-LLM inference; strict memory limits.  
-**Scale/Scope**: Analysis of plant species with paired chewing/piercing-sucking RNA-seq data and defense traits.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `datasets`, `pandas`, `scikit-learn`, `statsmodels`, `biopython`, `pyyaml`, `fastp` (via subprocess), `hisat2` (via subprocess), `featurecounts` (via subprocess), `rpy2` (for DESeq2), `pyphenoscape`, `rgbib`, `requests`, `kaggle-kernels` (for GPU offload)
+**Storage**: Local file system (`data/raw/`, `data/processed/`, `data/interim/`)
+**Testing**: `pytest` (contract tests against YAML schemas), `unittest` for logic
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM) with automatic offload to Kaggle GPU for heavy alignment/quantification if needed (via execution agent auto-detection using `kaggle-kernels` CLI).
+**Project Type**: Computational Biology Pipeline / CLI
+**Performance Goals**: Complete QC and DE analysis for ≥3 studies within 6 hours on CPU; Model training within 6 hours.
+**Constraints**: Must run on moderate RAM resources. (streaming data); No local GPU; Must not fabricate data; Must strictly adhere to the "Verified datasets" list for any pre-processed data references.
+**Scale/Scope**: Processing of ≥3 GEO/SRA studies, ~ species (target), generating multiple pathway-level features per species.
 
-**Execution Mode**:
-- **Default**: `--mode synthetic`. Generates synthetic TPM matrices and trait data with known ground truth for structural validation.
-- **Real Data**: `--mode real`. Attempts to fetch from NCBI/TRY. **Will fail** if datasets are not in the verified list, raising `human_input_needed`.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Action/Notes |
-|-----------|-------------------|--------------|
-| **I. Reproducibility** | **PASS** | Plan mandates pinned seeds, `requirements.txt` with exact versions, and re-runnable scripts. |
-| **II. Verified Accuracy** | **PASS (Structural Only)** | The *process* for verifying URLs is implemented. Current execution uses synthetic data due to lack of verified plant datasets. Real data validation is blocked until verified sources are provided. |
-| **III. Data Hygiene** | **PASS** | Plan mandates checksums for raw data (`data/raw`), immutable transformation steps, and no PII. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats trace to `data/` and `code/`. No hand-typed numbers in paper. |
-| **V. Versioning Discipline** | **PASS** | Content hashes will be generated for artifacts; state file updated on changes. |
-| **VI. Transcriptomic Data Provenance** | **PASS (Simulated)** | Plan logs accession IDs, genome versions, and tool versions. For synthetic data, a "Synthetic Manifest" records generation parameters and seed. |
-| **VII. Defense Trait Data Integrity** | **PASS** | Plan mandates storing raw traits with citations and documenting normalization steps for the Defense Allocation Index. |
+| Principle | Status | Implementation Detail |
+|:--- |:--- |:--- |
+| **I. Reproducibility** | **PASS** | `requirements.txt` pins versions; Random seeds set in `code/analysis/` scripts; External datasets fetched programmatically from NCBI (GEO/SRA) or verified HF sources. |
+| **II. Verified Accuracy** | **PASS** | All citations in `research.md` and `plan.md` will be validated against the provided "Verified datasets" list or primary literature (e.g., arXiv). No fabricated URLs. **Reference-Validator Agent** runs before T014/T025a. **`data/processed/metadata_verification_report.json`** is the SSoT for Principle II validation. The pipeline executes the Reference-Validator Agent against all citations in research.md and plan.md before proceeding to T014. |
+| **III. Data Hygiene** | **PASS** | `data/raw/` stores unaltered FASTQ (including `data/raw/synthetic/`); `data/processed/` stores derived files with checksums; No in-place modifications. |
+| **IV. Single Source of Truth** | **PASS** | All metrics in the final output trace to `data/processed/` CSV/JSON files; No hand-typed numbers in reports. |
+| **V. Versioning Discipline** | **PASS** | Content hashes recorded in `state/` YAML; Artifact updates trigger `updated_at` refresh. **`phylogenetic_tree.tre`** is checksummed and versioned in `state/`. |
+| **VI. Transcriptomic Data Provenance** | **PASS** | Raw FASTQs archived in `data/raw/` (including synthetic in `data/raw/synthetic/`) with manifest including accession ID, organism, tissue, treatment, replicate count, and reference genome version. |
+| **VII. Defense Trait Data Integrity** | **PASS** | Traits stored in `data/defense_traits/` with source citations; Normalization pipeline documented; Index calculation traceable. |
 
 ## Project Structure
 
@@ -49,12 +41,15 @@ The plan strictly adheres to the project constitution, ensuring reproducibility,
 
 ```text
 specs/001-plant-defense-allocation/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+│ ├── dataset.schema.yaml
+│ ├── output.schema.yaml
+│ └── traits.schema.yaml
+└── tasks.md # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -62,105 +57,55 @@ specs/001-plant-defense-allocation/
 ```text
 src/
 ├── data/
-│   ├── download.py          # NCBI/TRY data acquisition
-│   ├── preprocess.py        # fastp, HISAT2, featureCounts wrappers
-│   ├── batch_correction.py  # ComBat-seq logic (uses fixed 50-gene list)
-│   ├── traits.py            # Defense trait compilation (with fallback)
-│   └── synthetic_generator.py # Synthetic data generation for prototype
+│ ├── fetch_gse.py # T011: Download metadata & FASTQs
+│ ├── verify_metadata.py # T011a: Validate replicates/tissue (Filter & Continue)
+│ ├── preprocess.py # T012: fastp, HISAT2, featureCounts
+│ ├── batch_correct.py # T013: ComBat-seq (with Batch-Design Check)
+│ ├── traits_fetch.py # T025a/b: TRY, Phenoscape, GBIF
+│ ├── merge_traits.py # T025c: Merge traits & FR-011 gate
+│ └── phylogeny.py # T028a: Open Tree of Life (No star fallback)
 ├── analysis/
-│   ├── de_analysis.py       # DESeq2 execution
-│   ├── feature_engineering.py # Herbivore-response vectors, pathway agg (excludes trait genes)
-│   ├── modeling.py          # Elastic Net, RF, LOSO CV, PGLS
-│   └── validation.py        # Power analysis, Phylo null, Permutation tests
+│ ├── de_analysis.py # T014a: DESeq2, response vectors (Common DE selection)
+│ ├── pathway_agg.py # T014b: Pathway Aggregation (Exclude biosynthetic)
+│ ├── modeling.py # T038: Elastic Net, RF, Clade-Stratified LOSO
+│ ├── validation.py # T040: Permutation, PGLS, Power (Phylogenetic lambda)
+│ └── reproducibility.py # T040: Jaccard similarity check (No proxy fallback)
 ├── utils/
-│   ├── logger.py
-│   ├── config.py            # Paths, seeds, thresholds
-│   └── provenance.py        # Checksums, manifest generation
+│ ├── config.py # Paths, seeds, thresholds
+│ └── logging.py
 ├── cli/
-│   └── run_pipeline.py      # Entry point (--mode synthetic|real)
-└── tests/
-    ├── unit/
-    ├── integration/
-    └── contract/            # Schema validation tests
-
-data/
-├── raw/                     # Unmodified FASTQ, trait dumps (or synthetic raw)
-├── processed/               # TPM matrices, DE results
-├── traits/                  # Compiled defense indices
-└── manifests/               # Provenance logs (including synthetic manifest)
+│ └── run_pipeline.py # Orchestrator
+tests/
+├── contract/
+│ └── test_schemas.py # Validates against contracts/
+├── integration/
+│ └── test_pipeline.py # End-to-end on synthetic/subset
+└── unit/
+ └── test_utils.py
 ```
 
-**Structure Decision**: Selected **Option 1 (Single project)** with modular separation of data, analysis, and utils. This minimizes overhead for a research pipeline and simplifies dependency management on CI.
+**Structure Decision**: Single-project structure (`src/`) chosen to minimize overhead for a research pipeline. Data flows from `data/raw/` to `data/processed/` via modular scripts in `src/data/` and `src/analysis/`.
 
 ## Complexity Tracking
 
-No violations detected. The plan adheres to the constraint of CPU-only execution by explicitly sampling data and using lightweight statistical models.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|:--- |:--- |:--- |
+| **Clade-Stratified LOSO + Phylogenetic Null** | Required by FR-007, FR-017 to handle non-independence and small sample sizes. Standard LOSO is insufficient if test species is phylogenetically close to training set. | Standard K-fold CV would inflate performance metrics due to phylogenetic relatedness; simple correlation ignores evolutionary history. |
+| **ComBat-seq with Batch-Design Check** | Required by FR-003 to correct batch effects in count data while preserving biological variance. ComBat-seq fails if batch == species. | Standard ComBat (limma) assumes normality; RNA-seq count data requires negative binomial handling (ComBat-seq). If confounded, random effects in PGLS are used instead. |
+| **Pathway Aggregation (Exclude Biosynthetic)** | Required by FR-012 to Reduce a substantial number of DE genes. to ≤50 features to avoid overfitting (small-n, large-p). Biosynthetic pathways of target traits are excluded to prevent tautology. | Using raw gene counts would lead to singular matrices in regression with <15 species. Using biosynthetic pathways would predict traits using their own expression (leakage). |
+| **Bootstrapped CI for LOSO** | Required to address the single-point variance issue of LOSO with N < 15. | A single test point provides no variance estimate; bootstrapping provides a confidence interval on the mean performance. |
+| **Median Depth Downsampling** | Required to prevent bias against low-expression species when read depth varies. | Arbitrary sampling (first 1M reads) introduces confounding; median depth ensures equal sequencing effort. |
 
-## Implementation Phases
+## Tasks (Critical Path)
 
-### Phase 0: Data Acquisition & Verification (FR-001, FR-011)
-
-1.  **Source Verification**: Check if required plant herbivory RNA-seq datasets and TRY trait data exist in the "Verified datasets" block.
-    -   *If Missing*: Log `human_input_needed`, switch to `--mode synthetic` (default), and generate synthetic data with known ground truth for structural validation.
-    -   *If Present*: Download FASTQ files and trait data.
-2.  **Fallback Lookup (FR-011)**: For each target species, attempt to fetch traits from TRY. If missing, query Phenoscape/GBIF.
-    -   *Halt Condition*: If >30% of target species lack data from *all* sources, halt and raise `human_input_needed`.
-3.  **Quality Control**: Verify ≥2 biological replicates per condition. Exclude studies lacking tissue metadata.
-
-### Phase 1: Preprocessing & Batch Correction (FR-002, FR-003)
-
-1.  **Pipeline Execution**: Run `fastp` (trimming), `HISAT2` (alignment), `featureCounts` (quantification) to produce TPM matrices.
-2.  **Batch Correction (FR-003)**:
-    -   Apply `ComBat-seq`.
-    -   **Fixed Gene List**: Use the specific 50 housekeeping genes defined in FR-003 (ACT2, ACT7, GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1, CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1-32) for GeNorm M-value selection.
-    -   **Metric**: Calculate Coefficient of Variation (CV) reduction for these 50 genes. Target: ≥20% reduction.
-    -   **Flag**: If residual variance >15%, flag for manual review.
-
-### Phase 2: Feature Engineering & Defense Index (FR-004, FR-005, FR-006, FR-012)
-
-1.  **Differential Expression (FR-004)**: Run DESeq2 (FDR < 0.05, |log₂FC| > 1) for each species-tissue pair.
-2.  **Herbivore-Response Vector (FR-005)**:
-    -   Select a subset of common DE genes (ranked by aggregate -log10(p-value)).
-    -   **Leakage Prevention**: Exclude genes directly involved in the synthesis of the measured defense traits (e.g., CYPD16 for glucosinolates) from the predictor set.
-3.  **Pathway Aggregation (FR-012)**:
-    -   Map DE genes to KEGG/GO pathways.
-    -   **Robustness Check**: Filter pathways to those with ≥3 mapped genes in *all* target species.
-    -   Reduce features to ≤50 pathway-level scores.
-4.  **Defense Allocation Index (FR-006)**:
-    -   Compile traits: Chemical = [Glucosinolates, Alkaloids, Phenolics]; Physical = [Trichome Density, Leaf Tensile Strength].
-    -   Calculate DAI = (mean standardized chemical) / (mean standardized physical).
-
-### Phase 3: Modeling & Statistical Validation (FR-007, FR-008, FR-009, FR-010, FR-016, FR-017)
-
-1.  **Power Analysis (FR-016)**:
-    -   **Gate**: Execute *before* model training.
-    -   Calculate required N for target R² (0.1, 0.2, 0.3) with α=0.05, β=0.2.
-    -   **Halt**: If available N < 15, halt and report "Insufficient statistical power".
-2.  **Model Training**:
-    -   Train Elastic Net and Random Forest using **Leave-One-Species-Out (LOSO)** CV.
-    -   Feature selection and training occur strictly within the training fold.
-3.  **Phylogenetic Validation (FR-007, FR-017)**:
-    -   **PGLS**: Fit Phylogenetic Generalized Least Squares model.
-    -   **Null Model**: Generate null distribution of R² by permuting *outcome* (DAI) labels while preserving phylogenetic structure of predictors (or using phylogenetic permutation of residuals).
-    -   **Threshold**: Observed R² must exceed the upper tail of the null distribution.
-4.  **Significance Testing (FR-008, FR-010)**:
-    -   Permutation test (N=10,000) for Spearman correlation.
-    -   Apply Holm-Bonferroni correction for multiple hypotheses.
-5.  **Sensitivity Analysis (FR-009)**:
-    -   Vary DE gene count (e.g., low, moderate, high) and report R² variation.
-
-## Risk Assessment
-
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| **Dataset Mismatch** | High ([deferred] with current list) | Critical | Use synthetic data for structural validation; flag `human_input_needed` for real data. |
-| **RAM Overflow** | Medium | High | Sample to multiple species; stream data processing. |
-| **Power Failure** | High (if N<15) | Critical | Explicit power analysis gate; halt if N < 15. |
-| **Phylogeny Missing** | Medium | Medium | Generate synthetic tree if real tree unavailable; document limitation. |
-| **Circular Validation** | High | Critical | Exclude trait-synthesis genes from predictors; use residual permutation for null model. |
-
-## Decision Rationale
-
-The decision to use synthetic data is driven by the **fatal dataset mismatch** in the "Verified datasets" block. The spec requires plant herbivory RNA-seq and TRY traits, but the provided list contains only human, disease, or non-biological datasets. Implementing a pipeline that attempts to fetch from these URLs would fail immediately. Using synthetic data allows the **statistical rigor** (LOSO, PGLS, Power Analysis) and **code structure** to be validated, ensuring the system works correctly when the correct datasets are eventually provided.
-
-**Note**: The current phase is **Prototype Validation**. The project cannot reach `research_complete` without verified real data.
+- **T011**: Download metadata & FASTQs (NCBI GEO/SRA).
+- **T011a**: **Validate & Filter**. Check replicates, tissue, paired herbivore types. **Filter and Continue** (log exclusions in `metadata_verification_report.json`). Do NOT halt on missing data. If <3 valid studies found, halt with "Insufficient Data for Comparative Analysis".
+- **T014a**: **DE Analysis**. Run DESeq2. Select **Common DE Genes** via Aggregate Significance within training fold (no leakage). Derive response vector as (Chewing log2FC - Piercing log2FC).
+- **T014b**: **Pathway Aggregation**. Map DE genes to KEGG/GO. **Exclude biosynthetic pathways** of target traits (Glucosinolates, Alkaloids, Phenolics). Reduce to ≤50 features.
+- **T025a**: **Fetch Traits**. Use ` Name or service not known)"))].
+- **T025b**: **Fallback Traits**. Use `pyphenoscape` and `rgbif`.
+- **T025c**: **Merge & Gate**. Aggregate traits into `final_aggregated_traits.json`. Calculate Defense Allocation Index. **Halt if >30% missing** (FR-011).
+- **T026**: **Power Analysis**. Calculate N_eff using phylogenetic lambda. Halt if insufficient power.
+- **T028a**: **Fetch Phylogeny**. Use ` Name or service not known)"))]. **Halt if fetch fails** (No star tree).
+- **T038**: **Modeling**. Clade-Stratified LOSO. Bootstrapped CI. Permutation test.
+- **T040**: **Reproducibility**. Jaccard similarity against verified lists. **No proxy fallback**.
