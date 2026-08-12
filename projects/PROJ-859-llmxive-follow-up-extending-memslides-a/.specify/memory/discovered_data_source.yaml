@@ -1,0 +1,15 @@
+status: none
+intent: MemSlides benchmark synthetic trace dataset python package dataset
+required_fields:
+- session_id
+- turn_number
+- tool_name
+- tool_arguments
+- timestamp
+- slide_state_before
+- slide_state_after
+- revision_type
+- session_metadata
+cache_key: 744e9a1ad37116dbc124e8f8e9b260471b98472fcb559e979b80253aaf4ff534
+searched_at: '2026-08-12T12:04:36.291789+00:00'
+retry_count: 1

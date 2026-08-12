@@ -3,7 +3,7 @@ title: "Structural Metrics Schema"
 description: "Schema for extracted structural metrics"
 type: "object"
 properties:
-  trace_id:
+  session_id:
     type: "string"
     description: "Foreign key to Execution Trace"
   sequence_entropy:
@@ -18,11 +18,10 @@ properties:
   complexity_class:
     type: "string"
     enum: ["Low", "Medium", "High"]
-    description: "Categorized complexity level"
+    description: "Categorized complexity level (optional derived field)"
 required:
-  - trace_id
+  - session_id
   - sequence_entropy
   - tool_repetition_freq
   - arg_semantic_variance
-  - complexity_class
 additionalProperties: false

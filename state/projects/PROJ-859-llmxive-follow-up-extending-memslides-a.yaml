@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T09:28:06.607506Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-859-llmxive-follow-up-extending-memslides-a
-last_run_id: 39996f87-6d1e-4f40-999c-5cb3b7659522
+last_run_id: 5a017031-4952-4840-b90c-7abde639073a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a
 title: 'llmXive follow-up: extending "MemSlides: A Hierarchical Memory Driven Agent
   Framework for Personaliz"'
-updated_at: '2026-08-12T04:29:41.843468Z'
+updated_at: '2026-08-12T12:20:10.928820Z'

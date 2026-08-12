@@ -21,7 +21,7 @@ properties:
     description: "Method used for multiple comparison correction"
   model_type:
     type: "string"
-    enum: ["Beta Regression", "Multiple Linear Regression", "Spearman Correlation"]
+    enum: ["Multiple Linear Regression", "Spearman Correlation"]
     description: "Type of statistical model used"
 required:
   - metric_name

@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Result Schema"
+description: "Schema for benchmark results and correlation analysis."
+type: "object"
+required:
+  - "baseline_accuracy"
+  - "compressed_accuracy"
+  - "accuracy_diff"
+  - "baseline_latency"
+  - "compressed_latency"
+  - "latency_diff"
+  - "correlation_metrics"
+properties:
+  baseline_accuracy:
+    type: "number"
+    description: "Edit Accuracy of raw memory agent."
+    minimum: 0
+    maximum: 1
+  compressed_accuracy:
+    type: "number"
+    description: "Edit Accuracy of rule-based agent."
+    minimum: 0
+    maximum: 1
+  accuracy_diff:
+    type: "number"
+    description: "Baseline accuracy minus compressed accuracy."
+  baseline_latency:
+    type: "number"
+    description: "Mean retrieval latency of raw memory (ms)."
+    minimum: 0
+  compressed_latency:
+    type: "number"
+    description: "Mean retrieval latency of rule-based agent (ms)."
+    minimum: 0
+  latency_diff:
+    type: "number"
+    description: "Baseline latency minus compressed latency."
+  correlation_metrics:
+    type: "object"
+    description: "Results of regression/correlation analysis."
+    properties:
+      method:
+        type: "string"
+        description: "Method used (e.g., 'multiple_linear_regression', 'spearman')."
+      coefficients:
+        type: "object"
+        description: "Regression coefficients for each metric."
+      p_values:
+        type: "object"
+        description: "P-values for each coefficient."
+      significance_threshold:
+        type: "number"
+        description: "Threshold used for significance (e.g., 0.05)."
+      assumption_violations:
+        type: "array"
+        description: "List of violated assumptions."
+        items:
+          type: "string"
+additionalProperties: false
