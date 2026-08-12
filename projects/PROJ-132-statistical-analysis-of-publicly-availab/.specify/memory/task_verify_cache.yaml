@@ -1,18 +1,25 @@
-T002a:
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or listing was provided to demonstrate that the required folders\
-    \ (`src/data`, `src/models`, `src/analysis`, `data/raw`, `data/processed`, `data/interim`,\
-    \ `tests/contract`, `tests/unit`, `tests/integration`, `docs`) were actually created.\
-    \ The implementer\u2019s claim lacks concrete evidence, so the task is not verified\
-    \ as completed."
-T002b:
+  r: No data files, ingestion/preprocessing scripts, or resulting CSV outputs were
+    supplied, and there is no evidence (e.g., logs, screenshots, test results) that
+    the eBird and NOAA datasets are present or that the pipeline has been run to produce
+    the required columns. The implementer therefore has not demonstrated that the
+    data availability requirement is satisfied.
+T005b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or any artifact showing the created project structure was
-    provided; the claim lacks the required output that enumerates the project's folders.
-    The implementer must supply a concrete list of the directories that were created
-    for the project.
+  r: "No evidence of a downloaded eBird sample (e.g., CSV, zip, or script that retrieves\
+    \ the verified dataset) is present; the only provided material is a high\u2011\
+    level feature specification, not the required data artifact. The task\u2019s core\
+    \ deliverable\u2014a verified eBird sample file\u2014is missing."
+T005d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No archive directory (`data/raw/archive/`) containing the copied raw files is
+    provided, nor any evidence (e.g., CI artifact logs, upload scripts, or artifact
+    IDs) that the archive was uploaded to CI. Consequently the required artifact is
+    missing.
 T010c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,13 +27,29 @@ T010c:
     \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
     \ task. Consequently the required log entry and its format\u2011compliance verification\
     \ are missing."
-T017d:
+T015b:
   c: false
-  h: e5991be00aa0ba3e1c4bd90f145b5e604ea0178c56dec5e7b2b85b7ec268f596
-  r: The repository lacks the required `data/processed/imputation_metadata.json` file,
-    and the provided `tests/unit/test_preprocess.py` does not contain a `test_imputation_metadata_exists`
-    function verifying its existence. Both the artifact and the specific test are
-    missing.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No preprocessing scripts, data files, or resulting CSVs were supplied; the implementer
+    did not provide any tangible code, documentation, or output that demonstrates
+    ingestion of eBird and NOAA data, filtering, aggregation, or calculation of phenology
+    metrics as required. Consequently, the core deliverable of the preprocessing pipeline
+    is missing.
+T016:
+  c: false
+  h: 30666c17a580ede3b85e603be744f3cecf0226a796987d04404d0218b46ea23f
+  r: "The `generate_provenance` function in `src/data/preprocess.py` is truncated\
+    \ and does not construct the full mapping (it stops after `\"original_checklist_id\"\
+    ` and never adds `\"species\"` or `\"grid_cell\"`). Moreover, the required output\
+    \ file `data/provenance/row_mapping.json` does not exist on disk. The task\u2019\
+    s requirement of creating a complete provenance JSON file is therefore unmet."
+T017d:
+  c: true
+  h: 51dd9381e1eb53865c4eebf3987f448a27e3924a34c5584d65da38025d026fcb
+  r: "The provided `tests/unit/test_imputation_metadata.py` file exists, is non\u2011\
+    empty, and implements the required checks: it verifies the presence of `data/processed/imputation_metadata.json`,\
+    \ loads and validates it as a JSON list, and asserts that any record with `is_imputed\
+    \ = true` has a non\u2011null `imputation_source`."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,6 +57,40 @@ T018:
     \ the required logic to flag grid cells with fewer than 5 observations per Plan\
     \ Phase\u202F2 and to exclude them from downstream modeling. Consequently, the\
     \ artifact demanded by T018 is missing."
+T023a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only the specification text; there are no actual code files,
+    preprocessing scripts, GAMM fitting scripts, or resulting datasets/figures present
+    on disk. Consequently, the required artifacts for data acquisition, model fitting,
+    and output validation are missing, so the task is not genuinely completed.
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file that computes Moran\u2019s I on model\
+    \ residuals was provided. The claim lacks any tangible artifact (e.g., Python/R\
+    \ script, function, or result table/figure) demonstrating the diagnostic, so the\
+    \ requirement is not met."
+T025c:
+  c: false
+  h: 93fa3d6863026d3c79377ab94b8855a246a852e60e00c07fc4bc1c4517831132
+  r: The `src/models/utils.py` file does not contain an `apply_fdr_correction` function
+    (the shown code only defines other utilities), and the required output file `data/processed/model_results_fdr.parquet`
+    is absent. Both the implementation and the expected artifact are missing.
+T028:
+  c: false
+  h: 682d9f5883bfedf1e0c848d9d753f4d7da0eae76d8bed6c58b14a05ebacab909
+  r: "The required output file `data/processed/trajectory_results.json` does not exist,\
+    \ so the test cannot verify the presence of the required keys. The artifact is\
+    \ missing, violating the task\u2019s requirement."
+T030:
+  c: false
+  h: 7706e0857c8847a5e273c05dab804fbf1e1935219b654cde4e68a29624d4331f
+  r: "The provided `compute_weekly_centroids` function is incomplete (truncated code)\
+    \ and computes a simple weighted arithmetic mean rather than a geodesic (great\u2011\
+    circle) mean, and it never writes the resulting DataFrame to `data/interim/weekly_centroids.parquet`\
+    \ (the file is missing). Consequently the required artifact and correct behavior\
+    \ are not present."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -65,16 +122,3 @@ T045c:
     contention test. The required test file (e.g., a unit\u2011 or integration\u2011\
     test that creates competing threads/processes to provoke lock contention and asserts\
     \ expected behavior) is missing."
-T050b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `plan.md` or `spec.md` files were provided, nor any report or output showing
-    that the implementer scanned those documents for contradictions. Without the required
-    artifacts, we cannot confirm the task was performed.
-T051a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a URL, screenshot, API query result, or script output) confirming\
-    \ the presence of the `vvud/eb-data` dataset on HuggingFace was provided. Without\
-    \ concrete evidence of the dataset\u2019s existence, the task requirement is not\
-    \ satisfied."

@@ -1,93 +1,137 @@
-import sys
-import logging
-import json
-from pathlib import Path
+"""
+Task T005a: Verify Data Availability
 
-from datasets import load_dataset
+This script attempts to load the verified eBird sample (vvud/eb-data) and checks
+for NOAA/PRISM and Daymet availability using the Hugging Face datasets library.
+
+It writes a JSON report to data/provenance/data_availability_report.json.
+If eBird is missing, it raises a RuntimeError.
+"""
+import json
+import logging
+import sys
+from pathlib import Path
+from typing import Dict, Any
+
+# Import logging setup from existing config module
 from src.config import setup_logging
 
-logger = logging.getLogger(__name__)
+# Import load_dataset from the datasets library
+from datasets import load_dataset, get_dataset_names
 
-def verify_dataset_existence(dataset_name: str = "vvud/eb-data") -> bool:
+# Configure logger
+logger = setup_logging("verify_dataset")
+
+
+def verify_dataset_existence() -> Dict[str, bool]:
     """
-    Verify the existence of the specified dataset on HuggingFace.
-
-    Args:
-        dataset_name: The HuggingFace dataset identifier.
+    Verifies the availability of required datasets: eBird, NOAA/PRISM, and Daymet.
 
     Returns:
-        True if the dataset exists and is accessible.
-
-    Raises:
-        RuntimeError: If the dataset is not found or accessible.
+        Dict[str, bool]: Keys are dataset names, values are True if available.
     """
-    logger.info(f"Verifying existence of dataset: {dataset_name}")
-    try:
-        # Attempt to load the dataset info to verify existence without downloading full data
-        # Using streaming=False but split="train" to trigger existence check quickly
-        # trust_remote_code is required per task spec for this specific dataset
-        ds = load_dataset(dataset_name, split="train", trust_remote_code=True)
-        logger.info(f"Dataset '{dataset_name}' verified successfully. Rows: {len(ds)}")
-        return True
-    except Exception as e:
-        error_msg = f"Dataset '{dataset_name}' not found or inaccessible: {e}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg) from e
-
-def main():
-    """
-    Main entry point for verifying the eBird sample dataset.
-    Writes a JSON report to data/provenance/data_availability_report.json.
-    """
-    # Setup logging
-    setup_logging()
-
-    output_dir = Path("data/provenance")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "data_availability_report.json"
-
-    dataset_name = "vvud/eb-data"
-    climate_dataset_name = "daymet/annual"
-
-    report = {
-        "full_ebd_available": False,
-        "sample_scope_adopted": False,
-        "climate_data_available": False,
-        "source": "unknown"
+    results = {
+        "ebird_available": False,
+        "noaa_available": False,
+        "daymet_available": False
     }
 
+    # 1. Check eBird (vvud/eb-data)
     try:
-        # Verify eBird sample dataset
-        if verify_dataset_existence(dataset_name):
-            report["sample_scope_adopted"] = True
-            report["source"] = dataset_name
-            logger.info(f"Verified sample dataset: {dataset_name}")
+        logger.info("Attempting to verify eBird dataset (vvud/eb-data)...")
+        # We use streaming=True to avoid downloading the full dataset for the check
+        # and to respect memory constraints. We just try to initialize the iterator.
+        ds = load_dataset("vvud/eb-data", split="train", streaming=True)
+        # Attempt to fetch the first item to ensure the connection and dataset exist
+        next(iter(ds))
+        results["ebird_available"] = True
+        logger.info("eBird dataset (vvud/eb-data) is available.")
+    except Exception as e:
+        logger.error(f"eBird dataset (vvud/eb-data) verification failed: {e}")
+        results["ebird_available"] = False
+
+
+    # 2. Check NOAA/PRISM
+    try:
+        logger.info("Checking availability of NOAA/PRISM dataset...")
+        # get_dataset_names returns a list of available datasets on the hub
+        # We can check if the specific dataset ID is in the list or try to load it
+        # Attempting to load with streaming is a robust way to check availability
+        # without downloading full metadata if possible, but get_dataset_names is safer for a quick check
+        all_datasets = get_dataset_names()
+        if "noaa/prism" in all_datasets:
+            results["noaa_available"] = True
+            logger.info("NOAA/PRISM dataset is available.")
         else:
-            raise RuntimeError(f"Sample dataset {dataset_name} verification failed.")
+            logger.warning("NOAA/PRISM dataset not found in Hugging Face Hub.")
+            # Fallback: try to load it directly in case get_dataset_names is incomplete
+            try:
+                load_dataset("noaa/prism", split="train", streaming=True)
+                results["noaa_available"] = True
+                logger.info("NOAA/PRISM dataset is available (confirmed via direct load).")
+            except Exception:
+                results["noaa_available"] = False
+    except Exception as e:
+        logger.error(f"Error checking NOAA/PRISM availability: {e}")
+        results["noaa_available"] = False
 
-        # Verify climate dataset
-        try:
-            if verify_dataset_existence(climate_dataset_name):
-                report["climate_data_available"] = True
-                logger.info(f"Verified climate dataset: {climate_dataset_name}")
-        except RuntimeError as e:
-            logger.warning(f"Climate dataset check failed: {e}")
-            report["climate_data_available"] = False
 
-        # Write report
-        with open(output_file, "w") as f:
-            json.dump(report, f, indent=2)
+    # 3. Check Daymet
+    try:
+        logger.info("Checking availability of Daymet dataset...")
+        all_datasets = get_dataset_names()
+        if "daymet/annual" in all_datasets:
+            results["daymet_available"] = True
+            logger.info("Daymet dataset is available.")
+        else:
+            logger.warning("Daymet dataset not found in Hugging Face Hub.")
+            # Fallback: try to load it directly
+            try:
+                load_dataset("daymet/annual", split="train", streaming=True)
+                results["daymet_available"] = True
+                logger.info("Daymet dataset is available (confirmed via direct load).")
+            except Exception:
+                results["daymet_available"] = False
+    except Exception as e:
+        logger.error(f"Error checking Daymet availability: {e}")
+        results["daymet_available"] = False
 
-        logger.info(f"Data availability report written to {output_file}")
-        print(f"Success: {output_file}")
+    return results
 
-    except RuntimeError as e:
-        logger.error(f"Verification failed: {e}")
-        # Even on failure, write a partial report if possible, or fail loudly
-        report["source"] = "error"
-        with open(output_file, "w") as f:
-            json.dump(report, f, indent=2)
-        raise
+
+def main() -> None:
+    """
+    Main entry point for T005a.
+    Verifies datasets and writes the report to data/provenance/data_availability_report.json.
+    Raises RuntimeError if eBird is missing.
+    """
+    logger.info("Starting T005a: Verify Data Availability")
+
+    # Ensure output directory exists
+    output_dir = Path("data/provenance")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "data_availability_report.json"
+
+    try:
+        availability = verify_dataset_existence()
+    except Exception as e:
+        logger.critical(f"Failed to verify dataset existence: {e}")
+        raise RuntimeError(f"Data verification failed: {e}") from e
+
+    # Write report
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(availability, f, indent=2)
+
+    logger.info(f"Report written to {output_path}")
+
+    # CRITICAL REQUIREMENT: Fail loudly if eBird is missing
+    if not availability["ebird_available"]:
+        error_msg = "CRITICAL: eBird dataset (vvud/eb-data) is missing. Cannot proceed."
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+    logger.info("T005a completed successfully. eBird is available.")
+
 
 if __name__ == "__main__":
     main()

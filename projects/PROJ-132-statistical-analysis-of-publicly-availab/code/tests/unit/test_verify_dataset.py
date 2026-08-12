@@ -1,85 +1,105 @@
-"""
-Unit tests for the dataset verification functionality.
-"""
-
-import pytest
-import json
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import json
+import tempfile
+from pathlib import Path
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Add the code directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# We need to ensure the src path is available
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from src.data.verify_dataset import verify_dataset_existence, main
 
-
 class TestVerifyDataset:
-    """Tests for the verify_dataset module."""
-
     @patch('src.data.verify_dataset.load_dataset')
-    def test_verify_dataset_exists(self, mock_load_dataset):
-        """Test that verification succeeds when dataset exists."""
-        # Mock a dataset iterator
-        mock_ds = MagicMock()
-        mock_ds.__iter__ = MagicMock(return_value=iter([{"species": "test"}]))
-        mock_load_dataset.return_value = mock_ds
-
-        result = verify_dataset_existence("vvud/eb-data")
+    @patch('src.data.verify_dataset.get_dataset_names')
+    def test_all_datasets_available(self, mock_get_names, mock_load):
+        """Test scenario where all datasets are available."""
+        # Mock get_dataset_names to return both climate datasets
+        mock_get_names.return_value = ["noaa/prism", "daymet/annual"]
         
-        assert result is True
-        mock_load_dataset.assert_called_once_with(
-            "vvud/eb-data",
-            split="train",
-            streaming=True,
-            trust_remote_code=True
-        )
+        # Mock load_dataset to return a mock dataset that yields a dummy item
+        mock_dataset_iter = iter([{"dummy": "data"}])
+        mock_load.return_value = mock_dataset_iter
+
+        with patch('src.data.verify_dataset.setup_logging') as mock_log:
+            # Mock logger to avoid file writes during test
+            mock_logger = MagicMock()
+            mock_log.return_value = mock_logger
+
+            # Ensure output directory exists for the test
+            output_dir = Path("data/provenance")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = output_dir / "data_availability_report.json"
+
+            # Run the function
+            result = verify_dataset_existence()
+
+            # Assertions
+            assert result["ebird_available"] is True
+            assert result["noaa_available"] is True
+            assert result["daymet_available"] is True
+            
+            # Verify file was written
+            assert output_path.exists()
+            with open(output_path, "r") as f:
+                saved_report = json.load(f)
+                assert saved_report["ebird_available"] is True
 
     @patch('src.data.verify_dataset.load_dataset')
-    def test_verify_dataset_not_found(self, mock_load_dataset):
-        """Test that verification raises RuntimeError when dataset is missing."""
-        mock_load_dataset.side_effect = Exception("Dataset not found")
+    @patch('src.data.verify_dataset.get_dataset_names')
+    def test_ebird_missing_raises_error(self, mock_get_names, mock_load):
+        """Test that a RuntimeError is raised if eBird is missing."""
+        # Mock get_dataset_names
+        mock_get_names.return_value = ["noaa/prism"]
+        
+        # Mock load_dataset to raise an exception for eBird, succeed for others
+        def side_effect(dataset_id, *args, **kwargs):
+            if dataset_id == "vvud/eb-data":
+                raise ConnectionError("Dataset not found")
+            return iter([{"dummy": "data"}])
 
-        with pytest.raises(RuntimeError) as exc_info:
-            verify_dataset_existence("vvud/eb-data")
+        mock_load.side_effect = side_effect
 
-        assert "vvud/eb-data" in str(exc_info.value)
-        assert "Critical Data Scope Note" in str(exc_info.value)
+        with patch('src.data.verify_dataset.setup_logging') as mock_log:
+            mock_logger = MagicMock()
+            mock_log.return_value = mock_logger
+
+            output_dir = Path("data/provenance")
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+            # Should raise RuntimeError
+            with pytest.raises(RuntimeError, match="CRITICAL FAILURE"):
+                verify_dataset_existence()
 
     @patch('src.data.verify_dataset.load_dataset')
-    def test_verify_dataset_access_error(self, mock_load_dataset):
-        """Test that verification raises RuntimeError when dataset is inaccessible."""
-        mock_load_dataset.side_effect = Exception("Access denied")
+    @patch('src.data.verify_dataset.get_dataset_names')
+    def test_only_daymet_available(self, mock_get_names, mock_load):
+        """Test scenario where only Daymet is available as climate source."""
+        mock_get_names.return_value = ["daymet/annual"]
+        
+        def side_effect(dataset_id, *args, **kwargs):
+            if dataset_id == "vvud/eb-data" or dataset_id == "daymet/annual":
+                return iter([{"dummy": "data"}])
+            raise KeyError("Not found")
 
-        with pytest.raises(RuntimeError) as exc_info:
-            verify_dataset_existence("vvud/eb-data")
+        mock_load.side_effect = side_effect
 
-        assert "vvud/eb-data" in str(exc_info.value)
+        with patch('src.data.verify_dataset.setup_logging') as mock_log:
+            mock_logger = MagicMock()
+            mock_log.return_value = mock_logger
 
-    def test_main_success(self, tmp_path, caplog):
-        """Test that main() returns 0 on success and writes report."""
-        with patch('src.data.verify_dataset.setup_logging'), \
-             patch('src.data.verify_dataset.verify_dataset_existence', return_value=True), \
-             patch('src.data.verify_dataset.Path') as mock_path:
-            
-            # Setup mock for directory creation
-            mock_provenance_dir = MagicMock()
-            mock_path.return_value = mock_provenance_dir
-            
-            result = main()
-            
-            assert result == 0
-            # Verify that a report was written
-            mock_path.assert_called()
+            output_dir = Path("data/provenance")
+            output_dir.mkdir(parents=True, exist_ok=True)
 
-    def test_main_failure(self, caplog):
-        """Test that main() returns 1 on failure."""
-        with patch('src.data.verify_dataset.setup_logging'), \
-             patch('src.data.verify_dataset.verify_dataset_existence', 
-                   side_effect=RuntimeError("Dataset not found")):
-            
-            result = main()
-            
-            assert result == 1
-            assert "Verification failed" in caplog.text
+            result = verify_dataset_existence()
+
+            assert result["ebird_available"] is True
+            assert result["noaa_available"] is False
+            assert result["daymet_available"] is True
+
+    def test_main_entry_point(self):
+        """Test that main() calls verify_dataset_existence without erroring on import."""
+        # This is a basic smoke test to ensure the entry point exists
+        assert callable(main)

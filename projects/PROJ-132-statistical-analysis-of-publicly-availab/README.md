@@ -1,140 +1,54 @@
 # Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
-## Project Overview
-
-This project analyzes publicly available bird migration data (eBird) and climate data (Daymet) to study the correlation between migration patterns and climate change.
-
-## Prerequisites
-
-- Python 3.11+
-- pip
-- git
-
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd PROJ-132-statistical-analysis-of-publicly-availab
-```
+1. **Clone the repository**:
+ ```bash
+ git clone <repository-url>
+ cd PROJ-132-statistical-analysis-of-publicly-availab
+ ```
 
-2. Create a virtual environment:
+2. **Create a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-4. Install pre-commit hooks:
+4. **Install pre-commit hooks**:
+ Ensure `pre-commit` is installed (included in `requirements.txt`), then run:
  ```bash
  pre-commit install
  ```
+ This will automatically run `black` and `ruff` on every commit.
 
-## Pre-commit Configuration
+## Usage
 
-This project uses pre-commit hooks to ensure code quality before commits. The hooks include:
-
-- **Black**: Code formatter
-- **Ruff**: Fast Python linter and formatter
-
-### Running Pre-commit Manually
-
-To run all hooks on all files:
+Run the full pipeline:
 ```bash
-pre-commit run --all-files
+python -m src.cli.run_pipeline
 ```
 
-To run a specific hook:
+Or run specific stages:
 ```bash
-pre-commit run black
-pre-commit run ruff
-```
-
-### Updating Pre-commit Hooks
-
-To update hook versions, edit the `rev` field in `.pre-commit-config.yaml` and run:
-```bash
-pre-commit autoupdate
-```
-
-## Project Structure
-
-```
-.
-├── code/
-│ ├── src/
-│ │ ├── config.py
-│ │ ├── data/
-│ │ ├── models/
-│ │ ├── analysis/
-│ │ └── plan/
-│ ├── tests/
-│ │ ├── contract/
-│ │ ├── unit/
-│ │ └── integration/
-│ ├── run_pipeline.py
-│ └── setup_project.py
-├── data/
-│ ├── raw/
-│ ├── interim/
-│ ├── processed/
-│ └── provenance/
-├── docs/
-├──.pre-commit-config.yaml
-├── requirements.txt
-└── README.md
-```
-
-## Running the Pipeline
-
-### Running the Pipeline
-
-```bash
+python code/setup_project.py
 python code/run_pipeline.py
 ```
 
-### Running Tests
+## Development
 
-```bash
-pytest
-```
+- **Formatting**: Code is formatted with `black` and linted with `ruff`.
+- **Testing**: Run tests with `pytest`.
+- **Pre-commit**: Ensure all hooks pass before committing.
 
-### Code Formatting and Linting
+## Project Structure
 
-```bash
-# Format code with Black
-black code/
-
-# Lint code with Ruff
-ruff check code/
-```
-
-## Configuration
-
-Project configuration is managed in `code/src/config.py`. Key settings include:
-
-- `SEED`: Random seed for reproducibility
-- `GRID_RES`: Spatial grid resolution
-- `PERMUTATIONS`: Number of permutations for statistical tests
-- Logging configuration
-
-## Data Sources
-
-- **eBird Data**: `vvud/eb-data` from HuggingFace
-- **Climate Data**: `daymet/annual` from HuggingFace
-
-## License
-
-[Add license information here]
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run pre-commit hooks to ensure code quality
-5. Submit a pull request
+- `src/`: Source code
+- `data/`: Data files (raw, processed, interim)
+- `tests/`: Test suite
+- `docs/`: Documentation
+- `code/`: Standalone scripts for pipeline execution

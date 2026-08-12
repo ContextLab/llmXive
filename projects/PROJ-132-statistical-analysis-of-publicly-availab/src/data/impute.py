@@ -1,274 +1,220 @@
 """
-Spatial interpolation module for missing climate data.
-Implements grid-based interpolation using scipy.interpolate.griddata.
+Spatial Imputation Utility for Bird Migration Data.
+
+This module provides functions to impute missing values in spatial data
+using an inverse distance weighting (IDW) approach based on neighboring
+observations within a specified radius.
 """
-import os
-import sys
+
 import logging
-from pathlib import Path
-from typing import Optional, Dict, Any, Tuple, List
+from typing import Optional, Union
+
 import numpy as np
 import pandas as pd
-from scipy.interpolate import griddata
 from scipy.spatial import cKDTree
-
-# Import logging setup from existing config
-from src.config import setup_logging
 
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_GRID_RES = 0.5  # Degrees, from T010a config
 
-
-def load_climate_data(input_path: str) -> pd.DataFrame:
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
-    Load climate data from a parquet file.
-    
-    Args:
-        input_path: Path to the input parquet file.
-        
-    Returns:
-        DataFrame with columns: lat, lon, temp, week, precip
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If required columns are missing.
+    Calculate the great-circle distance between two points on the Earth (in degrees).
+
+    Note: For small radii (< 10 degrees), Euclidean distance in lat/lon space
+    is often sufficient and faster. However, to be precise with the 'radius'
+    parameter in degrees, we use a simplified Euclidean approximation on the
+    projected plane for small distances, or Haversine if strictly needed.
+    Given the task specifies 'radius=1.0' (degrees), a Euclidean approximation
+    on lat/lon is standard for local spatial interpolation in this context.
     """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Climate data file not found: {input_path}")
-    
-    df = pd.read_parquet(path)
-    required_cols = {'lat', 'lon', 'temp', 'week', 'precip'}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise ValueError(f"Missing required columns: {missing}")
-    
-    logger.info(f"Loaded climate data: {len(df)} rows, columns: {list(df.columns)}")
-    return df
+    # Convert to radians
+    lat1_rad, lon1_rad = np.radians(lat1), np.radians(lon1)
+    lat2_rad, lon2_rad = np.radians(lat2), np.radians(lon2)
+
+    # Haversine formula
+    dlat = lat2_rad - lat1_rad
+    dlon = lon2_rad - lon1_rad
+    a = np.sin(dlat / 2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(dlon / 2)**2
+    c = 2 * np.arcsin(np.sqrt(a))
+    r = 6371  # Radius of Earth in km
+    return c * r
 
 
-def identify_missing_values(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[int]]:
-    """
-    Identify rows with missing climate values (temp or precip).
-    
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        Tuple of (DataFrame with missing values flagged, list of indices to impute).
-    """
-    # Create a copy to avoid modifying original
-    df_imputed = df.copy()
-    
-    # Check for missing values in temp or precip
-    missing_mask = df_imputed['temp'].isna() | df_imputed['precip'].isna()
-    missing_indices = df_imputed[missing_mask].index.tolist()
-    
-    logger.info(f"Identified {len(missing_indices)} rows with missing values out of {len(df)} total")
-    
-    return df_imputed, missing_indices
-
-
-def interpolate_spatial(
-    df: pd.DataFrame, 
-    target_cols: List[str], 
-    grid_res: float = DEFAULT_GRID_RES
+def impute_spatial_missing(
+    df: pd.DataFrame,
+    column: str,
+    radius: float = 1.0
 ) -> pd.DataFrame:
     """
-    Perform spatial interpolation for missing values using griddata.
-    
-    The interpolation uses a neighbor search in degrees (lat/lon) at the
-    specified spatial scale. For each missing point, we find nearby known
-    points and interpolate.
-    
+    Impute missing values in a specified column using inverse distance weighting (IDW)
+    from neighboring points within a given radius (in degrees).
+
+    For each missing value in `column`:
+    1. Find neighbors within `radius` degrees (Euclidean distance in lat/lon space).
+    2. Compute weighted average of neighbor values (weight = 1 / distance).
+    3. Fill the missing value with the weighted average.
+    4. Mark the row as imputed.
+
+    If no neighbors are found within the radius, the value remains NaN.
+
     Args:
-        df: DataFrame with lat, lon, and target columns.
-        target_cols: List of column names to interpolate (e.g., ['temp', 'precip']).
-        grid_res: Spatial resolution in degrees for the grid.
-        
+        df: Input DataFrame with columns including 'lat', 'lon', and the target `column`.
+        column: The name of the column containing missing values to impute.
+        radius: Maximum distance in degrees to consider as a neighbor.
+
     Returns:
-        DataFrame with interpolated values filled in.
+        A new DataFrame with the imputed values and an additional boolean column
+        `is_imputed` indicating which rows were imputed.
+
+    Raises:
+        ValueError: If required columns 'lat' or 'lon' are missing.
+        KeyError: If the specified `column` does not exist.
     """
-    df_result = df.copy()
-    missing_mask = df_result['temp'].isna() | df_result['precip'].isna()
-    
+    if 'lat' not in df.columns or 'lon' not in df.columns:
+        raise ValueError("DataFrame must contain 'lat' and 'lon' columns for spatial imputation.")
+
+    if column not in df.columns:
+        raise KeyError(f"Column '{column}' not found in DataFrame.")
+
+    # Create a copy to avoid modifying the original
+    result_df = df.copy()
+    result_df['is_imputed'] = False
+
+    # Identify missing values
+    missing_mask = result_df[column].isna()
     if not missing_mask.any():
-        logger.info("No missing values to interpolate.")
-        return df_result
-    
-    # Separate known and missing points
-    known_mask = ~missing_mask
-    known_points = df_result.loc[known_mask, ['lat', 'lon']].values
-    missing_points = df_result.loc[missing_mask, ['lat', 'lon']].values
-    
-    if len(known_points) == 0:
-        raise ValueError("No known data points available for interpolation.")
-    
-    logger.info(f"Interpolating {len(missing_points)} missing points using {len(known_points)} known points")
-    
-    # Create a KDTree for efficient neighbor search
-    tree = cKDTree(known_points)
-    
-    # For each missing point, find neighbors and interpolate
-    for col in target_cols:
-        if col not in df_result.columns:
-            logger.warning(f"Column {col} not found in DataFrame, skipping.")
-            continue
-            
-        known_values = df_result.loc[known_mask, col].values
-        
-        # Query the tree for the k nearest neighbors (use k=3 for stability)
-        k = min(3, len(known_points))
-        distances, indices = tree.query(missing_points, k=k)
-        
-        # Interpolate using linear method with the neighbor coordinates
-        # We use the actual coordinates of the neighbors, not a grid
-        neighbor_coords = known_points[indices]
-        neighbor_vals = known_values[indices]
-        
-        # Use griddata for interpolation at the missing points
-        # Note: griddata expects (points, values, xi, method)
-        # We'll use 'linear' method which requires at least k=3 points in 2D
-        try:
-            interpolated_vals = griddata(
-                known_points, 
-                known_values, 
-                missing_points, 
-                method='linear'
-            )
-            
-            # Handle any NaNs from griddata (e.g., points outside convex hull)
-            nan_mask = np.isnan(interpolated_vals)
-            if nan_mask.any():
-                logger.warning(f"griddata returned NaN for {nan_mask.sum()} points in column {col}. "
-                             "Falling back to nearest neighbor for these points.")
-                # Fallback: use the nearest neighbor value
-                nearest_indices = indices[:, 0]  # First nearest neighbor
-                nearest_vals = known_values[nearest_indices]
-                interpolated_vals[nan_mask] = nearest_vals[nan_mask]
-            
-            # Assign interpolated values to the result DataFrame
-            df_result.loc[missing_mask, col] = interpolated_vals
-            
-        except Exception as e:
-            logger.error(f"Interpolation failed for column {col}: {e}")
-            raise
-    
-    logger.info("Spatial interpolation completed.")
-    return df_result
+        logger.info(f"No missing values found in column '{column}'.")
+        return result_df
+
+    # Prepare coordinates for KDTree (only non-missing rows for the target column)
+    # We need coordinates of all points to find neighbors, but values only from non-missing
+    coords = result_df[['lat', 'lon']].to_numpy()
+    values = result_df[column].to_numpy()
+
+    # Create KDTree for efficient neighbor search
+    tree = cKDTree(coords)
+
+    # Find indices of missing rows
+    missing_indices = np.where(missing_mask)[0]
+
+    imputed_count = 0
+
+    for idx in missing_indices:
+        lat, lon = coords[idx]
+        # Query neighbors within radius (approximate Euclidean in degrees)
+        # Note: cKDTree uses Euclidean distance. For 1 degree, this is acceptable
+        # for local imputation as requested.
+        neighbor_indices = tree.query_ball_point([lat, lon], r=radius)
+
+        # Filter out the point itself and neighbors with missing values in the target column
+        valid_neighbors = [
+            i for i in neighbor_indices
+            if i != idx and not np.isnan(values[i])
+        ]
+
+        if valid_neighbors:
+            # Calculate distances and weights
+            distances = []
+            weights = []
+            for n_idx in valid_neighbors:
+                n_lat, n_lon = coords[n_idx]
+                # Calculate Euclidean distance in degrees for weighting
+                dist = np.sqrt((lat - n_lat)**2 + (lon - n_lon)**2)
+                if dist > 0:
+                    distances.append(dist)
+                    weights.append(1.0 / dist)
+
+            if distances:
+                # Compute weighted average
+                weights = np.array(weights)
+                neighbor_values = np.array([values[i] for i in valid_neighbors])
+                weighted_avg = np.sum(weights * neighbor_values) / np.sum(weights)
+
+                result_df.loc[idx, column] = weighted_avg
+                result_df.loc[idx, 'is_imputed'] = True
+                imputed_count += 1
+            else:
+                # All neighbors were at the exact same location (dist=0) and valid
+                # This is rare but possible if duplicates exist.
+                # Fallback to simple average of neighbors at same location
+                neighbor_values = np.array([values[i] for i in valid_neighbors])
+                result_df.loc[idx, column] = np.mean(neighbor_values)
+                result_df.loc[idx, 'is_imputed'] = True
+                imputed_count += 1
+        else:
+            logger.debug(f"No valid neighbors found for row {idx} within radius {radius} degrees.")
+
+    logger.info(f"Imputed {imputed_count} missing values in column '{column}'.")
+    return result_df
 
 
-def save_imputed_data(
-    df: pd.DataFrame, 
-    output_path: str, 
-    metadata: Optional[Dict[str, Any]] = None
-) -> None:
+def load_climate_data(path: str) -> pd.DataFrame:
     """
-    Save imputed data to a parquet file and write metadata.
-    
-    Args:
-        df: DataFrame with imputed values.
-        output_path: Path for the output parquet file.
-        metadata: Optional metadata dictionary to include.
+    Load climate data from a file (Parquet or CSV).
+    This is a placeholder for the actual data loading logic used in the pipeline.
     """
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Ensure the is_imputed flag is set
-    if 'is_imputed' not in df.columns:
-        # We need to track which rows were imputed
-        # This requires passing the original missing mask
-        logger.warning("is_imputed column not found. Assuming all rows were checked.")
-        # In a real implementation, we'd track this during interpolation
-        df['is_imputed'] = False
-    
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved imputed data to {output_path}")
-    
-    if metadata:
-        metadata_path = Path(output_path).parent / 'imputation_metadata.json'
-        with open(metadata_path, 'w') as f:
-            import json
-            json.dump(metadata, f, indent=2)
-        logger.info(f"Saved imputation metadata to {metadata_path}")
-
-
-def run_imputation_pipeline(
-    input_path: str, 
-    output_path: str, 
-    grid_res: float = DEFAULT_GRID_RES
-) -> Dict[str, Any]:
-    """
-    Run the full imputation pipeline.
-    
-    Args:
-        input_path: Path to input climate parquet file.
-        output_path: Path for output imputed parquet file.
-        grid_res: Spatial resolution for interpolation.
-        
-    Returns:
-        Dictionary with pipeline statistics.
-    """
-    logger.info(f"Starting imputation pipeline: {input_path} -> {output_path}")
-    
-    # Step 1: Load data
-    df = load_climate_data(input_path)
-    
-    # Step 2: Identify missing values
-    df_flagged, missing_indices = identify_missing_values(df)
-    
-    # Step 3: Interpolate
-    if len(missing_indices) > 0:
-        df_imputed = interpolate_spatial(df_flagged, ['temp', 'precip'], grid_res=grid_res)
+    if path.endswith('.parquet'):
+        return pd.read_parquet(path)
+    elif path.endswith('.csv'):
+        return pd.read_csv(path)
     else:
-        df_imputed = df_flagged
-        logger.info("No interpolation needed.")
-    
-    # Step 4: Create metadata
-    metadata = {
-        'input_file': input_path,
-        'output_file': output_path,
-        'total_rows': len(df),
-        'missing_rows': len(missing_indices),
-        'imputed_rows': len(missing_indices),
-        'grid_resolution': grid_res,
-        'method': 'scipy.interpolate.griddata (linear)',
-        'timestamp': pd.Timestamp.now().isoformat()
-    }
-    
-    # Mark which rows were imputed
-    df_imputed['is_imputed'] = df_imputed.index.isin(missing_indices)
-    
-    # Step 5: Save results
-    save_imputed_data(df_imputed, output_path, metadata)
-    
-    logger.info("Imputation pipeline completed successfully.")
-    return metadata
+        raise ValueError("Unsupported file format. Use .parquet or .csv.")
 
 
-def main() -> None:
-    """Main entry point for the imputation script."""
-    # Setup logging
-    log_config = setup_logging()
-    
-    # Define paths
-    base_dir = Path(__file__).parent.parent.parent
-    input_path = base_dir / 'data' / 'raw' / 'climate.parquet'
-    output_path = base_dir / 'data' / 'interim' / 'climate_imputed.parquet'
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-    
-    try:
-        metadata = run_imputation_pipeline(str(input_path), str(output_path))
-        print(f"Imputation complete. Metadata: {metadata}")
-    except Exception as e:
-        logger.exception(f"Pipeline failed: {e}")
-        sys.exit(1)
+def identify_missing_values(df: pd.DataFrame, column: str) -> pd.Series:
+    """
+    Identify missing values in a specific column.
+    """
+    return df[column].isna()
 
 
-if __name__ == '__main__':
+def interpolate_spatial(df: pd.DataFrame, column: str, radius: float = 1.0) -> pd.DataFrame:
+    """
+    Wrapper for impute_spatial_missing to match legacy interface if needed.
+    """
+    return impute_spatial_missing(df, column, radius)
+
+
+def save_imputed_data(df: pd.DataFrame, path: str) -> None:
+    """
+    Save the imputed DataFrame to a file.
+    """
+    if path.endswith('.parquet'):
+        df.to_parquet(path, index=False)
+    elif path.endswith('.csv'):
+        df.to_csv(path, index=False)
+    else:
+        raise ValueError("Unsupported file format. Use .parquet or .csv.")
+
+
+def run_imputation_pipeline(input_path: str, output_path: str, column: str, radius: float = 1.0) -> None:
+    """
+    Run the full imputation pipeline: load, impute, and save.
+    """
+    logger.info(f"Starting imputation pipeline for {input_path}")
+    df = load_climate_data(input_path)
+    df_imputed = impute_spatial_missing(df, column, radius)
+    save_imputed_data(df_imputed, output_path)
+    logger.info(f"Imputation pipeline completed. Output saved to {output_path}")
+
+
+def main():
+    """
+    CLI entry point for the imputation utility.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Spatial Imputation Utility")
+    parser.add_argument("input", help="Path to input data file (CSV or Parquet)")
+    parser.add_argument("output", help="Path to output data file (CSV or Parquet)")
+    parser.add_argument("--column", required=True, help="Column name to impute")
+    parser.add_argument("--radius", type=float, default=1.0, help="Radius in degrees (default: 1.0)")
+
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO)
+    run_imputation_pipeline(args.input, args.output, args.column, args.radius)
+
+
+if __name__ == "__main__":
     main()
