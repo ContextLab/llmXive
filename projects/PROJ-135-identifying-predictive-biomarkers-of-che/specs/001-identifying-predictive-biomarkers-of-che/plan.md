@@ -1,55 +1,39 @@
 # Implementation Plan: Identifying Predictive Biomarkers of Chemotherapy Response in Public Cancer Datasets
 
-**Branch**: `001-chemo-biomarker-discovery` | **Date**: 2024-01-15 | **Spec**: `specs/001-chemo-biomarker-discovery/spec.md`
-**Input**: Feature specification from `/specs/001-chemo-biomarker-discovery/spec.md`
+**Branch**: `001-chemo-biomarker-discovery` | **Date**: 2026-06-24 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-chemo-biomarker-discovery/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to identify gene-expression signatures predicting chemotherapy response across multiple tumor types. The approach involves: (1) acquiring TCGA RNA-seq and GEO microarray data; (2) harmonizing identifiers and normalizing expression via DESeq2 VST; (3) performing differential expression analysis to find cross-tumor biomarkers using a **Leave-One-Cancer-Type-Out (LOO) Blind Meta-Analysis** protocol; (4) training elastic-net logistic regression models with nested cross-validation; and (5) validating on independent cohorts with strict statistical rigor (Bonferroni correction, calibration checks, and **ComBat** for continuous data). The pipeline is designed to run on CPU-only GitHub Actions runners (≤6h, ≤7GB RAM) by using separate R processes for DESeq2 and streaming data where necessary.
+This project implements a computational pipeline to identify cross-tumor predictive biomarkers for chemotherapy response. The approach integrates TCGA RNA-seq data and GEO microarray datasets, harmonizes gene identifiers, performs differential expression analysis (DESeq2), and conducts **Random-Effects Meta-Analysis (DerSimonian-Laird)** to derive a unified gene panel. Elastic-net logistic regression models are trained with nested cross-validation and validated via **Nested Leave-One-Cancer-Type-Out (LOO)** (where gene selection is re-run inside the loop) and external GEO cohorts. The pipeline is designed to execute within GitHub Actions free-tier constraints (limited CPU, 7GB RAM, 6h) by prioritizing streaming data access, CPU-tractable statistical methods, and strict resource monitoring.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `tcga-biolinks` (via `rpy2`), `GEOquery` (via `rpy2`), `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `biopython`, `pyyaml`, `rpy2` (configured for separate R process execution)  
-**Storage**: Local file system (`data/raw`, `data/processed`, `results`)  
-**Testing**: `pytest` with `pytest-cov`  
-**Target Platform**: Linux (GitHub Actions free-tier)  
-**Project Type**: Computational Biology Pipeline / CLI  
-**Performance Goals**: Complete full pipeline (3 tumor types, 2 GEO) in ≤6 hours; Memory ≤7 GB RAM.  
-**Constraints**: 
-- No local GPU; 
-- Must handle data streaming to avoid OOM; 
-- Must handle missing response annotations gracefully (fallback to survival proxy or halt); 
-- Must enforce strict statistical thresholds (FDR < 0.05, AUC ≥ 0.75); 
-- **Must use ComBat (not ComBat-seq) for continuous data alignment (FR-014)**; 
-- **Must use Random-Effects Meta-Analysis (REML) for cross-tumor integration**; 
-- **Must implement LOO-Blind Meta-Analysis**; 
-- **Must report Bonferroni correction (FR-010) and DeLong's test (FR-011)**.  
-**Scale/Scope**: ~3 tumor types (TCGA), ~2 GEO datasets; ~1000 samples total; [deferred] genes.
+**Primary Dependencies**: `pandas`, `scikit-learn`, `rpy2` (for DESeq2), `pyyaml`, `requests`, `datasets` (Hugging Face), `numpy`, `matplotlib`, `seaborn`, `statsmodels` (for meta-analysis).  
+**Storage**: Local file system (`data/raw`, `data/processed`, `results`). No external database.  
+**Testing**: `pytest` (unit, integration, contract).  
+**Target Platform**: Linux (GitHub Actions Runner).  
+**Project Type**: Data Science Pipeline / Computational Biology.  
+**Performance Goals**: Complete full pipeline in **≤6 hours**; Memory usage **≤7 GB RAM**.  
+**Constraints**: CPU-only execution (with Kaggle GPU offload for any unavoidable CUDA tasks, though none are planned for this statistical workflow); No local GPU; Data must be streamed or sampled to fit memory.  
+**Scale/Scope**: TCGA tumor types, GEO datasets, ≤50 genes in final panel, ≤1000 samples per type.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Notes |
+| Principle | Status | Evidence/Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Compliant | Plan mandates pinned `requirements.txt`, random seeds, and reproducible data fetching (TCGA/GEO via official APIs). |
-| **II. Verified Accuracy** | ✅ Compliant | All dataset URLs in `research.md` are restricted to the "Verified datasets" block provided in the prompt. No fabricated URLs. **Process**: The Reference-Validator Agent runs at three points (artifact write, Advancement-Evaluator, blocking gate) to verify citations against primary sources with title-token-overlap ≥ 0.7. |
-| **III. Data Hygiene** | ✅ Compliant | Pipeline design includes checksumming raw data, preserving raw files, and writing derivations to new files. PII scan exclusion noted. |
-| **IV. Single Source of Truth** | ✅ Compliant | Plan requires all figures/stats to be generated directly from `data/` and `code/` outputs, not hand-typed. |
-| **V. Versioning Discipline** | ✅ Compliant | Artifacts will carry content hashes. **Action**: The pipeline MUST update `state/projects/PROJ-135-...yaml` with content hashes after each artifact generation to maintain the SSoT. |
-| **VI. Cross‑Cohort Validation** | ✅ Compliant | Plan explicitly includes LOO (Leave-One-Cancer-Type-Out) and external GEO validation as mandatory phases. |
-| **VII. Statistical Rigor** | ✅ Compliant | Plan enforces FDR < 0.05, log2FC > 1.0, Bonferroni correction, and AUC ≥ 0.75 thresholds in logic. **Method**: Uses REML for meta-analysis to account for correlation. |
-
-**Resolution of Unresolved Panel Concerns**:
-1.  **LOO Pre-check (T033)**: The plan explicitly defines a pre-execution validation step in the "Model Training & Validation" phase. Before attempting LOO, the system counts available tumor types. If `N < 3` (since leaving one out requires `N-1 >= 2`), the system halts immediately with a `ValidationError`, preventing invalid data generation. **Alternative**: If LOO is invalid, the system switches to 'Nested Cross-Validation within a single large cohort' or 'External GEO-only validation' if available.
-2.  **Fallback Flag (T026)**: The "Cross-Cancer Biomarker Identification" phase includes a mandatory logic branch: if the intersection is empty, the system MUST write `results/summary.md` with `fallback_reason: "intersection_empty"` and `panel_source: "union_top_50"` before proceeding. **See FR-006**. This is a hard completion criterion.
-3.  **Construct Validity (Survival vs. Response)**: The plan includes a "Construct Validity Check" phase. If direct response labels are missing, the pipeline attempts to use survival proxies (PFS/OS) with a mandatory `prognostic_vs_predictive: "proxy"` flag in the summary. If no valid labels or proxies exist, it halts with `NoValidCohort`.
-4.  **Circular Validation**: The plan implements "LOO-Blind Meta-Analysis": the meta-analysis (gene panel selection) is performed ONLY on the training set (N-1 tumor types) for each LOO iteration, excluding the held-out type.
-5.  **Memory/Compute**: DESeq2 is executed in a separate R process (via `rpy2` with memory limits) or using chunked processing to stay within 7GB RAM.
-6.  **Batch Correction**: FR-014 is updated to mandate **ComBat** (for continuous data) instead of ComBat-seq.
+| **I. Reproducibility** | **PASS** | Random seeds will be pinned in `config.py`. External datasets fetched from verified Hugging Face URLs. |
+| **II. Verified Accuracy** | **PASS** | All citations in `research.md` and `data-model.md` will be validated against primary sources before acceptance. The **Reference-Validator Agent** runs at three points: (1) on artifact write, (2) before Advancement-Evaluator, (3) as a blocking gate on `research_review` → `research_accepted`. |
+| **III. Data Hygiene** | **PASS** | `data/` files will be checksummed; raw data preserved; derivations written to new files. PII scan enforced. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` will trace to `data/` rows and `code/` blocks. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; `state/` YAML updated on changes. |
+| **VI. Cross‑Cohort Validation** | **PASS** | Plan explicitly includes **Nested LOO** and external GEO validation steps (US-3, FR-008, FR-009, FR-011). *Note: FR-014 (Batch Correction) is distinct from validation.* |
+| **VII. Statistical Rigor** | **PASS** | DESeq2 FDR < 0.05, |log2FC| > 1.0, **Random-Effects Meta-Analysis**, Bonferroni correction, AUC ≥ 0.75 targets documented in code and plan. |
 
 ## Project Structure
 
@@ -61,102 +45,166 @@ specs/001-chemo-biomarker-discovery/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── gene_panel.schema.yaml
-    └── model_output.schema.yaml
+├── contracts/           # Phase 1 output
+│   ├── sample.schema.yaml
+│   ├── gene_panel.schema.yaml
+│   ├── meta_analysis.schema.yaml
+│   ├── model.schema.yaml
+│   └── ...
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
 src/
-├── data_acquisition.py      # TCGA/GEO downloaders (TCGA, GEOquery wrappers)
-├── preprocessing.py         # Harmonization, filtering, VST, batch correction (ComBat)
-├── biomarker_discovery.py   # DE analysis, REML meta-analysis, panel selection (LOO-Blind)
-├── model_training.py        # Elastic-net, nested CV, LOO logic
-├── evaluation.py            # ROC-AUC, calibration, DeLong's test, Bonferroni
-├── utils/
-│   ├── config.py            # Path constants, seed management
-│   └── logging.py           # Structured logging
-└── main.py                  # Pipeline orchestrator
-
-data/
-├── raw/                     # Downloaded raw files (checksummed)
-└── processed/               # Harmonized, normalized matrices
-
-results/
-├── meta_analysis/           # REML results, gene lists
-├── models/                  # Saved sklearn models
-└── summary.md               # Final report (includes fallback flags, proxy flags)
+├── config.py            # Configuration, seeds, paths
+├── data_acquisition.py  # TCGA/GEO download, streaming
+├── preprocessing.py     # Harmonization, filtering, VST/ComBat (via rpy2)
+├── differential_expression.py # DESeq2 Wald test wrapper
+├── meta_analysis.py     # DerSimonian-Laird, panel selection
+├── modeling.py          # Elastic-net, nested CV, LOO logic
+├── validation.py        # External validation, calibration, DeLong's test
+└── utils.py             # Logging, checksums, plotting
 
 tests/
-├── unit/                    # Logic tests (e.g., LOO pre-check, proxy logic)
-├── integration/             # End-to-end subset runs
-└── contract/                # Schema validation tests
+├── contract/            # Schema validation tests
+├── integration/         # Pipeline flow tests
+└── unit/                # Logic unit tests
+
+data/
+├── raw/                 # Downloaded raw files (checksummed)
+├── processed/           # Normalized, harmonized matrices
+└── interim/             # Intermediate results (DE stats, etc.)
+
+results/
+├── meta_analysis/       # Gene panels, p-values
+├── models/              # Trained models, coefficients
+└── summary.md           # Final report
 ```
 
-**Structure Decision**: Single Python project structure (`src/`) chosen to minimize overhead on the GitHub Actions runner and simplify dependency management. Modular design separates data, logic, and evaluation to allow independent testing and debugging.
+**Structure Decision**: Single project structure (`src/`) chosen for simplicity and direct integration with Python data science stack. No frontend/backend split required.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Dual-platform normalization (RNA-seq + Microarray)** | Required by FR-014 to align GEO microarray data with TCGA RNA-seq. | Simple merging is impossible due to different scales/distributions; requires VST + **ComBat** (continuous) or quantile matching. |
-| **Nested Cross-Validation** | Required by FR-07 to prevent data leakage in hyperparameter tuning. | Simple k-fold CV would overestimate performance, violating SC-001 (AUC ≥ 0.75) validity. |
-| **LOO Validation Pre-check** | Required by FR-008 to prevent invalid model evaluation. | Running LOO with N=2 would leave only 1 type for training, making generalizability assessment impossible. **See FR-008**. |
-| **LOO-Blind Meta-Analysis** | Required to prevent circular validation (scientific_soundness-c0fd5455). | Including the held-out type in meta-analysis biases the panel toward that type, invalidating the generalizability claim. |
-| **Separate R Process for DESeq2** | Required to stay within 7GB RAM (methodology-d58c678f). | Running DESeq2 in the same Python process risks OOM; separate process with memory limits is safer. |
-| **Random-Effects Meta-Analysis (REML)** | Required to account for correlation between tumor types (methodology-6afa132a). | Stouffer's method assumes independence, which is invalid for correlated biological data. |
+> **No violations found.** The complexity is managed by strict data streaming, CPU-first methods, and modular task separation.
 
-## Phase 0: Data Acquisition & Construct Validity Check
+## FR/SC Coverage Mapping
 
-**Goal**: Fetch data and verify the existence of valid response labels or proxies.
+| Requirement | Plan Phase/Step | Description |
+| :--- | :--- | :--- |
+| **FR-001** (TCGA Download) | Phase 1, Step 1.1 | `data_acquisition.py`: Stream TCGA RNA-seq from verified HF URLs. |
+| **FR-002** (GEO Download) | Phase 1, Step 1.2 | `data_acquisition.py`: Fetch GEO metadata/expr from verified HF URLs. |
+| **FR-003** (Harmonization) | Phase 2, Step 2.1 | `preprocessing.py`: Map Ensembl/Entrez to HGNC, ≥95% retention. |
+| **FR-004** (Filtering/VST) | Phase 2, Step 2.2 | `preprocessing.py`: CPM < 1 filter, DESeq2 VST (TCGA) / RMA (GEO). |
+| **FR-005** (DE Analysis) | Phase 3, Step 3.1 | `differential_expression.py`: DESeq2 Wald, FDR < 0.05, |log2FC| > 1.0. |
+| **FR-006** (Intersection/Meta) | Phase 3, Step 3.2 | `meta_analysis.py`: Random-Effects (DerSimonian-Laird); fallback to union. |
+| **FR-007** (Elastic-Net) | Phase 4, Step 4.1 | `modeling.py`: Elastic-net logistic regression, nested CV. |
+| **FR-008** (LOO Validation) | Phase 4, Step 4.2 | `modeling.py`: **Nested LOO** (re-run DE+Meta on N-1 types); halt if N < 3. |
+| **FR-009** (Metrics) | Phase 5, Step 5.1 | `validation.py`: ROC-AUC, PR, Calibration curves. |
+| **FR-010** (Bonferroni) | Phase 5, Step 5.2 | `validation.py`: Adjust p-values (m=genes or m=comparisons). |
+| **FR-011** (DeLong's Test) | Phase 5, Step 5.3 | `validation.py`: Compare model vs. clinical baseline (external GEO only). |
+| **FR-012** (CPU Constraints) | Phase 0, Strategy | CPU-first design, streaming, sampling if >7GB. |
+| **FR-013** (Data Split) | Phase 2, Step 2.3 | `preprocessing.py`: Split into discovery/training sets (80/20). |
+| **FR-014** (Batch Correction) | Phase 2, Step 2.4 | `preprocessing.py`: ComBat/ComBat-seq with 'response' covariate. |
+| **SC-001** (AUC ≥ 0.75) | Phase 5, Step 5.1 | Measured against target in `results/summary.md`. |
+| **SC-002** (Significance) | Phase 5, Step 5.2 | Bonferroni-adjusted p < 0.01. |
+| **SC-003** (Generalizability) | Phase 4, Step 4.2 | Performance drop (AUC diff) > 0.10 indicates failure. |
+| **SC-004** (Runtime ≤ 6h) | Phase 0, Strategy | Monitored via CI logs; sampling if exceeded. |
+| **SC-005** (RAM ≤ 7GB) | Phase 0, Strategy | Streaming and chunked processing. |
+| **SC-006** (≥2 Tumor Types) | Phase 3, Step 3.1 | Explicit check before meta-analysis. |
 
-1.  **Fetch TCGA Data**: Use `TCGAbiolinks` (R) via `rpy2` to download RNA-seq HTSeq-Counts and clinical metadata for ≥3 tumor types.
-    - **Check**: Verify presence of `response_label` (e.g., RECIST).
-    - **Fallback**: If missing, attempt to derive `response_label` from survival data (PFS/OS < median). Flag as `prognostic_vs_predictive: "proxy"`.
-    - **Halt**: If no valid labels or proxies exist, halt with `NoValidTCGACohort`.
-2.  **Fetch GEO Data**: Use `GEOquery` (R) via `rpy2` to download GSE25055, GSE42752 (or verified alternatives).
-    - **Check**: Verify presence of `response_label`.
-    - **Fallback**: If missing, attempt survival proxy. Flag as `prognostic_vs_predictive: "proxy"`.
-    - **Halt**: If no valid labels or proxies exist in ≥2 datasets, halt with `NoValidValidationCohort`.
-3.  **Checksum**: Record checksums in `state/...yaml`.
+## Implementation Phases
 
-## Phase 1: Preprocessing & Harmonization
+### Phase 0: Strategy & Power Analysis
 
-1.  **Harmonize**: Map Ensembl/Entrez to HGNC (≥95% coverage).
-2.  **Filter**: Remove low-expression genes (CPM < 1 in >80% samples).
-3.  **Normalize**: Apply DESeq2 VST (via separate R process).
-4.  **Batch Correct**: Apply **ComBat** (for continuous VST data) to align GEO and TCGA. **See FR-014**.
+**Goal**: Define constraints and verify statistical power.
 
-## Phase 2: Cross-Cancer Biomarker Identification (LOO-Blind)
+-   **Step 0.1: Resource Setup**
+    -   Define `config.py` with `MAX_RAM=7GB`, `MAX_RUNTIME=6h`.
+    -   Set random seeds (e.g., `42`) for reproducibility.
+-   **Step 0.2: CPU-First Strategy**
+    -   Confirm all methods (DESeq2, Elastic-net, DerSimonian-Laird) are CPU-tractable.
+    -   Plan streaming for large datasets to avoid OOM.
+-   **Step 0.3: Power Analysis**
+ - Calculate required sample size for detecting log2FC > 1.0 with [deferred] power at FDR 0.05.
+    -   If available cohorts < required N, flag limitation in `results/summary.md`.
 
-**Goal**: Identify a gene panel that generalizes across tumor types.
+### Phase 1: Data Acquisition
 
-1.  **LOO Loop**: For each tumor type `T` (held-out):
-    - **Subset**: Select data from all other tumor types (N-1).
-    - **DE Analysis**: Perform DESeq2 Wald test on the N-1 subset (FDR < 0.05, |log2FC| > 1.0). **See FR-005**.
-    - **Meta-Analysis**: Perform **Random-Effects Meta-Analysis (REML)** on the N-1 DE results to generate a candidate panel. **See FR-006**.
-    - **Fallback**: If intersection is empty, use union of top genes. **Write `results/summary.md` with `fallback_reason: "intersection_empty"`. See FR-006**.
-2.  **Validation**: Train model on N-1 types, test on `T`.
-3.  **Aggregation**: Aggregate results across all LOO iterations.
+**Goal**: Download and verify datasets (FR-001, FR-002).
 
-## Phase 3: Model Training & Validation
+-   **Step 1.1: TCGA Download**
+    -   Stream TCGA RNA-seq (HTSeq-Counts) and clinical metadata for ≥3 tumor types.
+    -   Verify presence of response labels (RECIST/equivalent).
+-   **Step 1.2: GEO Download**
+    -   Fetch GEO microarray datasets with response annotations.
+    -   Verify presence of 'responder'/'non-responder' labels.
+    -   Log warning if specific GSE IDs (GSE25055/GSE42752) are missing; use verified proxies.
 
-**Goal**: Train and validate the final model.
+### Phase 2: Preprocessing
 
-1.  **Pre-check**: If total tumor types < 3, halt with `ValidationError` (See FR-008).
-2.  **Training**: Train elastic-net logistic regression with nested CV on the full dataset (if LOO valid) or on the largest cohort (if LOO invalid).
-3.  **External Validation**: Apply model to GEO datasets (after ComBat alignment).
-4.  **Evaluation**:
-    - Compute ROC-AUC, Precision-Recall, Calibration.
-    - **Bonferroni Correction**: Apply for multiple hypothesis testing (m = number of genes or comparisons). **See FR-010**.
-    - **DeLong's Test**: Compare model vs. clinical covariates-only baseline. **See FR-011**.
-    - **Calibration**: Check deciles (N ≥ 20) for ±10% alignment. Flag underpowered deciles.
+**Goal**: Harmonize, normalize, and split data (FR-003, FR-004, FR-013, FR-014).
 
-## Phase 4: Reporting & Versioning
+-   **Step 2.1: Gene Harmonization**
+    -   Map Ensembl/Entrez to HGNC symbols.
+    -   **Threshold**: Retain ≥95% of genes; log dropouts.
+-   **Step 2.2: Filtering & Normalization**
+    -   **TCGA**: Filter CPM < 1 in >80% samples; apply DESeq2 VST.
+    -   **GEO**: Apply RMA or Quantile normalization (log2 scale).
+-   **Step 2.3: Data Splitting**
+    -   Split each tumor type into **Discovery Set** (for DE) and **Training Set** (for modeling).
+ - **Ratio**: Majority/Minority split (e.g., [deferred] Discovery, [deferred] Training) or 70/30 depending on power.
+    -   Ensure stratification by response label.
+-   **Step 2.4: Batch Correction**
+    -   Align GEO (microarray) with TCGA (RNA-seq) using **ComBat** (for log2) or **ComBat-seq** (for counts).
+    -   **Critical**: Include `response_label` as a covariate in the batch correction model to prevent erasing the biological signal associated with response.
+    -   Output to `data/processed/`.
 
-1.  **Generate Summary**: Write `results/summary.md` including all flags (`fallback_reason`, `prognostic_vs_predictive`, `validation_status`).
-2.  **Update State**: Update `state/projects/PROJ-135-...yaml` with content hashes of all artifacts.
-3.  **Reference Validation**: Trigger Reference-Validator Agent to verify all citations.
+### Phase 3: Differential Expression & Meta-Analysis
+
+**Goal**: Identify cross-tumor biomarkers (FR-005, FR-006).
+
+-   **Step 3.1: Tumor-Specific DE**
+    -   Run DESeq2 Wald test on Discovery Set for each tumor type.
+    -   **Thresholds**: FDR < 0.05, |log2FC| > 1.0.
+    -   **Check**: Verify ≥2 tumor types contribute significant genes. If <2, halt or reframe.
+-   **Step 3.2: Meta-Analysis (Random-Effects)**
+    -   **Method**: **DerSimonian-Laird Random-Effects Model** (accounts for heterogeneity).
+    -   **Input**: P-values and effect sizes from Step 3.1.
+    -   **Selection**: Intersect significant genes across types. If intersection is empty, fallback to union of top 50 genes (ranked by meta p-value).
+    -   **Output**: Ranked gene panel with combined p-values.
+
+### Phase 4: Modeling & Nested Validation
+
+**Goal**: Train and validate predictive models (FR-007, FR-008).
+
+-   **Step 4.1: Model Training**
+    -   Train Elastic-net logistic regression on Training Set using the gene panel.
+    -   Use **Nested Cross-Validation**: Inner loop for alpha/lambda tuning; Outer loop for AUC estimation.
+-   **Step 4.2: Nested Leave-One-Cancer-Type-Out (LOO)**
+    -   **Protocol**: For each tumor type $T_i$ (the "left-out" type):
+        1.  **Re-run DE** on $N-1$ types (Discovery Sets).
+        2.  **Re-run Meta-Analysis** on $N-1$ types to derive a new gene panel.
+        3.  **Train Model** on $N-1$ types (Training Sets) using the new panel.
+        4.  **Evaluate** on $T_i$ (Validation Set).
+    -   **Halt Condition**: If total tumor types < 3, halt and report error (FR-008).
+    -   **Metric**: Compute **Performance Drop** = (Internal CV AUC) - (LOO AUC). If Drop > 0.10, flag as poor generalizability.
+
+### Phase 5: Evaluation & Reporting
+
+**Goal**: Final metrics and significance testing (FR-009, FR-010, FR-011).
+
+-   **Step 5.1: Performance Metrics**
+    -   Compute ROC-AUC, Precision-Recall, Calibration Curves.
+    -   **Target**: AUC ≥ 0.75.
+-   **Step 5.2: Multiple Testing Correction**
+    -   Apply **Bonferroni Correction**:
+        -   For Meta-Analysis significance: $m$ = number of genes in panel.
+        -   For Model Comparisons: $m$ = number of comparisons.
+    -   **Threshold**: Adjusted p < 0.01.
+-   **Step 5.3: Baseline Comparison**
+    -   Perform **DeLong's Test** comparing the gene model vs. clinical covariates-only baseline.
+    -   **Constraint**: Comparison performed **only on external GEO validation sets** to ensure independence.
+-   **Step 5.4: Summary Report**
+    -   Generate `results/summary.md` with all metrics, limitations, and fallback reasons.

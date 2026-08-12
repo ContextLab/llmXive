@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Schema"
+description: "Schema for trained elastic-net predictor"
+type: "object"
+properties:
+  cancer_type:
+    type: "string"
+    description: "Tumor type for which model was trained"
+  alpha:
+    type: "number"
+    description: "Elastic-net mixing parameter"
+  lambda:
+    type: "number"
+    description: "Regularization parameter"
+  coefficients:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Dictionary of gene_symbol -> coefficient"
+  cross_val_auc:
+    type: "number"
+    description: "Mean AUC from nested CV"
+  validation_auc:
+    type: "number"
+    description: "AUC on external validation set"
+required:
+  - cancer_type
+  - alpha
+  - lambda
+  - coefficients
+  - cross_val_auc
+  - validation_auc
+additionalProperties: false

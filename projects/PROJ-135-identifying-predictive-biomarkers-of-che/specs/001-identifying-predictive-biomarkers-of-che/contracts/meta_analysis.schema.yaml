@@ -2,7 +2,7 @@ $schema: http://json-schema.org/draft-07/schema#
 title: Meta-Analysis Schema
 description: |
   Schema for meta-analysis results, including gene panel selection,
-  Stouffer's method p-values, and intersection/union logic.
+  DerSimonian-Laird Random-Effects p-values, and intersection/union logic.
 type: object
 required:
   - metadata
@@ -22,8 +22,8 @@ properties:
         format: date-time
       method:
         type: string
-        enum: ["intersection", "union", "stouffers"]
-        description: Primary selection method used
+        enum: ["intersection", "union", "random_effects"]
+        description: Primary selection method used (Random-Effects DerSimonian-Laird)
       tumor_types_included:
         type: array
         items:
@@ -31,7 +31,7 @@ properties:
         description: List of tumor types included in meta-analysis
       selection_strategy:
         type: string
-        description: Detailed strategy (e.g., "Intersection of significant genes")
+        description: Detailed strategy (e.g., "Intersection of significant genes via Random-Effects")
       fallback_reason:
         type: string
         nullable: true
