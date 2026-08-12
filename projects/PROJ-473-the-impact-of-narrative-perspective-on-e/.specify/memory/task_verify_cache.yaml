@@ -1,3 +1,12 @@
+T016:
+  c: false
+  h: d81a78c02ea52143f06d3308e5684425382cdc78bfbca3be5897f809960bd10d
+  r: "The repository contains a `code/main.py` file, but the provided excerpt does\
+    \ not show the required CLI (`extract` subcommand with `--input-dir` and `--output`\
+    \ arguments) nor any logic that enforces the specified JSON schema or the \u201C\
+    skip and log\u201D behavior for short texts. Moreover, the expected output file\
+    \ `data/processed/perspective_features.json` is absent from the project. The task\u2019\
+    s core deliverables are therefore missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -9,13 +18,14 @@ T018:
     \ the corresponding artifact."
 T025:
   c: false
-  h: 5b96e3a4fe2c4d5a9e1d3a3a3bd79aab5189e365ac4e6453f7b5f4ab655d4870
-  r: "The repository lacks the required output file `data/processed/matching_results.json`\
-    \ (and also the input files it expects). The `code/main.py` script is only partially\
-    \ shown and does not demonstrate the full matching logic, TF\u2011IDF construction,\
-    \ sensitivity analysis, or writing results in the specified `{story_id, match_id,\
-    \ similarity_score, rank}` schema. These missing artifacts and incomplete implementation\
-    \ mean the task is not genuinely fulfilled."
+  h: a1b2526541b913d468743be2e05f6555f31ab8926828ecc1c5282755b3c8c6bd
+  r: "The repository contains a `code/main.py` file, but the shown portion ends before\
+    \ the implementation of the `match` sub\u2011command (argument parsing, TF\u2011\
+    IDF building, threshold use, and JSON output) is visible. Moreover, the required\
+    \ output file `data/processed/matching_results.json` (and its input files) are\
+    \ absent, so we cannot verify that the script would produce the correct schema\
+    \ or avoid running regression analysis. The missing implementation details must\
+    \ be added and the command tested to generate the expected JSON file."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,13 +41,15 @@ T027:
     \ artifact (e.g., function, unit test, or example output) to demonstrate that\
     \ the rule has been added to the similarity matcher. The required implementation\
     \ is therefore missing."
-T033:
+T032:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `aligned_dataset.csv` file was presented, nor any excerpt showing its contents.
-    Consequently, we cannot confirm that a CSV exists or that it includes the required
-    columns (`story_id`, `perspective_score`, `empathy_score`, `moral_judgement_score`).
-    The task remains unfinished.
+  h: 80e6ff7573d8518bda35f1bf2b196512ccc99140979465c4f08ff3354823564b
+  r: "The repository lacks the required input files (`data/processed/perspective_features.json`,\
+    \ `data/processed/reader_response.csv`) and the output CSV (`data/processed/aligned_dataset.csv`).\
+    \ The `aggregate_reader_scores` implementation is truncated and does not fully\
+    \ perform the join, aggregation, or CSV writing, and no CLI entry for the `aggregate`\
+    \ command is present in `code/main.py`. Consequently the task\u2019s specifications\
+    \ are not met."
 T041:
   c: false
   h: 956a19780a4e44205ffcede944cca17a959cf4afb46b0c9281eb10f6ab16ec87

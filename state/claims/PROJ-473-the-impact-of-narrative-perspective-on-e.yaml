@@ -948,3 +948,156 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T18:26:12Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: OSF dataset https://osf.io/8k9j2/ contains manual perspective labels
+    for 50 English short stories from Project Gutenberg
+  claim_id: c_f4f07ae7
+  context: 'Validation test: Data Preparation: Use datasets.load_dataset(''gutenberg'',
+    split=''train'', streaming=True) with a fixed random seed to dynamically select
+    exactly 50 English short stories >50 words. Fetch human annotations from the verified
+    OSF dataset: https://osf.io/8k9j2/ (containing manual perspective labels for these
+    stories).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Fetch human annotations from the verified OSF dataset: https://osf.io/8k9j2/
+    (containing manual perspective labels for these stories).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:30:52Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: First-person density scores correlate at least 0.85 with human annotations
+    for 50 stories
+  claim_id: c_8ee2e763
+  context: "Verification: Run the extraction pipeline on these 50 real stories and\
+    \ verify that the computed 'first-person density' scores correlate \u2265 0.85\
+    \ with the human labels, satisfying SC-001."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/First-person_density_scores_correlate_at_least_0.85_with_hum
+  kind: magnitude
+  raw_text: "verify that the computed 'first-person density' scores correlate \u2265\
+    \ 0.85 with the human labels"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:31:15Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Text-similarity matching logic achieves precision at least 0.9
+  claim_id: c_a7f4882e
+  context: "The matching logic can be tested by running it against a 'gold standard'\
+    \ a subset of manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Text-similarity_matching_logic_achieves_precision_at_least_0
+  kind: magnitude
+  raw_text: "verify a precision \u2265 0.9"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:32:03Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Thresholds list {0.25, 0.30, 0.35, 0.40} stored in data/processed/thresholds.json
+  claim_id: c_796dd5ae
+  context: 'Logic: Generate a list of threshold values {0.25, 0.30, 0.35, 0.40}. Output
+    a JSON file data/processed/thresholds.json containing this list.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output a JSON file data/processed/thresholds.json containing this list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:32:04Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: 'GitHub free-tier runner resource constraints: few cores, 7GB RAM, 14GB
+    disk'
+  claim_id: c_dc5a114f
+  context: 'Note: The free-tier runner has default constraints (approx. a few cores,
+    7GB RAM, 14GB disk); do not attempt to override these via YAML resources which
+    are unsupported on GitHub-hosted free runners.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_free-tier_runner_resource_constraints:_few_cores,_7GB
+  kind: entity_fact
+  raw_text: The free-tier runner has default constraints (approx. a few cores, 7GB
+    RAM, 14GB disk)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:33:26Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Human annotations for 50 stories available at OSF URL https://osf.io/8k9j2
+  claim_id: c_47e9f404
+  context: 'Fetch human annotations from the verified OSF dataset: https://osf.io/8k9j2/
+    (containing manual perspective labels for these stories).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Fetch human annotations from the verified OSF dataset: https://osf.io/8k9j2/'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:33:27Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: "First-person density scores correlation with human labels \u2265 0.85"
+  claim_id: c_14e72522
+  context: "Verification: Run the extraction pipeline on these 50 real stories and\
+    \ verify that the computed 'first-person density' scores correlate \u2265 0.85\
+    \ with the human labels, satisfying SC-001."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The computed first-person density scores correlate \u2265 0.85 with the\
+    \ human labels"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:33:27Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: "Text-similarity matching precision \u2265 0.9 on gold standard set"
+  claim_id: c_1a702a30
+  context: "Independent Test: The matching logic can be tested by running it against\
+    \ a 'gold standard' a subset of manually annotated story-judgement pairs, verifying\
+    \ a precision \u2265 0.9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The matching logic can be tested by running it against a 'gold standard'\
+    \ a subset of manually annotated story-judgement pairs, verifying a precision\
+    \ \u2265 0.9"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T05:33:27Z'

@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-473-the-impact-of-narrative-perspective-on-e",
   "ok": false,
-  "reason": "4 command(s) failed: python code/main.py --config code/config.py (rc=1); python code/main.py --step extraction (rc=1); python code/main.py --step analysis (rc=1); 3 declared deliverable(s) absent: data/processed/aligned_dataset.csv; data/processed/perspective_features.json; data/processed/reader_response.csv",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_loader.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ction output (if any) or generate a synthetic mapping     based on the\u2026\u201d; 4 command(s) failed: python code/main.py --config code/config.py (rc=1); python code/main.py --step extraction (rc=1); python code/main.py --step analysis (rc=1); 2 declared deliverable(s) absent: data/processed/perspective_features.json; data/processed/sensitivity_report.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --config code/config.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 15, in <module>\n    from analysis import run_analysis_pipeline\nModuleNotFoundError: No module named 'analysis'",
-    "python code/main.py --step extraction -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 15, in <module>\n    from analysis import run_analysis_pipeline\nModuleNotFoundError: No module named 'analysis'",
-    "python code/main.py --step analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 15, in <module>\n    from analysis import run_analysis_pipeline\nModuleNotFoundError: No module named 'analysis'",
+    "python code/main.py --config code/config.py -> rc=1\n    2026-08-12 05:22:55,243 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported\n2026-08-12 05:22:55,303 - matplotlib.font_manager - INFO - generated new fontManager\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 24, in <module>\n    logging.FileHandler('data/logs/pipeline.log'),\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
+    "python code/main.py --step extraction -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 24, in <module>\n    logging.FileHandler('data/logs/pipeline.log'),\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__ini",
+    "python code/main.py --step analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/main.py\", line 24, in <module>\n    logging.FileHandler('data/logs/pipeline.log'),\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init_",
     "python -m pytest tests/contract/ -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/.venv/bin/python: No module named pytest"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-11T18:22:18Z"
+  "updated_at": "2026-08-12T05:23:03Z"
 }

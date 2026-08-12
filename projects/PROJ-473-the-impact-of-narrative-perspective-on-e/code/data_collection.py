@@ -69,7 +69,7 @@ def aggregate_reader_scores(stories: List[Dict], responses: pd.DataFrame) -> pd.
     }).reset_index()
 
     # Merge with stories
-    # Use outer join to see if we have all stories, but spec implies we align on existing
+    # Use inner join to keep only stories that have reader responses
     aligned = pd.merge(stories_df, aggregated_responses, on='story_id', how='inner')
 
     if aligned.empty:

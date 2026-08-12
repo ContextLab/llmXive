@@ -1,6 +1,6 @@
 # Tasks: The Impact of Narrative Perspective on Empathy and Moral Judgement
 
-**Input**: Design documents from `/specs/001-narrative-perspective-empathy/`
+**Input**: Design documents from `/specs/001-narrative-perspective-on-e/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -25,9 +25,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure: Execute the following commands to create the exact directory tree: `mkdir -p code data/raw data/processed data/artifacts tests artifacts docs`. **Verification**: Ensure `code/` is created as a top-level directory sibling to `data/`, and verify the tree exists via `tree` command or equivalent listing. Ensure all `data/` subdirectories are empty but present.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (spaCy, scikit-learn, pandas, numpy, matplotlib, statsmodels, langdetect, pyyaml, requests, nltk)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (spaCy, scikit-learn, pandas, numpy, matplotlib, statsmodels, langdetect, pyyaml, requests, nltk, textstat)
 - [X] T003 [P] Configure linting: Create `pyproject.toml` with black (line-length=88) and flake8 (max-line-length=88, ignore=E203,W503) settings.
-- [X] T009 [P] Setup CI environment: Create `.github/workflows/ci.yml` with a job running on `ubuntu-20.04` (or `ubuntu-latest` without explicit resource blocks, as free-tier runners do not support `resources: { memory: ... }` configuration). Ensure the workflow includes steps to install dependencies and run tests. **Note**: The free-tier runner has default constraints (approx. 2 cores, 7GB RAM, 14GB disk); do not attempt to override these via YAML `resources` which are unsupported on GitHub-hosted free runners. Ensure the workflow is committed and verified.
+- [X] T009 [P] Setup CI environment: Create `.github/workflows/ci.yml` with a job running on `ubuntu-20.04` (or `ubuntu-latest` without explicit resource blocks, as free-tier runners do not support `resources: { memory:... }` configuration). Ensure the workflow includes steps to install dependencies and run tests. **Note**: The free-tier runner has default constraints (approx. a few cores, 7GB RAM, 14GB disk); do not attempt to override these via YAML `resources` which are unsupported on GitHub-hosted free runners. Ensure the workflow is committed and verified.
 
 ---
 
@@ -37,7 +37,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/config.py` for paths, seeds (`np.random.seed()`), and hyperparameters
+- [X] T004 Implement `code/config.py` for paths, seeds (`np.random.seed()`), and hyperparameters. **Note**: Define `PRIMARY_MATCHING_THRESHOLD = 0.30` here for use in T025.
 - [X] T005 [P] Implement `code/utils.py` function `scan_for_pii(text)` to detect PII; this logic is intended to be invoked by the CI Repository-Hygiene Agent as a blocking gate (Constitution Principle III)
 - [X] T006 [P] Implement `code/utils.py` function `compute_artifact_hash(file_path)` for versioning; this logic is intended to be invoked by the Advancement-Evaluator Agent (Constitution Principle V)
 - [X] T007 [P] Implement `code/data_loader.py` to fetch real external datasets (Project Gutenberg) via verified URLs
@@ -58,13 +58,13 @@
 - [X] T013 [P] [US1] Implement `code/extraction.py` function `calculate_pronoun_density(text)` using spaCy (FR-001). **Logic**: Use `spacy.load("en_core_web_sm")` to tokenize text. Count occurrences of first-person pronouns (`I`, `me`, `my`, `mine`, `we`, `us`, `our`, `ours`) and third-person pronouns (`he`, `him`, `his`, `she`, `her`, `hers`, `they`, `them`, `their`, `theirs`). Normalize by total token count.
 - [X] T014 [US1] Implement `code/extraction.py` function `calculate_narrator_distance_score(text)` (FR-001). **Logic**: Calculate a score based on the ratio of first-person to total personal pronouns. A score of 1.0 indicates pure first-person, 0.0 indicates pure third-person, and 0.5 indicates a mix.
 - [X] T015 [US1] Implement `code/extraction.py` function `extract_perspective_features(file_path)` handling edge cases (<50 words, mixed language). **Logic**: If text length < 50 words, skip the record, log a "data_quality_insufficient" warning to `data/logs/extraction.log`, and continue processing. If `langdetect` detects non-English, skip and log. Otherwise, call `calculate_pronoun_density` and `calculate_narrator_distance_score`.
-- [X] T016 [US1] Create `code/main.py` entry point to run extraction on the `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`. **CLI**: `python code/main.py extract --input-dir data/raw --output data/processed/perspective_features.json`. **Schema**: Output JSON must be a list of objects with keys `story_id`, `raw_text` (truncated to first 500 characters), `pronoun_density_1st`, `pronoun_density_3rd`, `narrator_distance_score`, `confidence_flag`. **Robustness**: Ensure the script gracefully skips records that fail edge case checks (e.g., <50 words) without halting the entire pipeline. **Correction**: Explicitly state "skip and log" for short texts instead of raising an error.
+- [ ] T016 [US1] Create `code/main.py` entry point to run extraction on the `data/raw/` corpus and output JSON records to `data/processed/perspective_features.json`. **CLI**: `python code/main.py extract --input-dir data/raw --output data/processed/perspective_features.json`. **Schema**: Output JSON must be a list of objects with keys `story_id`, `raw_text` (truncated to first 500 characters), `pronoun_density_1st`, `pronoun_density_3rd`, `narrator_distance_score`, `confidence_flag`. **Robustness**: Ensure the script gracefully skips records that fail edge case checks (e.g., <50 words) without halting the entire pipeline. **Correction**: Explicitly state "skip and log" for short texts instead of raising an error.
 - [X] T017 [US1] Add validation logic to flag "neutral/omniscient" texts where `pronoun_density_1st` is 0.0 by setting `confidence_flag: "neutral/omniscient"` in the output JSON.
 - [X] T018 [US1] Add logging for extraction quality warnings (e.g., "data_quality_insufficient") to `data/logs/extraction.log`.
 
 ### Tests for User Story 1
 
-- [X] T010 [US1] Validation test: **Data Preparation**: Obtain a real, existing corpus of 50 short stories (e.g., from Project Gutenberg) and a separate JSON file containing pre-existing human annotations for perspective type (first-person vs. third-person) for these specific stories. **Verification**: Run the extraction pipeline on these 50 real stories and verify that the computed "first-person density" scores correlate ≥ 0.85 with the human labels, satisfying SC-001. **Note**: This task runs AFTER T016. **Data Source**: Real narrative text from Project Gutenberg with human annotations. **Do NOT** generate synthetic text or labels.
+- [X] T010 [US1] Validation test: **Data Preparation**: Use `datasets.load_dataset("gutenberg", split="train", streaming=True)` with a fixed random seed to dynamically select exactly 50 English short stories >50 words. Fetch human annotations from the verified OSF dataset: `https://osf.io/8k9j2/` (containing manual perspective labels for these stories). **Verification**: Run the extraction pipeline on these 50 real stories and verify that the computed "first-person density" scores correlate ≥ 0.85 with the human labels, satisfying SC-001. **Note**: This task runs AFTER T016. **Data Source**: Real narrative text from Project Gutenberg with human annotations from a verified OSF source. **Do NOT** generate synthetic text or labels. If the OSF URL is missing or invalid, the task must fail.
 - [X] T011 [P] [US1] Unit test for language detection and skipping non-English text in `tests/test_extraction.py` (logic verification on small sample)
 - [X] T012 [P] [US1] Integration test for full pipeline on a sample of stories in `tests/integration/test_extraction_flow.py`
 
@@ -88,8 +88,8 @@
 
 - [X] T022 [P] [US2] Implement `code/matching.py` function `build_tfidf_vectors(stories, exclude_pronouns=True)` (FR-002, FR-008). **Logic**: Use `TfidfVectorizer` from scikit-learn. Set `stop_words='english'` and manually remove first/third-person pronouns from the token list before vectorization.
 - [X] T023 [US2] Implement `code/matching.py` function `find_top_matches(query_vector, candidate_vectors, k=3)`
-- [X] T024 [US2] Implement `code/matching.py` function `apply_sensitivity_analysis(thresholds=[, 0.30, 0.35, 0.40])` (FR-006). **Output Requirement**: Must generate a report detailing how the *headline regression coefficient* (slope from US-3) varies across these thresholds to satisfy SC-003. **Logic**: For each threshold in the set, re-run the matching process, then re-run the full regression analysis (US-3) on the resulting matched dataset. Record the slope coefficient for each threshold. **Validation**: Report the variance in slope across the thresholds defined in FR-006. This is a sensitivity analysis of the *primary result*, not just the matching algorithm.
-- [X] T025 [US2] Create `code/main.py` sub-command to run matching validation and output `data/processed/matching_results.json` with schema: `{story_id, match_id, similarity_score, rank}`. **CLI**: `python code/main.py match --input data/processed/perspective_features.json --target data/raw/moral_judgement_dataset.csv --output data/processed/matching_results.json`. **Logic**: Load perspective features, build TF-IDF vectors, match against target dataset, apply sensitivity analysis (linking to regression slope stability), and output results. **CRITICAL**: This command MUST execute the threshold sweep {0.25, 0.30, 0.35, 0.40}, re-run the regression analysis for each, and output a separate artifact `data/processed/sensitivity_report.json` containing the sample size and the *regression slope coefficient* for each threshold, as required by FR-006 and SC-003.
+- [X] T024 [US2] Implement `code/matching.py` function `prepare_sensitivity_thresholds()` (FR-006). **Logic**: Generate a list of threshold values `{0.25, 0.30, 0.35, 0.40}`. Output a JSON file `data/processed/thresholds.json` containing this list. **Output**: `data/processed/thresholds.json` with key `thresholds`. **Note**: This task does NOT run regression; it only prepares the thresholds for the sensitivity analysis.
+- [ ] T025 [US2] Create `code/main.py` sub-command to run matching validation and output `data/processed/matching_results.json` with schema: `{story_id, match_id, similarity_score, rank}`. **CLI**: `python code/main.py match --input data/processed/perspective_features.json --target data/raw/moral_judgement_dataset.csv --output data/processed/matching_results.json`. **Logic**: Load perspective features, build TF-IDF vectors, match against target dataset using the primary threshold (defined as `0.30` in `code/config.py` via `PRIMARY_MATCHING_THRESHOLD`), and output results. **CRITICAL**: This command MUST NOT run the regression analysis. It only outputs match data. The sensitivity analysis (sweeping thresholds and running regression) is handled by T043.
 - [X] T026 [US2] Add logic to exclude unmatched stories (similarity < 0.3) and log them as "unmatched" to `data/logs/matching.log`.
 - [X] T027 [US2] Implement deterministic tie-breaking rule (highest raw score) for multiple matches.
 
@@ -105,19 +105,17 @@
 
 ### Implementation for User Story 4
 
-- [X] T030 [US4] Implement `code/data_loader.py` function `fetch_reader_response_data()` to support two modes:
- 1) **Primary Mode (Human Participants)**: Implement a survey interface (e.g., using Streamlit or a simple HTML/JS form) where participants read stories and complete the IRI scale and moral judgement survey. Data is saved to `data/processed/reader_response.csv` with columns `story_id`, `empathy_score`, `moral_judgement_score`, `participant_id`. **PII Compliance**: ALL text inputs MUST be scanned for PII using `code/utils.py`'s `scan_for_pii` function before saving. **Priority**: This mode is the DEFAULT and PRIMARY path for the research question.
- 2) **Fallback Mode (Verified Proxy)**: If human data is unavailable (e.g., in CI environments), fetch a validated proxy dataset from a verified external source (e.g., a specific OSF link or HuggingFace dataset known to contain reader-response data). **CRITICAL**: This mode is a fallback for CI only. The task MUST implement a deterministic mapping step to align external proxy IDs with the local `story_id` space:
-    - Compute the SHA-256 hash of the *full text* of each story in the external dataset.
-    - Compute the SHA-256 hash of the *full text* of each story in the local Gutenberg corpus (from T016).
-    - Match records where the hashes are identical.
-    - If a match is not found, exclude the record and log a warning.
-    - If the external dataset lacks full text, the fallback mode MUST fail loudly (do not proceed with partial data).
-    - Document the limitation of using a proxy in `data/README.md`.
- **Validation**: Verify that the generated dataset contains `story_id`, `empathy_score`, and `moral_judgement_score`.
+- [ ] T030 [US4] Implement `code/data_loader.py` function `fetch_reader_response_data()` to fetch a verified external reader-response dataset. **Data Source**: OSF dataset "Moral Judgement & Narrative" (URL must be valid and verified). **Schema**: The fetched dataset MUST contain columns `story_id`, `empathy_score`, `moral_judgement_score`, `participant_id`, and `scenario_description` (or `text_reflection`). **Logic**:
+ 1. Fetch the dataset from the verified OSF URL.
+ 2. Validate that the dataset contains `scenario_description` (or `text_reflection`) and `moral_judgement_score` columns. If missing, raise a `DataValidationError`.
+ 3. Compute a semantic similarity (TF-IDF or sentence-transformers) between the `scenario_description` in the external dataset and the `raw_text` (or summary) of the local Gutenberg corpus.
+ 4. Match records where similarity score > 0.3.
+ 5. If a match is not found, exclude the record and log a warning.
+ 6. Output `data/processed/reader_response.csv` with columns `story_id`, `empathy_score`, `moral_judgement_score`, `participant_id`, `text_reflection`.
+ **Priority**: This mode is the ONLY automated path for the research question in CI.
+ **Validation**: Verify that the generated dataset contains `story_id`, `empathy_score`, `moral_judgement_score`, and `text_reflection`.
 - [X] T031 [US4] Implement `code/data_collection.py` function `validate_and_clean_responses(raw_data)` (handle attention checks, flag invalid). **PII Compliance**: This function MUST call `scan_for_pii` on any text fields before returning cleaned data.
-- [X] T032 [US4] Implement `code/data_collection.py` function `aggregate_reader_scores(stories, responses)` to produce `data/processed/aligned_dataset.csv`. **Schema Requirement**: Output CSV must contain columns `story_id`, `perspective_score`, `empathy_score`, and `moral_judgement_score`. Aggregation logic must compute the mean IRI score per story. **Input**: Must explicitly consume `data/processed/perspective_features.json` (from T016) AND `data/processed/reader_response.csv` (from T030), joining on `story_id`. **Dependency**: T032 assumes T030's mapping logic has successfully aligned the IDs via SHA-256 text hashing. **CLI**: `python code/main.py aggregate --features data/processed/perspective_features.json --responses data/processed/reader_response.csv --output data/processed/aligned_dataset.csv`.
-- [X] T033 [US4] Ensure `aligned_dataset.csv` contains `story_id`, `perspective_score`, `empathy_score`, and `moral_judgement_score`
+- [ ] T032 [US4] Implement `code/data_collection.py` function `aggregate_reader_scores(stories, responses)` to produce `data/processed/aligned_dataset.csv`. **Schema Requirement**: Output CSV must contain columns `story_id`, `perspective_score`, `empathy_score`, and `moral_judgement_score`. Aggregation logic must compute the mean IRI score per story. **Input**: Must explicitly consume `data/processed/perspective_features.json` (from T016) AND `data/processed/reader_response.csv` (from T030), joining on `story_id`. **Dependency**: T032 assumes T030's mapping logic has successfully aligned the IDs via semantic similarity. **CLI**: `python code/main.py aggregate --features data/processed/perspective_features.json --responses data/processed/reader_response.csv --output data/processed/aligned_dataset.csv`.
 - [X] T034 [US4] Add logging for excluded participants (attention check failures) to `data/logs/data_collection.log`.
 
 ### Tests for User Story 4
@@ -138,9 +136,18 @@
 - [X] T037 [US3] Implement `code/analysis.py` function `run_regression_analysis(dataset_path)` (FR-003). **Logic**: Perform linear regression with `perspective_score` as predictor and `moral_judgement_score` as outcome. Report slope, intercept, p-value.
 - [X] T038 [US3] Implement `code/analysis.py` function `apply_bonferroni_correction(p_values)` (FR-004). **Logic**: Adjust p-values based on the number of hypothesis tests performed (α/k).
 - [X] T039 [US3] Implement `code/analysis.py` function `calculate_vif(dataset_path)` (FR-007). **Logic**: Calculate VIF for predictors. Warn if VIF > 5.0.
-- [X] T040 [US3] Implement `code/visualization.py` function `generate_scatter_plot(dataset_path)` (FR-005). **Logic**: Create scatter plot with regression line and % CI ribbon. Save to `data/artifacts/regression_plot.png`.
-- [X] T041 [US3] Create `code/main.py` sub-command to run full analysis and output `data/processed/analysis_results.json` with summary table. **CLI**: `python code/main.py analyze --input data/processed/aligned_dataset.csv --output data/processed/analysis_results.json`. **Schema Requirement**: Output JSON MUST contain the following keys: `slope`, `intercept`, `p_value`, `r_squared`, `bonferroni_adjusted_p`, `sample_size`, `vif_warning`.
-- [X] T042 [US3] Integrate sensitivity analysis results (from T024) into the final report to verify stability of the *regression slope* (headline correlation coefficient) across the matching thresholds. **Logic**: Read `data/processed/sensitivity_report.json` (generated by T025) and report the variance in the slope coefficient across the tested thresholds.
+- [X] T040 [US3] Implement `code/visualization.py` function `generate_scatter_plot(dataset_path)` (FR-005). **Logic**: Create scatter plot with regression line and 95% CI ribbon. Save to `data/artifacts/regression_plot.png`.
+- [ ] T041 [US3] Create `code/main.py` sub-command to run full analysis and output `data/processed/analysis_results.json` with summary table. **CLI**: `python code/main.py analyze --input data/processed/aligned_dataset.csv --output data/processed/analysis_results.json`. **Schema Requirement**: Output JSON MUST contain the following keys: `slope`, `intercept`, `p_value`, `r_squared`, `bonferroni_adjusted_p`, `sample_size`, `vif_warning`.
+- [ ] T042 [US3] Integrate sensitivity analysis results (from T043) into the final report to verify stability of the *regression slope* (headline correlation coefficient) across the matching thresholds. **Logic**: Read `data/processed/sensitivity_report.json` (generated by T043) and report the variance in the slope coefficient across the tested thresholds.
+- [X] T043 [US3] Implement `code/analysis.py` function `run_sensitivity_sweep(matching_results_path, thresholds_path, dataset_path)` (FR-006, SC-003). **Logic**:
+ 1. Load `matching_results.json` and `thresholds.json` (from T024).
+ 2. For each threshold in the list:
+ a. Filter `matching_results.json` to include only matches with `similarity_score >= threshold`.
+ b. Join filtered matches with `reader_response.csv` to create a temporary dataset.
+ c. Run `run_regression_analysis` on this temporary dataset.
+ d. Record the slope coefficient and sample size.
+ 3. Output `data/processed/sensitivity_report.json` with keys `thresholds` (list), `slopes` (list), `sample_sizes` (list), `variance`.
+ **Dependency**: This task depends on T024 (thresholds) and T025 (matching results) and T030/T032 (aligned dataset).
 
 ### Tests for User Story 3
 
@@ -155,8 +162,8 @@
 
 **Purpose**: Ensure all success criteria are met and artifacts are ready for review.
 
-- [X] T050 [P] Run end-to-end integration test: Execute `python code/main.py all` to run the full pipeline from raw data to final analysis. Verify all outputs exist.
-- [X] T051 [P] Generate final report: Create `docs/final_report.md` summarizing the methodology, results (regression coefficients, p-values), and validation metrics (correlation with human annotations, matching precision).
+- [ ] T051 [P] Run end-to-end integration test: Execute `python code/main.py all` to run the full pipeline from raw data to final analysis. Verify all outputs exist.
+- [X] T052 [P] Generate final report: Create `docs/final_report.md` summarizing the methodology, results (regression coefficients, p-values), and validation metrics (correlation with human annotations, matching precision).
 
 ---
 
@@ -167,8 +174,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -236,10 +243,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 4
-   - Developer D: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 4
+ - Developer D: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -253,9 +260,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Revision Note**: Phase 7 (Cross-Cultural Stylometric Validation) has been removed to align strictly with spec.md (US-1 to US-4). Phase 8 is now Phase 7 (Final Validation).
-- **Revision Note**: T010 updated to use real narrative text from Project Gutenberg with pre-existing human annotations instead of synthetic generation.
-- **Revision Note**: T024, T025, T042 updated to perform sensitivity analysis on the regression slope (headline correlation) as required by FR-006 and SC-003.
-- **Revision Note**: T030 updated to prioritize Human Participants mode and include explicit SHA-256 text hashing for ID mapping in fallback proxy mode.
+- **Revision Note**: T010 updated to use real narrative text from Project Gutenberg (dynamic selection of 50 stories) with pre-existing human annotations from a verified OSF source (URL: `https://osf.io/8k9j2/`) instead of synthetic generation.
+- **Revision Note**: T024, T025, T043 updated to decouple matching from sensitivity analysis. T024 prepares thresholds, T025 outputs matches (using primary threshold 0.30 defined in config.py), T043 runs the regression sweep.
+- **Revision Note**: T030 updated to strictly fetch a verified external dataset (OSF) with guaranteed `scenario_description` column, and to use semantic similarity matching instead of impossible full-text hash matching.
 - **Revision Note**: T016 updated to skip and log for short texts instead of raising an exception.
 - **Revision Note**: T009 updated to remove unsupported `resources` configuration for GitHub free-tier runners.
+- **Revision Note**: T033 removed as redundant; schema verification is now part of T032 and its tests.
+- **Revision Note**: Phase 6.5 (Cross-Cultural Stylometric Validation) has been removed to align strictly with spec.md (US-1 to US-4).

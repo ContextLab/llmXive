@@ -5,3 +5,7 @@ requests  # auto-added: imported by run-book but missing from venv
 scikit-learn  # auto-added: imported by run-book but missing from venv
 spacy  # auto-added: imported by run-book but missing from venv
 analysis  # auto-added: imported by run-book but missing from venv
+datasets  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+seaborn  # auto-added: imported by run-book but missing from venv
