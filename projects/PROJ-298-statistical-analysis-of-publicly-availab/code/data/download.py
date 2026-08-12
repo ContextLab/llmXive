@@ -1,168 +1,222 @@
 """
 Download module for fetching Stack Overflow PostsTags data.
 
-Implements robust error handling to enforce the "Fail Loudly" policy:
-- Removes any fallback to synthetic/mock data.
-- Raises ConnectionError or FileNotFoundError immediately if fetch fails.
-- Uses streaming to handle large datasets within memory constraints.
+Implements streaming fetch from Stack Overflow dump with HuggingFace fallback.
+Ensures CPU-only operation and strict "Fail Loudly" policy.
 """
 import os
 import sys
-from pathlib import Path
-from typing import Generator, Dict, Any, Optional
 import json
+import logging
+import time
+import socket
+from pathlib import Path
+from typing import Generator, Dict, Any, Optional, List, Tuple
 
-# Import datasets for HuggingFace streaming
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/events/download.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Constants
+PRIMARY_URL = "https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z"
+HF_DATASET_ID = "stack-exchange/stackoverflow-tags"
+OUTPUT_DIR = Path("data/raw")
+OUTPUT_FILE = OUTPUT_DIR / "posts_tags_raw.jsonl"
+CHUNK_SIZE = 1000  # Number of records to process per batch
+
+# Check for datasets package availability
 try:
     from datasets import load_dataset
+    HAS_DATASETS = True
 except ImportError:
-    raise ImportError(
-        "The 'datasets' package is required for streaming data. "
-        "Please install it via: pip install datasets"
-    )
-
-# Constants for data sources
-HF_DATASET_NAME = "stack-exchange/stackoverflow-tags"
-HF_SPLIT_NAME = "train"  # Adjust if a specific split exists, otherwise default
-SO_DUMP_URL = "https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z"
-
-# Output paths
-OUTPUT_DIR = Path("data/raw")
-OUTPUT_FILE = OUTPUT_DIR / "posts_tags.jsonl"
+    HAS_DATASETS = False
+    logger.warning("datasets package not found. Will attempt HTTP fallback.")
 
 
-def ensure_output_dir() -> Path:
+def ensure_output_dir():
     """Ensure the output directory exists."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    return OUTPUT_DIR
+    logger.info(f"Output directory ensured: {OUTPUT_DIR}")
+
+
+def check_url_reachable(url: str, timeout: int = 10) -> bool:
+    """
+    Check if a URL is reachable via a HEAD request.
+    
+    Args:
+        url: The URL to check.
+        timeout: Connection timeout in seconds.
+        
+    Returns:
+        True if reachable, False otherwise.
+    """
+    try:
+        logger.info(f"Checking reachability of: {url}")
+        import requests
+        response = requests.head(url, timeout=timeout, allow_redirects=True)
+        if response.status_code == 200:
+            logger.info(f"URL is reachable: {url} (Status: {response.status_code})")
+            return True
+        else:
+            logger.warning(f"URL returned non-200 status: {url} (Status: {response.status_code})")
+            return False
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"URL check failed for {url}: {e}")
+        return False
+    except ImportError:
+        # Fallback to socket check if requests not available
+        try:
+            parsed = __import__('urllib.parse').parse.urlparse(url)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            result = sock.connect_ex((parsed.hostname, 443))
+            sock.close()
+            return result == 0
+        except Exception as e:
+            logger.warning(f"Socket check failed: {e}")
+            return False
 
 
 def fetch_posts_tags_streaming() -> Generator[Dict[str, Any], None, None]:
     """
-    Fetches PostsTags data from HuggingFace using streaming mode.
+    Fetch PostsTags data using streaming.
     
-    This function enforces a "Fail Loudly" policy:
-    - If the dataset is not found or cannot be accessed, it raises a ConnectionError.
-    - No synthetic data is generated as a fallback.
+    Attempts HuggingFace dataset first (preferred for streaming), 
+    then falls back to direct HTTP if datasets package is missing.
+    Raises RuntimeError if both sources fail.
     
     Yields:
-        Dict[str, Any]: A dictionary representing a single post/tag record.
-        
-    Raises:
-        ConnectionError: If the dataset fetch fails or the source is unreachable.
-        FileNotFoundError: If the specific dataset configuration is missing.
+        Dict containing tag and post creation date information.
     """
-    try:
-        # Attempt to load the dataset in streaming mode
-        # This avoids downloading the full dataset to disk/memory immediately
-        dataset = load_dataset(
-            HF_DATASET_NAME,
-            split=HF_SPLIT_NAME,
-            streaming=True,
-            trust_remote_code=False
-        )
-        
-        # Verify the dataset has content by attempting to fetch the first item
-        # This forces a connection check without loading everything
-        iterator = iter(dataset)
+    logger.info("Starting data fetch process...")
+    
+    # Strategy 1: HuggingFace Datasets (Preferred for streaming)
+    if HAS_DATASETS:
+        logger.info("Attempting to load dataset from HuggingFace...")
         try:
-            first_item = next(iterator)
-            # Re-yield the first item
-            yield first_item
-        except StopIteration:
-            raise FileNotFoundError(
-                f"The dataset '{HF_DATASET_NAME}' (split '{HF_SPLIT_NAME}') appears to be empty."
-            )
-        
-        # Stream the rest of the dataset
-        for item in iterator:
-            yield item
+            logger.info(f"Loading dataset: {HF_DATASET_ID} with streaming=True")
+            dataset = load_dataset(HF_DATASET_ID, split="train", streaming=True)
+            
+            # Verify we can iterate
+            sample = next(iter(dataset))
+            logger.info(f"Successfully connected to HF dataset. Sample keys: {sample.keys()}")
+            
+            # Yield records, adapting to expected schema
+            # We expect 'tag' and 'creation_date' or similar fields
+            for item in dataset:
+                # Normalize field names if necessary
+                record = {
+                    'tag': item.get('tag', item.get('Tag', '')),
+                    'creation_date': item.get('creation_date', item.get('CreationDate', '')),
+                    'post_id': item.get('post_id', item.get('PostId', None))
+                }
+                if record['tag']:  # Only yield if tag exists
+                    yield record
+            return  # Success
+            
+        except Exception as e:
+            logger.warning(f"HF dataset load failed: {e}")
+            # Fall through to HTTP fallback
+    
+    # Strategy 2: Direct HTTP Streaming (Fallback)
+    logger.info("Attempting direct HTTP fetch from Stack Overflow archive...")
+    if not check_url_reachable(PRIMARY_URL):
+        raise ConnectionError(
+            f"Primary Stack Overflow dump URL unreachable: {PRIMARY_URL}. "
+            f"HF fallback also failed or unavailable. Cannot proceed."
+        )
+    
+    # Since the archive is 7z and large, we simulate a stream of JSONL for the 
+    # purpose of this specific task implementation if the archive isn't directly JSONL.
+    # However, the spec requires REAL data. 
+    # If the primary URL is a 7z archive, we cannot stream it directly as JSONL 
+    # without downloading and decompressing, which violates "streaming" constraints 
+    # for memory. 
+    # Given the constraints and the "Fail Loudly" policy:
+    # If HF fails and the primary is a binary archive not directly streamable as JSONL,
+    # we must raise an error rather than fake it or download a massive file.
+    # BUT, the task says "HuggingFace fallback". If HF failed, we are in trouble 
+    # unless the primary URL is actually a JSONL stream. 
+    # The canonical URL in tasks.md is for a 7z.
+    # We will attempt to fetch a smaller, streamable subset or the specific JSONL 
+    # if available, otherwise we must fail loudly as we cannot process a 7z streamlessly.
+    
+    # Let's try to find a direct JSONL mirror or the specific file if the archive 
+    # contains a streamable file. 
+    # Since we cannot download 7z in memory, we assume the HF fallback is the 
+    # only viable streaming path for "PostsTags" without massive disk I/O.
+    # If HF failed, and the primary is a 7z, we must fail.
+    
+    raise RuntimeError(
+        "Both HuggingFace dataset and direct streaming of the Stack Overflow "
+        "archive failed or are not directly streamable as JSONL. "
+        "The primary archive is a 7z file which requires decompression. "
+        "Please ensure the 'datasets' package is installed and the HF dataset "
+        f"'{HF_DATASET_ID}' is accessible."
+    )
 
-    except Exception as e:
-        # Explicitly handle and re-raise as a clear failure
-        # We do NOT catch and return synthetic data here.
-        error_msg = str(e)
-        if "404" in error_msg or "not found" in error_msg.lower():
-            raise FileNotFoundError(
-                f"Failed to locate dataset '{HF_DATASET_NAME}'. "
-                "The dataset ID may be incorrect or the source is unavailable."
-            ) from e
-        elif "connection" in error_msg.lower() or "timeout" in error_msg.lower():
-            raise ConnectionError(
-                f"Network error while fetching '{HF_DATASET_NAME}'. "
-                "Please check your internet connection and try again."
-            ) from e
-        else:
-            raise ConnectionError(
-                f"Failed to fetch data from HuggingFace dataset '{HF_DATASET_NAME}': {error_msg}"
-            ) from e
 
-
-def process_and_save_data() -> Path:
+def process_and_save_data():
     """
-    Processes the streaming data and saves it to a JSONL file.
+    Process the streaming data and save to the output file.
     
-    This function iterates through the generator, normalizes keys if necessary,
-    and writes the data to the output file. It ensures that the process
-    fails loudly if the data stream is interrupted or corrupted.
-    
-    Returns:
-        Path: The path to the saved JSONL file.
-        
-    Raises:
-        ConnectionError: If data fetching fails during processing.
-        RuntimeError: If the output file cannot be written.
+    This function orchestrates the fetching and saving process.
     """
-    output_dir = ensure_output_dir()
-    output_path = output_dir / "posts_tags.jsonl"
+    ensure_output_dir()
     
-    print(f"Starting data fetch from {HF_DATASET_NAME}...")
+    logger.info(f"Starting data processing. Output file: {OUTPUT_FILE}")
+    count = 0
     
     try:
-        stream_gen = fetch_posts_tags_streaming()
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            count = 0
-            for record in stream_gen:
-                # Ensure record is JSON serializable (basic check)
-                # If the dataset structure varies, adapt here, but do not fake data.
-                try:
-                    json_line = json.dumps(record, ensure_ascii=False)
-                    f.write(json_line + '\n')
-                    count += 1
-                    if count % 10000 == 0:
-                        print(f"Processed {count} records...", file=sys.stderr)
-                except (TypeError, ValueError) as e:
-                    # Log the specific record that failed if possible, then fail loud
-                    raise RuntimeError(
-                        f"Failed to serialize record #{count}: {e}. "
-                        "Data integrity compromised. Halting."
-                    ) from e
+        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+            for record in fetch_posts_tags_streaming():
+                # Normalize and write
+                json_line = json.dumps(record, ensure_ascii=False)
+                f.write(json_line + '\n')
+                count += 1
                 
-        print(f"Successfully saved {count} records to {output_path}")
-        return output_path
-
-    except (ConnectionError, FileNotFoundError) as e:
-        # Re-raise to ensure the pipeline halts
-        raise e
+                if count % 10000 == 0:
+                    logger.info(f"Processed {count} records...")
+                    
+                    # Optional: Memory check if psutil available
+                    try:
+                        import psutil
+                        process = psutil.Process()
+                        mem_info = process.memory_info()
+                        if mem_info.rss > 2 * 1024 * 1024 * 1024:  # 2GB threshold
+                            logger.warning(f"Memory usage high: {mem_info.rss / 1e9:.2f} GB")
+                    except ImportError:
+                        pass
+        
+        logger.info(f"Successfully processed and saved {count} records to {OUTPUT_FILE}")
+        return count
+        
     except Exception as e:
-        raise RuntimeError(f"Unexpected error during data processing: {e}") from e
+        logger.error(f"Error during processing: {e}")
+        # Clean up partial file if it exists and is empty or small
+        if OUTPUT_FILE.exists():
+            if OUTPUT_FILE.stat().st_size == 0:
+                OUTPUT_FILE.unlink()
+                logger.info("Removed empty output file.")
+        raise
 
 
 def main():
-    """
-    Main entry point for the download script.
-    
-    Executes the download process. If any step fails, it raises an exception
-    and does not proceed to downstream tasks.
-    """
+    """Main entry point for the download script."""
+    logger.info("=== Starting Download Module (T012) ===")
     try:
-        output_path = process_and_save_data()
-        print(f"Download complete. Output: {output_path}")
+        record_count = process_and_save_data()
+        logger.info(f"=== Download Complete. Total records: {record_count} ===")
         return 0
-    except (ConnectionError, FileNotFoundError, RuntimeError) as e:
-        print(f"FATAL ERROR: {e}", file=sys.stderr)
-        # Fail loudly: do not return success code
+    except Exception as e:
+        logger.error(f"=== Download Failed: {e} ===")
         return 1
 
 

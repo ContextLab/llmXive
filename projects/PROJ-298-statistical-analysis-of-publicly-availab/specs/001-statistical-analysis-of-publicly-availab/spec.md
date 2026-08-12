@@ -103,7 +103,7 @@ A community researcher needs to identify clusters of related technologies based 
 
 ## Assumptions
 
-- The Stack Overflow data dump available via `archive.org` (specifically `stackoverflow.com-PostsTags.z`) contains the `PostsTags` table with sufficient coverage from 2015 to 2023.
+- The Stack Overflow data dump available via `archive.org` (specifically `stackoverflow.com-PostsTags.z`) contains the `PostsTags` table with sufficient coverage over a multi-year period.
 - If the primary archive is unavailable, the system MAY fallback to the verified HuggingFace dataset at `https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`.
 - Tag names in the dataset are consistent enough that simple normalization (lowercase, trim) is sufficient; no complex fuzzy matching or synonym resolution is required.
 - The analysis will be observational; any identified correlations between tags or trends are strictly associational and not causal. All reports MUST include the mandatory limitation disclosure (FR-011).
@@ -113,4 +113,4 @@ A community researcher needs to identify clusters of related technologies based 
 - The "top 50" tags for trend analysis are defined as the 50 tags with the highest total frequency count across the entire 2015-2023 period, **after** filtering for tags with ≥12 months of data.
 - No GPU acceleration is available; all statistical computations (Modified Mann-Kendall, bootstrapping, clustering) must be performed using CPU-only libraries (e.g., `scipy`, `scikit-learn`, `statsmodels`).
 - The circularity concern (predictor and outcome derived from the same signal) is acknowledged as a limitation of the single-source methodology, mitigated by FR-007 which requires external validation against independent data sources (or explicit reporting of absence).
-- The Stack Overflow Developer Survey 2023 taxonomy and official release logs are publicly available and serve as the ground truth for semantic validation.
+- The Stack Overflow Developer Survey taxonomy and official release logs are publicly available and serve as the ground truth for semantic validation.

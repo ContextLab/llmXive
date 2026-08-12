@@ -1,0 +1,12 @@
+status: none
+intent: download Stack Exchange Data Dump tags dataset and GitHub Archive stars python
+  package
+required_fields:
+- date
+- tag
+- post_count
+- github_repo
+- star_count
+cache_key: c843c6f8d5e75f6be5cda6921e68964b8780540734892ac4e89ce7021b1c536f
+searched_at: '2026-08-12T11:47:46.177368+00:00'
+retry_count: 1

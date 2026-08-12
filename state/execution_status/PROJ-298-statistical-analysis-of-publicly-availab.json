@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-298-statistical-analysis-of-publicly-availab",
+  "ok": false,
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/setup_data_structure.py: self-declared fabricated metric \u2014 \u201c\u2026s is REAL data structure, not fake values)     # Source: https://surve\u2026\u201d; code/analysis/trends.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026erations):             # Generate synthetic series with this slope\u2026\u201d; code/data/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ny fallback to synthetic/mock data. - Raises ConnectionErro\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 1 command(s) failed: python code/data/download.py (rc=1); 10 declared deliverable(s) absent: data/processed/cluster_alignment.json; data/processed/cluster_results.json; data/processed/confidence_interval.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-298-statistical-analysis-of-publicly-availab/code/data/download.py\", line 17, in <module>\n    from datasets import load_dataset\nModuleNotFoundError: No module named 'datasets'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-298-statistical-analysis-of-publicly-availab/code/data/download.py\", line 19, in <module>\n    raise ImportError(\nImportError: The '",
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-298-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-298-statistical-analysis-of-publicly-availab/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-12T11:47:31Z"
+}

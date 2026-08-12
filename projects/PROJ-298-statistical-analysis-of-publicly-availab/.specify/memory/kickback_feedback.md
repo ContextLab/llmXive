@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T051` (rejected 1x): The provided `code/data/external.py` is truncated before the GitHub/NPM request logic, so we cannot verify that the functions actually use the cache or respect the 24‑hour TTL. Additionally, the required cache file `data/cache/github_api_cache.json` does not exist on disk. The implementation must be shown in full and demonstrate writing/reading the cache file to satisfy the task.
+- `T015` (rejected 1x): The `code/analysis/mapping.py` file is present, but it depends on `data/processed/external_metrics.json`, which does not exist in the repository. Without this input file the mapping logic cannot be exercised or verified, so the required functionality is not fully realized.
 
 ## Required change
 

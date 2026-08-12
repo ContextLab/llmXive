@@ -6,13 +6,6 @@ T007:
     \ release\u2011log events with dates. No evidence of actually fetching the HuggingFace\
     \ dataset or processing release logs is present. The task\u2019s core requirements\
     \ are therefore unmet."
-T015:
-  c: false
-  h: a8aa02fcff122e5f8a54e4d65fc25ae65b4d7a89a4d0fa4b5ee2b1b1df7f48e0
-  r: The `code/analysis/mapping.py` file is present and contains substantial mapping
-    logic, but the required input file `data/processed/external_metrics.json` is missing,
-    so the module cannot actually perform the mapping as specified. Without this data
-    the implementation cannot be verified as functional.
 T030:
   c: false
   h: 2f56a0ce1aee02017613f437a30ed604b7e986766986fe679a2fbe4c12bf423a

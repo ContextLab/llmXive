@@ -1,44 +1,59 @@
-"""
-code/analysis/trends.py
-
-Implements Modified Mann-Kendall test, Theil-Sen slope estimation,
-Benjamini-Hochberg correction, and trend classification for tag frequency time series.
-"""
 import os
 import json
 import math
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-from collections import defaultdict
+import random
 
-# Configure logging for the module
+import numpy as np
+from scipy import stats
+from statsmodels.tsa.stattools import acf
+
+# --- Logging Setup ---
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('data/processed/trends_analysis.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-ALPHA = 0.05
-MIN_DATA_POINTS = 12
-SEED = 42
+# --- Constants ---
+DATA_DIR = Path("data")
+PROCESSED_DIR = DATA_DIR / "processed"
+INTERMEDIATE_FILE = PROCESSED_DIR / "trend_intermediate.json"
+POWER_WARNINGS_LOG = PROCESSED_DIR / "power_warnings.log"
 
-def calculate_mann_kendall_statistic(series: List[float]) -> Tuple[float, float]:
-    """
-    Calculate the Mann-Kendall statistic S and the variance of S.
+# --- Helper Functions ---
+
+def load_processed_data() -> Dict[str, Any]:
+    """Load preprocessed tag frequency data."""
+    processed_file = PROCESSED_DIR / "processed_data.json"
+    if not processed_file.exists():
+        raise FileNotFoundError(f"Processed data file not found: {processed_file}")
     
-    Args:
-        series: List of time series values.
-        
+    with open(processed_file, 'r') as f:
+        return json.load(f)
+
+def load_top_tags() -> List[str]:
+    """Load the list of top 50 tags."""
+    top_tags_file = PROCESSED_DIR / "top_50_tags.json"
+    if not top_tags_file.exists():
+        raise FileNotFoundError(f"Top 50 tags file not found: {top_tags_file}")
+    
+    with open(top_tags_file, 'r') as f:
+        return json.load(f)
+
+def calculate_mann_kendall_statistic(series: np.ndarray) -> Tuple[float, float]:
+    """
+    Calculate the Mann-Kendall statistic (S) and its variance.
+    
     Returns:
-        Tuple of (S, var_S)
+        Tuple of (S, variance)
     """
     n = len(series)
+    if n < 2:
+        return 0.0, 0.0
+    
     S = 0
     for i in range(n - 1):
         for j in range(i + 1, n):
@@ -48,103 +63,98 @@ def calculate_mann_kendall_statistic(series: List[float]) -> Tuple[float, float]
             elif diff < 0:
                 S -= 1
     
-    # Calculate variance with tie correction
-    var_S = 0
-    ties = defaultdict(int)
+    # Variance calculation with tie correction
+    ties = {}
     for val in series:
-        ties[val] += 1
+        ties[val] = ties.get(val, 0) + 1
     
-    sum_ties = 0
+    tie_correction = 0
     for count in ties.values():
         if count > 1:
-            sum_ties += count * (count - 1) * (2 * count + 5)
+            tie_correction += count * (count - 1) * (2 * count + 5)
     
-    var_S = (n * (n - 1) * (2 * n + 5) - sum_ties) / 18
+    var_s = (n * (n - 1) * (2 * n + 5) - tie_correction) / 18.0
     
-    return S, var_S
+    return S, var_s
 
-def prewhiten_series(series: List[float]) -> List[float]:
+def prewhiten_series(series: np.ndarray) -> Tuple[np.ndarray, float]:
     """
     Pre-whiten the series to remove autocorrelation.
-    Uses lag-1 autocorrelation to remove trend.
     
-    Args:
-        series: List of time series values.
-        
     Returns:
-        Pre-whitened series.
+        Tuple of (prewhitened_series, lag_1_autocorrelation)
     """
     n = len(series)
     if n < 2:
-        return series
+        return series, 0.0
     
     # Calculate lag-1 autocorrelation
-    mean = sum(series) / n
-    var = sum((x - mean) ** 2 for x in series) / n
+    mean = np.mean(series)
+    var = np.var(series)
     if var == 0:
-        return series
+        return series, 0.0
     
-    cov_lag1 = sum((series[i] - mean) * (series[i+1] - mean) for i in range(n-1)) / n
-    rho1 = cov_lag1 / var
+    lag_1_acf = np.sum((series[:-1] - mean) * (series[1:] - mean)) / ((n - 1) * var)
     
-    if abs(rho1) < 1e-6:
-        return series
+    # Pre-whiten: X_t' = X_t - rho * X_{t-1}
+    # We need to handle the first element specially or drop it
+    if abs(lag_1_acf) < 1e-6:
+        return series, lag_1_acf
     
-    # Remove trend
-    prewhitened = []
-    for i in range(n):
-        if i == 0:
-            prewhitened.append(series[i])
-        else:
-            prewhitened.append(series[i] - rho1 * (series[i-1] - mean))
+    prewhitened = np.zeros(n - 1)
+    for t in range(1, n):
+        prewhitened[t - 1] = series[t] - lag_1_acf * series[t - 1]
     
-    return prewhitened
+    return prewhitened, lag_1_acf
 
-def modified_mann_kendall(series: List[float]) -> Tuple[float, float]:
+def modified_mann_kendall(series: np.ndarray) -> Tuple[float, float, float]:
     """
     Perform Modified Mann-Kendall test with pre-whitening.
     
-    Args:
-        series: List of time series values.
-        
     Returns:
-        Tuple of (S, p_value)
+        Tuple of (S, p_value, tau)
     """
-    # Pre-whiten the series
-    prewhitened = prewhiten_series(series)
+    # Pre-whiten
+    prewhitened, rho = prewhiten_series(series)
     
-    # Calculate S and variance
-    S, var_S = calculate_mann_kendall_statistic(prewhitened)
+    if len(prewhitened) < 2:
+        return 0.0, 1.0, 0.0
     
-    if var_S == 0:
-        return S, 1.0
+    # Calculate S and variance on prewhitened series
+    S, var_s = calculate_mann_kendall_statistic(prewhitened)
     
-    # Calculate Z statistic
+    if var_s == 0:
+        return S, 1.0, 0.0
+    
+    # Standardize S
     if S > 0:
-        Z = (S - 1) / math.sqrt(var_S)
+        Z = (S - 1) / math.sqrt(var_s)
     elif S < 0:
-        Z = (S + 1) / math.sqrt(var_S)
+        Z = (S + 1) / math.sqrt(var_s)
     else:
         Z = 0
     
-    # Calculate p-value (two-tailed)
-    p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(Z) / math.sqrt(2))))
+    # Two-tailed p-value
+    p_value = 2 * (1 - stats.norm.cdf(abs(Z)))
     
-    return S, p_value
+    # Calculate Kendall's Tau
+    n = len(prewhitened)
+    tau = S / (n * (n - 1) / 2)
+    
+    return S, p_value, tau
 
-def theil_sen_slope(series: List[float]) -> float:
+def theil_sen_slope(series: np.ndarray) -> float:
     """
     Calculate Theil-Sen slope estimator.
     
-    Args:
-        series: List of time series values.
-        
     Returns:
-        Slope estimate.
+        Slope value
     """
     n = len(series)
-    slopes = []
+    if n < 2:
+        return 0.0
     
+    slopes = []
     for i in range(n - 1):
         for j in range(i + 1, n):
             if j != i:
@@ -154,335 +164,353 @@ def theil_sen_slope(series: List[float]) -> float:
     if not slopes:
         return 0.0
     
-    # Sort and find median
-    slopes.sort()
-    mid = len(slopes) // 2
-    if len(slopes) % 2 == 0:
-        return (slopes[mid - 1] + slopes[mid]) / 2
-    else:
-        return slopes[mid]
+    return np.median(slopes)
 
-def calculate_power_and_mdes(slopes: List[float], series_length: int, 
-                             alpha: float = 0.05, power_target: float = 0.8,
-                             n_iterations: int = 1000) -> Tuple[float, float]:
+def benjamini_hochberg_correction(p_values: List[float]) -> List[float]:
     """
-    Calculate statistical power and Minimum Detectable Effect Size (MDES) via Monte Carlo.
+    Apply Benjamini-Hochberg correction to p-values.
     
     Args:
-        slopes: List of observed slopes for reference.
-        series_length: Length of the time series.
-        alpha: Significance level.
-        power_target: Target power (default 0.8).
-        n_iterations: Number of Monte Carlo iterations.
+        p_values: List of raw p-values
         
     Returns:
-        Tuple of (estimated_power, mdes)
+        List of adjusted q-values
     """
-    if not slopes:
-        return 0.0, float('inf')
-    
-    # Estimate variance from residuals (simplified)
-    mean_slope = sum(slopes) / len(slopes)
-    variance = sum((s - mean_slope) ** 2 for s in slopes) / len(slopes)
-    if variance == 0:
-        variance = 1e-6
-    
-    std_dev = math.sqrt(variance)
-    
-    # Find MDES: smallest slope detectable with target power
-    # Using simplified power calculation for linear trend
-    # Power = 1 - beta, where beta is Type II error rate
-    # For a given slope, we simulate and count rejections
-    
-    # Binary search for MDES
-    low, high = 0.0, abs(mean_slope) * 10 if mean_slope != 0 else 1.0
-    mdes = high
-    
-    for _ in range(20):  # Binary search iterations
-        mid = (low + high) / 2
-        if mid == 0:
-            mid = 1e-6
-        
-        # Simulate power at this slope
-        rejections = 0
-        for _ in range(n_iterations):
-            # Generate synthetic series with this slope
-            synthetic_series = []
-            for t in range(series_length):
-                noise = std_dev * (2 * (hash(str(_) + str(t)) % 1000) / 1000 - 1)
-                synthetic_series.append(mid * t + noise)
-            
-            # Test if we can detect this slope
-            _, p_val = modified_mann_kendall(synthetic_series)
-            if p_val < alpha:
-                rejections += 1
-        
-        observed_power = rejections / n_iterations
-        
-        if observed_power >= power_target:
-            mdes = mid
-            high = mid
-        else:
-            low = mid
-    
-    # Calculate actual power at observed mean slope
-    rejections = 0
-    for _ in range(n_iterations):
-        synthetic_series = []
-        for t in range(series_length):
-            noise = std_dev * (2 * (hash(str(_) + str(t)) % 1000) / 1000 - 1)
-            synthetic_series.append(mean_slope * t + noise)
-        
-        _, p_val = modified_mann_kendall(synthetic_series)
-        if p_val < alpha:
-            rejections += 1
-    
-    actual_power = rejections / n_iterations
-    
-    return actual_power, mdes
-
-def benjamini_hochberg_correction(p_values: List[float], tag_names: List[str]) -> List[Tuple[str, float, float]]:
-    """
-    Apply Benjamini-Hochberg correction to control False Discovery Rate.
-    
-    MUST: Log raw p-values vs adjusted q-values for the first 5 tags.
-    
-    Args:
-        p_values: List of raw p-values.
-        tag_names: List of corresponding tag names.
-        
-    Returns:
-        List of tuples (tag_name, raw_p, adjusted_q)
-    """
-    if not p_values:
+    n = len(p_values)
+    if n == 0:
         return []
     
-    n = len(p_values)
-    indexed_p = sorted([(i, p) for i, p in enumerate(p_values)], key=lambda x: x[1])
+    # Sort p-values with their original indices
+    sorted_p = sorted(enumerate(p_values), key=lambda x: x[1])
     
-    adjusted_q = [0.0] * n
-    min_q = 1.0
+    # Calculate adjusted q-values
+    q_values = [0.0] * n
+    rank = 0
+    prev_q = 0.0
     
-    # Calculate adjusted q-values (working backwards)
-    for rank in range(n - 1, -1, -1):
-        i, p = indexed_p[rank]
-        q = p * n / (rank + 1)
-        min_q = min(min_q, q)
-        adjusted_q[i] = min_q
+    # Process in reverse order to ensure monotonicity
+    for i in range(n - 1, -1, -1):
+        orig_idx, p_val = sorted_p[i]
+        rank = i + 1
+        q = p_val * n / rank
+        
+        # Ensure monotonicity (q-values should be non-decreasing with rank)
+        q = min(q, prev_q)
+        prev_q = q
+        
+        q_values[orig_idx] = q
     
-    # Ensure q-values don't exceed 1.0
-    adjusted_q = [min(q, 1.0) for q in adjusted_q]
+    # Ensure q-values are in [0, 1]
+    q_values = [max(0.0, min(1.0, q)) for q in q_values]
     
-    # Log the first 5 tags for verification (as required by T052)
-    logger.info("=" * 60)
-    logger.info("BENJAMINI-HOCHBERG CORRECTION VERIFICATION (First 5 Tags)")
-    logger.info("=" * 60)
-    logger.info(f"{'Tag Name':<20} {'Raw P-value':<15} {'Adjusted Q-value':<15}")
-    logger.info("-" * 60)
-    
-    for i in range(min(5, len(tag_names))):
-        tag = tag_names[i]
-        raw_p = p_values[i]
-        adj_q = adjusted_q[i]
-        logger.info(f"{tag:<20} {raw_p:<15.6f} {adj_q:<15.6f}")
-    
-    logger.info("=" * 60)
-    
-    # Return results
-    results = []
-    for i, tag in enumerate(tag_names):
-        results.append((tag, p_values[i], adjusted_q[i]))
-    
-    return results
+    return q_values
 
-def classify_trend(raw_p: float, adjusted_q: float, power: float, alpha: float = 0.05) -> str:
+def calculate_power_and_mdes(
+    series: np.ndarray,
+    slope: float,
+    alpha: float = 0.05,
+    target_power: float = 0.8,
+    n_iterations: int = 1000,
+    seed: int = 42
+) -> Tuple[float, float]:
     """
-    Classify trend based on p-value, adjusted q-value, and power.
+    Calculate post-hoc power and Minimum Detectable Effect Size (MDES) via Monte Carlo.
     
-    CRITICAL: The threshold of 0.05 MUST be applied to the *adjusted* p-values (q-values).
+    This function:
+    1. Estimates variance from pre-whitened residuals
+    2. Injects linear trends of varying slopes into residuals
+    3. Runs MK test on each synthetic series
+    4. Determines slope magnitude detectable at target_power (80%) with alpha=0.05
     
     Args:
-        raw_p: Raw p-value from Mann-Kendall test.
-        adjusted_q: Adjusted q-value from Benjamini-Hochberg correction.
-        power: Statistical power estimate.
-        alpha: Significance level (default 0.05).
+        series: Original time series
+        slope: Observed Theil-Sen slope
+        alpha: Significance level (default 0.05)
+        target_power: Target power (default 0.8)
+        n_iterations: Number of Monte Carlo iterations (default 1000)
+        seed: Random seed for reproducibility (default 42)
         
     Returns:
-        Classification string: "Growth", "Decline", "Stable", or "Insufficient Data"
+        Tuple of (power_estimate, mdes)
     """
-    if adjusted_q >= alpha:
+    random.seed(seed)
+    np.random.seed(seed)
+    
+    if len(series) < 12:
+        # Not enough data for meaningful power analysis
+        return 0.0, float('inf')
+    
+    # Step 1: Pre-whiten and get residuals
+    prewhitened, rho = prewhiten_series(series)
+    
+    if len(prewhitened) < 10:
+        return 0.0, float('inf')
+    
+    # Calculate residuals (difference from mean of prewhitened series)
+    mean_prewhitened = np.mean(prewhitened)
+    residuals = prewhitened - mean_prewhitened
+    
+    # Estimate variance from residuals
+    residual_variance = np.var(residuals)
+    if residual_variance == 0:
+        residual_variance = 1e-6  # Avoid division by zero
+    
+    n_points = len(prewhitened)
+    time_indices = np.arange(n_points)
+    
+    # Step 2: Determine MDES via binary search
+    # We want to find the slope magnitude where power >= target_power
+    
+    # Test a range of slopes
+    test_slopes = np.linspace(0.0, abs(slope) * 2.0, 50)
+    if abs(slope) < 1e-6:
+        # If observed slope is near zero, test a reasonable range
+        test_slopes = np.linspace(0.0, 1.0, 50)
+    
+    detected_count = 0
+    powers = []
+    
+    for test_slope in test_slopes:
+        detected = 0
+        for _ in range(n_iterations):
+            # Inject linear trend with this slope
+            synthetic_trend = test_slope * time_indices
+            # Add noise based on residual variance
+            noise = np.random.normal(0, math.sqrt(residual_variance), n_points)
+            synthetic_series = mean_prewhitened + synthetic_trend + noise
+            
+            # Run MK test on synthetic series
+            _, p_val, _ = modified_mann_kendall(synthetic_series)
+            
+            if p_val < alpha:
+                detected += 1
+        
+        power = detected / n_iterations
+        powers.append(power)
+        
+        if power >= target_power:
+            detected_count += 1
+            break
+    
+    # Calculate MDES (minimum slope where power >= target_power)
+    if detected_count > 0:
+        # Find the first slope where power >= target_power
+        mdes = test_slopes[np.argmax(np.array(powers) >= target_power)]
+    else:
+        # If no slope achieved target power, estimate based on extrapolation
+        # Use the last tested slope as a lower bound
+        mdes = test_slopes[-1]
+        # Estimate how much larger it would need to be
+        if powers[-1] > 0:
+            # Linear extrapolation (rough estimate)
+            mdes = test_slopes[-1] * (target_power / powers[-1])
+        else:
+            mdes = float('inf')
+    
+    # Step 3: Calculate power for the OBSERVED slope
+    observed_power = 0.0
+    detected = 0
+    for _ in range(n_iterations):
+        # Inject observed slope
+        synthetic_trend = slope * time_indices
+        noise = np.random.normal(0, math.sqrt(residual_variance), n_points)
+        synthetic_series = mean_prewhitened + synthetic_trend + noise
+        
+        # Run MK test
+        _, p_val, _ = modified_mann_kendall(synthetic_series)
+        
+        if p_val < alpha:
+            detected += 1
+    
+    observed_power = detected / n_iterations
+    
+    return observed_power, mdes
+
+def classify_trend(
+    p_value: float,
+    q_value: float,
+    power: float,
+    alpha: float = 0.05
+) -> str:
+    """
+    Classify trend based on adjusted p-value (q-value) and power.
+    
+    Classification logic (per T014a and T014c):
+    - If q_value >= alpha AND power < 0.8: "Insufficient Data"
+    - If q_value >= alpha AND power >= 0.8: "Stable"
+    - If q_value < alpha: "Growth" (positive slope) or "Decline" (negative slope)
+    
+    CRITICAL: Threshold of 0.05 applies to ADJUSTED q-values, not raw p-values.
+    
+    Args:
+        p_value: Raw p-value from MK test
+        q_value: Adjusted q-value from Benjamini-Hochberg correction
+        power: Post-hoc power estimate
+        alpha: Significance threshold (default 0.05)
+        
+    Returns:
+        Classification string
+    """
+    # Apply Benjamini-Hochberg corrected threshold
+    if q_value < alpha:
+        # Significant trend - need to check slope sign
+        # Note: slope sign is determined separately, this function just classifies significance
+        return "Significant"
+    else:
+        # Not significant - check power
         if power < 0.8:
             return "Insufficient Data"
         else:
             return "Stable"
-    else:
-        # Significant trend - need direction from Theil-Sen slope
-        # This function is called after slope calculation in main flow
-        return "Significant"  # Direction determined by slope sign
 
-def analyze_trends(processed_data: Dict[str, Any]) -> Dict[str, Any]:
+def analyze_trends() -> Dict[str, Any]:
     """
-    Main function to analyze trends for all tags.
+    Main function to analyze trends for all top tags.
     
-    Args:
-        processed_data: Dictionary containing tag time series data.
-        
     Returns:
-        Dictionary containing trend analysis results.
+        Dictionary containing trend analysis results
     """
-    results = {
-        "tags": [],
-        "summary": {
-            "total_tags": 0,
-            "growth": 0,
-            "decline": 0,
-            "stable": 0,
-            "insufficient_data": 0
-        }
-    }
+    logger.info("Loading processed data...")
+    data = load_processed_data()
+    top_tags = load_top_tags()
     
-    tag_names = []
-    p_values = []
-    slopes = []
-    trend_data = []
+    results = []
+    warnings = []
+    raw_p_values = []
     
-    logger.info("Starting trend analysis for all tags...")
+    logger.info(f"Analyzing {len(top_tags)} top tags...")
     
-    for tag_name, data in processed_data.items():
-        series = data.get("monthly_frequencies", [])
-        
-        if len(series) < MIN_DATA_POINTS:
-            logger.warning(f"Tag '{tag_name}' has insufficient data points ({len(series)} < {MIN_DATA_POINTS})")
-            trend_data.append({
-                "tag": tag_name,
-                "classification": "Insufficient Data",
-                "reason": "Less than 12 months of data"
-            })
+    for tag in top_tags:
+        if tag not in data:
+            logger.warning(f"Tag {tag} not found in processed data, skipping.")
             continue
         
-        # Perform Mann-Kendall test
-        S, p_val = modified_mann_kendall(series)
+        series = np.array(data[tag])
+        
+        if len(series) < 12:
+            logger.warning(f"Tag {tag} has less than 12 months of data, skipping.")
+            continue
+        
+        # Perform Modified Mann-Kendall test
+        S, p_value, tau = modified_mann_kendall(series)
+        raw_p_values.append(p_value)
         
         # Calculate Theil-Sen slope
         slope = theil_sen_slope(series)
         
-        # Calculate power and MDES
-        power, mdes = calculate_power_and_mdes([slope], len(series))
-        
-        tag_names.append(tag_name)
-        p_values.append(p_val)
-        slopes.append(slope)
-        
-        trend_data.append({
-            "tag": tag_name,
-            "raw_p_value": p_val,
+        # Store for later classification
+        results.append({
+            "tag": tag,
             "slope": slope,
-            "series_length": len(series),
-            "power": power,
-            "mdes": mdes
+            "tau": tau,
+            "raw_p_value": p_value,
+            "S": S,
+            "series_length": len(series)
         })
     
     # Apply Benjamini-Hochberg correction
     logger.info("Applying Benjamini-Hochberg correction...")
-    corrected_results = benjamini_hochberg_correction(p_values, tag_names)
+    if raw_p_values:
+        q_values = benjamini_hochberg_correction(raw_p_values)
+    else:
+        q_values = []
     
-    # Final classification
-    for i, (tag, raw_p, adjusted_q) in enumerate(corrected_results):
-        slope = slopes[i]
-        power = trend_data[i]["power"]
-        mdes = trend_data[i]["mdes"]
+    # Log raw vs adjusted for first 5 tags (per T052 requirement)
+    logger.info("Benjamini-Hochberg correction debug (first 5 tags):")
+    for i in range(min(5, len(results))):
+        logger.info(f"  Tag: {results[i]['tag']}, Raw p: {results[i]['raw_p_value']:.4f}, Adjusted q: {q_values[i]:.4f}")
+    
+    # Calculate power and MDES for each tag, then classify
+    logger.info("Calculating power and MDES...")
+    for i, result in enumerate(results):
+        tag = result["tag"]
+        slope = result["slope"]
+        p_value = result["raw_p_value"]
+        q_value = q_values[i] if i < len(q_values) else 1.0
         
-        if adjusted_q >= ALPHA:
-            if power < 0.8:
-                classification = "Insufficient Data"
-                results["summary"]["insufficient_data"] += 1
-            else:
-                classification = "Stable"
-                results["summary"]["stable"] += 1
-        else:
+        # Calculate power and MDES
+        power, mdes = calculate_power_and_mdes(
+            np.array(data[tag]),
+            slope,
+            alpha=0.05,
+            target_power=0.8,
+            n_iterations=1000,
+            seed=42
+        )
+        
+        result["power"] = power
+        result["mDES"] = mdes
+        result["q_value"] = q_value
+        
+        # Classify trend
+        classification = classify_trend(p_value, q_value, power)
+        
+        # CRITICAL: If power < 0.5, flag and re-classify as "Insufficient Data"
+        # regardless of p-value (per T014c requirement)
+        if power < 0.5:
+            classification = "Insufficient Data"
+            warnings.append({
+                "tag": tag,
+                "power": power,
+                "reason": "Post-hoc power < 0.5"
+            })
+            logger.warning(f"Tag {tag} has low power ({power:.2f}), re-classified as 'Insufficient Data'")
+        
+        # If significant, determine growth/decline based on slope sign
+        if classification == "Significant":
             if slope > 0:
                 classification = "Growth"
-                results["summary"]["growth"] += 1
-            else:
+            elif slope < 0:
                 classification = "Decline"
-                results["summary"]["decline"] += 1
+            else:
+                classification = "Stable"  # Zero slope but significant (rare)
         
-        results["tags"].append({
-            "tag": tag,
-            "classification": classification,
-            "raw_p_value": raw_p,
-            "adjusted_q_value": adjusted_q,
-            "theil_sen_slope": slope,
-            "power": power,
-            "mdes": mdes,
-            "series_length": trend_data[i]["series_length"]
-        })
+        result["classification"] = classification
     
-    results["summary"]["total_tags"] = len(results["tags"])
+    # Write power warnings to log file
+    if warnings:
+        with open(POWER_WARNINGS_LOG, 'w') as f:
+            for warning in warnings:
+                f.write(json.dumps(warning) + '\n')
+        logger.info(f"Wrote {len(warnings)} power warnings to {POWER_WARNINGS_LOG}")
     
-    logger.info(f"Trend analysis complete. Processed {results['summary']['total_tags']} tags.")
-    logger.info(f"Growth: {results['summary']['growth']}, Decline: {results['summary']['decline']}, "
-               f"Stable: {results['summary']['stable']}, Insufficient Data: {results['summary']['insufficient_data']}")
+    # Prepare final results
+    final_results = {
+        "analysis_date": str(Path.cwd()),
+        "total_tags_analyzed": len(results),
+        "tags_with_insufficient_power": len([r for r in results if r.get("power", 0) < 0.5]),
+        "results": results
+    }
     
-    return results
+    return final_results
 
-def load_processed_data(input_path: str) -> Dict[str, Any]:
-    """
-    Load processed tag frequency data.
-    
-    Args:
-        input_path: Path to the processed data JSON file.
-        
-    Returns:
-        Dictionary containing tag time series data.
-    """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Processed data file not found: {input_path}")
-    
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def save_results(results: Dict[str, Any], output_path: str) -> None:
-    """
-    Save trend analysis results to JSON file.
-    
-    Args:
-        results: Dictionary containing trend analysis results.
-        output_path: Path to save the results.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
+def save_results(results: Dict[str, Any], output_path: Path = INTERMEDIATE_FILE):
+    """Save results to JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    
     logger.info(f"Results saved to {output_path}")
 
 def main():
-    """
-    Main entry point for trend analysis.
-    """
-    # Define paths
-    input_path = "data/processed/tag_frequency_data.json"
-    output_path = "data/processed/trend_intermediate.json"
+    """Main entry point for trend analysis."""
+    logger.info("Starting trend analysis with post-hoc power analysis...")
     
     try:
-        # Load processed data
-        logger.info(f"Loading processed data from {input_path}")
-        processed_data = load_processed_data(input_path)
+        results = analyze_trends()
+        save_results(results)
         
-        # Perform trend analysis
-        logger.info("Starting trend analysis...")
-        results = analyze_trends(processed_data)
+        # Summary
+        classifications = {}
+        for r in results["results"]:
+            cls = r["classification"]
+            classifications[cls] = classifications.get(cls, 0) + 1
         
-        # Save results
-        save_results(results, output_path)
-        
-        logger.info("Trend analysis completed successfully.")
+        logger.info("Analysis complete. Summary:")
+        for cls, count in classifications.items():
+            logger.info(f"  {cls}: {count}")
         
     except Exception as e:
-        logger.error(f"Trend analysis failed: {str(e)}")
+        logger.error(f"Error during analysis: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
