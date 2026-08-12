@@ -1,0 +1,152 @@
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: apply geometric distortions at extreme aspect ratios
+  claim_id: c_e378a18e
+  context: 'T013 [US1] Implement src/generators/distort_video.py: ... Apply geometric
+    distortions at varying aspect ratios spanning from highly compressed to highly
+    elongated configurations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_geometric_distortions_at_extreme_aspect_ratios
+  kind: entity_fact
+  raw_text: Apply geometric distortions at varying aspect ratios spanning from highly
+    compressed to highly elongated configurations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T08:18:03Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: exclude clips with primary subject bounding box area reduction greater
+    than 95%
+  claim_id: c_1fa04ec3
+  context: 'T013 [US1] Implement src/generators/distort_video.py: ... Implement FR-001
+    logic: exclude/regenerate clips where primary subject bounding box area is reduced
+    >95%.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_clips_with_primary_subject_bounding_box_area_reducti
+  kind: magnitude
+  raw_text: Exclude or regenerate clips where primary subject bounding box area is
+    reduced by more than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T08:18:11Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: peak VmRSS less than 7GB
+  claim_id: c_cc6e8e5c
+  context: 'Independent Test: Run inference on a subset of videos. ... Peak VmRSS
+    must be < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_VmRSS_less_than_7GB
+  kind: magnitude
+  raw_text: Peak VmRSS must be less than 7GB during inference.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T08:18:14Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: load Kwai-Keye-VL-2.0-Int4 checkpoint in INT4 quantization
+  claim_id: c_64bae8cd
+  context: 'T020 [US2] Implement src/inference/run_inference.py: Load the Kwai-Kyle/Kwai-Keye-VL-2.0-Int4
+    checkpoint (or verified equivalent from T004) in INT4 quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load the Kwai-Kyle/Kwai-Keye-VL-2.0-Int4 checkpoint in INT4 quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T08:18:16Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: use YOLOv8 to detect primary subject bounding box
+  claim_id: c_ee742273
+  context: 'T013 [US1] Implement src/generators/distort_video.py: ... Use YOLOv8 (ultralytics)
+    to detect primary subject bounding box if ActivityNet annotations are unavailable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_YOLOv8_to_detect_primary_subject_bounding_box
+  kind: entity_fact
+  raw_text: Use YOLOv8 to detect primary subject bounding box if ActivityNet annotations
+    are unavailable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T08:18:24Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: perform Shapiro-Wilk test with alpha 0.05
+  claim_id: c_490cad09
+  context: 'T027 [US3] Implement src/analysis/stats.py: Perform Shapiro-Wilk test
+    to check normality (alpha=0.05).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Perform Shapiro-Wilk test to check normality with alpha of 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T08:18:24Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: verify output dimensions and metadata integrity
+  claim_id: c_920eb26e
+  context: T014 [US1] Implement src/generators/validate_generation.py to verify output
+    dimensions and metadata integrity
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_output_dimensions_and_metadata_integrity
+  kind: entity_fact
+  raw_text: Verify output dimensions and metadata integrity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T08:18:32Z'
+- artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
+  attempts: 1
+  canonical: reference Smith et al. 2023 and arXiv:2301.12345
+  claim_id: c_322f5b34
+  context: 'References: Smith et al. (2023); arXiv:2301.12345. Verify data/raw/original/
+    contains original unmodified clips for the Independent test.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Reference Smith et al. (2023) and arXiv:2301.12345 for data consistency
+    validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T08:18:46Z'

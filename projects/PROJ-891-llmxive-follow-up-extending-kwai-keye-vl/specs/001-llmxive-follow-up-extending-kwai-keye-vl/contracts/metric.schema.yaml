@@ -1,0 +1,191 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Metric Schema for Extreme Aspect Ratio Robustness Evaluation
+description: >
+  Defines the structure for evaluation results including mIoU scores,
+  statistical test outcomes, and condition metadata for the Kwai Keye-VL
+  robustness study.
+type: object
+required:
+  - experiment_id
+  - timestamp
+  - conditions
+  - metrics
+  - statistical_analysis
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the experiment run.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis execution.
+  conditions:
+    type: object
+    description: Metadata for the experimental conditions evaluated.
+    required:
+      - distorted
+      - square_cropped
+      - original
+    properties:
+      distorted:
+        type: object
+        description: Configuration for the extreme aspect ratio group.
+        properties:
+          aspect_ratios:
+            type: array
+            items:
+              type: string
+            description: List of aspect ratios applied (e.g., "1:10", "10:1").
+          count:
+            type: integer
+            description: Number of samples in this condition.
+      square_cropped:
+        type: object
+        description: Configuration for the square-cropped control group.
+        properties:
+          count:
+            type: integer
+            description: Number of samples in this condition.
+      original:
+        type: object
+        description: Configuration for the original unmodified control group.
+        properties:
+          count:
+            type: integer
+            description: Number of samples in this condition.
+  metrics:
+    type: object
+    description: Per-sample and aggregate mIoU metrics.
+    required:
+      - per_sample
+      - aggregate
+    properties:
+      per_sample:
+        type: array
+        description: List of mIoU scores for each video ID.
+        items:
+          type: object
+          required:
+            - video_id
+            - condition
+            - mIoU
+            - prediction_start
+            - prediction_end
+            - ground_truth_start
+            - ground_truth_end
+          properties:
+            video_id:
+              type: string
+              description: Unique identifier for the video clip.
+            condition:
+              type: string
+              enum: [distorted, square_cropped, original]
+              description: Experimental condition the sample belongs to.
+            mIoU:
+              type: number
+              minimum: 0.0
+              maximum: 1.0
+              description: Mean Intersection over Union score.
+            prediction_start:
+              type: number
+              description: Predicted start timestamp in seconds.
+            prediction_end:
+              type: number
+              description: Predicted end timestamp in seconds.
+            ground_truth_start:
+              type: number
+              description: Ground truth start timestamp in seconds.
+            ground_truth_end:
+              type: number
+              description: Ground truth end timestamp in seconds.
+      aggregate:
+        type: object
+        description: Aggregate statistics per condition.
+        properties:
+          distorted:
+            type: object
+            properties:
+              mean:
+                type: number
+              median:
+                type: number
+              std:
+                type: number
+              count:
+                type: integer
+          square_cropped:
+            type: object
+            properties:
+              mean:
+                type: number
+              median:
+                type: number
+              std:
+                type: number
+              count:
+                type: integer
+          original:
+            type: object
+            properties:
+              mean:
+                type: number
+              median:
+                type: number
+              std:
+                type: number
+              count:
+                type: integer
+  statistical_analysis:
+    type: object
+    description: Results of statistical significance tests.
+    required:
+      - paired_test
+      - independent_test
+    properties:
+      paired_test:
+        type: object
+        description: Paired test (distorted vs square_cropped).
+        properties:
+          test_type:
+            type: string
+            enum: [paired_ttest, wilcoxon_signed_rank]
+            description: Type of test performed based on normality check.
+          normality_test:
+            type: object
+            properties:
+              method:
+                type: string
+                enum: [shapiro_wilk]
+              statistic:
+                type: number
+              p_value:
+                type: number
+              is_normal:
+                type: boolean
+          test_statistic:
+            type: number
+          p_value:
+            type: number
+          effect_size:
+            type: number
+            description: Cohen's d or r effect size.
+          significant:
+            type: boolean
+            description: Whether p < 0.05.
+      independent_test:
+        type: object
+        description: Independent test (original vs distorted).
+        properties:
+          test_type:
+            type: string
+            enum: [welch_ttest, mann_whitney_u]
+            description: Type of test performed based on variance/normality.
+          test_statistic:
+            type: number
+          p_value:
+            type: number
+          effect_size:
+            type: number
+          significant:
+            type: boolean
+            description: Whether p < 0.05.

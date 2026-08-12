@@ -1,0 +1,153 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synthetic Video Dataset Metadata Schema
+description: >
+  Schema for metadata generated during the extreme aspect ratio distortion
+  process of the ActivityNet Captions dataset. This file maps distorted video
+  artifacts to their original sources, applied transformations, and quality
+  control metrics (bounding box integrity).
+type: object
+required:
+  - schema_version
+  - generation_timestamp
+  - source_dataset
+  - distortion_parameters
+  - records
+properties:
+  schema_version:
+    type: string
+    description: Version of this schema (e.g., "1.0.0")
+    const: "1.0.0"
+  
+  generation_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the dataset was generated
+  
+  source_dataset:
+    type: object
+    description: Information about the source dataset used
+    required:
+      - name
+      - split
+      - huggingface_id
+    properties:
+      name:
+        type: string
+        const: "ActivityNet Captions"
+      split:
+        type: string
+        description: The split used (e.g., "train")
+      huggingface_id:
+        type: string
+        description: HuggingFace dataset ID used for fetching
+        const: "ActivityNet/activitynet-captions"
+  
+  distortion_parameters:
+    type: object
+    description: Configuration used for the distortion process
+    required:
+      - aspect_ratios
+      - method
+      - bounding_box_threshold
+    properties:
+      aspect_ratios:
+        type: array
+        items:
+          type: string
+        description: List of target aspect ratios (e.g., "1:10", "10:1")
+        example:
+          - "1:10"
+          - "10:1"
+          - "1:20"
+          - "20:1"
+      method:
+        type: string
+        description: The geometric distortion method applied
+        enum:
+          - "stretch"
+          - "crop_center_square"
+          - "pad"
+      bounding_box_threshold:
+        type: number
+        description: Minimum area ratio of primary subject bounding box to remain valid (0.0-1.0)
+        minimum: 0.0
+        maximum: 1.0
+        example: 0.05
+  
+  records:
+    type: array
+    description: List of metadata records for each generated video clip
+    items:
+      type: object
+      required:
+        - video_id
+        - original_id
+        - original_start
+        - original_end
+        - output_path
+        - aspect_ratio
+        - distortion_type
+        - width
+        - height
+        - duration
+        - fps
+        - codec
+        - primary_subject_bbox_valid
+        - primary_subject_area_ratio
+        - control_group_type
+      properties:
+        video_id:
+          type: string
+          description: Unique identifier for the generated video file
+        original_id:
+          type: string
+          description: ID of the source video in the original dataset
+        original_start:
+          type: number
+          description: Start timestamp (seconds) in the original video
+        original_end:
+          type: number
+          description: End timestamp (seconds) in the original video
+        output_path:
+          type: string
+          description: Relative path to the generated video file from the data root
+        aspect_ratio:
+          type: string
+          description: Target aspect ratio string (e.g., "1:10")
+        distortion_type:
+          type: string
+          enum:
+            - "extreme_distortion"
+            - "square_crop_control"
+            - "original_unmodified"
+          description: Type of processing applied
+        width:
+          type: integer
+          description: Width of the output video in pixels
+        height:
+          type: integer
+          description: Height of the output video in pixels
+        duration:
+          type: number
+          description: Duration of the clip in seconds
+        fps:
+          type: number
+          description: Frame rate of the output video
+        codec:
+          type: string
+          description: Video codec used (e.g., "h264")
+        primary_subject_bbox_valid:
+          type: boolean
+          description: Whether the primary subject bounding box area > threshold
+        primary_subject_area_ratio:
+          type: number
+          description: Ratio of the primary subject bounding box area after distortion vs original
+          minimum: 0.0
+          maximum: 1.0
+        control_group_type:
+          type: string
+          enum:
+            - "none"
+            - "paired_square"
+            - "original"
+          description: Classification for the control group logic (Paired vs Independent)

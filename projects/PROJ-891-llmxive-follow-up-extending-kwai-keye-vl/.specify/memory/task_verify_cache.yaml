@@ -1,0 +1,42 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw`, `data/distorted`, `data/outputs`,\
+    \ `data/metadata`) being present or populated is provided; the prompt contains\
+    \ no file\u2011system listing or screenshots confirming their creation. The implementer\u2019\
+    s claim cannot be verified without concrete artifacts."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the three required directories (`src/generators`,
+    `src/inference`, `src/analysis`) actually exist in the repository; without a directory
+    listing or similar proof, we cannot confirm the task was fulfilled. The implementer
+    must create the directories and supply a view (e.g., `tree` output) confirming
+    their presence.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied only a feature specification and no file system evidence;
+    there is no indication that `tests/unit` or `tests/integration` directories were
+    created, nor any listing or content showing those folders. The required test directory
+    structure is missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` entries
+    for Black, a `.ruff.toml` or `ruff.toml`, or related setup scripts) were provided,
+    nor any evidence that ruff and black have been integrated into the project. The
+    required artifacts are missing, so the task is not satisfied.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `models/` directory is provided; the artifact list is empty,\
+    \ so we cannot confirm that the required cache directory was actually created.\
+    \ The implementer must add the `models/` folder (non\u2011empty or at least present)\
+    \ to satisfy the task."
+T007a:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml`
+    does not exist on disk, so the schema definition for the synthetic video metadata
+    is missing. The task is therefore not satisfied.
