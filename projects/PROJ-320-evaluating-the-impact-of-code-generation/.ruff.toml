@@ -1,21 +1,12 @@
-# Ruff configuration for llmXive project
-target-version = "py311"
+# Ruff configuration file
+# This file is redundant with pyproject.toml but provided for IDE compatibility
 line-length = 88
+target-version = "py311"
 
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
 
 [lint.isort]
-known-first-party = ["code"]
-force-to-top = ["code"]
+known-first-party = ["utils", "data", "analysis", "audit"]
+force-sort-within-sections = true

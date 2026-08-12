@@ -1,1 +1,3 @@
-# llmXive code package
+"""
+llmXive research pipeline code package.
+"""

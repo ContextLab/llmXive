@@ -1,5 +1,6 @@
 """
 Correlation analysis module.
+
 File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py
 """
 import numpy as np
@@ -16,27 +17,18 @@ def calculate_correlation(x: pd.Series, y: pd.Series) -> dict:
     Calculate Pearson and Spearman correlation coefficients.
     
     Args:
-        x: First time series
-        y: Second time series
+        x: Series 1
+        y: Series 2
         
     Returns:
-        Dictionary with keys 'pearson' and 'spearman'
+        dict: {'pearson': float, 'spearman': float}
     """
-    # Remove NaN pairs
-    mask = ~(x.isna() | y.isna())
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < 2:
-        return {"pearson": np.nan, "spearman": np.nan}
-    
-    # Calculate correlations
-    pearson_corr, _ = stats.pearsonr(x_clean, y_clean)
-    spearman_corr, _ = stats.spearmanr(x_clean, y_clean)
+    pearson_corr, _ = stats.pearsonr(x, y)
+    spearman_corr, _ = stats.spearmanr(x, y)
     
     return {
-        "pearson": float(pearson_corr),
-        "spearman": float(spearman_corr)
+        "pearson": pearson_corr,
+        "spearman": spearman_corr
     }
 
 def circular_block_permutation(x: pd.Series, y: pd.Series, n_iterations: int = 10000) -> float:
@@ -44,95 +36,73 @@ def circular_block_permutation(x: pd.Series, y: pd.Series, n_iterations: int = 1
     Perform circular block permutation test for empirical p-value.
     
     Args:
-        x: First time series
-        y: Second time series
+        x: Series 1
+        y: Series 2
         n_iterations: Number of permutations
         
     Returns:
-        Empirical p-value
+        float: Empirical p-value
     """
-    # Remove NaN pairs
-    mask = ~(x.isna() | y.isna())
-    x_clean = x[mask].values
-    y_clean = y[mask].values
-    
-    if len(x_clean) < 2:
-        return 1.0
-    
-    # Calculate observed correlation
-    obs_corr, _ = stats.pearsonr(x_clean, y_clean)
-    obs_corr = abs(obs_corr)
-    
-    # Block size (fixed as per FR-005)
+    n = len(x)
     block_size = PERMUTATION_BLOCK_SIZE
     
-    # Permutation test
-    count = 0
-    n = len(x_clean)
+    # Calculate observed correlation
+    obs_corr, _ = stats.pearsonr(x, y)
+    obs_corr = abs(obs_corr)
+    
+    permuted_corrs = []
     
     for _ in range(n_iterations):
-        # Circular block permutation
-        perm_indices = np.random.permutation(n)
-        x_perm = x_clean[perm_indices]
+        # Circular shift
+        shift = np.random.randint(1, n)
+        x_perm = np.roll(x.values, shift)
         
         # Calculate permuted correlation
-        perm_corr, _ = stats.pearsonr(x_perm, y_clean)
-        perm_corr = abs(perm_corr)
+        perm_corr, _ = stats.pearsonr(x_perm, y)
+        permuted_corrs.append(abs(perm_corr))
         
-        if perm_corr >= obs_corr:
-            count += 1
+    # Calculate p-value
+    p_val = np.mean([pc >= obs_corr for pc in permuted_corrs])
     
-    p_value = count / n_iterations
-    logger.info(f"Permutation test completed: p-value = {p_value:.4f}")
-    
-    return p_value
+    logger.debug(f"Permutation test p-value: {p_val:.4f}")
+    return p_val
 
 def moving_block_bootstrap(x: pd.Series, y: pd.Series, n_iterations: int = 1000) -> Tuple[float, float]:
     """
-    Perform moving block bootstrap for 95% confidence interval.
+    Perform moving block bootstrap for 95% confidence intervals.
     
     Args:
-        x: First time series
-        y: Second time series
+        x: Series 1
+        y: Series 2
         n_iterations: Number of bootstrap iterations
         
     Returns:
-        Tuple (ci_lower, ci_upper)
+        tuple: (ci_lower, ci_upper)
     """
-    # Remove NaN pairs
-    mask = ~(x.isna() | y.isna())
-    x_clean = x[mask].values
-    y_clean = y[mask].values
-    
-    if len(x_clean) < 2:
-        return (np.nan, np.nan)
-    
-    # Block size (same as permutation test)
+    n = len(x)
     block_size = PERMUTATION_BLOCK_SIZE
-    n = len(x_clean)
+    num_blocks = int(np.ceil(n / block_size))
     
-    # Bootstrap correlations
     bootstrap_corrs = []
     
     for _ in range(n_iterations):
-        # Moving block bootstrap
-        indices = []
-        while len(indices) < n:
-            start = np.random.randint(0, n - block_size + 1)
-            indices.extend(range(start, min(start + block_size, n)))
+        # Resample blocks
+        indices = np.random.randint(0, n - block_size + 1, num_blocks)
+        block_indices = []
+        for idx in indices:
+            block_indices.extend(range(idx, min(idx + block_size, n)))
         
-        indices = indices[:n]
-        x_boot = x_clean[indices]
-        y_boot = y_clean[indices]
+        block_indices = block_indices[:n] # Truncate to original length
+        
+        x_boot = x.iloc[block_indices].values
+        y_boot = y.iloc[block_indices].values
         
         # Calculate correlation
         corr, _ = stats.pearsonr(x_boot, y_boot)
         bootstrap_corrs.append(corr)
-    
-    # Calculate 95% CI
+        
     ci_lower = np.percentile(bootstrap_corrs, 2.5)
     ci_upper = np.percentile(bootstrap_corrs, 97.5)
     
-    logger.info(f"Bootstrap CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
-    
-    return (float(ci_lower), float(ci_upper))
+    logger.debug(f"Bootstrap CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
+    return ci_lower, ci_upper

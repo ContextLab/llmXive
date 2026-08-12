@@ -1,1 +1,3 @@
-# Utility modules for the llmXive project
+"""
+Utility modules for logging, configuration, seeds, and checksums.
+"""

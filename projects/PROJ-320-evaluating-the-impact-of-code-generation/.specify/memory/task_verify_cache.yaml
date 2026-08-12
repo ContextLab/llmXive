@@ -22,6 +22,22 @@ T003:
     or CI scripts were provided to demonstrate that `ruff` linting and `black` formatting
     have been set up. The evidence lacks any artifact showing the tools are installed,
     configured, or integrated, so the task is not satisfied.
+T017:
+  c: true
+  h: fd8010e664ec58a6e89b39c4a87ea3b9d3ac9f080647efe6de5c36692f444974
+  r: "The repository contains the required `code/data/save_labeled_dataset.py` script\
+    \ (5\u202FKB) which defines `save_labeled_dataset` and writes a CSV with the columns\
+    \ `source_type`, `confidence_score`, `flagged`, `detector_score` plus metadata,\
+    \ satisfying the task specification. The output CSV itself need not pre\u2011\
+    exist for the task to be considered fulfilled."
+T019a:
+  c: false
+  h: b1d1ab3ec74297906cfd609aadfedafef7ec69e47807f3af9201f682923b8e9f
+  r: "The provided `manual_validation.py` contains sample\u2011size calculation and\
+    \ a partial stratified\u2011sampling function, but there is no implementation\
+    \ of the human\u2011judgment checklist nor any code that writes results to `data/audit/manual_audit_results.json`.\
+    \ Moreover, the required JSON results file is absent. The task\u2019s core requirements\
+    \ are therefore unmet."
 T033:
   c: false
   h: 0254cbd6ece26c7d4bdf8492dcea0fbffc0cabfd143039585ee14ac9a0bf2d27

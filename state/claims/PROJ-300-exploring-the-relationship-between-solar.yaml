@@ -11762,3 +11762,140 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T20:15:17Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: physics-based propagation lag formula L_phys equals 6371 divided by vsw_mean
+  claim_id: c_923c0ea9
+  context: Task T006a requires implementing calculate_l_phys to compute the physics-based
+    propagation lag using a specific formula.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST use the simplified formula L_phys = 6371 / vsw_mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:31:34Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag calculation logs distance of 60 times 6371 km and vsw mean
+  claim_id: c_232b090f
+  context: Task T006a includes a logging requirement for derivation constants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function MUST log the full derivation constants (Distance = 60 * 6371
+    km, Vsw_mean) to the quality_log.json or the final JSON report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:34:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: synthetic lag test verifies reported lag is within 1 minute of 45 minutes
+  claim_id: c_e1335eea
+  context: Task T037 describes the integration test for synthetic dataset validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test function test_synthetic_lag_45min verifies abs(reported_lag -
+    45) <= 1 where reported_lag is retrieved from the JSON key optimal_lag.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:36:57Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pipeline execution date range is 2023-01-01 to 2023-01-03
+  claim_id: c_225f08c6
+  context: Task T099 specifies the execution command for sample data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is executed with the command python code/main.py --start
+    2023-01-01 --end 2023-01-03.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:37:07Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: circular block permutation uses 10000 iterations
+  claim_id: c_eb3a1571
+  context: Task T008 specifies the number of iterations for the permutation test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular_block_permutation function uses n_iterations=10000 for empirical
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:37:17Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: moving block bootstrap uses 1000 iterations for 95 percent confidence
+    intervals
+  claim_id: c_e9e39d4d
+  context: Task T009 specifies the number of iterations and citations for the bootstrap
+    method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving_block_bootstrap function uses n_iterations=1000 based on Kunsch
+    1989 and Politis & Romano 1994 for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:37:22Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: pinned package versions include pandas 2.1.4, numpy 1.26.2, requests
+    2.31.0, scipy 1.11.4, matplotlib 3.8.0, tqdm 4.66.1
+  claim_id: c_d73eeaa8
+  context: Task T002 specifies the exact pinned versions for the Python project dependencies.
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt contains pandas==2.1.4, numpy==1.26.2, requests==2.31.0,
+    scipy==1.11.4, matplotlib==3.8.0, and tqdm==4.66.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T15:37:24Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: gap handling flags or truncates series with gaps exceeding 30 minutes
+  claim_id: c_2061638f
+  context: Task T005b implements gap handling with a default maximum gap of 30 minutes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function handle_gaps flags or truncates series with gaps exceeding
+    max_gap_minutes, which defaults to 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:37:44Z'

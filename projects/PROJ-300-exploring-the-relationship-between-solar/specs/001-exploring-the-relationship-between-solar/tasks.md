@@ -225,7 +225,7 @@ tqdm==4.66.1
  - **Dependency**: This task depends on the completion of foundational tasks (T004a-T011) and cannot run in parallel with them.
  - **Verification**: Unit test verifying output dictionary keys.
 
-- [ ] T021 [US1] Create the integration test file and function for US-1 acceptance scenario 1. <!-- FAILED: unspecified -->
+- [ ] T021 [US1] Create the integration test file and function for US-1 acceptance scenario 1. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Step 1**: Create the test file `tests/integration/test_us1.py`.
  - **Step 2**: Write a test function `test_us1_acceptance_scenario_1` in `tests/integration/test_us1.py` that:
  1. Calls `run_analysis_pipeline` with a sample date range.
@@ -233,7 +233,7 @@ tqdm==4.66.1
  3. Asserts that correlation coefficients are numeric and p-value is between 0 and 1.
  - **Verification**: Run `pytest tests/integration/test_us1.py::test_us1_acceptance_scenario_1`.
 
-- [ ] T022 [US1] Verify pipeline handles NaN gaps by cleaning, resampling, and producing correlation output without error (US-1 Acceptance Scenario 2). <!-- FAILED: unspecified -->
+- [ ] T022 [US1] Verify pipeline handles NaN gaps by cleaning, resampling, and producing correlation output without error (US-1 Acceptance Scenario 2). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - **Step 1**: Create a test dataset using a real subset of data (e.g., from a known-good real dataset) and programmatically inject a significant time gap (NaNs) into the series.
  - **Step 2**: Run `run_analysis_pipeline` on this dataset.
  - **Step 3**: Verify the pipeline completes without error and produces valid output.

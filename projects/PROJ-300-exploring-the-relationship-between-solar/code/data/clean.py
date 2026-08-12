@@ -1,5 +1,6 @@
 """
 Data cleaning and resampling module.
+
 File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/data/clean.py
 """
 import pandas as pd
@@ -11,81 +12,91 @@ import json
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
-PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 def clean_and_resample(df_sw: pd.DataFrame, df_ey: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Remove NaN values and resample both DataFrames to a common regular cadence.
+    Remove NaN values and resample both DataFrames to a common regular cadence (5 minutes).
     
     Args:
-        df_sw: Solar wind DataFrame with columns [timestamp, Vsw, Bz]
-        df_ey: THEMIS DataFrame with columns [timestamp, Ey]
+        df_sw: Solar wind DataFrame with 'timestamp', 'Vsw', 'Bz'
+        df_ey: THEMIS DataFrame with 'timestamp', 'Ey'
         
     Returns:
-        Tuple of (cleaned_sw_df, cleaned_ey_df) with aligned indices
+        tuple: (df_sw_clean, df_ey_clean) resampled DataFrames
     """
-    logger.info("Cleaning and resampling data...")
+    # Set timestamp as index
+    df_sw = df_sw.set_index('timestamp').sort_index()
+    df_ey = df_ey.set_index('timestamp').sort_index()
     
-    # Ensure timestamp is datetime and set as index
-    if 'timestamp' in df_sw.columns:
-        df_sw['timestamp'] = pd.to_datetime(df_sw['timestamp'])
-        df_sw = df_sw.set_index('timestamp')
+    # Drop rows where timestamp or value is NaN
+    df_sw = df_sw.dropna()
+    df_ey = df_ey.dropna()
     
-    if 'timestamp' in df_ey.columns:
-        df_ey['timestamp'] = pd.to_datetime(df_ey['timestamp'])
-        df_ey = df_ey.set_index('timestamp')
+    # Resample to 5-minute intervals using mean
+    df_sw_resampled = df_sw.resample('5T').mean()
+    df_ey_resampled = df_ey.resample('5T').mean()
     
-    # Drop rows with NaN values
-    df_sw_clean = df_sw.dropna()
-    df_ey_clean = df_ey.dropna()
+    # Re-align indices to the union of both time series
+    common_index = df_sw_resampled.index.union(df_ey_resampled.index)
     
-    # Resample to 5-minute intervals
-    df_sw_clean = df_sw_clean.resample('5T').mean()
-    df_ey_clean = df_ey_clean.resample('5T').mean()
+    df_sw_clean = df_sw_resampled.reindex(common_index)
+    df_ey_clean = df_ey_resampled.reindex(common_index)
     
-    # Re-align indices
-    common_index = df_sw_clean.index.intersection(df_ey_clean.index)
-    df_sw_clean = df_sw_clean.loc[common_index]
-    df_ey_clean = df_ey_clean.loc[common_index]
+    # Drop rows where either Vsw or Ey is NaN (after alignment)
+    mask = df_sw_clean['Vsw'].notna() & df_ey_clean['Ey'].notna()
+    df_sw_clean = df_sw_clean[mask]
+    df_ey_clean = df_ey_clean[mask]
     
-    # Drop any remaining NaNs after alignment
-    df_sw_clean = df_sw_clean.dropna()
-    df_ey_clean = df_ey_clean.dropna()
+    logger.info(f"Resampled data to 5-minute cadence. Remaining points: {len(df_sw_clean)}")
     
-    logger.info(f"Cleaned data shapes: SW={df_sw_clean.shape}, EY={df_ey_clean.shape}")
-    
-    return df_sw_clean, df_ey_clean
+    return df_sw_clean.reset_index(), df_ey_clean.reset_index()
 
 def handle_gaps(df: pd.DataFrame, max_gap_minutes: int = 30) -> pd.DataFrame:
     """
-    Flag or truncate series with gaps exceeding max_gap_minutes.
+    Identify gaps > max_gap_minutes and truncate the series at the gap.
     
     Args:
-        df: DataFrame with datetime index
+        df: DataFrame with 'timestamp' column
         max_gap_minutes: Maximum allowed gap in minutes
         
     Returns:
-        DataFrame with gaps handled (truncated at large gaps)
+        pd.DataFrame: Truncated DataFrame
     """
-    logger.info(f"Checking for gaps > {max_gap_minutes} minutes...")
-    
     if df.empty:
         return df
+        
+    df = df.set_index('timestamp').sort_index()
+    df.index = pd.to_datetime(df.index)
     
     # Calculate time differences
     time_diffs = df.index.to_series().diff()
     
     # Identify gaps
     gap_mask = time_diffs > timedelta(minutes=max_gap_minutes)
-    gap_indices = df.index[gap_mask]
     
-    if len(gap_indices) > 0:
-        logger.warning(f"Found {len(gap_indices)} gaps exceeding {max_gap_minutes} minutes")
+    if gap_mask.any():
+        # Find the first gap
+        first_gap_idx = gap_mask.idxmax()
+        logger.warning(f"Large gap detected at {first_gap_idx}. Truncating series.")
         
-        # Truncate at the first large gap
-        first_gap_idx = gap_indices[0]
-        df = df.loc[:first_gap_idx]
+        # Truncate before the gap
+        df = df.loc[:first_gap_idx - timedelta(minutes=1)]
         
-        logger.info(f"Truncated data at first large gap: {first_gap_idx}")
+        # Log warning
+        warnings_log_path = Path(__file__).parent.parent.parent / 'data' / 'processed' / 'quality_log.json'
+        if warnings_log_path.exists():
+            with open(warnings_log_path, 'r') as f:
+                log_data = json.load(f)
+        else:
+            log_data = {"entries": []}
+        
+        log_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "warning": f"Gap > {max_gap_minutes} minutes detected at {first_gap_idx}. Series truncated."
+        }
+        log_data["entries"].append(log_entry)
+        
+        with open(warnings_log_path, 'w') as f:
+            json.dump(log_data, f, indent=2)
     
-    return df
+    return df.reset_index()

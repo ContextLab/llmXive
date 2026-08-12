@@ -33,8 +33,8 @@ T011:
     \ The task\u2019s core artifact is missing."
 T014:
   c: false
-  h: 0a73a4cd030feb04170a76281635c1733158e513a98118e574e4b659aae513f5
-  r: The provided `code/01_data_acquisition.py` does not contain the required cleaning/imputation
-    logic (the file is truncated and shows only setup and synthetic data generation),
-    and the required `results/exclusion_report.log` file is absent. Both the functional
-    implementation and the logging artifact are missing.
+  h: 1351b2a418bf39a1edd7ff58bae4ebe6af09d3ee54e67ff5c4e4212c0049d446
+  r: "The `code/01_data_acquisition.py` file does not contain the required cleaning/imputation\
+    \ logic (the shown portion ends abruptly and never defines such steps), and the\
+    \ required `results/exclusion_report.log` file is absent. Consequently the task\u2019\
+    s specifications are not met."

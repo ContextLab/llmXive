@@ -1,4 +1,4 @@
 """
-llmXive research pipeline for analyzing the influence of microstructural features
-on fatigue life in aluminum alloys.
+llmXive Project: Influence of Microstructural Features on Fatigue Life
+Source code package for data acquisition, feature extraction, and modeling.
 """

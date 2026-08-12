@@ -45,7 +45,7 @@
 - [X] T009 Create `code/audit/manual_validation.py` skeleton for the audit sample size rule (`max(10, ceil(0.10 * N_LLM))`)
 - [X] T031 [US3] Implement `code/analysis/complexity.py` to compute Cyclomatic Complexity and Lines of Code for PR diffs (moved from Phase 5 to ensure data flow)
 - [X] T032 [US3] Implement fallback logic in `code/analysis/complexity.py` to use standard metrics if memory usage > 6GB (Assumption 3)
-- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` and `complexity_score` columns (moved from Phase 5)
+- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` and `complexity_score` columns (moved from Phase 5) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -61,7 +61,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010a [P] [US1] Unit test `test_copilot_signature_match` in `tests/unit/test_classification.py`: The research question is to determine the classification of Copilot bot users. [UNRESOLVED-CLAIM: c_ac798012 — status=not_enough_info] The method involves labeling Copilot bot users as `llm` with high confidence.
+- [X] T010a [P] [US1] Unit test `test_copilot_signature_match` in `tests/unit/test_classification.py`: The research question is to determine the classification of Copilot bot users. The method involves labeling Copilot bot users as `llm` with high confidence.
 - [X] T010b [P] [US1] Unit test `test_infrastructure_bot_exclusion` in `tests/unit/test_classification.py`: asserts dependabot is labeled `human`
 - [X] T010c [P] [US1] Unit test `test_ambiguous_message_confidence` in `tests/unit/test_classification.py`: asserts message with no signature yields confidence < 0.6
 - [X] T011a [P] [US1] Unit test `test_entropy_calculation` in `tests/unit/test_detection.py`: asserts code entropy calculation returns float > 0 for random code
@@ -70,11 +70,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/data/fetch_github.py` to fetch up to 200 PRs from prioritized list, handling pagination, API backoff, and saving raw JSON payloads to `data/raw/` with SHA-256 checksums (Constitution Principle III)
-- [ ] T014 [US1] Implement `code/data/classify_prs.py` primary logic: label `llm` or `human` based on commit message/bot signatures; **MUST** populate `confidence_score` (float) for **every** PR (normalized scale); flag ambiguous cases (confidence < 0.6) by adding a 'flagged' boolean column
-- [ ] T015 [US1] Implement `code/data/classify_prs.py` secondary detector: compute code entropy/n-gram anomaly scores on PR diffs to validate `llm` labels (FR-007) and output `detector_score`
-- [ ] T017 [US1] Create `code/data/save_labeled_dataset.py` to output `data/processed/prs_labeled.csv` with `source_type`, `confidence_score`, `flagged`, `detector_score`, and metadata
-- [ ] T018 [US1] Implement fallback logic in `code/data/fetch_github.py` to automatically switch to next repo if `llm` count < 10 in current repo
+- [X] T013 [US1] Implement `code/data/fetch_github.py` to fetch up to 200 PRs from prioritized list, handling pagination, API backoff, and saving raw JSON payloads to `data/raw/` with SHA-256 checksums (Constitution Principle III)
+- [X] T014 [US1] Implement `code/data/classify_prs.py` primary logic: label `llm` or `human` based on commit message/bot signatures; **MUST** populate `confidence_score` (float) for **every** PR (normalized scale); flag ambiguous cases (confidence < 0.6) by adding a 'flagged' boolean column
+- [X] T015 [US1] Implement `code/data/classify_prs.py` secondary detector: compute code entropy/n-gram anomaly scores on PR diffs to validate `llm` labels (FR-007) and output `detector_score`
+- [X] T017 [US1] Create `code/data/save_labeled_dataset.py` to output `data/processed/prs_labeled.csv` with `source_type`, `confidence_score`, `flagged`, `detector_score`, and metadata
+- [X] T018 [US1] Implement fallback logic in `code/data/fetch_github.py` to automatically switch to next repo if `llm` count < 10 in current repo
 - [ ] T019a [US1] Implement `code/audit/manual_validation.py` logic to select stratified sample of size determined by a minimum threshold or a fixed proportion of the population, specifically `max(min_threshold, ceil(proportion * N_LLM))`, execute human-judgment checklist, and log results to `data/audit/manual_audit_results.json`
 - [ ] T019b [US1] Implement error rate calculation logic in `code/audit/manual_validation.py` to compare manual results against automated labels **AND the secondary detector score (FR-007)** as ground truth, calculate the labeling error rate, write the result to `data/audit/error_rate.json`, and raise a runtime error if the rate exceeds **0.05 as defined in SC-004**
 

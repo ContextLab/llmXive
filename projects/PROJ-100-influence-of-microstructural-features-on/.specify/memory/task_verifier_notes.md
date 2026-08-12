@@ -8,7 +8,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T003** — No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) or setup scripts are present in the provided evidence, so the claim that linting (ruff/flake8) and formatting (black) are configured in `code/` cannot be verified. The required artifacts are missing.
 - **T010** — declared artifact(s) missing/empty/invalid: tests/unit/test_data_generation.py
 - **T011** — The required file `tests/integration/test_data_pipeline.py` does not exist, so no integration test is provided to verify the data cleaning pipeline as specified. The task’s core artifact is missing.
-- **T012** — declared artifact(s) missing/empty/invalid: data/raw/validated_data.csv
-- **T014** — The provided `code/01_data_acquisition.py` does not contain the required cleaning/imputation logic (the file is truncated and shows only setup and synthetic data generation), and the required `results/exclusion_report.log` file is absent. Both the functional implementation and the logging artifact are missing.
-- **T016** — declared artifact(s) missing/empty/invalid: data/processed/cleaned_aluminum_fatigue.csv
-- **T019** — declared artifact(s) missing/empty/invalid: tests/integration/test_model_training.py
+- **T014** — The `code/01_data_acquisition.py` file does not contain the required cleaning/imputation logic (the shown portion ends abruptly and never defines such steps), and the required `results/exclusion_report.log` file is absent. Consequently the task’s specifications are not met.

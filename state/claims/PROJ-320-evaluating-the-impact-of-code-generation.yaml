@@ -275,3 +275,130 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T03:42:02Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: manual validation sample size rule max(10, ceil(0.10 * N_LLM))
+  claim_id: c_8f35a084
+  context: Create code/audit/manual_validation.py skeleton for the audit sample size
+    rule (max(10, ceil(0.10 * N_LLM)))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Manual_validation_sample_size_rule_max(10,_ceil(0.10_*_N_LLM
+  kind: entity_fact
+  raw_text: The sample size rule for manual validation is defined as max(10, ceil(0.10
+    * N_LLM)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:56:54Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: complexity fallback threshold 6GB memory usage
+  claim_id: c_374097e8
+  context: Implement fallback logic in code/analysis/complexity.py to use standard
+    metrics if memory usage > 6GB (Assumption 3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_fallback_threshold_6GB_memory_usage
+  kind: entity_fact
+  raw_text: The fallback logic in code/analysis/complexity.py uses standard metrics
+    if memory usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:01Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: fetch limit 200 PRs
+  claim_id: c_95eb3b23
+  context: Implement code/data/fetch_github.py to fetch up to 200 PRs from prioritized
+    list, handling pagination, API backoff, and saving raw JSON payloads to data/raw/
+    with SHA-256 checksums
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fetch script is configured to fetch up to 200 PRs from the prioritized
+    list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:07Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: ambiguous confidence threshold 0.6
+  claim_id: c_eafd0bf5
+  context: flag ambiguous cases (confidence < 0.6) by adding a 'flagged' boolean column
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ambiguous_confidence_threshold_0.6
+  kind: magnitude
+  raw_text: Ambiguous cases are flagged if the confidence score is less than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:18Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: audit sample size formula max(min_threshold, ceil(proportion * N_LLM))
+  claim_id: c_036d1c00
+  context: Implement code/audit/manual_validation.py logic to select stratified sample
+    of size determined by a minimum threshold or a fixed proportion of the population,
+    specifically max(min_threshold, ceil(proportion * N_LLM))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Audit_sample_size_formula_max(min_threshold,_ceil(proportion
+  kind: entity_fact
+  raw_text: The audit sample size calculation uses a formula of max(min_threshold,
+    ceil(proportion * N_LLM)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:25Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: labeling error rate threshold 0.05
+  claim_id: c_28c40481
+  context: calculate the labeling error rate, write the result to data/audit/error_rate.json,
+    and raise a runtime error if the rate exceeds 0.05 as defined in SC-004
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A runtime error is raised if the labeling error rate exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:41Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: report generation block error rate 0.05
+  claim_id: c_3f3cd420
+  context: read the error rate from data/audit/error_rate.json (produced by T019b)
+    and write a gate_status flag to data/processed/gate_status.json (block final report
+    generation if rate > 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final report generation is blocked if the error rate from data/audit/error_rate.json
+    exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:48Z'
