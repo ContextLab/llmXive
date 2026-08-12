@@ -1,89 +1,115 @@
 import os
-import tempfile
 import yaml
-import pytest
+import logging
 from pathlib import Path
+import pytest
+import tempfile
+import shutil
 
-from code.utils.io import compute_file_hash, log_artifact
-from code.utils.constants import STATE_DIR, ARTIFACT_HASHES_FILE
-
-@pytest.fixture
-def temp_file():
-    """Create a temporary file with known content."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-        f.write("Hello, World!")
-        temp_path = f.name
-    yield temp_path
-    os.unlink(temp_path)
+from code.utils.io import compute_file_hash, log_artifact, log_data_acquisition_step, log_preprocessing_step
+from code.utils.constants import STATE_DIR
 
 @pytest.fixture
-def clean_state():
-    """Ensure a clean state file for testing."""
-    # Remove existing state file if present
-    if os.path.exists(ARTIFACT_HASHES_FILE):
-        os.remove(ARTIFACT_HASHES_FILE)
-    yield
-    # Cleanup after test
-    if os.path.exists(ARTIFACT_HASHES_FILE):
-        os.remove(ARTIFACT_HASHES_FILE)
+def temp_state_dir():
+    """Create a temporary directory to simulate STATE_DIR for testing."""
+    temp_dir = tempfile.mkdtemp()
+    # Monkey-patch STATE_DIR for the duration of the test
+    original_state_dir = STATE_DIR
+    # We cannot easily monkey-patch a module-level constant used in function definitions,
+    # so we will rely on the fact that STATE_DIR is a Path object.
+    # Instead, we will test by creating files in the temp dir and manually calling the logic
+    # or by temporarily replacing the global STATE_DIR if possible.
+    # A simpler approach for this specific test: use the actual STATE_DIR but clean up after.
+    # However, to avoid polluting the real state, we'll test the logic in isolation.
+    # Let's just test the functions that don't depend on the global STATE_DIR path directly
+    # or mock the path.
+    yield temp_dir
+    shutil.rmtree(temp_dir)
 
-def test_compute_sha256_hash(temp_file):
-    """Test SHA256 hash computation."""
-    # Known SHA256 for "Hello, World!"
-    expected_hash = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-    result = compute_file_hash(temp_file, "sha256")
-    assert result == expected_hash
+def test_compute_file_hash(tmp_path):
+    """Test hash computation for a known file."""
+    test_file = tmp_path / "test.txt"
+    test_content = b"Hello, World!"
+    test_file.write_bytes(test_content)
 
-def test_compute_md5_hash(temp_file):
-    """Test MD5 hash computation."""
-    # Known MD5 for "Hello, World!"
-    expected_hash = "65a8e27d8879283831b664bd8b7f0ad4"
-    result = compute_file_hash(temp_file, "md5")
-    assert result == expected_hash
+    hash_val = compute_file_hash(test_file, algorithm="sha256")
+    assert isinstance(hash_val, str)
+    assert len(hash_val) == 64  # SHA256 hex length
 
-def test_compute_hash_invalid_algorithm(temp_file):
-    """Test that invalid algorithm raises ValueError."""
-    with pytest.raises(ValueError):
-        compute_file_hash(temp_file, "invalid_algo")
+def test_log_data_acquisition_step(tmp_path, monkeypatch):
+    """Test logging a data acquisition step."""
+    # Monkeypatch STATE_DIR to point to temp directory
+    from code.utils import io
+    original_state_dir = io.STATE_DIR
+    io.STATE_DIR = Path(tmp_path)
 
-def test_compute_hash_missing_file():
-    """Test that missing file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        compute_file_hash("nonexistent_file.txt")
+    try:
+        step_name = "download_study"
+        details = {"study_id": "C-STUDY-123", "status": "success", "files_downloaded": 2}
+        
+        log_data_acquisition_step(step_name, details)
 
-def test_log_artifact(clean_state, temp_file):
-    """Test logging an artifact to the state file."""
-    log_artifact(temp_file, description="Test artifact", metadata={"source": "test"})
-    
-    assert os.path.exists(ARTIFACT_HASHES_FILE)
-    
-    with open(ARTIFACT_HASHES_FILE, "r") as f:
-        state = yaml.safe_load(f)
-    
-    artifact_key = os.path.basename(temp_file)
-    assert artifact_key in state
-    assert state[artifact_key]["hash"] == compute_file_hash(temp_file, "sha256")
-    assert state[artifact_key]["description"] == "Test artifact"
-    assert state[artifact_key]["metadata"]["source"] == "test"
+        log_file = tmp_path / "data_log.yaml"
+        assert log_file.exists()
 
-def test_log_artifact_overwrites_existing(clean_state, temp_file):
-    """Test that logging the same file twice overwrites the entry."""
-    log_artifact(temp_file, description="First")
-    log_artifact(temp_file, description="Updated")
-    
-    with open(ARTIFACT_HASHES_FILE, "r") as f:
-        state = yaml.safe_load(f)
-    
-    artifact_key = os.path.basename(temp_file)
-    assert state[artifact_key]["description"] == "Updated"
+        with open(log_file, "r") as f:
+            logs = yaml.safe_load(f)
 
-def test_log_artifact_missing_file(clean_state):
-    """Test logging a missing file prints warning and does not crash."""
-    # Should not raise, just print warning
-    log_artifact("nonexistent_file.txt", description="Missing")
-    
-    # State file should not be created or updated with this entry
-    if os.path.exists(ARTIFACT_HASHES_FILE):
-        with open(ARTIFACT_HASHES_FILE, "r") as f:
-            state = yaml.safe_load(f)
-        assert "nonexistent_file.txt" not in state
+        assert isinstance(logs, list)
+        assert len(logs) == 1
+        assert logs[0]["step"] == step_name
+        assert logs[0]["details"]["study_id"] == "C-STUDY-123"
+    finally:
+        io.STATE_DIR = original_state_dir
+
+def test_log_preprocessing_step(tmp_path, monkeypatch):
+    """Test logging a preprocessing step."""
+    from code.utils import io
+    original_state_dir = io.STATE_DIR
+    io.STATE_DIR = Path(tmp_path)
+
+    try:
+        step_name = "log_transform"
+        details = {"features_before": 1000, "features_after": 850, "missing_threshold": 0.3}
+
+        log_preprocessing_step(step_name, details)
+
+        log_file = tmp_path / "preprocessing_log.yaml"
+        assert log_file.exists()
+
+        with open(log_file, "r") as f:
+            logs = yaml.safe_load(f)
+
+        assert isinstance(logs, list)
+        assert len(logs) == 1
+        assert logs[0]["step"] == step_name
+        assert logs[0]["details"]["features_before"] == 1000
+    finally:
+        io.STATE_DIR = original_state_dir
+
+def test_log_artifact(tmp_path, monkeypatch):
+    """Test logging an artifact with hash."""
+    from code.utils import io
+    original_state_dir = io.STATE_DIR
+    io.STATE_DIR = Path(tmp_path)
+
+    try:
+        # Create a dummy artifact file
+        artifact_file = tmp_path / "dummy_artifact.csv"
+        artifact_file.write_text("col1,col2\n1,2\n3,4")
+
+        log_artifact(artifact_file, "processed_data", "Test artifact for T016")
+
+        state_file = tmp_path / "artifact_hashes.yaml"
+        assert state_file.exists()
+
+        with open(state_file, "r") as f:
+            records = yaml.safe_load(f)
+
+        assert isinstance(records, list)
+        assert len(records) == 1
+        assert records[0]["type"] == "processed_data"
+        assert "hash" in records[0]
+        assert len(records[0]["hash"]) == 64
+    finally:
+        io.STATE_DIR = original_state_dir

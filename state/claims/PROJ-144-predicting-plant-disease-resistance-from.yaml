@@ -376,3 +376,51 @@
   source_type: external
   status: verified
   updated_at: '2026-08-10T12:42:53Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/research.md
+  attempts: 1
+  canonical: 2 studies found for plant disease resistance project
+  claim_id: c_d1da6eee
+  context: 'Criteria: Must contain pre-challenge metabolite profiles AND disease-resistance
+    metadata. Verification Date: 2023-10-27 12:00:00 Total Studies Found: 2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Studies Found: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:27:05Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/research.md
+  attempts: 1
+  canonical: Study ST001632 verified for plant disease resistance project
+  claim_id: c_6af7da34
+  context: '## Selected Studies ### Study 1: ST001632 - Title: Metabolomic profiling
+    of rice response to bacterial blight'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Study 1: ST001632'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:27:21Z'
+- artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/research.md
+  attempts: 1
+  canonical: Study ST001854 verified for plant disease resistance project
+  claim_id: c_07c2ca3d
+  context: '### Study 2: ST001854 - Title: Metabolite profiling of wheat genotypes
+    with different resistance levels to Fusarium head blight'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Study 2: ST001854'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:27:41Z'

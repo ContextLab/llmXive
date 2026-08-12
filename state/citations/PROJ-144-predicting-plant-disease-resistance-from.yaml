@@ -1,70 +1,3 @@
-- artifact_hash: 7ac0d2d4740ba4d004f4c50c56b77ac766813416b73b757aea9ec99dd779f5d9
-  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/README.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'Metabolomics Workbench : Home'
-  kind: url
-  value: https://www.metabolomicsworkbench.org/
-  verification_status: pending
-  verified_against_url: https://www.metabolomicsworkbench.org/
-  verified_at: '2026-07-21T16:30:00.033833Z'
-- artifact_hash: 4418cda82766161cece76e57171100584001fbe41198f4b70e99ed2af170f256
-  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: Metabolomics Workbench
-  fetched_title: 'Metabolomics Workbench : Home'
-  kind: url
-  value: https://www.metabolomicsworkbench.org/
-  verification_status: verified
-  verified_against_url: https://www.metabolomicsworkbench.org/
-  verified_at: '2026-07-21T16:30:04.986572Z'
-- artifact_hash: 4418cda82766161cece76e57171100584001fbe41198f4b70e99ed2af170f256
-  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: KEGG Pathway Database
-  fetched_title: 'KEGG: Kyoto Encyclopedia of Genes and Genomes'
-  kind: url
-  value: https://www.kegg.jp/
-  verification_status: mismatch
-  verified_against_url: https://www.kegg.jp/
-  verified_at: '2026-07-21T16:30:04.986572Z'
-- artifact_hash: 4418cda82766161cece76e57171100584001fbe41198f4b70e99ed2af170f256
-  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/quickstart.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: MetaCyc Pathway Database
-  fetched_title: 'MetaCyc: Metabolic Pathways From all Domains of Life'
-  kind: url
-  value: https://metacyc.org/
-  verification_status: mismatch
-  verified_against_url: https://metacyc.org/
-  verified_at: '2026-07-21T16:30:04.986572Z'
-- artifact_hash: 4418cda82766161cece76e57171100584001fbe41198f4b70e99ed2af170f256
-  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/quickstart.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: SHAP Documentation
-  fetched_title: Welcome to the SHAP documentation &mdash; SHAP latest documentation
-  kind: url
-  value: https://shap.readthedocs.io/
-  verification_status: verified
-  verified_against_url: https://shap.readthedocs.io/en/latest/
-  verified_at: '2026-07-21T16:30:04.986572Z'
-- artifact_hash: 4418cda82766161cece76e57171100584001fbe41198f4b70e99ed2af170f256
-  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/quickstart.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: scikit-learn Documentation
-  fetched_title: 'scikit-learn: machine learning in Python &mdash; scikit-learn 0.16.1
-    documentation'
-  kind: url
-  value: https://scikit-learn.org/
-  verification_status: verified
-  verified_against_url: https://scikit-learn.org/
-  verified_at: '2026-07-21T16:30:04.986572Z'
 - artifact_hash: 4b0383a95bbbbfbfee463162ce0f69f742a2abb11e62693e1e893409984e094a
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/research.md
   cite_id: c-001
@@ -98,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-08-12T06:00:41.266117Z'
-- artifact_hash: 7cfabb9feb7ae3d4ae07fbf3a2e2febd55c0613dea03df9bf0d4aa27830cb822
+- artifact_hash: 290b39dfaba667bf0089e44870de14308a43928f125551b1ae65182eb18d150d
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -108,4 +41,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-12T06:20:41.673371Z'
+  verified_at: '2026-08-12T16:25:40.418505Z'

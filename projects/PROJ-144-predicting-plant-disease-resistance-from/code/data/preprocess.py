@@ -1,322 +1,318 @@
+"""
+Preprocessing Pipeline for Metabolomics Data.
+
+Implements:
+- Log transformation
+- Missing feature filtering (>30% missing)
+- InChIKey alignment
+- Covariate residualization
+- ComBat batch correction
+
+Outputs:
+- data/processed/batch_corrected_matrix.csv
+- data/processed/labels.csv
+"""
 import os
+import sys
 import glob
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Any
 import warnings
-import sys
+import logging
 from pathlib import Path
 
-# Add project root to path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.constants import DATA_PROCESSED_DIR, DATA_RAW_DIR
+from utils.constants import DATA_RAW_DIR, DATA_PROCESSED_DIR, RESULTS_DIR
+from utils.io import log_preprocessing_step
+from data.download import download_metabolomics_data
+from data.harmonize_labels import harmonize_labels
+from data.validate_temporal import validate_temporal_consistency
 
-# Try to import optional dependencies, fallback gracefully
-try:
-    from sklearn.preprocessing import StandardScaler
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+warnings.filterwarnings('ignore')
+
+def log_transform(data: pd.DataFrame) -> pd.DataFrame:
+    """Apply log2 transformation to intensity values."""
+    logger.info("Applying log2 transformation...")
+    # Assume numeric columns are intensities
+    numeric_cols = data.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) == 0:
+        raise ValueError("No numeric columns found for log transformation.")
+    
+    # Add small epsilon to avoid log(0)
+    data[numeric_cols] = np.log2(data[numeric_cols] + 1e-8)
+    return data
+
+def filter_missing_features(data: pd.DataFrame, threshold: float = 0.30) -> pd.DataFrame:
+    """Discard features (columns) missing > threshold fraction."""
+    logger.info(f"Filtering features with > {threshold*100}% missing values...")
+    missing_ratio = data.isna().mean()
+    keep_cols = missing_ratio[missing_ratio <= threshold].index
+    filtered_data = data[keep_cols]
+    dropped_count = len(data.columns) - len(keep_cols)
+    logger.info(f"Dropped {dropped_count} features due to missingness.")
+    return filtered_data
+
+def align_metabolites_by_inchikey(study_dfs: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """Align metabolites across studies using InChIKey."""
+    logger.info("Aligning metabolites by InChIKey...")
+    
+    # Assume each study df has a column 'InChIKey' or similar identifier
+    # We will merge on 'InChIKey' and sample_id, keeping only common metabolites
+    
+    # 1. Standardize column names if needed (simplified assumption)
+    # We expect 'InChIKey' to be present. If not, we might need to infer.
+    # For this implementation, we assume 'InChIKey' is a column.
+    
+    common_inchikeys = set()
+    for name, df in study_dfs.items():
+        if 'InChIKey' in df.columns:
+            common_inchikeys.update(df['InChIKey'].dropna().unique())
+        else:
+            logger.warning(f"Study {name} missing InChIKey column. Skipping alignment for this study.")
+    
+    if not common_inchikeys:
+        logger.error("No common InChIKeys found across studies.")
+        return pd.DataFrame()
+    
+    # Filter each study to only common InChIKeys
+    aligned_dfs = []
+    for name, df in study_dfs.items():
+        if 'InChIKey' in df.columns:
+            aligned_df = df[df['InChIKey'].isin(common_inchikeys)].copy()
+            aligned_dfs.append(aligned_df)
+    
+    if not aligned_dfs:
+        return pd.DataFrame()
+    
+    # Concatenate and pivot to wide format if necessary
+    # Assumption: Input is long format (sample_id, InChIKey, normalized_intensity)
+    # Output: Wide format (sample_id, InChIKey_1, InChIKey_2, ...)
+    
+    combined = pd.concat(aligned_dfs, ignore_index=True)
+    
+    # Pivot to wide format
+    # We need a unique identifier for rows. Assuming 'sample_id' + 'InChIKey' is unique per study?
+    # If multiple rows per sample+inchikey (replicates), we might need to aggregate (mean).
+    if combined.duplicated(subset=['sample_id', 'InChIKey']).any():
+        logger.info("Aggregating duplicate sample+InChIKey entries (mean)...")
+        combined = combined.groupby(['sample_id', 'InChIKey'])['normalized_intensity'].mean().reset_index()
+    
+    wide_df = combined.pivot(index='sample_id', columns='InChIKey', values='normalized_intensity')
+    wide_df = wide_df.reset_index()
+    
+    logger.info(f"Aligned dataset shape: {wide_df.shape}")
+    return wide_df
+
+def residualize_confounders(data: pd.DataFrame, confounder_cols: List[str] = None) -> pd.DataFrame:
+    """Residualize data for biological confounders."""
+    logger.info("Residualizing confounders...")
+    # If no confounders specified, skip or use default (e.g., study_id if present)
+    if confounder_cols is None:
+        confounder_cols = ['study_id'] # Assuming study_id is a column
+    
+    available_conf = [c for c in confounder_cols if c in data.columns]
+    if not available_conf:
+        logger.warning("No confounder columns found. Skipping residualization.")
+        return data
+    
+    # Simple linear regression residualization for each metabolite column
     from sklearn.linear_model import LinearRegression
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
-    warnings.warn("scikit-learn not installed. Covariate residualization and scaling disabled.")
-
-try:
-    import pycombat
-    HAS_PYCOMBAT = True
-except ImportError:
-    try:
-        import pycombat as pycombat
-        HAS_PYCOMBAT = True
-    except ImportError:
-        HAS_PYCOMBAT = False
-        warnings.warn("pycombat not installed. Batch correction (ComBat) disabled. Install via: pip install pycombat")
-
-def _log_message(msg: str):
-    """Simple logging helper."""
-    print(f"[PREPROCESS] {msg}")
-
-def _load_raw_data() -> List[Dict[str, Any]]:
-    """
-    Loads harmonized data from data/processed.
-    Expects files produced by harmonize_labels.py (e.g., harmonized_study_*.csv).
-    Returns a list of dicts: {'study_id': str, 'df': DataFrame, 'path': str}
-    """
-    pattern = os.path.join(DATA_PROCESSED_DIR, "harmonized_study_*.csv")
-    files = glob.glob(pattern)
     
-    if not files:
-        # Fallback: try to find any csv in processed if harmonized files don't exist yet
-        # but strictly, we expect harmonized output.
-        _log_message(f"WARNING: No files matching {pattern} found.")
-        return []
-
-    data_batches = []
-    for f_path in files:
-        try:
-            df = pd.read_csv(f_path)
-            # Extract study ID from filename if possible, otherwise use generic
-            study_id = os.path.splitext(os.path.basename(f_path))[0].replace("harmonized_study_", "")
-            data_batches.append({
-                "study_id": study_id,
-                "df": df,
-                "path": f_path
-            })
-            _log_message(f"Loaded study {study_id}: {df.shape}")
-        except Exception as e:
-            _log_message(f"ERROR loading {f_path}: {e}")
+    numeric_cols = data.select_dtypes(include=[np.number]).columns
+    conf_df = data[available_conf].copy()
     
-    return data_batches
-
-def _log_transform_and_filter(df: pd.DataFrame, threshold: float = 0.30) -> pd.DataFrame:
-    """
-    1. Log-transforms intensity columns.
-    2. Discards features (columns) missing > threshold fraction of values.
-    Assumes first column is 'sample_id' or similar, and numeric columns are metabolites.
-    """
-    _log_message("Applying log-transform and filtering missing values...")
+    # Encode categorical confounders if necessary
+    for col in conf_df.columns:
+        if conf_df[col].dtype == 'object':
+            conf_df[col] = pd.Categorical(conf_df[col]).codes
     
-    # Identify numeric columns (metabolite intensities)
-    # Exclude common ID columns if present
-    exclude_cols = ['sample_id', 'subject_id', 'study_id', 'resistance_label', 'resistance_score']
-    numeric_cols = [c for c in df.columns if c not in exclude_cols and pd.api.types.is_numeric_dtype(df[c])]
+    residuals_data = data.copy()
     
-    if not numeric_cols:
-        raise ValueError("No numeric metabolite columns found for log-transform.")
-
-    # Log transform (log1p to handle zeros)
-    df[numeric_cols] = np.log1p(df[numeric_cols])
-
-    # Calculate missing fraction
-    missing_frac = df[numeric_cols].isna().mean()
-    cols_to_keep = missing_frac[missing_frac <= threshold].index.tolist()
-    
-    dropped_count = len(numeric_cols) - len(cols_to_keep)
-    _log_message(f"Log-transformed {len(numeric_cols)} features. Dropped {dropped_count} features with >{threshold*100}% missing.")
-    
-    return df[cols_to_keep + [c for c in df.columns if c not in numeric_cols]]
-
-def _align_metabolites(batches: List[Dict[str, Any]]) -> pd.DataFrame:
-    """
-    Aligns metabolites across studies based on column names (InChIKey assumed as column names).
-    Performs an outer join on metabolite columns, filling NaNs with 0 or mean? 
-    Spec says: "Align metabolites via InChIKey". 
-    Strategy: Union of all metabolite columns. 
-    """
-    _log_message("Aligning metabolites across studies via InChIKey (column names)...")
-    
-    # Collect all unique metabolite columns (excluding metadata)
-    all_met_cols = set()
-    exclude_cols = ['sample_id', 'subject_id', 'study_id', 'resistance_label', 'resistance_score']
-    
-    for batch in batches:
-        cols = [c for c in batch['df'].columns if c not in exclude_cols]
-        all_met_cols.update(cols)
-    
-    all_met_cols = sorted(list(all_met_cols))
-    _log_message(f"Total unique metabolites across studies: {len(all_met_cols)}")
-    
-    # Concatenate with reindex to align columns
-    # We need to preserve metadata columns too
-    meta_cols = ['sample_id', 'study_id', 'resistance_label', 'resistance_score']
-    # Filter existing meta cols that actually exist in data
-    existing_meta = [c for c in meta_cols if any(c in b['df'].columns for b in batches)]
-    
-    combined_dfs = []
-    for batch in batches:
-        df = batch['df']
-        # Ensure meta cols exist
-        for c in existing_meta:
-            if c not in df.columns:
-                df[c] = np.nan
+    for metabolite_col in numeric_cols:
+        if metabolite_col in conf_df.columns:
+            continue # Skip confounders themselves
         
-        # Reindex to ensure all metabolite columns exist (others will be NaN)
-        # Only select meta + all_met_cols
-        cols_to_select = [c for c in existing_meta if c in df.columns] + all_met_cols
-        # Fill missing metabolite cols with NaN initially, then we might impute or leave as NaN
-        # But log-transform step usually happens before or after? 
-        # Task says: Log-transform -> Discard >30% -> Align -> Residualize -> ComBat
-        # If we align now, we introduce NaNs. The 30% filter was per study.
-        # We will fill NaNs with 0 later or handle in residualization? 
-        # Standard practice: Impute missing with 0 or half-min after alignment, but task doesn't specify.
-        # We'll leave as NaN for now, ComBat handles it if configured, or we fill 0.
-        # Let's fill with 0 for intensity data if missing entirely in a study (assumed not detected).
-        sub_df = df[cols_to_select].copy()
-        sub_df[all_met_cols] = sub_df[all_met_cols].fillna(0) 
-        combined_dfs.append(sub_df)
-    
-    result = pd.concat(combined_dfs, ignore_index=True)
-    _log_message(f"Combined dataset shape: {result.shape}")
-    return result
-
-def _residualize_covariates(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Performs covariate residualization for biological confounders.
-    Regresses out confounders (e.g., study_id, batch) from metabolite intensities.
-    Uses LinearRegression from sklearn.
-    """
-    if not HAS_SKLEARN:
-        _log_message("Skipping covariate residualization: scikit-learn not available.")
-        return df
-
-    _log_message("Performing covariate residualization...")
-    
-    # Identify confounders
-    confounders = ['study_id']
-    available_confounders = [c for c in confounders if c in df.columns]
-    
-    if not available_confounders:
-        _log_message("No confounders found to residualize.")
-        return df
-
-    # Encode categorical confounders
-    df_encoded = df.copy()
-    for col in available_confounders:
-        if df_encoded[col].dtype == 'object':
-            df_encoded[col] = df_encoded[col].astype('category').cat.codes
-    
-    # Separate features and confounders
-    exclude_cols = ['sample_id', 'resistance_label', 'resistance_score'] + available_confounders
-    feature_cols = [c for c in df_encoded.columns if c not in exclude_cols and pd.api.types.is_numeric_dtype(df_encoded[c])]
-    
-    if not feature_cols:
-        return df_encoded
-
-    X_confounders = df_encoded[available_confounders].values
-    y_features = df_encoded[feature_cols].values
-    
-    residuals = np.zeros_like(y_features)
-    
-    for i, col in enumerate(feature_cols):
+        y = data[metabolite_col].dropna()
+        X = conf_df.loc[y.index]
+        
+        if len(y) < 2 or X.isna().any().any():
+            continue
+        
         model = LinearRegression()
-        model.fit(X_confounders, y_features[:, i])
-        # Residual = y - predicted
-        residuals[:, i] = y_features[:, i] - model.predict(X_confounders)
+        model.fit(X, y)
+        residuals = y - model.predict(X)
+        residuals_data.loc[y.index, metabolite_col] = residuals
     
-    # Update dataframe
-    df_encoded[feature_cols] = residuals
-    _log_message(f"Residualized {len(feature_cols)} metabolites against {available_confounders}.")
-    return df_encoded
+    return residuals_data
 
-def _apply_combat(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Applies ComBat batch-effect correction if >= 2 studies are present.
-    Requires 'study_id' as batch column.
-    """
-    if not HAS_PYCOMBAT:
-        _log_message("Skipping ComBat: pycombat not installed.")
-        return df
-
-    if 'study_id' not in df.columns:
-        _log_message("Skipping ComBat: No 'study_id' column found.")
-        return df
-
-    study_counts = df['study_id'].value_counts()
-    if len(study_counts) < 2:
-        _log_message("Skipping ComBat: Only 1 study present. No batch effect to correct.")
-        return df
-
-    _log_message(f"Applying ComBat batch correction across {len(study_counts)} studies...")
-
-    # Prepare data for pycombat
-    # pycombat expects: data (genes x samples), batch, mod (optional model matrix)
-    # Our df is samples x genes. Need to transpose.
+def apply_combat(data: pd.DataFrame, batch_col: str = 'study_id') -> pd.DataFrame:
+    """Apply ComBat batch effect correction."""
+    logger.info("Applying ComBat batch correction...")
     
-    exclude_cols = ['sample_id', 'resistance_label', 'resistance_score']
-    feature_cols = [c for c in df.columns if c not in exclude_cols and pd.api.types.is_numeric_dtype(df[c])]
+    if batch_col not in data.columns:
+        logger.warning(f"Batch column '{batch_col}' not found. Skipping ComBat.")
+        return data
     
-    if not feature_cols:
-        return df
-
-    data_matrix = df[feature_cols].values.T  # genes x samples
-    batch = df['study_id'].values
+    # Check if we have multiple batches
+    if data[batch_col].nunique() < 2:
+        logger.info("Only one batch found. Skipping ComBat.")
+        return data
     
-    # Handle NaNs in data_matrix (ComBat doesn't like them)
-    if np.isnan(data_matrix).any():
-        # Fill NaNs with 0 or mean? ComBat usually expects complete data.
-        # Filling with 0 (assuming missing = not detected)
-        data_matrix = np.nan_to_num(data_matrix, nan=0.0)
-
     try:
-        corrected_data = pycombat.Combat(data_matrix, batch)
-        # Transpose back to samples x genes
-        corrected_data = corrected_data.T
+        from pycombat import pycombat
+        # Prepare data for pycombat
+        # pycombat expects features in columns, samples in rows
+        # and a separate batch vector
         
-        df[feature_cols] = corrected_data
-        _log_message("ComBat correction completed successfully.")
+        # Drop non-numeric columns for the matrix
+        numeric_cols = data.select_dtypes(include=[np.number]).columns
+        # Exclude the batch column from the matrix if it's numeric
+        matrix_cols = [c for c in numeric_cols if c != batch_col]
+        
+        X = data[matrix_cols].values
+        batch = data[batch_col].values
+        
+        if np.isnan(X).any():
+            # Fill NaN with mean of column for pycombat
+            col_means = np.nanmean(X, axis=0)
+            for i in range(X.shape[1]):
+                X[np.isnan(X[:, i]), i] = col_means[i]
+        
+        corrected_matrix = pycombat(X, batch)
+        
+        # Create new DataFrame
+        corrected_df = pd.DataFrame(corrected_matrix, columns=matrix_cols, index=data.index)
+        # Add back non-numeric columns (like sample_id)
+        non_numeric_cols = [c for c in data.columns if c not in matrix_cols]
+        for col in non_numeric_cols:
+            corrected_df[col] = data[col]
+        
+        logger.info("ComBat correction completed.")
+        return corrected_df
+        
+    except ImportError:
+        logger.warning("pycombat not installed. Attempting simple batch mean centering as fallback.")
+        # Fallback: Simple batch mean centering
+        corrected_df = data.copy()
+        for col in matrix_cols:
+            means = data.groupby(batch_col)[col].transform('mean')
+            corrected_df[col] = data[col] - means + data[col].mean()
+        return corrected_df
     except Exception as e:
-        _log_message(f"ERROR in ComBat correction: {e}. Proceeding without correction.")
-    
-    return df
+        logger.error(f"ComBat correction failed: {e}")
+        return data
 
-def preprocess_metabolomics():
+def preprocess_metabolomics() -> tuple:
     """
-    Main entry point for T015.
-    1. Load harmonized data.
-    2. Log-transform and filter missing > 30%.
-    3. Align metabolites.
-    4. Residualize covariates.
-    5. Apply ComBat.
-    6. Save to data/processed/batch_corrected_matrix.csv and labels.csv
+    Main orchestration function for preprocessing.
+    Returns: (batch_corrected_matrix, labels)
     """
-    _log_message("Starting preprocessing pipeline (T015)...")
+    logger.info("Starting full preprocessing pipeline...")
     
-    # 1. Load
-    batches = _load_raw_data()
-    if not batches:
-        _log_message("ERROR: No data found to process. Ensure harmonize_labels.py has run.")
-        return False
+    # 1. Download data if not present
+    # This calls the download module which handles fetching from Metabolomics Workbench
+    try:
+        download_metabolomics_data()
+    except Exception as e:
+        logger.error(f"Data download failed: {e}")
+        raise
+    
+    # 2. Validate temporal consistency
+    # This checks for pre-challenge profiles
+    try:
+        temporal_results = validate_temporal_consistency()
+        # If all studies are unverified, we might stop, but for now we proceed with verified ones
+        # The download module should have filtered or we assume valid studies exist
+    except Exception as e:
+        logger.warning(f"Temporal validation issue: {e}")
+    
+    # 3. Load raw data
+    # Assuming download puts files in DATA_RAW_DIR
+    raw_files = glob.glob(str(DATA_RAW_DIR / "*.csv"))
+    if not raw_files:
+        raise FileNotFoundError("No raw data files found in data/raw/")
+    
+    study_dfs = {}
+    for f in raw_files:
+        df = pd.read_csv(f)
+        study_name = Path(f).stem
+        study_dfs[study_name] = df
+        logger.info(f"Loaded {study_name}: {df.shape}")
+    
+    # 4. Align metabolites
+    aligned_df = align_metabolites_by_inchikey(study_dfs)
+    if aligned_df.empty:
+        raise ValueError("Alignment resulted in empty dataset.")
+    
+    # 5. Log transform
+    aligned_df = log_transform(aligned_df)
+    
+    # 6. Filter missing features
+    aligned_df = filter_missing_features(aligned_df)
+    
+    # 7. Residualize confounders
+    aligned_df = residualize_confounders(aligned_df)
+    
+    # 8. Apply ComBat
+    # Ensure study_id is present for batch correction
+    if 'study_id' not in aligned_df.columns:
+        # Try to infer from filename or add a dummy
+        logger.warning("study_id column missing. Adding dummy batch.")
+        aligned_df['study_id'] = 'batch_1'
+        
+    aligned_df = apply_combat(aligned_df, batch_col='study_id')
+    
+    # 9. Harmonize labels
+    # This function returns the harmonized labels dataframe
+    labels_df = harmonize_labels(aligned_df)
+    
+    # Separate matrix and labels
+    # Matrix: all numeric columns except sample_id and study_id
+    matrix_cols = [c for c in aligned_df.columns if c not in ['sample_id', 'study_id'] and aligned_df[c].dtype in ['float64', 'int64', 'float32', 'int32']]
+    matrix_df = aligned_df[['sample_id'] + matrix_cols]
+    
+    # Ensure sample_id is consistent between matrix and labels
+    common_samples = set(matrix_df['sample_id']).intersection(set(labels_df['sample_id']))
+    matrix_df = matrix_df[matrix_df['sample_id'].isin(common_samples)]
+    labels_df = labels_df[labels_df['sample_id'].isin(common_samples)]
+    
+    # Sort by sample_id to ensure alignment
+    matrix_df = matrix_df.sort_values('sample_id').reset_index(drop=True)
+    labels_df = labels_df.sort_values('sample_id').reset_index(drop=True)
+    
+    return matrix_df, labels_df
 
-    # 2. Log-transform and filter (per study first? or after merge? 
-    # Task says: "Log-transform intensities and discard features missing >30%".
-    # Usually done per study before merge to avoid merging sparse data.
-    # Let's do per study, then merge.
-    processed_batches = []
-    for batch in batches:
-        df = batch['df']
-        # Re-load raw if needed? No, we assume harmonized is the input.
-        # But harmonized might not be log transformed yet.
-        # We apply log transform and filter here.
-        df_clean = _log_transform_and_filter(df, threshold=0.30)
-        processed_batches.append({
-            "study_id": batch['study_id'],
-            "df": df_clean,
-            "path": batch['path']
-        })
-
-    # 3. Align
-    aligned_df = _align_metabolites(processed_batches)
-    
-    # 4. Residualize
-    residualized_df = _residualize_covariates(aligned_df)
-    
-    # 5. ComBat
-    final_df = _apply_combat(residualized_df)
-    
-    # 6. Save outputs
-    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
-    
-    # Save matrix
-    matrix_path = os.path.join(DATA_PROCESSED_DIR, "batch_corrected_matrix.csv")
-    final_df.to_csv(matrix_path, index=False)
-    _log_message(f"Saved batch corrected matrix to {matrix_path}")
-    
-    # Save labels
-    label_cols = ['sample_id', 'resistance_label', 'resistance_score']
-    available_label_cols = [c for c in label_cols if c in final_df.columns]
-    if available_label_cols:
-        labels_df = final_df[available_label_cols].copy()
-        labels_path = os.path.join(DATA_PROCESSED_DIR, "labels.csv")
+def main():
+    """Entry point for T017 execution."""
+    try:
+        matrix_df, labels_df = preprocess_metabolomics()
+        
+        # Save outputs
+        matrix_path = DATA_PROCESSED_DIR / "batch_corrected_matrix.csv"
+        labels_path = DATA_PROCESSED_DIR / "labels.csv"
+        
+        matrix_df.to_csv(matrix_path, index=False)
         labels_df.to_csv(labels_path, index=False)
-        _log_message(f"Saved labels to {labels_path}")
-    else:
-        _log_message("WARNING: No label columns found to save.")
-
-    _log_message("Preprocessing pipeline completed successfully.")
-    return True
+        
+        logger.info(f"Saved matrix to {matrix_path}")
+        logger.info(f"Saved labels to {labels_path}")
+        
+        log_preprocessing_step("preprocess_metabolomics", "completed", {
+            "matrix_shape": list(matrix_df.shape),
+            "labels_shape": list(labels_df.shape)
+        })
+        
+    except Exception as e:
+        logger.error(f"Preprocessing pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    success = preprocess_metabolomics()
-    sys.exit(0 if success else 1)
+    main()

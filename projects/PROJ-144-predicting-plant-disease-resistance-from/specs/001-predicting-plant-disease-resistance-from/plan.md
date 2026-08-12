@@ -127,7 +127,7 @@ state/
     *   **3a. Exploratory Analysis**: Compute pairwise correlations (metabolite vs. resistance). Apply Benjamini-Hochberg FDR (≤0.05) to p-values. Filter for |r| > 0.4, p < 0.01. Output to `results/shap_analysis.json`.
     *   **3b. Model Validation**: Compute balanced accuracy, ROC-AUC on hold-out (or CV if N<50). Run permutation testing (≥1,000 permutations). Flag p < 0.05 as significant.
     *   **3c. Collinearity Diagnostics**: Calculate VIF for all predictors. Flag >5. **Note**: VIF is for biological interpretation only (FR-012); it does NOT trigger feature removal or re-training. RF is robust to collinearity.
-    *   **3d. Sensitivity Analysis**: Sweep probability decision thresholds (baseline +/- diff ∈ {0.01, 0.05, 0.1}). Report False Positive Rate (FPR) and False Negative Rate (FNR) at each threshold.
+    *   **3d. Sensitivity Analysis**: Sweep probability decision thresholds (baseline +/- diff ∈ {small, 0.05, 0.1}). Report False Positive Rate (FPR) and False Negative Rate (FNR) at each threshold.
 4.  **Log**: Save `results/metrics.json` and `results/shap_analysis.json`.
 
 ### Phase 3: Interpretation & Reporting (FR-010, FR-011)

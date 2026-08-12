@@ -1,0 +1,7 @@
+checks:
+  jsonschema_syntax: true
+  structure: true
+  yaml_load: true
+  yamllint: true
+schema_file: contracts/metadata.schema.yaml
+status: valid

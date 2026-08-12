@@ -1,10 +1,27 @@
 T005:
   c: true
-  h: 3787603030b4f532cd24bb6ed7fd6ae5150a9cac54a8bbec60e6dfea00c3796a
-  r: "The repository contains a fully implemented `code/utils/io.py` with functional\
-    \ checksum computation (supporting SHA256 by default and any algorithm like MD5)\
-    \ and artifact\u2011logging that writes to `state/artifact_hashes.yaml`, creating\
-    \ the file if it does not yet exist. No placeholders or stubs remain."
+  h: 5e0ec366c7256f050d6360c6e12408dce8b24f775796d2f1678451e4b2167eba
+  r: "The repository contains a non\u2011empty `code/utils/io.py` implementing `compute_file_hash`\
+    \ (supporting MD5 and SHA256) and `log_artifact`, which writes artifact metadata\
+    \ and a SHA256 hash to `state/artifact_hashes.yaml` (creating the file if absent).\
+    \ The required functionality is present and the code will generate the YAML log\
+    \ as specified."
+T013:
+  c: true
+  h: 7cd8a1a3de28821a8f7b2b337b64d6c8933b320b93a966043bf3ae261f01417e
+  r: "The repository contains a non\u2011empty `code/data/validate_temporal.py` that\
+    \ implements keyword\u2011based checks of study metadata and returns \u201CUNVERIFIED\u201D\
+    \ when none are found, and a `results/temporal_verification.json` file is created\
+    \ (even if empty of studies when no data are present). The script\u2019s logic\
+    \ follows the requirement to write the artifact without halting the pipeline."
+T017:
+  c: false
+  h: 644837d627cc6444763af4ea93674f5ae05a28680afd1c2b99e0ac2402156dd5
+  r: "The required output files `data/processed/batch_corrected_matrix.csv` and `data/processed/labels.csv`\
+    \ are absent, and the hashes recorded in `state/artifact_hashes.yaml` correspond\
+    \ to empty placeholders (e.g., SHA\u2011256 of an empty file). Consequently the\
+    \ task\u2019s core requirement\u2014generating non\u2011empty processed data files\
+    \ and recording their checksums\u2014has not been met."
 T019:
   c: false
   h: 74347121ce103044f520c0bbaa7f3ed95f75f62c5caaa66cb681a60919589a76
@@ -13,13 +30,6 @@ T019:
     \ module it imports (`code/modeling/evaluate.py`) does not exist, so the test\
     \ cannot be executed. The required implementation file is missing, preventing\
     \ the task from being truly completed."
-T024:
-  c: false
-  h: 049dcc225f40d598036cbb6b30e0b0282f13aa04fb09e02701aa52ce42990a66
-  r: Both required output files (`results/metrics.json` and `results/shap_analysis.json`)
-    are missing from the repository, so no metrics or SHAP analysis have been logged
-    as the task demands. The implementer must generate and save these JSON files with
-    the appropriate logged data.
 T025:
   c: false
   h: 581f8b61ae458695fd8af0e25bf9ae76856d2ca3da52cd2465573360ca11d659
@@ -27,6 +37,12 @@ T025:
     \ and the provided `tests/unit/test_modeling.py` contains no test exercising `map_metabolites_to_pathways`\
     \ (or any other interpret module functionality). Consequently, the unit test for\
     \ pathway\u2011mapping logic is missing."
+T028:
+  c: false
+  h: 5b63f8bb553fc89adede27d463112118cc316c6838b610bb20b5eba7779a39ea
+  r: The required output file `results/pathway_barplot.png` does not exist, so the
+    visualization was never generated despite the presence of `results/pathway_analysis.json`.
+    The task therefore remains unfinished.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,3 +51,16 @@ T029:
     in the evidence. Without the updated README and quickstart documentation, the
     requirement is not met. The next implementer must supply the modified `README.md`
     and `quickstart.md` files showing the new instructions and validation steps.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No GitHub Actions workflow, CI run logs, or runtime/RAM measurements were provided;\
+    \ thus there is no artifact demonstrating that the full pipeline was executed\
+    \ on the free tier and stayed within the \u22646\u202Fh and \u22647\u202FGB limits.\
+    \ The required evidence is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, diff, lint report, or any refactored files are present; the only provided\
+    \ material is a feature specification unrelated to the \u201Ccode cleanup and\
+    \ refactoring\u201D task, so the required artifact is missing."

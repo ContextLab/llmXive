@@ -1,298 +1,142 @@
 # Quick Start Guide
 
-This guide provides step-by-step instructions to validate the plant disease resistance prediction pipeline.
+This guide provides a streamlined overview of how to run the full pipeline for predicting plant disease resistance from metabolomic data.
 
-## Prerequisites Check
+## Prerequisites
 
-Before running the pipeline, ensure you have:
+- Python 3.11 or higher
+- pip
+- Git (for cloning the repository)
+
+## Step 1: Clone and Setup
 
 ```bash
-# Python version
-python --version # Should be 3.11 or higher
-
-# Required packages
-pip list | grep -E "pandas|numpy|scikit-learn|statsmodels|shap|biopython|requests|pytest|pyyaml"
+git clone <repository-url>
+cd PROJ-144-predicting-plant-disease-resistance-from
+python -m venv venv
+source venv/bin/activate # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-## Step 1: Verify Project Structure
+## Step 2: Verify Data Sources
 
-Ensure all required directories exist:
+Before running the pipeline, ensure that valid Metabolomics Workbench Study IDs are available.
 
 ```bash
-# Check directory structure
-ls -la code/ data/ tests/ results/ state/ contracts/
+python code/research/verify_studies.py
 ```
 
-Expected directories:
-- `code/` - Source code
-- `data/raw/` - Raw downloaded data
-- `data/processed/` - Preprocessed data
-- `tests/` - Test suite
-- `results/` - Analysis outputs
-- `state/` - Pipeline state tracking
-- `contracts/` - Data schemas
+This script will:
+- Search for studies containing pre-challenge metabolite profiles and disease-resistance metadata
+- Update `research.md` with valid Study IDs (e.g., C-STUDY-XXXX)
 
-## Step 2: Data Acquisition Validation
+**Important**: If no valid studies are found, the pipeline will halt with a `DataUnavailableError`. Do not proceed without valid Study IDs.
 
-### Download Raw Data
+## Step 3: Run the Full Pipeline
 
-```bash
-python code/data/download.py
-```
+Execute the pipeline in the following order:
 
-**Expected Output:**
-- Files downloaded to `data/raw/`
-- Log messages confirming successful downloads
-- At least 2 studies downloaded (check `data/raw/` for study folders)
-
-**Validation:**
-```bash
-# Check downloaded files
-ls -la data/raw/
-# Verify file integrity (checksums logged to state/)
-cat state/artifact_hashes.yaml
-```
-
-### Validate Temporal Consistency
+### 3.1 Data Preprocessing
 
 ```bash
+# Validate temporal consistency of studies
 python code/data/validate_temporal.py
+
+# Download, normalize, and batch-correct data
+python code/data/run_preprocess.py
 ```
 
-**Expected Output:**
-- No temporal violations (all `sample_time < challenge_time`)
-- If violations exist, the script will exit with an error
+**Outputs**:
+- `data/processed/batch_corrected_matrix.csv`
+- `data/processed/labels.csv`
 
-### Harmonize Labels
-
-```bash
-python code/data/harmonize_labels.py
-```
-
-**Expected Output:**
-- Labels encoded as binary/ordinal
-- Z-scoring or stratification applied
-- Output saved to `data/processed/labels.csv`
-
-### Preprocess Data
+### 3.2 Model Training and Evaluation
 
 ```bash
-python code/data/preprocess.py
-```
-
-**Expected Output:**
-- Log-transformed intensities
-- Features with >30% missing values discarded
-- Metabolites aligned via InChIKey
-- Covariate residualization performed
-- ComBat batch-effect correction applied (if ≥2 studies)
-
-### Generate Processed Outputs
-
-```bash
-python code/data/generate_processed_outputs.py
-```
-
-**Expected Output:**
-- `data/processed/batch_corrected_matrix.csv` created
-- `data/processed/labels.csv` created
-- Both files non-empty and properly formatted
-
-**Validation:**
-```bash
-# Check file sizes
-ls -lh data/processed/
-# Verify CSV structure
-head -n 5 data/processed/batch_corrected_matrix.csv
-head -n 5 data/processed/labels.csv
-```
-
-## Step 3: Model Training and Validation
-
-### Train Model
-
-```bash
+# Train the Random Forest model
 python code/modeling/train.py
-```
 
-**Expected Output:**
-- 20% hold-out set reserved before feature selection
-- Random Forest trained with 5-fold stratified CV
-- GridSearchCV performed for hyperparameter tuning
-- Model saved to `state/`
-
-### Evaluate Model
-
-```bash
+# Evaluate model performance and perform correlation analysis
 python code/modeling/evaluate.py
-```
 
-**Expected Output:**
-- Balanced Accuracy, ROC-AUC, Precision-Recall computed on hold-out set
-- Permutation testing (≥1,000 permutations) completed
-- Benjamini-Hochberg FDR correction applied
-- Sensitivity analysis performed
-- Learning curve generated
-- Results saved to `results/metrics.json`
-
-**Validation:**
-```bash
-# Check metrics file
-cat results/metrics.json
-# Verify balanced accuracy > 0.75 (hypothesis threshold)
-python -c "import json; m=json.load(open('results/metrics.json')); print('Balanced Acc:', m.get('balanced_accuracy'))"
-```
-
-### Collinearity Diagnostics
-
-```bash
+# Run collinearity diagnostics (VIF)
 python code/modeling/collinearity.py
-```
 
-**Expected Output:**
-- VIF calculated for selected metabolites
-- Metabolites with VIF > 5 flagged
-- Results logged
-
-### Generate Associational Report
-
-```bash
+# Generate final metrics and reports
+python code/modeling/generate_final_metrics.py
 python code/modeling/generate_associational_report.py
 ```
 
-**Expected Output:**
-- `results/associational_report.md` created
-- All findings framed as **ASSOCIATIONAL** (not causal)
+**Outputs**:
+- `results/metrics.json`
+- `results/shap_analysis.json`
 
-## Step 4: Biological Interpretation
-
-### Interpret Model
+### 3.3 Biological Interpretation
 
 ```bash
+# Interpret model and map metabolites to pathways
 python code/modeling/interpret.py
-```
 
-**Expected Output:**
-- Top metabolites by SHAP values extracted
-- Pathway mapping via KEGG/MetaCyc
-- Biological plausibility discussion generated
-
-### Save Pathway Results
-
-```bash
+# Save pathway results
 python code/modeling/save_pathway_results.py
-```
 
-**Expected Output:**
-- `results/pathway_analysis.json` created
-- Top 10 metabolites mapped to pathways
-
-### Visualize Pathways
-
-```bash
+# Visualize pathway importance
 python code/modeling/visualize_pathways.py
 ```
 
-**Expected Output:**
-- `results/pathway_barplot.png` generated
-- Visualization shows top pathways and feature importances
+**Outputs**:
+- `results/pathway_analysis.json`
+- `results/pathway_barplot.png`
 
-**Validation:**
-```bash
-# Check pathway analysis file
-cat results/pathway_analysis.json
-# Verify plot exists
-ls -lh results/pathway_barplot.png
-```
+## Step 4: Verify Outputs
 
-## Step 5: Full Integration Test
-
-Run the complete pipeline end-to-end:
+Ensure all expected artifacts have been generated:
 
 ```bash
-# Execute all stages in sequence
-bash scripts/run_full_pipeline.sh # If available, or run each script manually
+# Check data artifacts
+ls -l data/processed/
+
+# Check result artifacts
+ls -l results/
+
+# Check state artifacts
+cat state/artifact_hashes.yaml
 ```
 
-**Expected Outcome:**
-- All scripts complete without errors
-- All output files generated
-- `state/artifact_hashes.yaml` updated with all artifact checksums
-
-## Step 6: Unit and Integration Tests
+## Step 5: Run Tests (Optional)
 
 ```bash
-# Run all tests
-pytest -v
-
-# Run specific test suites
-pytest tests/unit/ -v
-pytest tests/integration/ -v
+pytest tests/ -v
 ```
 
-**Expected Outcome:**
-- All tests pass
-- No failures or errors
+## Troubleshooting
 
-## Common Issues and Troubleshooting
+### Data Unavailable Error
 
-### Data Download Fails
+If you encounter a `DataUnavailableError`, it means no valid Metabolomics Workbench studies were found. Verify that:
+- The Metabolomics Workbench API is accessible
+- `research.md` contains valid Study IDs
+- The studies contain both pre-challenge metabolite profiles and disease-resistance metadata
 
-- **Cause**: No internet connection or Metabolomics Workbench unavailable
-- **Solution**: Check network connection, verify study IDs in `research.md`
+### Memory Issues
 
-### Missing Dependencies
+The pipeline is designed to run on the CI free-tier (≤7GB RAM). If you encounter memory issues:
+- Ensure you are using the latest version of the code
+- Check that you are not running multiple processes simultaneously
+- Consider reducing the dataset size by filtering studies
 
-- **Cause**: Required packages not installed
-- **Solution**: Run `pip install -r requirements.txt`
+### Dependency Errors
 
-### Memory Errors
-
-- **Cause**: Dataset too large for available RAM
-- **Solution**: Use streaming mode or process in chunks (see `code/data/preprocess.py`)
-
-### Temporal Validation Fails
-
-- **Cause**: Sample time > challenge time in metadata
-- **Solution**: Review and correct metadata in source files
-
-## Validation Checklist
-
-Use this checklist to confirm all components are working:
-
-- [ ] Project structure verified
-- [ ] Data downloaded (≥2 studies)
-- [ ] Temporal validation passed
-- [ ] Labels harmonized
-- [ ] Data preprocessed (log-transformed, batch-corrected)
-- [ ] Processed outputs generated (`batch_corrected_matrix.csv`, `labels.csv`)
-- [ ] Model trained with CV and hold-out set
-- [ ] Metrics computed (Balanced Acc, ROC-AUC, etc.)
-- [ ] Permutation testing completed (≥1,000 permutations)
-- [ ] FDR correction applied
-- [ ] Collinearity diagnostics performed (VIF calculation)
-- [ ] Associational report generated (findings framed as associational)
-- [ ] SHAP analysis completed
-- [ ] Pathway mapping performed (top 10 metabolites)
-- [ ] Pathway visualization generated
-- [ ] All unit tests pass
-- [ ] All integration tests pass
-- [ ] `state/artifact_hashes.yaml` contains all artifact checksums
+If you encounter import errors:
+- Ensure all dependencies are installed: `pip install -r requirements.txt`
+- Verify your Python version is 3.11 or higher
 
 ## Next Steps
 
-After successful validation:
+- Review the generated `results/metrics.json` and `results/shap_analysis.json` for model performance
+- Examine `results/pathway_barplot.png` for biological insights
+- Read the full documentation in `README.md` for detailed explanations of each step
 
-1. Review `results/associational_report.md` for key findings
-2. Examine `results/pathway_barplot.png` for biological insights
-3. Check `results/metrics.json` for model performance
-4. Update `research.md` with actual dataset citations and power analysis
-5. Deploy to production or continue with further analysis
+## Support
 
-## Resources
-
-- [Metabolomics Workbench](https://www.metabolomicsworkbench.org/)
-- [KEGG Pathway Database](https://www.kegg.jp/)
-- [MetaCyc Pathway Database](https://metacyc.org/)
-- [SHAP Documentation](https://shap.readthedocs.io/)
-- [scikit-learn Documentation](https://scikit-learn.org/)
+For issues or questions, please open an issue in the repository.

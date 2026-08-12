@@ -1,1 +1,1 @@
-# Utils module package
+# Utils package

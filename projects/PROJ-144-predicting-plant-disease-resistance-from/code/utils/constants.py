@@ -1,70 +1,46 @@
 """
-Constants for the llmXive plant disease resistance prediction pipeline.
-
-This module centralizes configuration values including random seeds,
-file paths, and hypothesis testing thresholds to ensure reproducibility
-and consistency across the project.
+Project constants and configuration.
 """
-
 import os
 from pathlib import Path
 
-# Project Root
-# Assumes the project root is the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Project root directory
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
-# --- Random Seeds ---
-# Fixed seed for reproducibility across all random operations
-RANDOM_STATE = 42
-
-# --- File Paths ---
-# Directories
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-RESULTS_DIR = PROJECT_ROOT / "results"
-STATE_DIR = PROJECT_ROOT / "state"
+# Directory paths
 CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+DATA_RAW_DIR = DATA_DIR / "raw"
+DATA_PROCESSED_DIR = DATA_DIR / "processed"
 TESTS_DIR = PROJECT_ROOT / "tests"
+STATE_DIR = PROJECT_ROOT / "state"
+RESULTS_DIR = PROJECT_ROOT / "results"
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+SPEC_DIR = PROJECT_ROOT / "specs"
 
-# Output Files
-METRICS_FILE = RESULTS_DIR / "metrics.json"
-SHAP_ANALYSIS_FILE = RESULTS_DIR / "shap_analysis.json"
-PATHWAY_ANALYSIS_FILE = RESULTS_DIR / "pathway_analysis.json"
-ARTIFACT_HASHES_FILE = STATE_DIR / "artifact_hashes.yaml"
+# Random seed for reproducibility
+RANDOM_SEED = 42
 
-# Data Files (Expected Outputs from US1)
-BATCH_CORRECTED_MATRIX_FILE = DATA_PROCESSED_DIR / "batch_corrected_matrix.csv"
-LABELS_FILE = DATA_PROCESSED_DIR / "labels.csv"
-
-# --- Hypothesis Thresholds ---
-# Minimum balanced accuracy required to consider the model successful
-MIN_BALANCED_ACCURACY = 0.75
-
-# --- Model Hyperparameters ---
-# Random Forest parameters
-RF_N_ESTIMATORS = 500
-RF_MAX_DEPTH = 10  # Default, can be tuned up to 20 via GridSearchCV
-
-# --- Data Splitting ---
-# Fraction of data to hold out for independent testing (used in T020)
-# MUST be 0.20 as per task specification
+# Model training parameters
 HOLD_OUT_FRACTION = 0.20
+MAX_FEATURES = 1000
+MIN_SAMPLES_SPLIT = 2
+MIN_SAMPLES_LEAF = 1
 
-# --- Preprocessing ---
-# Maximum missing value percentage allowed before feature discarding
-MAX_MISSING_FRACTION = 0.30
-
-# --- Statistical Testing ---
-# Number of permutations for null distribution generation
-N_PERMUTATIONS = 1000
-
-# FDR correction threshold
+# Hypothesis thresholds
+BALANCED_ACCURACY_THRESHOLD = 0.75
+ROC_AUC_THRESHOLD = 0.80
+PERMUTATION_P_VALUE_THRESHOLD = 0.05
 FDR_THRESHOLD = 0.05
-
-# --- Sensitivity Analysis ---
-# Decision cutoffs for sensitivity analysis (absolute diff)
-SENSITIVITY_CUTOFFS = [0.01, 0.05, 0.1]
-
-# --- VIF Diagnostics ---
-# Variance Inflation Factor threshold for flagging collinearity
+CORRELATION_THRESHOLD = 0.4
+MISSING_THRESHOLD = 0.30
 VIF_THRESHOLD = 5.0
+
+# File paths for artifacts
+ARTIFACT_HASHES_FILE = STATE_DIR / "artifact_hashes.yaml"
+METADATA_SCHEMA_FILE = CONTRACTS_DIR / "metadata.schema.yaml"
+OUTPUT_SCHEMA_FILE = CONTRACTS_DIR / "output.schema.yaml"
+
+# Logging configuration
+LOG_LEVEL = "INFO"
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
