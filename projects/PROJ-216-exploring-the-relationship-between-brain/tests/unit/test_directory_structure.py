@@ -145,3 +145,36 @@ class TestDirectoryStructure:
             assert len(parts) == 2, f"Invalid log format: {line}"
             path_name = parts[1]
             assert path_name in paths, f"Path in log not in expected list: {path_name}"
+
+    def test_direct_os_path_assertions(self):
+        """
+        Explicitly test the requirement from T001:
+        'The test file MUST assert os.path.isdir('data/raw'), os.path.isdir('data/interim'), etc.'
+        """
+        create_directories()
+        
+        # Direct assertions as required by the task specification
+        assert os.path.isdir('data/raw')
+        assert os.path.isdir('data/interim')
+        assert os.path.isdir('data/processed')
+        assert os.path.isdir('tests/unit')
+        assert os.path.isdir('tests/integration')
+        assert os.path.isdir('reports')
+
+    def test_verification_log_content_exact(self):
+        """
+        Verify the exact content of the log file matches the T001 verification requirement.
+        The log must contain 'OK' for all directories.
+        """
+        paths = create_directories()
+        log_path = 'data/.verify_structure.log'
+        generate_verification_log(paths, log_path)
+        
+        # Read the log file
+        with open(log_path, 'r') as f:
+            content = f.read()
+        
+        # Check that every path has an "OK" entry
+        for p in paths:
+            expected_entry = f"OK {p}"
+            assert expected_entry in content, f"Log file missing 'OK {p}' entry. Content: {content}"

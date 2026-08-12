@@ -1,25 +1,46 @@
-T008a:
+T001:
+  c: false
+  h: 4a800c61f6df306bb33ddd2973b565a5b3c020ca46231cefae612c1f35ad9c1c
+  r: The required `data/.verify_structure.log` file does not exist, so the verification
+    step fails. Moreover, the provided `tests/unit/test_directory_structure.py` does
+    not contain the explicit `assert os.path.isdir('data/raw')` (and similar) statements
+    mandated by the task; it only checks directories via helper functions. Both the
+    log file and the exact test assertions are missing.
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No file `specs/amendment-001-fluid-intelligence-n10.md` or its contents were\
-    \ presented. Consequently, the required statements about FR\u2011001, SC\u2011\
-    001, SC\u2011005, FR\u2011005, and SC\u2011004 amendments are not verifiable,\
-    \ and the verification step (writing to a temporary file and checking the content)\
-    \ is absent. The implementer must supply the actual markdown file with the explicit\
-    \ amendment text."
-T008b:
+  r: "No `specs/amendment-001-fluid-intelligence-n10.md` file was presented, and no\
+    \ excerpt of its contents was shown. Without the required markdown file containing\
+    \ the exact specified text, the task\u2019s deliverable is missing."
+T005:
+  c: false
+  h: 3758f8c874e0cce46d2a0228d9365fc50a7787e02d6c66f091161e529212c12c
+  r: Only `contracts/download_contract.yaml` exists and contains the required input/output
+    schema; the other three contract files (`preprocess_contract.yaml`, `graph_contract.yaml`,
+    `stats_contract.yaml`) are missing, so the full set of required artifacts is not
+    present.
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `specs/amendment-001-fluid-intelligence-n10.md` file or its contents were
-    presented; the implementer did not supply the required amendment document or any
-    proof that it was written to the specified path. The task therefore remains unfinished.
-T008c:
+  r: No `data-model.md` file was presented, and there is no evidence that it exists
+    or contains the required entity definitions for `Subject`, `GraphMetric`, and
+    `BehavioralScore`. The implementer must add the markdown file with the specified
+    attributes and types.
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No content from `specs/amendment-001-fluid-intelligence-n10.md` was provided,
-    so we cannot verify that the required strings (FR-001, FR-005, SC-001, SC-004)
-    are present. The implementer must supply the actual file or its relevant excerpts
-    showing those identifiers.
+  r: "No `quickstart.md` file is presented or described in the provided evidence,\
+    \ and no contents showing step\u2011by\u2011step reproducible instructions are\
+    \ available. The required documentation artifact is missing."
+T008:
+  c: false
+  h: ed5b24bcd50b3a2b71897305f09159ce0ccfde6a9c2705683e83425c1df0ac1e
+  r: The `ResourceMonitor` class in `code/utils.py` is truncated and lacks implementations
+    for `stop()` and `finalize()`, and the background thread start code is incomplete.
+    The unit test file `tests/unit/test_resource_monitor.py` is also cut off (e.g.,
+    `monitor = ResourceMonito`), so it does not fully verify the required behavior.
+    Additionally, the expected output JSON file is missing. These gaps mean the task
+    requirements are not met.
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

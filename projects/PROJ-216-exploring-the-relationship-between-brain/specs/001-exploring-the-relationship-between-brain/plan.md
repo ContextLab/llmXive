@@ -12,7 +12,7 @@ The system downloads resting-state fMRI data from OpenNeuro (ds) via the OpenNeu
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `fslpy` (via system install), `afni` (via system install), `dipy`, `openneuro-py`  
 **Storage**: Local file system (`data/`), BIDS format for raw/preprocessed data, CSV/Parquet for derived metrics  
 **Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline flow)  

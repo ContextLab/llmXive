@@ -1,0 +1,55 @@
+# Preprocessing Contract: FSL/AFNI Pipeline
+# Defines the input and output schemas for the preprocessing phase (T017).
+# Enforces motion correction, normalization, and bandpass filtering.
+
+name: preprocess_contract
+version: 1.0.0
+description: Validates input preprocessed data paths and defines the schema for preprocessing statistics and motion exclusion logs.
+
+input:
+  type: object
+  required:
+    - subject_paths
+    - output_dir
+  properties:
+    subject_paths:
+      type: array
+      description: "List of paths to raw BIDS NIfTI files (output of download phase)."
+      items:
+        type: string
+    output_dir:
+      type: string
+      description: "Directory path for preprocessed NIfTI and logs."
+
+output:
+  type: object
+  description: "Schema for data/processed/preprocessing_stats.json and motion_exclusion_log.csv."
+  properties:
+    preprocessing_stats:
+      type: object
+      properties:
+        total_subjects:
+          type: integer
+        successful_subjects:
+          type: integer
+        success_rate_percentage:
+          type: number
+          format: float
+    motion_exclusion_log:
+      type: object
+      description: "CSV schema for motion exclusion."
+      columns:
+        - subject_id
+        - translation_mm
+        - rotation_mm
+        - excluded
+      item_types:
+        subject_id: string
+        translation_mm: number
+        rotation_mm: number
+        excluded: boolean
+
+validation_rules:
+  - "Motion threshold: Translation > 3mm OR Rotation > 2mm results in exclusion."
+  - "If effective N becomes 0 after exclusion, the pipeline MUST halt."
+  - "Output NIfTI must have non-zero variance."

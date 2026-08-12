@@ -22,13 +22,19 @@ class ResourceMonitor:
     Monitors RAM and CPU usage for a subject processing task.
     Logs usage to stderr and writes a summary JSON to data/processed/resource_profile.json.
     """
-    def __init__(self):
+    def __init__(self, processed_dir: Optional[str] = None):
         self.start_time: Optional[float] = None
         self.end_time: Optional[float] = None
         self.usage_samples: List[ResourceUsage] = []
-        self.output_path = "data/processed/resource_profile.json"
+        # Default to project standard, but allow override for testing
+        if processed_dir:
+            self.output_path = str(Path(processed_dir) / "resource_profile.json")
+        else:
+            self.output_path = "data/processed/resource_profile.json"
         self._process = None
         self._interval = 0.1  # Sample every 100ms
+        self._monitoring = False
+        self._samples_thread: Optional[threading.Thread] = None
 
     def _get_current_usage(self) -> Optional[ResourceUsage]:
         if psutil is None:
@@ -49,11 +55,33 @@ class ResourceMonitor:
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             return None
 
+    def _monitoring_loop(self):
+        """Background loop to sample resource usage."""
+        while self._monitoring:
+            sample = self._get_current_usage()
+            if sample:
+                self.usage_samples.append(sample)
+                # Log every 10th sample to avoid spam, or just the peak if needed
+                # For now, just log start/stop as per spec, but we accumulate here
+                pass
+            time.sleep(self._interval)
+
     def start(self):
         """Starts the resource monitoring loop."""
+        if psutil is None:
+            sys.stderr.write("[ResourceMonitor] psutil not available. Skipping monitoring.\n")
+            self.start_time = time.time()
+            return
+
         self.start_time = time.time()
         self.usage_samples = []
         self._process = None # Reset process reference
+        self._monitoring = True
+        
+        # Start background sampling thread
+        import threading
+        self._samples_thread = threading.Thread(target=self._monitoring_loop, daemon=True)
+        self._samples_thread.start()
         
         # Initial sample
         sample = self._get_current_usage()
@@ -63,6 +91,10 @@ class ResourceMonitor:
 
     def stop(self):
         """Stops the resource monitoring loop."""
+        self._monitoring = False
+        if self._samples_thread:
+            self._samples_thread.join(timeout=1.0)
+        
         self.end_time = time.time()
         # Final sample
         sample = self._get_current_usage()

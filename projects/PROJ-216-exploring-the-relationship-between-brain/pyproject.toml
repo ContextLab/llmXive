@@ -15,7 +15,9 @@ dependencies = [
     "pandas",
     "numpy",
     "openneuro-py",
-    "dipy"
+    "dipy",
+    "black",
+    "ruff",
 ]
 
 [tool.black]
@@ -27,3 +29,14 @@ select = ['E', 'F', 'W']
 ignore = []
 line-length = 88
 target-version = 'py311'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["*"]

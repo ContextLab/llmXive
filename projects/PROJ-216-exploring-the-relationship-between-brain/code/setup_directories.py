@@ -11,7 +11,7 @@ def create_directories() -> List[str]:
     Returns:
         List[str]: List of created directory paths relative to the current working directory.
     """
-    directories = [
+    dirs_to_create = [
         'data/raw',
         'data/interim',
         'data/processed',
@@ -21,96 +21,81 @@ def create_directories() -> List[str]:
     ]
     
     created_paths = []
-    for dir_path in directories:
-        path = Path(dir_path)
+    for d in dirs_to_create:
+        path = Path(d)
         path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(dir_path)
+        created_paths.append(d)
     
     return created_paths
 
 def verify_directories(paths: List[str]) -> bool:
     """
-    Verifies that all specified directories exist and are writable.
+    Verifies that all specified directories exist.
     
     Args:
         paths (List[str]): List of directory paths to verify.
         
     Returns:
-        bool: True if all directories exist and are writable, False otherwise.
+        bool: True if all directories exist, False otherwise.
     """
-    for path_str in paths:
-        path = Path(path_str)
-        if not path.is_dir():
-            return False
-        # Check writability by attempting to create a temp file
-        try:
-            test_file = path / '.write_test'
-            test_file.touch()
-            test_file.unlink()
-        except (OSError, IOError):
+    for p in paths:
+        if not Path(p).is_dir():
             return False
     return True
 
-def generate_verification_log(paths: List[str], log_path: str = 'data/.verify_structure.log') -> None:
+def generate_verification_log(paths: List[str], log_path: str) -> None:
     """
-    Generates a verification log file documenting the status of each directory.
+    Generates a verification log file indicating the status of each directory.
     
     Args:
-        paths (List[str]): List of directory paths to log.
-        log_path (str): Path to the output log file.
+        paths (List[str]): List of directory paths that were attempted to be created.
+        log_path (str): Path where the log file will be written.
     """
-    log_file = Path(log_path)
-    # Ensure the parent directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure the log directory exists
+    log_dir = Path(log_path).parent
+    if log_dir:
+        log_dir.mkdir(parents=True, exist_ok=True)
     
-    with open(log_file, 'w') as f:
-        f.write(f"Verification Log Generated at: {datetime.datetime.now().isoformat()}\n")
-        f.write("=" * 60 + "\n")
-        for path_str in paths:
-            path = Path(path_str)
-            if path.is_dir():
-                status = "OK"
-            else:
-                status = "FAILED"
-            f.write(f"{status} {path_str}\n")
+    with open(log_path, 'w') as log:
+        log.write(f"Directory Verification Log - {datetime.datetime.now().isoformat()}\n")
+        log.write("=" * 60 + "\n")
+        
+        for p in paths:
+            status = "OK" if Path(p).is_dir() else "FAILED"
+            log.write(f"{status} {p}\n")
 
 def main():
     """
-    Main execution function to create, verify, and log directory structure.
+    Main entry point for the directory setup script.
+    Creates directories, verifies them, and generates a log.
     """
     print("Initializing directory structure...")
     
     # 1. Create directories
     created_paths = create_directories()
-    print(f"Created directories: {created_paths}")
+    print(f"Created {len(created_paths)} directories.")
     
     # 2. Verify directories
-    all_valid = verify_directories(created_paths)
-    if not all_valid:
-        print("ERROR: Directory verification failed. Some directories are missing or not writable.")
+    all_ok = verify_directories(created_paths)
+    if not all_ok:
+        print("ERROR: Not all directories were created successfully.")
         sys.exit(1)
-    print("Directory verification passed.")
     
     # 3. Generate verification log
     log_path = 'data/.verify_structure.log'
     generate_verification_log(created_paths, log_path)
-    print(f"Verification log written to: {log_path}")
+    print(f"Verification log written to {log_path}")
     
-    # 4. Final check as per T001 requirements
-    if not Path(log_path).exists():
-        print("CRITICAL ERROR: Verification log file was not created.")
-        sys.exit(1)
-        
+    # 4. Final check for T001 requirement
     with open(log_path, 'r') as f:
         content = f.read()
     
-    # Ensure all entries are OK
-    for path_str in created_paths:
-        if f"OK {path_str}" not in content:
-            print(f"CRITICAL ERROR: Log does not contain 'OK' status for {path_str}.")
+    for p in created_paths:
+        if f"OK {p}" not in content:
+            print(f"CRITICAL ERROR: Verification log missing 'OK' status for {p}")
             sys.exit(1)
-            
-    print("SUCCESS: All directories created, verified, and logged successfully.")
+    
+    print("Directory structure initialization complete and verified.")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,50 @@
+# Graph Metrics Contract: Connectivity and Topology
+# Defines the input and output schemas for the graph metrics phase (T023-T026).
+# Enforces 200-ROI Schaefer Atlas usage.
+
+name: graph_contract
+version: 1.0.0
+description: Validates input preprocessed fMRI data and defines the schema for graph metric outputs.
+
+input:
+  type: object
+  required:
+    - preprocessed_nifti_dir
+    - atlas_path
+  properties:
+    preprocessed_nifti_dir:
+      type: string
+      description: "Directory containing preprocessed NIfTI files (output of T017)."
+    atlas_path:
+      type: string
+      description: "Path to the Schaefer 200-ROI atlas label file."
+    n_rois:
+      type: integer
+      description: "Number of ROIs (Fixed at 200 per FR-003)."
+      const: 200
+
+output:
+  type: object
+  description: "Schema for data/processed/graph_metrics.csv."
+  properties:
+    graph_metrics_csv:
+      type: object
+      description: "Aggregated metrics per subject."
+      columns:
+        - subject_id
+        - metric_name
+        - value
+      item_types:
+        subject_id: string
+        metric_name: string
+          enum:
+            - global_efficiency
+            - clustering_coefficient
+            - modularity
+        value: number
+        format: float
+
+validation_rules:
+  - "Correlation matrix must be symmetric."
+  - "Modularity calculation must use Louvain algorithm with resolution sweep fallback."
+  - "All metric values must be within valid theoretical ranges (e.g., efficiency 0-1)."

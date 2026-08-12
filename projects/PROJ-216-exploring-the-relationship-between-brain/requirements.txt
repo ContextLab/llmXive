@@ -6,8 +6,11 @@ pandas
 numpy
 openneuro-py
 dipy
-python-louvain
+psutil
 pytest
+pyyaml
+statsmodels
 matplotlib
 seaborn
-pyyaml
+tomli
+tomllib
