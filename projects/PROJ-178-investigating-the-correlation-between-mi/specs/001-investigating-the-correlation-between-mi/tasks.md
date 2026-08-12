@@ -123,7 +123,7 @@
 - [X] T023A [P] [US2] Implement unadjusted Spearman rank correlation calculation (primary method per FR-004) in `code/analysis/model.py` and save results to `code/data/processed/spearman_results.csv`
 - [ ] T024 [US2] Implement Rank-OLS regression (per plan.md Decision Log): Rank-transform all continuous variables (`age`, `burden`, `depth`, `PC1`, `PC2`) then fit `rank(age) ~ rank(burden) + sex + PC1 + PC2 + rank(depth)` using the depth-stratified burden from T016 in `code/analysis/model.py` and save coefficients, p-values, and adjusted p-values to `code/data/processed/rank_ols_results.csv`. Note: Rank-OLS is used as a robust multivariate alternative to Partial Spearman as justified in the plan.md Decision Log.
 - [X] T025 [US2] Implement Benjamini-Hochberg correction for all generated p-values in `code/analysis/model.py`
-- [ ] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`, calculate the delta between Spearman and OLS coefficients, and log the comparison result to satisfy the "recorded and compared" requirement.
+- [X] T027 [US2] Record coefficients and p-values for the secondary OLS model (as per FR-004) in `code/logs/model_comparison.log`, calculate the delta between Spearman and OLS coefficients, and log the comparison result to satisfy the "recorded and compared" requirement.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -142,9 +142,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement threshold sweep for heteroplasmy burden recalculation across specific VAF thresholds: {low (0.005), 1.0% (0.01), [deferred] (0.02)}. Write results to `code/data/processed/sensitivity_results.csv` with columns: `threshold`, `coefficient`, `p_value`.
+- [X] T032 [US3] Implement threshold sweep for heteroplasmy burden recalculation across specific VAF thresholds: {low (0.005), 1.0% (0.01), [deferred] (0.02)}. Write results to `code/data/processed/sensitivity_results.csv` with columns: `threshold`, `coefficient`, `p_value`.
 - [ ] T032A [US3] Calculate and record the variation (range/std dev) of correlation coefficients across the {0.5%, 1.0%, 2.0%} thresholds; save this metric to `code/data/processed/threshold_variation.json` to satisfy SC-003.
-- [ ] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`; write results to `code/data/processed/subgroup_results.csv` with columns: `ancestry`, `coefficient`, `p_value`.
+- [X] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`; write results to `code/data/processed/subgroup_results.csv` with columns: `ancestry`, `coefficient`, `p_value`.
 - [ ] T033A [US3] Calculate and record the variation (magnitude of difference) of coefficients across ancestry groups; save this metric to `code/data/processed/subgroup_variation.json` to satisfy SC-004.
 - [X] T034 [US3] Implement depth-stratified subsampling to equalize sequencing depth across groups in `code/analysis/sensitivity.py`
 - [X] T036 [US3] Implement measurement error simulation (binned age intervals) to estimate attenuation bias in `code/analysis/sensitivity.py`

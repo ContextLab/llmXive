@@ -243,6 +243,10 @@
     "classified_at": "2026-07-31T21:30:45Z",
     "verdict": false
   },
+  "PROJ-1072-llmxive-follow-up-extending-blind-spots::1.6.0": {
+    "classified_at": "2026-08-12T00:48:10Z",
+    "verdict": false
+  },
   "PROJ-1074-llmxive-follow-up-extending-function-awa::1.6.0": {
     "classified_at": "2026-07-21T01:08:15Z",
     "verdict": false
@@ -369,6 +373,10 @@
   },
   "PROJ-218-predicting-molecular-fluorescence-quantu::1.6.0": {
     "classified_at": "2026-07-12T09:54:54Z",
+    "verdict": false
+  },
+  "PROJ-219-leveraging-llms-for-automated-generation::1.6.0": {
+    "classified_at": "2026-08-12T00:35:36Z",
     "verdict": false
   },
   "PROJ-220-predicting-amine-reactivity-using-graph-::1.6.0": {

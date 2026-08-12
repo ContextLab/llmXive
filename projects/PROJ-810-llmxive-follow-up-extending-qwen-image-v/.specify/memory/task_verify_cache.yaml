@@ -1,18 +1,3 @@
-T000:
-  c: false
-  h: e99eddceba7d4ca5017c66bbd51682c72de2ca521f043375c5308344ed85eda1
-  r: "The `src/analysis/separability.py` script correctly implements the power\u2011\
-    analysis logic and would write the required fields, but the expected output file\
-    \ `data/results/power_analysis.json` is absent, so the deliverable is not present.\
-    \ The missing JSON file must be generated (e.g., by running the script) and contain\
-    \ `N_required`, `effect_size`, `power`, and `N_audit`."
-T001:
-  c: false
-  h: 019564cc38dbc7e5a534f127101c8e772d90503bcd7a44ed360cc6cda1b4ad6a
-  r: "The provided `vae_loader.py` checks a different model (`Qwen/Qwen2-VL-2B-Instruct`)\
-    \ instead of `Qwen-Image-VAE-2.0`, and the required `data/results/model_availability.json`\
-    \ file is absent. Consequently the task\u2019s core validation and deliverable\
-    \ are not satisfied."
 T003a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

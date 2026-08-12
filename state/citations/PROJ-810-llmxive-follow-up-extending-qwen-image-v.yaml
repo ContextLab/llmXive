@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/Qwen/Qwen2-VL-2B-Instruct
   verified_at: '2026-07-12T14:21:15.638978Z'
-- artifact_hash: 52bd95edc4f61730dd2cc860d353db246993be85cd3641fc2fce6befda87b90c
+- artifact_hash: 02be12dbfbb2f97f61fd569e74a6d4106ace25b2978f0d7d4be9debbf87ed1b0
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://www.wikidata.org/wiki/Q55678
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q55678
-  verified_at: '2026-08-06T07:47:28.373428Z'
-- artifact_hash: 52bd95edc4f61730dd2cc860d353db246993be85cd3641fc2fce6befda87b90c
+  verified_at: '2026-08-12T01:03:52.552804Z'
+- artifact_hash: 02be12dbfbb2f97f61fd569e74a6d4106ace25b2978f0d7d4be9debbf87ed1b0
   artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://arxiv.org/abs/1605.03992
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1605.03992
-  verified_at: '2026-08-06T07:47:28.373428Z'
+  verified_at: '2026-08-12T01:03:52.552804Z'

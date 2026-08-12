@@ -1060,3 +1060,306 @@
   source_type: external
   status: verified
   updated_at: '2026-08-06T07:51:07Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: minimum N required for power with effect size d > 0.8
+  claim_id: c_0bf15aa5
+  context: 'Phase 0: Feasibility & Power Analysis (Pre-Execution). Purpose: Critical
+    pre-execution steps to determine sample size, model availability, and memory constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `src/analysis/separability.py` -> Power Analysis (Task 0.1).
+    Logic: Calculate minimum N required for power (d > 0.8).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:50:59Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: permutation test with 1000 iterations for p-value < 0.05
+  claim_id: c_671afb1f
+  context: "Phase 3: User Story 1 - Latent Space Disentanglement Analysis. Independent\
+    \ Test: Run encoding and classification on a sampled subset; report accuracy \u2265\
+    \ 90% and F1 \u2265 0.90 against ground-truth labels."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/analysis/separability.py` -> Permutation Test (1000 iterations)
+    for p-value < 0.05 (Task 2.4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:53:28Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Masked SSIM >= 0.85 and OCR accuracy >= 95% for text content swap
+  claim_id: c_661d1a67
+  context: 'Phase 4: User Story 2 - Zero-Shot Semantic Editing via Vector Arithmetic.
+    Independent Test: Compute vector arithmetic on latent representations to swap
+    text content while preserving layout.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute $z_{new} = z_{doc} - \\mu_{text\\_old} + \\mu_{text\\_new}$,\
+    \ decode, and verify text change with Masked SSIM \u2265 0.85 and OCR accuracy\
+    \ \u2265 95%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:53:28Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: generate 10 random samples for manual review if OCR accuracy < 95%
+  claim_id: c_c73da2c2
+  context: 'Phase 4: User Story 2 - Zero-Shot Semantic Editing via Vector Arithmetic.
+    Implementation for User Story 2. T032 [US2] Implement `src/analysis/editing.py`
+    -> OCR validation and Manual Verification Fallback (Task 3.5).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'OCR validation and Manual Verification Fallback (Task 3.5). Logic: Run
+    PaddleOCR. If accuracy < 95%, generate `data/manual/verification_queue.csv` with
+    10 random samples for manual review.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:53:53Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: control family-wise error rate at alpha <= 0.05 using Bonferroni or Holm-Bonferroni
+    correction
+  claim_id: c_88a0e187
+  context: 'Phase 5: User Story 3 - Statistical Validation and Sensitivity Analysis.
+    Implementation for User Story 3. T035 [US3] Implement `src/analysis/sensitivity.py`
+    -> **Bonferroni/Holm-Bonferroni Correction** (Task 3.3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni or Holm-Bonferroni correction to `aggregated_pvalues.json`\
+    \ using `statsmodels.stats.multitest` to control family-wise error rate at \u03B1\
+    \ \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:53:53Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: 1000 iterations for permutation test
+  claim_id: c_61aa4e59
+  context: Implement src/analysis/separability.py -> Permutation Test (1000 (1605.03992,
+    https://arxiv.org/abs/1605.03992) iterations) for p-value < 0.05 (Task 2.4).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 1000 (1605.03992, https://arxiv.org/abs/1605.03992) iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:55:21Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Test tasks are optional in the feature specification
+  claim_id: c_10e68250
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_are_optional_in_the_feature_specification
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:56:55Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Minimum N required for power calculated with effect size d > 0.8
+  claim_id: c_532057eb
+  context: 'Logic: Calculate minimum N required for power (d > 0.8). Input: Use effect_size
+    d > 0.8 as defined in Assumptions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate minimum N required for power (d > 0.8).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:56:55Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Fallback to smaller N if peak RAM estimate exceeds 7GB
+  claim_id: c_77263b07
+  context: Estimate peak RAM for VAE + OCR + Classifier. Configure chunk size or fallback
+    to smaller N if > 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_smaller_N_if_peak_RAM_estimate_exceeds_7GB
+  kind: entity_fact
+  raw_text: Configure chunk size or fallback to smaller N if > 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:58:09Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Reduce N to fallback if required runtime exceeds 6 hours
+  claim_id: c_7e23eecc
+  context: 'Logic: If N_required (from T000) exceeds estimated 6h runtime, reduce
+    N to N_fallback and flag runtime_inconclusive status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N_required exceeds estimated 6h runtime, reduce N to N_fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:58:36Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Independent test requires accuracy >= 90% and F1 >= 0.90
+  claim_id: c_3477db6f
+  context: "Independent Test: Run encoding and classification on a sampled subset;\
+    \ report accuracy \u2265 90% and F1 \u2265 0.90 against ground-truth labels."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Report accuracy \u2265 90% and F1 \u2265 0.90 against ground-truth labels."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:58:36Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Permutation test performed with 1000 iterations for p-value < 0.05
+  claim_id: c_3c143b95
+  context: Implement src/analysis/separability.py -> Permutation Test (1000 (1605.03992,
+    https://arxiv.org/abs/1605.03992) iterations) for p-value < 0.05 (Task 2.4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Permutation Test (1000 iterations) for p-value < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T01:01:55Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Zero-shot editing test requires Masked SSIM >= 0.85 and OCR accuracy
+    >= 95%
+  claim_id: c_913e9105
+  context: "Independent Test: Compute z_{new} = z_{doc} - mu_{text_old} + mu_{text_new},\
+    \ decode, and verify text change with Masked SSIM \u2265 0.85 and OCR accuracy\
+    \ \u2265 95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify text change with Masked SSIM \u2265 0.85 and OCR accuracy \u2265\
+    \ 95%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T01:01:55Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Keypoint Matching Score must be >= 0.80
+  claim_id: c_d792c03a
+  context: "Logic: Detect keypoints (SIFT/ORB) in non-text regions of baseline and\
+    \ edited images. Match and compute score. Deliverable: data/results/us2_keypoint_score.json\
+    \ with keypoint_score (must be \u2265 0.80)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute score for Keypoint Matching Score (must be \u2265 0.80)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T01:01:55Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Generate verification queue with 10 samples if OCR accuracy is below
+    95%
+  claim_id: c_870fe74b
+  context: 'Logic: Run PaddleOCR. If accuracy < 95%, generate data/manual/verification_queue.csv
+    with 10 random samples for manual review. Deliverable: data/results/us2_ocr.json
+    with ocr_accuracy, verification_queue_path (if applicable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If OCR accuracy < 95%, generate data/manual/verification_queue.csv with
+    10 random samples for manual review.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T01:01:55Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Bonferroni/Holm-Bonferroni correction applied for family-wise error rate
+    <= 0.05
+  claim_id: c_f8311dbe
+  context: "Logic: Apply Bonferroni or Holm-Bonferroni correction to aggregated_pvalues.json\
+    \ using statsmodels.stats.multitest to control family-wise error rate at \u03B1\
+    \ \u2264 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni or Holm-Bonferroni correction to control family-wise\
+    \ error rate at \u03B1 \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T01:01:55Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Power analysis reported as inconclusive if power is less than 0.8
+  claim_id: c_356acc31
+  context: Implement src/analysis/sensitivity.py -> Power analysis reporting (inconclusive
+    if power < 0.8) (Task 3.4).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reported_as_inconclusive_if_power_is_less_tha
+  kind: magnitude
+  raw_text: Report inconclusive if power < 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T01:03:52Z'

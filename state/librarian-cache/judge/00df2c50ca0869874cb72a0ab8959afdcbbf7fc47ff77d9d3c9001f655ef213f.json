@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.04710",
+  "judged_at": "2026-08-12T00:35:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms for automated generation of code complexity metrics computer science",
+  "rationale": "The paper proposes a vision for \"Morescient\" GAI models that are aware of software semantics and static facets to improve code generation and analysis, but it does not measure, generate, or evaluate specific code complexity metrics as requested by the user. While it discusses software analysis broadly, it lacks the empirical connection to the specific mechanism of \"automated generation of code complexity metrics\" required by inclusion criteria (a) or (b), and it is a roadmap paper rather than a ",
+  "relevant": false
+}

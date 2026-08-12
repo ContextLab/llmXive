@@ -6,138 +6,152 @@ from pathlib import Path
 import tempfile
 import shutil
 
-# Add parent to path for imports
+# Add parent to path for imports if running directly
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from analysis.merge_metadata import (
-    load_burden_data, 
-    load_haplogroup_data, 
-    load_metadata_panel, 
-    merge_datasets
-)
-from config.environment import get_local_paths, ensure_directories
+from analysis.merge_metadata import load_burden_data, load_haplogroup_data, load_metadata_panel, merge_datasets
+from config.environment import get_local_paths
 
 class TestMergeMetadata:
-    """Tests for T018: Metadata merge logic."""
-
-    @pytest.fixture(autouse=True)
-    def setup_mock_data(self, tmp_path):
-        """Create mock data files to simulate previous task outputs."""
-        self.tmp_dir = tmp_path
-        self.raw_dir = self.tmp_dir / 'raw'
-        self.processed_dir = self.tmp_dir / 'processed'
-        self.logs_dir = self.tmp_dir / 'logs'
+    
+    @pytest.fixture
+    def temp_data_dirs(self, tmp_path):
+        """Create temporary directories mimicking the project structure."""
+        # Setup a mock directory structure
+        raw_dir = tmp_path / "data" / "raw"
+        processed_dir = tmp_path / "data" / "processed"
+        logs_dir = tmp_path / "logs"
         
-        self.raw_dir.mkdir()
-        self.processed_dir.mkdir()
-        self.logs_dir.mkdir()
+        raw_dir.mkdir(parents=True)
+        processed_dir.mkdir(parents=True)
+        logs_dir.mkdir(parents=True)
         
-        # Create mock burden data
+        # Create mock data files
+        # 1. Burden data
         burden_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'total_burden': [0.05, 0.12, 0.08],
-            'low_depth_burden': [0.02, 0.05, 0.03],
-            'med_depth_burden': [0.02, 0.04, 0.03],
-            'high_depth_burden': [0.01, 0.03, 0.02]
+            'sample_id': ['S1', 'S2', 'S3', 'S4'],
+            'burden': [0.05, 0.12, 0.03, 0.08],
+            'depth_bin': ['Low', 'Medium', 'Low', 'High']
         })
-        burden_df.to_csv(self.processed_dir / 'burden_per_sample.csv', index=False)
+        burden_path = processed_dir / "burden_per_sample.csv"
+        burden_df.to_csv(burden_path, index=False)
         
-        # Create mock haplogroup data
-        hap_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3'],
-            'haplogroup': ['H1', 'J2', 'T1']
+        # 2. Haplogroup data
+        haplo_df = pd.DataFrame({
+            'sample_id': ['S1', 'S2', 'S3', 'S5'], # S4 missing haplogroup, S5 missing burden
+            'haplogroup': ['H1', 'J2', 'U5', 'H2']
         })
-        hap_df.to_csv(self.processed_dir / 'haplogroups.csv', index=False)
+        haplo_path = processed_dir / "haplogroups.csv"
+        haplo_df.to_csv(haplo_path, index=False)
         
-        # Create mock metadata panel
+        # 3. Metadata panel
         meta_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2', 'S3', 'S4'], # S4 missing in others
-            'age': [65, 40, 55, 30],
-            'sex': ['M', 'F', 'M', 'F'],
-            'population': ['EUR', 'AFR', 'EAS', 'AMR'],
-            'PC1': [0.1, -0.2, 0.3, -0.1],
-            'PC2': [0.05, -0.1, 0.2, 0.0]
+            'sample_id': ['S1', 'S2', 'S3', 'S4', 'S6'], # S5 missing metadata, S6 missing others
+            'age': [50, 65, 40, 70, 30],
+            'sex': ['M', 'F', 'M', 'F', 'M'],
+            'population': ['EUR', 'AFR', 'EAS', 'EUR', 'SAS'],
+            'PC1': [0.1, 0.2, 0.3, 0.4, 0.5],
+            'PC2': [0.05, 0.15, 0.25, 0.35, 0.45]
         })
-        meta_df.to_csv(self.raw_dir / '1000G_metadata_panel.csv', index=False)
+        meta_path = processed_dir / "metadata_panel.csv"
+        meta_df.to_csv(meta_path, index=False)
         
-        # Patch get_local_paths to return our temp dirs
-        self.original_get_paths = get_local_paths
-        def mock_get_paths():
-            return {
-                'raw_data': self.raw_dir,
-                'processed_data': self.processed_dir,
-                'logs': self.logs_dir,
-                'figures': self.processed_dir,
-                'code_root': self.tmp_dir
-            }
+        # Mock environment config to use these paths
+        # We will patch the functions to return these specific paths
+        mock_paths = {
+            'processed_burden': str(burden_path),
+            'processed_haplogroups': str(haplo_path),
+            'metadata_panel': str(meta_path),
+            'processed_dataset': str(processed_dir / "mito_aging_dataset.csv")
+        }
         
-        import config.environment
-        config.environment.get_local_paths = mock_get_paths
-        
-        yield self.processed_dir / 'mito_aging_dataset.csv'
-        
-        # Restore
-        config.environment.get_local_paths = self.original_get_paths
+        return mock_paths, tmp_path
 
-    def test_merge_datasets_creates_file(self, setup_mock_data):
-        """Verify that merge_datasets creates the output CSV."""
-        output_path = setup_mock_data
+    def test_merge_logic_inner_join(self, temp_data_dirs):
+        """Test that merge_datasets correctly performs inner joins."""
+        mock_paths, tmp_path = temp_data_dirs
         
-        # Run the merge
-        from analysis.merge_metadata import main
-        result_path = main()
+        # Patch the get_local_paths to return our mock paths
+        from config import environment
+        original_get_local_paths = environment.get_local_paths
         
-        assert Path(result_path).exists(), "Output file was not created"
+        def mock_get_local_paths():
+            return mock_paths
         
-        # Verify content
-        df = pd.read_csv(result_path)
-        assert 'sample_id' in df.columns
-        assert 'total_burden' in df.columns
-        assert 'haplogroup' in df.columns
-        assert 'age' in df.columns
-        assert 'sex' in df.columns
-        assert 'population' in df.columns
-        assert 'PC1' in df.columns
-        assert 'PC2' in df.columns
+        environment.get_local_paths = mock_get_local_paths
+        
+        try:
+            # Run merge
+            result = merge_datasets()
+            
+            # Expected: S1, S2, S3 (present in all three)
+            # S4: Missing haplogroup -> excluded
+            # S5: Missing burden -> excluded
+            # S6: Missing burden/haplogroup -> excluded
+            assert len(result) == 3, f"Expected 3 samples, got {len(result)}"
+            
+            assert set(result['sample_id'].tolist()) == {'S1', 'S2', 'S3'}
+            
+            # Check columns
+            assert 'burden' in result.columns
+            assert 'haplogroup' in result.columns
+            assert 'age' in result.columns
+            assert 'sex' in result.columns
+            assert 'PC1' in result.columns
+            
+        finally:
+            environment.get_local_paths = original_get_local_paths
 
-    def test_merge_handles_missing_samples(self, setup_mock_data):
-        """Verify that samples missing in one dataset are handled (left join behavior)."""
-        output_path = setup_mock_data
+    def test_merge_data_integrity(self, temp_data_dirs):
+        """Test that data values are preserved correctly after merge."""
+        mock_paths, tmp_path = temp_data_dirs
         
-        from analysis.merge_metadata import main
-        main()
+        from config import environment
+        original_get_local_paths = environment.get_local_paths
         
-        df = pd.read_csv(output_path)
+        def mock_get_local_paths():
+            return mock_paths
         
-        # S4 is in metadata but not in burden/haplogroup
-        # Since we merge burden (left) with haplogroup (left) then metadata (left)
-        # S4 should be present if it's in the leftmost frame? 
-        # Wait: burden has S1, S2, S3. Metadata has S1, S2, S3, S4.
-        # Merge burden (S1-S3) with metadata (S1-S4) -> Left join on burden means S4 is dropped?
-        # The task description says "Join...". Usually this implies an inner join of available data
-        # or a left join on the primary key (burden). 
-        # T018 description: "join burden, haplogroups, age...".
-        # Implementation used: burden (left) -> haplogroup (left) -> metadata (left).
-        # If metadata is merged on the left of the result (S1-S3), S4 is dropped.
-        # This is correct for analysis-ready data where we need ALL columns.
+        environment.get_local_paths = mock_get_local_paths
         
-        assert len(df) == 3, "Expected 3 samples (intersection of burden and metadata)"
-        assert 'S4' not in df['sample_id'].values
+        try:
+            result = merge_datasets()
+            
+            # Check specific values for S1
+            s1_row = result[result['sample_id'] == 'S1'].iloc[0]
+            assert s1_row['burden'] == 0.05
+            assert s1_row['haplogroup'] == 'H1'
+            assert s1_row['age'] == 50
+            assert s1_row['population'] == 'EUR'
+            
+        finally:
+            environment.get_local_paths = original_get_local_paths
 
-    def test_column_types_correct(self, setup_mock_data):
-        """Verify numeric columns are numeric."""
-        output_path = setup_mock_data
-        from analysis.merge_metadata import main
-        main()
+    def test_missing_critical_columns_raises(self, temp_data_dirs):
+        """Test that missing critical columns in metadata raises an error."""
+        mock_paths, tmp_path = temp_data_dirs
         
-        df = pd.read_csv(output_path)
+        # Modify metadata to remove 'age'
+        meta_df = pd.DataFrame({
+            'sample_id': ['S1', 'S2'],
+            'sex': ['M', 'F'],
+            'population': ['EUR', 'AFR'],
+            'PC1': [0.1, 0.2],
+            'PC2': [0.05, 0.15]
+        })
+        meta_path = mock_paths['metadata_panel']
+        meta_df.to_csv(meta_path, index=False)
         
-        # Check numeric columns
-        assert pd.api.types.is_numeric_dtype(df['age'])
-        assert pd.api.types.is_numeric_dtype(df['total_burden'])
-        assert pd.api.types.is_numeric_dtype(df['PC1'])
+        from config import environment
+        original_get_local_paths = environment.get_local_paths
         
-        # Check categorical
-        assert df['sex'].dtype == object or pd.api.types.is_categorical_dtype(df['sex'])
-        assert df['population'].dtype == object or pd.api.types.is_categorical_dtype(df['population'])
-        assert df['haplogroup'].dtype == object or pd.api.types.is_categorical_dtype(df['haplogroup'])
+        def mock_get_local_paths():
+            return mock_paths
+        
+        environment.get_local_paths = mock_get_local_paths
+        
+        try:
+            with pytest.raises(ValueError, match="Missing critical columns"):
+                merge_datasets()
+        finally:
+            environment.get_local_paths = original_get_local_paths

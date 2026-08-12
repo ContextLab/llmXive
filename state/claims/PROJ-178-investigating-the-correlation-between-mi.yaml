@@ -31,3 +31,80 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T13:23:22Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Raw mitochondrial VCFs and metadata downloaded from 1000 Genomes Project
+    FTP server
+  claim_id: c_2c1d3adb
+  context: Raw mitochondrial VCFs and metadata were downloaded from the 1000 Genomes
+    Project FTP server. The metadata panel was specifically checked for the presence
+    of an 'age' column
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raw mitochondrial VCFs and metadata were downloaded from the 1000 Genomes
+    Project FTP server.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:44:14Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Study uses 1000 Genomes Project Phase 3 data for mtDNA variation analysis
+  claim_id: c_103b9c39
+  context: This project leverages the 1000 Genomes Project Phase 3 data to perform
+    a comprehensive analysis of mtDNA variation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study leverages the 1000 Genomes Project Phase 3 data to perform a
+    comprehensive analysis of mtDNA variation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:45:01Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Benjamini and Hochberg 1995 paper on controlling false discovery rate
+  claim_id: c_f95b5b87
+  context: All p-values generated from the statistical models were corrected using
+    the Benjamini-Hochberg procedure to control the false discovery rate.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: "Society Series B, 57(1), 289\u2013300."
+      source_id: '2201.09350'
+      url: https://arxiv.org/abs/2201.09350
+      value: "289\u2013300"
+    filled: true
+  kind: numeric
+  raw_text: 'Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery
+    rate: a practical and powerful approach to multiple testing.'
+  resolved_value: "289\u2013300"
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T00:46:07Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: 1000 Genomes Project Consortium 2015 Nature paper on human genetic variation
+  claim_id: c_1a4e7f93
+  context: 'References: 1. 1000 Genomes Project Consortium. (2015). A global reference
+    for human genetic variation. Nature.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 Genomes Project Consortium. (2015). A global reference for human
+    genetic variation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:47:07Z'

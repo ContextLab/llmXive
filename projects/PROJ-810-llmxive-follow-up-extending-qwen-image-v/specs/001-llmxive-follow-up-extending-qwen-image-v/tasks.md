@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-llmxive-follow-up-extending-qwen-image-v/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_10e68250 — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -43,9 +43,9 @@
 
 **Purpose**: Critical pre-execution steps to determine sample size, model availability, and memory constraints.
 
-- [ ] T000 [P] [Feasibility] Implement `src/analysis/separability.py` -> Power Analysis (Task 0.1). **Logic**: Calculate minimum N required for power (d > 0.8). **Input**: Use effect_size d > 0.8 as defined in Assumptions. **Deliverable**: `data/results/power_analysis.json` containing `N_required`, `effect_size`, `power`, and `N_audit` (sample size for manual audit).
+- [ ] T000 [P] [Feasibility] Implement `src/analysis/separability.py` -> Power Analysis (Task 0.1). **Logic**: Calculate minimum N required for power (d > 0.8). [UNRESOLVED-CLAIM: c_532057eb — status=not_enough_info] **Input**: Use effect_size d > 0.8 as defined in Assumptions. **Deliverable**: `data/results/power_analysis.json` containing `N_required`, `effect_size`, `power`, and `N_audit` (sample size for manual audit).
 - [ ] T001 [P] [Feasibility] Implement `src/models/vae_loader.py` -> Model Availability & Fallback Validation (Task 0.2). Verify `Qwen-Image-VAE-2.0` exists and is CPU-feasible. If not, trigger Model Substitution Protocol. **Deliverable**: `data/results/model_availability.json` with status and fallback model ID.
-- [X] T002 [P] [Feasibility] Implement `src/utils/memory.py` -> Memory Budget Check (Task 0.3). Estimate peak RAM for VAE + OCR + Classifier. Configure chunk size or fallback to smaller N if > 7GB. **Deliverable**: `data/results/memory_budget.json` with `chunk_size`, `max_samples`, `fallback_strategy`.
+- [X] T002 [P] [Feasibility] Implement `src/utils/memory.py` -> Memory Budget Check (Task 0.3). Estimate peak RAM for VAE + OCR + Classifier. Configure chunk size or fallback to smaller N if > 7GB. [UNRESOLVED-CLAIM: c_77263b07 — status=not_enough_info] **Deliverable**: `data/results/memory_budget.json` with `chunk_size`, `max_samples`, `fallback_strategy`.
 - [X] T002b [P] [Feasibility] Implement `src/utils/memory.py` -> Runtime Fallback Logic (Task 0.4). **Logic**: If `N_required` (from T000) exceeds estimated 6h runtime, reduce N to `N_fallback` and flag `runtime_inconclusive` status. **Deliverable**: `data/results/runtime_fallback.json` with `N_final`, `estimated_runtime`, `status` (PASS/INCONCLUSIVE).
 
 ---
