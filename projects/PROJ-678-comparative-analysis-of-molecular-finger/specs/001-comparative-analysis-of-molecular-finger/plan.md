@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a comparative analysis of Morgan fingerprints (radius=2, 2048 bits) versus MACCS keys (bits) for predicting toxicity endpoints in organophosphate compounds. The workflow involves downloading the Tox21 dataset, filtering for organophosphates using a specific SMARTS pattern, generating features via RDKit, training Random Forest classifiers under strict CPU-only constraints, and performing rigorous statistical comparison.
+This project implements a comparative analysis of Morgan fingerprints (radius=2, 2048 bits) versus MACCS keys (bits) for predicting toxicity endpoints in organophosphate compounds. The workflow involves downloading the Tox dataset, filtering for organophosphates using a specific SMARTS pattern, generating features via RDKit, training Random Forest classifiers under strict CPU-only constraints, and performing rigorous statistical comparison.
 
 **Key Methodological Update**: To satisfy Constitution Principle VII and ensure statistical validity, the analysis now employs **K-Fold Cross-Validation
 

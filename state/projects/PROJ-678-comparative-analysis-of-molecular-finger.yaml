@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-08T16:30:01.052140Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-678-comparative-analysis-of-molecular-finger
-last_run_id: 7cb9ba15-2b20-4fc2-a972-adf2cd99e151
+last_run_id: 7504ec17-5976-449a-8716-b4dfc4fb019b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger
 title: Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction
-updated_at: '2026-08-10T19:32:43.123415Z'
+updated_at: '2026-08-12T15:17:26.518798Z'
