@@ -24,7 +24,7 @@ The project must download the Edit‑Compass dataset, filter it to the *World Kn
 | Principle | Check |
 |-----------|-------|
 | I. Reproducibility | All scripts are deterministic (random seeds fixed), data fetched from canonical HuggingFace URLs, and `requirements.txt` pins exact versions. |
-| II. Verified Accuracy | External citations (models: Phi-3-mini, all-MiniLM-L6-v2; dataset: Edit-Compass) are listed and will be verified by the Reference‑Validator Agent before the study proceeds. |
+| II. Verified Accuracy | External citations (models: Phi-mini, all-MiniLM-L6-v2; dataset: Edit-Compass) are listed and will be verified by the Reference‑Validator Agent before the study proceeds. |
 | III. Data Hygiene | Raw download is stored unchanged; every transformation writes a new file with a checksum recorded in `state/projects/PROJ-814-...yaml`. |
 | IV. Single Source of Truth | Each figure and statistic is generated directly from the JSON score file and regression output; no manual transcription. |
 | V. Versioning Discipline | All artifacts (data files, model checkpoints, scripts) are hashed; changes update `state/projects/...yaml`. |

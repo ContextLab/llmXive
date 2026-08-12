@@ -1,42 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `src/services` directory or an empty `.gitkeep` file was provided;
-    without these artifacts the claimed task cannot be verified as completed. The
-    required directory and placeholder file must be added to the repository.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `src/models` directory or an empty `.gitkeep` file was provided;
-    without these artifacts the requirement cannot be confirmed as satisfied. The
-    implementer must add the directory and the placeholder file to the repository.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing a `src/utils` directory or an empty `.gitkeep` file was provided;
-    without visible evidence the requirement cannot be confirmed as satisfied.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `src/data-models` directory or a `.gitkeep` file was provided;
-    without seeing those artifacts, we cannot confirm the required directory and empty
-    placeholder file exist. The implementer must add the directory and an empty `.gitkeep`
-    file inside it.
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing a `tests/unit` directory or an empty `.gitkeep` file was
-    provided; without such evidence the requirement cannot be confirmed as fulfilled.
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/contract` directory or an empty `.gitkeep` file was provided;
-    the required artifact is missing.
-T001g:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `data/raw` directory or `.gitkeep` file is present in the provided evidence;
-    the required artifact is missing, so the task is not satisfied.
 T003:
   c: true
   h: 28c348a6ea46f4325431932482a9f272efeb1e924b0243b014de1d3147dcd72f
@@ -45,13 +6,6 @@ T003:
     the requirement to consolidate linting/formatting configuration into a single
     file. The missing separate `ruff.toml` is expected, as the task specifies it should
     be replaced.
-T013:
-  c: false
-  h: 5a2772f694b3de90810a6c1d7d4c7164874cc65062363d10ebd26723cb19d496
-  r: The `src/services/filter.py` file is present and correctly raises `ValueError`
-    for malformed JSON, but `src/services/download.py` is missing entirely, so the
-    required update to raise `FileNotFoundError` cannot be verified. The task is therefore
-    not fully completed.
 T014:
   c: false
   h: 0a1ef335411aa8d8d1ccfc91c8c85bb0d067a3d3220bd47e87a66d609559243f
@@ -66,10 +20,11 @@ T024:
     \ or raising of `CircularValidationRiskError`. Moreover, the required output file\
     \ `outputs/circular_validation_risk_report.json` does not exist. The task\u2019\
     s core behavior is therefore not present."
-T024b:
+T038:
   c: false
-  h: 6a2afb574965621aadc93b8460be3592b58be6b2721404aef521c45706496bcc
-  r: "The repository lacks the required `outputs/circular_validation_risk_report.json`\
-    \ file, and the provided `src/services/analysis.py` does not contain any implementation\
-    \ that writes this JSON atomically using a temporary file and `os.rename()`. Consequently,\
-    \ the task\u2019s core requirement is not satisfied."
+  h: 6dc73737e1455625d2f151022c6aa81d549035770314368359e8cea276594689
+  r: "The provided `src/services/analysis.py` snippet shows imports for VIF but contains\
+    \ no visible VIF calculation or logic to write a \u201CCollinearity Warning\u201D\
+    \ to `outputs/regression_report.md`. Moreover, the required `outputs/regression_report.md`\
+    \ file is absent entirely. The task\u2019s core requirements are therefore not\
+    \ satisfied."

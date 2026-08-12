@@ -1,17 +1,6 @@
--4|4k gguf instruct mini phi:
-  quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
-  source_id: golden_ratio
-  url: https://en.wikipedia.org/wiki/Golden_ratio
-  value: '1.618033988749895'
-2|all l6 minilm v2:
-  quote: embedding (i.e., all-MiniLM-L6-v2) in an
-  source_id: '2607.07974'
-  url: https://arxiv.org/abs/2607.07974
-  value: all-MiniLM-L6-v2
-'|python':
-  quote: "Python 3.11 expanded exception handling functionality. Around this version,\
-    \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
-    60% faster than 3.10, and 3.12 increases by an additional 5%."
-  source_id: History of Python
-  url: https://en.wikipedia.org/wiki/History_of_Python
-  value: "10\u201360%"
+'|applied benjamini correction fdr hochberg threshold':
+  quote: "are small and n\u2217 is relatively large. For example, when \u03B1 = 0.05,\
+    \ \u03C00 = 0.2"
+  source_id: '1906.01701'
+  url: https://arxiv.org/abs/1906.01701
+  value: '0.05'

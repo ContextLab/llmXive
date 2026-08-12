@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:10:09.754350Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-814-llmxive-follow-up-extending-edit-compass
-last_run_id: b49743a4-68a1-4e2b-a258-77d1c8a59408
+last_run_id: 539b91a8-9f7f-4706-bbcd-864158abf860
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass
 title: 'llmXive follow-up: extending "Edit-Compass & EditReward-Compass: A Unified
   Benchmark for Image Editi"'
-updated_at: '2026-08-10T10:29:26.675668Z'
+updated_at: '2026-08-12T03:29:14.633535Z'
