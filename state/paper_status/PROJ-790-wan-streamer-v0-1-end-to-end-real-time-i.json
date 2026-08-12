@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-08-12T19:06:49.686268+00:00"
+    "audited_at": "2026-08-12T19:42:19.599717+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-790-wan-streamer-v0-1-end-to-end-real-time-i",
-  "updated_at": "2026-08-12T19:06:49.686286+00:00"
+  "updated_at": "2026-08-12T19:42:19.599738+00:00"
 }
