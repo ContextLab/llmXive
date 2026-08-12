@@ -1,0 +1,28 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Qualitative Rating
+type: object
+properties:
+  report_id:
+    type: string
+    description: "Foreign key to PhenomenologicalReport.id"
+  rater_id:
+    type: string
+    description: "Identifier for the rater"
+  coherence_rating:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "Rating on a scale of 1 to 5"
+  notes:
+    type: string
+    description: "Optional qualitative notes"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Rating timestamp"
+required:
+  - "report_id"
+  - "rater_id"
+  - "coherence_rating"
+  - "timestamp"
+additionalProperties: false

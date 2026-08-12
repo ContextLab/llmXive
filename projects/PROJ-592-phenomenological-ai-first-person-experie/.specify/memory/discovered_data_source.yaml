@@ -1,14 +1,16 @@
 status: none
-intent: Hugging Face datasets phenomenological LLM prompt strategies generation python
-  package dataset
+intent: PromptSource HuggingFace dataset LLM generated completions across prompting
+  strategies python package dataset
 required_fields:
 - prompt_id
 - prompt_text
-- prompt_strategy
+- strategy_name
 - model_checkpoint
 - generated_text
 - seed
 - temperature
 - top_p
-- generation_timestamp
 - metadata_json
+cache_key: 75d37a48714cf7d032a5a7d2203591d508f9a8d8bee8a08f1fd2929936d19e4f
+searched_at: '2026-08-12T12:38:30.006725+00:00'
+retry_count: 1

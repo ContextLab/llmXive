@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Phenomenological Report
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (UUID)"
+  prompt_id:
+    type: string
+    description: "Identifier for the prompt used"
+  strategy:
+    type: string
+    enum:
+      - "Direct"
+      - "Hypothetical"
+      - "Comparative"
+      - "Role-play"
+    description: "Prompting strategy used"
+  model:
+    type: string
+    description: "Model checkpoint ID"
+  text:
+    type: string
+    description: "The generated report text"
+  seed:
+    type: integer
+    description: "Random seed used for generation"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Generation timestamp"
+  metadata:
+    type: object
+    description: "Additional generation details"
+    properties:
+      temperature:
+        type: number
+      top_p:
+        type: number
+    required:
+      - "temperature"
+      - "top_p"
+required:
+  - "id"
+  - "prompt_id"
+  - "strategy"
+  - "model"
+  - "text"
+  - "seed"
+  - "timestamp"
+  - "metadata"
+additionalProperties: false
