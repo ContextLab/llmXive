@@ -52,7 +52,7 @@ class Molecule:
                 self._extract_features()
 
     def _extract_features(self):
-        """Extract node and edge features from the RDKit Mol object."""
+        """Extract node and edge feature from the RDKit Mol object."""
         atoms = self.mol.GetAtoms()
         bonds = self.mol.GetBonds()
         
@@ -161,4 +161,3 @@ class Molecule:
             return None
         
         return cls(smiles=smiles, mol=mol)
-        

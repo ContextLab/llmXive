@@ -1,3 +1,3 @@
 """
-Test suite for Molecular Surface Area Prediction Pipeline
+Tests package for llmXive project.
 """

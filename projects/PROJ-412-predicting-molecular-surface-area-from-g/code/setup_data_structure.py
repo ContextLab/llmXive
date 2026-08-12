@@ -3,57 +3,48 @@ import sys
 import logging
 from pathlib import Path
 
-# Adjust imports based on project structure expectations
-# Assuming this file is run from the project root or code/ directory
-# We will use absolute imports relative to the package if installed, or relative if run directly
-try:
-    from code.utils.logging import get_logger
-    from code.utils.config import get_project_root, get_data_dir
-except ImportError:
-    # Fallback for direct execution without package installation
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from code.utils.logging import get_logger
-    from code.utils.config import get_project_root, get_data_dir
+# Add project root to path to allow imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
+from code.utils.logging import get_logger
 
-def create_data_directories(logger: logging.Logger) -> None:
+logger = get_logger("setup_data_structure")
+
+def create_data_directories() -> None:
     """
     Initialize data directories as per task T001b.
     Creates: data/raw/, data/processed/, data/splits/, data/schemas/
     """
-    data_root = get_data_dir()
-    logger.info(f"Ensuring data directories exist under: {data_root}")
-
+    base_path = project_root / "data"
+    
     required_dirs = [
         "raw",
         "processed",
         "splits",
         "schemas"
     ]
-
+    
+    created_count = 0
     for dir_name in required_dirs:
-        dir_path = data_root / dir_name
+        dir_path = base_path / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created directory: {dir_path}")
+            created_count += 1
         else:
             logger.debug(f"Directory already exists: {dir_path}")
-
+    
+    logger.info(f"Data directory setup complete. Created {created_count} new directories.")
+    return None
 
 def main() -> None:
-    """
-    Entry point for T001b.
-    """
-    logger = get_logger("T001b")
-    logger.info("Starting T001b: Initialize data directories")
-
-    try:
-        create_data_directories(logger)
-        logger.info("T001b completed successfully.")
-    except Exception as e:
-        logger.error(f"Failed to create data directories: {e}", exc_info=True)
-        sys.exit(1)
-
+    """Entry point for script execution."""
+    setup_logging()
+    logger.info("Starting data directory initialization (T001b)...")
+    create_data_directories()
+    logger.info("Data directory initialization complete.")
 
 if __name__ == "__main__":
     main()

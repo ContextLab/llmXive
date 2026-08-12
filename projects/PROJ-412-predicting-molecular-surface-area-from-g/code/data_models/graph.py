@@ -85,7 +85,12 @@ class Graph:
         x = torch.tensor(self.node_features, dtype=torch.float)
         
         # Convert edges to edge index format (2, num_edges)
-        edge_index = torch.tensor(self.edges, dtype=torch.long).t().contiguous()
+        # Ensure edges is a list of lists/tuples of length 2
+        if len(self.edges) > 0:
+            edge_index = torch.tensor(self.edges, dtype=torch.long).t().contiguous()
+        else:
+            # Handle empty graph case
+            edge_index = torch.empty((2, 0), dtype=torch.long)
         
         # Convert edge features to tensor
         edge_attr = torch.tensor(self.edge_features, dtype=torch.float)

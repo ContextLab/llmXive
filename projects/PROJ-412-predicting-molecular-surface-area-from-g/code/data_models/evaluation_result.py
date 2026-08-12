@@ -84,3 +84,19 @@ class EvaluationResult:
             predictions=[float(x) for x in data.get("predictions", [])],
             errors=[float(x) for x in data.get("errors", [])]
         )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the instance to a dictionary.
+
+        Returns:
+            dict: Dictionary representation of the object.
+        """
+        return {
+            "model_type": self.model_type,
+            "mae": self.mae,
+            "rmse": self.rmse,
+            "r2": self.r2,
+            "predictions": self.predictions,
+            "errors": self.errors
+        }

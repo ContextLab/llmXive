@@ -33,30 +33,30 @@ properties:
     description: |
       List of feature vectors for each atom in the molecule.
       Each inner array represents the feature vector for a single atom.
-      Features typically include: atom type, hybridization, degree, formal charge, etc.
+      Features explicitly defined as: [atom_type, hybridization, formal_charge] per task T009a.
     items:
       type: array
       items:
         type: number
         description: Numerical feature value
-      minItems: 1
+      minItems: 3
+      maxItems: 3
     minItems: 1
-    uniqueItems: false
 
   edge_features:
     type: array
     description: |
       List of feature vectors for each bond in the molecule.
       Each inner array represents the feature vector for a single bond.
-      Features typically include: bond type, conjugation, ring membership, etc.
+      Features explicitly defined as: [bond_type, conjugated, aromatic] per task T009a.
     items:
       type: array
       items:
         type: number
         description: Numerical feature value
-      minItems: 1
+      minItems: 3
+      maxItems: 3
     minItems: 0
-    uniqueItems: false
 
   surface_area:
     type: number
@@ -106,12 +106,12 @@ additionalProperties: true
 examples:
   - smiles: "CCO"
     node_features:
-      - [6.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-      - [6.0, 3.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-      - [8.0, 3.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [6.0, 3.0, 0.0]
+      - [6.0, 3.0, 0.0]
+      - [8.0, 2.0, 0.0]
     edge_features:
-      - [1.0, 0.0, 0.0, 0.0]
-      - [1.0, 0.0, 0.0, 0.0]
+      - [1.0, 0.0, 0.0]
+      - [1.0, 0.0, 0.0]
     surface_area: 28.54
     molecular_weight: 46.07
     metadata:

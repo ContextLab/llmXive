@@ -1,2 +1,2 @@
-# This file ensures the logs directory exists in version control.
-# Actual log files will be generated during pipeline execution.
+# Logs directory
+# This directory is created by the pipeline to store log files.

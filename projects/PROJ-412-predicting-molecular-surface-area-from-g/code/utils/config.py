@@ -3,32 +3,40 @@ from pathlib import Path
 
 def get_project_root() -> Path:
     """
-    Returns the project root directory.
+    Get the project root directory.
+    
     Assumes the project root is the parent of the 'code' directory.
+    Falls back to the current working directory if 'code' is not found.
+    
+    Returns:
+        Path: The project root directory.
     """
-    current_file = Path(__file__)
-    code_dir = current_file.parent
-    return code_dir.parent
+    current_file = Path(__file__).resolve()
+    # Navigate up from code/utils/config.py to project root
+    project_root = current_file.parent.parent.parent
+    
+    if (project_root / "code").exists():
+        return project_root
+    
+    # Fallback to current working directory
+    return Path.cwd()
 
 def get_data_dir() -> Path:
-    """
-    Returns the path to the data directory.
-    """
+    """Get the data directory path."""
     return get_project_root() / "data"
 
 def get_results_dir() -> Path:
-    """
-    Returns the path to the results directory.
-    """
+    """Get the results directory path."""
     return get_project_root() / "results"
 
 def load_env_config():
     """
-    Loads configuration from environment variables.
-    Returns a dictionary of configuration values.
+    Load configuration from environment variables.
+    
+    Returns:
+        dict: Configuration dictionary from environment variables.
     """
-    return {
-        "project_root": str(get_project_root()),
-        "data_dir": str(get_data_dir()),
-        "results_dir": str(get_results_dir()),
-    }
+    config = {}
+    # Example: Load specific env vars if needed
+    # config['TIME_BUDGET'] = os.getenv('TIME_BUDGET', '6.0')
+    return config

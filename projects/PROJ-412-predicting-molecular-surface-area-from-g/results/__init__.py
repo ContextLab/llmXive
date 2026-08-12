@@ -1,3 +1,3 @@
 """
-Results directory for Molecular Surface Area Prediction Pipeline
+Results package for storing reports, plots, and predictions.
 """

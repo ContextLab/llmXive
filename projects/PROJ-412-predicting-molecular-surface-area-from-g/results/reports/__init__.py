@@ -1,3 +1,3 @@
 """
-Generated reports.
+Reports subpackage.
 """

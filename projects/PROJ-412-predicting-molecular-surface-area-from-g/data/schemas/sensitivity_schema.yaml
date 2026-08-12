@@ -2,6 +2,10 @@
 # Defines the expected structure for sensitivity analysis outputs
 # Generated for project: PROJ-412-predicting-molecular-surface-area-from-g
 # Task: T006
+#
+# This schema validates the JSON output of `code/eval/sensitivity.py`
+# ensuring compliance with FR-006 (Threshold Selection) and FR-007
+# (Multiple Comparison Correction).
 
 type: object
 required:
@@ -18,29 +22,36 @@ properties:
       - sample_size
       - timestamp
       - version
+      - thresholds_used
     properties:
       analysis_type:
         type: string
-        description: "Type of analysis performed (e.g., 'absolute', 'relative')"
+        description: "Type of analysis performed (e.g., 'absolute')"
         enum:
           - absolute
           - relative
       sample_size:
         type: integer
-        description: "Number of samples used in the analysis"
+        description: "Number of samples used in the analysis (test set size)"
         minimum: 1
       timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of when the analysis was run"
+        description: "ISO 8061 timestamp of when the analysis was run"
       version:
         type: string
         description: "Schema version"
         default: "1.0.0"
+      thresholds_used:
+        type: array
+        description: "The specific list of thresholds evaluated in this run"
+        items:
+          type: number
+          format: float
 
   thresholds:
     type: array
-    description: "List of MAE thresholds evaluated (in Å²)"
+    description: "List of MAE thresholds evaluated (in Å²). Must match the SENSITIVITY_THRESHOLDS from config.py."
     items:
       type: number
       format: float
@@ -75,7 +86,7 @@ properties:
 
   corrected_p_values:
     type: array
-    description: "P-values corrected for multiple comparisons"
+    description: "P-values corrected for multiple comparisons (Bonferroni or FDR)"
     items:
       type: object
       required:
@@ -112,10 +123,11 @@ properties:
 
   justification:
     type: object
-    description: "Justification for the selected threshold"
+    description: "Justification for the selected threshold based on literature or spec assumptions"
     required:
       - selected_threshold
       - rationale
+      - source
     properties:
       selected_threshold:
         type: number
@@ -124,5 +136,8 @@ properties:
       rationale:
         type: string
         description: "Textual justification for the selection"
+      source:
+        type: string
+        description: "Citation or reference (e.g., 'research.md: Section 2.1' or 'spec.md: Assumptions')"
 
   additionalProperties: false

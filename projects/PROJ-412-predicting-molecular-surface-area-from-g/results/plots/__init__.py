@@ -1,3 +1,3 @@
 """
-Generated plots and visualizations.
+Plots subpackage.
 """

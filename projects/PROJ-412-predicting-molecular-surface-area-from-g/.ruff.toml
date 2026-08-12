@@ -1,26 +1,68 @@
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "RUF", # ruff-specific rules
-]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules.
+# Add more as needed (e.g., `UP` for pyupgrade, `N` for pep8-naming).
+select = ["E", "F", "I", "W", "C90", "N", "UP", "B", "SIM"]
 ignore = [
-    "E501", # line-too-long (handled by black)
-    "B008", # do-not-perform-function-calls-in-argument-defaults (often needed for logging/setup)
+  "E501",      # Line too long (handled by Black)
+  "C901",      # Function too complex (handled by complexity checks separately if needed)
+  "N806",      # Variable in class should be lowercase (sometimes conflicts with RDKit/PyG naming)
 ]
+
+# Allow autofix for all enabled rules (if `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files/directories.
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+  "data/raw",
+  "data/processed",
+  "results",
+  "logs",
+]
+
+# Per-file ignores.
+per-file-ignores = {}
+
+# Dummy variable names.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Target Python version.
+target-version = "py310"
+
+# Allow unused variables in function signatures (common in PyTorch).
+# Note: Ruff handles this via `--extend-ignore` or specific rules if needed.
+# We rely on the `ignore` list above for now.
 
 [lint.isort]
-known-first-party = ["code", "data", "models", "eval", "utils"]
+force-single-line = false
+force-sort-within-sections = false
+known-first-party = ["code", "data", "models", "eval", "utils", "tests"]
+known-third-party = ["rdkit", "pandas", "numpy", "sklearn", "torch", "torch_geometric", "datasets", "huggingface_hub", "pytest", "yaml", "matplotlib", "seaborn", "scipy", "pdoc3"]
+lines-after-imports = 2
+lines-between-types = 0
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
 
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
-
-[lint.pydocstyle]
-convention = "google"
+[lint.mccabe]
+# Flag functions with complexity > 10.
+max-complexity = 10

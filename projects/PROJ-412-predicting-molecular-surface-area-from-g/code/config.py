@@ -5,14 +5,15 @@ import os
 from typing import List
 
 # Time budget for the entire pipeline (hours)
-# Placeholder value; to be updated based on CI runner profile or final plan
+# Value from Plan.md 'Performance Goals'
 TIME_BUDGET: float = 6.0
 
 # Maximum RAM usage in GB before triggering early exit
+# Value from Plan.md constraints
 MAX_RAM_GB: float = 7.0
 
 # Sensitivity thresholds for MAE analysis (in Angstroms squared)
-# As mandated by FR-006
+# As mandated by FR-006 and used by T028
 SENSITIVITY_THRESHOLDS: List[float] = [0.01, 0.05, 0.1]
 
 # Random seed for reproducibility

@@ -2,86 +2,92 @@ import os
 import logging
 from pathlib import Path
 from typing import List
-
 from .config import get_project_root
 from .logging import get_logger
 
-def create_all_directories() -> None:
+logger = get_logger(__name__)
+
+def create_all_directories() -> List[str]:
     """
-    Initialize the project directory structure for code, tests, results, and logs.
-    Creates the following directories:
+    Initialize code, tests, and results directories as specified in T001a.
+    
+    Creates the following directories relative to the project root:
     - code/, code/data/, code/models/, code/eval/, code/utils/
     - tests/contract/, tests/unit/, tests/integration/
     - results/reports/, results/plots/, results/baseline/, results/predictions/
     - logs/
+    
+    Returns:
+        List[str]: List of created directory paths.
     """
-    root = get_project_root()
-    logger = get_logger("directories")
-
-    # Define all required directories relative to project root
-    dirs_to_create: List[Path] = [
-        # Code structure
-        root / "code",
-        root / "code" / "data",
-        root / "code" / "models",
-        root / "code" / "eval",
-        root / "code" / "utils",
-        # Tests structure
-        root / "tests" / "contract",
-        root / "tests" / "unit",
-        root / "tests" / "integration",
-        # Results structure
-        root / "results" / "reports",
-        root / "results" / "plots",
-        root / "results" / "baseline",
-        root / "results" / "predictions",
-        # Logs
-        root / "logs",
+    project_root = get_project_root()
+    
+    directories_to_create = [
+        "code",
+        "code/data",
+        "code/models",
+        "code/eval",
+        "code/utils",
+        "tests/contract",
+        "tests/unit",
+        "tests/integration",
+        "results/reports",
+        "results/plots",
+        "results/baseline",
+        "results/predictions",
+        "logs",
     ]
-
-    created_count = 0
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-            created_count += 1
+    
+    created_paths = []
+    
+    for dir_path in directories_to_create:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_paths.append(str(full_path))
         else:
-            logger.debug(f"Directory already exists: {dir_path}")
+            logger.debug(f"Directory already exists: {full_path}")
+            
+    return created_paths
 
-    logger.info(f"Directory initialization complete. Created {created_count} new directories.")
-
-def create_results_directories() -> None:
+def create_results_directories() -> List[str]:
     """
-    Specifically creates the results subdirectories.
-    Used if only results structure needs to be initialized.
+    Create only the results subdirectories.
+    
+    Returns:
+        List[str]: List of created results directory paths.
     """
-    root = get_project_root()
-    logger = get_logger("directories")
-
+    project_root = get_project_root()
+    
     results_dirs = [
-        root / "results" / "reports",
-        root / "results" / "plots",
-        root / "results" / "baseline",
-        root / "results" / "predictions",
+        "results/reports",
+        "results/plots",
+        "results/baseline",
+        "results/predictions",
     ]
-
+    
+    created_paths = []
+    
     for dir_path in results_dirs:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created results directory: {dir_path}")
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created results directory: {full_path}")
+            created_paths.append(str(full_path))
+        else:
+            logger.debug(f"Results directory already exists: {full_path}")
+            
+    return created_paths
 
-def main() -> None:
-    """
-    Entry point for running directory initialization as a script.
-    """
-    setup_logger = logging.getLogger("directories.main")
-    setup_logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    setup_logger.addHandler(handler)
-
-    create_all_directories()
-    setup_logger.info("Directory structure initialization finished.")
+def main():
+    """Entry point for directory creation script."""
+    logger.info("Starting directory initialization (T001a)...")
+    created = create_all_directories()
+    logger.info(f"Successfully created {len(created)} directories.")
+    for path in created:
+        logger.info(f"  - {path}")
+    return created
 
 if __name__ == "__main__":
     main()

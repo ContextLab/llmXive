@@ -1,10 +1,26 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system snapshots were provided, so there is no
+    evidence that the required folders (`code/`, `code/data/`, `code/models/`, `code/eval/`,
+    `code/utils/`, `tests/contract/`, `tests/unit/`, `tests/integration/`, `results/reports/`,
+    `results/plots/`, `results/baseline/`, `results/predictions/`, `logs/`) actually
+    exist. The implementer must supply a view of the project tree or a script output
+    confirming that these directories have been created.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the required directories (`data/raw/`,
+    `data/processed/`, `data/splits/`, `data/schemas/`) actually exist in the repository;
+    without such artifact listings or screenshots, we cannot confirm the task was
+    completed.
 T003b:
   c: true
-  h: 8987d844febea4fb5621c062cdb2cff88aeeebbc1541130fbfac6ed34b19b726
-  r: "The provided `pyproject.toml` exists, is non\u2011empty, and contains a `[tool.black]`\
-    \ section with typical Black configuration options (line\u2011length, target\u2011\
-    version, include, exclude). This fulfills the task of creating a Black configuration\
-    \ via `pyproject.toml`; the optional `.black.toml` is not required."
+  h: 60c5362cff04882f81b5c6e4246a75af4cdde60a4245c8767c891fc9a18e0d78
+  r: "The provided `pyproject.toml` file exists, is non\u2011empty, and contains a\
+    \ full `[tool.black]` section with formatting rules, satisfying the task\u2019\
+    s requirement to generate a Black configuration via `pyproject.toml`. The optional\
+    \ `.black.toml` is not needed since the configuration is correctly placed in `pyproject.toml`."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,3 +1,3 @@
 """
-Data processing package
+Data processing package.
 """
