@@ -7,4 +7,6 @@ pytest
 sentence-transformers
 statsmodels
 scipy
-# Additional dependencies (if any) - none needed for this task
+graphviz
+# New dependency for T063 (optional, for visualization tools, not strictly needed for generation)
+# graphviz is listed for completeness if users want to render the .dot file
