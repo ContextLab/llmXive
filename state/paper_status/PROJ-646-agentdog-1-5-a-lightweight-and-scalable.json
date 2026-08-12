@@ -11,12 +11,12 @@
         "page": 92
       }
     ],
-    "audited_at": "2026-08-12T20:56:16.199346+00:00"
+    "audited_at": "2026-08-12T21:33:32.150830+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-646-agentdog-1-5-a-lightweight-and-scalable",
-  "updated_at": "2026-08-12T20:56:16.199361+00:00"
+  "updated_at": "2026-08-12T21:33:32.150844+00:00"
 }
