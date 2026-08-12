@@ -1,10 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
-    settings, `.ruff.toml`, or similar) are present, and the provided evidence only
-    describes a statistical study specification unrelated to configuring linting tools.
-    The required artifacts to satisfy task T003 are missing.
 T019:
   c: false
   h: 6adee02a20e8d6dedf9c3cc70178b152b9c2a5a947d982573033ba7e2666e195
@@ -12,6 +5,13 @@ T019:
     repository, so the contract test for the PMD CLI wrapper is missing. The task
     cannot be considered completed until this test file is added with appropriate
     test cases.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual `specs/001-code-smell-comparison/research.md` file content was provided;\
+    \ without seeing the updated documentation we cannot confirm the required artifact\
+    \ exists or matches the specification. The implementer\u2019s claim lacks verifiable\
+    \ evidence."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
