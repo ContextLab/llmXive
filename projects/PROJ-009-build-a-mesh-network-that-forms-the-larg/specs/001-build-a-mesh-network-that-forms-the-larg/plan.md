@@ -11,7 +11,7 @@ This project implements a physical testbed for a mesh network supercomputer that
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `paramiko` (SSH orchestration), `scikit-learn` (regression/ANOVA), `pandas` (data manipulation), `pygam` (Generalized Additive Models), `statsmodels` (statistical testing), `pytest` (testing), `pyyaml` (configuration), `numpy` (numerical operations), `simpy` (discrete-event simulation)  
 **Storage**: Local CSV/JSON logs, no external database required for CI execution  
 **Testing**: `pytest` with contract validation against YAML schemas  

@@ -1,11 +1,11 @@
 T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The response contains only the task description and no evidence of the required
-    directory tree, `__init__.py` files, or a `.gitignore`. Without the actual project
-    structure present on disk, the claim that the task is complete cannot be verified.
-    The missing artifact is the full folder hierarchy (`code/orchestrator`, `code/analysis`,
-    etc.) with the required files.
+  r: "No directory tree, `__init__.py` files, or `.gitignore` content were provided;\
+    \ without visible evidence of the required folder structure and files, the task\u2019\
+    s deliverable cannot be confirmed as completed. The implementer must supply the\
+    \ actual project layout showing all listed directories, the initialization files,\
+    \ and a `.gitignore` with the specified exclusions."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,16 +16,16 @@ T007:
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `remote_tools_manager.py` file (or its contents) was presented in the evidence,\
-    \ so we cannot confirm that the required module exists, is non\u2011empty, or\
-    \ implements the verification and installation of CLI tools on remote nodes. The\
-    \ implementer must provide the actual source file with the expected functionality."
+  r: "No `code/orchestrator/remote_tools_manager.py` file or its contents were provided;\
+    \ therefore we cannot verify that the required implementation exists, is non\u2011\
+    empty, or fulfills the specification of verifying and installing CLI tools on\
+    \ remote nodes. The necessary artifact is missing."
 T013c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `heartbeat_monitoring.py` file (or any code) was provided in the evidence,\
-    \ so there is no implementation to verify for heartbeat loss detection or task\
-    \ re\u2011assignment logic. The required artifact is missing."
+  r: "No `heartbeat_monitoring.py` file (or any code) was presented in the evidence,\
+    \ so the required implementation for heartbeat loss detection and task re\u2011\
+    assignment is missing. The task remains undone."
 T015a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,131 +1,66 @@
 """
-Project Structure Setup Script for llmXive Mesh Network Supercomputer.
-
-This script creates the required directory structure and initializes
-all necessary __init__.py files and configuration files.
+Script to initialize the project directory structure.
+This script creates the required directories and __init__.py files
+as specified in T001.
 """
 import os
 from pathlib import Path
 from typing import List
 
-# Define the required directory structure
-REQUIRED_DIRS: List[str] = [
-    "code/orchestrator",
-    "code/analysis",
-    "code/simulation",
-    "code/data/raw",
-    "code/data/processed",
-    "code/tests/unit",
-    "code/tests/integration",
-    "code/tests/contract",
-]
-
-# Define the .gitignore content
-GITIGNORE_CONTENT: str = """# Data directories
-data/
-code/data/
-
-# Logs
-*.log
-
-# Python cache
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-ENV/
-env/
-.venv/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Environment variables
-.env
-.env.local
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-"""
-
-def create_structure(base_path: Path = None) -> None:
+def create_structure(base_path: Path) -> List[str]:
     """
-    Create the project directory structure and required files.
+    Create the project directory structure.
     
     Args:
-        base_path: Base directory for the project. Defaults to current directory.
+        base_path: The root directory for the project (should be 'code/')
+        
+    Returns:
+        List of created directory paths
     """
-    if base_path is None:
-        base_path = Path.cwd()
+    directories = [
+        "orchestrator",
+        "analysis",
+        "simulation",
+        "data/raw",
+        "data/processed",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+    ]
     
-    print(f"Creating project structure in: {base_path}")
-    
-    # Create all required directories
-    for dir_path in REQUIRED_DIRS:
-        full_path = base_path / dir_path
+    created = []
+    for dir_name in directories:
+        full_path = base_path / dir_name
         full_path.mkdir(parents=True, exist_ok=True)
-        print(f"  Created directory: {full_path}")
+        created.append(str(full_path))
         
         # Create __init__.py in each directory
         init_file = full_path / "__init__.py"
         if not init_file.exists():
-            init_file.write_text(f'"""{dir_path} module."""\n')
-            print(f"    Created: {init_file}")
-        else:
-            print(f"    Already exists: {init_file}")
+            init_file.write_text(f"# {dir_name} module\n")
     
-    # Create .gitignore at project root
-    gitignore_path = base_path / ".gitignore"
-    if not gitignore_path.exists():
-        gitignore_path.write_text(GITIGNORE_CONTENT)
-        print(f"Created: {gitignore_path}")
-    else:
-        print(f".gitignore already exists at: {gitignore_path}")
-    
-    print("Project structure setup complete.")
+    return created
 
-def main() -> None:
-    """Main entry point for the setup script."""
-    create_structure()
+def main():
+    """Entry point for creating the project structure."""
+    # Determine the base path (parent of this script)
+    script_path = Path(__file__).parent
+    base_path = script_path
+    
+    print(f"Creating project structure in: {base_path}")
+    created_dirs = create_structure(base_path)
+    
+    print(f"Created {len(created_dirs)} directories:")
+    for d in created_dirs:
+        print(f"  - {d}")
+    
+    # Create __init__.py in the root code directory if it doesn't exist
+    root_init = base_path / "__init__.py"
+    if not root_init.exists():
+        root_init.write_text("# Root package for the mesh network supercomputer project\n")
+        print(f"Created {root_init}")
+        
+    print("Project structure initialization complete.")
 
 if __name__ == "__main__":
     main()

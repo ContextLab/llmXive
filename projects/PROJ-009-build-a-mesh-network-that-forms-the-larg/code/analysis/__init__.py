@@ -1,3 +1,1 @@
-"""
-Analysis module: Handles statistical modeling, regression, and validation.
-"""
+# Analysis module for statistical modeling and validation

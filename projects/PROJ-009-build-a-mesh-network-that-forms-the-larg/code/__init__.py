@@ -1,3 +1,1 @@
-"""
-Root package for the Mesh Network Supercomputer project.
-"""
+# Root package for the mesh network supercomputer project

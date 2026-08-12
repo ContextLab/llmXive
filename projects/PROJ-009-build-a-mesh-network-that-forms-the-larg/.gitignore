@@ -1,15 +1,59 @@
-# Data and logs
-data/
-*.log
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data
+data/
+*.log
+*.csv
+*.json
+*.parquet
+*.h5
+*.pkl
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local Config
+.env
+config_local.yaml
+
+# Testing
 .coverage
 htmlcov/
-.eggs/
-*.egg-info/
-dist/
-build/
+.pytest_cache/
+.mypy_cache/
+*.cover
+
+# Logs
+*.log

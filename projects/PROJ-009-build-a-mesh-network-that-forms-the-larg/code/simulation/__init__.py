@@ -1,3 +1,1 @@
-"""
-Simulation module: Discrete-event simulation and calibration.
-"""
+# Simulation module for discrete-event modeling

@@ -1,3 +1,1 @@
-"""
-Contract tests for schema validation.
-"""
+# Contract tests (schema validation)
