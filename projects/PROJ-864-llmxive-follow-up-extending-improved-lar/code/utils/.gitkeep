@@ -1,1 +1,2 @@
-# Utils directory - stores utility functions and infrastructure code
+# Utility modules (config, logging, monitoring).
+# Created by task T001a.

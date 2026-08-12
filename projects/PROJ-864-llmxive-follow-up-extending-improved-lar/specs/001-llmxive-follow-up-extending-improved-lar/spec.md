@@ -9,7 +9,7 @@
 
 ### User Story 1 - Construct and Validate the Micro-Corpus (Priority: P1)
 
-**User Journey**: The researcher prepares a constrained, balanced dataset of a substantial number of tokens from open-source sources (e.g., Project Gutenberg, The Stack) using the `gpt2` tokenizer and verifies that the data fits within the 7GB RAM / 14GB disk constraints of the free-tier CI runner before any model training begins.
+**User Journey**: The researcher prepares a constrained, balanced dataset of a substantial number of tokens from open-source sources (e.g., Project Gutenberg, The Stack) using the `gpt` tokenizer and verifies that the data fits within the 7GB RAM / 14GB disk constraints of the free-tier CI runner before any model training begins.
 
 **Why this priority**: Without a valid, size-constrained dataset, the comparative analysis cannot run. This is the foundational data requirement that enables the subsequent training loops.
 
@@ -24,7 +24,7 @@
 
 ### User Story 2 - Execute Comparative Training Loops (Priority: P2)
 
-**User Journey**: The researcher trains two M-parameter models (one causal autoregressive, one bidirectional masked diffusion) on the Micro-Corpus for 100 epochs using a CPU-optimized loop, recording validation loss and training loss after every epoch.
+**User Journey**: The researcher trains two M-parameter models (one causal autoregressive, one bidirectional masked diffusion) on the Micro-Corpus for a sufficient number of epochs using a CPU-optimized loop, recording validation loss and training loss after every epoch.
 
 **Why this priority**: This is the core experimental procedure. It generates the raw data (loss curves) required to answer the research question about overfitting trajectories.
 

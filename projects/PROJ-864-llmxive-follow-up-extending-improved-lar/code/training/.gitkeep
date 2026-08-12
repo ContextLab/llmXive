@@ -1,1 +1,2 @@
-# Training directory - stores training loops and experiment scripts
+# Training loops, callbacks, and experiment runners.
+# Created by task T001a.

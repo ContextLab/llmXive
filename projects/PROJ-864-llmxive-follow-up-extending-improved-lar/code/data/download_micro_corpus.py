@@ -1,210 +1,262 @@
 """
-Download Micro-Corpus from Project Gutenberg and The Stack.
+Download micro corpus from Project Gutenberg and The Stack.
 
-This script fetches data streams from two real sources:
-1. Project Gutenberg (via the 'gutenberg' dataset on Hugging Face)
-2. The Stack (via 'bigcode/the-stack-smol' dataset)
-
-It uses streaming to avoid loading the entire dataset into memory at once,
-adhering to CPU constraints. The script fails loudly if data sources are
-unreachable, with no synthetic fallbacks.
+This script fetches data streams from open-source datasets and
+combines them into a single corpus file.
 """
-
 import json
 import os
 import sys
 import hashlib
+import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Generator
+from typing import Dict, Any, List, Optional, Generator
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from datasets import load_dataset
 from utils.logging import get_logger, info, error, warning, setup_logging
-from utils.config import get_config, get_raw_dir, ConfigError
+from utils.config import get_project_root, get_raw_dir, get_token_limit
 
 logger = get_logger(__name__)
 
-# Configuration constants
-GUTENBERG_DATASET = "gutenberg"
-THE_STACK_DATASET = "bigcode/the-stack-smol"
-THE_STACK_SPLIT = "train"
-GUTENBERG_SPLIT = "train"
-
-# Target sample sizes (approximate, for streaming limits)
-# These are soft limits for the streaming process to ensure we get a representative sample
-# without waiting for the entire massive dataset.
-GUTENBERG_MAX_SAMPLES = 50000  # ~50k books/articles
-THE_STACK_MAX_SAMPLES = 200000 # ~200k code snippets
+# Constants
+TARGET_TOKENS = 1_000_000
+MAX_SAMPLES = 50000  # Maximum number of samples to fetch
+BATCH_SIZE = 1000
 
 def setup_logging():
-    """Initialize logging for the script."""
+    """Setup logging for this module."""
     setup_logging()
 
-def fetch_gutenberg_samples() -> Generator[Dict[str, Any], None, None]:
+def fetch_gutenberg_samples(
+    max_samples: int = 10000
+) -> Generator[Dict[str, Any], None, None]:
     """
-    Fetch samples from Project Gutenberg using streaming.
-    
-    Yields:
-        Dict containing 'text' and 'source' fields.
-    """
-    logger.info(f"Fetching Project Gutenberg samples from {GUTENBERG_DATASET}...")
-    try:
-        dataset = load_dataset(GUTENBERG_DATASET, split=GUTENBERG_SPLIT, streaming=True)
-        count = 0
-        for item in dataset:
-            if count >= GUTENBERG_MAX_SAMPLES:
-                logger.info(f"Reached Gutenberg sample limit: {GUTENBERG_MAX_SAMPLES}")
-                break
-            
-            # Gutenberg dataset typically has 'text' and 'bookid'
-            text = item.get('text', '')
-            if text and len(text.strip()) > 100: # Filter very short entries
-                yield {
-                    "text": text,
-                    "source": "gutenberg",
-                    "id": f"gutenberg_{item.get('bookid', count)}",
-                    "raw_length": len(text)
-                }
-                count += 1
-                
-            if count % 10000 == 0:
-                logger.info(f"Processed {count} Gutenberg samples...")
-                
-    except Exception as e:
-        error(f"Failed to fetch Gutenberg data: {e}")
-        raise
+    Fetch samples from Project Gutenberg via HuggingFace datasets.
 
-def fetch_the_stack_samples() -> Generator[Dict[str, Any], None, None]:
-    """
-    Fetch samples from The Stack using streaming.
-    
-    Yields:
-        Dict containing 'text' and 'source' fields.
-    """
-    logger.info(f"Fetching The Stack samples from {THE_STACK_DATASET}...")
-    try:
-        # The Stack Smol is a smaller, filtered version suitable for CPU constraints
-        dataset = load_dataset(THE_STACK_DATASET, split=THE_STACK_SPLIT, streaming=True)
-        count = 0
-        
-        for item in dataset:
-            if count >= THE_STACK_MAX_SAMPLES:
-                logger.info(f"Reached The Stack sample limit: {THE_STACK_MAX_SAMPLES}")
-                break
-            
-            # The Stack typically has 'content' or 'text' depending on the version
-            # We check common keys
-            text = item.get('content') or item.get('text', '')
-            
-            if text and len(text.strip()) > 100:
-                yield {
-                    "text": text,
-                    "source": "the_stack",
-                    "id": f"stack_{count}",
-                    "raw_length": len(text)
-                }
-                count += 1
-                
-            if count % 10000 == 0:
-                logger.info(f"Processed {count} The Stack samples...")
-
-    except Exception as e:
-        error(f"Failed to fetch The Stack data: {e}")
-        raise
-
-def save_samples_to_jsonl(samples: List[Dict[str, Any]], output_path: Path):
-    """
-    Save a list of samples to a JSONL file.
-    
     Args:
-        samples: List of dictionaries to save.
-        output_path: Path to the output file.
+        max_samples: Maximum number of samples to fetch
+
+    Yields:
+        Dictionary containing sample data
     """
-    logger.info(f"Saving {len(samples)} samples to {output_path}...")
+    try:
+        from datasets import load_dataset
+        
+        logger.info("Loading Project Gutenberg dataset (streaming)...")
+        # Use the 'gutenberg' dataset from HuggingFace
+        dataset = load_dataset("gutenberg", "plain_text", streaming=True)
+        
+        sample_count = 0
+        for split, data in dataset.items():
+            for item in data:
+                if sample_count >= max_samples:
+                    return
+                
+                text = item.get('text', '')
+                if text and len(text.strip()) > 100:  # Filter very short texts
+                    sample_count += 1
+                    yield {
+                        'text': text.strip(),
+                        'source': 'gutenberg',
+                        'id': f"gutenberg_{sample_count}",
+                        'split': split
+                    }
+                    
+    except Exception as e:
+        error(f"Failed to fetch Gutenberg samples: {e}")
+        raise
+
+def fetch_the_stack_samples(
+    max_samples: int = 40000
+) -> Generator[Dict[str, Any], None, None]:
+    """
+    Fetch samples from The Stack via HuggingFace datasets.
+
+    Args:
+        max_samples: Maximum number of samples to fetch
+
+    Yields:
+        Dictionary containing sample data
+    """
+    try:
+        from datasets import load_dataset
+        
+        logger.info("Loading The Stack dataset (streaming)...")
+        # Use a subset of The Stack (code data)
+        # Note: The Stack is large, so we sample from it
+        dataset = load_dataset("bigcode/the-stack", "data", streaming=True, 
+                             split="train")
+        
+        sample_count = 0
+        for item in dataset:
+            if sample_count >= max_samples:
+                return
+            
+            # Get text content
+            text = item.get('content', '')
+            if text and len(text.strip()) > 100:
+                sample_count += 1
+                yield {
+                    'text': text.strip(),
+                    'source': 'the_stack',
+                    'id': f"stack_{sample_count}",
+                    'language': item.get('language', 'unknown')
+                }
+                
+    except Exception as e:
+        error(f"Failed to fetch The Stack samples: {e}")
+        raise
+
+def count_tokens(text: str) -> int:
+    """
+    Estimate token count for a text.
+
+    Args:
+        text: Input text
+
+    Returns:
+        Estimated token count
+    """
+    # Simple approximation: ~1.3 tokens per word
+    words = len(text.split())
+    return int(words * 1.3)
+
+def count_lines(file_path: Path) -> int:
+    """
+    Count lines in a file.
+
+    Args:
+        file_path: Path to the file
+
+    Returns:
+        Number of lines
+    """
+    with open(file_path, 'r') as f:
+        return sum(1 for _ in f)
+
+def save_samples_to_jsonl(
+    samples: Generator[Dict[str, Any], None, None],
+    output_path: Path,
+    target_tokens: int = TARGET_TOKENS
+) -> Dict[str, Any]:
+    """
+    Save samples to a JSONL file until target tokens are reached.
+
+    Args:
+        samples: Generator yielding sample dictionaries
+        output_path: Path to output file
+        target_tokens: Target token count
+
+    Returns:
+        Statistics about the saved corpus
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    total_tokens = 0
+    total_samples = 0
+    start_time = time.time()
+    
+    logger.info(f"Saving samples to {output_path} (target: {target_tokens} tokens)")
+    
     with open(output_path, 'w', encoding='utf-8') as f:
         for sample in samples:
-            f.write(json.dumps(sample, ensure_ascii=False) + '\n')
-    logger.info(f"Saved {len(samples)} samples to {output_path}")
+            text = sample.get('text', '')
+            token_count = count_tokens(text)
+            
+            if total_tokens + token_count > target_tokens and total_tokens > 0:
+                logger.info(f"Reached target token count: {total_tokens}")
+                break
+            
+            # Add token count to sample
+            sample['estimated_tokens'] = token_count
+            
+            json_line = json.dumps(sample, ensure_ascii=False)
+            f.write(json_line + '\n')
+            
+            total_tokens += token_count
+            total_samples += 1
+            
+            if total_samples % 1000 == 0:
+                elapsed = time.time() - start_time
+                rate = total_samples / elapsed if elapsed > 0 else 0
+                info(f"Saved {total_samples} samples ({total_tokens} tokens) - "
+                     f"Rate: {rate:.2f} samples/sec")
+    
+    elapsed = time.time() - start_time
+    stats = {
+        'total_samples': total_samples,
+        'total_tokens': total_tokens,
+        'output_file': str(output_path),
+        'elapsed_time_seconds': elapsed,
+        'samples_per_second': total_samples / elapsed if elapsed > 0 else 0,
+        'target_tokens': target_tokens,
+        'target_met': total_tokens >= target_tokens
+    }
+    
+    info(f"Saved {total_samples} samples with {total_tokens} tokens in {elapsed:.2f} seconds")
+    return stats
 
 def combine_and_save_corpus(
-    gutenberg_samples: List[Dict[str, Any]], 
-    stack_samples: List[Dict[str, Any]], 
-    output_dir: Path
-):
+    output_path: Path,
+    target_tokens: int = TARGET_TOKENS
+) -> Dict[str, Any]:
     """
-    Combine samples from both sources and save to the raw directory.
-    
+    Combine data from multiple sources and save to a single corpus file.
+
     Args:
-        gutenberg_samples: List of Gutenberg samples.
-        stack_samples: List of The Stack samples.
-        output_dir: Directory to save the combined corpus.
+        output_path: Path to output file
+        target_tokens: Target token count
+
+    Returns:
+        Statistics about the combined corpus
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Fetch from both sources
+    gutenberg_samples = fetch_gutenberg_samples(max_samples=10000)
+    stack_samples = fetch_the_stack_samples(max_samples=40000)
     
-    combined_path = output_dir / "micro_corpus_raw.jsonl"
+    # Combine generators
+    def combined_generator():
+        for sample in gutenberg_samples:
+            yield sample
+        for sample in stack_samples:
+            yield sample
     
-    logger.info(f"Combining {len(gutenberg_samples)} Gutenberg and {len(stack_samples)} Stack samples...")
-    all_samples = gutenberg_samples + stack_samples
-    
-    save_samples_to_jsonl(all_samples, combined_path)
-    
-    # Calculate and log checksum
-    checksum = hashlib.sha256()
-    with open(combined_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
-            checksum.update(chunk)
-    
-    logger.info(f"Corpus saved to {combined_path}")
-    logger.info(f"Total samples: {len(all_samples)}")
-    logger.info(f"SHA-256: {checksum.hexdigest()}")
-    
-    return {
-        "total_samples": len(all_samples),
-        "gutenberg_count": len(gutenberg_samples),
-        "stack_count": len(stack_samples),
-        "output_path": str(combined_path),
-        "sha256": checksum.hexdigest()
-    }
+    return save_samples_to_jsonl(combined_generator(), output_path, target_tokens)
 
 def main():
-    """Main entry point for downloading the micro-corpus."""
+    """Main entry point for the download_micro_corpus script."""
     setup_logging()
     
+    project_root = get_project_root()
+    raw_dir = get_raw_dir()
+    
+    output_path = raw_dir / "micro_corpus_raw.jsonl"
+    
+    if output_path.exists():
+        warning(f"Output file already exists: {output_path}")
+        response = input("Do you want to overwrite? (y/n): ").strip().lower()
+        if response != 'y':
+            info("Operation cancelled.")
+            sys.exit(0)
+    
     try:
-        config = get_config()
-        raw_dir = get_raw_dir()
+        stats = combine_and_save_corpus(output_path)
         
-        info("Starting micro-corpus download...")
+        # Save stats
+        stats_path = raw_dir / "download_stats.json"
+        with open(stats_path, 'w') as f:
+            json.dump(stats, f, indent=2)
         
-        # Fetch data streams
-        gutenberg_gen = fetch_gutenberg_samples()
-        stack_gen = fetch_the_stack_samples()
+        info(f"Download complete. Stats saved to {stats_path}")
         
-        # Collect samples (memory efficient for the target limits)
-        gutenberg_samples = list(gutenberg_gen)
-        stack_samples = list(stack_gen)
-        
-        if not gutenberg_samples:
-            warning("No Gutenberg samples were retrieved. Check dataset availability.")
-        if not stack_samples:
-            warning("No The Stack samples were retrieved. Check dataset availability.")
-        
-        if not gutenberg_samples and not stack_samples:
-            error("Failed to retrieve any data from sources. Aborting.")
+        if not stats['target_met']:
+            warning(f"Target token count not met: {stats['total_tokens']} < {TARGET_TOKENS}")
             sys.exit(1)
         
-        # Combine and save
-        result = combine_and_save_corpus(gutenberg_samples, stack_samples, raw_dir)
-        
-        info("Micro-corpus download completed successfully.")
-        info(f"Result: {json.dumps(result, indent=2)}")
-        
     except Exception as e:
-        error(f"Critical error during download: {e}")
+        error(f"Download failed: {e}")
         raise
 
 if __name__ == "__main__":

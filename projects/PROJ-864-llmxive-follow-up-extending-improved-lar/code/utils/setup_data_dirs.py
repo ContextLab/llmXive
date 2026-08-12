@@ -1,82 +1,64 @@
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
+from typing import List
+
 from utils.logging import get_logger, info, error
 
-def setup_data_directories() -> bool:
+logger = get_logger(__name__)
+
+def setup_data_directories() -> List[str]:
     """
-    Creates the required data directory structure for the project:
+    Create the required data directory structure for the project.
+    
+    Creates:
     - data/raw/
     - data/processed/
     - data/artifacts/
-
-    Returns True if all directories were created or already exist, False on failure.
+    
+    Returns a list of created directory paths.
+    
+    Raises:
+        OSError: If a directory cannot be created.
+        PermissionError: If the process lacks write permissions.
     """
-    logger = get_logger(__name__)
-    try:
-        # Determine the project root. We assume this script is run from 'code/'
-        # or that the caller has set the working directory appropriately.
-        # We look for 'projects/PROJ-864-llmxive-follow-up-extending-improved-lar'
-        # relative to the current working directory if 'code' is a subdirectory,
-        # or we assume the current directory is the project root if 'code' is present.
+    # Determine the project root relative to this module
+    # Assuming this file is at code/utils/setup_data_dirs.py
+    # Project root is 3 levels up: code/utils -> code -> root
+    current_file = Path(__file__).resolve()
+    code_root = current_file.parent
+    project_root = code_root.parent
+    data_root = project_root / "data"
+    
+    directories = [
+        "raw",
+        "processed",
+        "artifacts"
+    ]
+    
+    created_paths = []
+    
+    for dir_name in directories:
+        dir_path = data_root / dir_name
         
-        current_path = Path.cwd()
-        
-        # Strategy: Look for the 'code' directory. If we are inside it, go up.
-        # If we are at the project root, 'code' should exist here.
-        if (current_path / "code").is_dir():
-            project_root = current_path
-        elif (current_path / "projects").is_dir():
-            # Search for the specific project folder
-            proj_folder = current_path / "projects" / "PROJ-864-llmxive-follow-up-extending-improved-lar"
-            if proj_folder.is_dir() and (proj_folder / "code").is_dir():
-                project_root = proj_folder
-            else:
-                # Fallback: assume current path is project root if it contains 'code' directly or is the target
-                # Given the task description, we assume the runner is in the project root or 'code'
-                project_root = current_path
-                if not (project_root / "code").is_dir():
-                    # If we are in 'code', go up
-                    if (current_path.parent / "code").is_dir():
-                        project_root = current_path.parent
-        else:
-            project_root = current_path
-            # If 'code' doesn't exist here, we might be in 'code'
-            if not (project_root / "code").is_dir():
-                 # Check if we are already in code
-                 if current_path.name == "code":
-                     project_root = current_path.parent
-        
-        data_dir = project_root / "data"
-        
-        sub_dirs = [
-            data_dir / "raw",
-            data_dir / "processed",
-            data_dir / "artifacts"
-        ]
-        
-        created_count = 0
-        for dir_path in sub_dirs:
-            if not dir_path.exists():
+        if not dir_path.exists():
+            try:
                 dir_path.mkdir(parents=True, exist_ok=True)
+                created_paths.append(str(dir_path))
                 info(f"Created directory: {dir_path}")
-                created_count += 1
-            else:
-                info(f"Directory already exists: {dir_path}")
-        
-        if created_count > 0:
-            info(f"Successfully created {created_count} data directories under {data_dir}")
+            except PermissionError as e:
+                error(f"Permission denied creating directory {dir_path}: {e}")
+                raise
+            except OSError as e:
+                error(f"Error creating directory {dir_path}: {e}")
+                raise
         else:
-            info("All required data directories already exist.")
+            info(f"Directory already exists: {dir_path}")
+            created_paths.append(str(dir_path))
+    
+    if not created_paths:
+        info("All required data directories already exist.")
+    else:
+        info(f"Successfully created {len(created_paths)} data directories.")
         
-        return True
-
-    except PermissionError as e:
-        error(f"Permission denied while creating data directories: {e}")
-        return False
-    except OSError as e:
-        error(f"OS error while creating data directories: {e}")
-        return False
-    except Exception as e:
-        error(f"Unexpected error during data directory setup: {e}")
-        return False
+    return created_paths

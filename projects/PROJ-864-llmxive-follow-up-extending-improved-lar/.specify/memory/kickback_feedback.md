@@ -4,13 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence was presented showing that the `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/` directory exists or contains any files; the claim cannot be verified. The required directory must be created and its presence confirmed.
-- `T001b` (rejected 1x): No evidence of the required `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/` directory is provided; the artifact list is empty, so the task’s core deliverable is missing.
-- `T001c` (rejected 1x): No evidence was provided showing that the `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/` directory exists (or contains any files). The implementer’s claim cannot be verified without an actual directory or listing. The missing artifact is the required directory itself.
-- `T001d` (rejected 1x): No evidence was presented showing that the directory `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/` actually exists or contains any files; the prompt provides only the task description without any filesystem listing or file contents. The required artifact is therefore missing.
-- `T001e` (rejected 1x): No evidence was provided that the `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/` directory actually exists or contains any files; the implementer only restated the task without showing the required artifact. The missing directory must be created and verified.
-- `T001f` (rejected 1x): No evidence was provided showing that the `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/` directory actually exists (or contains any files). The implementer’s claim is unsubstantiated, so the required artifact is missing.
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml
+- `T002` (rejected 1x): No evidence of a `main.py` file at `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/` was provided; the claim lacks any artifact showing the file’s existence or contents. The required initialization script is therefore missing.
+- `T004` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, or similar) were presented for the `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/` directory, so the required artifact is missing. The implementer must add the appropriate ruff and black configuration files (and optionally integrate them into CI or pre‑commit) to satisfy the task.
+- `T005` (rejected 1x): No evidence of the required directories (`data/raw/`, `data/processed/`, `data/artifacts/`) being created or listed is provided; the claim lacks any tangible artifact confirming the directory structure exists.
+- `T013` (rejected 1x): No `download_micro_corpus.py` file (or its contents) was provided in the evidence, and there is no indication that the script was created or contains the required `datasets.load_dataset(..., streaming=True)` logic. The required artifact is missing, so the task is not satisfied.
+- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/micro_corpus_full.jsonl
 
 ## Required change
 

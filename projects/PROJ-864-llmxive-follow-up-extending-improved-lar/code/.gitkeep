@@ -1,2 +1,2 @@
-# This file ensures the code directory is tracked in git
-# Subdirectories are created by the setup script
+# This file ensures the code directory exists in the repository.
+# It is empty by design as per project initialization requirements.

@@ -14,7 +14,7 @@ The implementation constructs the strict "Micro-Corpus", trains 10 models (5 AR,
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `transformers` (v4.40+), `datasets` (v2.18+), `torch` (v2.2+ with `torch.compile`), `scikit-learn`, `scipy`, `pandas`, `pyyaml`, `huggingface_hub`  
 **Storage**: Local ephemeral storage (GitHub Actions runner); `data/` directory for Micro-Corpus and logs.  
 **Testing**: `pytest` for unit tests; integration tests verify data bounds and model output shapes.  
@@ -146,7 +146,7 @@ No violations found. The single-project structure minimizes overhead and aligns 
 **Goal**: Analyze overfitting trajectories and validate against HumanEval.
 1.  **FR-005**: Run Mixed-Model Repeated-Measures ANOVA on Generalization Gap (Model × Epoch) with Seeds as subjects.
 2.  **FR-006**: Evaluate final checkpoints on HumanEval (using the verified-excluded data). Save results to `human_eval_results.json`.
-3.  **FR-010**: Calculate Pearson correlation between gap slope and HumanEval score **per architecture** (points for AR, 5 points for MDM).
+3.  **FR-010**: Calculate Pearson correlation between gap slope and HumanEval score **per architecture** (points for AR, points for MDM).
 4.  **FR-009**: Report power analysis results against observed effect size.
 5.  **Cross-Domain Validation**: Evaluate models on WikiText-2 to test generalization beyond the Micro-Corpus.
 6.  **Constitution V**: Update `state` file with hashes of all new artifacts.

@@ -1,2 +1,2 @@
-# This file ensures the data directory is tracked by git.
-# The subdirectories (raw, processed, artifacts) are created by setup_data_dirs.py.
+# This file ensures the data directory exists in the repository.
+# It is empty by design as per project initialization requirements.

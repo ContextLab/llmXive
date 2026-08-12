@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -16,57 +16,90 @@ dependencies = [
     "pandas",
     "pyyaml",
     "huggingface_hub",
+    "ruff",
+    "black",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
-
 [tool.ruff]
-# Same as Black.
-line-length = 88
+# Target Python version
 target-version = "py311"
+# Line length
+line-length = 88
+# Exclude common directories
 exclude = [
     ".git",
-    ".hg",
-    ".mypy_cache",
     ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
     "build",
     "dist",
-    "node_modules",
+    "venv",
+    ".venv",
+    "data",
 ]
 
 [tool.ruff.lint]
+# Enable specific rule sets
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "N",      # pep8-naming
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501",   # Line too long (handled by black)
+    "B008",   # Do not perform function call in argument defaults (common in dataclasses)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in init files for API exposure
+# Allow imports in __init__.py
+"__init__.py" = ["F401"]
+# Allow wildcard imports in tests if needed
+"tests/*.py" = ["F403", "F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["utils", "models", "data", "training", "analysis", "tests"]
+force-sort-within-sections = true
+
+[tool.black]
+# Line length
+line-length = 88
+# Target version
+target-version = ["py311"]
+# Exclude directories
+exclude = '''
+/(
+    \.git
+    | \.tox
+    | __pycache__
+    | \.eggs
+    | \.egg-info
+    | build
+    | dist
+    | venv
+    | \.venv
+    | data
+)/
+'''
+# Include .py files
+include = '\.pyi?$'
+# Force exclude if necessary (black specific)
+force-exclude = ''
+/(
+    \.git
+    | \.tox
+    | __pycache__
+    | \.eggs
+    | \.egg-info
+    | build
+    | dist
+    | venv
+    | \.venv
+    | data
+)/
+''

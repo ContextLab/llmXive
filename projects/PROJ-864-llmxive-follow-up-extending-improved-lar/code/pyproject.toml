@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up"
+name = "llmxive-follow-up-extending-improved-lar"
 version = "0.1.0"
-description = "Extended Improved Large Language Diffusion Models Research Pipeline"
+description = "Automated science pipeline for LLM diffusion model research"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -17,41 +17,38 @@ dependencies = [
     "pyyaml",
     "huggingface_hub",
     "ruff",
-    "black"
+    "black",
+    "pytest",
+    "statsmodels",
+    "numpy",
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
 
 [tool.ruff]
-# Target Python 3.11
+# Same as Black.
+line-length = 88
+indent-width = 4
 target-version = "py311"
-# Exclude common build artifacts and dependencies
-exclude = [
-    ".git",
-    ".tox",
-    ".eggs",
-    "venv",
-    ".venv",
-    "build",
-    "dist",
-    "__pycache__"
-]
 
 [tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W"]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
 ignore = [
-    "E501",  # Line too long (handled by black)
-    "E731",  # Do not assign a lambda expression, use a def
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Maximum line length for ruff (should match black)
-line-length = 88
-
-[tool.ruff.lint.isort]
-known-first-party = ["utils", "models", "data", "training", "analysis", "tests"]
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.black]
 line-length = 88
@@ -59,12 +56,24 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
   | \.tox
-  | \.eggs
-  | venv
-  | .venv
+  | \.venv
+  | _build
+  | buck-out
   | build
   | dist
 )/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
