@@ -1,0 +1,11 @@
+status: none
+intent: download GSM8K dataset via huggingface datasets python package dataset
+required_fields:
+- id
+- question
+- answer
+- solution
+- correctness_label
+cache_key: 3093b522ea78802c9d4f5b2b9b94ca4482ac90cb9d5fbf35d90c97087bfffa96
+searched_at: '2026-08-12T00:33:23.177294+00:00'
+retry_count: 1

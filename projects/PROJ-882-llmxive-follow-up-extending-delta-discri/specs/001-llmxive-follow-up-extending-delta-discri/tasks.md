@@ -52,12 +52,12 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. These tasks create the validation contracts required for all data artifacts.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. These tasks create the validation contracts required for all data artifacts and document feasibility deviations.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T004, T005, T006 are hard prerequisites for T015, T018, T020 respectively.
 
-- [X] T002a **SPEC AMENDMENT**: Update `spec.md` (FR-002) to explicitly authorize the deviation from N>=500/Llama-3-8B to N=200/Phi-3-mini for CPU feasibility. **ACTION**: Write amendment text to `spec.md` and update FR-002 to reference N=200/Phi-3-mini as the approved configuration.
-- [X] T002b **SPEC AMENDMENT**: Update `spec.md` (FR-003) to explicitly authorize the deviation from Llama-3-8B embeddings to `sentence-transformers/all-MiniLM-L6-v2` to avoid circularity. **ACTION**: Write amendment text to `spec.md` and update FR-003 to reference the approved embedding model.
+- [X] T002a **DEVIATION LOG**: Create `deviation_log.md` in `specs/001-delta-static-approximation/` documenting the N=200/Phi-3-mini and sentence-transformers constraints as Plan-approved deviations from Spec FR-002/FR-003. This log serves as the authority for implementation constraints without modifying the Spec. **ACTION**: Write deviation details and link to Plan section.
+- [X] T002b **CONFIG UPDATE**: Update `code/config.py` to reflect the Plan constraints: set `N_EXAMPLES=200`, `ORACLE_MODEL="Phi-mini"`, `EMBEDDING_MODEL="sentence-transformers/all-MiniLM-L-v2"`. **ACTION**: Implement configuration defaults matching the Deviation Log.
 - [X] T004 Create `contracts/delta_oracle.schema.yaml` defining the JSON structure for DelTA coefficients (token_id, coefficient, variance check). **ACTION**: Write full YAML content.
 - [X] T005 Create `contracts/static_features.schema.yaml` defining the JSON structure for feature vectors (n-grams, POS, semantic similarity). **ACTION**: Write full YAML content.
 - [X] T006 Create `contracts/predictions.schema.yaml` defining the JSON structure for model outputs (predicted_coefficient, true_coefficient, example_id). **ACTION**: Write full YAML content.
@@ -85,9 +85,8 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `code/data/download_gsm8k.py` (FR-001): Download GSM8K from HuggingFace, filter for verified correct solutions, save to `data/raw/gsm8k_verified.parquet`. Ensure at least 200 examples are available. **VERIFICATION**: Assert source dataset contains > 200 valid examples before proceeding.
-- [X] T013 [US1] Implement `code/data/generate_oracle.py` (FR-002): **AUTHORIZED BY T002a**: Load Phi-3-mini (full precision, CPU-only), run DelTA algorithm using explicit `torch.autograd.grad` logic with `retain_graph=True` on N=200 stratified examples (seed=42). Handle numerical instability by catching exceptions, logging to error.log, and excluding failed examples. **FAIL** if fewer than 200 valid examples remain. **VERIFICATION**: Assert output file contains coefficients for all 200 examples. **PLAN OVERRIDE**: This is a documented deviation from Spec FR-002 for compute feasibility, authorized by T002a.
-- [ ] T014 [US1] **MERGED INTO T013**: Variance validation is performed within `generate_oracle.py`. Ensure output coefficients have variance > 1e-9; fail explicitly if not met.
-- [ ] T015 [US1] Save output to `data/processed/delta_coefficients.json` conforming to `contracts/delta_oracle.schema.yaml`. **BLOCKED BY**: T004 (schema must exist), T012, T013. **RUNTIME CHECK**: If `contracts/delta_oracle.schema.yaml` is missing, fail immediately with error code 1. Do not attempt to run without schema. **VALIDATION**: Verify output contains coefficients for ALL 200 stratified examples and that global variance > 1e-9. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T013 [US1] Implement `code/data/generate_oracle.py` (FR-002): **AUTHORIZED BY T002a**: Load Phi-3-mini (full precision, CPU-only), run DelTA algorithm using explicit `torch.autograd.grad` logic with `retain_graph=True` on N=200 stratified examples (seed=42). Handle numerical instability by catching exceptions, logging to error.log, and excluding failed examples. **FAIL** if fewer than 200 valid examples remain. **ASSERT GLOBAL VARIANCE > 1e-9**; fail explicitly if not met. **VERIFICATION**: Assert output file contains coefficients for all examples in the dataset.. **PLAN OVERRIDE**: This is a documented deviation from Spec FR-002 for compute feasibility, authorized by T002a (Deviation Log).
+- [ ] T015 [US1] Save output to `data/processed/delta_coefficients.json` conforming to `contracts/delta_oracle.schema.yaml`. **BLOCKED BY**: T004 (schema must exist), T012, T013. **RUNTIME CHECK**: If `contracts/delta_oracle.schema.yaml` is missing, fail immediately with error code 1. Do not attempt to run without schema. **VALIDATION**: Verify output conforms to schema. (Variance check handled in T013). <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,12 +105,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement `code/data/extract_features.py` (FR-003): **AUTHORIZED BY T002b**: Extract n-gram stats, POS tags (using `spacy`), and semantic similarity to the **first 50 examples (seed=42, stratified by length) from the raw GSM8K dataset (T012)** (reference set) using `sentence-transformers/all-MiniLM-L6-v2`. **PLAN OVERRIDE**: This is a documented deviation from Spec FR-003 to avoid circularity and ensure CPU-only execution, authorized by T002b. **DEPENDS ON T012 (raw GSM8K examples) and T005 (schema). PARALLEL with T015** (both read from T012 or produce independent outputs). Filter OOV tokens or assign default vectors. Output to `data/processed/static_features.parquet` with columns [token_id, feature_vector].
+- [ ] T018a [US2] **REFERENCE SET**: Implement `code/data/select_reference_set.py`: Select a representative sample of examples (seed=42, stratified by length) from `data/raw/gsm8k_verified.parquet` (T012) and save to `data/processed/reference_set.parquet`. **DEPENDS ON**: T012. **ACTION**: Create deterministic subset file for semantic similarity calculations.
+- [ ] T018 [US2] Implement `code/data/extract_features.py` (FR-003): **AUTHORIZED BY T002a**: Extract n-gram stats, POS tags (using `spacy`), and semantic similarity to the reference set (`data/processed/reference_set.parquet` from T018a) using `sentence-transformers/all-MiniLM-L6-v2`. **PLAN OVERRIDE**: This is a documented deviation from Spec FR-003 to avoid circularity and ensure CPU-only execution, authorized by T002a. **DEPENDS ON T012 (raw GSM8K examples) and T005 (schema). PARALLEL with T015** (both read from T012 or produce independent outputs). Process a representative set of examples from T012. Filter OOV tokens or assign default vectors. Output to `data/processed/static_features.parquet` with columns [token_id, feature_vector].
 - [X] T019 [US2] Implement feature vector handling in `code/data/extract_features.py` (Edge Case): Filter OOV tokens or assign default vectors to prevent training errors.
-- [ ] T020 [US2] Save extracted features to `data/processed/static_features.parquet` conforming to `contracts/static_features.schema.yaml`. **BLOCKED BY**: T018, T005. **FORMAT NOTE**: Use.parquet to match T018 output. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T020 [US2] Save extracted features to `data/processed/static_features.parquet` conforming to `contracts/static_features.schema.yaml`. **BLOCKED BY**: T018, T005. **FORMAT NOTE**: Use parquet to match T018 output. **VALIDATION**: Validate output against schema before saving.
 - [X] T021 [US2] Implement `code/models/mlp.py` (FR-004): Define a multi-layer perceptron (MLP) with ReLU activation and a hidden layer of moderate capacity.
-- [ ] T022 [US2] Implement `code/models/train.py` (FR-004): Training loop using only extracted static features (T020), ground truth coefficients (T015), and using the model defined in T021 on CPU; ensure no CUDA/GPU calls; save model to `data/processed/mlp_model.pt`. **DEPENDS ON**: T020, T015, T021. <!-- FAILED: unspecified -->
-- [ ] T023 [US2] Generate predictions for the held-out test set and save to `data/processed/predictions.json`. **DEPENDS ON**: T022. <!-- FAILED: unspecified -->
+- [ ] T022 [US2] Implement `code/models/train.py` (FR-004): Training loop using only extracted static features (T020), ground truth coefficients (T015), and using the model defined in T021 on CPU; ensure no CUDA/GPU calls; save model to `data/processed/mlp_model.pt`. **DEPENDS ON**: T020, T015, T021. **ERROR HANDLING**: Implement try/except block for model save failures; log error and exit with code 1 if save fails.
+- [ ] T023 [US2] Generate predictions for the held-out test set and save to `data/processed/predictions.json`. **DEPENDS ON**: T022.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,12 +131,11 @@
 ### Implementation for User Story 3
 
 - [ ] T026b [US3] Implement uniform baseline generation in `code/eval/metrics.py` (FR-005): Generate a **uniform weight vector** (scaled to match the variance of the true coefficients in the test set) as the primary uniform baseline (SC-001 compliant). **DEPENDS ON**: T015, T022 (to access split logic/indices). **NOTE**: This baseline is mathematically independent of the training data distribution to ensure fairness. <!-- ATOMIZE: requested -->
-- [ ] T026c [US3] Implement diagnostic baseline generation in `code/eval/metrics.py`: Compute Spearman correlation using the **mean of the true coefficients from the TRAINING split** (derived from T015) as a secondary diagnostic metric. **DEPENDS ON**: T015, T022. **ERROR HANDLING**: If training split variance is zero, skip metric and log warning. **NOTE**: Explicitly labeled as 'diagnostic' and distinct from the SC-001 uniform baseline.
-- [ ] T026 [US3] Implement `code/eval/metrics.py` (FR-005, FR-006): Compute Spearman rank correlation between predicted (T023) and true (T015) coefficients. Compare against random baseline (N(0,1), seed=42), **uniform baseline** (from T026b), and diagnostic baseline (T026c). **DEPENDS ON**: T023, T015, T026b, T026c.
+- [ ] T026 [US3] Implement `code/eval/metrics.py` (FR-005, FR-006): Compute Spearman rank correlation between predicted (T023) and true (T015) coefficients. Compare against random baseline (N(0,1), seed=42) and **uniform baseline** (from T026b). **DEPENDS ON**: T023, T015, T026b.
 - [ ] T027 [US3] Implement permutation test in `code/eval/metrics.py` (FR-006): Shuffle targets repeatedly to generate null distribution; calculate p-value (FR-006). **DEPENDS ON**: T026.
-- [ ] T028a [US3] **THRESHOLD DERIVATION**: Run a pilot SHAP analysis on a small subset of T022 predictions to determine a statistically meaningful threshold for `mean(|SHAP|)`. Record the derived value in `code/config.py` (e.g., `SHAP_THRESHOLD`). **DEPENDS ON**: T022.
+- [ ] T028a [US3] **THRESHOLD DERIVATION**: Implement `code/eval/threshold_derivation.py`: Select a deterministic [deferred] subset (seed=42) of T022 predictions. Compute SHAP values on this subset. Calculate a high percentile of absolute SHAP values. Write this value to `code/config.py` as `SHAP_THRESHOLD`. **DEPENDS ON**: T022. **FAIL**: If T022 artifacts are missing, fail explicitly with error code 1.
 - [ ] T028 [US3] Implement `code/eval/interpret.py` (FR-008): Compute SHAP values or permutation importance. **Decision Logic**: Use SHAP values. If mean(|SHAP|) < `config.SHAP_THRESHOLD` (from T028a) for ALL feature types, classify result as 'features are poor proxies'. Otherwise, if mean(|SHAP|) >= `config.SHAP_THRESHOLD` for any type but correlation low, classify as 'signal is emergent'. **DEPENDS ON**: T022, T023, T028a. **NOTE**: Threshold is dynamically derived, not hardcoded.
-- [ ] T029 [US3] Generate final report in `data/processed/evaluation_results.json` including correlation, p-value, and feature importance. **DEPENDS ON**: T026, T026b, T026c, T027, T028.
+- [ ] T029 [US3] Generate final report in `data/processed/evaluation_results.json` including correlation, p-value, and feature importance. **DEPENDS ON**: T026, T026b, T027, T028.
 - [ ] T030 [US3] Add logic to frame findings as associational (FR-007) in the report generation. **DEPENDS ON**: T029.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -192,17 +191,17 @@
 ### Explicit Task Dependencies
 
 - **T015** depends on **T004** (schema), **T012**, **T013**. **BLOCKED BY T004 and T012**.
-- **T018** depends on **T012** (raw GSM8K examples) and **T005** (schema). **PARALLEL with T015**. Both must complete before T022.
+- **T018a** depends on **T012**.
+- **T018** depends on **T012** (raw GSM8K examples), **T018a** (reference set), and **T005** (schema). **PARALLEL with T015**. Both must complete before T022.
 - **T020** depends on **T018** and **T005**. **BLOCKED BY T005**.
 - **T022** depends on **T021**, **T020**, **T015**. **BLOCKED BY T020 and T015**.
 - **T023** depends on **T022**.
 - **T026b** depends on **T015**, **T022** (split logic).
-- **T026c** depends on **T015**, **T022** (split logic).
-- **T026** depends on **T023**, **T015**, **T026b**, **T026c**.
+- **T026** depends on **T023**, **T015**, **T026b**.
 - **T027** depends on **T026**.
 - **T028a** depends on **T022**.
 - **T028** depends on **T022**, **T023**, **T028a**.
-- **T029** depends on **T026**, **T026b**, **T026c**, **T027**, **T028**.
+- **T029** depends on **T026**, **T026b**, **T027**, **T028**.
 
 ---
 
@@ -266,7 +265,7 @@ With multiple developers:
 - **Constraint**: N=200 examples is mandatory per Plan Feasibility (Amended Spec). Pipeline must fail if valid examples are found.
 - **Model Constraint**: Oracle must use Phi-mini per Plan (overrides Spec's Llama-3-8B).
 - **Feature Constraint**: Semantic similarity uses sentence-transformers models per Plan (overrides Spec's Llama-3-8B embeddings to avoid circularity).
-- **Plan Override Note**: Tasks T013, T018, T026b explicitly document deviations from Spec FR-002, FR-003, SC-001 due to Plan Feasibility constraints. These are documented exceptions, not silent weakenings, authorized by T002a/T002b.
-- **Baseline Clarification**: T026b implements the SC-001 compliant uniform baseline (independent weights). T026c is a diagnostic baseline (training mean) and is distinct.
+- **Plan Override Note**: Tasks T013, T018, T026b explicitly document deviations from Spec FR-002, FR-003, SC-001 due to Plan Feasibility constraints. These are documented exceptions, not silent weakenings, authorized by T002a (Deviation Log).
+- **Baseline Clarification**: T026b implements the SC-001 compliant uniform baseline (independent weights). Diagnostic baseline removed as per Spec FR-005.
 - **Threshold Clarification**: T028 uses a dynamically derived threshold from T028a, not a hardcoded value.
 - **Time Verification**: T033 explicitly verifies the 6-hour limit per SC-003.
