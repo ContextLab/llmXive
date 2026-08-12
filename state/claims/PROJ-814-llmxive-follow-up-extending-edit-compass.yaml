@@ -1121,3 +1121,385 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T03:41:58Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 2
+  canonical: Download Phi-3-mini-4k-instruct-GGUF model artifact phi-3-mini-4k-instruct.Q4_K_M.gguf
+    from huggingface.co/TheBloke/Phi-3-mini-4k-instruct-GGUF
+  claim_id: c_25ef44ea
+  context: Implement src/models/vlm.py wrapper for Phi-3-mini-4k-instruct-GGUF (Low-bit,
+    CPU-only) using llama-cpp-python... The model artifact MUST be downloaded from
+    https://huggingface.co/TheBloke/Phi-3-mini-4k-instruct-GGUF with the exact filename
+    phi-3-mini-4k-instruct.Q4_K_M.gguf.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: The model artifact MUST be downloaded from https://huggingface.co/TheBloke/Phi-3-mini-4k-instruct-GGUF
+    with the exact filename phi-3-mini-4k-instruct.Q4_K_M.gguf.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:39:36Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Edit-Compass dataset available at huggingface.co/datasets/HuggingFaceH4/edit-compass
+  claim_id: c_f9d9f788
+  context: 'Implement src/services/download.py to fetch Edit-Compass dataset via wget/curl
+    from official repo: https://huggingface.co/datasets/HuggingFaceH4/edit-compass.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Edit-Compass_dataset_available_at_huggingface.co/datasets/Hu
+  kind: entity_fact
+  raw_text: The Edit-Compass dataset is available at https://huggingface.co/datasets/HuggingFaceH4/edit-compass.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:39:53Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Fisher's r-to-z transformation methodology for correlation difference
+    attributed to Smith et al. 2023
+  claim_id: c_9b70334a
+  context: T017 must use pre-flight memory estimation with a safety buffer of [deferred]
+    applied to the dataset size, following the methodology outlined by Smith et al.
+    (2023) to address the research question regarding scalability limits in distributed
+    storage systems.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method for Fisher's r-to-z transformation used to test the difference
+    in correlation strength is outlined by Smith et al. (2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:40:06Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 2
+  canonical: Correlation difference test threshold value set to 0.05
+  claim_id: c_acf109aa
+  context: 'Output results to outputs/correlation_diff_test.json with fields: z_score,
+    p_value, correlation_difference, effect_size, conclusion, threshold_value (0.05
+    (1906.01701, https://arxiv.org/abs/1906.01701)), threshold_met (boolean).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold_value for the correlation difference test in outputs/correlation_diff_test.json
+    is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:40:27Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Model artifact downloaded from TheBloke Phi-3-mini-4k-instruct-GGUF with
+    filename phi-3-mini-4k-instruct.Q4_K_M.gguf
+  claim_id: c_23f8172f
+  context: T017 [US2] Implement `src/models/vlm.py` wrapper for `Phi-3-mini-4k-instruct-GGUF`...
+    The model artifact MUST be downloaded from `https://huggingface.co/TheBloke/Phi-3-mini-4k-instruct-GGUF`
+    with the exact filename `phi-3-mini-4k-instruct.Q4_K_M.gguf`.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The model artifact MUST be downloaded from 'https://huggingface.co/TheBloke/Phi-3-mini-4k-instruct-GGUF'
+    with the exact filename 'phi-3-mini-4k-instruct.Q4_K_M.gguf'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:42:29Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Edit-Compass dataset fetched from HuggingFaceH4/edit-compass
+  claim_id: c_f87d6ed6
+  context: 'T011 [US1] Implement `src/services/download.py` to fetch Edit-Compass
+    dataset via `wget`/`curl` from official repo: `https://huggingface.co/datasets/HuggingFaceH4/edit-compass`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Edit-Compass_dataset_fetched_from_HuggingFaceH4/edit-compass
+  kind: entity_fact
+  raw_text: The Edit-Compass dataset is fetched from 'https://huggingface.co/datasets/HuggingFaceH4/edit-compass'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:42:50Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Memory estimation formula RAM_est = 2.0 + (batch_size * 0.05) with 2.0
+    GB base overhead and 0.05 GB per-image overhead
+  claim_id: c_292cc3bd
+  context: 'Include pre-flight memory estimation: `RAM_est = 2.0 + (batch_size * 0.05)`,
+    where 2.0 is the base model overhead in GB and 0.05 is the estimated per-image
+    batch overhead in GB (assuming original image sizes, no resizing).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pre-flight memory estimation formula is RAM_est = 2.0 + (batch_size
+    * 0.05), where 2.0 is the base model overhead in GB and 0.05 is the estimated
+    per-image batch overhead in GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:43:10Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Independence check halts if |r| >= 0.5
+  claim_id: c_8b25cb67
+  context: "If |r| \u2265 0.5, atomically write `outputs/circular_validation_risk_report.json`...\
+    \ BEFORE raising `CircularValidationRiskError` and exiting with code 1."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Independence_check_halts_if_%7Cr%7C_%3E=_0.5
+  kind: magnitude
+  raw_text: The independence check halts if the absolute Pearson correlation |r| is
+    greater than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:44:07Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied with FDR <= 0.05
+  claim_id: c_198b8432
+  context: "Implement `src/services/analysis.py` Benjamini-Hochberg correction on\
+    \ regression p-values (FDR \u2264 0.05)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "using the respective FDR procedures at level \u03B1 = 0.05. Compared\
+        \ to the classical FDR controlling"
+      source_id: '1706.08250'
+      url: https://arxiv.org/abs/1706.08250
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: The Benjamini-Hochberg correction is applied with an FDR threshold of
+    less than or equal to 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T04:44:33Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Fisher's r-to-z transformation test uses threshold value 0.05
+  claim_id: c_e2efa7af
+  context: 'Output results to `outputs/correlation_diff_test.json` with fields: ...
+    `threshold_value` (0.05 (1906.01701, https://arxiv.org/abs/1906.01701))...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fisher's r-to-z transformation test uses a threshold value of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:45:37Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: 'Primary decision logic: Logic is stronger predictor if correlation_difference
+    >= 0.1 AND p_value_diff < 0.05'
+  claim_id: c_f7d41600
+  context: 'Decision Logic: Primary: If (correlation_difference >= 0.1 AND p_value_diff
+    < 0.05) from T028a -> State ''Logic is stronger predictor''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary decision logic for the final report states 'Logic is stronger
+    predictor' if correlation_difference >= 0.1 AND p_value_diff < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:46:18Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: VIF warning appended if VIF > 5.0
+  claim_id: c_9b882b47
+  context: If VIF for either predictor > 5.0, append a 'Collinearity Warning' section
+    to `outputs/regression_report.md`...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_warning_appended_if_VIF_%3E_5.0
+  kind: magnitude
+  raw_text: The Variance Inflation Factor (VIF) warning is appended if VIF for either
+    predictor is greater than 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:46:32Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Logic Score calculated using cosine similarity via sentence-transformers/all-MiniLM-L-v2
+  claim_id: c_9d38dfa0
+  context: '...`src/services/scoring.py` for Logic Score (cosine similarity via `sentence-transformers/all-MiniLM-L-v2`)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logic_Score_calculated_using_cosine_similarity_via_sentence-
+  kind: entity_fact
+  raw_text: The Logic Score is calculated using cosine similarity via 'sentence-transformers/all-MiniLM-L-v2'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:46:49Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Fidelity Score calculated as SSIM + (1-LPIPS)
+  claim_id: c_6ad96203
+  context: '...and Fidelity Score (SSIM + (1-LPIPS)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fidelity Score is calculated as SSIM + (1-LPIPS).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:47:01Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Logic Score range is [-1, 1]
+  claim_id: c_55a7a7a2
+  context: Assert Logic Score (cosine similarity) is in [-1, 1].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Logic Score (cosine similarity) range is [-1, 1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:47:19Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Project requires transformers version 4.41.0
+  claim_id: c_a64383eb
+  context: pinning `transformers==4.41.0`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires `transformers==4.41.0`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:47:40Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Project requires sentence-transformers version 2.7.0
+  claim_id: c_fc0acdc1
+  context: pinning `transformers==4.41.0`, `sentence-transformers==2.7.0`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires `sentence-transformers==2.7.0`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:47:52Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Project requires torch version 2.2.2+cpu
+  claim_id: c_e94db63b
+  context: pinning `transformers==4.41.0`, `sentence-transformers==2.7.0`, `torch==2.2.2+cpu`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires `torch==2.2.2+cpu`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:48:04Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Project requires llama-cpp-python version 0.2.80
+  claim_id: c_b7d236e2
+  context: pinning `transformers==4.41.0`, `sentence-transformers==2.7.0`, `torch==2.2.2+cpu`,
+    `llama-cpp-python==0.2.80`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires `llama-cpp-python==0.2.80`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:48:45Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Project requires lpips version 0.1.4
+  claim_id: c_96810018
+  context: pinning `transformers==4.41.0`, `sentence-transformers==2.7.0`, `torch==2.2.2+cpu`,
+    `llama-cpp-python==0.2.80`, `scikit-image`, `lpips==0.1.4`
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The project requires `lpips==0.1.4`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T04:48:45Z'
+- artifact_path: projects/PROJ-814-llmxive-follow-up-extending-edit-compass/specs/001-llmxive-follow-up-extending-edit-compass/tasks.md
+  attempts: 1
+  canonical: Local citation verification checks title overlap >= 0.7
+  claim_id: c_cb348ee3
+  context: Implement `src/services/reference_validator.py` to perform local citation
+    verification (checking title overlap >= 0.7 and URL reachability).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Local_citation_verification_checks_title_overlap_%3E=_0.7
+  kind: magnitude
+  raw_text: The local citation verification checks for title overlap greater than
+    or equal to 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:49:18Z'

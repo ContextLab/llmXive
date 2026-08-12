@@ -28,3 +28,19 @@ T038:
     \ to `outputs/regression_report.md`. Moreover, the required `outputs/regression_report.md`\
     \ file is absent entirely. The task\u2019s core requirements are therefore not\
     \ satisfied."
+T040:
+  c: false
+  h: 6abf1f36567c529f253d4277105c7b96bddc0cdce7b9e8dcecdd1b39da240d00
+  r: "The required `state/projects/PROJ-814-checksums.yaml` file does not exist, so\
+    \ there is no known\u2011good checksum to compare against. Moreover, the `verify_filtered_data_integrity`\
+    \ function in `src/services/download.py` is truncated and does not clearly show\
+    \ that it computes a SHA256 of the entire `data/filtered/` dataset and logs a\
+    \ critical error on mismatch. Both the missing checksum file and the incomplete\
+    \ implementation mean the task is not genuinely fulfilled."
+T041:
+  c: false
+  h: 6110ecd8c439f476bd0c2ec998259febb297e2ab457e5ac1d1d3d09416012827
+  r: The provided `src/services/scoring.py` contains only model loading and scoring
+    utilities; there is no implementation that runs the pipeline with `batch_size=1`
+    and `batch_size=16`, nor any logging of results. Additionally, the required `outputs/batch_stress_test.log`
+    file does not exist. Both the functional code and the log artifact are missing.

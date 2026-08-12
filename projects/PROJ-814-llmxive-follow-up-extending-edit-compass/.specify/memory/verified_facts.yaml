@@ -1,6 +1,6 @@
-'|applied benjamini correction fdr hochberg threshold':
-  quote: "are small and n\u2217 is relatively large. For example, when \u03B1 = 0.05,\
-    \ \u03C00 = 0.2"
-  source_id: '1906.01701'
-  url: https://arxiv.org/abs/1906.01701
+'|applied benjamini correction fdr hochberg less than threshold':
+  quote: "using the respective FDR procedures at level \u03B1 = 0.05. Compared to\
+    \ the classical FDR controlling"
+  source_id: '1706.08250'
+  url: https://arxiv.org/abs/1706.08250
   value: '0.05'

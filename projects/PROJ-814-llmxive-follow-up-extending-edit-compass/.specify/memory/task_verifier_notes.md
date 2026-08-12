@@ -2,6 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T036** — declared artifact(s) missing/empty/invalid: src/models/vlm.py, outputs/skipped_instances.log
-- **T037** — declared artifact(s) missing/empty/invalid: src/services/scoring.py
-- **T038** — The provided `src/services/analysis.py` snippet shows imports for VIF but contains no visible VIF calculation or logic to write a “Collinearity Warning” to `outputs/regression_report.md`. Moreover, the required `outputs/regression_report.md` file is absent entirely. The task’s core requirements are therefore not satisfied.
+- **T040** — The required `state/projects/PROJ-814-checksums.yaml` file does not exist, so there is no known‑good checksum to compare against. Moreover, the `verify_filtered_data_integrity` function in `src/services/download.py` is truncated and does not clearly show that it computes a SHA256 of the entire `data/filtered/` dataset and logs a critical error on mismatch. Both the missing checksum file and the incomplete implementation mean the task is not genuinely fulfilled.
+- **T041** — The provided `src/services/scoring.py` contains only model loading and scoring utilities; there is no implementation that runs the pipeline with `batch_size=1` and `batch_size=16`, nor any logging of results. Additionally, the required `outputs/batch_stress_test.log` file does not exist. Both the functional code and the log artifact are missing.
