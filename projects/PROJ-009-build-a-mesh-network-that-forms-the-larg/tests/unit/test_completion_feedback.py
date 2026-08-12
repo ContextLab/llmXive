@@ -1,195 +1,126 @@
 """
-Unit tests for the Completion Feedback Module (T013b).
+Unit tests for T013b: completion_feedback.py
+
+Tests the receive_task_status and update_scheduler_state functions
+and the CompletionFeedbackManager class.
 """
 import pytest
-from datetime import datetime, timezone, timedelta
-from unittest.mock import MagicMock, patch
+from datetime import datetime, timezone
+from unittest.mock import Mock
 
 from orchestrator.completion_feedback import (
     CompletionFeedbackManager,
+    TaskFeedback,
     TaskStatusEnum,
-    FeedbackError,
-    StateUpdateError,
     InvalidStatusError,
-    create_feedback_manager,
-    TaskFeedback
+    StateUpdateError,
+    create_feedback_manager
 )
+from orchestrator.models import ExecutionRun, TaskStatus
 
 
-class MockSchedulerState:
-    """Mock scheduler state for testing."""
-    def __init__(self):
-        self.tasks = {}
-        self.update_log = []
+class TestTaskStatusEnum:
+    def test_valid_status(self):
+        assert TaskStatusEnum("completed") == TaskStatusEnum.COMPLETED
+        assert TaskStatusEnum("COMPLETED") == TaskStatusEnum.COMPLETED
+        assert TaskStatusEnum("failed") == TaskStatusEnum.FAILED
 
-    def update_task_status(self, task_id: str, status: str, node_id: str = None):
-        self.tasks[task_id] = {
-            'status': status,
-            'node_id': node_id,
-            'updated_at': datetime.now(timezone.utc)
-        }
-        self.update_log.append({
-            'task_id': task_id,
-            'status': status,
-            'node_id': node_id
-        })
+    def test_invalid_status(self):
+        with pytest.raises(ValueError):
+            TaskStatusEnum("unknown_status")
 
 
 class TestCompletionFeedbackManager:
-    """Tests for CompletionFeedbackManager class."""
+    @pytest.fixture
+    def mock_execution_run(self):
+        return ExecutionRun(
+            run_id="test-run-1",
+            start_time=datetime.now(timezone.utc),
+            end_time=None,
+            status=TaskStatus.PENDING,
+            task_states={}
+        )
 
-    def test_receive_task_status_completed(self):
-        """Test receiving a completed task status."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
+    def test_init(self, mock_execution_run):
+        manager = create_feedback_manager(mock_execution_run)
+        assert manager.execution_run == mock_execution_run
+        assert manager._processed_feedbacks == []
+        assert manager._pending_feedbacks == []
 
-        feedback = manager.receive_task_status("node_01", "task_101", "completed")
-
-        assert feedback.node_id == "node_01"
-        assert feedback.task_id == "task_101"
-        assert feedback.status == TaskStatusEnum.COMPLETED
-        assert feedback.details is None
-
-        # Verify state was updated
-        assert "task_101" in mock_state.tasks
-        assert mock_state.tasks["task_101"]["status"] == "completed"
-        assert mock_state.tasks["task_101"]["node_id"] == "node_01"
-
-    def test_receive_task_status_failed(self):
-        """Test receiving a failed task status."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-
-        feedback = manager.receive_task_status("node_02", "task_102", "failed")
-
-        assert feedback.status == TaskStatusEnum.FAILED
-        assert mock_state.tasks["task_102"]["status"] == "failed"
-
-    def test_receive_task_status_timeout(self):
-        """Test receiving a timeout task status."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-
-        feedback = manager.receive_task_status("node_03", "task_103", "timeout")
-
-        assert feedback.status == TaskStatusEnum.TIMEOUT
-
-    def test_receive_task_status_oom(self):
-        """Test receiving an OOM task status."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-
-        feedback = manager.receive_task_status("node_04", "task_104", "oom")
-
-        assert feedback.status == TaskStatusEnum.OOM
-
-    def test_receive_task_status_invalid(self):
-        """Test receiving an invalid status raises InvalidStatusError."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-
-        with pytest.raises(InvalidStatusError) as exc_info:
-            manager.receive_task_status("node_05", "task_105", "invalid_status")
-
-        assert "Invalid status" in str(exc_info.value)
-        assert "invalid_status" in str(exc_info.value)
-
-    def test_update_scheduler_state_no_manager(self):
-        """Test update_scheduler_state when manager is None."""
-        manager = CompletionFeedbackManager(scheduler_state=None)
+    def test_receive_task_status_success(self, mock_execution_run):
+        manager = create_feedback_manager(mock_execution_run)
         
-        # Should not raise, just log warning
-        manager.update_scheduler_state("task_999", TaskStatusEnum.COMPLETED, "node_01")
-        
-        # Verify no state was updated (since there was none)
-        assert len(manager._pending_feedbacks) == 0 # Wait, receive_task_status isn't called here
-        # But the method itself shouldn't crash
-
-    def test_update_scheduler_state_with_custom_update(self):
-        """Test update_scheduler_state with a custom update method."""
-        mock_state = MagicMock()
-        mock_state.update_task_status = MagicMock()
-        
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-        
-        manager.update_scheduler_state("task_123", TaskStatusEnum.RUNNING, "node_01")
-        
-        mock_state.update_task_status.assert_called_once_with("task_123", "running", "node_01")
-
-    def test_get_heartbeat_status_alive(self):
-        """Test heartbeat status when node is alive."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-        
-        # Receive a status to set heartbeat
-        manager.receive_task_status("node_01", "task_101", "running")
-        
-        # Check immediately
-        assert manager.get_heartbeat_status("node_01", timeout_seconds=60.0) is True
-
-    def test_get_heartbeat_status_dead(self):
-        """Test heartbeat status when node is dead (timeout exceeded)."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-        
-        # Manually set an old heartbeat time
-        manager._heartbeat_times["node_01"] = datetime.now(timezone.utc) - timedelta(seconds=120)
-        
-        # Check with 60s timeout
-        assert manager.get_heartbeat_status("node_01", timeout_seconds=60.0) is False
-
-    def test_get_heartbeat_status_never_heartbeat(self):
-        """Test heartbeat status when node has never sent a heartbeat."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-        
-        assert manager.get_heartbeat_status("node_01", timeout_seconds=60.0) is False
-
-    def test_process_pending_feedbacks(self):
-        """Test processing pending feedbacks."""
-        mock_state = MockSchedulerState()
-        manager = CompletionFeedbackManager(scheduler_state=mock_state)
-        
-        # Receive multiple statuses without immediate update (if logic allowed)
-        # In current implementation, receive_task_status updates immediately if state exists.
-        # But let's test the queue mechanism if we bypassed immediate update or if we add logic.
-        # For now, we test that the list is cleared.
-        
-        manager.receive_task_status("node_01", "task_101", "completed")
-        manager.receive_task_status("node_02", "task_102", "completed")
-        
-        # The list might be empty if immediate update clears it, but let's check the method
-        # In current code, _pending_feedbacks is appended to in receive_task_status
-        # and cleared in process_pending_feedbacks.
-        # Wait, receive_task_status does NOT clear _pending_feedbacks.
-        # So we should have 2 items.
-        
-        assert len(manager._pending_feedbacks) == 2
-        
-        count = manager.process_pending_feedbacks()
-        
-        assert count == 2
-        assert len(manager._pending_feedbacks) == 0
-
-    def test_create_feedback_manager_factory(self):
-        """Test the factory function."""
-        mock_state = MockSchedulerState()
-        manager = create_feedback_manager(scheduler_state=mock_state)
-        
-        assert isinstance(manager, CompletionFeedbackManager)
-        assert manager.scheduler_state is mock_state
-
-    def test_task_feedback_creation(self):
-        """Test TaskFeedback dataclass creation."""
-        fb = TaskFeedback(
-            node_id="node_01",
-            task_id="task_101",
-            status=TaskStatusEnum.COMPLETED,
-            details={"result": 3.14}
+        # First call creates the task state
+        feedback = manager.receive_task_status(
+            node_id="10.0.0.1",
+            task_id="task-1",
+            status="running"
         )
         
-        assert fb.node_id == "node_01"
-        assert fb.task_id == "task_101"
-        assert fb.status == TaskStatusEnum.COMPLETED
-        assert fb.details == {"result": 3.14}
-        assert isinstance(fb.timestamp, datetime)
+        assert isinstance(feedback, TaskFeedback)
+        assert feedback.task_id == "task-1"
+        assert feedback.status == TaskStatusEnum.RUNNING
+        assert feedback.node_id == "10.0.0.1"
+        
+        # Verify state was updated in ExecutionRun
+        assert "task-1" in mock_execution_run.task_states
+        assert mock_execution_run.task_states["task-1"]["status"] == TaskStatusEnum.RUNNING
+
+    def test_receive_task_status_invalid(self, mock_execution_run):
+        manager = create_feedback_manager(mock_execution_run)
+        
+        with pytest.raises(InvalidStatusError):
+            manager.receive_task_status(
+                node_id="10.0.0.1",
+                task_id="task-1",
+                status="invalid_status"
+            )
+
+    def test_update_scheduler_state_missing_task(self, mock_execution_run):
+        manager = create_feedback_manager(mock_execution_run)
+        
+        # Ensure task is not in states
+        if "missing-task" in mock_execution_run.task_states:
+            del mock_execution_run.task_states["missing-task"]
+        
+        with pytest.raises(StateUpdateError):
+            manager.update_scheduler_state(
+                task_id="missing-task",
+                status=TaskStatusEnum.RUNNING
+            )
+
+    def test_state_transitions(self, mock_execution_run):
+        manager = create_feedback_manager(mock_execution_run)
+        
+        # 1. Pending -> Running
+        manager.receive_task_status("n1", "t1", "running")
+        assert mock_execution_run.task_states["t1"]["status"] == TaskStatusEnum.RUNNING
+        
+        # 2. Running -> Completed
+        manager.receive_task_status("n1", "t1", "completed")
+        assert mock_execution_run.task_states["t1"]["status"] == TaskStatusEnum.COMPLETED
+        
+        # 3. Verify end_time is set
+        assert mock_execution_run.task_states["t1"]["end_time"] is not None
+
+    def test_get_run_summary(self, mock_execution_run):
+        manager = create_feedback_manager(mock_execution_run)
+        
+        manager.receive_task_status("n1", "t1", "completed")
+        manager.receive_task_status("n2", "t2", "failed")
+        manager.receive_task_status("n3", "t3", "running")
+        
+        summary = manager.get_run_summary()
+        
+        assert summary["total_tasks"] == 3
+        assert summary["run_id"] == "test-run-1"
+        assert summary["status_counts"]["completed"] == 1
+        assert summary["status_counts"]["failed"] == 1
+        assert summary["status_counts"]["running"] == 1
+
+    def test_empty_states(self, mock_execution_run):
+        manager = create_feedback_manager(mock_execution_run)
+        summary = manager.get_run_summary()
+        
+        assert summary["total_tasks"] == 0
+        assert all(v == 0 for v in summary["status_counts"].values())

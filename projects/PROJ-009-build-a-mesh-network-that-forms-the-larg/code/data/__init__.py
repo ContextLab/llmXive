@@ -1,1 +1,3 @@
-"""Data module for raw and processed datasets."""
+"""
+Data module: Contains raw and processed data artifacts.
+"""

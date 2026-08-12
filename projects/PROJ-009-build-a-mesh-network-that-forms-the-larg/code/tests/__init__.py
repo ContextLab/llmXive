@@ -1,2 +1,3 @@
-# Tests module root
-__all__ = []
+"""
+Tests package.
+"""

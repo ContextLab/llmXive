@@ -1,102 +1,93 @@
-"""
-Remote Tool Checker - Legacy module kept for compatibility.
-
-This module provides a simpler interface for checking tools on remote nodes.
-It is maintained for backward compatibility but new code should use
-RemoteToolManager from remote_tools_manager.py.
-"""
-
 from __future__ import annotations
-
 import logging
 import socket
 import time
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Tuple
-
 import paramiko
+from paramiko import SSHClient, AutoAddPolicy, SSHException
 
 from orchestrator.logger import get_logger
 
-# Re-export for compatibility
-from orchestrator.remote_tools_manager import ToolMissingError
+logger = get_logger(__name__)
 
 @dataclass
 class ToolCheckResult:
-    """Result of checking a single tool on a node."""
     tool_name: str
-    present: bool
+    is_present: bool
     path: Optional[str] = None
     error: Optional[str] = None
 
 @dataclass
 class NodeToolCheckResult:
-    """Result of checking all tools on a node."""
-    node_id: str
-    ip_address: str
-    tool_results: List[ToolCheckResult] = field(default_factory=list)
-    all_present: bool = True
-
-    def missing_tools(self) -> List[str]:
-        return [r.tool_name for r in self.tool_results if not r.present]
+    node_ip: str
+    tool_results: List[ToolCheckResult]
 
 class RemoteToolChecker:
-    """Simple tool checker for backward compatibility."""
+    """Checks for the presence of tools on remote nodes."""
 
-    REQUIRED_TOOLS = {"tcpdump", "mpstat"}
+    def __init__(self):
+        self.logger = get_logger(__name__)
 
-    def __init__(self, node_manager, logger: Optional[logging.Logger] = None):
-        self.node_manager = node_manager
-        self.logger = logger or get_logger(__name__)
-
-    def check_node(
-        self,
-        node_id: str,
-        ip_address: str,
-        timeout: float = 5.0
-    ) -> NodeToolCheckResult:
-        """Check tools on a single node."""
-        result = NodeToolCheckResult(node_id=node_id, ip_address=ip_address)
-        client = None
-
+    def _connect(self, ip: str, port: int = 22, username: str = 'root', 
+                 key_filename: Optional[str] = None) -> SSHClient:
+        client = SSHClient()
+        client.set_missing_host_key_policy(AutoAddPolicy())
         try:
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            client.connect(hostname=ip_address, timeout=timeout)
+            if key_filename:
+                client.connect(ip, port=port, username=username, key_filename=key_filename, timeout=10)
+            else:
+                client.connect(ip, port=port, username=username, timeout=10)
+            return client
+        except SSHException as e:
+            raise RuntimeError(f"SSH connection failed to {ip}: {e}")
 
-            for tool in self.REQUIRED_TOOLS:
-                tool_result = ToolCheckResult(tool_name=tool, present=False)
-                try:
-                    stdin, stdout, stderr = client.exec_command(f"which {tool}")
-                    exit_code = stdout.channel.recv_exit_status()
-                    if exit_code == 0:
-                        tool_result.present = True
-                        tool_result.path = stdout.read().decode().strip()
-                    else:
-                        tool_result.error = stderr.read().decode().strip()
-                except Exception as e:
-                    tool_result.error = str(e)
-
-                result.tool_results.append(tool_result)
-                if not tool_result.present:
-                    result.all_present = False
-
+    def check_tool(self, ip: str, tool_name: str, username: str = 'root', 
+                   key_filename: Optional[str] = None) -> ToolCheckResult:
+        client = None
+        try:
+            client = self._connect(ip, username=username, key_filename=key_filename)
+            stdin, stdout, stderr = client.exec_command(f"which {tool_name}", timeout=10)
+            exit_code = stdout.channel.recv_exit_status()
+            output = stdout.read().decode('utf-8', errors='ignore').strip()
+            
+            if exit_code == 0 and output:
+                self.logger.debug(f"Tool {tool_name} found at {output} on {ip}")
+                return ToolCheckResult(tool_name=tool_name, is_present=True, path=output)
+            else:
+                self.logger.debug(f"Tool {tool_name} NOT found on {ip}")
+                return ToolCheckResult(tool_name=tool_name, is_present=False, error="Not found")
         except Exception as e:
-            self.logger.error(f"Error checking tools on {node_id}: {e}")
-            raise
+            self.logger.error(f"Error checking tool {tool_name} on {ip}: {e}")
+            return ToolCheckResult(tool_name=tool_name, is_present=False, error=str(e))
         finally:
             if client:
                 client.close()
 
-        return result
+    def check_tools(self, ip: str, tool_names: List[str], username: str = 'root', 
+                    key_filename: Optional[str] = None) -> NodeToolCheckResult:
+        results = []
+        for tool in tool_names:
+            result = self.check_tool(ip, tool, username, key_filename)
+            results.append(result)
+        return NodeToolCheckResult(node_ip=ip, tool_results=results)
 
-def create_tool_checker(node_manager) -> RemoteToolChecker:
-    return RemoteToolChecker(node_manager)
+def create_tool_checker() -> RemoteToolChecker:
+    return RemoteToolChecker()
 
 def main():
-    import sys
-    print("Remote Tool Checker - use RemoteToolManager instead")
-    sys.exit(0)
+    import argparse
+    parser = argparse.ArgumentParser(description="Remote Tool Checker")
+    parser.add_argument("--ip", type=str, required=True, help="Target node IP")
+    parser.add_argument("--tools", type=str, nargs='+', required=True, help="List of tools to check")
+    parser.add_argument("--username", type=str, default="root", help="SSH username")
+    parser.add_argument("--key", type=str, help="SSH key file")
+    args = parser.parse_args()
+
+    checker = create_tool_checker()
+    result = checker.check_tools(args.ip, args.tools, args.username, args.key)
+    for tr in result.tool_results:
+        print(f"{tr.tool_name}: {'Present' if tr.is_present else 'Missing'}")
 
 if __name__ == "__main__":
     main()

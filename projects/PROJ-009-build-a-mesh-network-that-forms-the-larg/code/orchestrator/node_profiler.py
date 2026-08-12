@@ -1,245 +1,318 @@
 from __future__ import annotations
-
 import logging
 import re
 import time
+import socket
+import subprocess
+import platform
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
-
-import paramiko
+from typing import Optional, Dict, Any, List
+from pathlib import Path
 
 from orchestrator.logger import get_logger
-from orchestrator.remote_tool_checker import RemoteToolChecker, create_tool_checker
+from orchestrator.node_manager import NodeManager, NodeDiscoveryError, create_node_manager
 
 logger = get_logger(__name__)
 
+@dataclass
+class CPUProfile:
+    """Data class holding CPU profile information for a node."""
+    ip: str
+    cpu_speed_mhz: float
+    cpu_model: str
+    timestamp: str
 
 class ProfilerError(Exception):
-    """Base exception for profiling failures."""
+    """Base exception for profiler errors."""
     pass
-
 
 class CPUFrequencyError(ProfilerError):
     """Raised when CPU frequency cannot be determined."""
     pass
 
-
-@dataclass
-class CPUProfile:
-    """Container for CPU frequency profile data."""
-    node_id: str
-    cpu_speed_mhz: float
-    measurement_timestamp: str
-    command_used: str
-    raw_output: str
-
-
-class NodeProfiler:
-    """
-    Measures and records CPU clock speeds for heterogeneity calculation.
-    
-    Executes `lscpu | grep 'CPU MHz'` on Linux or `sysctl -n hw.cpufrequency`
-    on macOS via SSH.
-    """
-
-    def __init__(self, ssh_client: paramiko.SSHClient, node_id: str):
-        self.ssh_client = ssh_client
-        self.node_id = node_id
-        self.logger = get_logger(__name__)
-
-    def _execute_command(self, command: str) -> Tuple[int, str, str]:
-        """
-        Execute a command on the remote node and return (exit_code, stdout, stderr).
-        """
-        try:
-            stdin, stdout, stderr = self.ssh_client.exec_command(command)
-            exit_code = stdout.channel.recv_exit_status()
-            stdout_str = stdout.read().decode('utf-8', errors='replace')
-            stderr_str = stderr.read().decode('utf-8', errors='replace')
-            return exit_code, stdout_str, stderr_str
-        except Exception as e:
-            raise ProfilerError(f"Failed to execute command on {self.node_id}: {e}")
-
-    def _parse_linux_cpu_mhz(self, raw_output: str) -> float:
-        """
-        Parse 'CPU MHz' from lscpu output.
-        Example line: 'CPU MHz:                2400.000'
-        """
-        pattern = r"CPU\s+MHz:\s+([\d.]+)"
-        match = re.search(pattern, raw_output)
-        if not match:
-            raise CPUFrequencyError(f"Could not parse CPU MHz from lscpu output: {raw_output}")
-        return float(match.group(1))
-
-    def _parse_macos_cpu_mhz(self, raw_output: str) -> float:
-        """
-        Parse CPU frequency from sysctl output.
-        sysctl -n hw.cpufrequency returns Hz, convert to MHz.
-        """
-        try:
-            value = float(raw_output.strip())
-            return value / 1_000_000.0
-        except ValueError:
-            raise CPUFrequencyError(f"Could not parse CPU frequency from sysctl output: {raw_output}")
-
-    def profile_linux(self) -> CPUProfile:
-        """Profile Linux node using lscpu."""
-        command = "lscpu | grep 'CPU MHz'"
-        self.logger.info(f"Profiling CPU on {self.node_id} (Linux): {command}")
-        
-        start_time = time.time()
-        exit_code, stdout, stderr = self._execute_command(command)
-        elapsed = time.time() - start_time
-
-        if exit_code != 0:
-            raise CPUFrequencyError(f"Command failed on {self.node_id} (exit {exit_code}): {stderr}")
-
-        cpu_speed_mhz = self._parse_linux_cpu_mhz(stdout)
-        
-        return CPUProfile(
-            node_id=self.node_id,
-            cpu_speed_mhz=cpu_speed_mhz,
-            measurement_timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            command_used=command,
-            raw_output=stdout
-        )
-
-    def profile_macos(self) -> CPUProfile:
-        """Profile macOS node using sysctl."""
-        command = "sysctl -n hw.cpufrequency"
-        self.logger.info(f"Profiling CPU on {self.node_id} (macOS): {command}")
-
-        start_time = time.time()
-        exit_code, stdout, stderr = self._execute_command(command)
-        elapsed = time.time() - start_time
-
-        if exit_code != 0:
-            raise CPUFrequencyError(f"Command failed on {self.node_id} (exit {exit_code}): {stderr}")
-
-        cpu_speed_mhz = self._parse_macos_cpu_mhz(stdout)
-
-        return CPUProfile(
-            node_id=self.node_id,
-            cpu_speed_mhz=cpu_speed_mhz,
-            measurement_timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            command_used=command,
-            raw_output=stdout
-        )
-
-    def detect_and_profile(self) -> CPUProfile:
-        """
-        Detect OS and run the appropriate profiling command.
-        Tries Linux first, then macOS.
-        """
-        # Try Linux first
-        try:
-            return self.profile_linux()
-        except CPUFrequencyError as e_linux:
-            self.logger.warning(f"Linux profiling failed on {self.node_id}: {e_linux}")
-            
-            # Try macOS
-            try:
-                return self.profile_macos()
-            except CPUFrequencyError as e_macos:
-                raise CPUFrequencyError(
-                    f"Could not profile CPU on {self.node_id}: Linux failed ({e_linux}), macOS failed ({e_macos})"
-                )
-
-    def profile(self) -> CPUProfile:
-        """
-        Public entry point to profile the node.
-        """
-        return self.detect_and_profile()
-
+class CPUModelError(ProfilerError):
+    """Raised when CPU model string cannot be determined."""
+    pass
 
 class NodeProfilerManager:
     """
-    Manages CPU profiling across multiple nodes.
+    Manages CPU profiling for physical nodes in the mesh network.
+    Specifically measures CPU speed (MHz) and extracts CPU model strings
+    to calculate heterogeneity metrics.
     """
 
-    def __init__(self, ssh_clients: Dict[str, paramiko.SSHClient]):
-        """
-        :param ssh_clients: Dict mapping node_id -> paramiko.SSHClient
-        """
-        self.ssh_clients = ssh_clients
-        self.logger = get_logger(__name__)
+    def __init__(self, node_manager: Optional[NodeManager] = None):
+        self.node_manager = node_manager or create_node_manager()
+        self.logger = logger
 
-    def profile_all(self) -> List[CPUProfile]:
+    def _run_local_command(self, cmd: List[str], timeout: int = 10) -> str:
+        """Run a command locally and return stdout."""
+        try:
+            result = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=timeout
+            )
+            if result.returncode != 0:
+                raise ProfilerError(f"Command failed: {result.stderr.strip()}")
+            return result.stdout.strip()
+        except subprocess.TimeoutExpired:
+            raise ProfilerError(f"Command timed out: {' '.join(cmd)}")
+        except Exception as e:
+            raise ProfilerError(f"Error running command: {e}")
+
+    def _run_remote_command(self, ssh_client, cmd: str, timeout: int = 10) -> str:
+        """Run a command on a remote node via SSH and return stdout."""
+        try:
+            stdin, stdout, stderr = ssh_client.exec_command(cmd, timeout=timeout)
+            exit_code = stdout.channel.recv_exit_status()
+            out = stdout.read().decode('utf-8').strip()
+            err = stderr.read().decode('utf-8').strip()
+            
+            if exit_code != 0:
+                raise ProfilerError(f"Remote command failed (exit {exit_code}): {err}")
+            return out
+        except Exception as e:
+            raise ProfilerError(f"Error executing remote command: {e}")
+
+    def profile_local_node(self) -> CPUProfile:
         """
-        Profile all connected nodes and return a list of CPUProfile objects.
+        Profile the local machine's CPU.
+        
+        Returns:
+            CPUProfile containing speed (MHz) and model string.
+        """
+        system = platform.system()
+        cpu_speed_mhz = 0.0
+        cpu_model = "Unknown"
+
+        try:
+            if system == "Linux":
+                # Linux: /proc/cpuinfo
+                cpuinfo = self._run_local_command(["cat", "/proc/cpuinfo"])
+                
+                # Extract Model Name
+                model_match = re.search(r"model name\s*:\s*(.+)", cpuinfo, re.MULTILINE)
+                if model_match:
+                    cpu_model = model_match.group(1).strip()
+                else:
+                    raise CPUModelError("Could not find 'model name' in /proc/cpuinfo")
+
+                # Extract MHz (MHz is usually in 'cpu MHz')
+                # Some systems might use 'cpu MHz' or 'clock'
+                speed_match = re.search(r"cpu MHz\s*:\s*([\d.]+)", cpuinfo, re.MULTILINE)
+                if speed_match:
+                    cpu_speed_mhz = float(speed_match.group(1))
+                else:
+                    # Fallback: try 'clock' in /proc/cpuinfo or sysctl if available
+                    # Attempt to read from /proc/cpuinfo 'clock' line if present
+                    clock_match = re.search(r"clock\s*:\s*([\d.]+)MHz", cpuinfo, re.MULTILINE)
+                    if clock_match:
+                        cpu_speed_mhz = float(clock_match.group(1))
+                    else:
+                        # Last resort: try lscpu
+                        lscpu_out = self._run_local_command(["lscpu"])
+                        lscpu_match = re.search(r"CPU MHz\s*:\s*([\d.]+)", lscpu_out, re.MULTILINE)
+                        if lscpu_match:
+                            cpu_speed_mhz = float(lscpu_match.group(1))
+                        else:
+                            raise CPUFrequencyError("Could not determine CPU frequency via /proc/cpuinfo or lscpu")
+
+            elif system == "Darwin":  # macOS
+                # macOS: sysctl
+                cpu_model = self._run_local_command(["sysctl", "-n", "machdep.cpu.brand_string"])
+                # Frequency in Hz usually, convert to MHz
+                freq_hz = self._run_local_command(["sysctl", "-n", "hw.cpufrequency"])
+                cpu_speed_mhz = float(freq_hz) / 1_000_000.0
+
+            elif system == "Windows":
+                # Windows: wmic
+                cpu_model = self._run_local_command(["wmic", "cpu", "get", "name", "/value"])
+                # Extract value after =
+                name_match = re.search(r"Name=(.+)", cpu_model)
+                if name_match:
+                    cpu_model = name_match.group(1).strip()
+                
+                # Frequency
+                freq = self._run_local_command(["wmic", "cpu", "get", "CurrentClockSpeed", "/value"])
+                freq_match = re.search(r"CurrentClockSpeed=(\d+)", freq)
+                if freq_match:
+                    cpu_speed_mhz = float(freq_match.group(1))
+                else:
+                    raise CPUFrequencyError("Could not determine CPU frequency on Windows")
+            else:
+                raise ProfilerError(f"Unsupported operating system: {system}")
+
+            if cpu_speed_mhz <= 0:
+                raise CPUFrequencyError("Detected CPU frequency is non-positive")
+
+            return CPUProfile(
+                ip="127.0.0.1",
+                cpu_speed_mhz=cpu_speed_mhz,
+                cpu_model=cpu_model,
+                timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            )
+
+        except ProfilerError:
+            raise
+        except Exception as e:
+            raise ProfilerError(f"Unexpected error profiling local node: {e}")
+
+    def profile_remote_node(self, ip: str, username: str = "root", key_filename: Optional[str] = None) -> CPUProfile:
+        """
+        Profile a remote node via SSH.
+        
+        Args:
+            ip: IP address of the node.
+            username: SSH username.
+            key_filename: Path to SSH private key.
+        
+        Returns:
+            CPUProfile for the remote node.
+        
+        Raises:
+            ProfilerError: If SSH connection fails or remote profiling fails.
+        """
+        try:
+            ssh = self.node_manager._get_ssh_connection(ip, username, key_filename)
+            if not ssh:
+                raise ProfilerError(f"Could not establish SSH connection to {ip}")
+            
+            system = platform.system()
+            cpu_speed_mhz = 0.0
+            cpu_model = "Unknown"
+
+            # Determine command set based on remote OS detection or assume Linux first
+            # We'll try Linux first, then fall back to others if commands fail
+            
+            # Try Linux /proc/cpuinfo first
+            try:
+                cpuinfo = self._run_remote_command(ssh, "cat /proc/cpuinfo")
+                model_match = re.search(r"model name\s*:\s*(.+)", cpuinfo, re.MULTILINE)
+                if model_match:
+                    cpu_model = model_match.group(1).strip()
+                
+                speed_match = re.search(r"cpu MHz\s*:\s*([\d.]+)", cpuinfo, re.MULTILINE)
+                if speed_match:
+                    cpu_speed_mhz = float(speed_match.group(1))
+                else:
+                    # Try lscpu on remote
+                    lscpu_out = self._run_remote_command(ssh, "lscpu")
+                    lscpu_match = re.search(r"CPU MHz\s*:\s*([\d.]+)", lscpu_out, re.MULTILINE)
+                    if lscpu_match:
+                        cpu_speed_mhz = float(lscpu_match.group(1))
+                    else:
+                        raise CPUFrequencyError("Could not determine CPU frequency on remote Linux node")
+            except ProfilerError as pe:
+                # If Linux method fails, try macOS
+                try:
+                    cpu_model = self._run_remote_command(ssh, "sysctl -n machdep.cpu.brand_string")
+                    freq_hz = self._run_remote_command(ssh, "sysctl -n hw.cpufrequency")
+                    cpu_speed_mhz = float(freq_hz) / 1_000_000.0
+                except ProfilerError:
+                    # Try Windows
+                    try:
+                        cpu_model_out = self._run_remote_command(ssh, "wmic cpu get name /value")
+                        name_match = re.search(r"Name=(.+)", cpu_model_out)
+                        if name_match:
+                            cpu_model = name_match.group(1).strip()
+                        
+                        freq_out = self._run_remote_command(ssh, "wmic cpu get CurrentClockSpeed /value")
+                        freq_match = re.search(r"CurrentClockSpeed=(\d+)", freq_out)
+                        if freq_match:
+                            cpu_speed_mhz = float(freq_match.group(1))
+                        else:
+                            raise CPUFrequencyError("Could not determine CPU frequency on remote Windows node")
+                    except ProfilerError:
+                        raise ProfilerError("Could not determine OS or CPU info on remote node")
+
+            if cpu_speed_mhz <= 0:
+                raise CPUFrequencyError("Remote detected CPU frequency is non-positive")
+
+            return CPUProfile(
+                ip=ip,
+                cpu_speed_mhz=cpu_speed_mhz,
+                cpu_model=cpu_model,
+                timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            )
+
+        except ProfilerError:
+            raise
+        except Exception as e:
+            raise ProfilerError(f"Unexpected error profiling remote node {ip}: {e}")
+
+    def profile_nodes(self, ip_list: List[str], username: str = "root", key_filename: Optional[str] = None) -> List[CPUProfile]:
+        """
+        Profile a list of nodes.
+        
+        Args:
+            ip_list: List of IP addresses.
+            username: SSH username.
+            key_filename: Path to SSH private key.
+        
+        Returns:
+            List of CPUProfile objects.
         """
         profiles = []
-        for node_id, client in self.ssh_clients.items():
+        for ip in ip_list:
             try:
-                profiler = NodeProfiler(client, node_id)
-                profile = profiler.profile()
+                profile = self.profile_remote_node(ip, username, key_filename)
                 profiles.append(profile)
-                self.logger.info(
-                    f"Profiled {node_id}: {profile.cpu_speed_mhz:.2f} MHz ({profile.command_used})"
-                )
-            except CPUFrequencyError as e:
-                self.logger.error(f"Failed to profile {node_id}: {e}")
-                # Re-raise to fail loudly if any node profiling fails
-                raise ProfilerError(f"CPU profiling failed for node {node_id}: {e}")
-            except Exception as e:
-                self.logger.error(f"Unexpected error profiling {node_id}: {e}")
-                raise ProfilerError(f"Unexpected error profiling {node_id}: {e}")
-        
+                self.logger.info(f"Profiled node {ip}: {profile.cpu_model} @ {profile.cpu_speed_mhz:.2f} MHz")
+            except ProfilerError as e:
+                self.logger.error(f"Failed to profile node {ip}: {e}")
+                # Continue with other nodes
         return profiles
 
-
-def create_node_profiler(ssh_client: paramiko.SSHClient, node_id: str) -> NodeProfiler:
-    """Factory function to create a NodeProfiler instance."""
-    return NodeProfiler(ssh_client, node_id)
-
+def create_node_profiler(node_manager: Optional[NodeManager] = None) -> NodeProfilerManager:
+    """Factory function to create a NodeProfilerManager."""
+    return NodeProfilerManager(node_manager=node_manager)
 
 def main():
-    """
-    CLI entry point for testing the profiler.
-    Expects SSH credentials via environment variables or default config.
-    """
-    import os
-    import sys
+    """CLI entry point for profiling nodes."""
+    import argparse
+    import json
 
-    if len(sys.argv) < 3:
-        print("Usage: python -m orchestrator.node_profiler <node_id> <host>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Profile CPU details of mesh nodes.")
+    parser.add_argument("--ips", nargs="+", required=True, help="List of node IPs to profile.")
+    parser.add_argument("--username", default="root", help="SSH username.")
+    parser.add_argument("--key", help="Path to SSH private key.")
+    parser.add_argument("--local", action="store_true", help="Profile only the local machine.")
+    
+    args = parser.parse_args()
 
-    node_id = sys.argv[1]
-    host = sys.argv[2]
-    port = int(os.environ.get("SSH_PORT", 22))
-    username = os.environ.get("SSH_USER", "root")
-    key_file = os.environ.get("SSH_KEY", None)
+    profiler = create_node_profiler()
 
-    logger.info(f"Connecting to {host} as {username} to profile {node_id}")
-
-    try:
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    if args.local:
+        try:
+            profile = profiler.profile_local_node()
+            print(json.dumps({
+                "ip": profile.ip,
+                "cpu_speed_mhz": profile.cpu_speed_mhz,
+                "cpu_model": profile.cpu_model,
+                "timestamp": profile.timestamp
+            }, indent=2))
+        except ProfilerError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        profiles = profiler.profile_nodes(args.ips, args.username, args.key)
+        if not profiles:
+            print("No profiles collected.", file=sys.stderr)
+            sys.exit(1)
         
-        if key_file and os.path.exists(key_file):
-            client.connect(host, port=port, username=username, key_filename=key_file, timeout=10)
-        else:
-            # Fallback to password if key not provided (for testing)
-            password = os.environ.get("SSH_PASSWORD", None)
-            if not password:
-                raise ValueError("No key file or password provided")
-            client.connect(host, port=port, username=username, password=password, timeout=10)
-
-        profiler = NodeProfiler(client, node_id)
-        profile = profiler.profile()
-        
-        print(f"Node: {profile.node_id}")
-        print(f"CPU Speed: {profile.cpu_speed_mhz:.2f} MHz")
-        print(f"Command: {profile.command_used}")
-        print(f"Raw Output: {profile.raw_output.strip()}")
-
-        client.close()
-
-    except Exception as e:
-        logger.error(f"Profiling failed: {e}")
-        sys.exit(1)
-
+        results = [
+            {
+                "ip": p.ip,
+                "cpu_speed_mhz": p.cpu_speed_mhz,
+                "cpu_model": p.cpu_model,
+                "timestamp": p.timestamp
+            }
+            for p in profiles
+        ]
+        print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

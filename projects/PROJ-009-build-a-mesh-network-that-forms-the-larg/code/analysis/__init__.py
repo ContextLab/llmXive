@@ -1,3 +1,3 @@
-# Analysis module
-# Handles statistical modeling, regression, and validation
-__all__ = []
+"""
+Analysis module: Handles statistical modeling, regression, and validation.
+"""

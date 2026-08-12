@@ -1,3 +1,3 @@
-# Contract tests
-# Validates data schemas and API contracts
-__all__ = []
+"""
+Contract tests for schema validation.
+"""

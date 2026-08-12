@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response contains only the task description and no evidence of the required
+    directory tree, `__init__.py` files, or a `.gitignore`. Without the actual project
+    structure present on disk, the claim that the task is complete cannot be verified.
+    The missing artifact is the full folder hierarchy (`code/orchestrator`, `code/analysis`,
+    etc.) with the required files.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,40 +13,19 @@ T007:
     for `ExecutionRun` or `RegressionModel`, nor any implementation using `jsonschema`/`pydantic`
     to perform runtime validation. The required artifacts are missing, so the task
     is not satisfied.
-T013a:
+T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/orchestrator/node_manager.py` file was presented, and there is no evidence
-    that such a module exists, contains code, or implements SSH handling, heartbeat
-    pings, and device discovery as required. The implementer must provide the actual
-    file with functional implementations to satisfy the task.
-T013b:
+  r: "No `remote_tools_manager.py` file (or its contents) was presented in the evidence,\
+    \ so we cannot confirm that the required module exists, is non\u2011empty, or\
+    \ implements the verification and installation of CLI tools on remote nodes. The\
+    \ implementer must provide the actual source file with the expected functionality."
+T013c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/orchestrator/completion_feedback.py` file or its contents were provided,
-    and the required functions `receive_task_status(node_id, task_id, status)` and
-    `update_scheduler_state(task_id, status)` are not present. Without the actual
-    implementation updating the `SchedulerState`, the task is not satisfied.
-T014a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `instrumentor_remote.py` file (or its contents) was provided for inspection,
-    so we cannot verify that it implements remote SSH execution of `tcpdump` and `mpstat`.
-    The required artifact is missing.
-T014b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `network_saturation_handler.py` file (or any non\u2011empty implementation)\
-    \ is present in `code/orchestrator/`, and no code showing receipt of `NETWORK_SATURATION_SIGNAL`\
-    \ or abort logic was provided. The required artifact is missing, so the task is\
-    \ not satisfied."
-T014c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `remote_wall_clock_timer.py` file (or its contents) was presented in the\
-    \ evidence, and there is no indication that a non\u2011placeholder implementation\
-    \ using SSH to start/stop timers on remote nodes exists. The required artifact\
-    \ is missing, so the task is not satisfied."
+  r: "No `heartbeat_monitoring.py` file (or any code) was provided in the evidence,\
+    \ so there is no implementation to verify for heartbeat loss detection or task\
+    \ re\u2011assignment logic. The required artifact is missing."
 T015a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -66,9 +53,3 @@ T017:
   r: "No `code/orchestrator/data_collector.py` file was provided, and there is no\
     \ evidence of a generated CSV in `code/data/raw/`. Without the script and its\
     \ output, the task\u2019s requirement cannot be confirmed as met."
-T049:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `node_profiler.py` file (or its contents) was provided in the evidence, so
-    we cannot confirm that a script measuring and recording CPU clock speeds (GHz)
-    was implemented in `code/orchestrator/`. The required artifact is missing.

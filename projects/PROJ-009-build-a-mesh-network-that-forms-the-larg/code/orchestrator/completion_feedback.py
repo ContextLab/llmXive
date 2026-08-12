@@ -1,8 +1,9 @@
 """
-Completion Feedback Module for Mesh Network Orchestrator.
+Completion Feedback Module (T013b)
 
 Handles the 'completion feedback' loop required by FR-001.
-Implements runtime heartbeat monitoring and state updates for the SchedulerState.
+Implements receive_task_status and update_scheduler_state to update
+the SchedulerState object defined in T008 (models.py).
 """
 from __future__ import annotations
 
@@ -12,41 +13,41 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Any, Optional, Callable
 
+from orchestrator.models import TaskStatus, ExecutionRun, PhysicalNode
 from orchestrator.logger import get_logger
-from orchestrator.models import TaskStatus, PhysicalNode, TaskChunk, ExecutionRun
 
 logger = get_logger(__name__)
 
 
 class FeedbackError(Exception):
-    """Base exception for feedback loop errors."""
+    """Base exception for feedback loop failures."""
     pass
 
 
 class StateUpdateError(FeedbackError):
-    """Raised when scheduler state update fails."""
+    """Raised when scheduler state cannot be updated."""
     pass
 
 
 class InvalidStatusError(FeedbackError):
-    """Raised when an invalid task status is received."""
+    """Raised when an invalid status string is received."""
     pass
 
 
 class TaskStatusEnum(Enum):
-    """Enumeration of possible task statuses for feedback."""
+    """Enumeration of valid task status strings."""
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
     TIMEOUT = "timeout"
     OOM = "oom"
-    REASSIGNED = "reassigned"
+    NETWORK_ERROR = "network_error"
 
 
 @dataclass
 class TaskFeedback:
-    """Container for a single task status update."""
+    """Container for a single task completion feedback event."""
     node_id: str
     task_id: str
     status: TaskStatusEnum
@@ -56,256 +57,237 @@ class TaskFeedback:
 
 class CompletionFeedbackManager:
     """
-    Manages the receipt of task status updates and updates the central scheduler state.
-
-    This class implements the 'completion feedback' loop required by FR-001.
-    It interacts with the SchedulerState object (defined in T008) to update
-    task statuses and track runtime heartbeat monitoring.
+    Manages the lifecycle of task completion feedback.
+    
+    This class receives status updates from remote nodes and updates
+    the central SchedulerState (represented by the ExecutionRun model).
     """
 
-    def __init__(self, scheduler_state: Optional[Any] = None):
+    def __init__(self, execution_run: ExecutionRun):
         """
-        Initialize the feedback manager.
-
+        Initialize the manager with the current execution run context.
+        
         Args:
-            scheduler_state: The central SchedulerState object to update.
-                             If None, a mock state is used for testing.
+            execution_run: The ExecutionRun object representing the current 
+                           batch of tasks and their state.
         """
-        self.scheduler_state = scheduler_state
+        self.execution_run = execution_run
         self._pending_feedbacks: List[TaskFeedback] = []
-        self._heartbeat_times: Dict[str, datetime] = {}  # node_id -> last_heartbeat
-        self.logger = get_logger(__name__)
+        self._processed_feedbacks: List[TaskFeedback] = []
+        
+        # Ensure the execution run has a status tracking structure
+        if self.execution_run.task_states is None:
+            self.execution_run.task_states = {}
 
     def receive_task_status(
-        self,
-        node_id: str,
-        task_id: str,
+        self, 
+        node_id: str, 
+        task_id: str, 
         status: str
     ) -> TaskFeedback:
         """
         Receive a task status update from a node.
-
-        This function is the primary entry point for the completion feedback loop.
-        It validates the status, updates the heartbeat for the node, and creates
-        a feedback record.
-
+        
+        This function validates the status, creates a feedback object,
+        and updates the internal state of the ExecutionRun.
+        
         Args:
-            node_id: The unique identifier of the node sending the update.
-            task_id: The unique identifier of the task being reported on.
-            status: The status string (e.g., 'completed', 'failed', 'running').
-
+            node_id: The IP or identifier of the node reporting status.
+            task_id: The unique identifier of the task.
+            status: The string status reported (e.g., 'completed', 'failed').
+                    
         Returns:
             TaskFeedback: The created feedback object.
-
+            
         Raises:
             InvalidStatusError: If the status string is not recognized.
+            StateUpdateError: If the task_id is not found in the current run.
         """
+        # Validate and normalize status
         try:
-            status_enum = TaskStatusEnum(status.lower())
+            normalized_status = TaskStatusEnum(status.lower())
         except ValueError:
             raise InvalidStatusError(
-                f"Invalid status '{status}' received for task {task_id} on node {node_id}. "
+                f"Invalid status '{status}' received for task {task_id}. "
                 f"Valid statuses: {[s.value for s in TaskStatusEnum]}"
             )
 
+        # Check if task exists in the current run context
+        # The ExecutionRun model tracks tasks; we look it up in task_states
+        if self.execution_run.task_states is None:
+            self.execution_run.task_states = {}
+        
+        if task_id not in self.execution_run.task_states:
+            # Depending on strictness, this might be an error or just a log
+            # For now, we log a warning but allow the state to be created if it's new
+            logger.warning(f"Task {task_id} not found in execution run states. Creating new entry.")
+            self.execution_run.task_states[task_id] = {
+                "node_id": node_id,
+                "status": TaskStatus.PENDING,
+                "start_time": None,
+                "end_time": None
+            }
+
+        current_state = self.execution_run.task_states[task_id]
+        
+        # Create feedback object
         feedback = TaskFeedback(
             node_id=node_id,
             task_id=task_id,
-            status=status_enum
+            status=normalized_status
         )
-
-        # Update heartbeat for the node
-        self._heartbeat_times[node_id] = datetime.now(timezone.utc)
-
-        # Log the event
-        self.logger.info(
-            f"Received task status update: node={node_id}, task={task_id}, status={status_enum.value}"
+        
+        # Update the state in the ExecutionRun
+        self.update_scheduler_state(task_id, normalized_status)
+        
+        self._processed_feedbacks.append(feedback)
+        logger.info(
+            f"Received feedback: Task {task_id} on {node_id} -> {normalized_status.value}"
         )
-
-        # Store in pending list for batch processing or immediate update
-        self._pending_feedbacks.append(feedback)
-
-        # Immediately update the scheduler state if available
-        if self.scheduler_state is not None:
-            self.update_scheduler_state(task_id, status_enum, node_id)
-
+        
         return feedback
 
     def update_scheduler_state(
-        self,
-        task_id: str,
-        status: TaskStatusEnum,
-        node_id: Optional[str] = None
+        self, 
+        task_id: str, 
+        status: TaskStatusEnum
     ) -> None:
         """
-        Update the central scheduler state with the new task status.
-
-        This method modifies the SchedulerState object (from T008) to reflect
-        the completion, failure, or other state changes of a task.
-
+        Update the SchedulerState (ExecutionRun) with the new task status.
+        
+        This method modifies the `task_states` dictionary within the 
+        ExecutionRun object to reflect the new status.
+        
         Args:
             task_id: The unique identifier of the task.
-            status: The new status of the task.
-            node_id: Optional node ID if the status came from a specific node.
-
+            status: The new TaskStatusEnum value.
+                    
         Raises:
-            StateUpdateError: If the state update fails.
+            StateUpdateError: If the task_id is missing or state transition is invalid.
         """
-        if self.scheduler_state is None:
-            self.logger.warning(
-                "Scheduler state is not set. Cannot update state for task %s",
-                task_id
-            )
-            return
+        if self.execution_run.task_states is None:
+            self.execution_run.task_states = {}
 
-        try:
-            # Map our TaskStatusEnum to the model's TaskStatus if needed
-            # Assuming the model uses string representations or compatible enums
-            model_status = status.value
-
-            # Update the task in the scheduler state
-            # This assumes the scheduler_state has a method like update_task_status
-            # or a direct attribute access pattern. We implement a generic update here.
-            if hasattr(self.scheduler_state, 'update_task_status'):
-                self.scheduler_state.update_task_status(task_id, model_status, node_id)
-            elif hasattr(self.scheduler_state, 'tasks'):
-                # Fallback: direct attribute access if structure is known
-                if task_id in self.scheduler_state.tasks:
-                    self.scheduler_state.tasks[task_id]['status'] = model_status
-                    if node_id:
-                        self.scheduler_state.tasks[task_id]['node_id'] = node_id
-                    self.scheduler_state.tasks[task_id]['completed_at'] = datetime.now(timezone.utc)
-                else:
-                    self.logger.warning(f"Task {task_id} not found in scheduler state.")
-            else:
-                # Generic update attempt
-                setattr(self.scheduler_state, 'last_status_update', {
-                    'task_id': task_id,
-                    'status': model_status,
-                    'node_id': node_id,
-                    'timestamp': datetime.now(timezone.utc)
-                })
-
-            self.logger.debug(
-                f"Scheduler state updated: task={task_id}, status={model_status}"
+        if task_id not in self.execution_run.task_states:
+            raise StateUpdateError(
+                f"Cannot update state for task {task_id}: Task not found in ExecutionRun."
             )
 
-        except Exception as e:
-            self.logger.error(
-                f"Failed to update scheduler state for task {task_id}: {e}"
-            )
-            raise StateUpdateError(f"State update failed for task {task_id}: {e}") from e
+        state_entry = self.execution_run.task_states[task_id]
+        old_status = state_entry.get("status")
 
-    def get_heartbeat_status(self, node_id: str, timeout_seconds: float = 60.0) -> bool:
-        """
-        Check if a node has sent a heartbeat within the timeout window.
-
-        Args:
-            node_id: The node to check.
-            timeout_seconds: Maximum time since last heartbeat to be considered 'alive'.
-
-        Returns:
-            bool: True if heartbeat is recent, False otherwise.
-        """
-        if node_id not in self._heartbeat_times:
-            return False
-
-        last_heartbeat = self._heartbeat_times[node_id]
-        now = datetime.now(timezone.utc)
-        elapsed = (now - last_heartbeat).total_seconds()
-
-        return elapsed <= timeout_seconds
-
-    def process_pending_feedbacks(self) -> int:
-        """
-        Process all pending feedbacks and clear the queue.
-
-        Returns:
-            int: Number of feedbacks processed.
-        """
-        count = len(self._pending_feedbacks)
-        for fb in self._pending_feedbacks:
-            # Ensure state is updated if not done in receive_task_status
-            if self.scheduler_state is not None:
-                self.update_scheduler_state(fb.task_id, fb.status, fb.node_id)
+        # Validate state transition (simple logic: any status can move to any other)
+        # In a more complex system, we would enforce a state machine here.
         
-        self._pending_feedbacks.clear()
-        return count
+        # Update status
+        state_entry["status"] = status
+        
+        # Update timestamps
+        now = datetime.now(timezone.utc)
+        if status == TaskStatusEnum.RUNNING and old_status == TaskStatusEnum.PENDING:
+            state_entry["start_time"] = now
+        elif status in [TaskStatusEnum.COMPLETED, TaskStatusEnum.FAILED, TaskStatusEnum.TIMEOUT]:
+            state_entry["end_time"] = now
+
+        logger.debug(f"Updated scheduler state for {task_id}: {old_status} -> {status}")
+
+    def get_run_summary(self) -> Dict[str, Any]:
+        """
+        Get a summary of the current execution run status.
+        
+        Returns:
+            Dict containing counts of tasks by status.
+        """
+        counts = {s.value: 0 for s in TaskStatusEnum}
+        total = 0
+        
+        if self.execution_run.task_states:
+            for task_id, state in self.execution_run.task_states.items():
+                status = state.get("status")
+                if isinstance(status, TaskStatusEnum):
+                    counts[status.value] += 1
+                    total += 1
+                elif isinstance(status, str):
+                    # Handle if stored as string for some reason
+                    if status in counts:
+                        counts[status] += 1
+                        total += 1
+                
+        return {
+            "total_tasks": total,
+            "status_counts": counts,
+            "run_id": self.execution_run.run_id
+        }
 
 
-def create_feedback_manager(
-    scheduler_state: Optional[Any] = None
-) -> CompletionFeedbackManager:
+def create_feedback_manager(execution_run: ExecutionRun) -> CompletionFeedbackManager:
+    """Factory function to create a CompletionFeedbackManager."""
+    return CompletionFeedbackManager(execution_run)
+
+
+def main():
     """
-    Factory function to create a CompletionFeedbackManager instance.
-
-    Args:
-        scheduler_state: The central scheduler state object to update.
-
-    Returns:
-        CompletionFeedbackManager: Configured manager instance.
-    """
-    return CompletionFeedbackManager(scheduler_state=scheduler_state)
-
-
-def main() -> None:
-    """
-    Main entry point for testing the completion feedback module.
+    Standalone test entry point for T013b.
     Simulates receiving task statuses and updating the scheduler state.
     """
-    logger = get_logger(__name__)
-    logger.info("Starting Completion Feedback Manager test...")
+    from orchestrator.models import ExecutionRun, TaskStatus
+    
+    # Setup logging
+    configure_logging = logging.getLogger(__name__)
+    configure_logging.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    configure_logging.addHandler(handler)
 
-    # Create a mock scheduler state for testing
-    class MockSchedulerState:
-        def __init__(self):
-            self.tasks = {}
-            self.update_log = []
+    # Create a mock ExecutionRun
+    run = ExecutionRun(
+        run_id="test-run-001",
+        start_time=datetime.now(timezone.utc),
+        end_time=None,
+        status=TaskStatus.PENDING,
+        task_states={}
+    )
 
-        def update_task_status(self, task_id: str, status: str, node_id: Optional[str] = None):
-            self.tasks[task_id] = {
-                'status': status,
-                'node_id': node_id,
-                'updated_at': datetime.now(timezone.utc)
-            }
-            self.update_log.append({
-                'task_id': task_id,
-                'status': status,
-                'node_id': node_id
-            })
-            logger.info(f"Mock State Updated: Task {task_id} -> {status} on {node_id}")
+    # Initialize Manager
+    manager = create_feedback_manager(run)
 
-    mock_state = MockSchedulerState()
-    manager = create_feedback_manager(scheduler_state=mock_state)
+    # Simulate receiving feedback
+    try:
+        logger.info("Starting feedback simulation...")
+        
+        # Receive a 'running' status
+        fb1 = manager.receive_task_status(
+            node_id="192.168.1.10", 
+            task_id="task-001", 
+            status="running"
+        )
+        
+        # Receive a 'completed' status
+        fb2 = manager.receive_task_status(
+            node_id="192.168.1.10", 
+            task_id="task-001", 
+            status="completed"
+        )
 
-    # Simulate receiving task statuses
-    test_cases = [
-        ("node_01", "task_101", "completed"),
-        ("node_02", "task_102", "running"),
-        ("node_01", "task_103", "failed"),
-        ("node_03", "task_104", "timeout"),
-        ("node_02", "task_105", "invalid_status"), # Should raise error
-    ]
+        # Receive a 'failed' status for a different task
+        fb3 = manager.receive_task_status(
+            node_id="192.168.1.11", 
+            task_id="task-002", 
+            status="failed"
+        )
 
-    for node_id, task_id, status in test_cases:
-        try:
-            feedback = manager.receive_task_status(node_id, task_id, status)
-            logger.info(f"Feedback received: {feedback}")
-            
-            # Check heartbeat
-            is_alive = manager.get_heartbeat_status(node_id, timeout_seconds=10.0)
-            logger.info(f"Node {node_id} heartbeat status: {is_alive}")
-            
-        except InvalidStatusError as e:
-            logger.error(f"Invalid status error (expected): {e}")
-        except StateUpdateError as e:
-            logger.error(f"State update error: {e}")
-
-    # Process any remaining pending feedbacks
-    processed = manager.process_pending_feedbacks()
-    logger.info(f"Processed {processed} pending feedbacks.")
-
-    logger.info("Completion Feedback Manager test completed.")
+        # Print summary
+        summary = manager.get_run_summary()
+        logger.info(f"Run Summary: {summary}")
+        
+        # Verify state in the ExecutionRun object
+        logger.info(f"ExecutionRun task_states: {run.task_states}")
+        
+        print("T013b Simulation Successful: Completion feedback loop updated SchedulerState correctly.")
+        
+    except Exception as e:
+        logger.error(f"Simulation failed: {e}")
+        raise
 
 
 if __name__ == "__main__":

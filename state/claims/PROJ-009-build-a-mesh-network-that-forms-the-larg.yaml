@@ -177,3 +177,94 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T08:01:45Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Network saturation detection threshold is 20% packet loss
+  claim_id: c_7bb96323
+  context: 'Network Saturation: T014a must detect >20 % packet loss and signal T014b
+    to abort (not just flag) as per Edge Cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T014a must detect >20 % packet loss and signal T014b to abort.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:57:36Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Minimum adaptive chunk size is 1 MB
+  claim_id: c_fa185e93
+  context: "Adaptive Chunking: T015 ensures low\u2011RAM devices do not crash the\
+    \ system by splitting chunks (min 1 MB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adaptive chunking algorithm has a minimum chunk size of 1 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:58:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Calibration convergence threshold 1e-4 over 5 checks or 1000 iterations
+  claim_id: c_2c1c2794
+  context: 'Convergence Criterion: Maintain a deque of the last 5 MSE values. After
+    each iteration compute relative_change = abs(current - value_5_steps_ago) / value_5_steps_ago.
+    Stop when relative_change < 1e-4 for five consecutive checks or after max_iterations
+    = 1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calibration convergence criterion requires relative change < 1e-4 for
+    five consecutive checks or after max_iterations = 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:58:25Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Simulation validation tolerance is 0.05 times mean physical value
+  claim_id: c_845a18dc
+  context: "Internal State Validator: Compute MSE, Pearson correlation; if abs(simulated\
+    \ - physical) > tolerance (tolerance = 0.05 \xD7 mean physical), raise ValidationFailure."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calibration validation tolerance is 0.05 \xD7 mean physical."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:58:47Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Ong and Motani capacity formula published in 2007
+  claim_id: c_b39d3618
+  context: 'Theoretical Bound: Use the capacity formula from Ong & Motani (2007) with
+    measured bandwidth and SNR; output theoretical_capacity, empirical_throughput,
+    deviation_metric; flag if empirical > capacity.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: not_found
+    object: '2007'
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Ong_and_Motani_capacity_formula_published_in_2007
+    source_value: https://en.wikipedia.org/wiki/Ong_and_Motani_capacity_formula_published_in_2007
+    subject: Ong and Motani capacity formula
+  kind: relational
+  raw_text: The theoretical capacity formula is from Ong & Motani (2007).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:59:10Z'

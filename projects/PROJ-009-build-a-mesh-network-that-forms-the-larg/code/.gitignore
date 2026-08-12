@@ -1,16 +1,29 @@
-# Data and logs - never commit
+# Data artifacts
 data/
+code/data/
+
+# Logs
 *.log
+logs/
+
+# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+$py.class
 .pytest_cache/
-.ruff_cache/
 .mypy_cache/
-.coverage
-htmlcov/
-*.egg-info/
-dist/
-build/
-.DS_Store
+
+# IDE
 .idea/
 .vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual environments
+venv/
+env/
+.venv/

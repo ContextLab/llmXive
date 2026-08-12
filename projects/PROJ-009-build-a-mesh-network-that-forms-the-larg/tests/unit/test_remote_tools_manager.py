@@ -1,183 +1,240 @@
-"""
-Unit tests for remote_tools_manager.py.
+import pytest
+from unittest.mock import patch, MagicMock
+import paramiko
 
-These tests mock the SSH connection to verify logic without needing real nodes.
-"""
-
-import unittest
-from unittest.mock import MagicMock, patch, mock_open
-import sys
-import os
-
-# Add code to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-
-from orchestrator.remote_tools_manager import RemoteToolManager, ToolMissingError, NodeToolStatus
-from orchestrator.config import Config
+from orchestrator.remote_tools_manager import (
+    RemoteToolManager,
+    ToolMissingError,
+    ToolInstallationError,
+    create_tool_manager,
+    NodeToolStatus
+)
 
 
-class MockChannel:
-    """Mock SSH Channel for testing exec_command."""
-    def __init__(self, exit_code=0, stdout=b"", stderr=b""):
-        self.exit_code = exit_code
-        self.stdout_data = stdout
-        self.stderr_data = stderr
-        self.recv_count = 0
+class TestRemoteToolManager:
+    """Unit tests for RemoteToolManager."""
 
-    def recv_exit_status(self):
-        return self.exit_code
+    @pytest.fixture
+    def mock_ssh_client(self):
+        """Mock paramiko SSHClient."""
+        client = MagicMock(spec=paramiko.SSHClient)
+        client.set_missing_host_key_policy = MagicMock()
+        client.connect = MagicMock()
+        client.exec_command = MagicMock()
+        return client
 
-    def recv(self, bufsize):
-        # Simulate reading stdout
-        if self.recv_count < len(self.stdout_data):
-            data = self.stdout_data[self.recv_count:self.recv_count + bufsize]
-            self.recv_count += len(data)
-            return data
-        return b""
+    @pytest.fixture
+    def manager(self):
+        return RemoteToolManager(required_tools={"tcpdump", "mpstat"})
 
+    def test_create_tool_manager(self):
+        """Test factory function."""
+        manager = create_tool_manager({"tcpdump"})
+        assert manager.required_tools == {"tcpdump"}
 
-class MockSSHClient:
-    """Mock SSH Client for testing."""
-    def __init__(self, mock_stdout=b""):
-        self.mock_stdout = mock_stdout
-        self.connected = False
-
-    def set_missing_host_key_policy(self, policy):
-        pass
-
-    def connect(self, hostname, **kwargs):
-        self.connected = True
-        return True
-
-    def exec_command(self, cmd):
-        # Mock stdin, stdout, stderr
-        stdin = MagicMock()
-        stdout = MagicMock()
-        stderr = MagicMock()
+    @patch('orchestrator.remote_tools_manager.paramiko.SSHClient')
+    def test_check_tool_exists_found(self, mock_ssh_class, mock_ssh_client, manager):
+        """Test that a present tool is detected correctly."""
+        # Setup mock for exec_command
+        mock_channel = MagicMock()
+        mock_channel.recv_exit_status.return_value = 0
         
-        stdout.channel = MockChannel(exit_code=0, stdout=self.mock_stdout)
-        stderr.read.return_value = b""
+        mock_stdout = MagicMock()
+        mock_stdout.read.return_value = b"/usr/bin/tcpdump"
+        mock_stdout.channel = mock_channel
+
+        mock_stderr = MagicMock()
+        mock_stderr.read.return_value = b""
+
+        mock_ssh_client.exec_command.return_value = (MagicMock(), mock_stdout, mock_stderr)
         
-        return stdin, stdout, stderr
+        manager._get_ssh_client = MagicMock(return_value=mock_ssh_client)
 
-    def close(self):
-        self.connected = False
-
-
-class TestRemoteToolManager(unittest.TestCase):
-
-    def setUp(self):
-        self.manager = RemoteToolManager()
-        # Mock config to avoid file loading issues
-        self.manager.config = {"ssh_timeout": 5}
-
-    @patch('orchestrator.remote_tools_manager.SSHClient')
-    def test_tool_found(self, mock_ssh_class):
-        """Test successful detection of an existing tool."""
-        mock_client = MockSSHClient(mock_stdout=b"/usr/bin/tcpdump\n")
-        mock_ssh_class.return_value = mock_client
-
-        status = self.manager.verify_and_install_node("192.168.1.10")
+        is_present, path = manager._check_tool_exists(mock_ssh_client, "tcpdump")
         
-        self.assertTrue(status.tcpdump_available)
-        self.assertFalse(status.tcpdump_installed)
-        self.assertIsNone(status.error_message)
+        assert is_present is True
+        assert path == "/usr/bin/tcpdump"
 
-    @patch('orchestrator.remote_tools_manager.SSHClient')
-    def test_tool_missing_and_install_success(self, mock_ssh_class):
-        """Test installation when tool is missing."""
-        # First call (which) returns non-zero (not found)
-        # Second call (apt-get) returns zero (success)
+    @patch('orchestrator.remote_tools_manager.paramiko.SSHClient')
+    def test_check_tool_exists_not_found(self, mock_ssh_class, mock_ssh_client, manager):
+        """Test that a missing tool is detected correctly."""
+        mock_channel = MagicMock()
+        mock_channel.recv_exit_status.return_value = 1 # Not found
+
+        mock_stdout = MagicMock()
+        mock_stdout.read.return_value = b""
+        mock_stdout.channel = mock_channel
+
+        mock_stderr = MagicMock()
+        mock_stderr.read.return_value = b"/usr/bin/which: no tcpdump in ..."
+
+        mock_ssh_client.exec_command.return_value = (MagicMock(), mock_stdout, mock_stderr)
+
+        is_present, error = manager._check_tool_exists(mock_ssh_client, "tcpdump")
+
+        assert is_present is False
+        assert "no tcpdump" in error
+
+    @patch('orchestrator.remote_tools_manager.paramiko.SSHClient')
+    def test_install_tool_success_apt(self, mock_ssh_class, mock_ssh_client, manager):
+        """Test successful installation via apt-get."""
+        # Mock for apt-get success
+        mock_channel = MagicMock()
+        mock_channel.recv_exit_status.return_value = 0
+
+        mock_stdout = MagicMock()
+        mock_stdout.read.return_value = b"Reading package lists... Done\nInstalling tcpdump..."
+        mock_stdout.channel = mock_channel
+
+        mock_stderr = MagicMock()
+        mock_stderr.read.return_value = b""
+
+        mock_ssh_client.exec_command.return_value = (MagicMock(), mock_stdout, mock_stderr)
+
+        success, msg = manager._install_tool(mock_ssh_client, "tcpdump")
+
+        assert success is True
+        # Verify apt command was called
+        mock_ssh_client.exec_command.assert_called()
+        call_args = mock_ssh_client.exec_command.call_args[0][0]
+        assert "apt-get" in call_args
+
+    @patch('orchestrator.remote_tools_manager.paramiko.SSHClient')
+    def test_install_tool_fallback_to_yum(self, mock_ssh_class, mock_ssh_client, manager):
+        """Test fallback to yum if apt fails."""
+        # Mock apt failure
+        mock_channel_fail = MagicMock()
+        mock_channel_fail.recv_exit_status.return_value = 100
+        mock_stdout_fail = MagicMock()
+        mock_stdout_fail.read.return_value = b"apt error"
+        mock_stdout_fail.channel = mock_channel_fail
+        mock_stderr_fail = MagicMock()
+        mock_stderr_fail.read.return_value = b"apt error"
         
-        # We need a more complex mock for the sequence of calls
-        # Since exec_command is called multiple times, we mock the return value dynamically
-        
-        call_count = [0]
-        
-        def mock_exec_command(cmd):
-            stdin = MagicMock()
-            stdout = MagicMock()
-            stderr = MagicMock()
-            
-            if "which" in cmd:
-                # Simulate 'which' failing
-                stdout.channel = MockChannel(exit_code=1, stdout=b"")
-            else:
-                # Simulate installation succeeding
-                stdout.channel = MockChannel(exit_code=0, stdout=b"Installing...\n")
-            
-            return stdin, stdout, stderr
+        # Mock yum success
+        mock_channel_success = MagicMock()
+        mock_channel_success.recv_exit_status.return_value = 0
+        mock_stdout_success = MagicMock()
+        mock_stdout_success.read.return_value = b"yum success"
+        mock_stdout_success.channel = mock_channel_success
+        mock_stderr_success = MagicMock()
+        mock_stderr_success.read.return_value = b""
 
-        mock_client = MockSSHClient()
-        mock_client.exec_command = mock_exec_command
-        mock_ssh_class.return_value = mock_client
-
-        status = self.manager.verify_and_install_node("192.168.1.10")
-
-        self.assertTrue(status.tcpdump_installed)
-        self.assertTrue(status.tcpdump_available)
-
-    @patch('orchestrator.remote_tools_manager.SSHClient')
-    def test_installation_fails(self, mock_ssh_class):
-        """Test handling when installation fails."""
-        # Simulate 'which' failing and all install attempts failing
-        
-        def mock_exec_command(cmd):
-            stdin = MagicMock()
-            stdout = MagicMock()
-            stderr = MagicMock()
-            
-            if "which" in cmd:
-                stdout.channel = MockChannel(exit_code=1, stdout=b"")
-            else:
-                # Simulate failure
-                stdout.channel = MockChannel(exit_code=1, stdout=b"")
-                stderr.read.return_value = b"Permission denied"
-            
-            return stdin, stdout, stderr
-
-        mock_client = MockSSHClient()
-        mock_client.exec_command = mock_exec_command
-        mock_ssh_class.return_value = mock_client
-
-        status = self.manager.verify_and_install_node("192.168.1.10")
-
-        self.assertFalse(status.tcpdump_available)
-        self.assertFalse(status.tcpdump_installed)
-        self.assertIn("installation failed", status.error_message)
-
-    @patch('orchestrator.remote_tools_manager.SSHClient')
-    def test_ssh_connection_failure(self, mock_ssh_class):
-        """Test handling of SSH connection errors."""
-        from paramiko import SSHException
-        
-        mock_ssh_class.return_value.connect.side_effect = SSHException("Connection refused")
-
-        status = self.manager.verify_and_install_node("192.168.1.10")
-
-        self.assertFalse(status.tcpdump_available)
-        self.assertIn("SSH connection failed", status.error_message)
-
-    def test_raise_if_critical_missing(self):
-        """Test that exception is raised if all nodes are missing tools."""
-        results = [
-            NodeToolStatus(node_ip="1.1.1.1", tcpdump_available=False, mpstat_available=False),
-            NodeToolStatus(node_ip="1.1.1.2", tcpdump_available=False, mpstat_available=False),
+        # First call fails (apt), second call succeeds (yum)
+        mock_ssh_client.exec_command.side_effect = [
+            (MagicMock(), mock_stdout_fail, mock_stderr_fail),
+            (MagicMock(), mock_stdout_success, mock_stderr_success)
         ]
+
+        success, msg = manager._install_tool(mock_ssh_client, "tcpdump")
+
+        assert success is True
+        assert mock_ssh_client.exec_command.call_count == 2
+
+    @patch('orchestrator.remote_tools_manager.paramiko.SSHClient')
+    def test_verify_and_install_tools_missing_and_installed(self, mock_ssh_class, mock_ssh_client, manager):
+        """Test full flow: tool missing, then installed."""
+        # 1. Check tcpdump -> Not found
+        mock_channel_1 = MagicMock()
+        mock_channel_1.recv_exit_status.return_value = 1
+        mock_ssh_client.exec_command.return_value = (MagicMock(), MagicMock(read=lambda: b""), MagicMock(read=lambda: b"not found"))
+
+        manager._get_ssh_client = MagicMock(return_value=mock_ssh_client)
+
+        # We need to mock the flow inside verify_and_install_tools
+        # It calls _check_tool_exists, then _install_tool, then _check_tool_exists again.
         
-        with self.assertRaises(ToolMissingError):
-            self.manager.raise_if_critical_missing(results)
-
-    def test_no_raise_if_some_ready(self):
-        """Test that no exception is raised if at least one node is ready."""
-        results = [
-            NodeToolStatus(node_ip="1.1.1.1", tcpdump_available=False, mpstat_available=False),
-            NodeToolStatus(node_ip="1.1.1.2", tcpdump_available=True, mpstat_available=False),
-        ]
+        # Side effects for the sequence:
+        # 1. Check (fail)
+        # 2. Install (success)
+        # 3. Check (success)
         
-        # Should not raise
-        self.manager.raise_if_critical_missing(results)
+        # Setup for Check 1 (fail)
+        def exec_command_side_effect(cmd, timeout=None):
+            if "which tcpdump" in cmd:
+                # First check: not found
+                mock_channel = MagicMock()
+                mock_channel.recv_exit_status.return_value = 1
+                mock_stdout = MagicMock()
+                mock_stdout.read.return_value = b""
+                mock_stdout.channel = mock_channel
+                mock_stderr = MagicMock()
+                mock_stderr.read.return_value = b"not found"
+                return (MagicMock(), mock_stdout, mock_stderr)
+            elif "apt-get" in cmd or "yum" in cmd:
+                # Install command
+                mock_channel = MagicMock()
+                mock_channel.recv_exit_status.return_value = 0
+                mock_stdout = MagicMock()
+                mock_stdout.read.return_value = b"installed"
+                mock_stdout.channel = mock_channel
+                mock_stderr = MagicMock()
+                mock_stderr.read.return_value = b""
+                return (MagicMock(), mock_stdout, mock_stderr)
+            else:
+                # Second check (after install)
+                mock_channel = MagicMock()
+                mock_channel.recv_exit_status.return_value = 0
+                mock_stdout = MagicMock()
+                mock_stdout.read.return_value = b"/usr/bin/tcpdump"
+                mock_stdout.channel = mock_channel
+                mock_stderr = MagicMock()
+                mock_stderr.read.return_value = b""
+                return (MagicMock(), mock_stdout, mock_stderr)
 
+        mock_ssh_client.exec_command.side_effect = exec_command_side_effect
 
-if __name__ == '__main__':
-    unittest.main()
+        statuses = manager.verify_and_install_tools("192.168.1.10")
+
+        assert len(statuses) == 1
+        status = statuses[0]
+        assert status.tool_name == "tcpdump"
+        assert status.is_present is True
+        assert status.installation_attempted is True
+        assert status.installation_success is True
+        assert status.error_message is None
+
+    @patch('orchestrator.remote_tools_manager.paramiko.SSHClient')
+    def test_verify_and_install_tools_installation_fails(self, mock_ssh_class, mock_ssh_client, manager):
+        """Test that ToolMissingError is raised if installation fails."""
+        # Check: not found
+        # Install: fail
+        # (Second check not reached)
+
+        def exec_command_side_effect(cmd, timeout=None):
+            if "which tcpdump" in cmd:
+                mock_channel = MagicMock()
+                mock_channel.recv_exit_status.return_value = 1
+                mock_stdout = MagicMock()
+                mock_stdout.read.return_value = b""
+                mock_stdout.channel = mock_channel
+                mock_stderr = MagicMock()
+                mock_stderr.read.return_value = b"not found"
+                return (MagicMock(), mock_stdout, mock_stderr)
+            else:
+                # Install command fails
+                mock_channel = MagicMock()
+                mock_channel.recv_exit_status.return_value = 100
+                mock_stdout = MagicMock()
+                mock_stdout.read.return_value = b"fail"
+                mock_stdout.channel = mock_channel
+                mock_stderr = MagicMock()
+                mock_stderr.read.return_value = b"installation error"
+                return (MagicMock(), mock_stdout, mock_stderr)
+
+        mock_ssh_client.exec_command.side_effect = exec_command_side_effect
+
+        with pytest.raises(ToolMissingError) as exc_info:
+            manager.verify_and_install_tools("192.168.1.10")
+
+        assert "installation failed" in str(exc_info.value).lower()
+
+    def test_close_connections(self, manager):
+        """Test closing connections."""
+        mock_client = MagicMock()
+        manager._ssh_client_cache["1.2.3.4"] = mock_client
+
+        manager.close_connections()
+
+        mock_client.close.assert_called_once()
+        assert len(manager._ssh_client_cache) == 0

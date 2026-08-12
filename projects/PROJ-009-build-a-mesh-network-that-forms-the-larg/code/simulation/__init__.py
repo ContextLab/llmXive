@@ -1,3 +1,3 @@
-# Simulation module
-# Handles discrete-event simulation and calibration
-__all__ = []
+"""
+Simulation module: Discrete-event simulation and calibration.
+"""

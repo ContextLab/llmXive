@@ -1,3 +1,3 @@
-# Integration tests
-# Tests interactions between components
-__all__ = []
+"""
+Integration tests.
+"""
