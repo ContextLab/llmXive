@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "AnalysisResult Schema"
+description: "Schema for the output of a statistical test."
+required:
+  - result_id
+  - test_type
+  - statistic_value
+  - p_value
+  - interpretation
+properties:
+  result_id:
+    type: string
+    description: "Unique identifier for the analysis result (UUID)."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  test_type:
+    type: string
+    description: "Type of statistical test performed."
+    enum:
+      - p_curve
+      - density_ratio
+      - paired_t
+      - wilcoxon
+      - sensitivity
+  statistic_value:
+    type: number
+    description: "Value of the test statistic (e.g., t-value, density ratio)."
+  p_value:
+    type: number
+    description: "P-value of the test."
+    minimum: 0
+    maximum: 1
+  interpretation:
+    type: string
+    description: "Human-readable interpretation of the result."
+  threshold_context:
+    type: number
+    description: "Significance threshold used (for sensitivity analysis)."
+    nullable: true
+additionalProperties: false

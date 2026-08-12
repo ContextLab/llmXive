@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Matched Paper Pair Dataset"
+description: "Schema for the cleaned dataset of matched pre-print and journal paper pairs with extracted statistical metrics."
+type: "object"
+properties:
+  preprint_id:
+    type: "string"
+    description: "Unique identifier for the pre-print (e.g., arXiv ID)."
+  journal_doi:
+    type: "string"
+    description: "DOI of the peer-reviewed journal version."
+  title:
+    type: "string"
+    description: "Normalized title of the paper."
+  preprint_source:
+    type: "string"
+    enum:
+      - "arXiv"
+      - "bioRxiv"
+    description: "Source server for the pre-print."
+  journal_source:
+    type: "string"
+    description: "Publisher or journal name."
+  preprint_date:
+    type: "string"
+    format: "date"
+    description: "Publication date of the pre-print."
+  journal_date:
+    type: "string"
+    format: "date"
+    description: "Publication date of the journal version."
+  statistical_method:
+    type: "string"
+    description: "Primary statistical method used (e.g., t-test, ANOVA)."
+  sample_size_preprint:
+    type: "integer"
+    minimum: 1
+    description: "Sample size (N) in the pre-print version."
+  sample_size_journal:
+    type: "integer"
+    minimum: 1
+    description: "Sample size (N) in the journal version."
+  methodological_shift_flag:
+    type: "boolean"
+    description: "True if the statistical method changed between versions."
+  n_increase_flag:
+    type: "boolean"
+    description: "True if sample size increased by > 20% in the journal version."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if the pair was filtered out."
+  p_value_preprint:
+    type: ["number", "null"]
+    description: "Extracted p-value from pre-print (or midpoint for inequalities)."
+  p_value_journal:
+    type: ["number", "null"]
+    description: "Extracted p-value from journal."
+  p_value_inequality_flag:
+    type: "boolean"
+    description: "True if p-value was reported as an inequality."
+  effect_size_preprint:
+    type: ["number", "null"]
+    description: "Extracted effect size from pre-print."
+  effect_size_journal:
+    type: ["number", "null"]
+    description: "Extracted effect size from journal."
+  effect_size_type:
+    type: ["string", "null"]
+    description: "Type of effect size (e.g., Cohen's d, Odds Ratio)."
+required:
+  - "preprint_id"
+  - "journal_doi"
+  - "title"
+  - "preprint_source"
+  - "journal_source"
+  - "preprint_date"
+  - "journal_date"
+  - "statistical_method"
+  - "sample_size_preprint"
+  - "sample_size_journal"
+  - "methodological_shift_flag"
+  - "n_increase_flag"
+additionalProperties: false

@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "MatchedPaperPair Schema"
+description: "Schema for a matched pre-print and journal paper pair."
+required:
+  - pair_id
+  - preprint_id
+  - preprint_source
+  - preprint_date
+  - journal_doi
+  - journal_source
+  - journal_date
+  - methodological_shift
+  - n_increase_flag
+properties:
+  pair_id:
+    type: string
+    description: "Unique identifier for the matched pair (UUID)."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  preprint_id:
+    type: string
+    description: "arXiv or bioRxiv ID of the pre-print."
+  preprint_source:
+    type: string
+    description: "Source of the pre-print."
+    enum:
+      - arXiv
+      - bioRxiv
+  preprint_date:
+    type: string
+    description: "Publication date of the pre-print (YYYY-MM-DD)."
+    format: date
+  journal_doi:
+    type: string
+    description: "DOI of the journal version."
+  journal_source:
+    type: string
+    description: "Publisher of the journal version."
+  journal_date:
+    type: string
+    description: "Publication date of the journal version (YYYY-MM-DD)."
+    format: date
+  methodological_shift:
+    type: boolean
+    description: "True if the statistical method changed between pre-print and journal."
+  n_increase_flag:
+    type: boolean
+    description: "True if sample size increased by >20% between pre-print and journal."
+additionalProperties: false
