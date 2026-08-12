@@ -1,1 +1,11 @@
-[]
+- artifact_hash: bf6b2460ddce28460566173bcbfddccf25c3f21db2a2424075da2b4b7bd775a1
+  artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-08-12T22:07:12.359720Z'

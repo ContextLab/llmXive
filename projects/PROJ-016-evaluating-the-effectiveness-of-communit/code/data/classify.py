@@ -6,6 +6,7 @@ threshold-based classification to derive a binary regime_type variable.
 """
 import json
 import logging
+import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
 
@@ -56,7 +57,7 @@ def classify_regime(df: pd.DataFrame, metadata: Dict[str, Any]) -> pd.DataFrame:
         metadata: Dictionary containing threshold values.
         
     Returns:
-        DataFrame with added 'regime_type' column.
+        DataFrame with added 'regime_type' column (binary: 0 or 1).
     """
     # Extract thresholds from metadata
     thresholds = metadata.get('thresholds', {})
@@ -72,22 +73,20 @@ def classify_regime(df: pd.DataFrame, metadata: Dict[str, Any]) -> pd.DataFrame:
     # Create a copy to avoid modifying the original
     result_df = df.copy()
     
-    # Apply classification logic
+    # Apply classification logic directly to binary
     def classify_row(value):
         if pd.isna(value):
             return None
         if value >= upper_threshold:
-            return 'CBNRM'
-        elif value <= lower_threshold:
-            return 'State-Led'
+            return 1  # CBNRM
         else:
-            return 'Mixed'
+            return 0  # State-Led or Mixed (both 0)
     
     result_df['regime_type'] = result_df['value'].apply(classify_row)
     
     # Log distribution
     regime_counts = result_df['regime_type'].value_counts()
-    logger.info(f"Classification distribution:\n{regime_counts}")
+    logger.info(f"Binary classification distribution:\n{regime_counts}")
     
     return result_df
 
@@ -96,8 +95,8 @@ def convert_to_binary(df: pd.DataFrame) -> pd.DataFrame:
     """
     Convert regime_type to binary classification.
     
-    'CBNRM' -> 1
-    'State-Led' or 'Mixed' -> 0
+    This function is now a no-op for the main flow as classify_regime
+    already returns binary values, but kept for API compatibility.
     
     Args:
         df: DataFrame with 'regime_type' column.
@@ -105,18 +104,8 @@ def convert_to_binary(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame with binary 'regime_type' column (0 or 1).
     """
-    result_df = df.copy()
-    
-    def to_binary(regime):
-        if pd.isna(regime):
-            return None
-        return 1 if regime == 'CBNRM' else 0
-    
-    result_df['regime_type'] = result_df['regime_type'].apply(to_binary)
-    
-    logger.info(f"Binary classification distribution:\n{result_df['regime_type'].value_counts()}")
-    
-    return result_df
+    # Since classify_regime already returns binary, we just return a copy
+    return df.copy()
 
 
 def main():
@@ -126,9 +115,8 @@ def main():
     This function:
     1. Loads the CBNRM proxy metadata from data/processed/cbnrm_proxy_metadata.json
     2. Loads the raw CBNRM proxy data from data/raw/cbnrm_proxy.csv
-    3. Classifies each record into regime types
-    4. Converts to binary classification
-    5. Saves the classified data to data/processed/classified_regimes.csv
+    3. Classifies each record into regime types (binary)
+    4. Saves the classified data to data/processed/classified_regimes.csv
     """
     # Define paths relative to project root
     project_root = Path(__file__).resolve().parent.parent.parent
@@ -163,6 +151,7 @@ def main():
     # Perform classification
     try:
         classified_df = classify_regime(df, metadata)
+        # convert_to_binary is effectively a no-op now but called for flow
         binary_df = convert_to_binary(classified_df)
     except Exception as e:
         logger.error(f"Classification failed: {e}")
@@ -182,5 +171,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
     sys.exit(main())

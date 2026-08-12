@@ -1,241 +1,259 @@
+"""
+00_data_extraction.py
+
+Extracts prompt_embedding, noise_level, routing_label, and velocity_vector
+from teacher inference outputs and streams them to a Parquet file.
+"""
 import argparse
 import sys
 import json
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import pandas as pd
+import numpy as np
 
-# Import from project config to get known expert IDs
-from utils.config import get_config
+# Import project utilities
+from utils.config import get_config, get_path
+from utils.statistics import save_partial_results
+import signal
+import time
 
+# Constants
+KNOWN_EXPERT_IDS = [
+    "expert_0", "expert_1", "expert_2", "expert_3",
+    "expert_4", "expert_5", "expert_6", "expert_7"
+]
 
-# --- Expert ID Validation Logic ---
+# Global state for partial save
+partial_results = {
+    "status": "running",
+    "processed_count": 0,
+    "excluded_count": 0,
+    "message": ""
+}
 
-def get_known_expert_ids() -> set:
+def timeout_handler(signum, frame):
+    """Handle timeout signal."""
+    raise TimeoutError("Data extraction timed out (6-hour limit).")
+
+def setup_timeout(seconds: int):
+    """Set up a timeout for the extraction process."""
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(seconds)
+
+def cancel_timeout():
+    """Cancel the active timeout."""
+    signal.alarm(0)
+
+def get_known_expert_ids() -> List[str]:
+    """Return the list of known expert identifiers."""
+    return KNOWN_EXPERT_IDS
+
+def validate_routing_labels(labels: List[str], known_ids: List[str]) -> Dict[str, int]:
     """
-    Retrieves the set of valid expert field IDs from the DanceOPD configuration.
-    This serves as the ground truth for validation.
+    Validate routing labels against known expert IDs.
+    Returns a dict with counts of valid and invalid labels.
     """
-    config = get_config()
-    # The config is expected to contain a list or dict of experts.
-    # We assume the structure matches the DanceOPD model definition.
-    # If 'experts' is a list of dicts with 'id', extract ids.
-    # If 'experts' is a dict, keys are ids.
-    # If 'expert_ids' is a direct list, use that.
-    
-    experts_config = config.get("experts", {})
-    known_ids = set()
+    valid_count = 0
+    invalid_count = 0
+    invalid_examples = []
 
-    if isinstance(experts_config, list):
-        for item in experts_config:
-            if isinstance(item, dict) and "id" in item:
-                known_ids.add(item["id"])
-            elif isinstance(item, str):
-                known_ids.add(item)
-    elif isinstance(experts_config, dict):
-        # If it's a dict, keys are usually the IDs
-        known_ids.update(experts_config.keys())
-    
-    # Fallback: Check for a direct list of IDs if 'experts' wasn't the source
-    if not known_ids and "expert_ids" in config:
-        known_ids.update(config["expert_ids"])
+    for label in labels:
+        if label in known_ids:
+            valid_count += 1
+        else:
+            invalid_count += 1
+            if len(invalid_examples) < 10:
+                invalid_examples.append(label)
 
-    if not known_ids:
-        # Hardcoded fallback based on typical DanceOPD architecture if config is missing
-        # This ensures the script doesn't crash immediately if config is incomplete,
-        # though a missing config is a configuration error.
-        known_ids = {
-            "expert_0", "expert_1", "expert_2", "expert_3", 
-            "expert_4", "expert_5", "expert_6", "expert_7"
-        }
-    
-    return known_ids
-
-
-def validate_routing_labels(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Validates that each 'routing_label' in the dataframe matches a known expert ID.
-    
-    Args:
-        df: DataFrame containing the extracted features.
-        
-    Returns:
-        A dictionary with validation results:
-        {
-            "valid": bool,
-            "total_samples": int,
-            "valid_count": int,
-            "invalid_count": int,
-            "invalid_labels": list,
-            "message": str
-        }
-    """
-    known_ids = get_known_expert_ids()
-    routing_col = "routing_label"
-    
-    if routing_col not in df.columns:
-        return {
-            "valid": False,
-            "total_samples": len(df),
-            "valid_count": 0,
-            "invalid_count": len(df),
-            "invalid_labels": [],
-            "message": f"Column '{routing_col}' not found in dataframe."
-        }
-    
-    # Identify rows where routing_label is not in known_ids
-    # Handle potential NaN values if any
-    valid_mask = df[routing_col].apply(lambda x: x in known_ids if pd.notna(x) else False)
-    
-    valid_count = valid_mask.sum()
-    invalid_count = len(df) - valid_count
-    
-    if invalid_count > 0:
-        invalid_rows = df[~valid_mask]
-        invalid_labels = invalid_rows[routing_col].unique().tolist()
-        message = f"Found {invalid_count} samples ({invalid_count/len(df)*100:.2f}%) with invalid routing labels: {invalid_labels}"
-        return {
-            "valid": False,
-            "total_samples": len(df),
-            "valid_count": valid_count,
-            "invalid_count": invalid_count,
-            "invalid_labels": invalid_labels,
-            "message": message
-        }
-    
     return {
-        "valid": True,
-        "total_samples": len(df),
         "valid_count": valid_count,
-        "invalid_count": 0,
-        "invalid_labels": [],
-        "message": f"All {valid_count} routing labels are valid."
+        "invalid_count": invalid_count,
+        "invalid_examples": invalid_examples
     }
 
-
-def filter_valid_rows(df: pd.DataFrame) -> pd.DataFrame:
+def filter_valid_rows(df: pd.DataFrame, known_ids: List[str]) -> pd.DataFrame:
     """
-    Filters the dataframe to keep only rows with valid routing labels.
-    Logs the number of excluded rows.
+    Filter the DataFrame to keep only rows with valid routing labels.
+    Logs the count of excluded rows.
+    """
+    valid_mask = df["routing_label"].isin(known_ids)
+    invalid_count = (~valid_mask).sum()
     
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        Filtered DataFrame.
+    if invalid_count > 0:
+        print(f"Excluding {invalid_count} rows with undefined routing labels.")
+        partial_results["excluded_count"] += invalid_count
+
+    return df[valid_mask].copy()
+
+def load_inference_outputs(input_path: Path) -> pd.DataFrame:
     """
-    known_ids = get_known_expert_ids()
-    routing_col = "routing_label"
+    Load inference outputs from a Parquet file.
+    Expects columns: prompt_embedding, noise_level, routing_label, velocity_vector
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Inference output file not found: {input_path}")
     
-    if routing_col not in df.columns:
-        print(f"Warning: Column '{routing_col}' not found. Returning original dataframe.")
-        return df
-    
-    valid_mask = df[routing_col].apply(lambda x: x in known_ids if pd.notna(x) else False)
-    filtered_df = df[valid_mask].reset_index(drop=True)
-    
-    excluded_count = len(df) - len(filtered_df)
-    if excluded_count > 0:
-        print(f"Validation: Excluded {excluded_count} samples with invalid routing labels.")
-    else:
-        print(f"Validation: All {len(filtered_df)} samples passed routing label validation.")
-        
-    return filtered_df
-
-
-# --- Existing Functions (Preserved) ---
-
-def load_inference_outputs(input_path: str) -> List[Dict[str, Any]]:
-    """
-    Loads inference outputs from a JSON file or list of JSON files.
-    """
-    path = Path(input_path)
-    if path.is_file():
-        with open(path, 'r') as f:
-            return json.load(f)
-    elif path.is_dir():
-        data = []
-        for file_path in path.glob("*.json"):
-            with open(file_path, 'r') as f:
-                data.extend(json.load(f))
-        return data
-    else:
-        raise FileNotFoundError(f"Input path {input_path} not found.")
-
-
-def extract_features(inference_data: List[Dict[str, Any]]) -> pd.DataFrame:
-    """
-    Extracts relevant features from raw inference data into a DataFrame.
-    Expected fields: prompt_embedding, noise_level, routing_label, velocity_vector
-    """
-    records = []
-    for item in inference_data:
-        record = {
-            "prompt_embedding": item.get("prompt_embedding"),
-            "noise_level": item.get("noise_level"),
-            "routing_label": item.get("routing_label"),
-            "velocity_vector": item.get("velocity_vector"),
-            "source": item.get("source", "unknown") # Track source if available
-        }
-        records.append(record)
-    return pd.DataFrame(records)
-
-
-def stream_to_parquet(df: pd.DataFrame, output_path: str) -> None:
-    """
-    Writes the DataFrame to a Parquet file.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(path, index=False)
-    print(f"Data successfully written to {output_path}")
-
-
-def run_data_extraction(input_path: str, output_path: str, validate: bool = True) -> None:
-    """
-    Main pipeline function to load, extract, validate, and save data.
-    """
     print(f"Loading inference outputs from {input_path}...")
-    inference_data = load_inference_outputs(input_path)
+    df = pd.read_parquet(input_path)
     
-    print("Extracting features...")
-    df = extract_features(inference_data)
+    required_cols = ["prompt_embedding", "noise_level", "routing_label", "velocity_vector"]
+    missing_cols = [c for c in required_cols if c not in df.columns]
     
-    if validate:
-        print("Validating routing labels against known expert IDs...")
-        validation_result = validate_routing_labels(df)
-        print(validation_result["message"])
-        
-        if not validation_result["valid"]:
-            # Filter out invalid rows as per T015 requirement
-            print("Filtering invalid rows...")
-            df = filter_valid_rows(df)
-            # Re-validate to confirm
-            final_check = validate_routing_labels(df)
-            if not final_check["valid"]:
-                print(f"Error: Filtering failed. Remaining invalid count: {final_check['invalid_count']}")
-                sys.exit(1)
-        else:
-            print("No filtering needed; all labels valid.")
+    if missing_cols:
+        raise ValueError(f"Inference output missing required columns: {missing_cols}")
     
-    print(f"Streaming {len(df)} valid records to {output_path}...")
-    stream_to_parquet(df, output_path)
+    print(f"Loaded {len(df)} rows from inference output.")
+    return df
 
+def extract_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ensure extracted features are in the correct format for Parquet storage.
+    - prompt_embedding: list of floats
+    - noise_level: float
+    - routing_label: string
+    - velocity_vector: list of floats
+    """
+    output_df = pd.DataFrame()
+    
+    # Ensure prompt_embedding is a list (if it's an array)
+    if "prompt_embedding" in df.columns:
+        output_df["prompt_embedding"] = df["prompt_embedding"].apply(
+            lambda x: x.tolist() if isinstance(x, np.ndarray) else x
+        )
+    
+    # Ensure noise_level is float
+    output_df["noise_level"] = df["noise_level"].astype(float)
+    
+    # Ensure routing_label is string
+    output_df["routing_label"] = df["routing_label"].astype(str)
+    
+    # Ensure velocity_vector is a list (if it's an array)
+    if "velocity_vector" in df.columns:
+        output_df["velocity_vector"] = df["velocity_vector"].apply(
+            lambda x: x.tolist() if isinstance(x, np.ndarray) else x
+        )
+    
+    return output_df
+
+def stream_to_parquet(df: pd.DataFrame, output_path: Path, batch_size: int = 1000):
+    """
+    Stream the DataFrame to a Parquet file in batches to manage memory.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    print(f"Streaming {len(df)} rows to {output_path}...")
+    
+    # Write in batches if the dataset is large
+    if len(df) > batch_size:
+        with pd.ParquetWriter(output_path, df.iloc[:batch_size].to_parquet(engine="pyarrow")) as writer:
+            for i in range(0, len(df), batch_size):
+                batch = df.iloc[i:i+batch_size]
+                writer.write_table(batch.to_parquet(engine="pyarrow"))
+                partial_results["processed_count"] = len(df) # Update progress
+                print(f"  Processed {min(i + batch_size, len(df))} / {len(df)} rows.")
+    else:
+        df.to_parquet(output_path, engine="pyarrow")
+        partial_results["processed_count"] = len(df)
+        print(f"  Processed {len(df)} rows.")
+    
+    print(f"Successfully wrote dataset to {output_path}")
+
+def run_data_extraction(
+    input_path: str,
+    output_path: str,
+    timeout_seconds: int = 21600  # 6 hours
+):
+    """
+    Main logic to run data extraction:
+    1. Load inference outputs
+    2. Validate and filter routing labels
+    3. Extract and format features
+    4. Stream to Parquet
+    """
+    config = get_config()
+    input_file = Path(input_path)
+    output_file = Path(output_path)
+    
+    # Set up timeout
+    setup_timeout(timeout_seconds)
+    
+    try:
+        # 1. Load data
+        df = load_inference_outputs(input_file)
+        
+        # 2. Validate labels
+        known_ids = get_known_expert_ids()
+        validation_stats = validate_routing_labels(df["routing_label"].tolist(), known_ids)
+        print(f"Validation stats: {validation_stats}")
+        partial_results["excluded_count"] = validation_stats["invalid_count"]
+        
+        # 3. Filter invalid rows
+        df_filtered = filter_valid_rows(df, known_ids)
+        print(f"Filtered dataset size: {len(df_filtered)} rows (excluded {validation_stats['invalid_count']})")
+        
+        if len(df_filtered) == 0:
+            raise ValueError("No valid rows remaining after filtering. Check routing labels.")
+        
+        # 4. Extract features
+        df_extracted = extract_features(df_filtered)
+        
+        # 5. Stream to Parquet
+        stream_to_parquet(df_extracted, output_file)
+        
+        # Update partial results status
+        partial_results["status"] = "completed"
+        partial_results["message"] = "Extraction completed successfully."
+        
+    except TimeoutError as e:
+        partial_results["status"] = "partial"
+        partial_results["message"] = str(e)
+        print(f"ERROR: {e}")
+        # Save partial results if we have any processed data
+        if partial_results["processed_count"] > 0:
+            save_partial_results(partial_results)
+        raise
+    except Exception as e:
+        partial_results["status"] = "error"
+        partial_results["message"] = str(e)
+        print(f"ERROR: {e}")
+        raise
+    finally:
+        cancel_timeout()
+        # Save final status
+        save_partial_results(partial_results)
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract and validate teacher routing dataset.")
-    parser.add_argument("--input", type=str, required=True, help="Path to inference outputs (JSON).")
-    parser.add_argument("--output", type=str, required=True, help="Path to output Parquet file.")
-    parser.add_argument("--no-validate", action="store_true", help="Skip validation step.")
+    """CLI entry point."""
+    parser = argparse.ArgumentParser(description="Extract features from teacher inference outputs.")
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        default=str(get_path("data/raw/teacher_ground_truth.parquet")),
+        help="Path to input inference output parquet file."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default=str(get_path("data/processed/teacher_routing_dataset.parquet")),
+        help="Path to output parquet file."
+    )
+    parser.add_argument(
+        "--timeout", 
+        type=int, 
+        default=21600,
+        help="Timeout in seconds (default: 6 hours)."
+    )
     
     args = parser.parse_args()
     
-    run_data_extraction(
-        input_path=args.input,
-        output_path=args.output,
-        validate=not args.no_validate
-    )
-
+    try:
+        run_data_extraction(args.input, args.output, args.timeout)
+        print("Data extraction completed successfully.")
+        sys.exit(0)
+    except Exception as e:
+        print(f"Data extraction failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

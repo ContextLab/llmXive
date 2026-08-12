@@ -1,246 +1,238 @@
 """
-Variable Verification Module (T015)
+Variable verification module for FR-008 compliance.
 
-Implements FR-008: Verifies presence of required variables in downloaded datasets.
-Required variables:
-  - OTU/ASV tables (handled via sample ID linkage)
-  - plant_species
-  - gps (latitude/longitude)
-  - soil_type
-  - sequencing_depth
-  - sample_id
-  - disease_type
-  - incidence_rate
-  - measurement_date
-
-Output: data/processed/variable_verification_log.csv
-Columns: sample_id, variable_name, status (present/missing)
+Verifies the presence of required variables in sample and disease datasets
+and generates a verification log with [MISSING_VARIABLE] markers.
 """
 import os
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any, Set
 import csv
-
-# Import from existing API surface
 from .logging_config import get_logger
 
 logger = get_logger(__name__)
 
 # FR-008 Required Variables
-REQUIRED_VARIABLES = [
-    "sample_id",
-    "plant_species",
-    "latitude",
-    "longitude",
-    "soil_type",
-    "sequencing_depth",
-    "disease_type",
-    "incidence_rate",
-    "measurement_date"
+SAMPLE_VARIABLES = [
+    'sample_id',
+    'plant_species',
+    'gps_latitude',
+    'gps_longitude',
+    'soil_type',
+    'sequencing_depth'
 ]
 
-# Mapping of expected column names in raw files to canonical variable names
-# This handles potential naming variations in source data
-COLUMN_MAPPINGS = {
-    "sample_id": ["sample_id", "sample_id", "SampleID", "Sample_ID", "id"],
-    "plant_species": ["plant_species", "plant_species", "PlantSpecies", "HostSpecies", "crop"],
-    "latitude": ["latitude", "lat", "Latitude", "GPS_Lat", "lat"],
-    "longitude": ["longitude", "lon", "Longitude", "GPS_Lon", "lon"],
-    "soil_type": ["soil_type", "soil_type", "SoilType", "soil_class"],
-    "sequencing_depth": ["sequencing_depth", "sequencing_depth", "read_count", "total_reads", "depth"],
-    "disease_type": ["disease_type", "disease_type", "DiseaseType", "disease", "pathogen"],
-    "incidence_rate": ["incidence_rate", "incidence_rate", "IncidenceRate", "disease_rate", "rate"],
-    "measurement_date": ["measurement_date", "measurement_date", "MeasurementDate", "date", "collection_date", "date"]
-}
+DISEASE_VARIABLES = [
+    'sample_id',
+    'disease_type',
+    'incidence_rate',
+    'measurement_date'
+]
 
-def _normalize_column_name(col_name: str) -> str:
-    """Normalize column name for comparison."""
-    return col_name.lower().strip().replace(" ", "_").replace("-", "_")
-
-def _find_column_mapping(df: pd.DataFrame, variable_name: str) -> bool:
+def verify_sample_variables(sample_df: pd.DataFrame, sample_path: str) -> List[Dict[str, str]]:
     """
-    Check if any column in the dataframe matches the expected variable.
-    Returns True if found, False otherwise.
-    """
-    if variable_name not in COLUMN_MAPPINGS:
-        return False
-
-    expected_patterns = COLUMN_MAPPINGS[variable_name]
-    df_columns = [str(c) for c in df.columns]
-    
-    for col in df_columns:
-        normalized_col = _normalize_column_name(col)
-        for pattern in expected_patterns:
-            if normalized_col == _normalize_column_name(pattern):
-                return True
-    return False
-
-def verify_sample_variables(
-    sample_file: Path, 
-    variable_name: str, 
-    results: List[Dict[str, Any]]
-) -> None:
-    """
-    Verify presence of a variable in sample data file.
-    Appends results to the provided list.
-    """
-    try:
-        df = pd.read_csv(sample_file)
-        found = _find_column_mapping(df, variable_name)
-        
-        # Get sample IDs if available
-        sample_ids = []
-        if "sample_id" in df.columns:
-            sample_ids = df["sample_id"].tolist()
-        elif "SampleID" in df.columns:
-            sample_ids = df["SampleID"].tolist()
-        else:
-            # Fallback: use index if no ID column
-            sample_ids = [f"sample_{i}" for i in range(len(df))]
-        
-        status = "present" if found else "missing"
-        for sid in sample_ids:
-            results.append({
-                "sample_id": sid,
-                "variable_name": variable_name,
-                "status": status
-            })
-        
-        logger.info(f"Sample file: {variable_name} -> {status}")
-        
-    except Exception as e:
-        logger.error(f"Error processing sample file {sample_file}: {e}")
-        # Mark all samples as missing if file can't be read
-        sample_ids = [f"sample_{i}" for i in range(10)]  # Default fallback
-        for sid in sample_ids:
-            results.append({
-                "sample_id": sid,
-                "variable_name": variable_name,
-                "status": "missing"
-            })
-
-def verify_disease_variables(
-    disease_file: Path, 
-    variable_name: str, 
-    results: List[Dict[str, Any]]
-) -> None:
-    """
-    Verify presence of a variable in disease incidence data file.
-    Appends results to the provided list.
-    """
-    try:
-        df = pd.read_csv(disease_file)
-        found = _find_column_mapping(df, variable_name)
-        
-        # Get sample IDs if available
-        sample_ids = []
-        if "sample_id" in df.columns:
-            sample_ids = df["sample_id"].tolist()
-        elif "SampleID" in df.columns:
-            sample_ids = df["SampleID"].tolist()
-        else:
-            # Fallback: use index if no ID column
-            sample_ids = [f"disease_sample_{i}" for i in range(len(df))]
-        
-        status = "present" if found else "missing"
-        for sid in sample_ids:
-            results.append({
-                "sample_id": sid,
-                "variable_name": variable_name,
-                "status": status
-            })
-        
-        logger.info(f"Disease file: {variable_name} -> {status}")
-        
-    except Exception as e:
-        logger.error(f"Error processing disease file {disease_file}: {e}")
-        sample_ids = [f"disease_sample_{i}" for i in range(10)]
-        for sid in sample_ids:
-            results.append({
-                "sample_id": sid,
-                "variable_name": variable_name,
-                "status": "missing"
-            })
-
-def run_variable_verification(
-    sample_file: Path,
-    disease_file: Path,
-    output_file: Path
-) -> None:
-    """
-    Main function to run variable verification across all required variables.
+    Verify presence of required variables in sample data.
     
     Args:
-        sample_file: Path to EMP/MG-RAST sample data
-        disease_file: Path to disease incidence records
-        output_file: Path to output verification log
+        sample_df: DataFrame containing sample data
+        sample_path: Path to the sample data file (for logging)
+        
+    Returns:
+        List of verification records with sample_id, variable_name, status
     """
-    logger.info("Starting variable verification (FR-008)")
-    
+    logger.info(f"Verifying variables in sample data: {sample_path}")
     results = []
     
-    # Verify each required variable in both datasets
-    for var in REQUIRED_VARIABLES:
-        # Check sample data
-        verify_sample_variables(sample_file, var, results)
+    if sample_df is None or sample_df.empty:
+        logger.error(f"Sample data is empty or None: {sample_path}")
+        return results
         
-        # Check disease data
-        verify_disease_variables(disease_file, var, results)
+    available_columns = set(sample_df.columns)
+    logger.info(f"Available columns in sample data: {available_columns}")
     
-    # Create output directory if it doesn't exist
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write results to CSV
-    with open(output_file, 'w', newline='') as csvfile:
-        fieldnames = ['sample_id', 'variable_name', 'status']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    for var in SAMPLE_VARIABLES:
+        # Check if variable exists in columns
+        if var in available_columns:
+            # Check if column has non-null values
+            non_null_count = sample_df[var].notna().sum()
+            if non_null_count > 0:
+                status = "present"
+            else:
+                status = "missing"
+                logger.warning(f"Variable '{var}' exists but has no non-null values")
+        else:
+            status = "missing"
+            logger.warning(f"Variable '{var}' is missing from sample data")
         
-        writer.writeheader()
-        for result in results:
-            writer.writerow(result)
+        # Add verification record for each sample (using sample_id or index)
+        if 'sample_id' in available_columns:
+            sample_ids = sample_df['sample_id'].unique()
+        else:
+            # Use index as fallback if sample_id doesn't exist
+            sample_ids = [f"row_{i}" for i in range(len(sample_df))]
+            
+        for sid in sample_ids:
+            results.append({
+                'sample_id': str(sid),
+                'variable_name': var,
+                'status': status
+            })
+            
+    return results
+
+def verify_disease_variables(disease_df: pd.DataFrame, disease_path: str) -> List[Dict[str, str]]:
+    """
+    Verify presence of required variables in disease incidence data.
     
-    # Log summary
-    present_count = sum(1 for r in results if r['status'] == 'present')
-    missing_count = sum(1 for r in results if r['status'] == 'missing')
-    total_count = len(results)
+    Args:
+        disease_df: DataFrame containing disease incidence data
+        disease_path: Path to the disease data file (for logging)
+        
+    Returns:
+        List of verification records with sample_id, variable_name, status
+    """
+    logger.info(f"Verifying variables in disease data: {disease_path}")
+    results = []
     
-    logger.info(f"Verification complete: {present_count}/{total_count} variables present")
-    logger.info(f"Missing variables: {missing_count}")
+    if disease_df is None or disease_df.empty:
+        logger.error(f"Disease data is empty or None: {disease_path}")
+        return results
+        
+    available_columns = set(disease_df.columns)
+    logger.info(f"Available columns in disease data: {available_columns}")
     
-    # Log specific missing variables
-    missing_vars = set(r['variable_name'] for r in results if r['status'] == 'missing')
-    if missing_vars:
-        logger.warning(f"Missing variables detected: {', '.join(sorted(missing_vars))}")
+    for var in DISEASE_VARIABLES:
+        # Check if variable exists in columns
+        if var in available_columns:
+            # Check if column has non-null values
+            non_null_count = disease_df[var].notna().sum()
+            if non_null_count > 0:
+                status = "present"
+            else:
+                status = "missing"
+                logger.warning(f"Variable '{var}' exists but has no non-null values")
+        else:
+            status = "missing"
+            logger.warning(f"Variable '{var}' is missing from disease data")
+        
+        # Add verification record for each sample
+        if 'sample_id' in available_columns:
+            sample_ids = disease_df['sample_id'].unique()
+        else:
+            # Use index as fallback if sample_id doesn't exist
+            sample_ids = [f"row_{i}" for i in range(len(disease_df))]
+            
+        for sid in sample_ids:
+            results.append({
+                'sample_id': str(sid),
+                'variable_name': var,
+                'status': status
+            })
+            
+    return results
+
+def run_variable_verification(
+    sample_path: str = None,
+    disease_path: str = None,
+    output_path: str = "data/processed/variable_verification_log.csv"
+) -> pd.DataFrame:
+    """
+    Run variable verification on sample and disease datasets.
     
-    logger.info(f"Results written to: {output_file}")
+    Args:
+        sample_path: Path to sample data CSV (from T013)
+        disease_path: Path to disease data CSV (from T014)
+        output_path: Path to write the verification log
+        
+    Returns:
+        DataFrame containing the verification results
+    """
+    logger.info("Starting variable verification pipeline")
+    
+    # Load sample data if path provided
+    sample_df = None
+    if sample_path and os.path.exists(sample_path):
+        try:
+            sample_df = pd.read_csv(sample_path)
+            logger.info(f"Loaded sample data from {sample_path} with {len(sample_df)} rows")
+        except Exception as e:
+            logger.error(f"Failed to load sample data: {e}")
+            sample_df = None
+    elif sample_path:
+        logger.warning(f"Sample path provided but file not found: {sample_path}")
+    else:
+        logger.warning("No sample path provided, skipping sample verification")
+        
+    # Load disease data if path provided
+    disease_df = None
+    if disease_path and os.path.exists(disease_path):
+        try:
+            disease_df = pd.read_csv(disease_path)
+            logger.info(f"Loaded disease data from {disease_path} with {len(disease_df)} rows")
+        except Exception as e:
+            logger.error(f"Failed to load disease data: {e}")
+            disease_df = None
+    elif disease_path:
+        logger.warning(f"Disease path provided but file not found: {disease_path}")
+    else:
+        logger.warning("No disease path provided, skipping disease verification")
+    
+    # Collect all verification results
+    all_results = []
+    
+    if sample_df is not None and not sample_df.empty:
+        sample_results = verify_sample_variables(sample_df, sample_path)
+        all_results.extend(sample_results)
+        
+    if disease_df is not None and not disease_df.empty:
+        disease_results = verify_disease_variables(disease_df, disease_path)
+        all_results.extend(disease_results)
+    
+    if not all_results:
+        logger.warning("No verification results generated - input data may be missing")
+    
+    # Create DataFrame
+    verification_df = pd.DataFrame(all_results)
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Write to CSV
+    if not verification_df.empty:
+        verification_df.to_csv(output_path, index=False)
+        logger.info(f"Verification log written to {output_path}")
+        
+        # Log summary
+        present_count = len(verification_df[verification_df['status'] == 'present'])
+        missing_count = len(verification_df[verification_df['status'] == 'missing'])
+        logger.info(f"Verification summary: {present_count} present, {missing_count} missing")
+    else:
+        # Create empty file with headers if no data
+        verification_df.to_csv(output_path, index=False)
+        logger.info(f"Empty verification log written to {output_path}")
+    
+    return verification_df
 
 def main():
-    """Entry point for variable verification task."""
-    # Define paths based on project structure
+    """Main entry point for variable verification."""
+    logger.info("Running variable verification main")
+    
+    # Default paths based on project structure
     project_root = Path(__file__).parent.parent.parent
-    data_raw_dir = project_root / "data" / "raw"
-    data_processed_dir = project_root / "data" / "processed"
+    sample_path = project_root / "data" / "raw" / "emp_agricultural_samples.csv"
+    disease_path = project_root / "data" / "raw" / "disease_incidence_records.csv"
+    output_path = project_root / "data" / "processed" / "variable_verification_log.csv"
     
-    # Identify input files (from T013/T014 outputs)
-    sample_files = list(data_raw_dir.glob("emp_*.csv")) + list(data_raw_dir.glob("mg_*.csv"))
-    disease_files = list(data_raw_dir.glob("disease_*.csv"))
+    # Run verification
+    run_variable_verification(
+        sample_path=str(sample_path),
+        disease_path=str(disease_path),
+        output_path=str(output_path)
+    )
     
-    if not sample_files:
-        logger.error("No sample data files found in data/raw/")
-        return
-    
-    if not disease_files:
-        logger.error("No disease incidence data files found in data/raw/")
-        return
-    
-    # Use first found files (typically only one of each)
-    sample_file = sample_files[0]
-    disease_file = disease_files[0]
-    
-    output_file = data_processed_dir / "variable_verification_log.csv"
-    
-    run_variable_verification(sample_file, disease_file, output_file)
+    logger.info("Variable verification completed")
 
 if __name__ == "__main__":
     main()

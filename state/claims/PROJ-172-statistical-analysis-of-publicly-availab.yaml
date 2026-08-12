@@ -98,3 +98,421 @@
   source_type: external
   status: verified
   updated_at: '2026-07-07T06:57:29Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'pinned dependencies: pandas 2.0.3, scikit-learn 1.3.0, xgboost 1.7.6,
+    statsmodels 0.14.0, requests 2.31.0, pyyaml 6.0.1, numpy 1.24.3, pytest 7.4.0'
+  claim_id: c_b5976bc7
+  context: 'Initialize Python 3.10 project with pinned dependencies in requirements.txt
+    using command pip freeze > requirements.txt. Include: pandas==2.0.3, scikit-learn==1.3.0,
+    xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3,
+    pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:56:48Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'temporal split: train data from 2000 to 2018, test data from 2019 to
+    2022'
+  claim_id: c_222fa43f
+  context: "Implement code/feature_engineering.py logic for temporal split: Train\
+    \ (\u22642018), Test (-2022); handle 2020 pandemic season (exclude or down-weight)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train (\u22642018), Test (-2022)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:56:48Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'temporal split range: 2000-2018 for training, 2019-2022 for testing'
+  claim_id: c_71b4f30a
+  context: "The pipeline executes end-to-end on a fresh environment, producing a single\
+    \ CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and\
+    \ validates completeness \u2265 95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2000-2018 (train) and 2019-2022 (test)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:57:08Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'data completeness validation threshold: 95%'
+  claim_id: c_41a73b99
+  context: "The pipeline executes end-to-end on a fresh environment, producing a single\
+    \ CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and\
+    \ validates completeness \u2265 95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "completeness \u2265 95%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:57:08Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: raise ValueError if data completeness rate is below 95% and real data
+    flag is true
+  claim_id: c_6ea3c3ed
+  context: 'ENFORCEMENT: RAISE ValueError if rate < 95% AND is_real_data is True.
+    Flag ''Empirical Hypothesis Untested'' if Synthetic Mode was used.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAISE ValueError if rate < 95% AND is_real_data is True
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:57:08Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'sensitivity analysis classification threshold step size: 0.01'
+  claim_id: c_1c474f5a
+  context: 'Implement code/evaluation.py: Execute sensitivity analysis sweeping classification
+    thresholds across the full valid range [0.0, 1.0] with a step size of 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: step size of 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:57:25Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'classification threshold sweep range: 0.0 to 1.0'
+  claim_id: c_0cea6433
+  context: Execute sensitivity analysis sweeping classification thresholds across
+    the full valid range [0.0, 1.0] with a step size of 0.01.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: full valid range [0.0, 1.0]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:58:01Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'statistical significance threshold: alpha 0.05'
+  claim_id: c_567a57cc
+  context: "Implement code/evaluation.py: Calculate p-values and determine significance\
+    \ at \u03B1 = 0.05."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "determine significance at \u03B1 = 0.05"
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T21:58:11Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'XGBoost training time limit: 6 hours on 2 vCPU'
+  claim_id: c_76f92e50
+  context: Implement early stopping in code/models.py for XGBoost to ensure training
+    completes within 6h on 2 vCPU
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training completes within 6h on 2 vCPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T21:58:28Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pipeline validates completeness 95% between 2000-2018 train and 2019-2022
+    test
+  claim_id: c_ef1472cb
+  context: "Independent Test: The pipeline executes end-to-end on a fresh environment,\
+    \ producing a single CSV with no data leakage between 2000-2018 (train) and 2019-2022\
+    \ (test), and validates completeness \u2265 95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline produces a single CSV with no data leakage between 2000-2018\
+    \ (train) and 2019-2022 (test), and validates completeness \u2265 95%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:01:19Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: train data years 2000-2018 test data years 2019-2022
+  claim_id: c_6cffb323
+  context: "Implement code/feature_engineering.py logic for temporal split: Train\
+    \ (\u22642018), Test (-2022); handle 2020 pandemic season (exclude or down-weight)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train data covers years \u22642018 and test data covers years up to 2022."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:01:19Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: training script produces JSON report with ROC-AUC log-loss Brier scores
+  claim_id: c_437a74d1
+  context: 'Independent Test: The training script produces a JSON report with ROC-AUC,
+    log-loss, and Brier scores for both feature sets across all three algorithms,
+    including hyperparameter tuning results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_script_produces_JSON_report_with_ROC-AUC_log-loss_B
+  kind: entity_fact
+  raw_text: The training script produces a JSON report with ROC-AUC, log-loss, and
+    Brier scores for both feature sets across all three algorithms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:02:19Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: analysis script produces report with p-values sensitivity analysis plot
+    methodological validity statement
+  claim_id: c_dbbba3bb
+  context: 'Independent Test: The analysis script produces a report with p-values
+    for paired comparisons, a sensitivity analysis plot/table, and a methodological
+    validity statement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_script_produces_report_with_p-values_sensitivity_an
+  kind: entity_fact
+  raw_text: The analysis script produces a report with p-values for paired comparisons,
+    a sensitivity analysis plot/table, and a methodological validity statement.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:03:25Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds 0.0 to 1.0 step size 0.01
+  claim_id: c_c11a3a8a
+  context: 'Implement code/evaluation.py: Execute sensitivity analysis sweeping classification
+    thresholds across the full valid range [0.0, 1.0] with a step size of 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps classification thresholds across the full
+    valid range [0.0, 1.0] with a step size of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:03:49Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: XGBoost training completes within 6 hours on 2 vCPU
+  claim_id: c_825f53ec
+  context: 'Performance: Implement early stopping in code/models.py for XGBoost to
+    ensure training completes within 6h on 2 vCPU'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: XGBoost training must complete within 6 hours on 2 vCPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:04:05Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.10
+  claim_id: c_78e24e06
+  context: Initialize Python 3.10 project with pinned dependencies in requirements.txt
+    using command pip freeze > requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:04:36Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses pandas 2.0.3
+  claim_id: c_c0f70be7
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:04:56Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses scikit-learn 1.3.0
+  claim_id: c_0aa08372
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scikit-learn version 1.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:05:13Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses xgboost 1.7.6
+  claim_id: c_69ad688d
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses xgboost version 1.7.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:05:31Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses statsmodels 0.14.0
+  claim_id: c_e903937f
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses statsmodels version 0.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:05:52Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses requests 2.31.0
+  claim_id: c_75a2f338
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses requests version 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:06:21Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses pyyaml 6.0.1
+  claim_id: c_815cb96b
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:06:36Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses numpy 1.24.3
+  claim_id: c_52fd08f0
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.24.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:06:58Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: project uses pytest 7.4.0
+  claim_id: c_d4fff98b
+  context: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T22:07:12Z'

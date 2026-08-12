@@ -36,10 +36,47 @@ T012:
     \ code and the proxy data file are missing, so the task is not satisfied."
 T014:
   c: false
-  h: 3780e8c545a5db6d5c3cf33f0a6d91377cc2c0430c6c7d8d021c3a3a798a45c1
-  r: "The required metadata file `data/processed/cbnrm_proxy_metadata.json` is absent,\
-    \ so the module cannot actually load the validated thresholds. Moreover, `classify_regime`\
-    \ returns three possible labels (`'CBNRM'`, `'State-Led'`, `'Mixed'`) instead\
-    \ of a binary `regime_type`, and the script references `sys` without importing\
-    \ it, which would raise a runtime error. These issues mean the task\u2019s specification\
-    \ is not met."
+  h: 9bc01e6e69301162eb1913d33fe25e7b21cb3893f10f8857b86b5f90943c8bfe
+  r: The `code/data/classify.py` file is present but the `classify_regime` function
+    ends with `return` (no DataFrame) and does not fully implement the binary logic
+    as described. Moreover, the required metadata file `data/processed/cbnrm_proxy_metadata.json`
+    is missing, so the module cannot load the validated thresholds. Both the missing
+    artifact and the incomplete function prevent the task from being genuinely fulfilled.
+T015:
+  c: false
+  h: fb85d5d44aa8a1ca1196148138f0aaebadee03ecb8db1a7186368198455fbcf1
+  r: "The repository lacks `data/processed/total_records_count.json` and `data/processed/metrics.json`,\
+    \ so the script cannot load the total count or write the coverage metric. Moreover,\
+    \ the shown portion of `code/data/clean.py` contains data\u2011loading and merging\
+    \ utilities but no implementation that reads the total count, computes `merged/total`,\
+    \ or logs the result to `metrics.json`. These essential pieces are missing, so\
+    \ the task is not satisfied."
+T023:
+  c: false
+  h: 6c3d37619523afebc28eeb8f90d72bb0ba70099c72a8dcae5d865850f7451269
+  r: "The repository lacks the required `data/processed/regression_results_primary.json`\
+    \ file, and the `run_fixed_effects_regression` function in `code/analysis/regression.py`\
+    \ is truncated before showing any actual regression computation or JSON\u2011\
+    saving logic. Consequently the fixed\u2011effects OLS model is not fully implemented\
+    \ nor are the results persisted as specified."
+T024:
+  c: false
+  h: ad0cc2afed89fc36377cf1bd0810a74720809da8d0aa6b75a3948708b9ca84f8
+  r: "The repository lacks the required `data/processed/sensitivity_coefficients.json`\
+    \ file, and the provided excerpt of `code/analysis/regression.py` does not show\
+    \ any implementation of a \u201Cno\u2011GDP\u201D regression, saving of raw coefficients,\
+    \ or %\u2011change calculation. Consequently the task\u2019s core requirements\
+    \ are not met."
+T025:
+  c: false
+  h: c5639980538bef92dd73990a9123b5c2fce982e9b2ec6baf60848ab15399b51c
+  r: "The required output file `data/processed/regression_results_nonlinear.json`\
+    \ does not exist, and the provided excerpt of `code/analysis/regression.py` shows\
+    \ no implementation of a quadratic CBNRM term or saving of such results. The task\u2019\
+    s core requirement is therefore unmet."
+T050:
+  c: false
+  h: b9de05f9e422142d72193396e7db1f99c90e2c95bd5595f187791a231290471e
+  r: "The provided `regression.py` does not show any implementation that counts distinct\
+    \ hypothesis tests or writes a JSON file, and the required `data/processed/test_count.json`\
+    \ file is missing. The task\u2019s core output is absent."

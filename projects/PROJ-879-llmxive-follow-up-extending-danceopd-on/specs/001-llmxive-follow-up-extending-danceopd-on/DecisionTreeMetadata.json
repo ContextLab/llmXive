@@ -1,35 +1,45 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/DecisionTreeMetadata.json",
   "title": "DecisionTreeMetadata",
-  "description": "Schema for metadata describing a trained Decision Tree model used for routing approximation.",
+  "description": "Schema for metadata associated with trained decision tree models.",
   "type": "object",
   "properties": {
-    "model_id": { "type": "string" },
-    "max_depth": { "type": "integer", "minimum": 2, "maximum": 20 },
-    "training_split_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
-    "trained_at": { "type": "string", "format": "date-time" },
-    "dataset_hash": { "type": "string" },
-    "metrics": {
-      "type": "object",
-      "properties": {
-        "train_accuracy": { "type": "number" },
-        "test_accuracy": { "type": "number" },
-        "routing_consistency": { "type": "number" }
-      },
-      "required": ["train_accuracy", "test_accuracy"]
+    "model_id": {
+      "type": "string",
+      "description": "Unique identifier for the model."
+    },
+    "max_depth": {
+      "type": "integer",
+      "description": "Maximum depth of the decision tree."
+    },
+    "training_accuracy": {
+      "type": "number",
+      "description": "Accuracy on the training set."
+    },
+    "validation_accuracy": {
+      "type": "number",
+      "description": "Accuracy on the validation/test set."
     },
     "feature_names": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "List of feature names used for training (e.g., 'prompt_embedding_dim_0', 'noise_level')"
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of features used in training."
     },
-    "class_names": {
-      "type": "array",
-      "items": { "type": "string" },
-      "description": "List of unique expert IDs observed in the training data"
+    "num_samples": {
+      "type": "integer",
+      "description": "Number of samples used for training."
     },
-    "model_path": { "type": "string", "description": "Relative path to the saved model file (e.g., .pkl)" }
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of model creation."
+    },
+    "sha256_hash": {
+      "type": "string",
+      "description": "SHA256 hash of the model file."
+    }
   },
-  "required": ["model_id", "max_depth", "trained_at", "metrics", "feature_names", "model_path"]
+  "required": ["model_id", "max_depth", "training_accuracy", "validation_accuracy", "num_samples", "created_at", "sha256_hash"]
 }

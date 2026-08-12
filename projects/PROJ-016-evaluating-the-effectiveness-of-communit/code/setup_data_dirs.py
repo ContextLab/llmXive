@@ -1,39 +1,40 @@
-"""
-Setup script for data and output directories.
-Creates the required directory structure for the project.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create data and output directories if they don't exist."""
-    # Define the project root (assuming code/ is a subdirectory)
-    # We need to go up one level from code/ to find the root
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent
+    """
+    T004: Setup data directories and output directories.
+    Creates the following directories relative to the project root:
+    - data/raw/
+    - data/processed/
+    - docs/output/
+    """
+    # Determine project root (assuming code/ is in project root)
+    # If run from command line: python code/setup_data_dirs.py
+    # We need to resolve paths relative to the script's parent directory (project root)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
 
-    # Define directories to create
-    directories = [
+    dirs_to_create = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "docs" / "output",
-        project_root / "logs",  # Added for logging infrastructure (T005)
     ]
 
-    created = []
-    for dir_path in directories:
+    created_count = 0
+    for dir_path in dirs_to_create:
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(dir_path.relative_to(project_root)))
-            print(f"Created directory: {dir_path.relative_to(project_root)}")
+            print(f"Created directory: {dir_path}")
+            created_count += 1
         else:
-            print(f"Directory already exists: {dir_path.relative_to(project_root)}")
+            print(f"Directory already exists: {dir_path}")
 
-    if created:
-        print(f"\nSuccessfully created {len(created)} directory/directories.")
+    if created_count > 0:
+        print(f"Successfully created {created_count} new directories.")
     else:
-        print("\nAll directories already existed.")
+        print("All required directories already existed.")
 
     return 0
 

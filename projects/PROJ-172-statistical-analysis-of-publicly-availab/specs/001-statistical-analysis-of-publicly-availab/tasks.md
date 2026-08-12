@@ -26,7 +26,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md`: directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `artifacts/reports/`, `artifacts/figures/`, `state/`
-- [ ] T002 Initialize Python 3.10 project with pinned dependencies in `requirements.txt` using command `pip freeze > requirements.txt`. Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0
+- [X] T002 Initialize Python 3.10 project with pinned dependencies in `requirements.txt` using command `pip freeze > requirements.txt`. Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -43,9 +43,9 @@
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [ ] T007 Create base data models in `code/data_models.py` (GameRecord, TeamMetrics, ModelResult)
+- [X] T007 Create base data models in `code/data_models.py` (GameRecord, TeamMetrics, ModelResult)
 - [X] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
-- [~] T009 Setup environment configuration management: create `.env.example` file with variables `DATA_PATH`, `RANDOM_SEED`, `CI_MODE`
+- [ ] T009 Setup environment configuration management: create `.env.example` file with variables `DATA_PATH`, `RANDOM_SEED`, `CI_MODE`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,7 +68,7 @@
 - [X] T013b [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Advanced Metrics** (wOBA, BABIP, park-adjusted run expectancy) per game.
 - [X] T014 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for handling missing advanced metrics (impute with league average for that year or exclude systemic missingness).
 - [X] T015 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for temporal split: Train (≤2018), Test (-2022); handle 2020 pandemic season (exclude or down-weight).
-- [~] T016a [US1] **Depends on: T015**: Implement data completeness validation logic (≥95% required variables). **ENFORCEMENT**: RAISE ValueError if rate < 95% AND `is_real_data` is True. Flag 'Empirical Hypothesis Untested' if Synthetic Mode was used.
+- [ ] T016a [US1] **Depends on: T015**: Implement data completeness validation logic (≥95% required variables). **ENFORCEMENT**: RAISE ValueError if rate < 95% AND `is_real_data` is True. Flag 'Empirical Hypothesis Untested' if Synthetic Mode was used.
 - [ ] T016b [US1] **Depends on: T016a**: Generate evidence artifact `artifacts/reports/data_completeness_report.json` containing the completeness rate and the 'Empirical Hypothesis Untested' flag if applicable (satisfies SC-005 measurability).
 - [ ] T017 [US1] **Depends on: T016b**: Add logging for data ingestion stats, synthetic fallback triggers, and imputation actions.
 - [ ] T018 [P] [US1] Write unit tests for wOBA/BABIP calculation formulas in `tests/test_feature_engineering.py`
@@ -117,7 +117,7 @@
 
 **Goal**: Perform rigorous statistical significance testing (Diebold-Mariano/corrected t-test) and sensitivity analysis to validate findings and frame them as associational.
 
-**Independent Test**: The analysis script produces a report with p-values for paired comparisons, a sensitivity analysis plot/table, and a methodological validity statement.
+**Independent Test**: The analysis script produces a report with p-values for paired comparisons, a sensitivity analysis plot/table, and a methodological validity statement. [UNRESOLVED-CLAIM: c_dbbba3bb — status=not_enough_info]
 
 **Dependencies**: All Phase 5 tasks depend on Phase 4 (US2) completion. T034, T035 depend on T032.
 
@@ -128,8 +128,8 @@
 ### Implementation for User Story 3
 
 - [ ] T032 [US3] **Depends on: Phase 4 Completion**: Implement `code/evaluation.py`: Perform **Diebold-Mariano test OR corrected resampled t-test** (specifically for time-series cross-validation) on cross-validated ROC-AUC scores. **FORBID** standard t-tests.
-- [ ] T033 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Calculate p-values and determine significance at α = 0.05.
-- [ ] T034 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Execute sensitivity analysis sweeping classification thresholds across the full valid range [0.0, 1.0] with a **step size of 0.01**.
+- [ ] T033 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Calculate p-values and {{claim:c_567a57cc}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value).
+- [ ] T034 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Execute sensitivity analysis sweeping classification thresholds across the full valid range [0.0, 1.0] with a **step size of 0.01 **.
 - [ ] T035a [US3] **Depends on: T032**: Define utility function/cost matrix as a concrete artifact `artifacts/config/cost_matrix.json`. Schema: `{"false_positive_cost": 1.0, "true_negative_value": 1.0, "false_negative_cost": 1.0, "true_positive_value": 1.0}`.
 - [ ] T035b [US3] **Depends on: T035a**: Implement `code/evaluation.py`: Use cost matrix from T035a to report variance in false-positive/false-negative rates (justifies the analysis).
 - [ ] T036 [US3] **Depends on: T035b**: Implement `code/evaluation.py`: Generate sensitivity analysis plot/table and save to `artifacts/figures/`.

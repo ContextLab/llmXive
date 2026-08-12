@@ -57,14 +57,14 @@
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement data streaming logic in `code/_data_streaming.py` to perform a stratified random sample of images from ImageNet‑1K and LAION‑400M, writing raw batches to `data/raw/`. The script must monitor cumulative CPU time; if the 6‑hour limit is reached it must **save partial results** (e.g., current batches) and exit cleanly with status `partial`.
-- [ ] T012b [P] [US1] Load the streamed samples from `data/raw/imageNet_samples.parquet` (and `data/raw/laion_samples.parquet`), assert `len(imageNet_samples) > 0` and `len(laion_samples) > 0`, and combine them into a unified list for downstream processing.
-- [ ] T013a [US1] Implement teacher model loading and inference in `code/00_teacher_inference.py`. **Primary Path**: Attempt GPU inference to generate `teacher_ground_truth.parquet` from the streamed samples. **Fallback Path**: If GPU is unavailable, check for a verified `data/raw/teacher_ground_truth.parquet` (checksum validated against manifest). If found, load it; if not found, abort with a clear error indicating that GPU inference is required or a verified fallback must be provided. This task is the sole producer of the dataset or the gatekeeper for the verified fallback.
+- [ ] T012b [P] [US1] Load the streamed samples from `data/raw/imageNet_samples.parquet` (and `data/raw/laion_samples.parquet`), assert `len(imageNet_samples) > 0` and `len(laion_samples) > 0`, and combine them into a unified list for downstream processing. <!-- FAILED: unspecified -->
+- [ ] T013a [US1] Implement teacher model loading and inference in `code/00_teacher_inference.py`. **Primary Path**: Attempt GPU inference to generate `teacher_ground_truth.parquet` from the streamed samples. **Fallback Path**: If GPU is unavailable, check for a verified `data/raw/teacher_ground_truth.parquet` (checksum validated against manifest). If found, load it; if not found, abort with a clear error indicating that GPU inference is required or a verified fallback must be provided. This task is the sole producer of the dataset or the gatekeeper for the verified fallback. <!-- FAILED: unspecified -->
 - [ ] T013b [US1] Detect undefined routing paths during inference, log the count, and **exclude** those samples from the final dataset (no fallback label assigned).
 - [ ] T014 [US1] Implement logic in `code/00_data_extraction.py` to extract `prompt_embedding`, `noise_level`, `routing_label`, and `velocity_vector` from inference outputs and stream them to `data/processed/teacher_routing_dataset.parquet`.
 - [X] T015 [US1] Add validation in `code/00_data_extraction.py` to ensure each `routing_label` matches a known expert field ID from the DanceOPD configuration.
 - [X] T016 [US1] Implement checksumming and versioning of the generated dataset using `code/03_versioning.py`.
-- [~] T016b [US1] Validate that `teacher_routing_dataset.parquet` contains samples from **both** ImageNet‑1K and LAION‑400M sources.
-- [~] T016c [US1] Record the number of excluded undefined‑route samples in `data/results/exclusion_log.json` and include this metadata in the dataset version record.
+- [ ] T016b [US1] Validate that `teacher_routing_dataset.parquet` contains samples from **both** ImageNet‑1K and LAION‑400M sources.
+- [ ] T016c [US1] Record the number of excluded undefined‑route samples in `data/results/exclusion_log.json` and include this metadata in the dataset version record.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -79,14 +79,14 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T018 [P] [US2] Unit test for Decision Tree training parameters in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/unit/test_tree_training.py`
-- [ ] T019 [P] [US2] Integration test for training loop and metadata schema validation in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_tree_training.py`
+- [X] T019 [P] [US2] Integration test for training loop and metadata schema validation in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_tree_training.py`
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement data splitting logic (train/test) in `code/01_train_trees.py` consuming `data/processed/teacher_routing_dataset.parquet`. **Note**: This task depends on T014 completion and is NOT parallelizable; the [P] flag has been removed.
+- [X] T020 [US2] Implement data splitting logic (train/test) in `code/01_train_trees.py` consuming `data/processed/teacher_routing_dataset.parquet`. **Note**: This task depends on T014 completion and is NOT parallelizable; the [P] flag has been removed.
 - [X] T021 [US2] Implement a loop to train `DecisionTreeClassifier` (scikit‑learn, CPU) for `max_depth` values **ranging from 2 to 20** (inclusive) in `code/01_train_trees.py`.
-- [~] T022 [US2] Compute and log "Routing Consistency" (accuracy) for each depth against the test set.
-- [ ] T023 [US2] Save each trained model to `models/trained_trees/` and generate a results table (`depth vs. accuracy`) saved to `data/results/tree_accuracy.csv`.
+- [ ] T022 [US2] Compute and log "Routing Consistency" (accuracy) for each depth against the test set.
+- [X] T023 [US2] Save each trained model to `models/trained_trees/` and generate a results table (`depth vs. accuracy`) saved to `data/results/tree_accuracy.csv`.
 - [~] T024 [US2] Validate model metadata against the schema from `specs/contracts/DecisionTreeMetadata.json` and update `state/` with model hashes.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -115,7 +115,7 @@
 - [ ] T030 [US3] Compute FID and CLIP Score **on the entire dataset** comparing Tree‑Generated images vs. Teacher‑Baseline images. Store results in `data/results/fidelity_metrics.csv`. Derive total degradation metrics (ΔFID, ΔCLIP) and write them to the same CSV.
 - [X] T030a [US3] Perform a bootstrap hypothesis test on the FID distribution. Increase the sample size by 10 samples per iteration until statistical power ≥ 0.8 **or** remaining runtime < 30 min; if the time budget would be exceeded, save current results to `data/results/partial_results.json` with `status: partial` and exit with code 2.
 - [~] T030c [US3] Perform a paired t‑test on per‑sample CLIP scores using the same power‑checking loop as Ta. Handle runtime limits identically.
-- [ ] T031 [US3] After successful power checks, write final statistical test outputs (p‑values, confidence intervals) to `data/results/statistical_tests.json`.
+- [X] T031 [US3] After successful power checks, write final statistical test outputs (p‑values, confidence intervals) to `data/results/statistical_tests.json`.
 - [X] T032 [US3] Generate a summary report `data/results/fidelity_summary.md` that includes degradation metrics, statistical significance statements, and any partial‑result notes.
 - [X] T033 [US3] Implement a hard 6‑hour timeout using the `signal` module. On timeout **or** on early exit due to **statistical power insufficiency**, ensure all completed depth results and any partial metrics are persisted to `data/results/partial_results.json` with a `status: partial` flag.
 
@@ -128,8 +128,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [~] T034 [P] Documentation updates in `docs/` and `README.md`.
-- [ ] T035 Code cleanup and refactoring in `code/`.
-- [ ] T036 Performance optimization for data streaming and batch processing.
+- [~] T035 Code cleanup and refactoring in `code/`. <!-- ATOMIZE: requested -->
+- [~] T036 Performance optimization for data streaming and batch processing.
 - [ ] T037 [P] Additional unit tests for edge cases (memory exhaustion, undefined routes) in `tests/unit/`.
 - [ ] T038 Run `quickstart.md` validation to ensure end‑to‑end reproducibility.
 

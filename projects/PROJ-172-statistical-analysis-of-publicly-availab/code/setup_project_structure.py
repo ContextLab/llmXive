@@ -4,22 +4,20 @@ from pathlib import Path
 
 def main():
     """
-    Creates the project directory structure as defined in the plan.
+    Creates the required project directory structure as defined in plan.md and tasks.md.
     Directories created:
-    - code/
-    - data/raw/
-    - data/processed/
-    - tests/
-    - artifacts/reports/
-    - artifacts/figures/
-    - state/
+      - code/
+      - data/raw/
+      - data/processed/
+      - tests/
+      - artifacts/reports/
+      - artifacts/figures/
+      - state/
     """
-    # Determine project root (assuming this script is in code/, root is parent)
-    # However, to be robust, we assume the script is run from the project root
-    # or we calculate relative to this file's location.
-    # Standard convention: run from root.
+    # Define the project root (current working directory)
     project_root = Path.cwd()
 
+    # Define the relative paths to be created
     directories = [
         "code",
         "data/raw",
@@ -38,7 +36,12 @@ def main():
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            # Verify it is actually a directory
+            if full_path.is_dir():
+                print(f"Directory already exists: {full_path}")
+            else:
+                print(f"ERROR: Path exists but is not a directory: {full_path}")
+                return 1
 
     print(f"Project structure setup complete. {created_count} new directories created.")
     return 0

@@ -1,17 +1,3 @@
-T008:
-  c: false
-  h: 36916910eaaf5c18509275d669e0be0c0c24090c9cd5c8f7572b3cc587eaaa62
-  r: "The provided `code/utils/check_weights.py` ends abruptly (`def ` line truncated)\
-    \ and lacks the script\u2019s entry\u2011point, error handling, and exit\u2011\
-    code logic required to abort on missing manifest, missing files, or checksum/size\
-    \ mismatches. Consequently it does not fully implement the pre\u2011flight checks\
-    \ described in the task."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No JSON schema files for `TeacherRoutingDataset`, `InferenceResult`, or `DecisionTreeMetadata`
-    were presented in `specs/contracts/`; the required artifacts are missing, so the
-    task is not satisfied.
 T012b:
   c: false
   h: bb93ab5c2ba609c5259b31c6d87adde47d64d5e28affcec2cd51acdddc74eb04
@@ -38,8 +24,37 @@ T013b:
     and evidence of the exclusion behavior) is missing.
 T014:
   c: false
-  h: 4569c60fecf2a69cb3b53e93c3c7f0b6517a0661904b33794882ff1f47bc52f8
-  r: "The `code/00_data_extraction.py` file is truncated and ends mid\u2011statement,\
-    \ showing no implementation for extracting the required fields or writing them\
-    \ to a Parquet file. Additionally, the expected output file `data/processed/teacher_routing_dataset.parquet`\
-    \ is missing entirely. Both the implementation and the required artifact are absent."
+  h: 7f36ea5dccfc139ec0737cc1f0c3733931770613037e594f0032c7d2698655cb
+  r: "The `code/00_data_extraction.py` file is present but the provided excerpt ends\
+    \ abruptly and does not show any logic that writes the extracted data to `data/processed/teacher_routing_dataset.parquet`.\
+    \ Moreover, the required Parquet file is missing from the repository. The task\u2019\
+    s core output (the processed dataset) is not present."
+T016b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `teacher_routing_dataset.parquet` file or any inspection results are provided,\
+    \ and there is no evidence (e.g., a script output, summary table, or data snippet)\
+    \ showing that the dataset contains samples from both ImageNet\u20111K and LAION\u2011\
+    400M sources. The required artifact and its validation are missing."
+T016c:
+  c: false
+  h: adb80bab38810273476d3fa4b18ab5f2de39f15aafa1b0cf037c4a2cf961beeb
+  r: "The required `data/results/exclusion_log.json` file is missing, so no count\
+    \ of excluded undefined\u2011route samples is recorded, and consequently the dataset\
+    \ version record cannot contain the required metadata. Both artifacts need to\
+    \ be created and populated."
+T020:
+  c: true
+  h: 6deb3b0b92272630d7ac78daa1548bc9f04b5f89aac2d20029bf7ca30139e996
+  r: "The file `code/01_train_trees.py` exists and defines a `split_data` function\
+    \ that loads `data/processed/teacher_routing_dataset.parquet` (via `load_dataset`)\
+    \ and performs a stratified train\u2011test split using scikit\u2011learn. This\
+    \ fulfills the task\u2019s requirement to implement the splitting logic; the missing\
+    \ parquet file is a prerequisite artifact from T014, not part of T020 itself."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as a log file, CSV, or printed table showing \u201CRouting\
+    \ Consistency\u201D (accuracy) for each tree depth on the test set is present;\
+    \ the implementer provided only the task description and specifications without\
+    \ any actual output data. The required per\u2011depth accuracy results are missing."

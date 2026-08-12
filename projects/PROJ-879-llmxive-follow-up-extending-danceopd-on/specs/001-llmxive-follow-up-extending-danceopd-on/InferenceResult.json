@@ -1,29 +1,44 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/InferenceResult.json",
   "title": "InferenceResult",
-  "description": "Schema for the raw output of a single inference step during teacher model execution or tree-based regeneration.",
+  "description": "Schema for individual inference results from the teacher model.",
   "type": "object",
   "properties": {
-    "sample_id": { "type": "string" },
-    "expert_type": { "type": "string", "description": "Type of expert field used (e.g., 'motion', 'texture', 'structure')" },
-    "routing_label": { "type": "string", "description": "The expert ID chosen for this sample" },
-    "noise_level": { "type": "number" },
+    "sample_id": {
+      "type": "string",
+      "description": "Unique identifier for the input sample."
+    },
+    "source": {
+      "type": "string",
+      "description": "Source dataset (e.g., 'imagenet', 'laion').",
+      "enum": ["imagenet", "laion"]
+    },
+    "prompt_embedding": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "Embedding vector for the input prompt."
+    },
+    "noise_level": {
+      "type": "number",
+      "description": "Noise level parameter used during generation."
+    },
+    "routing_label": {
+      "type": "string",
+      "description": "Expert identifier selected by the teacher model."
+    },
     "velocity_vector": {
       "type": "array",
-      "items": { "type": "number" },
-      "description": "The computed velocity vector for this step"
+      "items": {
+        "type": "number"
+      },
+      "description": "Velocity vector produced by the selected expert field."
     },
-    "image_path": { "type": "string", "description": "Relative path to the generated image artifact" },
-    "metrics": {
-      "type": "object",
-      "properties": {
-        "fid_score": { "type": "number" },
-        "clip_score": { "type": "number" }
-      }
-    },
-    "generation_source": { "type": "string", "enum": ["teacher", "tree"], "description": "Whether this result came from the teacher or a decision tree" },
-    "tree_depth": { "type": "integer", "minimum": 2, "maximum": 20, "nullable": true }
+    "execution_time_ms": {
+      "type": "number",
+      "description": "Time taken to perform inference in milliseconds."
+    }
   },
-  "required": ["sample_id", "expert_type", "routing_label", "noise_level", "velocity_vector", "generation_source"]
+  "required": ["sample_id", "source", "prompt_embedding", "noise_level", "routing_label", "velocity_vector"]
 }

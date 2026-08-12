@@ -1,0 +1,27 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is presented in the provided evidence; the required folders
+    (`code/`, `data/raw/`, `data/processed/`, `tests/`, `artifacts/reports/`, `artifacts/figures/`,
+    `state/`) are not shown to exist or contain any files. The implementer must create
+    and verify these directories.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or Black settings) or documentation of their setup are present in the
+    provided evidence, so the requirement to configure ruff/flake8 and Black cannot
+    be confirmed. The task lacks the necessary artifact.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env.example` file was presented, and there is no evidence that a file containing
+    the required variables (`DATA_PATH`, `RANDOM_SEED`, `CI_MODE`) exists in the repository.
+    The implementer must add this file with the specified entries.
+T016a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation implementing the \u226595% data completeness\
+    \ check are present; there is no evidence of a ValueError being raised for real\
+    \ data below the threshold or of flagging \u201CEmpirical Hypothesis Untested\u201D\
+    \ in synthetic mode. The required artifact is missing."
