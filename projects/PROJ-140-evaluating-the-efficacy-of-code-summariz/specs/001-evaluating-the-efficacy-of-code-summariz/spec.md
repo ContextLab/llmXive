@@ -68,7 +68,7 @@ As a researcher, I need to publish all analysis scripts (Python 3.11, pandas, sc
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download DefectsJ v2.0 dataset and extract a stratified sample of buggy methods across Java projects (Chart, Time, Math), storing the ground-truth buggy line for each method (See US-1).
+- **FR-001**: System MUST download DefectsJ dataset and extract a stratified sample of buggy methods across Java projects (Chart, Time, Math), storing the ground-truth buggy line for each method (See US-1).
 - **FR-002**: System MUST generate three summary variants per buggy method: (a) no summary (baseline), (b) LLM-generated summary via HuggingFace `codellama/CodeLlama-7b-hf` with 8-bit quantization, (c) rule-based summary via srcML comment extractor. If LLM generation fails (timeout >30 seconds, empty output, or non-text), the system MUST log the error and automatically fall back to the rule-based summary for that task (See US-1).
 - **FR-003**: System MUST record participant interaction data in a CSV file with columns: participant_id, task_id, condition (baseline/LLM/rule), timestamp_ms, selected_line, ground_truth_line. The system MUST perform a local loopback latency test at startup to verify the timestamp recording mechanism achieves ≤100ms precision (See US-1).
 - **FR-004**: System MUST perform McNemar's tests for accuracy (binary outcome) and Linear Mixed-Effects (LME) models with random intercepts for participants for speed (time-to-decision), comparing baseline vs. LLM and baseline vs. rule-based, with significance threshold α=0.05 (See US-2).

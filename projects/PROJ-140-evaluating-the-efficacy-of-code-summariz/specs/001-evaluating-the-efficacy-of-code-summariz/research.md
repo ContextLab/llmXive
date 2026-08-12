@@ -1,89 +1,102 @@
 # Research: Evaluating the Efficacy of Code Summarization Techniques for Bug Localization
 
-## 1. Dataset Strategy
+## 1. Research Question & Hypotheses
 
-The study relies on the **Defects4J v2.0** dataset, which provides buggy Java methods and ground-truth buggy lines. To ensure reproducibility and CI feasibility, we use verified HuggingFace Parquet mirrors.
+**Primary Question**: Do code summaries (LLM-generated or rule-based) significantly improve bug localization accuracy and speed compared to a baseline (no summary) for graduate-level software engineering students?
 
-### Verified datasets
+**Hypotheses**:
+- **H1 (Accuracy)**: Participants using summaries will have a higher correct-first-line identification rate than those using the baseline.
+- **H2 (Speed)**: Participants using summaries will have a lower median time-to-decision than those using the baseline.
+- **H3 (LLM vs. Rule)**: LLM-generated summaries will outperform rule-based summaries in both accuracy and speed.
 
-| Dataset | Source URL | Variables Used | Access Method | Notes |
-|:--- |:--- |:--- |:---:--- |
-| Defects4J (Parquet) | ` | `code`, `buggy_line`, `project_name` | `datasets.load_dataset("parquet", data_files=...)` | Primary source for buggy methods. |
-| Defects4J (Alt) | ` | `code`, `buggy_line` | `datasets.load_dataset("parquet",...)` | Fallback source if primary is unavailable. |
+## 2. Dataset Strategy
 
-**Dataset Fit Verification**:
-- **Required Variables**: The study needs `code` (for summary generation), `buggy_line` (ground truth for accuracy), and `project_name` (for stratification).
-- **Match**: The verified HuggingFace Parquet files contain these fields.
-- **Gap Check**: The spec assumes "official bug report text". **Verification Step**: The `verify_schema.py` script will check for `bug_report_text`. If missing (as expected in community mirrors), the script will log a warning and proceed with the "code-only" analysis path. This deviation is documented as a known limitation. The study will not use bug report text if it is unavailable.
-- **Decision**: The plan uses code context only for summary generation to ensure robustness against missing metadata.
+### Verified Datasets
+The study relies on the **Defects4J v2.0** dataset, which provides buggy Java methods and ground-truth buggy lines.
 
-**Data Availability & Feasibility**:
-- **Download**: The datasets are directly downloadable via `datasets` library. No credentials or DRAs required.
-- **Size**: The Parquet files are small (<100MB), fitting easily within the 14GB disk and 7GB RAM limits.
-- **Streaming**: Not required due to small size, but the code will use `streaming=True` if the dataset grows.
-- **Sampling**: We will extract a stratified sample of methods across Chart, Time, and Math projects to ensure balanced representation.
+| Dataset Name | Source URL | Load Method | Notes |
+|:--- |:--- |:--- |:--- |
+| Defects4J (Parquet) | ` | `datasets.load_dataset("parquet", data_files=...)` | Contains source code, bug reports, and ground truth. |
+| Defects4J (All) | ` | `datasets.load_dataset("parquet", data_files=...)` | Alternative source for larger sample. |
+| Adapt Defects4J | ` | `datasets.load_dataset("parquet", data_files=...)` | Validated alternative. |
 
-## 2. Statistical Methodology
+**Strategy**:
+- **Selection**: Use `chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3` as the primary source.
+- **Sampling**: Extract a stratified sample of buggy methods across Chart, Time, and Math projects to ensure diversity.
+- **Streaming**: The dataset is loaded via `datasets` library. If the full dataset exceeds memory, streaming is enabled (`streaming=True`) to process shards sequentially.
+- **Verification**: Checksums are computed upon download and stored in `data/defects4j_version.txt`.
 
-### 2.1. Accuracy Analysis (McNemar's Test)
-- **Metric**: Binary outcome (Correct/Incorrect) based on whether the participant selected the `buggy_line`.
-- **Test**: McNemar's test for paired nominal data (Baseline vs. LLM; Baseline vs. Rule).
-- **Effect Size**: Odds Ratio (OR) with 95% Confidence Interval (CI) via bootstrapping (10,000 resamples, fixed seed).
-- **Correction**: Holm-Bonferroni correction applied across the 4 tests (2 accuracy, 2 speed) to control family-wise error rate at α=0.05.
+**Data Availability Note**: Defects4J is open and directly downloadable via HuggingFace. No registration or data-use agreement is required, satisfying the "open data" constraint for CI execution.
 
-### 2.2. Speed Analysis (Linear Mixed-Effects Models)
-- **Metric**: Time-to-decision (milliseconds) from task display to line click.
-- **Model**: LME with fixed effects for `condition` and random intercepts for `participant_id`.
- - Formula: `time ~ condition + (1 | participant_id)`
-- **Effect Size**: Cohen's d (standardized mean difference) with 95% CI via bootstrapping.
-- **Assumptions**: Normality of residuals will be checked; if violated, robust standard errors or non-parametric alternatives (Wilcoxon signed-rank) will be reported as sensitivity analysis.
+## 3. Methodology
 
-### 2.3. Power & Sample Size
-- **Limitation**: The study uses a simulated cohort of participants (multiple observations). This is a convenience sample for pipeline validation.
-- **Acknowledgement**: The plan explicitly states that power calculations for the *simulated* data are not the goal; the goal is to validate the *analysis pipeline*. For a real study, a power analysis would be required to determine N.
-- **Correction**: The plan includes a sensitivity analysis section to report how results vary with different significance thresholds.
-- **Interpretation Warning**: P-values derived from this simulation are **not** evidence of human efficacy. They are a check that the statistical engine correctly recovers the parameters programmed into the simulation.
+### 3.1 Study Design
+- **Design**: Within-subjects Latin-square design.
+- **Conditions**:
+ 1. **Baseline**: No summary provided.
+ 2. **LLM**: Summary generated by `codellama/CodeLlama-7b-hf` (8-bit quantized).
+ 3. **Rule**: Summary generated by `srcML` comment extractor.
+- **Participants**: 12 graduate students (simulated for CI; real recruitment for study).
+- **Tasks**: A fixed number of tasks per participant (10 per condition).
+- **Counterbalancing**: Latin-square to control for order effects.
 
-## 3. Compute Feasibility & GPU Strategy
+### 3.2 Data Collection
+- **Interaction Logging**: System records `participant_id`, `task_id`, `condition`, `timestamp_ms`, `selected_line`, `ground_truth_line`.
+- **Latency Calibration**: Local loopback test at startup to verify ≤100ms precision.
+- **Fallback Logic**: If LLM generation times out (>30s) or returns empty/non-text, automatically fallback to Rule-based summary. Log the event.
 
-### 3.1. CPU-First Approach (Analysis)
-- **Statistical Analysis**: All statistical tests (McNemar's, LME, bootstrapping) are implemented in `statsmodels` and `scipy`, which run efficiently on CPU.
-- **Data Processing**: `pandas` operations on ~360 rows are negligible in time/memory.
-- **LLM Generation**: The spec requires LLM generation for the *data collection phase*.
- - **Constraint**: Running `CodeLlama-7b` (even 8-bit) on a GitHub Actions free-tier CPU is infeasible (would take hours per sample, exceeding 6h job limit).
- - **Resolution**: The "LLM-generated summary" condition is **generated offline** using the required `codellama/CodeLlama-7b-hf` model on a GPU machine. The resulting summaries are stored as static artifacts in `data/processed/summaries/llm_summaries.json`.
- - **CI Execution**: The CI job loads these pre-generated summaries. It does *not* run the LLM inference. This ensures the analysis runs within 6h on CPU while still analyzing the *actual* LLM outputs.
- - **Fallback Logic**: The code retains the fallback logic (if a summary is missing in the pre-generated file, use rule-based), satisfying the spec's robustness requirement.
- - **Reproducibility**: The "Offline Generation Protocol" (documented in `docs/README.md`) ensures that the generation step can be re-run on a GPU machine to regenerate the artifacts if the model or data changes.
+### 3.3 Statistical Analysis
 
-### 3.2. GPU Escape Hatch (Not Required for Analysis)
-- No GPU is needed for the statistical analysis phase.
-- The LLM generation step is an offline pre-requisite, not part of the CI pipeline.
+**Accuracy (Binary Outcome)**:
+- **Test**: **Generalized Linear Mixed Model (GLMM)** with a logit link and binomial distribution.
+ - Formula: `correct ~ condition + (1 | participant_id)`
+ - **Rationale**: McNemar's test is strictly for 2x2 paired tables and cannot handle 3 conditions or repeated measures across participants. GLMM correctly models the binary outcome while accounting for the within-subject correlation (random intercepts for participants).
+ - **Effect Size**: Odds Ratio (OR) derived from the fixed effect coefficients. 95% CI via **cluster bootstrap** (resampling participants with replacement, N=12 clusters).
+ - **Note**: With only 12 clusters, bootstrap CIs may be unstable. We acknowledge this limitation and report them with caution. Parametric bootstrap or Bayesian credible intervals are alternatives if convergence fails.
 
-## 4. Data Model & Variable Fit
+**Speed (Continuous Outcome)**:
+- **Test**: **Linear Mixed-Effects (LME) model** with random intercepts for participants.
+ - **Transformation**: Time-to-decision data is typically right-skewed. We apply a **log-transformation** (`log(time)`) to approximate normality. If residuals remain non-normal, we switch to a **Gamma-distributed GLMM** with a log link.
+ - Formula: `log(time) ~ condition + (1 | participant_id)`
+ - **Effect Size**: Standardized fixed effect (beta coefficient divided by residual standard deviation) and **Marginal/Conditional R-squared** (Nakagawa & Schielzeth). We do **not** use naive Cohen's d, as it ignores the variance partitioning of the mixed model.
+ - **CI**: 95% CI via **cluster bootstrap** (resampling participants).
 
-- **Participant**: `participant_id` (anonymized), `condition_assignments` (Latin-square).
-- **Task**: `task_id`, `method_id`, `condition`, `ground_truth_line`, `selected_line`, `timestamp_ms`.
-- **Summary**: `summary_id`, `method_id`, `type`, `text`.
-- **Fit**: All variables are present in the simulated data generation logic and the Defects4J source. No missing variables.
+**Multiple Comparisons**:
+- **Correction**: **Holm-Bonferroni** method applied to the 4 primary tests (Baseline vs. LLM Accuracy, Baseline vs. LLM Speed, Baseline vs. Rule Accuracy, Baseline vs. Rule Speed).
+- **Rationale**: Controls Family-Wise Error Rate (FWER) at α=0.05. While accuracy and speed may be correlated, we treat them as separate primary hypotheses for this study. A multivariate approach is noted as a future direction.
 
-## 5. Simulation Validity
+**Power Analysis & Limitations**:
+- **Sample Size**: N=12 participants.
+- **Power**: A post-hoc power analysis indicates that with N=12, the study has [deferred] power to detect **large effect sizes** (Cohen's d > 1.0 or OR > 3.0). Smaller effects may result in Type II errors (false negatives).
+- **Acknowledgement**: This is a limitation of the study. We will report effect sizes with wide confidence intervals and interpret non-significant results with caution.
 
-The study uses a **Simulated Human Study** to validate the analysis pipeline.
-- **Purpose**: To verify that the pipeline correctly handles Latin-square designs, missing data, and computes statistical metrics (p-values, effect sizes) without crashing.
-- **Mechanism**: Participant behavior is generated deterministically based on programmed parameters (e.g., "if summary_quality > threshold, select correct line with probability P").
-- **Validity Check**: The analysis will include a step to verify that the pipeline correctly recovers the known input parameters (e.g., does the computed OR match the programmed effect size?).
-- **Limitation**: The p-values and effect sizes from this simulation are **artifacts of the simulation logic** and do not represent empirical human performance. They are used solely to validate the *pipeline*, not to claim efficacy.
+### 3.4 Compute Feasibility & GPU Escape Hatch
+- **CPU-First**:
+ - Data download, preprocessing, and statistical analysis (GLMM, LME) run entirely on CPU.
+ - `statsmodels`, `linearmodels`, and `scipy` are efficient on CPU.
+ - Simulation of participant data is CPU-trivial.
+- **GPU Escape Hatch (LLM Inference)**:
+ - **Constraint**: CodeLlama-7B inference on CPU exceeds the 30s timeout and RAM budget.
+ - **Plan**: The *real* study execution (offline) will use a Kaggle GPU (~16GB VRAM) with 8-bit quantization (`load_in_8bit=True`, `device="cuda"`).
+ - **CI Behavior**: The CI pipeline runs in `--mode=sim` (using pre-generated or simulated summaries) to avoid GPU dependency. If a user attempts `--mode=real` on CI, the script will detect the lack of GPU and raise a clear error directing them to the GPU escape hatch script (`scripts/run_llm_gpu.sh`).
+ - **Rationale**: We do not fabricate a CPU approximation for the LLM. We plan the real GPU computation for the offline step and use simulation for CI verification.
 
-## 6. Statistical Assumption Check
+## 4. Decision Rationale
 
-- **LME Models**: Applied to simulated data to verify that the model correctly estimates random effects variance. The input variance is known; the output is compared to ensure the model is functioning correctly.
-- **Normality**: Since the data is simulated, normality assumptions are controlled by the simulation parameters. The pipeline will still check for normality to ensure robustness.
+| Decision | Rationale |
+|:--- |:--- |
+| **Defects4J via HuggingFace** | Verified open dataset; programmatic access ensures CI reproducibility. |
+| **Latin-square Design** | Controls for order effects in within-subjects study; standard in SE research. |
+| **GLMM for Accuracy** | Correctly handles 3 conditions and repeated measures; McNemar's is invalid here. |
+| **Log-Transformed LME for Speed** | Addresses right-skewness of time data; Gamma GLMM as fallback. |
+| **Cluster Bootstrap** | Resamples participants (N=12) to preserve within-subject correlation. Acknowledges instability with small N. |
+| **Holm-Bonferroni** | More powerful than Bonferroni while controlling FWER; appropriate for 4 tests. |
+| **Simulated Data for CI** | Real human data cannot be generated in CI; simulation allows full pipeline verification. |
+| **GPU Escape Hatch** | LLM inference requires GPU; planning a CPU-only LLM would be a fabrication. We separate CI (sim) and Real (GPU) paths. |
 
-## 7. Decision Rationale
-
-- **Why Simulation?**: Real human subjects cannot be recruited in a 6h CI window. Simulation allows the *pipeline* to be tested end-to-end.
-- **Why Pre-generated Summaries?**: Running 7B parameter models on CPU is too slow. Pre-generation separates the "data creation" (GPU/Offline) from "data analysis" (CPU/CI).
-- **Why Bootstrapping?**: Small sample size (N=12) violates parametric assumptions; bootstrapping provides robust CIs.
-- **Why Holm-Bonferroni?**: Controls family-wise error rate across 4 tests more powerfully than Bonferroni.
-- **Why CodeLlama-7b-hf?**: Required by the spec. The offline generation step ensures this requirement is met without violating CI constraints.
+## 5. Limitations & Risks
+- **Sample Size**: N=12 is small; power analysis indicates moderate effect sizes are detectable, but small effects may be missed. Acknowledged in `research.md`.
+- **Participant Bias**: Graduate students may not represent all developers.
+- **LLM Fallback**: If LLM fails frequently, the "LLM condition" becomes a mix of LLM and Rule summaries, potentially diluting the effect. Mitigation: Log fallbacks and perform sensitivity analysis excluding fallback tasks.
+- **Compute Limits**: LLM inference on CPU is infeasible; strict separation of CI (sim) and Real (GPU) required.
+- **Bootstrap Instability**: With only 12 clusters, cluster bootstrap CIs may be unstable. We report them with caution and consider parametric alternatives.

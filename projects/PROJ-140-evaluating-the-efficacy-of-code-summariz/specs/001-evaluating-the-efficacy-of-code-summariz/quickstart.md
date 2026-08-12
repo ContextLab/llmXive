@@ -1,87 +1,78 @@
 # Quickstart: Evaluating the Efficacy of Code Summarization Techniques for Bug Localization
 
-## Prerequisites
-
+## 1. Prerequisites
 - Python 3.11+
-- `git`
-- Access to a terminal (Linux/macOS/WSL)
-- **For Offline Generation**: A GPU machine (optional, only if regenerating LLM summaries)
+- Git
+- (Optional) CUDA-enabled GPU for LLM inference (for `--mode=real` only)
 
-## Installation
+## 2. Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd <project-dir>
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Running the Study
-
-The study consists of four phases: **Startup**, **Data Preparation**, **Simulation & Analysis**, and **Reproducibility Check**.
-
-### Phase 0: Startup & Validation (Mandatory)
-The system MUST perform a local loopback latency test before proceeding.
 ```bash
-python code/simulation/latency_calibrator.py
-```
-*Output*: If the test passes (≤100ms), the script exits with code 0. If it fails, the script exits with code 1 and an error message. **No further steps will run if this fails.**
+# Clone the repository
+git clone <repo-url>
+cd <repo-dir>
 
-### Phase 1: Data Preparation
-Download and validate the Defects4J dataset.
-```bash
-python code/download/fetch_defects4j.py
-```
-*Output*: `data/raw/defects4j/defects4j.parquet` (validated with checksum) and `data/defects4j_version.txt`.
-*Note*: This script also verifies the dataset schema and logs a warning if `bug_report_text` is missing.
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-### Phase 2: Summary Generation (Offline)
-*Note*: In the CI environment, LLM summaries are loaded from pre-generated cache. To regenerate (requires GPU/Offline), use:
-```bash
-# Only if you have a GPU environment set up
-python code/generation/llm_summary.py --regenerate
-python code/generation/rule_summary.py
-```
-*Output*: `data/processed/summaries/`
-
-### Phase 3: Simulation & Analysis
-Run the full pipeline (simulates participants, runs stats, generates results).
-```bash
-python code/main.py
-```
-*Outputs*:
-- `data/interaction_logs/anonymized_logs.csv`
-- `data/analysis_results/final_results.csv`
-- `data/analysis_results/baseline_results.json`
-
-### Phase 4: Reproducibility Check
-Verify the results match the baseline.
-```bash
-python code/analysis/stats_engine.py --check-baseline
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-## CI/CD (GitHub Actions)
+## 3. Data Setup
 
-To run the analysis in a CI environment:
-1. Push to the `main` branch.
-2. The `test_reproducibility.yml` workflow will trigger.
-3. It will run the full pipeline on a free-tier runner (CPU-only).
-4. **Resource Monitoring**: The job will log RAM and CPU usage. It will fail if usage exceeds 7GB or runtime exceeds 6h.
-5. Check the "Analysis" job for success/failure.
+### 3.1 Download Defects4J
+Run the download script to fetch and verify the dataset:
+```bash
+python code/download.py --source "huggingface" --dataset "chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3"
+```
+This will save the dataset to `data/raw/defects4j.parquet` and record the checksum.
 
-## Troubleshooting
+### 3.2 Generate Summaries (Simulation Mode)
+For CI and testing, use simulated summaries:
+```bash
+python code/summarize.py --mode sim
+```
+This generates mock LLM and rule-based summaries for testing the pipeline.
 
-- **Latency Calibration Failed**: Ensure your system clock is synchronized. The `latency_calibrator.py` requires <100ms precision. If this fails, the study cannot proceed.
-- **LLM Summary Missing**: If running locally without pre-generated cache, ensure you have GPU access or skip the LLM condition (fallback to rule-based).
-- **Permission Denied**: Ensure `data/consent/` is excluded from VCS and has `chmod 600` permissions.
-- **Schema Mismatch**: If the Defects4J download fails schema verification, check the `verify_schema.py` log for missing fields. The study will proceed with code-only analysis if `bug_report_text` is missing.
+### 3.3 Generate Summaries (Real Mode - GPU Required)
+**Note**: This step requires a GPU. Run on a machine with CUDA or use the provided Kaggle notebook.
+```bash
+python code/summarize.py --mode real --device cuda --quantize 8bit
+```
+*If run on CPU, this will fail with a clear error message directing you to the GPU escape hatch.*
+
+## 4. Running the Study
+
+### 4.1 Simulate Participant Interactions (CI Test)
+```bash
+python code/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42
+```
+Output: `data/interaction_logs/anonymized_logs.csv`.
+
+### 4.2 Run Statistical Analysis
+```bash
+python code/analysis.py --input data/interaction_logs/anonymized_logs.csv --mode ci
+```
+Output: `data/analysis_results.json` containing p-values, effect sizes, and CIs.
+
+## 5. Verification
+
+### 5.1 Run Tests
+```bash
+pytest tests/ -v --cov=code
+```
+
+### 5.2 Reproducibility Check
+Run the CI workflow locally to verify reproducibility:
+```bash
+# Simulate the CI environment
+docker run --rm -v $(pwd):/work -w /work python:3.11 bash -c "pip install -r requirements.txt && pytest tests/integration/test_pipeline.py"
+```
+
+## 6. Troubleshooting
+
+- **LLM Timeout**: If LLM generation times out, the system automatically falls back to rule-based summaries. Check `data/processed/summaries_llm.csv` for `generation_status=fallback`.
+- **Memory Error**: If RAM is exceeded, enable streaming in `download.py` (`streaming=True`).
+- **GPU Not Found**: If running `--mode=real` without a GPU, the script will exit. Use the Kaggle GPU notebook for real LLM inference.

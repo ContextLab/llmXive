@@ -7,12 +7,12 @@ T015:
     \ file does not exist. Both the incomplete module and missing CSV output mean\
     \ the task\u2019s requirement\u2014to record the specified columns to that CSV\u2014\
     is not satisfied."
-T019#2:
+T027:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that a `data/consent/` directory actually exists
-    in the repository, nor any proof (e.g., a `.gitignore` entry) that it is excluded
-    from version control. The required artifacts are missing.
+  h: 8be0308eb8c6a05539b0e1935eaaf50759c7dc974d5ab387c246bb29ee47de5e
+  r: "The required artifact `.github/workflows/test_reproducibility.yml` does not\
+    \ exist in the repository, so the integration test cannot be verified. The task\u2019\
+    s core deliverable is missing."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,27 +20,16 @@ T029:
     \ showing documentation for rerunning the analysis on GitHub Actions under the\
     \ specified free\u2011tier constraints. Consequently the required deliverable\
     \ is missing."
-T030a:
+T031b:
   c: false
-  h: 65ba1bc71f42a2483aa5ad03283c3cfc8bb2eca81dedcc6a6752fa3c36dd9795
-  r: "The `generate_baseline_results.py` file is present but truncated (ends mid\u2011\
-    function) and does not contain the full logic to execute the analysis script,\
-    \ capture its results, and write them to `data/analysis_results/baseline_results.json`.\
-    \ Moreover, the required `baseline_results.json` file is missing entirely. The\
-    \ task\u2019s core output is therefore not provided."
-T031:
-  c: false
-  h: 31a64fcb799b3a487e3641f8ac5da796b8a009509f37a8bc7b21cdc7e7f4f8ec
-  r: "The required bundle `data/reproducibility_package_v1.0.tar.gz` is not present,\
-    \ and the provided `code/utils/package_reproducibility.py` is truncated (ends\
-    \ mid\u2011function) with no code that actually creates the tar.gz file. Consequently\
-    \ the task\u2019s core requirement\u2014producing the reproducibility package\
-    \ while excluding `data/consent/`\u2014has not been fulfilled."
-T032:
-  c: false
-  h: ca7098ef5e76f2a94ada4ac09fe0eef79afae26da646c2e897330bf0c5127181
-  r: "The required `state/projects/PROJ-140.../artifact_hashes.yaml` file is missing,\
-    \ so no hashes have been provided. The task\u2019s core deliverable is absent."
+  h: 308370f070bf4fb3feb223871a202b9598143d5cc996be55ea0b7cb8645011e6
+  r: The repository contains `code/utils/verify_pii_removal.py`, but the required
+    data file `data/interaction_logs/anonymized_logs.csv` is missing, so the script
+    cannot actually scan any logs. Additionally, the displayed portion of the script
+    is truncated and does not show the logic that checks whether `data/consent/` is
+    excluded from VCS history, leaving it unclear whether that part of the requirement
+    is fulfilled. Both the missing CSV and the incomplete script cause the task to
+    be incomplete.
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

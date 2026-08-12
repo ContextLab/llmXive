@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical analysis output."
+type: object
+properties:
+  comparison_pair:
+    type: string
+    description: "Name of the comparison (e.g., baseline_vs_llm_accuracy)."
+  test_type:
+    type: string
+    enum:
+      - GLMM
+      - LME
+    description: "Statistical test used."
+  p_value:
+    type: number
+    description: "Raw p-value from the test."
+  p_value_corrected:
+    type: number
+    description: "P-value after Holm-Bonferroni correction."
+  effect_size_type:
+    type: string
+    enum:
+      - Odds_Ratio
+      - Standardized_Beta
+      - Marginal_R2
+      - Conditional_R2
+    description: "Type of effect size."
+  effect_size_value:
+    type: number
+    description: "Calculated effect size."
+  confidence_interval_95:
+    type: object
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    description: "95% confidence interval via cluster bootstrap."
+  sample_size:
+    type: integer
+    description: "Number of participants (clusters)."
+required:
+  - comparison_pair
+  - test_type
+  - p_value
+  - p_value_corrected
+  - effect_size_type
+  - effect_size_value
+  - confidence_interval_95
+  - sample_size

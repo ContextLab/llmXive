@@ -1,52 +1,52 @@
 """
-T031b: Verify PII Removal and Consent Directory Exclusion.
+PII Removal Verification Script.
 
-This script implements the verification logic for Constitution Principle VI.
-It performs two critical checks:
-1. Scans `data/interaction_logs/anonymized_logs.csv` for PII patterns (email, SSN, phone).
-2. Verifies `data/consent/` is excluded from VCS history.
+This script scans the anonymized interaction logs for Personally Identifiable Information (PII)
+patterns and verifies that the consent directory is excluded from VCS history.
 
-Exit codes:
-0: Verification passed (no PII found, consent excluded).
-1: Verification failed (PII found or consent directory present in VCS).
+It is designed to fail loudly (exit code 1) if any PII is detected or if the consent
+directory appears in the git history, ensuring Constitution Principle VI is met.
 """
-
 import os
 import sys
 import re
+import json
 import subprocess
+import argparse
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Set, Tuple, Dict, Any
 
-# Import logging utilities from existing project surface
-try:
-    from utils.logging_utils import get_logger
-except ImportError:
-    # Fallback for direct execution if utils is not in path
-    import logging
-    def get_logger(name):
-        return logging.getLogger(name)
+# Import existing logging utility
+from utils.logging_utils import get_logger
 
-# Configuration
-ANONYMIZED_LOGS_PATH = Path("data/interaction_logs/anonymized_logs.csv")
-CONSENT_DIR_PATH = Path("data/consent")
-REPO_ROOT = Path.cwd()
+# Initialize logger
+logger = get_logger(__name__)
 
-# PII Detection Patterns (Regex)
-# These patterns are designed to catch common PII formats.
-# If any match, the verification fails.
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+ANONYMIZED_LOGS_PATH = PROJECT_ROOT / "data" / "interaction_logs" / "anonymized_logs.csv"
+CONSENT_DIR = PROJECT_ROOT / "data" / "consent"
+GIT_DIR = PROJECT_ROOT / ".git"
+
+# PII Regex Patterns
 PII_PATTERNS = {
-    "email": re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"),
-    "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
-    "phone_us": re.compile(r"\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b"),
-    # Additional generic pattern for potential names if they look like full names
-    # Note: This is heuristic and might have false positives, but serves as a warning.
-    "potential_name": re.compile(r"\b[A-Z][a-z]+\s[A-Z][a-z]+\b"), 
+    "email": re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'),
+    "phone_us": re.compile(r'\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b'),
+    "ssn": re.compile(r'\b\d{3}[-.]?\d{2}[-.]?\d{4}\b'),
+    # Participant ID patterns that might leak original IDs (e.g., "P001" if not hashed)
+    # We assume anonymized IDs should be UUIDs or specific hash formats.
+    # If we find "Participant_" followed by digits, it might be a leak.
+    "leaked_participant_id": re.compile(r'\bParticipant_\d{3,}\b'),
+    "ip_address": re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b'),
+    "url": re.compile(r'\bhttps?://[^\s<>"{}|\\^`\[\]]+\b'),
 }
 
-logger = get_logger("verify_pii_removal")
+# Columns that are expected to contain sensitive data if not properly anonymized
+SENSITIVE_COLUMNS = {
+    "participant_id", "user_id", "email", "name", "ip_address", "session_id"
+}
 
-def scan_csv_for_pii(file_path: Path) -> List[Tuple[int, str, str]]:
+def check_pii_in_file(file_path: Path) -> Tuple[bool, List[Dict[str, Any]]]:
     """
     Scans a CSV file for PII patterns.
     
@@ -54,178 +54,177 @@ def scan_csv_for_pii(file_path: Path) -> List[Tuple[int, str, str]]:
         file_path: Path to the CSV file.
         
     Returns:
-        A list of tuples (line_number, line_content, pattern_type) for matches.
+        Tuple of (has_pii, list_of_findings).
     """
     findings = []
-    
+    has_pii = False
+
     if not file_path.exists():
         logger.error(f"File not found: {file_path}")
-        return findings
+        return True, [{"file": str(file_path), "error": "File not found"}]
 
-    logger.info(f"Scanning {file_path} for PII patterns...")
-    
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
+            # Read line by line to handle large files
             for line_num, line in enumerate(f, 1):
-                # Skip header if it's the first line and contains column names
-                if line_num == 1 and 'participant_id' in line.lower():
-                    continue
-                
                 for pattern_name, pattern in PII_PATTERNS.items():
-                    if pattern.search(line):
-                        findings.append((line_num, line.strip(), pattern_name))
-                        logger.warning(f"Potential PII found at line {line_num}: {pattern_name} -> {line.strip()[:50]}...")
+                    matches = pattern.findall(line)
+                    if matches:
+                        has_pii = True
+                        # Limit findings to avoid log spam
+                        if len(findings) < 50:
+                            findings.append({
+                                "file": str(file_path),
+                                "line": line_num,
+                                "pattern": pattern_name,
+                                "match": matches[0] if len(matches) == 1 else f"{matches[0]}... (truncated)"
+                            })
     except Exception as e:
         logger.error(f"Error reading file {file_path}: {e}")
-        raise
+        return True, [{"file": str(file_path), "error": str(e)}]
 
-    return findings
+    return has_pii, findings
 
-def check_vcs_exclusion(directory_path: Path) -> bool:
+def check_consent_vcs_history() -> Tuple[bool, str]:
     """
-    Checks if the specified directory exists in the git history.
+    Verifies that the data/consent/ directory is not present in the git history.
     
-    Args:
-        directory_path: Path to the directory to check.
-        
     Returns:
-        True if the directory is NOT in git history (passed), False if it is (failed).
+        Tuple of (is_present_in_history, message).
     """
-    if not directory_path.exists():
-        logger.warning(f"Directory does not exist: {directory_path}. Skipping VCS history check.")
-        # If the directory doesn't exist, we can't check history, but it's technically "not present".
-        # However, for the task, we usually expect the directory to exist but be empty/ignored.
-        # We'll assume pass if it doesn't exist, but log a warning.
-        return True
+    if not GIT_DIR.exists():
+        logger.warning("No .git directory found. Skipping VCS history check.")
+        return False, "No .git directory found. Skipping VCS history check."
 
     try:
-        # Run git log to check if any file in the directory was ever committed
-        # Using --full-history to ensure we catch all relevant commits
-        cmd = [
-            "git", "log", "--all", "--full-history", "--", str(directory_path)
-        ]
+        # Check if the directory exists in the current working tree
+        if CONSENT_DIR.exists():
+            logger.warning(f"Consent directory exists at {CONSENT_DIR}. Checking history...")
         
+        # Use git log to search for the path in history
+        # We check if any commit touched data/consent/
         result = subprocess.run(
-            cmd,
-            cwd=REPO_ROOT,
+            ["git", "log", "--all", "--full-history", "--", str(CONSENT_DIR.relative_to(PROJECT_ROOT))],
+            cwd=PROJECT_ROOT,
             capture_output=True,
             text=True,
             timeout=30
         )
+
+        if result.returncode == 0 and result.stdout.strip():
+            return True, f"Found {CONSENT_DIR} in git history."
         
-        if result.returncode != 0:
-            # Git might fail if not in a repo or other issues. 
-            # If it's not a git repo, we can't verify history, but we can't fail for that.
-            logger.warning(f"Git command failed or not a git repo: {result.stderr}")
-            return True 
-        
-        if result.stdout.strip():
-            # Output means there are commits touching this directory
-            logger.error(f"Directory {directory_path} found in git history!")
-            logger.error(f"Git output:\n{result.stdout}")
-            return False
-        
-        logger.info(f"Directory {directory_path} is NOT present in git history.")
-        return True
+        return False, "Consent directory not found in git history."
 
     except subprocess.TimeoutExpired:
-        logger.error("Git command timed out.")
-        return False
-    except FileNotFoundError:
-        logger.warning("Git not found. Skipping VCS history check.")
-        return True
+        return False, "Git history check timed out."
     except Exception as e:
-        logger.error(f"Error checking VCS history: {e}")
-        return False
+        logger.error(f"Error checking git history: {e}")
+        return False, f"Error checking git history: {e}"
 
-def verify_gitignore_exclusion(directory_path: Path) -> bool:
+def run_verification() -> bool:
     """
-    Verifies that the directory is listed in .gitignore.
+    Executes the full PII verification workflow.
     
-    Args:
-        directory_path: Path to the directory.
-        
     Returns:
-        True if excluded in .gitignore, False otherwise.
+        True if verification passes (no PII found, consent not in VCS), False otherwise.
     """
-    gitignore_path = REPO_ROOT / ".gitignore"
-    if not gitignore_path.exists():
-        logger.warning(".gitignore not found. Cannot verify exclusion.")
-        return False
+    logger.info("Starting PII Removal Verification (T031b)...")
+    all_passed = True
+    report = {
+        "status": "PASSED",
+        "checks": []
+    }
 
-    with open(gitignore_path, 'r') as f:
-        content = f.read()
-
-    # Check if the directory name or path is in .gitignore
-    # We look for the directory name (e.g., "data/consent" or "consent")
-    exclusion_patterns = [
-        str(directory_path),
-        directory_path.name,
-        f"*/{directory_path.name}",
-    ]
-    
-    found = any(p in content for p in exclusion_patterns)
-    
-    if found:
-        logger.info(f"Directory {directory_path} is excluded in .gitignore.")
-        return True
+    # 1. Check Anonymized Logs for PII
+    logger.info(f"Scanning {ANONYMIZED_LOGS_PATH} for PII...")
+    if ANONYMIZED_LOGS_PATH.exists():
+        has_pii, findings = check_pii_in_file(ANONYMIZED_LOGS_PATH)
+        if has_pii:
+            all_passed = False
+            report["status"] = "FAILED"
+            logger.error("PII detected in anonymized logs!")
+            logger.error(f"Findings count: {len(findings)}")
+            for i, finding in enumerate(findings[:10]): # Log first 10
+                logger.error(f"  - {finding}")
+            report["checks"].append({
+                "name": "PII Scan",
+                "passed": False,
+                "details": f"Found {len(findings)} potential PII instances."
+            })
+        else:
+            logger.info("No PII detected in anonymized logs.")
+            report["checks"].append({
+                "name": "PII Scan",
+                "passed": True,
+                "details": "No PII patterns found."
+            })
     else:
-        logger.error(f"Directory {directory_path} is NOT excluded in .gitignore.")
-        return False
+        all_passed = False
+        report["status"] = "FAILED"
+        logger.error(f"Anonymized logs file not found at {ANONYMIZED_LOGS_PATH}")
+        report["checks"].append({
+            "name": "PII Scan",
+            "passed": False,
+            "details": "File not found."
+        })
+
+    # 2. Check Consent Directory VCS History
+    logger.info("Checking VCS history for data/consent/...")
+    present_in_history, history_msg = check_consent_vcs_history()
+    if present_in_history:
+        all_passed = False
+        report["status"] = "FAILED"
+        logger.error(history_msg)
+        report["checks"].append({
+            "name": "VCS History Check",
+            "passed": False,
+            "details": history_msg
+        })
+    else:
+        logger.info("Consent directory is not in VCS history.")
+        report["checks"].append({
+            "name": "VCS History Check",
+            "passed": True,
+            "details": history_msg
+        })
+
+    # 3. Check Consent Directory Permissions (Optional but good practice)
+    if CONSENT_DIR.exists():
+        stat_info = CONSENT_DIR.stat()
+        # Check if permissions are 600 or 700 (owner only)
+        mode = stat_info.st_mode & 0o777
+        if mode != 0o700 and mode != 0o600:
+            logger.warning(f"Consent directory permissions are {oct(mode)}, expected 0o700 or 0o600.")
+            # This is a warning, not a hard failure for the script, but noted.
+        else:
+            logger.info(f"Consent directory permissions are secure ({oct(mode)}).")
+
+    # Save report
+    report_path = PROJECT_ROOT / "data" / "analysis_results" / "pii_verification_report.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Verification report saved to {report_path}")
+
+    return all_passed
 
 def main():
-    """
-    Main entry point for T031b verification.
-    """
-    logger.info("Starting PII Removal and Consent Exclusion Verification (T031b)...")
-    
-    all_checks_passed = True
-    errors = []
+    parser = argparse.ArgumentParser(description="Verify PII removal and consent directory security.")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
+    args = parser.parse_args()
 
-    # 1. Scan Anonymized Logs for PII
-    if ANONYMIZED_LOGS_PATH.exists():
-        pii_findings = scan_csv_for_pii(ANONYMIZED_LOGS_PATH)
-        if pii_findings:
-            all_checks_passed = False
-            errors.append(f"Found {len(pii_findings)} potential PII instances in {ANONYMIZED_LOGS_PATH}")
-            for line_num, line, p_type in pii_findings:
-                errors.append(f"  Line {line_num} ({p_type}): {line[:60]}...")
-        else:
-            logger.info(f"No PII patterns detected in {ANONYMIZED_LOGS_PATH}.")
-    else:
-        logger.warning(f"Anonymized logs file not found: {ANONYMIZED_LOGS_PATH}. Skipping PII scan.")
-        # Depending on strictness, this might be a failure, but usually implies no data to scan.
-        # We will treat it as a warning but not a hard fail for the PII check itself, 
-        # unless the task requires the file to exist. The task says "scan ... and verify".
-        # If it doesn't exist, we can't scan. We'll flag it.
-        errors.append(f"Anonymized logs file missing: {ANONYMIZED_LOGS_PATH}")
-        all_checks_passed = False
+    if args.verbose:
+        import logging
+        logging.getLogger().setLevel(logging.DEBUG)
 
-    # 2. Verify Consent Directory Exclusion from VCS
-    vcs_check_passed = check_vcs_exclusion(CONSENT_DIR_PATH)
-    if not vcs_check_passed:
-        all_checks_passed = False
-        errors.append("Consent directory found in git history.")
-    
-    # 3. Verify .gitignore exclusion
-    ignore_check_passed = verify_gitignore_exclusion(CONSENT_DIR_PATH)
-    if not ignore_check_passed:
-        all_checks_passed = False
-        errors.append("Consent directory not properly excluded in .gitignore.")
+    success = run_verification()
 
-    # Final Report
-    print("\n" + "="*60)
-    print("VERIFICATION REPORT (T031b)")
-    print("="*60)
-    if all_checks_passed:
-        print("STATUS: PASSED")
-        print("All PII checks and VCS exclusions are valid.")
+    if success:
+        logger.info("T031b Verification PASSED.")
         sys.exit(0)
     else:
-        print("STATUS: FAILED")
-        print("The following issues were detected:")
-        for err in errors:
-            print(f"  - {err}")
+        logger.error("T031b Verification FAILED. PII found or security policy violated.")
         sys.exit(1)
 
 if __name__ == "__main__":

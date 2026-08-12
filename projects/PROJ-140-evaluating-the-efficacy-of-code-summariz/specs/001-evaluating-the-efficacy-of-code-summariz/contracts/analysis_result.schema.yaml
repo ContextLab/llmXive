@@ -10,7 +10,7 @@ properties:
     type: "string"
     description: "Type of statistical test."
     enum:
-      - "McNemar"
+      - "GLMM"
       - "LME"
   p_value:
     type: "number"
@@ -24,7 +24,7 @@ properties:
     maximum: 1
   effect_size:
     type: "number"
-    description: "Odds Ratio (for McNemar) or Cohen's d (for LME)."
+    description: "Odds Ratio (for GLMM) or Standardized Beta (for LME)."
   ci_lower:
     type: "number"
     description: "Lower bound of 95% CI."
