@@ -1,0 +1,12 @@
+# Project Configuration for Metallic Glass Density Prediction
+# This file can be used to override default settings or environment variables
+
+# Random seed for reproducibility
+seed: 42
+
+# Directory paths (relative to project root)
+data_dir: data
+model_dir: models
+report_dir: reports
+
+# Additional configuration can be added here as needed

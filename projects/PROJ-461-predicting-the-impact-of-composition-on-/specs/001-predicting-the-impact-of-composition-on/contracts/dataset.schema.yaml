@@ -1,68 +1,60 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Metallic Glass Dataset Schema"
-description: "Schema for the raw and processed metallic glass composition and density data."
+description: "Schema for clean_data.csv and synthetic_data.csv"
 type: "object"
 properties:
   id:
     type: "string"
-    description: "Unique identifier for the record."
+    description: "Unique identifier for the record"
   composition:
     type: "object"
-    description: "Map of elemental symbols to mass fractions."
+    description: "Map of element symbol to mass fraction"
     additionalProperties:
       type: "number"
       minimum: 0
       maximum: 1
-    required:
-      - "Zr"
-      - "Cu"
-      - "Al"
+    minProperties: 1
   bulk_density:
     type: "number"
-    description: "Bulk density in g/cm³."
+    description: "Bulk density in g/cm³"
     minimum: 0
-  baseline_density:
-    type: "number"
-    description: "Baseline density calculated via Linear Mixing Rule (g/cm³)."
-    minimum: 0
-  residual_density:
-    type: "number"
-    description: "Residual density (Actual - Baseline) in g/cm³."
-  derived_features:
-    type: "object"
-    description: "Computed atomic-level descriptors."
-    properties:
-      mean_atomic_mass:
-        type: "number"
-      mean_atomic_radius:
-        type: "number"
-      electronegativity_variance:
-        type: "number"
-      atomic_radius_mismatch:
-        type: "number"
-      packing_efficiency_proxy:
-        type: "number"
-      clr_composition:
-        type: "object"
-        description: "Centered Log-Ratio transformed composition."
-        additionalProperties:
-          type: "number"
-    required:
-      - "mean_atomic_mass"
-      - "mean_atomic_radius"
-      - "electronegativity_variance"
-      - "atomic_radius_mismatch"
-      - "packing_efficiency_proxy"
   dominant_element:
     type: "string"
+    description: "Element with the highest mass fraction"
     pattern: "^[A-Z][a-z]?$"
-    description: "Element with the highest mass fraction."
+  baseline_density:
+    type: "number"
+    description: "Linear mixing rule prediction"
+  residual_density:
+    type: "number"
+    description: "Actual density minus baseline"
+  mean_atomic_mass:
+    type: "number"
+    description: "Weighted mean atomic mass"
+  mean_atomic_radius:
+    type: "number"
+    description: "Weighted mean atomic radius (atomic fractions)"
+  radius_mismatch:
+    type: "number"
+    description: "Standard deviation of atomic radii"
+  packing_efficiency:
+    type: "number"
+    description: "Non-linear packing proxy (0.0 to 1.0)"
+    minimum: 0
+    maximum: 1
+  electronegativity_var:
+    type: "number"
+    description: "Variance of electronegativity"
 required:
-  - "id"
-  - "composition"
-  - "bulk_density"
-  - "baseline_density"
-  - "residual_density"
-  - "derived_features"
-  - "dominant_element"
+  - id
+  - composition
+  - bulk_density
+  - dominant_element
+  - baseline_density
+  - residual_density
+  - mean_atomic_mass
+  - mean_atomic_radius
+  - radius_mismatch
+  - packing_efficiency
+  - electronegativity_var
 additionalProperties: false

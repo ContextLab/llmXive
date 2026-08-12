@@ -1,0 +1,46 @@
+# Data artifacts
+data/*.csv
+data/*.json
+data/*.pkl
+data/*.h5
+data/*.parquet
+data/*.feather
+
+# Model artifacts
+models/*.pkl
+models/*.joblib
+models/*.onnx
+
+# Report artifacts
+reports/*.png
+reports/*.jpg
+reports/*.html
+reports/*.pdf
+reports/*.json
+reports/*.csv
+
+# Logs
+logs/
+
+# Environment and cache
+.env
+.env.local
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep metrics.json as it is the Source of Truth
+!reports/metrics.json

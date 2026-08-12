@@ -1,0 +1,18 @@
+{
+  "request_id": "KB-2024-001",
+  "target_spec_item": "FR-003",
+  "request_type": "Deviation Approval",
+  "title": "Replace Stratified K-Fold with Group K-Fold for Cross-Validation",
+  "description": "Request to formally update FR-003 in the specification to allow Group K-Fold cross-validation instead of Stratified K-Fold.",
+  "rationale": "Stratified K-Fold based on density values fails to prevent data leakage in metallic glass datasets where multiple samples share similar base compositions. Group K-Fold, grouping by the dominant element, ensures that the model is evaluated on truly novel chemical systems, providing a more rigorous and realistic assessment of generalization performance.",
+  "impact_assessment": {
+    "metrics_impact": "Reported R² and MAE may decrease as the model can no longer rely on memorizing composition families. This is a desired outcome for scientific validity.",
+    "implementation_effort": "Low. Requires switching from `StratifiedKFold` to `GroupKFold` in `code/models/train.py` and adding a step to derive the `dominant_element` group variable.",
+    "risk_level": "Low. This change improves the scientific rigor of the validation process."
+  },
+  "proposed_spec_text": "FR-003: The model validation shall use Group K-Fold cross-validation (k=5) where groups are defined by the dominant element of the composition. This ensures that all samples of a specific chemical system are kept together in either the training or test set to prevent data leakage.",
+  "status": "Pending Review",
+  "submitted_by": "Automated Science Pipeline",
+  "date_submitted": "2024-01-15",
+  "linked_task": "T024"
+}

@@ -1,52 +1,96 @@
 # Data Model: Predicting the Impact of Composition on the Density of Metallic Glasses
 
-## Entities
+## 1. Overview
+This document defines the data structures, schemas, and transformations used in the metallic glass density prediction pipeline. The model adheres to the **Single Source of Truth** principle: all derived data is traceable to the raw input.
 
-### MetallicGlassRecord
-Represents a single alloy entry.
-- `id`: string (unique identifier)
-- `composition`: map<string, float> (Element symbol -> mass fraction)
-- `bulk_density`: float (g/cm³)
-- `derived_features`: map<string, float> (Computed descriptors)
-- `dominant_element`: string (Element with highest mass fraction)
-- `baseline_density`: float (g/cm³) (Calculated via Linear Mixing Rule)
-- `residual_density`: float (g/cm³) (Actual - Baseline)
+## 2. Entity Definitions
 
-### PredictionModel
-Represents the trained regressor.
-- `algorithm`: string (e.g., "LightGBM")
-- `hyperparameters`: map<string, any>
-- `feature_importance_map`: map<string, float>
-- `model_artifact_path`: string (relative path to `.pkl` file)
-- `target_type`: string ("residual_density")
+### 2.1 MetallicGlassRecord
+Represents a single alloy entry in the dataset.
 
-### AnalysisReport
-Represents the final output.
-- `metrics`: map<string, float> (MAE, R², RMSE)
-- `visualizations`: list<string> (Paths to plot files)
-- `interpretability_data`: map<string, any> (SHAP values, PDP data)
-- `hypothesis_test`: map<string, any> (Results of radius mismatch/packing efficiency analysis, including F-test p-value)
+| Attribute | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `id` | String | Unique identifier (UUID or hash of composition) | Generated |
+| `composition` | Dict[Str, Float] | Map of Element Symbol -> Mass Fraction | Keys are IUPAC symbols; Values sum to 1.0 (±0.001) |
+| `bulk_density` | Float | Measured bulk density (g/cm³) | > 0.0 |
+| `dominant_element` | Str | Element with highest mass fraction | Derived (Used for Group K-Fold) |
+| `baseline_density` | Float | Linear mixing rule prediction (g/cm³) | Derived |
+| `residual_density` | Float | Actual - Baseline (g/cm³) | Derived |
+| `mean_atomic_mass` | Float | Weighted mean atomic mass (g/mol) | Derived |
+| `mean_atomic_radius` | Float | Weighted mean atomic radius (pm) | Derived (Atomic Fractions) |
+| `radius_mismatch` | Float | Std dev of atomic radii | Derived |
+| `packing_efficiency` | Float | Non-linear packing proxy | Derived (Guard: $\ge 0.0$) |
+| `electronegativity_var`| Float | Variance of electronegativity | Derived |
 
-## Data Flow
+### 2.2 PredictionModel
+Represents the trained regressor state.
 
-1. **Ingestion**: `raw_data.csv` (Source) or `mg_lit_curated.csv` (Fallback) -> `data/raw/` (Checksummed)
-2. **Cleaning**: `raw_data.csv` -> `clean_data.csv` (Filtered/Imputed)
-3. **Baseline Calculation**: `clean_data.csv` -> `baseline_density` added
-4. **Residual Calculation**: `clean_data.csv` -> `residual_density` added
-5. **Engineering**: `clean_data.csv` -> `processed_data.csv` (Features added, clr transform applied, VIF checked)
-6. **Training**: `processed_data.csv` -> `model.pkl` + `metrics.json` (Predicting `residual_density`)
-7. **Reporting**: `model.pkl` + `processed_data.csv` -> `report.html`
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `algorithm` | Str | "LightGBM" |
+| `hyperparameters` | Dict | Model config (num_leaves, learning_rate, etc.) |
+| `feature_importance` | Dict[Str, Float] | Map of feature name -> importance score |
+| `training_metrics` | Dict | MAE, R², RMSE on test set |
 
-## Transformations
+### 2.3 AnalysisReport
+The final output artifact.
 
-- **Normalization**: All elemental symbols converted to IUPAC standard.
-- **Imputation**: Rows with missing density are dropped (or imputed if <5% missing, documented).
-- **Feature Calculation**: Mass fractions converted to atomic fractions for radius mismatch calculation.
-- **clr Transform**: Compositional features (mass fractions) transformed using Centered Log-Ratio to mitigate collinearity.
-- **Baseline Subtraction**: `residual_density` = `bulk_density` - `baseline_density` (where `baseline_density` = $\sum w_i \rho_i$).
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `metrics` | Dict | Final MAE, R², Sensitivity Results |
+| `visualizations` | List[Str] | Paths to generated plot files (PNG/HTML) |
+| `interpretability` | Dict | SHAP summary data, Partial Dependence plots |
+| `status` | Str | "SUCCESS" or "VALIDATION_MODE" |
+| `baseline_comparison` | Dict | Metrics comparing Full Model vs Mass-Only Model |
 
-## Storage Strategy
-- **Raw Data**: Immutable, stored in `data/raw/` with checksum.
-- **Literature Curated**: Static, version-controlled file in `data/literature_curated/`.
-- **Processed Data**: Stored in `data/processed/` with derivation log.
-- **Models**: Serialized with `joblib` in `code/models/`.
+## 3. Data Flow & Transformations
+
+1.  **Ingestion**:
+    -   Input: Raw CSV from Zenodo/Materials Cloud (or Synthetic Generator).
+    -   Output: `data/raw_data.csv`
+    -   Transformation: None (Raw preservation).
+
+2.  **Preprocessing**:
+    -   Input: `raw_data.csv`
+    -   Output: `data/clean_data.csv`
+    -   Transformation:
+        -   Filter rows with missing density.
+        -   Normalize element symbols (e.g., "Fe" vs "IRON").
+        -   Validate mass fraction sum = 1.0.
+
+3.  **Feature Engineering**:
+    -   Input: `clean_data.csv`
+    -   Output: `data/derived_data.csv` (internal to pipeline)
+    -   Transformation:
+        -   Calculate `baseline_density`.
+        -   Calculate `residual_density`.
+        -   Convert mass fractions to atomic fractions.
+        -   Compute `mean_atomic_mass`, `mean_atomic_radius`, `radius_mismatch`, `packing_efficiency`, `electronegativity_var`.
+
+4.  **Modeling**:
+    -   Input: `derived_data.csv`
+    -   Output: `models/model.pkl`, `reports/metrics.json`
+    -   Transformation:
+        -   **Group K-Fold Split** (Dominant Element as group).
+        -   LightGBM Training on `residual_density`.
+        -   Prediction and Error Calculation.
+        -   **Mass-Only Baseline Training** (Linear Regression on `mean_atomic_mass`).
+        -   Comparison of Full Model vs Mass-Only Model.
+
+5.  **Reporting**:
+    -   Input: `model.pkl`, `derived_data.csv` (test split), `reports/metrics.json`
+    -   Output: `reports/analysis_report.html`
+    -   Transformation:
+        -   SHAP Analysis.
+        -   Partial Dependence Plot Generation.
+        -   Sensitivity Analysis (Noise injection).
+        -   Plot Generation.
+
+## 4. Constraints & Validation Rules
+
+-   **Mass Fraction Sum**: $\sum w_i \in [0.999, 1.001]$.
+-   **Density**: Must be positive.
+-   **Element Symbols**: Must be valid IUPAC symbols (1 or 2 chars).
+-   **Packing Efficiency**: If $\sigma_r = 0$, $PE = 1.0$.
+-   **Data Integrity**: No PII; Checksums recorded for all raw files.
+-   **SSoT Designation**: `models/model.pkl` is the source of truth for the model state. `reports/metrics.json` is the source of truth for the reported metrics in the paper.

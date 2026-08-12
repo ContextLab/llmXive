@@ -1,13 +1,9 @@
 status: none
-intent: metallic glass composition bulk density dataset Zenodo python package
+intent: metallic glass composition density dataset Zenodo Materials Cloud python package
+  dataset
 required_fields:
-- sample_id
-- composition
-- mass_fractions_by_element
+- element_mass_fractions (mass fraction per element)
 - density
-- measurement_temperature
-- measurement_method
-- source_reference
-cache_key: 397ba7543df0549eaee71b0a8021627e7d1783988089fd6e93671781e90a605b
-searched_at: '2026-08-06T03:08:39.901193+00:00'
+cache_key: e6f3444c5560060b8860fc5b6ce4dad69a0a52b2dd27538a6804d2deca29ee12
+searched_at: '2026-08-12T18:25:03.910429+00:00'
 retry_count: 1

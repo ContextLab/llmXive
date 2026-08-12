@@ -1,0 +1,120 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Report Output Schema"
+description: "Schema for the final analysis report metrics and status"
+type: "object"
+properties:
+  status:
+    type: "string"
+    enum:
+      - "SUCCESS"
+      - "VALIDATION_MODE"
+    description: "Indicates if real data was used or synthetic fallback"
+  metrics:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error on residual density"
+      r_squared:
+        type: "number"
+        description: "R-squared value"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error"
+    required:
+      - mae
+      - r_squared
+      - rmse
+  baseline_comparison:
+    type: "object"
+    description: "Comparison between Full Model and Mass-Only Model"
+    properties:
+      mass_only_mae:
+        type: "number"
+        description: "MAE of the Mass-Only Baseline Model"
+      mass_only_r_squared:
+        type: "number"
+        description: "R-squared of the Mass-Only Baseline Model"
+      improvement_mae:
+        type: "number"
+        description: "Reduction in MAE (Full - Mass-Only)"
+      improvement_r_squared:
+        type: "number"
+        description: "Increase in R-squared (Full - Mass-Only)"
+      p_value:
+        type: "number"
+        description: "P-value from paired t-test on residuals"
+    required:
+      - mass_only_mae
+      - mass_only_r_squared
+      - improvement_mae
+      - improvement_r_squared
+      - p_value
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of noise injection tests"
+    properties:
+      noise_levels:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of sigma values tested"
+      mae_variance:
+        type: "number"
+        description: "Variance in MAE across noise levels"
+    required:
+      - noise_levels
+      - mae_variance
+  interpretability:
+    type: "object"
+    description: "SHAP and feature importance data"
+    properties:
+      top_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            feature:
+              type: "string"
+            importance:
+              type: "number"
+          required:
+            - feature
+            - importance
+      dominant_predictor:
+        type: "string"
+        description: "Name of the most important feature"
+      shap_summary_data:
+        type: "array"
+        description: "SHAP summary plot data points"
+        items:
+          type: "object"
+      partial_dependence_data:
+        type: "array"
+        description: "Partial Dependence Plot data points for key features"
+        items:
+          type: "object"
+    required:
+      - top_features
+      - dominant_predictor
+      - shap_summary_data
+      - partial_dependence_data
+  artifacts:
+    type: "object"
+    properties:
+      report_path:
+        type: "string"
+      plot_paths:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - report_path
+required:
+  - status
+  - metrics
+  - baseline_comparison
+  - sensitivity_analysis
+  - interpretability
+  - artifacts
+additionalProperties: false

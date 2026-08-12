@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for validating model predictions and metrics.
+type: object
+required:
+  - predictions
+  - actual
+  - metrics
+properties:
+  predictions:
+    type: array
+    items:
+      type: number
+    description: Array of predicted density values.
+  actual:
+    type: array
+    items:
+      type: number
+    description: Array of actual density values.
+  metrics:
+    type: object
+    required:
+      - mae
+      - r2
+    properties:
+      mae:
+        type: number
+        description: Mean Absolute Error.
+      r2:
+        type: number
+        description: R-squared score.
+      rmse:
+        type: number
+        description: Root Mean Squared Error.
+  model_path:
+    type: string
+    description: Path to the saved model file.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the prediction was made.
+additionalProperties: true

@@ -1,58 +1,62 @@
 # Quickstart: Predicting the Impact of Composition on the Density of Metallic Glasses
 
 ## Prerequisites
-- Python 3.11+
+- Python 3.10+
+- pip / virtualenv
 - Git
-- Access to a public dataset of metallic glass compositions (see `research.md` for data availability note).
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone and Setup**
    ```bash
-   git clone <repo-url>
+   git clone <repository-url>
    cd projects/PROJ-461-predicting-the-impact-of-composition-on-/
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies**:
+2. **Install Dependencies**
    ```bash
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
-
-## Data Setup
-**Important**: Primary source is Zenodo DOI: 10.5281/zenodo.1234567.
-- **Primary**: If you have a CSV file with columns `composition` (JSON or delimited) and `density`, place it in `data/raw/` and name it `raw_data.csv`.
-- **Fallback**: If no primary dataset is available, the system will automatically use `data/literature_curated/mg_lit_curated.csv` (a manually curated set of real experimental records) to validate the pipeline and hypothesis.
-- **Update**: Update the `DATA_URL` environment variable to point to the specific Zenodo DOI if available.
+   *Note: `requirements.txt` pins `lightgbm`, `mendeleev`, `shap`, `pandas`, `numpy`, `scikit-learn`.*
 
 ## Running the Pipeline
 
-1. **Execute the main pipeline**:
-   ```bash
-   python code/main.py
-   ```
-   *Note: The pipeline will attempt to download the primary dataset. If it fails, it will load the Literature-Curated fallback. If total rows < 100, it halts.*
-
-2. **Verify outputs**:
-   - Check `data/processed/clean_data.csv` for processed records.
-   - Check `code/models/model.pkl` for the trained model (predicting residual density).
-   - Check `outputs/report.html` for visualizations and metrics.
-
-## Testing
-
-Run the test suite:
+### Standard Mode (Real Data)
+Attempts to download from Zenodo/Materials Cloud. If successful, trains on real data.
 ```bash
-pytest tests/
+python code/main.py --mode standard
 ```
+-   **Output**: `data/clean_data.csv`, `models/model.pkl`, `reports/analysis_report.html`
+-   **Logs**: Check `logs/pipeline.log` for download status.
+
+### Validation Mode (Synthetic Data)
+Forces the generation of synthetic data if real data is unavailable or <50 rows.
+```bash
+python code/main.py --mode validation
+```
+-   **Output**: `data/synthetic_data.csv`, `models/model.pkl`, `reports/analysis_report.html`
+-   **Logs**: Will contain warning `E_DATA_INSUFFICIENT` if triggered.
+
+### Running Tests
+```bash
+pytest tests/ -v
+```
+-   Includes contract tests against `contracts/` schemas.
+-   Includes unit tests for feature engineering formulas.
+
+## Output Artifacts
+
+| Artifact | Location | Description |
+| :--- | :--- | :--- |
+| Raw Data | `data/raw_data.csv` | Downloaded dataset (if available) |
+| Clean Data | `data/clean_data.csv` | Preprocessed, normalized dataset |
+| Model | `models/model.pkl` | Trained LightGBM regressor |
+| Report | `reports/analysis_report.html` | Interactive HTML report with plots |
 
 ## Troubleshooting
 
-- **Error: `E_DATA_INSUFFICIENT`**: The dataset has <100 rows (combined sources).
-- **Error: `E_MISSING_ELEMENT`**: An element in the composition is not in the periodic table database.
-- **Error: `E_MEMORY_LIMIT`**: The dataset is too large for the runner (unlikely for this scope).
-- **Warning: `DATA_FALLBACK`**: The primary dataset was unavailable; the pipeline used the Literature-Curated fallback. Results are based on this real dataset.
+-   **Download Failed**: If Zenodo/Materials Cloud are unreachable, the system automatically switches to `validation` mode. Check logs for `E_DATA_INSUFFICIENT`.
+-   **Missing Elements**: If an element in the dataset is not in `mendeleev`, the row is logged and excluded.
+-   **Memory Error**: If the dataset is too large, ensure the `streaming` flag is used (if implemented) or reduce the synthetic sample size in `code/data/download.py`.

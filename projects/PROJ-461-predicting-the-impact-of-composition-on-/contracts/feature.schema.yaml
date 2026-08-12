@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Metallic Glass Feature Schema
+description: Schema for the engineered features in clean_data.csv after T020-T023
+type: object
+properties:
+  composition:
+    type: string
+    description: String representation of the composition (e.g., "Zr50Cu40Al10")
+  density:
+    type: number
+    description: Actual density value (g/cm^3)
+  mean_atomic_mass:
+    type: number
+    description: Mean atomic mass of the alloy
+    minimum: 0
+  mean_atomic_radius:
+    type: number
+    description: Mean atomic radius of the alloy (Angstroms)
+    minimum: 0
+  electronegativity_variance:
+    type: number
+    description: Variance of electronegativity values in the alloy
+    minimum: 0
+  atomic_radius_mismatch:
+    type: number
+    description: Atomic radius mismatch parameter
+    minimum: 0
+  packing_efficiency:
+    type: number
+    description: Packing efficiency proxy
+    minimum: 0
+    maximum: 1
+  residual_density:
+    type: number
+    description: Residual density (actual - linear mixing rule baseline)
+  dominant_element:
+    type: string
+    description: The element with the highest mass fraction
+required:
+  - composition
+  - density
+  - mean_atomic_mass
+  - mean_atomic_radius
+  - electronegativity_variance
+  - atomic_radius_mismatch
+  - packing_efficiency
+  - residual_density
+  - dominant_element
+additionalProperties: true

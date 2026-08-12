@@ -1,85 +1,90 @@
 # Research: Predicting the Impact of Composition on the Density of Metallic Glasses
 
-## Problem Statement
+## 1. Scientific Context & Hypothesis
 
-Metallic glasses (MGs) possess unique mechanical properties, but their density prediction is often limited to simple linear mixing rules which ignore atomic packing effects. This project investigates whether incorporating atomic-level descriptors (radius mismatch, packing efficiency) derived from elemental composition improves density prediction accuracy (MAE ≤ 0.1 g/cm³) over a baseline linear mixing rule.
+### 1.1 Background
+Metallic glasses (amorphous alloys) possess unique mechanical and physical properties due to their disordered atomic structure. Predicting their bulk density is critical for lightweight structural applications. Traditional prediction methods rely on the **Linear Mixing Rule** (volume additivity), which assumes the density of an alloy is the weighted sum of its constituent elements' densities. However, amorphous structures often exhibit packing inefficiencies or excess free volume that cause deviations from this linear baseline.
 
-## Dataset Strategy
+### 1.2 Research Question
+Can compositional descriptors derived from atomic properties (radius, electronegativity, packing efficiency) predict the *residual* density (deviation from the linear mixing rule) of metallic glasses more accurately than mass-based descriptors alone?
 
-### Verified Sources
-*Note: Primary source is the UCI Machine Learning Repository. No synthetic fallback is used.*
+### 1.3 Hypothesis
+The inclusion of non-linear atomic packing descriptors—specifically **atomic radius mismatch** and a **packing efficiency proxy**—significantly improves the prediction of residual density compared to a **Mass-Only Baseline Model** (using only mean atomic mass).
 
-The following datasets were evaluated for availability and content:
-- **Primary Source**: UCI Machine Learning Repository "Metallic Glasses" (ID: 469). This dataset contains experimental metallic glass compositions and densities.
-  - **URL**: `https://archive.ics.uci.edu/dataset/469/metallic+glasses`
-  - **Access**: Programmatic via `ucimlrepo` library.
-  - **Content**: Real experimental data containing elemental mass fractions and bulk densities.
-- **Fallback Source**: None. The project relies exclusively on real experimental data.
+## 2. Dataset Strategy
 
-**Decision**: The pipeline will fetch the UCI ID 469 dataset. If the dataset is <100 rows, the system halts with `E_DATA_INSUFFICIENT` as per Spec.
+### 2.1 Data Sources
+The project targets public repositories containing metallic glass compositions and densities. Per the spec, the system attempts to fetch from:
+1.  **Primary**: Zenodo (Metallic Glass Database)
+2.  **Secondary**: Materials Cloud
 
-### Dataset Variables
-- **Inputs**: Elemental mass fractions (e.g., `Zr`, `Cu`, `Al`, `Ni`, `Ti`, etc.).
-- **Target**: Bulk Density (g/cm³).
-- **Derived Features**: Mean Atomic Mass, Mean Atomic Radius, Electronegativity Variance, Atomic Radius Mismatch, Packing Efficiency Proxy.
+*Note: As of the current verification, specific direct URLs for a "Metallic Glass Density" dataset were not present in the provided "# Verified datasets" block. Consequently, the implementation **must** rely on the spec's fallback mechanism: attempting the Zenodo/Materials Cloud URLs defined in `code/data/download.py`. If these fail or yield <50 rows, the system **must** switch to **Pipeline Validation Mode** generating synthetic data.*
 
-### Data Availability Risks
-- **Risk**: No open source for MG density.
-- **Mitigation**: The UCI ID 469 dataset is a verified open source. If it is insufficient, the project halts rather than using synthetic data.
+### 2.2 Synthetic Data Strategy (Pipeline Validation Mode)
+**CRITICAL LIMITATION**: Synthetic data is generated **ONLY** to validate the pipeline code path. It is **NOT** used for scientific hypothesis testing.
+- **Generation Logic**: Linear Mixing Rule + Gaussian Noise ($\sigma=0.05$ g/cm³).
+- **Composition**: Random mass fractions for common metallic glass formers (Zr, Cu, Ti, Ni, Fe, Pd) ensuring sum=1.0.
+- **Dominant Element Distribution**: If real data is available, the synthetic data mimics the dominant element frequencies; otherwise, a uniform distribution is used.
+- **Row Count**: $\ge$ 100 rows.
+- **Scientific Validity**: Because the synthetic residuals are pure noise (by definition of the generation rule), **no scientific conclusions** regarding packing efficiency or radius mismatch can be drawn from a synthetic run. Success in this mode is defined solely by the successful execution of the pipeline and the generation of a valid report structure, not by model performance metrics (MAE/R²).
 
-## Methodology
+### 2.3 Data Variables
+| Variable | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `composition` | Map | Mass fractions of elements (e.g., `{"Zr": 0.6, "Cu": 0.4}`) | Dataset / Synthetic |
+| `bulk_density` | Float | Target variable (g/cm³) | Dataset / Synthetic |
+| `mean_atomic_mass` | Float | Weighted mean atomic mass | Calculated (`mendeleev`) |
+| `mean_atomic_radius` | Float | Weighted mean atomic radius (atomic fractions) | Calculated (`mendeleev`) |
+| `radius_mismatch` | Float | Standard deviation of atomic radii | Calculated |
+| `packing_efficiency` | Float | Non-linear geometric proxy | Calculated (Spec Formula) |
+| `electronegativity_var`| Float | Variance of electronegativity | Calculated (`mendeleev`) |
 
-### Feature Engineering
-1. **Normalization**: Convert all elemental symbols to IUPAC standard (e.g., "Fe", "Cu").
-2. **Atomic Properties Lookup**: Use `mendeleev` to fetch atomic mass, atomic radius, and electronegativity for each element.
-3. **Baseline Calculation**: Compute the **Linear Mixing Rule** baseline: $\rho_{baseline} = \sum (w_i \times \rho_i)$, where $\rho_i$ is the standard elemental density.
-4. **Residual Target**: Calculate $y_{residual} = \rho_{actual} - \rho_{baseline}$. The model will predict this residual, not the absolute density.
-5. **Descriptor Calculation**:
-   - **Mean Atomic Mass**: $\sum (w_i \times M_i)$
-   - **Mean Atomic Radius**: $\sum (w_i \times R_i)$
-   - **Electronegativity Variance**: Variance of electronegativity weighted by mass fraction.
-   - **Atomic Radius Mismatch**: $\delta = \sqrt{\sum c_i (1 - R_i/\bar{R})^2}$ (where $c_i$ is atomic fraction, derived from mass fraction).
-   - **Packing Efficiency Proxy**: $P_{eff} = \delta \times \sqrt{|\Delta H_{mix}|}$. Here, $\Delta H_{mix}$ is the **Mixing Enthalpy** calculated using Miedema's rules (pairwise enthalpy of formation), which introduces a non-linear, chemical interaction term distinct from simple radius mismatch. This breaks the linear dependency between $\delta$ and $P_{eff}$.
-6. **Collinearity Mitigation**: Apply a Centered Log-Ratio (clr) transform to the compositional features (mass fractions) before deriving atomic properties to mitigate the "sum-to-one" constraint.
-7. **Collinearity Check**: Calculate Variance Inflation Factor (VIF) for all derived features. If VIF > 5 for any feature, it will be flagged and potentially removed or combined.
+## 3. Methodology
 
-### Model Training
-- **Algorithm**: LightGBM Regressor (CPU version).
-- **Target**: **Residual Density** ($y_{residual}$), not absolute density. This isolates the non-linear packing effects.
-- **Validation**: Stratified K-Fold (k=5) based on the dominant element (highest mass fraction).
-- **Hyperparameters**: Default or grid search within CPU time limits.
-- **Baseline**: Linear Mixing Rule ($\rho_{baseline} = \sum w_i \rho_i$). The model's performance is measured by how well it predicts the *deviation* from this baseline.
+### 3.1 Feature Engineering
+1.  **Normalization**: Convert all elemental symbols to standard IUPAC format.
+2.  **Baseline Calculation**: Compute $\rho_{baseline} = \sum (w_i \times \rho_{element\_i})$.
+3.  **Residual Target**: $y_{target} = \rho_{actual} - \rho_{baseline}$.
+4.  **Descriptor Calculation**:
+    -   **Atomic Fractions**: Convert mass fractions to atomic fractions for radius-based calculations to mitigate collinearity.
+    -   **Packing Efficiency Proxy**: $PE = 1 - (\sigma_r / r_{mean})^2 \times (1 - 0.5 \times (\Delta r / r_{mean})^2)$.
+    -   **Guard Clause**: If $\sigma_r = 0$, $PE = 1.0$.
+    -   **Literature Basis**: While this specific PE formula is an ad-hoc geometric proxy and not a standard literature invariant (which typically use atomic size difference $\delta$), it serves as a valid test case for non-linear packing effects. Sensitivity analysis will be performed to ensure the model is not fitting noise from this specific functional form.
 
-### Statistical Significance Test (SC-003)
-To validate that packing descriptors significantly improve prediction accuracy (SC-003), a **Nested F-Test** (or Likelihood Ratio Test) will be performed:
-1. **Model A (Null)**: Predicts residual density using only `Dominant_Element` (categorical) and `Mean_Atomic_Mass`.
-2. **Model B (Alternative)**: Predicts residual density using Model A features + `Atomic_Radius_Mismatch` and `Packing_Efficiency_Proxy`.
-3. **Test**: Compare the R² of Model A and Model B. If the increase in R² is statistically significant (p < 0.05), SC-003 is validated.
+### 3.2 Model Training & Validation
+-   **Algorithm**: Gradient Boosting Regressor (LightGBM).
+-   **Input**: Compositional descriptors (Mean Mass, Radius Mismatch, PE, etc.).
+-   **Target**: Residual Density ($\rho_{actual} - \rho_{baseline}$).
+-   **Validation Strategy**: **Group K-Fold (k=5)** using the **Dominant Element** as the group identifier.
+    -   *Rationale*: Stratified K-Fold risks data leakage if the dominant element family correlates with the residual. Group K-Fold ensures the model is tested on unseen element families, providing a rigorous test of generalizability.
+-   **Hardware**: CPU-only (LightGBM default).
 
-### Evaluation Metrics
-- **Primary**: Mean Absolute Error (MAE) of the *residual* prediction vs. 0.1 g/cm³ threshold.
-- **Secondary**: R² score of the residual model.
-- **Robustness**: Sensitivity analysis (sweeping density thresholds).
-- **Hypothesis Test**: If MAE > 0.1, use **SHAP Interaction Values** and **Partial Dependence Plots (PDP)** to explicitly quantify the variance explained by `radius mismatch` and `packing efficiency` descriptors.
+### 3.3 Evaluation Metrics & Hypothesis Testing
+-   **Primary**: Mean Absolute Error (MAE) on residual density. Target: $\le 0.1$ g/cm³.
+-   **Baseline Comparison**: The model's performance is compared against a **Mass-Only Baseline Model** (Linear Regression using only `mean_atomic_mass` to predict residuals).
+    -   *Rationale*: The Spec's definition of "Baseline" as the Linear Mixing Rule (which predicts zero residual) is tautological. The true scientific test is whether the *Full Model* (Packing + Mass) significantly outperforms the *Mass-Only Model*.
+-   **Statistical Test**: Paired t-test on the MAE residuals between the Full Model and the Mass-Only Model ($p < 0.05$).
+-   **Secondary**: R-squared ($R^2$) improvement of Full Model over Mass-Only Model.
+-   **Robustness**: Sensitivity analysis with Gaussian noise ($\sigma \in \{0.01, 0.05, 0.1\}$).
 
-## Statistical Rigor
-- **Multiple Comparisons**: Not applicable for a single regression model, but SHAP values will be used for feature importance ranking.
-- **Sample Size**: Target ≥100. If <100, the system halts with `E_DATA_INSUFFICIENT`.
-- **Collinearity**: Addressed by using **clr transform** on compositional inputs, predicting the **residual** (which removes the dominant linear mass effect), and performing a **VIF check** before modeling. The `P_eff` feature uses $\Delta H_{mix}$ (chemical interaction) to ensure it is not collinear with $\delta$ (geometric size).
-- **Causal Claims**: The study is observational. Claims will be framed as "associational" or "predictive," not causal.
+### 3.4 Interpretability & Distinct Findings
+-   **SHAP Values**: To rank feature importance and specifically compare the contribution of `radius_mismatch` vs `mean_atomic_mass`.
+-   **Partial Dependence Plots (PDP)**: To visualize the non-linear relationship between packing efficiency and residual density.
+-   **Constitution VII Compliance**: If MAE > 0.1, the report **MUST** explicitly analyze the variance explained by radius mismatch as a distinct finding, using SHAP comparison and PDPs, even if the screening threshold is not met.
 
-## Compute Feasibility
-- **CPU-First**: LightGBM is highly optimized for CPU. The dataset size (≤1000 rows) fits easily in 7GB RAM.
-- **GPU Escape Hatch**: Not required. The model is small and CPU-tractable.
-- **Execution**: Entire pipeline < 2 hours on GitHub Actions free tier.
+## 4. Feasibility & Constraints
 
-## Decision/Rationale
-- **Method**: LightGBM chosen for speed and ability to handle non-linear relationships in atomic packing.
-- **Dataset**: Plan explicitly anchors on UCI ID 469 as the verified open source. No synthetic fallback is used.
-- **Baseline**: Linear mixing rule is the standard scientific baseline for density prediction. The model predicts the *residual* to isolate packing effects.
-- **Feature Engineering**: `P_eff` uses Miedema's $\Delta H_{mix}$ to ensure non-linearity and distinctness from radius mismatch.
-- **Collinearity**: `clr` transform, residual modeling, and VIF checks address the "sum-to-one" and dominant mass effects.
+-   **Compute**: The pipeline is designed for the GitHub Actions free tier (limited CPU and RAM). LightGBM on tabular data with <10k rows is CPU-tractable.
+-   **Data Access**: If Zenodo/Materials Cloud links are dead, the synthetic fallback ensures the pipeline remains functional and testable (code path validation only).
+-   **Collinearity**: The use of atomic fractions for radius descriptors and residual targets for training explicitly addresses the collinearity between mass and radius.
 
-## Success Criteria Contingency
-- **SC-001 (MAE)**: Measurable only if dataset ≥ 100 rows. If < 100 rows, project halts with `E_DATA_INSUFFICIENT`, and SC-001 is marked "Not Measurable".
-- **SC-003 (Hypothesis)**: Measurable only if dataset ≥ 100 rows. If < 100 rows, project halts, and SC-003 is marked "Not Measurable".
+## 5. Decision Rationale
+
+| Decision | Rationale |
+| :--- | :--- |
+| **Residual Target** | Isolates the specific scientific question (non-linear packing) from the dominant linear mass effect. |
+| **Synthetic Fallback** | Ensures reproducibility and CI/CD validation even when real-world data is inaccessible or sparse. **No scientific claims are made from this mode.** |
+| **Atomic Fractions** | Required for physically meaningful radius calculations; mass fractions would bias the result. |
+| **LightGBM** | Fast, CPU-efficient, and provides built-in feature importance for SHAP integration. |
+| **Group K-Fold** | Prevents data leakage and ensures the model generalizes to unseen element families. |
+| **Mass-Only Baseline** | Provides a rigorous, non-tautological comparison to validate the added value of packing descriptors. |
