@@ -28925,11 +28925,6 @@
           "title": "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-463-predicting-plant-defense-allocation-from",
           "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
           "title": "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data"
@@ -28972,11 +28967,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg",
           "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
           "title": "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-463-predicting-plant-defense-allocation-from",
@@ -29023,11 +29013,6 @@
           "title": "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-463-predicting-plant-defense-allocation-from",
           "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
           "title": "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data"
@@ -29070,11 +29055,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg",
           "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
           "title": "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-463-predicting-plant-defense-allocation-from",
@@ -29120,11 +29100,6 @@
           "title": "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
         },
         {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
-        },
-        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-463-predicting-plant-defense-allocation-from",
           "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
           "title": "Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data"
@@ -29166,11 +29141,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-009-build-a-mesh-network-that-forms-the-larg",
           "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
           "title": "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "project_id": "PROJ-891-llmxive-follow-up-extending-kwai-keye-vl",
-          "title": "llmXive follow-up: extending \"Kwai Keye-VL-2.0 Technical Report\""
         },
         {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-463-predicting-plant-defense-allocation-from",
@@ -31066,7 +31036,7 @@
       },
       "authors": [
         {
-          "contributions": 209,
+          "contributions": 188,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -31102,83 +31072,83 @@
       "last_run_log": [
         {
           "agent": "tasker",
-          "duration_s": 1280.960399,
-          "ended_at": "2026-08-12T08:36:47.039317Z",
+          "duration_s": 1862.27843,
+          "ended_at": "2026-08-12T07:30:12.771573Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:15:26.078918Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 1048.371246,
-          "ended_at": "2026-08-12T08:15:26.022955Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-08-12T07:57:57.651709Z"
+          "started_at": "2026-08-12T06:59:10.493143Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 79.5089,
-          "ended_at": "2026-08-12T07:57:57.584034Z",
+          "duration_s": 181.910514,
+          "ended_at": "2026-08-12T06:59:10.429005Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:56:38.075134Z"
+          "started_at": "2026-08-12T06:56:08.518491Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 32.773139,
-          "ended_at": "2026-08-12T07:56:38.071825Z",
+          "duration_s": 139.813746,
+          "ended_at": "2026-08-12T06:56:08.514375Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:56:05.298686Z"
+          "started_at": "2026-08-12T06:53:48.700629Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 65.782459,
-          "ended_at": "2026-08-12T07:56:05.295475Z",
+          "duration_s": 52.287095,
+          "ended_at": "2026-08-12T06:53:48.696645Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:54:59.513016Z"
+          "started_at": "2026-08-12T06:52:56.409550Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 39.370931,
-          "ended_at": "2026-08-12T07:54:59.509734Z",
+          "duration_s": 73.406433,
+          "ended_at": "2026-08-12T06:52:56.405598Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:54:20.138803Z"
+          "started_at": "2026-08-12T06:51:42.999165Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 51.840364,
-          "ended_at": "2026-08-12T07:54:20.135410Z",
+          "duration_s": 48.222028,
+          "ended_at": "2026-08-12T06:51:42.995201Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:53:28.295046Z"
+          "started_at": "2026-08-12T06:50:54.773173Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 93.998795,
-          "ended_at": "2026-08-12T07:53:28.291660Z",
+          "duration_s": 61.380642,
+          "ended_at": "2026-08-12T06:50:54.769154Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:51:54.292865Z"
+          "started_at": "2026-08-12T06:49:53.388512Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 103.981073,
-          "ended_at": "2026-08-12T07:51:54.289550Z",
+          "duration_s": 69.511792,
+          "ended_at": "2026-08-12T06:49:53.384572Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:50:10.308477Z"
+          "started_at": "2026-08-12T06:48:43.872780Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 44.212603,
-          "ended_at": "2026-08-12T07:50:10.305151Z",
+          "duration_s": 9.944539,
+          "ended_at": "2026-08-12T06:48:43.868634Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T07:49:26.092548Z"
+          "started_at": "2026-08-12T06:48:33.924095Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 157.560695,
+          "ended_at": "2026-08-12T06:48:28.703730Z",
+          "model": "qwen.qwen3.5-122b",
+          "outcome": "success",
+          "started_at": "2026-08-12T06:45:51.143035Z"
         }
       ],
       "paper_status": null,
@@ -31192,7 +31162,7 @@
       "speckit_research_dir": "projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg",
       "submitter": null,
       "title": "Mesh Network Supercomputer Using Pooled Idle Computing Resources",
-      "updated_at": "2026-08-12T08:36:47.041404+00:00",
+      "updated_at": "2026-08-12T07:30:12.774438+00:00",
       "upstream_feedback": null
     },
     {
@@ -118080,7 +118050,7 @@
       },
       "authors": [
         {
-          "contributions": 6698,
+          "contributions": 6688,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -118138,83 +118108,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.786761,
-          "ended_at": "2026-08-12T08:33:52.256211Z",
+          "duration_s": 0.583006,
+          "ended_at": "2026-08-12T07:35:28.303002Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:51.469450Z"
+          "started_at": "2026-08-12T07:35:27.719996Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.853827,
-          "ended_at": "2026-08-12T08:33:51.399353Z",
+          "duration_s": 0.852773,
+          "ended_at": "2026-08-12T07:35:27.656510Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:50.545526Z"
+          "started_at": "2026-08-12T07:35:26.803737Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.931906,
-          "ended_at": "2026-08-12T08:33:50.475934Z",
+          "duration_s": 0.594938,
+          "ended_at": "2026-08-12T07:35:26.740589Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:49.544028Z"
+          "started_at": "2026-08-12T07:35:26.145651Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.775147,
-          "ended_at": "2026-08-12T08:33:49.473597Z",
+          "duration_s": 0.820104,
+          "ended_at": "2026-08-12T07:35:26.080857Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:48.698450Z"
+          "started_at": "2026-08-12T07:35:25.260753Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.715281,
-          "ended_at": "2026-08-12T08:33:48.572733Z",
+          "duration_s": 0.751445,
+          "ended_at": "2026-08-12T07:35:25.196152Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:47.857452Z"
+          "started_at": "2026-08-12T07:35:24.444707Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.834626,
-          "ended_at": "2026-08-12T08:33:47.787855Z",
+          "duration_s": 0.706753,
+          "ended_at": "2026-08-12T07:35:24.379882Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:46.953229Z"
+          "started_at": "2026-08-12T07:35:23.673129Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.882393,
-          "ended_at": "2026-08-12T08:33:46.880388Z",
+          "duration_s": 0.719691,
+          "ended_at": "2026-08-12T07:35:23.609458Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:45.997995Z"
+          "started_at": "2026-08-12T07:35:22.889767Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.891843,
-          "ended_at": "2026-08-12T08:33:45.865191Z",
+          "duration_s": 0.729288,
+          "ended_at": "2026-08-12T07:35:22.756864Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:44.973348Z"
+          "started_at": "2026-08-12T07:35:22.027576Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.810825,
-          "ended_at": "2026-08-12T08:33:44.904026Z",
+          "duration_s": 0.835819,
+          "ended_at": "2026-08-12T07:35:21.964181Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:44.093201Z"
+          "started_at": "2026-08-12T07:35:21.128362Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.804733,
-          "ended_at": "2026-08-12T08:33:44.016404Z",
+          "duration_s": 3.37413,
+          "ended_at": "2026-08-12T07:35:21.061501Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:33:40.211671Z"
+          "started_at": "2026-08-12T07:35:17.687371Z"
         }
       ],
       "paper_status": null,
@@ -123375,7 +123345,7 @@
       },
       "authors": [
         {
-          "contributions": 6393,
+          "contributions": 6383,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -123435,83 +123405,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.832758,
-          "ended_at": "2026-08-12T08:37:16.068787Z",
+          "duration_s": 0.58985,
+          "ended_at": "2026-08-12T07:35:51.799153Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:15.236029Z"
+          "started_at": "2026-08-12T07:35:51.209303Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.899158,
-          "ended_at": "2026-08-12T08:37:15.163891Z",
+          "duration_s": 0.580882,
+          "ended_at": "2026-08-12T07:35:51.147888Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:14.264733Z"
+          "started_at": "2026-08-12T07:35:50.567006Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.72624,
-          "ended_at": "2026-08-12T08:37:14.193991Z",
+          "duration_s": 0.683024,
+          "ended_at": "2026-08-12T07:35:50.506278Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:13.467751Z"
+          "started_at": "2026-08-12T07:35:49.823254Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.794498,
-          "ended_at": "2026-08-12T08:37:13.397350Z",
+          "duration_s": 0.590072,
+          "ended_at": "2026-08-12T07:35:49.762859Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:12.602852Z"
+          "started_at": "2026-08-12T07:35:49.172787Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.944903,
-          "ended_at": "2026-08-12T08:37:12.533194Z",
+          "duration_s": 0.690761,
+          "ended_at": "2026-08-12T07:35:49.111838Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:11.588291Z"
+          "started_at": "2026-08-12T07:35:48.421077Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.927222,
-          "ended_at": "2026-08-12T08:37:11.518868Z",
+          "duration_s": 0.673909,
+          "ended_at": "2026-08-12T07:35:48.360053Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:10.591646Z"
+          "started_at": "2026-08-12T07:35:47.686144Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.853766,
-          "ended_at": "2026-08-12T08:37:10.521221Z",
+          "duration_s": 0.565784,
+          "ended_at": "2026-08-12T07:35:47.623806Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:09.667455Z"
+          "started_at": "2026-08-12T07:35:47.058022Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.922176,
-          "ended_at": "2026-08-12T08:37:09.521701Z",
+          "duration_s": 0.737349,
+          "ended_at": "2026-08-12T07:35:46.915911Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:08.599525Z"
+          "started_at": "2026-08-12T07:35:46.178562Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.006443,
-          "ended_at": "2026-08-12T08:37:08.529589Z",
+          "duration_s": 0.737546,
+          "ended_at": "2026-08-12T07:35:46.116698Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:07.523146Z"
+          "started_at": "2026-08-12T07:35:45.379152Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.495801,
-          "ended_at": "2026-08-12T08:37:07.447776Z",
+          "duration_s": 3.760238,
+          "ended_at": "2026-08-12T07:35:45.313734Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T08:37:03.951975Z"
+          "started_at": "2026-08-12T07:35:41.553496Z"
         }
       ],
       "paper_status": null,
