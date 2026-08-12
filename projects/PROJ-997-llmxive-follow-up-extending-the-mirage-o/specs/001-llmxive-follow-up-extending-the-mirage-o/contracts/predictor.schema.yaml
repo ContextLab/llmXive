@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GapPredictor Model Schema"
+description: "Schema for the trained regression model artifact."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model (e.g., KernelRidge, MLP)."
+  kernel_params:
+    type: "object"
+    description: "Hyperparameters used for training."
+    additionalProperties: true
+  feature_names:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of feature names used for training."
+  training_metrics:
+    type: "object"
+    description: "Performance metrics on the validation set."
+    properties:
+      r2_score:
+        type: "number"
+      mean_absolute_error:
+        type: "number"
+      pearson_correlation:
+        type: "number"
+    required:
+      - "r2_score"
+      - "mean_absolute_error"
+      - "pearson_correlation"
+  content_hash:
+    type: "string"
+    description: "SHA-256 hash of the model weights/params."
+required:
+  - "model_type"
+  - "kernel_params"
+  - "feature_names"
+  - "training_metrics"
+  - "content_hash"
+additionalProperties: false

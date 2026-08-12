@@ -2,112 +2,63 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- `llama.cpp` (binary or build tools)
-- Access to a GitHub Actions runner (or local environment with similar constraints)
+* Python 3.11+
+* `llama-cpp-python` (with `llama.cpp` backend) or `onnxruntime`
+* Git (for repository access)
+* Sufficient RAM (for CPU inference) or access to a Kaggle GPU (for auto-offload)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd specs/001-llmxive-mipu-gap-bounds
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o
+ ```
 
-2.  **Set up the virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # Linux/Mac
+ # or venv\Scripts\activate # Windows
+ ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` will be generated during Phase 1.*
-
-4.  **Build `llama.cpp`** (if not using a pre-built binary):
-    ```bash
-    git clone https://github.com/ggerganov/llama.cpp.git
-    cd llama.cpp
-    make
-    cd ..
-    ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Running the Pipeline
 
-### Step 1: Generate Dataset
-
-Run the data generation script to create the hardware-grounded dataset.
-
-```bash
-python -m src.cli.generate_dataset --num-samples 300 --quantization-levels INT4 INT8 FP8
-```
-
-- `--num-samples`: Number of prompts to process (default: 300).
-- `--quantization-levels`: List of quantization levels to test.
-
-**Output**: `data/processed/training_sample.parquet`
-
-### Step 2: Train the Gap Predictor
-
-Train the Kernel Ridge Regression model.
+### Step 1: Generate Ground Truth Data (US-001)
+This step downloads GSM8K, runs full-precision feature extraction, and executes quantized inference via `llama.cpp`.
 
 ```bash
-python -m src.cli.train_model --input data/processed/training_sample.parquet --model-type krr
+python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet
 ```
+*Note: If `llama.cpp` fails on CPU, the script will auto-offload to Kaggle GPU if configured.*
 
-- `--input`: Path to the generated dataset.
-- `--model-type`: Type of model to train (default: krr).
-
-**Output**: `data/models/gap_predictor.pkl`, `data/results/training_metrics.json`
-
-### Step 3: Evaluate and Validate
-
-Evaluate the model and verify the theoretical bounds.
+### Step 2: Train the Gap Predictor (US-002)
+Trains a Kernel Ridge Regression model on the generated dataset.
 
 ```bash
-python -m src.cli.evaluate_model --model data/models/gap_predictor.pkl --test-data data/processed/training_sample.parquet
+python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl
 ```
 
-**Output**: `data/results/evaluation_report.json`, `data/results/bound_verification.json`
-
-### Step 4: Generate Final Report
-
-Generate the final research report.
+### Step 3: Evaluate and Validate (US-003)
+Computes correlation, bound verification, and runs the MIPU benchmark.
 
 ```bash
-python -m src.cli.generate_report --output paper/
+python code/models/evaluate_predictor.py --model data/models/gap_predictor.pkl --data data/processed/training_sample.parquet --output data/metrics/metrics.json
 ```
-
-**Output**: `paper/report.md`
 
 ## Verification
 
-To verify the setup, run the unit tests:
-
-```bash
-pytest tests/unit/
-```
-
-To run integration tests:
-
-```bash
-pytest tests/integration/
-```
+* **Check Metrics**: Inspect `data/metrics/metrics.json` for Pearson correlation > 0.8 and bound consistency.
+* **Reproducibility**: Re-run the pipeline with `--seed 42` to verify identical results (checksums match).
+* **Contract Tests**: Run `pytest tests/contract/` to validate data schemas.
 
 ## Troubleshooting
 
-- **Issue**: `llama.cpp` fails to load quantized model.
-  - **Solution**: Ensure the model is quantized correctly and the binary is up-to-date. Check the `processing_status` in the dataset for skipped samples.
-- **Issue**: Out of Memory (OOM) error.
-  - **Solution**: Reduce `--num-samples` or ensure the model is loaded in 4-bit/8-bit quantization.
-- **Issue**: Zero-divergence errors.
-  - **Solution**: The code includes a small epsilon to prevent division-by-zero. Check the logs for "stable" samples.
-
-## Next Steps
-
-- Explore different quantization levels.
-- Experiment with other regression models (e.g., MLP).
-- Extend the study to different model architectures.
+* **`llama.cpp` load error**: Ensure the model is quantized correctly (e.g., `Q4_K_M.gguf`). Check `code/utils/llama_engine.py` for fallback logic.
+* **Out of Memory**: Reduce the sample size in `generate_ground_truth.py` or use the GPU escape hatch.
+* **Zero Divergence**: If all KL divergences are zero, the prompts may be too simple. Increase prompt complexity or sample size.

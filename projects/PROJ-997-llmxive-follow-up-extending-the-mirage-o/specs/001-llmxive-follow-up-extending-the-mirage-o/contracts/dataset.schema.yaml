@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingSample Dataset Schema"
+description: "Schema for the ground-truth dataset containing training features and quantized divergence targets."
+type: "object"
+properties:
+  input_id:
+    type: "string"
+    description: "Unique identifier for the prompt."
+  prompt:
+    type: "string"
+    description: "The input text (e.g., GSM8K question)."
+  gradient_norm:
+    type: "number"
+    description: "L2 norm of the gradient vector from full-precision training step."
+  local_curvature:
+    type: "number"
+    description: "Approximation of local curvature (e.g., Hessian trace diagonal)."
+  kl_div_int4:
+    type: "number"
+    description: "KL divergence between FP16 and INT4 quantized logits."
+  kl_div_int8:
+    type: "number"
+    description: "KL divergence between FP16 and INT8 quantized logits."
+  kl_div_fp8:
+    type: "number"
+    description: "KL divergence between FP16 and FP8 quantized logits."
+  quantization_level:
+    type: "string"
+    enum:
+      - "INT4"
+      - "INT8"
+      - "FP8"
+    description: "Quantization level for the sample."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Generation timestamp."
+required:
+  - "input_id"
+  - "prompt"
+  - "gradient_norm"
+  - "local_curvature"
+  - "kl_div_int4"
+  - "kl_div_int8"
+  - "kl_div_fp8"
+  - "quantization_level"
+  - "timestamp"
+additionalProperties: false

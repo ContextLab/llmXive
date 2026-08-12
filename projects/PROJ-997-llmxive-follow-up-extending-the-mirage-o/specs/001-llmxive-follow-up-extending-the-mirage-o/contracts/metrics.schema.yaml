@@ -1,0 +1,94 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Report Schema"
+description: "Schema for the final metrics report containing correlation, bound verification, and statistical test results."
+type: "object"
+properties:
+  correlation_results:
+    type: "object"
+    description: "Correlation results per quantization level."
+    properties:
+      INT4:
+        type: "object"
+        properties:
+          pearson_r:
+            type: "number"
+          bound_consistency:
+            type: "boolean"
+            description: "True if |predicted - actual| < 0.1 holds for >95% of samples."
+        required:
+          - "pearson_r"
+          - "bound_consistency"
+      INT8:
+        type: "object"
+        properties:
+          pearson_r:
+            type: "number"
+          bound_consistency:
+            type: "boolean"
+        required:
+          - "pearson_r"
+          - "bound_consistency"
+      FP8:
+        type: "object"
+        properties:
+          pearson_r:
+            type: "number"
+          bound_consistency:
+            type: "boolean"
+        required:
+          - "pearson_r"
+          - "bound_consistency"
+    required:
+      - "INT4"
+      - "INT8"
+      - "FP8"
+  statistical_tests:
+    type: "object"
+    description: "Results of the paired t-test comparing proxy vs. baseline."
+    properties:
+      t_statistic:
+        type: "number"
+      p_value:
+        type: "number"
+      bonferroni_corrected_p:
+        type: "number"
+      conclusion:
+        type: "string"
+        description: "e.g., 'No significant degradation (p > 0.05)'"
+    required:
+      - "t_statistic"
+      - "p_value"
+      - "bonferroni_corrected_p"
+      - "conclusion"
+  latency_reduction:
+    type: "object"
+    description: "Latency reduction metrics."
+    properties:
+      proxy_latency_ms:
+        type: "number"
+      baseline_latency_ms:
+        type: "number"
+      reduction_percentage:
+        type: "number"
+        description: "Percentage reduction in policy evaluation step."
+    required:
+      - "proxy_latency_ms"
+      - "baseline_latency_ms"
+      - "reduction_percentage"
+  collinearity_check:
+    type: "object"
+    description: "Variance Inflation Factor (VIF) diagnostics."
+    properties:
+      gradient_norm_vif:
+        type: "number"
+      curvature_vif:
+        type: "number"
+    required:
+      - "gradient_norm_vif"
+      - "curvature_vif"
+required:
+  - "correlation_results"
+  - "statistical_tests"
+  - "latency_reduction"
+  - "collinearity_check"
+additionalProperties: false

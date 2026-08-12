@@ -43,15 +43,15 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python project with `transformers`, `llama-cpp-python`, `scikit-learn`, `datasets`, `pandas`, `numpy`, `torch` (CPU-only), `pytest`, `einops` dependencies
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001 Create project structure: Create directories `src/`, `tests/`, `data/raw/`, `data/processed/`, `data/models/`, `docs/reports/`, `src/lib/`, `src/services/`, `src/cli/`, `src/config/`, `src/models/`
+- [ ] T002 Create `requirements.txt` containing: `transformers`, `llama-cpp-python`, `scikit-learn`, `datasets`, `pandas`, `numpy`, `torch`, `pytest`, `einops`, `seaborn`, `matplotlib`
+- [ ] T003 [P] Configure linting and formatting: Create `.ruff.toml` with ruff config and `pyproject.toml` with `[tool.black]` section
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -59,8 +59,8 @@
 - [ ] T005 [P] Implement `src/lib/streaming_utils.py` for chunked dataset loading and checksumming
 - [ ] T006 [P] Create `src/lib/error_handling.py` with strict failure modes (no synthetic fallbacks)
 - [ ] T007 Define `TrainingSample` and `GapPredictionResult` classes in `src/models/entities.py`
-- [ ] T008 Configure logging infrastructure to `logs/pipeline.log` with structured output
-- [ ] T009 Setup environment configuration management for model paths and dataset IDs
+- [ ] T008 Create `src/config/logging_config.py` that configures a FileHandler to `logs/pipeline.log` with JSON formatting
+- [ ] T009 Create `src/config/env_config.py` with a `load_config()` function reading from `.env` and create `.env.example` with keys for MODEL_PATH, DATASET_ID
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,13 +80,17 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `src/services/feature_extractor.py`: Load full-precision Llama-8B, extract gradient norms (L2) and local curvature (Hutchinson's estimator) for GSM8K/Ultrachat samples
-- [ ] T013 [P] [US1] Implement `src/services/quantized_inference.py`: Wrap `llama-cpp-python` to run INT4, INT8, and FP8 inference on CPU; handle load errors by logging and skipping (no synthetic fallback)
+- [ ] T013 [P] [US1] Implement `src/services/quantized_inference.py`: Wrap `llama-cpp-python` to run INT4, INT8, and FP8 inference on CPU; handle load errors by logging and skipping (no synthetic fallback); **VERIFY** that the dataset generation completes with a non-zero number of valid samples before finishing
 - [ ] T014 [US1] Implement `src/services/gap_calculator.py`: Compute exact KL divergence between full-precision and quantized logits; add epsilon for numerical stability
-- [ ] T015 [US1] Implement `src/cli/generate_dataset.py`: Orchestrate streaming of GSM8K/Ultrachat prompts, align features with inference results, and write `data/processed/training_sample.parquet`
-- [ ] T016 [US1] Add logging logic to record the **actual observed proportion** of samples with non-zero `calculated_kl_divergence` and report it in the pipeline log; do NOT enforce a hardcoded threshold (e.g., 5%) as this is a research observation to be analyzed later, not a task gate
+- [ ] T015 [US1] Implement `src/cli/generate_dataset.py`: Orchestrate streaming of GSM8K/Ultrachat prompts; **for every sample**, execute feature extraction (T012) and quantized inference (T013) **in a paired loop** to ensure alignment, then write `data/processed/training_sample.parquet`
+- [ ] T016 [US1] Modify `src/cli/generate_dataset.py` to append a summary log entry at the end of execution recording the **actual observed proportion** of samples with non-zero `calculated_kl_divergence` and report it in the pipeline log
 - [ ] T017 [US1] Add logging for data generation progress, skipped samples, and quantization errors
+- [ ] T018 [US1] Implement `src/services/vif_checker.py`: Calculate Variance Inflation Factor (VIF) for gradient norms and curvature on the generated dataset; log results to `logs/pipeline.log` to validate the Assumption before model training
+- [ ] T018A [US1] Implement `src/cli/validate_features.py`: Load `training_sample.parquet`, run VIF diagnostic using `src/services/vif_checker.py`, and **raise an error** if collinearity exceeds threshold (VIF > 10) to ensure features are valid before training; log results to `logs/pipeline.log`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+**Explicit Internal Dependencies for T015**: T015 depends on T012, T013, and T014 being complete to ensure feature extraction, quantized inference, and gap calculation services are available for the paired loop.
 
 ---
 
@@ -98,17 +102,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for KRR training pipeline and hyperparameter grid in `tests/unit/test_predictor.py`
-- [ ] T019 [P] [US2] Integration test for model evaluation against test set in `tests/integration/test_model_training.py`
+- [ ] T019 [P] [US2] Unit test for KRR training pipeline and hyperparameter grid in `tests/unit/test_predictor.py`
+- [ ] T020 [P] [US2] Integration test for model evaluation against test set in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `src/models/gap_predictor.py`: Define Kernel Ridge Regression model with fixed hyperparameter grid (alpha=[low, medium, high], gamma=[low, medium, high])
-- [ ] T021A [US2] Implement `src/cli/prepare_data_split.py`: Load `training_sample.parquet`, **stratify by quantization level (INT4, INT8, FP8)**, and write train/val/test splits to `data/processed/split_{set}.parquet` to ensure FR-004 joint training representation; verify that each split contains samples from all three levels
+- [ ] T021A [US2] Implement `src/cli/prepare_data_split.py`: Load `training_sample.parquet`, **stratify by quantization level (INT4, INT8, FP8)**, and write train/val/test splits to `data/processed/split_{set}.parquet`; **ASSERT** that each split contains samples from all three levels, raising an error if not (ensuring FR-004)
 - [ ] T021 [US2] Implement `src/cli/train_predictor.py`: Load stratified `train.parquet` (output of T021A), train KRR, and save model artifact to `data/models/gap_predictor.pkl`
 - [ ] T022 [US2] Implement evaluation logic in `src/services/evaluator.py`: Calculate Pearson correlation (r) and MAE between predicted and actual divergence on test set
-- [ ] T023 [US2] Add VIF (Variance Inflation Factor) diagnostic to `src/services/evaluator.py` to check for collinearity between gradient norms and curvature
-- [ ] T024 [US2] Integrate with User Story 1 components (load generated dataset)
+- [ ] T022A [US2] Implement `src/cli/evaluate_on_test.py`: Load `test.parquet` (output of T021A), load `gap_predictor.pkl` (output of T021), and run the evaluation logic from T022 against the test set; report metrics to `data/processed/test_metrics.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,19 +124,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for report schema in `tests/contract/test_report_schema.py`
-- [ ] T026 [P] [US3] Integration test for end-to-end statistical validation in `tests/integration/test_validation.py`
+- [ ] T024 [P] [US3] Contract test for report schema in `tests/contract/test_report_schema.py`
+- [ ] T025 [P] [US3] Integration test for end-to-end statistical validation in `tests/integration/test_validation.py`
 
 ### Implementation for User Story 3
 
+- [ ] T026 [US3] Implement `src/cli/orchestrate_baseline_proxy.py`: Load `test.parquet`, set a **fixed random seed**, and **synchronize input prompts**; trigger T027 (baseline) and T028 (proxy) with these shared inputs to ensure valid paired comparison
+- [ ] T026A [US3] Implement `src/cli/synchronize_inputs.py`: Generate a fixed set of input prompts with a **fixed random seed** and write them to `data/processed/synchronized_inputs.json`; this artifact serves as the single source of truth for both T027 and T028 to ensure paired t-test validity
 - [ ] T027 [US3] Implement `src/cli/run_baseline_sync.py`: Execute the **full-hardware-sync baseline** by running actual quantized inference for every sample in the test set (using the same quantization levels as the dataset); calculate ground-truth acceptance rates and final reasoning scores; output results to `data/processed/baseline_metrics.json`; this task provides the ground-truth baseline for T028
 - [ ] T028 [US3] Implement `src/cli/run_proxy_loop.py`: Simulate MIPU loop (Proxy Policy vs. **Baseline from T027**) on test set; calculate acceptance rates and final reasoning scores; perform paired t-test comparing Proxy vs. Baseline (FR-006)
 - [ ] T029 [US3] Implement statistical comparison in `src/services/statistical_tester.py`: Perform paired t-test on acceptance rates and final scores; apply Bonferroni correction
-- [ ] T030 [US3] Implement latency instrumentation in `src/services/latency_meter.py`: Measure time for **policy evaluation step** (KRR prediction) vs. full hardware sync (quantized inference); calculate `latency_reduction_percentage` and record in `data/processed/latency_metrics.json` to verify SC-002 (≥90% reduction target)
-- [ ] T031 [US3] Implement `src/services/bound_verifier.py`: Verify `|predicted - actual| < 0.1` holds **separately for INT4, INT8, and FP8 levels**; calculate percentage of samples satisfying the bound per level
+- [ ] T030 [US3] Implement `src/services/latency_meter.py`: Measure time for **policy evaluation step** (KRR prediction) vs. full hardware sync (quantized inference); **calculate `latency_reduction_percentage`**; write `proxy_time`, `baseline_time`, `reduction_percentage` to `data/processed/latency_metrics.json` to verify SC-002 (≥90% reduction target)
+- [ ] T031 [US3] Implement `src/services/bound_verifier.py`: Verify `|predicted - actual| < 0.1` holds **separately for INT4, INT8, and FP8 levels**; **calculate and report a consistency metric** (e.g., percentage of samples satisfying the bound across ALL three levels) in the output artifact
 - [ ] T032 [US3] Implement `src/cli/aggregate_consistency.py`: Aggregate results from T031 to **verify consistency** across all three levels (INT4, INT8, FP8); report correlation coefficient per level and a summary consistency metric (SC-004) in `data/processed/consistency_report.json`
-- [ ] T033 [US3] Generate final research report with all metrics, plots, and statistical conclusions in `docs/reports/001-llmxive-mipu-gap-bounds.md`, including **latency_reduction_percentage** for the **policy evaluation step** (SC-002) and consistency findings
-- [ ] T034 [US3] Update `state` YAML with completion timestamp and artifact checksums
+- [ ] T033 [US3] Generate final research report with all metrics, plots, and statistical conclusions in `docs/reports/001-llmxive-mipu-gap-bounds.md`, including **latency_reduction_percentage** for the **policy evaluation step** (SC-002), consistency findings, **Bonferroni correction method**, and adjusted alpha threshold
+- [ ] T034 [US3] Update `state/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o.yaml` to set `updated_at` to current ISO timestamp and populate `artifact_hashes` with checksums of `data/processed/*.parquet` and `data/models/*.pkl`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -251,3 +255,6 @@ With multiple developers:
 - **Critical Constraint**: Data splitting (T021A) MUST stratify by quantization level to ensure joint training (FR-004).
 - **Critical Constraint**: Bound verification (T031/T032) MUST report consistency across all three levels (INT4, INT8, FP8).
 - **Critical Constraint**: Latency measurement (T030) MUST isolate the 'policy evaluation step' and record the specific metric for SC-002.
+- **Critical Constraint**: T015 MUST pair feature extraction and inference for every sample.
+- **Critical Constraint**: T026 MUST synchronize seeds and inputs for T027/T028.
+- **Critical Constraint**: T021A MUST assert all quantization levels are present in splits.

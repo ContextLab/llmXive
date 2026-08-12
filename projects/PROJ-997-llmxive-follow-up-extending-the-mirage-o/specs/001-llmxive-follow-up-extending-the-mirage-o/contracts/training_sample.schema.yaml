@@ -8,13 +8,13 @@ properties:
     description: "Unique identifier for the sample."
   prompt:
     type: "string"
-    description: "The input prompt text."
+    description: "The input text (e.g., GSM8K question)."
   gradient_norm:
     type: "number"
-    description: "The L2 norm of the gradients w.r.t. input embeddings."
+    description: "L2 norm of the gradient vector from full-precision training step."
   local_curvature:
     type: "number"
-    description: "The local curvature estimate via Hutchinson's estimator."
+    description: "Approximation of local curvature (e.g., Hessian trace diagonal)."
   logits_magnitude:
     type: "number"
     description: "The L2 norm of the output logits vector (deprecated)."
@@ -25,7 +25,7 @@ properties:
       - "INT4"
       - "INT8"
       - "FP8"
-    description: "The quantization level used for the ground-truth measurement."
+    description: "Quantization level for the sample."
   quantized_logits:
     type: "array"
     items:
@@ -63,8 +63,10 @@ required:
   - prompt
   - gradient_norm
   - local_curvature
+  - kl_div_int4
+  - kl_div_int8
+  - kl_div_fp8
   - quantization_level
-  - kl_divergence
-  - processing_status
+  - timestamp
   - is_reasoning_task
 additionalProperties: false

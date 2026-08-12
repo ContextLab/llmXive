@@ -1,15 +1,13 @@
 status: none
-intent: LLM quantization gap dataset GSM8K Llama-3-8B ONNX Runtime python package
-  dataset
+intent: LLM quantization gap dataset gradient norms curvature KL divergence python
+  package dataset
 required_fields:
-- prompt_id
+- prompt
 - gradient_norm
 - local_curvature
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-- model_name
-- quantization_method
-cache_key: ca4a42a64d52f430c50b7d60374eae8c9d6736b3349dc84fc20fc5c384c0763d
-searched_at: '2026-08-05T23:34:49.327269+00:00'
+cache_key: 0be63d88c11eaf26cfff0c0b111c1d6d4303a9051521a89af24753d5c5c2eac6
+searched_at: '2026-08-12T16:26:26.349086+00:00'
 retry_count: 1

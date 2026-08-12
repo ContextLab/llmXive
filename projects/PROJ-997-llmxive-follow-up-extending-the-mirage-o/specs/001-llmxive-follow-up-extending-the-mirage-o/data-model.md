@@ -2,69 +2,60 @@
 
 ## Overview
 
-This document defines the data structures used throughout the project, ensuring consistency between data generation, model training, and validation. The data model is designed to support the "Hardware-Grounded Validation" principle by strictly separating training-side features from hardware-measured targets.
+This document defines the data structures used for the `training_sample.parquet`, the `predictor` model artifact, and the `metrics` report. All data is checksummed and immutable.
 
 ## Entities
 
-### 1. TrainingSample
-
+### TrainingSample
 Represents a single input instance used for feature extraction and gap calculation.
 
-**Fields**:
-- `input_id`: Unique identifier for the sample (string).
-- `prompt`: The input prompt text (string).
-- `gradient_norm`: **RESTORED**. The L2 norm of the gradients w.r.t. input embeddings (float). Required by FR-001.
-- `local_curvature`: **RESTORED**. The local curvature estimate via Hutchinson's estimator (float). Required by FR-002.
-- `logits_magnitude`: **DEPRECATED**. Removed as a primary feature; retained only for legacy reference if needed.
-- `quantization_level`: The quantization level used for the ground-truth measurement (enum: "INT4", "INT8", "FP8").
-- `quantized_logits`: The logits output from the quantized engine (array of floats).
-- `full_precision_logits`: The logits output from the full-precision engine (array of floats).
-- `kl_divergence`: The calculated KL divergence between full-precision and quantized logits (float).
-- `ground_truth_answer`: The ground-truth answer for the prompt (string, nullable). Only populated for GSM8K subset.
-- `is_reasoning_task`: Boolean flag indicating if the sample is from the GSM8K reasoning subset (boolean).
-- `processing_status`: Status of the sample processing (enum: "success", "skipped", "error").
-- `error_message`: Error message if processing failed (string, nullable).
+| Field | Type | Description |
+|-------|------|-------------|
+| `input_id` | string | Unique identifier for the prompt. |
+| `prompt` | string | The input text (e.g., GSM8K question). |
+| `gradient_norm` | float | L2 norm of the gradient vector from full-precision training step. |
+| `local_curvature` | float | Approximation of local curvature (e.g., Hessian trace diagonal). |
+| `kl_div_int4` | float | KL divergence between FP16 and INT4 quantized logits. |
+| `kl_div_int8` | float | KL divergence between FP16 and INT8 quantized logits. |
+| `kl_div_fp8` | float | KL divergence between FP16 and FP8 quantized logits. |
+| `quantization_level` | string | "INT4", "INT8", or "FP8" (for stratified analysis). |
+| `timestamp` | datetime | Generation timestamp. |
 
-**Constraints**:
-- `kl_divergence` must be non-negative.
-- `processing_status` must be "success" for the sample to be used in model training.
-- `gradient_norm` and `local_curvature` must be extracted from the full-precision model state.
-- `ground_truth_answer` must be present if `is_reasoning_task` is true.
+### QuantizedInferenceResult
+Intermediate artifact from the `llama.cpp` engine.
 
-### 2. GapPredictionResult
+| Field | Type | Description |
+|-------|------|-------------|
+| `input_id` | string | Reference to `TrainingSample`. |
+| `quantization_level` | string | "INT4", "INT8", or "FP8". |
+| `logits` | array(float) | Quantized output logits (stored as float32 for analysis). |
+| `log_probs` | array(float) | Log probabilities derived from logits. |
+| `status` | string | "success", "failed_load", "numeric_error". |
 
-Represents the output of the Gap Predictor model.
+### GapPredictor
+Trained regression model artifact.
 
-**Fields**:
-- `input_id`: Unique identifier for the sample (string).
-- `predicted_gap`: The predicted KL divergence from the model (float).
-- `actual_gap`: The ground-truth KL divergence (float).
-- `absolute_error`: |predicted_gap - actual_gap| (float).
-- `quantization_level`: The quantization level used (enum: "INT4", "INT8", "FP8").
-
-**Constraints**:
-- `absolute_error` must be non-negative.
-- `predicted_gap` must be non-negative.
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | string | "KernelRidge", "MLP", etc. |
+| `kernel_params` | object | Hyperparameters (alpha, gamma, etc.). |
+| `feature_names` | list(string) | ["PCA1", "PCA2"]. |
+| `training_metrics` | object | R2, MAE, Pearson r on validation set. |
+| `content_hash` | string | SHA-256 of the model weights/params. |
 
 ## Data Flow
 
-1.  **Input**: Prompts (from GSM8K or Ultrachat_200k).
-2.  **Feature Extraction**: `TrainingSample` is populated with `gradient_norm` and `local_curvature` (via forward/backward passes).
-3.  **Inference**: `TrainingSample` is populated with `quantized_logits` and `full_precision_logits`.
-4.  **Gap Calculation**: `kl_divergence` is computed and stored in `TrainingSample`.
-5.  **Model Training**: `TrainingSample` (with `processing_status` = "success") is used to train the `GapPredictor`.
-6.  **Prediction**: `GapPredictionResult` is generated for test samples.
-7.  **Validation**: `GapPredictionResult` is used to compute correlation, MAE, and bound verification.
+1.  **Input**: `gsm8k` (raw prompts) + `llama-3-8b` (model).
+2.  **Process**:
+    *   `extract_features.py`: Generates `gradient_norm`, `local_curvature`.
+    *   `generate_ground_truth.py`: Runs `llama.cpp` (INT4/8/FP8) → `QuantizedInferenceResult`.
+    *   `utils/stats.py`: Calculates KL divergence → `TrainingSample`.
+3.  **Output**: `data/processed/training_sample.parquet`.
+4.  **Training**: `models/train_predictor.py` consumes `TrainingSample` → `GapPredictor`.
+5.  **Validation**: `models/evaluate_predictor.py` → `data/metrics/metrics.json`.
 
-## Storage Format
+## Constraints
 
-- **Raw Data**: Parquet files in `data/raw/` (streamed from verified sources if used, or locally generated).
-- **Processed Data**: Parquet files in `data/processed/` containing `TrainingSample` records.
-- **Model Artifacts**: Pickle files in `data/models/` containing the trained KRR model.
-- **Results**: JSON/CSV files in `data/results/` containing `GapPredictionResult` records.
-
-## Versioning
-
-- **Schema Version**: 1.0.1
-- **Last Updated**: 2026-08-06
-- **Change Log**: Restored `gradient_norm` and `local_curvature`. Removed `logits_magnitude` as primary feature. Added `ground_truth_answer` and `is_reasoning_task` to support the Static RL Simulation and t-test on reasoning scores.
+*   **Immutability**: Once `training_sample.parquet` is written, it is never modified. New derivations create new files.
+*   **Checksums**: All files in `data/` are checksummed (SHA-256) and recorded in `state/`.
+*   **PII**: No personally identifying information is included in prompts or metadata.
