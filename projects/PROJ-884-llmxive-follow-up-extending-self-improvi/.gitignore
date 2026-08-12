@@ -34,9 +34,10 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.tox/
 .coverage
 .coverage.*
-cache/
+.cache
 nosetests.xml
 coverage.xml
 *.cover
@@ -54,38 +55,42 @@ ENV/
 env/
 .venv/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# mypy
-.mypy_cache/
-
-# NumPy
-*.npy
-*.npz
-
-# Project specific
-data/processed/*.log
-data/processed/*.csv
-data/processed/*.json
-data/raw/*.json
-figures/
-
 # OS generated files
 .DS_Store
 .DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Project specific
+data/raw/
+!data/raw/.gitkeep
+data/processed/
+!data/processed/.gitkeep
+logs/
+*.log
+.gitkeep
+
+# Config / Secrets
+.env.local
+.env.*.local
+secrets.json
+credentials.json
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/

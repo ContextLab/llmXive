@@ -97,7 +97,7 @@
 
 - [X] T012 [US1] Implement `code/dataset/verifier.py` to execute deterministic validation logic for each puzzle instance, returning boolean validity and specific constraint violation codes (e.g., `DUPLICATE_ROW`, `INVALID_PATH`) within 100ms. **Note**: T012 validates the code, T013 generates the data.
 
-- [~] T014 [US1] Add checksum validation for all files in `data/raw/` to ensure data integrity (Principle III)
+- [ ] T014 [US1] Add checksum validation for all files in `data/raw/` to ensure data integrity (Principle III)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -113,7 +113,7 @@
 
 - [X] T016 [P] [US2] Unit test for `code/symbolic/planner.py` with edge cases (non-linear constraints, impossible goals) in `tests/unit/test_symbolic_planner.py::test_planner_handles_nonlinear_constraints`
 
-- [ ] T017 [US2] Integration test for the BES loop with a small population in `tests/integration/test_bes_loop.py::test_bes_loop_executes_symbolic_backward_step`. **Note**: Written first (TDD) but executes after T024. <!-- ATOMIZE: requested -->
+- [ ] T017 [US2] Integration test for the BES loop with a small population in `tests/integration/test_bes_loop.py::test_bes_loop_executes_symbolic_backward_step`. **Note**: Written first (TDD) but executes after T024. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
@@ -121,17 +121,17 @@
 
 - [X] T019 [US2] Implement `code/symbolic/planner.py` to generate sub-goal decompositions, including logic to detect and flag `CONTRADICTION_DETECTED` or `PARSE_FAILURE`
 
-- [ ] T019b [US2] Implement logging mechanism for exclusion reasons in `code/symbolic/planner.py` to record `PARSE_FAILURE` or `CONTRADICTION_DETECTED` reasons as required by FR-006
+- [X] T019b [US2] Implement logging mechanism for exclusion reasons in `code/symbolic/planner.py` to record `PARSE_FAILURE` or `CONTRADICTION_DETECTED` reasons as required by FR-006
 
-- [ ] T020 [P] [US2] Select and configure a small pre-trained LLM (`distilbert-base-uncased`) in `code/bes/forward_step.py` compatible with CPU-only inference (no CUDA, no 8-bit quantization)
+- [X] T020 [P] [US2] Select and configure a small pre-trained LLM (`distilbert-base-uncased`) in `code/bes/forward_step.py` compatible with CPU-only inference (no CUDA, no 8-bit quantization)
 
-- [ ] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must use `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`) and specify exact Hugging Face model ID with pinned `revision` hash for reproducibility.
+- [X] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must use `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`) and specify exact Hugging Face model ID with pinned `revision` hash for reproducibility. <!-- FAILED: unspecified -->
 
 - [ ] T022 [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
 
-- [ ] T023 [US2] Implement `code/bes/backward_step.py` to integrate the symbolic planner output into the evolutionary loop, replacing the neural verifier
+- [X] T023 [US2] Implement `code/bes/backward_step.py` to integrate the symbolic planner output into the evolutionary loop, replacing the neural verifier
 
-- [ ] T024 [US2] Implement the main BES loop in `code/main.py` to orchestrate forward (LLM) and backward (Symbolic) steps, logging all transitions
+- [X] T024 [US2] Implement the main BES loop in `code/main.py` to orchestrate forward (LLM) and backward (Symbolic) steps, logging all transitions
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -145,15 +145,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for `code/analysis/stats.py` with synthetic data in `tests/unit/test_stats.py::test_z_test_identifies_significance`
+- [X] T025 [P] [US3] Unit test for `code/analysis/stats.py` with synthetic data in `tests/unit/test_stats.py::test_z_test_identifies_significance`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement `code/analysis/metrics.py` to calculate success rates, wall-clock time, and energy consumption (Joules) from execution logs
+- [X] T026 [P] [US3] Implement `code/analysis/metrics.py` to calculate success rates, wall-clock time, and energy consumption (Joules) from execution logs
 
-- [ ] T027 [US3] Implement `code/analysis/stats.py` to perform **two-tailed two-proportion z-test** for success rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05 to determine statistical significance
+- [X] T027 [US3] Implement `code/analysis/stats.py` to perform **two-tailed two-proportion z-test** for success rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05 to determine statistical significance
 
-- [ ] T028 [US3] [SC-001] Implement TOST (Two One-Sided Tests) logic in `code/analysis/stats.py` for equivalence testing as per SC-001. **Note**: This task addresses the 'equivalence' requirement in SC-001, distinct from the z-test in FR-005.
+- [X] T028 [US3] [SC-001] Implement TOST (Two One-Sided Tests) logic in `code/analysis/stats.py` for equivalence testing as per SC-001. **Note**: This task addresses the 'equivalence' requirement in SC-001, distinct from the z-test in FR-005.
 
 - [ ] T029 [US3] Implement scalability analysis in `code/analysis/metrics.py` to derive the formal **complexity class (Big-O)** via **log-log linear regression** on problem size vs. time. **Requirement**: Must implement classification logic to compare regression slope to thresholds (e.g., ~1 for O(n), ~2 for O(n^2)) to output a discrete `complexity_class` column. Output must be saved to `data/processed/scaling_analysis.csv`. **Note**: Depends on T024 (BES loop) and T026 (metrics).
 

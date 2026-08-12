@@ -1,12 +1,11 @@
 """
-Save trained CTCF predictor model weights to disk.
+Model Saving Module for CTCF Predictor
 
-This script loads the best model state dictionary produced by the training
-pipeline and saves it to the designated output path:
-`data/models/best_ctcf_predictor.pth`.
-
-It ensures the output directory exists and logs the save operation.
+This module handles the persistence of trained model weights to disk.
+It ensures the output directory exists, loads the best model state
+from the training process, and saves the weights in PyTorch format.
 """
+
 import os
 import sys
 import logging
@@ -14,109 +13,114 @@ import torch
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Project root path resolution
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_MODELS_DIR = PROJECT_ROOT / "data" / "models"
 
-from models.predictor import CTCFPredictor, load_model
-from models.train import save_metrics
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Configuration
-OUTPUT_DIR = PROJECT_ROOT / "data" / "models"
-OUTPUT_FILE = OUTPUT_DIR / "best_ctcf_predictor.pth"
-METRICS_FILE = PROJECT_ROOT / "data" / "models" / "training_metrics.json"
-
-def ensure_output_dir():
-    """Create the output directory if it does not exist."""
-    if not OUTPUT_DIR.exists():
-        logger.info(f"Creating output directory: {OUTPUT_DIR}")
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-def load_best_model_state() -> Dict[str, Any]:
+def ensure_output_dir(output_path: Path) -> None:
     """
-    Load the best model state from the training checkpoint.
+    Ensures the directory containing the output file exists.
     
-    The training script (code/models/train.py) is expected to save the best
-    model state to a specific location or update the metrics file with the
-    path to the best checkpoint. For this implementation, we assume the
-    training process leaves the best state in memory or a temporary location
-    that we can access via the `load_model` helper if a path is provided,
-    or we re-instantiate and load from the standard training checkpoint location.
-    
-    In the context of the pipeline, `train.py` typically saves the best model
-    as `best_model.pth` in the output directory. We will look for that or
-    attempt to load from the metrics reference if available.
-    
-    For robustness, we will attempt to load from the standard training checkpoint
-    path if `load_model` supports it, or we assume the training script has
-    already saved a `best_model.pth` in the output directory.
+    Args:
+        output_path: The full path to the file to be saved.
     """
-    # Standard location where train.py saves the best model
-    training_best_path = OUTPUT_DIR / "best_model.pth"
+    output_dir = output_path.parent
+    if not output_dir.exists():
+        logger.info(f"Creating output directory: {output_dir}")
+        output_dir.mkdir(parents=True, exist_ok=True)
+    elif not output_dir.is_dir():
+        raise NotADirectoryError(f"Path exists but is not a directory: {output_dir}")
+
+def load_best_model_state(
+    model: Any, 
+    metrics: Dict[str, float], 
+    best_metric_name: str = "val_auc"
+) -> Dict[str, Any]:
+    """
+    Retrieves the state dictionary of the best model based on metrics.
     
-    if training_best_path.exists():
-        logger.info(f"Loading best model state from: {training_best_path}")
-        state_dict = torch.load(training_best_path, map_location='cpu')
-        return state_dict
-    else:
-        # Fallback: Try to load from a generic checkpoint if it exists
-        # This handles cases where the training script might have named it differently
-        checkpoint_files = list(OUTPUT_DIR.glob("*.pth"))
-        if checkpoint_files:
-            # Sort by modification time, take the latest
-            latest = max(checkpoint_files, key=os.path.getmtime)
-            logger.warning(f"Using latest checkpoint {latest} as best model.")
-            return torch.load(latest, map_location='cpu')
+    In a real training loop (T021), the model state is typically saved
+    incrementally. This function assumes the 'model' passed is the current
+    best candidate or retrieves the state if the training loop stored it
+    in the metrics dictionary (e.g., 'best_model_state').
+    
+    Args:
+        model: The PyTorch model instance (CTCFPredictor).
+        metrics: Dictionary containing training metrics.
+        best_metric_name: The key in metrics to track for "bestness".
         
-        raise FileNotFoundError(
-            f"No trained model weights found in {OUTPUT_DIR}. "
-            "Please run code/models/train.py first to generate the model."
-        )
+    Returns:
+        The state_dict of the best model.
+    """
+    # If the training loop stored the best state in metrics, use it.
+    # This is a common pattern to avoid loading a file during the save step.
+    if "best_model_state" in metrics:
+        logger.info("Loading best model state from metrics dictionary.")
+        return metrics["best_model_state"]
+    
+    # Fallback: If the model has been updated to the best state already,
+    # simply return its state_dict.
+    logger.info("Returning current model state (assuming it is the best).")
+    return model.state_dict()
 
-def save_model_weights(state_dict: Dict[str, Any]):
-    """Save the model weights to the final output path."""
-    logger.info(f"Saving model weights to: {OUTPUT_FILE}")
-    torch.save(state_dict, OUTPUT_FILE)
-    logger.info("Model weights saved successfully.")
+def save_model_weights(
+    model: Any,
+    metrics: Dict[str, float],
+    output_path: Optional[Path] = None,
+    best_metric_name: str = "val_auc"
+) -> Path:
+    """
+    Saves the trained model weights to the specified path.
+    
+    Args:
+        model: The PyTorch model instance.
+        metrics: Dictionary containing training metrics (e.g., AUC, loss).
+        output_path: Optional path for the .pth file. Defaults to 
+                     data/models/best_ctcf_predictor.pth.
+        best_metric_name: Key in metrics used to identify the best model state.
+        
+    Returns:
+        The Path where the model was saved.
+    """
+    if output_path is None:
+        output_path = DATA_MODELS_DIR / "best_ctcf_predictor.pth"
+    
+    ensure_output_dir(output_path)
+    
+    # Extract the state dictionary
+    state_dict = load_best_model_state(model, metrics, best_metric_name)
+    
+    # Save the dictionary
+    logger.info(f"Saving model weights to {output_path}")
+    torch.save({
+        "model_state_dict": state_dict,
+        "metrics": metrics,
+        "best_metric_name": best_metric_name
+    }, str(output_path))
+    
+    logger.info(f"Model saved successfully to {output_path}")
+    return output_path
 
 def main():
-    """Main entry point for saving the trained model."""
-    logger.info("Starting model save process (T024).")
+    """
+    Entry point for the save_model script.
+    This is typically called from code/models/train.py after training completes.
+    For standalone testing, it expects a mock model or arguments.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    try:
-        # Ensure output directory exists
-        ensure_output_dir()
-        
-        # Load the best model state
-        state_dict = load_best_model_state()
-        
-        # Save to the designated T024 output path
-        save_model_weights(state_dict)
-        
-        # Verify the file exists
-        if OUTPUT_FILE.exists():
-            file_size = OUTPUT_FILE.stat().st_size
-            logger.info(f"Verification: {OUTPUT_FILE} exists (size: {file_size} bytes).")
-            logger.info("T024 completed successfully.")
-            return 0
-        else:
-            logger.error("Verification failed: Output file was not created.")
-            return 1
-
-    except FileNotFoundError as e:
-        logger.error(f"Model file not found: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during model save: {e}")
-        return 1
+    # Check if called directly for a dry run or specific test
+    # In the pipeline, this function is imported and called by train.py
+    if __name__ == "__main__":
+        # Example usage if run directly (requires a model instance)
+        # This block is primarily for documentation/testing the API
+        logger.info("save_model module loaded. Call save_model_weights() from train.py.")
+        return
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

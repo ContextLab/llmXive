@@ -1,0 +1,43 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation for managing ENCODE API keys
+    and local paths are present in the provided evidence; therefore the required environment
+    configuration management artifact is missing.
+T015:
+  c: false
+  h: 04aaa515f3e01354c6a8f76bb71e62a06037ee88769993f5a6a790bc1ead8882
+  r: "The `code/data/save_dataset.py` script is present but appears truncated and\
+    \ does not show the complete logic to load the intermediate CSV and write the\
+    \ Parquet file, and the required output file `data/processed/unified_ctcf_dataset.parquet`\
+    \ is missing. The task is not satisfied until the script fully implements the\
+    \ save operation and the Parquet file exists and is non\u2011empty."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation artifact was presented showing that a validation\
+    \ step was added to ensure each row contains a fixed\u2011length sequence and\
+    \ matching chromatin values, nor that an error is raised when nulls remain. The\
+    \ required implementation and its verification are missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log output showing that logging for data ingestion
+    (including cell type counts and exclusion reasons) was added. The claim lacks
+    any concrete artifact (e.g., updated ingestion script, logging statements, sample
+    log files) to verify the requirement.
+T021:
+  c: false
+  h: d81501bc3b2875b2e19651bed16555b790476be4243ecf8baa09d810cb76f398
+  r: The `code/models/train.py` file is present but ends abruptly (truncated code,
+    missing the training loop, loss computation, and any handling of majority/minority
+    class ratios). Moreover, the required dataset `data/processed/unified_ctcf_dataset.parquet`
+    does not exist on disk. Both the script implementation and the input data are
+    missing, so the task is not genuinely completed.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or result files were presented that demonstrate a synthetic DNA\
+    \ sequence with a strong CTCF motif and low ATAC\u2011seq signal being run through\
+    \ the trained model, nor any reported probability showing it is \u2264\u202F0.2.\
+    \ The required test artifact is missing, so the task is not satisfied."

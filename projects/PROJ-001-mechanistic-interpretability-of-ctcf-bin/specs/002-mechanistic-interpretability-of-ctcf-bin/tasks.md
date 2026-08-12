@@ -63,7 +63,7 @@
  - **Dependency**: Must run after T004 succeeds (≥5 sets found).
 - [X] T006 [P] If T004 fails (zero matched sets), implement `code/data/generate_halt_report.py` to generate `docs/project_halt_report.md` documenting the failure and **HALT** the pipeline.
  - **Dependency**: Triggers ONLY if T004 finds zero matched sets.
-- [ ] T007 [P] Create `data/manifest.json` ONLY if T004 succeeds (≥5 matched sets found). If T004 fails, this task is skipped. <!-- FAILED: unspecified -->
+- [X] T007 [P] Create `data/manifest.json` ONLY if T004 succeeds (≥5 matched sets found). If T004 fails, this task is skipped. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Verified multi-modal data sources identified AND manifest generated, OR Project halted.
 
@@ -93,8 +93,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for sequence extraction `tests/unit/test_sequence_extraction.py` (verify ±500 bp windowing).
-- [ ] T011 [P] [US1] Unit test for multi-modal alignment `tests/unit/test_multi_modal_alignment.py` (verify missing data handling/exclusion).
+- [X] T010 [P] [US1] Unit test for sequence extraction `tests/unit/test_sequence_extraction.py` (verify ±500 bp windowing).
+- [X] T011 [P] [US1] Unit test for multi-modal alignment `tests/unit/test_multi_modal_alignment.py` (verify missing data handling/exclusion).
 
 ### Implementation for User Story 1
 
@@ -104,8 +104,8 @@
 - [X] T014 [US1] Implement `code/data/preprocess.py` to **exclude** cell types with missing ATAC-seq data (per spec Edge Cases: "exclude that cell type... or impute"; we choose exclusion to ensure data integrity).
  - **Constraint**: If exclusion results in <5 cell types, the script MUST trigger a re-search (loop back to T003) or generate `docs/scope_revision_trigger.md`.
 - [ ] T015 [US1] Implement `code/data/save_dataset.py` to save the unified dataset as `data/processed/unified_ctcf_dataset.parquet`.
-- [~] T016 [US1] Add validation to ensure every row contains fixed-length sequence and matched chromatin values; raise error if nulls remain.
-- [~] T017 [US1] Add logging for data ingestion steps, including cell type counts and exclusion reasons.
+- [ ] T016 [US1] Add validation to ensure every row contains fixed-length sequence and matched chromatin values; raise error if nulls remain.
+- [ ] T017 [US1] Add logging for data ingestion steps, including cell type counts and exclusion reasons.
 
 **Checkpoint**: Unified multi-modal dataset produced, ready for model training.
 
@@ -126,12 +126,12 @@
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/models/predictor.py` with a lightweight CNN/Transformer architecture optimized for CPU execution (no CUDA dependencies).
-- [~] T021 [US2] Implement `code/models/train.py` to train the model on `data/processed/unified_ctcf_dataset.parquet`, splitting into train/validation sets with a standard majority/minority ratio.
+- [ ] T021 [US2] Implement `code/models/train.py` to train the model on `data/processed/unified_ctcf_dataset.parquet`, splitting into train/validation sets with a standard majority/minority ratio.
  - **Dependency**: Requires output of T020.
 - [X] T022 [US2] Implement `code/models/evaluate.py` to compute AUC-ROC on the validation set; log warning if < 0.85 but continue.
 - [X] T023 [US2] Implement fallback logic in `code/models/train.py` to reduce sequence window size or switch to simpler CNN if training exceeds a predefined time threshold.
 - [ ] T024 [US2] Save trained model weights to `data/models/best_ctcf_predictor.pth`.
-- [~] T025 [US2] Implement synthetic sequence test: apply model to a sequence with strong CTCF motif but low ATAC-seq; verify output probability ≤ 0.2.
+- [ ] T025 [US2] Implement synthetic sequence test: apply model to a sequence with strong CTCF motif but low ATAC-seq; verify output probability ≤ 0.2.
  - **Dependency**: Requires output of T024.
 
 **Checkpoint**: Trained predictive model saved with baseline performance metrics.

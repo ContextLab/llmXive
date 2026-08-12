@@ -39,3 +39,10 @@ T005:
     containing the required `timestamp`, `wall_clock`, and `resource_usage` fields
     to `data/processed/experiment.log`. The implementation correctly creates the directory
     and file when invoked, satisfying the task specification.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no code, script, configuration, or documentation that adds
+    checksum validation for files in `data/raw/`. There is no evidence of a checksum
+    generation step, a verification routine, or tests confirming integrity checks,
+    so the required artifact is missing.

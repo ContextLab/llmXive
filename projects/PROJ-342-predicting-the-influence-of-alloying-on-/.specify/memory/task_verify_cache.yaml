@@ -1,11 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, configuration, or documentation for a resource\u2011monitoring\
-    \ wrapper is present; the only artifacts shown relate to data ingestion, modeling,\
-    \ and reporting, not to CPU\u2011time or RAM enforcement. Consequently the required\
-    \ implementation of a monitoring wrapper that enforces the 6\u2011hour / 7\u202F\
-    GB limits is missing."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

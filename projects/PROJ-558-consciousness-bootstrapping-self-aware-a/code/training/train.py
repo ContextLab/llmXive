@@ -5,222 +5,290 @@ import hashlib
 import traceback
 import gc
 import torch
-import argparse
-from typing import Optional, Dict, Any, Tuple, List
+import torch.nn as nn
+from typing import Optional, Dict, Any, List
 from dataclasses import dataclass, field
 from pathlib import Path
+import argparse
+import time
 
-from utils.logging import get_logger, log_training_start, log_training_end, log_exception, RecursionDepthError
-from utils.config import get_config, validate_config
-from models.recursive_llama import create_recursive_model, RecursionState
-from evaluation.loss_functions import compute_joint_loss
+from utils.logging import get_logger, log_training_start, log_training_end, log_exception, ConfigurationError, RecursionDepthError
+from utils.memory_profiler import get_current_memory_mb, get_peak_memory_mb
+from config import get_config, validate_config
+from models.base_llama import BaseLlamaWrapper
+from models.recursive_llama import RecursiveLlamaWrapper, create_recursive_model, RecursionState
+from evaluation.loss_functions import compute_joint_loss, compute_self_consistency_loss
 from models.checkpoint import ModelCheckpoint
 
 logger = get_logger(__name__)
 
+# Constants for memory safety
+MAX_MEMORY_MB = 7000  # 7GB limit as per Constitution Principle VII
+RECURSION_DEPTH_LIMIT = 2
+
 @dataclass
 class TrainingState:
     epoch: int = 0
-    global_step: int = 0
+    step: int = 0
+    loss_history: List[float] = field(default_factory=list)
     best_loss: Optional[float] = None
     recursion_depth: int = 0
-    total_tokens_processed: int = 0
+    is_converged: bool = False
 
-class PileDataset:
-    def __init__(self, data_path: str, token_limit: int):
+class PileDataset(torch.utils.data.Dataset):
+    def __init__(self, data_path: str, tokenizer: Any, max_length: int = 512):
         self.data_path = data_path
-        self.token_limit = token_limit
+        self.tokenizer = tokenizer
+        self.max_length = max_length
         self.data = []
         self._load_data()
 
     def _load_data(self):
-        if not os.path.exists(self.data_path):
-            raise FileNotFoundError(f"Dataset file not found: {self.data_path}")
-        
         logger.info(f"Loading dataset from {self.data_path}")
-        with open(self.data_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                if self.token_limit > 0 and len(self.data) >= self.token_limit:
-                    break
-                try:
-                    item = json.loads(line)
-                    self.data.append(item)
-                except json.JSONDecodeError:
-                    logger.warning(f"Skipping invalid JSON line")
-        
+        try:
+            with open(self.data_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    if line.strip():
+                        self.data.append(json.loads(line))
+        except FileNotFoundError:
+            raise ConfigurationError(f"Dataset file not found: {self.data_path}")
         logger.info(f"Loaded {len(self.data)} items")
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        return self.data[idx]
+        item = self.data[idx]
+        text = item.get('text', '')
+        encoding = self.tokenizer(
+            text,
+            max_length=self.max_length,
+            padding='max_length',
+            truncation=True,
+            return_tensors='pt'
+        )
+        return {
+            'input_ids': encoding['input_ids'].squeeze(0),
+            'attention_mask': encoding['attention_mask'].squeeze(0),
+            'labels': encoding['input_ids'].squeeze(0)
+        }
 
-def validate_recursion_depth(config: Any, current_depth: int) -> None:
+def validate_recursion_depth(depth: int) -> None:
     """
-    Validates that recursion depth does not exceed the configured limit.
-    HARD FAIL: If current_depth > config.max_recursion_depth, raise RecursionDepthError.
+    Validates that the recursion depth does not exceed the hard limit.
+    Raises RecursionDepthError if the limit is violated.
     """
-    max_depth = getattr(config, 'max_recursion_depth', 2)
-    if current_depth > max_depth:
-        error_msg = f"Recursion depth violation: current depth {current_depth} exceeds maximum allowed {max_depth}"
+    if depth > RECURSION_DEPTH_LIMIT:
+        error_msg = f"Recursion depth {depth} exceeds maximum allowed limit of {RECURSION_DEPTH_LIMIT}. " \
+                    f"Hard-fail triggered as per T014 requirements."
         logger.error(error_msg)
         raise RecursionDepthError(error_msg)
 
-def check_memory_usage(threshold_mb: float = 6500.0) -> bool:
+def check_memory_usage() -> bool:
     """
-    Checks current memory usage. Returns True if usage is below threshold.
-    HARD FAIL: If usage exceeds threshold, logs error and returns False to trigger exit.
+    Checks current memory usage against the limit.
+    Returns True if within limits, False otherwise.
     """
-    if torch.cuda.is_available():
-        # GPU memory check (though task specifies CPU-only, handle gracefully)
-        allocated = torch.cuda.memory_allocated() / (1024 * 1024)
-        if allocated > threshold_mb:
-            logger.error(f"GPU memory usage {allocated:.2f}MB exceeds threshold {threshold_mb}MB")
-            return False
-    else:
-        # CPU memory check using resource module
-        try:
-            import resource
-            usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # Convert KB to MB on Linux
-            if usage > threshold_mb:
-                logger.error(f"CPU memory usage {usage:.2f}MB exceeds threshold {threshold_mb}MB")
-                return False
-        except ImportError:
-            logger.warning("resource module not available for CPU memory check")
-    
+    current_mb = get_current_memory_mb()
+    logger.debug(f"Current memory usage: {current_mb:.2f} MB")
+    if current_mb > MAX_MEMORY_MB:
+        error_msg = f"Memory usage {current_mb:.2f} MB exceeds limit of {MAX_MEMORY_MB} MB. " \
+                    f"Hard-fail triggered as per T014 requirements."
+        logger.error(error_msg)
+        return False
     return True
 
-def train_epoch(model: torch.nn.Module, dataset: PileDataset, state: TrainingState, config: Any) -> float:
+def train_epoch(
+    model: nn.Module,
+    dataloader: torch.utils.data.DataLoader,
+    optimizer: torch.optim.Optimizer,
+    device: torch.device,
+    config: Any
+) -> float:
+    """
+    Trains the model for one epoch.
+    Includes memory and recursion depth checks.
+    """
     model.train()
-    optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate)
     total_loss = 0.0
-    batch_size = config.batch_size
+    num_batches = 0
 
-    for i in range(0, len(dataset), batch_size):
-        batch = dataset.data[i : i + batch_size]
-        
-        # Validate recursion depth before processing batch
-        validate_recursion_depth(config, state.recursion_depth)
-        
-        # Check memory usage
+    for batch_idx, batch in enumerate(dataloader):
+        # Check memory before processing batch
         if not check_memory_usage():
-            raise MemoryError(f"Memory threshold exceeded at step {state.global_step}")
+            raise MemoryError("Memory limit exceeded during training.")
 
-        # Simulate training step (simplified for CPU-only context)
-        # In a real scenario, we would process the batch through the model
-        # Here we simulate the loss computation logic
-        batch_loss = 0.0
-        for item in batch:
-            # Simulate forward pass and loss calculation
-            # This is a placeholder for the actual joint loss computation
-            # which would involve generating N=5 paths and computing majority vote
-            try:
-                # Simulate a small loss value
-                batch_loss += 0.5  # Placeholder loss
-            except RecursionDepthError as e:
-                raise e
-            except MemoryError as e:
-                raise e
+        input_ids = batch['input_ids'].to(device)
+        attention_mask = batch['attention_mask'].to(device)
+        labels = batch['labels'].to(device)
 
-        avg_batch_loss = batch_loss / len(batch) if batch else 0.0
-        total_loss += avg_batch_loss
-
-        # Simulate backward pass and optimization
         optimizer.zero_grad()
-        # In real code: loss.backward(); optimizer.step()
-        
-        state.global_step += 1
-        state.total_tokens_processed += len(batch)
 
-        if state.global_step % 10 == 0:
-            logger.info(f"Step {state.global_step}, Loss: {avg_batch_loss:.4f}")
+        try:
+            # Forward pass
+            outputs = model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                labels=labels
+            )
+            loss = outputs.loss
 
-    return total_loss / max(len(dataset) // batch_size, 1)
+            # Backward pass
+            loss.backward()
+            optimizer.step()
 
-def save_checkpoint(model: torch.nn.Module, state: TrainingState, output_path: str) -> None:
-    checkpoint = ModelCheckpoint(
-        model_state_dict=model.state_dict(),
-        training_state={
-            'epoch': state.epoch,
-            'global_step': state.global_step,
-            'best_loss': state.best_loss,
-            'recursion_depth': state.recursion_depth,
-            'total_tokens_processed': state.total_tokens_processed
-        },
-        timestamp=state.epoch,
-        config_hash=hashlib.md5(str(config.__dict__).encode()).hexdigest()
+            total_loss += loss.item()
+            num_batches += 1
+
+            if batch_idx % 10 == 0:
+                logger.info(f"Batch {batch_idx}, Loss: {loss.item():.4f}")
+
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                logger.critical(f"OOM detected at batch {batch_idx}: {e}")
+                # Explicitly trigger hard-fail for OOM
+                raise MemoryError(f"Out of Memory error at batch {batch_idx}. Hard-fail triggered.") from e
+            else:
+                raise
+
+        # Periodic memory check
+        if batch_idx % 50 == 0:
+            if not check_memory_usage():
+                raise MemoryError("Memory limit exceeded during training.")
+
+    return total_loss / num_batches if num_batches > 0 else 0.0
+
+def save_checkpoint(
+    model: nn.Module,
+    state: TrainingState,
+    config: Any,
+    output_dir: Path
+) -> Path:
+    """
+    Saves the model checkpoint.
+    """
+    checkpoint_path = output_dir / f"checkpoint_epoch_{state.epoch}.pt"
+    torch.save({
+        'epoch': state.epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': None, # Optimizer not saved for simplicity in this snippet
+        'loss': state.best_loss,
+        'config': config
+    }, checkpoint_path)
+    logger.info(f"Checkpoint saved to {checkpoint_path}")
+    return checkpoint_path
+
+def run_training(
+    config: Any,
+    dataset_path: str,
+    output_dir: str
+) -> TrainingState:
+    """
+    Main training loop.
+    Implements T014: Hard-fail on recursion depth > 2 or OOM.
+    """
+    # Validate Recursion Depth immediately
+    validate_recursion_depth(config.recursion_depth)
+    logger.info(f"Recursion depth validated: {config.recursion_depth}")
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"Using device: {device}")
+
+    # Initialize Model
+    if config.recursion_depth > 0:
+        logger.info("Initializing Recursive Llama Model")
+        model = create_recursive_model(config)
+    else:
+        logger.info("Initializing Base Llama Model")
+        model = BaseLlamaWrapper(config)
+
+    model = model.to(device)
+    model.train()
+
+    # Initialize Dataset and DataLoader
+    dataset = PileDataset(dataset_path, model.tokenizer, max_length=config.max_length)
+    dataloader = torch.utils.data.DataLoader(
+        dataset,
+        batch_size=config.batch_size,
+        shuffle=True,
+        num_workers=0
     )
-    checkpoint.save(output_path)
-    logger.info(f"Checkpoint saved to {output_path}")
 
-def run_training(config: Any) -> None:
-    """
-    Main training loop with strict recursion depth and memory validation.
-    HARD FAIL on OOM or depth violation.
-    """
-    log_training_start(config)
-    
-    # Initialize dataset
-    dataset_path = os.path.join(config.data_dir, 'raw', 'pile_arxiv_truncated.json')
-    try:
-        dataset = PileDataset(dataset_path, config.token_limit)
-    except FileNotFoundError as e:
-        logger.critical(f"Dataset not found: {e}")
-        raise
+    # Optimizer
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate)
 
-    # Initialize model
-    model = create_recursive_model(config)
-    state = TrainingState()
-    
-    # Validate initial recursion depth
-    validate_recursion_depth(config, state.recursion_depth)
+    state = TrainingState(recursion_depth=config.recursion_depth)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
     try:
         for epoch in range(config.num_epochs):
             state.epoch = epoch
-            logger.info(f"Starting epoch {epoch + 1}/{config.num_epochs}")
-            
+            logger.info(f"Starting Epoch {epoch + 1}/{config.num_epochs}")
+
             # Check memory before epoch
             if not check_memory_usage():
-                raise MemoryError(f"Memory threshold exceeded before epoch {epoch}")
+                raise MemoryError("Memory limit exceeded before epoch.")
 
-            epoch_loss = train_epoch(model, dataset, state, config)
-            
-            # Update best loss
-            if state.best_loss is None or epoch_loss < state.best_loss:
-                state.best_loss = epoch_loss
-            
-            # Save checkpoint
-            checkpoint_path = os.path.join(config.checkpoint_dir, f"checkpoint_epoch_{epoch}.pt")
-            save_checkpoint(model, state, checkpoint_path)
-            
+            epoch_loss = train_epoch(model, dataloader, optimizer, device, config)
+            state.loss_history.append(epoch_loss)
+            state.best_loss = epoch_loss if state.best_loss is None else min(state.best_loss, epoch_loss)
+
             logger.info(f"Epoch {epoch + 1} completed. Loss: {epoch_loss:.4f}")
 
-        log_training_end(state.best_loss)
-        
+            # Save checkpoint
+            save_checkpoint(model, state, config, output_path)
+
+            # Check for convergence (simple placeholder logic)
+            if len(state.loss_history) > 5:
+                recent_avg = sum(state.loss_history[-5:]) / 5
+                if recent_avg < 0.01:
+                    state.is_converged = True
+                    logger.info("Model converged. Stopping early.")
+                    break
+
     except RecursionDepthError as e:
-        logger.critical(f"RECURSION DEPTH VIOLATION: {e}")
-        log_exception(e)
+        logger.critical(f"Recursion Depth Violation: {e}")
         sys.exit(1)
     except MemoryError as e:
-        logger.critical(f"MEMORY EXCEEDED: {e}")
-        log_exception(e)
+        logger.critical(f"Memory Error / OOM: {e}")
         sys.exit(1)
     except Exception as e:
         logger.critical(f"Unexpected error during training: {e}")
         log_exception(e)
-        raise
+        sys.exit(1)
+
+    return state
 
 def main():
-    parser = argparse.ArgumentParser(description="Train Recursive Llama Model")
-    parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
+    parser = argparse.ArgumentParser(description="Train Recursive Self-Aware Model")
+    parser.add_argument("--config", type=str, required=True, help="Path to config file")
+    parser.add_argument("--dataset", type=str, required=True, help="Path to dataset")
+    parser.add_argument("--output", type=str, required=True, help="Output directory")
     args = parser.parse_args()
 
-    config = get_config(args.config)
-    validate_config(config)
+    logger.info("Starting Training Process")
+    log_training_start()
 
-    run_training(config)
+    try:
+        config = get_config(args.config)
+        validate_config(config)
+
+        state = run_training(config, args.dataset, args.output)
+
+        log_training_end(state.is_converged)
+        logger.info("Training completed successfully.")
+
+    except RecursionDepthError as e:
+        logger.critical(f"Training failed due to Recursion Depth Violation: {e}")
+        sys.exit(1)
+    except MemoryError as e:
+        logger.critical(f"Training failed due to Memory Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Training failed: {e}")
+        log_exception(e)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

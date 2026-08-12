@@ -1,0 +1,2 @@
+# This file ensures the artifacts/checkpoints directory is tracked by git.
+# Model checkpoints will be stored here.

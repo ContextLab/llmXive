@@ -1,96 +1,88 @@
-"""
-Plan Scanner for T003a: Identify occurrences of 'Teacher-Student Distillation',
-'Pre-computed Teacher Labels', or 'external truth' in plan.md.
-
-This script scans the plan.md file and outputs a JSON report listing line numbers
-and context for any matches found.
-"""
 import os
 import json
 import re
 from typing import List, Dict, Any
 from pathlib import Path
 
-# Define the patterns to search for
-PATTERNS = [
-    r"Teacher-Student Distillation",
-    r"Pre-computed Teacher Labels",
-    r"external truth"
+# Search patterns as defined in T003a
+TARGET_PATTERNS = [
+    "Teacher-Student Distillation",
+    "Pre-computed Teacher Labels",
+    "external truth"
 ]
 
 def scan_file(file_path: str) -> List[Dict[str, Any]]:
     """
-    Scan a file for the defined patterns and return a list of matches.
-    
+    Scans a file for specific target phrases and returns their locations and context.
+
     Args:
         file_path: Path to the file to scan.
-        
+
     Returns:
-        A list of dictionaries containing line number, context, and matched pattern.
+        A list of dictionaries containing line number, context, and matched phrase.
     """
-    matches = []
-    
-    if not os.path.exists(file_path):
-        print(f"Error: File not found: {file_path}")
-        return matches
-    
-    with open(file_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-    
+    findings = []
+    path = Path(file_path)
+
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except UnicodeDecodeError:
+        raise ValueError(f"Could not decode file {file_path} as UTF-8")
+
     for line_num, line in enumerate(lines, start=1):
-        for pattern in PATTERNS:
-            if re.search(pattern, line, re.IGNORECASE):
-                matches.append({
+        for pattern in TARGET_PATTERNS:
+            # Case-insensitive search
+            if pattern.lower() in line.lower():
+                # Get context: 1 line before and 1 line after if available
+                context_start = max(0, line_num - 2)
+                context_end = min(len(lines), line_num + 1)
+                context_lines = lines[context_start:context_end]
+                context_text = "".join(context_lines).strip().replace('\n', ' ')
+
+                findings.append({
                     "line_number": line_num,
-                    "context": line.strip(),
-                    "pattern_matched": pattern
+                    "matched_phrase": pattern,
+                    "line_content": line.strip(),
+                    "context": context_text
                 })
-    
-    return matches
+
+    return findings
 
 def main():
-    """Main function to run the plan scanner."""
-    # Determine the path to plan.md relative to the project root
-    # Assuming the script is run from the project root or code/analysis/
-    project_root = Path(__file__).resolve().parent.parent.parent
+    """
+    Main entry point for scanning plan.md.
+    Outputs JSON to stdout.
+    """
+    # Determine project root relative to this script
+    # Assuming script is at code/analysis/plan_scanner.py
+    # Project root is ../../
+    current_dir = Path(__file__).resolve().parent
+    project_root = current_dir.parent.parent
     plan_path = project_root / "plan.md"
-    
-    print(f"Scanning {plan_path} for forbidden patterns...")
-    
-    matches = scan_file(str(plan_path))
-    
-    if matches:
-        print(f"\nFound {len(matches)} occurrence(s):\n")
-        report = {
-            "file": str(plan_path),
-            "total_matches": len(matches),
-            "matches": matches
-        }
-        print(json.dumps(report, indent=2))
-        
-        # Save the report to a JSON file for T003b to use
-        output_path = project_root / "artifacts" / "plan_scan_report.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-        
-        print(f"\nReport saved to: {output_path}")
-    else:
-        print("\nNo occurrences found.")
-        # Still create an empty report for consistency
-        report = {
-            "file": str(plan_path),
-            "total_matches": 0,
-            "matches": []
-        }
-        output_path = project_root / "artifacts" / "plan_scan_report.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2)
-        
-        print(f"Empty report saved to: {output_path}")
+
+    if not plan_path.exists():
+        print(f"Error: plan.md not found at {plan_path}", file=os.sys.stderr)
+        os.sys.exit(1)
+
+    try:
+        findings = scan_file(str(plan_path))
+        if not findings:
+            print("No occurrences of target phrases found in plan.md.")
+            return
+
+        # Sort by line number
+        findings.sort(key=lambda x: x['line_number'])
+
+        # Output as JSON
+        print(json.dumps(findings, indent=2))
+
+    except Exception as e:
+        print(f"Error scanning file: {e}", file=os.sys.stderr)
+        os.sys.exit(1)
 
 if __name__ == "__main__":
     main()

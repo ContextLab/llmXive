@@ -226,24 +226,6 @@
   updated_at: '2026-07-30T09:19:28Z'
 - artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
   attempts: 1
-  canonical: Training pipeline completes within 120 minutes on GitHub Actions CPU
-    runner without OOM
-  claim_id: c_2f9d7811
-  context: The training pipeline executes on GitHub Actions CPU runner, produces two
-    checkpoints, and completes within 120 minutes without OOM.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The training pipeline executes on GitHub Actions CPU runner and completes
-    within 120 minutes without OOM.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-30T09:19:55Z'
-- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
-  attempts: 1
   canonical: Confidence-prediction loss uses proxy from 5 model generations
   claim_id: c_eaac1dad
   context: 'The confidence-prediction loss must use a proxy derived from internal
@@ -2897,3 +2879,171 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T03:53:46Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Reviews by Ada Lovelace, Alan Turing, Daniel Kahneman, David Krakauer,
+    Socrates, and Stephen Wolfram raised concerns about simulated vs genuine introspection
+  claim_id: c_407a0d8f
+  context: Prior reviews from Ada Lovelace, Alan Turing, Daniel Kahneman, David Krakauer,
+    Socrates, and Stephen Wolfram raise fundamental concerns about the distinction
+    between *simulated* introspection and *genuine* meta-cognitive adaptation. The
+    tasks below explicitly operationalize these philosophical concerns into measurable
+    engineering constraints (T061-T070) were REMOVED as they constituted unapproved
+    scope creep.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reviews_by_Ada_Lovelace,_Alan_Turing,_Daniel_Kahneman,_David
+  kind: entity_fact
+  raw_text: Prior reviews from Ada Lovelace, Alan Turing, Daniel Kahneman, David Krakauer,
+    Socrates, and Stephen Wolfram raise fundamental concerns about the distinction
+    between simulated introspection and genuine meta-cognitive adaptation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:14:22Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: token_limit default value is 100000 in config.py
+  claim_id: c_c68198a4
+  context: The spec.md artifact contains [deferred] for the token limit in FR-002.
+    The implementation tasks will use the default value 100000 as defined in config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation tasks will use the default value 100000 as defined
+    in config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:15:40Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 2
+  canonical: Training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner without OOM
+  claim_id: c_2f9d7811
+  context: The training pipeline executes on GitHub Actions CPU runner, produces two
+    checkpoints, and completes within 120 minutes without OOM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline executes on GitHub Actions CPU runner and completes
+    within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:15:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Model parameter count is less than 300 million
+  claim_id: c_e761c9d0
+  context: Implement base_llama.py wrapper for a small transformer (<300M params)
+    in code/models/base_llama.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_parameter_count_is_less_than_300_million
+  kind: magnitude
+  raw_text: The model has fewer than 300 million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:15:53Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Confidence loss function generates 2 reasoning paths per item
+  claim_id: c_8272152a
+  context: 'Define a function compute_confidence_loss(model, batch, temperature=0.7,
+    top_p=0.9, max_tokens=256, n_samples=2) that: (1) Generates N=2 reasoning paths
+    per training item using the current model state with the specified parameters'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compute_confidence_loss function generates N=2 reasoning paths per
+    training item.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:16:02Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: N=2 training proxy used to meet 120-minute CPU budget
+  claim_id: c_fd86f0e5
+  context: 'Constraint Note: N=2 is used for the training proxy to meet the 120-minute
+    CPU budget (Constitution Principle VII: Resource-Constrained Architectural Fidelity),
+    while FR-003 mandates N=10 for the evaluation benchmark.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=2 is used for the training proxy to meet the 120-minute CPU budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:16:07Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Self-Consistency Benchmark generates 10 reasoning paths for GSM8K and
+    MMLU questions
+  claim_id: c_f243e6d1
+  context: The 'Self-Consistency Benchmark' is a methodology applied to the GSMK and
+    MMLU datasets. Generate N=10 reasoning paths for each question in both the GSM8K
+    and MMLU test sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Self-Consistency Benchmark generates N=10 reasoning paths for each
+    question in the GSM8K and MMLU test sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:16:09Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses confidence thresholds 0.5 and 0.6
+  claim_id: c_eb92614d
+  context: Implement sensitivity analysis sweep for confidence thresholds across the
+    specific discrete set of values {0.5, 0.6} (FR-006) and output results to artifacts/results/sensitivity_analysis.csv
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep uses the specific discrete set of confidence
+    threshold values {0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:16:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory usage limit is 7GB for training script
+  claim_id: c_218e7604
+  context: Run memory profiling on the training script (train.py) with max batch size;
+    verify peak RSS < 7GB and log result to artifacts/results/memory_profile.log.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_memory_usage_limit_is_7GB_for_training_script
+  kind: magnitude
+  raw_text: The peak RSS memory usage must be less than 7GB during the training script
+    run.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T10:16:23Z'

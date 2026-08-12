@@ -38,6 +38,20 @@ T014:
   r: "No evidence of a modified `train.py` implementing the required recursion\u2011\
     depth check, OOM handling, error logging, and non\u2011zero exit was provided;\
     \ the artifact is missing entirely. The task remains undone."
+T019a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_benchmarks.py` file (or any other code) is present in the provided evidence,\
+    \ and therefore there is no implementation that generates ten reasoning paths\
+    \ per question for GSM8K and MMLU with the specified temperature, top_p, seed,\
+    \ or tie\u2011breaking rule. The required artifact is missing, so the task is\
+    \ not satisfied."
+T019b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_benchmarks.py` script or any related code/files were provided for inspection,\
+    \ so we cannot confirm that a benchmark runner for MMLU/GSM8K inference (single\u2011\
+    path) exists or works. The required artifact is missing, making the task unverified."
 T025:
   c: false
   h: 87b85cdfbf4856064acab8650a3417ed879514dde6bac0ab9d5c872c8783a65b
@@ -46,6 +60,13 @@ T025:
     \ but no function that sweeps the thresholds {0.4,\u202F0.5,\u202F0.6}, computes\
     \ false\u2011positive/false\u2011negative rates, or writes the specified CSV columns.\
     \ The task\u2019s core functionality is therefore missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files in `docs/` were provided or described, and there is no\
+    \ evidence that the new statistical report format, metric definitions, or the\
+    \ \u201CTraining Signal Methodology\u201D section have been added. The required\
+    \ artifacts are missing."
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

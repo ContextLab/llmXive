@@ -86,7 +86,7 @@
 
 **Goal**: Construct a TinyLlama-based model with temporal recursive self-attention and train it on a sampled Pile subset to produce recursive and baseline checkpoints.
 
-**Independent Test**: The training pipeline executes on GitHub Actions CPU runner, produces two checkpoints, and completes within 120 minutes without OOM. [UNRESOLVED-CLAIM: c_481e1c10 — status=not_enough_info]
+**Independent Test**: The training pipeline executes on GitHub Actions CPU runner, produces two checkpoints, and completes within 120 minutes without OOM.
 
 **NOTE on Spec vs Plan Divergence**: The `plan.md` Summary references "pre-computed teacher model labels". This task strictly implements the `spec.md` requirement for an **internal self-consistency proxy** (derived from N=2 model generations) to avoid tautology. The plan discrepancy is resolved by T003a-T003c.
 

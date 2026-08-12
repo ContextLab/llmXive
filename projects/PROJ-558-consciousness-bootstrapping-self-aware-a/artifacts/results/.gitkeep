@@ -1,1 +1,2 @@
-# Keep this directory
+# This file ensures the artifacts/results directory is tracked by git.
+# Evaluation results and reports will be stored here.

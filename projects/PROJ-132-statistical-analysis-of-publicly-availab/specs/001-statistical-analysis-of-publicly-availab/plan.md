@@ -98,9 +98,9 @@ tests/
 - **0.3**: **State Synchronization**: Generate/update `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` with raw data hashes.
 
 ### Phase 1: Preprocessing
-- **1.1**: Stream eBird data, filter for migratory species (2020-2024), aggregate to a fine-resolution grid.
+- **1.1**: Stream eBird data, filter for migratory species (recent years), aggregate to a fine-resolution grid.
 - **1.2**: Compute phenology metrics (th-90th percentile for stopover, median for arrival).
-- **1.3**: Join with Daymet climate data (2020-2024 stream).
+- **1.3**: Join with Daymet climate data (recent stream).
 - **1.4**: **Provenance Generation**: Create `data/provenance/row_mapping.json` linking processed rows to original `checklist_id`s.
 - **1.5**: **State Synchronization**: Update state file with processed data hashes.
 

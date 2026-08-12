@@ -1,0 +1,14 @@
+encode_api_key: "YOUR_ENCODE_API_KEY_HERE"
+data_paths:
+  raw: "../data/raw"
+  processed: "../data/processed"
+  models: "../data/models"
+  interpretation: "../data/interpretation"
+  figures: "../figures"
+logging:
+  level: "INFO"
+  file: "../logs/pipeline.log"
+notes:
+  - "Replace 'YOUR_ENCODE_API_KEY_HERE' with your actual ENCODE API key."
+  - "This key is required to download ChIP-seq and ATAC-seq data."
+  - "Paths are relative to the project root but can be absolute."

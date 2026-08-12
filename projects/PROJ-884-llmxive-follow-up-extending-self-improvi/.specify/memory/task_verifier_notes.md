@@ -8,3 +8,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T003** — The implementer supplied only a high‑level feature specification for dataset verification and evolutionary search; there is no evidence of any linting or formatting configuration (e.g., a `pyproject.toml`, `.flake8`, or `black` settings file) nor any scripts invoking flake8/black. Consequently, the required artifact for task T003 is missing.
 - **T004** — No evidence of the required `data/raw/` and `data/processed/` directories is provided; the claim lacks any tangible artifact showing the directory structure was created. The task remains undone.
 - **T013** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T014** — The claim provides no code, script, configuration, or documentation that adds checksum validation for files in `data/raw/`. There is no evidence of a checksum generation step, a verification routine, or tests confirming integrity checks, so the required artifact is missing.
+- **T017** — declared artifact(s) missing/empty/invalid: tests/integration/test_bes_loop.py
+- **T022** — declared artifact(s) missing/empty/invalid: code/bes/population.py

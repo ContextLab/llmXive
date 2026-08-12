@@ -1,0 +1,120 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Logic Puzzle Dataset Schema
+description: |
+  Schema for the curated dataset of logic/arithmetic puzzles.
+  Each puzzle instance contains the problem definition, constraints,
+  and metadata required for the BES pipeline.
+type: object
+required:
+  - version
+  - generated_at
+  - puzzles
+properties:
+  version:
+    type: string
+    description: Schema version identifier
+    pattern: '^\\d+\\.\\d+\\.\\d+$'
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of generation
+  metadata:
+    type: object
+    description: Global metadata about the dataset generation
+    properties:
+      generator_version:
+        type: string
+      seed:
+        type: integer
+      total_count:
+        type: integer
+      difficulty_distribution:
+        type: object
+        additionalProperties:
+          type: integer
+  puzzles:
+    type: array
+    description: List of puzzle instances
+    minItems: 1
+    items:
+      $ref: '#/definitions/PuzzleInstance'
+definitions:
+  PuzzleInstance:
+    type: object
+    required:
+      - id
+      - type
+      - difficulty
+      - problem
+      - constraints
+      - solution_hint
+      - checksum
+    properties:
+      id:
+        type: string
+        description: Unique identifier for the puzzle
+        pattern: '^puzzle-\\d{8}-[a-f0-9]{8}$'
+      type:
+        type: string
+        enum:
+          - sudoku_variant
+          - constrained_pathfinding
+          - arithmetic_grid
+          - logic_grid
+        description: Category of the puzzle
+      difficulty:
+        type: integer
+        minimum: 1
+        maximum: 5
+        description: Difficulty rating (1=easy, 5=hard)
+      problem:
+        type: object
+        description: The core problem definition (structure varies by type)
+        additionalProperties: true
+      constraints:
+        type: array
+        description: List of constraint definitions
+        items:
+          type: object
+          required:
+            - type
+            - description
+          properties:
+            type:
+              type: string
+              description: Type of constraint (e.g., 'row_unique', 'path_valid')
+            description:
+              type: string
+              description: Human-readable description
+            parameters:
+              type: object
+              additionalProperties: true
+              description: Constraint-specific parameters
+      solution_hint:
+        type: object
+        description: Optional hint for the solution path (not the full solution)
+        additionalProperties: true
+      solution_path:
+        type: array
+        description: The ground-truth solution path (for verification)
+        items:
+          type: object
+          additionalProperties: true
+      checksum:
+        type: string
+        description: SHA-256 checksum of the problem and constraints
+        pattern: '^[a-f0-9]{64}$'
+      created_at:
+        type: string
+        format: date-time
+      complexity_metrics:
+        type: object
+        description: Metrics derived from the puzzle structure
+        properties:
+          variable_count:
+            type: integer
+          constraint_count:
+            type: integer
+          search_space_estimate:
+            type: number
+            format: float
