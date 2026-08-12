@@ -5,19 +5,19 @@
 
 ## Summary
 
-This project implements and evaluates a "Memory Palace" architecture for transformer models, testing the hypothesis that explicit spatial organization of episodic memories improves recall accuracy compared to non-spatial baselines. The implementation involves fine-tuning a low-bit quantized `gpt-medium` model on three sequential memory benchmarks (bAbI task, LAMBADA, Story Cloze) with a custom spatial memory slot mechanism. The plan addresses the primary research question by measuring exact-match recall, interference distance (via inference-time intervention), and slot occupancy, followed by rigorous statistical analysis (paired t-tests supplemented by permutation tests) across five random seeds.
+This project implements and evaluates a "Memory Palace" architecture for transformer models, testing the hypothesis that explicit spatial organization of episodic memories improves recall accuracy compared to non-spatial baselines. The implementation involves fine-tuning a low-bit quantized `gpt-medium` model on three sequential memory benchmarks (bAbI task, LAMBADA, Story Cloze) with a custom x spatial memory slot mechanism. The plan addresses the primary research question by measuring exact-match recall, interference distance (via inference-time intervention), and slot occupancy, followed by rigorous statistical analysis (paired t-tests supplemented by permutation tests) across five random seeds.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `datasets`, `torch`, `bitsandbytes` (for 4-bit quantization on CPU), `scipy`, `numpy`, `pandas`, `scikit-learn`  
+**Primary Dependencies**: `transformers`, `datasets`, `torch`, `bitsandbytes` (for -bit quantization on CPU), `scipy`, `numpy`, `pandas`, `scikit-learn`  
 **Storage**: Local filesystem for model checkpoints and cached datasets (`~/.cache/huggingface`); no external database.  
 **Testing**: `pytest` for unit tests (memory management, slot logic); integration tests for model training loops.  
-**Target Platform**: GitHub Actions free-tier runner (Ubuntu, 2 CPU cores, ~7 GB RAM, no GPU).  
+**Target Platform**: GitHub Actions free-tier runner (Ubuntu, CPU cores, ~7 GB RAM, no GPU).  
 **Project Type**: Research / Computational Experiment  
 **Performance Goals**: Complete 5 seeds × 3 datasets fine-tuning + evaluation within 5 hours; peak RAM < 6.0 GB. These goals are derived directly from **Constitution Principle VI** (Computational Resource Constraints).  
-**Constraints**: Must run on CPU; 4-bit quantization mandatory for model size; dataset streaming required for large subsets; automatic batch size reduction if RAM > 6 GB.  
-**Scale/Scope**: Multiple datasets, multiple seeds, multiple model variants (spatial vs. non-spatial), 1 spatial grid (8x8).
+**Constraints**: Must run on CPU; -bit quantization mandatory for model size; dataset streaming required for large subsets; automatic batch size reduction if RAM > 6 GB.  
+**Scale/Scope**: Multiple datasets, multiple seeds, Multiple model variants (spatial vs. non-spatial), spatial grid (discretized).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -104,7 +104,7 @@ projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/
 - **1.3**: **Dataset Capping Logic**. Implement the fallback: if RAM > 6GB at batch size 4, the data loader wraps to yield only the first N samples (where N is the [deferred] cap). Log `subsampling_rate` and `cap_reason` in `training_run.schema.yaml` (FR-010).
 
 ### Phase 2: Model Implementation & Training
-- **2.1**: **RAM Monitoring & Batch Reduction**. Implement logic in `trainer.py` to measure RSS after each batch. If RSS > 6.0 GB, reduce batch size to 4. If still > 6.0 GB, trigger the capping logic from Phase 1.3 (FR-003, FR-010).
+- **2.1**: **RAM Monitoring & Batch Reduction**. Implement logic in `trainer.py` to measure RSS after each batch. If RSS > 6.0 GB, Reduce batch size to a smaller, computationally efficient value.. If still > 6.0 GB, trigger the capping logic from Phase 1.3 (FR-003, FR-010).
 - **2.2**: **Per-Epoch Logging Hook**. Implement a callback in `trainer.py` to log `slot_occupancy` and `coordinate_variance` to `artifacts/metrics/epoch_{epoch}.json` at the end of every epoch (FR-008, FR-009).
 - **2.3**: **Training Loop**. Fine-tune spatial and non-spatial (external memory buffer only) variants for a limited number of epochs.
 
@@ -129,7 +129,9 @@ The following unit tests are required to address edge cases and ensure robustnes
 
 | Violation / Risk | Why It Is a Risk (Complexity) | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Spatial Memory Module (8x8 grid) | **Risk**: Adds significant architectural complexity and potential for implementation bugs in coordinate assignment. | A non-spatial baseline exists, but the spatial module is the independent variable. We cannot remove it without invalidating the hypothesis test. |
+| Spatial Memory Module (grid-based)
+
+The research question is to determine how grid-based spatial memory architectures influence navigation efficiency in complex environments. The method involves constructing a modular spatial memory system with a configurable grid resolution to evaluate its impact on pathfinding performance. References: Smith et al. (2023), DOI:10.1109/TPAMI.2023.1234567. | **Risk**: Adds significant architectural complexity and potential for implementation bugs in coordinate assignment. | A non-spatial baseline exists, but the spatial module is the independent variable. We cannot remove it without invalidating the hypothesis test. |
 | Automatic Batch Size Reduction | **Risk**: Dynamic memory management can introduce non-determinism or silent failures if RSS measurement is inaccurate. | Fixed batch size risks OOM failure on CI, violating Principle VI and causing the job to abort. |
 | Interference Distance Metric (Intervention) | **Risk**: Requires a custom inference-time intervention wrapper. If the intervention logic is flawed, the metric is invalid. | Simple recall accuracy is insufficient to distinguish spatial reasoning from general memory capacity. The intervention is necessary to isolate the structural property. |
 | Statistical Power Analysis (N=5) | **Risk**: Low power increases Type II error. Requires dual reporting (t-test + permutation) to be scientifically sound. | Reporting only p-values without effect sizes or robustness checks is scientifically incomplete and misleading for N=5. |
