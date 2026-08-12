@@ -1,74 +1,94 @@
+import hashlib
 import logging
 import os
 import random
 import sys
-from typing import Any, Callable, Iterator, List, Optional, Dict
-import numpy as np
+import time
+from typing import Any, Callable, Dict, List, Optional
 
-# ----------------------------------------------------------------------
-# Random seed utilities
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------
+# Utility Functions
+# ------------------------------------------------------------
+
+def compute_file_checksum(filepath: str, algorithm: str = "sha256") -> str:
+    """
+    Compute the checksum of a file using the specified hash algorithm.
+    Default is SHA-256.
+    """
+    h = hashlib.new(algorithm)
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
 def pin_random_seed(seed: int = 42) -> None:
     """
-    Pin the random seed for reproducibility across the standard libraries
-    that rely on randomness.
-
-    Parameters
-    ----------
-    seed : int, optional
-        Seed value to set for ``random``, ``numpy.random`` and the
-        ``PYTHONHASHSEED`` environment variable. Default is 42.
+    Pin random seeds for reproducibility across ``random``, ``numpy`` and
+    ``torch`` (if available). This function is deliberately tolerant of
+    missing optional dependencies.
     """
     random.seed(seed)
-    np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except Exception:
+        pass
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+    except Exception:
+        pass
 
-# ----------------------------------------------------------------------
-# Flexible logging setup
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------
+# Flexible Logging Setup
+# ------------------------------------------------------------
 def setup_logging(*args, **kwargs) -> logging.Logger:
     """
-    Initialise a logger with a flexible signature.
+    Initialise a logger. Accepts a wide variety of call signatures to remain
+    compatible with legacy scripts.
 
-    Acceptable call patterns:
-        setup_logging()
-        setup_logging("INFO")
-        setup_logging(log_level="INFO")
-        setup_logging(name="my_logger")
-        setup_logging("my_logger", "WARNING")
-        setup_logging("my_logger", log_level="ERROR")
-        setup_logging(name="my_logger", log_level="DEBUG")
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
+    Supported patterns:
+    - setup_logging()
+    - setup_logging("INFO")
+    - setup_logging(log_level="DEBUG")
+    - setup_logging(name="my_logger")
+    - setup_logging("my_logger", "WARNING")
+    - setup_logging("my_logger", log_level="ERROR")
+    - setup_logging(name="my_logger", log_level="INFO")
     """
-    # Default values
-    name: str = "project"
-    level: str = "INFO"
+    # Resolve positional arguments
+    name: Optional[str] = None
+    level: Optional[str] = None
 
-    # Positional handling
-    if args:
-        # If a single positional argument and it matches a known level, treat as level
-        if len(args) == 1 and isinstance(args[0], str) and args[0].upper() in logging._nameToLevel:
+    if len(args) == 1:
+        # Could be name or level
+        if isinstance(args[0], str) and args[0].upper() in logging._nameToLevel:
             level = args[0].upper()
         else:
-            # First positional is taken as name, second (if present) as level
-            name = str(args[0])
-            if len(args) > 1 and isinstance(args[1], str):
-                level = args[1].upper()
+            name = args[0]
+    elif len(args) >= 2:
+        name, level = args[0], args[1]
 
-    # Keyword handling – overrides positional if supplied
+    # Resolve keyword arguments
     if "name" in kwargs:
         name = kwargs["name"]
     if "log_level" in kwargs:
-        level = str(kwargs["log_level"]).upper()
+        level = kwargs["log_level"]
+    if "level" in kwargs:
+        level = kwargs["level"]
+
+    # Defaults
+    if name is None:
+        name = __name__
+    if level is None:
+        level = "INFO"
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging._nameToLevel.get(level, logging.INFO))
+    logger.setLevel(logging._nameToLevel.get(level.upper(), logging.INFO))
 
-    # Ensure at least one handler exists to avoid "No handlers could be found" warnings
+    # Ensure at least one handler exists
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
@@ -80,35 +100,62 @@ def setup_logging(*args, **kwargs) -> logging.Logger:
 
     return logger
 
-# ----------------------------------------------------------------------
-# Profiling utilities (place‑holders – retained for compatibility)
-# ----------------------------------------------------------------------
-def profile_function(func: Callable, *args, **kwargs) -> Any:
-    """Placeholder profiling wrapper."""
-    return func(*args, **kwargs)
+# ------------------------------------------------------------
+# Simple profiling utilities (no‑op placeholders)
+# ------------------------------------------------------------
+_profile_data: List[Dict[str, Any]] = []
+
+def profile_function(func: Callable) -> Callable:
+    """Decorator that records execution time; placeholder implementation."""
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        duration = time.time() - start
+        _profile_data.append(
+            {"function": func.__name__, "duration_seconds": duration, "status": "success"}
+        )
+        return result
+    return wrapper
 
 def profile_block(name: str):
-    """Placeholder context manager for profiling a code block."""
-    class _DummyContext:
-        def __enter__(self): pass
-        def __exit__(self, exc_type, exc, tb): pass
-    return _DummyContext()
+    """Context manager for profiling a code block; placeholder implementation."""
+    class _Profiler:
+        def __enter__(self):
+            self.start = time.time()
+            return self
 
-def run_cprofile(func: Callable, *args, **kwargs) -> Any:
-    """Run a function under cProfile – simplified version."""
-    return func(*args, **kwargs)
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            duration = time.time() - self.start
+            _profile_data.append(
+                {
+                    "block": name,
+                    "duration_seconds": duration,
+                    "status": "error" if exc_type else "success",
+                }
+            )
+    return _Profiler()
 
-def save_profile_report(data: Any, path: str) -> None:
-    """Placeholder for saving profiling reports."""
-    with open(path, "w") as f:
-        f.write(str(data))
+def run_cprofile(output_file: str = "cprofile.prof") -> None:
+    """Run cProfile on the whole process; placeholder does nothing."""
+    logger = setup_logging()
+    logger.debug("cProfile placeholder invoked; no profiling performed.")
 
-def identify_bottlenecks(profile_data: Any) -> List[str]:
-    """Placeholder for bottleneck identification."""
-    return []
+def save_profile_report(report_path: str = "profile_report.json") -> None:
+    """Write the collected profiling data to a JSON file."""
+    logger = setup_logging()
+    logger.debug(f"Saving profiling report to {report_path}")
+    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, "w") as f:
+        json.dump(_profile_data, f, indent=2, default=str)
+
+def identify_bottlenecks(threshold_seconds: float = 1.0) -> List[Dict[str, Any]]:
+    """Return profiling entries exceeding the threshold."""
+    return [entry for entry in _profile_data if entry.get("duration_seconds", 0) > threshold_seconds]
 
 def reset_profile_data() -> None:
-    """Placeholder to reset profiling state."""
-    pass
+    """Clear the in‑memory profiling buffer."""
+    _profile_data.clear()
 
-# Additional utility functions that were previously present remain untouched.
+# ------------------------------------------------------------
+# End of utils.py
+# ------------------------------------------------------------

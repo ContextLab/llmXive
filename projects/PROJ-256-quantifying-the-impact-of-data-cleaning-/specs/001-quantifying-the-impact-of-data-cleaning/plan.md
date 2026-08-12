@@ -12,9 +12,9 @@ This project quantifies how standard data cleaning strategies (outlier removal, 
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `output/`)  
 **Testing**: `pytest` (contract validation, statistical sanity checks)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: a modest number of CPUs, with modest RAM (on the order of a few gigabytes).)  
 **Project Type**: Research Script / CLI Tool  
-**Performance Goals**: Complete analysis of available datasets (currently 2) within 6 hours; bootstrap resampling with a sufficient number of iterations per dataset with fallback logic if runtime exceeds thresholds.  
+**Performance Goals**: Complete analysis of all available datasets. within 6 hours; bootstrap resampling with a sufficient number of iterations per dataset with fallback logic if runtime exceeds thresholds.  
 **Constraints**: NO GPU; NO large model training; strict adherence to verified dataset URLs; statistical claims framed as associational.  
 **Scale/Scope**: Analysis of verified datasets (UCI HAR, UCI Shopper) due to lack of verified sources for the spec's requested ≥10 datasets.  
 

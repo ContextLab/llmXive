@@ -16,62 +16,60 @@ def compute_checksum(filepath: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_dataset(url: str, dest_path: str, expected_checksum: Optional[str] = None) -> bool:
+def download_dataset(url: str, output_path: str, expected_checksum: Optional[str] = None) -> bool:
     """
-    Download a dataset from a URL and validate checksum if provided.
+    Download a dataset from a URL and validate checksum.
     """
-    logger.info(f"Downloading from {url} to {dest_path}")
+    logger.info(f"Downloading {url} to {output_path}")
     try:
         req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urlopen(req) as response:
-            with open(dest_path, 'wb') as out_file:
+            with open(output_path, 'wb') as out_file:
                 out_file.write(response.read())
         
         if expected_checksum:
-            actual = compute_checksum(dest_path)
-            if actual != expected_checksum:
-                logger.error(f"Checksum mismatch: expected {expected_checksum}, got {actual}")
+            actual_checksum = compute_checksum(output_path)
+            if actual_checksum != expected_checksum:
+                logger.error(f"Checksum mismatch for {output_path}. Expected: {expected_checksum}, Got: {actual_checksum}")
                 return False
+            else:
+                logger.info(f"Checksum validated for {output_path}")
         return True
     except Exception as e:
-        logger.error(f"Download failed: {e}")
+        logger.error(f"Failed to download {url}: {e}")
         return False
 
 def load_datasets_from_raw(raw_dir: str) -> Dict[str, pd.DataFrame]:
     """
-    Load all CSV/Parquet files from raw_dir.
-    Returns a dict of {name: df}.
+    Load all CSV datasets from the raw directory.
     """
     datasets = {}
-    raw_path = Path(raw_dir)
-    if not raw_path.exists():
-        logger.warning(f"Raw directory {raw_dir} does not exist.")
+    csv_files = list(Path(raw_dir).glob("*.csv"))
+    
+    if not csv_files:
+        logger.warning(f"No CSV files found in {raw_dir}")
         return datasets
-
-    for file in raw_path.glob("*"):
-        if file.suffix in ['.csv', '.parquet']:
-            try:
-                if file.suffix == '.csv':
-                    df = pd.read_csv(file)
-                else:
-                    df = pd.read_parquet(file)
-                datasets[file.stem] = df
-                logger.info(f"Loaded {file.name} with shape {df.shape}")
-            except Exception as e:
-                logger.error(f"Failed to load {file}: {e}")
+    
+    for csv_file in csv_files:
+        try:
+            df = pd.read_csv(csv_file)
+            datasets[csv_file.stem] = df
+            logger.info(f"Loaded {csv_file.stem} with {len(df)} rows")
+        except Exception as e:
+            logger.error(f"Failed to load {csv_file}: {e}")
+    
     return datasets
 
-def ensure_data_exists(raw_dir: str, urls: Dict[str, str]) -> bool:
+def ensure_data_exists(raw_dir: str, urls: Dict[str, str], checksums: Dict[str, str]) -> bool:
     """
-    Check if data exists, if not, download.
+    Ensure data exists in raw_dir, downloading if necessary.
     """
-    raw_path = Path(raw_dir)
-    raw_path.mkdir(parents=True, exist_ok=True)
+    Path(raw_dir).mkdir(parents=True, exist_ok=True)
     
     for name, url in urls.items():
-        file_path = raw_path / f"{name}.csv"
-        if not file_path.exists():
-            if not download_dataset(url, str(file_path)):
+        filepath = os.path.join(raw_dir, f"{name}.csv")
+        if not os.path.exists(filepath):
+            if not download_dataset(url, filepath, checksums.get(name)):
                 return False
     return True
 

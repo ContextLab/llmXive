@@ -2295,3 +2295,235 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T15:42:32Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec_pr_description.md
+  attempts: 1
+  canonical: 'Search of UCI, OpenML, and Kaggle yielded 2 suitable datasets: UCI HAR
+    and UCI Shopper'
+  claim_id: c_211416a5
+  context: 'Rationale: Extensive search of UCI, OpenML, and Kaggle yielded only two
+    suitable datasets (UCI HAR, UCI Shopper). Forcing a larger sample would compromise
+    data quality.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extensive search of UCI, OpenML, and Kaggle yielded only two suitable
+    datasets (UCI HAR, UCI Shopper).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:34:01Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: mean imputation results in zero missing values
+  claim_id: c_1fa404a2
+  context: Unit test T015 verifies that apply_mean_imputation results in zero missing
+    values in target columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Mean_imputation_results_in_zero_missing_values
+  kind: causal
+  raw_text: apply_mean_imputation results in zero missing values in target columns.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:45:05Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: final sample size n=2
+  claim_id: c_0a7b92d0
+  context: Data quality report records dataset selection process, excluded datasets,
+    and final n=2 sample limitation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: final n=2 sample limitation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:45:51Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Cohen's d calculation uses pooled standard deviation of groups
+  claim_id: c_66a836a3
+  context: Reviewer correction T2005 updates code/analysis.py to compute Cohen's d
+    using the pooled standard deviation of the two specific groups.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_d_calculation_uses_pooled_standard_deviation_of_grou
+  kind: entity_fact
+  raw_text: Cohen's d calculation corrected to use the pooled standard deviation of
+    the two specific groups being compared.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:47:58Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: categorical recoding produces factor-encoded columns
+  claim_id: c_bae32196
+  context: Unit test T016 verifies that apply_categorical_recoding produces factor-encoded
+    columns and validates against FR-002 and FR-003 requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Categorical_recoding_produces_factor-encoded_columns
+  kind: entity_fact
+  raw_text: apply_categorical_recoding produces factor-encoded columns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:49:05Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/spec_amendment_draft.md
+  attempts: 1
+  canonical: processing >5 datasets exhausts allocated runtime of about 2 hours per
+    dataset on CI environment
+  claim_id: c_918fa8d1
+  context: "Rationale for limiting dataset count: prior pilot runs demonstrated that\
+    \ processing more than five datasets exhausts the allocated runtime (\u2248\u202F\
+    2\u202Fh per dataset) on the CI environment."
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Prior pilot runs demonstrated that processing more than five datasets\
+    \ exhausts the allocated runtime (\u2248\u202F2\u202Fh per dataset) on the CI\
+    \ environment."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T17:49:21Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with p-values
+    between 0 and 1 and finite confidence intervals
+  claim_id: c_04fecfac
+  context: Integration test in tests/integration/test_baseline.py verifies baseline
+    analysis script produces baseline_metrics.json with valid p-values (0 < p < 1)
+    and finite CIs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: baseline analysis script produces `baseline_metrics.json` with valid p-values
+    (0 < p < 1) and finite CIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:53:18Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download_dataset returns successful HTTP status and non-empty content
+    for UCI HAR URL
+  claim_id: c_4bcd2ad8
+  context: Contract test in tests/unit/test_acquisition.py verifies download_dataset
+    returns a successful HTTP status and non-empty content for UCI HAR URL.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_dataset_returns_successful_HTTP_status_and_non-empt
+  kind: entity_fact
+  raw_text: '`download_dataset` returns a successful HTTP status and non-empty content
+    for UCI HAR URL.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:53:49Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_iqr_outlier_removal removes rows where absolute z-score exceeds
+    k
+  claim_id: c_d13941c4
+  context: Unit test in tests/unit/test_cleaning.py verifies apply_iqr_outlier_removal
+    removes rows where |z-score| > k and logs count.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_iqr_outlier_removal_removes_rows_where_absolute_z-scor
+  kind: entity_fact
+  raw_text: '`apply_iqr_outlier_removal` removes rows where |z-score| > k.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:54:17Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: apply_mean_imputation results in zero missing values in target columns
+  claim_id: c_0aabfa1d
+  context: Unit test in tests/unit/test_cleaning.py verifies apply_mean_imputation
+    results in zero missing values in target columns.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Apply_mean_imputation_results_in_zero_missing_values_in_targ
+  kind: causal
+  raw_text: '`apply_mean_imputation` results in zero missing values in target columns.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:54:18Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: pipeline enforces minimum 1000 bootstrap iterations per dataset
+  claim_id: c_887e39fe
+  context: "Task T031 specifies bootstrap variance estimation with \u22651000 resamples\
+    \ per dataset (default 1000)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a minimum of 1000 bootstrap iterations per dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T17:54:39Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: outlier threshold sweep uses k values 1.5 and 2.0 and computes false
+    positive rate
+  claim_id: c_21e4bffe
+  context: "Task T033a performs outlier\u2011threshold sweep for k \u2208 {1.5, 2.0}\
+    \ and compute FPR; output data/processed/outlier_threshold_sweep_report.json."
+  evidence:
+    asserted: '1.5'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: "Outlier\u2011threshold sweep uses k \u2208 {1.5, 2.0} and computes false\
+    \ positive rate."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T17:54:39Z'

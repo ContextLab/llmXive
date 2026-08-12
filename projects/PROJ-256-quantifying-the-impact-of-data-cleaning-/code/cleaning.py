@@ -1,166 +1,388 @@
 """
-Cleaning strategies for datasets.
-Functions return either a cleaned DataFrame or a tuple (cleaned_df, metadata)
-depending on the contract required by downstream code and tests.
+Cleaning strategies for data preprocessing.
+
+Implements IQR outlier removal, mean/median/KNN imputation, and categorical recoding.
+All functions return a tuple: (cleaned_df, metadata_dict).
 """
 import logging
 from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
 import numpy as np
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import LabelEncoder
 
-logger = logging.getLogger("cleaning")
+logger = logging.getLogger(__name__)
 
-def apply_iqr_outlier_removal(df: pd.DataFrame, k: float = 1.5) -> pd.DataFrame:
+def apply_iqr_outlier_removal(df: pd.DataFrame, k: float = 1.5) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Remove rows that are outliers based on the IQR method.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe.
-    k : float, optional
-        Multiplier for the IQR, by default 1.5.
-
-    Returns
-    -------
-    pd.DataFrame
-        Dataframe with outliers removed.
+    Remove outliers based on the Interquartile Range (IQR) method.
+    
+    Args:
+        df: Input DataFrame.
+        k: Multiplier for IQR (default 1.5).
+        
+    Returns:
+        Tuple of (cleaned DataFrame, metadata dict).
+        Metadata includes:
+            - rows_removed: int
+            - missing_values_remaining: int
+            - strategy: "iqr_outlier_removal"
+            - k: float
     """
+    logger.info(f"Applying IQR outlier removal with k={k}")
+    
     if df.empty:
-        logger.warning("Received empty dataframe for outlier removal.")
-        return df
+        logger.warning("Input DataFrame is empty.")
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": 0,
+            "strategy": "iqr_outlier_removal",
+            "k": k
+        }
 
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    if len(numeric_cols) == 0:
-        logger.warning("No numeric columns found for outlier detection.")
-        return df
+    # Identify numeric columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    if not numeric_cols:
+        logger.warning("No numeric columns found for IQR outlier removal.")
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": df.isnull().sum().sum(),
+            "strategy": "iqr_outlier_removal",
+            "k": k
+        }
 
-    Q1 = df[numeric_cols].quantile(0.25)
-    Q3 = df[numeric_cols].quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - k * IQR
-    upper_bound = Q3 + k * IQR
-
-    mask = ~((df[numeric_cols] < lower_bound) | (df[numeric_cols] > upper_bound)).any(axis=1)
-    rows_removed = df.shape[0] - mask.sum()
-    logger.info(f"IQR outlier removal: removed {rows_removed} rows.")
-
-    if rows_removed >= df.shape[0] * 0.5:
-        logger.warning(
-            f"Removed >=50% rows ({rows_removed}/{df.shape[0]}). Potential bias introduced."
-        )
-
-    return df[mask]
-
-def _impute_column(series: pd.Series, method: str) -> pd.Series:
-    """Helper to impute a single column."""
-    if method == "mean":
-        fill_value = series.mean()
-    elif method == "median":
-        fill_value = series.median()
-    else:
-        raise ValueError(f"Unsupported imputation method: {method}")
-    return series.fillna(fill_value)
-
-def _log_variance_reduction(original: pd.Series, imputed: pd.Series, col_name: str) -> None:
-    """Log a warning if variance reduction >= 20%."""
-    if original.var(ddof=1) == 0:
-        return
-    reduction = (original.var(ddof=1) - imputed.var(ddof=1)) / original.var(ddof=1)
-    if reduction >= 0.20:
-        logger.warning(
-            f"Variance reduction >= 20% for column '{col_name}' after imputation."
-        )
-
-def apply_mean_imputation(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
-    """
-    Impute missing values in specified columns using the mean.
-    """
-    df = df.copy()
-    for col in columns:
-        if col not in df.columns:
-            logger.warning(f"Column '{col}' not found for mean imputation.")
+    original_len = len(df)
+    mask = pd.Series(True, index=df.index)
+    
+    for col in numeric_cols:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - k * IQR
+        upper_bound = Q3 + k * IQR
+        
+        # Handle NaNs in bounds calculation
+        if np.isnan(lower_bound) or np.isnan(upper_bound):
             continue
-        original = df[col]
-        df[col] = _impute_column(df[col], "mean")
-        _log_variance_reduction(original, df[col], col)
-    return df
+            
+        col_mask = (df[col] >= lower_bound) & (df[col] <= upper_bound)
+        mask &= col_mask
+    
+    cleaned_df = df[mask].reset_index(drop=True)
+    rows_removed = original_len - len(cleaned_df)
+    
+    if rows_removed >= 0.5 * original_len and original_len > 0:
+        logger.warning(f"High row removal rate: {rows_removed}/{original_len} ({100*rows_removed/original_len:.1f}%)")
+    
+    missing_remaining = cleaned_df.isnull().sum().sum()
+    
+    metadata = {
+        "rows_removed": rows_removed,
+        "missing_values_remaining": int(missing_remaining),
+        "strategy": "iqr_outlier_removal",
+        "k": k,
+        "original_rows": original_len,
+        "remaining_rows": len(cleaned_df)
+    }
+    
+    logger.info(f"IQR removal complete: {rows_removed} rows removed. {missing_remaining} missing values remaining.")
+    return cleaned_df, metadata
 
-def apply_median_imputation(df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+def apply_mean_imputation(df: pd.DataFrame, columns: Optional[List[str]] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Impute missing values in specified columns using the median.
-    Returns the DataFrame directly (as required by existing tests).
+    Impute missing values with the mean of the column.
+    
+    Args:
+        df: Input DataFrame.
+        columns: List of columns to impute. If None, all numeric columns are used.
+        
+    Returns:
+        Tuple of (cleaned DataFrame, metadata dict).
     """
-    if not columns:
-        # No columns specified – return original dataframe unchanged.
-        logger.info("apply_median_imputation called with empty column list; returning original df.")
-        return df
+    logger.info("Applying mean imputation")
+    
+    if df.empty:
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": 0,
+            "strategy": "mean_imputation",
+            "columns_imputed": []
+        }
 
-    df = df.copy()
-    for col in columns:
-        if col not in df.columns:
-            logger.warning(f"Column '{col}' not found for median imputation.")
+    if columns is None:
+        columns = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    # Filter to existing columns
+    cols_to_impute = [c for c in columns if c in df.columns]
+    
+    if not cols_to_impute:
+        logger.warning("No columns found for mean imputation.")
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": int(df.isnull().sum().sum()),
+            "strategy": "mean_imputation",
+            "columns_imputed": []
+        }
+
+    original_missing = df[cols_to_impute].isnull().sum().sum()
+    cleaned_df = df.copy()
+    
+    for col in cols_to_impute:
+        mean_val = cleaned_df[col].mean()
+        if np.isnan(mean_val):
+            logger.warning(f"Mean of column '{col}' is NaN. Skipping imputation for this column.")
             continue
-        original = df[col]
-        df[col] = _impute_column(df[col], "median")
-        _log_variance_reduction(original, df[col], col)
-    return df
+        cleaned_df[col] = cleaned_df[col].fillna(mean_val)
+    
+    missing_remaining = cleaned_df[cols_to_impute].isnull().sum().sum()
+    
+    # Check variance reduction
+    variance_reduction = {}
+    for col in cols_to_impute:
+        if col in df.columns and df[col].var() > 0:
+            new_var = cleaned_df[col].var()
+            reduction = 1 - (new_var / df[col].var())
+            if reduction >= 0.20:
+                variance_reduction[col] = reduction
+                logger.warning(f"Variance reduction in '{col}' is {reduction:.2%} (>= 20%)")
 
-def apply_knn_imputation(df: pd.DataFrame, columns: List[str], k: int = 5) -> pd.DataFrame:
+    metadata = {
+        "rows_removed": 0,
+        "missing_values_remaining": int(missing_remaining),
+        "strategy": "mean_imputation",
+        "columns_imputed": cols_to_impute,
+        "variance_reduction_alerts": variance_reduction
+    }
+    
+    logger.info(f"Mean imputation complete. {int(original_missing - missing_remaining)} values imputed.")
+    return cleaned_df, metadata
+
+def apply_median_imputation(df: pd.DataFrame, columns: Optional[List[str]] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Impute missing values with the median of the column.
+    
+    Args:
+        df: Input DataFrame.
+        columns: List of columns to impute. If None, all numeric columns are used.
+        
+    Returns:
+        Tuple of (cleaned DataFrame, metadata dict).
+    """
+    logger.info("Applying median imputation")
+    
+    if df.empty:
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": 0,
+            "strategy": "median_imputation",
+            "columns_imputed": []
+        }
+
+    if columns is None:
+        columns = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    cols_to_impute = [c for c in columns if c in df.columns]
+    
+    if not cols_to_impute:
+        logger.warning("No columns found for median imputation.")
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": int(df.isnull().sum().sum()),
+            "strategy": "median_imputation",
+            "columns_imputed": []
+        }
+
+    original_missing = df[cols_to_impute].isnull().sum().sum()
+    cleaned_df = df.copy()
+    
+    for col in cols_to_impute:
+        median_val = cleaned_df[col].median()
+        if np.isnan(median_val):
+            logger.warning(f"Median of column '{col}' is NaN. Skipping imputation for this column.")
+            continue
+        cleaned_df[col] = cleaned_df[col].fillna(median_val)
+    
+    missing_remaining = cleaned_df[cols_to_impute].isnull().sum().sum()
+    
+    metadata = {
+        "rows_removed": 0,
+        "missing_values_remaining": int(missing_remaining),
+        "strategy": "median_imputation",
+        "columns_imputed": cols_to_impute
+    }
+    
+    logger.info(f"Median imputation complete. {int(original_missing - missing_remaining)} values imputed.")
+    return cleaned_df, metadata
+
+def apply_knn_imputation(df: pd.DataFrame, columns: Optional[List[str]] = None, k: int = 5) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
     Impute missing values using K-Nearest Neighbors.
+    
+    Args:
+        df: Input DataFrame.
+        columns: List of columns to impute. If None, all numeric columns are used.
+        k: Number of neighbors (default 5).
+        
+    Returns:
+        Tuple of (cleaned DataFrame, metadata dict).
     """
-    if not columns:
-        logger.info("apply_knn_imputation called with empty column list; returning original df.")
-        return df
+    logger.info(f"Applying KNN imputation with k={k}")
+    
+    if df.empty:
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": 0,
+            "strategy": "knn_imputation",
+            "columns_imputed": [],
+            "k": k
+        }
 
+    if columns is None:
+        columns = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    cols_to_impute = [c for c in columns if c in df.columns]
+    
+    if not cols_to_impute:
+        logger.warning("No numeric columns found for KNN imputation.")
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": int(df.isnull().sum().sum()),
+            "strategy": "knn_imputation",
+            "columns_imputed": [],
+            "k": k
+        }
+
+    # Check if any missing values exist
+    if df[cols_to_impute].isnull().sum().sum() == 0:
+        logger.info("No missing values found in specified columns.")
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": 0,
+            "strategy": "knn_imputation",
+            "columns_imputed": cols_to_impute,
+            "k": k
+        }
+
+    # Prepare data for KNNImputer
     imputer = KNNImputer(n_neighbors=k)
-    df_subset = df[columns]
-    imputed_array = imputer.fit_transform(df_subset)
-    df[columns] = imputed_array
+    try:
+        imputed_array = imputer.fit_transform(df[cols_to_impute])
+        cleaned_df = df.copy()
+        cleaned_df[cols_to_impute] = imputed_array
+    except Exception as e:
+        logger.error(f"KNN imputation failed: {e}")
+        raise
 
-    # Simple variance check across all imputed columns
-    for col in columns:
-        original = df_subset[col]
-        imputed = df[col]
-        _log_variance_reduction(original, imputed, col)
-
-    return df
+    missing_remaining = cleaned_df[cols_to_impute].isnull().sum().sum()
+    
+    metadata = {
+        "rows_removed": 0,
+        "missing_values_remaining": int(missing_remaining),
+        "strategy": "knn_imputation",
+        "columns_imputed": cols_to_impute,
+        "k": k
+    }
+    
+    logger.info(f"KNN imputation complete. Missing values remaining: {missing_remaining}.")
+    return cleaned_df, metadata
 
 def apply_categorical_recoding(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Encode categorical columns as integer factors.
-
-    Returns
-    -------
-    tuple
-        (cleaned_df, metadata_dict) where metadata_dict contains:
-        - ``recoded_columns``: list of column names that were encoded.
-        - ``rows_processed``: number of rows in the dataframe.
+    Apply label encoding to categorical columns.
+    
+    Args:
+        df: Input DataFrame.
+        
+    Returns:
+        Tuple of (cleaned DataFrame, metadata dict).
     """
-    df = df.copy()
-    metadata: Dict[str, Any] = {
-        "recoded_columns": [],
-        "rows_processed": len(df),
-    }
+    logger.info("Applying categorical recoding (label encoding)")
+    
+    if df.empty:
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": 0,
+            "strategy": "categorical_recoding",
+            "columns_encoded": []
+        }
 
     # Identify categorical columns (object or category dtype)
-    cat_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
+    cat_cols = df.select_dtypes(include=['object', 'category']).columns.tolist()
+    
+    if not cat_cols:
+        logger.info("No categorical columns found for recoding.")
+        return df.copy(), {
+            "rows_removed": 0,
+            "missing_values_remaining": int(df.isnull().sum().sum()),
+            "strategy": "categorical_recoding",
+            "columns_encoded": []
+        }
 
+    cleaned_df = df.copy()
+    encoded_cols = []
+    label_encoders = {}
+    
     for col in cat_cols:
+        if cleaned_df[col].isnull().any():
+            # Fill NaN with a placeholder for encoding, then handle later if needed
+            # For now, we'll use 'Missing' as a category
+            cleaned_df[col] = cleaned_df[col].fillna('Missing')
+        
         le = LabelEncoder()
-        # Fill NaNs with a placeholder string to allow encoding
-        df[col] = df[col].astype(str).fillna("missing")
-        df[col] = le.fit_transform(df[col])
-        metadata["recoded_columns"].append(col)
+        try:
+            cleaned_df[col] = le.fit_transform(cleaned_df[col].astype(str))
+            encoded_cols.append(col)
+            label_encoders[col] = le.classes_.tolist()
+        except Exception as e:
+            logger.warning(f"Failed to encode column '{col}': {e}")
+    
+    missing_remaining = cleaned_df.isnull().sum().sum()
+    
+    metadata = {
+        "rows_removed": 0,
+        "missing_values_remaining": int(missing_remaining),
+        "strategy": "categorical_recoding",
+        "columns_encoded": encoded_cols,
+        "label_encoders": label_encoders
+    }
+    
+    logger.info(f"Categorical recoding complete. {len(encoded_cols)} columns encoded.")
+    return cleaned_df, metadata
 
-    return df, metadata
+def main():
+    """Main entry point for cleaning module (for testing)."""
+    import sys
+    import json
+    
+    # Create a dummy dataset for testing
+    data = {
+        'A': [1.0, 2.0, np.nan, 4.0, 100.0],
+        'B': ['cat', 'dog', 'cat', np.nan, 'bird'],
+        'C': [10, 20, 30, 40, 50]
+    }
+    df = pd.DataFrame(data)
+    
+    print("Original DataFrame:")
+    print(df)
+    print("\n" + "="*40 + "\n")
+    
+    # Test IQR
+    df_iqr, meta_iqr = apply_iqr_outlier_removal(df, k=1.5)
+    print("IQR Metadata:", json.dumps(meta_iqr, indent=2))
+    print("IQR Result:\n", df_iqr)
+    print("\n" + "="*40 + "\n")
+    
+    # Test Mean Imputation
+    df_mean, meta_mean = apply_mean_imputation(df, columns=['A'])
+    print("Mean Imputation Metadata:", json.dumps(meta_mean, indent=2))
+    print("Mean Result:\n", df_mean)
+    print("\n" + "="*40 + "\n")
+    
+    # Test Categorical Recoding
+    df_cat, meta_cat = apply_categorical_recoding(df)
+    print("Categorical Metadata:", json.dumps(meta_cat, indent=2))
+    print("Categorical Result:\n", df_cat)
 
-def main() -> None:
-    """
-    Entry point for cleaning module – placeholder for potential CLI use.
-    """
-    logger.info("Cleaning module executed as script, but no operation defined.")
+if __name__ == "__main__":
+    main()
