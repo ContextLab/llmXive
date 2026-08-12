@@ -957,8 +957,8 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 16288,
-    "total_contributors": 3440
+    "total_contributions": 16459,
+    "total_contributors": 3442
   },
   "contributors": [
     {
@@ -984,7 +984,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 10408,
+      "contribution_count": 10410,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -1027,7 +1027,7 @@
         "psychology",
         "statistics"
       ],
-      "contribution_count": 177,
+      "contribution_count": 278,
       "kind": "llm",
       "name": "google.gemma-3-27b-it"
     },
@@ -28652,7 +28652,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-08-12T19:45:09.330617+00:00",
+  "generated_at": "2026-08-12T19:36:48.548307+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -41206,7 +41206,7 @@
         "citations": "state/citations/PROJ-075-statistical-bias-in-pre-print-server-pub.yaml",
         "code": "projects/PROJ-075-statistical-bias-in-pre-print-server-pub/code",
         "data": "projects/PROJ-075-statistical-bias-in-pre-print-server-pub/data",
-        "idea": "projects/PROJ-075-statistical-bias-in-pre-print-server-pub/idea/research_question_validation.md",
+        "idea": "projects/PROJ-075-statistical-bias-in-pre-print-server-pub/idea/statistical-bias-in-pre-print-server-pub.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -41236,6 +41236,14 @@
             "specifier",
             "tasker"
           ]
+        },
+        {
+          "contributions": 1,
+          "kind": "llm",
+          "name": "google.gemma-3-27b-it",
+          "roles": [
+            "brainstorm_submitter"
+          ]
         }
       ],
       "citation_summary": {
@@ -41252,7 +41260,7 @@
         "type": "markdown"
       },
       "current_stage": "in_progress",
-      "description": "Verdict: pass The question asks about a substantive shift in statistical reporting properties (p-value distributions and effect sizes) between two stages of the scientific lifecycle (pre-print vs. peer-reviewed). It is framed as an inquiry into the filtering mechanism of peer review and the nature of pre-print bias,\u2026",
+      "description": "Field: statistics Do p-value distribution anomalies and effect-size inflation signatures differ systematically between pre-print server publications (arXiv, bioRxiv) and their subsequent peer-reviewed journal counterparts in the same research domains? The rapid adoption of pre-print servers has altered the timeline\u2026",
       "field": "statistics",
       "id": "PROJ-075-statistical-bias-in-pre-print-server-pub",
       "keywords": [],
@@ -41347,7 +41355,7 @@
       "revision_spec_path": null,
       "speckit_paper_dir": null,
       "speckit_research_dir": "projects/PROJ-075-statistical-bias-in-pre-print-server-pub/specs/001-statistical-bias-in-pre-print-server-pub",
-      "submitter": null,
+      "submitter": "google.gemma-3-27b-it",
       "title": "Statistical Bias in Pre-Print Server Publication Trends",
       "updated_at": "2026-08-12T14:25:39.911012+00:00",
       "upstream_feedback": null
@@ -71453,7 +71461,7 @@
         "type": "markdown"
       },
       "current_stage": "clarified",
-      "description": "Verdict: pass The question asks about the relationship between data cleaning strategies and statistical inference metrics (p-values, confidence intervals, effect sizes). This is a substantive scientific question about how preprocessing choices affect inferential conclusions, independent of any specific algorithm's\u2026",
+      "description": "Field: statistics How do different data cleaning strategies (outlier removal, missing value imputation, data type correction) quantitatively affect p-values, confidence intervals, and effect sizes in common statistical tests? Data cleaning is routinely performed in statistical analysis but rarely documented or\u2026",
       "field": "statistics",
       "id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
       "keywords": [],
@@ -79488,7 +79496,7 @@
         "type": "markdown"
       },
       "current_stage": "planned",
-      "description": "Field: physics Does solar wind speed measured at 1 AU correlate with the magnetic reconnection rate in Earth's geomagnetic tail, and what is the optimal propagation time lag for this coupling? Space weather forecasting relies on understanding how solar drivers translate to magnetospheric responses. Identifying\u2026",
+      "description": "Verdict: pass The question asks about a physical relationship between upstream solar wind conditions and downstream magnetospheric reconnection dynamics. This is a substantive space physics question about how solar drivers couple to magnetospheric responses, independent of any specific computational method or\u2026",
       "field": "physics",
       "id": "PROJ-300-exploring-the-relationship-between-solar",
       "keywords": [],
@@ -82494,7 +82502,7 @@
         "citations": "state/citations/PROJ-320-evaluating-the-impact-of-code-generation.yaml",
         "code": "projects/PROJ-320-evaluating-the-impact-of-code-generation/code",
         "data": "projects/PROJ-320-evaluating-the-impact-of-code-generation/data",
-        "idea": "projects/PROJ-320-evaluating-the-impact-of-code-generation/idea/evaluating-the-impact-of-code-generation.md",
+        "idea": "projects/PROJ-320-evaluating-the-impact-of-code-generation/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
         "paper_plan": null,
@@ -95953,7 +95961,7 @@
         "type": "markdown"
       },
       "current_stage": "project_initialized",
-      "description": "I'll search for relevant literature to ground this research idea. Let me query for papers on plant phylogeny and secondary metabolites. ```tool_call lit_search(query=\"plant phylogeny secondary metabolite profile prediction\", max_results=8) ``` ```tool_call lit_search(query=\"phylogenetic signal plant chemical diversity\u2026",
+      "description": "Verdict: pass The question asks about the evolutionary relationship between phylogenetic relatedness and secondary metabolite profile similarity across plant species. This is a substantive question about biological inheritance and chemical evolution, independent of any specific machine learning method or computational\u2026",
       "field": "biology",
       "id": "PROJ-408-investigating-the-predictive-power-of-pl",
       "keywords": [],
@@ -96446,7 +96454,7 @@
         "type": "markdown"
       },
       "current_stage": "planned",
-      "description": "Verdict: pass The question asks about the information content of 2D topology regarding 3D geometry, using the GCN merely as a tool to measure this relationship. It does not frame the inquiry around the performance of a specific architecture or resource constraint. Verdict: pass The predictor (2D bond connectivity) and\u2026",
+      "description": "Field: chemistry To what extent does 2D molecular graph topology predict 3D molecular surface area across diverse chemical compounds? Molecular surface area is a critical physicochemical descriptor in drug discovery, influencing bioavailability, protein binding affinity, and ADMET properties. Current methods for\u2026",
       "field": "chemistry",
       "id": "PROJ-412-predicting-molecular-surface-area-from-g",
       "keywords": [],
@@ -104074,7 +104082,7 @@
         "type": "markdown"
       },
       "current_stage": "in_progress",
-      "description": "Verdict: pass The question asks whether tissue\u2011specific transcriptional responses to different herbivore feeding guilds are predictive of how plants allocate resources between chemical and physical defenses. It is a substantive scientific inquiry about plant defense biology and does not hinge on any particular\u2026",
+      "description": "Field: biology How does tissue\u2011specific transcriptomic response to chewing versus piercing\u2011sucking herbivores predict differential allocation of chemical versus physical defense traits across plant species? Understanding which molecular signals foretell a plant\u2019s investment in chemical (e.g., secondary metabolites)\u2026",
       "field": "biology",
       "id": "PROJ-463-predicting-plant-defense-allocation-from",
       "keywords": [],
@@ -112137,7 +112145,7 @@
         "type": "markdown"
       },
       "current_stage": "tasked",
-      "description": "Field: computer science Does code generated by large language models exhibit a different frequency of common code smells compared to human-written code in equivalent software contexts? LLM-based code generation is increasingly integrated into developer workflows, but there is limited empirical evidence on whether\u2026",
+      "description": "Verdict: pass The question asks about a relationship between code generation source (LLM vs. human) and code smell frequency, which is a substantive software engineering phenomenon about code quality patterns. It is independent of any specific method's performance and does not frame the question as a benchmark\u2026",
       "field": "computer science",
       "id": "PROJ-514-evaluating-the-impact-of-code-generation",
       "keywords": [],
@@ -122686,7 +122694,7 @@
       },
       "authors": [
         {
-          "contributions": 6503,
+          "contributions": 6493,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -122746,83 +122754,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 0.916247,
-          "ended_at": "2026-08-12T19:44:50.283076Z",
+          "duration_s": 0.559781,
+          "ended_at": "2026-08-12T18:43:19.363937Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:49.366829Z"
+          "started_at": "2026-08-12T18:43:18.804156Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.970119,
-          "ended_at": "2026-08-12T19:44:49.319395Z",
+          "duration_s": 0.598321,
+          "ended_at": "2026-08-12T18:43:18.741810Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:48.349276Z"
+          "started_at": "2026-08-12T18:43:18.143489Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.791896,
-          "ended_at": "2026-08-12T19:44:48.313585Z",
+          "duration_s": 0.539363,
+          "ended_at": "2026-08-12T18:43:18.082020Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:47.521689Z"
+          "started_at": "2026-08-12T18:43:17.542657Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.885578,
-          "ended_at": "2026-08-12T19:44:47.485407Z",
+          "duration_s": 0.509863,
+          "ended_at": "2026-08-12T18:43:17.480447Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:46.599829Z"
+          "started_at": "2026-08-12T18:43:16.970584Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.992493,
-          "ended_at": "2026-08-12T19:44:46.563853Z",
+          "duration_s": 0.599652,
+          "ended_at": "2026-08-12T18:43:16.908080Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:45.571360Z"
+          "started_at": "2026-08-12T18:43:16.308428Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.910529,
-          "ended_at": "2026-08-12T19:44:45.536140Z",
+          "duration_s": 0.730362,
+          "ended_at": "2026-08-12T18:43:16.246600Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:44.625611Z"
+          "started_at": "2026-08-12T18:43:15.516238Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.731321,
-          "ended_at": "2026-08-12T19:44:44.590241Z",
+          "duration_s": 0.58811,
+          "ended_at": "2026-08-12T18:43:15.454142Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:43.858920Z"
+          "started_at": "2026-08-12T18:43:14.866032Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.954352,
-          "ended_at": "2026-08-12T19:44:43.715900Z",
+          "duration_s": 0.66646,
+          "ended_at": "2026-08-12T18:43:14.697380Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:42.761548Z"
+          "started_at": "2026-08-12T18:43:14.030920Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.806506,
-          "ended_at": "2026-08-12T19:44:42.726764Z",
+          "duration_s": 0.557348,
+          "ended_at": "2026-08-12T18:43:13.968726Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:41.920258Z"
+          "started_at": "2026-08-12T18:43:13.411378Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.914472,
-          "ended_at": "2026-08-12T19:44:41.866579Z",
+          "duration_s": 2.503835,
+          "ended_at": "2026-08-12T18:43:13.343909Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-08-12T19:44:38.952107Z"
+          "started_at": "2026-08-12T18:43:10.840074Z"
         }
       ],
       "paper_status": null,
@@ -125637,7 +125645,7 @@
         "type": "markdown"
       },
       "current_stage": "analyzed",
-      "description": "Field: chemistry Do the specific P=O and P-S bond environments characteristic of organophosphate toxicity rely on local substructure presence (captured by MACCS keys) or extended topological context (captured by Morgan fingerprints), and does one representation significantly outperform the other specifically for this\u2026",
+      "description": "Verdict: pass The question investigates a substantive chemical hypothesis: whether the toxic mechanism of organophosphates is driven by discrete local functional groups (P=O, P-S) or requires extended topological context. While it compares two specific fingerprinting methods, the core inquiry is about the nature of\u2026",
       "field": "chemistry",
       "id": "PROJ-678-comparative-analysis-of-molecular-finger",
       "keywords": [],
@@ -139724,14 +139732,6 @@
         },
         {
           "contributions": 1,
-          "kind": "human",
-          "name": "llmxive-preprint-followup",
-          "roles": [
-            "brainstorm_submitter"
-          ]
-        },
-        {
-          "contributions": 1,
           "kind": "llm",
           "name": "google.gemma-3-27b-it",
           "roles": [
@@ -139753,7 +139753,7 @@
         "type": "markdown"
       },
       "current_stage": "planned",
-      "description": "Field: Linguistics What structural properties of multi-turn tool-execution traces determine their compressibility into symbolic rules without degrading the fidelity of persona-aligned agent behavior? Current hierarchical memory frameworks for personalized agents face a scalability bottleneck as the volume of\u2026",
+      "description": "Verdict: concern The question asks about the relationship between trace structure and compressibility, which is a substantive scientific question. However, the phrasing \"without degrading the fidelity\" implies the study is an engineering validation of a specific compression pipeline rather than a general inquiry into\u2026",
       "field": "linguistics",
       "id": "PROJ-859-llmxive-follow-up-extending-memslides-a",
       "keywords": [],
@@ -157424,126 +157424,6 @@
   "recent_activity": [
     {
       "agent": "implementer",
-      "duration_s": 0.916247,
-      "ended_at": "2026-08-12T19:44:50.283076Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:49.366829Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.970119,
-      "ended_at": "2026-08-12T19:44:49.319395Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:48.349276Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.791896,
-      "ended_at": "2026-08-12T19:44:48.313585Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:47.521689Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.885578,
-      "ended_at": "2026-08-12T19:44:47.485407Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:46.599829Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.992493,
-      "ended_at": "2026-08-12T19:44:46.563853Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:45.571360Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.910529,
-      "ended_at": "2026-08-12T19:44:45.536140Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:44.625611Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.731321,
-      "ended_at": "2026-08-12T19:44:44.590241Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:43.858920Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.954352,
-      "ended_at": "2026-08-12T19:44:43.715900Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:42.761548Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.806506,
-      "ended_at": "2026-08-12T19:44:42.726764Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:41.920258Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.914472,
-      "ended_at": "2026-08-12T19:44:41.866579Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-12T19:44:38.952107Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 0.996266,
       "ended_at": "2026-08-12T19:28:41.458589Z",
       "failure_reason": "",
@@ -163421,6 +163301,126 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-08-12T14:21:51.565089Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 30.480387,
+      "ended_at": "2026-08-12T14:22:17.485498Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-894-llmxive-follow-up-extending-memory-is-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:21:47.005111Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 37.272123,
+      "ended_at": "2026-08-12T14:21:51.562005Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-075-statistical-bias-in-pre-print-server-pub",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:21:14.289882Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 30.215745,
+      "ended_at": "2026-08-12T14:21:47.001665Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-894-llmxive-follow-up-extending-memory-is-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:21:16.785920Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.732771,
+      "ended_at": "2026-08-12T14:21:16.782393Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-894-llmxive-follow-up-extending-memory-is-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:20:51.049622Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 58.141346,
+      "ended_at": "2026-08-12T14:21:14.286703Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-075-statistical-bias-in-pre-print-server-pub",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:20:16.145357Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 40.570778,
+      "ended_at": "2026-08-12T14:20:51.046074Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-894-llmxive-follow-up-extending-memory-is-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:20:10.475296Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 36.842022,
+      "ended_at": "2026-08-12T14:20:16.142188Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-075-statistical-bias-in-pre-print-server-pub",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:19:39.300166Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.875312,
+      "ended_at": "2026-08-12T14:20:10.471733Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-894-llmxive-follow-up-extending-memory-is-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:20:06.596421Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 31.587914,
+      "ended_at": "2026-08-12T14:20:06.592893Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-894-llmxive-follow-up-extending-memory-is-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:19:35.004979Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 54.589105,
+      "ended_at": "2026-08-12T14:19:39.297009Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-075-statistical-bias-in-pre-print-server-pub",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-12T14:18:44.707904Z"
     }
   ],
   "reviewed_preprints": [
