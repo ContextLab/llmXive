@@ -1,11 +1,11 @@
 """
-Provenance utilities for the llmXive automated science pipeline.
+Provenance module for metadata logging and hash generation.
 
-This module provides functionality for:
-- Generating deterministic hashes for data files
-- Logging metadata for reproducibility
-- Tracking pipeline execution context
+This module provides utilities to compute file and data hashes,
+generate provenance records with timestamps and execution context,
+and verify data integrity across pipeline steps.
 """
+
 import hashlib
 import json
 import os
@@ -13,193 +13,178 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from .config import get_project_root, get_output_dir
+from utils.config import get_project_root
 
 
 def compute_file_hash(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
     """
-    Compute a cryptographic hash of a file's contents.
+    Compute the cryptographic hash of a file.
 
     Args:
         file_path: Path to the file to hash.
         algorithm: Hash algorithm to use (default: sha256).
 
     Returns:
-        Hexadecimal string representation of the hash.
+        Hexadecimal string of the file hash.
 
     Raises:
         FileNotFoundError: If the file does not exist.
         ValueError: If the algorithm is not supported.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
 
-    hasher = hashlib.new(algorithm)
-    with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
+    hash_obj = hashlib.new(algorithm)
+
+    # Read file in chunks to handle large files
+    with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-    return hasher.hexdigest()
+            hash_obj.update(chunk)
+
+    return hash_obj.hexdigest()
 
 
-def compute_data_hash(data: Any) -> str:
+def compute_data_hash(data: Any, algorithm: str = "sha256") -> str:
     """
-    Compute a deterministic hash of Python data structures.
+    Compute the hash of arbitrary data (dict, list, string, etc.).
 
     Args:
-        data: Any Python object (dict, list, etc.).
+        data: Data to hash. Must be JSON-serializable.
+        algorithm: Hash algorithm to use (default: sha256).
 
     Returns:
-        Hexadecimal string representation of the hash.
+        Hexadecimal string of the data hash.
     """
-    # Serialize with sorted keys for determinism
-    serialized = json.dumps(data, sort_keys=True, default=str)
-    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+    # Serialize data to JSON with sorted keys for deterministic output
+    json_str = json.dumps(data, sort_keys=True, default=str)
+    hash_obj = hashlib.new(algorithm)
+    hash_obj.update(json_str.encode("utf-8"))
+    return hash_obj.hexdigest()
 
 
 def generate_provenance_record(
-    input_files: Optional[list[str]] = None,
-    output_files: Optional[list[str]] = None,
+    step_name: str,
+    input_files: Optional[list] = None,
+    output_files: Optional[list] = None,
     parameters: Optional[Dict[str, Any]] = None,
-    script_name: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Generate a comprehensive provenance record for a pipeline step.
+    Generate a provenance record for a pipeline step.
 
     Args:
+        step_name: Name of the pipeline step.
         input_files: List of input file paths.
         output_files: List of output file paths.
         parameters: Dictionary of parameters used in the step.
-        script_name: Name of the script generating this record.
+        metadata: Additional metadata (e.g., user, environment).
 
     Returns:
         Dictionary containing the provenance record.
     """
     project_root = get_project_root()
-    timestamp = datetime.utcnow().isoformat() + "Z"
+
+    # Resolve paths relative to project root
+    resolved_inputs = [str(Path(f).relative_to(project_root)) if Path(f).is_absolute() else str(f) for f in (input_files or [])]
+    resolved_outputs = [str(Path(f).relative_to(project_root)) if Path(f).is_absolute() else str(f) for f in (output_files or [])]
+
+    # Compute hashes for input and output files if they exist
+    input_hashes = {}
+    for f in resolved_inputs:
+        full_path = project_root / f
+        if full_path.exists():
+            input_hashes[f] = compute_file_hash(full_path)
+
+    output_hashes = {}
+    for f in resolved_outputs:
+        full_path = project_root / f
+        if full_path.exists():
+            output_hashes[f] = compute_file_hash(full_path)
 
     record = {
-        "timestamp": timestamp,
-        "script": script_name or "unknown",
-        "project_root": str(project_root),
-        "inputs": [],
-        "outputs": [],
+        "step_name": step_name,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "input_files": resolved_inputs,
+        "input_hashes": input_hashes,
+        "output_files": resolved_outputs,
+        "output_hashes": output_hashes,
         "parameters": parameters or {},
+        "metadata": metadata or {},
+        "project_root": str(project_root)
     }
-
-    # Process input files with hashes
-    if input_files:
-        for f in input_files:
-            file_path = Path(f)
-            if file_path.exists():
-                record["inputs"].append({
-                    "path": str(file_path),
-                    "hash": compute_file_hash(file_path),
-                    "size_bytes": file_path.stat().st_size,
-                })
-            else:
-                record["inputs"].append({
-                    "path": str(file_path),
-                    "status": "missing",
-                })
-
-    # Process output files with hashes
-    if output_files:
-        for f in output_files:
-            file_path = Path(f)
-            if file_path.exists():
-                record["outputs"].append({
-                    "path": str(file_path),
-                    "hash": compute_file_hash(file_path),
-                    "size_bytes": file_path.stat().st_size,
-                })
-            else:
-                record["outputs"].append({
-                    "path": str(file_path),
-                    "status": "pending",
-                })
 
     return record
 
 
-def save_provenance_record(
-    record: Dict[str, Any],
-    output_dir: Optional[Union[str, Path]] = None,
-    filename: Optional[str] = None,
-) -> Path:
+def save_provenance_record(record: Dict[str, Any], output_path: Union[str, Path]) -> None:
     """
     Save a provenance record to a JSON file.
 
     Args:
         record: The provenance record dictionary.
-        output_dir: Directory to save the record (default: project's provenance dir).
-        filename: Name of the file (default: auto-generated based on timestamp).
-
-    Returns:
-        Path to the saved file.
+        output_path: Path to save the record.
     """
-    if output_dir is None:
-        output_dir = get_output_dir() / "provenance"
-    else:
-        output_dir = Path(output_dir)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    if filename is None:
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
-        filename = f"provenance_{timestamp}.json"
-
-    file_path = output_dir / filename
-
-    with open(file_path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(record, f, indent=2, default=str)
-
-    return file_path
 
 
 def log_step(
-    script_name: str,
-    input_files: list[str],
-    output_files: list[str],
-    parameters: Dict[str, Any],
-    status: str = "success",
-    error_message: Optional[str] = None,
-) -> Path:
+    step_name: str,
+    input_files: Optional[list] = None,
+    output_files: Optional[list] = None,
+    parameters: Optional[Dict[str, Any]] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    log_dir: Optional[Union[str, Path]] = None
+) -> Dict[str, Any]:
     """
-    Convenience function to generate and save a provenance record for a pipeline step.
+    Generate and save a provenance record for a pipeline step.
 
     Args:
-        script_name: Name of the script.
+        step_name: Name of the pipeline step.
         input_files: List of input file paths.
         output_files: List of output file paths.
-        parameters: Dictionary of parameters.
-        status: Execution status ("success", "failed", "partial").
-        error_message: Optional error message if status is "failed".
+        parameters: Dictionary of parameters used in the step.
+        metadata: Additional metadata.
+        log_dir: Directory to save the log file. Defaults to project_root/logs/provenance.
 
     Returns:
-        Path to the saved provenance record.
+        The generated provenance record.
     """
     record = generate_provenance_record(
+        step_name=step_name,
         input_files=input_files,
         output_files=output_files,
         parameters=parameters,
-        script_name=script_name,
+        metadata=metadata
     )
-    record["status"] = status
-    if error_message:
-        record["error"] = error_message
 
-    return save_provenance_record(record)
+    if log_dir is None:
+        project_root = get_project_root()
+        log_dir = project_root / "logs" / "provenance"
+    else:
+        log_dir = Path(log_dir)
+
+    # Generate filename based on timestamp and step name
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    filename = f"{timestamp}_{step_name.replace(' ', '_')}.json"
+    output_path = log_dir / filename
+
+    save_provenance_record(record, output_path)
+
+    return record
 
 
 def verify_data_integrity(
     file_path: Union[str, Path],
     expected_hash: str,
-    algorithm: str = "sha256",
+    algorithm: str = "sha256"
 ) -> bool:
     """
-    Verify that a file's hash matches an expected value.
+    Verify the integrity of a file by comparing its hash to an expected value.
 
     Args:
         file_path: Path to the file to verify.
@@ -208,6 +193,9 @@ def verify_data_integrity(
 
     Returns:
         True if the hash matches, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
     actual_hash = compute_file_hash(file_path, algorithm)
     return actual_hash == expected_hash

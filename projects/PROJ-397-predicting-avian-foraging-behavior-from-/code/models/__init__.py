@@ -1,1 +1,1 @@
-# Models package for PROJ-397
+# Model training and evaluation module

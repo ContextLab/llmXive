@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "predicting-avian-foraging-behavior"
 version = "0.1.0"
 description = "Predicting avian foraging guilds from public eBird data and land cover maps"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -17,7 +18,7 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "pyyaml",
-    "jupyter"
+    "jupyter",
 ]
 
 [tool.black]
@@ -26,7 +27,8 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -42,20 +44,32 @@ exclude = '''
 line-length = 88
 target-version = "py311"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
+    "E501", # line too long (black handles this)
     "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+]
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".venv",
+    "build",
+    "dist",
 ]
 
 [tool.ruff.isort]
-known-first-party = ["data", "models", "viz", "utils", "tests"]
+known-first-party = ["utils", "data", "models", "viz", "tests"]
 force-sort-within-sections = true
-combine-as-imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"

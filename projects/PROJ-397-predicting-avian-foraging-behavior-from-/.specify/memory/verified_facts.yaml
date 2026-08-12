@@ -1,6 +1,5 @@
-'|against alpha calculate permutation test threshold':
-  quote: "\u201C\u03B22 = 0\u201D at size \u03B1 = 0 . 05. The empirical sizes (for\
-    \ \u03B22 = 0) and powers (for"
-  source_id: '1003.1002'
-  url: https://arxiv.org/abs/1003.1002
-  value: '0.05'
+'|against calculate threshold':
+  quote: 0.058.
+  source_id: P-value
+  url: https://en.wikipedia.org/wiki/P-value
+  value: '0.058'

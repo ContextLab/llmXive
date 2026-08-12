@@ -1,1 +1,1 @@
-# Data package for PROJ-397
+# Data processing module

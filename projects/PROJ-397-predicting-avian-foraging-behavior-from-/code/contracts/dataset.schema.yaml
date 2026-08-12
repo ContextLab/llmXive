@@ -1,0 +1,42 @@
+# Dataset Schema Definition
+# Defines the expected structure for processed datasets
+
+merged_observations:
+  type: object
+  required:
+    - species_id
+    - foraging_guild
+    - land_cover_proportions
+  properties:
+    species_id:
+      type: string
+    foraging_guild:
+      type: string
+    land_cover_proportions:
+      type: object
+      additionalProperties:
+        type: number
+    observation_id:
+      type: string
+    lat:
+      type: number
+    lon:
+      type: number
+
+species_profiles:
+  type: object
+  required:
+    - species_id
+    - foraging_guild
+    - land_cover_profile
+  properties:
+    species_id:
+      type: string
+    foraging_guild:
+      type: string
+    land_cover_profile:
+      type: object
+      additionalProperties:
+        type: number
+    observation_count:
+      type: integer

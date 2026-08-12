@@ -4,9 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of the requested `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/{data,models,viz,notebooks,utils,tests}` directory tree (or any `mkdir`/`touch` commands) was provided; the response contains only the task description and no file or folder listings. The required folder hierarchy is therefore missing.
-- `T001b` (rejected 1x): declared artifact(s) missing/empty/invalid: requirements.txt
-- `T002` (rejected 1x): The required `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt` file is missing, and there is no evidence that `python --version` was run to confirm a 3.11.x interpreter. The implementer only provided a similarly named file in a different location and no version verification.
+- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: pyproject.toml
+- `T004` (rejected 1x): No `utils/config.py` file or its contents were provided; without the actual module defining the required paths, random seeds, and constants, the claim cannot be verified. The implementer must add a non‑empty `utils/config.py` implementing those configurations.
 
 ## Required change
 

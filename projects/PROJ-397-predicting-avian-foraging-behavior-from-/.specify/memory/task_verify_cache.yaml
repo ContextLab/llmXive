@@ -1,7 +1,13 @@
-T004:
+T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/config.py` file or its contents were provided; without the actual\
-    \ module defining the required paths, random seeds, and constants, the claim cannot\
-    \ be verified. The implementer must add a non\u2011empty `utils/config.py` implementing\
-    \ those configurations."
+  r: No artifact showing the result of `python --version` is present; the implementer
+    did not provide the command output or any proof that the environment reports a
+    3.11.x version. Without this evidence the requirement is not satisfied.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils/provenance.py` file or its contents are present in the provided evidence,\
+    \ so the required metadata\u2011logging and hash\u2011generation functionality\
+    \ has not been delivered. The implementer must add a non\u2011empty `utils/provenance.py`\
+    \ module that implements the specified behavior."

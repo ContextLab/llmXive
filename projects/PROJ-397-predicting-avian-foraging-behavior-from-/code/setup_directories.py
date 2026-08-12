@@ -1,26 +1,21 @@
-"""
-Script to initialize the project directory structure for PROJ-397.
-Creates the required folder hierarchy under code/.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the base directory for this project
-    # The task specifies the project root as: projects/PROJ-397-predicting-avian-foraging-behavior-from-
-    # However, the constraints state: "All artifact paths are relative to the project root and MUST live under code/..."
-    # The task description asks to create: `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/{...}`
-    # Since we are running this script from within the project context, we assume the current working directory
-    # or a relative path `code/` is the target root for the subdirectories.
-    # To be safe and compliant with "stay inside the project tree", we create these relative to the current directory
-    # which represents the project root in the execution context.
+    """
+    Initialize the project directory structure for PROJ-397.
+    Creates the required subdirectories and placeholder files.
+    """
+    # Define the project root based on the task description
+    # The task specifies: projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/
+    # We assume the script is run from the repository root, so we construct the path relative to CWD
+    project_root = Path.cwd() / "projects" / "PROJ-397-predicting-avian-foraging-behavior-from-" / "code"
     
-    base_path = Path("code")
+    # Create the base code directory if it doesn't exist
+    project_root.mkdir(parents=True, exist_ok=True)
     
-    # Ensure the base 'code' directory exists first
-    base_path.mkdir(parents=True, exist_ok=True)
-    
+    # Define subdirectories to create
     subdirs = [
         "data",
         "models",
@@ -30,26 +25,28 @@ def main():
         "tests"
     ]
     
-    created_dirs = []
+    # Create subdirectories
     for subdir in subdirs:
-        dir_path = base_path / subdir
+        dir_path = project_root / subdir
         dir_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(dir_path))
         print(f"Created directory: {dir_path}")
     
-    # Also create __init__.py files in Python packages to ensure they are recognized
-    # and to satisfy import requirements for sibling modules if any.
-    # The task specifically asked for directories, but making them packages is best practice.
-    # We will create __init__.py in data, models, viz, utils, tests.
-    # notebooks is usually not a package.
-    package_dirs = ["data", "models", "viz", "utils", "tests"]
-    for pkg_dir in package_dirs:
-        pkg_file = base_path / pkg_dir / "__init__.py"
-        if not pkg_file.exists():
-            pkg_file.touch()
-            print(f"Created __init__.py in: {pkg_file}")
+    # Create placeholder files
+    placeholder_files = [
+        "requirements.txt",
+        "run_pipeline.sh",
+        "README.md"
+    ]
     
-    print(f"Directory structure initialization complete for {base_path}.")
+    for filename in placeholder_files:
+        file_path = project_root / filename
+        if not file_path.exists():
+            file_path.touch()
+            print(f"Created placeholder file: {file_path}")
+        else:
+            print(f"File already exists: {file_path}")
+    
+    print(f"Project structure initialized at: {project_root}")
     return 0
 
 if __name__ == "__main__":

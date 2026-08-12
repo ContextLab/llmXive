@@ -1,271 +1,167 @@
 """
-Configuration module for the Avian Foraging Behavior Prediction Pipeline.
-
-This module defines all project paths, random seeds, and global constants
-used throughout the pipeline to ensure reproducibility and consistent
-directory structure handling.
+Configuration module for the Avian Foraging Behavior prediction pipeline.
+Defines paths, random seeds, and constants used across the project.
 """
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
-
-# ========================================================================
-# Project Root and Directory Paths
-# ========================================================================
-
-# Determine the project root based on the current working directory or
-# explicit environment variable. Defaults to the parent of the 'code' directory.
-_CODE_DIR = Path(__file__).resolve().parent.parent
-PROJECT_ROOT = _CODE_DIR.parent if _CODE_DIR.name == "code" else _CODE_DIR
-
-# Core subdirectories relative to code/
-DATA_DIR = _CODE_DIR / "data"
-MODELS_DIR = _CODE_DIR / "models"
-VIZ_DIR = _CODE_DIR / "viz"
-NOTEBOOKS_DIR = _CODE_DIR / "notebooks"
-UTILS_DIR = _CODE_DIR / "utils"
-TESTS_DIR = _CODE_DIR / "tests"
-
-# Processed data subdirectories
-PROCESSED_DIR = DATA_DIR / "processed"
-RAW_DIR = DATA_DIR / "raw"
-EXTERNAL_DIR = DATA_DIR / "external"
-
-# Output directories for artifacts
-FIGURES_DIR = VIZ_DIR / "figures"
-REPORTS_DIR = _CODE_DIR / "docs" / "results"
-
-# Ensure all required directories exist
-_REQUIRED_DIRS = [
-    DATA_DIR, RAW_DIR, PROCESSED_DIR, EXTERNAL_DIR,
-    MODELS_DIR, VIZ_DIR, FIGURES_DIR,
-    NOTEBOOKS_DIR, UTILS_DIR, TESTS_DIR, REPORTS_DIR
-]
-
-def _ensure_directories():
-    """Create all required directories if they do not exist."""
-    for dir_path in _REQUIRED_DIRS:
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-# Initialize directories on import
-_ensure_directories()
-
-
-# ========================================================================
-# Random Seeds and Reproducibility
-# ========================================================================
-
-# Global random seed for reproducibility across all libraries
-RANDOM_SEED = 42
-
-# Numpy random state
+from typing import Dict, Any, Optional, List
 import numpy as np
-np.random.seed(RANDOM_SEED)
-
-# Standard library random state
 import random
-random.seed(RANDOM_SEED)
 
-# Scikit-learn random state (used in models)
-SKLEARN_RANDOM_STATE = RANDOM_SEED
-
-
-# ========================================================================
-# Data Constants and Thresholds
-# ========================================================================
-
-# Minimum number of observations required per species for statistical power
-MIN_OBSERVATIONS_PER_SPECIES = 50
-
-# Number of top species to select for analysis
-TOP_N_SPECIES = 25
-
-# Buffer radius (in meters) for land cover extraction around observation points
-BUFFER_RADIUS_M = 100
-
-# Target year for NLCD land cover data
-NLCD_TARGET_YEAR = 2019
-
-# eBird data version or release identifier (update as needed)
-EBD_VERSION = "2023"
-
-# Foraging guilds to be predicted (derived from guild_mapping.csv)
-# Note: Actual guilds are loaded dynamically, but this defines the expected scope
-EXPECTED_GUILDS = [
-    "Insectivore", "Granivore", "Nectarivore", "Carnivore",
-    "Omnivore", "Herbivore", "Scavenger", "Frugivore"
+# --- Constants ---
+RANDOM_SEED: int = 42
+N_FOLDS: int = 5
+MAX_OBSERVATIONS_PER_SPECIES: int = 10000
+MIN_OBSERVATIONS_PER_SPECIES: int = 50
+BUFFER_RADIUS_M: int = 100
+LAND_COVER_CLASSES: List[str] = [
+    "OPEN_WATER",
+    "PERENNIAL_SNOW_ICE",
+    "DEVELOPED_OPEN_SPACE",
+    "DEVELOVED_LOW_INTENSITY",
+    "DEVELOPED_MEDIUM_INTENSITY",
+    "DEVELOPED_HIGH_INTENSITY",
+    "BARREN_LAND",
+    "DECIDUOUS_FOREST",
+    "EVERGREEN_FOREST",
+    "MIXED_FOREST",
+    "DENSE_SHRUB_SCRUB",
+    "SHRUB_SCRUB",
+    "GRASSLAND_HERBACEOUS",
+    "SAGEBRUSH_SCRUB",
+    "WOODY_WETLANDS",
+    "EMERGENT_HERBACEOUS_WETLANDS",
+    "CROPLAND",
+    "PASTURE_HAY",
 ]
 
-
-# ========================================================================
-# Model Hyperparameters
-# ========================================================================
-
-# Random Forest Classifier defaults
-RF_N_ESTIMATORS = 100
-RF_MAX_DEPTH = None
-RF_MIN_SAMPLES_SPLIT = 2
-RF_MIN_SAMPLES_LEAF = 1
-RF_MAX_FEATURES = "sqrt"
-RF_CLASS_WEIGHT = "balanced"
-
-# Cross-validation settings
-CV_FOLDS = 5
-CV_SHUFFLE = True
-
-# Permutation test settings
-PERMUTATION_ITERATIONS = 1000
-PERMUTATION_ALPHA = 0.05
-
-
-# ========================================================================
-# File Paths and Filenames
-# ========================================================================
-
-# Input data filenames
-EBD_RAW_FILENAME = "ebd_raw.csv"
-NLCD_RAW_FILENAME = "nlcd_2019.tif"
-GUILD_MAPPING_FILENAME = "guild_mapping.csv"
-
-# Processed data filenames
-EBD_TOP25_FILENAME = "ebd_top25.csv"
-MERGED_OBSERVATIONS_FILENAME = "merged_observations.csv"
-EXCLUDED_SPECIES_LOG_FILENAME = "excluded_species.log"
-SPECIES_PROFILES_FILENAME = "species_profiles.csv"
-TOP_SPECIES_JSON_FILENAME = "top_species.json"
-
-# Model artifacts
-MODEL_FILENAME = "random_forest_model.pkl"
-MODEL_METRICS_FILENAME = "model_metrics.json"
-
-# Visualization outputs
-CONFUSION_MATRIX_FILENAME = "confusion_matrix.png"
-FEATURE_IMPORTANCE_FILENAME = "feature_importance.png"
-HABITAT_MAP_FILENAME = "habitat_map.geojson"
-HABITAT_MAP_PNG_FILENAME = "habitat_map.png"
-
-# Reports
-FEATURE_IMPORTANCE_REPORT_FILENAME = "feature_importance_report.md"
-
-# Metadata and logs
-METADATA_FILENAME = "metadata.yaml"
-PROVENANCE_FILENAME = "provenance.json"
-PIPELINE_LOG_FILENAME = "pipeline.log"
-
-
-# ========================================================================
-# URL Constants for Data Sources
-# ========================================================================
-
-# eBird Basic Dataset (EBD) download URL
-# Note: This is a placeholder; actual URL should be fetched from eBird website or S3
-EBD_DOWNLOAD_URL = "https://ebird.org/static/ebd/ebd_relMay2023.zip"
-
-# NLCD 2019 Land Cover download URL (USGS)
-NLCD_DOWNLOAD_URL = "https://www.mrlc.gov/data/nlcd_2019_land_cover_48_state_20190603.zip"
-
-# Guild mapping source (Cornell Lab of Ornithology)
-GUILD_MAPPING_URL = "https://birdsoftheworld.org/bow/species/ebird-guilds.csv"
-
-
-# ========================================================================
-# Logging Configuration
-# ========================================================================
-
-LOG_LEVEL = "INFO"
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-
-# ========================================================================
-# Utility Functions
-# ========================================================================
-
+# --- Project Root Detection ---
+# Assumes the project root is the parent of the 'code' directory
+# If run directly from 'code', it adjusts accordingly.
 def get_project_root() -> Path:
-    """Return the project root directory."""
-    return PROJECT_ROOT
+    """Returns the absolute path to the project root directory."""
+    current_file = Path(__file__).resolve()
+    # If this file is in code/utils/config.py, root is 3 levels up
+    # If the script is run from the repo root, this logic holds if 'code' exists.
+    # Fallback: check if 'code' is a subdirectory of the current working dir parent.
+    root = current_file.parent.parent.parent
+    if not root.joinpath("data").exists():
+        # Fallback logic if structure is different (e.g. running from code/)
+        root = current_file.parent.parent
+        if not root.joinpath("data").exists():
+            # Final fallback to cwd if structure is unexpected, though spec implies fixed structure
+            root = Path.cwd()
+    return root
 
+# --- Directory Paths ---
 def get_data_dir() -> Path:
-    """Return the data directory."""
-    return DATA_DIR
+    """Returns the path to the data directory."""
+    return get_project_root() / "data"
+
+def get_raw_data_dir() -> Path:
+    """Returns the path to the raw data directory."""
+    return get_data_dir() / "raw"
 
 def get_processed_dir() -> Path:
-    """Return the processed data directory."""
-    return PROCESSED_DIR
+    """Returns the path to the processed data directory."""
+    return get_data_dir() / "processed"
 
 def get_models_dir() -> Path:
-    """Return the models directory."""
-    return MODELS_DIR
+    """Returns the path to the models directory."""
+    return get_data_dir() / "models"
 
 def get_viz_dir() -> Path:
-    """Return the visualization directory."""
-    return VIZ_DIR
+    """Returns the path to the visualization directory."""
+    return get_data_dir() / "viz"
 
 def get_figures_dir() -> Path:
-    """Return the figures directory."""
-    return FIGURES_DIR
+    """Returns the path to the figures directory."""
+    return get_viz_dir() / "figures"
 
 def get_reports_dir() -> Path:
-    """Return the reports directory."""
-    return REPORTS_DIR
+    """Returns the path to the reports directory."""
+    return get_data_dir() / "reports"
 
+# --- Hyperparameters & Configs ---
 def get_seed() -> int:
-    """Return the global random seed."""
+    """Returns the global random seed."""
     return RANDOM_SEED
 
+def set_seed(seed: int = RANDOM_SEED) -> None:
+    """Sets the random seed for reproducibility across numpy, random, and torch (if available)."""
+    random.seed(seed)
+    np.random.seed(seed)
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass
+
 def get_model_params() -> Dict[str, Any]:
-    """Return default Random Forest hyperparameters."""
+    """Returns default parameters for the Random Forest model."""
     return {
-        "n_estimators": RF_N_ESTIMATORS,
-        "max_depth": RF_MAX_DEPTH,
-        "min_samples_split": RF_MIN_SAMPLES_SPLIT,
-        "min_samples_leaf": RF_MIN_SAMPLES_LEAF,
-        "max_features": RF_MAX_FEATURES,
-        "class_weight": RF_CLASS_WEIGHT,
-        "random_state": SKLEARN_RANDOM_STATE
+        "n_estimators": 100,
+        "max_depth": None,
+        "min_samples_split": 2,
+        "min_samples_leaf": 1,
+        "random_state": get_seed(),
+        "n_jobs": -1,
     }
 
 def get_cv_params() -> Dict[str, Any]:
-    """Return cross-validation parameters."""
+    """Returns default parameters for K-Fold Cross Validation."""
     return {
-        "n_splits": CV_FOLDS,
-        "shuffle": CV_SHUFFLE,
-        "random_state": SKLEARN_RANDOM_STATE
+        "n_splits": N_FOLDS,
+        "shuffle": True,
+        "random_state": get_seed(),
     }
 
 def get_permutation_params() -> Dict[str, Any]:
-    """Return permutation test parameters."""
+    """Returns parameters for the stratified permutation test."""
     return {
-        "n_iterations": PERMUTATION_ITERATIONS,
-        "alpha": PERMUTATION_ALPHA
+        "n_permutations": 1000,
+        "random_state": get_seed(),
+        "stratify_by": "species_id",
     }
 
 def get_data_thresholds() -> Dict[str, int]:
-    """Return data filtering thresholds."""
+    """Returns data filtering thresholds."""
     return {
         "min_observations": MIN_OBSERVATIONS_PER_SPECIES,
-        "top_n_species": TOP_N_SPECIES,
-        "buffer_radius_m": BUFFER_RADIUS_M
+        "max_observations": MAX_OBSERVATIONS_PER_SPECIES,
+        "buffer_radius_m": BUFFER_RADIUS_M,
     }
 
+# --- File Paths ---
 def get_file_paths() -> Dict[str, Path]:
-    """Return all key file paths as a dictionary."""
+    """Returns a dictionary of key file paths used in the pipeline."""
     return {
-        "ebd_raw": DATA_DIR / EBD_RAW_FILENAME,
-        "nlcd_raw": DATA_DIR / NLCD_RAW_FILENAME,
-        "guild_mapping": PROCESSED_DIR / GUILD_MAPPING_FILENAME,
-        "ebd_top25": PROCESSED_DIR / EBD_TOP25_FILENAME,
-        "merged_observations": PROCESSED_DIR / MERGED_OBSERVATIONS_FILENAME,
-        "excluded_species_log": PROCESSED_DIR / EXCLUDED_SPECIES_LOG_FILENAME,
-        "species_profiles": PROCESSED_DIR / SPECIES_PROFILES_FILENAME,
-        "top_species_json": PROCESSED_DIR / TOP_SPECIES_JSON_FILENAME,
-        "model": MODELS_DIR / MODEL_FILENAME,
-        "model_metrics": MODELS_DIR / MODEL_METRICS_FILENAME,
-        "confusion_matrix": FIGURES_DIR / CONFUSION_MATRIX_FILENAME,
-        "feature_importance": FIGURES_DIR / FEATURE_IMPORTANCE_FILENAME,
-        "habitat_map": FIGURES_DIR / HABITAT_MAP_FILENAME,
-        "habitat_map_png": FIGURES_DIR / HABITAT_MAP_PNG_FILENAME,
-        "feature_report": REPORTS_DIR / FEATURE_IMPORTANCE_REPORT_FILENAME,
-        "metadata": DATA_DIR / METADATA_FILENAME,
-        "provenance": DATA_DIR / PROVENANCE_FILENAME,
-        "pipeline_log": DATA_DIR / PIPELINE_LOG_FILENAME
+        "guild_mapping": get_processed_dir() / "guild_mapping.csv",
+        "top_species_ids": get_processed_dir() / "top_species_ids.json",
+        "ebd_filtered": get_processed_dir() / "ebd_filtered.csv",
+        "merged_observations": get_processed_dir() / "merged_observations.csv",
+        "species_profiles": get_processed_dir() / "species_profiles.csv",
+        "top_species": get_processed_dir() / "top_species.json",
+        "model_path": get_models_dir() / "random_forest.pkl",
+        "evaluation_metrics": get_processed_dir() / "evaluation_metrics.json",
+        "confusion_matrix_fig": get_figures_dir() / "confusion_matrix.png",
+        "importance_fig": get_figures_dir() / "feature_importance.png",
+        "habitat_map_fig": get_figures_dir() / "habitat_map.png",
+        "habitat_map_geojson": get_figures_dir() / "habitat_map.geojson",
+        "feature_importance_report": get_reports_dir() / "feature_importance_report.md",
     }
+
+def ensure_directories() -> None:
+    """Creates all required directories if they do not exist."""
+    dirs = [
+        get_raw_data_dir(),
+        get_processed_dir(),
+        get_models_dir(),
+        get_viz_dir(),
+        get_figures_dir(),
+        get_reports_dir(),
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
