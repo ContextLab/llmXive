@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Taxonomy Schema"
+description: "Schema for the safety taxonomy centroids"
+type: "object"
+properties:
+  category:
+    type: "string"
+    description: "Name of the safety category"
+  description:
+    type: "string"
+    description: "Definition from the AgentDoG 1.5 paper"
+  centroid_embedding:
+    type: "array"
+    items:
+      type: "number"
+    description: "high-dimensional embedding vector (all-MiniLM-L6-v2)"
+    minItems: 384
+    maxItems: 384
+required:
+  - category
+  - description
+  - centroid_embedding
+additionalProperties: false

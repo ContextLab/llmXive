@@ -1,28 +1,28 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Drift Result
-description: Schema for the output of the drift scoring pipeline.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Drift Result Schema"
+description: "Schema for the output of the drift scoring process"
+type: "object"
+properties:
+  log_id:
+    type: "string"
+    description: "UUID of the log"
+  drift_score:
+    type: "number"
+    description: "Cosine distance to the closest taxonomy centroid (0.0 to 2.0)"
+    minimum: 0.0
+    maximum: 2.0
+  review_flag:
+    type: "boolean"
+    description: "True if drift_score is high or text is empty"
+  closest_category:
+    type: "string"
+    description: "The taxonomy category with the minimum distance"
+  distance_to_closest:
+    type: "number"
+    description: "The actual cosine distance value"
 required:
   - log_id
   - drift_score
   - review_flag
-properties:
-  log_id:
-    type: string
-    description: Unique identifier for the log entry.
-    pattern: "^[a-zA-Z0-9_-]+$"
-  drift_score:
-    type: number
-    minimum: 0.0
-    maximum: 2.0
-    description: Cosine distance to the nearest centroid. Range [0, 2].
-  review_flag:
-    type: boolean
-    description: True if the drift score exceeds the threshold or if the log is empty.
-  centroid_id:
-    type: string
-    description: (Optional) ID of the nearest centroid.
-  distance_to_centroid:
-    type: number
-    description: (Optional) Exact distance to the nearest centroid.
+  - closest_category
 additionalProperties: false

@@ -1,15 +1,28 @@
-status: none
-intent: AgentDoG 1.5 safety taxonomy dataset download huggingface python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "from datasets import load_dataset\n\nds_dict = load_dataset(\"AI45Research/ATBench\"\
+  , \"ATBench\")\ntotal_records = sum(len(split) for split in ds_dict.values())\n\
+  print(f\"RECORDS={total_records}\")\nif total_records:\n    sample_record = next(iter(ds_dict.values()))[0]\n\
+  \    fields = list(sample_record.keys())\n    print(\"FIELDS=\" + \",\".join(fields))"
+record_count: 1000
+sample_fields:
+- id
+- tool_used
+- contents
+- label
+- risk_source
+- failure_mode
+- reason
+- real_world_harm
+field_coverage: 0.5
 required_fields:
-- log_id
-- prompt_text
-- response_text
-- agent_name_or_id
-- timestamp
-- category_id
-- category_name
-- category_definition
-- category_example_prompts
-cache_key: 4b9fb00821b2d05967f82d1d92a5bc67cff1e45dfe864ff5e97eb75120aa14a0
-searched_at: '2026-07-16T06:34:14.731422+00:00'
-retry_count: 1
+- prompt
+- adversarial_prompt
+- label
+- risk_category
+- checksum
+- source
+intent: download AgentDoG 1.5 taxonomy dataset HuggingFace ultrachat_200k advbench
+  OWASP Top 10 python package dataset
+cache_key: 6984dcfb622e58db807d82d677c9f63599620abb12b5049b25c3c15e293f8205

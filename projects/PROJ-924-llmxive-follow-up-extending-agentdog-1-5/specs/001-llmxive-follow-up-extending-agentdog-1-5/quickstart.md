@@ -1,80 +1,71 @@
-# Quickstart: llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection
+# Quickstart: Zero-Shot Drift Detection for AgentDoG 1.5
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- `pip` or `poetry`
-- Access to HuggingFace Hub (for model and dataset download)
+-   Python 3.11+
+-   `pip`
+-   Access to Hugging Face (for `datasets` library)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory:
-   ```bash
-   cd projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Dependencies*: `datasets`, `sentence-transformers`, `scikit-learn`, `pandas`, `numpy`, `torch`, `statsmodels`, `openai`, `pytest`.
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` pins `sentence-transformers`, `scikit-learn`, `pandas`, `numpy`, `datasets`, `jsonschema`, and `statsmodels`.*
+3.  **Verify environment**:
+    ```bash
+    python code/config.py --verify
+    # Expected: RANDOM_SEED=42, MAX_RAM_GB=7, BATCH_SIZE=64
+    ```
 
 ## Running the Pipeline
 
-### 1. Generate Taxonomy Centroids
-This step creates the fixed embeddings for the AgentDoG 1.5 safety taxonomy.
-```bash
-python code/taxonomy_builder.py
-```
-*Output*: `data/processed/centroids.npy` and `data/processed/taxonomy_metadata.json`.
+The pipeline consists of three main stages: Data Fetching, Drift Scoring, and Validation.
 
-### 2. Compute Drift Scores
-Process a batch of agent logs and calculate their drift scores.
+### Step 1: Fetch & Prepare Data
+Downloads the `AI45Research/ATBench` dataset and computes taxonomy centroids from the *AgentDoG 1.5* paper.
 ```bash
-python code/main.py --input data/raw/logs.jsonl --output data/processed/drift_scores.csv
+python -m code.data_loader --streaming --output data/raw/atbench.parquet
+python -m code.taxonomy_builder --source "agentdog_1_5_paper" --output data/processed/taxonomy_centroids.json
 ```
-*Output*: `data/processed/drift_scores.csv` containing `log_id`, `drift_score`, `nearest_category_id`.
+*Note*: This step streams the data to avoid memory overflow. The taxonomy is derived from external definitions.
 
-### 3. Prepare Annotator Data (Blinded)
-Generate stratified CSVs for human annotation, ensuring the `drift_score` is removed.
+### Step 2: Compute Drift Scores
+Calculates the drift score for every log entry.
 ```bash
-python code/annotator_interface.py --scores data/processed/drift_scores.csv --output data/processed/blind_annotations.csv
+python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv
 ```
-*Output*: `data/processed/blind_annotations.csv` (columns: `log_id`, `text`, `label` - no score).
+*Output*: `drift_results.csv` containing `log_id`, `drift_score`, `review_flag`.
 
-### 4. Validate Results (Simulation)
-Run the statistical validation against a simulated ground truth (or load real annotations).
+### Step 3: Validate & Compare
+Performs statistical validation and baseline comparison.
 ```bash
-python code/validation.py --scores data/processed/drift_scores.csv --labels data/raw/annotations_gold.csv
-```
-*Output*: Console report with Mann-Whitney U p-value, Odds Ratio, and AUC-ROC.
+# For CI (using Gold-Standard Proxy)
+python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json
 
-### 5. Compare with Baseline (Optional)
-Compare drift scores against a zero-shot LLM classifier (requires API key).
+# For Production (using real human annotations)
+python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/human_annotations.csv --output data/processed/validation_report.json
+```
+*Output*: `validation_report.json` with p-values, Cohen's d, Kappa scores, AUC-ROC, and inference time.
+
+## Verification
+
+Run the test suite to ensure contract compliance:
 ```bash
-python code/comparison.py --scores data/processed/drift_scores.csv --labels data/raw/annotations_gold.csv --api-key $LLM_API_KEY
+pytest tests/ -v
 ```
-
-## Verifying Reproducibility
-
-To ensure the results are reproducible, run the end-to-end test:
-```bash
-pytest tests/integration/test_end_to_end.py -v
-```
-This test verifies that:
-- The same inputs produce the same outputs (deterministic seeds).
-- The Drift Score distribution matches the expected range.
-- Statistical tests return the expected p-values (within tolerance).
-- Contract validation passes (`test_contracts.py`).
 
 ## Troubleshooting
 
-- **Memory Error**: If you encounter OOM errors, reduce the batch size in `config.py` (default: 100).
-- **Dataset Not Found**: Ensure you are logged into HuggingFace (`huggingface-cli login`) if the dataset is gated (though the verified sources here are public).
-- **Model Loading Failure**: The `all-MiniLM-L6-v2` model is cached after the first download. If it fails, check your internet connection.
+-   **Memory Error**: Ensure `--streaming` is used in `data_loader`.
+-   **Missing Taxonomy**: If `taxonomy_centroids.json` is missing, run `taxonomy_builder` first.
+-   **Reproducibility**: Delete `data/` and re-run to verify checksums match.
+-   **Timestamps**: If timestamps are missing in source, they are derived deterministically from `log_id`.
