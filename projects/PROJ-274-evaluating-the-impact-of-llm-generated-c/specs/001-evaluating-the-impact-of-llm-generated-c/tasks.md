@@ -149,13 +149,13 @@ expected alphabetic or numeric character, but found '*'
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T034 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_schema.py`
-- [ ] T035 [P] [US3] Integration test for synthetic data analysis pipeline in `tests/integration/test_synthetic_analysis.py`
+- [X] T035 [P] [US3] Integration test for synthetic data analysis pipeline in `tests/integration/test_synthetic_analysis.py`
 
 ### Implementation for User Story 3
 
 - [ ] T036 [P] [US3] Implement **Pre-specified Welch's ANOVA** (no Levene's gate) to avoid test-then-select bias. Use this as the primary test regardless of variance homogeneity. Output: `data/reports/welch_results.json`. (Replaces T036/T037 decision tree).
 - [ ] T037 [US3] Implement Games-Howell post-hoc tests for Welch's ANOVA to control for family-wise error rate (FR-006). Output: `data/reports/welch_posthoc.json`.
-- [ ] T037c [US3] Implement ANCOVA (Analysis of Covariance) with Repository Complexity (LOC, CC) and Human Doc Quality Score as covariates, as mandated by Plan's "Key Methodological Updates". Output: `data/reports/ancova_results.json`.
+- [ ] T037c [US3] Implement ANCOVA (Analysis of Covariance) with Repository Complexity (LOC, CC) and Human Doc Quality Score as covariates, as mandated by Plan's "Key Methodological Updates". Output: `data/reports/ancova_results.json`. <!-- FAILED: unspecified -->
 - [ ] T039 [US3] Implement **Sensitivity Analysis** for alpha thresholds across a range of standard significance levels. instead of observed power. Explicitly report that N=15-20 is underpowered for medium effects. Output: `data/reports/sensitivity_analysis.json`.
 - [ ] T041 [US3] Generate `data/reports/analysis_results.json` with all metrics and traceability to raw data in `code/analysis.py`.
 - [ ] T042 [US3] Isolate and report specific pairwise comparison against "No Documentation" baseline as primary metric per SC-001 AND include "Human Documentation" condition as a secondary comparison per Plan assumptions in `code/analysis.py`.

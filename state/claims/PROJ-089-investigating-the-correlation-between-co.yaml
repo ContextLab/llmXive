@@ -457,3 +457,106 @@
   source_type: external
   status: verified
   updated_at: '2026-07-10T04:28:58Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Query GitHub API for repositories with more than 500 stars and age greater
+    than 2 years
+  claim_id: c_9d7205c8
+  context: Implementation for User Story 1 - T010
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Query_GitHub_API_for_repositories_with_more_than_500_stars_a
+  kind: magnitude
+  raw_text: 'Implement `data_extraction.py`: Query GitHub API for >500-star repos,
+    filter by age (>2 years) and language'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T12:38:38Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Run Semgrep on Java, JavaScript, TypeScript, Go, and Rust files
+  claim_id: c_a430afab
+  context: Implementation for User Story 1 - T014
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_Semgrep_on_Java,_JavaScript,_TypeScript,_Go,_and_Rust_fi
+  kind: magnitude
+  raw_text: Run `semgrep` (latest stable version) on Java, JS, TS, Go, Rust files
+    to capture Code Smells and CC.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T12:38:55Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Perform sensitivity analysis with average lines of code thresholds of
+    5, 10, and 20
+  claim_id: c_348454d2
+  context: Implementation for User Story 2 - T022
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis re-running the model with `avg_loc` thresholds
+    of 5, 10, 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T12:39:14Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Flag absolute correlation coefficient of 0.3 or greater as moderate
+  claim_id: c_a144d131
+  context: Implementation for User Story 3 - T028
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flag `|r| \u2265 0.3` as 'moderate' for raw metrics"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T12:39:15Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Replace Bonferroni correction with Meta-analysis of Fisher-transformed
+    r coefficients
+  claim_id: c_fb7cab20
+  context: Notes section regarding corrections to the methodology
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace Bonferroni correction with Meta-analysis of Fisher-transformed
+    r coefficients as per Plan Phase 4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T12:40:20Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Replaced SonarQube with Semgrep version 1.30.0 for multi-language static
+    analysis
+  claim_id: c_f92fbee9
+  context: Notes section regarding corrections to tooling
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replaced SonarQube (infeasible on CI) with Semgrep (v1.30.0) for multi-language
+    static analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T12:40:32Z'

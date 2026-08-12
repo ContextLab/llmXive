@@ -1,31 +1,8 @@
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data file, or JSON output was presented. The required artifact\u2014\
-    a JSON file containing the raw help\u2011request logs (timestamp and content)\
-    \ and the computed composite \u201CCognitive Load Proxy\u201D score\u2014is missing,\
-    \ so the task\u2019s functional requirements have not been demonstrated."
-T020:
-  c: false
-  h: 45bd70ea1ce8b28bc9eeb96db911a9b2762652d76fa253f51a55b29734890b52
-  r: "The `data/raw/participant_logs.json` file does not exist, and the checksum\u2011\
-    related code in `code/data_collection.py` is truncated/incomplete (the `update_checksums`\
-    \ function is cut off and never called from the export routine). Both the required\
-    \ export artifact and a functional checksum generation are missing."
-T021c:
-  c: false
-  h: 2e8fecf0aee34a6e0740358c2ac06e4d465d476f553688ba3307ca94026f8ba8
-  r: "The required output file `data/raw/repo_covariates.json` does not exist, and\
-    \ the `code/validation.py` implementation is truncated (e.g., ends with an unfinished\
-    \ `file_` line) and does not contain logic to write the collected metrics to the\
-    \ expected JSON file. Both the artifact and the complete metric\u2011collection\
-    \ functionality are missing."
 T033:
   c: false
-  h: 05058a8755d374db8573c0664423411a276e578c043b85b631ebadd7217a7c5f
+  h: 289f313beb78be44f1e21fd5a2544d332fe2cdba2e0e199e8bb53b39e281a0e4
   r: "The required input file `data/raw/participant_logs.json` does not exist, the\
     \ schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is missing, and\
-    \ no `data/processed/validation_report.json` was produced. Moreover, `code/validation.py`\
-    \ contains code for code\u2011metric analysis, not a JSON\u2011against\u2011YAML\
-    \ schema validator. The task\u2019s core artifacts are absent, so the requirement\
-    \ is not satisfied."
+    \ `code/validation.py` contains unrelated metrics code rather than schema\u2011\
+    validation logic that would produce `data/processed/validation_report.json`, which\
+    \ is also absent. The task\u2019s essential artifacts and behavior are not present."

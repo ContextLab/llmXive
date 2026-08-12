@@ -1,203 +1,205 @@
 import os
 import time
 import logging
+import shutil
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import pandas as pd
 import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
+import json
+from datetime import datetime, timedelta
+import pydriller
 
-# Import local modules
-from config import get_config_summary, ensure_directories
+from config import get_config_summary, ensure_directories, get_env_override
 from utils import get_logger, pin_random_seed
-from parallelism_config import get_max_concurrent_repos
 
-# Setup logging
 logger = get_logger(__name__)
 
-# Thread-local storage for progress tracking
-thread_local = threading.local()
-
-def clone_repository(repo_url: str, dest_path: Path) -> bool:
-    """Clone a repository to the destination path."""
-    import subprocess
+def query_github_repos(min_stars: int = 500, min_age_days: int = 730, language: str = "Python") -> List[Dict[str, Any]]:
+    """
+    Query GitHub API for repositories matching criteria.
+    Returns a list of repo metadata dictionaries.
+    """
+    config = get_config_summary()
+    token = get_env_override("GITHUB_TOKEN", "")
+    headers = {"Authorization": f"token {token}"} if token else {}
+    
+    # Construct search query
+    query = f"language:{language} stars:>{min_stars} pushed:<{datetime.now() - timedelta(days=min_age_days)}"
+    url = "https://api.github.com/search/repositories"
+    params = {"q": query, "sort": "stars", "order": "desc", "per_page": 100}
+    
+    repos = []
     try:
-        if dest_path.exists():
-            logger.debug(f"Repository already exists at {dest_path}, skipping clone.")
-            return True
-        
-        dest_path.mkdir(parents=True, exist_ok=True)
-        subprocess.run(
-            ["git", "clone", "--depth", "1", repo_url, str(dest_path)],
-            check=True,
-            capture_output=True,
-            timeout=300
-        )
+        response = requests.get(url, headers=headers, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        for item in data.get("items", []):
+            repos.append({
+                "repo_id": item["id"],
+                "full_name": item["full_name"],
+                "name": item["name"],
+                "stargazers_count": item["stargazers_count"],
+                "language": item.get("language"),
+                "created_at": item["created_at"],
+                "updated_at": item["updated_at"],
+                "description": item.get("description", ""),
+                "clone_url": item["clone_url"],
+                "default_branch": item["default_branch"]
+            })
+        logger.info(f"Found {len(repos)} repositories matching criteria.")
+    except Exception as e:
+        logger.error(f"Failed to query GitHub API: {e}")
+        raise
+    return repos
+
+def clone_repository(repo_url: str, dest_path: Path, branch: str = "main") -> bool:
+    """
+    Clone a repository to dest_path. Returns True on success.
+    """
+    if dest_path.exists():
+        shutil.rmtree(dest_path)
+    dest_path.mkdir(parents=True, exist_ok=True)
+    try:
+        # Use git clone via subprocess or pydriller
+        from git import Repo
+        Repo.clone_from(repo_url, str(dest_path), branch=branch)
+        logger.info(f"Cloned {repo_url} to {dest_path}")
         return True
     except Exception as e:
         logger.error(f"Failed to clone {repo_url}: {e}")
         return False
 
-def extract_git_metrics(repo_path: Path, repo_id: str) -> Optional[Dict[str, Any]]:
-    """Extract git metrics using pydriller for a single repository."""
+def extract_git_metrics(repo_path: Path, lookback_days: int = 730) -> List[Dict[str, Any]]:
+    """
+    Extract per-file commit counts and lines changed in the last N days using pydriller.
+    Returns a list of file-level metrics.
+    """
+    cutoff_date = datetime.now() - timedelta(days=lookback_days)
+    file_metrics: Dict[str, Dict[str, Any]] = {}
+    
     try:
-        from pydriller import RepositoryMining
-        
-        # Limit to last 2 years
-        end_date = None
-        start_date = None
-        # Calculate start date dynamically if needed, or use a fixed offset
-        # For now, we assume pydriller handles relative dates or we pass a specific date
-        # Pydriller date format: 'YYYY-MM-DD'
-        # We'll fetch all commits and filter in memory for simplicity in this snippet
-        # or rely on pydriller's date filtering if available in the version.
-        
-        metrics = {
-            "repo_id": repo_id,
-            "total_commits": 0,
-            "files_changed": set(),
-            "total_lines_added": 0,
-            "total_lines_deleted": 0
-        }
-        
-        # Use threading lock if pydriller isn't thread-safe in this context,
-        # but usually we process one repo per thread.
-        
-        # Example of iterating commits
-        # Note: In a real heavy-load scenario, we might stream this more carefully
-        for commit in RepositoryMining(str(repo_path), 
-                                       from_date="2022-01-01", # Dynamic date logic would go here
-                                       to_date=None).traverse_commits():
-            metrics["total_commits"] += 1
+        repo = pydriller.Repository(str(repo_path))
+        for commit in repo.get_commits_from(cutoff_date):
             for modified_file in commit.modified_files:
-                metrics["files_changed"].add(modified_file.path)
-                metrics["total_lines_added"] += modified_file.added_lines
-                metrics["total_lines_deleted"] += modified_file.removed_lines
-        
-        metrics["files_changed"] = list(metrics["files_changed"])
-        return metrics
+                path = modified_file.filename
+                if not path:
+                    continue
+                if path not in file_metrics:
+                    file_metrics[path] = {"path": path, "commits": 0, "lines_added": 0, "lines_deleted": 0}
+                file_metrics[path]["commits"] += 1
+                file_metrics[path]["lines_added"] += modified_file.added
+                file_metrics[path]["lines_deleted"] += modified_file.removed
     except Exception as e:
-        logger.error(f"Error extracting git metrics for {repo_path}: {e}")
-        return None
-
-def aggregate_file_metrics(repo_metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Aggregate metrics down to file level (simplified for this task)."""
-    # In the full implementation, this would map commits to specific files
-    # and calculate lines changed per file.
-    # Here we return a placeholder structure that matches the expected schema
-    # until the full extraction logic is wired.
-    return []
-
-def save_repos_metadata(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save repository metadata to CSV."""
-    import pandas as pd
-    df = pd.DataFrame(data)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved metadata to {output_path}")
-
-def query_github_repos(min_stars: int = 500, languages: Optional[List[str]] = None, max_repos: int = 10) -> List[Dict[str, Any]]:
-    """Query GitHub API for repositories."""
-    # Simplified query logic
-    url = "https://api.github.com/search/repositories"
-    params = {
-        "q": f"stars:>{min_stars}",
-        "sort": "stars",
-        "order": "desc",
-        "per_page": max_repos
-    }
-    if languages:
-        params["q"] += f" language:{languages[0]}" # Simplified: just first language
-
-    headers = {"Accept": "application/vnd.github.v3+json"}
-    try:
-        resp = requests.get(url, params=params, headers=headers, timeout=30)
-        resp.raise_for_status()
-        data = resp.json()
-        return data.get("items", [])
-    except Exception as e:
-        logger.error(f"GitHub API query failed: {e}")
+        logger.error(f"Error extracting git metrics from {repo_path}: {e}")
         return []
+    
+    return list(file_metrics.values())
 
-def process_single_repo(repo_data: Dict[str, Any], base_dir: Path) -> Optional[Dict[str, Any]]:
-    """Process a single repository: clone, extract metrics, aggregate."""
-    repo_name = repo_data["name"]
-    repo_id = str(repo_data["id"])
-    repo_url = repo_data["html_url"]
-    clone_path = base_dir / repo_name
-
-    logger.info(f"Processing repo: {repo_name} (ID: {repo_id})")
+def aggregate_file_metrics(file_metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Aggregate file metrics into summary stats (total lines changed, avg loc, etc).
+    """
+    if not file_metrics:
+        return {"total_lines_changed": 0, "avg_loc": 0.0, "contributor_count": 0}
     
-    if not clone_repository(repo_url, clone_path):
-        return None
-    
-    metrics = extract_git_metrics(clone_path, repo_id)
-    if not metrics:
-        return None
-    
-    # In a full implementation, we would also run static analysis here
-    # and combine the results.
+    total_changed = sum(m["lines_added"] + m["lines_deleted"] for m in file_metrics)
+    # Note: avg_loc is a covariate, but here we just compute a placeholder or placeholder logic
+    # In a real pipeline, avg_loc would come from static analysis (T014) or file size.
+    # For T012, we just ensure the structure exists; actual values come from T014/T015.
     return {
-        "repo_id": metrics["repo_id"],
-        "name": repo_name,
-        "stars": repo_data.get("stargazers_count", 0),
-        "total_commits": metrics["total_commits"],
-        "total_lines_changed": metrics["total_lines_added"] + metrics["total_lines_deleted"]
+        "total_lines_changed": total_changed,
+        "avg_loc": 0.0,  # Placeholder, to be filled by static analysis
+        "contributor_count": len(set(m.get("path", "") for m in file_metrics))
     }
 
-def run_data_extraction(output_dir: Path, max_repos: int = 5) -> List[Dict[str, Any]]:
+def save_repos_metadata(repos: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Run data extraction with constrained parallelism.
-    
-    This function respects the concurrency limits defined in parallelism_config
-    to ensure stable execution.
+    Save repository metadata to a CSV file.
     """
-    ensure_directories(output_dir)
-    base_clone_dir = output_dir / "clones"
-    base_clone_dir.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Querying GitHub for repos (max {max_repos})...")
-    repos = query_github_repos(max_repos=max_repos)
     if not repos:
-        logger.warning("No repositories found.")
-        return []
+        logger.warning("No repositories to save.")
+        return
+    
+    df = pd.DataFrame(repos)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
+
+def process_single_repo(repo: Dict[str, Any], work_dir: Path, lookback_days: int = 730) -> Optional[Dict[str, Any]]:
+    """
+    Process a single repository: clone, extract metrics, and return metadata.
+    """
+    repo_name = repo["full_name"].replace("/", "_")
+    repo_path = work_dir / repo_name
+    
+    if not clone_repository(repo["clone_url"], repo_path):
+        return None
+    
+    file_metrics = extract_git_metrics(repo_path, lookback_days)
+    if not file_metrics:
+        shutil.rmtree(repo_path)
+        return None
+    
+    aggregated = aggregate_file_metrics(file_metrics)
+    result = {
+        "repo_id": repo["repo_id"],
+        "full_name": repo["full_name"],
+        "stargazers_count": repo["stargazers_count"],
+        "language": repo["language"],
+        "total_lines_changed": aggregated["total_lines_changed"],
+        "avg_loc": aggregated["avg_loc"],
+        "contributor_count": aggregated["contributor_count"],
+        "extraction_date": datetime.now().isoformat()
+    }
+    
+    # Cleanup
+    shutil.rmtree(repo_path)
+    return result
+
+def run_data_extraction(min_stars: int = 500, min_age_days: int = 730, language: str = "Python", output_path: Optional[Path] = None) -> Path:
+    """
+    Main entry point for data extraction: query, clone, extract, and save metadata.
+    """
+    config = get_config_summary()
+    work_dir = Path(config["work_dir"]) / "cloned_repos"
+    work_dir.mkdir(parents=True, exist_ok=True)
+    
+    if output_path is None:
+        output_path = Path(config["data_raw_dir"]) / "repos_metadata.csv"
+    
+    ensure_directories([output_path.parent])
+    
+    repos = query_github_repos(min_stars=min_stars, min_age_days=min_age_days, language=language)
+    if not repos:
+        logger.warning("No repositories found. Creating empty metadata file.")
+        pd.DataFrame(columns=["repo_id", "full_name", "stargazers_count", "language", "total_lines_changed", "avg_loc", "contributor_count", "extraction_date"]).to_csv(output_path, index=False)
+        return output_path
     
     results = []
-    max_workers = get_max_concurrent_repos()
-    logger.info(f"Starting parallel extraction with max {max_workers} concurrent workers.")
+    for repo in repos:
+        result = process_single_repo(repo, work_dir)
+        if result:
+            results.append(result)
     
-    # Use ThreadPoolExecutor to limit concurrency
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_repo = {
-            executor.submit(process_single_repo, repo, base_clone_dir): repo 
-            for repo in repos
-        }
-        
-        for future in as_completed(future_to_repo):
-            repo = future_to_repo[future]
-            try:
-                result = future.result()
-                if result:
-                    results.append(result)
-                    logger.info(f"Completed: {repo['name']}")
-                else:
-                    logger.warning(f"Failed to process: {repo['name']}")
-            except Exception as e:
-                logger.error(f"Error processing {repo['name']}: {e}")
-    
-    return results
+    save_repos_metadata(results, output_path)
+    return output_path
 
-def run_data_extraction_wrapper() -> None:
-    """Wrapper to run extraction and save results."""
-    from config import get_config_summary
+def run_data_extraction_wrapper() -> Path:
+    """
+    Wrapper for main pipeline integration.
+    """
     config = get_config_summary()
-    output_dir = Path(config["paths"]["data_processed"]) # Or data_raw as appropriate
-    
-    results = run_data_extraction(output_dir)
-    save_repos_metadata(results, output_dir / "repos_metadata.csv")
+    return run_data_extraction(
+        min_stars=config.get("min_stars", 500),
+        min_age_days=config.get("min_repo_age_days", 730),
+        language=config.get("target_language", "Python"),
+        output_path=Path(config["data_raw_dir"]) / "repos_metadata.csv"
+    )
 
 def main():
     pin_random_seed(42)
-    run_data_extraction_wrapper()
+    output_path = run_data_extraction_wrapper()
+    logger.info(f"Data extraction complete. Output: {output_path}")
 
 if __name__ == "__main__":
     main()

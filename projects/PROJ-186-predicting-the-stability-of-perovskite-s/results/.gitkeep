@@ -1,2 +1,2 @@
-# This directory contains model artifacts, metrics, and screening reports.
-# Keep this file to ensure the directory is tracked by git.
+# This directory holds model artifacts, metrics, and screening results.
+# Do not commit large binary files; use .gitignore for patterns like *.pkl, *.json, *.png.

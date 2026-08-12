@@ -1,0 +1,550 @@
+{
+  "fetched_at": "2026-08-12T12:55:35Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations",
+      "target_n": 5
+    },
+    "duration_seconds": 45.847,
+    "ended_at": "2026-08-12T12:55:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Graph neural networks for molecular property prediction"
+        ],
+        [
+          2,
+          "Machine learning prediction of refractive index in organic compounds"
+        ],
+        [
+          3,
+          "Molecular graph representations for optical property estimation"
+        ],
+        [
+          4,
+          "Deep learning models for refractive index calculation"
+        ],
+        [
+          5,
+          "QSAR models for refractive index using molecular graphs"
+        ],
+        [
+          6,
+          "Graph-based regression for optical constants"
+        ],
+        [
+          7,
+          "Atomic contribution methods for refractive index prediction"
+        ],
+        [
+          8,
+          "Molecular descriptor-based refractive index estimation"
+        ],
+        [
+          9,
+          "End-to-end learning of optical properties from molecular structure"
+        ],
+        [
+          10,
+          "Graph convolutional networks for physical property prediction"
+        ],
+        [
+          11,
+          "Data-driven prediction of molar refraction"
+        ],
+        [
+          12,
+          "Structure-property relationships for refractive index"
+        ],
+        [
+          13,
+          "Message passing neural networks for molecular optical properties"
+        ],
+        [
+          14,
+          "Computational estimation of refractive index from SMILES or graphs"
+        ],
+        [
+          15,
+          "Graph attention networks for predicting refractive indices"
+        ],
+        [
+          16,
+          "Molecular fingerprint approaches to refractive index modeling"
+        ],
+        [
+          17,
+          "In silico prediction of optical refractive index"
+        ],
+        [
+          18,
+          "Topological indices for refractive index correlation"
+        ],
+        [
+          19,
+          "Transfer learning for molecular optical property prediction"
+        ],
+        [
+          20,
+          "Automated refractive index estimation using graph algorithms"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Graph neural networks for molecular property prediction": 5,
+        "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations chemistry": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "molar refractivity polarizability quantum chemistry",
+      "QM9 dataset refractive index graph neural network",
+      "molecular polarizability graph topology homophily",
+      "dielectric constant prediction molecular property regression",
+      "density functional theory refractive index benchmark"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.08900"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations chemistry": 3,
+      "QM9 dataset refractive index graph neural network": 3,
+      "density functional theory refractive index benchmark": 3,
+      "dielectric constant prediction molecular property regression": 2,
+      "molar refractivity polarizability quantum chemistry": 3,
+      "molecular polarizability graph topology homophily": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2212.06370",
+          "rationale": "The paper proposes a general method for generating prediction intervals in regression tasks and validates it on synthetic, benchmark, and crop yield datasets, but it does not address the specific domain of molecular refractive indices or utilize graph-based molecular representations. While it touches on the general mechanism of uncertainty quantification (category a), it fails to meet the criteria for inclusion because it lacks any connection to the specific empirical population (molecules) or t",
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper proposes a novel neural network architecture based on polynomial chaos theory for general mathematical computing and stochastic analysis, but it does not measure molecular refractive indices, utilize graph-based molecular representations, or address the specific domain of molecular property prediction. It fails to meet the criteria for same-mechanism evidence, domain-specific variable measurement, or foundational methodology for the specific task of predicting molecular properties from",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper proposes a general machine learning method for feature selection and interpretability using RBF neural networks on generic tabular data, but it does not study molecular refractive indices, graph-based molecular representations, or the specific domain of computational chemistry required by the user's question. It fails to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for molecular property prediction, as it lacks any connection to ",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "The paper proposes a general heterogeneous graph neural network architecture (MECCH) for node classification and link prediction on generic datasets, but it does not measure molecular refractive indices, apply the method to molecular graphs, or establish a baseline for this specific chemical property prediction task. While it uses graph-based representations, it lacks the specific domain application (chemistry) and target variable (refractive index) required by criteria (a), (b), or (e), and it ",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-12T12:54:49Z",
+    "term_input": {
+      "normalized": "predicting molecular refractive indices from graph-based molecular representations chemistry",
+      "raw": "Predicting Molecular Refractive Indices from Graph-Based Molecular Representations chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We classify research fields in biology into those on flows of materials, energy, and information. As a representative energy transducing machinery in biology, our research target, V1-ATPase from a bacterium Enterococcus hirae, a typical molecular rotary motor is introduced. Structures of several intermediates of the rotary motor are described and the molecular mechanism of the motor converting chemical energy into mechanical energy is discussed. Comments and considerations on the information flow in biology, especially on the thermodynamic entropy in quantum physical and biological systems, are added in a separate section containing the biologist friendly presentation of this complicated question.",
+          "claimed_authors": [
+            "Ichiro Yamato",
+            "Takeshi Murata",
+            "Andrei Khrennikov"
+          ],
+          "claimed_title": "Energy flow in biological system: Bioenergy transduction of V1-ATPase molecular rotary motor from E. hirae",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.09868"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Energy flow in biological system: Bioenergy transduction of V1-ATPase molecular rotary motor from E. hirae')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A review of the mechanisms of speciation is performed. The mechanisms of the evolution of species, taking into account the feedback of the state of the environment and mechanisms of the emergence of complexity, are considered. It is shown that these mechanisms, at the molecular level, cannot work steadily in terms of classical mechanics. Quantum mechanisms of changes in the genome, based on the long-range interaction potential between biologically important molecules, are proposed as one of possible explanation. Different variants of interactions of the organism and environment based on molecular recognition and leading to new species origins are considered. Experiments to verify the model are proposed. This bio-physical study is completed by the general operational model of based on quantum information theory. The latter is applied to model epigenetic evolution.",
+          "claimed_authors": [
+            "Alexey V. Melkikh",
+            "Alexey V. Melkikh",
+            "Andrei Khrennikov"
+          ],
+          "claimed_title": "Molecular recognition of the environment and mechanisms of the origin of species in quantum-like modeling of evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.09863"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Molecular recognition of the environment and mechanisms of the origin of species in quantum-like modeling of evolution')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Utilizing quantum computer to investigate quantum chemistry is an important research field nowadays. In addition to the ground-state problems that have been widely studied, the determination of excited-states plays a crucial role in the prediction and modeling of chemical reactions and other physical processes. Here, we propose a non-variational full circuit-based quantum algorithm for obtaining the excited-state spectrum of a quantum chemistry Hamiltonian. Compared with previous classical-quantum hybrid variational algorithms, our method eliminates the classical optimization process, reduces the resource cost caused by the interaction between different systems, and achieves faster convergence rate and stronger robustness against noise without barren plateau. The parameter updating for determining the next energy-level is naturally dependent on the energy measurement outputs of the previous energy-level and can be realized by only modifying the state preparation process of ancillary system, introducing little additional resource overhead. Numerical simulations of the algorithm with hydrogen, LiH, H2O and NH3 molecules are presented. Furthermore, we offer an experimental demonstration of the algorithm on a superconducting quantum computing platform, and the results show a good agreement with theoretical expectations. The algorithm can be widely applied to various Hamiltonian spectrum determination problems on the fault-tolerant quantum computers.",
+          "claimed_authors": [
+            "Jingwei Wen",
+            "Zhengan Wang",
+            "Chitong Chen",
+            "Junxiang Xiao",
+            "Hang Li",
+            "Ling Qian",
+            "Zhiguo Huang",
+            "Heng Fan",
+            "Shijie Wei",
+            "Guilu Long"
+          ],
+          "claimed_title": "A full circuit-based quantum algorithm for excited-states in quantum chemistry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.14193"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='A full circuit-based quantum algorithm for excited-states in quantum chemistry')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We demonstrate reduction of the dc polarizability of Cesium atom Rydberg states in a 77 K environment utilizing microwave field dressing. In particular we reduce the polarizability of $52P_{3/2}$ states which have resonances at 5.35 GHz to $51D_{5/2}$, suitable for interfacing Rydberg atoms to superconducting resonators in a cryogenic environment. We measure the polarizability of the Rydberg states using Magneto-Optical-Trap (MOT) loss spectroscopy. Using an off-resonant radio-frequency (RF) dressing field coupling $52P_{3/2}$ and $51D_{5/2}$ we demonstrate a reduction in dc polarizability of the $ 52P_{3/2}$ states over 80$\\%$. Experimental findings are in good agreement with a numerical model of the atom-dressing field system developed using the Shirley-Floquet formalism. We also demonstrate that the dc polarizability reduction is highly anisotropic, with near total nulling possible when the dc and dressing fields are aligned, but only a factor of two reduction in polarizability when the fields are orthogonal. These results may aid in stabilizing Rydberg resonances against varying dc fields present near surfaces, enabling advancement in the development of hybrid Rydberg atom - superconducting resonator quantum gates.",
+          "claimed_authors": [
+            "J. C. Bohorquez",
+            "R. Chinnarasu",
+            "J. Isaacs",
+            "D. Booth",
+            "M. Beck",
+            "R. McDermott",
+            "M. Saffman"
+          ],
+          "claimed_title": "Reducing Rydberg state dc polarizability by microwave dressing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.15200"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Reducing Rydberg state dc polarizability by microwave dressing')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
+          "claimed_authors": [
+            " Tianyan Quantum Group"
+          ],
+          "claimed_title": "Tianyan: Cloud services with quantum advantage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10504"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Tianyan: Cloud services with quantum advantage')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning powerful data embeddings has become a center piece in machine learning, especially in natural language processing and computer vision domains. The crux of these embeddings is that they are pretrained on huge corpus of data in a unsupervised fashion, sometimes aided with transfer learning. However currently in the graph learning domain, embeddings learned through existing graph neural networks (GNNs) are task dependent and thus cannot be shared across different datasets. In this paper, we present a first powerful and theoretically guaranteed graph neural network that is designed to learn task-independent graph embeddings, thereafter referred to as deep universal graph embedding (DUGNN). Our DUGNN model incorporates a novel graph neural network (as a universal graph encoder) and leverages rich Graph Kernels (as a multi-task graph decoder) for both unsupervised learning and (task-specific) adaptive supervised learning. By learning task-independent graph embeddings across diverse datasets, DUGNN also reaps the benefits of transfer learning. Through extensive experiments and ablation studies, we show that the proposed DUGNN model consistently outperforms both the existing state-of-art GNN models and Graph Kernels by an increased accuracy of 3% - 8% on graph classification benchmark datasets.",
+          "claimed_authors": [
+            "Saurabh Verma",
+            "Zhi-Li Zhang"
+          ],
+          "claimed_title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10086"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
+          "claimed_authors": [
+            "Ameneh Babaee",
+            "Behrooz Mashayekhy",
+            "Hanieh Mirebrahimi"
+          ],
+          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Currently, the study of systems confined within various materials, such as graphene and graphene oxide, for diverse applications such as water desalination, metal separation from water, battery cells, and high-efficiency capacitors, is very common. Among these systems, water is a prominent subject of investigation. Understanding the impact of the number of molecules and the optimal cutoff radius is essential in order to determine the parameters. This study investigates the dielectric properties of H2O in relation to both the number of molecules and the cutoff radius within the simulation cell. We employ the flexible water model FBA/$ε$, known for its improved accuracy in reproducing water properties across various thermodynamic states. We range from 60 to 1372 molecules and use cutoff radius from 6 nm to 1.2 nm, encompassing a wide range of calculations to assess their impact on the simulation results, including critical properties like the dielectric constant, density, and phase change enthalpy.",
+          "claimed_authors": [
+            "Raúl Fuentes-Azcatl"
+          ],
+          "claimed_title": "Dielectric Properties of Water: A Molecular Dynamics Study on the Effects of Molecule Count and Cutoff Radius",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.14729"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Dielectric Properties of Water: A Molecular Dynamics Study on the Effects of Molecule Count and Cutoff Radius')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have used a stringy model of quantum space-time foam to suggest that the vacuum may exhibit a non-trivial refractive index depending linearly on gamma-ray energy: eta -1 ~ E_gamma/M_QG1, where M_QG1 is some mass scale typical of quantum gravity that may be ~ 10^18 GeV: see Phys. Lett. B 665, 412 (2008) and references therein. The MAGIC, HESS and Fermi gamma-ray telescopes have recently probed the possible existence of such an energy-dependent vacuum refractive index. All find indications of time-lags for higher-energy photons, but cannot exclude the possibility that they are due to intrinsic delays at the sources. However, the MAGIC and HESS observations of time-lags in emissions from AGNs Mkn 501 and PKS 2155-304 are compatible with each other and a refractive index depending linearly on the gamma-ray energy, with M_QG1 ~ 10^18 GeV. We combine their results to estimate the time-lag Delta t to be expected for the highest-energy photon from GRB 080916c measured by the Fermi telescope, which has an energy ~ 13.2 GeV, assuming the redshift z = 4.2 \\pm 0.3 measured by GROND. In the case of a refractive index depending linearly on the gamma-ray energy we predict Delta t = 25 \\pm 11 s. This is compatible with the time-lag Delta t <= 16.5 s reported by the Fermi Collaboration, whereas the time-lag would be negligible in the case of a refractive index depending quadratically on the gamma-ray energy. We suggest a strategy for future observations that could distinguish between a quantum-gravitational effect and other interpretations of the time-lags observed by the MAGIC, HESS and Fermi gamma-ray telescopes.",
+          "claimed_authors": [
+            "John Ellis",
+            "N. E. Mavromatos",
+            "D. V. Nanopoulos"
+          ],
+          "claimed_title": "Probing a Possible Vacuum Refractive Index with Gamma-Ray Telescopes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.4052"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Probing a Possible Vacuum Refractive Index with Gamma-Ray Telescopes')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fundamentals of energy density functional in nuclear physics are presented. Much attention is paid to a mathematically rigorous treatment of deriving the energy density functional. The specific features of the density functional used in studying many-nucleon systems, which is quite different from that used in many-electron systems, are also shown. The intended audience are physicists, chemists and mathematicians. In particular those who will start to study the density functional theory are intended.",
+          "claimed_authors": [
+            "Yoritaka Iwata",
+            "Joachim A. Maruhn"
+          ],
+          "claimed_title": "Energy density functional in nuclear physics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.2355"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='Energy density functional in nuclear physics')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a comprehensive review of the strong-interaction limit of density functional theory. It covers the derivation of the limiting strictly correlated electrons (SCE) functional from exact Hohenberg-Kohn DFT, basic aspects of SCE physics such as the nonlocal dependence of the SCE potential on the density, equivalent formulations and the mathematical interpretation as optimal transport with Coulomb cost, rigorous results (including exactly soluble cases), approximations, numerical methods, integration into Kohn-Sham DFT (KS SCE), and applications to molecular systems, an example being that KS SCE, unlike the local density approximation or generalized gradient approximations, dissociates H$_2$ correctly. We have made an effort to make this review accessible to a broad audience of physicists, chemists, and mathematicians.",
+          "claimed_authors": [
+            "Gero Friesecke",
+            "Augusto Gerolin",
+            "Paola Gori-Giorgi"
+          ],
+          "claimed_title": "The strong-interaction limit of density functional theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09760"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Molecular Refractive Indices from Graph-Based Molecular Representatio', candidate_title='The strong-interaction limit of density functional theory')",
+        "failed_at": "2026-08-12T12:55:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "title": "Few-shot Molecular Property Prediction: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.08900",
+        "summary": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.08900",
+          "http_status": 200,
+          "pdf_sample_score": 0.3622,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-12T12:55:23Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular refractive indices from graph-based molecular representations chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

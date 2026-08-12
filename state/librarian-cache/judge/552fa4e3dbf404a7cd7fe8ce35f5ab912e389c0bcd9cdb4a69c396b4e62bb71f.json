@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-08-12T12:55:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular refractive indices from graph-based molecular representations chemistry",
+  "rationale": "The paper proposes a novel neural network architecture based on polynomial chaos theory for general mathematical computing and stochastic analysis, but it does not measure molecular refractive indices, utilize graph-based molecular representations, or address the specific domain of molecular property prediction. It fails to meet the criteria for same-mechanism evidence, domain-specific variable measurement, or foundational methodology for the specific task of predicting molecular properties from",
+  "relevant": false
+}

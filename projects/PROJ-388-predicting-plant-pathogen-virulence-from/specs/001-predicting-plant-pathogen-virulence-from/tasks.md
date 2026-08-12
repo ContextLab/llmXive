@@ -64,8 +64,8 @@
 
 - [X] T015 [P] [US1] Implement `src/data/download.py`: Fetch *Fusarium graminearum*, *Pseudomonas syringae*, *Xanthomonas* spp. genomes via `biopython` E-utilities with retry logic (FR-001)
 - [X] T016 [P] [US1] Implement `src/data/download.py`: Retrieve phenotypic disease severity scores from PHI-base or literature tables; implement species-level aggregation fallback (FR-001, FR-009)
-- [ ] T017 [P] [US1] Implement `src/data/extract.py`: Run `hmmsearch` against PHI-base/Pfam libraries to generate binary virulence gene presence/absence matrix (FR-002)
-- [ ] T018 [P] [US1] Implement `src/data/extract.py`: Count transcription factor binding sites using Position Weight Matrices (PWMs) (FR-002)
+- [X] T017 [P] [US1] Implement `src/data/extract.py`: Run `hmmsearch` against PHI-base/Pfam libraries to generate binary virulence gene presence/absence matrix (FR-002)
+- [X] T018 [P] [US1] Implement `src/data/extract.py`: Count transcription factor binding sites using Position Weight Matrices (PWMs) (FR-002)
 - [ ] T019 [US1] Implement `src/data/merge.py`: Align genomic features with phenotypic scores by isolate/species ID; handle missing phenotypes by dropping rows and logging counts (FR-006)
 - [ ] T020 [US1] Implement fallback logic in `src/data/merge.py`: If <50% isolate linkage, aggregate by species and flag analysis type (FR-009)
 - [ ] T021 [US1] Implement `src/data/merge.py`: Output final analysis-ready dataset (CSV/Parquet) to `data/processed/merged_dataset.parquet` and summary report (processed count, missing count) (FR-001, FR-006)

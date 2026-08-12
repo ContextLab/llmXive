@@ -37,3 +37,45 @@ T018:
     VIF calculation for `project_age`, `language`, `contributor_count`, or conditional
     Ridge regression is provided. The required artifact is missing, so the task is
     not satisfied.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis.py` file (or any code) implementing the specified mixed\u2011effects\
+    \ regression (`debt_score ~ total_lines_changed + avg_loc + covariates + (1|repo_id)`)\
+    \ was presented. The required artifact is missing, so the task is not satisfied."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `analysis.py` file or any code implementing the required Pearson and Spearman
+    partial correlation calculations is provided; the evidence contains no artifact
+    to verify that the raw `total_lines_changed` vs `debt_score` correlation controlling
+    for `avg_loc` has been computed. The task therefore remains unfulfilled.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis.py` file or any code implementing the required meta\u2011analysis\
+    \ of Fisher\u2011transformed r coefficients is present. The artifact is missing\
+    \ entirely, so the task\u2019s core requirement (performing the meta\u2011analysis\
+    \ and controlling family\u2011wise error rate) is not satisfied."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis.py` (or any script) was provided, nor any output showing the model\
+    \ re\u2011run with `avg_loc` thresholds of 5,\u202F10,\u202F20 on the T015 datasets.\
+    \ Without the actual code or results, the sensitivity\u2011analysis requirement\
+    \ is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `visualization.py` file or any code, plot image, or related artifact was\
+    \ presented. Without the script that actually generates the required scatter plots\
+    \ (total_lines_changed vs. debt_score) with regression lines per repository, the\
+    \ task is not satisfied. The implementer must supply a non\u2011empty `visualization.py`\
+    \ implementing this functionality and, ideally, example output files."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `visualization.py` file containing code to annotate plots with the correlation\
+    \ coefficient and p\u2011value was provided, and the expected output directory\
+    \ `data/results/plots/` does not contain any generated plot files. The required\
+    \ artifact and its saved results are missing."

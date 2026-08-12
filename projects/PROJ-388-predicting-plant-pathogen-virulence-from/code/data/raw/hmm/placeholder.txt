@@ -1,0 +1,6 @@
+This directory is for HMM databases (e.g., Pfam-A.hmm, PHI-base.hmm).
+Please download the appropriate HMM file and place it here.
+Example:
+- Pfam-A.hmm (from http://pfam.xfam.org/)
+- PHI-base.hmm (from https://www.phi-base.org/)
+After downloading, update code/src/data/extract.py if the filename differs from defaults.

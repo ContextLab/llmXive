@@ -136,7 +136,7 @@
 - [ ] T034 [US3] Implement `code/models/predict.py` to generate combinatorial library using A={K, Rb, Cs, Ba, Sr}, B={Ti, Zr, Hf, Sn, Ge}, X={F, Cl, Br, I}. Note: Explicitly adhering to plan.md Phase 3 and Constitution Principle VII (5-element A-site) to ensure generation of >= 200 feasible candidates, overriding the narrower spec.md FR-004 list. Output format: save to `data/processed/hypothetical_library.csv`.
 - [X] T035 [US3] Implement geometric feasibility filter in `code/models/predict.py` (0.8 ≤ $t$ ≤ 1.1).
 - [X] T036 [US3] Implement OOD check in `code/models/predict.py`: Perform range check against training min/max for descriptors. Output: Log warning and add `is_ood` column to output CSV.
-- [ ] T037 [US3] Implement prediction logic using `results/model.pkl` to calculate predicted decomposition energy for all feasible candidates.
+- [ ] T037 [US3] Implement prediction logic using `results/model.pkl` to calculate predicted decomposition energy for all feasible candidates. <!-- FAILED: unspecified -->
 - [ ] T038 [US3] Implement ranking logic to sort candidates by predicted energy (ascending).
 - [ ] T039 [US3] Implement threshold flagging for candidates with predicted energy below a defined thermodynamic threshold.
 - [ ] T040 [US3] Save full ranked list to `results/screening_full.csv`. Validation: Ensure the list contains at least 200 feasible candidates as required by the plan. <!-- FAILED: unspecified -->
@@ -153,10 +153,10 @@ The research question, method, and references remain unchanged.
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T042 [P] Verify total pipeline runtime ≤ 6 hours: Run full pipeline with `time` command and parse output to confirm duration
-- [~] T043 [P] Verify memory usage ≤ 7 GB: Run pipeline with `memory_profiler` and assert max RSS < 7GB
-- [~] T044 [P] Add content hashes to all artifacts in `results/` and `data/`
-- [~] T045 [P] Verify DFT functional (PBE) is explicitly stated in model metadata (optional but recommended)
-- [~] T046 [P] Run `quickstart.md` validation to ensure reproducible execution
+- [ ] T043 [P] Verify memory usage ≤ 7 GB: Run pipeline with `memory_profiler` and assert max RSS < 7GB
+- [ ] T044 [P] Add content hashes to all artifacts in `results/` and `data/`
+- [ ] T045 [P] Verify DFT functional (PBE) is explicitly stated in model metadata (optional but recommended)
+- [ ] T046 [P] Run `quickstart.md` validation to ensure reproducible execution
 - [X] T047 [P] Update `docs/README.md` with pipeline execution instructions
 
 ---

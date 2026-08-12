@@ -1,0 +1,35 @@
+{
+  "output_file": "data/processed/merged_dataset.parquet",
+  "total_rows": 15,
+  "is_aggregated": false,
+  "columns": [
+    "strain_id",
+    "species",
+    "phenotype_score",
+    "virulence_gene_1",
+    "virulence_gene_2",
+    "pwm_binding_site_1"
+  ],
+  "column_types": {
+    "strain_id": "object",
+    "species": "object",
+    "phenotype_score": "float64",
+    "virulence_gene_1": "int64",
+    "virulence_gene_2": "int64",
+    "pwm_binding_site_1": "int64"
+  },
+  "missing_counts": {
+    "strain_id": 0,
+    "species": 0,
+    "phenotype_score": 0,
+    "virulence_gene_1": 0,
+    "virulence_gene_2": 0,
+    "pwm_binding_site_1": 0
+  },
+  "phenotype_stats": {
+    "mean": 0.75,
+    "std": 0.12,
+    "min": 0.5,
+    "max": 0.95
+  }
+}

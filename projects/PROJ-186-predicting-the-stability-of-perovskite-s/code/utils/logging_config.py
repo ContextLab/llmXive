@@ -9,74 +9,96 @@ from typing import Optional
 LOG_DIR = Path("logs")
 LOG_DIR.mkdir(exist_ok=True)
 
-LOG_FILE_PATH = LOG_DIR / "pipeline.log"
-EXCLUSION_LOG_FILE_PATH = LOG_DIR / "exclusions.log"
+LOG_FILE = LOG_DIR / "pipeline.log"
 
-# Create a custom formatter that includes timestamp, level, and message
 class PipelineFormatter(logging.Formatter):
+    """Custom formatter for pipeline logs with timestamp and level."""
     def format(self, record):
-        # Add custom fields if they exist
+        # Add specific context for exclusion reasons if present
         if hasattr(record, 'exclusion_reason'):
             record.msg = f"[EXCLUSION] {record.exclusion_reason}: {record.msg}"
         return super().format(record)
 
-# Configure the root logger
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-# Clear existing handlers to avoid duplicates in repeated runs
-if logger.handlers:
-    logger.handlers.clear()
-
-# File handler for general pipeline events (Rotating to prevent huge files)
-file_handler = RotatingFileHandler(
-    LOG_FILE_PATH, maxBytes=10*1024*1024, backupCount=5
-)
-file_handler.setLevel(logging.INFO)
-file_format = PipelineFormatter('%(asctime)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(file_format)
-
-# File handler specifically for exclusion reasons (separate file for easier auditing)
-exclusion_handler = RotatingFileHandler(
-    EXCLUSION_LOG_FILE_PATH, maxBytes=10*1024*1024, backupCount=5
-)
-exclusion_handler.setLevel(logging.WARNING) # Log warnings and above as exclusions
-exclusion_format = PipelineFormatter('%(asctime)s - %(levelname)s - %(message)s')
-exclusion_handler.setFormatter(exclusion_format)
-
-# Console handler for immediate feedback during execution
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-console_format = PipelineFormatter('%(asctime)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(console_format)
-
-logger.addHandler(file_handler)
-logger.addHandler(exclusion_handler)
-logger.addHandler(console_handler)
-
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: str = "pipeline") -> logging.Logger:
     """
-    Returns a named logger that inherits the configured handlers.
+    Get or create a logger configured to write to logs/pipeline.log.
+    
+    Args:
+        name: Logger name (usually __name__)
+        
+    Returns:
+        Configured logger instance
     """
-    return logging.getLogger(name)
+    logger = logging.getLogger(name)
+    
+    # Avoid adding handlers multiple times if called repeatedly
+    if logger.handlers:
+        return logger
+    
+    logger.setLevel(logging.DEBUG)
+    
+    # File handler for persistent logs
+    file_handler = RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=10*1024*1024,  # 10 MB
+        backupCount=5
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(PipelineFormatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    ))
+    
+    # Console handler for immediate feedback
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(PipelineFormatter(
+        '%(levelname)s: %(message)s'
+    ))
+    
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    return logger
 
-def log_pipeline_event(message: str, level: int = logging.INFO):
+def log_exclusion_reason(reason: str, details: Optional[str] = None, logger_name: str = "pipeline"):
     """
-    Logs a general pipeline event to the main log file and console.
+    Log a specific exclusion reason for a data point.
+    
+    Args:
+        reason: The primary reason for exclusion (e.g., 'Missing Ionic Radius')
+        details: Optional additional context
+        logger_name: Name of the logger to use
     """
-    logger.log(level, message)
-
-def log_exclusion_reason(reason: str, details: Optional[str] = None):
-    """
-    Logs a specific exclusion reason to the exclusions.log file and the main log.
-    This is used when data points are filtered out.
-    """
-    log_message = reason
+    logger = get_logger(logger_name)
+    extra = {'exclusion_reason': reason}
     if details:
-        log_message = f"{reason} (Details: {details})"
+        logger.warning(f"{reason}: {details}", extra=extra, exc_info=False)
+    else:
+        logger.warning(reason, extra=extra, exc_info=False)
+
+def log_pipeline_event(event: str, level: int = logging.INFO, logger_name: str = "pipeline"):
+    """
+    Log a general pipeline event.
     
-    # Log to the specific exclusion handler
-    logger.warning(log_message, extra={'exclusion_reason': reason})
-    
-    # Also log to main info log for visibility
-    logger.info(f"Exclusion logged: {reason}")
+    Args:
+        event: Description of the event
+        level: Logging level (default INFO)
+        logger_name: Name of the logger to use
+    """
+    logger = get_logger(logger_name)
+    logger.log(level, event)
+
+# Initialize root logger configuration if needed
+def initialize_logging():
+    """Initialize logging infrastructure."""
+    logger = get_logger()
+    log_pipeline_event("Logging infrastructure initialized", logging.INFO)
+    log_pipeline_event(f"Log file location: {LOG_FILE.absolute()}", logging.INFO)
+
+if __name__ == "__main__":
+    initialize_logging()
+    logger = get_logger()
+    log_pipeline_event("Testing logging infrastructure")
+    log_exclusion_reason("Test Exclusion", "This is a test exclusion reason")
+    log_pipeline_event("Logging test completed", logging.INFO)

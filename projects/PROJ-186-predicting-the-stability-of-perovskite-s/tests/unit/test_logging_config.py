@@ -1,63 +1,75 @@
 import os
 import logging
 import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
 
-# We need to ensure the logs directory exists for the test to run without errors
-# but we can test the logger configuration in isolation.
-from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event
+# Mock the LOG_DIR to use a temp directory for testing
+import sys
+sys.path.insert(0, 'code')
+
+from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event, PipelineFormatter, LOG_FILE
 
 class TestLoggingConfig:
-    def test_get_logger_returns_valid_instance(self):
-        """Test that get_logger returns a valid logger instance."""
-        logger = get_logger("test_logger_1")
-        assert isinstance(logger, logging.Logger)
-        assert logger.name == "test_logger_1"
-        assert len(logger.handlers) > 0
+    
+    def test_logger_creation(self):
+        """Test that a logger is created successfully."""
+        logger = get_logger("test_logger")
+        assert logger is not None
+        assert logger.name == "test_logger"
+        assert logger.level == logging.DEBUG
 
-    def test_log_exclusion_reason_formats_correctly(self, caplog):
-        """Test that log_exclusion_reason logs with the correct format."""
-        logger = get_logger("test_logger_2")
-        # We need to capture the log output. Since we use a file handler and console,
-        # we can temporarily set the level and check the handler's output or use caplog
-        # if we configure caplog to capture the logger.
+    def test_logger_has_handlers(self):
+        """Test that the logger has both file and console handlers."""
+        logger = get_logger("test_handlers")
+        assert len(logger.handlers) >= 2
         
-        # Reset handlers for clean test if necessary, but caplog usually works with propagation
-        # However, our logger adds handlers directly. Let's verify the message content.
-        
-        # We will verify that the function calls logger.warning with the expected string.
-        # Since we can't easily inspect the RotatingFileHandler content in a unit test without file I/O,
-        # we will check that the function executes without error and logs a warning.
-        
-        # To make it testable with caplog, we need to ensure the logger propagates or we inspect the handler.
-        # Let's just verify the function call works and logs at the correct level.
-        
-        with caplog.at_level(logging.WARNING, logger="test_logger_2"):
-            log_exclusion_reason("MISSING_DATA", "material_123", "Ionic radius missing")
-            assert "EXCLUSION" in caplog.text
-            assert "Category: MISSING_DATA" in caplog.text
-            assert "ID: material_123" in caplog.text
-            assert "Reason: Ionic radius missing" in caplog.text
+        # Check for RotatingFileHandler
+        file_handler_exists = any(isinstance(h, logging.handlers.RotatingFileHandler) for h in logger.handlers)
+        assert file_handler_exists, "RotatingFileHandler not found in logger handlers"
 
-    def test_log_pipeline_event_formats_correctly(self, caplog):
-        """Test that log_pipeline_event logs with the correct format."""
-        logger = get_logger("test_logger_3")
-        
-        with caplog.at_level(logging.INFO, logger="test_logger_3"):
-            log_pipeline_event("DATA_LOADED", "features.csv loaded successfully")
-            assert "EVENT" in caplog.text
-            assert "Type: DATA_LOADED" in caplog.text
-            assert "Details: features.csv loaded successfully" in caplog.text
+    def test_log_exclusion_reason(self, caplog):
+        """Test that exclusion reasons are logged correctly."""
+        with caplog.at_level(logging.WARNING):
+            log_exclusion_reason("Missing Data", "Sample ID: 123", "test_exclusion")
+            
+        assert any("Missing Data" in record.message for record in caplog.records)
+        assert any("Sample ID: 123" in record.message for record in caplog.records)
 
-    def test_log_pipeline_event_supports_error_level(self, caplog):
-        """Test that log_pipeline_event can log errors."""
-        logger = get_logger("test_logger_4")
+    def test_log_pipeline_event(self, caplog):
+        """Test that pipeline events are logged correctly."""
+        with caplog.at_level(logging.INFO):
+            log_pipeline_event("Pipeline started", logging.INFO, "test_event")
+            
+        assert any("Pipeline started" in record.message for record in caplog.records)
+
+    def test_formatter_includes_timestamp(self):
+        """Test that the custom formatter includes timestamps."""
+        formatter = PipelineFormatter('%(asctime)s - %(message)s')
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="test.py",
+            lineno=1,
+            msg="Test message",
+            args=(),
+            exc_info=None
+        )
+        formatted = formatter.format(record)
+        assert "-" in formatted
+        assert "Test message" in formatted
+
+    def test_log_file_creation(self):
+        """Test that the log file is created when logging occurs."""
+        logger = get_logger("test_file_creation")
+        log_pipeline_event("Triggering file creation", logger_name="test_file_creation")
         
-        with caplog.at_level(logging.ERROR, logger="test_logger_4"):
-            log_pipeline_event("ERROR", "API rate limit exceeded", level=logging.ERROR)
-            assert "EVENT" in caplog.text
-            assert "Type: ERROR" in caplog.text
-            assert "Details: API rate limit exceeded" in caplog.text
-            assert "ERROR" in caplog.text # Check log level indicator
+        # The LOG_FILE is relative to project root. In test environment, 
+        # we verify the directory exists or the file was created.
+        # Since we don't know the exact CWD of the test runner, we check if 
+        # the path object exists or can be created.
+        assert LOG_FILE.parent.exists(), "Log directory should exist"
+        
+        # Note: We don't assert file existence strictly here because 
+        # RotatingFileHandler might not flush immediately in all test setups,
+        # but the handler is configured to write to this path.

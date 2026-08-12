@@ -1,17 +1,3 @@
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that a `data/` directory and a `results/` directory\
-    \ actually exist in the repository, nor that each contains a `.gitkeep` file.\
-    \ The implementer\u2019s claim cannot be verified without these artifacts. The\
-    \ next implementer should add the two directories and place an empty `.gitkeep`\
-    \ file inside each."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logging configuration file, code snippet, or any other artifact that sets
-    up logging to `logs/pipeline.log` and records exclusion reasons was provided;
-    the claim lacks concrete evidence of the required infrastructure.
 T013:
   c: false
   h: 12b82585031621b37b52d70bcca0cb7329038151644bebe2927ebbfdba117110
@@ -57,12 +43,13 @@ T025:
     \ serialized model) is missing, so the task is not demonstrably completed."
 T034:
   c: false
-  h: 116c9c5a4de2d1247b29dc8bd71c308be2a3bbc9e04182caa6dad7e91e03e7c5
-  r: "The provided `predict.py` only defines a library generator (100 combos) and\
-    \ never writes the DataFrame to `data/processed/hypothetical_library.csv`; the\
-    \ required CSV file is missing. Moreover, the generated library contains only\
-    \ 100 candidates, below the required \u2265200 feasible candidates. The task\u2019\
-    s output and quantity requirements are not satisfied."
+  h: aa4fdd54291bb9bd00e1e2b379607b99fcedd8103fa756f7187715a5d11c56ce
+  r: "The `predict.py` file is only partially shown and contains placeholder logic\
+    \ (e.g., a stub `calculate_tolerance_factor_from_ions` that returns `None` and\
+    \ an unfinished `generate_combinatorial_library` function). Moreover, the required\
+    \ output file `data/processed/hypothetical_library.csv` does not exist. The implementation\
+    \ does not actually generate the \u2265200 candidate library or save it, so the\
+    \ task is not fulfilled."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -89,3 +76,32 @@ T042:
     \ and its duration confirmed to be \u2264\u202F6\u202Fhours. The required evidence\
     \ (e.g., a text file with the measured runtime and a pass/fail indication) is\
     \ missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No memory profiling script, log, or report was supplied; there is no evidence\
+    \ that the pipeline was run with `memory_profiler` nor any assertion that max\
+    \ RSS stayed below 7\u202FGB. The required artifact is missing."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided information contains only the feature specification and user stories;
+    there is no evidence of any files in `results/` or `data/` having added content
+    hash metadata (e.g., hash columns, checksum files, or manifest entries). Without
+    visible artifacts showing hashes, the requirement to add content hashes to all
+    artifacts is not satisfied. The implementer must add and commit hash values for
+    every file in those directories and provide the updated files as proof.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No metadata file or excerpt was provided, and the available project description
+    does not contain any explicit statement that the DFT functional (PBE) is recorded
+    in the model metadata. Without a concrete artifact showing this information, the
+    requirement cannot be verified.
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing that `quickstart.md` was executed or validated is present;
+    there are no logs, output files, or reproducibility reports to confirm the quickstart
+    steps run successfully. The implementer only provided a feature specification,
+    not the required validation evidence.
